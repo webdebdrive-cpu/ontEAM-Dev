@@ -1,0 +1,36 @@
+#autocomplete {
+	height: auto;
+	background-color: #ECF0F6;
+    box-shadow: 0.2rem 0.2rem 0.4rem -0.1rem #aba398;
+	position: absolute;
+	margin-top: 0.3rem;
+	display: none;
+}
+
+#autocomplete ul {
+	border: 0.1rem solid #74A5CA;
+}
+
+#autocomplete ul li {
+    background: #ECF0F6;
+	border-bottom: 0.1rem solid #C0CBDE;
+	cursor: pointer;
+	list-style-type: none;
+	overflow: hidden;
+    padding: 1.0rem;
+}
+
+#autocomplete ul li:last-child {
+	border-bottom: none;
+}
+
+#autocomplete ul li span {
+    cursor: pointer;
+}
+
+#autocomplete ul li.aktiv {
+	background-color: #CDDFED;
+    border-top: 0.1rem solid #74A5CA;
+    border-bottom: 0.1rem solid #C0CBDE;
+    margin: -0.1rem 0 0 0;
+}

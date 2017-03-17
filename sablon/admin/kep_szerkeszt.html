@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Kép szerkesztése</title>
+<meta http-equiv="Content-Type" content="text/html; charset={CHARSET}">
+
+<link rel="stylesheet" href="../css/admin.css" type="text/css">
+<script src="../js/admin.js"></script>
+
+<script src="../js/main.js"></script>
+
+</head>
+<body style="padding: 5px"{ONLOAD}>
+	<form method="post" action="{ACTION}" enctype="multipart/form-data">
+		{HIBAUZI}
+        <p style="text-align: center">{KEP}
+		<br><input type="text" name="megj" style="width: 22rem" value="{MEGJ}" onfocus="this.className='focus'" onblur="this.className=''">
+		<br><input type="file" name="kepcsere">
+		<br><input type="submit" class="gomb" value="Módosít" name="kep_mod" style="width: 8rem; margin: 1rem">
+		</p>
+	</form>
+</body>
+</html>

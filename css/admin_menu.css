@@ -1,0 +1,72 @@
+div.menu{
+    background: #004990;
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem 0.5rem 1rem;
+    width: 100%;
+    z-index: 10;
+}
+
+#sddm{
+    display: table;
+    font-size: 1.5rem;
+	/*margin: auto;*/
+	padding: 0;
+}
+
+#sddm li{
+	border-right: 0.1rem solid #6188B3;
+    float: left;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+
+#sddm li:last-of-type{
+    border-right: 0;
+}
+
+#sddm li a{
+    display: block;
+    color: #fff;
+    font-size: 1.7rem;
+    margin: 0 0.1rem 0 0;
+    padding: 1rem 1rem;
+	text-align: center;
+	text-decoration: none;
+    width: 100%;
+}
+
+#sddm li a:hover, #sddm li a.hover{
+    background: #1261b0;
+}
+
+#sddm div{
+    border: 0.1rem solid #1261b0;
+    border-radius: 0.2rem;
+    display: none;
+	margin: 0;
+	padding: 0;
+    position: absolute;
+    top: 4rem;
+    z-index: 11;
+}
+
+
+#sddm div a{
+	background: #004990;
+    color: #fff;
+    display: block;
+    font-size: 1.4rem;
+    margin: 0;
+    padding: 1rem 1.5rem;
+    position: relative;
+	text-align: left;
+	text-decoration: none;
+	width: auto;
+	white-space: nowrap;
+}
+
+#sddm div a:hover{
+	background: #1261b0;
+}

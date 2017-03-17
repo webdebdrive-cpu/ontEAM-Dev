@@ -1,0 +1,772 @@
+<?php
+/** Tömbök létrehozása */
+
+require_once('../weblap.php');
+
+// Csak új feltöltés esetén kell az aktuális időpont, egyébként a már eltároltat írjuk ki
+$datum = '';
+if(isset($_GET['uj'])){
+	$datum = date('Y.m.d');
+}
+
+//TÖMBÖK:
+// A tömbök alatt ezt fogjuk bővíteni
+$postok = array();
+//Mintaadatok speciális esetekre. Új tömböt inkább a teszt tömb átírásával hozz létre (vagy már meglevők alapján)
+//$hir_tomb = array(
+//  array('type' => 'p',           'megn' => 'akármi',     'class' => 'form_felirat'),
+//  array('type' => 'text',        'megn' => 'Hír címe:',  'name' => 'nev', /*'nevid' => true (ilyen esetben a `nevid` oszlop létezzen)*/    'class' => 'oriasi/*pici | kicsi | normal | nagy | oriasi*//*', 'maxlength' => 100, 'alert' => 'Nem töltötted ki a címet!', 'show' => true, 'szukit' => true/*, 'szukit_tabla' => 'kat|nev' <= így oldható meg, hogy ne az ID-ket írja ki, hanem a kat tábla név oszlopát*/, 'lista_style' => 'text-align: right'),
+//  array('type' => 'select_kat',  'megn' => 'Kategória:', 'name' => 'kat',         'kulso_tabla' =>  'kat|nev' /* <= így oldahtó meg, hogy ne az ID-ket írja ki, hanem a kat tábla név oszlopát*/ ),
+//  array('type' => 'text',        'megn' => 'Link:',      'name' => 'url',         'class' => 'oriasi', 'maxlength' => 100, 'pre' => 'http://'),
+//  array('type' => 'textarea',    'megn' => 'Tartalom:',  'name' => 'text',        'class' => 'oriasi'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '200'/*<=WYSIWYG esetére*/),
+//  array('type' => 'text',        'megn' => 'Listaár:',   'name' => 'ar',          'class' => 'kicsi', 'maxlength' => 10, 'ezresit' => true, 'post' => ' '.get_penznem(), 'show' => true),
+//  array('type' => 'file',        'megn' => 'Nyitókép:',  'name' => 'hir_kep',     'oszlop' => 'kep', 'algoritmus' => 'nev | fajlnev | id', 'fajl_torlessel' => true),
+//  array('type' => 'jsfile',      'megn' => 'Nyitókép:',  'name' => 'termek_kep',  'tabla' => $megnevezes,  'oszlop' => 'kep',   'algoritmus' => 'nev'/*nev | fajlnev | id*/,   'meret' => 4194304, 'csakkep'  => true, 'fajlok_szama'  => 1),
+//  array('type' => 'text',        'megn' => 'Dátum:',     'name' => 'datetime',    'class' => 'normal datepicker', 'value' => $datum, 'show' => true),
+//  array('type' => 'text',        'megn' => 'E-mail :',   'name' => 'mail',        'class' => 'oriasi', 'mail' => true, 'alert' => 'Nem töltötted ki a címet!', 'show' => true, 'szukit' => true),
+//  array('type' => 'dl',          'megn' => 'Város:',     'name' => 'varos',       'class' => 'oriasi',  'tabla' => 'teszt_hirl', 'oszlop' => 'nev', 'php_fajl' => '../dl.php', 'dl_kellid' => true, 'alert' =>  $szoveg_reg['varos'][$megsz]),
+//  array('type' => 'select_VALAMI',   'megn' => 'Teszt:', 'name' => 'x',  'alert' =>  $szoveg_reg['varos'][$megsz]),
+//  array('type' => 'checkbox',    'megn' => 'Aktív:', 'name' => 'aktiv',  'show' => true, 'class' => 'check'),
+//  array('type' => 'submit',  'value' => 'Mentés',     'name' => 'mehet_gomb', 'class' => 'gombb'),
+//
+//);
+//$megnevezes = 'hir';
+//array_push($postok, array('tomb' => $hir_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+//Termékek tömb
+//$megnevezes = 'teszt';
+//$teszt_tomb = $akt_tomb = array(
+//	array('type' => 'text',        'megn' => 'Megnevezés:', 'name' => 'nev',           'maxlength' => 100,      'class' => 'oriasi', 'alert' => 'Nem töltötted ki a megnevezést!', 'show' => true),
+//	array('type' => 'text',        'megn' => 'Listaár:',    'name' => 'ar',            'class' => 'kicsi',      'maxlength' => 10, 'ezresit' => true, 'post' => ' '.get_penznem(), 'show' => true),
+//    array('type' => 'jsfile',      'megn' => 'Nyitókép:',   'name' => 'termek_kep',    'tabla' => $megnevezes,  'oszlop' => 'kep',   'algoritmus' => 'nev'/*nev | fajlnev | id*/,  'meret' => 1572864, 'csakkep'  => false, 'fajlok_szama'  => 1),
+//	array('type' => 'text',        'value' => $datum,       'megn' => 'Dátum:',        'name' => 'datetime',    'class' => 'normal datepicker', 'show' => true),
+//    array('type' => 'textarea',    'megn' => 'Tartalom:',  'name' => 'text',        'class' => 'oriasi'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '200'/*<=WYSIWYG esetére*/),
+//	array('type' => 'checkbox',    'megn' => 'Aktív:',      'name' => 'aktiv', 'show' => true, 'class' => 'check'),
+//
+//	array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
+//);
+//array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+$disabled = true;
+if( isset($_GET['uj']) || (isset($_GET['szerkeszt']) || $_POST['szerkeszt']) ) {
+    $disabled = false;
+}
+
+/* Bejövő számlák */
+$megnevezes = 'bejovo_szamlak';
+$bejovo_szamlak_tomb = $akt_tomb = array(
+	array('type' => 'text',            'megn' => 'Megnevezés:', 'name' => 'nev',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Nem töltötted ki a megnevezést!', 'show' => true),
+    array('type' => 'select_VALAMI',   'megn' => 'Teszt:',      'name' => 'x',      'disabled' => $disabled),
+    array('type' => 'textarea',        'megn' => 'Tartalom:',   'name' => 'text',   'disabled' => $disabled,        'class' => 'oriasi'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*//*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '200'/*<=WYSIWYG esetére*/),
+    array('type' => 'text',            'megn' => 'Dátum:',      'name' => 'datetime',  'disabled' => $disabled,    'class' => 'normal datepicker', 'value' => $datum, 'show' => true),
+    array('type' => 'checkbox',        'megn' => 'Aktív:',      'name' => 'aktiv',  'disabled' => $disabled,  'show' => true, 'class' => 'check'),
+
+	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+/* Kimeno számlák */
+$megnevezes = 'kimeno_szamlak';
+$kimeno_szamlak_tomb = $akt_tomb = array(
+	array('type' => 'text',    'megn' => 'Megnevezés:', 'name' => 'nev',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Nem töltötted ki a megnevezést!', 'show' => true),
+
+	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+/* Rendszer */
+$megnevezes = 'rendszer';
+$rendszer_tomb = $akt_tomb = array(
+	array('type' => 'text',    'megn' => 'Megnevezés:', 'name' => 'nev',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Nem töltötted ki a megnevezést!', 'show' => true),
+    array('type' => 'hidden',  'megn' => '',  'name' => 'rkat',  'class' => 'kicsi', 'maxlength' => 10, 'ezresit' => false, 'post' => '', 'value' => $_SESSION['rendszerkat']),
+
+	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+/* Bejövő számlák */
+$megnevezes = 'log';
+$log_tomb = $akt_tomb = array(
+	array('type' => 'text',            'megn' => 'Felh:',     'name' => 'felh_id',   'maxlength' => 250, 'class' => 'oriasi', 'show' => true, 'kulso_tabla' => 'login|nev'),
+	array('type' => 'text',            'megn' => 'Művelet:',  'name' => 'nev',       'maxlength' => 250, 'class' => 'oriasi', 'show' => true),
+    array('type' => 'textarea',        'megn' => 'Változás:', 'name' => 'valtozas',  'class' => 'oriasi'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/, 'wysiwyg' => 'Min2'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '200'/*<=WYSIWYG esetére*/),
+    array('type' => 'text',            'megn' => 'Dátum:',    'name' => 'datetime',  'class' => 'normal datepicker', 'value' => ''/*$datum*/, 'show' => true),
+
+	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+//{KOVETKEZO_TOMB}
+
+/** További beállítások */
+if( isset($_GET['szamlaLista']) ) {
+    $val   = $_GET['val'];
+    $tabla = $_GET['tabla'];
+
+    if( $tabla ) {
+        $szamla_lista = szamla_lista( $tabla, $val );
+
+        if( $szamla_lista ) {
+            echo $szamla_lista;
+        } else {
+            echo '<ul class="szamla_cont"><li class="szamla_datum"><strong>Nincs találat.</strong></li></ul>';
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+//Kell-e kétszintű kategóriát kezelni vagy sem
+$ketszintu_kat = false;
+
+//Változók mentése SESSION-ba és újrabetöltés, hogy a kiválasztott lista rendezése és szűkítése megmaradjon
+if(isset($_GET['unset'])){
+	unset($_SESSION['kat']);
+	unset($_SESSION['epo']);
+	unset($_SESSION['oldal']);
+	unset($_SESSION['order']);
+	unset($_SESSION['desc']);
+
+	unset($_GET['kat']);
+	unset($_GET['oldal']);
+	unset($_GET['order']);
+	unset($_GET['desc']);
+}else{
+	if(isset($_GET['kat']))		{ $_SESSION['kat']   = $_GET['kat'];  	}
+	if(isset($_GET['epo']))		{ $_SESSION['epo']   = $_GET['epo'];   	}
+	if(isset($_GET['oldal']))   { $_SESSION['oldal'] = $_GET['oldal'];  }
+	if(isset($_GET['order']))	{ $_SESSION['order'] = $_GET['order'];  }
+	if(isset($_GET['desc']))	{ $_SESSION['desc']  = true;    		}
+	if(isset($_GET['nodesc']))	{ $_SESSION['desc']  = false;    		}
+
+	$_GET['kat']   = $_SESSION['kat'];
+	$_GET['epo']   = $_SESSION['epo'];
+	$_GET['oldal'] = $_SESSION['oldal'];
+	$_GET['order'] = $_SESSION['order'];
+	if($_SESSION['desc']){ $_GET['desc']='desc'; }
+
+}
+if( !$_GET['epo'] ){   $_GET['epo'] = 50;       }
+if( !isset($_GET['oldal'])){ $_GET['oldal']=0;  }
+
+
+//ESEMÉNYEK
+//Flashfáljok törlése
+if(isset($_POST['fajl_torol'])){
+    $elem = $adatbazis_kapcsolat -> s($_POST['oszlop'], $_POST['tabla'], 'id='.$_POST['id']);
+    kep_torol('../'.get_utvonal().$elem[0][$_POST['oszlop']]);
+    $adatbazis_kapcsolat -> u($_POST['tabla'], $_POST['oszlop'], '', 'id='.$_POST['id']);
+
+    $weblap -> leallit();
+    exit;
+}
+
+// Admin fájlfeltöltés thumb kinyerése
+if (isset($_GET['get_admin_file_thumb'])) {
+    echo get_admin_file_thumb($_GET['tabla'], $_GET['oszlop'], $_GET['id']);
+    $weblap -> leallit();
+    exit;
+}
+function get_admin_file_thumb($tabla, $oszlop, $id){
+
+    global $adatbazis_kapcsolat;
+    $utvonal = $adatbazis_kapcsolat->s($oszlop, $tabla, 'id='.$id);
+    $utvonal = '../'.get_utvonal().$utvonal[0][$oszlop];
+    if(is_file($utvonal)){
+
+        $neve = basename($utvonal);
+        $kit = kit($neve);
+        if($kit!='jpg' && $kit!='png' && $kit!='gif'){
+            if(is_file('../elemek/ikonok/'.$kit.'.png')){
+                $akt_fajl = '../elemek/ikonok/'.$kit.'.png';
+            }else{
+                $akt_fajl = '../elemek/ikonok/ismeretlen.png';
+            }
+
+            return nl2('
+                    <div id="fajl_'.$tabla.'_'.$oszlop.'_'.$id.'">
+                        <script>var gombfajl_'.$oszlop.'_'.$id.'=get_fajl_torol_gomb(\''.$id.'\', \''.$tabla.'\', \''.$oszlop.'\');</script>
+                        <div class="kep_torol link">
+                            <span>
+
+                            </span>
+
+                        </div>
+                        <div id="fajl_'.$oszlop.'_'.$id.'">
+
+                            <div class="file_thumb">
+                                <div class="dtc vam" title="Fájl letöltése">
+                                    <a href="'.$utvonal.'" target="_blank">
+                                        <img alt="'.htmlspecialchars($sor['nev']).'" src="'.$akt_fajl.'" />
+                                    </a>
+                                </div>
+                                <div class="dtc vam f16 link full" onclick="window.open(\''.$utvonal.'\')" title="Fájl letöltése">
+                                    '.basename($utvonal).'
+                                </div>
+                                <div class="dtc vam link" onclick="alert2(\'Biztosan törlöd a fájlt?\', gombfajl_'.$oszlop.'_'.$id.')" title="Fájl törlése">
+                                    x
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                ');
+        //Ebben az esetben képelemről van szó
+        }else{
+
+            //Ha elég széles a kép, akkor resposítjuk, amúgy nem
+            $szelesseg = 0;
+            $width     = 'width: 100%';
+            if(is_file($utvonal)){
+                $szelesseg = getimagesize($utvonal);
+                $szelesseg = $szelesseg[0];
+            }
+            if($szelesseg<500){
+                $width = '';
+            }
+
+            return nl2('
+                    <div id="fajl_'.$tabla.'_'.$oszlop.'_'.$id.'">
+                        <script>var gombfajl_'.$oszlop.'_'.$id.'=get_fajl_torol_gomb(\''.$id.'\', \''.$tabla.'\', \''.$oszlop.'\');</script>
+                        <div class="kep_torol link">
+                            <span onclick="alert2(\'Biztosan törlöd a fájlt?\', gombfajl_'.$oszlop.'_'.$id.')">
+                                <img src="../elemek/admin/torol.png" alt="x" title="Kép törlése" />
+                                Kép törlése
+                            </span>
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <span onclick="kep_forgat(\''.$utvonal.'\', \'-90\', \'#fajl_'.$oszlop.'_'.$id.'\')">
+                                <img src="../elemek/admin/elforgat.png" alt="C" title="Kép elforgatása" />
+                                Kép elforgatása
+                            <span>
+                        </div>
+                        <div id="fajl_'.$oszlop.'_'.$id.'">
+                            '.kep_kiir($utvonal, htmlspecialchars($sor['nev']), 600, 600, '', $width, 'lightboxos').'
+                        </div>
+                    </div>
+                ');
+        }
+
+    }
+}
+
+// Képforgatás lekezelése
+if (isset($_GET['kep_forgat'])) {
+    echo kep_forgat($_GET['utvonal'], $_GET['szazalek']).'?'.time();
+    $weblap -> leallit();
+    exit;
+}
+
+//Sorrend mentése
+if(isset($_POST['sorrendezes'])){
+
+    //Mindig egy undefined-el kezdődik ezt le kell venni
+    $_POST['sorrendezes'] = substr($_POST['sorrendezes'], 9, strlen($_POST['sorrendezes']));
+
+    $i = 1;
+    $idk = explode(';', $_POST['sorrendezes']);
+    foreach($idk as $id){
+        if($id){
+            $adatbazis_kapcsolat -> u($_POST['tabla'], 'sor', $i, 'id='.$id);
+        }
+        $i++;
+    }
+
+    $weblap -> leallit();
+    exit;
+}
+
+//Inline szerkesztéshez
+if(isset($_GET['inline_szerk'])){
+
+    $adatbazis_kapcsolat->u($_GET['tabla'], array($_GET['oszlop']), array($_GET['ertek']), 'id='.$_GET['sorid']);
+    $visszaolvas = $adatbazis_kapcsolat->s($_GET['oszlop'], $_GET['tabla'], 'id='.$_GET['sorid']);
+    if(is_numeric($visszaolvas[0][$_GET['oszlop']])){
+        echo number_format($visszaolvas[0][$_GET['oszlop']], 0, '', '.');
+    }else{
+        echo $visszaolvas[0][$_GET['oszlop']];
+    }
+    $weblap -> leallit();
+    exit;
+}
+
+foreach($postok as $ertek){
+	//Új feltételt használok, hogy feleslegesen ne kelljen minden tömböt bejárni. Csak az aktuális php fájl nevével megegyező tömböt pászátzza végig
+    //if(isset($_POST[$ertek['uj']]) || isset($_POST[$ertek['lista']])){//ÚJ TERMÉK FELTÖLTÉSE
+	if( (isset($_POST[$ertek['uj']]) || isset($_POST[$ertek['lista']])) ){
+
+		//Checkboxból 1 és 0, számok ezresítése
+		foreach($ertek['tomb'] as $elem){
+            if($elem['type'] == 'checkbox'){
+                if($_POST[$elem['name']]=='on' || $_POST[$elem['name']]=='true'){
+                    $_POST[$elem['name']] = 1;
+                }else{
+                    $_POST[$elem['name']] = 0;
+                }
+
+                //Pipa ki-be kapcsolás, Ajaxos hívással
+                if( isset($_POST['pipa_'.$elem['name']]) ){
+                    $pipa_on = $adatbazis_kapcsolat -> s($elem['name'], $ertek['tabla'], 'id='.$_POST['id']);
+                    if( $pipa_on[0][$elem['name']] ){
+                        $adatbazis_kapcsolat -> u($ertek['tabla'], $elem['name'], '', 'id='.$_POST['id']);
+                    }else{
+                        $adatbazis_kapcsolat -> u($ertek['tabla'], $elem['name'], '1', 'id='.$_POST['id']);
+                    }
+                    $weblap -> leallit();
+                    exit;
+                }
+            }
+
+            if($elem['ezresit']){
+                if($_POST[$elem['name']]){ $_POST[$elem['name']] = str_replace('.', '', $_POST[$elem['name']]); }
+            }
+
+        }
+
+		//Ha az újként szerkesztés post nem üres, akkor beállítjuk a $_POST-olt értékeket egy SESSION-ba, majd ezzekkel az adatokkal indul egy új feltöltés adatlapja
+		if($_POST[$ertek['tabla'].'ujkent_szerk']){
+			foreach($ertek['tomb'] as $akt_tomb_ertek){
+				$_SESSION[$akt_tomb_ertek['name']] = stripslashes( $_POST[$akt_tomb_ertek['name']] );
+			}
+			$adatbazis_kapcsolat -> bezar();
+			header('location:'.self().'?uj&ujkent');
+			exit();
+		}
+
+		if(isset($_POST[$ertek['uj']])){
+			$u_i_ret  = i_u('insert',$ertek['tabla'],$ertek['tomb']);
+			$errnum   = $u_i_ret['0'];
+			$tabla_id = $u_i_ret['1'];
+			$uj_lista   = 'uj';
+		}elseif(isset($_POST[$ertek['lista']])){
+			$u_i_ret  = i_u('update',$ertek['tabla'],$ertek['tomb']);
+			$errnum   = $u_i_ret['0'];
+			$tabla_id = $u_i_ret['1'];
+			$uj_lista   = 'lista';
+		}
+
+		//KÉPEK
+		//Hír-Kép feltöltése
+		$kephiba = kep_menedzser('termek_kep', $ertek['tomb'], $ertek['tabla'], $tabla_id, $uj_lista, 440600, true);
+		//KÉPEK VÉGE
+
+		$url = '';
+		if(isset($_GET['id'])){
+			$url      = '&id='.$_GET['id'];
+			$tabla_id = $_GET['id'];
+		}
+
+		//Ha hibamentes volt a feltöltés (adatbázis beszúráskor az adatok illetve képhiba is rendben van)
+		if( $errnum == '' && $kephiba['1'] <= 0){
+
+			$adatbazis_kapcsolat -> bezar();
+			if(isset($_POST['ugras_kepekhez'])){
+                header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba'))).'&id='.$tabla_id.'#kepek');
+            }else{
+                //Csak akkor van továbbléptetés, ha nem ajaxosan hívtuk meg
+                if(!isset($_POST['ajax_form_modosit'])){
+                    header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba'))).'&id='.$tabla_id.'&siker');
+                }
+            }
+
+		//Hiba történt
+		}else{
+			if($errnum != '-1')    { $url .= '&errnum='.$errnum;      }
+			if($kephiba['1'] != ''){ $url .= '&kephiba='.$kephiba['1']; }
+
+			$kivetelek = array('siker', 'hiba', 'errnum', 'kephiba', 'modosit');
+
+			if(isset($_POST[$ertek['uj']])){
+				array_push($kivetelek,'modosit');
+			}
+
+			$url=self().get_get($kivetelek, true).'&hiba&modosit'.$url;
+
+			$adatbazis_kapcsolat -> bezar();
+			header('location:'.$url);
+		}
+		exit();
+	}
+
+	//Törlés id
+	if(isset($_GET[$ertek['torid']])){
+
+        $lekerdez = $adatbazis_kapcsolat -> select('*', $ertek['tabla'], 'id='.$_GET[$ertek['torid']]);
+		$sor      = $lekerdez[0];
+		$tomb     = $ertek['tomb'];
+
+        $fajl_oszlopok = array();
+		foreach($tomb as $fajl_ertek){
+            if($fajl_ertek['type'] == 'file' || $fajl_ertek['type'] == 'flashfile' || $fajl_ertek['type'] == 'jsfile'){
+				array_push($fajl_oszlopok, $fajl_ertek['oszlop']);
+			}
+		}
+
+		foreach( $fajl_oszlopok as $oszlop ){
+    		//Ha valóban ki van töltve az adatbázisban egy ilyen oszlop, akkor a fájl útját adatbázban tároltuk
+            if($sor[$oszlop] != ''){
+
+    			//ha van kiterjesztése
+    			if(strrpos($sor[$oszlop], '.')>0){
+    				remover('../'.get_utvonal().substr($sor[$oszlop],0,strrpos($sor[$oszlop],'.')).'*');
+    			}else{
+    				remover('../'.get_utvonal().$sor[$oszlop].'*');
+    			}
+
+            //Egyébként az összes ID-vel kezdődő kép törlése, ha az ID nem üres
+    		}elseif($_GET[$ertek['torid']]!=''){
+
+    			$kepnev = '../'.get_utvonal().$ertek['tabla'].'/'.$_GET[$ertek['torid']];
+    			if(is_file($kepnev))       { if(!unlink($kepnev)){        return 'k3'; } }
+    			if(is_file($kepnev.'.jpg')){ if(!unlink($kepnev.'.jpg')){ return 'k3'; } }
+    			if(is_file($kepnev.'.gif')){ if(!unlink($kepnev.'.gif')){ return 'k3'; } }
+    			if(is_file($kepnev.'.png')){ if(!unlink($kepnev.'.png')){ return 'k3'; } }
+
+    			remover($kepnev.'_*');//Resized képek esetére
+    		}
+		}
+
+		if( $adatbazis_kapcsolat -> delete($ertek['tabla'], 'id='.$_GET[$ertek['torid']]) ){
+			if(isset($_GET['noload'])){
+
+                //Visszaadjuk az elemek számát
+                echo number_format( count($adatbazis_kapcsolat->s('id', $ertek['tabla'])), 0, '', '.' );
+
+				$weblap -> leallit();
+				exit();
+			}else{
+				$weblap -> leallit();
+				header('location:'.self().str_replace('&amp;','&',get_get(array($ertek['torid']))).'&siker&'.$ertek['torid'].'tobbkep_torol='.$_GET[$ertek['torid']]);
+				exit();
+			}
+		}else{
+			if(isset($_GET['noload'])){
+				echo 'A törlés nem sikerült!';
+				$weblap -> leallit();
+				exit();
+			}else{
+				$weblap -> leallit();
+				header('location:'.self().str_replace('&amp;','&',get_get(array($ertek['torid']))).'&hiba');
+				exit();
+			}
+		}
+	}
+}
+
+//JS FÁJLFELTÖLTÉSHEZ Új bejegyzés feltöltése után a csatolt fájl eltárolása adatbázisba és megfelelő mappába másolás
+if(isset($_GET['modosit'])){
+
+    $tabla = str_replace('.php', '', basename(self()));
+
+    //Nézzük meg, hogy van-e SESSION id kezdetű fájl a könyvtárban
+    $utvonal = '../'.get_utvonal().'cache/jsfajlok/'.session_id().'*';
+    $session_kezdetu_fajlok = glob($utvonal); //Ha több ilyen is van az azért lehet, mert több fájlfeltöltés input is volt a tömbben
+    foreach($session_kezdetu_fajlok as $akt_fajl){
+        list($eleje, $oszlop, $fajlnev, $vege) = explode('|||', $akt_fajl);
+
+        //Ha feltöltéskor a 'get_id'-t adtunk meg fájlnévnek, akkor az algoritmus ID, azaz a GET id szerint mentjük el
+        if($fajlnev=='get_id'){
+            $fajlnev = $_GET['id'];
+
+        //Ha nincs informácónk a fájl nevéről, akkor az algoritmus az NEV, azaz a bejegyzés nevéből származtatjuk
+        }elseif(!$fajlnev){
+            $fajlnev = $adatbazis_kapcsolat->s('nev', $tabla, 'id='.$_GET['id']);
+            $fajlnev = fajlnev_keszit($fajlnev[0]['nev']);
+        }
+
+        $akt_utvonal = '../'.get_utvonal().$tabla.'/';
+        $kepnev      = $fajlnev;
+        $ujnev       = $kepnev.'_1';
+
+        $i = 1;
+        //DE! megnézzük, hogy ez a '_1' nem foglalt-e. Ha az, keresünk szabad számot
+        while( glob($akt_utvonal.$ujnev.'*') ){
+            $i++;
+            $ujnev = $kepnev.'_'.$i;
+        }
+
+        $kepnev = fajlnev_keszit($ujnev).'.'.kit($akt_fajl);
+
+        //Fájlok mozgatása
+        copy($akt_fajl, $akt_utvonal.$kepnev);
+        unlink($akt_fajl);
+
+        //Végül letároljuk az adatbázisba is
+        $adatbazis_kapcsolat->u($tabla, array($oszlop), array($tabla.'/'.$kepnev), 'id='.$_GET['id']);
+
+    }
+}
+
+//Kijelölt termékek törlése
+if(isset($_POST['del'])){
+	$mit   = array('.jpg','.gif','.png');
+	$mivel = array('','','');
+	//Megkeressük azt a tömböt, amelyből törlünk
+    foreach($postok as $ertek){
+        if($ertek['tabla'] == $_POST['tabla']){
+			$akt_tomb = $ertek['tomb'];
+			$konyvtar = $ertek['tabla'];
+		}
+	}
+
+    //minden kijelölt bejegyzésre
+    foreach($_POST['del'] as $ertek){
+
+		//ha megadtunk táblanevet és oszlopnevet, akkor több kép van
+        if( $_POST['oszlopnev'] && $_POST['tabla'] ){
+            //Megnézzük hogy a kepek táblában van-e ide vonatkozó rész (FG)
+            $kepek = $adatbazis_kapcsolat -> select('kepnev', 'kepek', $_POST['oszlopnev'].'='.$ertek);
+			foreach($kepek as $sor_kepek){
+				$sor_kepek['kepnev'] = '../'.get_utvonal().$sor_kepek['kepnev'];
+				if(is_file($sor_kepek['kepnev'])){
+					unlink($sor_kepek['kepnev']);
+				}
+				remover(str_replace($mit,$mivel,$sor_kepek['kepnev']).'_*');
+			}
+			$adatbazis_kapcsolat -> delete('kepek', $_POST['oszlopnev'].'='.$ertek);
+		}
+
+		//Az aktuális tömbben megkeressük a fájltipusokat
+		foreach($akt_tomb as $tomb_ertek){
+			if($tomb_ertek['type'] == 'file'){
+
+				if($tomb_ertek['algoritmus'] == 'sorid'){
+
+					$kepnev = '../'.get_utvonal().$konyvtar.'/'.$ertek;
+					if(is_file($kepnev))       { unlink('../'.get_utvonal().$konyvtar.'/'.$ertek); }//ha létezik a fájl egy az egybe...
+					//ha kép és nem volt hozzá kiterjesztés
+					if(is_file($kepnev.'.jpg')){ unlink('../'.get_utvonal().$konyvtar.'/'.$ertek.'.jpg');}
+					if(is_file($kepnev.'.gif')){ unlink('../'.get_utvonal().$konyvtar.'/'.$ertek.'.gif');}
+					if(is_file($kepnev.'.png')){ unlink('../'.get_utvonal().$konyvtar.'/'.$ertek.'.png');}
+					//ráadásul még át is méreteztük
+					remover('../'.get_utvonal().$konyvtar.'/'.$_POST['id'].'_*');
+
+				//nev és fajlnev esetében ugyanazt tesszük
+				}else{
+
+					$termek     = $adatbazis_kapcsolat -> select($tomb_ertek['oszlop'], $_POST['tabla'], 'id='.$ertek);
+					$sor_termek = $termek[0];
+
+					//ha van kiterjesztése
+					if( strrpos( $sor_termek[$tomb_ertek['oszlop']], '.') > 0 ){
+						$kepnev = substr($sor_termek[$tomb_ertek['oszlop']], 0, strrpos($sor_termek[$tomb_ertek['oszlop']], '.'));
+						remover('../'.get_utvonal().$kepnev.'_*');
+						if(is_file('../'.get_utvonal().$sor_termek[$tomb_ertek['oszlop']])){
+							unlink('../'.get_utvonal().$sor_termek[$tomb_ertek['oszlop']]);
+						}
+					}
+
+				}
+			}
+		}
+
+		//Végül a termék bejegyzést töröljük
+		$adatbazis_kapcsolat -> delete($_POST['tabla'], 'id='.$ertek);
+	}
+
+	$adatbazis_kapcsolat -> bezar();
+	header('location:'.self().str_replace('&amp;','&',get_get()));
+	exit();
+}
+
+//Kép törlése
+if(isset($_GET['keptorol']) && $_GET['keptorol']!=''){
+
+	if(isset($_GET['tabla'])){//Tehát a kép útvonala adatbázisban volt mentve, azt kell törölni
+		$adatbazis_kapcsolat -> update($_GET['tabla'], array($_GET['oszlop']), array(''), $_GET['oszlop'].'='.$_GET['keptorol']);
+
+        //ha van kiterjesztése
+		if( strrpos( $_GET['keptorol'],'.') > 0 ){
+			$kepnev = substr($_GET['keptorol'],0,strrpos($_GET['keptorol'],'.'));
+			remover('../'.get_utvonal().$kepnev.'_*');
+		}
+
+		$kepnev = '../'.get_utvonal().$kepnev;
+		if(is_file($kepnev))       { if(!unlink($kepnev)){        return 'k3'; } }
+		if(is_file($kepnev.'.jpg')){ if(!unlink($kepnev.'.jpg')){ return 'k3'; } }
+		if(is_file($kepnev.'.gif')){ if(!unlink($kepnev.'.gif')){ return 'k3'; } }
+		if(is_file($kepnev.'.png')){ if(!unlink($kepnev.'.png')){ return 'k3'; } }
+
+	//egyébként az sorid-t
+	}else{
+
+		$kepnev = '../'.get_utvonal().$_GET['keptorol'];
+		if(is_file($kepnev))       { if(!unlink($kepnev)){        return 'k3'; } }
+		if(is_file($kepnev.'.jpg')){ if(!unlink($kepnev.'.jpg')){ return 'k3'; } }
+		if(is_file($kepnev.'.gif')){ if(!unlink($kepnev.'.gif')){ return 'k3'; } }
+		if(is_file($kepnev.'.png')){ if(!unlink($kepnev.'.png')){ return 'k3'; } }
+
+		remover($kepnev.'_*');
+	}
+
+	$adatbazis_kapcsolat -> bezar();
+	$url=str_replace('&amp;','&',get_get(array('keptorol','tabla','oszlop')));
+	header('location:'.self().$url);
+	exit();
+}
+
+//Fájl törlése. Ajaxal hívódik meg. általában nem kép, ahnem csv, pdf .. fájlok kezelésére
+if(isset($_POST['fajl_torles'])){
+    require_once('../weblap.php');
+	if(is_file($_POST['fajl'])){
+		unlink($_POST['fajl']);
+		remover(substr($_POST['fajl'], 0, strrpos($_POST['fajl'], '.')).'_*');
+		$adatbazis_kapcsolat -> update($_POST['tabla'], array($_POST['oszlop']), array(''), 'id='.$_POST['fajl_torles']);
+	}
+	$adatbazis_kapcsolat -> bezar();
+	exit();
+}
+
+/**
+*	Kép menedzser kizárólag az eseményekhez való
+*	FONTOS: ha képet töltünk fel, magától odateszi a kiterjesztést (.jpg .gif .png).
+*	Átlagos fájlok esetén adjuk meg a kiterjesztést
+*
+*	@param string $megnevezes tömben a képváltozó neve pl.: hir_kep
+*	@param array $tomb Tömb ami alapján dolgozunk. Jelen esetben mindig az $ertek[tomb] lesz az aktuális tömb, ezzel kell meghívni
+*	@param string $tabla Adatbázis tábla neve (ilyen nevű mappába másol)
+*	@param string $tabla_id Utolsó beszúrt sor, vagy módosított sor (amennyiben a fájlneve a sorid-ből származna)
+*	@param string $uj_lista Új beszúrás vagy lista (uj|lista) (Ha uj akkor a régi kép felülíródhat, lista esetén új képnevet gyárt pl. teszt_1.jpg)
+*	@param integer $meret méret limit, ami alapból 400 Kb
+*	@param boolean $csakkep ez alapból igaz, tehát csak jpg, png és gifet enged feltölteni
+*
+*	@return array 0. argumentuma a kép neve, 1. pedig a hibaüzenet (ha van) <== ezt a web_ftp-ből örökli
+*	k1: túllépte a limitet
+*	k2: nem képtipusú fájl
+*	k3: ilyen nevű fájl már létezett a szerveren és törölni nem lehetett
+*	k4: nem sikerül felmásolni
+*	k5: nincs `kep` oszlop az adatbázisban
+*/
+function kep_menedzser($megnevezes, $tomb, $tabla, $sor_id, $uj_lista, $meret, $csakkep){
+
+    global $adatbazis_kapcsolat;
+
+	if( $_FILES[$megnevezes]['name'] != '' ){
+		foreach($tomb as $kep_ertek){
+			if( $kep_ertek['name'] == $megnevezes ){
+				$algoritmus  = $kep_ertek['algoritmus'];
+				$fajl_oszlop = $kep_ertek['oszlop'];
+			}
+		}
+
+		switch($algoritmus){
+			//case 'sorid': $kepnev=$sor_id; break;
+
+			case 'fajlnev':
+				//a fájl neve + a kiterjesztés HA nem kép
+				if($_FILES[$megnevezes]['type']=='image/pjpeg' || $_FILES[$megnevezes]['type']=='image/jpeg' || $_FILES[$megnevezes]['type']=='image/gif' || $_FILES[$megnevezes]['type']=='image/png' || $_FILES[$megnevezes]['type']=='image/x-png') {
+					$kepnev = substr($_FILES[$megnevezes]['name'],0,strrpos($_FILES[$megnevezes]['name'],'.'));
+					$kit    = '';//Ha képek töltönk fel, nem kell megadni a kiterjesztést!
+				}else{
+					$kit    = substr($_FILES[$megnevezes]['name'],strrpos($_FILES[$megnevezes]['name'],'.'),strlen($_FILES[$megnevezes]['name']));
+					$kepnev = substr($_FILES[$megnevezes]['name'],0,strrpos($_FILES[$megnevezes]['name'],'.'));
+				}
+
+                $sor = $adatbazis_kapcsolat -> select($fajl_oszlop, $tabla, 'id='.$sor_id);
+                $sor = $sor[0];
+
+                //ha a fájlt felülírjuk (tehát már el volt tárolva a neve a táblában), akkor levesszük a a tábla nevét és ha kell a kiterjesztését (pl.: a tabla_neve/kepnev.jpg -ből)
+                if( $sor[$fajl_oszlop] != '' ){
+
+					$mit   = array($tabla.'/','.jpg','.gif','.png');
+					$mivel = array('','','','');
+
+					$kepnev    = str_replace($mit,$mivel,$sor[$fajl_oszlop]);
+					$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
+
+				}else{//Ha nincs a táblában a neve (új felöltés vagy módosítás, és sose volt kép, vagy törölve lett)
+					if($uj_lista=='lista'){//Ha módosításkor nincs még kép hozzárendelve, akkor kap egy '_1'-t, hogy ne törölje az esetleges kepnev_2-t. Új feltöltéskor ezt a web_ftp() teszi meg
+
+						$i=1;
+						$ujnev=$tabla.'/'.$kepnev.'_1';
+						while(glob('../'.get_utvonal().$ujnev.'*')){//DE! megnézzük, hogy ez a '_1' nem foglalt-e. Ha az keresünk szabad számot
+							$i++;
+							$ujnev=$kepnev.'_'.$i;
+						}
+						if( $i == 1 && $sor_id != '' ){ $ujnev=$kepnev.'_1'; }
+						$kepnev = $ujnev;
+
+						$mit    = array($tabla.'/','.jpg','.gif','.png');
+						$mivel  = array('','','','');
+
+						$kepnev = fajlnev_keszit(str_replace($mit,$mivel,$kepnev)).$kit;
+						$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
+
+					}else{//Ha új beszúrás, akkor gyártunk egy filename-t
+
+						$kepnev    = fajlnev_keszit($kepnev).$kit;
+						$overwrite = false;	//Ne töröljön esetleges azonos nevű fálokat, inább gyártsun újnevűeket új beszúrásnál
+
+					}
+				}
+			break;
+
+			case 'nev': //termék nevéből nyert képnév + az erdeti kiterjesztés HA nem kép
+				if($_FILES[$megnevezes]['type'] == 'image/pjpeg' || $_FILES[$megnevezes]['type'] == 'image/jpeg' || $_FILES[$megnevezes]['type'] == 'image/gif' || $_FILES[$megnevezes]['type'] == 'image/png' || $_FILES[$megnevezes]['type'] == 'image/x-png') {
+					$kit = '';
+				}else{
+					$kit = substr($_FILES[$megnevezes]['name'], strrpos($_FILES[$megnevezes]['name'], '.'), strlen($_FILES[$megnevezes]['name']));
+				}
+
+                $sor = $adatbazis_kapcsolat -> select($fajl_oszlop, $tabla, 'id='.$sor_id);
+                $sor = $sor[0];
+
+                //ha a fájlt felülírjuk (tehát már el volt tárolva a neve a táblában), akkor levesszük a a tábla nevét és ha kell a kiterjesztését (pl.: a tabla_neve/kepnev.jpg -ből)
+				if($sor[$fajl_oszlop] != ''){
+
+					$mit       = array($tabla.'/','.jpg','.gif','.png');
+					$mivel     = array('','','','');
+					$kepnev    = str_replace($mit,$mivel,$sor[$fajl_oszlop]);
+					$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
+
+				}else{//Ha nincs a táblában a neve (új felöltés vagy módosítás, és sose volt kép, vagy törölve lett)
+
+					$kepnev = $_POST['nev'];
+					if($uj_lista=='lista'){//Ha módosításkor nincs még kép hozzárendelve, akkor kap egy '_1'-t, hogy ne törölje az esetleges kepnev_2-t. Új feltöltéskor ezt a web_ftp() teszi meg
+
+						$i=1;
+						$ujnev=$tabla.'/'.$kepnev.'_1';
+						while(glob('../'.get_utvonal().$ujnev.'*')){//DE! megnézzük, hogy ez a '_1' nem foglalt-e. Ha az keresünk szavad számot
+							$i++;
+							$ujnev=$kepnev.'_'.$i;
+						}
+						if($i==1 && $sor_id!=''){ $ujnev=$kepnev.'_1'; }
+						$kepnev = $ujnev;
+
+						$mit    = array($tabla.'/','.jpg','.gif','.png');
+						$mivel  = array('','','','');
+
+						$kepnev    = fajlnev_keszit(str_replace($mit,$mivel,$kepnev)).$kit;
+						$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
+
+					}else{//Ha új beszúrás, akkor gyártunk egy filename-t
+
+						$kepnev    = fajlnev_keszit($kepnev).$kit;
+						$overwrite = false;	//Ne töröljön esetleges azonos nevű fálokat, inább gyártsun újnevűeket új beszúrásnál
+
+					}
+				}
+			break;
+
+			default:
+				$kit=strtolower(substr($_FILES[$megnevezes]['name'],strrpos($_FILES[$megnevezes]['name'],'.'),strlen($_FILES[$megnevezes]['name'])));//elmentjük a kiterjesztést, kisbetűsre alakítva
+				$kepnev=$sor_id;
+
+				//Ha nem képfájl, visszaadjuk a kiterjesztést
+				if($kit!='.jpg' && $kit!='.gif' && $kit!='.png'){
+					$kepnev .= $kit;
+				}
+
+				$algoritmus = 'sorid';//bizti kedvéért
+				$sor_id     = null;//Kinullázzuk a táblát, hogy a web_ftp ne próbálkozzon SQL-el
+				$overwrite  = true;	//Sorid esetén mindig töröljük az előzőt (pl. 'sorid'.jpg-t)
+			break;
+		}
+
+//echo $tabla.'/'.$kepnev; exit();
+
+		return web_ftp($megnevezes,$tabla.'/'.$kepnev,$meret,$overwrite,$csakkep,$tabla,$fajl_oszlop,$sor_id);
+	}
+
+}
+?>

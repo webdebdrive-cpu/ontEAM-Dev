@@ -1,0 +1,18 @@
+<li id="kat_{ID}">
+    <div>
+        <table class="full">
+        <tr>
+        	<td>
+                <input id="kat_input_{ID}" class="dn" type="text" value="{NEV}" onblur="kat_atnevez('{SELF}', '{ID}')">
+                <span ondblclick="kat_szerk('{ID}')" id="kat_text_{ID}">{NEV}</span>
+            </td>
+            <td class="r" style="padding: 0 0 0 0.5rem;">
+                <span class="termekek">[{TERMEK_DB} db. termék]</span>
+                <span class="ikon" onclick="kat_szerk('{ID}')">✎</span>
+                <span class="ikon torol" onclick="kat_torol_kerdes('{SELF}', '{ID}', '{TERMEK_DB}')">✘</span>
+            </td>
+        </tr>
+        </table>
+    </div>
+    {ALKATOK}
+</li>

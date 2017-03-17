@@ -1,0 +1,26 @@
+<div class="dtr">
+    <div class="dtc">
+        {JS}
+        {CK_EDITOR}
+        <form id="szerk_form" action="{ACTION}?modosit" enctype="multipart/form-data" method="post" onsubmit="javascript:return form_ell_admin()">
+            <div class="dt full">
+                {MEZOK}
+            </div>
+            <script>
+                $(document).ready(function () {
+                    $('.datepicker').datetimepicker({
+                        mask: true,
+                        format:'Y.m.d',
+                        onChangeDateTime: function(){ $('#mehet_gomb').addClass('gombb_alert'); }
+                    });
+                });
+            </script>
+            <div>
+                <input type="hidden" name="uj{MEGNEVEZES}">
+            </div>
+            <div class="muveletek">
+                {GOMBOK}
+            </div>
+        </form>
+    </div>
+</div>

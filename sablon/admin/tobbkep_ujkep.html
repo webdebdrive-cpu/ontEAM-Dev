@@ -1,0 +1,137 @@
+<a name="kepek"></a>
+<div id="jsff_{MEGN}" class="jsff">
+    <span class="uzenet">
+        <span class="f15">Húzd be ide a fájlokat</span>
+        <br>vagy tallózz az alábbi gombbal:
+    </span>
+    <span class="hiba"></span>
+    <div class="talloz">
+        <div>
+            Tallózás <input type="file" name="files[]" multiple="" onchange="beolvasas_{MEGN}(this.files);"{CSAK_KEP}>
+        </div>
+    </div>    
+</div>
+
+<script>
+var jsff_{MEGN} = document.getElementById('jsff_{MEGN}'),
+    tests_{MEGN} = {
+        filereader  : typeof FileReader != 'undefined',
+        dnd         : 'draggable' in document.createElement('span'),
+        formdata    : !!window.FormData,
+        progress    : 'upload' in new XMLHttpRequest
+    },
+    kepformatumok_{MEGN} = {
+        'image/png' : true,
+        'image/jpeg': true,
+        'image/gif' : true
+    };
+
+/* Előnézet */
+function elonezet_{MEGN}(file){
+    
+    /* Ha van filereader, és képelemről van szó, akkor készítünk egy thumbnailt */
+    if (tests_{MEGN}.filereader === true && kepformatumok_{MEGN}[file.type] === true) {
+        var reader = new FileReader();
+        reader.onload = function (event) {
+            var image   = new Image();
+            image.src   = event.target.result;
+            jsff_{MEGN}.appendChild(image);
+        };
+        reader.readAsDataURL(file);
+        
+    /* Egyébként csak egy sort írunk */
+    }else{
+        jsff_{MEGN}.innerHTML += 'Feltöltve ' + file.name + ' ' + (file.size ? (file.size/1024|0) + 'K' : '') + '<br>';
+    }
+    
+}
+
+/* Beolvasás */
+function beolvasas_{MEGN}(fajlok){
+    
+    var formData        = tests_{MEGN}.formdata ? new FormData() : null;
+    var fajlok_kesz     = 0;
+    var hibas_fajlok    = 0;
+    
+    for (var i = 0; i < fajlok.length; i++){
+
+        if(tests_{MEGN}.formdata{CSAK_KEP2}){
+
+            formData.append('file', fajlok[i]);
+            /* Kép megjelenítése egyből: */
+            /*elonezet_{MEGN}(fajlok[i]);*/
+            
+            var progress_id = 'jsff_{MEGN}_' + i;
+            var pg = $('<progress id="'+progress_id+'" min="0" max="100" value="0">0</progress>');
+            $('#jsff_{MEGN}').append(pg);
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '{PHP_FAJL}');
+
+            (function(progress_id){
+                xhr.upload.onprogress = function(e){
+                    var percent = parseInt(e.loaded / e.total * 100);
+                    $('#' + progress_id).val(percent);
+                };
+                xhr.onload = function(){
+                    fajlok_kesz++;
+                    $('#' + progress_id).val(100);
+                    $('#' + progress_id).fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
+                    
+                    if(this.responseText.substring(0,5)=='Hiba!'){
+                        alert2(this.responseText);
+                    }else{
+                        $('#sorrendezes_tobbkep').append(this.responseText);
+                        if (fajlok_kesz == fajlok.length-hibas_fajlok){
+                            minden_fajl_kesz_{MEGN}();
+                        }
+                    }
+                    
+                };
+            }(progress_id));
+
+            var parameterek = {{PARAMETEREK}};
+            $.each(parameterek, function(kulcs, ertek){
+                formData.append(kulcs, ertek);
+            });
+            
+            xhr.send(formData);
+            
+        /* Hibás vagy nem támogatott fájlokról tájékoztatjuk a usert */
+        }else{
+            
+            $('.uzenet').html('');
+            $('.hiba').append('<b>' + fajlok[i].name + '</b> nem támogatott fájlformátum, feltöltés nem lehetséges!<br>');
+            hibas_fajlok++;
+        }
+            
+    }
+}
+
+/* Ha minden fájl feltöltése kész, akkor itt adhat meg további utasítás */
+function minden_fajl_kesz_{MEGN}(){
+    {MINDEN_KESZ}
+    $('#jsff_{MEGN}').find('progress').fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
+}
+
+/* Ha működik a drag&drop, akkor a CSS class-t megváltoztatjuk draghoverre */
+if(tests_{MEGN}.dnd){
+    
+    jsff_{MEGN}.ondragover = function(){
+        this.className = 'jsff hover';
+        return false;
+    };
+    
+    jsff_{MEGN}.ondragleave = function(){
+        this.className = 'jsff';
+        return false;
+    };
+    
+    jsff_{MEGN}.ondrop = function(e){
+        this.className = 'jsff';
+        e.preventDefault();
+        beolvasas_{MEGN}(e.dataTransfer.files);
+    };
+    
+}
+</script>

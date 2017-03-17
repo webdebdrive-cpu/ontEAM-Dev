@@ -1,0 +1,468 @@
+::selection {
+	background: #f00;
+}
+::-moz-selection {
+	background: #f00;
+}
+
+/* Alapvető HTML elemek */
+body{
+	color: #f00;
+    font-family: 'Comic Sans Ms';
+    font-size: 1rem;
+	font-weight: normal;
+	padding: 0rem 0rem 0rem 0rem;
+}
+
+.kiemelt {
+    color: #C3291D;
+}
+
+.csik {
+    background: #D6D6D6;
+    height: 0.1rem;
+    margin: 0rem auto;
+    overflow: hidden;
+}
+
+h1{
+	color: #f00;
+}
+
+h2{
+    color: #f00;
+}
+
+h3{
+    color: #f00;
+}
+
+h4{
+    color: #f00;
+}
+
+h5{
+    color: #f00;
+}
+
+h6{
+	color: #f00;
+}
+
+a{
+	color: #f00;
+    text-decoration: none;
+	font-size: 1rem;
+	font-weight: normal;
+    transition: color 0.2s;
+}
+
+a:hover{
+	color: #f00;
+	text-decoration: none;
+	font-size: 1rem;
+	font-weight: normal;
+}
+
+p{
+
+}
+
+img.b{
+	border: 0.1rem solid #f00;
+	padding: 0.2rem;
+}
+
+img.balmargo{
+	float: right;
+	margin: 0rem 0rem 1rem 1rem;
+}
+
+img.jobbmargo{
+	float: left;
+	margin: 0rem 1rem 1rem 0rem;
+}
+
+textarea{
+	background: #F5F5F5;
+    border: 0.1rem solid #696969;
+	color: #f00;
+    font-size: 1rem;
+    height: 10rem;
+	outline: none;
+    padding: 0.2rem;
+	width: 26rem;
+    resize: none;
+}
+
+textarea:focus{
+	background-color: #fff;
+}
+
+th{
+	border: 0rem;
+    color: #f00;
+    font-size: 1rem;
+	font-weight: normal;
+}
+
+select{
+	background: #f00;
+	border: 0.1rem solid #f00;
+    color: #fff;
+	font-weight: normal;
+	font-size: 1rem;
+	padding: 0.1rem;
+    text-align: left;
+}
+
+/* Formázott select */
+.select_style {
+    background: #f9f9f9;
+    border: 0.1rem solid #c1c1c1;
+    border-radius: 0.4rem 0.4rem 0.4rem 0.4rem;
+    box-shadow: 0rem 0.1rem 0rem 0rem #d0d0d0;
+    height: 5rem;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.select_style:before {
+    border-color: #f9f9f9 transparent transparent transparent;
+    border-style: solid;
+    border-width: 0.6rem 0.35rem 0 0.35rem;
+    border-radius: 0.2rem 0.2rem 0rem 0rem;
+    content: '';
+    height: 0;
+    position: absolute;
+    top: 1.7rem;
+    right: 2.2rem;
+    width: 0;
+    z-index: 2;
+}
+
+.select_style:after {
+    border-color: #818181 transparent transparent transparent;
+    border-style: solid;
+    border-width: 0.7rem 0.5rem 0 0.5rem;
+    border-radius: 0.2rem 0.2rem 0rem 0rem;
+    content: '';
+    height: 0;
+    position: absolute;
+    top: 50%;
+    right: 2rem;
+    transform: translateY(-50%);
+    width: 0;
+}
+
+.select_style select {
+    background: none;
+    appearance: none;
+    border: none;
+    cursor: pointer;
+    color: #565555;
+    font-size: 1.5rem;
+    height: 5rem;
+    padding: 0rem 2rem 0rem 2rem;
+    width: 100%;
+}
+
+.select_style option{
+    font-size: 1.7rem;
+    padding: 0.6rem 0rem 0.6rem 0.6rem;
+}
+
+input{
+	background: #f00;
+	border: 0.1rem solid #f00;
+    border-radius: 0.5rem;
+	color: #fff;
+	font-size: 1rem;
+	font-weight: normal;
+    line-height: 1;
+    margin: 0rem 0rem 0rem 0rem;
+    outline: none;
+	padding: 0.2rem;
+    resize: none;
+	text-align: left;
+}
+
+/* Input végébe csillag, ha kötelező */
+.csillag, .csillag:focus{
+    background: url('elemek/admin/csillag.png') no-repeat;
+    background-position: 98.5% 50%;
+}
+
+.gomb, button, input[type='button']{
+	background: #f00;
+	border: 0.1rem solid #696969;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+	font-weight: normal;
+	text-align: center;
+    transition: all ease-in-out 0.2s;
+}
+
+.gomb:hover, .gomb:active, .gomb:focus, button:hover, button:active, button:focus, input[type='button']:hover, input[type='button']:active, input[type='button']:focus{
+	background: #f00;
+	border: 0.1rem solid #f00;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+	font-weight: normal;
+	text-align: center;
+    transition: all ease-in-out 0.2s;
+}
+
+.gombb{
+	background: #f00;
+	border: 0.1rem solid #f00;
+    color: #fff;
+	cursor: pointer;
+    font-size: 1rem;
+	font-weight: normal;
+	text-align: center;
+}
+
+.gombb:hover, .gombb:active, .gombb:focus{
+	background: #f00;
+	border: 0.1rem solid #f00;
+    color: #fff;
+}
+
+input:focus{
+	background: #f00;
+	border: 0.1rem solid #696969;
+	color: #fff;
+}
+
+input.alert{
+	border: 0.1rem solid #f00;
+}
+
+input.gyk_szurke{
+    color: #4B4B4B;
+}
+
+.form_bal{
+    padding: 0.2rem 0.4rem 0.2rem 0rem;
+}
+
+.form_jobb{
+    padding: 0.2rem 0rem 0.2rem 0.4rem;
+}
+
+.form_feliratok{
+    margin: 1rem 0rem 0.4rem 0rem;
+    font-weight: bold;
+    text-align: center
+}
+
+.f_mail_rejtes{
+    display: none;
+}
+
+.szep{
+    border-bottom: 0.1rem solid #DDDDDD;
+    margin: 0rem 0rem 0rem 0rem;
+    padding: 2rem 0rem 0rem 0rem;
+}
+
+/* Egy szélesség/magasság limitre még szükség van, hogy működjön */
+.resz_string {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+table.csikos{
+    border: 0.1rem solid #C9D3DD;
+}
+
+table.csikos tr:nth-of-type(2n){
+    background: #ECEDEE;
+}
+
+table.csikos th{
+    background: #DDE8F3;
+    font-weight: bold;
+    padding: 1rem 1.5rem;
+}
+
+table.csikos td{
+    padding: 1rem 1.5rem;
+}
+
+table.csikos tr.link:hover{
+    background: #E6F1F8;
+}
+
+fieldset{
+    border: 0.1rem solid #f00;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+legend{
+    padding: 0rem 0.5rem;
+}
+
+/* CSS-ezett checkbox További példák: D:\AppServ\www\!WebDeb Engine v2.8\!MODULOK\CSS megoldások\checkbox.html */
+label.checkbox {
+    display: block;
+    cursor: pointer;
+    margin: 1rem 0rem 0rem 0rem;
+}
+
+label.checkbox input[type='checkbox'] {
+    display: none;
+}
+
+label.checkbox span.label_text {
+    color: #262626;
+    display: block;
+    font-size: 1.4rem;
+    line-height: 2.4rem;
+    padding: 0.1rem 0rem 0rem 3.4rem;
+    position: relative;
+}
+
+label.checkbox span.label_text span.ikon {
+    background: #f1f1f1;
+    border: 0.1rem solid #cbcbcb;
+    border-radius: 0.2rem;
+    height: 2.5rem;
+    position: absolute;
+    top: 0rem;
+    left: 0rem;
+    width: 2.5rem;
+}
+
+label.checkbox span.label_text span.ikon.alert {
+    border: 0.1rem solid #FF0D0D;
+}
+
+label.checkbox input:checked + span.label_text span.ikon {
+    animation: arnyek 500ms;
+}
+
+@keyframes arnyek {
+    0% {
+        box-shadow: 0rem 0rem 0rem 0rem rgba(241, 241, 241, 1);
+    }
+    100% {
+        box-shadow: 0rem 0rem 0rem 5rem rgba(241, 241, 241, 0);
+    }
+}
+
+label.checkbox span.label_text span.ikon span {
+    height: 2.5rem;
+    position: absolute;
+    top: 0rem;
+    left: 0rem;
+    transform: scale(0);
+    transition: all 100ms ease-in-out;
+    width: 2.5rem;
+}
+
+label.checkbox span.label_text span.ikon span:before {
+    background: #313131;
+    border-radius: 0.1rem;
+    content: '';
+    height: 0.3rem;
+    position: absolute;
+    top: 1.2rem;
+    left: 0.2rem;
+    transform: rotate(45deg);
+    width: 0.9rem;
+}
+
+label.checkbox span.label_text span.ikon span:after {
+    background: #313131;
+    border-radius: 0.1rem;
+    content: '';
+    height: 0.3rem;
+    position: absolute;
+    top: 1rem;
+    left: 0.6rem;
+    transform: rotate(135deg);
+    width: 1.5rem;
+}
+
+label.checkbox input:checked + span.label_text span.ikon span {
+    transform: scale(1);
+    transition: all 100ms ease-in-out;
+}
+
+/* CSS-ezett radio button. További példák: D:\AppServ\www\!WebDeb Engine v2.8\!MODULOK\CSS megoldások\checkbox.html */
+label.radio {
+    display: block;
+    cursor: pointer;
+    margin: 1rem 0rem 0rem 0rem;
+}
+
+label.radio input[type='radio'] {
+    display: none;
+}
+
+label.radio span.label_text {
+    color: #262626;
+    display: block;
+    font-size: 1.4rem;
+    line-height: 2.4rem;
+    padding: 0.1rem 0rem 0rem 3.4rem;
+    position: relative;
+}
+
+label.radio span.label_text span.ikon {
+    background: #f1f1f1;
+    border: 0.1rem solid #cbcbcb;
+    border-radius: 1.2rem;
+    height: 2.5rem;
+    position: absolute;
+    top: 0rem;
+    left: 0rem;
+    width: 2.5rem;
+}
+
+label.radio input:checked + span.label_text span.ikon {
+    animation: arnyek 500ms;
+}
+
+@keyframes arnyek {
+    0% {
+        box-shadow: 0rem 0rem 0rem 0rem rgba(241, 241, 241, 1);
+    }
+    100% {
+        box-shadow: 0rem 0rem 0rem 5rem rgba(241, 241, 241, 0);
+    }
+}
+
+label.radio span.label_text span.ikon span {
+    height: 2.5rem;
+    position: absolute;
+    top: 0rem;
+    left: 0rem;
+    transform: scale(0);
+    transition: all 100ms ease-in-out;
+    width: 2.5rem;
+}
+
+label.radio span.label_text span.ikon span:before {
+    background: #313131 none repeat scroll 0 0;
+    border-radius: 9.1rem;
+    content: '';
+    height: 1.5rem;
+    left: 0.4rem;
+    position: absolute;
+    top: 0.4rem;
+    transform: rotate(45deg);
+    width: 1.5rem;
+}
+
+label.radio input:checked + span.label_text span.ikon span {
+    transform: scale(1);
+    transition: all 100ms ease-in-out;
+}

@@ -1,0 +1,52 @@
+<div id="teto"></div>
+<script src="../js/wdb_admin_min.js"></script>
+<div class="dt header">
+    <div class="dtc logo">
+        <a href="index.php"><img src="../elemek/logo.png" alt="Danubius hotel"></a>
+    </div>
+    <div class="dtc bejelent">DH Szla rendszer</div>
+    <div class="dtc nav"><a href="javascript: felh_valt( true ); void(0);">{FELH_NEV}</a></div>
+    <div class="dtc nav"><a href="">Danubius hotel</a></div>
+    <div class="dtc nav"><a href="beleptetes.php?kilep">Kilépés</a></div>
+</div>
+<div class="menu">
+    <ul id="sddm">
+        {MENUK}
+    </ul>
+</div>
+
+<div class="szamlaKereses{KERESODN}">
+    <div class="ilb gyorskereso">
+        <div class="dtc vat">
+            <input type="text" value="" name="szamlalista" id="szamlaListaKeres" data-tabla="{TABLA}" placeholder="Számla szűkítés" autocomplete="off">
+        </div>
+        <div class="dtc vat">
+            <input class="gomb kereso_gomb" type="submit" value="Keresés" style="position: relative;">
+        </div>
+        <input type="hidden" name="lista">
+    </div>
+
+    <div class="ilb feltetelSzures">
+        <select class="" name="">
+            <option value="">Szűrési mező</option>
+            <option value="">Név</option>
+        </select>
+        <select class="" name="">
+            <option value="">Művelet</option>
+            <option value=""><</option>
+            <option value="">></option>
+            <option value="">>=</option>
+            <option value=""><=</option>
+            <option value="">=</option>
+        </select>
+        <select class="" name="">
+            <option value="">Feltétel</option>
+        </select>
+    </div>
+</div>
+
+<div class="sor{CSS} clearFix">
+    <div id="tartalomBal" class="bal"{TBALW}>{TARTBAL}</div>
+    <div id="tartalomJobb" class="dt full jobb"{TJOBBW}>
+        <div id="csuszkaallit" class="bborder"></div>
+        <div class="tKeret">

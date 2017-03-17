@@ -1,0 +1,136 @@
+#szurkit,
+.szurkit {
+    background-color: #000;
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 100;
+}
+
+.szurkit {
+    opacity: 0.2;
+}
+
+.szurkit.dn {
+    display: none;
+}
+
+#alert2 {
+    position: fixed;
+    z-index: 1000;
+}
+
+#beleptet_alert {
+    width: 40rem;
+    margin: auto;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    z-index: 1000;
+}
+
+#alert2 img.bezar{
+    position: absolute;
+    right: -1rem;
+    top: -1rem;
+}
+
+#alert2 .gomb{
+    background-image: none;
+	background: #596B86;
+    border: 0.0rem;
+	border-radius: 0.2rem;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    font-size: 1.4rem;
+    height: auto;
+    margin: 0rem 0.5rem 0rem 0rem;
+    padding: 0.7rem 1.2rem;
+    text-align: center;
+    width: auto;
+}
+
+#alert2 .gombb{
+    background-image: none;
+	background: #596B86;
+    border: 0.0rem;
+	border-radius: 0.2rem;
+    color: #FFFFFF;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+    font-size: 1.8rem;
+    height: auto;
+    margin: 0rem 0rem 0rem 0rem;
+    padding: 0.8rem 1.4rem;
+    text-align: center;
+    width: auto;
+}
+
+#alert2 .gomb:hover,  #alert2 .gomb:active,  #alert2 .gomb:focus,
+#alert2 .gombb:hover, #alert2 .gombb:active, #alert2 .gombb:focus{
+	background: #6B7E9A;
+}
+
+#alert2 .gombb.piros, #alert2 .gomb.piros{
+    background: #C44B4B;
+}
+
+#alert2 .gombb.piros:hover, #alert2 .gomb.piros:hover{
+    background: #D35454;
+}
+
+#alert2 .gombb.zold, #alert2 .gomb.zold{
+    background: #69A64E;
+}
+
+#alert2 .gombb.zold:hover, #alert2 .gomb.zold:hover{
+    background: #76B958;
+}
+
+div.figy {
+    border: 0.1rem solid #c6c6c6;
+    border-radius: 0.2rem;
+}
+
+div.figy div.header{
+    background: #4D5B6F;
+    border-top-left-radius: 0.2rem;
+    border-top-right-radius: 0.2rem;
+    color: #fff;
+    font-size: 1.6rem;
+    height: 3.5rem;
+    padding: 0.9rem 0rem 0rem 2rem;
+}
+
+div.figy div.header h1{
+    color: #fff;
+    font-size: 1.6rem;
+    margin: 0;
+    padding: 0;
+}
+
+div.figy div.header td.cim {
+    color: #fff;
+    font-size: 1.6rem;
+}
+
+div.figy div.tart {
+    background: #fff;
+    color: #39424F;
+    font-size: 1.3em;
+    font-weight: bold;
+    padding: 3rem 3rem 3rem 3rem;
+    text-align: center;
+}
+
+div.figy div.f_footer {
+    background: #F6F4EE;
+    border-bottom-left-radius: 0.2rem;
+    border-bottom-right-radius: 0.2rem;
+    margin: 0rem 0rem 0rem 0rem;
+    padding: 0.5rem 0rem 0.5rem 0rem;
+}

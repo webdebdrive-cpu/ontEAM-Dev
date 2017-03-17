@@ -1,0 +1,35 @@
+<div class="dtr">
+    <div class="dtc">
+        
+        <form id="kij_torl" method="post" action="{ACTION}">
+            
+            <table class="table_mod" id="lista_table">
+                <tr>
+                    <td></td>
+                    <td></td>
+                    {FEJLECEK}
+                    <td class="fejlec">
+                        <input class="check" type="checkbox" onclick="if(this.checked==true){ checkbox_beallit('kij_torl',true); }else{ checkbox_beallit('kij_torl',false); }" alt="Mindet kijelöli/törli" title="Mindet kijelöli/törli">
+                        <span class="link torol" onclick="alert2('#mindent', '')" title="Kijelöltek törlése">✘</span>
+                        <div id="mindent" class="dn">
+                            Biztosan törlöd a kijelölteket?
+                            <p class="c" style="margin-top: 5px">
+                                <input class="gomb" type="button" value="Igen" onclick="document.getElementById('kij_torl').submit()">
+                                <input class="gomb" type="button" value="Nem" onclick="alert2()">
+                        </div>
+                    </td>
+                </tr>
+                
+                {SOROK}
+                
+            </table>
+            
+            <div>
+                <input type="hidden" name="tabla" value="{MEGNEVEZES}">
+                {TOBBKEP}<input type="hidden" name="oszlopnev" value="{TOBBKEP_OSZLOP}">
+            </div>
+            
+        </form>
+        
+    </div>
+</div>

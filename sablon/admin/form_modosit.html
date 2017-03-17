@@ -1,0 +1,30 @@
+<div class="dtr">
+    <div class="dtc">
+        {JS}
+        {CK_EDITOR}
+        <form id="szerk_form" action="{ACTION}" enctype="multipart/form-data" method="post" onsubmit="javascript:return form_ell_admin()">
+            <div class="dt full">
+                {MEZOK}
+            </div>
+            <script>
+                $(document).ready(function () {
+                    $('.datepicker').datetimepicker({
+                        mask: true,
+                        format:'Y.m.d',
+                        onChangeDateTime: function(){ $('#mehet_gomb').addClass('gombb_alert'); }
+                    });
+                });
+            </script>
+            <div>
+                <input type="hidden" name="{MEGNEVEZES}lista">
+                <input type="hidden" id="{MEGNEVEZES}ujkent_szerk" name="{MEGNEVEZES}ujkent_szerk" value="">
+            </div>
+            <div class="muveletek">
+                {GOMBOK}
+            </div>
+        </form>
+    </div>
+    <div class="dtc padd" style="vertical-align: top">
+        {KEP}
+    </div>
+</div>

@@ -1,0 +1,110 @@
+<!--
+        <div class="footer_lablec">
+            <div class="bal fll">
+                &copy; {EV_NEV} - Mindenjog fenntartva
+            </div>
+            <div class="jobb flr">
+                <div class="fll">Készítette a:</div>
+                <a class="fll" href="http://www.webdeb.hu" target="_blank">
+                    <img src="elemek/WebDeb.png" alt="WebDeb.hu" title="WebDeb.hu">
+                </a>
+            </div>
+            <div class="clear"></div>
+        </div>
+
+Minta CSS a fentihez:, felhasználás után töröld innen.
+div.footer_lablec{
+    padding: 1.6rem 0rem 0rem;
+}
+div.footer_lablec, div.footer_lablec a, div.footer_lablec a:hover{
+    color: #7B7B7B;
+    font-size: 1.1rem;
+    text-decoration: none;
+}
+div.footer_lablec div.bal {
+    padding: 0.4rem 0rem 0rem 3rem;
+}
+div.footer_lablec div.jobb {
+    padding-right: 6rem;
+}
+div.footer_lablec div.jobb div {
+    margin-top: 0.3rem;
+}
+div.footer_lablec div.jobb img {
+    margin-left: 1.5rem;
+}
+-->
+
+        <div class="cookie rejt">
+            <div class="dt">
+                <div class="dtc">
+                    <strong>Cookie értesítés</strong>
+                    <br>Az oldalon történő látogatása során cookie-kat ("sütiket") használunk. Ezen fájlok információkat szolgáltatnak számunkra a felhasználó oldallátogatási 
+                    <br>szokásairól, de nem tárolnak személyes információkat. Az oldalon történő továbblépéssel elfogadja a cookie-k használatát. <a href="/cookie.php">További információk »</a>
+                </div>
+                <div class="dtc">
+                    <span onclick="$('div.cookie').addClass('rejt'); createCookie('cookie_jog', '1', '365')">Ok</span>
+                </div>
+            </div>
+        </div>
+
+        <script async src="js/wdb_async_min{NYELV}.js"></script>
+        <script>
+            $(document).ready(function() {
+                window.setTimeout(function() {
+                    $('.skype_pnh_container').html('');
+                    $('.skype_pnh_print_container').removeClass('skype_pnh_print_container');
+                }, 800);
+                
+            });
+        </script>
+        <script>
+        /* Cron használatához aktiváld
+            $.ajax({
+                url : 'index.php',
+                type: 'GET',
+                data: esamp2es('cron_futtat=' + new Date().getTime()),
+                success: function(html){
+                    if(html){
+                        cimek = html.split('|cron_szep|');
+                        for(i=0; i<cimek.length; i++){
+
+                            if(cimek[i]){
+                                cim = cimek[i].split('?');
+                                $.ajax({
+                                    url : cim[0],
+                                    type: 'GET',
+                                    data: esamp2es(cim[1]+'&amp;x=' + new Date().getTime()),
+                                    success: function(html){
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+            });
+            */
+        </script>
+        <script>
+            /* Responsive oldalakhoz, ha különböző méretű képeket szeretnénk betölteni
+             * használata <img  src="mobilkep.jpg"
+                                data-src-desktop="desktop.jpg"
+                                data-src-tablet="tablet.jpg"
+                                data-src-mobil="mobil.jpg"
+                                class="respo"
+                               >
+            $(document).ready(function(){
+
+                var tablet_szel = '';   // Alapértelmezetten 840, de itt felülírható. Az idézőjelek közé egy számot írj, pl: '450'
+                var mobil_szel  = '';   // Alapértelmezetten 620, de itt felülírható. Az idézőjelek közé egy számot írj, pl: '250'
+                
+                respo_kepek(tablet_szel, mobil_szel);
+                $(window).bind('resize', function(){
+                    respo_kepek(tablet_szel, mobil_szel);
+                });
+
+             });
+             */
+        </script>
+    </body>
+</html>

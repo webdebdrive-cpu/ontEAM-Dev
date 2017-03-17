@@ -1,0 +1,196 @@
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, input, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, textarea, time, mark, audio, video {
+    border: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* HTML5 display szabályait is nullázzuk le a réi böngészők miatt */
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+    display: block;
+}
+
+html{
+    font-size: 62.5%;
+}
+
+body {
+    font-size: 1.6rem;
+    line-height: 1.2;
+}
+
+*:active, object:focus, embed:focus, a {
+    outline: none;
+}
+
+*.pointer {
+    cursor: pointer;
+}
+
+blockquote, q {
+    quotes: none;
+}
+
+/* Inputokba kattintva az ne kerüljön kijelölésre semmilyen böngésző alól sem */
+textarea:focus, input:focus {
+    outline: none;
+}
+
+input.checkbox, input.checkbox:hover, input.checkbox:active, input.checkbox:focus {
+    border: 0;
+}
+
+input[type='checkbox'], input[type='radio'] {
+    height: auto;
+    width: auto;
+}
+
+ol, ul {
+    list-style: none;
+}
+
+/* Floatingkor van jelentősége */
+.clear {
+    clear: both;
+}
+.clearFix:after {
+    content: '.';
+    clear: both;
+    display: block;
+    height: 0rem;
+    line-height: 0rem;
+    visibility: hidden;    
+}
+
+/* Képek */
+img {
+    margin: 0 auto;
+    padding: 0;
+    border: 0;
+}
+
+img.l {
+    float: left;
+}
+
+img.r {
+    float: right;
+}
+
+
+
+/* Táblázat */
+table {
+    margin: 0;
+    border-collapse: collapse;
+}
+
+td.top {
+    vertical-align: top;
+}
+
+td.middle {
+    vertical-align: middle;
+}
+
+td.bottom {
+    vertical-align: bottom;
+}
+
+
+/* Általános stílusok */
+.alert  { color: #E00000;               }
+.at     { text-decoration: line-through;}
+.auto   { margin: 0 auto;               }
+.b      { font-weight: bold;            }
+.c      { text-align: center;           }
+.debug  { border: 0.1rem solid #f00;    }
+.db     { display: block;               } 
+.di     { display: inline;              }
+.dib    { display: inline-block;        }
+.dn     { display: none;                }
+.dt     { display: table;               }
+.dtc    { display: table-cell;          }
+.dtr    { display: table-row;           }
+
+.f1,  .f1:hover  { font-size: 0.1rem;   }
+.f2,  .f2:hover  { font-size: 0.2rem;   }
+.f3,  .f3:hover  { font-size: 0.3rem;   }
+.f4,  .f4:hover  { font-size: 0.4rem;   }
+.f5,  .f5:hover  { font-size: 0.5rem;   }
+.f6,  .f6:hover  { font-size: 0.6rem;   }
+.f7,  .f7:hover  { font-size: 0.7rem;   }
+.f8,  .f8:hover  { font-size: 0.8rem;   }
+.f9,  .f9:hover  { font-size: 0.9rem;   }
+.f10, .f10:hover { font-size: 1.0rem;   }
+.f11, .f11:hover { font-size: 1.1rem;   }
+.f12, .f12:hover { font-size: 1.2rem;   }
+.f13, .f13:hover { font-size: 1.3rem;   }
+.f14, .f14:hover { font-size: 1.4rem;   }
+.f15, .f15:hover { font-size: 1.5rem;   }
+.f16, .f16:hover { font-size: 1.6rem;   }
+.f17, .f17:hover { font-size: 1.7rem;   }
+.f18, .f18:hover { font-size: 1.8rem;   }
+.f19, .f19:hover { font-size: 1.9rem;   }
+.f20, .f20:hover { font-size: 2.0rem;   }
+.f21, .f21:hover { font-size: 2.1rem;   }
+.f22, .f22:hover { font-size: 2.2rem;   }
+.f23, .f23:hover { font-size: 2.3rem;   }
+.f24, .f24:hover { font-size: 2.4rem;   }
+.f25, .f25:hover { font-size: 2.5rem;   }
+.f26, .f26:hover { font-size: 2.6rem;   }
+.f27, .f27:hover { font-size: 2.7rem;   }
+.f28, .f28:hover { font-size: 2.8rem;   }
+.f29, .f29:hover { font-size: 2.9rem;   }
+.f30, .f30:hover { font-size: 3.0rem;   }
+.f31, .f31:hover { font-size: 3.1rem;   }
+.f32, .f32:hover { font-size: 3.2rem;   }
+.f33, .f33:hover { font-size: 3.3rem;   }
+.f34, .f34:hover { font-size: 3.4rem;   }
+.f35, .f35:hover { font-size: 3.5rem;   }
+.f36, .f36:hover { font-size: 3.6rem;   }
+.f37, .f37:hover { font-size: 3.7rem;   }
+.f38, .f38:hover { font-size: 3.8rem;   }
+.f39, .f39:hover { font-size: 3.9rem;   }
+.f40, .f40:hover { font-size: 4.0rem;   }
+.f41, .f41:hover { font-size: 4.1rem;   }
+.f42, .f42:hover { font-size: 4.2rem;   }
+.f43, .f43:hover { font-size: 4.3rem;   }
+.f44, .f44:hover { font-size: 4.4rem;   }
+.f45, .f45:hover { font-size: 4.5rem;   }
+.f46, .f46:hover { font-size: 4.6rem;   }
+.f47, .f47:hover { font-size: 4.7rem;   }
+.f48, .f48:hover { font-size: 4.8rem;   }
+.f49, .f49:hover { font-size: 4.9rem;   }
+.f50, .f50:hover { font-size: 5.0rem;   }
+
+.feher  { color: #fff;                  }
+.fekete { color: #000;                  }
+.fll    { float: left;                  }
+.flr    { float: right;                 }
+.full   { width: 100%;                  }
+.i      { font-style: italic;           }
+.j      { text-align: justify;          }
+.kek    { color: #00f;                  }
+.l      { text-align: left;             }
+.link   { cursor: pointer;              }
+.normal { font-weight: normal;          }
+.nolink { cursor: default;              }
+.nowrap { white-space: nowrap;          }
+.oh     { overflow: hidden;             }
+/*.opa    { opacity: 0.5;                 } index.php?latvanyterv-el hozható elő, sitebuildhez használjuk már csak */
+.p      { padding: 0.5rem;              }
+.p2     { padding: 0.2rem 0.5rem;       }
+.padd   { padding: 1rem;                }
+.padd2  { padding: 0.2rem 1rem;         }
+.piros  { color: #f00;                  }
+.r      { text-align: right;            }
+.u      { text-decoration: underline;   }
+.up     { text-transform: uppercase;    }
+.vat    { vertical-align: top;          }
+.vam    { vertical-align: middle;       }
+.vab    { vertical-align: bottom;       }
+.vh     { visibility: hidden;           }
+.zold   { color: #0f0;                  }
+
+.kijelol_tilt{ user-select: none;       }

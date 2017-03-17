@@ -1,0 +1,35 @@
+div.lapoz_cont{
+    border: 0;
+    height: 1.6rem;
+    margin: 0 auto;
+    margin-bottom: 0.7rem;
+    overflow: hidden;
+    padding: 0.4rem 0 0 0;
+    width: 50rem;
+}
+
+div.lapoz{
+    border: 0.1rem solid #D2DCE7;
+    border-radius: 0.3rem;
+    cursor: pointer;
+    float: left;
+    font-size: 1.5rem;
+    height: 3.4rem;
+    margin: 0 0.5rem 0 0.2rem;
+    overflow: hidden;
+    padding: 0.7rem 0.2rem 0.2rem;
+    text-align: center;
+    vertical-align: middle;
+    min-width: 3.4rem;
+    width: auto;
+}
+
+div.lapoz a, div.lapoz a:hover{
+    color: #2D3740;
+    text-decoration: none;
+}
+
+div.lapoz:hover, div.akt_oldal{
+    background: #EFF2FF;
+    border: 0.1rem solid #929292;
+}
