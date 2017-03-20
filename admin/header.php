@@ -201,7 +201,7 @@ if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $m
 
 $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 
-/* Log 
+/* Log */
 $menu_nev        = 'Log';
 $menu_nev_kis    = 'log';
 $menu_nev_tobbes = 'Log';
@@ -219,7 +219,7 @@ if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $m
 }
 
 $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
-*/
+
 /** Telepítéssel kapcsolatos funkciók */
 /*Telepítés már lefutott
 if(isset($_GET['telepit'])){

@@ -68,7 +68,7 @@ function i_u($type, $tabla, $tomb){
         $muvelet = 'A(z) '.$tabla.'-ba új recordot szúrt be a következő azonosítóval: '.$id.'.';
 
         /* Végrehajtott változtatás */
-        $valtozas = '1.: A(z) <strong>recid</strong> mező a következő értéket kapta: '.$id.'<br>';
+        $valtozas = '1.: A(z) <strong>recid</strong> mező a következő értéket kapta: <strong>'.$id.'</strong><br>';
 
         $i = 2;
         foreach($_POST as $key => $value) {

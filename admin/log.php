@@ -14,7 +14,7 @@ $oszlop_listaz          = 'nev';                //Oszlopnevek, melyeket kilizát
 $gyorskereso_id         = 'ksz';                //Gyorskereső input neve és ID-ja
 
 //Változók beállítása
-$csak_szerkesztheto     = true;                 //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
+$csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
 $fajloszlop             = 'kep';                //Kép (vagy kivételes esetekben más fájl) oszlopneve.
 $id_latszik             = false;                //A termék ID-ja látsszon-e a felsorolásnál, kibontásnál (van, hogy ügyfél is használja)
