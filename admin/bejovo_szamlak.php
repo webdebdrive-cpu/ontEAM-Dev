@@ -6,7 +6,7 @@ $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $bejovo_szamlak_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'bejegyzést';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'számla';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 $gyorskereso_text       = '';       //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
 $oszlop_keres           = 'nev';                //Oszlopnevek, melyben keresünk (több oszlop is felsorolható vesszőkkel)
@@ -121,6 +121,31 @@ if($gyorskereso_text){
     $gyk2 = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon2);
 }
 
+    if( isset($_GET['modosit']) || isset($_GET['naplo']) || isset($_GET['dokumentumok']) ) {
+        /* Számla fülek */
+        $ful_tomb = array(
+            'modosit'       => 'Adatlap',
+            'naplo'         => 'Napló',
+            'dokumentumok'  => 'Dokumentumok'
+        );
+
+        $fulek = '';
+        foreach($ful_tomb as $key => $value) {
+            $active = 'active';
+            if( isset($_GET[$key]) ) {
+                $active = ' class="active"';
+            }
+
+            $fulek .= '<a href="'.self().get_get(array('modosit', 'naplo', 'dokumentumok')).'&'.$key.'"'.$active.'>'.$value.'</a>';
+        }
+
+        echo str_replace(
+            array('{FULEK}'),
+            array( $fulek  ),
+            fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
+        );
+    }
+
 	//Új termék felvitele
 	if(isset($_GET['uj']) && !$csak_szerkesztheto){
 
@@ -166,7 +191,7 @@ if($gyorskereso_text){
 	    echo str_replace($form_mit, $form_mivel, $form_sablon);
 
 	//Termék módosítása
-	}elseif(isset($_GET['modosit'])){
+	}elseif(isset($_GET['modosit'])) {
 
         //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
@@ -176,6 +201,14 @@ if($gyorskereso_text){
 	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
 		$sor = $sor[0];
 
+        if( $sor['datetime'] ) {
+            $_SESSION['formMod'] = array(
+                'datetime' => $sor['datetime'],
+                'oldal' => basename(self())
+            );
+        }
+
+        echo '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
 
 	    //Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
@@ -192,9 +225,13 @@ if($gyorskereso_text){
             $gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().'?uj\'" value="Új" title="Új feltöltés">';
         }
         $gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().get_get(array('modosit','errnum','kephiba','siker','id', 'szerkeszt')).'&amp;lista\'" value="Lista" title="Lista megtekintése">';
-        if(!$csak_szerkesztheto){
+        $gombok .= ' <input type="button" id="visszavonas_gomb" disabled="disabled" class="gombb" onclick="location.href=\''.self().get_get().'\'" value="Visszavonás" title="Visszavonás">';
+
+        if( !$csak_szerkesztheto ) {
             $gombok .= ' <input type="button" class="gombb_alert" onclick="alert2(\'Biztosan törlöd ezt a '.$szoveg.'?\',gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
+
+        $gombok .= ' <input type="button" id="kilepes_gomb" class="gombb_alert" onclick="location.href=\''.self().get_get('szerkeszt').'\'" value="Kilépés" title="Kilépés">';
 
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
@@ -204,7 +241,7 @@ if($gyorskereso_text){
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel  = array( $navi,             '',         $gyk2 );
-        echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
+        //echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
 	    //HIBAüZENETEK
 	    require_once('info.php');
@@ -233,8 +270,8 @@ if($gyorskereso_text){
 
         if( isset($_GET['szerkeszt']) ) {
             $gombok = nl2('<div class="form_kuldes">
-                              <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" value="Mentés">
-                          </div>').$gombok;
+                              <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled="disabled" value="Mentés">
+                           </div>').$gombok;
         } else {
             $gombok = '<input type="button" class="gombb" onclick="location.href=\''.self().get_get('szerkeszt').'&szerkeszt\'" value="Szerkeszés" title="Record szerkesztése">';
         }

@@ -164,7 +164,17 @@ td.fejlec a:hover{
     color: #1A1A1A;
     font-size: 1.6rem;
     padding: 1.7rem 0.2rem 0.5rem 0.0rem;
+    position: relative;
     vertical-align: top;
+    white-space: nowrap;
+}
+
+.form_bal span.autocomp {
+    color: #bf3c29;
+    display: inline-block;
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1rem;
 }
 
 .form_kozep{
@@ -232,6 +242,32 @@ input.gomb.border{
     width: 100%;
 }
 
+.form_jobb span.formText {
+    padding: 0rem 1rem 0rem 1rem;
+}
+
+.form_jobb.statusz div.text {
+    color: #69A64E;
+    font-size: 2.4rem;
+    font-weight: 700;
+}
+
+.form_jobb.statusz div.statuszGombok {
+    margin: 1rem 0rem 0rem 0rem;
+}
+
+.form_jobb.statusz div.statuszGombok input.gomb_zold {
+    background: #69A64E;
+    color: #fff;
+    cursor: pointer;
+}
+
+.form_jobb.statusz div.statuszGombok input[disabled="disabled"] {
+    background: #edeaea;
+    color: #0d0d0d;
+    cursor: default;
+}
+
 td.ikon{
     width: 2.2rem;
 }
@@ -276,13 +312,19 @@ input{
 input[disabled="disabled"],
 select[disabled="disabled"],
 textarea[disabled="disabled"] {
-    background: #cecdcd;
-    color: #a4a4a4;
+    background: #edeaea;
+    color: #0d0d0d;
     cursor: default;
 }
 
 input:focus{
     color: #000;
+}
+
+input[type="text"].mod,
+select.mod,
+textarea.mod {
+    background: #ffadaf;
 }
 
 input[type="text"]:focus{
@@ -301,7 +343,7 @@ input.pici{
 
 
 input.kicsi{
-    width: 50%;
+    width: 9.5rem;
 }
 
 input.nagy{
@@ -357,6 +399,13 @@ input.gombb{
     position: relative;
 }
 
+input.gombb[disabled="disabled"],
+input.gombb[disabled="disabled"].gombb_alert {
+    background: #cecdcd;
+    color: #a4a4a4;
+    cursor: default;
+}
+
 input.gombb_alert{
     background: #C44B4B;
     border: 0;
@@ -378,6 +427,7 @@ input.check{
 }
 
 select{
+    background: #F7F7F7;
     border: 0.1rem solid #D2DCE7;
     border-radius: 0.3rem;
     color: #4c4c4c;
@@ -427,6 +477,7 @@ table.table_mod{
 }
 
 textarea{
+    background: #F7F7F7;
     border: 0.1rem solid #CECECE;
     border-radius: 0.3rem;
     color: #4c4c4c;
@@ -446,6 +497,11 @@ textarea.nagy{
 
 textarea.oriasi{
     height: 25rem;
+    width: 100%;
+}
+
+textarea.oriasiTargy{
+    height: 10rem;
     width: 100%;
 }
 
@@ -829,7 +885,7 @@ input.webdeb{
 }
 
 .cb label {
-	background: linear-gradient(top, #CECECE 0%, #F0F0F0 100%);
+	background: #F7F7F7;
     border: 0.1rem solid #CECECE;
     border-radius: 0.4rem;
 	box-shadow: inset rem 0.1rem 0.1rem rgba(0,0,0,0.5), rem 0.1rem rem rgba(255,255,255,.4);
@@ -841,9 +897,13 @@ input.webdeb{
 }
 
 .cb input[type=checkbox][disabled="disabled"] + label {
-    background: #cecdcd;
-    color: #a4a4a4;
+    background: #edeaea;
+    color: #0d0d0d;
     cursor: default;
+}
+
+.cb input.mod + label {
+    background: #ffadaf;
 }
 
 .cb label:after {
@@ -874,8 +934,7 @@ input.webdeb{
 
 /* Input végébe csillag, ha kötelező */
 .csillag, .csillag:focus{
-    background: #f3ffab url('../elemek/admin/csillag.png') no-repeat;
-    background-position: 98.5% 1.5rem;
+    background: #ffff83;
 }
 
 /* Rendelések szerkesztéséhez */
@@ -1201,9 +1260,34 @@ ul.szamla_cont li {
 }
 
 ul.szamla_cont li a {
-    display: block;
+    border-bottom: 0.1rem solid #d6d6d6;
+    display: table;
     font-size: 1.4rem;
     padding: 0.5rem 1rem 0.5rem 2rem;
+    width: 100%;
+}
+
+ul.szamla_cont li a span {
+    display: table-cell;
+    padding: 0.5rem 0rem 0.5rem 0rem;
+    width: auto;
+}
+
+ul.szamla_cont li a span.ikt_szam {
+    width: 20%;
+}
+
+ul.szamla_cont li a span.targy {
+    padding: 0rem 1rem 0rem 1rem;
+    width: 40%;
+}
+
+ul.szamla_cont li a span.netto {
+    width: 20%;
+}
+
+ul.szamla_cont li a span.statusz {
+    width: 20%;
 }
 
 ul.szamla_cont li a:hover {
@@ -1213,11 +1297,12 @@ ul.szamla_cont li a:hover {
 }
 
 ul.szamla_cont li.szamla_datum {
+    border-bottom: 0.2rem solid #024c95;
     padding: 0.3rem 1rem 0.3rem 1rem;
 }
 
 ul.szamla_cont li.szamla_datum strong {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
 }
 
 ul.szamla_cont li.active a {
@@ -1236,4 +1321,30 @@ div.szamlaKereses div.feltetelSzures {
 
 div.szamlaKereses div.feltetelSzures select {
     margin: 0rem 0.5rem 0rem 0rem;
+}
+
+div.szamlaStatusz {
+    margin: 0rem 0rem 2rem 0rem;
+}
+
+div.szamlaFulek {
+    margin: 0rem 0rem 1rem 0rem;
+}
+
+div.szamlaFulek a {
+    background: #cecdcd;
+    border-radius: 0.2rem;
+    display: inline-block;
+    float: left;
+    margin: 0rem .3rem 0rem 0rem;
+    padding: 1rem 1rem 1rem 1rem;
+}
+
+div.szamlaFulek a.active {
+    background: #6F98C7;
+    color: #fff;
+}
+
+div.szamlaFulek a:hover {
+    text-decoration: none;
 }

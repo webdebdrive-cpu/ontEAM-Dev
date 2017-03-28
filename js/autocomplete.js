@@ -1,6 +1,6 @@
 /*
  Használata:
-    
+
     1. config.php-ban felkiáltójellel hívd meg:
         $utvonal.'!js/autocomplete.js',
 
@@ -15,7 +15,7 @@
  */
 (function($) {
     $.fn.autocomplete = function(options) {
-        
+
         var defaults = {
             karaktertol     : 1,                    /* Hány karaktertől induljon a keresés          */
             limit           : 10,                   /* Hány tételt listázzon ki                     */
@@ -23,36 +23,37 @@
             php_fajl        : 'autocomplete.php',   /* PHP fájl, amit meghívunk                     */
             tabla           : '',                   /* Adatbázis tábla, amiben keresünk             */
             oszlop_keres    : '',                   /* Adatbázis tábla oszlopa, amiben keresünk     */
-            oszlop_listaz   : ''                    /* Adatbázis tábla oszlopa, amiket listázunk    */
+            oszlop_listaz   : '',                   /* Adatbázis tábla oszlopa, amiket listázunk    */
+            rkat            : 0                     /* Rendszer kategóriára szűrünk                 */
         };
-        
+
         var options = $.extend(defaults, options);
-        
+
         var width   = $(this).innerWidth();
         var height  = $(this).innerHeight();
         var left    = $(this).offset().left;
         var top     = $(this).offset().top;
-        
+
         $('body').append('<div id="autocomplete"></div>');
-        
+
         $(this).keyup(function(e) {
-            
+
             var length  = $(this).val().length;
             var val     = $(this).val();
             mezo        = $(this);
-            
+
             if(length >= options.karaktertol) {
                 if(options.szel == 'auto') {
-                    
+
                     $('#autocomplete').css({
                         'width'     : width,
                         'left'      : left,
                         'top'       : top+height,
                         'display'   : 'block'
                     });
-                    
+
                 } else {
-                    
+
                     $('#autocomplete').css({
                         'width'     : options.szel,
                         'left'      : left,
@@ -60,9 +61,9 @@
                         'display'   : 'block'
                     });
                 }
-                
+
                 if(e.keyCode!=40 && e.keyCode!=38 && e.keyCode!=13) {
-                    
+
                     $.ajax({
                         url     : options.php_fajl,
                         type    : 'GET',
@@ -71,35 +72,36 @@
                             limit           : options.limit,
                             tabla           : options.tabla,
                             oszlop_keres    : options.oszlop_keres,
-                            oszlop_listaz   : options.oszlop_listaz
+                            oszlop_listaz   : options.oszlop_listaz,
+                            rkat            : options.rkat
                         },
                         success: function(msg) {
                             $('div#autocomplete').html(msg);
                         }
                     });
-                    
+
                 }
-                
+
             } else {
-                
+
                 $('#autocomplete').css({'display' : 'none'});
-                
+
             }
         });
-        
+
         $('#autocomplete').on('mouseover', 'ul li', function() {
             $('#autocomplete ul li').removeClass('aktiv');
             $(this).addClass('aktiv');
         });
-        
+
         $('#autocomplete').on('mouseleave', 'ul li', function() {
             $(this).removeClass('aktiv');
         });
-        
+
         $('#autocomplete').on('mouseleave', function() {
             $(this).removeClass('aktiv');
         });
-        
+
         $('#autocomplete').on('click', 'ul li', function() {
             var link = $('#autocomplete ul li.aktiv').attr('data-href');
             if(link){
@@ -108,8 +110,8 @@
                 mezo.val( $('#autocomplete ul li.aktiv').html() );
             }
         });
-        
-        $(this).keypress(function(e) {      
+
+        $(this).keypress(function(e) {
             if($(this).val() == '') {
                 if(e.keyCode==13) {
                     return false;
@@ -120,9 +122,9 @@
                 }
             }
         });
-        
+
         $(document).click(function() {
-            $('#autocomplete').css({'display':'none'}); 
+            $('#autocomplete').css({'display':'none'});
         });
         $(document).keyup(function(e) {
             if(e.keyCode == 27){
@@ -134,7 +136,7 @@
             var aktiv  = $('#autocomplete ul li.aktiv');
             var first   = $('#autocomplete ul li:first-child');
             var last    = $('#autocomplete ul li:last-child');
-            
+
             if(e.keyCode==40) {
                 if(!$('#autocomplete ul li').hasClass('aktiv')) {
                     first.addClass('aktiv');
@@ -175,6 +177,6 @@
                     $('.kereso_gomb').click();
                 }
             }
-        }); 
+        });
     }
 })(jQuery);

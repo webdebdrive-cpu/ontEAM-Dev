@@ -90,6 +90,19 @@ function i_u($type, $tabla, $tomb){
         $record = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
 
         if( $record ) {
+            if( $record[0]['datetime'] ) {
+                if( $_SESSION['formMod']['oldal'] == basename(self()) ) {
+                    if( $_SESSION['formMod']['datetime'] != $record[0]['datetime'] ) {
+                        echo json_encode(array(
+                            'statusz' => 'hiba',
+                            'uzenet'  => 'Ezt a bejegyzést valaki más már módosította, <br>kérlek kezd előről a szerkesztést!'
+                        ));
+
+                        exit();
+                    }
+                }
+            }
+
             /* Kezdeményezett művelet */
             $muvelet = 'A(z) '.$tabla.' '.$_GET['id'].'. recordját módosította.';
 
@@ -117,10 +130,30 @@ function i_u($type, $tabla, $tomb){
                 array( $_SESSION[get_db_tabla().'user_id'], $muvelet,   $valtozas )
             );
         }
-        echo $valtozas;
-        exit();
+
+        /* Datetime-ot is frissítjük */
+        if( $tabla == 'bejovo_szamlak' || $tabla == 'kimeno_szamlak' ) {
+            array_push($oszlopok, 'datetime'          );
+            array_push($ertekek,   date('Y-m-d H:i:s'));
+        }
 
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
+
+        if( $id ) {
+            $sor = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
+
+            if( $sor ) {
+                $_SESSION['formMod'] = array(
+                    'datetime' => $sor[0]['datetime'],
+                    'oldal' => basename(self())
+                );
+
+                echo json_encode(array(
+                    'statusz' => 'siker',
+                    'adatok' => $sor[0]
+                ));
+            }
+        }
 	}
 //echo $adatbazis_kapcsolat -> getParancs();
 
@@ -249,9 +282,21 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
             url : \''.self().'?id='.$_GET['id'].'\',
             type: \'POST\',
             data: esamp2es(\''.$param.str_replace('.php', '', basename(self())).'lista=1&amp;szerkeszt=1&amp;ajax_form_modosit=\' + new Date().getTime()),
-            success: function(html){
-                alert2(html);
-                $(\'#mehet_gomb\').removeClass(\'gombb_alert\');
+            success: function(html) {
+                if( html ) {
+                    html = JSON.parse(html);
+
+                    if( html.statusz == \'hiba\' ) {
+                        alert2(html.uzenet, \'<p class="c"><input class="link gomb" value="Frissítés" onclick="location.reload();" type="button"></p>\');
+                        return false;
+                    }
+
+                    formAdatok = html.adatok;
+
+                    gombokNullaz();
+                    alert2();
+                    $(\'#mehet_gomb\').removeClass(\'gombb_alert\').attr(\'disabled\', true);
+                }
             }
         });
     ');
@@ -518,11 +563,11 @@ function szamla_lista( $tabla, $val = NULL ) {
 
     $where = '';
     if( $val ) {
-        $where = '`nev` LIKE \'%'.$val.'%\'';
+        $where = '`ikt_szam` LIKE \'%'.$val.'%\'';
     }
 
     if( $tabla ) {
-        $bejovo_szamlak = $adatbazis_kapcsolat->s('recid nev datetime', $tabla, $where, 'datetime desc', '');
+        $bejovo_szamlak = $adatbazis_kapcsolat->s('recid ikt_szam targy netto statusz datetime', $tabla, $where, 'datetime desc', '');
 
         if( $bejovo_szamlak ) {
             $aktDatum = date_formaz($bejovo_szamlak[0]['datetime']);
@@ -530,8 +575,8 @@ function szamla_lista( $tabla, $val = NULL ) {
             $tartBal .= '<ul id="szamlaList" class="szamla_cont">';
 
             $i = 1;
-            foreach($bejovo_szamlak as $bejovo_szamla) {
-                $szamlaDatum = date_formaz($bejovo_szamla['datetime']);
+            foreach($bejovo_szamlak as $bsz) {
+                $szamlaDatum = date_formaz($bsz['datetime']);
 
                 if( $i == 1 || $aktDatum != $szamlaDatum ) {
                     $tartBal .= '<li class="szamla_datum"><strong>'.$szamlaDatum.'</strong></li>';
@@ -540,11 +585,34 @@ function szamla_lista( $tabla, $val = NULL ) {
                 }
 
                 $active = '';
-                if( $bejovo_szamla['recid'] == $_GET['id'] ) {
+                if( $bsz['recid'] == $_GET['id'] ) {
                     $active = ' active';
                 }
 
-                $tartBal .= '<li id="szamla-'.$bejovo_szamla['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bejovo_szamla['recid'].'"><a href="'.self().'?unset=&epo=50&oldal=1&order=nev&id='.$bejovo_szamla['recid'].'&modosit">'.$bejovo_szamla['nev'].'</a></li>';
+                $statusz = '';
+                $szinkod = '';
+                if( $bsz['statusz'] ) {
+                    $statusz_sor = $adatbazis_kapcsolat->s('recid nev szinkod', 'statusz', 'recid='.$bsz['statusz'], '', '1');
+
+                    if( $statusz_sor ) {
+                        $statusz_sor = $statusz_sor[0];
+
+                        $statusz = $statusz_sor['nev'];
+
+                        if( $statusz_sor['szinkod'] ) {
+                            $szinkod = ' style="background: '.$statusz_sor['szinkod'].';"';
+                        }
+                    }
+                }
+
+                $tartBal .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'"'.$szinkod.'>
+                                <a href="'.self().'?unset=&epo=50&oldal=1&order=nev&id='.$bsz['recid'].'&modosit">
+                                    <span class="ikt_szam">'.$bsz['ikt_szam'].'</span>
+                                    <span class="targy">'.$bsz['targy'].'</span>
+                                    <span class="netto">'.number_format($bsz['netto'], 0, '', '.').' '.get_penznem().'</span>
+                                    <span class="statusz">'.$statusz.'</span>
+                                </a>
+                            </li>';
 
                 $i++;
             }

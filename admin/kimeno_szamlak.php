@@ -6,7 +6,7 @@ $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $kimeno_szamlak_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'bejegyzést';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'számla';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 $gyorskereso_text       = '';       //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
 $oszlop_keres           = 'nev';                //Oszlopnevek, melyben keresünk (több oszlop is felsorolható vesszőkkel)
@@ -176,6 +176,7 @@ if($gyorskereso_text){
 	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
 		$sor = $sor[0];
 
+        echo '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
 
 	    //Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
@@ -192,9 +193,13 @@ if($gyorskereso_text){
             $gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().'?uj\'" value="Új" title="Új feltöltés">';
         }
         $gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().get_get(array('modosit','errnum','kephiba','siker','id', 'szerkeszt')).'&amp;lista\'" value="Lista" title="Lista megtekintése">';
+        $gombok .= ' <input type="button" id="visszavonas_gomb" disabled="disabled" class="gombb" onclick="location.href=\''.self().get_get().'\'" value="Visszavonás" title="Visszavonás">';
+
         if(!$csak_szerkesztheto){
             $gombok .= ' <input type="button" class="gombb_alert" onclick="alert2(\'Biztosan törlöd ezt a '.$szoveg.'?\',gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
+
+        $gombok .= ' <input type="button" id="kilepes_gomb" class="gombb_alert" onclick="location.href=\''.self().get_get('szerkeszt').'\'" value="Kilépés" title="Kilépés">';
 
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
@@ -233,7 +238,7 @@ if($gyorskereso_text){
 
         if( isset($_GET['szerkeszt']) ) {
             $gombok = nl2('<div class="form_kuldes">
-                              <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" value="Mentés">
+                              <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled="disabled" value="Mentés">
                           </div>').$gombok;
         } else {
             $gombok = '<input type="button" class="gombb" onclick="location.href=\''.self().get_get('szerkeszt').'&szerkeszt\'" value="Szerkeszés" title="Record szerkesztése">';

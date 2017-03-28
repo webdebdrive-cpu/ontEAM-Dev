@@ -134,3 +134,7 @@ div.figy div.f_footer {
     margin: 0rem 0rem 0rem 0rem;
     padding: 0.5rem 0rem 0.5rem 0rem;
 }
+
+div.noFooter div.figy div.f_footer {
+    padding: 0rem 0rem 0rem 0rem;
+}

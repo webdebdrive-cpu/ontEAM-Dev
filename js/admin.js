@@ -370,7 +370,7 @@ $(function() {
             var cmLeft = event.pageX - mLeft,
                 nbWidth = cbWidth + cmLeft;
 
-            if( nbWidth > 150 && nbWidth < 500 ) {
+            if( nbWidth > 150 && nbWidth < 800 ) {
                 $('#tartalomBal').css('width', nbWidth);
                 $('#tartalomJobb').css('width', 'calc(100% - ' + Math.abs(nbWidth) + 'px)');
 
@@ -395,6 +395,12 @@ $(function() {
 
     $(document).on('keyup', function(e) {
         if( e.keyCode == 38 || e.keyCode == 40 ) {
+            var className = e.target.className;
+
+            if( className.indexOf('disableNav') !== -1 ) {
+                return false;
+            }
+
             if( baseName(location.href) == 'bejovo_szamlak' || baseName(location.href) == 'kimeno_szamlak' ) {
                 if( baseName(location.href) == 'bejovo_szamlak' ) {
                     tabla = 'bejovo_szamlak';
@@ -449,4 +455,157 @@ $(function() {
             });
         }
     });
+
+    formModositva = false;
+    $('#szerk_form').find('input, select, textarea').on('keyup change', function(e) {
+        var name = $(this).attr('name'),
+            type = $(this).attr('type'),
+            val  = $(this).val();
+
+        var taroltVal = htmlspecialchars_decode(formAdatok[name]);
+
+        if( type == 'checkbox' ) {
+            val = $(this).prop('checked');
+        }
+
+        if( $(this).hasClass('datepicker') ) {
+            if( formAdatok[name] != '0000-00-00' ) {
+                var date = new Date(formAdatok[name]);
+
+                var ev    = date.getFullYear(),
+                    honap = date.getMonth() + 1,
+                    nap   = date.getDate();
+
+                if( honap >= 0 && honap < 10 ) {
+                    honap = '0' + honap;
+                }
+
+                if( nap >= 0 && nap < 10 ) {
+                    nap = '0' + nap;
+                }
+
+                taroltVal = ev + '.' + honap + '.' + nap;
+            } else {
+                taroltVal = '____.__.__';
+            }
+        }
+
+        if( taroltVal != val ) {
+            $(this).addClass('mod');
+        } else {
+            $(this).removeClass('mod');
+        }
+
+        var form = $(this).parents('#szerk_form');
+
+        mod = 0;
+        form.find('input, select, textarea').each(function() {
+            if( $(this).hasClass('mod') ) {
+                mod++;
+            }
+        });
+
+        if( mod ) {
+            $('#kilepes_gomb').val('Kilépés mentés nélkül');
+            $('#mehet_gomb').attr('disabled', false).addClass('gombb_alert');
+            $('#visszavonas_gomb').attr('disabled', false);
+
+            formModositva = true;
+        } else {
+            $('#kilepes_gomb').val('Kilépés');
+            $('#mehet_gomb').attr('disabled', true).removeClass('gombb_alert');
+            $('#visszavonas_gomb').attr('disabled', true);
+
+            formModositva = false;
+        }
+
+        e.preventDefault();
+    });
+
+    $(window).bind('beforeunload', function(){
+        if( formModositva ) {
+            return 'Biztos elhagyod az oldalt?';
+        }
+    });
 });
+
+function gombokNullaz() {
+    $('#szerk_form').find('input, select, textarea').each(function() {
+        $(this).removeClass('mod');
+    });
+
+    $('#visszavonas_gomb').attr('disabled', true);
+    $('#kilepes_gomb').val('Kilépés');
+}
+
+function felhValt( that ) {
+    var felh_nev  = $( that ).find('input[name="login_nev"]').val(),
+        felh_mail = $( that ).find('input[name="login_jelszo"]').val();
+
+    if( felh_nev && felh_mail ) {
+        $.ajax({
+         	url : 'beleptetes.php',
+         	type: 'POST',
+         	data: esamp2es('nev=' + felh_nev + '&amp;jelszo=' + felh_mail + '&amp;ajax=1&amp;login=' + new Date().getTime()),
+         	success: function(html) {
+         		if(html) {
+         			html = JSON.parse(html);
+
+                    if( html.statusz == 'hiba' ) {
+                        $('#beleptet_alert div.header').html('<h1 style="color: #FF5353">Helytelen belépés!</h1');
+                        return false;
+                    }
+
+                    location.href = 'index.php';
+         		}
+         	}
+        });
+    }
+
+    return false;
+}
+
+function htmlspecialchars_decode(string, quoteStyle) {
+    var optTemp = 0;
+    var i = 0;
+    var noquotes = false;
+    if(typeof quoteStyle === 'undefined') {
+        quoteStyle = 2;
+    }
+    string = string.toString().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    var OPTS = {
+        'ENT_NOQUOTES': 0,
+        'ENT_HTML_QUOTE_SINGLE': 1,
+        'ENT_HTML_QUOTE_DOUBLE': 2,
+        'ENT_COMPAT': 2,
+        'ENT_QUOTES': 3,
+        'ENT_IGNORE': 4
+    };
+
+    if(quoteStyle === 0) {
+        noquotes = true;
+    }
+
+    if(typeof quoteStyle !== 'number') {
+        quoteStyle = [].concat(quoteStyle);
+        for (i = 0; i < quoteStyle.length; i++) {
+            if(OPTS[quoteStyle[i]] === 0) {
+                noquotes = true;
+            } else if(OPTS[quoteStyle[i]]) {
+                optTemp = optTemp | OPTS[quoteStyle[i]];
+            }
+        }
+        quoteStyle = optTemp;
+    }
+
+    if(quoteStyle & OPTS.ENT_HTML_QUOTE_SINGLE) {
+        string = string.replace(/&#0*39;/g, "'");
+    }
+
+    if(!noquotes) {
+        string = string.replace(/&quot;/g, '"');
+    }
+
+    string = string.replace(/&amp;/g, '&');
+    return string;
+}

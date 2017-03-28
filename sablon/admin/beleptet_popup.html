@@ -1,23 +1,23 @@
 <div class="szurkit loginAlert dn" onclick="felh_valt()"></div>
-<div id="beleptet_alert" class="loginAlert alert2 dn">
+<div id="beleptet_alert" class="loginAlert alert2 noFooter dn">
     <div class="figy">
         <div class="header">{FELIRAT}</div>
         <div class="tart">
-            <form method="post" action="{SELF}">
+            <form method="post" action="{SELF}" onsubmit="return felhValt( this );">
                 <table class="auto">
                     <tr>
                         <td class="p">
-                            <input type="text" name="nev" id="nev" placeholder="Felhasználói név">
+                            <input type="text" name="login_nev" id="login_nev" placeholder="Felhasználói név">
                         </td>
                     </tr>
                     <tr>
                         <td class="p">
-                            <input type="password" name="jelszo" placeholder="">
+                            <input type="password" name="login_jelszo" id="login_jelszo" placeholder="">
                         </td>
                     </tr>
                     <tr>
                         <td colspan="2" class="p c">
-                            <input class="gombb" type="submit" name="login" value="Belépés">
+                            <input type="submit" class="gombb" name="login_ajax" value="Belépés">
                         </td>
                     </tr>
                 </table>

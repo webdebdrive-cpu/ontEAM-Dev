@@ -51,11 +51,11 @@ foreach($akt_tomb as $ertek){
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr\">
-                                    <div class=\"dtc form_bal\">{$ertek['megn']}</div>
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
                                     <div class=\"dtc form_jobb\">
                             ");
             }else{
-                $mezok .= $ertek['megn'];
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
             }
 
             $mezok .= $html;
@@ -75,6 +75,41 @@ foreach($akt_tomb as $ertek){
             $mezok .= "<div class=\"{$ertek['div_class']}\" style=\"{$ertek['div_style']}\">{$ertek['megn']}</div>";
         break;
 
+        case 'statusz':
+            if($ertek['value']){
+                $ertek['megn'] = $ertek['value'];
+            }
+
+            $disabled = '';
+            if( $ertek['disabled'] ) {
+                $disabled = ' disabled="disabled"';
+            }
+
+            $statusz = '';
+            if( $sor['statusz'] ) {
+                $statusz_sor = $adatbazis_kapcsolat->s('recid nev', 'statusz', 'recid='.$sor['statusz'], '', '1');
+
+                if( $statusz_sor ) {
+                    $statusz_sor = $statusz_sor[0];
+
+                    $statusz = $statusz_sor['nev'];
+                }
+            }
+
+            $mezok .= nl2('
+                <div class="dtr">
+                    <div class="dtc form_bal"><span>'.$ertek['megn'].'</span></div>
+                    <div class="dtc form_jobb statusz">
+                        <div class="text">'.$statusz.'</div>
+                        <div class="statuszGombok">
+                            <input type="button" class="gombb gomb_zold" value="Igazolás"'.$disabled.'>
+                            <input type="button" class="gombb_alert" value="Igazolás elutasítása"'.$disabled.'>
+                        </div>
+                    </div>
+                </div>
+            ');
+        break;
+
         case 'dl':
             $html = din_list( $ertek['tabla'], $ertek['oszlop'], $ertek['name'], $ertek['php_fajl'], $sor[ $ertek['name'] ], $sor[ $ertek['dl_kellid'] ], $ertek['default'] );
             if($ertek['alert']){
@@ -85,11 +120,11 @@ foreach($akt_tomb as $ertek){
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr\">
-                                    <div class=\"dtc form_bal\">{$ertek['megn']}</div>
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
                                     <div class=\"dtc form_jobb\">
                             ");
             }else{
-                $mezok .= $ertek['megn'];
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
             }
 
             $mezok .= $html;
@@ -126,11 +161,11 @@ foreach($akt_tomb as $ertek){
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr\">
-                                    <div class=\"dtc form_bal\">{$ertek['megn']}</div>
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
                                     <div class=\"dtc form_jobb\">
                             ");
             }else{
-                $mezok .= $ertek['megn'];
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
             }
 
             $mezok .= $html;
@@ -162,11 +197,11 @@ foreach($akt_tomb as $ertek){
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr\">
-                                    <div class=\"dtc form_bal\">{$ertek['megn']}</div>
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
                                     <div class=\"dtc form_jobb\">
                             ");
             }else{
-                $mezok .= $ertek['megn'];
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
             }
 
             $mezok .= $html;
@@ -250,11 +285,11 @@ foreach($akt_tomb as $ertek){
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr\">
-                                    <div class=\"dtc form_bal\">{$ertek['megn']}</div>
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
                                     <div class=\"dtc form_jobb\">
                             ");
             }else{
-                $mezok .= $ertek['megn'];
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
             }
 
             $mezok .= $ertek['pre'].$html.$ertek['post'];
@@ -294,11 +329,11 @@ foreach($akt_tomb as $ertek){
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr\">
-                                    <div class=\"dtc form_bal\">{$ertek['megn']}</div>
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
                                     <div class=\"dtc form_jobb\">
                             ");
             }else{
-                $mezok .= $ertek['megn'];
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
             }
 
             $mezok .= $html;
@@ -341,11 +376,11 @@ foreach($akt_tomb as $ertek){
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr\">
-                                    <div class=\"dtc form_bal\">{$ertek['megn']}</div>
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
                                     <div class=\"dtc form_jobb\">
                             ");
             }else{
-                $mezok .= $ertek['megn'];
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
             }
 
             $mezok .= $html;
@@ -359,7 +394,7 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_VALAMI':
-            $input = new Select($select_VALAMI, $sor['VALAMI']);
+            $input = new Select($select_VALAMI, $sor['x']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
@@ -386,11 +421,236 @@ foreach($akt_tomb as $ertek){
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr\">
-                                    <div class=\"dtc form_bal\">{$ertek['megn']}</div>
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
                                     <div class=\"dtc form_jobb\">
                             ");
             }else{
-                $mezok .= $ertek['megn'];
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+            }
+
+            $mezok .= $html;
+
+            if($ertek['osszevon']){
+                $osszevon_flag = 1;
+            }else{
+                $osszevon_flag = 0;
+                $mezok .= "</div></div>";
+            }
+        break;
+
+		case 'select_fiz_mod':
+            $input = new Select($select_fiz_mod, $sor['fiz_mod']);
+            $input -> cssClass = $ertek['class'];
+            $input -> disabled = $ertek['disabled'];
+            $input -> id       = $ertek['name'];
+            $input -> name     = $ertek['name'];
+            $input -> naptar   = $ertek['naptar'];
+            $input -> onblur   = $ertek['onblur'];
+            $input -> onclick  = $ertek['onclick'];
+            $input -> onfocus  = $ertek['onfocus'];
+            $input -> style    = $ertek['style'];
+
+            if($ertek['i']){
+                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
+            }
+
+            //Ezt csak akkor aktiváld, ha alapértelmezett értéket szeretnél neki definiálni, de VIGYÁZZ!, a $sor['VALAMI']-t se írja felül, hisz a konstruktornak ez ad értéket! Pl. így: if(!$ertek['value']){ $ertek['value'] = $sor['VALAMI']; }
+            //$input -> value    = $ertek['value'];
+
+            $html = $input -> getHtml();
+            if($ertek['alert']){
+                $html .= ' *';
+            }
+
+            //Összevonások lekezelése és tartalom összefűzése
+            if(!$osszevon_flag){
+                $mezok .= nl2("
+                                <div class=\"dtr\">
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
+                                    <div class=\"dtc form_jobb\">
+                            ");
+            }else{
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+            }
+
+            $mezok .= $html;
+
+            if($ertek['osszevon']){
+                $osszevon_flag = 1;
+            }else{
+                $osszevon_flag = 0;
+                $mezok .= "</div></div>";
+            }
+        break;
+
+		case 'select_afa_tipus':
+            $input = new Select($select_afa_tipus, $sor['afa_tipus']);
+            $input -> cssClass = $ertek['class'];
+            $input -> disabled = $ertek['disabled'];
+            $input -> id       = $ertek['name'];
+            $input -> name     = $ertek['name'];
+            $input -> naptar   = $ertek['naptar'];
+            $input -> onblur   = $ertek['onblur'];
+            $input -> onclick  = $ertek['onclick'];
+            $input -> onfocus  = $ertek['onfocus'];
+            $input -> style    = $ertek['style'];
+
+            if($ertek['i']){
+                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
+            }
+
+            //Ezt csak akkor aktiváld, ha alapértelmezett értéket szeretnél neki definiálni, de VIGYÁZZ!, a $sor['VALAMI']-t se írja felül, hisz a konstruktornak ez ad értéket! Pl. így: if(!$ertek['value']){ $ertek['value'] = $sor['VALAMI']; }
+            //$input -> value    = $ertek['value'];
+
+            $html = $input -> getHtml();
+            if($ertek['alert']){
+                $html .= ' *';
+            }
+
+            //Összevonások lekezelése és tartalom összefűzése
+            if(!$osszevon_flag){
+                $mezok .= nl2("
+                                <div class=\"dtr\">
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
+                                    <div class=\"dtc form_jobb\">
+                            ");
+            }else{
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+            }
+
+            $mezok .= $html;
+
+            if($ertek['osszevon']){
+                $osszevon_flag = 1;
+            }else{
+                $osszevon_flag = 0;
+                $mezok .= "</div></div>";
+            }
+        break;
+
+		case 'select_eszk_csop':
+            $input = new Select($select_eszk_csop, $sor['eszkoz_csop']);
+            $input -> cssClass = $ertek['class'];
+            $input -> disabled = $ertek['disabled'];
+            $input -> id       = $ertek['name'];
+            $input -> name     = $ertek['name'];
+            $input -> naptar   = $ertek['naptar'];
+            $input -> onblur   = $ertek['onblur'];
+            $input -> onclick  = $ertek['onclick'];
+            $input -> onfocus  = $ertek['onfocus'];
+            $input -> style    = $ertek['style'];
+
+            if($ertek['i']){
+                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
+            }
+
+            //Ezt csak akkor aktiváld, ha alapértelmezett értéket szeretnél neki definiálni, de VIGYÁZZ!, a $sor['VALAMI']-t se írja felül, hisz a konstruktornak ez ad értéket! Pl. így: if(!$ertek['value']){ $ertek['value'] = $sor['VALAMI']; }
+            //$input -> value    = $ertek['value'];
+
+            $html = $input -> getHtml();
+            if($ertek['alert']){
+                $html .= ' *';
+            }
+
+            //Összevonások lekezelése és tartalom összefűzése
+            if(!$osszevon_flag){
+                $mezok .= nl2("
+                                <div class=\"dtr\">
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
+                                    <div class=\"dtc form_jobb\">
+                            ");
+            }else{
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+            }
+
+            $mezok .= $html;
+
+            if($ertek['osszevon']){
+                $osszevon_flag = 1;
+            }else{
+                $osszevon_flag = 0;
+                $mezok .= "</div></div>";
+            }
+        break;
+
+		case 'select_cimzett':
+            $input = new Select($select_cimzett, $sor['cimzett']);
+            $input -> cssClass = $ertek['class'];
+            $input -> disabled = $ertek['disabled'];
+            $input -> id       = $ertek['name'];
+            $input -> name     = $ertek['name'];
+            $input -> naptar   = $ertek['naptar'];
+            $input -> onblur   = $ertek['onblur'];
+            $input -> onclick  = $ertek['onclick'];
+            $input -> onfocus  = $ertek['onfocus'];
+            $input -> style    = $ertek['style'];
+
+            if($ertek['i']){
+                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
+            }
+
+            //Ezt csak akkor aktiváld, ha alapértelmezett értéket szeretnél neki definiálni, de VIGYÁZZ!, a $sor['VALAMI']-t se írja felül, hisz a konstruktornak ez ad értéket! Pl. így: if(!$ertek['value']){ $ertek['value'] = $sor['VALAMI']; }
+            //$input -> value    = $ertek['value'];
+
+            $html = $input -> getHtml();
+            if($ertek['alert']){
+                $html .= ' *';
+            }
+
+            //Összevonások lekezelése és tartalom összefűzése
+            if(!$osszevon_flag){
+                $mezok .= nl2("
+                                <div class=\"dtr\">
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
+                                    <div class=\"dtc form_jobb\">
+                            ");
+            }else{
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+            }
+
+            $mezok .= $html;
+
+            if($ertek['osszevon']){
+                $osszevon_flag = 1;
+            }else{
+                $osszevon_flag = 0;
+                $mezok .= "</div></div>";
+            }
+        break;
+
+		case 'select_ill_reszleg':
+            $input = new Select($select_ill_reszleg, $sor['ill_reszleg']);
+            $input -> cssClass = $ertek['class'];
+            $input -> disabled = $ertek['disabled'];
+            $input -> id       = $ertek['name'];
+            $input -> name     = $ertek['name'];
+            $input -> naptar   = $ertek['naptar'];
+            $input -> onblur   = $ertek['onblur'];
+            $input -> onclick  = $ertek['onclick'];
+            $input -> onfocus  = $ertek['onfocus'];
+            $input -> style    = $ertek['style'];
+
+            if($ertek['i']){
+                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
+            }
+
+            //Ezt csak akkor aktiváld, ha alapértelmezett értéket szeretnél neki definiálni, de VIGYÁZZ!, a $sor['VALAMI']-t se írja felül, hisz a konstruktornak ez ad értéket! Pl. így: if(!$ertek['value']){ $ertek['value'] = $sor['VALAMI']; }
+            //$input -> value    = $ertek['value'];
+
+            $html = $input -> getHtml();
+            if($ertek['alert']){
+                $html .= ' *';
+            }
+
+            //Összevonások lekezelése és tartalom összefűzése
+            if(!$osszevon_flag){
+                $mezok .= nl2("
+                                <div class=\"dtr\">
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
+                                    <div class=\"dtc form_jobb\">
+                            ");
+            }else{
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
             }
 
             $mezok .= $html;
@@ -476,7 +736,9 @@ foreach($akt_tomb as $ertek){
                     $input -> value   = number_format($sor[ $ertek['name'] ], '', '', '.');
                 }else{
                     if( strstr($ertek['class'], 'datepicker') ) {
-                        $input -> value   = date('Y.m.d', strtotime($sor[ $ertek['name'] ]));
+                        if( $sor[ $ertek['name'] ] != '0000-00-00' ) {
+                            $input -> value   = date('Y.m.d', strtotime($sor[ $ertek['name'] ]));
+                        }
                     } else {
                         $input -> value   = $sor[ $ertek['name'] ];
                     }
@@ -493,11 +755,112 @@ foreach($akt_tomb as $ertek){
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr\">
-                                    <div class=\"dtc form_bal\">{$ertek['megn']}</div>
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
                                     <div class=\"dtc form_jobb\">
                             ");
             }else{
-                $mezok .= $ertek['megn'];
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+            }
+
+            $mezok .= $html;
+
+            if($ertek['osszevon']){
+                $osszevon_flag = 1;
+            }else{
+                $osszevon_flag = 0;
+                $mezok .= "</div></div>";
+            }
+        break;
+
+        case 'autocomplete':
+            $input = new Input('text');
+
+            //Ha ezresít, automatikusan meghívunk rá két JS-t
+            if( $ertek['ezresit'] ){
+                $ertek['onkeyup'] .= '; onlyNumbers(this); this.value=ezresek(this.value,\'.\')';
+                $sor[$ertek['name']] = number_format($sor[$ertek['name']], 0, '', '.');
+            }
+
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+
+            $input -> cssClass  = $ertek['class'];
+            $input -> disabled  = $ertek['disabled'];
+            $input -> id        = $ertek['name'];
+            $input -> maxlength = $ertek['maxlength'];
+            $input -> name      = $ertek['name'];
+            $input -> naptar    = $ertek['naptar'];
+            $input -> onblur    = $ertek['onblur'];
+            $input -> onclick   = $ertek['onclick'];
+            $input -> onfocus   = $ertek['onfocus'];
+            $input -> onkeyup   = $ertek['onkeyup'];
+            $input -> style     = $ertek['style'];
+            $input -> placeholder = $ertek['placeholder'];
+            $input -> post      = $ertek['post'];
+            $input -> pre       = $ertek['pre'];
+            if($ertek['i']){
+                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
+                if( strpos($input -> cssClass, 'oriasi')!==false || strpos($input -> cssClass, 'nagy')!==false ){
+                    $input -> style .= '; width: 95%;';
+                }
+            }
+
+            if(!$sor[ $ertek['name'] ]) {
+                $input -> value   = $ertek['value'];
+            }else{
+                if($ertek['szam']) {
+                    $input -> value   = number_format($sor[ $ertek['name'] ], '', '', '.');
+                }else{
+                    if( strstr($ertek['class'], 'datepicker') ) {
+                        if( $sor[ $ertek['name'] ] != '0000-00-00' ) {
+                            $input -> value   = date('Y.m.d', strtotime($sor[ $ertek['name'] ]));
+                        }
+                    } else {
+                        $input -> value   = $sor[ $ertek['name'] ];
+                    }
+                }
+            }
+
+            if($ertek['value_felulir']){
+                $input -> value   = $ertek['value_felulir'];
+            }
+
+            $html = $input -> getHtml();
+
+            /* Autocomplete-es kereső */
+            $tabla = $ertek['tabla'];
+            $oszlop_keres = $ertek['oszlop'];
+            $oszlop_listaz = $ertek['oszlop'];
+
+            $rkat = 0;
+            if( $ertek['rkat'] ) {
+                $rkat = $ertek['rkat'];
+            }
+
+            $html .= nl2('
+                <script>
+                    $(document).ready(function() {
+                        $(\'#'.$ertek['name'].'\').autocomplete({
+                            \'php_fajl\'        : \'../autocomplete.php\',
+                            \'tabla\'           : \''.$tabla.'\',
+                            \'oszlop_keres\'    : \''.$oszlop_keres.'\',
+                            \'oszlop_listaz\'   : \''.$oszlop_listaz.'\',
+                            \'rkat\'            : '.$rkat.'
+                        });
+                    });
+                </script>
+            ');
+
+            //Összevonások lekezelése és tartalom összefűzése
+            if(!$osszevon_flag){
+                $mezok .= nl2("
+                                <div class=\"dtr\">
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span> <span class=\"autocomp\">*</span></div>
+                                    <div class=\"dtc form_jobb\">
+                            ");
+            }else{
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
             }
 
             $mezok .= $html;
@@ -583,11 +946,11 @@ foreach($akt_tomb as $ertek){
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr\">
-                                    <div class=\"dtc form_bal\">{$ertek['megn']}</div>
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
                                     <div class=\"dtc form_jobb\">
                             ");
             }else{
-                $mezok .= $ertek['megn'];
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
             }
 
             $mezok .= $html;

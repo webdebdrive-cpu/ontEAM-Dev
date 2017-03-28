@@ -9,9 +9,10 @@
             <script>
                 $(document).ready(function () {
                     $('.datepicker').datetimepicker({
-                        mask: true,
-                        format:'Y.m.d',
-                        onChangeDateTime: function(){ $('#mehet_gomb').addClass('gombb_alert'); }
+                        mask                : true,
+                        format              :'Y.m.d',
+                        validateOnBlur      : false,
+                        onChangeDateTime    : function(){ $('#mehet_gomb').addClass('gombb_alert'); }
                     });
                 });
             </script>

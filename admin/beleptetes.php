@@ -117,21 +117,33 @@ if(isset($_POST['login'])){
         $_SESSION[get_db_tabla().'user']    = $sor_belepes['nev'];
         $_SESSION[get_db_tabla().'user_id'] = $sor_belepes['id'];
         $_SESSION[get_db_tabla().'jog']     = $sor_belepes['jog'];
-        $_SESSION[get_db_tabla().'rights'] = str_split($sor_belepes['flags']);
+        $_SESSION[get_db_tabla().'rights']  = str_split($sor_belepes['flags']);
 
         if(!$_SESSION['kert_url']){
             $_SESSION['kert_url'] = get_domain().'/'.get_admin();
         }
 
-        $adatbazis_kapcsolat -> bezar();
-        header('Location:http://'.$_SESSION['kert_url']);
-        exit();
+        if( $_POST['ajax'] ) {
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            $adatbazis_kapcsolat -> bezar();
+            header('Location:http://'.$_SESSION['kert_url']);
+            exit();
+        }
 
     }else{
 
-        $adatbazis_kapcsolat -> bezar();
-        header('Location:index.php?hiba');
-        exit();
+        if( $_POST['ajax'] ) {
+            echo json_encode(array(
+                'statusz' => 'hiba'
+            ));
+        } else {
+            $adatbazis_kapcsolat -> bezar();
+            header('Location:index.php?hiba');
+            exit();
+        }
 
     }
 }

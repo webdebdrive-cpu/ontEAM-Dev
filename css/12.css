@@ -33,6 +33,10 @@ body.teljesMagas {
     height: 100%;
 }
 
+body.teljesMagas {
+    overflow: hidden;
+}
+
 body.noselect * {
     user-select: none;
 }
@@ -52,7 +56,7 @@ div.szamlaKereses {
 
 .sor.kethasabos {
     border-top: 0.1rem solid #004990;
-    height: 100%;
+    height: calc(100% - 16.5rem);
     max-width: 100%;
     min-width: 100%;
 }
@@ -67,7 +71,7 @@ div.szamlaKereses {
     overflow-y: auto;
     height: 100%;
     position: relative;
-    width: 25rem;
+    width: 40rem;
 }
 
 .sor div.jobb {
@@ -75,12 +79,13 @@ div.szamlaKereses {
 }
 
 .sor.kethasabos div.jobb {
+    display: block;
     float: right;
     height: 100%;
     overflow-y: auto;
-    padding: 2rem 2rem 2rem 2rem;
+    padding: 0rem 0rem 0rem 0rem;
     position: relative;
-    width: calc(100% - 25rem);
+    width: calc(100% - 40rem);
 }
 
 .sor.kethasabos div.jobb div.bborder {
@@ -88,14 +93,15 @@ div.szamlaKereses {
     border-right: 0.2rem solid #004990;
     cursor: col-resize;
     height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
+    position: fixed;
     width: 0.6rem;
+    z-index: 20;
 }
 
 .sor div.jobb div.tKeret {
     display: table;
+    position: relative;
+    padding: 2rem 2rem 2rem 2rem;
     width: 100%;
 }
 
