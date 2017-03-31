@@ -148,6 +148,17 @@ function i_u($type, $tabla, $tomb){
                     'oldal' => basename(self())
                 );
 
+                foreach($tomb as $value) {
+                    if( $value['type'] == 'autocomplete' ) {
+                        $kulso_ertek = $adatbazis_kapcsolat->s('recid nev', $value['tabla'], 'recid='.$sor[0][$value['name']], '', '1');
+
+                        $sor[0][$value['name'].'_autocomp'] = '';
+                        if( $kulso_ertek ) {
+                            $sor[0][$value['name'].'_autocomp'] = $kulso_ertek[0]['nev'];
+                        }
+                    }
+                }
+
                 echo json_encode(array(
                     'statusz' => 'siker',
                     'adatok' => $sor[0]
@@ -197,80 +208,81 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
 
     $param = '';
     foreach($tomb as $ertek){
+        if( $ertek['type'] != 'statusz' ) {
+            if($ertek['name']) {
 
-        if($ertek['name']){
+                //Csak akkor figyelünk lenti paramétereket, ha egyáltalán az elem létezik. Ezzel egy csomó JS hibát elekerólhetünk és debuggolós szívásokat
+                $ret .= 'if($(\'#'.$ertek['name'].'\').length){ ';
 
-            //Csak akkor figyelünk lenti paramétereket, ha egyáltalán az elem létezik. Ezzel egy csomó JS hibát elekerólhetünk és debuggolós szívásokat
-            $ret .= 'if($(\'#'.$ertek['name'].'\').length){ ';
+                if($ertek['alert']!=''){
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
+                }
 
-            if($ertek['alert']!=''){
-                $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
+                if($ertek['mail']){
+                    $ret .= "str=document.getElementById('$ertek[name]').value.trim(); if(str){ filter=/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i; if (!filter.test(str)){ document.getElementById('$ertek[name]').focus(); document.getElementById('$ertek[name]').className='alert'; alert2('Helytelen e-mail cím!'); scrollto('#$ertek[name]', 500); return false; } }";
+                }
+
+                if($ertek['name'] == 'jelsz2'){
+                    $ret .= 'if(document.getElementById(\'reg_jelsz\').value.length < 4 ){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'A jelszó hossza minimum 4 karakter legyen!\');return false;}';
+                    $ret .= 'if(document.getElementById(\'jelsz2\').value != document.getElementById(\'reg_jelsz\').value){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'A jelszavak nem egyeznek meg!\');return false;}';
+                }
+
+                if($ertek['name'] == 'isz' && $ertek['alert']){
+                    $ret .= 'if(document.getElementById(\'isz\').value.length != 4){document.getElementById(\'isz\').className += \' alert\';alert2(\'Helytelen irányítószám!\'); scrollto(\'#'.$ertek['name'].'\', 500); return false;}';
+                }
+
+                if($ertek['name'] == 'sz_isz' && $ertek['alert']){
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.length != 4){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'Helytelen irányítószám!\'); scrollto(\'#'.$ertek['name'].'\', 500); return false;}';
+                }
+
+                if($ertek['name'] == 'szall_isz' && $ertek['alert']){
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.length != 4){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'Helytelen irányítószám!\'); scrollto(\'#'.$ertek['name'].'\', 500); return false;}';
+                }
+
+                //Addószám formátumának ellenőrzése (xxxxxxxx-x-xx alakú-e). Az inputra egyébként a main.js-ben található adoszam_formaz() függvényt hívd meg, de az alábbi ellenőrzéssel együtt lesz tökéletes
+                if($ertek['name'] == 'ado'){
+                    $ret .= nl2('
+                        reszek = $(\'#'.$ertek['name'].'\').val().split(\'-\');
+                        if( reszek[0].length!=8 || reszek[1].length!=1 || reszek[2].length!=2){
+                            document.getElementById(\''.$ertek['name'].'\').className += \' alert\';
+                            alert2(\'Az adószám formátuma helytelen!\');
+                            scrollto(\'#'.$ertek['name'].'\', 500);
+                            return false;
+                        }
+                        ');
+                }
+
+                //Addószám formátumának ellenőrzése (xx-xx-xxxxxx alakú-e). Az inputra egyébként a main.js-ben található cegjegyzekszam_formaz() függvényt hívd meg, de az alábbi ellenőrzéssel együtt lesz tökéletes
+                if($ertek['name'] == 'cegjegyzek'){
+                    $ret .= nl2('
+                        reszek = $(\'#'.$ertek['name'].'\').val().split(\'-\');
+                        if( reszek[0].length!=2 || reszek[1].length!=2 || reszek[2].length!=2){
+                            document.getElementById(\''.$ertek['name'].'\').className += \' alert\';
+                            alert2(\'Az adószám formátuma helytelen!\');
+                            scrollto(\'#'.$ertek['name'].'\', 500);
+                            return false;
+                        }
+                        ');
+                }
+
+                if($ertek['name'] == 'elf'){
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').checked==false){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'A feltételek elfogadása kötelező!\'); scrollto(\'#'.$ertek['name'].'\', 500); return false;}';
+                }
+
+                if($ertek['name'] == 'akcar'){	//Ha van akciós ár, akkor figyelük azt is, hogy kissebb legyen
+                                            //Először ki kell szűrni a pontokat belőle
+                    $ret .= "var ar=document.getElementById('ar').value; var akcar=document.getElementById('akcar').value; mit=new RegExp('[.]','ig'); ar=ar.replace(mit,''); akcar=akcar.replace(mit,''); if(Number(ar)<=Number(akcar)){ document.getElementById('".$ertek['name']."').className += ' alert'; alert2('Az akciós ár nem kedvezőbb a listaártól!'); scrollto('#$ertek[name]', 500); return false; }";
+                }
+
+                $ret .= '}';
             }
 
-            if($ertek['mail']){
-                $ret .= "str=document.getElementById('$ertek[name]').value.trim(); if(str){ filter=/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i; if (!filter.test(str)){ document.getElementById('$ertek[name]').focus(); document.getElementById('$ertek[name]').className='alert'; alert2('Helytelen e-mail cím!'); scrollto('#$ertek[name]', 500); return false; } }";
-            }
-
-            if($ertek['name'] == 'jelsz2'){
-                $ret .= 'if(document.getElementById(\'reg_jelsz\').value.length < 4 ){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'A jelszó hossza minimum 4 karakter legyen!\');return false;}';
-                $ret .= 'if(document.getElementById(\'jelsz2\').value != document.getElementById(\'reg_jelsz\').value){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'A jelszavak nem egyeznek meg!\');return false;}';
-            }
-
-            if($ertek['name'] == 'isz' && $ertek['alert']){
-                $ret .= 'if(document.getElementById(\'isz\').value.length != 4){document.getElementById(\'isz\').className += \' alert\';alert2(\'Helytelen irányítószám!\'); scrollto(\'#'.$ertek['name'].'\', 500); return false;}';
-            }
-
-            if($ertek['name'] == 'sz_isz' && $ertek['alert']){
-                $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.length != 4){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'Helytelen irányítószám!\'); scrollto(\'#'.$ertek['name'].'\', 500); return false;}';
-            }
-
-            if($ertek['name'] == 'szall_isz' && $ertek['alert']){
-                $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.length != 4){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'Helytelen irányítószám!\'); scrollto(\'#'.$ertek['name'].'\', 500); return false;}';
-            }
-
-            //Addószám formátumának ellenőrzése (xxxxxxxx-x-xx alakú-e). Az inputra egyébként a main.js-ben található adoszam_formaz() függvényt hívd meg, de az alábbi ellenőrzéssel együtt lesz tökéletes
-            if($ertek['name'] == 'ado'){
-                $ret .= nl2('
-                    reszek = $(\'#'.$ertek['name'].'\').val().split(\'-\');
-                    if( reszek[0].length!=8 || reszek[1].length!=1 || reszek[2].length!=2){
-                        document.getElementById(\''.$ertek['name'].'\').className += \' alert\';
-                        alert2(\'Az adószám formátuma helytelen!\');
-                        scrollto(\'#'.$ertek['name'].'\', 500);
-                        return false;
-                    }
-                    ');
-            }
-
-            //Addószám formátumának ellenőrzése (xx-xx-xxxxxx alakú-e). Az inputra egyébként a main.js-ben található cegjegyzekszam_formaz() függvényt hívd meg, de az alábbi ellenőrzéssel együtt lesz tökéletes
-            if($ertek['name'] == 'cegjegyzek'){
-                $ret .= nl2('
-                    reszek = $(\'#'.$ertek['name'].'\').val().split(\'-\');
-                    if( reszek[0].length!=2 || reszek[1].length!=2 || reszek[2].length!=2){
-                        document.getElementById(\''.$ertek['name'].'\').className += \' alert\';
-                        alert2(\'Az adószám formátuma helytelen!\');
-                        scrollto(\'#'.$ertek['name'].'\', 500);
-                        return false;
-                    }
-                    ');
-            }
-
-            if($ertek['name'] == 'elf'){
-                $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').checked==false){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'A feltételek elfogadása kötelező!\'); scrollto(\'#'.$ertek['name'].'\', 500); return false;}';
-            }
-
-            if($ertek['name'] == 'akcar'){	//Ha van akciós ár, akkor figyelük azt is, hogy kissebb legyen
-                                        //Először ki kell szűrni a pontokat belőle
-                $ret .= "var ar=document.getElementById('ar').value; var akcar=document.getElementById('akcar').value; mit=new RegExp('[.]','ig'); ar=ar.replace(mit,''); akcar=akcar.replace(mit,''); if(Number(ar)<=Number(akcar)){ document.getElementById('".$ertek['name']."').className += ' alert'; alert2('Az akciós ár nem kedvezőbb a listaártól!'); scrollto('#$ertek[name]', 500); return false; }";
-            }
-
-            $ret .= '}';
-        }
-
-        if($ajax && !strstr($ertek['type'], 'file')/* tehát nem jsfile vagy sima file... */ ){
-            if($ertek['type']=='checkbox'){
-                $param .= $ertek['name'].'=\'+$(\'#'.$ertek['name'].'\').is(\':checked\')+\'&amp;';
-            }  else {
-                $param .= $ertek['name'].'=\'+$(\'#'.$ertek['name'].'\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+            if($ajax && !strstr($ertek['type'], 'file')/* tehát nem jsfile vagy sima file... */ ){
+                if($ertek['type']=='checkbox'){
+                    $param .= $ertek['name'].'=\'+$(\'#'.$ertek['name'].'\').is(\':checked\')+\'&amp;';
+                }  else {
+                    $param .= $ertek['name'].'=\'+$(\'#'.$ertek['name'].'\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+                }
             }
         }
     }
@@ -449,7 +461,7 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 	if($overwrite){//Ha van, felülírjuk a már létező fájlt
 		if($sor_id != null){//ha meg van adva a $sor_id akkor valószínűleg az elérési útvonal le van tárolva adatbázisba. Megkíséreljük ezt az előző fájlt törölni
 
-			$lekerdez = $adatbazis_kapcsolat -> select($oszlop, $tabla, 'id='.$sor_id);
+			$lekerdez = $adatbazis_kapcsolat -> select($oszlop, $tabla, 'recid='.$sor_id);
 			$sor      = $lekerdez[0];
 
 			//Ebben az esetben valóban az adatbázisban van elmentve a kép elérési útvonala
@@ -458,7 +470,7 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
                 //Elfőrodukhat, hogy több bejegyzésnél is a kép útvonala azonos
                 //Emiatt ha az egyiknél cserélnénk a képet, akkor azt még ne törölje le, ha máshol még arra a képre hivatkozunk
                 $van_mashol_kep = false;
-                $van_mashol_kep = $adatbazis_kapcsolat->s('id', $tabla, $oszlop.'='.$sor[$oszlop].' AND id!='.$sor_id);
+                $van_mashol_kep = $adatbazis_kapcsolat->s('recid', $tabla, $oszlop.'='.$sor[$oszlop].' AND recid!='.$sor_id);
 
                 if(!$van_mashol_kep){
                     //ha van kiterjesztése (általában van)
@@ -474,12 +486,12 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
                 }
 			}
 
-			$lekerdez = mysqli_query($db_kapcs, 'SELECT `id` FROM `'.get_db_tabla().$tabla.'` WHERE `id`!=\''.$sor_id.'\' AND `'.$oszlop.'` LIKE \''.$kepnev.'%\'');
+			$lekerdez = mysqli_query($db_kapcs, 'SELECT `recid` FROM `'.get_db_tabla().$tabla.'` WHERE `recid`!=\''.$sor_id.'\' AND `'.$oszlop.'` LIKE \''.$kepnev.'%\'');
 			$foglalt_nev = mysqli_num_rows($lekerdez);
 			while( $foglalt_nev ){
 				$kepnev = fajlnev_sorszamoz($kepnev);
 
-				$lekerdez=mysqli_query($db_kapcs, 'SELECT `id` FROM `'.get_db_tabla().$tabla.'` WHERE `id`!=\''.$sor_id.'\' AND `'.$oszlop.'` LIKE \''.$kepnev.'%\'');
+				$lekerdez=mysqli_query($db_kapcs, 'SELECT `recid` FROM `'.get_db_tabla().$tabla.'` WHERE `recid`!=\''.$sor_id.'\' AND `'.$oszlop.'` LIKE \''.$kepnev.'%\'');
 				$foglalt_nev = mysqli_num_rows($lekerdez);
 			}
 
@@ -522,8 +534,8 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
     }
 
 	if(move_uploaded_file($_FILES[$valtozo]['tmp_name'], $utvonal.$kepnev)){
-		if($sor_id){
-			if(!$adatbazis_kapcsolat -> u($tabla, array($oszlop), array($kepnev), 'id='.$sor_id)){
+		if($sor_id) {
+			if(!$adatbazis_kapcsolat -> u($tabla, array($oszlop), array($kepnev), 'recid='.$sor_id)){
 				return(array($kepnev,'k5'));//Sikertelen táblamod => hiba5
 			}
 		}
@@ -567,16 +579,16 @@ function szamla_lista( $tabla, $val = NULL ) {
     }
 
     if( $tabla ) {
-        $bejovo_szamlak = $adatbazis_kapcsolat->s('recid ikt_szam targy netto statusz datetime', $tabla, $where, 'datetime desc', '');
+        $bejovo_szamlak = $adatbazis_kapcsolat->s('recid ikt_szam szallito targy netto statusz erkezett', $tabla, $where, 'erkezett desc', '');
 
         if( $bejovo_szamlak ) {
-            $aktDatum = date_formaz($bejovo_szamlak[0]['datetime']);
+            $aktDatum = date_formaz($bejovo_szamlak[0]['erkezett']);
 
             $tartBal .= '<ul id="szamlaList" class="szamla_cont">';
 
             $i = 1;
             foreach($bejovo_szamlak as $bsz) {
-                $szamlaDatum = date_formaz($bsz['datetime']);
+                $szamlaDatum = date_formaz($bsz['erkezett']);
 
                 if( $i == 1 || $aktDatum != $szamlaDatum ) {
                     $tartBal .= '<li class="szamla_datum"><strong>'.$szamlaDatum.'</strong></li>';
@@ -605,10 +617,20 @@ function szamla_lista( $tabla, $val = NULL ) {
                     }
                 }
 
+                $szallito_sor = $adatbazis_kapcsolat->s('recid nev', 'szallito', 'recid='.$bsz['szallito'], '', '1');
+
+                $szallito = '';
+                if( $szallito_sor ) {
+                    $szallito_sor = $szallito_sor[0];
+
+                    $szallito = $szallito_sor['nev'];
+                }
+
                 $tartBal .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'"'.$szinkod.'>
-                                <a href="'.self().'?unset=&epo=50&oldal=1&order=nev&id='.$bsz['recid'].'&modosit">
+                                <a href="javascript: szamlaBetolt('.$bsz['recid'].', \''.basename(self()).'\', \'modosit\'); void(0);">
                                     <span class="ikt_szam">'.$bsz['ikt_szam'].'</span>
-                                    <span class="targy">'.$bsz['targy'].'</span>
+                                    <span class="targy">'.resz_string($bsz['targy'], 40).'</span>
+                                    <span class="szallito">'.$szallito.'</span>
                                     <span class="netto">'.number_format($bsz['netto'], 0, '', '.').' '.get_penznem().'</span>
                                     <span class="statusz">'.$statusz.'</span>
                                 </a>

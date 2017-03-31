@@ -56,13 +56,13 @@ if( isset($_GET['uj']) || (isset($_GET['szerkeszt']) || $_POST['szerkeszt']) ) {
 /* Bejövő számlák */
 $megnevezes = 'bejovo_szamlak';
 $bejovo_szamlak_tomb = $akt_tomb = array(
-	array('type' => 'text',                 'megn' => 'Iktató szám:',        'name' => 'ikt_szam',       'disabled' => $disabled,    'maxlength' => 250, 'class' => 'normal', 'show' => true, 'osszevon' => true),
+    array('type' => 'text',                 'megn' => 'Iktató szám:',        'name' => 'ikt_szam',       'disabled' => $disabled,    'maxlength' => 250, 'class' => 'normal', 'show' => true, 'osszevon' => true),
     array('type' => 'text',                 'megn' => 'Érkezett:',           'name' => 'erkezett',       'disabled' => $disabled,    'class' => 'kicsi datepicker', 'value' => $datum, 'alert' => 'Nem töltötted ki az érkezett dátumot!', 'show' => true, 'osszevon' => true),
     array('type' => 'text',                 'megn' => 'Visszaadva:',         'name' => 'visszaadva',     'disabled' => $disabled,    'class' => 'kicsi datepicker', 'value' => $datum),
     array('type' => 'text',                 'megn' => 'Számla szám:',        'name' => 'szaml_szam',     'disabled' => $disabled,    'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Nem töltötted ki a számlaszámot!', 'show' => true),
     array('type' => 'checkbox',             'megn' => 'E-számla:',           'name' => 'e-szamla',       'disabled' => $disabled,    'class' => 'check'),
     array('type' => 'checkbox',             'megn' => 'Törölve:',            'name' => 'torolve',        'disabled' => $disabled,    'class' => 'check'),
-    array('type' => 'autocomplete',         'megn' => 'Szállító:',           'name' => 'szallito',       'disabled' => $disabled,    'class' => 'oriasi disableNav', 'tabla' => 'rendszer', 'oszlop' => 'nev', 'rkat' => 3),
+    array('type' => 'autocomplete',         'megn' => 'Szállító:',           'name' => 'szallito',       'disabled' => $disabled,    'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'nev', 'listaz' => 'nev'),
     array('type' => 'text',                 'megn' => 'Szállító szabadon:',  'name' => 'szallito_szab',  'disabled' => $disabled,    'maxlength' => 250,  'class' => 'oriasi'),
     array('type' => 'text',                 'megn' => 'Teljesítés:',         'name' => 'teljesites',     'disabled' => $disabled,    'class' => 'kicsi datepicker', 'value' => $datum, 'alert' => 'Nem töltötted ki a teljesítési dátumot!', 'osszevon' => true),
     array('type' => 'text',                 'megn' => 'Fiz. hat.:',          'name' => 'fiz_hat',        'disabled' => $disabled,    'class' => 'kicsi datepicker', 'value' => $datum, 'osszevon' => true),
@@ -74,7 +74,7 @@ $bejovo_szamlak_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Valuta Bruttó:',      'name' => 'valuta_brutto',  'disabled' => $disabled,    'class' => 'kicsi', 'maxlength' => 20, 'osszevon' => true, 'onkeyup' => 'this.value = onlyNumbers(this.value);'),
     array('type' => 'text',                 'megn' => 'Valuta nettó:',       'name' => 'valuta_netto',   'disabled' => $disabled,    'class' => 'kicsi', 'maxlength' => 20, 'osszevon' => true, 'onkeyup' => 'this.value = onlyNumbers(this.value);'),
     array('type' => 'text',                 'megn' => 'Árfolyam:',           'name' => 'arfolyam',       'disabled' => $disabled,    'class' => 'kicsi', 'maxlength' => 20),
-    array('type' => 'autocomplete',         'megn' => 'Részleg:',            'name' => 'reszleg',        'disabled' => $disabled,    'class' => 'normal disableNav', 'tabla' => 'rendszer', 'oszlop' => 'nev', 'rkat' => 3, 'osszevon' => true),
+    array('type' => 'text',                 'megn' => 'Részleg:',            'name' => 'reszleg',        'disabled' => $disabled,    'class' => 'normal disableNav', 'osszevon' => true),
     array('type' => 'text',                 'megn' => 'Átváltva:',           'name' => 'atvaltva',       'disabled' => $disabled,    'class' => 'kicsi datepicker', 'value' => $datum),
     array('type' => 'textarea',             'megn' => 'Megjegyzés:',         'name' => 'megj',           'disabled' => $disabled,    'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
     array('type' => 'select_eszk_csop',     'megn' => 'Eszköz csoport:',     'name' => 'eszkoz_csop',    'disabled' => $disabled,    'osszevon' => true),
@@ -101,6 +101,10 @@ $bejovo_szamlak_tomb = $akt_tomb = array(
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+$bejovo_szamlak_dok_tomb = $akt_tomb = array(
+    array('type' => 'jsfile',               'megn' => 'Fájlok:',  'name' => 'termek_kep',  'tabla' => $megnevezes,  'oszlop' => 'kep_teszt',   'algoritmus' => 'fajlnev'/*nev | fajlnev | id*/,   'meret' => 31457280, 'csakkep'  => false, 'fajlok_szama'  => 5),
+);
 
 /* Kimeno számlák */
 $megnevezes = 'kimeno_szamlak';
@@ -201,9 +205,9 @@ if( !isset($_GET['oldal'])){ $_GET['oldal']=0;  }
 //ESEMÉNYEK
 //Flashfáljok törlése
 if(isset($_POST['fajl_torol'])){
-    $elem = $adatbazis_kapcsolat -> s($_POST['oszlop'], $_POST['tabla'], 'id='.$_POST['id']);
+    $elem = $adatbazis_kapcsolat -> s($_POST['oszlop'], $_POST['tabla'], 'recid='.$_POST['id']);
     kep_torol('../'.get_utvonal().$elem[0][$_POST['oszlop']]);
-    $adatbazis_kapcsolat -> u($_POST['tabla'], $_POST['oszlop'], '', 'id='.$_POST['id']);
+    $adatbazis_kapcsolat -> u($_POST['tabla'], $_POST['oszlop'], '', 'recid='.$_POST['id']);
 
     $weblap -> leallit();
     exit;
@@ -218,7 +222,7 @@ if (isset($_GET['get_admin_file_thumb'])) {
 function get_admin_file_thumb($tabla, $oszlop, $id){
 
     global $adatbazis_kapcsolat;
-    $utvonal = $adatbazis_kapcsolat->s($oszlop, $tabla, 'id='.$id);
+    $utvonal = $adatbazis_kapcsolat->s($oszlop, $tabla, 'recid='.$id);
     $utvonal = '../'.get_utvonal().$utvonal[0][$oszlop];
     if(is_file($utvonal)){
 
@@ -474,7 +478,7 @@ foreach($postok as $ertek){
     		}
 		}
 
-		if( $adatbazis_kapcsolat -> delete($ertek['tabla'], 'recid='.$_GET[$ertek['torid']]) ){
+		if( $adatbazis_kapcsolat -> u($ertek['tabla'], array('torolve'), array(1), 'recid='.$_GET[$ertek['torid']]) ) {
 			if(isset($_GET['noload'])){
 
                 //Visszaadjuk az elemek számát

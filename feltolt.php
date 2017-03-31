@@ -26,8 +26,8 @@ fajl_menedzser($_POST['megnevezes'], $tomb, $_POST['sorid'], $_POST['uj_mod']);
 
 /**
 *	Kép menedzser kizárólag az eseményekhez való
-*	FONTOS: ha képet töltünk fel, magától odateszi a kiterjesztést (.jpg .gif .png). 
-*	Átlagos fájlok esetén adjuk meg a kiterjesztést	
+*	FONTOS: ha képet töltünk fel, magától odateszi a kiterjesztést (.jpg .gif .png).
+*	Átlagos fájlok esetén adjuk meg a kiterjesztést
 *
 *	@param string $megnevezes tömben a képváltozó neve pl.: hir_kep
 *	@param array $tomb Tömb ami alapján dolgozunk. Jelen esetben mindig az $ertek[tomb] lesz az aktuális tömb, ezzel kell meghívni
@@ -45,7 +45,7 @@ fajl_menedzser($_POST['megnevezes'], $tomb, $_POST['sorid'], $_POST['uj_mod']);
 *	k5: nincs `kep` oszlop az adatbázisban
 */
 function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
-    
+
     global $adatbazis_kapcsolat;
 
     //Hogy ne csak admin alól tudjuk használni
@@ -61,14 +61,14 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
     $meret       = $tomb['meret'];
     $csakkep     = $tomb['csakkep'];
     $reload      = $tomb['reload'];
-    
+
     if($csakkep=='false'){
         $csakkep = 0;
     }
-    
+
     //Ha új feltöltés, akkor a képet ideiglenesen lementjük, míg a bejegyzés el nem készül hozzá
     if($_POST['uj_feltolt']){
-        
+
         if($algoritmus=='fajlnev'){
             $fajlnev = str_replace('.'.kit($_FILES[$megnevezes]['name']), '', $_FILES[$megnevezes]['name']);
         }elseif($algoritmus=='id'){
@@ -85,9 +85,9 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
 
 	switch($algoritmus){
 		//case 'sorid': $kepnev=$sor_id; break;
-		
+
 		case 'fajlnev':
-		
+
 			$kepnev = $_FILES[$megnevezes]['name'];
 
             //Fájl
@@ -99,27 +99,27 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
             $mit   = array('&#337;',    '&#336;',   '&amp;#369;',   '&amp;#368;');
             $mivel = array('ő',             'Ő',            'ű',            'Ű'         );
             $_FILES[$megnevezes]['name'] = str_replace($mit, $mivel, $_FILES[$megnevezes]['name']);
-            
-            $sor = $adatbazis_kapcsolat -> select($fajl_oszlop, $tabla, 'id='.$sor_id);
+
+            $sor = $adatbazis_kapcsolat -> select($fajl_oszlop, $tabla, 'recid='.$sor_id);
             $sor = $sor[0];
-			
+
             //ha a fájlt felülírjuk (tehát már el volt tárolva a neve a táblában), akkor levesszük a tábla nevét
             if( $sor[$fajl_oszlop] ){
-				
+
 				$mit      = array($tabla.'/');
 				$mivel    = array('');
 				$pathinfo = pathinfo($sor[$fajl_oszlop]);
-				
+
 				$kepnev    = str_replace($mit, $mivel, $pathinfo['filename']).'.'.kit($kepnev);
 				$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
-				
+
 			//Ha nincs a táblában a neve (új felöltés vagy módosítás, és sose volt kép, vagy törölve lett)
             }else{
-					
+
 				$pathinfo = pathinfo($kepnev);
 				$kit      = $pathinfo['extension'];
 				$kepnev   = $pathinfo['filename'];
-				
+
 				$i     = 1;
 				$ujnev = $kepnev.'_1';
 				//DE! megnézzük, hogy ez a '_1' nem foglalt-e. Ha az, keresünk szabad számot
@@ -127,39 +127,39 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
 					$i++;
 					$ujnev = $kepnev.'_'.$i;
 				}
-				
+
 				$kepnev = fajlnev_keszit($ujnev).'.'.$kit;
-				
+
                 //Ez most azért false, mert a JSFF-nél ha egy forban több fjál input is szerepelt, akkor felülírták egymást
                 $overwrite = false;
-					
-			} 
+
+			}
 		break;
-		
+
 		//termék nevéből nyert képnév
 		case 'nev':
-			
+
 			$kepnev  = stripslashes( strip_tags( htmlspecialchars_decode2( $_POST['nev'] ) ) );
 
             $sor = $adatbazis_kapcsolat -> select($fajl_oszlop, $tabla, 'id='.$sor_id);
             $sor = $sor[0];
-            
+
             //ha a fájlt felülírjuk (tehát már el volt tárolva a neve a táblában), akkor levesszük a a tábla nevét
 			if($sor[$fajl_oszlop]){
-				
+
 				$mit      = array($tabla.'/');
 				$mivel    = array('');
 				$pathinfo = pathinfo($sor[$fajl_oszlop]);
-				
+
 				$kepnev    = str_replace($mit, $mivel, $pathinfo['filename']).'.'.kit($_FILES[$megnevezes]['name']);
 				$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
-			
+
 			//Ha nincs a táblában a neve (új felöltés vagy módosítás, és sose volt kép, vagy törölve lett)
 			}else{
-				
+
 				//Itt a kiterjesztés az eredetileg felvitt fájl kiterjesztése lesz
 				$kit   = kit($_FILES[$megnevezes]['name']);
-				
+
 				$i     = 1;
 				$ujnev = $kepnev.'_1';
 				//DE! megnézzük, hogy ez a '_1' nem foglalt-e. Ha az keresünk szabad számot
@@ -167,27 +167,27 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
 					$i++;
 					$ujnev = $kepnev.'_'.$i;
 				}
-				
+
 				$kepnev = fajlnev_keszit($ujnev).'.'.$kit;
 
                 //Ez most azért false, mert a JSFF-nél ha egy forban több fjál input is szerepelt, akkor felülírták egymást
                 $overwrite = false;
-					
+
 			}
 		break;
-		
+
 		default:
 			//elmentjük a kiterjesztést, kisbetűsre alakítva
             $kit = strtolower(substr($_FILES[$megnevezes]['name'],strrpos($_FILES[$megnevezes]['name'],'.'),strlen($_FILES[$megnevezes]['name'])));
 			$kepnev = $sor_id.$kit;
 
 			$algoritmus = 'sorid';//bizti kedvéért
-			$sor_id     = null;//Kinullázzuk a táblát, hogy a web_ftp ne próbálkozzon SQL-el 
+			$sor_id     = null;//Kinullázzuk a táblát, hogy a web_ftp ne próbálkozzon SQL-el
 			$overwrite  = true;	//Sorid esetén mindig töröljük az előzőt (pl. 'sorid'.jpg-t)
 		break;
 	}
-    
+
     return web_ftp($megnevezes, $tabla.'/'.$kepnev, $meret, $overwrite, $csakkep, $tabla, $fajl_oszlop, $sor_id, true);
-	
+
 }
 ?>

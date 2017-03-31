@@ -263,13 +263,13 @@ foreach($akt_tomb as $ertek){
             }
 
             $torles_gomb    = '';
-            $akt_fajl       = $adatbazis_kapcsolat -> s($ertek['oszlop'], $ertek['tabla'], 'id='.$_GET['id']);
+            $akt_fajl       = $adatbazis_kapcsolat -> s($ertek['oszlop'], $ertek['tabla'], 'recid='.$_GET['id']);
             $akt_fajl       = $akt_fajl[0];
             $utvonal        = '../'.get_utvonal().$akt_fajl[$ertek['oszlop']];
 
             //Ha minden fájl feltöltése kész, mi történjen
             $minden_kesz = '';
-            if(isset($_GET['modosit'])){
+            if(isset($_GET['modosit']) || isset($_GET['dokumentumok'])) {
                 $minden_kesz = 'get_admin_file_thumb(\''.$ertek['tabla'].'\', \''.$ertek['oszlop'].'\', \''.$_GET['id'].'\', \'#jsff_'.$megn.'_thumb\'); $(\'\');';
             }else{
 
@@ -785,20 +785,21 @@ foreach($akt_tomb as $ertek){
                 $ertek['class'] .= ' csillag';
             }
 
-            $input -> cssClass  = $ertek['class'];
-            $input -> disabled  = $ertek['disabled'];
-            $input -> id        = $ertek['name'];
-            $input -> maxlength = $ertek['maxlength'];
-            $input -> name      = $ertek['name'];
-            $input -> naptar    = $ertek['naptar'];
-            $input -> onblur    = $ertek['onblur'];
-            $input -> onclick   = $ertek['onclick'];
-            $input -> onfocus   = $ertek['onfocus'];
-            $input -> onkeyup   = $ertek['onkeyup'];
-            $input -> style     = $ertek['style'];
-            $input -> placeholder = $ertek['placeholder'];
-            $input -> post      = $ertek['post'];
-            $input -> pre       = $ertek['pre'];
+            $input -> cssClass      = $ertek['class'];
+            $input -> disabled      = $ertek['disabled'];
+            $input -> id            = $ertek['name'].'_autocomp';
+            $input -> maxlength     = $ertek['maxlength'];
+            $input -> name          = $ertek['name'].'_autocomp';
+            $input -> naptar        = $ertek['naptar'];
+            $input -> onblur        = $ertek['onblur'];
+            $input -> onclick       = $ertek['onclick'];
+            $input -> onfocus       = $ertek['onfocus'];
+            $input -> onkeyup       = $ertek['onkeyup'];
+            $input -> style         = $ertek['style'];
+            $input -> placeholder   = $ertek['placeholder'];
+            $input -> autocomplete  = 'off';
+            $input -> post          = $ertek['post'];
+            $input -> pre           = $ertek['pre'];
             if($ertek['i']){
                 $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
                 if( strpos($input -> cssClass, 'oriasi')!==false || strpos($input -> cssClass, 'nagy')!==false ){
@@ -826,12 +827,15 @@ foreach($akt_tomb as $ertek){
                 $input -> value   = $ertek['value_felulir'];
             }
 
-            $html = $input -> getHtml();
+            $value = $input -> value;
 
-            /* Autocomplete-es kereső */
-            $tabla = $ertek['tabla'];
-            $oszlop_keres = $ertek['oszlop'];
-            $oszlop_listaz = $ertek['oszlop'];
+            $kulso_ertek = $adatbazis_kapcsolat->s('recid nev', $ertek['tabla'], 'recid='.$input -> value, '', '1');
+
+            if( $kulso_ertek ) {
+                $input -> value = $kulso_ertek[0]['nev'];
+            }
+
+            $html = $input -> getHtml().'<input type="hidden" name="'.$ertek['name'].'" id="'.$ertek['name'].'" value="'.$value.'">';
 
             $rkat = 0;
             if( $ertek['rkat'] ) {
@@ -841,11 +845,11 @@ foreach($akt_tomb as $ertek){
             $html .= nl2('
                 <script>
                     $(document).ready(function() {
-                        $(\'#'.$ertek['name'].'\').autocomplete({
+                        $(\'#'.$ertek['name'].'_autocomp\').autocomplete({
                             \'php_fajl\'        : \'../autocomplete.php\',
-                            \'tabla\'           : \''.$tabla.'\',
-                            \'oszlop_keres\'    : \''.$oszlop_keres.'\',
-                            \'oszlop_listaz\'   : \''.$oszlop_listaz.'\',
+                            \'tabla\'           : \''.$ertek['tabla'].'\',
+                            \'oszlop_keres\'    : \''.$ertek['oszlop_keres'].'\',
+                            \'oszlop_listaz\'   : \''.$ertek['listaz'].'\',
                             \'rkat\'            : '.$rkat.'
                         });
                     });
@@ -856,7 +860,7 @@ foreach($akt_tomb as $ertek){
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr\">
-                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span> <span class=\"autocomp\">*</span></div>
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
                                     <div class=\"dtc form_jobb\">
                             ");
             }else{

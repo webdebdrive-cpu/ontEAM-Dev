@@ -456,8 +456,13 @@ $(function() {
         }
     });
 
+    $('#tartalomBal').on('click', '#szamlaList li.szamla_sor', function() {
+        $('#szamlaList li.szamla_sor').removeClass('active');
+        $(this).addClass('active');
+    });
+
     formModositva = false;
-    $('#szerk_form').find('input, select, textarea').on('keyup change', function(e) {
+    $('#tartalomJobb').on('keyup change paste', '#szerk_form input, #szerk_form select, #szerk_form textarea', function(e) {
         var name = $(this).attr('name'),
             type = $(this).attr('type'),
             val  = $(this).val();
@@ -522,11 +527,11 @@ $(function() {
         e.preventDefault();
     });
 
-    $(window).bind('beforeunload', function(){
+    /*$(window).bind('beforeunload', function(){
         if( formModositva ) {
             return 'Biztos elhagyod az oldalt?';
         }
-    });
+    });*/
 });
 
 function gombokNullaz() {
@@ -563,6 +568,33 @@ function felhValt( that ) {
     }
 
     return false;
+}
+
+function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
+    if( szerkeszt === undefined ) {
+        szerkeszt = false;
+    }
+
+    szerk = '';
+    if( szerkeszt ) {
+        szerk = 'szerkeszt=1&amp;';
+    }
+
+    if( recid && page ) {
+        $.ajax({
+         	url : page,
+         	type: 'GET',
+         	data: esamp2es('id=' + recid + '&amp;ajax=1&amp;' + szerk + muvelet + '=' + new Date().getTime()),
+         	success: function(html) {
+         		if(html) {
+                    html = JSON.parse(html);
+
+         			$('#szamlaBetolt').html(html.tartalom);
+                    window.history.pushState("", "", html.link );
+         		}
+         	}
+        });
+    }
 }
 
 function htmlspecialchars_decode(string, quoteStyle) {

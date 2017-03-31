@@ -26,7 +26,6 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
     $oszlop_keres  = explode(',', str_replace(' ', '', $_GET['oszlop_keres']));
     $oszlop_listaz = explode(',', str_replace(' ', '', $_GET['oszlop_listaz']));
 
-
     //Ha legalább egy értéke van
     if( count( $oszlop_keres ) ) {
 
@@ -43,8 +42,8 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         }
 
         //Utolsó 4 karater levágása
-        $where_sql =  substr($where_sql, 0 , strlen($where_sql) - 4);
-        $oszlopok  =  substr($oszlopok, 0 ,  strlen($oszlopok)  - 2);
+        $where_sql =  substr($where_sql, 0, strlen($where_sql) - 4);
+        $oszlopok  =  substr($oszlopok, 0,  strlen($oszlopok)  - 2);
 
         if( $where_sql ) {
             $where_sql = ' WHERE '.$where_sql;
@@ -69,7 +68,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`, `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
         while( $sor = mysqli_fetch_array($lekerdez) ) {
 
-            $return .= '<li>';
+            $return .= '<li data-recid="'.$sor['recid'].'">';
             //$return .= '<li data-href="'.$_GET['tabla'].'.php?id='.$sor['recid'].'&amp;modosit">';
 
             $size = count($oszlop_listaz) - 1;

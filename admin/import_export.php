@@ -464,7 +464,7 @@ require_once('header.php');
 
                         $adatbazis_kapcsolat->i('bejovo_szamlak',
                             array('ikt_szam', 'erkezett', 'visszaadva', 'szaml_szam', 'teljesites', 'fiz_hat',   'targy', 'netto', 'brutto', 'fiz_mod', 'valuta_netto', 'valuta_brutto', 'arfolyam', 'atvaltva',  'rend_szam', 'bev_szam', 'megj',      'szallito_szab', 'afa_tipus', 'torolve', 'eszkoz_csop', 'eszkoz_ert', 'e-szamla', 'iktatva', 'iktatta', 'igazolva',  'igazolta', 'elkuldve',  'elkuldte', 'szkp_atvette', 'szkp_feldolg', 'sablon', 'datetime',            'statusz', 'szallito'  ),
-                            array($iktszam,   $erk_dat,   $vissza_dat,  $szlaszam,    $telj_dat,    $fizhat_dat, $targy,  $netert, $brutert, $kifmod,   $valnetert,     $valbrutert,     $valarf,    $valarf_dat, $rendszam,   $bevszam,   $megjegyzes, $szabadszal,     $afatipus,   $torolt,   $eszkozcsop,   $eszkozert,   $eszla,     $ikt_dat,  $iktatta,  $igazol_dat, $igazolta,  $elkuld_dat, $elkuldte,  $szkp_dat,      $szkpfeldol,    $sablon,  $szkp_dat.' 00-00-00', $statusz,  $szallkod   )
+                            array($iktszam,   $erk_dat,   $vissza_dat,  $szlaszam,    $telj_dat,    $fizhat_dat, $targy,  $netert, $brutert, $kifmod,   $valnetert,     $valbrutert,     $valarf,    $valarf_dat, $rendszam,   $bevszam,   $megjegyzes, $szabadszal,     $afatipus,   $torolt,   $eszkozcsop,   $eszkozert,   $eszla,     $ikt_dat,  $iktatta,  $igazol_dat, $igazolta,  $elkuld_dat, $elkuldte,  $szkp_dat,      $szkpfeldol,    $sablon,  $erk_dat.' 00-00-00',  $statusz,  $szallkod   )
                         );
 
 						echo $adatbazis_kapcsolat->gp() . '<br>';

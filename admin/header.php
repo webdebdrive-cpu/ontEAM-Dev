@@ -134,7 +134,7 @@ if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $m
 $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 
 /* Kimenő számlák */
-$menu_nev        = 'Kimenő számlák';
+/*$menu_nev        = 'Kimenő számlák';
 $menu_nev_kis    = 'kimenő számlák';
 $menu_nev_tobbes = 'Kimenő számlák';
 $megn            = 'kimeno_szamlak';
@@ -151,7 +151,7 @@ if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $m
     $style = ' class="hover"';
 }
 
-$menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+$menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );*/
 
 /* Rendszer beállítások */
 $menu_nev        = 'Rendszer';
