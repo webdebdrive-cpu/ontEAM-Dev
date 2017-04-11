@@ -9,12 +9,12 @@ require_once('class/html/class.Img.php');
 
 //Css-ben lévő képelemeket DATA-URI-ra cseréljük
 if (isset($_GET['css_img_uri'])) {
-    
+
     $js_css_tomb = get_jsfajlok();
     foreach($js_css_tomb['css'] as $css){
         fajlba_mentes($css, css_img_data( fajlbol_olvas($css) ));
     }
-    
+
 }
 
 $weblap = new Weblap();
@@ -48,7 +48,7 @@ if($weblap -> db_prefix){
 	$adatbazis_kapcsolat -> setCharset(get_db_charset());
 	$adatbazis_kapcsolat -> debug = get_debug(); //Ez nem kötelező. Ha igaz, akkor sikertelen lekérdezés esetén kiírja a parancsot
     $db_kapcs = $adatbazis_kapcsolat -> adatbazis_kapcsolat; // mysqli_query-hez (ha megkell adni magát a kapcsolatot is)
-    
+
     //SQL injection ellen
     foreach($_GET as $kulcs => $get){
         $_GET[$kulcs] = sql_ertek($_GET[$kulcs]);
@@ -56,14 +56,14 @@ if($weblap -> db_prefix){
     foreach($_POST as $kulcs => $post){
         $_POST[$kulcs] = sql_ertek($_POST[$kulcs]);
     }
-    
+
 }
 
 //Majd a weblap indulhat, ekkor tölthető ki a meta (később már lesz kimenet)
     require_once('esemenyek.php');	//Ezt ne töröld, még ha üres is, kell, mert különben az admin nem működik
     require_once('meta.php');
     require_once('tartalom.php');
-	
+
 /**
 *   Többnyelvű oldal esetére egy plusz függvény, amint ki kell venni a függvények tömbből, mert ott a taratlom.php még nem látszik
 *	Get tartalom érték
@@ -106,7 +106,7 @@ if(basename(self())=='index.php' && $_GET['id']){
     if($termek['id']){
         $_GET['id'] = $termek['id'];
     }
-    
+
 }
 */
 

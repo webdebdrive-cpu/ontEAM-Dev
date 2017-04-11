@@ -167,7 +167,7 @@ if(!$_SESSION[get_db_tabla().'user']){
 
     $felirat = '';
     if(isset($_GET['hiba'])){
-        $felirat = '<h1 style="color: #FF5353">Helytelen belépés!</h1>';
+        $felirat = '<h1 style="color: #fff">Helytelen felhasználói név vagy jelszó.</h1>';
     }else{
         $felirat = '<h1>Kérjük azonosítsd magad</h1>';
     }

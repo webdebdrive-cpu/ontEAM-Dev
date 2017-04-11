@@ -59,8 +59,8 @@ $bejovo_szamlak_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Iktató szám:',        'name' => 'ikt_szam',       'disabled' => $disabled,    'maxlength' => 250, 'class' => 'normal', 'show' => true, 'osszevon' => true),
     array('type' => 'text',                 'megn' => 'Érkezett:',           'name' => 'erkezett',       'disabled' => $disabled,    'class' => 'kicsi datepicker', 'value' => $datum, 'alert' => 'Nem töltötted ki az érkezett dátumot!', 'show' => true, 'osszevon' => true),
     array('type' => 'text',                 'megn' => 'Visszaadva:',         'name' => 'visszaadva',     'disabled' => $disabled,    'class' => 'kicsi datepicker', 'value' => $datum),
-    array('type' => 'text',                 'megn' => 'Számla szám:',        'name' => 'szaml_szam',     'disabled' => $disabled,    'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Nem töltötted ki a számlaszámot!', 'show' => true),
-    array('type' => 'checkbox',             'megn' => 'E-számla:',           'name' => 'e-szamla',       'disabled' => $disabled,    'class' => 'check'),
+    array('type' => 'text',                 'megn' => 'Számla szám:',        'name' => 'szaml_szam',     'disabled' => $disabled,    'maxlength' => 250, 'class' => 'nagy', 'alert' => 'Nem töltötted ki a számlaszámot!', 'show' => true, 'osszevon' => true),
+    array('type' => 'checkbox',             'megn' => 'E-számla:',           'name' => 'e-szamla',       'disabled' => $disabled,    'class' => 'check', 'osszevon' => true),
     array('type' => 'checkbox',             'megn' => 'Törölve:',            'name' => 'torolve',        'disabled' => $disabled,    'class' => 'check'),
     array('type' => 'autocomplete',         'megn' => 'Szállító:',           'name' => 'szallito',       'disabled' => $disabled,    'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'nev', 'listaz' => 'nev'),
     array('type' => 'text',                 'megn' => 'Szállító szabadon:',  'name' => 'szallito_szab',  'disabled' => $disabled,    'maxlength' => 250,  'class' => 'oriasi'),
@@ -151,11 +151,12 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 /** További beállítások */
 if( isset($_GET['szamlaLista']) ) {
-    $val   = $_GET['val'];
+    $rend  = $_GET['rend'];
+    $irany = $_GET['irany'];
     $tabla = $_GET['tabla'];
 
     if( $tabla ) {
-        $szamla_lista = szamla_lista( $tabla, $val );
+        $szamla_lista = szamla_lista( $tabla, '', $rend.' '.$irany );
 
         if( $szamla_lista ) {
             echo $szamla_lista;

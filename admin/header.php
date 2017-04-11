@@ -348,14 +348,48 @@ if( basename(self()) == 'bejovo_szamlak.php' || basename(self()) == 'kimeno_szam
 
 $tartBal  = '';
 $keresodn = ' dn';
+$rendezes = '';
 if( basename(self()) == 'bejovo_szamlak.php' || basename(self()) == 'kimeno_szamlak.php' ) {
-    if( basename(self()) == 'bejovo_szamlak.php' ) {
-        $tabla = 'bejovo_szamlak';
-    } else if( basename(self()) == 'kimeno_szamlak.php' ) {
-        $tabla = 'kimeno_szamlak';
+    $tabla = str_replace('.php', '', basename(self()));
+
+    /* Rendezés */
+    $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
+    $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
+
+    $rendezes = '';
+    foreach($rend_mezok as $rend_mezo) {
+        $selected = '';
+        if( $_GET['rend'] == $rend_mezo ) {
+            $selected = ' selected="selected"';
+        }
+
+        $rendezes .= '<option value="'.$rend_mezo.'"'.$selected.'>'.getOszlopNev($rend_mezo).'</option>';
     }
 
-    $tartBal  = szamla_lista( $tabla );
+    /* Rendezés onchange linkje */
+    $irany = '';
+    if( $_GET['irany'] ) {
+        $irany = ', '.$_GET['irany'];
+    }
+
+    $rend_change = 'bejegyzesekLista( this'.$irany.' );';
+
+    $order = 'erkezett desc';
+    if( $_GET['rend'] && in_array($_GET['rend'], $rend_mezok) ) {
+        $order = $_GET['rend'];
+    }
+
+    /* Rendezési irány */
+    $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\' ); void(0);">▲</a>';
+    if( $_GET['irany'] && $_GET['irany'] == 'desc' ) {
+        $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'asc\' ); void(0);">▼</a>';
+
+        if( $_GET['rend'] && in_array($_GET['rend'], $rend_mezok) ) {
+            $order .= ' desc';
+        }
+    }
+
+    $tartBal  = szamla_lista( $tabla, '', $order );
     $keresodn = '';
 }
 
@@ -377,8 +411,8 @@ if( $oldalNev ) {
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CSS}', '{CEGNEV}', '{MENUK}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{FELH_NEV}', '{OLDALNEV}'),
-    array( $css,    get_nev(),  $menuk,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $felh_nev,    $oldalNev  ),
+    array('{CSS}', '{CEGNEV}', '{MENUK}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{FELH_NEV}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}'),
+    array( $css,    get_nev(),  $menuk,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $felh_nev,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change  ),
     $header_sablon
 );
 

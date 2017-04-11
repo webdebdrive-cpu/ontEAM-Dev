@@ -1,6 +1,5 @@
 <?php
 require_once('../weblap.php');
-
 //Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
@@ -304,7 +303,7 @@ if($gyorskereso_text){
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax'), true)
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html;
@@ -457,8 +456,7 @@ if($gyorskereso_text){
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'modosit', 'dokumentumok'), true)
+                'tartalom' => $szamla_html
             ));
         } else {
             echo $szamla_html;
@@ -499,18 +497,6 @@ if($gyorskereso_text){
         //Ha keresünk, akkor még kiegészítjük a WHERE feltételt
         if($where_keres){
             $where .= ' ('.csonkit($where_keres, 3).')';
-        }
-
-        //Order beállítása
-        if(!$_GET['order']){
-            //megkeressük az első megjelenítendőt és az lesz az alapételmezett (általában a 'nev')
-            foreach($akt_tomb as $ertek){
-                if($ertek['show']){
-                    $default=$ertek['name'];
-                    break;
-                }
-            }
-            $_GET['order'] = $default;
         }
 
         //NAVIGÁCIÓ
@@ -565,7 +551,7 @@ if($gyorskereso_text){
         //Számolás
         $lapozo -> lapozas();
 
-        $lekerdezes = $adatbazis_kapcsolat -> select($oszlopok, $megnevezes, $where, $_GET['order'].' '.$_GET['desc'], $lapozo -> getLimit());
+        $lekerdezes = $adatbazis_kapcsolat -> select($oszlopok, $megnevezes, $where, $_GET['rend'].' '.$_GET['desc'], $lapozo -> getLimit());
 
         //GYORSKERESŐ
         echo $gyk;

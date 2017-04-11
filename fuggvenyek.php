@@ -570,80 +570,145 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 	}
 }
 
-function szamla_lista( $tabla, $val = NULL ) {
+function szamla_lista( $tabla, $where = NULL, $order = NULL, $limit = NULL ) {
     global $adatbazis_kapcsolat;
 
-    $where = '';
-    if( $val ) {
-        $where = '`ikt_szam` LIKE \'%'.$val.'%\'';
-    }
-
     if( $tabla ) {
-        $bejovo_szamlak = $adatbazis_kapcsolat->s('recid ikt_szam szallito targy netto statusz erkezett', $tabla, $where, 'erkezett desc', '');
+        $bejegyzesek = $adatbazis_kapcsolat->s('recid ikt_szam szallito targy netto statusz erkezett', $tabla, $where, $order, $limit);
 
-        if( $bejovo_szamlak ) {
-            $aktDatum = date_formaz($bejovo_szamlak[0]['erkezett']);
-
-            $tartBal .= '<ul id="szamlaList" class="szamla_cont">';
-
-            $i = 1;
-            foreach($bejovo_szamlak as $bsz) {
-                $szamlaDatum = date_formaz($bsz['erkezett']);
-
-                if( $i == 1 || $aktDatum != $szamlaDatum ) {
-                    $tartBal .= '<li class="szamla_datum"><strong>'.$szamlaDatum.'</strong></li>';
-
-                    $aktDatum = $szamlaDatum;
-                }
-
-                $active = '';
-                if( $bsz['recid'] == $_GET['id'] ) {
-                    $active = ' active';
-                }
-
-                $statusz = '';
-                $szinkod = '';
-                if( $bsz['statusz'] ) {
-                    $statusz_sor = $adatbazis_kapcsolat->s('recid nev szinkod', 'statusz', 'recid='.$bsz['statusz'], '', '1');
-
-                    if( $statusz_sor ) {
-                        $statusz_sor = $statusz_sor[0];
-
-                        $statusz = $statusz_sor['nev'];
-
-                        if( $statusz_sor['szinkod'] ) {
-                            $szinkod = ' style="background: '.$statusz_sor['szinkod'].';"';
-                        }
-                    }
-                }
-
-                $szallito_sor = $adatbazis_kapcsolat->s('recid nev', 'szallito', 'recid='.$bsz['szallito'], '', '1');
-
-                $szallito = '';
-                if( $szallito_sor ) {
-                    $szallito_sor = $szallito_sor[0];
-
-                    $szallito = $szallito_sor['nev'];
-                }
-
-                $tartBal .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'"'.$szinkod.'>
-                                <a href="javascript: szamlaBetolt('.$bsz['recid'].', \''.basename(self()).'\', \'modosit\'); void(0);">
-                                    <span class="ikt_szam">'.$bsz['ikt_szam'].'</span>
-                                    <span class="targy">'.resz_string($bsz['targy'], 40).'</span>
-                                    <span class="szallito">'.$szallito.'</span>
-                                    <span class="netto">'.number_format($bsz['netto'], 0, '', '.').' '.get_penznem().'</span>
-                                    <span class="statusz">'.$statusz.'</span>
-                                </a>
-                            </li>';
-
-                $i++;
+        if( $bejegyzesek ) {
+            switch($tabla) {
+                case 'bejovo_szamlak':
+                    $html = bejovoSzamlaLista( $bejegyzesek );
+                break;
             }
-
-            $tartBal .= '</ul>';
         }
 
-        return $tartBal;
+        return $html;
     }
 
     return false;
+}
+
+function bejovoSzamlaLista( $bejegyzesek ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+        //$aktDatum = date_formaz($bejegyzesek[0]['erkezett']);
+
+        $html = '<ul id="szamlaList" class="szamla_cont">';
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            /*$szamlaDatum = date_formaz($bsz['erkezett']);
+
+            if( $i == 1 || $aktDatum != $szamlaDatum ) {
+                $html .= '<li class="szamla_datum"><strong>'.$szamlaDatum.'</strong></li>';
+
+                $aktDatum = $szamlaDatum;
+            }*/
+
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $statusz = '';
+            $szinkod = '';
+            if( $bsz['statusz'] ) {
+                $statusz_sor = $adatbazis_kapcsolat->s('recid nev szinkod', 'statusz', 'recid='.$bsz['statusz'], '', '1');
+
+                if( $statusz_sor ) {
+                    $statusz_sor = $statusz_sor[0];
+
+                    $statusz = $statusz_sor['nev'];
+
+                    if( $statusz_sor['szinkod'] ) {
+                        //$szinkod = ' style="background: '.$statusz_sor['szinkod'].';"';
+                    }
+                }
+            }
+
+            $szallito_sor = $adatbazis_kapcsolat->s('recid nev', 'szallito', 'recid='.$bsz['szallito'], '', '1');
+
+            $szallito = '';
+            if( $szallito_sor ) {
+                $szallito_sor = $szallito_sor[0];
+
+                $szallito = $szallito_sor['nev'];
+            }
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'"'.$szinkod.'>
+                            <a href="javascript: szamlaBetolt('.$bsz['recid'].', \''.basename(self()).'\', \'modosit\'); void(0);">
+                                <span class="ikt_szam">'.$bsz['ikt_szam'].'</span>
+                                <span class="targy">'.resz_string($bsz['targy'], 40).'</span>
+                                <span class="szallito">'.$szallito.'</span>
+                                <span class="netto">'.number_format($bsz['netto'], 0, '', '.').' '.get_penznem().'</span>
+                                <span class="statusz">'.$statusz.'</span>
+                            </a>
+                        </li>';
+
+            $i++;
+        }
+
+        $html .= '</ul>';
+
+        return $html;
+    }
+
+    return false;
+}
+
+function getOszlopNev( $oszlop ) {
+    $oszlopNevek = array(
+        'recid' => '',
+        'nev' => 'Név',
+        'kep_teszt' => 'Kép teszt',
+        'ikt_szam' => 'Iktató szám',
+        'erkezett' => 'Érkezett',
+        'visszaadva' => 'Visszaadva',
+        'szaml_szam' => 'Számla szám',
+        'e-szamla' => 'E-számla',
+        'szallito' => 'Szállító',
+        'torolve' => 'Törölve',
+        'szallito_szab' => 'Szállító szabadon',
+        'teljesites' => 'Teljesítés',
+        'fiz_hat' => 'Fizetési határidő',
+        'fiz_mod' => 'Fizetési mód',
+        'targy' => 'Tárgy',
+        'brutto' => 'Bruttó',
+        'netto' => 'Nettó',
+        'afa_tipus' => 'Áfa típus',
+        'valuta_brutto' => 'Valuta bruttó',
+        'valuta_netto' => 'Valuta nettó',
+        'arfolyam' => 'Árfolyam',
+        'reszleg' => 'Részleg',
+        'atvaltva' => 'Átváltva',
+        'megj' => 'Megjegyzés',
+        'eszkoz_csop' => 'Eszköz csoport',
+        'eszkoz_ert' => 'Eszköz érték',
+        'rend_szam' => 'Rendelés szám',
+        'cimzett' => 'Címzett',
+        'bev_szam' => 'Bev. szám',
+        'ill_reszleg' => 'Ill. részleg',
+        'statusz' => 'Státusz',
+        'iktatva' => '',
+        'iktatta' => '',
+        'igazolasra_adva' => '',
+        'igazolasra_adta' => '',
+        'igazolva' => '',
+        'igazolta' => '',
+        'elkuldve' => '',
+        'elkuldte' => '',
+        'szkp_atvette' => '',
+        'szkp_feldolg' => '',
+        'sablon' => 'Kontírozási sablon',
+        'datetime' => '',
+    );
+
+    if( $oszlopNevek[$oszlop] ) {
+        return $oszlopNevek[$oszlop];
+    } else {
+        return $oszlop;
+    }
 }

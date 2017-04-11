@@ -51,12 +51,12 @@ body.noselect * {
 }
 
 div.szamlaKereses {
-    padding: 1rem 1rem 1rem 1rem;
+    padding: 0.5rem 1rem 0.5rem 1rem;
 }
 
 .sor.kethasabos {
     border-top: 0.1rem solid #004990;
-    height: calc(100% - 16.5rem);
+    height: calc(100% - 14.5rem);
     max-width: 100%;
     min-width: 100%;
 }
@@ -101,7 +101,7 @@ div.szamlaKereses {
 .sor div.jobb div.tKeret {
     display: table;
     position: relative;
-    padding: 2rem 2rem 2rem 2rem;
+    padding: 1rem 1.5rem 1rem 1.5rem;
     width: 100%;
 }
 
