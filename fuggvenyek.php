@@ -62,6 +62,27 @@ function i_u($type, $tabla, $tomb){
 	}
 
 	if($type == 'insert') {
+        /* Datetime-ot is frissítjük */
+        if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
+            array_push($oszlopok, 'insert_dt',          'insert_usr'                    );
+            array_push($ertekek,   date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'user']);
+        }
+
+        if( $tabla == 'login' ) {
+            if( $_POST['szerepkor_id'] ) {
+                $szerepkor = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
+
+                if( $szerepkor ) {
+                    $szerepkor = $szerepkor[0];
+
+                    if( $szerepkor['flags'] ) {
+                        array_push($oszlopok, 'flags'             );
+                        array_push($ertekek,   $szerepkor['flags']);
+                    }
+                }
+            }
+        }
+
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
 
         /* Kezdeményezett művelet */
@@ -92,7 +113,7 @@ function i_u($type, $tabla, $tomb){
         if( $record ) {
             if( $record[0]['datetime'] ) {
                 if( $_SESSION['formMod']['oldal'] == basename(self()) ) {
-                    if( $_SESSION['formMod']['datetime'] != $record[0]['datetime'] ) {
+                    if( $_SESSION['formMod']['datetime'] != $record[0]['update_dt'] ) {
                         echo json_encode(array(
                             'statusz' => 'hiba',
                             'uzenet'  => 'Ezt a bejegyzést valaki más már módosította, <br>kérlek kezd előről a szerkesztést!'
@@ -132,10 +153,26 @@ function i_u($type, $tabla, $tomb){
         }
 
         /* Datetime-ot is frissítjük */
-        if( $tabla == 'bejovo_szamlak' || $tabla == 'kimeno_szamlak' ) {
-            array_push($oszlopok, 'datetime'          );
-            array_push($ertekek,   date('Y-m-d H:i:s'));
+        if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
+            array_push($oszlopok, 'update_dt',          'update_usr'                    );
+            array_push($ertekek,   date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'user']);
         }
+
+        if( $tabla == 'login' ) {
+            if( $_POST['szerepkor_id'] && !$record['flags'] ) {
+                $szerepkor = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
+
+                if( $szerepkor ) {
+                    $szerepkor = $szerepkor[0];
+
+                    if( $szerepkor['flags'] ) {
+                        array_push($oszlopok, 'flags'             );
+                        array_push($ertekek,   $szerepkor['flags']);
+                    }
+                }
+            }
+        }
+
 
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
 
@@ -144,7 +181,7 @@ function i_u($type, $tabla, $tomb){
 
             if( $sor ) {
                 $_SESSION['formMod'] = array(
-                    'datetime' => $sor[0]['datetime'],
+                    'datetime' => $sor[0]['update_dt'],
                     'oldal' => basename(self())
                 );
 
@@ -166,7 +203,6 @@ function i_u($type, $tabla, $tomb){
             }
         }
 	}
-//echo $adatbazis_kapcsolat -> getParancs();
 
 	if(isset($_GET['id']) && $type == 'update'){
 		$id=$_GET['id'];
@@ -570,16 +606,31 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 	}
 }
 
-function szamla_lista( $tabla, $where = NULL, $order = NULL, $limit = NULL ) {
+function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $limit = NULL ) {
     global $adatbazis_kapcsolat;
 
     if( $tabla ) {
-        $bejegyzesek = $adatbazis_kapcsolat->s('recid ikt_szam szallito targy netto statusz erkezett', $tabla, $where, $order, $limit);
+        $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
 
         if( $bejegyzesek ) {
             switch($tabla) {
                 case 'bejovo_szamlak':
-                    $html = bejovoSzamlaLista( $bejegyzesek );
+                    $html = bejovoSzamlaLista( $bejegyzesek, $tabla );
+                break;
+                case 'rendszer':
+                    $html = rendszerLista( $bejegyzesek, $tabla );
+                break;
+                case 'szallito':
+                    $html = szallitoLista( $bejegyzesek, $tabla );
+                break;
+                case 'kodtar':
+                    $html = kodtarLista( $bejegyzesek, $tabla );
+                break;
+                case 'login':
+                    $html = loginLista( $bejegyzesek, $tabla );
+                break;
+                case 'szerepkor':
+                    $html = szerepkorLista( $bejegyzesek, $tabla );
                 break;
             }
         }
@@ -590,7 +641,186 @@ function szamla_lista( $tabla, $where = NULL, $order = NULL, $limit = NULL ) {
     return false;
 }
 
-function bejovoSzamlaLista( $bejegyzesek ) {
+function szerepkorLista( $bejegyzesek, $tabla ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+        $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
+                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                                <span><span class="szso">Név:</span> '.$bsz['nev'].'</span>
+                            </a>
+                        </li>';
+
+            $i++;
+        }
+
+        $html .= '</ul>';
+
+        return $html;
+    }
+
+    return false;
+}
+
+function loginLista( $bejegyzesek, $tabla ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+        $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
+                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                                <span><span class="szso">Név:</span> '.$bsz['nev'].'</span>
+                            </a>
+                        </li>';
+
+            $i++;
+        }
+
+        $html .= '</ul>';
+
+        return $html;
+    }
+
+    return false;
+}
+
+function kodtarLista( $bejegyzesek, $tabla ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+        $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
+                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                                <span><span class="szso">Csoport:</span> '.$bsz['csoport'].'</span>
+                                <span><span class="szso">Infó:</span> '.$bsz['info'].'</span>
+                            </a>
+                        </li>';
+
+            $i++;
+        }
+
+        $html .= '</ul>';
+
+        return $html;
+    }
+
+    return false;
+}
+
+function szallitoLista( $bejegyzesek, $tabla ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+        $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $aktiv = 'nem';
+            if( $bsz['aktiv'] ) {
+                $aktiv = 'igen';
+            }
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
+                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                                <span><span class="szso">Név:</span> '.$bsz['nev'].'</span>
+                                <span><span class="szso">Aktív:</span> '.$aktiv.'</span>
+                            </a>
+                        </li>';
+
+            $i++;
+        }
+
+        $html .= '</ul>';
+
+        return $html;
+    }
+
+    return false;
+}
+
+function rendszerLista( $bejegyzesek, $tabla ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+        $rkat = $bejegyzesek[0]['rkat'];
+
+        $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $aktrkat = $bsz['rkat'];
+
+            if( $i == 1 || $rkat != $aktrkat ) {
+                $rkatSor = $adatbazis_kapcsolat->s('nev', 'rendszer_kat', 'recid='.$aktrkat, '', '1');
+
+                if( $rkatSor ) {
+                    $rkatSor = $rkatSor[0];
+
+                    $html .= '<li class="szamla_datum"><strong>'.$rkatSor['nev'].'</strong></li>';
+                }
+
+                $rkat = $aktrkat;
+            }
+
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $aktiv = 'nem';
+            if( $bsz['aktiv'] ) {
+                $aktiv = 'igen';
+            }
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
+                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                                <span><span class="szso">Név:</span> '.$bsz['nev'].'</span>
+                                <span><span class="szso">Aktív:</span> '.$aktiv.'</span>
+                            </a>
+                        </li>';
+
+            $i++;
+        }
+
+        $html .= '</ul>';
+
+        return $html;
+    }
+
+    return false;
+}
+
+function bejovoSzamlaLista( $bejegyzesek, $tabla ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -624,7 +854,7 @@ function bejovoSzamlaLista( $bejegyzesek ) {
                     $statusz = $statusz_sor['nev'];
 
                     if( $statusz_sor['szinkod'] ) {
-                        //$szinkod = ' style="background: '.$statusz_sor['szinkod'].';"';
+                        $szinkod = ' style="background: '.$statusz_sor['szinkod'].';"';
                     }
                 }
             }
@@ -638,13 +868,13 @@ function bejovoSzamlaLista( $bejegyzesek ) {
                 $szallito = $szallito_sor['nev'];
             }
 
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'"'.$szinkod.'>
-                            <a href="javascript: szamlaBetolt('.$bsz['recid'].', \''.basename(self()).'\', \'modosit\'); void(0);">
-                                <span class="ikt_szam">'.$bsz['ikt_szam'].'</span>
-                                <span class="targy">'.resz_string($bsz['targy'], 40).'</span>
-                                <span class="szallito">'.$szallito.'</span>
-                                <span class="netto">'.number_format($bsz['netto'], 0, '', '.').' '.get_penznem().'</span>
-                                <span class="statusz">'.$statusz.'</span>
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
+                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                                <span class="ikt_szam"><span class="szso"><span class="statusz"'.$szinkod.'></span>Ikt. szám:</span> '.$bsz['ikt_szam'].'</span>
+                                <span class="targy"><span class="szso">Tárgy:</span> '.resz_string($bsz['targy'], 40).'</span>
+                                <span class="szallito"><span class="szso">Szállító:</span> '.$szallito.'</span>
+                                <span class="netto"><span class="szso">Nettó:</span> '.number_format($bsz['netto'], 0, '', '.').' '.get_penznem().'</span>
+                                <span class="statusz"><span class="szso">Státusz:</span> '.$statusz.'</span>
                             </a>
                         </li>';
 
@@ -704,6 +934,7 @@ function getOszlopNev( $oszlop ) {
         'szkp_feldolg' => '',
         'sablon' => 'Kontírozási sablon',
         'datetime' => '',
+        'rkat' => 'Rend. kat'
     );
 
     if( $oszlopNevek[$oszlop] ) {
@@ -711,4 +942,59 @@ function getOszlopNev( $oszlop ) {
     } else {
         return $oszlop;
     }
+}
+
+function kodtar($csoport, $id) {
+    global $adatbazis_kapcsolat;
+
+    $sor = $adatbazis_kapcsolat->s('info', 'kodtar', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
+
+    if( $sor ) {
+        $sor = $sor[0];
+
+        return $sor['info'];
+    } else {
+        return false;
+    }
+}
+
+function jogosultsagKatok( $tomb ) {
+    require('jogosultsag.php');
+
+    if( $tomb ) {
+        $katok = array();
+
+        foreach($tomb as $value) {
+            if( !in_array($value['kat'], adatbazis2tomb($katok, 'id')) ) {
+                array_push(
+                    $katok,
+                    array(
+                        'id'  => $value['kat'],
+                        'nev' => $jogosultsagKatok[$value['kat']]['nev'],
+                        'sor' => $jogosultsagKatok[$value['kat']]['sor'],
+                    )
+                );
+            }
+        }
+
+        return $katok;
+    }
+
+    return false;
+}
+
+function getJogSorRendez( $katID, $tomb ) {
+    $jogKatok = array();
+
+    if( $tomb ) {
+        foreach($tomb as $value) {
+            if( $value['kat'] == $katID ) {
+                array_push($jogKatok, $value);
+            }
+        }
+
+        return $jogKatok;
+    }
+
+    return false;
 }

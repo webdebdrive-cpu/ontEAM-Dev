@@ -125,8 +125,8 @@ if($gyorskereso_text){
 	if(isset($_GET['uj']) && !$csak_szerkesztheto){
 
         //NAVIGÁCIÓ
-
-	    $gombok = '<input type="button" class="gombb" onclick="location.href=\''.self().'?lista\'" value="Lista" title="Lista megtekintése">';
+        $gombok = '';
+	    //$gombok = '<input type="button" class="gombb" onclick="location.href=\''.self().'?lista\'" value="Lista" title="Lista megtekintése">';
         if($sorrendezes){
             $gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().'?sorrend\'" value="Sorrend" title="Sorrendezés">';
         }

@@ -438,6 +438,51 @@ foreach($akt_tomb as $ertek){
             }
         break;
 
+        case 'select_rkat':
+            $input = new Select($select_rkat, $sor['rkat']);
+            $input -> cssClass = $ertek['class'];
+            $input -> disabled = $ertek['disabled'];
+            $input -> id       = $ertek['name'];
+            $input -> name     = $ertek['name'];
+            $input -> naptar   = $ertek['naptar'];
+            $input -> onblur   = $ertek['onblur'];
+            $input -> onclick  = $ertek['onclick'];
+            $input -> onfocus  = $ertek['onfocus'];
+            $input -> style    = $ertek['style'];
+
+            if($ertek['i']){
+                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
+            }
+
+            //Ezt csak akkor aktiváld, ha alapértelmezett értéket szeretnél neki definiálni, de VIGYÁZZ!, a $sor['VALAMI']-t se írja felül, hisz a konstruktornak ez ad értéket! Pl. így: if(!$ertek['value']){ $ertek['value'] = $sor['VALAMI']; }
+            //$input -> value    = $ertek['value'];
+
+            $html = $input -> getHtml();
+            if($ertek['alert']){
+                $html .= ' *';
+            }
+
+            //Összevonások lekezelése és tartalom összefűzése
+            if(!$osszevon_flag){
+                $mezok .= nl2("
+                                <div class=\"dtr\">
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
+                                    <div class=\"dtc form_jobb\">
+                            ");
+            }else{
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+            }
+
+            $mezok .= $html;
+
+            if($ertek['osszevon']){
+                $osszevon_flag = 1;
+            }else{
+                $osszevon_flag = 0;
+                $mezok .= "</div></div>";
+            }
+        break;
+
 		case 'select_fiz_mod':
             $input = new Select($select_fiz_mod, $sor['fiz_mod']);
             $input -> cssClass = $ertek['class'];
@@ -743,6 +788,10 @@ foreach($akt_tomb as $ertek){
                         $input -> value   = $sor[ $ertek['name'] ];
                     }
                 }
+            }
+
+            if( basename(self()) == 'szallito.php' && $ertek['name'] == 'id' ) {
+                $input -> onkeyup = str_replace('{ID}', '\''.$input -> value.'\', ', $input -> onkeyup);
             }
 
             if($ertek['value_felulir']){

@@ -249,8 +249,8 @@ require_once('header.php');
                         }
 
                         $adatbazis_kapcsolat->i('szallito',
-                            array('recid', 'nev', 'aktiv'),
-                            array($id,     $nev,  $aktiv )
+                            array('id', 'nev', 'aktiv'),
+                            array($id,  $nev,  $aktiv )
                         );
 
 						echo $adatbazis_kapcsolat->gp() . '<br>';

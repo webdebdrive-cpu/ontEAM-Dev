@@ -397,16 +397,21 @@ $(function() {
         if( e.keyCode == 38 || e.keyCode == 40 ) {
             var className = e.target.className;
 
-            if( className.indexOf('disableNav') !== -1 ) {
+            if( className !== undefined && className.indexOf('disableNav') !== -1 ) {
                 return false;
             }
 
-            if( baseName(location.href) == 'bejovo_szamlak' || baseName(location.href) == 'kimeno_szamlak' ) {
-                if( baseName(location.href) == 'bejovo_szamlak' ) {
-                    tabla = 'bejovo_szamlak';
-                } else if( baseName(location.href) == 'kimeno_szamlak' ) {
-                    tabla = 'kimeno_szamlak';
-                }
+            var ketHasabos = new Array(
+                'bejovo_szamlak',
+                'rendszer',
+                'szallito',
+                'kodtar',
+                'login',
+                'szerepkor'
+            );
+
+            if( inArray(baseName(location.href), ketHasabos) ) {
+                tabla = baseName(location.href);
 
                 var active = $('#szamlaList li.szamla_sor.active').index('#szamlaList li.szamla_sor'),
                     szamlaDb = $('#szamlaList li.szamla_sor').length - 1;
@@ -453,6 +458,8 @@ $(function() {
     $('#tartalomBal').on('click', '#szamlaList li.szamla_sor', function() {
         $('#szamlaList li.szamla_sor').removeClass('active');
         $(this).addClass('active');
+
+        scrollLeptet();
     });
 
     formModositva = false;
@@ -531,7 +538,80 @@ $(function() {
         active_top = $('.szamla_sor.active').position().top;
         $('#tartalomBal').scrollTop(active_top - 250);
     }
+
+    $('img.f_svg').each(function(){
+        var $img     = jQuery(this);
+        var imgID    = $img.attr('id');
+        var imgClass = $img.attr('class');
+        var imgURL   = $img.attr('src');
+
+        $.get(imgURL, function(data) {
+
+            /* Csak az SVG tag-el foglalkozunk, a többit elhagyjuk */
+            var $svg = $(data).find('svg');
+
+            /* ID beállítása, ha volt */
+            if(typeof imgID !== 'undefined') {
+                $svg = $svg.attr('id', imgID);
+            }
+
+            /* CSS beállítása, ha volt */
+            if(typeof imgClass !== 'undefined') {
+                $svg = $svg.attr('class', imgClass+' replaced-svg');
+            }
+
+            /* Felesleges XML tag-ek eltávolítása */
+            $svg = $svg.removeAttr('xmlns:a');
+
+            /* Kép cseréje az SVG kódra */
+            $img.replaceWith($svg);
+
+        }, 'xml');
+
+    });
+
+    /*gombokRejt();*/
 });
+
+function inArray( keresett, tomb ) {
+    if( $.isArray(tomb) && keresett !== undefined ) {
+        for( key in tomb ) {
+            if( keresett == tomb[key] ) {
+                return true;
+                break;
+            }
+        }
+    }
+    return false;
+}
+
+function naviElozo() {
+    $(document).trigger(jQuery.Event('keyup', {keyCode: 38}));
+}
+
+function naviKov() {
+    $(document).trigger(jQuery.Event('keyup', {keyCode: 40}));
+}
+
+function naviElso() {
+    $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
+}
+
+function naviUtolso() {
+    $('#szamlaList li.szamla_sor:last-child a').trigger('click');
+}
+
+function naviSzerk() {
+    if( $('#recordSzerk').length ) {
+        $('#recordSzerk').click();
+    }
+}
+
+function naviTorles() {
+    if( $('#recordTorol').length ) {
+        $('#recordTorol').click();
+    }
+}
 
 function scrollLeptet() {
     var active_top      = $('.szamla_sor.active').position().top,
@@ -657,6 +737,68 @@ function felhValt( that ) {
     return false;
 }
 
+function addSzakterulet( szallitoID, that ) {
+    var szakterID = $(that).find('input[name="addSzakter"]').val();
+
+    if( szallitoID && szakterID ) {
+        var ajax = $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'GET',
+         	data: esamp2es('szallitoID=' + szallitoID + '&amp;szakterID=' + szakterID + '&amp;addSzakterulet=' + new Date().getTime()),
+         	success: function(html) {
+         		if(html) {
+                    html = JSON.parse(html);
+
+                    if( html.statusz == 'hiba' ) {
+                        alert2(html.uzi);
+                        return false;
+                    }
+
+         			szamlaBetolt(szallitoID, baseName(location.href) + '.php', 'szakterulet').done(function() {
+                        $('#naploSor-' + html.kapcsID).addClass('uj');
+                    });
+         		}
+         	}
+        });
+
+        $.when( ajax ).then(function() {
+            $(that).find('input[name="addSzakter"]').val('');
+            $(that).find('input[name="addSzakter_autocomp"]').val('');
+        });
+    }
+
+    return false;
+}
+
+function naploTorol( tabla, sorID ) {
+    if( tabla && sorID ) {
+        $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'GET',
+         	data: esamp2es('tabla=' + tabla + '&amp;sorID=' + sorID + '&amp;naploTorol=' + new Date().getTime()),
+         	success: function(html) {
+         		$('#naploSor-' + sorID).fadeOut(300, function() {
+                    $(this).remove();
+                });
+         	}
+        });
+    }
+}
+
+function gombokRejt() {
+    if( $('#recordSzerk').length ) {
+        $('div.navGombok a.szerk').removeClass('disabled');
+    } else {
+        $('div.navGombok a.szerk').addClass('disabled');
+    }
+
+    if( $('#recordTorol').length ) {
+        $('div.navGombok a.torles').removeClass('disabled');
+    } else {
+        $('div.navGombok a.torles').addClass('disabled');
+    }
+}
+
 function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
     if( szerkeszt === undefined ) {
         szerkeszt = false;
@@ -666,6 +808,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
     if( szerkeszt ) {
         szerk = 'szerkeszt=1&amp;';
     }
+
+    var dfrd1 = $.Deferred();
 
     if( recid && page ) {
         $('#ajaxfedo').removeClass('dn');
@@ -678,9 +822,11 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
          		if(html) {
                     html = JSON.parse(html);
 
-         			$('#szamlaBetolt').html(html.tartalom);
+         			$('#szamlaBetolt').html(html.tartalom).promise().done(function() {
+                        dfrd1.resolve();
+                    });
 
-                    param = get_get(['id', 'modosit', 'naplo', 'dokumentumok', 'szerkeszt'], true);
+                    param = get_get(['id', 'modosit', 'naplo', 'dokumentumok', 'szerkeszt', 'szakterulet', 'jogosultsag'], true);
                     if( param.indexOf('?') !== -1 ) {
                         param += '&id=' + recid + '&' + muvelet;
                     } else {
@@ -696,9 +842,29 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
          	}
         });
 
-        $.when( szamla ).then(function() {
+        return $.when(szamla, dfrd1).done(function() {
             $('#ajaxfedo').addClass('dn');
-        });
+            gombokRejt();
+        }).promise();
+    }
+}
+
+function ertekFoglalt(originVal, value, tabla, mezo) {
+    if( originVal != value && value && tabla && mezo ) {
+        $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'GET',
+         	data: esamp2es('value=' + value + '&amp;tabla=' + tabla + '&amp;mezo=' + mezo + '&amp;ertekFoglalt=' + new Date().getTime()),
+         	success: function(html) {
+         		if(html) {
+         			html = JSON.parse(html);
+
+                    if( html.uzi ) {
+                        alert2(html.uzi);
+                    }
+         		}
+         	}
+         });
     }
 }
 

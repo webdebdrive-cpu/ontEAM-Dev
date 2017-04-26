@@ -3,7 +3,7 @@
 	background-color: #ECF0F6;
     box-shadow: 0.2rem 0.2rem 0.4rem -0.1rem #aba398;
     overflow-y: auto;
-    height: 40rem;
+    max-height: 40rem;
 	position: absolute;
 	margin-top: 0.3rem;
 	display: none;

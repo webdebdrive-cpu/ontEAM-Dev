@@ -5,7 +5,7 @@ $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $bejovo_szamlak_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'számla';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'számlát';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 $gyorskereso_text       = '';       //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
 $oszlop_keres           = 'nev';                //Oszlopnevek, melyben keresünk (több oszlop is felsorolható vesszőkkel)
@@ -157,8 +157,8 @@ if($gyorskereso_text){
 	if(isset($_GET['uj']) && !$csak_szerkesztheto){
 
         //NAVIGÁCIÓ
-
-	    $gombok = '<input type="button" class="gombb" onclick="location.href=\''.self().'?lista\'" value="Lista" title="Lista megtekintése">';
+	    $gombok = '';
+	    //$gombok = '<input type="button" class="gombb" onclick="location.href=\''.self().'?lista\'" value="Lista" title="Lista megtekintése">';
         if($sorrendezes){
             $gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().'?sorrend\'" value="Sorrend" title="Sorrendezés">';
         }
@@ -187,6 +187,25 @@ if($gyorskereso_text){
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 	    $form_mit    = array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}');
 
+        /* Javascipt-es ellenőrzéshez */
+        $tabla = str_replace('.php', '', basename(self()));
+
+        $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
+        $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
+
+        $sor = array();
+        foreach($rend_mezok as $rend_mezo) {
+            $sor[$rend_mezo] = '';
+        }
+
+        foreach($akt_tomb as $tomb) {
+            if( $tomb['type'] == 'autocomplete' ) {
+                $sor[$tomb['name'].'_autocomp'] = '';
+            }
+        }
+
+        echo '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
+
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
@@ -210,7 +229,7 @@ if($gyorskereso_text){
 
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
-                'datetime' => $sor['datetime'],
+                'datetime' => $sor['update_dt'],
                 'oldal' => basename(self())
             );
         }
@@ -246,7 +265,7 @@ if($gyorskereso_text){
         $gombok .= ' <input type="button" id="visszavonas_gomb" disabled="disabled" class="gombb" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\', true);" value="Visszavonás" title="Visszavonás">';
 
         if( !$csak_szerkesztheto ) {
-            $gombok .= ' <input type="button" class="gombb_alert" onclick="alert2(\'Biztosan törlöd ezt a '.$szoveg.'?\',gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert" onclick="alert2(\'Biztosan törlöd ezt a '.$szoveg.'?\',gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
 
         $gombok .= ' <input type="button" id="kilepes_gomb" class="gombb_alert" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\');" value="Kilépés" title="Kilépés">';
@@ -291,7 +310,7 @@ if($gyorskereso_text){
                               <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled="disabled" value="Mentés">
                            </div>').$gombok;
         } else {
-            $gombok = '<input type="button" class="gombb" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\', true)" value="Szerkeszés" title="Record szerkesztése">';
+            $gombok = '<input type="button" id="recordSzerk" class="gombb" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\', true)" value="Szerkeszés" title="Record szerkesztése">';
         }
 
 	    $szamla_html .= str_replace(

@@ -3,6 +3,96 @@
 
 require_once('../weblap.php');
 
+$_SESSION['ketHasabos'] = array(
+    'bejovo_szamlak.php',
+    'rendszer.php',
+    'szallito.php',
+    'kodtar.php',
+    'login.php',
+    'szerepkor.php'
+);
+
+$tabla = basename(self());
+if( isset($_GET['szamlaLista']) ) {
+    $tabla = $_GET['tabla'].'.php';
+}
+
+$_OPTS = array();
+switch($tabla) {
+    case 'bejovo_szamlak.php':
+        $_OPTS['select'] = 'recid ikt_szam szallito targy netto statusz erkezett';
+        $_OPTS['order']  = 'erkezett desc';
+
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'erkezett';
+        }
+
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'rendszer.php':
+        $_OPTS['select'] = 'recid nev rkat aktiv';
+        $_OPTS['order']  = 'rkat desc';
+
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'rkat';
+        }
+
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'szallito.php':
+        $_OPTS['select'] = 'recid nev aktiv';
+        $_OPTS['order']  = 'rkat desc';
+
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'nev';
+        }
+
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'asc';
+        }
+    break;
+    case 'kodtar.php':
+        $_OPTS['select'] = 'recid csoport info';
+        $_OPTS['order']  = 'recid desc';
+
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'login.php':
+        $_OPTS['select'] = 'recid nev';
+        $_OPTS['order']  = 'nev desc';
+
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'nev';
+        }
+
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'szerepkor.php':
+        $_OPTS['select'] = 'recid nev';
+        $_OPTS['order']  = 'nev desc';
+
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'nev';
+        }
+
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+}
+
 // Csak új feltöltés esetén kell az aktuális időpont, egyébként a már eltároltat írjuk ki
 $datum = '';
 if(isset($_GET['uj'])){
@@ -118,8 +208,8 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 /* Rendszer */
 $megnevezes = 'rendszer';
 $rendszer_tomb = $akt_tomb = array(
-	array('type' => 'text',    'megn' => 'Megnevezés:', 'name' => 'nev',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Nem töltötted ki a megnevezést!', 'show' => true),
-    array('type' => 'hidden',  'megn' => '',  'name' => 'rkat',  'class' => 'kicsi', 'maxlength' => 10, 'ezresit' => false, 'post' => '', 'value' => $_SESSION['rendszerkat']),
+    array('type' => 'text',         'megn' => 'Megnevezés:',            'name' => 'nev',     'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Nem töltötted ki a megnevezést!', 'show' => true),
+    array('type' => 'select_rkat',  'megn' => 'Rendszer kategória:',    'name' => 'rkat',    'disabled' => $disabled),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -142,7 +232,42 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $megnevezes = 'szallito';
 $szallito_tomb = $akt_tomb = array(
 	array('type' => 'text',        'megn' => 'Megnevezés:', 'name' => 'nev',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Nem töltötted ki a megnevezést!', 'show' => true),
+	array('type' => 'text',        'megn' => 'ID:',         'name' => 'id',     'disabled' => $disabled,   'maxlength' => 10, 'class' => 'kicsi', 'alert' => 'Nem töltötted ki az ID mezőt!', 'show' => true, 'onkeyup' => 'ertekFoglalt({ID}this.value, \'szallito\', \'id\')'),
     array('type' => 'checkbox',    'megn' => 'Aktív:',      'name' => 'aktiv',  'disabled' => $disabled,   'show' => true, 'class' => 'check'),
+
+	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+/* Kódtár */
+$megnevezes = 'kodtar';
+$kodtar_tomb = $akt_tomb = array(
+	array('type' => 'text',        'megn' => 'Csoport:',       'name' => 'csoport',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'kicsi', 'show' => true),
+	array('type' => 'text',        'megn' => 'ID:',            'name' => 'id',         'disabled' => $disabled,   'maxlength' => 250, 'class' => 'kicsi', 'show' => true),
+	array('type' => 'text',        'megn' => 'Infó:',          'name' => 'info',       'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'show' => true),
+
+	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+/* Felhasználók */
+$megnevezes = 'login';
+$login_tomb = $akt_tomb = array(
+    array('type' => 'text',             'megn' => 'Név:',        'name' => 'nev',           'disabled' => $disabled,   'maxlength' => 250, 'alert' => 'Nem töltötted kis a nevet!', 'class' => 'nagy', 'show' => true),
+    array('type' => 'autocomplete',     'megn' => 'Szerepkör:',  'name' => 'szerepkor_id',  'disabled' => $disabled,   'class' => 'oriasi disableNav', 'tabla' => 'szerepkor', 'oszlop_keres' => 'nev', 'listaz' => 'nev'),
+    array('type' => 'checkbox',         'megn' => 'Van jelszó:', 'name' => 'van_jelszo',    'disabled' => $disabled,   'class' => 'check'),
+
+	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+/* Szerepkör */
+$megnevezes = 'szerepkor';
+$szerepkor_tomb = $akt_tomb = array(
+	array('type' => 'text',        'megn' => 'Név:',        'name' => 'nev',        'disabled' => $disabled,   'maxlength' => 250, 'alert' => 'Nem töltötted kis a nevet!', 'class' => 'nagy', 'show' => true),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -150,13 +275,102 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //{KOVETKEZO_TOMB}
 
 /** További beállítások */
+if( isset($_GET['naploTorol']) ) {
+    $tabla = $_GET['tabla'];
+    $sorID = $_GET['sorID'];
+
+    if( $tabla && $sorID ) {
+        $adatbazis_kapcsolat -> d($tabla, 'recid='.$sorID);
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+if( isset($_GET['addSzakterulet']) ) {
+    $szallitoID = $_GET['szallitoID'];
+    $szakterID  = $_GET['szakterID'];
+
+    if( $szallitoID && $szakterID ) {
+        $isKapcs = $adatbazis_kapcsolat->s('recid', 'szakter_kapcs', "`szallito_id` = '{$szallitoID}' AND `szakter_id` = '{$szakterID}'", '', '1');
+
+        if( !$isKapcs ) {
+            $kapcsID = $adatbazis_kapcsolat -> i('szakter_kapcs', array('szallito_id', 'szakter_id'), array($szallitoID, $szakterID));
+
+            /* Szakterület lekérdezése */
+            $sor = $adatbazis_kapcsolat->s('nev', 'szakterulet', "`recid` = '{$szakterID}'", '', '1');
+
+            if( $sor ) {
+                echo json_encode(array(
+                    'statusz' => 'siker',
+                    'kapcsID' => $kapcsID,
+                    'uzi' => ''
+                ));
+            }
+        } else {
+            echo json_encode(array(
+                'statusz' => 'hiba',
+                'uzi' => 'Ez a szakterület már hozzáadásra került!'
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+if( isset($_GET['ertekFoglalt']) ) {
+    $value = $_GET['value'];
+    $tabla = $_GET['tabla'];
+    $mezo  = $_GET['mezo'];
+
+    if( $value && $tabla && $mezo ) {
+        $sor = $adatbazis_kapcsolat->s($mezo, $tabla, $mezo.'='.$value, '', '1');
+
+        if( $sor ) {
+            echo json_encode(array(
+                'uzi' => 'Ez az érték már foglalt!'
+            ));
+        } else {
+            echo json_encode(array(
+                'uzi' => ''
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 if( isset($_GET['szamlaLista']) ) {
     $rend  = $_GET['rend'];
     $irany = $_GET['irany'];
     $tabla = $_GET['tabla'];
 
+    $order = '';
+    if( $rend ) {
+        $order = $rend.' '.$irany;
+    }
+
     if( $tabla ) {
-        $szamla_lista = szamla_lista( $tabla, '', $rend.' '.$irany );
+        $where = '';
+        if( $tabla == 'rendszer' ) {
+            if( $_GET['rkat'] ) {
+                if( strstr($_GET['rkat'], ',') ) {
+                    $where = "`rkat` IN (".$_GET['rkat'].")";
+                } else {
+                    $where = "`rkat` = '".$_GET['rkat']."'";
+                }
+            }
+        }
+
+        if( $where ) {
+            $where .= " AND `torolve` = '0'";
+        } else {
+            $where = "`torolve` = '0'";
+        }
+
+        $szamla_lista = szamla_lista( $tabla, $_OPTS['select'], $where, $order );
 
         if( $szamla_lista ) {
             echo $szamla_lista;
@@ -413,11 +627,11 @@ foreach($postok as $ertek){
 
 			$adatbazis_kapcsolat -> bezar();
 			if(isset($_POST['ugras_kepekhez'])){
-                header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba'))).'&id='.$tabla_id.'#kepek');
+                header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba', 'oldal', 'epo', 'kat', 'order'))).'&id='.$tabla_id.'#kepek');
             }else{
                 //Csak akkor van továbbléptetés, ha nem ajaxosan hívtuk meg
                 if(!isset($_POST['ajax_form_modosit'])){
-                    header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba'))).'&id='.$tabla_id.'&siker');
+                    header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba', 'oldal', 'epo', 'kat', 'order'))).'&id='.$tabla_id.'&siker');
                 }
             }
 
@@ -426,7 +640,7 @@ foreach($postok as $ertek){
 			if($errnum != '-1')    { $url .= '&errnum='.$errnum;      }
 			if($kephiba['1'] != ''){ $url .= '&kephiba='.$kephiba['1']; }
 
-			$kivetelek = array('siker', 'hiba', 'errnum', 'kephiba', 'modosit');
+			$kivetelek = array('siker', 'hiba', 'errnum', 'kephiba', 'modosit', 'oldal', 'epo', 'kat', 'order');
 
 			if(isset($_POST[$ertek['uj']])){
 				array_push($kivetelek,'modosit');
@@ -489,7 +703,7 @@ foreach($postok as $ertek){
 				exit();
 			}else{
 				$weblap -> leallit();
-				header('location:'.self().str_replace('&amp;','&',get_get(array($ertek['torid']))).'&siker&'.$ertek['torid'].'tobbkep_torol='.$_GET[$ertek['torid']]);
+				header('location:'.self().str_replace('&amp;','&',get_get(array($ertek['torid'], 'kat', 'epo', 'oldal', 'order'))).'&siker&'.$ertek['torid'].'tobbkep_torol='.$_GET[$ertek['torid']]);
 				exit();
 			}
 		}else{

@@ -23,17 +23,7 @@
     </ul>
 </div>
 
-<div class="szamlaKereses{KERESODN}">
-    <!--<div class="ilb gyorskereso">
-        <div class="dtc vat">
-            <input type="text" value="" name="szamlalista" id="szamlaListaKeres" data-tabla="{TABLA}" placeholder="Számla szűkítés" autocomplete="off">
-        </div>
-        <div class="dtc vat">
-            <input class="gomb kereso_gomb" type="submit" value="Keresés" style="position: relative;">
-        </div>
-        <input type="hidden" name="lista">
-    </div>-->
-
+<div class="szamlaKereses clearFix{KERESODN}">
     <div class="ilb rendezes">
         <div class="dtc vat">
             <select id="rendezesSelect" class="" name="" onchange="{REND_CHANGE}" data-tabla="{TABLA}">
@@ -62,6 +52,69 @@
         <select class="" name="">
             <option value="">Feltétel</option>
         </select>
+    </div>
+
+    <div class="navGombok clearFix">
+        <a onclick="naviElozo();" class="elo" title="Előző">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="48" viewBox="0 0 24 24" width="48" class="f_svg replaced-svg">
+                <path d="M15.41 16.09l-4.58-4.59 4.58-4.59L14 5.5l-6 6 6 6z"></path>
+                <path d="M0-.5h24v24H0z" fill="none"></path>
+            </svg>
+        </a>
+        <a onclick="naviKov();" class="kov" title="Következő">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="48" viewBox="0 0 24 24" width="48" class="f_svg replaced-svg">
+                <path d="M8.59 16.34l4.58-4.59-4.58-4.59L10 5.75l6 6-6 6z"></path>
+                <path d="M0-.25h24v24H0z" fill="none"></path>
+            </svg>
+        </a>
+        <a onclick="naviElso();" class="elso" title="Első">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="48" viewBox="0 0 24 24" width="48" class="f_svg replaced-svg">
+                <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"></path>
+                <path d="M0 0h24v24H0z" fill="none"></path>
+            </svg>
+        </a>
+        <a onclick="naviUtolso();" class="utolso" title="Utolsó">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="48" viewBox="0 0 24 24" width="48" class="f_svg replaced-svg">
+                <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"></path>
+                <path d="M0 0h24v24H0z" fill="none"></path>
+            </svg>
+        </a>
+        <a href="{SELF}?uj" class="uj" title="Új">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="48" viewBox="0 0 24 24" width="48" class="f_svg replaced-svg">
+                <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"></path>
+                <path d="M0 0h24v24H0z" fill="none"></path>
+            </svg>
+        </a>
+        <a onclick="naviSzerk();" class="szerk{SZERK_DIS}" title="Szerkesztés">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="48" viewBox="0 0 24 24" width="48" class="f_svg replaced-svg">
+                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path>
+                <path d="M0 0h24v24H0z" fill="none"></path>
+            </svg>
+        </a>
+        <a onclick="naviTorles();" class="torles{TOROL_DIS}" title="Törlés">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="48" viewBox="0 0 24 24" width="48" class="f_svg replaced-svg">
+                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"></path>
+                <path d="M0 0h24v24H0z" fill="none"></path>
+            </svg>
+        </a>
+        <a onclick="" class="excel" title="Excel">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="48" viewBox="0 0 24 24" width="48" class="f_svg replaced-svg">
+                <path d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 20H4v-4h4v4zm0-6H4v-4h4v4zm0-6H4V4h4v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4zm6 12h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6h-4V4h4v4z"></path>
+            </svg>
+        </a>
+        <a onclick="" class="pdf" title="Pdf">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="48" viewBox="0 0 24 24" width="48" class="f_svg replaced-svg">
+                <path d="M6 2c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6H6zm7 7V3.5L18.5 9H13z"></path>
+                <path d="M0 0h24v24H0z" fill="none"></path>
+            </svg>
+        </a>
+        <a onclick="" class="nyomtat" title="Nyomtatás">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" height="48" viewBox="0 0 24 24" width="48" class="f_svg replaced-svg">
+                <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"></path>
+                <path d="M0 0h24v24H0z" fill="none"></path>
+            </svg>
+        </a>
     </div>
 </div>
 

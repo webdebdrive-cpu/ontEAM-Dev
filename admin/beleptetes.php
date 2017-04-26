@@ -111,11 +111,11 @@ if(isset($_POST['login'])){
         $_POST['jelszo'] = sha1($_POST['jelszo']);
     }
 
-    $belepes = mysqli_query($db_kapcs, 'SELECT `id`, `nev`, `flags`, `jog` FROM `'.get_db_tabla().'login` WHERE `nev`=\''.$_POST['nev'].'\' AND `jelszo`=\''.$_POST['jelszo'].'\' AND `helyesseg` = \''.$helyesseg.'\'');
+    $belepes = mysqli_query($db_kapcs, 'SELECT `recid`, `nev`, `flags`, `jog` FROM `'.get_db_tabla().'login` WHERE `nev`=\''.$_POST['nev'].'\' AND `jelszo`=\''.$_POST['jelszo'].'\' AND `helyesseg` = \''.$helyesseg.'\'');
     if(mysqli_num_rows($belepes)){
         $sor_belepes = mysqli_fetch_assoc($belepes);
         $_SESSION[get_db_tabla().'user']    = $sor_belepes['nev'];
-        $_SESSION[get_db_tabla().'user_id'] = $sor_belepes['id'];
+        $_SESSION[get_db_tabla().'user_id'] = $sor_belepes['recid'];
         $_SESSION[get_db_tabla().'jog']     = $sor_belepes['jog'];
         $_SESSION[get_db_tabla().'rights']  = str_split($sor_belepes['flags']);
 
@@ -233,17 +233,17 @@ if (isset($_GET['jogok'])) {
                     $loginok = $adatbazis_kapcsolat->s('*', 'login', '', 'rendes_nev');
                     foreach($loginok as $login){
 
-                        $html .= '<tr id="login_'.$login['id'].'">';
-                        $html .= '<td><img class="link" src="../elemek/admin/x.gif" alt="törlés" onclick="login_torol(\''.$login['id'].'\')"></td>';
-                        $html .= '<td><input type="text" placeholder="Teljes név" name="rendes_nev_'.$login['id'].'" id="rendes_nev_'.$login['id'].'" value="'.$login['rendes_nev'].'"></td>';
-                        $html .= '<td><input type="text" placeholder="Felhasználói név" name="nev_'.$login['id'].'" id="nev_'.$login['id'].'" value="'.$login['nev'].'"></td>';
-                        $html .= '<td><input type="text" placeholder="Új jelszó" name="jelszo_'.$login['id'].'" id="jelszo_'.$login['id'].'" value=""></td>';
-                        $html .= '<td><select name="jog_'.$login['id'].'" id="jog_'.$login['id'].'">';
+                        $html .= '<tr id="login_'.$login['recid'].'">';
+                        $html .= '<td><img class="link" src="../elemek/admin/x.gif" alt="törlés" onclick="login_torol(\''.$login['recid'].'\')"></td>';
+                        $html .= '<td><input type="text" placeholder="Teljes név" name="rendes_nev_'.$login['recid'].'" id="rendes_nev_'.$login['recid'].'" value="'.$login['rendes_nev'].'"></td>';
+                        $html .= '<td><input type="text" placeholder="Felhasználói név" name="nev_'.$login['recid'].'" id="nev_'.$login['recid'].'" value="'.$login['nev'].'"></td>';
+                        $html .= '<td><input type="text" placeholder="Új jelszó" name="jelszo_'.$login['recid'].'" id="jelszo_'.$login['recid'].'" value=""></td>';
+                        $html .= '<td><select name="jog_'.$login['recid'].'" id="jog_'.$login['recid'].'">';
                             $html .= tomb2option($jogok, 'id', 'nev', $login['jog']);
                         $html .= '</select></td>';
-                        $html .= '<td><input type="button" class="gomb" value="Mentés" onclick="login_mentes(\''.$login['id'].'\')"></td>';
+                        $html .= '<td><input type="button" class="gomb" value="Mentés" onclick="login_mentes(\''.$login['recid'].'\')"></td>';
                         $html .= nl2('</tr>
-                                  <tr id="login_'.$login['id'].'_szep">
+                                  <tr id="login_'.$login['recid'].'_szep">
                                     <td colspan="100%" style="height: 5px;"></td>
                                   </tr>');
 
@@ -323,11 +323,11 @@ if (isset($_POST['login_mentes'])) {
 
     $adatbazis_kapcsolat->u('login', array('rendes_nev',         'nev',         'jog'),
                                      array($_POST['rendes_nev'], $_POST['nev'], $_POST['jog']),
-                                    'id='.$_POST['id']);
+                                    'recid='.$_POST['id']);
 
     //Ha jelszó is volt megadva
     if ($_POST['jelszo']) {
-        $adatbazis_kapcsolat->u('login', array('jelszo'), array( sha1($_POST['jelszo']) ), 'id='.$_POST['id']);
+        $adatbazis_kapcsolat->u('login', array('jelszo'), array( sha1($_POST['jelszo']) ), 'recid='.$_POST['id']);
     }
 
     echo $_POST['rendes_nev'].' adatai sikeresen mentve!';
@@ -339,7 +339,7 @@ if (isset($_POST['login_mentes'])) {
 //Login törlése
 if (isset($_POST['login_torol'])) {
 
-    $adatbazis_kapcsolat->d('login', 'id='.$_POST['id']);
+    $adatbazis_kapcsolat->d('login', 'recid='.$_POST['id']);
 
     $weblap -> leallit;
     exit;

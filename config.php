@@ -120,6 +120,7 @@ function get_jsfajlok_admin(){
 	$utvonal = '../';
 	$js = array(
                 $utvonal.'!js/jquery.js',
+                $utvonal.'!js/jquery.easing.1.3.js',
                 $utvonal.'!js/datetimepicker.js',
                 $utvonal.'!js/admin.js',
                 $utvonal.'js/fancybox.js',

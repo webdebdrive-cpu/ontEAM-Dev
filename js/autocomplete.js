@@ -184,8 +184,13 @@
                         if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                             mezo_nev = mezo.attr('name').replace('_autocomp', '');
                             $('input[name="' + mezo_nev + '"]').val(recid);
+
+                            if( options.tabla == 'szakterulet' ) {
+                                $('#addSzakterForm').submit();
+                            }
                         }
                     }
+
                     $('#autocomplete').css({'display':'none'});
                 } else {
                     $('.kereso_gomb').click();

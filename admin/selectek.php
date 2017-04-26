@@ -118,4 +118,12 @@ $select_ill_reszleg = array();
 array_push($select_ill_reszleg, array('name' => '- Válassz -',    'value' => ''));
 array_push($select_ill_reszleg, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 array_push($select_ill_reszleg, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
+
+//Select tömb előállítása rendszer kategóriákhoz
+$select_rkat = array();
+array_push($select_rkat, array('name' => '- Válassz -', 'value' => '' ));
+$rkat = $adatbazis_kapcsolat -> select('recid nev', 'rendszer_kat', '', 'nev');
+foreach($rkat as $rkat_sor){
+	array_push($select_rkat, array('name' => $rkat_sor['nev'], 'value' => $rkat_sor['recid'] ));
+}
 //{KOVETKEZO_SELECT}
