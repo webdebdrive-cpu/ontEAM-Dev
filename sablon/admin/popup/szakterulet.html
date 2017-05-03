@@ -1,0 +1,26 @@
+<h2>Új szakterület hozzáadása</h2>
+<form action="" id="addSzakterForm" method="post">
+    <div class="dt">
+        <div class="dtr">
+            <div class="dtc">Szakterület:</div>
+            <div class="dtc form_jobb">
+                <input type="text" name="addSzakter_autocomp" id="szakterKeres" class="gombm disableNav" value="" placeholder="Szakterület keresése..." autocomplete="off">
+                <input type="hidden" name="addSzakter" value="">
+
+                <script>
+                    $(document).ready(function() {
+                        $('#szakterKeres').autocomplete({
+                            'php_fajl'        : '../szakter_autocomplete.php',
+                            'tabla'           : 'szakterulet',
+                            'oszlop_keres'    : 'nev',
+                            'oszlop_listaz'   : 'nev'
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Adatok mentése">
+    </div>
+</form>

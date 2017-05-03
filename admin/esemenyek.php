@@ -7,7 +7,7 @@ $_SESSION['ketHasabos'] = array(
     'bejovo_szamlak.php',
     'rendszer.php',
     'szallito.php',
-    'kodtar.php',
+    'erteklista.php',
     'login.php',
     'szerepkor.php'
 );
@@ -20,8 +20,9 @@ if( isset($_GET['szamlaLista']) ) {
 $_OPTS = array();
 switch($tabla) {
     case 'bejovo_szamlak.php':
-        $_OPTS['select'] = 'recid ikt_szam szallito targy netto statusz erkezett';
-        $_OPTS['order']  = 'erkezett desc';
+        $_OPTS['select']    = 'recid ikt_szam szallito targy netto statusz erkezett';
+        $_OPTS['order']     = 'erkezett desc';
+        $_OPTS['rendezes']  = array('erkezett', 'e-szamla', 'torolve', 'ikt_szam', 'statusz');
 
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'erkezett';
@@ -32,8 +33,9 @@ switch($tabla) {
         }
     break;
     case 'rendszer.php':
-        $_OPTS['select'] = 'recid nev rkat aktiv';
-        $_OPTS['order']  = 'rkat desc';
+        $_OPTS['select']    = 'recid nev rkat aktiv';
+        $_OPTS['order']     = 'rkat desc';
+        $_OPTS['rendezes']  = array('rkat');
 
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'rkat';
@@ -44,8 +46,9 @@ switch($tabla) {
         }
     break;
     case 'szallito.php':
-        $_OPTS['select'] = 'recid nev aktiv';
-        $_OPTS['order']  = 'rkat desc';
+        $_OPTS['select']    = 'recid nev aktiv';
+        $_OPTS['order']     = 'rkat desc';
+        $_OPTS['rendezes']  = array('nev', 'id');
 
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'nev';
@@ -55,12 +58,13 @@ switch($tabla) {
             $_GET['irany'] = 'asc';
         }
     break;
-    case 'kodtar.php':
-        $_OPTS['select'] = 'recid csoport info';
-        $_OPTS['order']  = 'recid desc';
+    case 'erteklista.php':
+        $_OPTS['select']    = 'recid csoport info';
+        $_OPTS['order']     = 'recid desc';
+        $_OPTS['rendezes']  = array('csoport');
 
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'recid';
+            $_GET['rend'] = 'csoport';
         }
 
         if( !$_GET['irany'] ) {
@@ -68,8 +72,9 @@ switch($tabla) {
         }
     break;
     case 'login.php':
-        $_OPTS['select'] = 'recid nev';
-        $_OPTS['order']  = 'nev desc';
+        $_OPTS['select']    = 'recid nev';
+        $_OPTS['order']     = 'nev desc';
+        $_OPTS['rendezes']  = array('nev');
 
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'nev';
@@ -80,8 +85,9 @@ switch($tabla) {
         }
     break;
     case 'szerepkor.php':
-        $_OPTS['select'] = 'recid nev';
-        $_OPTS['order']  = 'nev desc';
+        $_OPTS['select']    = 'recid nev';
+        $_OPTS['order']     = 'nev desc';
+        $_OPTS['rendezes']  = array('nev');
 
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'nev';
@@ -199,17 +205,23 @@ $bejovo_szamlak_dok_tomb = $akt_tomb = array(
 /* Kimeno számlák */
 $megnevezes = 'kimeno_szamlak';
 $kimeno_szamlak_tomb = $akt_tomb = array(
-	array('type' => 'text',    'megn' => 'Megnevezés:', 'name' => 'nev',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Nem töltötted ki a megnevezést!', 'show' => true),
+	array('type' => 'text',    'megn' => 'Név:',   'name' => 'nev',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Nem töltötted ki a megnevezést!', 'show' => true),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
+if( isset($_GET['uj']) ) {
+    $rErtekdisabled = false;
+} else {
+    $rErtekdisabled = true;
+}
+
 /* Rendszer */
 $megnevezes = 'rendszer';
 $rendszer_tomb = $akt_tomb = array(
-    array('type' => 'text',         'megn' => 'Megnevezés:',            'name' => 'nev',     'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Nem töltötted ki a megnevezést!', 'show' => true),
-    array('type' => 'select_rkat',  'megn' => 'Rendszer kategória:',    'name' => 'rkat',    'disabled' => $disabled),
+    array('type' => 'text',         'megn' => 'Érték:',         'name' => 'nev',     'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Nem töltötted ki a megnevezést!', 'show' => true),
+    array('type' => 'select_rkat',  'megn' => 'Értéklista:',    'name' => 'rkat',    'disabled' => $rErtekdisabled),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -231,7 +243,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 /* Szállítók */
 $megnevezes = 'szallito';
 $szallito_tomb = $akt_tomb = array(
-	array('type' => 'text',        'megn' => 'Megnevezés:', 'name' => 'nev',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Nem töltötted ki a megnevezést!', 'show' => true),
+	array('type' => 'text',        'megn' => 'Név:',        'name' => 'nev',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Nem töltötted ki a megnevezést!', 'show' => true),
 	array('type' => 'text',        'megn' => 'ID:',         'name' => 'id',     'disabled' => $disabled,   'maxlength' => 10, 'class' => 'kicsi', 'alert' => 'Nem töltötted ki az ID mezőt!', 'show' => true, 'onkeyup' => 'ertekFoglalt({ID}this.value, \'szallito\', \'id\')'),
     array('type' => 'checkbox',    'megn' => 'Aktív:',      'name' => 'aktiv',  'disabled' => $disabled,   'show' => true, 'class' => 'check'),
 
@@ -241,10 +253,9 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 /* Kódtár */
-$megnevezes = 'kodtar';
-$kodtar_tomb = $akt_tomb = array(
+$megnevezes = 'erteklista';
+$erteklista_tomb = $akt_tomb = array(
 	array('type' => 'text',        'megn' => 'Csoport:',       'name' => 'csoport',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'kicsi', 'show' => true),
-	array('type' => 'text',        'megn' => 'ID:',            'name' => 'id',         'disabled' => $disabled,   'maxlength' => 250, 'class' => 'kicsi', 'show' => true),
 	array('type' => 'text',        'megn' => 'Infó:',          'name' => 'info',       'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'show' => true),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
@@ -631,7 +642,7 @@ foreach($postok as $ertek){
             }else{
                 //Csak akkor van továbbléptetés, ha nem ajaxosan hívtuk meg
                 if(!isset($_POST['ajax_form_modosit'])){
-                    header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba', 'oldal', 'epo', 'kat', 'order'))).'&id='.$tabla_id.'&siker');
+                    header('location:'.self().'?uj');
                 }
             }
 

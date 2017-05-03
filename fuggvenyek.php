@@ -325,7 +325,6 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
 
     //Ajaxos form módosítás
     $ajax_kod = nl2('
-        alert2(\'Mentés...\');
         $.ajax({
             url : \''.self().'?id='.$_GET['id'].'\',
             type: \'POST\',
@@ -342,7 +341,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
                     formAdatok = html.adatok;
 
                     gombokNullaz();
-                    alert2();
+
                     $(\'#mehet_gomb\').removeClass(\'gombb_alert\').attr(\'disabled\', true);
                 }
             }
@@ -623,8 +622,8 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
                 case 'szallito':
                     $html = szallitoLista( $bejegyzesek, $tabla );
                 break;
-                case 'kodtar':
-                    $html = kodtarLista( $bejegyzesek, $tabla );
+                case 'erteklista':
+                    $html = erteklistaLista( $bejegyzesek, $tabla );
                 break;
                 case 'login':
                     $html = loginLista( $bejegyzesek, $tabla );
@@ -701,7 +700,7 @@ function loginLista( $bejegyzesek, $tabla ) {
     return false;
 }
 
-function kodtarLista( $bejegyzesek, $tabla ) {
+function erteklistaLista( $bejegyzesek, $tabla ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -716,8 +715,7 @@ function kodtarLista( $bejegyzesek, $tabla ) {
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
                             <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
-                                <span><span class="szso">Csoport:</span> '.$bsz['csoport'].'</span>
-                                <span><span class="szso">Infó:</span> '.$bsz['info'].'</span>
+                                <span><span class="szso">Név:</span> '.$bsz['csoport'].'</span>
                             </a>
                         </li>';
 
@@ -891,50 +889,15 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla ) {
 
 function getOszlopNev( $oszlop ) {
     $oszlopNevek = array(
-        'recid' => '',
         'nev' => 'Név',
-        'kep_teszt' => 'Kép teszt',
         'ikt_szam' => 'Iktató szám',
         'erkezett' => 'Érkezett',
-        'visszaadva' => 'Visszaadva',
-        'szaml_szam' => 'Számla szám',
         'e-szamla' => 'E-számla',
-        'szallito' => 'Szállító',
         'torolve' => 'Törölve',
-        'szallito_szab' => 'Szállító szabadon',
-        'teljesites' => 'Teljesítés',
-        'fiz_hat' => 'Fizetési határidő',
-        'fiz_mod' => 'Fizetési mód',
-        'targy' => 'Tárgy',
-        'brutto' => 'Bruttó',
-        'netto' => 'Nettó',
-        'afa_tipus' => 'Áfa típus',
-        'valuta_brutto' => 'Valuta bruttó',
-        'valuta_netto' => 'Valuta nettó',
-        'arfolyam' => 'Árfolyam',
-        'reszleg' => 'Részleg',
-        'atvaltva' => 'Átváltva',
-        'megj' => 'Megjegyzés',
-        'eszkoz_csop' => 'Eszköz csoport',
-        'eszkoz_ert' => 'Eszköz érték',
-        'rend_szam' => 'Rendelés szám',
-        'cimzett' => 'Címzett',
-        'bev_szam' => 'Bev. szám',
-        'ill_reszleg' => 'Ill. részleg',
         'statusz' => 'Státusz',
-        'iktatva' => '',
-        'iktatta' => '',
-        'igazolasra_adva' => '',
-        'igazolasra_adta' => '',
-        'igazolva' => '',
-        'igazolta' => '',
-        'elkuldve' => '',
-        'elkuldte' => '',
-        'szkp_atvette' => '',
-        'szkp_feldolg' => '',
-        'sablon' => 'Kontírozási sablon',
-        'datetime' => '',
-        'rkat' => 'Rend. kat'
+        'rkat' => 'Érték',
+        'csoport' => 'Név',
+        'id' => 'ID'
     );
 
     if( $oszlopNevek[$oszlop] ) {
@@ -944,10 +907,10 @@ function getOszlopNev( $oszlop ) {
     }
 }
 
-function kodtar($csoport, $id) {
+function erteklista($csoport, $id) {
     global $adatbazis_kapcsolat;
 
-    $sor = $adatbazis_kapcsolat->s('info', 'kodtar', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
+    $sor = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
 
     if( $sor ) {
         $sor = $sor[0];

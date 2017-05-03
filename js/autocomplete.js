@@ -29,14 +29,14 @@
 
         var options = $.extend(defaults, options);
 
-        var width   = $(this).innerWidth();
-        var height  = $(this).innerHeight();
-        var left    = $(this).offset().left;
-        var top     = $(this).offset().top;
-
         $('body').append('<div id="autocomplete"></div>');
 
         $(this).keyup(function(e) {
+
+            var width   = $(this).innerWidth();
+            var height  = $(this).innerHeight();
+            var left    = $(this).offset().left;
+            var top     = $(this).offset().top;
 
             var length  = $(this).val().length;
             var val     = $(this).val();
@@ -184,10 +184,6 @@
                         if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                             mezo_nev = mezo.attr('name').replace('_autocomp', '');
                             $('input[name="' + mezo_nev + '"]').val(recid);
-
-                            if( options.tabla == 'szakterulet' ) {
-                                $('#addSzakterForm').submit();
-                            }
                         }
                     }
 

@@ -217,7 +217,7 @@ input.gomb.border{
 /* Módosít mehet gombja */
 .form_kuldes {
     display: inline-block;
-    margin: 0rem 0.3rem 0rem 0rem;
+    margin: 0rem 0rem 0rem 0rem;
 }
 
 .muveletek {
@@ -1397,9 +1397,16 @@ div.szamlaKereses div.feltetelSzures select {
 
 div.szamlaKereses div.rendezes div.irany a {
     display: inline-block;
+    font-size: 1.2rem;
     height: 2.5rem;
-    padding: 0.4rem 0rem 0rem 0.5rem;
+    line-height: 1rem;
+    padding: 0.2rem 0rem 0rem 0.5rem;
+    text-align: center;
     width: 2.5rem;
+}
+
+div.szamlaKereses div.rendezes div.irany a span {
+    font-size: 1rem;
 }
 
 div.szamlaKereses div.rendezes div.irany a:hover {
@@ -1601,7 +1608,7 @@ div.navGombok a {
     float: left;
     overflow: hidden;
     height: 2.2rem;
-    margin: 0rem 0.2rem 0rem 0rem;
+    margin: 0rem 0.5rem 0rem 0rem;
     position: relative;
     width: 2.2rem;
 }
@@ -1613,16 +1620,8 @@ div.navGombok a svg {
     transform: translateX(-50%) translateY(-50%);
 }
 
-div.navGombok a:hover svg {
-    fill: #044aff;
-}
-
 div.navGombok a.disabled {
     pointer-events: none;
-}
-
-div.navGombok a.disabled svg {
-    fill: #e4e4e4;
 }
 
 div.navGombok a.elo svg {
@@ -1646,16 +1645,19 @@ div.navGombok a.utolso svg {
 }
 
 div.navGombok a.uj svg {
+    fill: #07a927;
     height: 2.2rem;
     width: 2.2rem;
 }
 
 div.navGombok a.szerk svg {
+    fill: #07a927;
     height: 2rem;
     width: 2rem;
 }
 
 div.navGombok a.torles svg {
+    fill: #eb453b;
     height: 2rem;
     width: 2rem;
 }
@@ -1673,4 +1675,108 @@ div.navGombok a.pdf svg {
 div.navGombok a.nyomtat svg {
     height: 2rem;
     width: 2rem;
+}
+
+div.navGombok a:hover svg {
+    fill: #044aff;
+}
+
+div.navGombok a.disabled svg {
+    fill: #e4e4e4;
+}
+
+#popup {
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 50;
+}
+
+#popup div.popup_kont {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+}
+
+#popup div.popup_kont div.bezar {
+    background: #fff;
+    border: 0.2rem solid #004990;
+    box-shadow: 0rem 0rem 0rem 0.4rem #fff;
+    border-radius: 100%;
+    cursor: pointer;
+    height: 2.5rem;
+    position: absolute;
+    top: -0.5rem;
+    right: -0.5rem;
+    width: 2.5rem;
+}
+
+#popup div.popup_kont div.bezar:before,
+#popup div.popup_kont div.bezar:after {
+    background: #004990;
+    content: '';
+    height: 0.2rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%) rotate(-45deg);
+    width: 1rem;
+}
+
+#popup div.popup_kont div.bezar:after {
+    transform: translateX(-50%) translateY(-50%) rotate(45deg);
+}
+
+#popup div.popup_tart {
+    background: #fff;
+    border-radius: 0.2rem;
+    min-height: 15rem;
+    max-width: 80rem;
+    padding: 2rem 2rem 2rem 2rem;
+}
+
+#popup div.popup_tart h2 {
+    border-bottom: 0.1rem solid #d0d0d0;
+    font-size: 2.4rem;
+    font-weight: 400;
+    margin: 0rem 0rem 1rem 0rem;
+    padding: 0rem 0rem 0.5rem 0rem;
+}
+
+#popup div.popup_tart div.dt {
+    width: 100%;
+}
+
+#popup div.popup_tart div.dt div.dtc {
+    vertical-align: middle;
+    width: auto;
+}
+
+#popup div.popup_tart div.dt div.dtc input[type="text"] {
+    width: 100%;
+}
+
+#popup div.popup_tart div.kuldes {
+    padding: 1rem 0rem 0rem 0rem;
+    text-align: center;
+}
+
+#popup div.popup_tart input[type="submit"] {
+    background: #69A64E;
+    border: 0;
+    border-radius: 0.2rem;
+    color: #fff;
+    cursor: pointer;
+    font-size: 1.4rem;
+    padding: 0.6rem 1rem;
+    position: relative;
+}
+
+#popup div.popup_tart input[type="submit"]:hover {
+    background: #76B958;
 }

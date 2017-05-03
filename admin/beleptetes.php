@@ -151,6 +151,7 @@ if(isset($_POST['login'])){
 //Kiléptetés
 if(isset($_GET['kilep'])){
     unset($_SESSION[get_db_tabla().'user']);
+    unset($_SESSION[get_db_tabla().'user_id']);
     unset($_SESSION[get_db_tabla().'jog']);
     unset($_SESSION[get_db_tabla().'rights']);
 
@@ -163,7 +164,7 @@ if(isset($_GET['kilep'])){
 
 if(!$_SESSION[get_db_tabla().'user']){
 
-    $_SESSION['kert_url'] = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+    /*$_SESSION['kert_url'] = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 
     $felirat = '';
     if(isset($_GET['hiba'])){
@@ -177,7 +178,7 @@ if(!$_SESSION[get_db_tabla().'user']){
     echo str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/beleptetes.html'));
 
     $adatbazis_kapcsolat -> bezar();
-    exit();
+    exit();*/
 
 }elseif(isset($_GET['nincsjog'])){
 
