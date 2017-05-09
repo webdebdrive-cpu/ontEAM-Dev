@@ -146,11 +146,12 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['jogosultsag']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['jogosultsag']) || isset($_GET['szallodak']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'jogosultsag'   => 'Jogosultságok',
+            'szallodak'     => 'Szállodák',
         );
 
         $fulek = '';
@@ -448,6 +449,55 @@ if($gyorskereso_text){
                 </div>
                 </div></form>
             ');
+        }
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+    }elseif(isset($_GET['szallodak'])) {
+
+        $felh = $adatbazis_kapcsolat->s('recid nev', 'login', 'recid='.$_GET['id'], '', '1');
+
+        if( $felh ) {
+            $felh = $felh[0];
+
+            $sorok = $adatbazis_kapcsolat->s('recid telephely_id', 'telephely_kapcs', 'nev='.$felh['nev'], '', '');
+
+            $szamla_html .= '<div id="tablazatBeszur">';
+            if( $sorok ) {
+                /* Fejlécek */
+                $szamla_html .= nl2('
+                    <div class="dt naplo szakter">
+                        <div class="dtr nFejlec">
+                            <div class="dtc">Név</div>
+                            <div class="dtc"></div>
+                        </div>
+                ');
+
+                foreach($sorok as $sor) {
+                    $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
+
+                    if( $telephely ) {
+                        $telephely = $telephely[0];
+
+                        $szamla_html .= nl2('
+                            <div id="naploSor-'.$sor['recid'].'" class="dtr nSor">
+                                <div class="dtc full">'.$telephely['nev'].'</div>
+                                <div class="dtc"><a href="javascript: naploTorol(\'telephely_kapcs\', \''.$sor['recid'].'\'); void(0);" class="torles">Törlés</a></div>
+                            </div>
+                        ');
+                    }
+                }
+
+                $szamla_html .= '</div>';
+            }
+
+            $szamla_html .= '</div>';
         }
 
         if( $_GET['ajax'] ) {

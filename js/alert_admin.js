@@ -53,9 +53,9 @@ function alert_kiir(uzi, ok_gomb){
     var alert2_html = '';
     alert2_html    += '<div id="alert2"><div class="figy"><div class="header">Üzenet</div><div class="tart">'+uzi+'</div><div class="f_footer">'+ ok_gomb +'</div></div></div>';
 
-    $('body').append('<div id="szurkit" class="dn" onclick="alert2()"></div>');
+    $('body').append('<div id="szurkit" class="dn"></div>');
     $('body').append(alert2_html);
-    $('#szurkit, .szurkit').css({'opacity' : 0.2});
+    $('#szurkit, .szurkit').css({'opacity' : 0.8});
 
     var windowWidth  = document.documentElement.clientWidth;
     var windowHeight = document.documentElement.clientHeight;
@@ -101,13 +101,5 @@ function alert_raz(){
                     });
                 });
 
-}
-
-document.onkeydown = function(e){
-	var kC  = (window.event) ? 	event.keyCode : e.keyCode; /* MSIE or Firefox? */
-	var Esc = (window.event) ?	27 : e.DOM_VK_ESCAPE; /* MSIE : Firefox */
-	if(kC == Esc && $('#szurkit, .szurkit').length){
-		alert2();
-	}
 }
 ;

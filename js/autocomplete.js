@@ -24,7 +24,8 @@
             tabla           : '',                   /* Adatbázis tábla, amiben keresünk             */
             oszlop_keres    : '',                   /* Adatbázis tábla oszlopa, amiben keresünk     */
             oszlop_listaz   : '',                   /* Adatbázis tábla oszlopa, amiket listázunk    */
-            rkat            : 0                     /* Rendszer kategóriára szűrünk                 */
+            rkat            : 0,                    /* Rendszer kategóriára szűrünk                 */
+            id_kiir         : ''
         };
 
         var options = $.extend(defaults, options);
@@ -73,7 +74,8 @@
                             tabla           : options.tabla,
                             oszlop_keres    : options.oszlop_keres,
                             oszlop_listaz   : options.oszlop_listaz,
-                            rkat            : options.rkat
+                            rkat            : options.rkat,
+                            id_kiir         : options.id_kiir
                         },
                         success: function(msg) {
                             $('div#autocomplete').html(msg);

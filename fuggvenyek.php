@@ -655,7 +655,7 @@ function szerepkorLista( $bejegyzesek, $tabla ) {
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
                             <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
-                                <span><span class="szso">Név:</span> '.$bsz['nev'].'</span>
+                                <span>'.$bsz['nev'].'</span>
                             </a>
                         </li>';
 
@@ -683,9 +683,28 @@ function loginLista( $bejegyzesek, $tabla ) {
                 $active = ' active';
             }
 
+            $aktiv = nl2('
+                <span class="icon zold">
+                    <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        <path d="M0 0h24v24H0z" fill="none"/>
+                    </svg>
+                </span>
+            ');
+            if( $bsz['aktiv'] ) {
+                $aktiv = nl2('
+                    <span class="icon piros">
+                        <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                        </svg>
+                    </span>
+                ');
+            }
+
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
                             <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
-                                <span><span class="szso">Név:</span> '.$bsz['nev'].'</span>
+                                <span>'.$aktiv.' '.$bsz['teljes_nev'].'</span>
                             </a>
                         </li>';
 
@@ -704,10 +723,26 @@ function erteklistaLista( $bejegyzesek, $tabla ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
+        $csoport = $bejegyzesek[0]['csoport'];
+
         $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
+            $aktCsoport = $bsz['csoport'];
+
+            if( $i == 1 || $csoport != $aktCsoport ) {
+                $csoportSor = $adatbazis_kapcsolat->s('nev', 'erteklista_csoport', 'csoport='.$aktCsoport, '', '1');
+
+                if( $csoportSor ) {
+                    $csoportSor = $csoportSor[0];
+
+                    $html .= '<li class="szamla_datum"><strong>'.$csoportSor['nev'].'</strong></li>';
+                }
+
+                $csoport = $aktCsoport;
+            }
+
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
                 $active = ' active';
@@ -715,7 +750,7 @@ function erteklistaLista( $bejegyzesek, $tabla ) {
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
                             <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
-                                <span><span class="szso">Név:</span> '.$bsz['csoport'].'</span>
+                                <span>'.$bsz['info'].'</span>
                             </a>
                         </li>';
 
@@ -743,15 +778,28 @@ function szallitoLista( $bejegyzesek, $tabla ) {
                 $active = ' active';
             }
 
-            $aktiv = 'nem';
+            $aktiv = nl2('
+                <span class="icon zold">
+                    <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        <path d="M0 0h24v24H0z" fill="none"/>
+                    </svg>
+                </span>
+            ');
             if( $bsz['aktiv'] ) {
-                $aktiv = 'igen';
+                $aktiv = nl2('
+                    <span class="icon piros">
+                        <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
+                        </svg>
+                    </span>
+                ');
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
                             <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
-                                <span><span class="szso">Név:</span> '.$bsz['nev'].'</span>
-                                <span><span class="szso">Aktív:</span> '.$aktiv.'</span>
+                                <span>'.$aktiv.' '.$bsz['nev'].'</span>
                             </a>
                         </li>';
 
@@ -795,15 +843,9 @@ function rendszerLista( $bejegyzesek, $tabla ) {
                 $active = ' active';
             }
 
-            $aktiv = 'nem';
-            if( $bsz['aktiv'] ) {
-                $aktiv = 'igen';
-            }
-
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
                             <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
-                                <span><span class="szso">Név:</span> '.$bsz['nev'].'</span>
-                                <span><span class="szso">Aktív:</span> '.$aktiv.'</span>
+                                <span>'.$bsz['nev'].'</span>
                             </a>
                         </li>';
 

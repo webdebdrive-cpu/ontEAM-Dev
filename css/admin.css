@@ -1286,7 +1286,6 @@ div.header div.dtc.bejelent {
     font-size: 1.8rem;
     font-weight: 700;
     line-height: 2rem;
-    text-transform: uppercase;
     width: 100%;
 }
 
@@ -1651,7 +1650,7 @@ div.navGombok a.uj svg {
 }
 
 div.navGombok a.szerk svg {
-    fill: #07a927;
+    fill: #e6e500;
     height: 2rem;
     width: 2rem;
 }
@@ -1779,4 +1778,24 @@ div.navGombok a.disabled svg {
 
 #popup div.popup_tart input[type="submit"]:hover {
     background: #76B958;
+}
+
+span.icon {
+    display: inline-block!important;
+    height: 2rem;
+    vertical-align: bottom;
+    width: 2rem;
+}
+
+span.icon svg {
+    height: 2rem;
+    width: 2rem;
+}
+
+span.icon.zold svg {
+    fill: #eb453b;
+}
+
+span.icon.piros svg {
+    fill: #07a927;
 }

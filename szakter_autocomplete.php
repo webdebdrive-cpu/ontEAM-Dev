@@ -1,23 +1,4 @@
 <?php
-// Dinamikus lista tartalmának kigenerálása
-/*
-Használata:
-<script>
-    $(document).ready(function() {
-        $('#ksz').autocomplete( {
-            'php_fajl'      : '../autocomplete.php',
-            'tabla'         : 'termek',
-            'oszlop_keres'  : 'nev',
-            'oszlop_listaz' : 'nev'
-        });
-    });
-</script>
-*/
-
-
-//echo '1###volt|';
-
-
 include('weblap.php');
 
 if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'])){

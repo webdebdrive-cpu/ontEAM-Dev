@@ -72,7 +72,7 @@ switch($tabla) {
         }
     break;
     case 'login.php':
-        $_OPTS['select']    = 'recid nev';
+        $_OPTS['select']    = 'recid nev teljes_nev aktiv';
         $_OPTS['order']     = 'nev desc';
         $_OPTS['rendezes']  = array('nev');
 
@@ -255,8 +255,8 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 /* Kódtár */
 $megnevezes = 'erteklista';
 $erteklista_tomb = $akt_tomb = array(
-	array('type' => 'text',        'megn' => 'Csoport:',       'name' => 'csoport',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'kicsi', 'show' => true),
-	array('type' => 'text',        'megn' => 'Infó:',          'name' => 'info',       'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'show' => true),
+	array('type' => 'text',        'megn' => 'ID:',       'name' => 'id',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'kicsi', 'alert' => 'Kérem töltse ki az ID-t!'),
+	array('type' => 'text',        'megn' => 'Érték:',    'name' => 'info',  'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -266,9 +266,16 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 /* Felhasználók */
 $megnevezes = 'login';
 $login_tomb = $akt_tomb = array(
-    array('type' => 'text',             'megn' => 'Név:',        'name' => 'nev',           'disabled' => $disabled,   'maxlength' => 250, 'alert' => 'Nem töltötted kis a nevet!', 'class' => 'nagy', 'show' => true),
+    array('type' => 'text',             'megn' => 'Login név:',  'name' => 'nev',           'disabled' => $disabled,   'maxlength' => 250, 'alert' => 'Nem töltötted kis a nevet!', 'class' => 'oriasi', 'show' => true),
+    array('type' => 'text',             'megn' => 'Teljes név:', 'name' => 'teljes_nev',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'show' => true),
+    array('type' => 'text',             'megn' => 'Telefon:',    'name' => 'usertel',       'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'show' => true),
+    array('type' => 'text',             'megn' => 'E-mail:',     'name' => 'usermail',      'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'show' => true),
     array('type' => 'autocomplete',     'megn' => 'Szerepkör:',  'name' => 'szerepkor_id',  'disabled' => $disabled,   'class' => 'oriasi disableNav', 'tabla' => 'szerepkor', 'oszlop_keres' => 'nev', 'listaz' => 'nev'),
     array('type' => 'checkbox',         'megn' => 'Van jelszó:', 'name' => 'van_jelszo',    'disabled' => $disabled,   'class' => 'check'),
+    array('type' => 'text',             'megn' => 'Státusz ID:', 'name' => 'statusz',       'disabled' => $disabled,   'maxlength' => 250, 'class' => 'kicsit', 'show' => true),
+    array('type' => 'checkbox',         'megn' => 'Fer:',        'name' => 'fer',           'disabled' => $disabled,   'class' => 'check'),
+    array('type' => 'checkbox',         'megn' => 'Virtuál:',    'name' => 'virtual',       'disabled' => $disabled,   'class' => 'check'),
+    array('type' => 'checkbox',         'megn' => 'Aktív:',      'name' => 'aktiv',         'disabled' => $disabled,   'class' => 'check'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -323,6 +330,44 @@ if( isset($_GET['addSzakterulet']) ) {
                 'statusz' => 'hiba',
                 'uzi' => 'Ez a szakterület már hozzáadásra került!'
             ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+if( isset($_GET['addSzalloda']) ) {
+    $loginID = $_GET['loginID'];
+    $szallID = $_GET['szallID'];
+
+    if( $loginID && $szallID ) {
+        $felh = $adatbazis_kapcsolat->s('nev', 'login', 'recid='.$loginID, '', '1');
+
+        if( $felh ) {
+            $felh = $felh[0];
+
+            $isKapcs = $adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`telephely_id` = '{$szallID}' AND `nev` = '".$felh['nev']."'", '', '1');
+
+            if( !$isKapcs ) {
+                $kapcsID = $adatbazis_kapcsolat -> i('telephely_kapcs', array('nev', 'telephely_id'), array($felh['nev'], $szallID));
+
+                /* Szálloda lekérdezése */
+                $sor = $adatbazis_kapcsolat->s('nev', 'telephely', "`id` = '{$szallID}'", '', '1');
+
+                if( $sor ) {
+                    echo json_encode(array(
+                        'statusz' => 'siker',
+                        'kapcsID' => $kapcsID,
+                        'uzi' => ''
+                    ));
+                }
+            } else {
+                echo json_encode(array(
+                    'statusz' => 'hiba',
+                    'uzi' => 'Ez a szálloda már hozzáadásra került!'
+                ));
+            }
         }
     }
 

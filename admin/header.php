@@ -161,7 +161,7 @@ $aloldalak = array(
     'szallito.php',
     $megn.'.php?rkat=4',
     $megn.'.php?rkat=5',
-    $megn.'.php?rkat=1,2,6',
+    $megn.'.php?rkat=1,2',
     'erteklista.php',
     'login.php',
     'szerepkor.php'
@@ -211,7 +211,7 @@ if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $m
     $style = ' class="hover"';
 }
 
-$menuk   .= str_replace( $akt_menu_mit, array( $style, $megn.'.php?rkat=1,2', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+$menuk   .= str_replace( $akt_menu_mit, array( $style, '', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 
 /* Log */
 /*$menu_nev      = 'Log';
@@ -413,11 +413,13 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $where = "`torolve` = '0'";
     }
 
-    $tartBal  = szamla_lista( $tabla, $_OPTS['select'], $where, $_OPTS['order'], 100 );
+    $tartBal  = szamla_lista( $tabla, $_OPTS['select'], $where, $_OPTS['order'], '50' );
     $keresodn = '';
 
     if( isset($_GET['szakterulet']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);';
+    } elseif( isset($_GET['szallodak']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);';
     } else {
         $uj_link = self().'?uj';
     }

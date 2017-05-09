@@ -118,6 +118,8 @@ require_once('header.php');
 
     if(isset($_GET['letolt'])){
 
+        $fajlnev = 'csv/felhasznalok.csv';
+
         $mibol   = get_web_charset();
         $mibe    = 'windows-1250';
 
@@ -128,9 +130,8 @@ require_once('header.php');
 		$open = fopen($fajlnev,'a');
 		if($open){
 
-
-			$query      = mysqli_query($db_kapcs, 'SELECT `mezonev` as \'Mezőnév beszédesebben a CSV-be\', `mezonev2` as \'Mezőnév 2\' FROM `'.get_db_tabla().'tabla`');
-			$cols       = mysqli_num_fields($query);
+			$query = mysqli_query($db_kapcs, 'SELECT * FROM `tblu`');
+			$cols  = mysqli_num_fields($query);
 
 			$csvhead    = array();
 			for( $i = 0; $i < $cols; $i++ ){
@@ -149,19 +150,19 @@ require_once('header.php');
 		fclose($open);
 
         header("Content-type: text/csv");
-        header("Content-Disposition: attachment; filename=kuponok.csv");
+        header("Content-Disposition: attachment; filename=felhasznalok.csv");
         header("Pragma: no-cache");
         header("Expires: 0");
 
-        echo fajlbol_olvas($fajlnev);
+        //echo fajlbol_olvas($fajlnev);
 
         //Vagy ki is irathatotd:
-//    $html .= nl2('
-//                    <h1>
-//                        A csv fájl sikeresen elkészült, töltsd le
-//                        <a class="u" href="../letolt.php?fajl='.$admin_mappanev.$fajlnev.'&amp;nev='.$csv_letolt_nev.'">ide kattintva</a>
-//                    </h1>
-//                ');
+        $html .= nl2('
+            <h1>
+                A csv fájl sikeresen elkészült, töltsd le
+                <a class="u" href="../letolt.php?fajl='.$admin_mappanev.$fajlnev.'&amp;nev='.$csv_letolt_nev.'">ide kattintva</a>
+            </h1>
+        ');
 
 
     }elseif(isset($_GET['szallitok'])){
@@ -251,6 +252,138 @@ require_once('header.php');
                         $adatbazis_kapcsolat->i('szallito',
                             array('id', 'nev', 'aktiv'),
                             array($id,  $nev,  $aktiv )
+                        );
+
+						echo $adatbazis_kapcsolat->gp() . '<br>';
+
+					}
+
+					$k++;
+				}
+				fclose($csv_fajl);
+			}
+
+			//Ha volt log, akkor azt kiíratjuk
+			$filename = 'csv/log.txt';
+			if(is_file($filename) && filesize($filename)){
+				$handle = fopen($filename, 'r');
+				$log = fread($handle, filesize($filename));
+				fclose($handle);
+			}
+
+			if($log){
+
+				$html .= nl2('
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+								<p class="b" style="margin-top: 2rem">
+									A feltöltés során az alábbi hibák fordultak elő:
+								</p>
+								<p>'.$log.'</p>
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+							');
+
+			}else{
+				$html .= nl2('<h1>A frissítés megtörtént!</h1>');
+			}
+
+		}
+	}elseif(isset($_GET['felhasznalok'])){
+
+		if(!isset($_FILES['termekek'])){
+
+			$html .= nl2('
+							<form method="post" action="'.self().'?felhasznalok" enctype="multipart/form-data">
+								<p class="c" style="margin: 2rem 0 0 0">
+									Tallózd be a CSV fájlt a <b>felhasználók</b>frissítéséhez:
+									<input type="file" name="termekek">
+									<br><input type="submit" class="gombb" value="Frissít">
+								</p>
+							</form>
+						');
+
+		}else{
+
+			$fajlnev = 'csv/felhasznalok.csv';
+
+			$mibol = 'windows-1250';
+			$mibe  = get_web_charset();
+
+			$mit   = array(' ','.',',',';','-','Ft','FT','ft','fT','"',"'");
+			$mivel = array('','','','','','','','','','','');
+
+			//Alapból mehet majd a feltöltés, de ha hiba van az adatok feldolgozásával, akkor ezzel megszakítható
+			//FIGYELEM! Ha ilyet használsz, akkor viszont ne soronként dolgozd fel az SQL a ciklusban, hanem készíts egy nagy stringet tele az SQL parancsokkal és egy $mehet-től függően futtasd le.
+			$mehet      = true;
+			$csv_sql    = '';
+			$log        = '';
+
+			if($_FILES['termekek']['tmp_name']){
+				fajlba_mentes($fajlnev.'_up', fajlbol_olvas($_FILES['termekek']['tmp_name']));
+			}
+
+			setlocale(LC_ALL,'hu_HU');
+
+			$_SESSION['sor_fejlec'] = array();
+
+			$k = 0;
+			if (($csv_fajl = fopen($fajlnev.'_up', 'r')) !== FALSE) {
+				$osszes_sor = count(file($fajlnev.'_up')) . '<br>';
+
+				while (($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE) {
+					$akt_tomb = array();
+
+					//Első oszlop a fejlécek
+					if($k == 0) {
+
+						foreach($sor as $key => $value) {
+                            $value = trim(mb_strtolower($value, 'UTF-8'));
+							$_SESSION['sor_fejlec'][] = $value;
+						}
+
+					} else {
+
+						foreach($sor as $key => $value) {
+							$akt_tomb[$_SESSION['sor_fejlec'][$key]] = $value;
+						}
+
+						foreach($akt_tomb as $key => $value) {
+							$akt_tomb[$key] = utf8($akt_tomb[$key]);
+						}
+
+						foreach($akt_tomb as $key => $value) {
+
+							$key_kicsi = trim(mb_strtolower($key, 'UTF-8'));
+
+							//Azonosítás fejléc nevekkel
+							switch($key_kicsi) {
+
+								case 'loginnev'         : $loginnev     = $akt_tomb[$key];  break;
+								case 'nev'              : $nev          = $akt_tomb[$key];  break;
+								case 'chk1'             : $chk1         = $akt_tomb[$key];  break;
+								case 'flgs'             : $flgs         = $akt_tomb[$key];  break;
+								case 'recid'            : $recid        = $akt_tomb[$key];  break;
+								case 'update_dt'        : $update_dt    = $akt_tomb[$key];  break;
+								case 'update_usr'       : $update_usr   = $akt_tomb[$key];  break;
+								case 'insert_dt'        : $insert_dt    = $akt_tomb[$key];  break;
+								case 'insert_usr'       : $insert_usr   = $akt_tomb[$key];  break;
+								case 'aktiv'            : $aktiv        = $akt_tomb[$key];  break;
+								case 'usertel'          : $usertel      = $akt_tomb[$key];  break;
+								case 'usermail'         : $usermail     = $akt_tomb[$key];  break;
+								case 'statid'           : $statid       = $akt_tomb[$key];  break;
+								case 'fer'              : $fer          = $akt_tomb[$key];  break;
+								case 'virtual'          : $virtual      = $akt_tomb[$key];  break;
+
+							}
+						}
+
+
+                        $adatbazis_kapcsolat->i('login',
+                            array('fer', 'virtual', 'statusz', 'usertel', 'usermail', 'nev',     'teljes_nev', 'flags', 'aktiv', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr'  ),
+                            array($fer,  $virtual,  $statid,   $usertel,  $usermail,  $loginnev, $nev,         $flgs,   $aktiv,  $update_dt,  $update_usr,  $insert_dt,  $insert_usr   )
                         );
 
 						echo $adatbazis_kapcsolat->gp() . '<br>';
