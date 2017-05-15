@@ -58,7 +58,7 @@ foreach($akt_tomb as $ertek){
                 $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
             }
 
-            $mezok .= $html;
+            $mezok .= $html.$ertek['post'];
 
             if($ertek['osszevon']){
                 $osszevon_flag = 1;
@@ -878,10 +878,20 @@ foreach($akt_tomb as $ertek){
 
             $value = $input -> value;
 
-            $kulso_ertek = $adatbazis_kapcsolat->s('recid nev', $ertek['tabla'], 'recid='.$input -> value, '', '1');
+            $kulso_val = $input -> value;
+            if( !$kulso_val ) {
+                $kulso_val = 0;
+            }
 
+            $csoport_where = '';
+            if( $ertek['csoport'] ) {
+                $csoport_where = ' and csoport='.$ertek['csoport'];
+            }
+
+            $kulso_ertek = $adatbazis_kapcsolat->s($ertek['listaz'], $ertek['tabla'], $ertek['oszlop_keres'].'='.$kulso_val.$csoport_where, '', '1');
+            
             if( $kulso_ertek ) {
-                $input -> value = $kulso_ertek[0]['nev'];
+                $input -> value = $kulso_ertek[0][$ertek['listaz']];
             }
 
             $html = $input -> getHtml().'<input type="hidden" name="'.$ertek['name'].'" id="'.$ertek['name'].'" value="'.$value.'">';
@@ -891,15 +901,21 @@ foreach($akt_tomb as $ertek){
                 $rkat = $ertek['rkat'];
             }
 
+            $csoport = 0;
+            if( $ertek['csoport'] ) {
+                $csoport = $ertek['csoport'];
+            }
+
             $html .= nl2('
                 <script>
                     $(document).ready(function() {
                         $(\'#'.$ertek['name'].'_autocomp\').autocomplete({
                             \'php_fajl\'        : \'../autocomplete.php\',
                             \'tabla\'           : \''.$ertek['tabla'].'\',
-                            \'oszlop_keres\'    : \''.$ertek['oszlop_keres'].'\',
+                            \'oszlop_keres\'    : \''.$ertek['oszlop_keres_autocomp'].'\',
                             \'oszlop_listaz\'   : \''.$ertek['listaz'].'\',
-                            \'rkat\'            : '.$rkat.'
+                            \'rkat\'            : '.$rkat.',
+                            \'csoport\'         : '.$csoport.'
                         });
                     });
                 </script>

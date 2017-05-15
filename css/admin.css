@@ -417,7 +417,7 @@ input.gomb_alert:hover, input.gomb_alert:focus, input.gomb_alert:active{
 }
 
 input.gombb{
-    background: #4E77A6;
+    background: #69A64E;
     border: 0;
     border-radius: 0.2rem;
     color: #fff;
@@ -425,6 +425,10 @@ input.gombb{
     font-size: 1.4rem;
     padding: 0.6rem 1rem;
     position: relative;
+}
+
+input.gombb:hover {
+    background: #76B958;
 }
 
 input.gombb[disabled="disabled"],

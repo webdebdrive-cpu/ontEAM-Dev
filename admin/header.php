@@ -150,6 +150,7 @@ if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $m
 
 $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );*/
 
+
 /* Rendszer beállítások */
 $menu_nev        = 'Rendszer';
 $menu_nev_kis    = 'rendszer';
@@ -212,6 +213,79 @@ if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $m
 }
 
 $menuk   .= str_replace( $akt_menu_mit, array( $style, '', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+
+
+/* Bejelentések */
+$menu_nev        = 'Bejelentések';
+$menu_nev_kis    = 'bejelentések';
+$menu_nev_tobbes = 'Bejelentések';
+$megn            = 'bejelentesek';
+$aloldalak       = array($megn.'.php');
+if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+
+$aktmenuk  = '';
+$style = '';
+if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $style = ' class="hover"';
+}
+
+$menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+
+
+/* Munkák */
+$menu_nev        = 'Munkák';
+$menu_nev_kis    = 'munkák';
+$menu_nev_tobbes = 'Munkák';
+$megn            = 'munkak';
+$aloldalak       = array($megn.'.php');
+if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+
+$aktmenuk  = '';
+$style = '';
+if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $style = ' class="hover"';
+}
+
+$menuk   .= str_replace( $akt_menu_mit, array( $style, ''/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+
+
+/* Anyagok */
+$menu_nev        = 'Anyagok';
+$menu_nev_kis    = 'anyagok';
+$menu_nev_tobbes = 'Anyagok';
+$megn            = 'anyagok';
+$aloldalak       = array($megn.'.php');
+if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+
+$aktmenuk  = '';
+$style = '';
+if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $style = ' class="hover"';
+}
+
+$menuk   .= str_replace( $akt_menu_mit, array( $style, ''/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+
+
+/* Eszközök */
+$menu_nev        = 'Eszközök';
+$menu_nev_kis    = 'eszközök';
+$menu_nev_tobbes = 'Eszközök';
+$megn            = 'eszkozok';
+$aloldalak       = array($megn.'.php');
+if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+
+$aktmenuk  = '';
+$style = '';
+if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $style = ' class="hover"';
+}
+
+$menuk   .= str_replace( $akt_menu_mit, array( $style, ''/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+
 
 /* Log */
 /*$menu_nev      = 'Log';
@@ -387,9 +461,9 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     }
 
     /* Rendezési irány */
-    $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\' ); void(0);">▲ <span>A-Z</span></a>';
+    $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▲ <span>A-Z</span></a>';
     if( $_GET['irany'] && $_GET['irany'] == 'desc' ) {
-        $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'asc\' ); void(0);">▼ <span>Z-A</span></a>';
+        $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'asc\', \''.$_GET['rkat'].'\' ); void(0);">▼ <span>Z-A</span></a>';
 
         if( $_GET['rend'] && in_array($_GET['rend'], $rend_mezok) ) {
             $_OPTS['order'] .= ' desc';
@@ -413,7 +487,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $where = "`torolve` = '0'";
     }
 
-    $tartBal  = szamla_lista( $tabla, $_OPTS['select'], $where, $_OPTS['order'], '50' );
+    $tartBal  = szamla_lista( $tabla, $_OPTS['select'], $where, $_OPTS['order'], '' );
     $keresodn = '';
 
     if( isset($_GET['szakterulet']) ) {
@@ -459,10 +533,14 @@ $belepve = nl2('
     <div class="dtc nav"><a href="beleptetes.php?kilep">Kilépés</a></div>
 ');
 
-if( !$_SESSION[get_db_tabla().'user_id'] ) {
-    $menuk = '';
+if( $_SESSION['nincs_jelsz'] ) {
+    $menuk    = '';
+    $oldalNev = 'Jelszó csere';
+    $belepve  = '';
+} elseif( !$_SESSION[get_db_tabla().'user_id'] ) {
+    $menuk    = '';
     $oldalNev = 'Bejelentkezés';
-    $belepve = '';
+    $belepve  = '';
 }
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
@@ -484,12 +562,27 @@ if( $_SESSION[get_db_tabla().'user_id'] ) {
     );
 
     echo fajlbol_olvas('../sablon/admin/popup.html');
+} elseif( $_SESSION['nincs_jelsz'] && $_SESSION['nincs_jelsz_felhid'] ) {
+    $_SESSION['kert_url'] = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+
+    $felirat = '';
+    if( isset($_GET['jelszoures']) ) {
+        $felirat = '<h1 style="color: #fff">Kérem töltse ki a mezőket!</h1>';
+    } elseif( isset($_GET['jelszonemazonos']) ) {
+        $felirat = '<h1 style="color: #fff">A két jelszó nem egyezik!</h1>';
+    } else {
+        $felirat = '<h1>Válasszon jelszót</h1>';
+    }
+
+    $mit   = array('{FELIRAT}', '{SELF}'        );
+    $mivel = array( $felirat,   'beleptetes.php');
+    echo str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/nincs_jelszo.html'));
 } else {
     $_SESSION['kert_url'] = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 
     $felirat = '';
     if(isset($_GET['hiba'])){
-        $felirat = '<h1 style="color: #fff">Helytelen felhasználói név vagy jelszó.</h1>';
+        $felirat = '<h1 style="color: #fff">Helytelen felhasználói név vagy jelszó!</h1>';
     }else{
         $felirat = '<h1>Bejelentkezés</h1>';
     }

@@ -25,12 +25,15 @@
             oszlop_keres    : '',                   /* Adatbázis tábla oszlopa, amiben keresünk     */
             oszlop_listaz   : '',                   /* Adatbázis tábla oszlopa, amiket listázunk    */
             rkat            : 0,                    /* Rendszer kategóriára szűrünk                 */
-            id_kiir         : ''
+            id_kiir         : '',
+            csoport         : 0
         };
 
         var options = $.extend(defaults, options);
 
-        $('body').append('<div id="autocomplete"></div>');
+        if( !$('#autocomplete').length ) {
+            $('body').append('<div id="autocomplete"></div>');
+        }
 
         $(this).keyup(function(e) {
 
@@ -75,7 +78,8 @@
                             oszlop_keres    : options.oszlop_keres,
                             oszlop_listaz   : options.oszlop_listaz,
                             rkat            : options.rkat,
-                            id_kiir         : options.id_kiir
+                            id_kiir         : options.id_kiir,
+                            csoport         : options.csoport
                         },
                         success: function(msg) {
                             $('div#autocomplete').html(msg);

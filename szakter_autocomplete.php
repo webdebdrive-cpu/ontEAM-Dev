@@ -44,7 +44,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
 
         //DL lista elemeinek előállítása
         $return = '<ul>';
-        $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`, `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().'erteklista` '.$where_sql.' AND `csoport`=19 ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
+        $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`, `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'` '.$where_sql.' AND `csoport` = 19 ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
         while( $sor = mysqli_fetch_array($lekerdez) ) {
             $return .= '<li data-recid="'.$sor['recid'].'">';
 

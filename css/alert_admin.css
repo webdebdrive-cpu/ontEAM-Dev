@@ -103,12 +103,12 @@ div.alert2 input.gombb {
 }
 
 div.figy {
-    border: 0.1rem solid #4D5B6F;
+    border: 0.1rem solid #004990;
     border-radius: 0.2rem;
 }
 
 div.figy div.header{
-    background: #4D5B6F;
+    background: #004990;
     border-top-left-radius: 0.2rem;
     border-top-right-radius: 0.2rem;
     color: #fff;

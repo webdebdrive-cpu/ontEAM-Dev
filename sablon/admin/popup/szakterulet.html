@@ -1,17 +1,17 @@
 <h2>Új szakterület hozzáadása</h2>
-<form action="" id="addSzakterForm" method="post">
+<form action="" id="addSzakterForm" class="popupForm" method="post">
     <div class="dt">
         <div class="dtr">
             <div class="dtc">Szakterület:</div>
             <div class="dtc form_jobb">
-                <input type="text" name="addSzakter_autocomp" id="szakterKeres" autofocus class="gombm disableNav" value="" placeholder="Szakterület keresése..." autocomplete="off">
+                <input type="text" name="addSzakter_autocomp" id="szakterKeres" class="gombm disableNav focus" value="" placeholder="Szakterület keresése..." autocomplete="off">
                 <input type="hidden" name="addSzakter" value="">
-                
+
                 <script>
                     $(document).ready(function() {
                         $('#szakterKeres').autocomplete({
                             'php_fajl'        : '../szakter_autocomplete.php',
-                            'tabla'           : 'szakterulet',
+                            'tabla'           : 'erteklista',
                             'oszlop_keres'    : 'info',
                             'oszlop_listaz'   : 'info'
                         });

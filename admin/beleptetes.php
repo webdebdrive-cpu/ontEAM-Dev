@@ -102,8 +102,60 @@ if( $_SESSION[get_db_tabla().'user'] && $_SESSION[get_db_tabla().'user'] != 'adm
 
 }
 
-//Belétetés
-if(isset($_POST['login'])){
+/* Jelszó csere */
+if(isset($_POST['jelszo_csere'])) {
+    if( !empty($_POST['jlsz']) && !empty($_POST['jlsz2']) ) {
+        if( $_POST['jlsz'] == $_POST['jlsz2'] ) {
+            $felhasznalo = $adatbazis_kapcsolat->s('recid nev jelszo helyesseg flags jog van_jelszo', 'login', "`recid` = '".$_SESSION['nincs_jelsz_felhid']."'", '', '1');
+
+            if( $felhasznalo ) {
+                $felhasznalo = $felhasznalo[0];
+                
+                /* Helyesség */
+                $helyesseg = sha1($felhasznalo['nev'].$_POST['jlsz']);
+
+                /* Jelszó */
+                $jlsz = sha1($_POST['jlsz']);
+
+                $adatbazis_kapcsolat -> u('login', array('jelszo', 'helyesseg', 'van_jelszo'), array($jlsz, $helyesseg, 1), "`recid` = '".$felhasznalo['recid']."'");
+
+                $_SESSION[get_db_tabla().'user']    = $felhasznalo['nev'];
+                $_SESSION[get_db_tabla().'user_id'] = $felhasznalo['recid'];
+                $_SESSION[get_db_tabla().'rights']  = str_split($felhasznalo['flags']);
+
+                /* Nincs jelszó változók törlése */
+                $_SESSION['nincs_jelsz_felhid'] = false;
+                $_SESSION['nincs_jelsz'] = false;
+
+                if( !$_SESSION['kert_url'] ) {
+                    $_SESSION['kert_url'] = get_domain().'/'.get_admin();
+                }
+
+                $adatbazis_kapcsolat -> bezar();
+                header('Location: http://'.$_SESSION['kert_url']);
+                exit();
+            }
+        } else {
+            header('Location: index.php?jelszonemazonos');
+            exit();
+        }
+    } else {
+        header('Location: index.php?jelszoures');
+        exit();
+    }
+}
+
+/* Jelszó csere mégsem */
+if(isset($_POST['megsem'])) {
+    $_SESSION['nincs_jelsz_felhid'] = false;
+    $_SESSION['nincs_jelsz'] = false;
+
+    header('Location: index.php');
+    exit();
+}
+
+/* Belétetés */
+if(isset($_POST['login'])) {
 
     $helyesseg = sha1($_POST['nev'].$_POST['jelszo']);
 
@@ -111,9 +163,56 @@ if(isset($_POST['login'])){
         $_POST['jelszo'] = sha1($_POST['jelszo']);
     }
 
-    $belepes = mysqli_query($db_kapcs, 'SELECT `recid`, `nev`, `flags`, `jog` FROM `'.get_db_tabla().'login` WHERE `nev`=\''.$_POST['nev'].'\' AND `jelszo`=\''.$_POST['jelszo'].'\' AND `helyesseg` = \''.$helyesseg.'\'');
+    $felhasznalo = $adatbazis_kapcsolat->s('recid nev jelszo helyesseg flags jog van_jelszo', 'login', "`nev` = '".$_POST['nev']."'", '', '1');
+
+    if( $felhasznalo ) {
+        $felhasznalo = $felhasznalo[0];
+
+        if( $felhasznalo['van_jelszo'] ) {
+            if( $felhasznalo['jelszo'] == $_POST['jelszo'] && $felhasznalo['helyesseg'] == $helyesseg ) {
+                $_SESSION[get_db_tabla().'user']    = $felhasznalo['nev'];
+                $_SESSION[get_db_tabla().'user_id'] = $felhasznalo['recid'];
+                $_SESSION[get_db_tabla().'rights']  = str_split($felhasznalo['flags']);
+
+                if(!$_SESSION['kert_url']){
+                    $_SESSION['kert_url'] = get_domain().'/'.get_admin();
+                }
+
+                if( $_POST['ajax'] ) {
+                    echo json_encode(array(
+                        'statusz' => 'siker'
+                    ));
+                } else {
+                    $adatbazis_kapcsolat -> bezar();
+                    header('Location: http://'.$_SESSION['kert_url']);
+                    exit();
+                }
+            } else {
+                if( $_POST['ajax'] ) {
+                    echo json_encode(array(
+                        'statusz' => 'hiba'
+                    ));
+                } else {
+                    $adatbazis_kapcsolat -> bezar();
+                    header('Location: index.php?hiba');
+                    exit();
+                }
+            }
+        } else {
+            $_SESSION['nincs_jelsz_felhid'] = $felhasznalo['recid'];
+            $_SESSION['nincs_jelsz']        = true;
+            header('Location: index.php');
+        }
+    }
+
+
+
+exit();
+    $belepes = mysqli_query($db_kapcs, 'SELECT `recid`, `nev`, `flags`, `jog`, `van_jelszo` FROM `'.get_db_tabla().'login` WHERE `nev`=\''.$_POST['nev'].'\' AND `jelszo`=\''.$_POST['jelszo'].'\' AND `helyesseg` = \''.$helyesseg.'\'');
     if(mysqli_num_rows($belepes)){
         $sor_belepes = mysqli_fetch_assoc($belepes);
+
+
         $_SESSION[get_db_tabla().'user']    = $sor_belepes['nev'];
         $_SESSION[get_db_tabla().'user_id'] = $sor_belepes['recid'];
         $_SESSION[get_db_tabla().'jog']     = $sor_belepes['jog'];

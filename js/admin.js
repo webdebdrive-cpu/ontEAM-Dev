@@ -570,6 +570,17 @@ $(function() {
             popupZar();
         }
     });
+
+    $(document).on('keydown', function(e) {
+        if( e.keyCode == 13 && $('#alert2').length ) {
+            alert2();
+            e.preventDefault();
+        }
+    });
+
+    $(document).ajaxComplete(function (event, xhr, settings) {
+        $('form.popupForm input.focus').focus();
+    });
 });
 
 function kapcsolodoSzerkeszt( oldal ) {
@@ -657,7 +668,11 @@ function scrollLeptet() {
     }
 }
 
-function bejegyzesekLista( that, irany ) {
+function bejegyzesekLista( that, irany, rkat ) {
+    if( rkat === undefined ) {
+        rkat = '';
+    }
+
     var rend  = $(that).val(),
         tabla = $(that).attr('data-tabla');
 
@@ -676,7 +691,7 @@ function bejegyzesekLista( that, irany ) {
         var lista = $.ajax({
             url : 'esemenyek.php',
             type: 'GET',
-            data: esamp2es('id=' + recid + '&amp;rend=' + rend + '&amp;irany=' + irany + '&amp;tabla=' + tabla + '&amp;szamlaLista=' + new Date().getTime()),
+            data: esamp2es('id=' + recid + '&amp;rkat=' + rkat + '&amp;rend=' + rend + '&amp;irany=' + irany + '&amp;tabla=' + tabla + '&amp;szamlaLista=' + new Date().getTime()),
             success: function(html) {
                 if(html) {
                     $('#tartalomBal').html(html).scrollTop(0);
@@ -704,7 +719,7 @@ function bejegyzesekLista( that, irany ) {
                 rt = '▼ <span>Z-A</span>';
             }
 
-            $('#rendezesIrany').attr('href', 'javascript: bejegyzesekLista( \'#rendezesSelect\', \'' + ri + '\' ); void(0);').html(rt);
+            $('#rendezesIrany').attr('href', 'javascript: bejegyzesekLista( \'#rendezesSelect\', \'' + ri + '\', \'' + rkat + '\' ); void(0);').html(rt);
 
             if( $('.szamla_sor').hasClass('active') ) {
                 active_top = $('.szamla_sor.active').position().top;

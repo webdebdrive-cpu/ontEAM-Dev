@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Beléptetés</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" href="../css/nullaz.css" type="text/css">
+    <link rel="stylesheet" href="../css/admin.css" type="text/css">
+    <link rel="stylesheet" href="../css/alert_admin.css" type="text/css">
+</head>
+<body onload="if(document.getElementById('nev')){document.getElementById('nev').focus();}">
+    <div id="alert2" class="noFooter" style="width: 40rem; margin: auto; position: relative;">
+        <div class="figy">
+            <div class="header">{FELIRAT}</div>
+            <div class="tart">
+                <form method="post" action="{SELF}">
+                    <table class="auto">
+                        <tr>
+                            <td class="p">
+                                <input type="password" name="jlsz" placeholder="Jelszó">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="p">
+                                <input type="password" name="jlsz2" placeholder="Jelszó Megerősítése">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="p c">
+                                <input class="gombb zold" type="submit" name="jelszo_csere" value="Mentés">
+                                <input class="gombb piros" type="submit" name="megsem" value="Mégsem">
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+            <div class="f_footer"></div>
+        </div>
+    </div>
+</body>
+</html>

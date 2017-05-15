@@ -39,15 +39,15 @@ switch($tabla) {
     break;
     case 'rendszer.php':
         $_OPTS['select']    = 'recid nev rkat aktiv';
-        $_OPTS['order']     = 'rkat desc';
-        $_OPTS['rendezes']  = array('rkat');
+        $_OPTS['order']     = 'nev asc';
+        $_OPTS['rendezes']  = array('nev');
 
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'rkat';
+            $_GET['rend'] = 'nev';
         }
 
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
+            $_GET['irany'] = 'asc';
         }
     break;
     case 'szallito.php':
@@ -149,11 +149,6 @@ $postok = array();
 //);
 //array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
-$disabled = true;
-if( isset($_GET['uj']) || (isset($_GET['szerkeszt']) || $_POST['szerkeszt']) ) {
-    $disabled = false;
-}
-
 /* Bejövő számlák */
 $megnevezes = 'bejovo_szamlak';
 $bejovo_szamlak_tomb = $akt_tomb = array(
@@ -233,8 +228,8 @@ if( isset($_GET['uj']) ) {
 /* Rendszer */
 $megnevezes = 'rendszer';
 $rendszer_tomb = $akt_tomb = array(
-    array('type' => 'text',         'megn' => 'ID:',             'name' => 'recid',   'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi',                                                'show' => true),
-    array('type' => 'text',         'megn' => 'Érték:',          'name' => 'nev',     'disabled' => $disabled,  'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',  'show' => true),
+    array('type' => 'text',         'megn' => 'ID:',             'name' => 'recid',   'disabled' => $rErtekdisabled,       'maxlength' => 250, 'class' => 'oriasi',                                                'show' => true),
+    array('type' => 'text',         'megn' => 'Érték:',          'name' => 'nev',     'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',  'show' => true),
     array('type' => 'select_rkat',  'megn' => 'Értéklista:',     'name' => 'rkat',    'disabled' => $rErtekdisabled),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
@@ -258,22 +253,20 @@ $megnevezes = 'szallito';
 $szallito_tomb = $akt_tomb = array(
     array('type' => 'text',        'megn' => 'ID:',             'name' => 'id',     'disabled' => $disabled_szerk,  'maxlength' => 10, 'class' => 'kicsi',   'alert' => 'Kérem töltse ki az ID mezőt!', 'show' => true, 'onkeyup' => 'ertekFoglalt({ID}this.value, \'szallito\', \'id\')'),
 	array('type' => 'text',        'megn' => 'Név:',            'name' => 'nev',    'disabled' => $disabled_szerk,  'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',      'show' => true),
-	array('type' => 'text',        'megn' => 'Adószám:',        'name' => 'adoszam','disabled' => $disabled,        'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
-	array('type' => 'text',        'megn' => 'Bankszámlaszám:', 'name' => 'bank',   'disabled' => $disabled,    'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
-	array('type' => 'text',        'megn' => 'Cg:',             'name' => 'cg',     'disabled' => $disabled,    'maxlength' => 250, 'class' => 'kicsi',                                                     'show' => true),
-	array('type' => 'text',        'megn' => 'Szállító kód:',   'name' => 'kod',    'disabled' => $disabled,    'maxlength' => 250, 'class' => 'kicsi',                                                     'show' => true),
-	array('type' => 'text',        'megn' => 'Irsz:',           'name' => 'isz',    'disabled' => $disabled,    'maxlength' => 250, 'class' => 'kicsi',                                                     'show' => true),
-	array('type' => 'text',        'megn' => 'Lev.cím:',        'name' => 'lcim',   'disabled' => $disabled,    'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
-	array('type' => 'text',        'megn' => 'Cím:',            'name' => 'cim',    'disabled' => $disabled,    'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
-	array('type' => 'text',        'megn' => 'Email:',          'name' => 'email',  'disabled' => $disabled,    'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
-	array('type' => 'text',        'megn' => 'Kapcs.név:',      'name' => 'knev',   'disabled' => $disabled,    'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
-	array('type' => 'text',        'megn' => 'Telefon:',        'name' => 'tel',    'disabled' => $disabled,    'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
-	array('type' => 'text',        'megn' => 'Telefon2:',       'name' => 'tel2',   'disabled' => $disabled,    'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
-	array('type' => 'text',        'megn' => 'Utca:',           'name' => 'utca',   'disabled' => $disabled,    'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
-	array('type' => 'text',        'megn' => 'Város:',          'name' => 'varos',  'disabled' => $disabled,    'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
-	
-    
-    array('type' => 'checkbox',    'megn' => 'Aktív:',      'name' => 'aktiv',  'disabled' => $disabled,   'show' => true, 'class' => 'check'),
+	array('type' => 'text',        'megn' => 'Adószám:',        'name' => 'adoszam','maxlength' => 250, 'class' => 'oriasi',                                              'show' => true),
+	array('type' => 'text',        'megn' => 'Bankszámlaszám:', 'name' => 'bank',   'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
+	array('type' => 'text',        'megn' => 'Cg:',             'name' => 'cg',     'maxlength' => 250, 'class' => 'kicsi',                                                     'show' => true),
+	array('type' => 'text',        'megn' => 'Szállító kód:',   'name' => 'kod',    'maxlength' => 250, 'class' => 'kicsi',                                                     'show' => true),
+	array('type' => 'text',        'megn' => 'Irsz:',           'name' => 'isz',    'maxlength' => 250, 'class' => 'kicsi',                                                     'show' => true),
+	array('type' => 'text',        'megn' => 'Lev.cím:',        'name' => 'lcim',   'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
+	array('type' => 'text',        'megn' => 'Cím:',            'name' => 'cim',    'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
+	array('type' => 'text',        'megn' => 'Email:',          'name' => 'email',  'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
+	array('type' => 'text',        'megn' => 'Kapcs.név:',      'name' => 'knev',   'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
+	array('type' => 'text',        'megn' => 'Telefon:',        'name' => 'tel',    'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
+	array('type' => 'text',        'megn' => 'Telefon2:',       'name' => 'tel2',   'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
+	array('type' => 'text',        'megn' => 'Utca:',           'name' => 'utca',   'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
+	array('type' => 'text',        'megn' => 'Város:',          'name' => 'varos',  'maxlength' => 250, 'class' => 'oriasi',                                                    'show' => true),
+    array('type' => 'checkbox',    'megn' => 'Aktív:',          'name' => 'aktiv',  'show' => true, 'class' => 'check'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -283,8 +276,8 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 /* Kódtár */
 $megnevezes = 'erteklista';
 $erteklista_tomb = $akt_tomb = array(
-	array('type' => 'text',        'megn' => 'ID:',       'name' => 'id',    'disabled' => $disabled,   'maxlength' => 250, 'class' => 'kicsi',     'alert' => 'Kérem töltse ki az ID-t!'),
-	array('type' => 'text',        'megn' => 'Érték:',    'name' => 'info',  'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi',    'alert' => 'Kérem töltse ki az értéket!'),
+	array('type' => 'text',        'megn' => 'ID:',       'name' => 'id',    'maxlength' => 250, 'class' => 'kicsi',     'alert' => 'Kérem töltse ki az ID-t!'),
+	array('type' => 'text',        'megn' => 'Érték:',    'name' => 'info',  'maxlength' => 250, 'class' => 'oriasi',    'alert' => 'Kérem töltse ki az értéket!'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -294,16 +287,17 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 /* Felhasználók */
 $megnevezes = 'login';
 $login_tomb = $akt_tomb = array(
-    array('type' => 'text',             'megn' => 'Login név:',             'name' => 'nev',           'disabled' => $disabled_szerk,  'maxlength' => 250, 'alert' => 'Kérem töltse ki a login nevet!', 'class' => 'oriasi', 'show' => true),
-    array('type' => 'text',             'megn' => 'Név:',                   'name' => 'teljes_nev',    'disabled' => $disabled,        'maxlength' => 250, 'alert' => 'Kérem töltse ki a nevet!', 'class' => 'oriasi', 'show' => true),
-    array('type' => 'checkbox',         'megn' => 'Jelszóval rendelkezik:', 'name' => 'van_jelszo',    'disabled' => $disabled,   'class' => 'check'),
-    array('type' => 'text',             'megn' => 'E-mail:',                'name' => 'usermail',      'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'show' => true),
-    array('type' => 'text',             'megn' => 'Telefon:',               'name' => 'usertel',       'disabled' => $disabled,   'maxlength' => 250, 'class' => 'oriasi', 'show' => true),
-    array('type' => 'text',             'megn' => 'Státusz ID:',            'name' => 'statusz',       'disabled' => $disabled,   'maxlength' => 250, 'class' => 'kicsit', 'show' => true),
-    array('type' => 'autocomplete',     'megn' => 'Szerepkör:',             'name' => 'szerepkor_id',  'disabled' => $disabled,   'class' => 'oriasi disableNav', 'tabla' => 'szerepkor', 'oszlop_keres' => 'nev', 'listaz' => 'nev', 'alert' => 'Kérem adja meg a státuszt!'),
-    array('type' => 'checkbox',         'megn' => 'Fer:',                   'name' => 'fer',           'disabled' => $disabled,   'class' => 'check'),
-    array('type' => 'checkbox',         'megn' => 'Virtuál:',               'name' => 'virtual',       'disabled' => $disabled,   'class' => 'check'),
-    array('type' => 'checkbox',         'megn' => 'Aktív:',                 'name' => 'aktiv',         'disabled' => $disabled,   'class' => 'check'),
+    array('type' => 'checkbox',         'megn' => 'Aktív felhasználó:',         'name' => 'aktiv',         'class' => 'check', 'osszevon' => true),
+    array('type' => 'checkbox',         'megn' => 'Virtuális felhasználó:',     'name' => 'virtual',       'class' => 'check'),
+    array('type' => 'text',             'megn' => 'Login név:',                 'name' => 'nev',           'disabled' => $disabled_szerk,  'maxlength' => 250, 'alert' => 'Kérem töltse ki a login nevet!', 'class' => 'oriasi', 'show' => true),
+    array('type' => 'text',             'megn' => 'Név:',                       'name' => 'teljes_nev',    'maxlength' => 250, 'alert' => 'Kérem töltse ki a nevet!', 'class' => 'oriasi', 'show' => true),
+    array('type' => 'checkbox',         'megn' => 'Jelszóval rendelkezik:',     'name' => 'van_jelszo',    'class' => 'check'),
+    array('type' => 'autocomplete',     'megn' => 'Beosztás:',                  'name' => 'beosztas_id',   'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'alert' => 'Kérem adja meg a beosztást!'),
+    array('type' => 'autocomplete',     'megn' => 'Részleg:',                   'name' => 'reszleg_id',    'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'alert' => 'Kérem adja meg a részleget!'),
+    array('type' => 'text',             'megn' => 'E-mail:',                    'name' => 'usermail',      'maxlength' => 250, 'class' => 'oriasi', 'show' => true),
+    array('type' => 'text',             'megn' => 'Telefon:',                   'name' => 'usertel',       'maxlength' => 250, 'class' => 'oriasi', 'show' => true),
+    array('type' => 'autocomplete',     'megn' => 'Szerepkör:',                 'name' => 'szerepkor_id',  'class' => 'oriasi disableNav', 'tabla' => 'szerepkor', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'alert' => 'Kérem adja meg a szerepkört!'),
+    array('type' => 'checkbox',         'megn' => '',                           'name' => 'fer',           'class' => 'check', 'post' => ' ontEAM emlékeztessen a feladataimra'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -313,7 +307,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 /* Szerepkör */
 $megnevezes = 'szerepkor';
 $szerepkor_tomb = $akt_tomb = array(
-	array('type' => 'text',        'megn' => 'Név:',        'name' => 'nev',        'disabled' => $disabled,   'maxlength' => 250, 'alert' => 'Kérem töltse ki a nevet!', 'class' => 'nagy', 'show' => true),
+	array('type' => 'text',        'megn' => 'Név:',        'name' => 'nev',   'maxlength' => 250, 'alert' => 'Kérem töltse ki a nevet!', 'class' => 'oriasi', 'show' => true),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -344,7 +338,7 @@ if( isset($_GET['addSzakterulet']) ) {
             $kapcsID = $adatbazis_kapcsolat -> i('szakter_kapcs', array('szallito_id', 'szakter_id'), array($szallitoID, $szakterID));
 
             /* Szakterület lekérdezése */
-            $sor = $adatbazis_kapcsolat->s('nev', 'szakterulet', "`recid` = '{$szakterID}'", '', '1');
+            $sor = $adatbazis_kapcsolat->s('recid', 'erteklista', "`recid` = '{$szakterID}'", '', '1');
 
             if( $sor ) {
                 echo json_encode(array(
