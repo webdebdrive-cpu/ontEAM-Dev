@@ -40,7 +40,7 @@
 
 #alert2 .gomb{
     background-image: none;
-	background: #596B86;
+	background: #69A64E;
     border: 0.0rem;
 	border-radius: 0.2rem;
     color: #FFFFFF;
@@ -56,7 +56,7 @@
 
 #alert2 .gombb{
     background-image: none;
-	background: #596B86;
+	background: #69A64E;
     border: 0.0rem;
 	border-radius: 0.2rem;
     color: #FFFFFF;
@@ -72,7 +72,7 @@
 
 #alert2 .gomb:hover,  #alert2 .gomb:active,  #alert2 .gomb:focus,
 #alert2 .gombb:hover, #alert2 .gombb:active, #alert2 .gombb:focus{
-	background: #6B7E9A;
+	background: #76B958;
 }
 
 #alert2 .gombb.piros, #alert2 .gomb.piros{
@@ -134,6 +134,7 @@ div.figy div.tart {
     color: #39424F;
     font-size: 1.3em;
     font-weight: bold;
+    min-width: 30rem;
     padding: 3rem 3rem 3rem 3rem;
     text-align: center;
 }

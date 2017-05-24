@@ -430,6 +430,542 @@ require_once('header.php');
 			}
 
 		}
+
+    } elseif(isset($_GET['telephely'])) {
+
+		if(!isset($_FILES['termekek'])){
+
+			$html .= nl2('
+							<form method="post" action="'.self().'?telephely" enctype="multipart/form-data">
+								<p class="c" style="margin: 2rem 0 0 0">
+									Tallózd be a CSV fájlt a <b>telephely</b>frissítéséhez:
+									<input type="file" name="termekek">
+									<br><input type="submit" class="gombb" value="Frissít">
+								</p>
+							</form>
+						');
+
+		}else{
+
+			$fajlnev = 'csv/telephely.csv';
+
+			$mibol = 'windows-1250';
+			$mibe  = get_web_charset();
+
+			$mit   = array(' ','.',',',';','-','Ft','FT','ft','fT','"',"'");
+			$mivel = array('','','','','','','','','','','');
+
+			//Alapból mehet majd a feltöltés, de ha hiba van az adatok feldolgozásával, akkor ezzel megszakítható
+			//FIGYELEM! Ha ilyet használsz, akkor viszont ne soronként dolgozd fel az SQL a ciklusban, hanem készíts egy nagy stringet tele az SQL parancsokkal és egy $mehet-től függően futtasd le.
+			$mehet      = true;
+			$csv_sql    = '';
+			$log        = '';
+
+			if($_FILES['termekek']['tmp_name']){
+				fajlba_mentes($fajlnev.'_up', fajlbol_olvas($_FILES['termekek']['tmp_name']));
+			}
+
+			setlocale(LC_ALL,'hu_HU');
+
+			$_SESSION['sor_fejlec'] = array();
+
+			$k = 0;
+			if (($csv_fajl = fopen($fajlnev.'_up', 'r')) !== FALSE) {
+				$osszes_sor = count(file($fajlnev.'_up')) . '<br>';
+
+				while (($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE) {
+					$akt_tomb = array();
+
+					//Első oszlop a fejlécek
+					if($k == 0) {
+
+						foreach($sor as $key => $value) {
+                            $value = trim(mb_strtolower($value, 'UTF-8'));
+							$_SESSION['sor_fejlec'][] = $value;
+						}
+
+					} else {
+
+						foreach($sor as $key => $value) {
+							$akt_tomb[$_SESSION['sor_fejlec'][$key]] = $value;
+						}
+
+						foreach($akt_tomb as $key => $value) {
+							$akt_tomb[$key] = utf8($akt_tomb[$key]);
+						}
+                        
+						foreach($akt_tomb as $key => $value) {
+
+							$key_kicsi = trim(mb_strtolower($key, 'UTF-8'));
+
+							//Azonosítás fejléc nevekkel
+							switch($key_kicsi) {
+
+								case 'id'               : $id           = trim($akt_tomb[$key]);  break;
+								case 'nev'              : $nev          = trim($akt_tomb[$key]);  break;
+								case 'recid'            : $recid        = trim($akt_tomb[$key]);  break;
+								case 'update_dt'        : $update_dt    = trim($akt_tomb[$key]);  break;
+								case 'update_usr'       : $update_usr   = trim($akt_tomb[$key]);  break;
+								case 'insert_dt'        : $insert_dt    = trim($akt_tomb[$key]);  break;
+								case 'insert_usr'       : $insert_usr   = trim($akt_tomb[$key]);  break;
+								case 'props'            : $props        = trim($akt_tomb[$key]);  break;
+
+							}
+						}
+
+
+                        $adatbazis_kapcsolat->i('telephely',
+                            array('id', 'nev', 'recid', 'props', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr'  ),
+                            array($id,  $nev,  $recid,  $props,  $update_dt,  $update_usr,  $insert_dt,  $insert_usr   )
+                        );
+
+						echo $adatbazis_kapcsolat->gp() . '<br>';
+
+					}
+
+					$k++;
+				}
+				fclose($csv_fajl);
+			}
+
+			//Ha volt log, akkor azt kiíratjuk
+			$filename = 'csv/log.txt';
+			if(is_file($filename) && filesize($filename)){
+				$handle = fopen($filename, 'r');
+				$log = fread($handle, filesize($filename));
+				fclose($handle);
+			}
+
+			if($log){
+
+				$html .= nl2('
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+								<p class="b" style="margin-top: 2rem">
+									A feltöltés során az alábbi hibák fordultak elő:
+								</p>
+								<p>'.$log.'</p>
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+							');
+
+			}else{
+				$html .= nl2('<h1>A frissítés megtörtént!</h1>');
+			}
+
+		}
+
+    } elseif(isset($_GET['gep'])) {
+
+		if(!isset($_FILES['termekek'])){
+
+			$html .= nl2('
+							<form method="post" action="'.self().'?gep" enctype="multipart/form-data">
+								<p class="c" style="margin: 2rem 0 0 0">
+									Tallózd be a CSV fájlt a <b>gép</b>frissítéséhez:
+									<input type="file" name="termekek">
+									<br><input type="submit" class="gombb" value="Frissít">
+								</p>
+							</form>
+						');
+
+		}else{
+
+			$fajlnev = 'csv/gep.csv';
+
+			$mibol = 'windows-1250';
+			$mibe  = get_web_charset();
+
+			$mit   = array(' ','.',',',';','-','Ft','FT','ft','fT','"',"'");
+			$mivel = array('','','','','','','','','','','');
+
+			//Alapból mehet majd a feltöltés, de ha hiba van az adatok feldolgozásával, akkor ezzel megszakítható
+			//FIGYELEM! Ha ilyet használsz, akkor viszont ne soronként dolgozd fel az SQL a ciklusban, hanem készíts egy nagy stringet tele az SQL parancsokkal és egy $mehet-től függően futtasd le.
+			$mehet      = true;
+			$csv_sql    = '';
+			$log        = '';
+
+			if($_FILES['termekek']['tmp_name']){
+				fajlba_mentes($fajlnev.'_up', fajlbol_olvas($_FILES['termekek']['tmp_name']));
+			}
+
+			setlocale(LC_ALL,'hu_HU');
+
+			$_SESSION['sor_fejlec'] = array();
+
+			$k = 0;
+			if (($csv_fajl = fopen($fajlnev.'_up', 'r')) !== FALSE) {
+				$osszes_sor = count(file($fajlnev.'_up')) . '<br>';
+
+				while (($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE) {
+					$akt_tomb = array();
+
+					//Első oszlop a fejlécek
+					if($k == 0) {
+
+						foreach($sor as $key => $value) {
+                            $value = trim(mb_strtolower($value, 'UTF-8'));
+							$_SESSION['sor_fejlec'][] = $value;
+						}
+
+					} else {
+
+						foreach($sor as $key => $value) {
+							$akt_tomb[$_SESSION['sor_fejlec'][$key]] = $value;
+						}
+
+						foreach($akt_tomb as $key => $value) {
+							$akt_tomb[$key] = utf8($akt_tomb[$key]);
+						}
+
+						foreach($akt_tomb as $key => $value) {
+
+							$key_kicsi = trim(mb_strtolower($key, 'UTF-8'));
+
+							//Azonosítás fejléc nevekkel
+							switch($key_kicsi) {
+
+								case 'recid'            : $recid        = trim($akt_tomb[$key]);  break;
+								case 'telepid'          : $telepid      = trim($akt_tomb[$key]);  break;
+								case 'objid'            : $objid        = trim($akt_tomb[$key]);  break;
+								case 'nev'              : $nev          = trim($akt_tomb[$key]);  break;
+								case 'azon'             : $azon         = trim($akt_tomb[$key]);  break;
+								case 'megjegyzes'       : $megj         = trim($akt_tomb[$key]);  break;
+								case 'update_dt'        : $update_dt    = trim($akt_tomb[$key]);  break;
+								case 'update_usr'       : $update_usr   = trim($akt_tomb[$key]);  break;
+								case 'insert_dt'        : $insert_dt    = trim($akt_tomb[$key]);  break;
+								case 'insert_usr'       : $insert_usr   = trim($akt_tomb[$key]);  break;
+
+							}
+						}
+
+
+                        $adatbazis_kapcsolat->i('gep',
+                            array('recid', 'telephely_id', 'obj_id', 'nev', 'azon', 'megj', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr'  ),
+                            array($recid,   $telepid,      $objid,   $nev,   $azon, $megj,  $update_dt,  $update_usr,  $insert_dt,  $insert_usr   )
+                        );
+
+						echo $adatbazis_kapcsolat->gp() . '<br>';
+
+					}
+
+					$k++;
+				}
+				fclose($csv_fajl);
+			}
+
+			//Ha volt log, akkor azt kiíratjuk
+			$filename = 'csv/log.txt';
+			if(is_file($filename) && filesize($filename)){
+				$handle = fopen($filename, 'r');
+				$log = fread($handle, filesize($filename));
+				fclose($handle);
+			}
+
+			if($log){
+
+				$html .= nl2('
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+								<p class="b" style="margin-top: 2rem">
+									A feltöltés során az alábbi hibák fordultak elő:
+								</p>
+								<p>'.$log.'</p>
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+							');
+
+			}else{
+				$html .= nl2('<h1>A frissítés megtörtént!</h1>');
+			}
+
+		}
+
+    } elseif(isset($_GET['obj'])) {
+
+		if(!isset($_FILES['termekek'])){
+
+			$html .= nl2('
+							<form method="post" action="'.self().'?obj" enctype="multipart/form-data">
+								<p class="c" style="margin: 2rem 0 0 0">
+									Tallózd be a CSV fájlt a <b>obj</b>frissítéséhez:
+									<input type="file" name="termekek">
+									<br><input type="submit" class="gombb" value="Frissít">
+								</p>
+							</form>
+						');
+
+		}else{
+
+			$fajlnev = 'csv/obj.csv';
+
+			$mibol = 'windows-1250';
+			$mibe  = get_web_charset();
+
+			$mit   = array(' ','.',',',';','-','Ft','FT','ft','fT','"',"'");
+			$mivel = array('','','','','','','','','','','');
+
+			//Alapból mehet majd a feltöltés, de ha hiba van az adatok feldolgozásával, akkor ezzel megszakítható
+			//FIGYELEM! Ha ilyet használsz, akkor viszont ne soronként dolgozd fel az SQL a ciklusban, hanem készíts egy nagy stringet tele az SQL parancsokkal és egy $mehet-től függően futtasd le.
+			$mehet      = true;
+			$csv_sql    = '';
+			$log        = '';
+
+			if($_FILES['termekek']['tmp_name']){
+				fajlba_mentes($fajlnev.'_up', fajlbol_olvas($_FILES['termekek']['tmp_name']));
+			}
+
+			setlocale(LC_ALL,'hu_HU');
+
+			$_SESSION['sor_fejlec'] = array();
+
+			$k = 0;
+			if (($csv_fajl = fopen($fajlnev.'_up', 'r')) !== FALSE) {
+				$osszes_sor = count(file($fajlnev.'_up')) . '<br>';
+
+				while (($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE) {
+					$akt_tomb = array();
+
+					//Első oszlop a fejlécek
+					if($k == 0) {
+
+						foreach($sor as $key => $value) {
+                            $value = trim(mb_strtolower($value, 'UTF-8'));
+							$_SESSION['sor_fejlec'][] = $value;
+						}
+
+					} else {
+
+						foreach($sor as $key => $value) {
+							$akt_tomb[$_SESSION['sor_fejlec'][$key]] = $value;
+						}
+
+						foreach($akt_tomb as $key => $value) {
+							$akt_tomb[$key] = utf8($akt_tomb[$key]);
+						}
+
+						foreach($akt_tomb as $key => $value) {
+
+							$key_kicsi = trim(mb_strtolower($key, 'UTF-8'));
+
+							//Azonosítás fejléc nevekkel
+							switch($key_kicsi) {
+
+								case 'telepid'          : $telepid      = trim($akt_tomb[$key]);  break;
+								case 'recid'            : $recid        = trim($akt_tomb[$key]);  break;
+								case 'parentid'         : $parentid     = trim($akt_tomb[$key]);  break;
+								case 'hierid'           : $hierid       = trim($akt_tomb[$key]);  break;
+								case 'nev'              : $nev          = trim($akt_tomb[$key]);  break;
+								case 'update_dt'        : $update_dt    = trim($akt_tomb[$key]);  break;
+								case 'update_usr'       : $update_usr   = trim($akt_tomb[$key]);  break;
+								case 'insert_dt'        : $insert_dt    = trim($akt_tomb[$key]);  break;
+								case 'insert_usr'       : $insert_usr   = trim($akt_tomb[$key]);  break;
+
+							}
+						}
+
+
+                        $adatbazis_kapcsolat->i('obj',
+                            array('recid', 'telephely_id', 'szulo',   'nev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr'  ),
+                            array($recid,   $telepid,      $parentid, $nev,  $update_dt,  $update_usr,  $insert_dt,  $insert_usr   )
+                        );
+
+						echo $adatbazis_kapcsolat->gp() . '<br>';
+
+					}
+
+					$k++;
+				}
+				fclose($csv_fajl);
+			}
+
+			//Ha volt log, akkor azt kiíratjuk
+			$filename = 'csv/log.txt';
+			if(is_file($filename) && filesize($filename)){
+				$handle = fopen($filename, 'r');
+				$log = fread($handle, filesize($filename));
+				fclose($handle);
+			}
+
+			if($log){
+
+				$html .= nl2('
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+								<p class="b" style="margin-top: 2rem">
+									A feltöltés során az alábbi hibák fordultak elő:
+								</p>
+								<p>'.$log.'</p>
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+							');
+
+			}else{
+				$html .= nl2('<h1>A frissítés megtörtént!</h1>');
+			}
+
+		}
+
+    } elseif(isset($_GET['felhasznalok_korr'])) {
+
+		if(!isset($_FILES['termekek'])){
+
+			$html .= nl2('
+							<form method="post" action="'.self().'?felhasznalok_korr" enctype="multipart/form-data">
+								<p class="c" style="margin: 2rem 0 0 0">
+									Tallózd be a CSV fájlt a <b>felhasználók</b>frissítéséhez:
+									<input type="file" name="termekek">
+									<br><input type="submit" class="gombb" value="Frissít">
+								</p>
+							</form>
+						');
+
+		}else{
+
+			$fajlnev = 'csv/felhasznalok_korr.csv';
+
+			$mibol = 'windows-1250';
+			$mibe  = get_web_charset();
+
+			$mit   = array(' ','.',',',';','-','Ft','FT','ft','fT','"',"'");
+			$mivel = array('','','','','','','','','','','');
+
+			//Alapból mehet majd a feltöltés, de ha hiba van az adatok feldolgozásával, akkor ezzel megszakítható
+			//FIGYELEM! Ha ilyet használsz, akkor viszont ne soronként dolgozd fel az SQL a ciklusban, hanem készíts egy nagy stringet tele az SQL parancsokkal és egy $mehet-től függően futtasd le.
+			$mehet      = true;
+			$csv_sql    = '';
+			$log        = '';
+
+			if($_FILES['termekek']['tmp_name']){
+				fajlba_mentes($fajlnev.'_up', fajlbol_olvas($_FILES['termekek']['tmp_name']));
+			}
+
+			setlocale(LC_ALL,'hu_HU');
+
+			$_SESSION['sor_fejlec'] = array();
+
+			$k = 0;
+			if (($csv_fajl = fopen($fajlnev.'_up', 'r')) !== FALSE) {
+				$osszes_sor = count(file($fajlnev.'_up')) . '<br>';
+
+				while (($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE) {
+					$akt_tomb = array();
+
+					//Első oszlop a fejlécek
+					if($k == 0) {
+
+						foreach($sor as $key => $value) {
+                            $value = trim(mb_strtolower($value, 'UTF-8'));
+							$_SESSION['sor_fejlec'][] = $value;
+						}
+
+					} else {
+
+						foreach($sor as $key => $value) {
+							$akt_tomb[$_SESSION['sor_fejlec'][$key]] = $value;
+						}
+
+						foreach($akt_tomb as $key => $value) {
+							$akt_tomb[$key] = utf8($akt_tomb[$key]);
+						}
+
+						foreach($akt_tomb as $key => $value) {
+
+							$key_kicsi = trim(mb_strtolower($key, 'UTF-8'));
+
+							//Azonosítás fejléc nevekkel
+							switch($key_kicsi) {
+
+                                case 'aktiv'         : $aktiv       = trim($akt_tomb[$key]);  break;
+								case 'nev'           : $nev         = trim($akt_tomb[$key]);  break;
+								case 'login_nev'     : $login_nev   = trim($akt_tomb[$key]);  break;
+								case 'email'         : $email       = trim($akt_tomb[$key]);  break;
+								case 'telefon'       : $telefon     = trim($akt_tomb[$key]);  break;
+
+								/*case 'loginnev'         : $loginnev     = trim($akt_tomb[$key]);  break;
+								case 'nev'              : $nev          = trim($akt_tomb[$key]);  break;
+								case 'chk1'             : $chk1         = trim($akt_tomb[$key]);  break;
+								case 'chk2'             : $chk2         = trim($akt_tomb[$key]);  break;
+								case 'flgs'             : $flgs         = trim($akt_tomb[$key]);  break;
+								case 'kcs_17'           : $kcs_17       = trim($akt_tomb[$key]);  break;
+								case 'recid'            : $recid        = trim($akt_tomb[$key]);  break;
+								case 'update_dt'        : $update_dt    = trim($akt_tomb[$key]);  break;
+								case 'update_usr'       : $update_usr   = trim($akt_tomb[$key]);  break;
+								case 'insert_dt'        : $insert_dt    = trim($akt_tomb[$key]);  break;
+								case 'insert_usr'       : $insert_usr   = trim($akt_tomb[$key]);  break;
+								case 'aktiv'            : $aktiv        = trim($akt_tomb[$key]);  break;
+                                case 'kcs_18'           : $kcs_18       = trim($akt_tomb[$key]);  break;
+								case 'usertel'          : $usertel      = trim($akt_tomb[$key]);  break;
+								case 'usermail'         : $usermail     = trim($akt_tomb[$key]);  break;
+								case 'statid'           : $statid       = trim($akt_tomb[$key]);  break;
+								case 'mobil'            : $mobil        = trim($akt_tomb[$key]);  break;
+                                case 'chk3'             : $chk3         = trim($akt_tomb[$key]);  break;
+								case 'fer'              : $fer          = trim($akt_tomb[$key]);  break;
+								case 'hasmsg'           : $hasmsg       = trim($akt_tomb[$key]);  break;
+								case 'virtual'          : $virtual      = trim($akt_tomb[$key]);  break;*/
+
+							}
+						}
+
+                        $felh = $adatbazis_kapcsolat->s('recid', 'login', 'nev='.$login_nev, '', '');
+
+                        if( $felh ) {
+                            $felh = $felh[0];
+
+                            $adatbazis_kapcsolat -> u('login', array('teljes_nev', 'usertel', 'usermail'), array($nev, $telefon, $email), 'recid='.$felh['recid']);
+                        }
+                        echo $login_nev .'<br />';
+
+                        /*$usertel = '';
+
+                        $adatbazis_kapcsolat->i('login',
+                            array('beosztas_id', 'reszleg_id', 'szerepkor_id', 'van_jelszo', 'fer', 'virtual', 'statusz', 'usertel', 'usermail', 'nev',     'teljes_nev', 'flags', 'aktiv', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr'  ),
+                            array($kcs_18,       $kcs_17,       $statid,        $chk3,        $fer,  $virtual,  $statid,   $usertel,  $usermail,  $loginnev, $nev,         $flgs,   $aktiv,  $update_dt,  $update_usr,  $insert_dt,  $insert_usr   )
+                        );
+
+						echo $adatbazis_kapcsolat->gp() . '<br>';*/
+
+					}
+
+					$k++;
+				}
+				fclose($csv_fajl);
+			}
+
+			//Ha volt log, akkor azt kiíratjuk
+			$filename = 'csv/log.txt';
+			if(is_file($filename) && filesize($filename)){
+				$handle = fopen($filename, 'r');
+				$log = fread($handle, filesize($filename));
+				fclose($handle);
+			}
+
+			if($log){
+
+				$html .= nl2('
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+								<p class="b" style="margin-top: 2rem">
+									A feltöltés során az alábbi hibák fordultak elő:
+								</p>
+								<p>'.$log.'</p>
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+							');
+
+			}else{
+				$html .= nl2('<h1>A frissítés megtörtént!</h1>');
+			}
+
+		}
 	}elseif(isset($_GET['erteklista'])){
 
 		if(!isset($_FILES['termekek'])){

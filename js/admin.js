@@ -353,6 +353,8 @@ function felh_valt( valt ) {
 }
 
 $(function() {
+    $('#ajaxfedo').addClass('dn');
+
     click = false;
     $(document).on('mousedown', function(event) {
         if( event.target.id == 'csuszkaallit' ) {
@@ -397,7 +399,9 @@ $(function() {
         if( e.keyCode == 38 || e.keyCode == 40 ) {
             var className = e.target.className;
 
-            if( className !== undefined && className.indexOf('disableNav') !== -1 ) {
+            popup_display = $('#popup').css('display');
+
+            if( (className !== undefined && className.indexOf('disableNav') !== -1) || popup_display == 'block' || $('#alert2').length || !$('#beleptet_alert').hasClass('dn') ) {
                 return false;
             }
 
@@ -407,7 +411,8 @@ $(function() {
                 'szallito',
                 'erteklista',
                 'login',
-                'szerepkor'
+                'szerepkor',
+                'bejelentes'
             );
 
             if( inArray(baseName(location.href), ketHasabos) ) {
@@ -455,11 +460,42 @@ $(function() {
         }
     });
 
-    $('#tartalomBal').on('click', '#szamlaList li.szamla_sor', function() {
-        $('#szamlaList li.szamla_sor').removeClass('active');
-        $(this).addClass('active');
+    $(document).on('click', function(e) {
+        if( !e.ctrlKey ) {
+            $('#szamlaList li.szamla_sor').removeClass('active kijelolve');
 
-        scrollLeptet();
+            if( _get('id') ) {
+                $('#szamla-' + _get('id')).addClass('active');
+            }
+        }
+    });
+
+    $('#tartalomBal').on('click', '#szamlaList li.szamla_sor', function(e) {
+        if( !e.ctrlKey ) {
+            $('#szamlaList li.szamla_sor').removeClass('active kijelolve');
+            $(this).addClass('active');
+
+            /* Navigálás */
+            var recid   = $(this).find('a.szamla').attr('data-recid'),
+                fajl    = $(this).find('a.szamla').attr('data-fajl'),
+                muvelet = $(this).find('a.szamla').attr('data-muvelet');
+
+            if( recid && fajl && muvelet ) {
+                szamlaBetolt(recid, fajl, muvelet);
+            }
+
+            scrollLeptet();
+            e.preventDefault();
+            e.stopPropagation();
+        } else {
+            $('#szamlaList li.szamla_sor').removeClass('active');
+
+            if( $(this).hasClass('kijelolve') ) {
+                $(this).removeClass('kijelolve');
+            } else {
+                $(this).addClass('kijelolve');
+            }
+        }
     });
 
     formModositva = false;
@@ -572,7 +608,7 @@ $(function() {
     });
 
     $(document).on('keydown', function(e) {
-        if( e.keyCode == 13 && $('#alert2').length ) {
+        if( e.keyCode == 13 && $('#alert2').length && !$('#alert2').hasClass('rFalse') ) {
             alert2();
             e.preventDefault();
         }
@@ -581,7 +617,52 @@ $(function() {
     $(document).ajaxComplete(function (event, xhr, settings) {
         $('form.popupForm input.focus').focus();
     });
+
+    $(document).on('click', 'ul.telephelyek a.nyit', function() {
+        $(this).parent('li.alkatos').find('ul.alkatok').eq(0).toggleClass('active');
+        $(this).find('span.icon').toggleClass('active');
+
+        return false;
+    });
 });
+
+function obj_gen() {
+    $('#ajaxfedo').removeClass('dn');
+
+    if( $('#telephely_id').val() ) {
+        var obj = $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'GET',
+         	data: esamp2es('obj_general=' + new Date().getTime()),
+         	success: function(html) {
+         		if(html) {
+                    $('#popupTart').html(html);
+                    popupNyit();
+         		}
+         	}
+        });
+    } else {
+        $('#ajaxfedo').addClass('dn');
+
+        alert2('Kérem előbb válasszon szállodát!');
+        return false;
+    }
+
+
+    $.when( obj ).then(function() {
+        $('#ajaxfedo').addClass('dn');
+    });
+}
+
+function addObj( that ) {
+    var text  = $(that).text(),
+        recid = $(that).attr('data-recid');
+
+    $('input[name="obj_id"]').val(recid).change();
+    $('input[name="obj_id_autocomp"]').val(text).change();
+
+    popupZar();
+}
 
 function kapcsolodoSzerkeszt( oldal ) {
     $.get('../sablon/admin/popup/' + oldal + '.html?cache=' + new Date().getTime(), function( data ) {
@@ -752,19 +833,24 @@ function gombokNullaz() {
 
 function felhValt( that ) {
     var felh_nev  = $( that ).find('input[name="login_nev"]').val(),
-        felh_mail = $( that ).find('input[name="login_jelszo"]').val();
+        felh_jlsz = $( that ).find('input[name="login_jelszo"]').val();
 
-    if( felh_nev && felh_mail ) {
+    if( felh_nev ) {
         $.ajax({
          	url : 'beleptetes.php',
          	type: 'POST',
-         	data: esamp2es('nev=' + felh_nev + '&amp;jelszo=' + felh_mail + '&amp;ajax=1&amp;login=' + new Date().getTime()),
+         	data: esamp2es('nev=' + felh_nev + '&amp;jelszo=' + felh_jlsz + '&amp;ajax=1&amp;login=' + new Date().getTime()),
          	success: function(html) {
          		if(html) {
          			html = JSON.parse(html);
 
                     if( html.statusz == 'hiba' ) {
-                        $('#beleptet_alert div.header').html('<h1 style="color: #FF5353">Helytelen belépés!</h1');
+                        if( html.link ) {
+                            location.href = html.link;
+                            return false;
+                        }
+
+                        $('#beleptet_alert div.header').html('<h1 style="color: #FF5353">Helytelen felhasználói név vagy jelszó!</h1');
                         return false;
                     }
 
@@ -869,7 +955,7 @@ function gombokRejt() {
         $('div.navGombok a.szerk').addClass('disabled');
     }
 
-    if( _get('modosit') && _get('szerkeszt') ) {
+    if( _get('modosit') ) {
         $('div.navGombok a.torles').removeClass('disabled');
     } else {
         $('div.navGombok a.torles').addClass('disabled');
@@ -941,7 +1027,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         dfrd1.resolve();
                     });
 
-                    param = get_get(['id', 'modosit', 'naplo', 'dokumentumok', 'szerkeszt', 'szakterulet', 'jogosultsag', 'uj', 'siker', 'szallodak'], true);
+                    param = get_get(['id', 'modosit', 'naplo', 'dokumentumok', 'szerkeszt', 'szakterulet', 'jogosultsag', 'uj', 'siker', 'szallodak', 'statusz', 'tortenet'], true);
                     if( muvelet != 'uj' ) {
                         if( param.indexOf('?') !== -1 ) {
                             param += '&id=' + recid + '&' + muvelet;
@@ -1039,4 +1125,88 @@ function htmlspecialchars_decode(string, quoteStyle) {
 
     string = string.replace(/&amp;/g, '&');
     return string;
+}
+
+function moveCaretToEnd(el) {
+    if (typeof el.selectionStart == "number") {
+        el.selectionStart = el.selectionEnd = el.value.length;
+        el.focus();
+    } else if (typeof el.createTextRange != "undefined") {
+        el.focus();
+        var range = el.createTextRange();
+        range.collapse(false);
+        range.select();
+    }
+}
+
+function szallodaVane( that ) {
+    var telephely_id = $('#telephely_id').val();
+
+    if( !telephely_id ) {
+        if( $(that).attr('name') == 'obj_id_autocomp' ) {
+            $('#obj_id_autocomp').attr('disabled', true);
+
+            alert2('Kérem előbb válasszon szállodát!');
+            return false;
+        }
+    } else {
+        if( $(that).attr('name') == 'telephely_id' ) {
+            $('#obj_id_autocomp').attr('disabled', false).val('').removeClass('mod');
+            $('#obj_id').val('');
+
+            $('#gep_id_autocomp').val('').removeClass('mod');
+            $('#gep_id').val('');
+        }
+    }
+}
+
+function helyisegVane( that ) {
+    var telephely_id = $('#telephely_id').val();
+    var helyiseg = $('#obj_id_autocomp').val();
+
+    if( !helyiseg || !telephely_id ) {
+        if( $(that).attr('name') == 'gep_id_autocomp' ) {
+            $(that).attr('disabled', true);
+        }
+
+        if( !telephely_id ) {
+            alert2('Kérem előbb válasszon szállodát!');
+            return false;
+        }
+
+        alert2('Kérem előbb válasszon helyiséget!');
+        return false;
+    } else {
+        $('#gep_id_autocomp').attr('disabled', false);
+    }
+}
+
+function gepVane() {
+    $('#ajaxfedo').removeClass('dn');
+
+    var telephely_id = $('#telephely_id').val(),
+        obj_id = $('#obj_id').val();
+
+    var gepvane = $.ajax({
+        url : 'esemenyek.php',
+        type: 'GET',
+        data: esamp2es('telephely_id=' + telephely_id + '&amp;obj_id=' + obj_id + '&amp;gepVane=' + new Date().getTime()),
+        success: function(html) {
+            if( html ) {
+                html = JSON.parse(html);
+
+                if( html.statusz ) {
+                    $('#gep_id_autocomp').attr('disabled', false).val('').removeClass('mod');
+                    $('#gep_id').val('');
+                } else {
+                    $('#gep_id_autocomp').attr('disabled', true).val('').removeClass('mod');
+                    $('#gep_id').val('');
+                }
+            }
+        }
+    });
+
+    $.when(gepvane).then(function() {
+        $('#ajaxfedo').addClass('dn');
+    });
 }

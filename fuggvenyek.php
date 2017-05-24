@@ -81,6 +81,33 @@ function i_u($type, $tabla, $tomb){
                     }
                 }
             }
+        } else if( $tabla == 'bejelentes' ) {
+            /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
+            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.date('y'), '', '');
+
+            if( $ikt_seq ) {
+                $ikt_seq = $ikt_seq[0];
+
+                /* Sorszám */
+                $sorszam = $ikt_seq['sorszam'];
+
+                /* Sorszám növelés */
+                $sorszam++;
+
+                /* Letároljuk az új sorszámot */
+                $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
+            } else {
+                /* Sorszám */
+                $sorszam = 1;
+
+                $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
+            }
+
+            /* Iktatószám formázása */
+            $ikt_szam = date('y').'/'.sprintf('%07d', $sorszam);
+
+            array_push($oszlopok,  'ikt_szam');
+            array_push($ertekek,   $ikt_szam );
         }
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
@@ -244,7 +271,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
 
     $param = '';
     foreach($tomb as $ertek){
-        if( $ertek['type'] != 'statusz' ) {
+        if( $ertek['type'] != 'statusz' && $ertek['type'] != 'info' ) {
             if($ertek['name']) {
 
                 //Csak akkor figyelünk lenti paramétereket, ha egyáltalán az elem létezik. Ezzel egy csomó JS hibát elekerólhetünk és debuggolós szívásokat
@@ -631,8 +658,41 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
                 case 'szerepkor':
                     $html = szerepkorLista( $bejegyzesek, $tabla );
                 break;
+                case 'bejelentes':
+                    $html = bejelentesLista( $bejegyzesek, $tabla );
+                break;
             }
         }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function bejelentesLista( $bejegyzesek, $tabla ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+        $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                                <span>'.$bsz['ikt_szam'].'</span>
+                            </a>
+                        </li>';
+
+            $i++;
+        }
+
+        $html .= '</ul>';
 
         return $html;
     }
@@ -654,7 +714,7 @@ function szerepkorLista( $bejegyzesek, $tabla ) {
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
-                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span>'.$bsz['nev'].'</span>
                             </a>
                         </li>';
@@ -703,7 +763,7 @@ function loginLista( $bejegyzesek, $tabla ) {
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
-                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span>'.$aktiv.' '.$bsz['teljes_nev'].'</span>
                             </a>
                         </li>';
@@ -749,7 +809,7 @@ function erteklistaLista( $bejegyzesek, $tabla ) {
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
-                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span>'.$bsz['info'].'</span>
                             </a>
                         </li>';
@@ -798,7 +858,7 @@ function szallitoLista( $bejegyzesek, $tabla ) {
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
-                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span>'.$aktiv.' '.$bsz['nev'].'</span>
                             </a>
                         </li>';
@@ -844,7 +904,7 @@ function rendszerLista( $bejegyzesek, $tabla ) {
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
-                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span>'.$bsz['nev'].'</span>
                             </a>
                         </li>';
@@ -909,7 +969,7 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla ) {
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
-                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span class="ikt_szam"><span class="szso"><span class="statusz"'.$szinkod.'></span>Ikt. szám:</span> '.$bsz['ikt_szam'].'</span>
                                 <span class="targy"><span class="szso">Tárgy:</span> '.resz_string($bsz['targy'], 40).'</span>
                                 <span class="szallito"><span class="szso">Szállító:</span> '.$szallito.'</span>
@@ -939,8 +999,14 @@ function getOszlopNev( $oszlop ) {
         'statusz' => 'Státusz',
         'rkat' => 'Érték',
         'csoport' => 'Név',
-        'id' => 'ID'
+        'id' => 'ID',
+        'teljes_nev' => 'Teljes név',
+        'szerepkor_id' => 'Szerepkör'
     );
+
+    if( basename(self()) == 'login.php' ) {
+        $oszlopNevek['nev'] = 'Login név';
+    }
 
     if( $oszlopNevek[$oszlop] ) {
         return $oszlopNevek[$oszlop];
@@ -1002,4 +1068,69 @@ function getJogSorRendez( $katID, $tomb ) {
     }
 
     return false;
+}
+
+function obj_gen() {
+    global $adatbazis_kapcsolat;
+
+    $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', '', 'nev', '');
+
+    $html = '';
+    if( $telephelyek ) {
+        $html .= '<h2>Objektumok hierarchiája</h2><ul class="telephelyek">';
+
+        foreach($telephelyek as $telephely) {
+            $fokatok = $adatbazis_kapcsolat->s('recid telephely_id nev szulo', 'obj', 'szulo=0 and telephely_id='.$telephely['id'], '', '');
+
+            $fokat_html = '';
+            if( $fokatok ) {
+                $fokat_html .= '<ul class="alkatok">';
+
+                foreach($fokatok as $fokat) {
+                    $katok = $adatbazis_kapcsolat->s('recid telephely_id nev szulo', 'obj', 'szulo='.$fokat['recid'], '', '');
+
+                    $kat_html = '';
+                    if( $katok ) {
+                        $kat_html .= '<ul class="alkatok">';
+
+                        foreach($katok as $kat) {
+                            $kat_html .= '<li class="alkat"><a onclick="addObj( this );" class="link" data-recid="'.$kat['recid'].'">'.$kat['nev'].'</a></li>';
+                        }
+
+                        $kat_html .= '</ul>';
+                    }
+
+                    $alkatok = '';
+                    $icon = '';
+                    $nyit = '';
+                    $href = '';
+                    if( $kat_html ) {
+                        $alkatok = ' alkatos';
+                        $icon = '<span class="icon"></span>';
+                        $nyit = ' class="nyit"';
+                        $href = 'javascript: addObj( this ); void(0);';
+                    }
+
+                    $fokat_html .= '<li class="kat'.$alkatok.'"><a href="'.$href.'"'.$nyit.' data-recid="'.$fokat['recid'].'">'.$icon.$fokat['nev'].'</a>'.$kat_html.'</li>';
+                }
+
+                $fokat_html .= '</ul>';
+            }
+
+            $alkatok = '';
+            $icon = '';
+            $nyit = '';
+            if( $fokat_html ) {
+                $alkatok = ' alkatos';
+                $icon = '<span class="icon"></span>';
+                $nyit = ' class="nyit"';
+            }
+
+            $html .= '<li class="fokat'.$alkatok.'"><a href=""'.$nyit.'>'.$icon.$telephely['nev'].'</a>'.$fokat_html.'</li>';
+        }
+
+        $html .= '</ul>';
+    }
+
+    return $html;
 }

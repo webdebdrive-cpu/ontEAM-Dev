@@ -67,15 +67,47 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             }
         }
 
+        /* Telephely id */
+        if( $_GET['telephely_id'] && ($_GET['tabla'] == 'obj' || $_GET['tabla'] == 'gep') ) {
+            if( $where_sql ) {
+                $where_sql .= " AND `telephely_id` = '".$_GET['telephely_id']."'";
+            } else {
+                $where_sql .= " WHERE `telephely_id` = '".$_GET['telephely_id']."'";
+            }
+        }
+
+        /* Objektm id */
+        if( $_GET['tabla'] == 'gep' && $_GET['obj_id'] ) {
+            if( $where_sql ) {
+                $where_sql .= " AND `obj_id` = '".$_GET['obj_id']."'";
+            } else {
+                $where_sql .= " WHERE `obj_id` = '".$_GET['obj_id']."'";
+            }
+        }
+
         //DL lista elemeinek előállítása
         $return = '<ul>';
-        
+
+        $select_kieg = '';
+        if( $_GET['tabla'] == 'erteklista' ) {
+            $select_kieg = ' `id`,';
+        } else if( $_GET['tabla'] == 'obj' ) {
+            $select_kieg = ' `telephely_id`,';
+        }
+
 //echo 'SELECT `id`, `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'` WHERE '.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`';
-        $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`, `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
+        $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
         while( $sor = mysqli_fetch_array($lekerdez) ) {
 
-            $return .= '<li data-recid="'.$sor['recid'].'">';
-            //$return .= '<li data-href="'.$_GET['tabla'].'.php?id='.$sor['recid'].'&amp;modosit">';
+            $return .= '<li data-recid="'.$sor[$_GET['id_kiir']].'">';
+
+            if( $_GET['tabla'] == 'obj' ) {
+                $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
+
+                if( $telephely ) {
+                    $return .= $telephely[0]['nev'].' / ';
+                }
+            }
 
             $size = count($oszlop_listaz) - 1;
             for( $i = 0; $i <= $size; $i++ ) {

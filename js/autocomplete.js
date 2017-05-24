@@ -66,6 +66,16 @@
                     });
                 }
 
+                telephely_id = '';
+                if( baseName(location.href) == 'bejelentes' ) {
+                    telephely_id = $('#telephely_id').val();
+                }
+
+                obj_id = '';
+                if( baseName(location.href) == 'bejelentes' ) {
+                    obj_id = $('#obj_id').val();
+                }
+
                 if(e.keyCode!=40 && e.keyCode!=38 && e.keyCode!=13) {
 
                     $.ajax({
@@ -79,7 +89,9 @@
                             oszlop_listaz   : options.oszlop_listaz,
                             rkat            : options.rkat,
                             id_kiir         : options.id_kiir,
-                            csoport         : options.csoport
+                            csoport         : options.csoport,
+                            telephely_id    : telephely_id,
+                            obj_id          : obj_id
                         },
                         success: function(msg) {
                             $('div#autocomplete').html(msg);
@@ -89,9 +101,7 @@
                 }
 
             } else {
-
-                $('#autocomplete').css({'display' : 'none'});
-
+                $('#autocomplete').css({'display' : 'none'}).html('');
             }
         });
 
@@ -120,6 +130,15 @@
                 if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                     mezo_nev = mezo.attr('name').replace('_autocomp', '');
                     $('input[name="' + mezo_nev + '"]').val(recid);
+
+                    moveCaretToEnd(document.getElementById(mezo.attr('name')));
+                    window.setTimeout(function() {
+                        moveCaretToEnd(document.getElementById(mezo.attr('name')));
+                    }, 1);
+                }
+
+                if( options.tabla == 'obj' ) {
+                    gepVane();
                 }
             }
         });
@@ -137,11 +156,11 @@
         });
 
         $(document).click(function() {
-            $('#autocomplete').css({'display':'none'});
+            $('#autocomplete').css({'display':'none'}).html('');
         });
         $(document).keyup(function(e) {
             if(e.keyCode == 27){
-                $("#autocomplete").css({'display':'none'});
+                $("#autocomplete").css({'display':'none'}).html('');
             }
         });
 
@@ -193,7 +212,11 @@
                         }
                     }
 
-                    $('#autocomplete').css({'display':'none'});
+                    if( options.tabla == 'obj' ) {
+                        gepVane()
+                    }
+
+                    $('#autocomplete').css({'display':'none'}).html('');
                 } else {
                     $('.kereso_gomb').click();
                 }
