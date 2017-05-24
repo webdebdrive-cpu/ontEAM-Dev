@@ -684,7 +684,7 @@ function bejelentesLista( $bejegyzesek, $tabla ) {
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
-                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span>'.$bsz['ikt_szam'].'</span>
                             </a>
                         </li>';
@@ -714,7 +714,7 @@ function szerepkorLista( $bejegyzesek, $tabla ) {
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
-                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span>'.$bsz['nev'].'</span>
                             </a>
                         </li>';
@@ -763,7 +763,7 @@ function loginLista( $bejegyzesek, $tabla ) {
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
-                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span>'.$aktiv.' '.$bsz['teljes_nev'].'</span>
                             </a>
                         </li>';
@@ -809,7 +809,7 @@ function erteklistaLista( $bejegyzesek, $tabla ) {
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
-                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span>'.$bsz['info'].'</span>
                             </a>
                         </li>';
@@ -858,7 +858,7 @@ function szallitoLista( $bejegyzesek, $tabla ) {
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
-                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span>'.$aktiv.' '.$bsz['nev'].'</span>
                             </a>
                         </li>';
@@ -904,7 +904,7 @@ function rendszerLista( $bejegyzesek, $tabla ) {
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
-                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span>'.$bsz['nev'].'</span>
                             </a>
                         </li>';
@@ -969,7 +969,7 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla ) {
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
-                            <a onclick="szamlaBetolt('.$bsz['recid'].', \''.$tabla.'.php\', \'modosit\');">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span class="ikt_szam"><span class="szso"><span class="statusz"'.$szinkod.'></span>Ikt. szám:</span> '.$bsz['ikt_szam'].'</span>
                                 <span class="targy"><span class="szso">Tárgy:</span> '.resz_string($bsz['targy'], 40).'</span>
                                 <span class="szallito"><span class="szso">Szállító:</span> '.$szallito.'</span>

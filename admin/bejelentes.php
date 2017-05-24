@@ -146,11 +146,11 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
-    if( isset($_GET['modosit']) ||  isset($_GET['statusz']) ) {
+    if( isset($_GET['modosit']) ||  isset($_GET['tortenet']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            'statusz'       => 'Státusz'
+            'tortenet'      => 'Történet'
         );
 
         $fulek = '';
@@ -357,7 +357,7 @@ if($gyorskereso_text){
 		}
 
 	//Státusz
-    }elseif(isset($_GET['statusz'])) {
+    }elseif(isset($_GET['tortenet'])) {
 
         $szamla_html .= '';
 

@@ -101,9 +101,7 @@
                 }
 
             } else {
-
-                $('#autocomplete').css({'display' : 'none'});
-
+                $('#autocomplete').css({'display' : 'none'}).html('');
             }
         });
 
@@ -138,6 +136,10 @@
                         moveCaretToEnd(document.getElementById(mezo.attr('name')));
                     }, 1);
                 }
+
+                if( options.tabla == 'obj' ) {
+                    gepVane();
+                }
             }
         });
 
@@ -154,11 +156,11 @@
         });
 
         $(document).click(function() {
-            $('#autocomplete').css({'display':'none'});
+            $('#autocomplete').css({'display':'none'}).html('');
         });
         $(document).keyup(function(e) {
             if(e.keyCode == 27){
-                $("#autocomplete").css({'display':'none'});
+                $("#autocomplete").css({'display':'none'}).html('');
             }
         });
 
@@ -210,7 +212,11 @@
                         }
                     }
 
-                    $('#autocomplete').css({'display':'none'});
+                    if( options.tabla == 'obj' ) {
+                        gepVane()
+                    }
+
+                    $('#autocomplete').css({'display':'none'}).html('');
                 } else {
                     $('.kereso_gomb').click();
                 }

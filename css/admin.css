@@ -1317,10 +1317,6 @@ div.header div.dtc.bejelent span {
     text-transform: none;
 }
 
-ul.szamla_cont {
-
-}
-
 ul.szamla_cont li {
     display: block;
 }
@@ -1333,6 +1329,10 @@ ul.szamla_cont li a {
     font-size: 1.2rem;
     padding: 0.2rem 1rem 0.2rem 1rem;
     width: 100%;
+}
+
+ul.szamla_cont li a.szamla {
+    cursor: pointer;
 }
 
 ul.szamla_cont li a span {
@@ -1394,6 +1394,11 @@ ul.szamla_cont li.szamla_datum strong {
 
 ul.szamla_cont li.active a {
     background: #0D47A1;
+    color: #fff;
+}
+
+ul.szamla_cont li.kijelolve a {
+    background: #484848;
     color: #fff;
 }
 

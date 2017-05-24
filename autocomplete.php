@@ -68,7 +68,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         }
 
         /* Telephely id */
-        if( $_GET['telephely_id'] ) {
+        if( $_GET['telephely_id'] && ($_GET['tabla'] == 'obj' || $_GET['tabla'] == 'gep') ) {
             if( $where_sql ) {
                 $where_sql .= " AND `telephely_id` = '".$_GET['telephely_id']."'";
             } else {
@@ -105,7 +105,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
                 $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
 
                 if( $telephely ) {
-                    $return .= $telephely[0]['nev'].' ';
+                    $return .= $telephely[0]['nev'].' / ';
                 }
             }
 

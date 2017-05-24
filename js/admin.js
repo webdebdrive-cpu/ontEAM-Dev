@@ -460,11 +460,42 @@ $(function() {
         }
     });
 
-    $('#tartalomBal').on('click', '#szamlaList li.szamla_sor', function() {
-        $('#szamlaList li.szamla_sor').removeClass('active');
-        $(this).addClass('active');
+    $(document).on('click', function(e) {
+        if( !e.ctrlKey ) {
+            $('#szamlaList li.szamla_sor').removeClass('active kijelolve');
 
-        scrollLeptet();
+            if( _get('id') ) {
+                $('#szamla-' + _get('id')).addClass('active');
+            }
+        }
+    });
+
+    $('#tartalomBal').on('click', '#szamlaList li.szamla_sor', function(e) {
+        if( !e.ctrlKey ) {
+            $('#szamlaList li.szamla_sor').removeClass('active kijelolve');
+            $(this).addClass('active');
+
+            /* Navigálás */
+            var recid   = $(this).find('a.szamla').attr('data-recid'),
+                fajl    = $(this).find('a.szamla').attr('data-fajl'),
+                muvelet = $(this).find('a.szamla').attr('data-muvelet');
+
+            if( recid && fajl && muvelet ) {
+                szamlaBetolt(recid, fajl, muvelet);
+            }
+
+            scrollLeptet();
+            e.preventDefault();
+            e.stopPropagation();
+        } else {
+            $('#szamlaList li.szamla_sor').removeClass('active');
+
+            if( $(this).hasClass('kijelolve') ) {
+                $(this).removeClass('kijelolve');
+            } else {
+                $(this).addClass('kijelolve');
+            }
+        }
     });
 
     formModositva = false;
@@ -598,17 +629,25 @@ $(function() {
 function obj_gen() {
     $('#ajaxfedo').removeClass('dn');
 
-    var obj = $.ajax({
-     	url : 'esemenyek.php',
-     	type: 'GET',
-     	data: esamp2es('obj_general=' + new Date().getTime()),
-     	success: function(html) {
-     		if(html) {
-                $('#popupTart').html(html);
-                popupNyit();
-     		}
-     	}
-    });
+    if( $('#telephely_id').val() ) {
+        var obj = $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'GET',
+         	data: esamp2es('obj_general=' + new Date().getTime()),
+         	success: function(html) {
+         		if(html) {
+                    $('#popupTart').html(html);
+                    popupNyit();
+         		}
+         	}
+        });
+    } else {
+        $('#ajaxfedo').addClass('dn');
+
+        alert2('Kérem előbb válasszon szállodát!');
+        return false;
+    }
+
 
     $.when( obj ).then(function() {
         $('#ajaxfedo').addClass('dn');
@@ -988,7 +1027,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         dfrd1.resolve();
                     });
 
-                    param = get_get(['id', 'modosit', 'naplo', 'dokumentumok', 'szerkeszt', 'szakterulet', 'jogosultsag', 'uj', 'siker', 'szallodak', 'statusz'], true);
+                    param = get_get(['id', 'modosit', 'naplo', 'dokumentumok', 'szerkeszt', 'szakterulet', 'jogosultsag', 'uj', 'siker', 'szallodak', 'statusz', 'tortenet'], true);
                     if( muvelet != 'uj' ) {
                         if( param.indexOf('?') !== -1 ) {
                             param += '&id=' + recid + '&' + muvelet;
@@ -1111,12 +1150,13 @@ function szallodaVane( that ) {
             return false;
         }
     } else {
-        $('#obj_id_autocomp').attr('disabled', false).val('').removeClass('mod');
-        $('#obj_id').val('');
+        if( $(that).attr('name') == 'telephely_id' ) {
+            $('#obj_id_autocomp').attr('disabled', false).val('').removeClass('mod');
+            $('#obj_id').val('');
 
-
-        $('#gep_id_autocomp').val('').removeClass('mod');
-        $('#gep_id').val('');
+            $('#gep_id_autocomp').val('').removeClass('mod');
+            $('#gep_id').val('');
+        }
     }
 }
 
@@ -1141,12 +1181,32 @@ function helyisegVane( that ) {
     }
 }
 
-function gepFelold( that ) {
-    var val = $(that).val();
+function gepVane() {
+    $('#ajaxfedo').removeClass('dn');
 
-    if( val ) {
-        $('#gep_id_autocomp').attr('disabled', false);
-    } else {
-        $('#gep_id_autocomp').attr('disabled', true);
-    }
+    var telephely_id = $('#telephely_id').val(),
+        obj_id = $('#obj_id').val();
+
+    var gepvane = $.ajax({
+        url : 'esemenyek.php',
+        type: 'GET',
+        data: esamp2es('telephely_id=' + telephely_id + '&amp;obj_id=' + obj_id + '&amp;gepVane=' + new Date().getTime()),
+        success: function(html) {
+            if( html ) {
+                html = JSON.parse(html);
+
+                if( html.statusz ) {
+                    $('#gep_id_autocomp').attr('disabled', false).val('').removeClass('mod');
+                    $('#gep_id').val('');
+                } else {
+                    $('#gep_id_autocomp').attr('disabled', true).val('').removeClass('mod');
+                    $('#gep_id').val('');
+                }
+            }
+        }
+    });
+
+    $.when(gepvane).then(function() {
+        $('#ajaxfedo').addClass('dn');
+    });
 }
