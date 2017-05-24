@@ -110,7 +110,7 @@ if(isset($_POST['jelszo_csere'])) {
 
             if( $felhasznalo ) {
                 $felhasznalo = $felhasznalo[0];
-                
+
                 /* Helyesség */
                 $helyesseg = sha1($felhasznalo['nev'].$_POST['jlsz']);
 
@@ -157,93 +157,66 @@ if(isset($_POST['megsem'])) {
 /* Belétetés */
 if(isset($_POST['login'])) {
 
-    $helyesseg = sha1($_POST['nev'].$_POST['jelszo']);
+    if( $_POST['nev'] ) {
+        $helyesseg = sha1($_POST['nev'].$_POST['jelszo']);
 
-    if($sha1){
-        $_POST['jelszo'] = sha1($_POST['jelszo']);
-    }
+        if($sha1){
+            $_POST['jelszo'] = sha1($_POST['jelszo']);
+        }
 
-    $felhasznalo = $adatbazis_kapcsolat->s('recid nev jelszo helyesseg flags jog van_jelszo', 'login', "`nev` = '".$_POST['nev']."'", '', '1');
+        $felhasznalo = $adatbazis_kapcsolat->s('recid nev jelszo helyesseg flags jog van_jelszo', 'login', "`nev` = '".$_POST['nev']."'", '', '1');
 
-    if( $felhasznalo ) {
-        $felhasznalo = $felhasznalo[0];
+        if( $felhasznalo ) {
+            $felhasznalo = $felhasznalo[0];
 
-        if( $felhasznalo['van_jelszo'] ) {
-            if( $felhasznalo['jelszo'] == $_POST['jelszo'] && $felhasznalo['helyesseg'] == $helyesseg ) {
-                $_SESSION[get_db_tabla().'user']    = $felhasznalo['nev'];
-                $_SESSION[get_db_tabla().'user_id'] = $felhasznalo['recid'];
-                $_SESSION[get_db_tabla().'rights']  = str_split($felhasznalo['flags']);
+            if( $felhasznalo['van_jelszo'] ) {
+                if( $felhasznalo['jelszo'] == $_POST['jelszo'] && $felhasznalo['helyesseg'] == $helyesseg ) {
+                    $_SESSION[get_db_tabla().'user']    = $felhasznalo['nev'];
+                    $_SESSION[get_db_tabla().'user_id'] = $felhasznalo['recid'];
+                    $_SESSION[get_db_tabla().'rights']  = str_split($felhasznalo['flags']);
 
-                if(!$_SESSION['kert_url']){
-                    $_SESSION['kert_url'] = get_domain().'/'.get_admin();
-                }
+                    if(!$_SESSION['kert_url']){
+                        $_SESSION['kert_url'] = get_domain().'/'.get_admin();
+                    }
 
-                if( $_POST['ajax'] ) {
-                    echo json_encode(array(
-                        'statusz' => 'siker'
-                    ));
+                    if( $_POST['ajax'] ) {
+                        echo json_encode(array(
+                            'statusz' => 'siker'
+                        ));
+                    } else {
+                        $adatbazis_kapcsolat -> bezar();
+                        header('Location: http://'.$_SESSION['kert_url']);
+                        exit();
+                    }
                 } else {
-                    $adatbazis_kapcsolat -> bezar();
-                    header('Location: http://'.$_SESSION['kert_url']);
-                    exit();
+                    if( $_POST['ajax'] ) {
+                        echo json_encode(array(
+                            'statusz' => 'hiba'
+                        ));
+                    } else {
+                        $adatbazis_kapcsolat -> bezar();
+                        header('Location: index.php?hiba');
+                        exit();
+                    }
                 }
             } else {
+                $_SESSION['nincs_jelsz_felhid'] = $felhasznalo['recid'];
+                $_SESSION['nincs_jelsz']        = true;
+
                 if( $_POST['ajax'] ) {
                     echo json_encode(array(
-                        'statusz' => 'hiba'
+                        'statusz' => 'hiba',
+                        'link'    => 'beleptetes.php?kilep'
                     ));
                 } else {
-                    $adatbazis_kapcsolat -> bezar();
-                    header('Location: index.php?hiba');
-                    exit();
+                    header('Location: index.php');
                 }
             }
-        } else {
-            $_SESSION['nincs_jelsz_felhid'] = $felhasznalo['recid'];
-            $_SESSION['nincs_jelsz']        = true;
-            header('Location: index.php');
         }
-    }
-
-
-
-exit();
-    $belepes = mysqli_query($db_kapcs, 'SELECT `recid`, `nev`, `flags`, `jog`, `van_jelszo` FROM `'.get_db_tabla().'login` WHERE `nev`=\''.$_POST['nev'].'\' AND `jelszo`=\''.$_POST['jelszo'].'\' AND `helyesseg` = \''.$helyesseg.'\'');
-    if(mysqli_num_rows($belepes)){
-        $sor_belepes = mysqli_fetch_assoc($belepes);
-
-
-        $_SESSION[get_db_tabla().'user']    = $sor_belepes['nev'];
-        $_SESSION[get_db_tabla().'user_id'] = $sor_belepes['recid'];
-        $_SESSION[get_db_tabla().'jog']     = $sor_belepes['jog'];
-        $_SESSION[get_db_tabla().'rights']  = str_split($sor_belepes['flags']);
-
-        if(!$_SESSION['kert_url']){
-            $_SESSION['kert_url'] = get_domain().'/'.get_admin();
-        }
-
-        if( $_POST['ajax'] ) {
-            echo json_encode(array(
-                'statusz' => 'siker'
-            ));
-        } else {
-            $adatbazis_kapcsolat -> bezar();
-            header('Location:http://'.$_SESSION['kert_url']);
-            exit();
-        }
-
-    }else{
-
-        if( $_POST['ajax'] ) {
-            echo json_encode(array(
-                'statusz' => 'hiba'
-            ));
-        } else {
-            $adatbazis_kapcsolat -> bezar();
-            header('Location:index.php?hiba');
-            exit();
-        }
-
+    } else {
+        $adatbazis_kapcsolat -> bezar();
+        header('Location: index.php?hiba');
+        exit();
     }
 }
 
@@ -251,7 +224,7 @@ exit();
 if(isset($_GET['kilep'])){
     unset($_SESSION[get_db_tabla().'user']);
     unset($_SESSION[get_db_tabla().'user_id']);
-    unset($_SESSION[get_db_tabla().'jog']);
+    unset($_SESSION['user_adatok']);
     unset($_SESSION[get_db_tabla().'rights']);
 
     $adatbazis_kapcsolat -> bezar();

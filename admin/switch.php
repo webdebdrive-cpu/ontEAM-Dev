@@ -221,6 +221,13 @@ foreach($akt_tomb as $ertek){
             $mezok .= $ertek['megn'];
         break;
 
+		case 'info':
+            $mezok .= nl2('<div class="dtr">
+                              <div class="dtc form_bal"><span>'.$ertek['megn'].'</span></div>
+                              <div class="dtc form_jobb"><input type="text" name="'.$ertek['name'].'" class="oriasi" value="'.$ertek['value'].'" disabled="disabled"></div>
+                          </div>');
+        break;
+
 		case 'jsfile':
 
             //Csak kép
@@ -416,6 +423,80 @@ foreach($akt_tomb as $ertek){
             if($ertek['alert']){
                 $html .= ' *';
             }
+
+            //Összevonások lekezelése és tartalom összefűzése
+            if(!$osszevon_flag){
+                $mezok .= nl2("
+                                <div class=\"dtr\">
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
+                                    <div class=\"dtc form_jobb\">
+                            ");
+            }else{
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+            }
+
+            $mezok .= $html;
+
+            if($ertek['osszevon']){
+                $osszevon_flag = 1;
+            }else{
+                $osszevon_flag = 0;
+                $mezok .= "</div></div>";
+            }
+        break;
+
+        case 'select_felh_telephely':
+            /* Telephelyek lekérdezése */
+            $select_felh_telephely = array();
+            array_push($select_felh_telephely, array('name' => '- Válassz -', 'value' => '' ));
+
+            /* Ha új sort szúrunk be, akkor a SESSION-ből vesszük ki a loginnevet, ha már szerkesztés alatt vagyunk, akkor pedig adatbázibsból */
+            $loginNev = $sor['insert_usr'];
+            if( isset($_GET['uj']) ) {
+                $loginNev = $_SESSION[get_db_tabla().'user'];
+            }
+
+            /* Kapcsolódó tábla adatai */
+            $telephely_kapcs = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', 'nev='.$loginNev, '', '');
+
+            if( $telephely_kapcs ) {
+                $telephely_kapcs = adatbazis2tomb($telephely_kapcs, 'telephely_id');
+
+                $telephelyek = $adatbazis_kapcsolat -> select('id recid nev', 'telephely', "`id` IN (".implode(',', $telephely_kapcs).")", 'nev');
+                foreach($telephelyek as $telephely) {
+                    if( count($telephelyek) == 1 ) {
+                        $sor['telephely_id'] = $telephely['id'];
+                        $ertek['disabled'] = true;
+                    }
+
+                    array_push($select_felh_telephely, array('name' => $telephely['nev'], 'value' => $telephely['id'] ));
+                }
+            }
+
+            if( $ertek['alert'] ) {
+                $ertek['class'] .= ' csillag';
+            }
+
+            $input = new Select($select_felh_telephely, $sor['telephely_id']);
+            $input -> cssClass = $ertek['class'];
+            $input -> disabled = $ertek['disabled'];
+            $input -> id       = $ertek['name'];
+            $input -> name     = $ertek['name'];
+            $input -> naptar   = $ertek['naptar'];
+            $input -> onblur   = $ertek['onblur'];
+            $input -> onclick  = $ertek['onclick'];
+            $input -> onfocus  = $ertek['onfocus'];
+            $input -> onchange = $ertek['onchange'];
+            $input -> style    = $ertek['style'];
+
+            if($ertek['i']){
+                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
+            }
+
+            //Ezt csak akkor aktiváld, ha alapértelmezett értéket szeretnél neki definiálni, de VIGYÁZZ!, a $sor['VALAMI']-t se írja felül, hisz a konstruktornak ez ad értéket! Pl. így: if(!$ertek['value']){ $ertek['value'] = $sor['VALAMI']; }
+            //$input -> value    = $ertek['value'];
+
+            $html = $input -> getHtml();
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
@@ -844,6 +925,7 @@ foreach($akt_tomb as $ertek){
             $input -> onclick       = $ertek['onclick'];
             $input -> onfocus       = $ertek['onfocus'];
             $input -> onkeyup       = $ertek['onkeyup'];
+            $input -> onchange      = $ertek['onchange'];
             $input -> style         = $ertek['style'];
             $input -> placeholder   = $ertek['placeholder'];
             $input -> autocomplete  = 'off';
@@ -888,8 +970,9 @@ foreach($akt_tomb as $ertek){
                 $csoport_where = ' and csoport='.$ertek['csoport'];
             }
 
+            /* Lekérdezzük a külső tábla értékét */
             $kulso_ertek = $adatbazis_kapcsolat->s($ertek['listaz'], $ertek['tabla'], $ertek['oszlop_keres'].'='.$kulso_val.$csoport_where, '', '1');
-            
+
             if( $kulso_ertek ) {
                 $input -> value = $kulso_ertek[0][$ertek['listaz']];
             }
@@ -906,6 +989,11 @@ foreach($akt_tomb as $ertek){
                 $csoport = $ertek['csoport'];
             }
 
+            $id_kiir = 'recid';
+            if( $ertek['id_kiir'] ) {
+                $id_kiir = $ertek['id_kiir'];
+            }
+
             $html .= nl2('
                 <script>
                     $(document).ready(function() {
@@ -915,7 +1003,8 @@ foreach($akt_tomb as $ertek){
                             \'oszlop_keres\'    : \''.$ertek['oszlop_keres_autocomp'].'\',
                             \'oszlop_listaz\'   : \''.$ertek['listaz'].'\',
                             \'rkat\'            : '.$rkat.',
-                            \'csoport\'         : '.$csoport.'
+                            \'csoport\'         : '.$csoport.',
+                            \'id_kiir\'         : \''.$id_kiir.'\'
                         });
                     });
                 </script>

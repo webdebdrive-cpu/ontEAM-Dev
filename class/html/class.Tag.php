@@ -4,7 +4,7 @@
 * Ha megadjuk milyen tag-et szeretnénk (pl. b, div), akkor a getHtml()-el ki is generálhatuk az
 * ezeknek nem kell külön osztályt készíteni. Ez csak olyan tag-ekre vonatkozik, melye nem rengelkeznek
 * speciális attribútumokkal, tulajdonságokkal és van záró párjuk is (nem rövidítve használja)
-* Utóbbi esetben létrehoznásnál 2. paraméterként megadható a tag-ek közé szánt taratlom is 
+* Utóbbi esetben létrehoznásnál 2. paraméterként megadható a tag-ek közé szánt taratlom is
 *
 * @author www.WebDeb.hu - Bollmann Krisztián 2009.08.25
 */
@@ -13,67 +13,67 @@ class Tag{
 
     /** @var string - az input css-osztálya*/
     public $cssClass     = '';
-    
+
     /** @var string - disabled*/
     public $disabled     = '';
 
     /** @var string - az input id-je*/
     public $id           = '';
-    
+
     /** @var string - az input css-osztálya*/
     public $name         = '';
-    
+
     /** @var string - onfocus érték*/
     public $onfocus      = '';
-    
+
     /** @var string - onblur érték*/
     public $onblur       = '';
-    
+
     /** @var string - onclick érték*/
     public $onclick      = '';
-    
+
     /** @var string - ondblclick érték*/
     public $ondblclick   = '';
-    
+
     /** @var string - onkeydown érték*/
     public $onkeydown    = '';
-    
+
     /** @var string - onkeypress érték*/
     public $onkeypress   = '';
-    
+
     /** @var string - onkeyup érték*/
     public $onkeyup      = '';
-    
+
     /** @var string - onmousedown érték*/
     public $onmousedown  = '';
-    
+
     /** @var string - onmousemove érték*/
     public $onmousemove  = '';
-    
+
     /** @var string - onmouseout érték*/
     public $onmouseout   = '';
-    
+
     /** @var string - onmouseover érték*/
     public $onmouseover  = '';
-    
+
     /** @var string - placeholder értéke */
     public $placeholder  = '';
-    
+
     /** @var string - input utáni tartalom pl.: Ft, vagy ikon kép stb..*/
     public $post         = '';
-        
+
     /** @var string - input előtti tartalom pl.: http://*/
     public $pre          = '';
-    
+
     /** @var string - style érték*/
     public $style        = '';
-    
+
     /** @var string - tartalom, ami a teg közé megy*/
     public $tartalom    = '';
-    
+
     /** @var string - az input title-ja*/
     public $title        = '';
-    
+
     /** @var string - az input value-ja*/
     public $value        = '';
 
@@ -81,7 +81,7 @@ class Tag{
 
     /** @var string - ha általános teg, akkor ezt itt tároljuk le és a getHtml innen olvasa kiíráshoz*/
     private $tag         = '';
-    
+
     /**
     * @desc Konstruktor
     *
@@ -92,16 +92,16 @@ class Tag{
         $this -> tag      = $tag;
         $this -> tartalom = $tartalom;
     }
-    
+
     /**
     * @desc Input tulajdonságait rajtak össze (id, name, style, onmouse..)
     *
     * @return string -  Inputtulajdonságok kódja
     */
    	protected function getAttributumok(){
-        
+
         $return = '';
-        
+
         if($this -> tag == 'textarea' ){ $return .= ' rows="1" cols="1"'; }
         if($this -> alert       ){ $return .= ' data-alert="'   .$this -> alert         .'"'; }
         if($this -> autocomplete){ $return .= ' autocomplete="' .$this -> autocomplete  .'"'; }
@@ -111,6 +111,7 @@ class Tag{
         if($this -> id          ){ $return .= ' id="'           .$this -> id            .'"'; }
         if($this -> onblur      ){ $return .= ' onblur="'       .$this -> onblur        .'"'; }
         if($this -> onclick     ){ $return .= ' onclick="'      .$this -> onclick       .'"'; }
+        if($this -> onchange    ){ $return .= ' onchange="'     .$this -> onchange      .'"'; }
         if($this -> ondblclick  ){ $return .= ' ondblclick="'   .$this -> ondblclick    .'"'; }
         if($this -> onfocus     ){ $return .= ' onfocus="'      .$this -> onfocus       .'"'; }
         if($this -> onkeydown   ){ $return .= ' onkeydown="'    .$this -> onkeydown     .'"'; }
@@ -124,12 +125,12 @@ class Tag{
         if($this -> style       ){ $return .= ' style="'        .$this -> style         .'"'; }
         if($this -> title       ){ $return .= ' title="'        .$this -> title         .'"'; }
         if($this -> value       ){ $return .= ' value="'        .$this -> value         .'"'; }
-        
-        
+
+
         return $return;
-        
+
     }
-    
+
     /**
     * @desc Általános tageknél (<b></b>, <>). Ha nincs megadva tartalom, úgy a {TARTALOM} sablon használja
     *

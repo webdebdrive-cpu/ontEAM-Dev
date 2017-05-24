@@ -219,7 +219,7 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, '', $megn, $menu_nev_tobb
 $menu_nev        = 'Bejelentések';
 $menu_nev_kis    = 'bejelentések';
 $menu_nev_tobbes = 'Bejelentések';
-$megn            = 'bejelentesek';
+$megn            = 'bejelentes';
 $aloldalak       = array($megn.'.php');
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
 if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
@@ -514,7 +514,7 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 $self = basename(self());
 
 $torol_dis = '';
-if( (isset($_GET['modosit']) && !isset($_GET['szerkeszt'])) || !isset($_GET['modosit']) ) {
+if( !isset($_GET['modosit']) ) {
     $torol_dis = ' disabled';
 }
 
@@ -553,7 +553,7 @@ $header_html .= str_replace(
 echo $header_html.fajlbol_olvas('../sablon/admin/js_beagyazasok.html', true);
 
 if( $_SESSION[get_db_tabla().'user_id'] ) {
-    $felirat = '<h1>Kérjük azonosítsd magad</h1>';
+    $felirat = '<h1>Bejelentkezés</h1>';
 
     echo str_replace(
         array('{FELIRAT}', '{SELF}'),
