@@ -30,21 +30,25 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             $where_sql = ' WHERE '.$where_sql;
 
             if( $_GET['rkat'] ) {
-                $where_sql .= " AND `rkat` = '".$_GET['rkat']."'";
+                $where_sql .= " AND `rkat` = '".$_GET['rkat']."' AND ";
             }
         }
 
         if( $_GET['value'] == '*' ) {
             if( $_GET['rkat'] ) {
-                $where_sql = " WHERE `rkat` = '".$_GET['rkat']."'";
+                $where_sql = " WHERE `rkat` = '".$_GET['rkat']."' AND ";
             } else {
                 $where_sql = '';
             }
         }
 
+        if( !$where_sql ) {
+            $where_sql = ' WHERE ';
+        }
+        
         //DL lista elemeinek előállítása
         $return = '<ul>';
-        $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`, `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'` '.$where_sql.' AND `csoport` = 19 ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
+        $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`, `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'` '.$where_sql.'`csoport` = 19 ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
         while( $sor = mysqli_fetch_array($lekerdez) ) {
             $return .= '<li data-recid="'.$sor['recid'].'">';
 

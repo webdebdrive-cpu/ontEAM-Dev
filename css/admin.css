@@ -2015,3 +2015,33 @@ input.ora_perc{
 #szerk_form{
     margin-bottom: 5rem;
 }
+
+div.szamlaLapozas {
+    padding: 1rem 1rem 1rem 1rem;
+}
+
+div.szamlaLapozas.fent {
+    border-bottom: 0.1rem solid #d6d6d6;
+}
+
+div.szamlaLapozas.fent:empty {
+    border-bottom: none;
+}
+
+div.szamlaLapozas:empty {
+    padding: 0rem 0rem 0rem 0rem;
+}
+
+div.szamlaLapozas div.lapoz {
+    font-size: 1.4rem;
+    height: 2.4rem;
+    margin: 0 0.3rem 0 0.2rem;
+    padding: 0.3rem 0rem 0rem 0rem;
+    text-align: center;
+    min-width: 2.4rem;
+}
+
+div.szamlaLapozas div.lapoz.pontok {
+    border-color: transparent!important;
+    min-width: 0.1rem;
+}

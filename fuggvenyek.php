@@ -705,16 +705,16 @@ function bejelentesLista( $bejegyzesek, $tabla ) {
 
 function utemezett_feladatok( $bejegyzesek, $tabla ) {
     global $adatbazis_kapcsolat;
-    
+
     if( $bejegyzesek ) {
-        
+
         $naptar_dn = 'dn';
         $lsita_dn  = '';
         if (isset($_GET['naptar'])) {
             $naptar_dn = '';
             $lsita_dn  = ' dn';
         }
-        
+
         $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.'">';
 
         $i = 1;
@@ -991,7 +991,7 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla ) {
             $statusz = '';
             $szinkod = '';
             if( $bsz['statusz'] ) {
-                $statusz_sor = $adatbazis_kapcsolat->s('recid nev szinkod', 'statusz', 'recid='.$bsz['statusz'], '', '1');
+                $statusz_sor = $adatbazis_kapcsolat->s('recid nev szinkod', 'bsz_statusz', 'recid='.$bsz['statusz'], '', '1');
 
                 if( $statusz_sor ) {
                     $statusz_sor = $statusz_sor[0];

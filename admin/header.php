@@ -235,7 +235,7 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $
 $menu_nev        = 'Munkák';
 $menu_nev_kis    = 'munkák';
 $menu_nev_tobbes = 'Munkák';
-$megn            = 'munkak'; 
+$megn            = 'munkak';
 $aloldalak = array(
             $megn.'.php',
             'utemezett_feladatok.php',
@@ -498,7 +498,44 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $where = "`torolve` = '0'";
     }
 
-    $tartBal  = szamla_lista( $tabla, $_OPTS['select'], $where, $_OPTS['order'], '' );
+    //Lapozás előkészítése
+    require_once('../class/class.Lapozo.php');
+
+    if(!$_GET['oldal']){
+        $_GET['oldal'] = 1;
+    }
+
+    $_GET['epo'] = 50;
+
+    $bejegyzesek = $adatbazis_kapcsolat->s($_OPTS['select'], $tabla, $where, $_OPTS['order'], '');
+
+    $lapozo = new Lapozo;
+    $lapozo -> elem_osszes = count($bejegyzesek);
+    $lapozo -> mind_var         = ''; //'Összes elem kilistázása' változó neve. Ha üres akkor nincs össsez oldal megjelenítés. Alapértelmezetten 'osszes'
+    //$lapozo -> epo_var         = 'epo';    //Elem per oldal változó neve
+    //$lapozo -> oldal_var       = 'oldal';  //Oldal változó neve
+    $lapozo -> kozep_meret     = 5;        //Nagy oldalszám esetén a középső intervallum mérete
+    //$lapozo -> max_fix_oldal   = 10;        //Ha a megadott számtól több oldal van, akkor jelenik meg az előző/követekző felirat
+    //$lapozo -> epo_array       = array(50, 100, 150);  //Elem per oldal mennyiségek ha választhatóak, akkor egy tömbbyi interrel adhatjuk át az opciókat
+    //$lapozo -> mind_text       = 'Összes oldal';  //pldalszámok mellett a "minden elem kilistázásának" felirata (ha $mind_var üres string akkor nem jelenik ez meg)
+    //$lapozo -> elozo_title     = '« Előző oldal';        //'Előző' felirat, link title-jéhez
+    //$lapozo -> kovet_title     = 'Következő oldal »';    //'Következő' felirat, link title-jéhez
+    //$lapozo -> kozep_meret     = 'Aktuális oldal';       //'Aktuális oldal' felirat, link title-jéhez
+
+    $utvonal = '../sablon/admin/';
+    $lapozo -> sablon_elozo       = $utvonal.'lapozas_elozo.html';
+    $lapozo -> sablon_kovetkezo   = $utvonal.'lapozas_kovet.html';
+    $lapozo -> sablon_oldalak     = $utvonal.'lapozas_oldalak.html';
+    $lapozo -> sablon_option      = $utvonal.'lapozas_option.html';
+    $lapozo -> sablon_pontok      = $utvonal.'lapozas_pontok.html';
+    $lapozo -> sablon_select      = $utvonal.'lapozas_select.html';
+
+    /* Számolás */
+    $lapozo -> lapozas();
+
+    $lapozas = $lapozo -> kiir();
+
+    $tartBal  = szamla_lista( $tabla, $_OPTS['select'], $where, $_OPTS['order'], $lapozo -> getLimit() );
     $keresodn = '';
 
     if( isset($_GET['szakterulet']) ) {
@@ -556,8 +593,8 @@ if( $_SESSION['nincs_jelsz'] ) {
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CSS}', '{CEGNEV}', '{MENUK}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{SELF}', '{TOROL_DIS}', '{SZERK_DIS}', '{UJ_DIS}', '{BELEPVE}', '{UJ_LINK}'),
-    array( $css,    get_nev(),  $menuk,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $self,    $torol_dis,    $szerk_dis,    $uj_dis,    $belepve,    $uj_link  ),
+    array('{CSS}', '{CEGNEV}', '{MENUK}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{SELF}', '{TOROL_DIS}', '{SZERK_DIS}', '{UJ_DIS}', '{BELEPVE}', '{UJ_LINK}', '{LAPOZAS}'),
+    array( $css,    get_nev(),  $menuk,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $self,    $torol_dis,    $szerk_dis,    $uj_dis,    $belepve,    $uj_link,    $lapozas  ),
     $header_sablon
 );
 

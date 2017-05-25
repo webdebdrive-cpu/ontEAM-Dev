@@ -28,6 +28,11 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
+if( $_POST ) {
+    echo '<pre style="font-size: 1.4rem">', print_r($_POST), '</pre>';
+    exit();
+}
+
 //Több kép menedzseléséhez
 $tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
@@ -373,11 +378,11 @@ if($gyorskereso_text){
             $idobelyeg = $indulo+($i*60*60*24);
             $fejlec .= '<th>'.date('Y-m-d', $idobelyeg).'<br>'.het_napja( date('w', $idobelyeg) ).'</th>';
         }
-        
+
         //Hét beoszás sorai
         $sorok = '';
         for($i=0; $i<24; $i++){
-            
+
             $napok = '';
             for($j=0; $j<6; $j++){
                 $napok .= '<td></td>';
@@ -389,7 +394,7 @@ if($gyorskereso_text){
                 </tr>
                 ');
         }
-        
+
         $szamla_html .= nl2('
             <table class="csikos">
             <tr>
