@@ -10,7 +10,7 @@
 
 //Select tömb előállítása a termékekhez (egy szint mélység esetére)
 $select_kat = array();
-array_push($select_kat, array('name' => '- Válassz -', 'value' => '' ));
+array_push($select_kat, array('name' => '- Válasszon -', 'value' => '' ));
 $kat = $adatbazis_kapcsolat -> select('id nev', 'kat', '', 'nev');
 foreach($kat as $kat_sor){
 	array_push($select_kat, array('name' => $kat_sor['nev'], 'value' => $kat_sor['id'] ));
@@ -21,7 +21,7 @@ foreach($kat as $kat_sor){
 /*
 //Rekurzív függvény a kategóriák bejárására: tetszőleges mélység bejárásához
 $select_kat = array();
-array_push($select_kat, array('name' => '- Válassz -', 'value' => '' ));
+array_push($select_kat, array('name' => '- Válasszon -', 'value' => '' ));
 
 $kat = $adatbazis_kapcsolat -> select('id nev', 'kat', 'szulo=\'\'', 'nev');
 foreach( $kat as $kat_sor ){
@@ -54,7 +54,7 @@ function get_alkat($kat, $melyseg){
 /*
 //Két-három szint mélységű select esetére (a rekurzív lehet jobb!)
 $select_kat = array();
-array_push($select_kat, array('name' => '- Válassz -', 'value' => '' ));
+array_push($select_kat, array('name' => '- Válasszon -', 'value' => '' ));
 
 $kat = $adatbazis_kapcsolat -> select('id nev', 'kat', 'szulo=\'\'', 'nev');
 foreach( $kat as $kat_sor ){
@@ -81,7 +81,7 @@ foreach( $kat as $kat_sor ){
 
 //Select tömb előállítása manuálisan:
 $select_VALAMI = array();
-array_push($select_VALAMI, array('name' => '- Válassz -', 'value' => ''));
+array_push($select_VALAMI, array('name' => '- Válasszon -', 'value' => ''));
 array_push($select_VALAMI, array('label' => 'Számok'));
 array_push($select_VALAMI, array('name'  => '1', 'value' => '1x'));
 array_push($select_VALAMI, array('name'  => '2', 'value' => '2x'));
@@ -90,40 +90,63 @@ array_push($select_VALAMI, array('label' => 'optiongroup_bezar'));
 
 /* Fizetési módok */
 $select_fiz_mod = array();
-array_push($select_fiz_mod, array('name' => '- Válassz -',    'value' => ''));
+array_push($select_fiz_mod, array('name' => '- Válasszon -',    'value' => ''));
 array_push($select_fiz_mod, array('name'  => 'Utalás',      'value' => 'Utalás'));
 array_push($select_fiz_mod, array('name'  => 'Készpénz',    'value' => 'Készpénz'));
 array_push($select_fiz_mod, array('name'  => 'Bankkártya',  'value' => 'Bankkártya'));
 
 /* Áfa típus */
 $select_afa_tipus = array();
-array_push($select_afa_tipus, array('name' => '- Válassz -',    'value' => ''));
+array_push($select_afa_tipus, array('name' => '- Válasszon -',    'value' => ''));
 array_push($select_afa_tipus, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 array_push($select_afa_tipus, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 
 /* Eszköz csoport */
 $select_eszk_csop = array();
-array_push($select_eszk_csop, array('name' => '- Válassz -',    'value' => ''));
+array_push($select_eszk_csop, array('name' => '- Válasszon -',    'value' => ''));
 array_push($select_eszk_csop, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 array_push($select_eszk_csop, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 
 /* Címzett */
 $select_cimzett = array();
-array_push($select_cimzett, array('name' => '- Válassz -',    'value' => ''));
+array_push($select_cimzett, array('name' => '- Válasszon -',    'value' => ''));
 array_push($select_cimzett, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 array_push($select_cimzett, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 
 /* Illetékes részleg */
 $select_ill_reszleg = array();
-array_push($select_ill_reszleg, array('name' => '- Válassz -',    'value' => ''));
+array_push($select_ill_reszleg, array('name' => '- Válasszon -',    'value' => ''));
 array_push($select_ill_reszleg, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 array_push($select_ill_reszleg, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 
 //Select tömb előállítása rendszer kategóriákhoz
 $select_rkat = array();
-array_push($select_rkat, array('name' => '- Válassz -', 'value' => '' ));
+array_push($select_rkat, array('name' => '- Válasszon -', 'value' => '' ));
 $rkat = $adatbazis_kapcsolat -> select('recid nev', 'rendszer_kat', '', 'nev');
 foreach($rkat as $rkat_sor){
 	array_push($select_rkat, array('name' => $rkat_sor['nev'], 'value' => $rkat_sor['recid'] ));
 }
+
+//Select tömb Ütemezés típushoz
+$select_cikltip = array();
+array_push($select_cikltip, array('name' => '- Válasszon -', 'value' => '' ));
+array_push($select_cikltip, array('name'  => 'Határidős',  'value' => 'hatar'));
+array_push($select_cikltip, array('name'  => 'Naponta',    'value' => 'nap'));
+array_push($select_cikltip, array('name'  => 'Hetente',    'value' => 'het'));
+array_push($select_cikltip, array('name'  => 'Havonta',    'value' => 'ho'));
+
+//Select tömb Ütemezés típushoz
+$select_honapjan = array();
+array_push($select_honapjan, array('name' => '- Válasszon -', 'value' => '' ));
+array_push($select_honapjan, array('name' => 'Első',   'value' => 'elso'));
+
+//Select tömb Ütemezés típushoz
+$select_ho_ism = array();
+array_push($select_ho_ism, array('name' => '- Válasszon -', 'value' => '' ));
+array_push($select_ho_ism, array('name' => 'Ismétlődés',   'value' => 'elso'));
+
+//Select tömb Ütemezés típushoz
+$select_ho_soran = array();
+array_push($select_ho_soran, array('name' => '- Válasszon -', 'value' => '' ));
+array_push($select_ho_soran, array('name' => 'Során',   'value' => 'elso'));
 //{KOVETKEZO_SELECT}

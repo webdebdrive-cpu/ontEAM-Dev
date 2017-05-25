@@ -50,7 +50,7 @@ div.menu{
 	padding: 0;
     position: absolute;
     top: 4rem;
-    z-index: 21;
+    z-index: 10000;
 }
 
 

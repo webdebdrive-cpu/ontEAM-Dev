@@ -9,9 +9,18 @@
             <script>
                 $(document).ready(function () {
                     $('.datepicker').datetimepicker({
+                        timepicker          : false,
                         mask                : true,
                         format              :'Y.m.d',
                         validateOnBlur      : false,
+                        onChangeDateTime    : function(){ $('#mehet_gomb').addClass('gombb_alert'); }
+                    });
+                    $('.ora_perc').datetimepicker({
+                        datepicker          : false,
+                        mask                : true,
+                        format              :'H:i',
+                        validateOnBlur      : false,
+                        step                : 10,
                         onChangeDateTime    : function(){ $('#mehet_gomb').addClass('gombb_alert'); }
                     });
                 });

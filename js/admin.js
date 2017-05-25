@@ -624,6 +624,15 @@ $(function() {
 
         return false;
     });
+
+
+    /* Ciklus tipus válétaásakor megfelelő div megjelenítése */
+    $(document).on('change', '.f_cikltip', function() {
+        $('.cikltip').hide();
+        if($('#tipus_'+$(this).val()).length){
+            $('#tipus_'+$(this).val()).show();
+        }
+    });
 });
 
 function obj_gen() {
@@ -1012,6 +1021,17 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
 
     var dfrd1 = $.Deferred();
 
+    /* Naptár megjelenítése */
+    if(page=='utemezett_feladatok.php'){
+        if(muvelet.indexOf('naptar')>=0){
+            $('#naptar').show();
+            $('#szamlaList').hide();
+        }else{
+            $('#naptar').hide();
+            $('#szamlaList').show();
+        }
+    }
+
     if( recid && page ) {
         $('#ajaxfedo').removeClass('dn');
 
@@ -1027,12 +1047,12 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         dfrd1.resolve();
                     });
 
-                    param = get_get(['id', 'modosit', 'naplo', 'dokumentumok', 'szerkeszt', 'szakterulet', 'jogosultsag', 'uj', 'siker', 'szallodak', 'statusz', 'tortenet'], true);
+                    param = get_get(['id', 'modosit', 'naplo', 'dokumentumok', 'szerkeszt', 'szakterulet', 'jogosultsag', 'uj', 'siker', 'szallodak', 'statusz', 'tortenet', 'naptar', 'utemezes', 'akt_nap'], true);
                     if( muvelet != 'uj' ) {
                         if( param.indexOf('?') !== -1 ) {
-                            param += '&id=' + recid + '&' + muvelet;
+                            param += '&id=' + recid + '&' + esamp2es(muvelet);
                         } else {
-                            param = '?id=' + recid + '&' + muvelet;
+                            param = '?id=' + recid + '&' + esamp2es(muvelet);
                         }
 
                         if( szerkeszt ) {
@@ -1061,6 +1081,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
             gombokRejt();
         }).promise();
     }
+    
 }
 
 function ertekFoglalt(originVal, value, tabla, mezo) {
@@ -1210,3 +1231,17 @@ function gepVane() {
         $('#ajaxfedo').addClass('dn');
     });
 }
+
+/* Inline naptárhoz */
+$(document).ready(function () {
+    $('.naptar').datetimepicker({
+        format      : 'Y-m-d',
+        timepicker  : false,
+        inline      : true,
+        lang        : 'hu',
+        onChangeDateTime : function(dp, $input) {
+            var val = $input.val();
+            szamlaBetolt('1', 'utemezett_feladatok.php', 'naptar=1&amp;akt_nap='+val);
+        },
+    });
+});

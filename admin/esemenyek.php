@@ -15,7 +15,8 @@ $_SESSION['ketHasabos'] = array(
     'erteklista.php',
     'login.php',
     'szerepkor.php',
-    'bejelentes.php'
+    'bejelentes.php',
+    'utemezett_feladatok.php',
 );
 
 $tabla = basename(self());
@@ -137,6 +138,23 @@ switch($tabla) {
         /* Default rendezés */
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'ikt_szam';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'utemezett_feladatok.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid id';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('id');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'id';
         }
 
         /* Default rendezési irány */
@@ -376,6 +394,7 @@ if( $user ) {
     $user = $user[0];
 }
 
+//Bejelentések
 $bejelentes_tomb = $akt_tomb = array(
 	array('type' => 'text',            'megn' => 'Iktató szám:',        'name' => 'ikt_szam',      'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'info',            'megn' => 'Név:',                'name' => 'felh_nev',      'value' => $user['teljes_nev']),
@@ -396,6 +415,71 @@ $bejelentes_tomb = $akt_tomb = array(
 
     array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',         'class' => 'check'),
     array('type' => 'checkbox',        'megn' => '',                    'name' => 'telefon',        'class' => 'check', 'post' => ' közvetlenül telepített karbantartónak telefonon bejelentve'),
+
+	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+
+//Ütemezett feladatok
+$utemezett_feladatok_tomb = $akt_tomb = array( 
+	array('type' => 'text',                     'megn' => 'Feladatszám:',       'name' => 'id',             'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi'),
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',          'name' => 'telephely_id',   'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+    array('type' => 'autocomplete',             'megn' => 'Helyiség:',          'name' => 'obj_id',         'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/><path d="M0 0h24v24H0V0z" fill="none"/></svg></a>'),
+    array('type' => 'autocomplete',             'megn' => 'Gépnév:',            'name' => 'gep_id',         'class' => 'oriasi disableNav', 'tabla' => 'gep', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
+	array('type' => 'text',                     'megn' => 'Feladat:',           'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi'),
+	array('type' => 'checkbox',                 'megn' => 'Hatósági:',          'name' => 'hatosagi', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+	array('type' => 'text',                     'megn' => 'Utoljára ütemezve:', 'name' => 'utnap_d',    'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+	array('type' => 'text',                     'megn' => 'Hatályos:',          'name' => 'hataly_d',   'class' => 'datepicker'),
+	array('type' => 'text',                     'megn' => 'Utolsó esedékesség:','name' => 'utesnap_d',  'class' => 'datepicker'),
+	array('type' => 'text',                     'megn' => 'Riasztás:',          'name' => 'riaszt',         'maxlength' => 250, 'class' => 'pici', 'post' => ' nappal az esedékesség előtt'),
+    array('type' => 'textarea',                 'megn' => 'Leírás:',            'name' => 'hiba_text',      'disabled' => $disabled,    'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
+	array('type' => 'text',                     'megn' => 'Hozzárendelt személyzet:',  'name' => 'szemelyzet_id',         'maxlength' => 250),
+	array('type' => 'text',                     'megn' => 'Ütemezési időszak:', 'name' => 'aktkezd_d', 'class' => 'datepicker', 'osszevon' => 1),
+	array('type' => 'text',                     'megn' => ' - ',                'name' => 'aktvege_d', 'class' => 'datepicker'),
+
+	array('type' => 'html',                     'megn' => '<div class="dtc" style="padding: 1rem 0 1rem 0">'),
+        array('type' => 'select_cikltip',           'megn' => 'Ütemezés típus:',    'name' => 'cikltip', 'class' => 'f_cikltip'),
+	array('type' => 'html',                     'megn' => '</div>'),
+	array('type' => 'html',                     'megn' => '<div class="dtc" style="padding: 1rem 0 1rem 1rem"><fieldset style="width: auto; margin-top: 1rem">'),
+        array('type' => 'text',                     'megn' => '<span style="margin-left: 0.7rem"></span>Esedékes:',         'name' => 'esnap_d',     'class' => 'datepicker'),
+        
+        //Naponta
+        array('type' => 'html',                     'megn' => nl2('<div id="tipus_nap" style="padding: 0" class="dn cikltip">')),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklnap',       'pre' => 'Ismétlődik ', 'post' => ' naponta', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value);'),
+        array('type' => 'checkbox',                 'megn' => '',                   'name' => 'hetkoz_kent',    'post' => ' Ismétlődik minden hétköznap'),
+        array('type' => 'html',                     'megn' => nl2('</div>')), 
+    
+        //Hetente
+        array('type' => 'html',                     'megn' => nl2('<div id="tipus_het" style="padding: 0" class="dn cikltip">')),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklhet',        'pre' => 'Ismétlődik ', 'post' => ' hetente a következő napokon:', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value);'),
+        array('type' => 'checkbox',                 'megn' => '',                   'name' => 'h',      'post' => '<label for="h"  class="link"> hétfő</label>',     'osszevon' => 1),
+        array('type' => 'checkbox',                 'megn' => '',                   'name' => 'k',      'post' => '<label for="k"  class="link"> kedd</label>',      'osszevon' => 1),
+        array('type' => 'checkbox',                 'megn' => '',                   'name' => 's',      'post' => '<label for="s"  class="link"> szerda</label>',    'osszevon' => 1),
+        array('type' => 'checkbox',                 'megn' => '',                   'name' => 'cs',     'post' => '<label for="cs" class="link"> csütörtök</label>', 'osszevon' => 1),
+        array('type' => 'checkbox',                 'megn' => '',                   'name' => 'p',      'post' => '<label for="p"  class="link"> péntek</label>',    'osszevon' => 1),
+        array('type' => 'checkbox',                 'megn' => '',                   'name' => 'sz',     'post' => '<label for="sz" class="link"> szombat</label>',   'osszevon' => 1),
+        array('type' => 'checkbox',                 'megn' => '',                   'name' => 'v',      'post' => '<label for="v"  class="link"> vasárnap</label>'),
+        array('type' => 'html',                     'megn' => nl2('</div>')), 
+    
+        //Havonta
+        array('type' => 'html',                     'megn' => nl2('<div id="tipus_ho" style="padding: 0" class="dn cikltip">')),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklho',     'pre' => 'Ismétlődik ', 'post' => ' havonta a hónap ', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value);', 'osszevon' => 1),
+        array('type' => 'select_honapjan',          'megn' => '',                   'name' => 'honapjan',                               'post' => ' napján'),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklho2',    'pre' => 'Ismétlődik ', 'post' => ' havonta a ', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value);', 'osszevon' => 1),
+        array('type' => 'select_ho_ism',            'megn' => '',                   'name' => 'honapjan',     'osszevon' => 1),
+        array('type' => 'select_ho_soran',          'megn' => '',                   'name' => 'honapjan', 'post' => ' során'),
+        array('type' => 'html',                     'megn' => nl2('</div>')), 
+    
+	array('type' => 'html',                     'megn' => '</fieldset></div>'),
+    
+	array('type' => 'text',                     'megn' => 'Elvégzési idő:',     'name' => 'elv_ido_tol', 'class' => 'ora_perc', 'osszevon' => 1, 'post' => '-'),
+	array('type' => 'text',                     'megn' => '',                   'name' => 'elv_ido_ig',  'class' => 'ora_perc'),
+
+    
+
+    array('type' => 'checkbox',        'megn' => 'Aktív',              'name' => 'aktiv',         'class' => 'check'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );

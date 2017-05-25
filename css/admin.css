@@ -1963,3 +1963,55 @@ ul.telephelyek li.alkat:only-child:after {
     left: 0;
     width: 0.1rem;
 }
+#naptar{
+    margin: auto;
+    margin-top: 4rem;
+    width: 24.3rem;
+}
+
+table.csikos{
+    border: 0.1rem solid #C9D3DD;
+}
+
+table.csikos tr{
+    transition: all ease-in-out 0.2s;
+}
+
+table.csikos tr:nth-of-type(2n){
+    background: #ECEDEE;
+}
+
+table.csikos th{
+    background: #DDE8F3;
+    border-right: 0.1rem solid #004990;
+    font-weight: bold;
+    padding: 1rem 1.5rem;
+}
+
+table.csikos td{
+    padding: 1rem 1.5rem;
+    border-right: 0.1rem solid #004990;
+}
+table.csikos td:first-of-type{
+    font-weight: bold;
+}
+table.csikos td:last-of-type, table.csikos th:last-of-type{
+    border-right: 0.1rem solid #C9D3DD;
+}
+
+table.csikos tr.link:hover{
+    background: #E6F1F8;
+    transition: all ease-in-out 0.2s;
+}
+
+input.datepicker{
+    width: 8.4rem;
+}
+
+input.ora_perc{
+    width: 5.2rem;
+}
+
+#szerk_form{
+    margin-bottom: 5rem;
+}

@@ -3,7 +3,7 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
     $('#input_idja_de_akar_class_is_lehet').datetimepicker();
     $('#input_idja_de_akar_class_is_lehet').datetimepicker({
         paraméterezhető... a kódban a nyelvek után találod, hogy mikkel. Gyakorabban használt paraméterek:
-        
+        datepicker: false,          // Dátum kikapcsolása
         timepicker: false,          // Óra perc kikapcsolása
         inline: true,               // Popup helyett inline
         dayOfWeekStart : 1,         // Melyik nappal kezdődjön a hét

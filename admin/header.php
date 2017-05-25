@@ -186,9 +186,7 @@ if( $_GET['rkat'] || $_SESSION['rendszerkat'] ) {
 
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
 if(basename(self())==$megn.'.php' && !$_GET['rkat']){ $oldalNev = $menu_nev; }
-
 if(basename(self())=='szallito.php'     && isset($_GET['modosit'])){ $navi = 'Szállító szerkesztése'; }
-
 if(basename(self())=='szallito.php'      ) { $oldalNev = 'Szállítók'; }
 if(basename(self())=='bejovo_szamlak.php') { $oldalNev = 'Bejövő számlák'; }
 if(basename(self())=='rendszer.php' && !$_GET['rkat']) { $oldalNev = 'Rendszer'; }
@@ -237,12 +235,20 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $
 $menu_nev        = 'Munkák';
 $menu_nev_kis    = 'munkák';
 $menu_nev_tobbes = 'Munkák';
-$megn            = 'munkak';
-$aloldalak       = array($megn.'.php');
+$megn            = 'munkak'; 
+$aloldalak = array(
+            $megn.'.php',
+            'utemezett_feladatok.php',
+);
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
 if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
 
 $aktmenuk  = '';
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Munkalapok'                 ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Ütemezett feladatok'        ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Rendszeres karbantartás'    ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Eseti fenntartás'           ), $almenu_sablon );
+
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
     $style = ' class="hover"';
@@ -261,6 +267,9 @@ if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev
 if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
 
 $aktmenuk  = '';
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Cikktörzs'  ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Raktár'     ), $almenu_sablon );
+
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
     $style = ' class="hover"';
@@ -279,6 +288,8 @@ if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev
 if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
 
 $aktmenuk  = '';
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Gépek'  ), $almenu_sablon );
+
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
     $style = ' class="hover"';

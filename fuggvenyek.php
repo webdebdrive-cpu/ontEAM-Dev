@@ -661,6 +661,9 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
                 case 'bejelentes':
                     $html = bejelentesLista( $bejegyzesek, $tabla );
                 break;
+                case 'utemezett_feladatok':
+                    $html = utemezett_feladatok( $bejegyzesek, $tabla );
+                break;
             }
         }
 
@@ -693,6 +696,48 @@ function bejelentesLista( $bejegyzesek, $tabla ) {
         }
 
         $html .= '</ul>';
+
+        return $html;
+    }
+
+    return false;
+}
+
+function utemezett_feladatok( $bejegyzesek, $tabla ) {
+    global $adatbazis_kapcsolat;
+    
+    if( $bejegyzesek ) {
+        
+        $naptar_dn = 'dn';
+        $lsita_dn  = '';
+        if (isset($_GET['naptar'])) {
+            $naptar_dn = '';
+            $lsita_dn  = ' dn';
+        }
+        
+        $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.'">';
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                                <span>'.$bsz['id'].'</span>
+                            </a>
+                        </li>';
+
+            $i++;
+        }
+
+        $html .= nl2('</ul>
+            <div id="naptar" class="'.$naptar_dn.'">
+                <div class="naptar"></div>
+            </div>
+            ');
 
         return $html;
     }
@@ -1133,4 +1178,9 @@ function obj_gen() {
     }
 
     return $html;
+}
+
+function het_napja($nap){
+    $napok = array('vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat');
+    return $napok[$nap];
 }
