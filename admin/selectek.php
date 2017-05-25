@@ -130,10 +130,10 @@ foreach($rkat as $rkat_sor){
 //Select tömb Ütemezés típushoz
 $select_cikltip = array();
 array_push($select_cikltip, array('name' => '- Válasszon -', 'value' => '' ));
-array_push($select_cikltip, array('name'  => 'Határidős',  'value' => 'hatar'));
-array_push($select_cikltip, array('name'  => 'Naponta',    'value' => 'nap'));
-array_push($select_cikltip, array('name'  => 'Hetente',    'value' => 'het'));
-array_push($select_cikltip, array('name'  => 'Havonta',    'value' => 'ho'));
+array_push($select_cikltip, array('name'  => 'Határidős',  'value' => 'l'));
+array_push($select_cikltip, array('name'  => 'Naponta',    'value' => 'd'));
+array_push($select_cikltip, array('name'  => 'Hetente',    'value' => 'w'));
+array_push($select_cikltip, array('name'  => 'Havonta',    'value' => 'm'));
 
 //Select tömb Ütemezés típushoz
 $select_honapjan = array();

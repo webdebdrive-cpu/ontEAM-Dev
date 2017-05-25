@@ -81,6 +81,8 @@ function i_u($type, $tabla, $tomb){
                     }
                 }
             }
+            
+        //Bejelentések iktatószám képzése
         } else if( $tabla == 'bejelentes' ) {
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
             $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.date('y'), '', '');
@@ -108,6 +110,37 @@ function i_u($type, $tabla, $tomb){
 
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );
+            
+        //Ütemezett feladatok ID képzése
+        } else if( $tabla == 'utemezett_feladatok' ) {
+            /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
+            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.date('y'), '', '');
+
+            if( $ikt_seq ) {
+                $ikt_seq = $ikt_seq[0];
+
+                /* Sorszám */
+                $sorszam = $ikt_seq['sorszam'];
+
+                /* Sorszám növelés */
+                $sorszam++;
+
+                /* Letároljuk az új sorszámot */
+                $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
+            } else {
+                /* Sorszám */
+                $sorszam = 1;
+
+                $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
+            }
+
+            /* ID formázása */
+            $szalloda = $adatbazis_kapcsolat->s('azon', 'telephely', "`recid`='{$_POST['telephely_id']}'");
+            $szalloda = $szalloda[0]['azon'];
+            $ikt_szam = $szalloda.sprintf('%04d', $sorszam);
+
+            array_push($oszlopok,  'id');
+            array_push($ertekek,   $id );
         }
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
@@ -664,6 +697,9 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
                 case 'utemezett_feladatok':
                     $html = utemezett_feladatok( $bejegyzesek, $tabla );
                 break;
+                case 'cikktorzs':
+                    $html = cikktorzs( $bejegyzesek, $tabla );
+                break;
             }
         }
 
@@ -738,6 +774,36 @@ function utemezett_feladatok( $bejegyzesek, $tabla ) {
                 <div class="naptar"></div>
             </div>
             ');
+
+        return $html;
+    }
+
+    return false;
+}
+
+function cikktorzs( $bejegyzesek, $tabla ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+
+        $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                                <span>'.$bsz['recid'].'</span>
+                            </a>
+                        </li>';
+
+            $i++;
+        }
 
         return $html;
     }

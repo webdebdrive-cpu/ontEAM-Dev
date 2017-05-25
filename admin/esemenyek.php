@@ -17,6 +17,7 @@ $_SESSION['ketHasabos'] = array(
     'szerepkor.php',
     'bejelentes.php',
     'utemezett_feladatok.php',
+    'cikktorzs.php',
 );
 
 $tabla = basename(self());
@@ -146,6 +147,23 @@ switch($tabla) {
         }
     break;
     case 'utemezett_feladatok.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid id';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('id');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'id';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'cikktorzs.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
         $_OPTS['select']    = 'recid id';
 
@@ -479,6 +497,23 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
 	array('type' => 'text',                     'megn' => '',                   'name' => 'elv_ido_ig',  'class' => 'ora_perc'),
 
     array('type' => 'checkbox',                 'megn' => 'Aktív',              'name' => 'aktiv',         'class' => 'check'),
+
+	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+
+//Cikktörzs
+$megnevezes = 'cikktorzs';
+$cikktorzs_tomb = $akt_tomb = array(
+	array('type' => 'text',                     'megn' => 'Név:',                   'name' => 'nev',        'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a nevet!'),
+	array('type' => 'text',                     'megn' => 'Oracle cikkszám:',       'name' => 'oracikkid',  'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki az Oracle cikkszámot!'),
+	array('type' => 'text',                     'megn' => 'Mee:',                   'name' => 'cikkmee',    'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a Mee-t!'),
+    array('type' => 'autocomplete',             'megn' => 'Szakterület:',           'name' => 'szakter_id', 'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'erteklista', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'id_kiir' => 'recid'),
+    array('type' => 'textarea',                 'megn' => 'Megjegyzés:',            'name' => 'leiras',     'disabled' => $disabled,    'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
+    array('type' => 'checkbox',                 'megn' => 'Szerelési segédanyag:',  'name' => 'segeda',     'class' => 'check'),
+    array('type' => 'checkbox',                 'megn' => 'Helyi beszerzésű:',      'name' => 'helyi',      'class' => 'check'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -878,6 +913,7 @@ foreach($postok as $ertek){
 		}
 
 		if(isset($_POST[$ertek['uj']])){
+
 			$u_i_ret  = i_u('insert',$ertek['tabla'],$ertek['tomb']);
 			$errnum   = $u_i_ret['0'];
 			$tabla_id = $u_i_ret['1'];

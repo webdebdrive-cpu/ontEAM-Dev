@@ -262,7 +262,7 @@ $menu_nev        = 'Anyagok';
 $menu_nev_kis    = 'anyagok';
 $menu_nev_tobbes = 'Anyagok';
 $megn            = 'anyagok';
-$aloldalak       = array($megn.'.php');
+$aloldalak       = array('cikktorzs.php');
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
 if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
 
