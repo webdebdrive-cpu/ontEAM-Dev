@@ -276,7 +276,7 @@ $bejovo_szamlak_tomb = $akt_tomb = array(
     //array('type' => 'text',                 'megn' => 'Szolg.központ átvette:','name' => 'szkp_atvette', 'disabled' => $disabled,    'class' => 'kicsi datepicker', 'value' => $datum, 'osszevon' => true),
     //array('type' => 'text',                 'megn' => '',                    'name' => 'szkp_feldolg',   'disabled' => $disabled,    'maxlength' => 250, 'class' => ''),
     array('type' => 'checkbox',             'megn' => 'Kontírozási sablon:', 'name' => 'sablon',         'disabled' => $disabled,    'class' => 'check'),
-    array('type' => 'statusz',              'megn' => 'Státusz:',            'disabled' => $disabled),
+    array('type' => 'bsz_statusz',          'megn' => 'Státusz:',            'disabled' => $disabled),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -659,6 +659,7 @@ if( isset($_GET['szamlaLista']) ) {
     $rend  = $_GET['rend'];
     $irany = $_GET['irany'];
     $tabla = $_GET['tabla'];
+    $ksz   = $_GET['ksz'];
 
     $order = '';
     if( $rend ) {
@@ -683,10 +684,56 @@ if( isset($_GET['szamlaLista']) ) {
             $where = "`torolve` = '0'";
         }
 
-        $szamla_lista = szamla_lista( $tabla, $_OPTS['select'], $where, $order );
+        if( $ksz ) {
+            if( $where ) {
+                $where .= " AND `{$rend}` LIKE '%{$ksz}%'";
+            } else {
+                $where = "`{$rend}` LIKE '%{$ksz}%'";
+            }
+        }
+
+        //Lapozás előkészítése
+        require_once('../class/class.Lapozo.php');
+
+        if(!$_GET['oldal']){
+            $_GET['oldal'] = 1;
+        }
+
+        $_GET['epo'] = 50;
+
+        $bejegyzesek = $adatbazis_kapcsolat->s($_OPTS['select'], $tabla, $where, '', '');
+
+        $lapozo = new Lapozo;
+        $lapozo -> elem_osszes      = count($bejegyzesek);
+        $lapozo -> fajl             = $tabla.'.php';
+        $lapozo -> mind_var         = ''; //'Összes elem kilistázása' változó neve. Ha üres akkor nincs össsez oldal megjelenítés. Alapértelmezetten 'osszes'
+        //$lapozo -> epo_var         = 'epo';    //Elem per oldal változó neve
+        //$lapozo -> oldal_var       = 'oldal';  //Oldal változó neve
+        $lapozo -> kozep_meret      = 5;        //Nagy oldalszám esetén a középső intervallum mérete
+        //$lapozo -> max_fix_oldal   = 10;        //Ha a megadott számtól több oldal van, akkor jelenik meg az előző/követekző felirat
+        //$lapozo -> epo_array       = array(50, 100, 150);  //Elem per oldal mennyiségek ha választhatóak, akkor egy tömbbyi interrel adhatjuk át az opciókat
+        //$lapozo -> mind_text       = 'Összes oldal';  //pldalszámok mellett a "minden elem kilistázásának" felirata (ha $mind_var üres string akkor nem jelenik ez meg)
+        //$lapozo -> elozo_title     = '« Előző oldal';        //'Előző' felirat, link title-jéhez
+        //$lapozo -> kovet_title     = 'Következő oldal »';    //'Következő' felirat, link title-jéhez
+        //$lapozo -> kozep_meret     = 'Aktuális oldal';       //'Aktuális oldal' felirat, link title-jéhez
+
+        $utvonal = '../sablon/admin/';
+        $lapozo -> sablon_elozo       = $utvonal.'lapozas_elozo.html';
+        $lapozo -> sablon_kovetkezo   = $utvonal.'lapozas_kovet.html';
+        $lapozo -> sablon_oldalak     = $utvonal.'lapozas_oldalak.html';
+        $lapozo -> sablon_option      = $utvonal.'lapozas_option.html';
+        $lapozo -> sablon_pontok      = $utvonal.'lapozas_pontok.html';
+        $lapozo -> sablon_select      = $utvonal.'lapozas_select.html';
+
+        /* Számolás */
+        $lapozo -> lapozas();
+
+        $lapozas = $lapozo -> kiir();
+
+        $szamla_lista = szamla_lista( $tabla, $_OPTS['select'], $where, $order, $lapozo -> getLimit() );
 
         if( $szamla_lista ) {
-            echo $szamla_lista;
+            echo '<div class="szamlaLapozas fent clearFix">'.$lapozas.'</div>'.$szamla_lista.'<div class="szamlaLapozas clearFix">'.$lapozas.'</div>';
         } else {
             echo '<ul class="szamla_cont"><li class="szamla_datum"><strong>Nincs találat.</strong></li></ul>';
         }

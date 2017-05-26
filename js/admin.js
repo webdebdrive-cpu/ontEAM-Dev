@@ -758,9 +758,15 @@ function scrollLeptet() {
     }
 }
 
-function bejegyzesekLista( that, irany, rkat ) {
+function bejegyzesekLista( that, irany, rkat, ksz ) {
     if( rkat === undefined ) {
         rkat = '';
+    }
+
+    if( ksz === undefined ) {
+        ksz = '';
+    } else {
+        ksz = $(ksz).val();
     }
 
     var rend  = $(that).val(),
@@ -781,16 +787,21 @@ function bejegyzesekLista( that, irany, rkat ) {
         var lista = $.ajax({
             url : 'esemenyek.php',
             type: 'GET',
-            data: esamp2es('id=' + recid + '&amp;rkat=' + rkat + '&amp;rend=' + rend + '&amp;irany=' + irany + '&amp;tabla=' + tabla + '&amp;szamlaLista=' + new Date().getTime()),
+            data: esamp2es('id=' + recid + '&amp;ksz=' + ksz + '&amp;rkat=' + rkat + '&amp;rend=' + rend + '&amp;irany=' + irany + '&amp;tabla=' + tabla + '&amp;szamlaLista=' + new Date().getTime()),
             success: function(html) {
                 if(html) {
                     $('#tartalomBal').html(html).scrollTop(0);
 
-                    param = get_get(['rend', 'irany'], true);
+                    ksz_kieg = '';
+                    if( ksz ) {
+                        ksz_kieg = '&ksz=' + ksz;
+                    }
+
+                    param = get_get(['rend', 'irany', 'ksz'], true);
                     if( param.indexOf('?') !== -1 ) {
-                        param += '&rend=' + rend + '&irany=' + irany;
+                        param += '&rend=' + rend + '&irany=' + irany + ksz_kieg;
                     } else {
-                        param = '?rend=' + rend + '&irany=' + irany;
+                        param = '?rend=' + rend + '&irany=' + irany + ksz_kieg;
                     }
 
                     window.history.pushState("", "", getHost() + param );
@@ -817,6 +828,10 @@ function bejegyzesekLista( that, irany, rkat ) {
             }
         });
     }
+}
+
+function bejegyzesekKeres() {
+
 }
 
 function getHost() {
@@ -1081,7 +1096,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
             gombokRejt();
         }).promise();
     }
-    
+
 }
 
 function ertekFoglalt(originVal, value, tabla, mezo) {

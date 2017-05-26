@@ -28,8 +28,8 @@ function i_u($type, $tabla, $tomb){
     $oszlopok = array();
     $ertekek  = array();
 
-	$i=0;
-	foreach($tomb as $ertek){//értékek párosítása
+	$i = 0;
+	foreach($tomb as $ertek) { //értékek párosítása
 
 		//Ha alert-es egy mező, és a post-ja üres, akkor hiba! (nem adott meg egy kötelező mezőt)
         if($ertek['alert'] != '' && $_POST[$ertek['name']] == '' && !$ertek['disabled']) {
@@ -38,22 +38,22 @@ function i_u($type, $tabla, $tomb){
 		}
 
         //Ha az adott esemenyek.php tomb sora tartalmaz nevid jelzést, akkor ezt a sort eltároljuk, mert ennek a nevéből gyártuk névid-t
-        if($ertek['nevid'] == true){
+        if($ertek['nevid'] == true) {
 			$nevid = $ertek;
 		}
 
 		//Wysiwyg útvonalszépítés a feltöltött képekre, HA van egyáltalán fájlfeltöltés
-		if($ertek['wysiwyg'] && $ertek['feltoltes']){
+		if($ertek['wysiwyg'] && $ertek['feltoltes']) {
             $_POST[$ertek['name']] = str_replace('wysiwyg/ckfinder/core/connector/php/../../../../../', '', $_POST[$ertek['name']]);
         }
 
         //Ha felhasználó adatlapját módosítjuk, és van megadva jelszó, akkor lecseréljük a mostanit
-        if($tabla=='felh' && $ertek['name']=='reg_jelsz' && $_POST[$ertek['name']]){
+        if($tabla=='felh' && $ertek['name']=='reg_jelsz' && $_POST[$ertek['name']]) {
             $_POST[$ertek['name']] = sha1($_POST[$ertek['name']]); //sha1 helyett más elkódolást is használhatnánk, de ez javasolt. A lényeg, hogy legyen összhangban a class.Felhasznalo konfigjával
         }
 
 		//Ha nem gomb, nem fájl és nem disabled és az oszlopnév sem üres és maga a POST egyáltalán létezik is (ne nullázzunk felül el nem küldött POST miatt)
-		if($ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && !($ertek['disabled'] && $type == 'update'/*Tiltott mezőket beszúrni lehet csak moddolni nem*/) && $ertek['name'] && isset($_POST[$ertek['name']]) ){
+		if($ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && !($ertek['disabled'] && $type == 'update'/*Tiltott mezőket beszúrni lehet csak moddolni nem*/) && $ertek['name'] && isset($_POST[$ertek['name']]) ) {
 			array_push($oszlopok, $ertek['name']);
 			array_push($ertekek, trim($_POST[$ertek['name']]));
 		}
@@ -81,7 +81,7 @@ function i_u($type, $tabla, $tomb){
                     }
                 }
             }
-            
+
         //Bejelentések iktatószám képzése
         } else if( $tabla == 'bejelentes' ) {
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
@@ -110,7 +110,7 @@ function i_u($type, $tabla, $tomb){
 
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );
-            
+
         //Ütemezett feladatok ID képzése
         } else if( $tabla == 'utemezett_feladatok' ) {
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
@@ -144,6 +144,14 @@ function i_u($type, $tabla, $tomb){
         }
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
+
+        //Bejelentések iktatószám képzése
+        if( $tabla == 'bejelentes' ) {
+            $adatbazis_kapcsolat -> i('statusz',
+                array('tabla', 'id', 'stat_id', 'insert_dt',          'insert_usr',                       'update_dt',          'update_usr'                     ),
+                array($tabla,  $id,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'user'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'user'] )
+            );
+        }
 
         /* Kezdeményezett művelet */
         $muvelet = 'A(z) '.$tabla.'-ba új recordot szúrt be a következő azonosítóval: '.$id.'.';

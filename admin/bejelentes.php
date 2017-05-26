@@ -359,7 +359,39 @@ if($gyorskereso_text){
 	//Státusz
     }elseif(isset($_GET['tortenet'])) {
 
-        $szamla_html .= '';
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Státusz</div>
+                </div>
+        ');
+
+        $sorok = $adatbazis_kapcsolat->s('*', 'statusz', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
+
+        if( $sorok ) {
+            foreach($sorok as $sor) {
+                $statusz = $adatbazis_kapcsolat->s('nev szinkod', 'statusz_text', 'recid='.$sor['stat_id'], '', '1');
+
+                $szinkod = '';
+                if( $statusz ) {
+                    $statusz = $statusz[0];
+
+                    $sor['statusz'] = $statusz['nev'];
+
+                    if( $statusz['szinkod'] ) {
+                        $szinkod = ' style="background: '.$statusz['szinkod'].';"';
+                    }
+                }
+
+                $szamla_html .= nl2('
+                    <div class="dtr nSor"'.$szinkod.'>
+                        <div class="dtc">'.$sor['statusz'].'</div>
+                    </div>
+                ');
+            }
+        }
+
+        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

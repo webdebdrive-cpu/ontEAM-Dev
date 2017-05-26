@@ -420,7 +420,7 @@ if($gyorskereso_text){
 
 	//Napló
     }elseif(isset($_GET['naplo'])) {
-
+        
         $szamla_html .= nl2('
             <div class="dt naplo">
                 <div class="dtr nFejlec">
@@ -449,7 +449,7 @@ if($gyorskereso_text){
                     $sor['szallito'] = $szallito['nev'];
                 }
 
-                $statusz = $adatbazis_kapcsolat->s('nev szinkod', 'statusz', 'recid='.$sor['statusz'], '', '1');
+                $statusz = $adatbazis_kapcsolat->s('nev szinkod', 'bsz_statusz', 'recid='.$sor['statusz'], '', '1');
 
                 $szinkod = '';
                 if( $statusz ) {

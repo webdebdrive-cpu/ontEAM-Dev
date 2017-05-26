@@ -63,6 +63,9 @@ class Lapozo{
 	/** @var  string 'Aktuális oldal' felirat, link title-jéhez*/
 	public $akt_oldal_title = 'Aktuális oldal';
 
+    /* Aktuális oldal */
+    public $fajl = '';
+
     private $elem_per_oldal;
     private $akt_oldal;
     public $oldalak_szama;
@@ -121,7 +124,7 @@ class Lapozo{
 
 			//Előző oldal
 			$title = $this -> elozo_title;
-			$link  = $_SERVER['PHP_SELF'].get_get(array($this -> oldal_var, $this -> epo_var, 'unset')).'&amp;'.$this -> oldal_var.'='.$elozo_oldal.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
+			$link  = $this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this -> oldal_var.'='.$elozo_oldal.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
             ;
             /*Ha nem az első oldalon agyunk ÉS az oldlak száma több mint a maximális fix oldal (ha ez utóbbi igaz, akkor már haználjuk az előző következő feliratot, egyébként nem írjuk ki pl.: 2-3 oldalnál felesleges előző következő, elég ha az oldalak számát látjuk, ha mégis ekl akkor a max fix oladt étékét 0-ra kell állítani) ÉS nem az összes oldal módban vagyunk*/
 			if($this->akt_oldal != 1 && $this -> oldalak_szama >= $this -> max_fix_oldal && $_GET[$this -> oldal_var] != $this -> mind_var){
@@ -159,7 +162,7 @@ class Lapozo{
     							$lapozas_oldalak_mivel = array('akt_oldal', $this -> akt_oldal_title, $link, $i);
     							$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
     						}else{
-    							$link = $_SERVER['PHP_SELF'].get_get(array($this -> oldal_var, $this -> epo_var, 'unset')).'&amp;'.$this->oldal_var.'='.$i.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
+    							$link = $this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this->oldal_var.'='.$i.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
     							$lapozas_oldalak_mivel = array('lapozas', $i.'. oldalra lapozás', $link, $i);
     							$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
     						}
@@ -176,7 +179,7 @@ class Lapozo{
     							$lapozas_oldalak_mivel = array('akt_oldal', $this -> akt_oldal_title, $link, $i);
     							$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
     						}else{
-    							$link = $_SERVER['PHP_SELF'].get_get(array($this -> oldal_var, $this -> epo_var, 'unset')).'&amp;'.$this->oldal_var.'='.$i.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
+    							$link = $this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this->oldal_var.'='.$i.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
     							$lapozas_oldalak_mivel = array('lapozas', $i.'. oldalra lapozás', $link, $i);
     							$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
     						}
@@ -200,7 +203,7 @@ class Lapozo{
     						$lapozas_oldalak_mivel = array('akt_oldal', $this -> akt_oldal_title, $link, $i);
     						$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
     					}else{
-    						$link = $_SERVER['PHP_SELF'].get_get(array($this -> oldal_var, $this -> epo_var, 'unset')).'&amp;'.$this -> oldal_var.'='.$i.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
+    						$link = $this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this -> oldal_var.'='.$i.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
     						$lapozas_oldalak_mivel = array('lapozas', $i.'. oldalra lapozás', $link, $i);
     						$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
     					}
@@ -214,7 +217,7 @@ class Lapozo{
     						$lapozas_oldalak_mivel = array('akt_oldal', $this -> akt_oldal_title, $link, $i);
     						$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
     					}else{
-    						$link = $_SERVER['PHP_SELF'].get_get(array($this -> oldal_var, $this -> epo_var, 'unset')).'&amp;'.$this -> oldal_var.'='.$i.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
+    						$link = $this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this -> oldal_var.'='.$i.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
     						$lapozas_oldalak_mivel = array('lapozas', $i.'. oldalra lapozás', $link, $i);
     						$this->return .= str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
     					}
@@ -225,7 +228,7 @@ class Lapozo{
 
             //Követlező oldal
 			$title = $this->kovet_title;
-			$link  = $_SERVER['PHP_SELF'].get_get(array($this -> oldal_var, $this -> epo_var, 'unset')).'&amp;'.$this -> oldal_var.'='.$kovetkezo_oldal.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
+			$link  = $this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this -> oldal_var.'='.$kovetkezo_oldal.'&amp;'.$this -> epo_var.'='.$this -> elem_per_oldal;
 
             if( !$_GET[$this -> oldal_var] ){
                 $_GET[$this -> oldal_var] = 1;
@@ -251,7 +254,7 @@ class Lapozo{
 					$link = $_SERVER['REQUEST_URI'];
 					$lapozas_oldalak_mivel = array('akt_oldal', $this -> mind_text, $link, $this -> mind_text);
 				}else{
-					$link = get_get(array($this -> oldal_var, $this -> epo_var, 'unset')).'&amp;'.$this -> oldal_var.'=1&amp;'.$this -> epo_var.'='.$this -> mind_var;
+					$link = get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this -> oldal_var.'=1&amp;'.$this -> epo_var.'='.$this -> mind_var;
 					$lapozas_oldalak_mivel = array('', $this -> mind_text, $link, $this -> mind_text);
 				}
 				$this->return.=str_replace($lapozas_oldalak_mit, $lapozas_oldalak_mivel, $lapozas_oldalak_sablon);
@@ -291,7 +294,7 @@ class Lapozo{
 		}
 
 		$class    = 'lapozas';
-		$onchange = 'location.href=\''.$_SERVER['PHP_SELF'].get_get(array($this -> oldal_var, $this -> epo_var, 'unset')).'&amp;'.$this->oldal_var.'=1&amp;'.$this->epo_var.'=\'+this.value';
+		$onchange = 'location.href=\''.$this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this->oldal_var.'=1&amp;'.$this->epo_var.'=\'+this.value';
 
 		$select_mivel = array($class, $onchange, $options);
 		return str_replace($select_mit,$select_mivel,$select_sablon);
@@ -326,7 +329,7 @@ class Lapozo{
 	        }
 
 			$class    = 'lapozas';
-			$onchange = 'location.href=\''.$_SERVER['PHP_SELF'].get_get(array($this -> oldal_var, $this -> epo_var, 'unset')).'&amp;'.$this->oldal_var.'=\'+this.value+\'&amp;'.$this->epo_var.'='.$this->elem_per_oldal.'\'';
+			$onchange = 'location.href=\''.$this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this->oldal_var.'=\'+this.value+\'&amp;'.$this->epo_var.'='.$this->elem_per_oldal.'\'';
 
 			$select_mivel = array($class, $onchange, $options);
 			return str_replace($select_mit,$select_mivel,$select_sablon);

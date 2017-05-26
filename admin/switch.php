@@ -75,7 +75,7 @@ foreach($akt_tomb as $ertek){
             $mezok .= "<div class=\"{$ertek['div_class']}\" style=\"{$ertek['div_style']}\">{$ertek['megn']}</div>";
         break;
 
-        case 'statusz':
+        case 'bsz_statusz':
             if($ertek['value']){
                 $ertek['megn'] = $ertek['value'];
             }
@@ -87,7 +87,7 @@ foreach($akt_tomb as $ertek){
 
             $statusz = '';
             if( $sor['statusz'] ) {
-                $statusz_sor = $adatbazis_kapcsolat->s('recid nev', 'statusz', 'recid='.$sor['statusz'], '', '1');
+                $statusz_sor = $adatbazis_kapcsolat->s('recid nev', 'bsz_statusz', 'recid='.$sor['statusz'], '', '1');
 
                 if( $statusz_sor ) {
                     $statusz_sor = $statusz_sor[0];
