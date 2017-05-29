@@ -1090,6 +1090,7 @@ require_once('header.php');
 			}
 
 		}
+        
 	}elseif(isset($_GET['szamlak'])){
 
 		if(!isset($_FILES['termekek'])){
@@ -1269,6 +1270,276 @@ require_once('header.php');
 
 						echo $adatbazis_kapcsolat->gp() . '<br>';
 //if($k==100) {exit();}
+					}
+
+					$k++;
+				}
+				fclose($csv_fajl);
+			}
+
+			//Ha volt log, akkor azt kiíratjuk
+			$filename = 'csv/log.txt';
+			if(is_file($filename) && filesize($filename)){
+				$handle = fopen($filename, 'r');
+				$log = fread($handle, filesize($filename));
+				fclose($handle);
+			}
+
+			if($log){
+
+				$html .= nl2('
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+								<p class="b" style="margin-top: 2rem">
+									A feltöltés során az alábbi hibák fordultak elő:
+								</p>
+								<p>'.$log.'</p>
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+							');
+
+			}else{
+				$html .= nl2('<h1>A frissítés megtörtént!</h1>');
+			}
+
+		}
+        
+	}elseif(isset($_GET['cikktorzs'])){
+
+		if(!isset($_FILES['termekek'])){
+
+			$html .= nl2('
+							<form method="post" action="'.self().'?cikktorzs" enctype="multipart/form-data">
+								<p class="c" style="margin: 2rem 0 0 0">
+									Tallózd be a CSV fájlt a <b>cikktörzs</b> frissítéséhez:
+									<input type="file" name="termekek">
+									<br><input type="submit" class="gombb" value="Frissít">
+								</p>
+							</form>
+						');
+
+		}else{
+
+			$fajlnev = 'csv/beszallitok.csv';
+
+			$mibol = 'windows-1250';
+			$mibe  = get_web_charset();
+
+			$mit   = array(' ','.',',',';','-','Ft','FT','ft','fT','"',"'");
+			$mivel = array('','','','','','','','','','','');
+
+			//Alapból mehet majd a feltöltés, de ha hiba van az adatok feldolgozásával, akkor ezzel megszakítható
+			//FIGYELEM! Ha ilyet használsz, akkor viszont ne soronként dolgozd fel az SQL a ciklusban, hanem készíts egy nagy stringet tele az SQL parancsokkal és egy $mehet-től függően futtasd le.
+			$mehet      = true;
+			$csv_sql    = '';
+			$log        = '';
+
+			if($_FILES['termekek']['tmp_name']){
+				fajlba_mentes($fajlnev.'_up', fajlbol_olvas($_FILES['termekek']['tmp_name']));
+			}
+
+			setlocale(LC_ALL,'hu_HU');
+
+			$_SESSION['sor_fejlec'] = array();
+
+			$k = 0;
+			if (($csv_fajl = fopen($fajlnev.'_up', 'r')) !== FALSE) {
+				$osszes_sor = count(file($fajlnev.'_up')) . '<br>';
+
+				while (($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE) {
+					$akt_tomb = array();
+
+					//Első oszlop a fejlécek
+					if($k == 0) {
+
+						foreach($sor as $key => $value) {
+                            $value = trim(mb_strtolower($value, 'UTF-8'));
+							$_SESSION['sor_fejlec'][] = $value;
+						}
+
+					} else {
+
+						foreach($sor as $key => $value) {
+							$akt_tomb[$_SESSION['sor_fejlec'][$key]] = $value;
+						}
+
+						foreach($akt_tomb as $key => $value) {
+							$akt_tomb[$key] = utf8($akt_tomb[$key]);
+						}
+
+						foreach($akt_tomb as $key => $value) {
+
+							$key_kicsi = trim(mb_strtolower($key, 'UTF-8'));
+
+							//Azonosítás fejléc nevekkel
+							switch($key_kicsi) {
+                                case 'id'               : $id           = $akt_tomb[$key];  break;
+								case 'nev'              : $nev          = $akt_tomb[$key];  break;
+								case 'oracikkid'        : $oracikkid    = $akt_tomb[$key];  break;
+                                case 'cikkmee'          : $cikkmee      = $akt_tomb[$key];  break;
+                                case 'kcs_19'           : $szakter_id   = $akt_tomb[$key];  break;
+                                case 'segedanyag'       : $segedanyag   = $akt_tomb[$key];  break;
+                                case 'helyi'            : $helyi        = $akt_tomb[$key];  break;
+                                case 'leiras'           : $leiras       = $akt_tomb[$key];  break;
+                                case 'update_dt'        : $update_dt    = $akt_tomb[$key];  break;
+								case 'update_usr'       : $update_usr   = $akt_tomb[$key];  break;
+								case 'insert_dt'        : $insert_dt    = $akt_tomb[$key];  break;
+								case 'insert_usr'       : $insert_usr   = $akt_tomb[$key];  break;
+							}
+						}
+
+                        $adatbazis_kapcsolat->i('cikktorzs',
+                            array('id', 'nev', 'oracikkid', 'cikkmee', 'szakter_id', 'segedanyag',  'helyi', 'leiras', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr' ),
+                            array($id,  $nev,  $oracikkid,  $cikkmee,  $szakter_id,  $segedanyag,   $helyi,   $leiras, $update_dt,  $update_usr,  $insert_dt,  $insert_usr  )
+                        );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+
+					}
+
+					$k++;
+				}
+				fclose($csv_fajl);
+			}
+
+			//Ha volt log, akkor azt kiíratjuk
+			$filename = 'csv/log.txt';
+			if(is_file($filename) && filesize($filename)){
+				$handle = fopen($filename, 'r');
+				$log = fread($handle, filesize($filename));
+				fclose($handle);
+			}
+
+			if($log){
+
+				$html .= nl2('
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+								<p class="b" style="margin-top: 2rem">
+									A feltöltés során az alábbi hibák fordultak elő:
+								</p>
+								<p>'.$log.'</p>
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+							');
+
+			}else{
+				$html .= nl2('<h1>A frissítés megtörtént!</h1>');
+			}
+
+		}
+        
+	}elseif(isset($_GET['feladatok'])){
+
+		if(!isset($_FILES['termekek'])){
+
+			$html .= nl2('
+							<form method="post" action="'.self().'?feladatok" enctype="multipart/form-data">
+								<p class="c" style="margin: 2rem 0 0 0">
+									Tallózd be a CSV fájlt a <b>feladatok</b> frissítéséhez:
+									<input type="file" name="termekek">
+									<br><input type="submit" class="gombb" value="Frissít">
+								</p>
+							</form>
+						');
+
+		}else{
+
+			$fajlnev = 'csv/beszallitok.csv';
+
+			$mibol = 'windows-1250';
+			$mibe  = get_web_charset();
+
+			$mit   = array(' ','.',',',';','-','Ft','FT','ft','fT','"',"'");
+			$mivel = array('','','','','','','','','','','');
+
+			//Alapból mehet majd a feltöltés, de ha hiba van az adatok feldolgozásával, akkor ezzel megszakítható
+			//FIGYELEM! Ha ilyet használsz, akkor viszont ne soronként dolgozd fel az SQL a ciklusban, hanem készíts egy nagy stringet tele az SQL parancsokkal és egy $mehet-től függően futtasd le.
+			$mehet      = true;
+			$csv_sql    = '';
+			$log        = '';
+
+			if($_FILES['termekek']['tmp_name']){
+				fajlba_mentes($fajlnev.'_up', fajlbol_olvas($_FILES['termekek']['tmp_name']));
+			}
+
+			setlocale(LC_ALL,'hu_HU');
+
+			$_SESSION['sor_fejlec'] = array();
+
+			$k = 0;
+			if (($csv_fajl = fopen($fajlnev.'_up', 'r')) !== FALSE) {
+				$osszes_sor = count(file($fajlnev.'_up')) . '<br>';
+
+				while (($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE) {
+					$akt_tomb = array();
+
+					//Első oszlop a fejlécek
+					if($k == 0) {
+
+						foreach($sor as $key => $value) {
+                            $value = trim(mb_strtolower($value, 'UTF-8'));
+							$_SESSION['sor_fejlec'][] = $value;
+						}
+
+					} else {
+
+						foreach($sor as $key => $value) {
+							$akt_tomb[$_SESSION['sor_fejlec'][$key]] = $value;
+						}
+
+						foreach($akt_tomb as $key => $value) {
+							$akt_tomb[$key] = utf8($akt_tomb[$key]);
+						}
+
+						foreach($akt_tomb as $key => $value) {
+
+							$key_kicsi = trim(mb_strtolower($key, 'UTF-8'));
+ 
+							//Azonosítás fejléc nevekkel
+							switch($key_kicsi) {
+                                case 'id'               : $id           = $akt_tomb[$key];  break;
+                                case 'aktiv'            : $aktiv        = $akt_tomb[$key];  break;
+								case 'telepid'          : $telephely_id = $akt_tomb[$key];  break;
+                                case 'objid'            : $obj_id       = $akt_tomb[$key];  break;
+                                case 'gepid'            : $gep_id       = $akt_tomb[$key];  break;
+                                case 'nev'              : $nev          = $akt_tomb[$key];  break;
+                                case 'leiras'           : $leiras       = $akt_tomb[$key];  break;
+                                case 'riaszt'           : $riaszt       = $akt_tomb[$key];  break;
+                                case 'hozrend'          : $szemelyzet_id= $akt_tomb[$key];  break;
+                                case 'hatosagi'         : $hatosagi     = $akt_tomb[$key];  break;
+                                case 'cikltip'          : $cikltip      = $akt_tomb[$key];  break;
+                                case 'ciklaltip'        : $ciklaltip    = $akt_tomb[$key];  break;
+                                case 'ciklho'           : $ciklho       = $akt_tomb[$key];  break;
+                                case 'ciklhet'          : $ciklhet      = $akt_tomb[$key];  break;
+                                case 'ciklnap'          : $ciklnap      = $akt_tomb[$key];  break;
+                                case 'ciklszorz'        : $ciklszorz    = $akt_tomb[$key];  break;
+                                case 'hataly_d'         : $hataly_d     = $akt_tomb[$key];  break;
+                                case 'utnap_d'          : $utnap_d      = $akt_tomb[$key];  break;
+                                case 'aktkezd_d'        : $aktkezd_d    = $akt_tomb[$key];  break;
+                                case 'aktvege_d'        : $aktvege_d    = $akt_tomb[$key];  break;
+                                case 'esnap_d'          : $esnap_d      = $akt_tomb[$key];  break;
+                                case 'utesnap_d'        : $utesnap_d    = $akt_tomb[$key];  break;
+                                case 'esem_d'           : $esem_d       = $akt_tomb[$key];  break;
+                                case 'loginnev'         : $loginnev     = $akt_tomb[$key];  break;
+                                case 'update_dt'        : $update_dt    = $akt_tomb[$key];  break;
+								case 'update_usr'       : $update_usr   = $akt_tomb[$key];  break;
+								case 'insert_dt'        : $insert_dt    = $akt_tomb[$key];  break;
+								case 'insert_usr'       : $insert_usr   = $akt_tomb[$key];  break;
+							}
+						}
+                        
+                        if($id){
+                            $adatbazis_kapcsolat->i('utemezett_feladatok',
+                                array('id', 'aktiv', 'telephely_id', 'obj_id', 'gep_id', 'nev', 'leiras', 'riaszt', 'szemelyzet_id', 'hatosagi', 'cikltip',     'ciklaltip', 'ciklho', 'ciklhet', 'ciklnap', 'ciklszorz', 'hataly_d', 'utnap_d', 'aktkezd_d', 'aktvege_d', 'esnap_d', 'utesnap_d', 'esem_d', 'loginnev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr' ),
+                                array($id,  $aktiv,  $telephely_id,  $obj_id,  $gep_id,  $nev,   $leiras,  $riaszt, $szemelyzet_id,  $hatosagi,  $ciklaltip,    $ciklaltip,  $ciklho,  $ciklhet, $ciklnap,   $ciklszorz,  $hataly_d,  $utnap_d,  $aktkezd_d,  $aktvege_d,  $esem_d,   $utesnap_d, $esem_d,   $login_nev, $update_dt,  $update_usr,  $insert_dt,  $insert_usr  )
+                            );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+                        }
+
 					}
 
 					$k++;

@@ -457,7 +457,7 @@ foreach($akt_tomb as $ertek){
             }
 
             /* Kapcsolódó tábla adatai */
-            $telephely_kapcs = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', 'nev='.$loginNev, '', '');
+            $telephely_kapcs = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', '`nev`=\''.$loginNev.'\'');
 
             if( $telephely_kapcs ) {
                 $telephely_kapcs = adatbazis2tomb($telephely_kapcs, 'telephely_id');

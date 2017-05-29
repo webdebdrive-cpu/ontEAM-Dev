@@ -465,7 +465,7 @@ if($gyorskereso_text){
         if( $felh ) {
             $felh = $felh[0];
 
-            $sorok = $adatbazis_kapcsolat->s('recid telephely_id', 'telephely_kapcs', 'nev='.$felh['nev'], '', '');
+            $sorok = $adatbazis_kapcsolat->s('recid telephely_id', 'telephely_kapcs', '`nev`=\''.$felh['nev'].'\'');
 
             $szamla_html .= '<div id="tablazatBeszur">';
             if( $sorok ) {
