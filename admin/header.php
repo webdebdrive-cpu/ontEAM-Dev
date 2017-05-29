@@ -551,6 +551,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);';
     } elseif( isset($_GET['szallodak']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);';
+    } elseif( basename(self()) == 'bejelentes.php' && isset($_GET['megjegyzes']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } else {
         $uj_link = self().'?uj';
     }

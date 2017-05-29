@@ -684,6 +684,9 @@ function kapcsolodoSzerkeszt( oldal ) {
             case 'szallodak':
                 $('#addSzallodaForm').attr('onsubmit', 'return addSzalloda(\'' + _get('id') + '\', this);');
             break;
+            case 'megjegyzes':
+                $('#addMegjegyzes').attr('onsubmit', 'return addMegjegyzes(\'' + _get('id') + '\', this);');
+            break;
         }
 
         popupNyit();
@@ -922,6 +925,40 @@ function addSzakterulet( szallitoID, that ) {
     return false;
 }
 
+function addMegjegyzes( pageID, that ) {
+    var megj = $(that).find('input[name="megjegyzes"]').val();
+
+    if( pageID && megj ) {
+        var ajax = $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'GET',
+         	data: esamp2es('pageID=' + pageID + '&amp;megj=' + megj + '&amp;tabla=' + baseName(location.href) + '&amp;addMegjegyzes=' + new Date().getTime()),
+         	success: function(html) {
+         		if(html) {
+                    html = JSON.parse(html);
+
+                    if( html.statusz == 'hiba' ) {
+                        alert2(html.uzi);
+                        return false;
+                    }
+
+         			szamlaBetolt(pageID, baseName(location.href) + '.php', 'megjegyzes').done(function() {
+                        $('#naploSor-' + html.kapcsID).addClass('uj');
+                    });
+
+                    popupZar();
+         		}
+         	}
+        });
+
+        $.when( ajax ).then(function() {
+            $(that).find('input[name="megjegyzes"]').val('');
+        });
+    }
+
+    return false;
+}
+
 function addSzalloda( loginID, that ) {
     var szallID = $(that).find('input[name="addSzall"]').val();
 
@@ -1062,7 +1099,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         dfrd1.resolve();
                     });
 
-                    param = get_get(['id', 'modosit', 'naplo', 'dokumentumok', 'szerkeszt', 'szakterulet', 'jogosultsag', 'uj', 'siker', 'szallodak', 'statusz', 'tortenet', 'naptar', 'utemezes', 'akt_nap'], true);
+                    param = get_get(['id', 'modosit', 'naplo', 'dokumentumok', 'szerkeszt', 'szakterulet', 'jogosultsag', 'uj', 'siker', 'szallodak', 'statusz', 'tortenet', 'naptar', 'utemezes', 'akt_nap', 'megjegyzes'], true);
                     if( muvelet != 'uj' ) {
                         if( param.indexOf('?') !== -1 ) {
                             param += '&id=' + recid + '&' + esamp2es(muvelet);
@@ -1083,6 +1120,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);');
                     } else if( _get('szallodak') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);');
+                    } else if( baseName(location.href) == 'bejelentes' && _get('megjegyzes') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else {
                         $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?uj');
                     }

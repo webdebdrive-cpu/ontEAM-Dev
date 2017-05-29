@@ -131,7 +131,7 @@ switch($tabla) {
     break;
     case 'bejelentes.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid ikt_szam';
+        $_OPTS['select']    = 'recid ikt_szam surgos';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('ikt_szam');
@@ -438,6 +438,9 @@ $bejelentes_tomb = $akt_tomb = array(
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
+$bejelentes_dok_tomb = $akt_tomb = array(
+    array('type' => 'jsfile',               'megn' => 'Fájlok:',  'name' => 'termek_kep',  'tabla' => $megnevezes,  'oszlop' => 'kep_teszt',   'algoritmus' => 'fajlnev'/*nev | fajlnev | id*/,   'meret' => 31457280, 'csakkep'  => false, 'fajlok_szama'  => 5),
+);
 
 
 //Ütemezett feladatok
@@ -556,6 +559,25 @@ if( isset($_GET['naploTorol']) ) {
 
     if( $tabla && $sorID ) {
         $adatbazis_kapcsolat -> d($tabla, 'recid='.$sorID);
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+if( isset($_GET['addMegjegyzes']) ) {
+    $pageID = $_GET['pageID'];
+    $megj   = $_GET['megj'];
+    $tabla  = $_GET['tabla'];
+
+    if( $pageID && $megj ) {
+        $kapcsID = $adatbazis_kapcsolat -> i('megjegyzes', array('tabla', 'id', 'megj', 'insert_dt', 'insert_usr'), array($tabla, $pageID, $megj, date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'user']));
+
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'kapcsID' => $kapcsID,
+            'uzi'     => ''
+        ));
     }
 
     $weblap->leallit();

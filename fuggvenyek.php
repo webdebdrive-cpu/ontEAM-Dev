@@ -721,18 +721,40 @@ function bejelentesLista( $bejegyzesek, $tabla ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
+        $csoport = $bejegyzesek[0]['surgos'];
+
         $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
-            $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active';
+            $aktCsoport = $bsz['surgos'];
+
+            if( $i == 1 || $csoport != $aktCsoport ) {
+                if( $aktCsoport ) {
+                    $csoportText = 'Sürgős';
+                } else {
+                    $csoportText = 'Nem sürgős';
+                }
+
+                $html .= '<li class="szamla_datum"><strong>'.$csoportText.'</strong></li>';
+                $csoport = $aktCsoport;
+            }
+
+            $surgos = '';
+            if( $bsz['surgos'] ) {
+                $surgos = nl2('
+                    <span class="icon piros">
+                        <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M0 0h24v24H0z" fill="none"/>
+                            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                        </svg>
+                    </span>
+                ');
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'">
                             <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                                <span>'.$bsz['ikt_szam'].'</span>
+                                <span>'.$surgos.' '.$bsz['ikt_szam'].'</span>
                             </a>
                         </li>';
 
@@ -863,7 +885,7 @@ function loginLista( $bejegyzesek, $tabla ) {
             }
 
             $aktiv = nl2('
-                <span class="icon zold">
+                <span class="icon piros">
                     <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                         <path d="M0 0h24v24H0z" fill="none"/>
@@ -872,7 +894,7 @@ function loginLista( $bejegyzesek, $tabla ) {
             ');
             if( $bsz['aktiv'] ) {
                 $aktiv = nl2('
-                    <span class="icon piros">
+                    <span class="icon zold">
                         <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                             <path d="M0 0h24v24H0z" fill="none"/>
                             <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>

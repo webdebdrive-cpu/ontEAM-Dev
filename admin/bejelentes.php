@@ -29,16 +29,16 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 $szamla_html = '';
 
 //Több kép menedzseléséhez
-$tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
+$tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
-    function get_tobbkep_csakkep()  { return 'true';    } // Lényeges, hogy egy string legyen
+    function get_tobbkep_csakkep()  { return 'false';   } // Lényeges, hogy egy string legyen
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
     function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
         global $megnevezes;
         return $megnevezes.'_id';
     }
-    function get_tobbkep_tabla(){ return 'kepek';       } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
+    function get_tobbkep_tabla(){ return 'bejelentes_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 
     //Kép törlésének lekezelése
     if (isset($_GET[$torles.'tobbkep_torol'])){
@@ -146,11 +146,13 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
-    if( isset($_GET['modosit']) ||  isset($_GET['tortenet']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzes']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            'tortenet'      => 'Történet'
+            'tortenet'      => 'Történet',
+            'dokumentumok'  => 'Dokumentumok',
+            'megjegyzes'    => 'Megjegyzés'
         );
 
         $fulek = '';
@@ -353,10 +355,10 @@ if($gyorskereso_text){
         }
 
         if($tobb_kep){
-			require_once('tobb_kep.php');
+			//require_once('tobb_kep.php');
 		}
 
-	//Státusz
+	/* Történet */
     }elseif(isset($_GET['tortenet'])) {
 
         $szamla_html .= nl2('
@@ -401,7 +403,58 @@ if($gyorskereso_text){
             echo $szamla_html;
         }
 
-	//Lista
+    /* Dokumentumok */
+    }elseif(isset($_GET['dokumentumok'])) {
+
+        if( $tobb_kep ) {
+            require_once('tobb_kep.php');
+        }
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+    /* Megjegyzés */
+    }elseif(isset($_GET['megjegyzes'])) {
+
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Megjegyzés</div>
+                    <div class="dtc">Hozzáadta</div>
+                    <div class="dtc">Hozzáadva</div>
+                </div>
+        ');
+
+        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
+
+        if( $sorok ) {
+            foreach($sorok as $sor) {
+                $szamla_html .= nl2('
+                    <div id="naploSor-'.$sor['recid'].'" class="dtr nSor">
+                        <div class="dtc">'.$sor['megj'].'</div>
+                        <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.$sor['insert_dt'].'</div>
+                    </div>
+                ');
+            }
+        }
+
+        $szamla_html .= '</div>';
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+	/* Lista */
 	}elseif(isset($_GET['lista'])){
 
         //LEKÉRDEZÉS

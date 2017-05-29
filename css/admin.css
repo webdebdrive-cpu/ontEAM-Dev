@@ -836,12 +836,17 @@ div.jsff_thumb div.torol:hover{
 #sorrendezes_album li div.kep,
 #sorrendezes_tobbkep li div.kep,
 #sorrendezes_bejegyzes li div.kep{
+    background: #fff;
     border: 0.1rem solid #dadbde;
     border-radius: 0.5rem;
     cursor: move;
     height: 13.4rem;
     overflow: hidden;
     width: 13.4rem;
+}
+
+#sorrendezes_tobbkep li div.kep img {
+    max-width: none;
 }
 
 #sorrendezes li div.kep_fajl,
@@ -1344,6 +1349,10 @@ ul.szamla_cont.rendszer li a span {
     padding: 0.3rem 0rem 0.3rem 0rem;
 }
 
+ul.szamla_cont.rendszer li a span.icon {
+    padding: 0.1rem 0rem 0rem 0rem;
+}
+
 ul.szamla_cont li a span.szso {
     display: inline-block;
     text-align: right;
@@ -1825,11 +1834,11 @@ span.icon svg {
 }
 
 span.icon.zold svg {
-    fill: #eb453b;
+    fill: #07a927;
 }
 
 span.icon.piros svg {
-    fill: #07a927;
+    fill: #eb453b;
 }
 
 ul.telephelyek {
