@@ -228,8 +228,9 @@ if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $m
     $style = ' class="hover"';
 }
 
-$menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
-
+if( _jog(0) ) {
+    $menuk .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+}
 
 /* Munkák */
 $menu_nev        = 'Munkák';
@@ -513,7 +514,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $_GET['oldal'] = 1;
     }
 
-    $_GET['epo'] = 50;
+    $_GET['epo'] = 9999999999999;
 
     $bejegyzesek = $adatbazis_kapcsolat->s($_OPTS['select'], $tabla, $where, $_OPTS['order'], '');
 

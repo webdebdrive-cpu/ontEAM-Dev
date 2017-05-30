@@ -1,5 +1,11 @@
 <?php
 require_once('../weblap.php');
+
+if( !_jog(0) ) {
+    header('Content-Type: text/html; charset=utf-8');
+    exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
+}
+
 //Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
@@ -175,6 +181,12 @@ if($gyorskereso_text){
 	//Új termék felvitele
 	if(isset($_GET['uj']) && !$csak_szerkesztheto){
 
+        if( !_jog(1) ) {
+            echo 'Nincs Jogosultságod új bejelentést feltölteni!';
+            require_once('footer.php');
+            exit();
+        }
+
         //NAVIGÁCIÓ
         $gombok = '';
 	    //$gombok = '<input type="button" class="gombb" onclick="location.href=\''.self().'?lista\'" value="Lista" title="Lista megtekintése">';
@@ -290,6 +302,36 @@ if($gyorskereso_text){
         }
         //$gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().get_get(array('modosit','errnum','kephiba','siker','id', 'szerkeszt', 'ajax')).'&amp;lista\'" value="Lista" title="Lista megtekintése">';
         //$gombok .= ' <input type="button" id="visszavonas_gomb" disabled="disabled" class="gombb" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\', true);" value="Visszavonás" title="Visszavonás">';
+
+        /* Kijelöltekkel való művelet gombok */
+        if( _jog(2) ) {
+            $gombok .= nl2('
+                <div id="kmCont">
+                    <input type="button" class="gomb_alert piros foGomb km_false" value="Elutasítás" title="Elutasítás">
+                    <div class="kijeloltek_muv">
+                        <input type="button" class="gomb foGomb km_false" value="Csoportosítás..." title="Csoportosítás...">
+                        <div class="muv">
+                            <ul>
+                                <li><a class="km_false">Csoporthoz adás</a></li>
+                                <li><a class="km_false">Csoportból kivétel</a></li>
+                                <li><a class="km_false">Csoport átnevezése</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="kijeloltek_muv">
+                        <input type="button" class="gomb foGomb km_false" value="Várólista..." title="Várólista...">
+                        <div class="muv">
+                            <ul>
+                                <li><a class="km_false">Várólistához adás</a></li>
+                                <li><a class="km_false">Várólistból kivétel</a></li>
+                                <li><a class="km_false">Várólista átnevezése</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <input type="button" class="gombb foGomb km_false" value="Munkalap készítése" title="Munkalap készítése">
+                </div>
+            ');
+        }
 
         if( !$csak_szerkesztheto ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törlöd ezt a '.$szoveg.'?\',gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';

@@ -245,6 +245,59 @@ input.gomb.border{
     background: #76B958;
 }
 
+div.kijeloltek_muv {
+    display: inline-block;
+    position: relative;
+}
+
+div.kijeloltek_muv div.muv {
+    display: none;
+    background: #efefef;
+    border: 0.1rem solid #CECECE;
+    border-radius: 0.2rem;
+    padding: 0rem 0rem 0rem 0rem;
+    position: absolute;
+    bottom: 3.1rem;
+    left: 0;
+}
+
+div.kijeloltek_muv.active div.muv {
+    display: block;
+}
+
+div.kijeloltek_muv div.muv li {
+    padding: 0rem 1rem 0rem 1rem;
+}
+
+div.kijeloltek_muv div.muv li a {
+    color: #242424;
+    cursor: pointer;
+    border-bottom: 0.1rem solid #CECECE;
+    display: block;
+    padding: 0.8rem 1rem 0.8rem 1rem;
+    white-space: nowrap;
+}
+
+div.kijeloltek_muv div.muv li:last-child a {
+    border-bottom: none;
+}
+
+div.kijeloltek_muv div.muv li:hover {
+    background: #fff;
+}
+
+div.kijeloltek_muv div.muv li a:hover {
+    text-decoration: none;
+}
+
+#kmCont {
+    display: none;
+}
+
+#kmCont.active {
+    display: inline-block;
+}
+
 .form_jobb{
     font-size: 1.4rem;
     padding: 0.2rem 0rem 0.2rem 0.5rem;
@@ -1332,6 +1385,7 @@ ul.szamla_cont li a {
     cursor: pointer;
     display: block;
     font-size: 1.2rem;
+    user-select: none;
     padding: 0.2rem 1rem 0.2rem 1rem;
     width: 100%;
 }

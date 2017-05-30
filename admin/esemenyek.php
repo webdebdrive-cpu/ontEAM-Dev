@@ -721,7 +721,7 @@ if( isset($_GET['szamlaLista']) ) {
             $_GET['oldal'] = 1;
         }
 
-        $_GET['epo'] = 50;
+        $_GET['epo'] = 9999999999999;
 
         $bejegyzesek = $adatbazis_kapcsolat->s($_OPTS['select'], $tabla, $where, '', '');
 

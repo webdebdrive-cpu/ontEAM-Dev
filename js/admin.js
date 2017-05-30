@@ -461,8 +461,11 @@ $(function() {
     });
 
     $(document).on('click', function(e) {
-        if( !e.ctrlKey ) {
+        if( !e.ctrlKey && !e.shiftKey && e.target.className.indexOf('km_false') === -1 ) {
             $('#szamlaList li.szamla_sor').removeClass('active kijelolve');
+
+            $('.kijeloltek_muv').removeClass('active');
+            $('#kmCont').removeClass('active');
 
             if( _get('id') ) {
                 $('#szamla-' + _get('id')).addClass('active');
@@ -470,9 +473,21 @@ $(function() {
         }
     });
 
+    $(document).on('click', '.foGomb', function() {
+        if( !$(this).parent('.kijeloltek_muv').hasClass('active') ) {
+            $('.kijeloltek_muv').removeClass('active');
+            $(this).parent('.kijeloltek_muv').addClass('active');
+        } else {
+            $('.kijeloltek_muv').removeClass('active');
+        }
+    });
+
     $('#tartalomBal').on('click', '#szamlaList li.szamla_sor', function(e) {
-        if( !e.ctrlKey ) {
-            $('#szamlaList li.szamla_sor').removeClass('active kijelolve');
+        var sorok = $('#szamlaList li.szamla_sor'),
+            kijelolheto = $('#szamlaList').hasClass('kijelolheto');
+
+        if( !e.ctrlKey && !e.shiftKey || !kijelolheto ) {
+            sorok.removeClass('active kijelolve');
             $(this).addClass('active');
 
             /* Navigálás */
@@ -488,12 +503,54 @@ $(function() {
             e.preventDefault();
             e.stopPropagation();
         } else {
-            $('#szamlaList li.szamla_sor').removeClass('active');
+            if( e.shiftKey && kijelolheto ) {
+                $('#kmCont').addClass('active');
 
-            if( $(this).hasClass('kijelolve') ) {
-                $(this).removeClass('kijelolve');
-            } else {
-                $(this).addClass('kijelolve');
+                sorok.removeClass('active');
+
+                if( !sorok.hasClass('kijelolve') ) {
+                    $(this).addClass('kijelolve');
+
+                    /* Tömeges kijelöléshez */
+                    sorok.removeClass('akt');
+                    $(this).addClass('akt');
+                } else {
+                    var akt_id = parseInt( $('#szamlaList.kijelolheto li.szamla_sor.akt').attr('data-i') );
+
+                    /* Tömeges kijelöléshez */
+                    sorok.removeClass('akt');
+                    $(this).addClass('akt');
+
+                    var uj_akt_id = parseInt( $(this).attr('data-i') );
+
+                    if( uj_akt_id > akt_id ) {
+                        for( var i = akt_id; i <= uj_akt_id; i++ ) {
+                            if( !$('#szamlaList.kijelolheto li.szamla_sor[data-i="' + i + '"]').hasClass('kijelolve') ) {
+                                $('#szamlaList.kijelolheto li.szamla_sor[data-i="' + i + '"]').addClass('kijelolve');
+                            }
+                        }
+                    } else {
+                        for( var i = akt_id; i >= uj_akt_id; i-- ) {
+                            if( !$('#szamlaList.kijelolheto li.szamla_sor[data-i="' + i + '"]').hasClass('kijelolve') ) {
+                                $('#szamlaList.kijelolheto li.szamla_sor[data-i="' + i + '"]').addClass('kijelolve');
+                            }
+                        }
+                    }
+                }
+            } else if( e.ctrlKey && kijelolheto ) {
+                $('#kmCont').addClass('active');
+
+                sorok.removeClass('active');
+
+                /* Tömeges kijelöléshez */
+                sorok.removeClass('akt');
+                $(this).addClass('akt');
+
+                if( $(this).hasClass('kijelolve') ) {
+                    $(this).removeClass('kijelolve');
+                } else {
+                    $(this).addClass('kijelolve');
+                }
             }
         }
     });
@@ -624,7 +681,6 @@ $(function() {
 
         return false;
     });
-
 
     /* Ciklus tipus válétaásakor megfelelő div megjelenítése */
     $(document).on('change', '.f_cikltip', function() {
