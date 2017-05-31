@@ -1,4 +1,4 @@
-function alert2(uzi, ok_gomb){
+function alert2(uzi, ok_gomb) {
 
     if( ok_gomb == null ){
         ok_gomb = '<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2()"></p>';
@@ -6,6 +6,7 @@ function alert2(uzi, ok_gomb){
 
     /*Üres alert eltűntetés*/
     if(!uzi){
+
 
         $('#szurkit, .szurkit').fadeOut(200);
         $('#alert2').fadeOut(200, function(){

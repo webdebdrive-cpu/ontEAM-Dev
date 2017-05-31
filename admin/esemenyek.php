@@ -18,6 +18,8 @@ $_SESSION['ketHasabos'] = array(
     'bejelentes.php',
     'utemezett_feladatok.php',
     'cikktorzs.php',
+    'ktghely.php',
+    'ktgnem.php',
 );
 
 $tabla = basename(self());
@@ -180,6 +182,40 @@ switch($tabla) {
             $_GET['irany'] = 'desc';
         }
     break;
+    case 'ktghely.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid id nev';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('nev');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'nev';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'ktgnem.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid id nev';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('nev');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'nev';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
 }
 
 // Csak új feltöltés esetén kell az aktuális időpont, egyébként a már eltároltat írjuk ki
@@ -304,11 +340,20 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //}
 
 /* Rendszer */
-$megnevezes = 'rendszer';
-$rendszer_tomb = $akt_tomb = array(
-    array('type' => 'text',         'megn' => 'ID:',             'name' => 'recid',   'disabled' => $csakUjkent,       'maxlength' => 250, 'class' => 'oriasi',                                                'show' => true),
+$megnevezes = 'ktghely';
+$ktghely_tomb = $akt_tomb = array(
+    array('type' => 'text',         'megn' => 'ID:',             'name' => 'id',      'disabled' => $csakUjkent,       'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki az ID-t!', 'show' => true),
     array('type' => 'text',         'megn' => 'Érték:',          'name' => 'nev',     'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',  'show' => true),
-    array('type' => 'select_rkat',  'megn' => 'Értéklista:',     'name' => 'rkat',    'disabled' => $csakUjkent),
+
+	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+/* Rendszer */
+$megnevezes = 'ktgnem';
+$ktgnem_tomb = $akt_tomb = array(
+    array('type' => 'text',         'megn' => 'ID:',             'name' => 'id',      'disabled' => $csakUjkent,       'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki az ID-t!', 'show' => true),
+    array('type' => 'text',         'megn' => 'Érték:',          'name' => 'nev',     'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',  'show' => true),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -546,7 +591,9 @@ if( isset($_GET['gepVane']) ) {
 
 /* Objektumok generálása */
 if( isset($_GET['obj_general']) ) {
-    echo obj_gen();
+    $telephely_id = $_GET['telephely_id'];
+
+    echo obj_gen( $telephely_id );
 
     $weblap->leallit();
     exit();

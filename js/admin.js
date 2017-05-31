@@ -375,6 +375,7 @@ $(function() {
             if( nbWidth > 150 && nbWidth < 800 ) {
                 $('#tartalomBal').css('width', nbWidth);
                 $('#tartalomJobb').css('width', 'calc(100% - ' + Math.abs(nbWidth) + 'px)');
+                $('.muveletek').css('width', 'calc(100% - ' + (Math.abs(nbWidth) + 6) + 'px)');
 
                 createCookie('csuszkaSzelesseg', Math.abs(nbWidth), 365);
             }
@@ -412,7 +413,11 @@ $(function() {
                 'erteklista',
                 'login',
                 'szerepkor',
-                'bejelentes'
+                'bejelentes',
+                'utemezett_feladatok',
+                'cikktorzs',
+                'ktghely',
+                'ktgnem'
             );
 
             if( inArray(baseName(location.href), ketHasabos) ) {
@@ -694,11 +699,13 @@ $(function() {
 function obj_gen() {
     $('#ajaxfedo').removeClass('dn');
 
-    if( $('#telephely_id').val() ) {
+    var telephely_id = $('#telephely_id').val();
+
+    if( telephely_id ) {
         var obj = $.ajax({
          	url : 'esemenyek.php',
          	type: 'GET',
-         	data: esamp2es('obj_general=' + new Date().getTime()),
+         	data: esamp2es('telephely_id=' + telephely_id + '&amp;obj_general=' + new Date().getTime()),
          	success: function(html) {
          		if(html) {
                     $('#popupTart').html(html);
@@ -725,6 +732,22 @@ function addObj( that ) {
 
     $('input[name="obj_id"]').val(recid).change();
     $('input[name="obj_id_autocomp"]').val(text).change();
+
+    var form = $('input[name="obj_id"]').parents('#szerk_form');
+
+    stop = false;
+    form.find('input, select, textarea').each(function() {
+        var name = $(this).attr('name');
+
+        if( stop ) {
+            document.getElementById(name).focus();
+            return false;
+        }
+
+        if( name == 'obj_id' ) {
+            stop = true;
+        }
+    });
 
     popupZar();
 }

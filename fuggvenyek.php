@@ -319,7 +319,12 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
                 $ret .= 'if($(\'#'.$ertek['name'].'\').length){ ';
 
                 if($ertek['alert']!=''){
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
+                    $focus_autocomp = $ertek['name'];
+                    if( $ertek['type'] == 'autocomplete' ) {
+                        $focus_autocomp = $ertek['name'].'_autocomp';
+                    }
+
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); '.$focus_autocomp.'.focus();"></p>\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
                 }
 
                 if($ertek['mail']){
@@ -708,6 +713,12 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
                 case 'cikktorzs':
                     $html = cikktorzs( $bejegyzesek, $tabla );
                 break;
+                case 'ktghely':
+                    $html = ktghelyLista( $bejegyzesek, $tabla );
+                break;
+                case 'ktgnem':
+                    $html = ktghelyLista( $bejegyzesek, $tabla );
+                break;
             }
         }
 
@@ -1003,7 +1014,7 @@ function szallitoLista( $bejegyzesek, $tabla ) {
             }
 
             $aktiv = nl2('
-                <span class="icon zold">
+                <span class="icon piros">
                     <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                         <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
                         <path d="M0 0h24v24H0z" fill="none"/>
@@ -1012,7 +1023,7 @@ function szallitoLista( $bejegyzesek, $tabla ) {
             ');
             if( $bsz['aktiv'] ) {
                 $aktiv = nl2('
-                    <span class="icon piros">
+                    <span class="icon zold">
                         <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                             <path d="M0 0h24v24H0z" fill="none"/>
                             <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
@@ -1038,12 +1049,10 @@ function szallitoLista( $bejegyzesek, $tabla ) {
     return false;
 }
 
-function rendszerLista( $bejegyzesek, $tabla ) {
+function ktghelyLista( $bejegyzesek, $tabla ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
-        $rkat = $bejegyzesek[0]['rkat'];
-
         $jClass = '';
         if( _jog(2) ) {
             $jClass = ' kijelolheto';
@@ -1053,20 +1062,41 @@ function rendszerLista( $bejegyzesek, $tabla ) {
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
-            $aktrkat = $bsz['rkat'];
-
-            if( $i == 1 || $rkat != $aktrkat ) {
-                $rkatSor = $adatbazis_kapcsolat->s('nev', 'rendszer_kat', 'recid='.$aktrkat, '', '1');
-
-                if( $rkatSor ) {
-                    $rkatSor = $rkatSor[0];
-
-                    $html .= '<li class="szamla_datum"><strong>'.$rkatSor['nev'].'</strong></li>';
-                }
-
-                $rkat = $aktrkat;
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
             }
 
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
+                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                                <span>'.$bsz['nev'].'</span>
+                            </a>
+                        </li>';
+
+            $i++;
+        }
+
+        $html .= '</ul>';
+
+        return $html;
+    }
+
+    return false;
+}
+
+function ktgnemLista( $bejegyzesek, $tabla ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
                 $active = ' active';
@@ -1244,10 +1274,15 @@ function getJogSorRendez( $katID, $tomb ) {
     return false;
 }
 
-function obj_gen() {
+function obj_gen( $telephelyID = false ) {
     global $adatbazis_kapcsolat;
 
-    $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', '', 'nev', '');
+    $where = '';
+    if( $telephelyID ) {
+        $where = "`id` = '{$telephelyID}'";
+    }
+
+    $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', $where, 'nev', '');
 
     $html = '';
     if( $telephelyek ) {
