@@ -758,9 +758,24 @@ function bejelentesLista( $bejegyzesek, $tabla ) {
                 $active = ' active';
             }
 
+            /* Telephely */
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
+
+            if( $telephely ) {
+                $telephely = $telephely[0]['nev'];
+            }
+
+            /* Helység */
+            $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
+
+            if( $helyseg ) {
+                $helyseg = $helyseg[0]['nev'];
+            }
+
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
                             <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span>'.$surgos.' '.$bsz['ikt_szam'].'</span>
+                                <span>'.$telephely.' - '.$helyseg.'</span>
                             </a>
                         </li>';
 

@@ -452,8 +452,15 @@ if($gyorskereso_text){
 
             }
 
+            $muv_style = '';
+            if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+                if( $_COOKIE['csuszkaSzelesseg'] ) {
+                    $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 6).'px);"';
+                }
+            }
+
             $szamla_html .= nl2('
-                <div class="muveletek">
+                <div class="muveletek"'.$muv_style.'>
                     <div class="form_kuldes">
                         <input type="hidden" name="id" value="'.$_GET['id'].'">
                         <input type="submit" class="gombb" name="jogokhozzaad" id="mehet_gomb" value="Mentés">

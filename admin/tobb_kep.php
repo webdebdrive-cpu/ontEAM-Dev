@@ -97,7 +97,7 @@ if(isset($_POST['session_name'])){
 //                imagejpeg(logot_pecsetel($kepnev, '../elemek/vizjel.png', 50, 50, 100), $kepnev);
 
                 //Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy aoutputot a flashfile-nak
-                $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'], array($_SESSION['fajl']['oszlop'], 'kepnev'), array($_SESSION['fajl']['termek_id'], str_replace($utvonal, '', $kepnev) ) );
+                $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'], array($_SESSION['fajl']['oszlop'], 'kepnev', 'megj'), array($_SESSION['fajl']['termek_id'], str_replace($utvonal, '', $kepnev), basename($kepnev) ) );
                 $sor_kepek = $adatbazis_kapcsolat->s('*', $_SESSION['fajl']['tabla'], 'recid='.$id);
                 $sor_kepek = $sor_kepek[0];
                 echo get_tobbkep_thumb($sor_kepek);

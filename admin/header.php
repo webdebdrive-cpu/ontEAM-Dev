@@ -501,9 +501,9 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     if( $_GET['ksz'] ) {
         if( $where ) {
-            $where .= " AND `{$rend}` LIKE '%".$_GET['ksz']."%'";
+            $where .= " AND `".$_GET['rend']."` LIKE '%".$_GET['ksz']."%'";
         } else {
-            $where = "`{$rend}` LIKE '%".$_GET['ksz']."%'";
+            $where = "`".$_GET['rend']."` LIKE '%".$_GET['ksz']."%'";
         }
     }
 
@@ -544,6 +544,10 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     $lapozo -> lapozas();
 
     $lapozas = $lapozo -> kiir();
+
+    if( basename(self()) == 'bejelentes.php' ) {
+        $_OPTS['order'] = 'surgos desc, '.$_OPTS['order'];
+    }
 
     $tartBal  = szamla_lista( $tabla, $_OPTS['select'], $where, $_OPTS['order'], $lapozo -> getLimit() );
     $keresodn = '';

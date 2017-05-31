@@ -133,7 +133,7 @@ switch($tabla) {
     break;
     case 'bejelentes.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid ikt_szam surgos';
+        $_OPTS['select']    = 'recid ikt_szam surgos telephely_id obj_id';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('ikt_szam');
@@ -798,6 +798,10 @@ if( isset($_GET['szamlaLista']) ) {
         $lapozo -> lapozas();
 
         $lapozas = $lapozo -> kiir();
+
+        if( $tabla == 'bejelentes' ) {
+            $order = 'surgos desc, '.$order;
+        }
 
         $szamla_lista = szamla_lista( $tabla, $_OPTS['select'], $where, $order, $lapozo -> getLimit() );
 

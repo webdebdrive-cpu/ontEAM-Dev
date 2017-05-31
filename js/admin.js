@@ -1204,7 +1204,10 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     } else {
                         $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?uj');
                     }
-         		}
+         		} else {
+                    alert2('Nem lehet betölteni a kért oldalt!');
+                    dfrd1.resolve();
+                }
          	}
         });
 
