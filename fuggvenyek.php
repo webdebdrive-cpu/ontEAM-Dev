@@ -114,12 +114,36 @@ function i_u($type, $tabla, $tomb){
         //Ütemezett feladatok ID képzése
         } else if( $tabla == 'utemezett_feladatok' ) {
             /* ID formázása */
+            
+            //Szálloda azonosító
             $szalloda   = $adatbazis_kapcsolat->s('azon', 'telephely', "`id`='{$_POST['telephely_id']}'");
             $szalloda   = $szalloda[0]['azon'];
-            $id         = $szalloda.sprintf('%04d', $sorszam); // 2do: itt még mg kell beszélni, hogy a sorszám hogyna képzódjön
+            /* Megnézzük, hogy az adott hotell nevével létezik e bejegyzés */
+            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.$szalloda, '', '');
+            if( $ikt_seq ) {
+                $ikt_seq = $ikt_seq[0];
+
+                /* Sorszám */
+                $sorszam = $ikt_seq['sorszam'];
+
+                /* Sorszám növelés */
+                $sorszam++;
+
+                /* Letároljuk az új sorszámot */
+                $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.$szalloda);
+            } else {
+                /* Sorszám */
+                $sorszam = 1;
+
+                $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, $szalloda, $tabla));
+            }
+            $id         = $szalloda.sprintf('%04d', $sorszam);
 
             array_push($oszlopok,  'id' );
             array_push($ertekek,   $id  );
+            
+            array_push($oszlopok, 'loginnev'                        );
+            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
         }
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
@@ -152,7 +176,7 @@ function i_u($type, $tabla, $tomb){
             array( 'felh_id',                          'nev',       'valtozas'),
             array( $_SESSION[get_db_tabla().'user_id'], $muvelet,   $valtozas )
         );
-
+//echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
 	} else {
         /* Ha volt változás, akkor logoljuk */
         $record = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
@@ -222,7 +246,7 @@ function i_u($type, $tabla, $tomb){
 
 
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
-
+//echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
         if( $id ) {
             $sor = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
 

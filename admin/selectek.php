@@ -149,4 +149,12 @@ array_push($select_ho_ism, array('name' => 'Ismétlődés',   'value' => 'elso')
 $select_ho_soran = array();
 array_push($select_ho_soran, array('name' => '- Válasszon -', 'value' => '' ));
 array_push($select_ho_soran, array('name' => 'Során',   'value' => 'elso'));
+
+//Select tömb Ütemezés típushoz
+$select_szemelyzet = array();
+array_push($select_szemelyzet, array('name' => '- Válasszon -', 'value' => '' ));
+array_push($select_szemelyzet, array('name' => 'Személyzet 1',  'value' => '1' ));
+array_push($select_szemelyzet, array('name' => 'Személyzet 2',  'value' => '2' ));
+array_push($select_szemelyzet, array('name' => 'Személyzet 3',  'value' => '3' ));
+array_push($select_szemelyzet, array('name' => 'Személyzet 4',  'value' => '4' ));
 //{KOVETKEZO_SELECT}

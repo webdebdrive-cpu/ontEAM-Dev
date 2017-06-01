@@ -402,7 +402,7 @@ $(function() {
 
             popup_display = $('#popup').css('display');
 
-            if( (className !== undefined && className.indexOf('disableNav') !== -1) || popup_display == 'block' || $('#alert2').length || !$('#beleptet_alert').hasClass('dn') ) {
+            if( (className !== undefined && className.indexOf('disableNav') !== -1) || popup_display == 'block' || $('#alert2').length || !$('#beleptet_alert').hasClass('dn') || $('#naptar').length ) {
                 return false;
             }
 

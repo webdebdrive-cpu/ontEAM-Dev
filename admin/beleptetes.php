@@ -106,7 +106,7 @@ if( $_SESSION[get_db_tabla().'user'] && $_SESSION[get_db_tabla().'user'] != 'adm
 if(isset($_POST['jelszo_csere'])) {
     if( !empty($_POST['jlsz']) && !empty($_POST['jlsz2']) ) {
         if( $_POST['jlsz'] == $_POST['jlsz2'] ) {
-            $felhasznalo = $adatbazis_kapcsolat->s('recid nev jelszo helyesseg flags jog van_jelszo', 'login', "`recid` = '".$_SESSION['nincs_jelsz_felhid']."'", '', '1');
+            $felhasznalo = $adatbazis_kapcsolat->s('recid nev teljes_nev jelszo helyesseg flags jog van_jelszo', 'login', "`recid` = '".$_SESSION['nincs_jelsz_felhid']."'", '', '1');
 
             if( $felhasznalo ) {
                 $felhasznalo = $felhasznalo[0];
@@ -119,9 +119,10 @@ if(isset($_POST['jelszo_csere'])) {
 
                 $adatbazis_kapcsolat -> u('login', array('jelszo', 'helyesseg', 'van_jelszo'), array($jlsz, $helyesseg, 1), "`recid` = '".$felhasznalo['recid']."'");
 
-                $_SESSION[get_db_tabla().'user']    = $felhasznalo['nev'];
-                $_SESSION[get_db_tabla().'user_id'] = $felhasznalo['recid'];
-                $_SESSION[get_db_tabla().'rights']  = str_split($felhasznalo['flags']);
+                $_SESSION[get_db_tabla().'user']        = $felhasznalo['nev'];
+                $_SESSION[get_db_tabla().'teljes_nev']  = $felhasznalo['teljes_nev'];
+                $_SESSION[get_db_tabla().'user_id']     = $felhasznalo['recid'];
+                $_SESSION[get_db_tabla().'rights']      = str_split($felhasznalo['flags']);
 
                 /* Nincs jelszó változók törlése */
                 $_SESSION['nincs_jelsz_felhid'] = false;
@@ -266,7 +267,7 @@ if (isset($_GET['jogok'])) {
 
     //Jogosultságok
     $jogok = $adatbazis_kapcsolat->s('*', 'jog', '', 'nev');
-    array_unshift($jogok, array('id' => '', 'nev' => '-Válassz-'));
+    array_unshift($jogok, array('id' => '', 'nev' => '-Válasszon-'));
 
     $html = nl2('
             <tr>

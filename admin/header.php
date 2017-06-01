@@ -269,7 +269,7 @@ if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
 
 $aktmenuk  = '';
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Cikktörzs'  ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Raktár'     ), $almenu_sablon );
+//$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Raktár'     ), $almenu_sablon );
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){

@@ -396,9 +396,19 @@ if($gyorskereso_text){
         $sorok = '';
         for($i=0; $i<24; $i++){
 
+            $ora = $i;
+            if($ora<10){
+                $ora = '0'.$ora;
+            }
+            
             $napok = '';
             for($j=0; $j<6; $j++){
-                $napok .= '<td></td>';
+                
+                $db = count($adatbazis_kapcsolat->s('id', 'utemezett_feladatok', "`esnap_d`='".date('Y-m-d', strtotime('+'.$j.' days'))."' AND `elv_ido_tol`='$ora:00'"));
+                if(!$db){
+                    $db = '';
+                }
+                $napok .= '<td>'.$db.'</td>';
             }
             $sorok .= nl2('
                 <tr>

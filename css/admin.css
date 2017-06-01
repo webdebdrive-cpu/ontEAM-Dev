@@ -7,7 +7,7 @@ body{
 }
 
 tr.s0{ background: #F9FAFE; border-bottom: 0.1rem solid #E3EBF1; }
-tr.s1{ border-bottom: 0.1rem solid #E3EBF1; }
+tr.s1{ border-bottom: 0.1rem solid #E3EBF1; } 
 
 tr.s0szurke      { background: #E2E2E2; border-bottom: 0.1rem solid #E3EBF1; }
 tr.s1szurke      { background: #EAEAEA; border-bottom: 0.1rem solid #E3EBF1; }
@@ -2054,11 +2054,13 @@ table.csikos th{
     background: #DDE8F3;
     border-right: 0.1rem solid #004990;
     font-weight: bold;
-    padding: 1rem 1.5rem;
+    font-size: 1.3rem;
+    padding: 0.5rem 1.5rem;
 }
 
 table.csikos td{
-    padding: 1rem 1.5rem;
+    padding: 0.2rem 1.5rem;
+    font-size: 1.2rem;
     border-right: 0.1rem solid #004990;
 }
 table.csikos td:first-of-type{

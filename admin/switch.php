@@ -448,7 +448,7 @@ foreach($akt_tomb as $ertek){
         case 'select_felh_telephely':
             /* Telephelyek lekérdezése */
             $select_felh_telephely = array();
-            array_push($select_felh_telephely, array('name' => '- Válassz -', 'value' => '' ));
+            array_push($select_felh_telephely, array('name' => '- Válasszon -', 'value' => '' ));
 
             /* Ha új sort szúrunk be, akkor a SESSION-ből vesszük ki a loginnevet, ha már szerkesztés alatt vagyunk, akkor pedig adatbázibsból */
             $loginNev = $sor['insert_usr'];
@@ -930,6 +930,53 @@ foreach($akt_tomb as $ertek){
 
 		case 'select_ho_soran':
             $input = new Select($select_ho_soran, $sor['ho_soran']);
+            $input -> cssClass = $ertek['class'];
+            $input -> disabled = $ertek['disabled'];
+            $input -> id       = $ertek['name'];
+            $input -> name     = $ertek['name'];
+            $input -> naptar   = $ertek['naptar'];
+            $input -> onblur   = $ertek['onblur'];
+            $input -> onclick  = $ertek['onclick'];
+            $input -> onfocus  = $ertek['onfocus'];
+            $input -> pre      = $ertek['pre'];
+            $input -> post     = $ertek['post'];
+            $input -> style    = $ertek['style'];
+
+            if($ertek['i']){
+                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
+            }
+
+            //Ezt csak akkor aktiváld, ha alapértelmezett értéket szeretnél neki definiálni, de VIGYÁZZ!, a $sor['VALAMI']-t se írja felül, hisz a konstruktornak ez ad értéket! Pl. így: if(!$ertek['value']){ $ertek['value'] = $sor['VALAMI']; }
+            //$input -> value    = $ertek['value'];
+
+            $html = $input -> getHtml();
+            if($ertek['alert']){
+                $html .= ' *';
+            }
+
+            //Összevonások lekezelése és tartalom összefűzése
+            if(!$osszevon_flag){
+                $mezok .= nl2("
+                                <div class=\"dtr\">
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
+                                    <div class=\"dtc form_jobb\">
+                            ");
+            }else{
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+            }
+
+            $mezok .= $html;
+
+            if($ertek['osszevon']){
+                $osszevon_flag = 1;
+            }else{
+                $osszevon_flag = 0;
+                $mezok .= "</div></div>";
+            }
+        break;
+
+		case 'select_szemelyzet':
+            $input = new Select($select_szemelyzet, $sor['szemelyzet_id']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
