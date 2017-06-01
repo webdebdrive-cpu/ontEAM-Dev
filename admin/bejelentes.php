@@ -1,5 +1,11 @@
 <?php
 require_once('../weblap.php');
+
+if( !_jog(0) ) {
+    header('Content-Type: text/html; charset=utf-8');
+    exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
+}
+
 //Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
@@ -29,16 +35,16 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 $szamla_html = '';
 
 //Több kép menedzseléséhez
-$tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
+$tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
-    function get_tobbkep_csakkep()  { return 'true';    } // Lényeges, hogy egy string legyen
+    function get_tobbkep_csakkep()  { return 'false';   } // Lényeges, hogy egy string legyen
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
     function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
         global $megnevezes;
         return $megnevezes.'_id';
     }
-    function get_tobbkep_tabla(){ return 'kepek';       } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
+    function get_tobbkep_tabla(){ return 'bejelentes_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 
     //Kép törlésének lekezelése
     if (isset($_GET[$torles.'tobbkep_torol'])){
@@ -146,11 +152,13 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
-    if( isset($_GET['modosit']) ||  isset($_GET['tortenet']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzes']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            'tortenet'      => 'Történet'
+            'tortenet'      => 'Történet',
+            'dokumentumok'  => 'Dokumentumok',
+            'megjegyzes'    => 'Megjegyzés'
         );
 
         $fulek = '';
@@ -172,6 +180,12 @@ if($gyorskereso_text){
 
 	//Új termék felvitele
 	if(isset($_GET['uj']) && !$csak_szerkesztheto){
+
+        if( !_jog(1) ) {
+            echo 'Nincs Jogosultságod új bejelentést feltölteni!';
+            require_once('footer.php');
+            exit();
+        }
 
         //NAVIGÁCIÓ
         $gombok = '';
@@ -201,7 +215,7 @@ if($gyorskereso_text){
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
-	    $form_mit    = array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}');
+	    $form_mit    = array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}');
 
         /* Javascipt-es ellenőrzéshez */
         $tabla = str_replace('.php', '', basename(self()));
@@ -229,7 +243,14 @@ if($gyorskereso_text){
                           <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" value="Mentés">
                       </div>').$gombok;
 
-	    $form_mivel   = array($js, self(), $mezok, $megnevezes, $ckeditor, $gombok);
+        $muv_style = '';
+        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+            if( $_COOKIE['csuszkaSzelesseg'] ) {
+                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 6).'px);"';
+            }
+        }
+
+	    $form_mivel   = array($js, self(), $mezok, $megnevezes, $ckeditor, $gombok, $muv_style);
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
 
         if( $_GET['ajax'] ) {
@@ -289,6 +310,36 @@ if($gyorskereso_text){
         //$gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().get_get(array('modosit','errnum','kephiba','siker','id', 'szerkeszt', 'ajax')).'&amp;lista\'" value="Lista" title="Lista megtekintése">';
         //$gombok .= ' <input type="button" id="visszavonas_gomb" disabled="disabled" class="gombb" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\', true);" value="Visszavonás" title="Visszavonás">';
 
+        /* Kijelöltekkel való művelet gombok */
+        if( _jog(2) ) {
+            $gombok .= nl2('
+                <div id="kmCont">
+                    <input type="button" class="gomb_alert piros foGomb km_false" value="Elutasítás" title="Elutasítás">
+                    <div class="kijeloltek_muv">
+                        <input type="button" class="gomb foGomb km_false" value="Csoportosítás..." title="Csoportosítás...">
+                        <div class="muv">
+                            <ul>
+                                <li><a class="km_false">Csoporthoz adás</a></li>
+                                <li><a class="km_false">Csoportból kivétel</a></li>
+                                <li><a class="km_false">Csoport átnevezése</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="kijeloltek_muv">
+                        <input type="button" class="gomb foGomb km_false" value="Várólista..." title="Várólista...">
+                        <div class="muv">
+                            <ul>
+                                <li><a class="km_false">Várólistához adás</a></li>
+                                <li><a class="km_false">Várólistból kivétel</a></li>
+                                <li><a class="km_false">Várólista átnevezése</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <input type="button" class="gombb foGomb km_false" value="Munkalap készítése" title="Munkalap készítése">
+                </div>
+            ');
+        }
+
         if( !$csak_szerkesztheto ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törlöd ezt a '.$szoveg.'?\',gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
@@ -336,10 +387,16 @@ if($gyorskereso_text){
             </div>
         ').$gombok;
 
+        $muv_style = '';
+        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+            if( $_COOKIE['csuszkaSzelesseg'] ) {
+                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 6).'px);"';
+            }
+        }
 
 	    $szamla_html .= str_replace(
-            array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}'),
-            array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok  ),
+            array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'),
+            array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style  ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
 
@@ -353,13 +410,45 @@ if($gyorskereso_text){
         }
 
         if($tobb_kep){
-			require_once('tobb_kep.php');
+			//require_once('tobb_kep.php');
 		}
 
-	//Státusz
+	/* Történet */
     }elseif(isset($_GET['tortenet'])) {
 
-        $szamla_html .= '';
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Státusz</div>
+                </div>
+        ');
+
+        $sorok = $adatbazis_kapcsolat->s('*', 'statusz', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
+
+        if( $sorok ) {
+            foreach($sorok as $sor) {
+                $statusz = $adatbazis_kapcsolat->s('nev szinkod', 'statusz_text', 'recid='.$sor['stat_id'], '', '1');
+
+                $szinkod = '';
+                if( $statusz ) {
+                    $statusz = $statusz[0];
+
+                    $sor['statusz'] = $statusz['nev'];
+
+                    if( $statusz['szinkod'] ) {
+                        $szinkod = ' style="background: '.$statusz['szinkod'].';"';
+                    }
+                }
+
+                $szamla_html .= nl2('
+                    <div class="dtr nSor"'.$szinkod.'>
+                        <div class="dtc">'.$sor['statusz'].'</div>
+                    </div>
+                ');
+            }
+        }
+
+        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -369,7 +458,58 @@ if($gyorskereso_text){
             echo $szamla_html;
         }
 
-	//Lista
+    /* Dokumentumok */
+    }elseif(isset($_GET['dokumentumok'])) {
+
+        if( $tobb_kep ) {
+            require_once('tobb_kep.php');
+        }
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+    /* Megjegyzés */
+    }elseif(isset($_GET['megjegyzes'])) {
+
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Megjegyzés</div>
+                    <div class="dtc">Hozzáadta</div>
+                    <div class="dtc">Hozzáadva</div>
+                </div>
+        ');
+
+        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
+
+        if( $sorok ) {
+            foreach($sorok as $sor) {
+                $szamla_html .= nl2('
+                    <div id="naploSor-'.$sor['recid'].'" class="dtr nSor">
+                        <div class="dtc">'.$sor['megj'].'</div>
+                        <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.$sor['insert_dt'].'</div>
+                    </div>
+                ');
+            }
+        }
+
+        $szamla_html .= '</div>';
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+	/* Lista */
 	}elseif(isset($_GET['lista'])){
 
         //LEKÉRDEZÉS

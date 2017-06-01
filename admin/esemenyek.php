@@ -18,6 +18,8 @@ $_SESSION['ketHasabos'] = array(
     'bejelentes.php',
     'utemezett_feladatok.php',
     'cikktorzs.php',
+    'ktghely.php',
+    'ktgnem.php',
 );
 
 $tabla = basename(self());
@@ -131,7 +133,7 @@ switch($tabla) {
     break;
     case 'bejelentes.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid ikt_szam';
+        $_OPTS['select']    = 'recid ikt_szam surgos telephely_id obj_id';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('ikt_szam');
@@ -173,6 +175,40 @@ switch($tabla) {
         /* Default rendezés */
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'id';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'ktghely.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid id nev';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('nev');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'nev';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'ktgnem.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid id nev';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('nev');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'nev';
         }
 
         /* Default rendezési irány */
@@ -276,7 +312,7 @@ $bejovo_szamlak_tomb = $akt_tomb = array(
     //array('type' => 'text',                 'megn' => 'Szolg.központ átvette:','name' => 'szkp_atvette', 'disabled' => $disabled,    'class' => 'kicsi datepicker', 'value' => $datum, 'osszevon' => true),
     //array('type' => 'text',                 'megn' => '',                    'name' => 'szkp_feldolg',   'disabled' => $disabled,    'maxlength' => 250, 'class' => ''),
     array('type' => 'checkbox',             'megn' => 'Kontírozási sablon:', 'name' => 'sablon',         'disabled' => $disabled,    'class' => 'check'),
-    array('type' => 'statusz',              'megn' => 'Státusz:',            'disabled' => $disabled),
+    array('type' => 'bsz_statusz',          'megn' => 'Státusz:',            'disabled' => $disabled),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -304,11 +340,20 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //}
 
 /* Rendszer */
-$megnevezes = 'rendszer';
-$rendszer_tomb = $akt_tomb = array(
-    array('type' => 'text',         'megn' => 'ID:',             'name' => 'recid',   'disabled' => $csakUjkent,       'maxlength' => 250, 'class' => 'oriasi',                                                'show' => true),
+$megnevezes = 'ktghely';
+$ktghely_tomb = $akt_tomb = array(
+    array('type' => 'text',         'megn' => 'ID:',             'name' => 'id',      'disabled' => $csakUjkent,       'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki az ID-t!', 'show' => true),
     array('type' => 'text',         'megn' => 'Érték:',          'name' => 'nev',     'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',  'show' => true),
-    array('type' => 'select_rkat',  'megn' => 'Értéklista:',     'name' => 'rkat',    'disabled' => $csakUjkent),
+
+	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+/* Rendszer */
+$megnevezes = 'ktgnem';
+$ktgnem_tomb = $akt_tomb = array(
+    array('type' => 'text',         'megn' => 'ID:',             'name' => 'id',      'disabled' => $csakUjkent,       'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki az ID-t!', 'show' => true),
+    array('type' => 'text',         'megn' => 'Érték:',          'name' => 'nev',     'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',  'show' => true),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -438,6 +483,9 @@ $bejelentes_tomb = $akt_tomb = array(
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
+$bejelentes_dok_tomb = $akt_tomb = array(
+    array('type' => 'jsfile',               'megn' => 'Fájlok:',  'name' => 'termek_kep',  'tabla' => $megnevezes,  'oszlop' => 'kep_teszt',   'algoritmus' => 'fajlnev'/*nev | fajlnev | id*/,   'meret' => 31457280, 'csakkep'  => false, 'fajlok_szama'  => 5),
+);
 
 
 //Ütemezett feladatok
@@ -543,7 +591,9 @@ if( isset($_GET['gepVane']) ) {
 
 /* Objektumok generálása */
 if( isset($_GET['obj_general']) ) {
-    echo obj_gen();
+    $telephely_id = $_GET['telephely_id'];
+
+    echo obj_gen( $telephely_id );
 
     $weblap->leallit();
     exit();
@@ -556,6 +606,25 @@ if( isset($_GET['naploTorol']) ) {
 
     if( $tabla && $sorID ) {
         $adatbazis_kapcsolat -> d($tabla, 'recid='.$sorID);
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+if( isset($_GET['addMegjegyzes']) ) {
+    $pageID = $_GET['pageID'];
+    $megj   = $_GET['megj'];
+    $tabla  = $_GET['tabla'];
+
+    if( $pageID && $megj ) {
+        $kapcsID = $adatbazis_kapcsolat -> i('megjegyzes', array('tabla', 'id', 'megj', 'insert_dt', 'insert_usr'), array($tabla, $pageID, $megj, date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'user']));
+
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'kapcsID' => $kapcsID,
+            'uzi'     => ''
+        ));
     }
 
     $weblap->leallit();
@@ -659,6 +728,7 @@ if( isset($_GET['szamlaLista']) ) {
     $rend  = $_GET['rend'];
     $irany = $_GET['irany'];
     $tabla = $_GET['tabla'];
+    $ksz   = $_GET['ksz'];
 
     $order = '';
     if( $rend ) {
@@ -683,10 +753,60 @@ if( isset($_GET['szamlaLista']) ) {
             $where = "`torolve` = '0'";
         }
 
-        $szamla_lista = szamla_lista( $tabla, $_OPTS['select'], $where, $order );
+        if( $ksz ) {
+            if( $where ) {
+                $where .= " AND `{$rend}` LIKE '%{$ksz}%'";
+            } else {
+                $where = "`{$rend}` LIKE '%{$ksz}%'";
+            }
+        }
+
+        //Lapozás előkészítése
+        require_once('../class/class.Lapozo.php');
+
+        if(!$_GET['oldal']){
+            $_GET['oldal'] = 1;
+        }
+
+        $_GET['epo'] = 9999999999999;
+
+        $bejegyzesek = $adatbazis_kapcsolat->s($_OPTS['select'], $tabla, $where, '', '');
+
+        $lapozo = new Lapozo;
+        $lapozo -> elem_osszes      = count($bejegyzesek);
+        $lapozo -> fajl             = $tabla.'.php';
+        $lapozo -> mind_var         = ''; //'Összes elem kilistázása' változó neve. Ha üres akkor nincs össsez oldal megjelenítés. Alapértelmezetten 'osszes'
+        //$lapozo -> epo_var         = 'epo';    //Elem per oldal változó neve
+        //$lapozo -> oldal_var       = 'oldal';  //Oldal változó neve
+        $lapozo -> kozep_meret      = 5;        //Nagy oldalszám esetén a középső intervallum mérete
+        //$lapozo -> max_fix_oldal   = 10;        //Ha a megadott számtól több oldal van, akkor jelenik meg az előző/követekző felirat
+        //$lapozo -> epo_array       = array(50, 100, 150);  //Elem per oldal mennyiségek ha választhatóak, akkor egy tömbbyi interrel adhatjuk át az opciókat
+        //$lapozo -> mind_text       = 'Összes oldal';  //pldalszámok mellett a "minden elem kilistázásának" felirata (ha $mind_var üres string akkor nem jelenik ez meg)
+        //$lapozo -> elozo_title     = '« Előző oldal';        //'Előző' felirat, link title-jéhez
+        //$lapozo -> kovet_title     = 'Következő oldal »';    //'Következő' felirat, link title-jéhez
+        //$lapozo -> kozep_meret     = 'Aktuális oldal';       //'Aktuális oldal' felirat, link title-jéhez
+
+        $utvonal = '../sablon/admin/';
+        $lapozo -> sablon_elozo       = $utvonal.'lapozas_elozo.html';
+        $lapozo -> sablon_kovetkezo   = $utvonal.'lapozas_kovet.html';
+        $lapozo -> sablon_oldalak     = $utvonal.'lapozas_oldalak.html';
+        $lapozo -> sablon_option      = $utvonal.'lapozas_option.html';
+        $lapozo -> sablon_pontok      = $utvonal.'lapozas_pontok.html';
+        $lapozo -> sablon_select      = $utvonal.'lapozas_select.html';
+
+        /* Számolás */
+        $lapozo -> lapozas();
+
+        $lapozas = $lapozo -> kiir();
+
+        if( $tabla == 'bejelentes' ) {
+            $order = 'surgos desc, '.$order;
+        }
+
+        $szamla_lista = szamla_lista( $tabla, $_OPTS['select'], $where, $order, $lapozo -> getLimit() );
 
         if( $szamla_lista ) {
-            echo $szamla_lista;
+            echo '<div class="szamlaLapozas fent clearFix">'.$lapozas.'</div>'.$szamla_lista.'<div class="szamlaLapozas clearFix">'.$lapozas.'</div>';
         } else {
             echo '<ul class="szamla_cont"><li class="szamla_datum"><strong>Nincs találat.</strong></li></ul>';
         }

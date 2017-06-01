@@ -160,8 +160,8 @@ $aloldalak = array(
     $megn.'.php?rkat=1',
     $megn.'.php?rkat=2',
     'szallito.php',
-    $megn.'.php?rkat=4',
-    $megn.'.php?rkat=5',
+    'ktghely.php',
+    'ktgnem.php',
     $megn.'.php?rkat=1,2',
     'erteklista.php',
     'login.php',
@@ -184,15 +184,15 @@ if( $_GET['rkat'] || $_SESSION['rendszerkat'] ) {
     }
 }
 
-if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-if(basename(self())==$megn.'.php' && !$_GET['rkat']){ $oldalNev = $menu_nev; }
-if(basename(self())=='szallito.php'     && isset($_GET['modosit'])){ $navi = 'Szállító szerkesztése'; }
-if(basename(self())=='szallito.php'      ) { $oldalNev = 'Szállítók'; }
-if(basename(self())=='bejovo_szamlak.php') { $oldalNev = 'Bejövő számlák'; }
+if(basename(self())==$megn.'.php'   && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+if(basename(self())==$megn.'.php'   && !$_GET['rkat']){ $oldalNev = $menu_nev; }
+if(basename(self())=='szallito.php' && isset($_GET['modosit'])){ $navi = 'Szállító szerkesztése'; }
+if(basename(self())=='szallito.php'             ) { $oldalNev = 'Szállítók'; }
+if(basename(self())=='bejovo_szamlak.php'       ) { $oldalNev = 'Bejövő számlák'; }
 if(basename(self())=='rendszer.php' && !$_GET['rkat']) { $oldalNev = 'Rendszer'; }
-if(basename(self())=='erteklista.php'        ) { $oldalNev = 'Értéklisták'; }
-if(basename(self())=='login.php'         ) { $oldalNev = 'Felhasználók'; }
-if(basename(self())=='szerepkor.php'     ) { $oldalNev = 'Szerepkörök'; }
+if(basename(self())=='erteklista.php'           ) { $oldalNev = 'Értéklisták'; }
+if(basename(self())=='login.php'                ) { $oldalNev = 'Felhasználók'; }
+if(basename(self())=='szerepkor.php'            ) { $oldalNev = 'Szerepkörök'; }
 
 $aktmenuk  = '';
 //$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Áfa' ), $almenu_sablon );
@@ -228,8 +228,9 @@ if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $m
     $style = ' class="hover"';
 }
 
-$menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
-
+if( _jog(0) ) {
+    $menuk .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+}
 
 /* Munkák */
 $menu_nev        = 'Munkák';
@@ -498,6 +499,14 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $where = "`torolve` = '0'";
     }
 
+    if( $_GET['ksz'] ) {
+        if( $where ) {
+            $where .= " AND `".$_GET['rend']."` LIKE '%".$_GET['ksz']."%'";
+        } else {
+            $where = "`".$_GET['rend']."` LIKE '%".$_GET['ksz']."%'";
+        }
+    }
+
     //Lapozás előkészítése
     require_once('../class/class.Lapozo.php');
 
@@ -505,16 +514,17 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $_GET['oldal'] = 1;
     }
 
-    $_GET['epo'] = 50;
+    $_GET['epo'] = 9999999999999;
 
     $bejegyzesek = $adatbazis_kapcsolat->s($_OPTS['select'], $tabla, $where, $_OPTS['order'], '');
 
     $lapozo = new Lapozo;
-    $lapozo -> elem_osszes = count($bejegyzesek);
+    $lapozo -> elem_osszes      = count($bejegyzesek);
+    $lapozo -> fajl             = $_SERVER['PHP_SELF'];
     $lapozo -> mind_var         = ''; //'Összes elem kilistázása' változó neve. Ha üres akkor nincs össsez oldal megjelenítés. Alapértelmezetten 'osszes'
     //$lapozo -> epo_var         = 'epo';    //Elem per oldal változó neve
     //$lapozo -> oldal_var       = 'oldal';  //Oldal változó neve
-    $lapozo -> kozep_meret     = 5;        //Nagy oldalszám esetén a középső intervallum mérete
+    $lapozo -> kozep_meret      = 5; //Nagy oldalszám esetén a középső intervallum mérete
     //$lapozo -> max_fix_oldal   = 10;        //Ha a megadott számtól több oldal van, akkor jelenik meg az előző/követekző felirat
     //$lapozo -> epo_array       = array(50, 100, 150);  //Elem per oldal mennyiségek ha választhatóak, akkor egy tömbbyi interrel adhatjuk át az opciókat
     //$lapozo -> mind_text       = 'Összes oldal';  //pldalszámok mellett a "minden elem kilistázásának" felirata (ha $mind_var üres string akkor nem jelenik ez meg)
@@ -535,6 +545,10 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     $lapozas = $lapozo -> kiir();
 
+    if( basename(self()) == 'bejelentes.php' ) {
+        $_OPTS['order'] = 'surgos desc, '.$_OPTS['order'];
+    }
+
     $tartBal  = szamla_lista( $tabla, $_OPTS['select'], $where, $_OPTS['order'], $lapozo -> getLimit() );
     $keresodn = '';
 
@@ -542,6 +556,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);';
     } elseif( isset($_GET['szallodak']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);';
+    } elseif( basename(self()) == 'bejelentes.php' && isset($_GET['megjegyzes']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } else {
         $uj_link = self().'?uj';
     }
@@ -593,8 +609,8 @@ if( $_SESSION['nincs_jelsz'] ) {
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CSS}', '{CEGNEV}', '{MENUK}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{SELF}', '{TOROL_DIS}', '{SZERK_DIS}', '{UJ_DIS}', '{BELEPVE}', '{UJ_LINK}', '{LAPOZAS}'),
-    array( $css,    get_nev(),  $menuk,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $self,    $torol_dis,    $szerk_dis,    $uj_dis,    $belepve,    $uj_link,    $lapozas  ),
+    array('{CSS}', '{CEGNEV}', '{MENUK}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{SELF}', '{TOROL_DIS}', '{SZERK_DIS}', '{UJ_DIS}', '{BELEPVE}', '{UJ_LINK}', '{LAPOZAS}', '{KSZ}'      ),
+    array( $css,    get_nev(),  $menuk,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $self,    $torol_dis,    $szerk_dis,    $uj_dis,    $belepve,    $uj_link,    $lapozas,    $_GET['ksz']),
     $header_sablon
 );
 

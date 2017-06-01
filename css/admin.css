@@ -216,14 +216,16 @@ input.gomb.border{
 }
 
 .muveletek {
-    background: #fff;
-    border-radius: 0.2rem 0.2rem 0rem 0rem;
+    background: rgba(255, 255, 255, 1);
+    border-radius: 0rem;
+    border-top: 0.2rem solid #004990;
     margin: 1rem 0rem 0rem 0rem;
     padding: 1rem 1rem 1rem 1rem;
     position: fixed;
     bottom: 0rem;
-    transform: translateX(-50%);
-    left: 50%;
+    right: 0rem;
+    text-align: center;
+    width: 100%;
     z-index: 21;
 }
 
@@ -243,6 +245,59 @@ input.gomb.border{
 
 .form_kuldes input.gombb_alert:hover {
     background: #76B958;
+}
+
+div.kijeloltek_muv {
+    display: inline-block;
+    position: relative;
+}
+
+div.kijeloltek_muv div.muv {
+    display: none;
+    background: #efefef;
+    border: 0.1rem solid #CECECE;
+    border-radius: 0.2rem;
+    padding: 0rem 0rem 0rem 0rem;
+    position: absolute;
+    bottom: 3.1rem;
+    left: 0;
+}
+
+div.kijeloltek_muv.active div.muv {
+    display: block;
+}
+
+div.kijeloltek_muv div.muv li {
+    padding: 0rem 1rem 0rem 1rem;
+}
+
+div.kijeloltek_muv div.muv li a {
+    color: #242424;
+    cursor: pointer;
+    border-bottom: 0.1rem solid #CECECE;
+    display: block;
+    padding: 0.8rem 1rem 0.8rem 1rem;
+    white-space: nowrap;
+}
+
+div.kijeloltek_muv div.muv li:last-child a {
+    border-bottom: none;
+}
+
+div.kijeloltek_muv div.muv li:hover {
+    background: #fff;
+}
+
+div.kijeloltek_muv div.muv li a:hover {
+    text-decoration: none;
+}
+
+#kmCont {
+    display: none;
+}
+
+#kmCont.active {
+    display: inline-block;
 }
 
 .form_jobb{
@@ -836,12 +891,17 @@ div.jsff_thumb div.torol:hover{
 #sorrendezes_album li div.kep,
 #sorrendezes_tobbkep li div.kep,
 #sorrendezes_bejegyzes li div.kep{
+    background: #fff;
     border: 0.1rem solid #dadbde;
     border-radius: 0.5rem;
     cursor: move;
     height: 13.4rem;
     overflow: hidden;
     width: 13.4rem;
+}
+
+#sorrendezes_tobbkep li div.kep img {
+    max-width: none;
 }
 
 #sorrendezes li div.kep_fajl,
@@ -1327,6 +1387,7 @@ ul.szamla_cont li a {
     cursor: pointer;
     display: block;
     font-size: 1.2rem;
+    user-select: none;
     padding: 0.2rem 1rem 0.2rem 1rem;
     width: 100%;
 }
@@ -1342,6 +1403,10 @@ ul.szamla_cont li a span {
 
 ul.szamla_cont.rendszer li a span {
     padding: 0.3rem 0rem 0.3rem 0rem;
+}
+
+ul.szamla_cont.rendszer li a span.icon {
+    padding: 0.1rem 0rem 0rem 0rem;
 }
 
 ul.szamla_cont li a span.szso {
@@ -1436,6 +1501,10 @@ div.szamlaKereses div.rendezes div.irany a span {
 
 div.szamlaKereses div.rendezes div.irany a:hover {
     text-decoration: none;
+}
+
+div.szamlaKereses div.rendezes div.keres {
+    padding: 0rem 1rem 0rem 0rem;
 }
 
 div.szamlaStatusz {
@@ -1821,11 +1890,11 @@ span.icon svg {
 }
 
 span.icon.zold svg {
-    fill: #eb453b;
+    fill: #07a927;
 }
 
 span.icon.piros svg {
-    fill: #07a927;
+    fill: #eb453b;
 }
 
 ul.telephelyek {
