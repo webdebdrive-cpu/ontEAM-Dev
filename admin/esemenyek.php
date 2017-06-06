@@ -489,6 +489,18 @@ $bejelentes_dok_tomb = $akt_tomb = array(
 
 
 //Ütemezett feladatok
+$nap_rejt = 'dn ';
+$het_rejt = 'dn ';
+$ho_rejt  = 'dn ';
+if(basename(self())=='utemezett_feladatok.php' && isset($_GET['id'])){
+    $uf = $adatbazis_kapcsolat->s('cikltip', 'utemezett_feladatok', "`recid`='{$_GET['id']}'");
+    $uf = $uf[0];
+    switch($uf['cikltip']){
+        case 'd': $nap_rejt = ''; break;
+        case 'w': $het_rejt = ''; break;
+        case 'm': $ho_rejt  = ''; break;
+    }
+}
 $megnevezes = 'utemezett_feladatok';
 $utemezett_feladatok_tomb = $akt_tomb = array(
     array('type' => 'checkbox',                 'megn' => 'Aktív',              'name' => 'aktiv',         'class' => 'check'),
@@ -514,14 +526,14 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
         array('type' => 'text',                     'megn' => '<span style="margin-left: 0.7rem"></span>Esedékes:',         'name' => 'esnap_d',     'class' => 'datepicker'),
 
         //Naponta
-        array('type' => 'html',                     'megn' => nl2('<div id="tipus_d" style="padding: 0" class="dn cikltip">')),
-        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklnap',       'pre' => 'Ismétlődik ', 'post' => ' naponta', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value);'),
-        array('type' => 'checkbox',                 'megn' => '',                   'name' => 'hetkoz_kent',    'post' => ' Ismétlődik minden hétköznap'),
+        array('type' => 'html',                     'megn' => nl2('<div id="tipus_d" style="padding: 0" class="'.$nap_rejt.'cikltip">')),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklnap',       'pre' => 'Ismétlődik ', 'post' => ' naponta', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value); $(\'#hetkoz_kent\').prop(\'checked\', false)'),
+        array('type' => 'checkbox',                 'megn' => '',                   'name' => 'hetkoz_kent',   'post' => ' Ismétlődik minden hétköznap', 'onclick' => '$(\'#ciklnap\').val(\'\')'),
         array('type' => 'html',                     'megn' => nl2('</div>')),
 
         //Hetente
-        array('type' => 'html',                     'megn' => nl2('<div id="tipus_w" style="padding: 0" class="dn cikltip">')),
-        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklhet',        'pre' => 'Ismétlődik ', 'post' => ' hetente a következő napokon:', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value);'),
+        array('type' => 'html',                     'megn' => nl2('<div id="tipus_w" style="padding: 0" class="'.$het_rejt.'cikltip">')),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ism_het',        'pre' => 'Ismétlődik ', 'post' => ' hetente a következő napokon:', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value);'),
         array('type' => 'checkbox',                 'megn' => '',                   'name' => 'h',      'post' => '<label for="h"  class="link"> hétfő</label>',     'osszevon' => 1),
         array('type' => 'checkbox',                 'megn' => '',                   'name' => 'k',      'post' => '<label for="k"  class="link"> kedd</label>',      'osszevon' => 1),
         array('type' => 'checkbox',                 'megn' => '',                   'name' => 's',      'post' => '<label for="s"  class="link"> szerda</label>',    'osszevon' => 1),
@@ -532,12 +544,12 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
         array('type' => 'html',                     'megn' => nl2('</div>')),
 
         //Havonta
-        array('type' => 'html',                     'megn' => nl2('<div id="tipus_m" style="padding: 0" class="dn cikltip">')),
-        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklho',     'pre' => 'Ismétlődik ', 'post' => ' havonta a hónap ', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value);', 'osszevon' => 1),
+        array('type' => 'html',                     'megn' => nl2('<div id="tipus_m" style="padding: 0" class="'.$ho_rejt.'cikltip">')),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklho',     'pre' => 'Ismétlődik ', 'post' => ' havonta a hónap ', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value); $(\'#ciklho2\').val(\'\'); $(\'#ciklhet\').val(\'\'); $(\'#ho_rendsz_het\').val(\'\');', 'osszevon' => 1),
         array('type' => 'select_honapjan',          'megn' => '',                   'name' => 'honapjan',                               'post' => ' napján'),
-        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklho2',    'pre' => 'Ismétlődik ', 'post' => ' havonta a ', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value);'/*, 'osszevon' => 1*/),
-        // duplán van a mező neve: honapjan előző sor végén is kikommenteztem az osszevont array('type' => 'select_ho_ism',            'megn' => '',                   'name' => 'honapjan',     'osszevon' => 1),
-        // duplán van a mező neve: honapjan array('type' => 'select_ho_soran',          'megn' => '',                   'name' => 'honapjan', 'post' => ' során'),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklho2',    'pre' => 'Ismétlődik ', 'post' => ' havonta a ', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value); $(\'#ciklho\').val(\'\'); $(\'#honapjan\').val(\'\')', 'osszevon' => 1),
+        array('type' => 'select_ho_ism',            'megn' => '',                   'name' => 'ciklhet',        'osszevon' => 1),
+        array('type' => 'select_ho_soran',          'megn' => '',                   'name' => 'ho_rendsz_het',  'post' => ' során'),
         array('type' => 'html',                     'megn' => nl2('</div>')),
 
 	array('type' => 'html',                     'megn' => '</fieldset></div>'),

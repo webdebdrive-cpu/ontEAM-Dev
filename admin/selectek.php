@@ -138,17 +138,60 @@ array_push($select_cikltip, array('name'  => 'Havonta',    'value' => 'm'));
 //Select tömb Ütemezés típushoz
 $select_honapjan = array();
 array_push($select_honapjan, array('name' => '- Válasszon -', 'value' => '' ));
-array_push($select_honapjan, array('name' => 'Első',   'value' => 'elso'));
+array_push($select_honapjan, array('name' => 'Első',    'value' => '1'));
+array_push($select_honapjan, array('name' => '1',       'value' => '1'));
+array_push($select_honapjan, array('name' => '2',       'value' => '1'));
+array_push($select_honapjan, array('name' => '3',       'value' => '3'));
+array_push($select_honapjan, array('name' => '4',       'value' => '4'));
+array_push($select_honapjan, array('name' => '5',       'value' => '5'));
+array_push($select_honapjan, array('name' => '6',       'value' => '6'));
+array_push($select_honapjan, array('name' => '7',       'value' => '7'));
+array_push($select_honapjan, array('name' => '8',       'value' => '8'));
+array_push($select_honapjan, array('name' => '9',       'value' => '9'));
+array_push($select_honapjan, array('name' => '10',      'value' => '10'));
+array_push($select_honapjan, array('name' => '11',      'value' => '11'));
+array_push($select_honapjan, array('name' => '12',      'value' => '12'));
+array_push($select_honapjan, array('name' => '13',      'value' => '13'));
+array_push($select_honapjan, array('name' => '14',      'value' => '14'));
+array_push($select_honapjan, array('name' => '15',      'value' => '15'));
+array_push($select_honapjan, array('name' => '16',      'value' => '16'));
+array_push($select_honapjan, array('name' => '17',      'value' => '17'));
+array_push($select_honapjan, array('name' => '18',      'value' => '18'));
+array_push($select_honapjan, array('name' => '19',      'value' => '19'));
+array_push($select_honapjan, array('name' => '20',      'value' => '20'));
+array_push($select_honapjan, array('name' => '21',      'value' => '21'));
+array_push($select_honapjan, array('name' => '22',      'value' => '22'));
+array_push($select_honapjan, array('name' => '23',      'value' => '23'));
+array_push($select_honapjan, array('name' => '24',      'value' => '24'));
+array_push($select_honapjan, array('name' => '25',      'value' => '25'));
+array_push($select_honapjan, array('name' => '26',      'value' => '26'));
+array_push($select_honapjan, array('name' => '27',      'value' => '27'));
+array_push($select_honapjan, array('name' => '28',      'value' => '28'));
+array_push($select_honapjan, array('name' => '29',      'value' => '29'));
+array_push($select_honapjan, array('name' => '30',      'value' => '30'));
+array_push($select_honapjan, array('name' => '31',      'value' => '31'));
+array_push($select_honapjan, array('name' => 'Utolsó',  'value' => '31'));
 
 //Select tömb Ütemezés típushoz
 $select_ho_ism = array();
 array_push($select_ho_ism, array('name' => '- Válasszon -', 'value' => '' ));
-array_push($select_ho_ism, array('name' => 'Ismétlődés',   'value' => 'elso'));
+array_push($select_ho_ism, array('name' => 'első',      'value' => '1'));
+array_push($select_ho_ism, array('name' => 'második',   'value' => '2'));
+array_push($select_ho_ism, array('name' => 'harmadik',  'value' => '3'));
+array_push($select_ho_ism, array('name' => 'negyedik',  'value' => '4'));
+array_push($select_ho_ism, array('name' => 'utolsó',    'value' => '5'));
+
 
 //Select tömb Ütemezés típushoz
 $select_ho_soran = array();
 array_push($select_ho_soran, array('name' => '- Válasszon -', 'value' => '' ));
-array_push($select_ho_soran, array('name' => 'Során',   'value' => 'elso'));
+array_push($select_ho_soran, array('name' => 'hétfő',       'value' => '1'));
+array_push($select_ho_soran, array('name' => 'kedd',        'value' => '2'));
+array_push($select_ho_soran, array('name' => 'szerda',      'value' => '3'));
+array_push($select_ho_soran, array('name' => 'csütörtök',   'value' => '4'));
+array_push($select_ho_soran, array('name' => 'péntek',      'value' => '5'));
+array_push($select_ho_soran, array('name' => 'szombat',     'value' => '6'));
+array_push($select_ho_soran, array('name' => 'vasárnap',    'value' => '7'));
 
 //Select tömb Ütemezés típushoz
 $select_szemelyzet = array();

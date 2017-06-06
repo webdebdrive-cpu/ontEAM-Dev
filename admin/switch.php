@@ -882,7 +882,7 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_ho_ism':
-            $input = new Select($select_ho_ism, $sor['ho_ism']);
+            $input = new Select($select_ho_ism, $sor['ciklhet']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
@@ -929,7 +929,7 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_ho_soran':
-            $input = new Select($select_ho_soran, $sor['ho_soran']);
+            $input = new Select($select_ho_soran, $sor['ho_rendsz_het']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];

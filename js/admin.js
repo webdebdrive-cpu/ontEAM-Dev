@@ -693,8 +693,73 @@ $(function() {
         if($('#tipus_'+$(this).val()).length){
             $('#tipus_'+$(this).val()).show();
         }
+        
+        /* VÁltáskor mindent nullázunk */
+        $('#ciklnap').val('');
+        $('#hetkoz_kent').prop('checked', false);
+    
+        $('#ciklhet').val('');
+        $('#ism_het').val('');
+        $('#h') .prop('checked', false);
+        $('#k') .prop('checked', false);
+        $('#s') .prop('checked', false);
+        $('#cs').prop('checked', false);
+        $('#p') .prop('checked', false);
+        $('#sz').prop('checked', false);
+        $('#v') .prop('checked', false);
+    
+        $('#ciklho').val('');
+        $('#honapjan') .prop('checked', false);
+        $('#ciklho2').val('');
+        $('#ho_rendsz') .prop('checked', false);
+        $('#ho_rendsz_het') .prop('checked', false);
+        
+        /*switch($(this).val()){
+            case 'l':
+                    datumra_utemez_mezok_nullaz('d');
+                    datumra_utemez_mezok_nullaz('w');
+                    datumra_utemez_mezok_nullaz('m');
+            break;
+            case 'd':
+                    datumra_utemez_mezok_nullaz('w');
+                    datumra_utemez_mezok_nullaz('m');
+            break;
+            case 'w':
+                    datumra_utemez_mezok_nullaz('d');
+                    datumra_utemez_mezok_nullaz('m');
+            break;
+            case 'm':
+                    datumra_utemez_mezok_nullaz('d');
+                    datumra_utemez_mezok_nullaz('w');
+            break;
+        }*/
     });
 });
+
+/*
+function datumra_utemez_mezok_nullaz(id){
+    if(id=='d'){
+        $('#ciklnap').val('');
+        $('#hetkoz_kent').prop('checked', false);
+    }
+    if(id=='w'){
+        $('#ciklhet').val('');
+        $('#h') .prop('checked', false);
+        $('#k') .prop('checked', false);
+        $('#s') .prop('checked', false);
+        $('#cs').prop('checked', false);
+        $('#p') .prop('checked', false);
+        $('#sz').prop('checked', false);
+        $('#v') .prop('checked', false);
+    }
+    if(id=='m'){
+        $('#ciklho').val('');
+        $('#honapjan') .prop('checked', false);
+        $('#ciklho2').val('');
+        $('#ho_rendsz') .prop('checked', false);
+        $('#ho_rendsz_het') .prop('checked', false);
+    }
+}*/
 
 function obj_gen() {
     $('#ajaxfedo').removeClass('dn');

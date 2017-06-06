@@ -51,6 +51,11 @@ function i_u($type, $tabla, $tomb){
         if($tabla=='felh' && $ertek['name']=='reg_jelsz' && $_POST[$ertek['name']]) {
             $_POST[$ertek['name']] = sha1($_POST[$ertek['name']]); //sha1 helyett más elkódolást is használhatnánk, de ez javasolt. A lényeg, hogy legyen összhangban a class.Felhasznalo konfigjával
         }
+        
+        //Ha van datepicker class-ja, akkor dátum, és a pontokat kötőjelre cseréljük
+        if(strpos($ertek['class'], 'datepicker')!==false){
+            $_POST[$ertek['name']] = str_replace('.', '-', $_POST[$ertek['name']]);
+        }
 
 		//Ha nem gomb, nem fájl és nem disabled és az oszlopnév sem üres és maga a POST egyáltalán létezik is (ne nullázzunk felül el nem küldött POST miatt)
 		if($ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && !($ertek['disabled'] && $type == 'update'/*Tiltott mezőket beszúrni lehet csak moddolni nem*/) && $ertek['name'] && isset($_POST[$ertek['name']]) ) {
@@ -60,6 +65,94 @@ function i_u($type, $tabla, $tomb){
 
 		$i++;
 	}
+    
+    //Dátumra ütmezés, ha az ütemezett feldaatokat módosítjuk/töltjük fel
+    if( $tabla == 'utemezett_feladatok' ) {
+        //Napi cilus, X naponként ismétlődik
+        if($_POST['cikltip']=='l'){
+            array_push($oszlopok, 'ciklaltip'       );
+            array_push($ertekek,  ''                );
+            array_push($oszlopok, 'ciklszorz'       );
+            array_push($ertekek,  ''                );
+            array_push($oszlopok, 'ciklhet'         );
+            array_push($ertekek,  ''                );
+            array_push($oszlopok, 'ciklnap'         );
+            array_push($ertekek,  ''                );
+            array_push($oszlopok, 'ho_rendsz_het'   );
+            array_push($ertekek,  ''                );
+        }
+        if($_POST['ciklnap']){
+            array_push($oszlopok, 'ciklaltip'       );
+            array_push($ertekek,  '1'               );
+            
+            array_push($oszlopok, 'ciklszorz'       );
+            array_push($ertekek,  $_POST['ciklnap'] );
+            
+            array_push($oszlopok, 'ciklhet' );
+            array_push($ertekek,  ''        );
+        }
+        //Napi ciklus, hétköznaponként isméltődik
+        if($_POST['hetkoz_kent']){
+            array_push($oszlopok, 'ciklaltip'   );
+            array_push($ertekek,  '2'           );
+            
+            array_push($oszlopok, 'ciklszorz'   );
+            array_push($ertekek,  '0'           );
+            
+            array_push($oszlopok, 'ciklhet' );
+            array_push($ertekek,  ''        );
+            array_push($oszlopok, 'ciklnap' );
+            array_push($ertekek,  ''        );
+        }
+        
+        //Havi ciklus x havonta ismétlődik
+        if($_POST['ciklho']){
+            array_push($oszlopok, 'ciklaltip'   );
+            array_push($ertekek,  '1'           );
+            
+            array_push($oszlopok, 'ciklszorz'      );
+            array_push($ertekek,  $_POST['ciklho'] );
+            
+            array_push($oszlopok, 'ciklnap'      );
+            array_push($ertekek,  $_POST['honapjan'] );
+            
+            array_push($oszlopok, 'ciklhet' );
+            array_push($ertekek,  ''        );
+        }
+        if($_POST['ciklho2']){
+            array_push($oszlopok, 'ciklaltip'               );
+            array_push($ertekek,  '2'                       );
+            
+            array_push($oszlopok, 'ciklszorz'       );
+            array_push($ertekek,  $_POST['ciklho2'] );
+            
+            array_push($oszlopok, 'ciklhet'                 );
+            array_push($ertekek,  $_POST['ciklhet']   );
+            
+            array_push($oszlopok, 'ciklnap'                 );
+            array_push($ertekek,  $_POST['ho_rendsz_het']   );
+        }
+        if($_POST['ism_het']){
+            array_push($oszlopok, 'ciklszorz'       );
+            array_push($ertekek,  $_POST['ism_het'] );
+            $cikl_nap = '';
+            if($_POST['h']) { $cikl_nap .= '1'; }
+            if($_POST['k']) { $cikl_nap .= '2'; }
+            if($_POST['s']) { $cikl_nap .= '3'; }
+            if($_POST['cs']){ $cikl_nap .= '4'; }
+            if($_POST['p']) { $cikl_nap .= '5'; }
+            if($_POST['sz']){ $cikl_nap .= '6'; }
+            if($_POST['v']) { $cikl_nap .= '7'; }
+            
+            array_push($oszlopok, 'ciklnap'     );
+            array_push($ertekek,  $cikl_nap     );
+            
+            array_push($oszlopok, 'ciklaltip'   );
+            array_push($ertekek,  ''            );
+            array_push($oszlopok, 'ciklhet'     );
+            array_push($ertekek,  ''            );
+        }
+    }
 
 	if($type == 'insert') {
         /* Datetime-ot is frissítjük */
@@ -113,7 +206,7 @@ function i_u($type, $tabla, $tomb){
 
         //Ütemezett feladatok ID képzése
         } else if( $tabla == 'utemezett_feladatok' ) {
-            /* ID formázása */
+            /* ID képzése */
             
             //Szálloda azonosító
             $szalloda   = $adatbazis_kapcsolat->s('azon', 'telephely', "`id`='{$_POST['telephely_id']}'");
@@ -144,6 +237,7 @@ function i_u($type, $tabla, $tomb){
             
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
+            
         }
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
