@@ -59,7 +59,7 @@ ol, ul {
     display: block;
     height: 0rem;
     line-height: 0rem;
-    visibility: hidden;    
+    visibility: hidden;
 }
 
 /* Képek */
@@ -99,13 +99,13 @@ td.bottom {
 
 
 /* Általános stílusok */
-.alert  { color: #E00000;               }
+/*.alert  { color: #E00000;               }*/
 .at     { text-decoration: line-through;}
 .auto   { margin: 0 auto;               }
 .b      { font-weight: bold;            }
 .c      { text-align: center;           }
 .debug  { border: 0.1rem solid #f00;    }
-.db     { display: block;               } 
+.db     { display: block;               }
 .di     { display: inline;              }
 .dib    { display: inline-block;        }
 .dn     { display: none;                }

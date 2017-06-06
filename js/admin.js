@@ -347,6 +347,7 @@ function felh_valt( valt ) {
 
     if( valt ) {
         $('div.loginAlert').removeClass('dn');
+        document.getElementById('login_nev').focus();
     } else {
         $('div.loginAlert').addClass('dn');
     }
@@ -566,64 +567,66 @@ $(function() {
             type = $(this).attr('type'),
             val  = $(this).val();
 
-        var taroltVal = htmlspecialchars_decode(formAdatok[name]);
+        if( name != 'mehet_gomb' ) {
+            var taroltVal = htmlspecialchars_decode(formAdatok[name]);
 
-        if( type == 'checkbox' ) {
-            val = $(this).prop('checked');
-        }
+            if( type == 'checkbox' ) {
+                val = $(this).prop('checked');
+            }
 
-        if( $(this).hasClass('datepicker') ) {
-            if( formAdatok[name] != '0000-00-00' ) {
-                var date = new Date(formAdatok[name]);
+            if( $(this).hasClass('datepicker') ) {
+                if( formAdatok[name] != '0000-00-00' ) {
+                    var date = new Date(formAdatok[name]);
 
-                var ev    = date.getFullYear(),
-                    honap = date.getMonth() + 1,
-                    nap   = date.getDate();
+                    var ev    = date.getFullYear(),
+                        honap = date.getMonth() + 1,
+                        nap   = date.getDate();
 
-                if( honap >= 0 && honap < 10 ) {
-                    honap = '0' + honap;
+                    if( honap >= 0 && honap < 10 ) {
+                        honap = '0' + honap;
+                    }
+
+                    if( nap >= 0 && nap < 10 ) {
+                        nap = '0' + nap;
+                    }
+
+                    taroltVal = ev + '.' + honap + '.' + nap;
+                } else {
+                    taroltVal = '____.__.__';
                 }
+            }
 
-                if( nap >= 0 && nap < 10 ) {
-                    nap = '0' + nap;
-                }
-
-                taroltVal = ev + '.' + honap + '.' + nap;
+            if( taroltVal != val ) {
+                $(this).addClass('mod');
             } else {
-                taroltVal = '____.__.__';
+                $(this).removeClass('mod');
             }
-        }
 
-        if( taroltVal != val ) {
-            $(this).addClass('mod');
-        } else {
-            $(this).removeClass('mod');
-        }
+            var form = $(this).parents('#szerk_form');
 
-        var form = $(this).parents('#szerk_form');
+            mod = 0;
+            form.find('input, select, textarea').each(function() {
+                if( $(this).hasClass('mod') ) {
+                    mod++;
+                }
+            });
 
-        mod = 0;
-        form.find('input, select, textarea').each(function() {
-            if( $(this).hasClass('mod') ) {
-                mod++;
+            if( mod ) {
+                $('#kilepes_gomb').val('Kilépés mentés nélkül');
+                $('#mehet_gomb').attr('disabled', false).addClass('gombb_alert');
+                $('#visszavonas_gomb').attr('disabled', false);
+
+                formModositva = true;
+            } else {
+                $('#kilepes_gomb').val('Kilépés');
+                $('#mehet_gomb').attr('disabled', true).removeClass('gombb_alert');
+                $('#visszavonas_gomb').attr('disabled', true);
+
+                formModositva = false;
             }
-        });
 
-        if( mod ) {
-            $('#kilepes_gomb').val('Kilépés mentés nélkül');
-            $('#mehet_gomb').attr('disabled', false).addClass('gombb_alert');
-            $('#visszavonas_gomb').attr('disabled', false);
-
-            formModositva = true;
-        } else {
-            $('#kilepes_gomb').val('Kilépés');
-            $('#mehet_gomb').attr('disabled', true).removeClass('gombb_alert');
-            $('#visszavonas_gomb').attr('disabled', true);
-
-            formModositva = false;
+            e.preventDefault();
         }
-
-        e.preventDefault();
     });
 
     if( $('.szamla_sor').hasClass('active') ) {
@@ -694,6 +697,13 @@ $(function() {
             $('#tipus_'+$(this).val()).show();
         }
     });
+
+    $(document).on('keyup', function(e) {
+        if( e.keyCode == 27 ) {
+            alert2();
+            felh_valt();
+        }
+    });
 });
 
 function obj_gen() {
@@ -719,7 +729,6 @@ function obj_gen() {
         alert2('Kérem előbb válasszon szállodát!');
         return false;
     }
-
 
     $.when( obj ).then(function() {
         $('#ajaxfedo').addClass('dn');
@@ -749,6 +758,7 @@ function addObj( that ) {
         }
     });
 
+    gepVane();
     popupZar();
 }
 
@@ -1343,7 +1353,7 @@ function gepVane() {
 
     var telephely_id = $('#telephely_id').val(),
         obj_id = $('#obj_id').val();
-
+        
     var gepvane = $.ajax({
         url : 'esemenyek.php',
         type: 'GET',
