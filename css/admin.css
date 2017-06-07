@@ -319,11 +319,10 @@ div.kijeloltek_muv div.muv li a:hover {
     width: 2.5rem;
 }
 
-.form_jobb a.obj_gen svg {
-    fill: #fff;
-    height: 2.4rem;
+.form_jobb a.obj_gen .material-icons {
+    color: #fff;
+    font-size: 2.4rem;
     vertical-align: bottom;
-    width: 2.4rem;
 }
 
 .form_jobb a.obj_gen:hover {
@@ -894,7 +893,7 @@ div.jsff_thumb div.torol:hover{
     background: #fff;
     border: 0.1rem solid #dadbde;
     border-radius: 0.5rem;
-    cursor: move;
+    cursor: default;
     height: 13.4rem;
     overflow: hidden;
     width: 13.4rem;
@@ -1707,7 +1706,7 @@ div.navGombok a {
     width: 2.2rem;
 }
 
-div.navGombok a svg {
+div.navGombok a .material-icons {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -1718,65 +1717,55 @@ div.navGombok a.disabled {
     pointer-events: none;
 }
 
-div.navGombok a.elo svg {
-    height: 2.2rem;
-    width: 2.2rem;
+div.navGombok a.elo .material-icons {
+    font-size: 2.2rem;
 }
 
-div.navGombok a.kov svg {
-    height: 2.2rem;
-    width: 2.2rem;
+div.navGombok a.kov .material-icons {
+    font-size: 2.2rem;
 }
 
-div.navGombok a.elso svg {
-    height: 2.2rem;
-    width: 2.2rem;
+div.navGombok a.elso .material-icons {
+    font-size: 2.2rem;
 }
 
-div.navGombok a.utolso svg {
-    height: 2.2rem;
-    width: 2.2rem;
+div.navGombok a.utolso .material-icons {
+    font-size: 2.2rem;
 }
 
-div.navGombok a.uj svg {
-    fill: #07a927;
-    height: 2.2rem;
-    width: 2.2rem;
+div.navGombok a.uj .material-icons {
+    color: #07a927;
+    font-size: 2.2rem;
 }
 
-div.navGombok a.szerk svg {
-    fill: #e6e500;
-    height: 2rem;
-    width: 2rem;
+div.navGombok a.szerk .material-icons {
+    color: #e6e500;
+    font-size: 2rem;
 }
 
-div.navGombok a.torles svg {
-    fill: #eb453b;
-    height: 2rem;
-    width: 2rem;
+div.navGombok a.torles .material-icons {
+    color: #eb453b;
+    font-size: 2rem;
 }
 
-div.navGombok a.excel svg {
-    height: 1.8rem;
-    width: 1.8rem;
+div.navGombok a.excel .material-icons {
+    font-size: 1.8rem;
 }
 
-div.navGombok a.pdf svg {
-    height: 1.8rem;
-    width: 1.8rem;
+div.navGombok a.pdf .material-icons {
+    font-size: 2rem;
 }
 
-div.navGombok a.nyomtat svg {
-    height: 2rem;
-    width: 2rem;
+div.navGombok a.nyomtat .material-icons {
+    font-size: 2rem;
 }
 
-div.navGombok a:hover svg {
-    fill: #044aff;
+div.navGombok a:hover .material-icons {
+    color: #044aff;
 }
 
-div.navGombok a.disabled svg {
-    fill: #e4e4e4;
+div.navGombok a.disabled .material-icons {
+    color: #e4e4e4;
 }
 
 #popup {
@@ -1857,6 +1846,11 @@ div.navGombok a.disabled svg {
     width: 100%;
 }
 
+#popup div.popup_tart div.dt div.dtc textarea {
+    min-height: 7rem;
+    width: 32rem;
+}
+
 #popup div.popup_tart div.kuldes {
     padding: 1rem 0rem 0rem 0rem;
     text-align: center;
@@ -1884,17 +1878,16 @@ span.icon {
     width: 2rem;
 }
 
-span.icon svg {
-    height: 2rem;
-    width: 2rem;
+span.icon .material-icons {
+    font-size: 2rem;
 }
 
-span.icon.zold svg {
-    fill: #07a927;
+span.icon.zold .material-icons {
+    color: #07a927;
 }
 
-span.icon.piros svg {
-    fill: #eb453b;
+span.icon.piros .material-icons {
+    color: #eb453b;
 }
 
 ul.telephelyek {

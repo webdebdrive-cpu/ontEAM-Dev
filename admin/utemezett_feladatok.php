@@ -237,7 +237,7 @@ if($gyorskereso_text){
                           <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" value="Mentés">
                       </div>').$gombok;
 
-        $muv_style = '';
+        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
                 $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 6).'px);"';
@@ -354,7 +354,7 @@ if($gyorskereso_text){
             </div>
         ').$gombok;
 
-        $muv_style = '';
+        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
                 $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 6).'px);"';
@@ -403,10 +403,10 @@ if($gyorskereso_text){
             if($ora<10){
                 $ora = '0'.$ora;
             }
-            
+
             $napok = '';
             for($j=0; $j<6; $j++){
-                
+
                 $db = count($adatbazis_kapcsolat->s('id', 'utemezett_feladatok', "`esnap_d`='".date('Y-m-d', strtotime('+'.$j.' days'))."' AND `elv_ido_tol`='$ora:00'"));
                 if(!$db){
                     $db = '';

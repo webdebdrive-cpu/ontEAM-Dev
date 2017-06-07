@@ -73,7 +73,7 @@ $(function(){
 
 /* Több kép sorrendezése (tobb_kep.php-t kell meghívni) */
 $(function(){
-	$('#sorrendezes_tobbkep').sortable({
+	/*$('#sorrendezes_tobbkep').sortable({
 		placeholder: 'kiemel',
 		update     : function(event, ui){
             var albumok_sorrend;
@@ -96,7 +96,7 @@ $(function(){
                 }
             });
         }
-	});
+	});*/
     /*Hogy húzáskor ne jelölödjön ki a szöveg*/
 	$('#sorrendezes_tobbkep').disableSelection();
     /*Viszont inputokba lehessen írni*/

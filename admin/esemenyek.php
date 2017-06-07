@@ -3,6 +3,8 @@
 
 require_once('../weblap.php');
 
+$_SESSION['defaultCsuszka'] = 400;
+
 $disabled_szerk = false;
 if (isset($_GET['modosit'])) {
     $disabled_szerk = true;
@@ -23,7 +25,7 @@ $_SESSION['ketHasabos'] = array(
 );
 
 $tabla = basename(self());
-if( isset($_GET['szamlaLista']) ) {
+if( isset($_GET['szamlaLista']) || isset($_GET['szamlaSorFrissit']) ) {
     $tabla = $_GET['tabla'].'.php';
 }
 
@@ -471,13 +473,14 @@ $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',    'megn' => 'Bejelentett hiba:',   'name' => 'hiba_id',        'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 4, 'alert' => 'Kérem adja meg a bejelentett hibát!'),
     array('type' => 'textarea',        'megn' => 'Hiba leírása:',       'name' => 'hiba_text',      'disabled' => $disabled,    'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
 
-    array('type' => 'autocomplete',    'megn' => 'Helyiség:',           'name' => 'obj_id',  'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/><path d="M0 0h24v24H0V0z" fill="none"/></svg></a>'),
+    array('type' => 'autocomplete',    'megn' => 'Helyiség:',           'name' => 'obj_id',  'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">reorder</i></a>'),
 
     array('type' => 'textarea',        'megn' => 'Hely leírása:',       'name' => 'helyiseg_text',  'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
     array('type' => 'autocomplete',    'megn' => 'Gépnév:',             'name' => 'gep_id',         'class' => 'oriasi disableNav', 'tabla' => 'gep', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
 
     array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',         'class' => 'check'),
     array('type' => 'checkbox',        'megn' => '',                    'name' => 'telefon',        'class' => 'check', 'post' => ' közvetlenül telepített karbantartónak telefonon bejelentve'),
+    array('type' => 'statusz',         'megn' => 'Státusz:',            'oldal' => 'bejelentes'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -730,6 +733,20 @@ if( isset($_GET['ertekFoglalt']) ) {
                 'uzi' => ''
             ));
         }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+if( isset($_GET['szamlaSorFrissit']) ) {
+    $tabla = $_GET['tabla'];
+    $recid = $_GET['recid'];
+
+    if( $tabla && $recid ) {
+        $szamla_lista = szamla_lista($tabla, $_OPTS['select'], 'recid='.$recid, '', '1', true );
+
+        echo $szamla_lista;
     }
 
     $weblap->leallit();

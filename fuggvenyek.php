@@ -51,7 +51,7 @@ function i_u($type, $tabla, $tomb){
         if($tabla=='felh' && $ertek['name']=='reg_jelsz' && $_POST[$ertek['name']]) {
             $_POST[$ertek['name']] = sha1($_POST[$ertek['name']]); //sha1 helyett más elkódolást is használhatnánk, de ez javasolt. A lényeg, hogy legyen összhangban a class.Felhasznalo konfigjával
         }
-        
+
         //Ha van datepicker class-ja, akkor dátum, és a pontokat kötőjelre cseréljük
         if(strpos($ertek['class'], 'datepicker')!==false){
             $_POST[$ertek['name']] = str_replace('.', '-', $_POST[$ertek['name']]);
@@ -65,7 +65,7 @@ function i_u($type, $tabla, $tomb){
 
 		$i++;
 	}
-    
+
     //Dátumra ütmezés, ha az ütemezett feldaatokat módosítjuk/töltjük fel
     if( $tabla == 'utemezett_feladatok' ) {
         //Napi cilus, X naponként ismétlődik
@@ -84,10 +84,10 @@ function i_u($type, $tabla, $tomb){
         if($_POST['ciklnap']){
             array_push($oszlopok, 'ciklaltip'       );
             array_push($ertekek,  '1'               );
-            
+
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  $_POST['ciklnap'] );
-            
+
             array_push($oszlopok, 'ciklhet' );
             array_push($ertekek,  ''        );
         }
@@ -95,40 +95,40 @@ function i_u($type, $tabla, $tomb){
         if($_POST['hetkoz_kent']){
             array_push($oszlopok, 'ciklaltip'   );
             array_push($ertekek,  '2'           );
-            
+
             array_push($oszlopok, 'ciklszorz'   );
             array_push($ertekek,  '0'           );
-            
+
             array_push($oszlopok, 'ciklhet' );
             array_push($ertekek,  ''        );
             array_push($oszlopok, 'ciklnap' );
             array_push($ertekek,  ''        );
         }
-        
+
         //Havi ciklus x havonta ismétlődik
         if($_POST['ciklho']){
             array_push($oszlopok, 'ciklaltip'   );
             array_push($ertekek,  '1'           );
-            
+
             array_push($oszlopok, 'ciklszorz'      );
             array_push($ertekek,  $_POST['ciklho'] );
-            
+
             array_push($oszlopok, 'ciklnap'      );
             array_push($ertekek,  $_POST['honapjan'] );
-            
+
             array_push($oszlopok, 'ciklhet' );
             array_push($ertekek,  ''        );
         }
         if($_POST['ciklho2']){
             array_push($oszlopok, 'ciklaltip'               );
             array_push($ertekek,  '2'                       );
-            
+
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  $_POST['ciklho2'] );
-            
+
             array_push($oszlopok, 'ciklhet'                 );
             array_push($ertekek,  $_POST['ciklhet']   );
-            
+
             array_push($oszlopok, 'ciklnap'                 );
             array_push($ertekek,  $_POST['ho_rendsz_het']   );
         }
@@ -143,10 +143,10 @@ function i_u($type, $tabla, $tomb){
             if($_POST['p']) { $cikl_nap .= '5'; }
             if($_POST['sz']){ $cikl_nap .= '6'; }
             if($_POST['v']) { $cikl_nap .= '7'; }
-            
+
             array_push($oszlopok, 'ciklnap'     );
             array_push($ertekek,  $cikl_nap     );
-            
+
             array_push($oszlopok, 'ciklaltip'   );
             array_push($ertekek,  ''            );
             array_push($oszlopok, 'ciklhet'     );
@@ -237,7 +237,7 @@ function i_u($type, $tabla, $tomb){
 
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
-            
+
         }
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
@@ -508,6 +508,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
                         return false;
                     }
 
+                    szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
+
                     formAdatok = html.adatok;
 
                     gombokNullaz();
@@ -775,7 +777,7 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 	}
 }
 
-function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $limit = NULL ) {
+function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $limit = NULL, $frissit = false ) {
     global $adatbazis_kapcsolat;
 
     if( $tabla ) {
@@ -784,37 +786,37 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
         if( $bejegyzesek ) {
             switch($tabla) {
                 case 'bejovo_szamlak':
-                    $html = bejovoSzamlaLista( $bejegyzesek, $tabla );
+                    $html = bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit );
                 break;
                 case 'rendszer':
-                    $html = rendszerLista( $bejegyzesek, $tabla );
+                    $html = rendszerLista( $bejegyzesek, $tabla, $frissit );
                 break;
                 case 'szallito':
-                    $html = szallitoLista( $bejegyzesek, $tabla );
+                    $html = szallitoLista( $bejegyzesek, $tabla, $frissit );
                 break;
                 case 'erteklista':
-                    $html = erteklistaLista( $bejegyzesek, $tabla );
+                    $html = erteklistaLista( $bejegyzesek, $tabla, $frissit );
                 break;
                 case 'login':
-                    $html = loginLista( $bejegyzesek, $tabla );
+                    $html = loginLista( $bejegyzesek, $tabla, $frissit );
                 break;
                 case 'szerepkor':
-                    $html = szerepkorLista( $bejegyzesek, $tabla );
+                    $html = szerepkorLista( $bejegyzesek, $tabla, $frissit );
                 break;
                 case 'bejelentes':
-                    $html = bejelentesLista( $bejegyzesek, $tabla );
+                    $html = bejelentesLista( $bejegyzesek, $tabla, $frissit );
                 break;
                 case 'utemezett_feladatok':
-                    $html = utemezett_feladatok( $bejegyzesek, $tabla );
+                    $html = utemezett_feladatok( $bejegyzesek, $tabla, $frissit );
                 break;
                 case 'cikktorzs':
-                    $html = cikktorzs( $bejegyzesek, $tabla );
+                    $html = cikktorzs( $bejegyzesek, $tabla, $frissit );
                 break;
                 case 'ktghely':
-                    $html = ktghelyLista( $bejegyzesek, $tabla );
+                    $html = ktghelyLista( $bejegyzesek, $tabla, $frissit );
                 break;
                 case 'ktgnem':
-                    $html = ktghelyLista( $bejegyzesek, $tabla );
+                    $html = ktghelyLista( $bejegyzesek, $tabla, $frissit );
                 break;
             }
         }
@@ -825,7 +827,7 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
     return false;
 }
 
-function bejelentesLista( $bejegyzesek, $tabla ) {
+function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -834,7 +836,9 @@ function bejelentesLista( $bejegyzesek, $tabla ) {
             $jClass = ' kijelolheto';
         }
 
-        $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        }
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
@@ -842,10 +846,7 @@ function bejelentesLista( $bejegyzesek, $tabla ) {
             if( $bsz['surgos'] ) {
                 $surgos = nl2('
                     <span class="icon piros">
-                        <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
-                        </svg>
+                        <i class="material-icons">error</i>
                     </span>
                 ');
             }
@@ -869,18 +870,24 @@ function bejelentesLista( $bejegyzesek, $tabla ) {
                 $helyseg = $helyseg[0]['nev'];
             }
 
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
-                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                                <span>'.$surgos.' '.$bsz['ikt_szam'].'</span>
-                                <span>'.$telephely.' - '.$helyseg.'</span>
-                                <span>'.$bsz['hiba_text'].'</span>
-                            </a>
-                        </li>';
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$surgos.' '.$bsz['ikt_szam'].'</span>
+                            <span>'.$telephely.' - '.$helyseg.'</span>
+                            <span>'.$bsz['hiba_text'].'</span>
+                         </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
 
             $i++;
         }
 
-        $html .= '</ul>';
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
 
         return $html;
     }
@@ -888,7 +895,7 @@ function bejelentesLista( $bejegyzesek, $tabla ) {
     return false;
 }
 
-function utemezett_feladatok( $bejegyzesek, $tabla ) {
+function utemezett_feladatok( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -905,7 +912,9 @@ function utemezett_feladatok( $bejegyzesek, $tabla ) {
             $jClass = ' kijelolheto';
         }
 
-        $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
@@ -914,20 +923,27 @@ function utemezett_feladatok( $bejegyzesek, $tabla ) {
                 $active = ' active';
             }
 
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
-                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                                <span>'.$bsz['id'].'</span>
-                            </a>
-                        </li>';
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['id'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
 
             $i++;
         }
 
-        $html .= nl2('</ul>
-            <div id="naptar" class="'.$naptar_dn.'">
-                <div class="naptar"></div>
-            </div>
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+                <div id="naptar" class="'.$naptar_dn.'">
+                    <div class="naptar"></div>
+                </div>
             ');
+        }
 
         return $html;
     }
@@ -935,7 +951,7 @@ function utemezett_feladatok( $bejegyzesek, $tabla ) {
     return false;
 }
 
-function cikktorzs( $bejegyzesek, $tabla ) {
+function cikktorzs( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -944,7 +960,9 @@ function cikktorzs( $bejegyzesek, $tabla ) {
             $jClass = ' kijelolheto';
         }
 
-        $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        }
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
@@ -953,13 +971,21 @@ function cikktorzs( $bejegyzesek, $tabla ) {
                 $active = ' active';
             }
 
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
-                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                                <span>'.$bsz['recid'].'</span>
-                            </a>
-                        </li>';
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
 
             $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= '</ul>';
         }
 
         return $html;
@@ -968,7 +994,7 @@ function cikktorzs( $bejegyzesek, $tabla ) {
     return false;
 }
 
-function szerepkorLista( $bejegyzesek, $tabla ) {
+function szerepkorLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -977,7 +1003,9 @@ function szerepkorLista( $bejegyzesek, $tabla ) {
             $jClass = ' kijelolheto';
         }
 
-        $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        }
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
@@ -992,10 +1020,17 @@ function szerepkorLista( $bejegyzesek, $tabla ) {
                             </a>
                         </li>';
 
+            if( !$frissit ) {
+            } else {
+                $html .= $li_tart;
+            }
+
             $i++;
         }
 
-        $html .= '</ul>';
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
 
         return $html;
     }
@@ -1003,7 +1038,7 @@ function szerepkorLista( $bejegyzesek, $tabla ) {
     return false;
 }
 
-function loginLista( $bejegyzesek, $tabla ) {
+function loginLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -1012,7 +1047,9 @@ function loginLista( $bejegyzesek, $tabla ) {
             $jClass = ' kijelolheto';
         }
 
-        $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        }
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
@@ -1023,33 +1060,33 @@ function loginLista( $bejegyzesek, $tabla ) {
 
             $aktiv = nl2('
                 <span class="icon piros">
-                    <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                        <path d="M0 0h24v24H0z" fill="none"/>
-                    </svg>
+                    <i class="material-icons">clear</i>
                 </span>
             ');
             if( $bsz['aktiv'] ) {
                 $aktiv = nl2('
                     <span class="icon zold">
-                        <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
-                        </svg>
+                        <i class="material-icons">done</i>
                     </span>
                 ');
             }
 
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
-                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                                <span>'.$aktiv.' '.$bsz['teljes_nev'].'</span>
-                            </a>
-                        </li>';
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$aktiv.' '.$bsz['teljes_nev'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
 
             $i++;
         }
 
-        $html .= '</ul>';
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
 
         return $html;
     }
@@ -1057,7 +1094,7 @@ function loginLista( $bejegyzesek, $tabla ) {
     return false;
 }
 
-function erteklistaLista( $bejegyzesek, $tabla ) {
+function erteklistaLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -1068,22 +1105,26 @@ function erteklistaLista( $bejegyzesek, $tabla ) {
             $jClass = ' kijelolheto';
         }
 
-        $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        }
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
-            $aktCsoport = $bsz['csoport'];
+            if( !$frissit ) {
+                $aktCsoport = $bsz['csoport'];
 
-            if( $i == 1 || $csoport != $aktCsoport ) {
-                $csoportSor = $adatbazis_kapcsolat->s('nev', 'erteklista_csoport', 'csoport='.$aktCsoport, '', '1');
+                if( $i == 1 || $csoport != $aktCsoport ) {
+                    $csoportSor = $adatbazis_kapcsolat->s('nev', 'erteklista_csoport', 'csoport='.$aktCsoport, '', '1');
 
-                if( $csoportSor ) {
-                    $csoportSor = $csoportSor[0];
+                    if( $csoportSor ) {
+                        $csoportSor = $csoportSor[0];
 
-                    $html .= '<li class="szamla_datum"><strong>'.$csoportSor['nev'].'</strong></li>';
+                        $html .= '<li class="szamla_datum"><strong>'.$csoportSor['nev'].'</strong></li>';
+                    }
+
+                    $csoport = $aktCsoport;
                 }
-
-                $csoport = $aktCsoport;
             }
 
             $active = '';
@@ -1091,16 +1132,22 @@ function erteklistaLista( $bejegyzesek, $tabla ) {
                 $active = ' active';
             }
 
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
-                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                                <span>'.$bsz['info'].'</span>
-                            </a>
-                        </li>';
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['info'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
 
             $i++;
         }
 
-        $html .= '</ul>';
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
 
         return $html;
     }
@@ -1108,7 +1155,7 @@ function erteklistaLista( $bejegyzesek, $tabla ) {
     return false;
 }
 
-function szallitoLista( $bejegyzesek, $tabla ) {
+function szallitoLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -1117,7 +1164,9 @@ function szallitoLista( $bejegyzesek, $tabla ) {
             $jClass = ' kijelolheto';
         }
 
-        $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        }
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
@@ -1128,33 +1177,33 @@ function szallitoLista( $bejegyzesek, $tabla ) {
 
             $aktiv = nl2('
                 <span class="icon piros">
-                    <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                        <path d="M0 0h24v24H0z" fill="none"/>
-                    </svg>
+                    <i class="material-icons">clear</i>
                 </span>
             ');
             if( $bsz['aktiv'] ) {
                 $aktiv = nl2('
                     <span class="icon zold">
-                        <svg fill="#000000" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/>
-                        </svg>
+                        <i class="material-icons">done</i>
                     </span>
                 ');
             }
 
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
-                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                                <span>'.$aktiv.' '.$bsz['nev'].'</span>
-                            </a>
-                        </li>';
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$aktiv.' '.$bsz['nev'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
 
             $i++;
         }
 
-        $html .= '</ul>';
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
 
         return $html;
     }
@@ -1162,7 +1211,7 @@ function szallitoLista( $bejegyzesek, $tabla ) {
     return false;
 }
 
-function ktghelyLista( $bejegyzesek, $tabla ) {
+function ktghelyLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -1171,7 +1220,9 @@ function ktghelyLista( $bejegyzesek, $tabla ) {
             $jClass = ' kijelolheto';
         }
 
-        $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        }
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
@@ -1180,16 +1231,22 @@ function ktghelyLista( $bejegyzesek, $tabla ) {
                 $active = ' active';
             }
 
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
-                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                                <span>'.$bsz['nev'].'</span>
-                            </a>
-                        </li>';
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['nev'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
 
             $i++;
         }
 
-        $html .= '</ul>';
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
 
         return $html;
     }
@@ -1197,7 +1254,7 @@ function ktghelyLista( $bejegyzesek, $tabla ) {
     return false;
 }
 
-function ktgnemLista( $bejegyzesek, $tabla ) {
+function ktgnemLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -1206,7 +1263,9 @@ function ktgnemLista( $bejegyzesek, $tabla ) {
             $jClass = ' kijelolheto';
         }
 
-        $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        }
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
@@ -1215,16 +1274,22 @@ function ktgnemLista( $bejegyzesek, $tabla ) {
                 $active = ' active';
             }
 
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
-                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                                <span>'.$bsz['nev'].'</span>
-                            </a>
-                        </li>';
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['nev'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
 
             $i++;
         }
 
-        $html .= '</ul>';
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
 
         return $html;
     }
@@ -1232,7 +1297,7 @@ function ktgnemLista( $bejegyzesek, $tabla ) {
     return false;
 }
 
-function bejovoSzamlaLista( $bejegyzesek, $tabla ) {
+function bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -1243,7 +1308,9 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla ) {
             $jClass = ' kijelolheto';
         }
 
-        $html = '<ul id="szamlaList" class="szamla_cont'.$jClass.'">';
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont'.$jClass.'">';
+        }
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
@@ -1285,20 +1352,26 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla ) {
                 $szallito = $szallito_sor['nev'];
             }
 
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
-                            <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                                <span class="ikt_szam"><span class="szso"><span class="statusz"'.$szinkod.'></span>Ikt. szám:</span> '.$bsz['ikt_szam'].'</span>
-                                <span class="targy"><span class="szso">Tárgy:</span> '.resz_string($bsz['targy'], 40).'</span>
-                                <span class="szallito"><span class="szso">Szállító:</span> '.$szallito.'</span>
-                                <span class="netto"><span class="szso">Nettó:</span> '.number_format($bsz['netto'], 0, '', '.').' '.get_penznem().'</span>
-                                <span class="statusz"><span class="szso">Státusz:</span> '.$statusz.'</span>
-                            </a>
-                        </li>';
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span class="ikt_szam"><span class="szso"><span class="statusz"'.$szinkod.'></span>Ikt. szám:</span> '.$bsz['ikt_szam'].'</span>
+                            <span class="targy"><span class="szso">Tárgy:</span> '.resz_string($bsz['targy'], 40).'</span>
+                            <span class="szallito"><span class="szso">Szállító:</span> '.$szallito.'</span>
+                            <span class="netto"><span class="szso">Nettó:</span> '.number_format($bsz['netto'], 0, '', '.').' '.get_penznem().'</span>
+                            <span class="statusz"><span class="szso">Státusz:</span> '.$statusz.'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
 
             $i++;
         }
 
-        $html .= '</ul>';
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
 
         return $html;
     }

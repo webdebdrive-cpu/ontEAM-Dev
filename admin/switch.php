@@ -110,6 +110,37 @@ foreach($akt_tomb as $ertek){
             ');
         break;
 
+        case 'statusz':
+            if($ertek['value']){
+                $ertek['megn'] = $ertek['value'];
+            }
+
+            if( $ertek['oldal'] == 'bejelentes' ) {
+                $statusz_sor = $adatbazis_kapcsolat->s('recid stat_id', 'statusz', "`tabla` = 'bejelentes' AND `id` = '".$_GET['id']."'", 'insert_dt desc', '1');
+
+                $statusz = '';
+                if( $statusz_sor ) {
+                    $statusz_sor = $statusz_sor[0];
+
+                    /* Státusz neve */
+                    $stat_nev = $adatbazis_kapcsolat->s('nev', 'statusz_text', 'recid='.$statusz_sor['stat_id'], '', '1');
+
+                    if( $stat_nev ) {
+                        $statusz = $stat_nev[0]['nev'];
+                    }
+                }
+
+                $mezok .= nl2('
+                    <div class="dtr">
+                        <div class="dtc form_bal"><span>'.$ertek['megn'].'</span></div>
+                        <div class="dtc form_jobb statusz">
+                            <div class="text">'.$statusz.'</div>
+                        </div>
+                    </div>
+                ');
+            }
+        break;
+
         case 'dl':
             $html = din_list( $ertek['tabla'], $ertek['oszlop'], $ertek['name'], $ertek['php_fajl'], $sor[ $ertek['name'] ], $sor[ $ertek['dl_kellid'] ], $ertek['default'] );
             if($ertek['alert']){

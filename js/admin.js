@@ -696,11 +696,11 @@ $(function() {
         if($('#tipus_'+$(this).val()).length){
             $('#tipus_'+$(this).val()).show();
         }
-        
+
         /* VÁltáskor mindent nullázunk */
         $('#ciklnap').val('');
         $('#hetkoz_kent').prop('checked', false);
-    
+
         $('#ciklhet').val('');
         $('#ism_het').val('');
         $('#h') .prop('checked', false);
@@ -710,13 +710,13 @@ $(function() {
         $('#p') .prop('checked', false);
         $('#sz').prop('checked', false);
         $('#v') .prop('checked', false);
-    
+
         $('#ciklho').val('');
         $('#honapjan') .prop('checked', false);
         $('#ciklho2').val('');
         $('#ho_rendsz') .prop('checked', false);
         $('#ho_rendsz_het') .prop('checked', false);
-        
+
         /*switch($(this).val()){
             case 'l':
                     datumra_utemez_mezok_nullaz('d');
@@ -1080,7 +1080,7 @@ function addSzakterulet( szallitoID, that ) {
 }
 
 function addMegjegyzes( pageID, that ) {
-    var megj = $(that).find('input[name="megjegyzes"]').val();
+    var megj = $(that).find('textarea[name="megjegyzes"]').val();
 
     if( pageID && megj ) {
         var ajax = $.ajax({
@@ -1295,6 +1295,21 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
 
 }
 
+function szamlaSorFrissit( tabla, recid ) {
+    if( tabla && recid ) {
+        $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'GET',
+         	data: esamp2es('tabla=' + tabla + '&amp;recid=' + recid + '&amp;szamlaSorFrissit=' + new Date().getTime()),
+         	success: function(html) {
+         		if(html) {
+         			$('#szamla-' + recid).html(html);
+         		}
+         	}
+        });
+    }
+}
+
 function ertekFoglalt(originVal, value, tabla, mezo) {
     if( originVal != value && value && tabla && mezo ) {
         $.ajax({
@@ -1418,7 +1433,7 @@ function gepVane() {
 
     var telephely_id = $('#telephely_id').val(),
         obj_id = $('#obj_id').val();
-        
+
     var gepvane = $.ajax({
         url : 'esemenyek.php',
         type: 'GET',
