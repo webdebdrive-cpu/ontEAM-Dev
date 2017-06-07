@@ -45,6 +45,7 @@
             var length  = $(this).val().length;
             var val     = $(this).val();
             mezo        = $(this);
+            setting     = options;
 
             if(length >= options.karaktertol) {
                 if(options.szel == 'auto') {
@@ -131,13 +132,28 @@
                     mezo_nev = mezo.attr('name').replace('_autocomp', '');
                     $('input[name="' + mezo_nev + '"]').val(recid);
 
-                    moveCaretToEnd(document.getElementById(mezo.attr('name')));
+                    var form = $('input[name="' + mezo_nev + '"]').parents('#szerk_form');
+
+                    stop = false;
+                    form.find('input, select, textarea').each(function() {
+                        var name = $(this).attr('name');
+
+                        if( stop ) {
+                            document.getElementById(name).focus();
+                            return false;
+                        }
+
+                        if( name == mezo_nev ) {
+                            stop = true;
+                        }
+                    });
+                    /*moveCaretToEnd(document.getElementById(mezo.attr('name')));
                     window.setTimeout(function() {
                         moveCaretToEnd(document.getElementById(mezo.attr('name')));
-                    }, 1);
+                    }, 1);*/
                 }
 
-                if( options.tabla == 'obj' ) {
+                if( setting.tabla == 'obj' ) {
                     gepVane();
                 }
             }
@@ -209,11 +225,27 @@
                         if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                             mezo_nev = mezo.attr('name').replace('_autocomp', '');
                             $('input[name="' + mezo_nev + '"]').val(recid);
+
+                            var form = $('input[name="' + mezo_nev + '"]').parents('#szerk_form');
+
+                            stop = false;
+                            form.find('input, select, textarea').each(function() {
+                                var name = $(this).attr('name');
+
+                                if( stop ) {
+                                    document.getElementById(name).focus();
+                                    return false;
+                                }
+
+                                if( name == mezo_nev ) {
+                                    stop = true;
+                                }
+                            });
                         }
                     }
 
                     if( options.tabla == 'obj' ) {
-                        gepVane()
+                        gepVane();
                     }
 
                     $('#autocomplete').css({'display':'none'}).html('');

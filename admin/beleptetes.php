@@ -165,7 +165,7 @@ if(isset($_POST['login'])) {
             $_POST['jelszo'] = sha1($_POST['jelszo']);
         }
 
-        $felhasznalo = $adatbazis_kapcsolat->s('recid nev jelszo helyesseg flags jog van_jelszo', 'login', "`nev` = '".$_POST['nev']."'", '', '1');
+        $felhasznalo = $adatbazis_kapcsolat->s('recid nev jelszo helyesseg flags jog van_jelszo', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'", '', '1');
 
         if( $felhasznalo ) {
             $felhasznalo = $felhasznalo[0];
@@ -213,6 +213,10 @@ if(isset($_POST['login'])) {
                     header('Location: index.php');
                 }
             }
+        } else {
+            $adatbazis_kapcsolat -> bezar();
+            header('Location: index.php?hiba');
+            exit();
         }
     } else {
         $adatbazis_kapcsolat -> bezar();

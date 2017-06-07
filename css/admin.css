@@ -7,7 +7,7 @@ body{
 }
 
 tr.s0{ background: #F9FAFE; border-bottom: 0.1rem solid #E3EBF1; }
-tr.s1{ border-bottom: 0.1rem solid #E3EBF1; } 
+tr.s1{ border-bottom: 0.1rem solid #E3EBF1; }
 
 tr.s0szurke      { background: #E2E2E2; border-bottom: 0.1rem solid #E3EBF1; }
 tr.s1szurke      { background: #EAEAEA; border-bottom: 0.1rem solid #E3EBF1; }
@@ -34,7 +34,7 @@ tr.s0zold:hover, tr.s0piros:hover, tr.s0sarga:hover, tr.s0lila:hover tr.s0szurke
     border-bottom: 0.1rem solid #B0CBE0;
 }
 
-.alert{ border: 0.1rem solid #f00; }
+/*.alert{ border: 0.1rem solid #f00; }*/
 
 a{
     color: #2D2D2D;

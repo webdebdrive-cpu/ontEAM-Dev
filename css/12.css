@@ -81,7 +81,7 @@ div.szamlaKereses {
 .sor.kethasabos div.jobb {
     display: block;
     float: right;
-    height: 100%;
+    height: calc( 100% - 5.1rem );
     overflow-y: auto;
     padding: 0rem 0rem 0rem 0rem;
     position: relative;

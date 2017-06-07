@@ -206,8 +206,8 @@ function i_u($type, $tabla, $tomb){
 
         //Ütemezett feladatok ID képzése
         } else if( $tabla == 'utemezett_feladatok' ) {
-            /* ID képzése */
-            
+            /* ID formázása */
+
             //Szálloda azonosító
             $szalloda   = $adatbazis_kapcsolat->s('azon', 'telephely', "`id`='{$_POST['telephely_id']}'");
             $szalloda   = $szalloda[0]['azon'];
@@ -234,7 +234,7 @@ function i_u($type, $tabla, $tomb){
 
             array_push($oszlopok,  'id' );
             array_push($ertekek,   $id  );
-            
+
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
             
@@ -873,6 +873,7 @@ function bejelentesLista( $bejegyzesek, $tabla ) {
                             <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                                 <span>'.$surgos.' '.$bsz['ikt_szam'].'</span>
                                 <span>'.$telephely.' - '.$helyseg.'</span>
+                                <span>'.$bsz['hiba_text'].'</span>
                             </a>
                         </li>';
 
@@ -1405,7 +1406,12 @@ function obj_gen( $telephelyID = false ) {
 
             $fokat_html = '';
             if( $fokatok ) {
-                $fokat_html .= '<ul class="alkatok">';
+                $active = '';
+                if( $telephelyID == $telephely['id'] ) {
+                    $active = ' active';
+                }
+
+                $fokat_html .= '<ul class="alkatok'.$active.'">';
 
                 foreach($fokatok as $fokat) {
                     $katok = $adatbazis_kapcsolat->s('recid telephely_id nev szulo', 'obj', 'szulo='.$fokat['recid'], '', '');
@@ -1422,17 +1428,17 @@ function obj_gen( $telephelyID = false ) {
                     }
 
                     $alkatok = '';
-                    $icon = '';
-                    $nyit = '';
-                    $href = '';
+                    $icon    = '';
+                    $nyit    = ' class="link"';
+                    $onclick = 'addObj( this );';
                     if( $kat_html ) {
                         $alkatok = ' alkatos';
-                        $icon = '<span class="icon"></span>';
-                        $nyit = ' class="nyit"';
-                        $href = 'javascript: addObj( this ); void(0);';
+                        $icon    = '<span class="icon"></span>';
+                        $nyit    = ' class="nyit link"';
+                        $onclick = '';
                     }
 
-                    $fokat_html .= '<li class="kat'.$alkatok.'"><a href="'.$href.'"'.$nyit.' data-recid="'.$fokat['recid'].'">'.$icon.$fokat['nev'].'</a>'.$kat_html.'</li>';
+                    $fokat_html .= '<li class="kat'.$alkatok.'"><a onclick="'.$onclick.'"'.$nyit.' data-recid="'.$fokat['recid'].'">'.$icon.$fokat['nev'].'</a>'.$kat_html.'</li>';
                 }
 
                 $fokat_html .= '</ul>';

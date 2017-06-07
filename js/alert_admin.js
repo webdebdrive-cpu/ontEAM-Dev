@@ -8,9 +8,9 @@ function alert2(uzi, ok_gomb) {
     if(!uzi){
 
 
-        $('#szurkit, .szurkit').fadeOut(200);
+        $('#szurkit').fadeOut(200);
         $('#alert2').fadeOut(200, function(){
-            $('#szurkit, .szurkit').remove();
+            $('#szurkit').remove();
             $('#alert2').remove();
         });
         return true;
@@ -18,7 +18,7 @@ function alert2(uzi, ok_gomb) {
     }else{
 
         /*kivesszük, mivel újból hozzá lesz adva*/
-        $('#szurkit, .szurkit').remove();
+        $('#szurkit').remove();
         $('#alert2').remove();
 
         if(uzi.substring(0,1)=='#'){
