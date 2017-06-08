@@ -420,10 +420,12 @@ if($gyorskereso_text){
             <div class="dt naplo">
                 <div class="dtr nFejlec">
                     <div class="dtc">Státusz</div>
+                    <div class="dtc">Kelte</div>
+                    <div class="dtc">Felhasználó</div>
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('*', 'statusz', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
+        $sorok = $adatbazis_kapcsolat->s('*', 'statusz', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt', '');
 
         if( $sorok ) {
             foreach($sorok as $sor) {
@@ -443,6 +445,8 @@ if($gyorskereso_text){
                 $szamla_html .= nl2('
                     <div class="dtr nSor"'.$szinkod.'>
                         <div class="dtc">'.$sor['statusz'].'</div>
+                        <div class="dtc">'.date('Y-m-d H:i:s', strtotime($sor['insert_dt'])).'</div>
+                        <div class="dtc">'.$sor['insert_usr'].'</div>
                     </div>
                 ');
             }

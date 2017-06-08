@@ -1,4 +1,4 @@
-<?php
+ <?php
 /** Tömbök létrehozása */
 
 require_once('../weblap.php');
@@ -784,10 +784,18 @@ if( isset($_GET['szamlaLista']) ) {
 
         if( $ksz ) {
             if( $where ) {
-                $where .= " AND `{$rend}` LIKE '%{$ksz}%'";
-            } else {
-                $where = "`{$rend}` LIKE '%{$ksz}%'";
+                $where .= " AND ";
             }
+
+            $selectek = explode(' ', $_OPTS['select']);
+
+            foreach($selectek as $select) {
+                if( $select != 'recid' ) {
+                    $where .= "`{$select}` LIKE '%{$ksz}%' OR ";
+                }
+            }
+
+            $where = csonkit($where, 4);
         }
 
         //Lapozás előkészítése

@@ -502,10 +502,18 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     if( $_GET['ksz'] ) {
         if( $where ) {
-            $where .= " AND `".$_GET['rend']."` LIKE '%".$_GET['ksz']."%'";
-        } else {
-            $where = "`".$_GET['rend']."` LIKE '%".$_GET['ksz']."%'";
+            $where .= " AND ";
         }
+
+        $selectek = explode(' ', $_OPTS['select']);
+
+        foreach($selectek as $select) {
+            if( $select != 'recid' ) {
+                $where .= "`{$select}` LIKE '%{$ksz}%' OR ";
+            }
+        }
+        
+        $where = csonkit($where, 4);
     }
 
     //Lapozás előkészítése

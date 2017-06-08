@@ -8,7 +8,7 @@ function get_tobbkep_megj(link, id, input_azon){
     $.ajax({
 		type : 'POST',
 		url  : link,
-		data : 'get_kepfelirat=' + id,
+		data : 'get_kepfelirat=' + id + '&tabla=' + baseName(location.href),
 		success: function(html){
             $('#' + input_azon).removeAttr('disabled');
             $('#' + input_azon).focus();

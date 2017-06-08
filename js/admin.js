@@ -354,6 +354,12 @@ function felh_valt( valt ) {
 }
 
 $(function() {
+    setTimeout(function() {
+        if( !$('#szamlaList li.szamla_sor').hasClass('active') ) {
+            $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
+        }
+    }, 1);
+
     $('#ajaxfedo').addClass('dn');
 
     click = false;
@@ -421,6 +427,9 @@ $(function() {
                 'ktgnem'
             );
 
+            /* Eltávolítjuk a bal oldali kijelöléseket */
+            kijelolesEltavolit();
+
             if( inArray(baseName(location.href), ketHasabos) ) {
                 tabla = baseName(location.href);
 
@@ -468,14 +477,8 @@ $(function() {
 
     $(document).on('click', function(e) {
         if( !e.ctrlKey && !e.shiftKey && e.target.className.indexOf('km_false') === -1 ) {
-            $('#szamlaList li.szamla_sor').removeClass('active kijelolve');
-
-            $('.kijeloltek_muv').removeClass('active');
-            $('#kmCont').removeClass('active');
-
-            if( _get('id') ) {
-                $('#szamla-' + _get('id')).addClass('active');
-            }
+            /* Eltávolítjuk a bal oldali kijelöléseket */
+            kijelolesEltavolit();
         }
     });
 
@@ -745,6 +748,19 @@ $(function() {
         }
     });
 });
+
+function kijelolesEltavolit() {
+    if( $('#szamlaList li.szamla_sor').hasClass('kijelolve') ) {
+        $('#szamlaList li.szamla_sor').removeClass('active kijelolve');
+
+        $('.kijeloltek_muv').removeClass('active');
+        $('#kmCont').removeClass('active');
+
+        if( _get('id') ) {
+            $('#szamla-' + _get('id')).addClass('active');
+        }
+    }
+}
 
 /*
 function datumra_utemez_mezok_nullaz(id){

@@ -812,45 +812,44 @@ div.jsff_thumb div.torol:hover{
 #sorrendezes_bejegyzes li{
     background: none;
     cursor: default;
-    float: left;
-    margin: 2rem 0rem 0.5rem 1rem;
+    display: table;
     overflow: hidden;
-    padding: 0rem;
-    text-align: center;
-    width: 13.5rem;
+    margin: 1rem 0rem 1rem 0rem;
+    position: relative;
+    transition: background 150ms;
+    text-align: left;
+    width: 100%;
 }
 
 #sorrendezes li div.nagyit,
 #sorrendezes_album li div.nagyit,
 #sorrendezes_tobbkep li div.nagyit,
 #sorrendezes_bejegyzes li div.nagyit {
-    background-color: #f9fafe;
-    border-top-left-radius: 0.5rem;
-    border-bottom-right-radius: 0.5rem;
-    border: 0.2rem solid #dadbde;
+    border: 0.1rem solid #dadbde;
     border-left: none;
-    border-top: none;
+    border-radius: 0rem 0.2rem 0.2rem 0rem;
+    display: table-cell;
     height: 2.3rem;
     margin: 0.1rem 0rem 0rem 0.1rem;
     overflow: hidden;
     padding: 0.5rem 0rem 0rem 0rem;
-    position: absolute;
     text-align: center;
-    width: 2.2rem;
+    vertical-align: middle;
+    width: 10rem;
 }
 
-#sorrendezes li div.nagyit:hover,
-#sorrendezes_album li div.nagyit:hover,
-#sorrendezes_tobbkep li div.nagyit:hover,
-#sorrendezes_bejegyzes li div.nagyit:hover{
-    background-color: #6189b0;
+#sorrendezes li div.nagyit a .material-icons,
+#sorrendezes_album li div.nagyit a .material-icons,
+#sorrendezes_tobbkep li div.nagyit a .material-icons,
+#sorrendezes_bejegyzes li div.nagyit a .material-icons {
+    color: #004990;
 }
 
-#sorrendezes li:hover div.torol,
-#sorrendezes_album li:hover div.torol,
-#sorrendezes_tobbkep li:hover div.torol,
-#sorrendezes_bejegyzes li:hover div.torol{
-    background: #f9fafe url('../elemek/admin/torol.png') no-repeat center;
+#sorrendezes li div.torol,
+#sorrendezes_album li div.torol,
+#sorrendezes_tobbkep li div.torol,
+#sorrendezes_bejegyzes li div.torol{
+    background: url('../elemek/admin/torol.png') no-repeat center;
     border-top-right-radius: 0.5rem;
     border-bottom-left-radius: 0.5rem;
     border: 0.2rem solid #dadbde;
@@ -858,8 +857,9 @@ div.jsff_thumb div.torol:hover{
     border-top: none;
     cursor: pointer;
     height: 2.2rem;
-    margin: 0.1rem 0rem 0rem 11.1rem;
     position: absolute;
+    top: 0rem;
+    right: 0rem;
     width: 2.2rem;
 }
 
@@ -874,7 +874,6 @@ div.jsff_thumb div.torol:hover{
 #sorrendezes_album li.fajl,
 #sorrendezes_tobbkep li.fajl,
 #sorrendezes_bejegyzes li.fajl{
-    background: #D5E4EF;
     border: 0.1rem none;
     cursor: default;
     float: left;
@@ -890,17 +889,37 @@ div.jsff_thumb div.torol:hover{
 #sorrendezes_album li div.kep,
 #sorrendezes_tobbkep li div.kep,
 #sorrendezes_bejegyzes li div.kep{
-    background: #fff;
     border: 0.1rem solid #dadbde;
-    border-radius: 0.5rem;
+    border-right: none;
+    border-radius: 0.2rem 0rem 0rem 0.2rem;
     cursor: default;
-    height: 13.4rem;
+    display: table-cell;
+    height: 5rem;
     overflow: hidden;
-    width: 13.4rem;
+    padding: 0rem 0rem 0rem 2rem;
+    vertical-align: middle;
+    width: 6.5rem;
+}
+
+
+#sorrendezes li div.kep div,
+#sorrendezes_album li div.kep div,
+#sorrendezes_tobbkep li div.kep div,
+#sorrendezes_bejegyzes li div.kep div {
+    height: 2.5rem;
+    overflow: hidden;
+    position: relative;
+    width: 2.5rem;
 }
 
 #sorrendezes_tobbkep li div.kep img {
+    width: auto;
+    max-height: 100%;
     max-width: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 #sorrendezes li div.kep_fajl,
@@ -918,33 +937,29 @@ div.jsff_thumb div.torol:hover{
 #sorrendezes li div.felirat,
 #sorrendezes_album li div.felirat,
 #sorrendezes_tobbkep li div.felirat,
-#sorrendezes_bejegyzes li div.felirat{
+#sorrendezes_bejegyzes li div.felirat {
     border-radius: 0.2rem;
-    background: #fff;
+    border: 0.1rem solid #dadbde;
+    border-left: none;
+    border-right: none;
     color: #414141;
+    display: table-cell;
     font-size: 1.3rem;
     height: 1.8rem;
     overflow: hidden;
-    padding: 0.2rem 0rem 0rem 0.3rem;
+    padding: 0.2rem 0rem 0rem 2rem;
+    text-align: left;
     text-overflow: ellipsis;
-    transition: background 0.2s;
+    vertical-align: middle;
     white-space: nowrap;
 }
 
-#sorrendezes li div.felirat:hover,
-#sorrendezes_album li div.felirat:hover,
-#sorrendezes_tobbkep li div.felirat:hover,
-#sorrendezes_bejegyzes li div.felirat:hover{
-    background: #E9F1FB;
+#sorrendezes li:hover,
+#sorrendezes_album li:hover,
+#sorrendezes_tobbkep li:hover,
+#sorrendezes_bejegyzes li:hover {
+    background: #E9F1FB!important;
 }
-
-#sorrendezes li div.nagyit:hover img:first-of-type,
-#sorrendezes_album li div.nagyit:hover img:first-of-type,
-#sorrendezes_tobbkep li div.nagyit:hover img:first-of-type,
-#sorrendezes_bejegyzes li div.nagyit:hover img:first-of-type{
-    display: none;
-}
-
 
 input.kep_megj{
     border: 0.1rem solid #202020;
