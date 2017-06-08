@@ -344,8 +344,9 @@ if($gyorskereso_text){
 		require('switch.php');
 
         include('datumra_utemezes.php');
+        //getnextvaliddate() amit visszaad értéket, azt add meg $sor["esnap_d"]-ként
 //        $jobb_oldal = 'utolso vegrehajtas: ' . $sor["esnap_d"] . '
-//            <BR>kovetkezo: ' . getnextvaliddate(false, $sor["esnap_d"], $sor["cikltip"], $sor["ciklaltip"], $sor["ciklszorz"], $sor["ciklho"], $sor["ciklhet"], $sor["ciklnap"], $sor["idoszakos"], $sor["kezdho"], $sor["kezdnap"], $sor["vegeho"], $sor["vegenap"], $sor["aktkezd_d"], $sor["aktvege_d"]) . '
+//            <BR>kovetkezo: ' . getnextvaliddate(false, $sor["dvarhato"], $sor["cikltip"], $sor["ciklaltip"], $sor["ciklszorz"], $sor["ciklho"], $sor["ciklhet"], $sor["ciklnap"], $sor["idoszakos"], $sor["kezdho"], $sor["kezdnap"], $sor["vegeho"], $sor["vegenap"], $sor["aktkezd_d"], $sor["aktvege_d"]) . '
 //            <BR>szabaly: ' . getcimke( $sor["cikltip"], $sor["ciklaltip"], $sor["ciklszorz"], $sor["ciklho"], $sor["ciklhet"], $sor["ciklnap"], $sor["esnap_d"]);
 
         $gombok = nl2('
