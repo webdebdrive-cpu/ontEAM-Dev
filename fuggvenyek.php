@@ -157,8 +157,8 @@ function i_u($type, $tabla, $tomb){
 	if($type == 'insert') {
         /* Datetime-ot is frissítjük */
         if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
-            array_push($oszlopok, 'insert_dt',          'insert_usr'                    );
-            array_push($ertekek,   date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'user']);
+            array_push($oszlopok, 'insert_dt',          'insert_usr'                          );
+            array_push($ertekek,   date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']);
         }
 
         if( $tabla == 'login' ) {
@@ -245,8 +245,8 @@ function i_u($type, $tabla, $tomb){
         //Bejelentések iktatószám képzése
         if( $tabla == 'bejelentes' ) {
             $adatbazis_kapcsolat -> i('statusz',
-                array('tabla', 'id', 'stat_id', 'insert_dt',          'insert_usr',                       'update_dt',          'update_usr'                     ),
-                array($tabla,  $id,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'user'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'user'] )
+                array('tabla', 'id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+                array($tabla,  $id,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
             );
         }
 
@@ -319,8 +319,8 @@ function i_u($type, $tabla, $tomb){
 
         /* Datetime-ot is frissítjük */
         if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
-            array_push($oszlopok, 'update_dt',          'update_usr'                    );
-            array_push($ertekek,   date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'user']);
+            array_push($oszlopok, 'update_dt',          'update_usr'                          );
+            array_push($ertekek,   date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']);
         }
 
         if( $tabla == 'login' ) {
@@ -1546,4 +1546,20 @@ function _jog( $value ) {
     }
 
     return false;
+}
+
+function getStatuszIdo( $time ) {
+    /* Eltelt napok */
+    $napok = round($time / 86400);
+
+    /* Óra */
+    $ora =  round(($time % 86400) / 3600);
+
+    /* Perc */
+    $perc =  round(($time % 86400 % 3600) / 60);
+
+    /* Másodperc */
+    $mp =  round(($time % 86400 % 3600 % 60));
+
+    return $napok.'nap '.sprintf('%02d', $ora).':'.sprintf('%02d', $perc).':'.sprintf('%02d', $mp);
 }

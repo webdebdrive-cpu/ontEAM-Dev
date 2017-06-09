@@ -299,6 +299,107 @@ if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $m
 $menuk   .= str_replace( $akt_menu_mit, array( $style, ''/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 
 
+/* Energia */
+$menu_nev        = 'Energia';
+$menu_nev_kis    = 'energia';
+$menu_nev_tobbes = 'Energia';
+$megn            = 'energia';
+$aloldalak       = array($megn.'.php');
+if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+
+$aktmenuk  = '';
+//$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Gépek'  ), $almenu_sablon );
+
+$style = '';
+if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $style = ' class="hover"';
+}
+
+$menuk   .= str_replace( $akt_menu_mit, array( $style, ''/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+
+
+/* Személyzet */
+$menu_nev        = 'Személyzet';
+$menu_nev_kis    = 'személyzet';
+$menu_nev_tobbes = 'Személyzet';
+$megn            = 'szemelyzet';
+$aloldalak       = array($megn.'.php');
+if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+
+$aktmenuk  = '';
+//$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Gépek'  ), $almenu_sablon );
+
+$style = '';
+if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $style = ' class="hover"';
+}
+
+$menuk   .= str_replace( $akt_menu_mit, array( $style, ''/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+
+
+/* Tervezés */
+$menu_nev        = 'Tervezés';
+$menu_nev_kis    = 'tervezés';
+$menu_nev_tobbes = 'Tervezés';
+$megn            = 'tervezes';
+$aloldalak       = array($megn.'.php');
+if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+
+$aktmenuk  = '';
+//$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Gépek'  ), $almenu_sablon );
+
+$style = '';
+if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $style = ' class="hover"';
+}
+
+$menuk   .= str_replace( $akt_menu_mit, array( $style, ''/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+
+
+/* Projektek */
+$menu_nev        = 'Projektek';
+$menu_nev_kis    = 'rojektek';
+$menu_nev_tobbes = 'Projektek';
+$megn            = 'projektek';
+$aloldalak       = array($megn.'.php');
+if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+
+$aktmenuk  = '';
+//$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Gépek'  ), $almenu_sablon );
+
+$style = '';
+if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $style = ' class="hover"';
+}
+
+$menuk   .= str_replace( $akt_menu_mit, array( $style, ''/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+
+
+/* Továbbiak */
+$menu_nev        = 'Továbbiak';
+$menu_nev_kis    = 'továbbiak';
+$menu_nev_tobbes = 'Továbbiak';
+$megn            = 'tovabbiak';
+$aloldalak       = array($megn.'.php');
+if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+
+$aktmenuk  = '';
+//$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Gépek'  ), $almenu_sablon );
+
+$style = '';
+if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $style = ' class="hover"';
+}
+
+$menuk   .= str_replace( $akt_menu_mit, array( $style, ''/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+
+
+
 /* Log */
 /*$menu_nev      = 'Log';
 $menu_nev_kis    = 'log';
@@ -512,7 +613,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
                 $where .= "`{$select}` LIKE '%{$ksz}%' OR ";
             }
         }
-        
+
         $where = csonkit($where, 4);
     }
 

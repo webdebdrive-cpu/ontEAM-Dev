@@ -1,6 +1,64 @@
 <?php
 require_once('../weblap.php');
 
+if( isset($_GET['stat']) ) {
+
+
+echo getStatuszIdo( strtotime('2017-06-09 16:46:52') - strtotime('2017-05-26 11:47:09') );
+    exit();
+    $tabla   = 'statusz';
+    $id      = 6;
+    $stat_id = 1;
+
+    /* Lekérjük az az éppen aktuális státusz */
+    $akt_statusz = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id, 'insert_dt desc', '1');
+
+    if( $akt_statusz ) {
+        $akt_statusz = $akt_statusz[0];
+
+        /* Megállapítjuk a státusz idejét */
+        $statusz_ido = round( time() - strtotime($akt_statusz['insert_dt']) );
+        $statusz_ido = getStatuszIdo( $statusz_ido );
+
+        /* Göngyölt státuszidő */
+        $elso_statusz = $adatbazis_kapcsolat->s('insert_dt', $tabla, 'id='.$id, 'insert_dt asc', '1');
+
+        if( $elso_statusz ) {
+            $elso_statusz = $elso_statusz[0];
+
+            $gongyolt_statido = round( time() - strtotime($elso_statusz['insert_dt']) );
+            $gongyolt_statido = getStatuszIdo( $gongyolt_statido );
+        }
+
+        /* Összesített státuszidő */
+        $elso_akt_stat = $adatbazis_kapcsolat->s('insert_dt', $tabla, 'id='.$id.' and stat_id='.$stat_id, 'insert_dt asc', '1');
+
+        $ossz_statido = '';
+        if( $elso_akt_stat ) {
+            $elso_akt_stat = $elso_akt_stat[0];
+
+            $ossz_statido = round( time() - strtotime($elso_akt_stat['insert_dt']) );
+            $ossz_statido = getStatuszIdo( $ossz_statido );
+        }
+
+        /* Frissítjük a sort */
+        $adatbazis_kapcsolat -> u($tabla,
+            array('end_dt',             'statido',    'gongyolt_statido', 'ossz_statido'),
+            array( date('Y-m-d H:i:s'), $statusz_ido, $gongyolt_statido,  $ossz_statido ),
+            'recid='.$akt_statusz['recid']
+        );
+
+        /* Beszúrjuk az újat */
+        $adatbazis_kapcsolat -> i($tabla,
+            array('id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+            array($id,  $stat_id,   date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+        );
+    }
+
+    exit();
+}
+
+
 if( !_jog(0) ) {
     header('Content-Type: text/html; charset=utf-8');
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
@@ -422,10 +480,13 @@ if($gyorskereso_text){
                     <div class="dtc">Státusz</div>
                     <div class="dtc">Kelte</div>
                     <div class="dtc">Felhasználó</div>
+                    <div class="dtc">Státuszidő</div>
+                    <div class="dtc">Göngyölt státuszidő</div>
+                    <div class="dtc">Összesített státuszidő</div>
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('*', 'statusz', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt', '');
+        $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido', 'statusz', "`id` = '".$_GET['id']."'", 'insert_dt', '');
 
         if( $sorok ) {
             foreach($sorok as $sor) {
@@ -445,8 +506,11 @@ if($gyorskereso_text){
                 $szamla_html .= nl2('
                     <div class="dtr nSor"'.$szinkod.'>
                         <div class="dtc">'.$sor['statusz'].'</div>
-                        <div class="dtc">'.date('Y-m-d H:i:s', strtotime($sor['insert_dt'])).'</div>
+                        <div class="dtc">'.date('Y.m.d H:i:s', strtotime($sor['insert_dt'])).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.$sor['statido'].'</div>
+                        <div class="dtc">'.$sor['gongyolt_statido'].'</div>
+                        <div class="dtc">'.$sor['ossz_statido'].'</div>
                     </div>
                 ');
             }
@@ -495,7 +559,7 @@ if($gyorskereso_text){
             foreach($sorok as $sor) {
                 $szamla_html .= nl2('
                     <div id="naploSor-'.$sor['recid'].'" class="dtr nSor">
-                        <div class="dtc">'.$sor['megj'].'</div>
+                        <div class="dtc">'.nl2br($sor['megj']).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
                         <div class="dtc">'.$sor['insert_dt'].'</div>
                     </div>

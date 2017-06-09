@@ -355,7 +355,7 @@ function felh_valt( valt ) {
 
 $(function() {
     setTimeout(function() {
-        if( !$('#szamlaList li.szamla_sor').hasClass('active') ) {
+        if( !$('#szamlaList li.szamla_sor').hasClass('active') && !_get('uj') ) {
             $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
         }
     }, 1);
@@ -1101,8 +1101,13 @@ function addMegjegyzes( pageID, that ) {
     if( pageID && megj ) {
         var ajax = $.ajax({
          	url : 'esemenyek.php',
-         	type: 'GET',
-         	data: esamp2es('pageID=' + pageID + '&amp;megj=' + megj + '&amp;tabla=' + baseName(location.href) + '&amp;addMegjegyzes=' + new Date().getTime()),
+         	type: 'POST',
+         	data: {
+                pageID: pageID,
+                megj: megj,
+                tabla: baseName(location.href),
+                addMegjegyzes: new Date().getTime()
+            },
          	success: function(html) {
          		if(html) {
                     html = JSON.parse(html);

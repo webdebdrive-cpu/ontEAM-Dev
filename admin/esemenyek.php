@@ -1,4 +1,4 @@
- <?php
+<?php
 /** Tömbök létrehozása */
 
 require_once('../weblap.php');
@@ -627,13 +627,13 @@ if( isset($_GET['naploTorol']) ) {
     exit();
 }
 
-if( isset($_GET['addMegjegyzes']) ) {
-    $pageID = $_GET['pageID'];
-    $megj   = $_GET['megj'];
-    $tabla  = $_GET['tabla'];
+if( isset($_POST['addMegjegyzes']) ) {
+    $pageID = $_POST['pageID'];
+    $megj   = $_POST['megj'];
+    $tabla  = $_POST['tabla'];
 
     if( $pageID && $megj ) {
-        $kapcsID = $adatbazis_kapcsolat -> i('megjegyzes', array('tabla', 'id', 'megj', 'insert_dt', 'insert_usr'), array($tabla, $pageID, $megj, date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'user']));
+        $kapcsID = $adatbazis_kapcsolat -> i('megjegyzes', array('tabla', 'id', 'megj', 'insert_dt', 'insert_usr'), array($tabla, $pageID, $megj, date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']));
 
         echo json_encode(array(
             'statusz' => 'siker',
