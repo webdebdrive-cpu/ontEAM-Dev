@@ -448,7 +448,7 @@ if( isset($_GET['modosit']) && $_GET['id'] ) {
         $loginNev = $loginNev[0]['insert_usr'];
 
         /* Felhasználó lekérdezése a bejelentés táblához */
-        $user = $adatbazis_kapcsolat->s('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', 'nev='.$loginNev, '', '1');
+        $user = $adatbazis_kapcsolat->s('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', "`nev`='{$loginNev}'", '', '1');
     }
 } elseif( isset($_GET['uj']) ) {
     /* Felhasználó lekérdezése a bejelentés táblához */
