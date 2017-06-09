@@ -33,7 +33,17 @@ if(isset($_POST['session_name'])){
     session_id($_POST['session_name']);
     session_start();
     require_once('../weblap.php');
-    $utvonal = '../'.get_utvonal();
+    $utvonal = '../'.get_utvonal().'doc';
+
+    if(!is_dir($utvonal)){
+        mkdir($utvonal, 0777);
+    }
+
+    $utvonal = $utvonal.'/'.date('ym');
+
+    if(!is_dir($utvonal)){
+        mkdir($utvonal, 0777);
+    }
 
     // JS alapú fájlfeltöltés esetén a $_FILES['file'] tömbben vannak az adatok a $_FILES[megnevezés] helyett
     if($_FILES['file']){
@@ -73,31 +83,17 @@ if(isset($_POST['session_name'])){
         break;
 
         case 0:
-            //Képfájl átnevezése, ha foglalt lenne (általában az, mert mindig a termék nevéből származtatjuk)
-            $i      = 1;
-            $kepnev = fajlnev_keszit( $_SESSION['fajl']['nev'] );
-            $ujnev  = $kepnev.'_1';
-            while( glob($utvonal.$_SESSION['fajl']['konyvtar'].'/'.$ujnev.'*') ){
-                $i++; // kivételesen nem a végén növeljük
-                $ujnev = $kepnev.'_'.$i;
-            }
-
             //Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
-            $kepnev = $utvonal.$_SESSION['fajl']['konyvtar'].'/'.$ujnev.'.'.kit($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
+            $kepnev = $utvonal.'/'.time().'.'.kit($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
 
-            //Ha nem létezne a könyvtár, létrehozzuk
-            $konyvtar = substr($kepnev, 0, strrpos($kepnev,'/'));
-            if(!is_dir($konyvtar)){
-                mkdir($konyvtar, 0777);
-            }
             //Fájlfeltöltés
             if(move_uploaded_file($_FILES[ $_SESSION['fajl']['megnevezes'] ]['tmp_name'], $kepnev)){
 
-//                //Vízjelezés
-//                imagejpeg(logot_pecsetel($kepnev, '../elemek/vizjel.png', 50, 50, 100), $kepnev);
+                /* Vízjelezés */
+                //imagejpeg(logot_pecsetel($kepnev, '../elemek/vizjel.png', 50, 50, 100), $kepnev);
 
                 //Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy aoutputot a flashfile-nak
-                $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'], array($_SESSION['fajl']['oszlop'], 'kepnev', 'megj'), array($_SESSION['fajl']['termek_id'], str_replace($utvonal, '', $kepnev), basename($kepnev) ) );
+                $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'], array($_SESSION['fajl']['oszlop'], 'kepnev', 'megj'), array($_SESSION['fajl']['termek_id'], str_replace('../'.get_utvonal(), '', $kepnev), basename($kepnev) ) );
                 $sor_kepek = $adatbazis_kapcsolat->s('*', $_SESSION['fajl']['tabla'], 'recid='.$id);
                 $sor_kepek = $sor_kepek[0];
                 echo get_tobbkep_thumb($sor_kepek);
@@ -211,7 +207,7 @@ $tobbkep_html .= str_replace($sorrend_ujkep_mit, $sorrend_ujkep_mivel, $sorrend_
 
 $i     = 0;
 $kepek = $adatbazis_kapcsolat -> select('*', $tobbkep_tablanev, get_tobbkep_oszlopnev().'='.$_GET['id'], 'sor');
-$tobbkep_html .= '<div style="display: table;"><ul id="sorrendezes_tobbkep" title="'.$_SESSION['fajl']['oszlop'].'">';
+$tobbkep_html .= '<div><ul id="sorrendezes_tobbkep" title="'.$_SESSION['fajl']['oszlop'].'">';
 foreach($kepek as $sor_kepek){
     $tobbkep_html .= get_tobbkep_thumb($sor_kepek);
 }
@@ -242,22 +238,23 @@ function get_tobbkep_thumb($sor_kepek){
 
         $azon    = 'kep'.$sor_kepek['recid'];
         $megj_szerkesztes_onclick = ' onclick="get_tobbkep_megj(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \'megj_atir'.$azon.'\'); alert2(\'Megjegyzés szerkesztése:\', gomb'.$azon.');"';
-
-        $tobbkep_html .= nl2('<li id="'.$azon.'" title="'.$sor_kepek['kepnev'].'">
-                                <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
-                                <div class="nagyit">
-                                    <a href="'.$kep_utvonal.'" class="light" rel="album[]" target="_blank">
-                                        <img alt="" class="link" src="../elemek/admin/nagyito.png" />
-                                        <img alt="" class="link" src="../elemek/admin/nagyito_hover.png" />
-                                    </a>
-                                </div>
-                                <div class="torol" onclick="tobbkep_torol(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \''.$azon.'\');">
-                                    <img alt="" class="dn" src="../elemek/admin/torol_hover.png" />
-                                </div>
-                                <div class="kep">
-                                    <div>'.$kep -> getHtml().'</div>
-                                </div>');
-        $tobbkep_html .= '<div id="megj_'.$azon.'_felirat" class="felirat f12 link c"'.$megj_szerkesztes_onclick.'>'.$felirat.'</div>';
+        /* title="'.$sor_kepek['kepnev'].'" */
+        $tobbkep_html .= nl2('
+            <li id="'.$azon.'" title="">
+            <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
+            <!--<div class="torol" onclick="tobbkep_torol(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \''.$azon.'\');">
+                <img alt="" class="dn" src="../elemek/admin/torol_hover.png" />
+            </div>-->
+            <div class="kep">
+                <div>'.$kep -> getHtml().'</div>
+            </div>
+            <div id="megj_'.$azon.'_felirat" class="felirat f12 link c"'.$megj_szerkesztes_onclick.'>'.$felirat.'</div>
+            <div class="nagyit">
+                <a href="'.$kep_utvonal.'" class="light" rel="album[]" target="_blank">
+                    <i class="material-icons">file_download</i>
+                </a>
+            </div>
+        ');
         $tobbkep_html .= '</li>';
 
     }

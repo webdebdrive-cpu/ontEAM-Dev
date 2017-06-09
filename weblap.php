@@ -125,7 +125,7 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 if(basename(self())=='bejovo_szamlak.php'   && isset($_GET['uj'])){ $navi = 'Új '.$menu_nev_kis.' feltöltése'; }
 if(basename(self())=='rendszer.php'         && isset($_GET['uj'])){ $navi = 'Új rendszer érték feltöltése'; }
 if(basename(self())=='szallito.php'         && isset($_GET['uj'])){ $navi = 'Új Szállító feltöltése'; }
-if(basename(self())=='erteklista.php'       && isset($_GET['uj'])){ $navi = 'Új kódtár feltöltése'; }
+if(basename(self())=='erteklista.php'       && isset($_GET['uj'])){ $navi = 'Új értéklista feltöltése'; }
 if(basename(self())=='login.php'            && isset($_GET['uj'])){ $navi = 'Új felhasználó feltöltése'; }
 if(basename(self())=='szerepkor.php'        && isset($_GET['uj'])){ $navi = 'Új szerepkör feltöltése'; }
 if(basename(self())=='bejelentes.php'       && isset($_GET['uj'])){ $navi = 'Új bejelentes feltöltése'; }

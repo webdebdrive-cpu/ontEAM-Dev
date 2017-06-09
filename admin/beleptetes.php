@@ -165,16 +165,17 @@ if(isset($_POST['login'])) {
             $_POST['jelszo'] = sha1($_POST['jelszo']);
         }
 
-        $felhasznalo = $adatbazis_kapcsolat->s('recid nev jelszo helyesseg flags jog van_jelszo', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'", '', '1');
+        $felhasznalo = $adatbazis_kapcsolat->s('recid nev teljes_nev jelszo helyesseg flags jog van_jelszo', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'", '', '1');
 
         if( $felhasznalo ) {
             $felhasznalo = $felhasznalo[0];
 
             if( $felhasznalo['van_jelszo'] ) {
                 if( $felhasznalo['jelszo'] == $_POST['jelszo'] && $felhasznalo['helyesseg'] == $helyesseg ) {
-                    $_SESSION[get_db_tabla().'user']    = $felhasznalo['nev'];
-                    $_SESSION[get_db_tabla().'user_id'] = $felhasznalo['recid'];
-                    $_SESSION[get_db_tabla().'rights']  = str_split($felhasznalo['flags']);
+                    $_SESSION[get_db_tabla().'user']        = $felhasznalo['nev'];
+                    $_SESSION[get_db_tabla().'teljes_nev']  = $felhasznalo['teljes_nev'];
+                    $_SESSION[get_db_tabla().'user_id']     = $felhasznalo['recid'];
+                    $_SESSION[get_db_tabla().'rights']      = str_split($felhasznalo['flags']);
 
                     if(!$_SESSION['kert_url']){
                         $_SESSION['kert_url'] = get_domain().'/'.get_admin();
