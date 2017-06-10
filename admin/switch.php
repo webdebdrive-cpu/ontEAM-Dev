@@ -482,7 +482,7 @@ foreach($akt_tomb as $ertek){
             array_push($select_felh_telephely, array('name' => '- Válasszon -', 'value' => '' ));
 
             /* Ha új sort szúrunk be, akkor a SESSION-ből vesszük ki a loginnevet, ha már szerkesztés alatt vagyunk, akkor pedig adatbázibsból */
-            $loginNev = $sor['insert_usr'];
+            $loginNev = $sor['loginnev'];
             if( isset($_GET['uj']) ) {
                 $loginNev = $_SESSION[get_db_tabla().'user'];
             }

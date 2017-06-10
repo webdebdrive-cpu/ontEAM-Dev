@@ -677,8 +677,9 @@ $(function() {
 
     $(document).on('keydown', function(e) {
         if( e.keyCode == 13 && $('#alert2').length && !$('#alert2').hasClass('rFalse') ) {
-            alert2();
-            e.preventDefault();
+            $('#alert2 input[value="Ok"]').click();
+            /*alert2();
+            e.preventDefault();*/
         }
     });
 

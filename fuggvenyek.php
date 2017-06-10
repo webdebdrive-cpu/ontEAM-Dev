@@ -203,6 +203,9 @@ function i_u($type, $tabla, $tomb){
 
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );
+            
+            array_push($oszlopok, 'loginnev'                        );
+            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
         //Ütemezett feladatok ID képzése
         } else if( $tabla == 'utemezett_feladatok' ) {

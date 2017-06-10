@@ -140,7 +140,7 @@ if(isset($_POST['megj_atir'])){
 
     $parancs = 'UPDATE `'.get_db_tabla().$tobbkep_tablanev.'` SET `megj`=\''.$_POST['szoveg'].'\' WHERE `recid`=\''.$_POST['id'].'\'';
     mysqli_query($db_kapcs, $parancs);
-
+//echo $adatbazis_kapcsolat->gp() . '<br>';
     $felirat = mysqli_query($db_kapcs, 'SELECT `megj` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['id'].'\'');
     $felirat = mysqli_fetch_assoc($felirat);
     echo $felirat['megj'];
