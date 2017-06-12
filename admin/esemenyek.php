@@ -442,10 +442,10 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $megnevezes = 'bejelentes';
 
 if( isset($_GET['modosit']) && $_GET['id'] ) {
-    $loginNev = $adatbazis_kapcsolat->s('insert_usr', $megnevezes, 'recid='.$_GET['id'], '', '1');
+    $loginNev = $adatbazis_kapcsolat->s('loginnev', $megnevezes, 'recid='.$_GET['id'], '', '1');
 
     if( $loginNev ) {
-        $loginNev = $loginNev[0]['insert_usr'];
+        $loginNev = $loginNev[0]['loginnev'];
 
         /* Felhasználó lekérdezése a bejelentés táblához */
         $user = $adatbazis_kapcsolat->s('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', "`nev`='{$loginNev}'", '', '1');
