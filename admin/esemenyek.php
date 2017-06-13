@@ -694,7 +694,22 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //{KOVETKEZO_TOMB}
 
 
+/* Mellékletek törlése */
+if( isset($_POST['mellekTorol']) ) {
+    $tabla  = $_POST['tabla'];
+    $idk    = json_decode($_POST['idk'], true);
 
+    if( $tabla && is_array($idk) ) {
+        $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
 
 /* Objektumok generálása */
 if( isset($_GET['gepVane']) ) {
