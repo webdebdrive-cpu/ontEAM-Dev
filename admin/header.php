@@ -236,10 +236,12 @@ if( _jog(0) ) {
 $menu_nev        = 'Munkák';
 $menu_nev_kis    = 'munkák';
 $menu_nev_tobbes = 'Munkák';
-$megn            = 'munkak';
+$megn            = 'munkalap';
 $aloldalak = array(
             $megn.'.php',
             'utemezett_feladatok.php',
+            'rendszeres_karbantartas.php',
+            'eseti_fenntartas.php',
 );
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
 if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
@@ -249,6 +251,7 @@ $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Munkalapok' 
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Ütemezett feladatok'        ), $almenu_sablon );
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Rendszeres karbantartás'    ), $almenu_sablon );
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Eseti fenntartás'           ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'Üzemeltetési napló'         ), $almenu_sablon );
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
@@ -263,13 +266,15 @@ $menu_nev        = 'Anyagok';
 $menu_nev_kis    = 'anyagok';
 $menu_nev_tobbes = 'Anyagok';
 $megn            = 'anyagok';
-$aloldalak       = array('cikktorzs.php');
+$aloldalak       = array('cikktorzs.php', 'anyagigenyles.php', 'anyagrendeles.php', 'raktar.php');
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
 if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
 
 $aktmenuk  = '';
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Cikktörzs'  ), $almenu_sablon );
-//$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Raktár'     ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Cikktörzs'      ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Anyagigénylések'), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Anyagrendelések'), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Raktár'         ), $almenu_sablon );
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
@@ -283,13 +288,14 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, ''/*$aloldalak['0']*/, $m
 $menu_nev        = 'Eszközök';
 $menu_nev_kis    = 'eszközök';
 $menu_nev_tobbes = 'Eszközök';
-$megn            = 'gep';
-$aloldalak       = array($megn.'.php');
+$megn            = 'eszkozkezeles';
+$aloldalak       = array($megn.'.php', 'felmeresi_terv.php');
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
 if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
 
 $aktmenuk  = '';
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Gépek'  ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Eszközkezelés'      ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Felmérési tervek'   ), $almenu_sablon );
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
@@ -323,13 +329,15 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, ''/*$aloldalak['0']*/, $m
 $menu_nev        = 'Személyzet';
 $menu_nev_kis    = 'személyzet';
 $menu_nev_tobbes = 'Személyzet';
-$megn            = 'szemelyzet';
-$aloldalak       = array($megn.'.php');
+$megn            = 'torzsadat';
+$aloldalak       = array($megn.'.php', 'szabadsagigeny.php', 'beosztas.php');
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
 if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
 
 $aktmenuk  = '';
-//$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Gépek'  ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Törzsadatok'        ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Szabadságigények'   ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Beosztások'         ), $almenu_sablon );
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
@@ -363,13 +371,15 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, ''/*$aloldalak['0']*/, $m
 $menu_nev        = 'Projektek';
 $menu_nev_kis    = 'rojektek';
 $menu_nev_tobbes = 'Projektek';
-$megn            = 'projektek';
-$aloldalak       = array($megn.'.php');
+$megn            = 'projektigenyles';
+$aloldalak       = array($megn.'.php', 'projektkezeles.php', 'cash_flow.php');
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
 if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
 
 $aktmenuk  = '';
-//$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Gépek'  ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Projektigénylések'  ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Projektkezelés'     ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Cash-flow'          ), $almenu_sablon );
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
@@ -627,7 +637,6 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     $_GET['epo'] = 9999999999999;
 
     $bejegyzesek = $adatbazis_kapcsolat->s($_OPTS['select'], $tabla, $where, $_OPTS['order'], '');
-
     $lapozo = new Lapozo;
     $lapozo -> elem_osszes      = count($bejegyzesek);
     $lapozo -> fajl             = $_SERVER['PHP_SELF'];
@@ -650,6 +659,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     $lapozo -> sablon_pontok      = $utvonal.'lapozas_pontok.html';
     $lapozo -> sablon_select      = $utvonal.'lapozas_select.html';
 
+
     /* Számolás */
     $lapozo -> lapozas();
 
@@ -658,6 +668,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     if( basename(self()) == 'bejelentes.php' ) {
         $_OPTS['order'] = 'surgos desc, '.$_OPTS['order'];
     }
+
 
     $tartBal  = szamla_lista( $tabla, $_OPTS['select'], $where, $_OPTS['order'], $lapozo -> getLimit() );
     $keresodn = '';

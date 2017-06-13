@@ -414,18 +414,33 @@ $(function() {
             }
 
             var ketHasabos = new Array(
-                'bejovo_szamlak',
-                'rendszer',
-                'szallito',
-                'erteklista',
-                'login',
-                'szerepkor',
+                'anyagigenyles',
+                'anyagrendeles',
                 'bejelentes',
-                'utemezett_feladatok',
+                'bejovo_szamlak',
+                'beosztas',
+                'cash_flow',
                 'cikktorzs',
+                'erteklista',
+                'eseti_fenntartas',
+                'eszkozkezeles',
+                'felmeresi_terv',
+                'fenntartasi_szerzodes',
                 'ktghely',
                 'ktgnem',
-                'gep'
+                'login',
+                'munkalap',
+                'projektkezeles',
+                'projektigenyles',
+                'raktar',
+                'rendszer',
+                'rendszeres_karbantartas',
+                'szabadsagigeny',
+                'szallito',
+                'szamla',
+                'szerepkor',
+                'torzsadat',
+                'utemezett_feladatok'
             );
 
             /* Eltávolítjuk a bal oldali kijelöléseket */
@@ -1444,7 +1459,37 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         dfrd1.resolve();
                     });
 
-                    param = get_get(['id', 'modosit', 'naplo', 'dokumentumok', 'szerkeszt', 'szakterulet', 'jogosultsag', 'uj', 'siker', 'szallodak', 'statusz', 'tortenet', 'naptar', 'utemezes', 'akt_nap', 'megjegyzes'], true);
+                    param = get_get([
+                                            'akt_nap',
+                                            'bejelentesek',
+                                            'cash_flow',
+                                            'dokumentumok',
+                                            'elszamolas',
+                                            'engedelyek',
+                                            'esemenyek',
+                                            'felmeresi',
+                                            'garancialis',
+                                            'id',
+                                            'jogosultsag',
+                                            'megjegyzes',
+                                            'megjegyzesek',
+                                            'modosit',
+                                            'naplo',
+                                            'naptar',
+                                            'uj',
+                                            'utemezes',
+                                            'projekt_team',
+                                            'projektigeny',
+                                            'rb_anyag',
+                                            'siker',
+                                            'statusz',
+                                            'szamlak',
+                                            'szallodak',
+                                            'szerkeszt',
+                                            'szakterulet',
+                                            'terkep',
+                                            'tortenet'
+                                    ], true);
                     if( muvelet != 'uj' ) {
                         if( param.indexOf('?') !== -1 ) {
                             param += '&id=' + recid + '&' + esamp2es(muvelet);

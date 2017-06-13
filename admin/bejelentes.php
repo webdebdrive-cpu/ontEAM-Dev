@@ -219,7 +219,7 @@ if($gyorskereso_text){
             'modosit'       => 'Adatlap',
             'tortenet'      => 'Történet',
             'dokumentumok'  => 'Dokumentumok',
-            'megjegyzes'    => 'Megjegyzés'
+            'megjegyzes'    => 'Megjegyzések'
         );
 
         $fulek = '';

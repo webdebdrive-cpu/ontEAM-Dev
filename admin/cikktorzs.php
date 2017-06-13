@@ -151,10 +151,13 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) ) {
-        /* Számla fülek */
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+        /* Számla fülek */ 
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
+            'tortenet'      => 'Történet',
+            'dokumentumok'  => 'Dokumentumok',
+            'megjegyzesek'  => 'Megjegyzések',
         );
 
         $fulek = '';
@@ -373,50 +376,43 @@ if($gyorskereso_text){
 			require_once('tobb_kep.php');
 		}
 
-	//Státusz
-    }elseif(isset($_GET['naptar'])) {
+	//Történet
+	}elseif(isset($_GET['tortenet'])){
 
-        //Hét beoszás fejélce
-        $fejlec = '';
-        if(isset($_GET['akt_nap'])){
-            $indulo = date2int($_GET['akt_nap']);
-        }else{
-            $indulo = time();
-        }
-        for($i=0; $i<6; $i++){
-            $idobelyeg = $indulo+($i*60*60*24);
-            $fejlec .= '<th>'.date('Y-m-d', $idobelyeg).'<br>'.het_napja( date('w', $idobelyeg) ).'</th>';
-        }
-
-        //Hét beoszás sorai
-        $sorok = '';
-        for($i=0; $i<24; $i++){
-
-            $napok = '';
-            for($j=0; $j<6; $j++){
-                $napok .= '<td></td>';
-            }
-            $sorok .= nl2('
-                <tr>
-                    <td>'.$i.':00</td>
-                    '.$napok.'
-                </tr>
-                ');
-        }
-
-        $szamla_html .= nl2('
-            <table class="csikos">
-            <tr>
-                <th>Órák</th>
-                '.$fejlec.'
-            <tr>
-            '.$sorok.'
-            </table>
-            ');
-
+        $szamla_html .= 'Történet felülete';
+        
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+	//Dokumentumok
+	}elseif(isset($_GET['dokumentumok'])){
+
+        $szamla_html .= 'Dokumentumok felülete';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+	//Megjegyzések
+	}elseif(isset($_GET['megjegyzesek'])){
+
+        $szamla_html .= 'Megjegyzések felülete';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html;

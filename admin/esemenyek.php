@@ -11,18 +11,33 @@ if (isset($_GET['modosit'])) {
 }
 
 $_SESSION['ketHasabos'] = array(
-    'bejovo_szamlak.php',
-    'rendszer.php',
-    'szallito.php',
-    'erteklista.php',
-    'login.php',
-    'szerepkor.php',
+    'anyagigenyles.php',
+    'anyagrendeles.php',
     'bejelentes.php',
-    'utemezett_feladatok.php',
+    'bejovo_szamlak.php',
+    'beosztas.php',
+    'cash_flow.php',
     'cikktorzs.php',
+    'erteklista.php',
+    'eseti_fenntartas.php',
+    'eszkozkezeles.php',
+    'felmeresi_terv.php',
+    'fenntartasi_szerzodes.php',
     'ktghely.php',
     'ktgnem.php',
-    'gep.php',
+    'login.php',
+    'munkalap.php',
+    'projektkezeles.php',
+    'projektigenyles.php',
+    'raktar.php',
+    'rendszer.php',
+    'rendszeres_karbantartas.php',
+    'szabadsagigeny.php',
+    'szallito.php',
+    'szamla.php',
+    'szerepkor.php',
+    'torzsadat.php',
+    'utemezett_feladatok.php',
 );
 
 $tabla = basename(self());
@@ -151,9 +166,60 @@ switch($tabla) {
             $_GET['irany'] = 'desc';
         }
     break;
+    case 'munkalap.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid ';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'szabadsagigeny.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid ';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'beosztas.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid ';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
     case 'utemezett_feladatok.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid id nev telephely_id obj_id';
+        $_OPTS['select']    = 'recid id nev telephely_id obj_id aktiv';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('id');
@@ -161,6 +227,210 @@ switch($tabla) {
         /* Default rendezés */
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'id';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'rendszeres_karbantartas.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'projektigenyles.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'cash_flow.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'anyagigenyles.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'torzsadat.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'anyagrendeles.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'raktar.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'felmeresi_terv.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'eseti_fenntartas.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'projektkezeles.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'fenntartasi_szerzodes.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'szamla.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
         }
 
         /* Default rendezési irány */
@@ -219,7 +489,7 @@ switch($tabla) {
             $_GET['irany'] = 'desc';
         }
     break;
-    case 'gep.php':
+    case 'eszkozkezeles.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
         $_OPTS['select']    = 'recid nev';
 
@@ -494,7 +764,7 @@ $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',    'megn' => 'Helyiség:',           'name' => 'obj_id',  'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">reorder</i></a>'),
 
     array('type' => 'textarea',        'megn' => 'Hely leírása:',       'name' => 'helyiseg_text',  'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
-    array('type' => 'autocomplete',    'megn' => 'Gépnév:',             'name' => 'gep_id',         'class' => 'oriasi disableNav', 'tabla' => 'gep', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
+    array('type' => 'autocomplete',    'megn' => 'Gépnév:',             'name' => 'gep_id',         'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
 
     array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',         'class' => 'check'),
     array('type' => 'checkbox',        'megn' => '',                    'name' => 'telefon',        'class' => 'check', 'post' => ' közvetlenül telepített karbantartónak telefonon bejelentve'),
@@ -507,6 +777,15 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $bejelentes_dok_tomb = $akt_tomb = array(
     array('type' => 'jsfile',               'megn' => 'Fájlok:',  'name' => 'termek_kep',  'tabla' => $megnevezes,  'oszlop' => 'kep_teszt',   'algoritmus' => 'fajlnev'/*nev | fajlnev | id*/,   'meret' => 31457280, 'csakkep'  => false, 'fajlok_szama'  => 5),
 );
+
+
+/* Munkalap */
+$megnevezes = 'munkalap';
+$munkalap_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
 
 
 //Ütemezett feladatok
@@ -557,7 +836,7 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
 	array('type' => 'text',                     'megn' => 'Feladatszám:',       'name' => 'id',             'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',          'name' => 'telephely_id',   'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',          'name' => 'obj_id',         'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/><path d="M0 0h24v24H0V0z" fill="none"/></svg></a>'),
-    array('type' => 'autocomplete',             'megn' => 'Gépnév:',            'name' => 'gep_id',         'class' => 'oriasi disableNav', 'tabla' => 'gep', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
+    array('type' => 'autocomplete',             'megn' => 'Gépnév:',            'name' => 'gep_id',         'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
 	array('type' => 'text',                     'megn' => 'Feladat:',           'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi'),
 	array('type' => 'checkbox',                 'megn' => 'Hatósági:',          'name' => 'hatosagi', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
 	array('type' => 'text',                     'megn' => 'Utoljára ütemezve:', 'name' => 'utnap_d',    'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
@@ -664,6 +943,118 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 
+//Rendszeres karbantartás
+$megnevezes = 'rendszeres_karbantartas';
+$rendszeres_karbantartas_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+
+//Anyagigénylés
+$megnevezes = 'anyagigenyles';
+$anyagigenyles_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+//Anyagrendelés
+$megnevezes = 'anyagrendeles';
+$anyagrendeles_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+
+//Felmérési terv
+$megnevezes = 'raktar';
+$raktar_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+
+//Felmérési terv
+$megnevezes = 'felmeresi_terv';
+$felmeresi_terv_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+
+//Törzsadatok
+$megnevezes = 'torzsadat';
+$torzsadat_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+
+//Szabadságigény
+$megnevezes = 'szabadsagigeny';
+$szabadsagigeny_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+
+//Projektigénylés
+$megnevezes = 'projektigenyles';
+$projektigenyles_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+//Cash-flow
+$megnevezes = 'cash_flow';
+$cash_flow_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+
+
+
+//Eseti fenntartás
+$megnevezes = 'eseti_fenntartas';
+$eseti_fenntartas_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+
+
+
+//Eseti fenntartás
+$megnevezes = 'fenntartasi_szerzodes';
+$fenntartasi_szerzodes_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+
+//Számlák
+$megnevezes = 'szamla';
+$szamla_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+
+
+
 //Cikktörzs
 $megnevezes = 'cikktorzs';
 $cikktorzs_tomb = $akt_tomb = array(
@@ -681,9 +1072,9 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 
-//Cikktörzs
-$megnevezes = 'gep';
-$gep_tomb = $akt_tomb = array(
+//Gépek
+$megnevezes = 'eszkozkezeles';
+$eszkozkezeles_tomb = $akt_tomb = array(
 	array('type' => 'text',                     'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a nevet!'),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',              'name' => 'telephely_id',   'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',              'name' => 'obj_id',         'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/><path d="M0 0h24v24H0V0z" fill="none"/></svg></a>'),
@@ -716,9 +1107,9 @@ if( isset($_GET['gepVane']) ) {
     $telephely_id = $_GET['telephely_id'];
     $obj_id = $_GET['obj_id'];
 
-    $gep = $adatbazis_kapcsolat->s('recid', 'gep', "`telephely_id` = '{$telephely_id}' AND `obj_id` = '{$obj_id}'", '', '1');
+    $eszkozkezeles = $adatbazis_kapcsolat->s('recid', 'eszkozkezeles', "`telephely_id` = '{$telephely_id}' AND `obj_id` = '{$obj_id}'", '', '1');
 
-    if( $gep ) {
+    if( $eszkozkezeles ) {
         echo json_encode(array(
             'statusz' => true
         ));

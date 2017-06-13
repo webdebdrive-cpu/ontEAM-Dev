@@ -3,9 +3,9 @@ require_once('../weblap.php');
 //Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
-$akt_tomb               = $gep_tomb;
+$akt_tomb               = $projektkezeles_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'gépet';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'bejegyzést';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 $gyorskereso_text       = '';       //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
 $oszlop_keres           = 'nev';                //Oszlopnevek, melyben keresünk (több oszlop is felsorolható vesszőkkel)
@@ -150,11 +150,17 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['garancialis']) || isset($_GET['tortenet']) || isset($_GET['rb_anyag']) || isset($_GET['projektigeny']) || isset($_GET['cash_flow']) || isset($_GET['projekt_team']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            'dokuemntumok'  => 'Dokumentumok',
+            'projekt_team'  => 'Projekt-team',
+            'cash_flow'     => 'Cash-flow',
+            'projektigeny'  => 'Projektigénylések',
+            'rb_anyag'      => 'RB-anyagok',
+            'tortenet'      => 'Történet',
+            'garancialis'   => 'Garanciális munkák',
+            'dokumentumok'  => 'Dokumentumok',
             'megjegyzesek'  => 'Megjegyzések',
         );
 
@@ -372,6 +378,119 @@ if($gyorskereso_text){
 			require_once('tobb_kep.php');
 		}
 
+	//Cash flow
+	}elseif(isset($_GET['cash_flow'])){
+
+        $szamla_html .= 'Cash flow felülete';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+	//Projekt team
+	}elseif(isset($_GET['projekt_team'])){
+
+        $szamla_html .= 'Projekt team felülete';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+	//Projektigény
+	}elseif(isset($_GET['projektigeny'])){
+
+        $szamla_html .= 'Projektigény felülete';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+	//Történet
+	}elseif(isset($_GET['tortenet'])){
+
+        $szamla_html .= 'Történet felülete';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+	//RB-anyagok
+	}elseif(isset($_GET['rb_anyag'])){
+
+        $szamla_html .= 'RB-anyagok felülete';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+	//Garanciális munkák
+	}elseif(isset($_GET['garancialis'])){
+
+        $szamla_html .= 'Garanciális munkák felülete';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
+        
+
+	//Dokumentumok
+	}elseif(isset($_GET['dokumentumok'])){
+
+        $szamla_html .= 'Dokumentumok felülete';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+	//Megjegyzések
+	}elseif(isset($_GET['megjegyzesek'])){
+
+        $szamla_html .= 'Megjegyzések felülete';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
+        
 	//Lista
 	}elseif(isset($_GET['lista'])){
 

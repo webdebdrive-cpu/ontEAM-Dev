@@ -73,8 +73,6 @@ function i_u($type, $tabla, $tomb){
             array_push($ertekek,  ''                );
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  ''                );
-            array_push($oszlopok, 'ho_rendsz_het'   );
-            array_push($ertekek,  ''                );
         }
         //Napi cilus, X naponként ismétlődik
         if($_POST['ciklnap']){
@@ -113,9 +111,6 @@ function i_u($type, $tabla, $tomb){
 
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  $_POST['ciklho2'] );
-
-            $index = array_search('ciklnap', $oszlopok);
-            $ertekek[$index] = $_POST['ho_rendsz_het'];
         }
 
         if($_POST['ism_het']){
@@ -778,17 +773,32 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
 
         if( $bejegyzesek ) {
             switch($tabla) {
+                case 'anyagigenyles':
+                    $html = anyagigenylesLista( $bejegyzesek, $tabla, $frissit );
+                break;
+                case 'anyagrendeles':
+                    $html = anyagrendelesLista( $bejegyzesek, $tabla, $frissit );
+                break;
                 case 'bejovo_szamlak':
                     $html = bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit );
                 break;
-                case 'rendszer':
-                    $html = rendszerLista( $bejegyzesek, $tabla, $frissit );
+                case 'beosztas':
+                    $html = beosztasLista( $bejegyzesek, $tabla, $frissit );
+                break;
+                case 'cash_flow':
+                    $html = cash_flowLista( $bejegyzesek, $tabla, $frissit );
+                break;
+                case 'cikktorzs':
+                    $html = cikktorzsLista( $bejegyzesek, $tabla, $frissit );
                 break;
                 case 'szallito':
                     $html = szallitoLista( $bejegyzesek, $tabla, $frissit );
                 break;
                 case 'erteklista':
                     $html = erteklistaLista( $bejegyzesek, $tabla, $frissit );
+                break;
+                case 'felmeresi_terv':
+                    $html = felmeresi_tervLista( $bejegyzesek, $tabla, $frissit );
                 break;
                 case 'login':
                     $html = loginLista( $bejegyzesek, $tabla, $frissit );
@@ -799,11 +809,20 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
                 case 'bejelentes':
                     $html = bejelentesLista( $bejegyzesek, $tabla, $frissit );
                 break;
-                case 'utemezett_feladatok':
-                    $html = utemezett_feladatok( $bejegyzesek, $tabla, $frissit );
+                case 'munkalap':
+                    $html = munkalapLista( $bejegyzesek, $tabla, $frissit );
                 break;
-                case 'cikktorzs':
-                    $html = cikktorzs( $bejegyzesek, $tabla, $frissit );
+                case 'utemezett_feladatok':
+                    $html = utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit );
+                break;
+                case 'rendszeres_karbantartas':
+                    $html = rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit );
+                break;
+                case 'eseti_fenntartas':
+                    $html = eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit );
+                break;
+                case 'fenntartasi_szerzodes':
+                    $html = fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit );
                 break;
                 case 'ktghely':
                     $html = ktghelyLista( $bejegyzesek, $tabla, $frissit );
@@ -811,8 +830,29 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
                 case 'ktgnem':
                     $html = ktghelyLista( $bejegyzesek, $tabla, $frissit );
                 break;
-                case 'gep':
-                    $html = gepLista( $bejegyzesek, $tabla, $frissit );
+                case 'eszkozkezeles':
+                    $html = eszkozkezelesLista( $bejegyzesek, $tabla, $frissit );
+                break;
+                case 'projektkezeles':
+                    $html = projektkezelesLista( $bejegyzesek, $tabla, $frissit );
+                break;
+                case 'projektigenyles':
+                    $html = projektigenylesLista( $bejegyzesek, $tabla, $frissit );
+                break;
+                case 'raktar':
+                    $html = raktarLista( $bejegyzesek, $tabla, $frissit );
+                break;
+                case 'rendszer':
+                    $html = rendszerLista( $bejegyzesek, $tabla, $frissit );
+                break;
+                case 'szabadsagigeny':
+                    $html = szabadsagigenyLista( $bejegyzesek, $tabla, $frissit );
+                break;
+                case 'szamla':
+                    $html = szamlaLista( $bejegyzesek, $tabla, $frissit );
+                break;
+                case 'torzsadat':
+                    $html = torzsadatLista( $bejegyzesek, $tabla, $frissit );
                 break;
             }
         }
@@ -884,8 +924,60 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
 
     return false;
 }
+function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
 
-function utemezett_feladatok( $bejegyzesek, $tabla, $frissit ) {
+    if( $bejegyzesek ) {
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $surgos = '';
+            if( $bsz['surgos'] ) {
+                $surgos = nl2('
+                    <span class="icon piros">
+                        <i class="material-icons">error</i>
+                    </span>
+                ');
+            }
+
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                         </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -920,9 +1012,22 @@ function utemezett_feladatok( $bejegyzesek, $tabla, $frissit ) {
             /* Helység */
             $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
             $helyseg = $helyseg[0]['nev'];
+            
+            $aktiv = nl2('
+                <span class="icon piros">
+                    <i class="material-icons">clear</i>
+                </span>
+            ');
+            if( $bsz['aktiv'] ) {
+                $aktiv = nl2('
+                    <span class="icon zold">
+                        <i class="material-icons">done</i>
+                    </span>
+                ');
+            }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$telephely.' - '.$helyseg.'</span>
+                            <span>'.$aktiv.' '.$telephely.' - '.$helyseg.'</span>
                             <span>'.$bsz['nev'].'</span>
                         </a>';
 
@@ -950,7 +1055,741 @@ function utemezett_feladatok( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function gepLista( $bejegyzesek, $tabla, $frissit ) {
+function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $naptar_dn = 'dn';
+        $lsita_dn  = '';
+        if (isset($_GET['naptar'])) {
+            $naptar_dn = '';
+            $lsita_dn  = ' dn';
+        }
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+                <div id="naptar" class="'.$naptar_dn.'">
+                    <div class="naptar"></div>
+                </div>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $naptar_dn = 'dn';
+        $lsita_dn  = '';
+        if (isset($_GET['naptar'])) {
+            $naptar_dn = '';
+            $lsita_dn  = ' dn';
+        }
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+                <div id="naptar" class="'.$naptar_dn.'">
+                    <div class="naptar"></div>
+                </div>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function projektkezelesLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $naptar_dn = 'dn';
+        $lsita_dn  = '';
+        if (isset($_GET['naptar'])) {
+            $naptar_dn = '';
+            $lsita_dn  = ' dn';
+        }
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+                <div id="naptar" class="'.$naptar_dn.'">
+                    <div class="naptar"></div>
+                </div>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $naptar_dn = 'dn';
+        $lsita_dn  = '';
+        if (isset($_GET['naptar'])) {
+            $naptar_dn = '';
+            $lsita_dn  = ' dn';
+        }
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function torzsadatLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function szabadsagigenyLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function beosztasLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function projektigenylesLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function anyagrendelesLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function cash_flowLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function raktarLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function szamlaLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $naptar_dn = 'dn';
+        $lsita_dn  = '';
+        if (isset($_GET['naptar'])) {
+            $naptar_dn = '';
+            $lsita_dn  = ' dn';
+        }
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
+                <div id="naptar" class="'.$naptar_dn.'">
+                    <div class="naptar"></div>
+                </div>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function cikktorzsLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -995,49 +1834,6 @@ function gepLista( $bejegyzesek, $tabla, $frissit ) {
             $html .= nl2('
                 </ul>
             ');
-        }
-
-        return $html;
-    }
-
-    return false;
-}
-
-function cikktorzs( $bejegyzesek, $tabla, $frissit ) {
-    global $adatbazis_kapcsolat;
-
-    if( $bejegyzesek ) {
-        $jClass = '';
-        if( _jog(2) ) {
-            $jClass = ' kijelolheto';
-        }
-
-        if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
-        }
-
-        $i = 1;
-        foreach($bejegyzesek as $bsz) {
-            $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active';
-            }
-
-            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['recid'].'</span>
-                        </a>';
-
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
-            }
-
-            $i++;
-        }
-
-        if( !$frissit ) {
-            $html .= '</ul>';
         }
 
         return $html;

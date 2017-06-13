@@ -347,10 +347,11 @@ if($gyorskereso_text){
         
         $jobb_oldal = '';
         
-        
+        //Az esnap_d értékét a getnextvaliddate() függvény adná vissza.
         $getnextvaliddate = getnextvaliddate(false, $sor["dvarhato"], $sor["cikltip"], $sor["ciklaltip"], $sor["ciklszorz"], $sor["ciklho"], $sor["ciklhet"], $sor["ciklnap"], $sor["idoszakos"], $sor["kezdho"], $sor["kezdnap"], $sor["vegeho"], $sor["vegenap"], $sor["aktkezd_d"], $sor["aktvege_d"]);
         $jobb_oldal .= 'utolso vegrehajtas: ' . $sor["esnap_d"];
         $jobb_oldal .= '<br>kovetkezo: ' . $getnextvaliddate;
+        $jobb_oldal .= '<br>szabaly: ' ;//. getcimke( $sor["cikltip"], $sor["ciklaltip"], $sor["ciklszorz"], $sor["ciklho"], $sor["ciklhet"], $sor["ciklnap"], $sor["esnap_d"]);
         
         //getnextvaliddate() amit visszaad értéket, azt add meg $sor["esnap_d"]-ként
 //        $jobb_oldal = 'utolso vegrehajtas: ' . $sor["esnap_d"] . '
