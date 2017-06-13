@@ -2,13 +2,9 @@
 require_once('../weblap.php');
 
 if( isset($_GET['stat']) ) {
-
-
-echo getStatuszIdo( strtotime('2017-06-09 16:46:52') - strtotime('2017-05-26 11:47:09') );
-    exit();
     $tabla   = 'statusz';
     $id      = 6;
-    $stat_id = 1;
+    $stat_id = 3;
 
     /* Lekérjük az az éppen aktuális státusz */
     $akt_statusz = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id, 'insert_dt desc', '1');
@@ -31,7 +27,7 @@ echo getStatuszIdo( strtotime('2017-06-09 16:46:52') - strtotime('2017-05-26 11:
         }
 
         /* Összesített státuszidő */
-        $elso_akt_stat = $adatbazis_kapcsolat->s('insert_dt', $tabla, 'id='.$id.' and stat_id='.$stat_id, 'insert_dt asc', '1');
+        $elso_akt_stat = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id.' and stat_id='.$stat_id, 'insert_dt asc', '1');
 
         $ossz_statido = '';
         if( $elso_akt_stat ) {
@@ -39,19 +35,26 @@ echo getStatuszIdo( strtotime('2017-06-09 16:46:52') - strtotime('2017-05-26 11:
 
             $ossz_statido = round( time() - strtotime($elso_akt_stat['insert_dt']) );
             $ossz_statido = getStatuszIdo( $ossz_statido );
+
+            /* Frissítjük a sort */
+            $adatbazis_kapcsolat -> u($tabla,
+                array('ossz_statido'),
+                array($ossz_statido ),
+                'id='.$id.' and stat_id='.$stat_id
+            );
         }
 
         /* Frissítjük a sort */
         $adatbazis_kapcsolat -> u($tabla,
-            array('end_dt',             'statido',    'gongyolt_statido', 'ossz_statido'),
-            array( date('Y-m-d H:i:s'), $statusz_ido, $gongyolt_statido,  $ossz_statido ),
+            array('end_dt',             'statido',    'gongyolt_statido'),
+            array( date('Y-m-d H:i:s'), $statusz_ido, $gongyolt_statido ),
             'recid='.$akt_statusz['recid']
         );
 
         /* Beszúrjuk az újat */
         $adatbazis_kapcsolat -> i($tabla,
-            array('id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
-            array($id,  $stat_id,   date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+            array('id', 'tabla', 'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+            array($id,  'bejelentes',  $stat_id,   date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
         );
     }
 
@@ -545,7 +548,7 @@ if($gyorskereso_text){
     }elseif(isset($_GET['megjegyzes'])) {
 
         $szamla_html .= nl2('
-            <div class="dt naplo">
+            <div class="dt naplo kijCont" data-tabla="megjegyzes">
                 <div class="dtr nFejlec">
                     <div class="dtc">Megjegyzés</div>
                     <div class="dtc">Hozzáadta</div>
@@ -556,14 +559,17 @@ if($gyorskereso_text){
         $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
 
         if( $sorok ) {
+            $i = 1;
             foreach($sorok as $sor) {
                 $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" class="dtr nSor">
+                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
                         <div class="dtc">'.nl2br($sor['megj']).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
                         <div class="dtc">'.$sor['insert_dt'].'</div>
                     </div>
                 ');
+
+                $i++;
             }
         }
 

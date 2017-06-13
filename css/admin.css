@@ -1590,6 +1590,10 @@ div.naplo div.nSor.uj {
     }
 }
 
+div.naplo div.nSor {
+    cursor: default;
+}
+
 div.naplo div.nSor div.dtc {
     border-bottom: 0.1rem solid #8e8e8e;
     padding: 1rem 1.5rem 1rem 1.5rem;
@@ -2123,4 +2127,14 @@ div.szamlaLapozas div.lapoz {
 div.szamlaLapozas div.lapoz.pontok {
     border-color: transparent!important;
     min-width: 0.1rem;
+}
+
+.kijCont.link .kijSor {
+    cursor: pointer!important;
+    user-select: none;
+}
+
+.kijCont .kijSor.kijelolve {
+    background: #484848!important;
+    color: #fff;
 }

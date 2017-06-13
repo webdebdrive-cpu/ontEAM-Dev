@@ -203,7 +203,7 @@ function i_u($type, $tabla, $tomb){
 
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );
-            
+
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
@@ -1553,16 +1553,16 @@ function _jog( $value ) {
 
 function getStatuszIdo( $time ) {
     /* Eltelt napok */
-    $napok = round($time / 86400);
+    $napok = floor($time / 86400);
 
     /* Óra */
-    $ora =  round(($time % 86400) / 3600);
+    $ora = floor(($time % 86400) / 3600);
 
     /* Perc */
-    $perc =  round(($time % 86400 % 3600) / 60);
+    $perc = floor(($time % 86400 % 3600) / 60);
 
     /* Másodperc */
-    $mp =  round(($time % 86400 % 3600 % 60));
+    $mp =  floor(($time % 86400 % 3600 % 60));
 
     return $napok.'nap '.sprintf('%02d', $ora).':'.sprintf('%02d', $perc).':'.sprintf('%02d', $mp);
 }

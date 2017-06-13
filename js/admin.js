@@ -491,6 +491,81 @@ $(function() {
         }
     });
 
+    shiftCtrl = false;
+    $(document).on('keydown', function(e) {
+        if( e.shiftKey || e.ctrlKey ) {
+            if( !shiftCtrl ) {
+                $('.kijCont').addClass('link');
+                shiftCtrl = true;
+            }
+        }
+    });
+
+    $(document).on('keyup', function(e) {
+        if( !e.shiftKey || !e.ctrlKey ) {
+            $('.kijCont').removeClass('link');
+            shiftCtrl = false;
+        }
+    });
+
+    $(document).on('click', '.kijCont .kijSor', function(e) {
+        var parent = $(this).parents('.kijCont'),
+            tabla  = parent.attr('data-tabla'),
+            sorok  = parent.find('.kijSor');
+
+        if( e.shiftKey ) {
+            sorok.removeClass('active');
+
+            if( !sorok.hasClass('kijelolve') ) {
+                $(this).addClass('kijelolve');
+
+                /* Tömeges kijelöléshez */
+                sorok.removeClass('akt');
+                $(this).addClass('akt');
+
+                kijeloltSzamlal( sorok, 'mellek', tabla );
+            } else {
+                var akt_id = parseInt( parent.find('.kijSor.akt').attr('data-i') );
+
+                /* Tömeges kijelöléshez */
+                sorok.removeClass('akt');
+                $(this).addClass('akt');
+
+                var uj_akt_id = parseInt( $(this).attr('data-i') );
+
+                if( uj_akt_id > akt_id ) {
+                    for( var i = akt_id; i <= uj_akt_id; i++ ) {
+                        if( !parent.find('.kijSor[data-i="' + i + '"]').hasClass('kijelolve') ) {
+                            parent.find('.kijSor[data-i="' + i + '"]').addClass('kijelolve');
+                        }
+                    }
+                } else {
+                    for( var i = akt_id; i >= uj_akt_id; i-- ) {
+                        if( !parent.find('.kijSor[data-i="' + i + '"]').hasClass('kijelolve') ) {
+                            parent.find('.kijSor[data-i="' + i + '"]').addClass('kijelolve');
+                        }
+                    }
+                }
+
+                kijeloltSzamlal( sorok, 'mellek', tabla );
+            }
+        } else if( e.ctrlKey ) {
+            sorok.removeClass('active');
+
+            /* Tömeges kijelöléshez */
+            sorok.removeClass('akt');
+            $(this).addClass('akt');
+
+            if( $(this).hasClass('kijelolve') ) {
+                $(this).removeClass('kijelolve');
+            } else {
+                $(this).addClass('kijelolve');
+            }
+
+            kijeloltSzamlal( sorok, 'mellek', tabla );
+        }
+    });
+
     $('#tartalomBal').on('click', '#szamlaList li.szamla_sor', function(e) {
         var sorok = $('#szamlaList li.szamla_sor'),
             kijelolheto = $('#szamlaList').hasClass('kijelolheto');
@@ -513,8 +588,6 @@ $(function() {
             e.stopPropagation();
         } else {
             if( e.shiftKey && kijelolheto ) {
-                $('#kmCont').addClass('active');
-
                 sorok.removeClass('active');
 
                 if( !sorok.hasClass('kijelolve') ) {
@@ -523,6 +596,8 @@ $(function() {
                     /* Tömeges kijelöléshez */
                     sorok.removeClass('akt');
                     $(this).addClass('akt');
+
+                    kijeloltSzamlal( sorok, 'fo' );
                 } else {
                     var akt_id = parseInt( $('#szamlaList.kijelolheto li.szamla_sor.akt').attr('data-i') );
 
@@ -545,10 +620,10 @@ $(function() {
                             }
                         }
                     }
+
+                    kijeloltSzamlal( sorok, 'fo' );
                 }
             } else if( e.ctrlKey && kijelolheto ) {
-                $('#kmCont').addClass('active');
-
                 sorok.removeClass('active');
 
                 /* Tömeges kijelöléshez */
@@ -560,6 +635,8 @@ $(function() {
                 } else {
                     $(this).addClass('kijelolve');
                 }
+
+                kijeloltSzamlal( sorok, 'fo' );
             }
         }
     });
@@ -750,6 +827,37 @@ $(function() {
     });
 });
 
+function kijeloltSzamlal( sorok, reszleg, tabla ) {
+    if( tabla === undefined ) {
+        tabla = '';
+    }
+
+    if( !sorok.hasClass('kijelolve') && reszleg == 'fo' ) {
+        $('#kmCont').removeClass('active');
+    } else if( sorok.hasClass('kijelolve') && reszleg == 'fo' ) {
+        $('#kmCont').addClass('active');
+    }
+
+    if( !sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
+        $('#navGombok a.torles').addClass('disabled').attr('onclick', '');
+    } else if( sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
+        $('#navGombok a.torles').removeClass('disabled').attr('onclick', 'mellekTorol(\'' + tabla + '\');');
+    }
+}
+
+function mellekTorol( tabla ) {
+    var kijelolve = $('.kijCont .kijSor.kijelolve'),
+        data = new Array();
+
+    kijelolve.each(function() {
+        var id = $(this).attr('data-id');
+
+        data.push(id);
+    });
+
+    console.log(data);
+}
+
 function kijelolesEltavolit() {
     if( $('#szamlaList li.szamla_sor').hasClass('kijelolve') ) {
         $('#szamlaList li.szamla_sor').removeClass('active kijelolve');
@@ -760,6 +868,11 @@ function kijelolesEltavolit() {
         if( _get('id') ) {
             $('#szamla-' + _get('id')).addClass('active');
         }
+    }
+
+    if( $('.kijCont .kijSor').hasClass('kijelolve') ) {
+        $('.kijCont .kijSor').removeClass('kijelolve');
+        $('#navGombok a.torles').addClass('disabled').attr('onclick', '');
     }
 }
 
