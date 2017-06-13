@@ -380,7 +380,7 @@ if($gyorskereso_text){
                         <input type="button" class="gomb foGomb km_false" value="Csoportosítás..." title="Csoportosítás...">
                         <div class="muv">
                             <ul>
-                                <li><a class="km_false">Csoporthoz adás</a></li>
+                                <li><a class="km_false" onclick="csoportMuvelet(\'csoporthoz_adas\');">Csoporthoz adás</a></li>
                                 <li><a class="km_false">Csoportból kivétel</a></li>
                                 <li><a class="km_false">Csoport átnevezése</a></li>
                             </ul>
@@ -548,7 +548,7 @@ if($gyorskereso_text){
     }elseif(isset($_GET['megjegyzes'])) {
 
         $szamla_html .= nl2('
-            <div class="dt naplo kijCont" data-tabla="megjegyzes">
+            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzes">
                 <div class="dtr nFejlec">
                     <div class="dtc">Megjegyzés</div>
                     <div class="dtc">Hozzáadta</div>
@@ -562,7 +562,7 @@ if($gyorskereso_text){
             $i = 1;
             foreach($sorok as $sor) {
                 $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                    <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                         <div class="dtc">'.nl2br($sor['megj']).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
                         <div class="dtc">'.$sor['insert_dt'].'</div>

@@ -477,7 +477,9 @@ $(function() {
     });
 
     $(document).on('click', function(e) {
-        if( !e.ctrlKey && !e.shiftKey && e.target.className.indexOf('km_false') === -1 ) {
+        var par = $(event.target).parent();
+
+        if( !e.ctrlKey && !e.shiftKey && e.target.className.indexOf('km_false') === -1 && !par.hasClass('km_false') ) {
             /* Eltávolítjuk a bal oldali kijelöléseket */
             kijelolesEltavolit();
         }
@@ -512,6 +514,7 @@ $(function() {
     $(document).on('click', '.kijCont .kijSor', function(e) {
         var parent = $(this).parents('.kijCont'),
             tabla  = parent.attr('data-tabla'),
+            mellek = parent.attr('data-mellek'),
             sorok  = parent.find('.kijSor');
 
         if( e.shiftKey ) {
@@ -524,7 +527,7 @@ $(function() {
                 sorok.removeClass('akt');
                 $(this).addClass('akt');
 
-                kijeloltSzamlal( sorok, 'mellek', tabla );
+                kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
             } else {
                 var akt_id = parseInt( parent.find('.kijSor.akt').attr('data-i') );
 
@@ -548,7 +551,7 @@ $(function() {
                     }
                 }
 
-                kijeloltSzamlal( sorok, 'mellek', tabla );
+                kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
             }
         } else if( e.ctrlKey ) {
             sorok.removeClass('active');
@@ -563,7 +566,7 @@ $(function() {
                 $(this).addClass('kijelolve');
             }
 
-            kijeloltSzamlal( sorok, 'mellek', tabla );
+            kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
         }
     });
 
@@ -828,9 +831,29 @@ $(function() {
     });
 });
 
-function kijeloltSzamlal( sorok, reszleg, tabla ) {
+function csoportMuvelet( oldal ) {
+    $('#kmCont div.kijeloltek_muv').removeClass('active');
+
+    $.get('../sablon/admin/popup/' + oldal + '.html?cache=' + new Date().getTime(), function( data ) {
+        $('#popupTart').html(data);
+
+        /*switch( oldal ) {
+            case 'szakterulet':
+                $('#addSzakterForm').attr('onsubmit', 'return addSzakterulet(\'' + _get('id') + '\', this);');
+            break;
+        }*/
+
+        popupNyit();
+    });
+}
+
+function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     if( tabla === undefined ) {
         tabla = '';
+    }
+
+    if( mellek === undefined ) {
+        mellek = '';
     }
 
     if( !sorok.hasClass('kijelolve') && reszleg == 'fo' ) {
@@ -842,21 +865,47 @@ function kijeloltSzamlal( sorok, reszleg, tabla ) {
     if( !sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
         $('#navGombok a.torles').addClass('disabled').attr('onclick', '');
     } else if( sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
-        $('#navGombok a.torles').removeClass('disabled').attr('onclick', 'mellekTorol(\'' + tabla + '\');');
+        gomb_uzi = 'Biztosan törli a kijelölt sorokat?';
+        gomb_muv = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\');"><input class="gomb zold km_false" type="button" value="Nem" onclick="alert2()"></p>';
+
+        $('#navGombok a.torles').removeClass('disabled').attr('onclick', 'alert2(\'' + gomb_uzi + '\', gomb_muv);');
     }
 }
 
-function mellekTorol( tabla ) {
+function mellekTorol( tabla, mellek ) {
     var kijelolve = $('.kijCont .kijSor.kijelolve'),
-        data = new Array();
+        idk = {};
 
+    var i = 1;
     kijelolve.each(function() {
         var id = $(this).attr('data-id');
 
-        data.push(id);
+        idk[i] = id;
+        i++;
     });
 
-    console.log(data);
+    if( idk ) {
+        $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'POST',
+         	data: {
+                tabla       : tabla,
+                idk         : JSON.stringify(idk),
+                mellekTorol : new Date().getTime()
+            },
+         	success: function(html) {
+         		if(html) {
+         			html = JSON.parse(html);
+
+                    if( html.statusz == 'siker' ) {
+                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', mellek);
+                    }
+         		}
+         	}
+        });
+    }
+
+    alert2();
 }
 
 function kijelolesEltavolit() {
@@ -1307,7 +1356,7 @@ function gombokRejt() {
     }
 
     if( _get('modosit') ) {
-        $('div.navGombok a.torles').removeClass('disabled');
+        $('div.navGombok a.torles').removeClass('disabled').attr('onclick', 'naviTorles();');
     } else {
         $('div.navGombok a.torles').addClass('disabled');
     }

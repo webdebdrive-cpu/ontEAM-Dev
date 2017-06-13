@@ -491,13 +491,13 @@ if($gyorskereso_text){
             if( $sorok ) {
                 /* Fejlécek */
                 $szamla_html .= nl2('
-                    <div class="dt naplo szakter">
+                    <div class="dt naplo szakter kijCont" data-tabla="telephely_kapcs" data-mellek="szallodak">
                         <div class="dtr nFejlec">
                             <div class="dtc">Név</div>
-                            <div class="dtc"></div>
                         </div>
                 ');
 
+                $i = 1;
                 foreach($sorok as $sor) {
                     $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
 
@@ -505,12 +505,13 @@ if($gyorskereso_text){
                         $telephely = $telephely[0];
 
                         $szamla_html .= nl2('
-                            <div id="naploSor-'.$sor['recid'].'" class="dtr nSor">
+                            <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                                 <div class="dtc full">'.$telephely['nev'].'</div>
-                                <div class="dtc"><a href="javascript: naploTorol(\'telephely_kapcs\', \''.$sor['recid'].'\'); void(0);" class="torles">Törlés</a></div>
                             </div>
                         ');
                     }
+
+                    $i++;
                 }
 
                 $szamla_html .= '</div>';
