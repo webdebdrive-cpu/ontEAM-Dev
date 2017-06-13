@@ -72,7 +72,7 @@ $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $bejelentes_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'számlát';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'bejelentést';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 $gyorskereso_text       = '';       //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
 $oszlop_keres           = 'nev';                //Oszlopnevek, melyben keresünk (több oszlop is felsorolható vesszőkkel)
@@ -725,7 +725,7 @@ if($gyorskereso_text){
 
             //törléshez a JS script
             ?><script><?php
-                ?>uzi_e = 'Biztosan törlöd a ';<?php
+                ?>uzi_e = 'Biztosan törli a ';<?php
                 ?>uzi_v = ' <?php echo $szoveg?>?';<?php
                 ?>gomb_e = get_torles_gomb_e('<?php echo self().get_get()?>','<?php echo $torles?>');<?php
                 ?>gomb_v = get_torles_gomb_v();<?php

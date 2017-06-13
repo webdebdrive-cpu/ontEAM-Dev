@@ -283,7 +283,7 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, ''/*$aloldalak['0']*/, $m
 $menu_nev        = 'Eszközök';
 $menu_nev_kis    = 'eszközök';
 $menu_nev_tobbes = 'Eszközök';
-$megn            = 'eszkozok';
+$megn            = 'gep';
 $aloldalak       = array($megn.'.php');
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
 if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
@@ -543,6 +543,7 @@ $uj_link  = '';
 if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
     $tabla = str_replace('.php', '', basename(self()));
 
+
     /* Rendezés */
     $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
     $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
@@ -616,7 +617,6 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
         $where = csonkit($where, 4);
     }
-
     //Lapozás előkészítése
     require_once('../class/class.Lapozo.php');
 

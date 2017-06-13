@@ -34,16 +34,16 @@ if( $_POST ) {
 }
 
 //Több kép menedzseléséhez
-$tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
+$tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
-    function get_tobbkep_csakkep()  { return 'true';    } // Lényeges, hogy egy string legyen
+    function get_tobbkep_csakkep()  { return 'false';    } // Lényeges, hogy egy string legyen
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
     function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
         global $megnevezes;
         return $megnevezes.'_id';
     }
-    function get_tobbkep_tabla(){ return 'kepek';       } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
+    function get_tobbkep_tabla(){ return 'utemezett_feladatok_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 
     //Kép törlésének lekezelése
     if (isset($_GET[$torles.'tobbkep_torol'])){
@@ -151,14 +151,14 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || isset($_GET['utemezes']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzes']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'naptar'        => 'Naptár',
             'modosit'       => 'Adatlap',
             'utemezes'      => 'Ütemezések',
-            'dokuemntumok'  => 'Dokumentumok',
-            'megjegyzesek'  => 'Megjegyzések',
+            'dokumentumok'  => 'Dokumentumok',
+            'megjegyzes'    => 'Megjegyzések',
         );
 
         $fulek = '';
@@ -305,7 +305,7 @@ if($gyorskereso_text){
         //$gombok .= ' <input type="button" id="visszavonas_gomb" disabled="disabled" class="gombb" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\', true);" value="Visszavonás" title="Visszavonás">';
 
         if( !$csak_szerkesztheto ) {
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törlöd ezt a '.$szoveg.'?\',gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\',gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
 
         //$gombok .= ' <input type="button" id="kilepes_gomb" class="gombb_alert" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\');" value="Kilépés" title="Kilépés">';
@@ -344,6 +344,14 @@ if($gyorskereso_text){
 		require('switch.php');
 
         include('datumra_utemezes.php');
+        
+        $jobb_oldal = '';
+        
+        
+        $getnextvaliddate = getnextvaliddate(false, $sor["dvarhato"], $sor["cikltip"], $sor["ciklaltip"], $sor["ciklszorz"], $sor["ciklho"], $sor["ciklhet"], $sor["ciklnap"], $sor["idoszakos"], $sor["kezdho"], $sor["kezdnap"], $sor["vegeho"], $sor["vegenap"], $sor["aktkezd_d"], $sor["aktvege_d"]);
+        $jobb_oldal .= 'utolso vegrehajtas: ' . $sor["esnap_d"];
+        $jobb_oldal .= '<br>kovetkezo: ' . $getnextvaliddate;
+        
         //getnextvaliddate() amit visszaad értéket, azt add meg $sor["esnap_d"]-ként
 //        $jobb_oldal = 'utolso vegrehajtas: ' . $sor["esnap_d"] . '
 //            <BR>kovetkezo: ' . getnextvaliddate(false, $sor["dvarhato"], $sor["cikltip"], $sor["ciklaltip"], $sor["ciklszorz"], $sor["ciklho"], $sor["ciklhet"], $sor["ciklnap"], $sor["idoszakos"], $sor["kezdho"], $sor["kezdnap"], $sor["vegeho"], $sor["vegenap"], $sor["aktkezd_d"], $sor["aktvege_d"]) . '
@@ -431,6 +439,74 @@ if($gyorskereso_text){
             '.$sorok.'
             </table>
             ');
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html
+            ));
+        } else {
+            echo $szamla_html;
+        }
+        
+	//Ütemezés
+    }elseif(isset($_GET['utemezes'])) {
+
+        $szamla_html .= 'Ide jön felsorolás szerűen, hogy a jövőben mely időpontokban fut majd le az ütemezés.';
+        
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html
+            ));
+        } else {
+            echo $szamla_html;
+        }
+        
+    /* Dokumentumok */
+    }elseif(isset($_GET['dokumentumok'])) {
+
+        if( $tobb_kep ) {
+            require_once('tobb_kep.php');
+        }
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+    /* Megjegyzés */
+    }elseif(isset($_GET['megjegyzes'])) {
+
+        $szamla_html .= nl2('
+            <div class="dt naplo kijCont" data-tabla="megjegyzes">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Megjegyzés</div>
+                    <div class="dtc">Hozzáadta</div>
+                    <div class="dtc">Hozzáadva</div>
+                </div>
+        ');
+
+        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
+
+        if( $sorok ) {
+            $i = 1;
+            foreach($sorok as $sor) {
+                $szamla_html .= nl2('
+                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                        <div class="dtc">'.nl2br($sor['megj']).'</div>
+                        <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.$sor['insert_dt'].'</div>
+                    </div>
+                ');
+
+                $i++;
+            }
+        }
+
+        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -582,7 +658,7 @@ if($gyorskereso_text){
 
             //törléshez a JS script
             ?><script><?php
-                ?>uzi_e = 'Biztosan törlöd a ';<?php
+                ?>uzi_e = 'Biztosan törli a ';<?php
                 ?>uzi_v = ' <?php echo $szoveg?>?';<?php
                 ?>gomb_e = get_torles_gomb_e('<?php echo self().get_get()?>','<?php echo $torles?>');<?php
                 ?>gomb_v = get_torles_gomb_v();<?php

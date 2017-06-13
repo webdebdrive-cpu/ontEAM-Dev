@@ -424,7 +424,8 @@ $(function() {
                 'utemezett_feladatok',
                 'cikktorzs',
                 'ktghely',
-                'ktgnem'
+                'ktgnem',
+                'gep'
             );
 
             /* Eltávolítjuk a bal oldali kijelöléseket */
@@ -1367,8 +1368,14 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
         if(muvelet.indexOf('naptar')>=0){
             $('#naptar').show();
             $('#szamlaList').hide();
+            $('#utemezes').hide();
+        }else if(muvelet.indexOf('utemezes')>=0){
+            $('#utemezes').show();
+            $('#szamlaList').hide();
+            $('#naptar').hide();
         }else{
             $('#naptar').hide();
+            $('#utemezes').hide();
             $('#szamlaList').show();
         }
     }

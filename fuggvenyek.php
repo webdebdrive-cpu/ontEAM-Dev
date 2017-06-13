@@ -68,19 +68,15 @@ function i_u($type, $tabla, $tomb){
 
     //Dátumra ütmezés, ha az ütemezett feldaatokat módosítjuk/töltjük fel
     if( $tabla == 'utemezett_feladatok' ) {
-        //Napi cilus, X naponként ismétlődik
         if($_POST['cikltip']=='l'){
             array_push($oszlopok, 'ciklaltip'       );
             array_push($ertekek,  ''                );
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  ''                );
-            array_push($oszlopok, 'ciklhet'         );
-            array_push($ertekek,  ''                );
-            array_push($oszlopok, 'ciklnap'         );
-            array_push($ertekek,  ''                );
             array_push($oszlopok, 'ho_rendsz_het'   );
             array_push($ertekek,  ''                );
         }
+        //Napi cilus, X naponként ismétlődik
         if($_POST['ciklnap']){
             array_push($oszlopok, 'ciklaltip'       );
             array_push($ertekek,  '1'               );
@@ -88,8 +84,6 @@ function i_u($type, $tabla, $tomb){
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  $_POST['ciklnap'] );
 
-            array_push($oszlopok, 'ciklhet' );
-            array_push($ertekek,  ''        );
         }
         //Napi ciklus, hétköznaponként isméltődik
         if($_POST['hetkoz_kent']){
@@ -98,11 +92,6 @@ function i_u($type, $tabla, $tomb){
 
             array_push($oszlopok, 'ciklszorz'   );
             array_push($ertekek,  '0'           );
-
-            array_push($oszlopok, 'ciklhet' );
-            array_push($ertekek,  ''        );
-            array_push($oszlopok, 'ciklnap' );
-            array_push($ertekek,  ''        );
         }
 
         //Havi ciklus x havonta ismétlődik
@@ -113,12 +102,10 @@ function i_u($type, $tabla, $tomb){
             array_push($oszlopok, 'ciklszorz'      );
             array_push($ertekek,  $_POST['ciklho'] );
 
-            array_push($oszlopok, 'ciklnap'      );
-            array_push($ertekek,  $_POST['honapjan'] );
+            $_POST['ciklnap'] = $_POST['honapjan'];
 
-            array_push($oszlopok, 'ciklhet' );
-            array_push($ertekek,  ''        );
         }
+
         if($_POST['ciklho2']){
             array_push($oszlopok, 'ciklaltip'               );
             array_push($ertekek,  '2'                       );
@@ -126,12 +113,9 @@ function i_u($type, $tabla, $tomb){
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  $_POST['ciklho2'] );
 
-            array_push($oszlopok, 'ciklhet'                 );
-            array_push($ertekek,  $_POST['ciklhet']   );
-
-            array_push($oszlopok, 'ciklnap'                 );
-            array_push($ertekek,  $_POST['ho_rendsz_het']   );
+            $_POST['ciklnap'] = $_POST['ho_rendsz_het'];
         }
+
         if($_POST['ism_het']){
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  $_POST['ism_het'] );
@@ -144,14 +128,12 @@ function i_u($type, $tabla, $tomb){
             if($_POST['sz']){ $cikl_nap .= '6'; }
             if($_POST['v']) { $cikl_nap .= '7'; }
 
-            array_push($oszlopok, 'ciklnap'     );
-            array_push($ertekek,  $cikl_nap     );
+            $_POST['ciklnap'] = $cikl_nap;
 
             array_push($oszlopok, 'ciklaltip'   );
             array_push($ertekek,  ''            );
-            array_push($oszlopok, 'ciklhet'     );
-            array_push($ertekek,  ''            );
         }
+
     }
 
 	if($type == 'insert') {
@@ -240,11 +222,15 @@ function i_u($type, $tabla, $tomb){
 
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
-
+            
+        //Gégpek
+        } else if( $tabla == 'gep' ) {
+            array_push($oszlopok, 'loginnev'                        );
+            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
         }
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
-
+echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
         //Bejelentések iktatószám képzése
         if( $tabla == 'bejelentes' ) {
             $adatbazis_kapcsolat -> i('statusz',
@@ -273,6 +259,7 @@ function i_u($type, $tabla, $tomb){
             array( 'felh_id',                          'nev',       'valtozas'),
             array( $_SESSION[get_db_tabla().'user_id'], $muvelet,   $valtozas )
         );
+
 //echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
 	} else {
         /* Ha volt változás, akkor logoljuk */
@@ -821,6 +808,9 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
                 case 'ktgnem':
                     $html = ktghelyLista( $bejegyzesek, $tabla, $frissit );
                 break;
+                case 'gep':
+                    $html = gepLista( $bejegyzesek, $tabla, $frissit );
+                break;
             }
         }
 
@@ -861,17 +851,11 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
 
             /* Telephely */
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
-
-            if( $telephely ) {
-                $telephely = $telephely[0]['nev'];
-            }
+            $telephely = $telephely[0]['nev'];
 
             /* Helység */
             $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
-
-            if( $helyseg ) {
-                $helyseg = $helyseg[0]['nev'];
-            }
+            $helyseg = $helyseg[0]['nev'];
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span>'.$surgos.' '.$bsz['ikt_szam'].'</span>
@@ -925,9 +909,18 @@ function utemezett_feladatok( $bejegyzesek, $tabla, $frissit ) {
             if( $bsz['recid'] == $_GET['id'] ) {
                 $active = ' active';
             }
+            
+            /* Telephely */
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
+            $telephely = $telephely[0]['nev'];
+
+            /* Helység */
+            $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
+            $helyseg = $helyseg[0]['nev'];
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['id'].'</span>
+                            <span>'.$telephely.' - '.$helyseg.'</span>
+                            <span>'.$bsz['nev'].'</span>
                         </a>';
 
             if( !$frissit ) {
@@ -945,6 +938,59 @@ function utemezett_feladatok( $bejegyzesek, $tabla, $frissit ) {
                 <div id="naptar" class="'.$naptar_dn.'">
                     <div class="naptar"></div>
                 </div>
+            ');
+        }
+
+        return $html;
+    }
+
+    return false;
+}
+
+function gepLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        $naptar_dn = 'dn';
+        $lsita_dn  = '';
+        if (isset($_GET['naptar'])) {
+            $naptar_dn = '';
+            $lsita_dn  = ' dn';
+        }
+
+        $jClass = '';
+        if( _jog(2) ) {
+            $jClass = ' kijelolheto';
+        }
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' active';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['nev'].'</span>
+                        </a>';
+
+            if( !$frissit ) {
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            } else {
+                $html .= $li_tart;
+            }
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= nl2('
+                </ul>
             ');
         }
 

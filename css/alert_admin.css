@@ -1,12 +1,11 @@
-#szurkit,
-.szurkit {
+#szurkit, .szurkit {
     background-color: #000;
     height: 100%;
     left: 0;
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 100;
+    z-index: 9999;
 }
 
 .szurkit {
@@ -19,7 +18,7 @@
 
 #alert2 {
     position: fixed;
-    z-index: 1000;
+    z-index: 10000;
 }
 
 #beleptet_alert {
@@ -29,7 +28,7 @@
     top: 50%;
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
-    z-index: 1000;
+    z-index: 10000;
 }
 
 #alert2 img.bezar{

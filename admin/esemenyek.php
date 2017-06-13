@@ -22,6 +22,7 @@ $_SESSION['ketHasabos'] = array(
     'cikktorzs.php',
     'ktghely.php',
     'ktgnem.php',
+    'gep.php',
 );
 
 $tabla = basename(self());
@@ -152,7 +153,7 @@ switch($tabla) {
     break;
     case 'utemezett_feladatok.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid id';
+        $_OPTS['select']    = 'recid id nev telephely_id obj_id';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('id');
@@ -204,6 +205,23 @@ switch($tabla) {
     case 'ktgnem.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
         $_OPTS['select']    = 'recid id nev';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('nev');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'nev';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'gep.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid nev';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('nev');
@@ -536,7 +554,7 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
 
         //Hetente
         array('type' => 'html',                     'megn' => nl2('<div id="tipus_w" style="padding: 0" class="'.$het_rejt.'cikltip">')),
-        array('type' => 'text',                     'megn' => '',                   'name' => 'ism_het',        'pre' => 'Ismétlődik ', 'post' => ' hetente a következő napokon:', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value);'),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ism_het','pre' => 'Ismétlődik ', 'post' => ' hetente a következő napokon:', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value);'),
         array('type' => 'checkbox',                 'megn' => '',                   'name' => 'h',      'post' => '<label for="h"  class="link"> hétfő</label>',     'osszevon' => 1),
         array('type' => 'checkbox',                 'megn' => '',                   'name' => 'k',      'post' => '<label for="k"  class="link"> kedd</label>',      'osszevon' => 1),
         array('type' => 'checkbox',                 'megn' => '',                   'name' => 's',      'post' => '<label for="s"  class="link"> szerda</label>',    'osszevon' => 1),
@@ -581,7 +599,23 @@ $cikktorzs_tomb = $akt_tomb = array(
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+
+//Cikktörzs
+$megnevezes = 'gep';
+$gep_tomb = $akt_tomb = array(
+	array('type' => 'text',                     'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a nevet!'),
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',              'name' => 'telephely_id',   'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+    array('type' => 'autocomplete',             'megn' => 'Helyiség:',              'name' => 'obj_id',         'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/><path d="M0 0h24v24H0V0z" fill="none"/></svg></a>'),
+	array('type' => 'text',                     'megn' => 'Azonosító:',             'name' => 'azon',           'maxlength' => 250, 'class' => 'oriasi'),
+    array('type' => 'textarea',                 'megn' => 'Megjegyzés:',            'name' => 'megj',           'disabled' => $disabled,    'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 //{KOVETKEZO_TOMB}
+
+
+
 
 /* Objektumok generálása */
 if( isset($_GET['gepVane']) ) {
@@ -940,7 +974,7 @@ function get_admin_file_thumb($tabla, $oszlop, $id){
                                 <div class="dtc vam f16 link full" onclick="window.open(\''.$utvonal.'\')" title="Fájl letöltése">
                                     '.basename($utvonal).'
                                 </div>
-                                <div class="dtc vam link" onclick="alert2(\'Biztosan törlöd a fájlt?\', gombfajl_'.$oszlop.'_'.$id.')" title="Fájl törlése">
+                                <div class="dtc vam link" onclick="alert2(\'Biztosan törli a fájlt?\', gombfajl_'.$oszlop.'_'.$id.')" title="Fájl törlése">
                                     x
                                 </div>
                             </div>
@@ -966,13 +1000,13 @@ function get_admin_file_thumb($tabla, $oszlop, $id){
                     <div id="fajl_'.$tabla.'_'.$oszlop.'_'.$id.'">
                         <script>var gombfajl_'.$oszlop.'_'.$id.'=get_fajl_torol_gomb(\''.$id.'\', \''.$tabla.'\', \''.$oszlop.'\');</script>
                         <div class="kep_torol link">
-                            <span onclick="alert2(\'Biztosan törlöd a fájlt?\', gombfajl_'.$oszlop.'_'.$id.')">
-                                <img src="../elemek/admin/torol.png" alt="x" title="Kép törlése" />
+                            <span onclick="alert2(\'Biztosan törli a fájlt?\', gombfajl_'.$oszlop.'_'.$id.')">
+                                <img src="../elemek/admin/torol.png" alt="x" title="Kép törlése">
                                 Kép törlése
                             </span>
                             &nbsp;&nbsp;&nbsp;&nbsp;
                             <span onclick="kep_forgat(\''.$utvonal.'\', \'-90\', \'#fajl_'.$oszlop.'_'.$id.'\')">
-                                <img src="../elemek/admin/elforgat.png" alt="C" title="Kép elforgatása" />
+                                <img src="../elemek/admin/elforgat.png" alt="C" title="Kép elforgatása">
                                 Kép elforgatása
                             <span>
                         </div>
@@ -1129,7 +1163,7 @@ foreach($postok as $ertek){
 	if(isset($_GET[$ertek['torid']])){
 
         $lekerdez = $adatbazis_kapcsolat -> select('*', $ertek['tabla'], 'recid='.$_GET[$ertek['torid']]);
-
+//echo $adatbazis_kapcsolat->gp() . '<br>';
 		$sor      = $lekerdez[0];
 		$tomb     = $ertek['tomb'];
 

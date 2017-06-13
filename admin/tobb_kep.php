@@ -18,12 +18,18 @@ if( $_POST['tabla'] ) {
         case 'bejelentes':
             $tobbkep_tablanev = 'bejelentes_dok';
         break;
+        case 'utemezett_feladatok':
+            $tobbkep_tablanev = 'utemezett_feladatok';
+        break;
     }
 }
 
 switch(basename($_SERVER['PHP_SELF'])) {
     case 'bejelentes.php':
         $tobbkep_tablanev = 'bejelentes_dok';
+    break;
+    case 'utemezett_feladatok.php':
+        $tobbkep_tablanev = 'utemezett_feladatok_dok';
     break;
 }
 
@@ -207,14 +213,13 @@ $tobbkep_html .= str_replace($sorrend_ujkep_mit, $sorrend_ujkep_mivel, $sorrend_
 
 $i     = 0;
 $kepek = $adatbazis_kapcsolat -> select('*', $tobbkep_tablanev, get_tobbkep_oszlopnev().'='.$_GET['id'], 'sor');
+
 $tobbkep_html .= '<div><ul id="sorrendezes_tobbkep" title="'.$_SESSION['fajl']['oszlop'].'">';
 foreach($kepek as $sor_kepek){
     $tobbkep_html .= get_tobbkep_thumb($sor_kepek);
 }
 $tobbkep_html .= '</ul></div>';
-
 $szamla_html .= $tobbkep_html;
-
 
 
 
@@ -237,13 +242,13 @@ function get_tobbkep_thumb($sor_kepek){
         }
 
         $azon    = 'kep'.$sor_kepek['recid'];
-        $megj_szerkesztes_onclick = ' onclick="get_tobbkep_megj(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \'megj_atir'.$azon.'\'); alert2(\'Megjegyzés szerkesztése:\', gomb'.$azon.');"';
+        $megj_szerkesztes_onclick = ' onclick="get_tobbkep_megj(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \'megj_atir'.$azon.'\'); alert2(\'Dokumentum átnevezése:\', gomb'.$azon.');"';
         /* title="'.$sor_kepek['kepnev'].'" */
         $tobbkep_html .= nl2('
             <li id="'.$azon.'" title="">
             <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
             <!--<div class="torol" onclick="tobbkep_torol(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \''.$azon.'\');">
-                <img alt="" class="dn" src="../elemek/admin/torol_hover.png" />
+                <img alt="x" class="dn" src="../elemek/admin/torol_hover.png" />
             </div>-->
             <div class="kep">
                 <div>'.$kep -> getHtml().'</div>

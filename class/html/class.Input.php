@@ -70,7 +70,7 @@ class Input extends Tag{
             $ft_mivel  = array($this -> fajlTorlessel['id'], $this -> fajlTorlessel['tabla'], $this -> fajlTorlessel['oszlop'], $fajlnev, $this -> fajlTorlessel['nev'], $kit, $this -> fajlTorlessel['id']);
             $extrak   .= str_replace($ft_mit, $ft_mivel, $ft_sablon);
     		
-    		$extrak .= ' <img id="fajl_kuka_'.$this -> fajlTorlessel['oszlop'].'" class="thumb" alt="Fájl törlése" title="Fájl törlése" src="../elemek/admin/kuka.gif" width="22" height="22" onclick="alert2(\'Biztosan törlöd a fájlt?\',fajl_torol'.$this -> fajlTorlessel['oszlop'].')">';
+    		$extrak .= ' <img id="fajl_kuka_'.$this -> fajlTorlessel['oszlop'].'" class="thumb" alt="Fájl törlése" title="Fájl törlése" src="../elemek/admin/kuka.gif" width="22" height="22" onclick="alert2(\'Biztosan törli a fájlt?\',fajl_torol'.$this -> fajlTorlessel['oszlop'].')">';
     	}
         
         return $this -> pre.'<input type="'.$this -> type.'"'.$sajatAttributumok.$this -> getAttributumok().'>'.$extrak.$this -> post;
