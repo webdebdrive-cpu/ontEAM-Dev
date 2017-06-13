@@ -1530,12 +1530,34 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 								case 'insert_dt'        : $insert_dt    = $akt_tomb[$key];  break;
 								case 'insert_usr'       : $insert_usr   = $akt_tomb[$key];  break;
 							}
+                            
+                            $utnap_d   = str_replace('.', '-', $utnap_d);
+                            $aktkezd_d = str_replace('.', '-', $aktkezd_d);
+                            $aktvege_d = str_replace('.', '-', $aktvege_d);
+                            $hataly_d  = str_replace('.', '-', $hataly_d);
+                            $utesnap_d = str_replace('.', '-', $utesnap_d);
+                            $esnap_d   = str_replace('.', '-', $esnap_d);
+                            $esem_d    = str_replace('.', '-', $esem_d);
+                            $insert_dt = str_replace('.', '-', $insert_dt);
+                            $update_dt = str_replace('.', '-', $update_dt);
 						}
                         
                         if($id){
+                            
+                            $ciklho2        = '';
+                            $ho_rendsz_het  = '';
+                            $honapjan       = '';
+                            if($cikltip=='m' && $ciklaltip==2){
+                                $ciklho2        = $ciklszorz;
+                                $ho_rendsz_het  = $ciklnap;
+                            }
+                            if($cikltip=='m' && $ciklaltip==1){
+                                $honapjan = $ciklnap;
+                            }
+                            
                             $adatbazis_kapcsolat->i('utemezett_feladatok',
-                                array('id', 'aktiv', 'telephely_id', 'obj_id', 'gep_id', 'nev', 'leiras', 'riaszt', 'szemelyzet_id', 'hatosagi', 'cikltip',     'ciklaltip', 'ciklho', 'ciklhet', 'ciklnap', 'ciklszorz', 'hataly_d', 'utnap_d', 'aktkezd_d', 'aktvege_d', 'esnap_d', 'utesnap_d', 'esem_d', 'loginnev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr' ),
-                                array($id,  $aktiv,  $telephely_id,  $obj_id,  $gep_id,  $nev,   $leiras,  $riaszt, $szemelyzet_id,  $hatosagi,  $ciklaltip,    $ciklaltip,  $ciklho,  $ciklhet, $ciklnap,   $ciklszorz,  $hataly_d,  $utnap_d,  $aktkezd_d,  $aktvege_d,  $esem_d,   $utesnap_d, $esem_d,   $login_nev, $update_dt,  $update_usr,  $insert_dt,  $insert_usr  )
+                                array('id', 'aktiv', 'telephely_id', 'obj_id', 'gep_id', 'nev', 'leiras', 'riaszt', 'szemelyzet_id', 'hatosagi', 'cikltip',     'ciklaltip', 'ciklho', 'ciklho2', 'ciklhet', 'ho_rendsz_het', 'ciklnap', 'ciklszorz', 'honapjan', 'hataly_d', 'utnap_d', 'aktkezd_d', 'aktvege_d', 'esnap_d', 'utesnap_d', 'esem_d', 'loginnev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr' ),
+                                array($id,  $aktiv,  $telephely_id,  $obj_id,  $gep_id,  $nev,  $leiras,  $riaszt,  $szemelyzet_id,  $hatosagi,  $cikltip,      $ciklaltip,  $ciklho,  $ciklho2,  $ciklhet,  $ho_rendsz_het,  $ciklnap,  $ciklszorz,  $honapjan,  $hataly_d,  $utnap_d,  $aktkezd_d,  $aktvege_d,  $esnap_d,  $utesnap_d,  $esem_d,  $login_nev, $update_dt,  $update_usr,  $insert_dt,  $insert_usr  )
                             );
 echo $adatbazis_kapcsolat->gp() . '<br>';
                         }

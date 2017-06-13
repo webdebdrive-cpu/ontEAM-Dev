@@ -101,8 +101,9 @@ function i_u($type, $tabla, $tomb){
 
             array_push($oszlopok, 'ciklszorz'      );
             array_push($ertekek,  $_POST['ciklho'] );
-
-            $_POST['ciklnap'] = $_POST['honapjan'];
+            
+            $index = array_search('ciklnap', $oszlopok);
+            $ertekek[$index] = $_POST['honapjan'];
 
         }
 
@@ -113,7 +114,8 @@ function i_u($type, $tabla, $tomb){
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  $_POST['ciklho2'] );
 
-            $_POST['ciklnap'] = $_POST['ho_rendsz_het'];
+            $index = array_search('ciklnap', $oszlopok);
+            $ertekek[$index] = $_POST['ho_rendsz_het'];
         }
 
         if($_POST['ism_het']){
@@ -128,7 +130,8 @@ function i_u($type, $tabla, $tomb){
             if($_POST['sz']){ $cikl_nap .= '6'; }
             if($_POST['v']) { $cikl_nap .= '7'; }
 
-            $_POST['ciklnap'] = $cikl_nap;
+            $index = array_search('ciklnap', $oszlopok);
+            $ertekek[$index] = $cikl_nap;
 
             array_push($oszlopok, 'ciklaltip'   );
             array_push($ertekek,  ''            );
@@ -230,7 +233,7 @@ function i_u($type, $tabla, $tomb){
         }
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
-echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
+//echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
         //Bejelentések iktatószám képzése
         if( $tabla == 'bejelentes' ) {
             $adatbazis_kapcsolat -> i('statusz',
