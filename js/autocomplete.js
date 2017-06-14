@@ -68,7 +68,7 @@
                 }
 
                 telephely_id = '';
-                if( baseName(location.href) == 'bejelentes' ) {
+                if( baseName(location.href) == 'bejelentes' || baseName(location.href) == 'utemezett_feladatok' ) {
                     telephely_id = $('#telephely_id').val();
                 }
 

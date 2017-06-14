@@ -18,6 +18,7 @@ $_SESSION['ketHasabos'] = array(
     'beosztas.php',
     'cash_flow.php',
     'cikktorzs.php',
+    'energia.php',
     'erteklista.php',
     'eseti_fenntartas.php',
     'eszkozkezeles.php',
@@ -36,8 +37,10 @@ $_SESSION['ketHasabos'] = array(
     'szallito.php',
     'szamla.php',
     'szerepkor.php',
+    'tervezes.php',
     'torzsadat.php',
     'utemezett_feladatok.php',
+    'uzemeltetesi_naplo.php',
 );
 
 $tabla = basename(self());
@@ -183,6 +186,23 @@ switch($tabla) {
             $_GET['irany'] = 'desc';
         }
     break;
+    case 'uzemeltetesi_naplo.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid ';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
     case 'szabadsagigeny.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
         $_OPTS['select']    = 'recid ';
@@ -302,6 +322,23 @@ switch($tabla) {
             $_GET['irany'] = 'desc';
         }
     break;
+    case 'energia.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
     case 'torzsadat.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
         $_OPTS['select']    = 'recid';
@@ -337,6 +374,23 @@ switch($tabla) {
         }
     break;
     case 'raktar.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'tervezes.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
         $_OPTS['select']    = 'recid';
 
@@ -793,8 +847,12 @@ $nap_rejt = 'dn ';
 $het_rejt = 'dn ';
 $ho_rejt  = 'dn ';
 if(basename(self())=='utemezett_feladatok.php' && isset($_GET['id'])){
-    $uf = $adatbazis_kapcsolat->s('cikltip ciklaltip ciklnap ciklszorz', 'utemezett_feladatok', "`recid`='{$_GET['id']}'");
+    $uf = $adatbazis_kapcsolat->s('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap', 'utemezett_feladatok', "`recid`='{$_GET['id']}'");
     $uf = $uf[0];
+    
+    $uf['aktkezd_d'] = str_replace('-', '.', $uf['aktkezd_d']);
+    $uf['aktvege_d'] = str_replace('-', '.', $uf['aktvege_d']);
+    
     switch($uf['cikltip']){
         case 'd':
             $nap_rejt = '';
@@ -829,7 +887,31 @@ if(basename(self())=='utemezett_feladatok.php' && isset($_GET['id'])){
             }    
         break;
     }
+    
+    //Időszakos ütemezés
+    require_once 'selectek.php';
+    require_once('../class/html/class.Input.php');
+    require_once('../class/html/class.Select.php');
+
+    $kezd_ho = new Select($select_honapok, $uf['kezdho']);
+    $kezd_ho -> id      = 'kezdho';
+    $kezd_ho -> name    = 'kezdho';
+    $kezd_ho -> onchange = '$(\'#mehet_gomb\').attr(\'disabled\', false);';
+    $kezd_ho = $kezd_ho -> getHtml();
+
+    $vege_ho = new Select($select_honapok, $uf['vegeho']);
+    $vege_ho -> id      = 'vegeho';
+    $vege_ho -> name    = 'vegeho';
+    $kezd_ho -> onchange = '$(\'#mehet_gomb\').attr(\'disabled\', false);';
+    $vege_ho = $vege_ho -> getHtml();
+    
+    $idoszakos_dn = ' class="dn"';
+    if($uf['idoszakos']){
+        $idoszakos_dn = '';
+    }
+    
 }
+
 $megnevezes = 'utemezett_feladatok';
 $utemezett_feladatok_tomb = $akt_tomb = array(
     array('type' => 'checkbox',                 'megn' => 'Aktív',              'name' => 'aktiv',         'class' => 'check'),
@@ -842,11 +924,11 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
 	array('type' => 'text',                     'megn' => 'Utoljára ütemezve:', 'name' => 'utnap_d',    'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
 	array('type' => 'text',                     'megn' => 'Hatályos:',          'name' => 'hataly_d',   'class' => 'datepicker'),
 	array('type' => 'text',                     'megn' => 'Utolsó esedékesség:','name' => 'utesnap_d',  'class' => 'datepicker'),
-	array('type' => 'text',                     'megn' => 'Riasztás:',          'name' => 'riaszt',         'maxlength' => 250, 'style' => 'width: 3rem', 'post' => ' nappal az esedékesség előtt'),
+	array('type' => 'text',                     'megn' => 'Riasztás:',          'name' => 'riaszt',         'maxlength' => 250, 'style' => 'width: 3.5rem', 'post' => ' nappal az esedékesség előtt'),
     array('type' => 'textarea',                 'megn' => 'Leírás:',            'name' => 'leiras',      'disabled' => $disabled,    'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
 	array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',  'name' => 'szemelyzet_id',         'maxlength' => 250),
-	array('type' => 'text',                     'megn' => 'Ütemezési időszak:', 'name' => 'aktkezd_d', 'class' => 'datepicker', 'osszevon' => 1),
-	array('type' => 'text',                     'megn' => ' - ',                'name' => 'aktvege_d', 'class' => 'datepicker'),
+//	array('type' => 'text',                     'megn' => 'Ütemezési időszak:', 'name' => 'aktkezd_d', 'class' => 'datepicker', 'osszevon' => 1),
+//	array('type' => 'text',                     'megn' => ' - ',                'name' => 'aktvege_d', 'class' => 'datepicker'),
 
 	array('type' => 'html',                     'megn' => '<div class="dtc" style="padding: 1rem 0 1rem 0">'),
         array('type' => 'select_cikltip',           'megn' => 'Ütemezés típus:',    'name' => 'cikltip', 'class' => 'f_cikltip'),
@@ -933,6 +1015,23 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
 
 	array('type' => 'html',                     'megn' => '</fieldset></div>'),
 
+    array('type' => 'checkbox',                 'megn' => 'Időszakos ütemezés:','name' => 'idoszakos',   'class' => 'check', 'onclick' => '$(\'#idoszakos_utem\').toggle()', 'pre' => nl2('<div class="dtc vam">'), 'post' => nl2('
+                                                                        </div>
+                                                                        <div class="dtc vam">
+                                                                            <fieldset'.$idoszakos_dn.' id="idoszakos_utem">
+                                                                                Szokásos ütemezés '.$kezd_ho.'
+                                                                                <input type="text" name="kezdnap" value="'.$uf['kezdnap'].'" style="width: 3.5rem" maxlength="2"> . napjától - '.$vege_ho.'
+                                                                                <input type="text" name="vegenap" value="'.$uf['vegenap'].'" style="width: 3.5rem" maxlength="2"> . napjáig
+                                                                                <div style="margin-top: 0.5rem">
+                                                                                    Egyszeri ütemezés 
+                                                                                    <input class="datepicker" name="aktkezd_d" id="aktkezd_d" value="'.$uf['aktkezd_d'].'" type="text">
+                                                                                    <span class="formText"> - </span>
+                                                                                    <input class="datepicker" name="aktvege_d" id="aktvege_d" value="'.$uf['aktvege_d'].'" type="text">
+                                                                                </div>
+                                                                            </fieldset>
+                                                                        </div>
+        ')),
+
 	array('type' => 'text',                     'megn' => 'Elvégzési idő:',     'name' => 'elv_ido_tol', 'class' => 'ora_perc', 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
 	array('type' => 'text',                     'megn' => '',                   'name' => 'elv_ido_ig',  'class' => 'ora_perc'),
 
@@ -1016,6 +1115,23 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //Cash-flow
 $megnevezes = 'cash_flow';
 $cash_flow_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+//Energia
+$megnevezes = 'energia';
+$energia_tomb = $akt_tomb = array(
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+
+//Energia
+$megnevezes = 'uzemeltetesi_naplo';
+$uzemeltetesi_naplo_tomb = $akt_tomb = array(
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));

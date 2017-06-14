@@ -146,12 +146,14 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['jogosultsag']) || isset($_GET['szallodak']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['jogosultsag']) || isset($_GET['szallodak']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'jogosultsag'   => 'Jogosultságok',
             'szallodak'     => 'Szállodák',
+            'dokumentumok'  => 'Dokumentumok',
+            'megjegyzesek'  => 'Megjegyzések',
         );
 
         $fulek = '';
@@ -523,6 +525,35 @@ if($gyorskereso_text){
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html
+            ));
+        } else {
+            echo $szamla_html;
+        }
+        
+
+	//Dokumentumok
+	}elseif(isset($_GET['dokumentumok'])){
+
+        $szamla_html .= 'Dokumentumok felülete';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+	//Megjegyzések
+	}elseif(isset($_GET['megjegyzesek'])){
+
+        $szamla_html .= 'Megjegyzések felülete';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html;

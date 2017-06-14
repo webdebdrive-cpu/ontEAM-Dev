@@ -1,4 +1,4 @@
-function alert2(uzi, ok_gomb) {
+function alert2(uzi, ok_gomb, cim) {
 
     if( ok_gomb == null ){
         ok_gomb = '<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2()"></p>';
@@ -24,7 +24,7 @@ function alert2(uzi, ok_gomb) {
         if(uzi.substring(0,1)=='#'){
 
             uzi = $(uzi).html();
-            alert_kiir(uzi, ok_gomb);
+            alert_kiir(uzi, ok_gomb, cim);
             return true;
 
         }else if(uzi.substring(0,2)=='f:'){
@@ -34,14 +34,14 @@ function alert2(uzi, ok_gomb) {
             var utvonal = uzi.replace('f:', '');
             $('#tmp').load(utvonal, function(){
                 uzi = $('#tmp').html();
-                alert_kiir(uzi, ok_gomb);
+                alert_kiir(uzi, ok_gomb, cim);
                 $('#tmp').remove();
                 return true;
             });
 
         }else{
 
-            alert_kiir(uzi, ok_gomb);
+            alert_kiir(uzi, ok_gomb, cim);
             return true;
 
         }
@@ -49,10 +49,14 @@ function alert2(uzi, ok_gomb) {
 
 }
 
-function alert_kiir(uzi, ok_gomb){
+function alert_kiir(uzi, ok_gomb, cim){
+
+    if(!cim){
+        cim = 'Kérdés - megerősítés';
+    }
 
     var alert2_html = '';
-    alert2_html    += '<div id="alert2"><div class="figy km_false"><div class="header">Kérdés - megerősítés</div><div class="tart">'+uzi+'</div><div class="f_footer km_false">'+ ok_gomb +'</div></div></div>';
+    alert2_html    += '<div id="alert2"><div class="figy km_false"><div class="header">'+cim+'</div><div class="tart">'+uzi+'</div><div class="f_footer km_false">'+ ok_gomb +'</div></div></div>';
 
     $('body').append('<div id="szurkit" class="km_false dn"></div>');
     $('body').append(alert2_html);

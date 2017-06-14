@@ -1501,34 +1501,39 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
  
 							//Azonosítás fejléc nevekkel
 							switch($key_kicsi) {
-                                case 'id'               : $id           = $akt_tomb[$key];  break;
-                                case 'aktiv'            : $aktiv        = $akt_tomb[$key];  break;
-								case 'telepid'          : $telephely_id = $akt_tomb[$key];  break;
-                                case 'objid'            : $obj_id       = $akt_tomb[$key];  break;
-                                case 'gepid'            : $gep_id       = $akt_tomb[$key];  break;
-                                case 'nev'              : $nev          = $akt_tomb[$key];  break;
-                                case 'leiras'           : $leiras       = $akt_tomb[$key];  break;
-                                case 'riaszt'           : $riaszt       = $akt_tomb[$key];  break;
-                                case 'hozrend'          : $szemelyzet_id= $akt_tomb[$key];  break;
-                                case 'hatosagi'         : $hatosagi     = $akt_tomb[$key];  break;
-                                case 'cikltip'          : $cikltip      = $akt_tomb[$key];  break;
-                                case 'ciklaltip'        : $ciklaltip    = $akt_tomb[$key];  break;
-                                case 'ciklho'           : $ciklho       = $akt_tomb[$key];  break;
-                                case 'ciklhet'          : $ciklhet      = $akt_tomb[$key];  break;
-                                case 'ciklnap'          : $ciklnap      = $akt_tomb[$key];  break;
-                                case 'ciklszorz'        : $ciklszorz    = $akt_tomb[$key];  break;
-                                case 'hataly_d'         : $hataly_d     = $akt_tomb[$key];  break;
-                                case 'utnap_d'          : $utnap_d      = $akt_tomb[$key];  break;
-                                case 'aktkezd_d'        : $aktkezd_d    = $akt_tomb[$key];  break;
-                                case 'aktvege_d'        : $aktvege_d    = $akt_tomb[$key];  break;
-                                case 'esnap_d'          : $esnap_d      = $akt_tomb[$key];  break;
-                                case 'utesnap_d'        : $utesnap_d    = $akt_tomb[$key];  break;
-                                case 'esem_d'           : $esem_d       = $akt_tomb[$key];  break;
-                                case 'loginnev'         : $loginnev     = $akt_tomb[$key];  break;
                                 case 'update_dt'        : $update_dt    = $akt_tomb[$key];  break;
 								case 'update_usr'       : $update_usr   = $akt_tomb[$key];  break;
 								case 'insert_dt'        : $insert_dt    = $akt_tomb[$key];  break;
 								case 'insert_usr'       : $insert_usr   = $akt_tomb[$key];  break;
+                                case 'id'               : $id           = $akt_tomb[$key];  break;
+                                case 'objid'            : $obj_id       = $akt_tomb[$key];  break;
+                                case 'gepid'            : $gep_id       = $akt_tomb[$key];  break;
+                                case 'nev'              : $nev          = $akt_tomb[$key];  break;
+                                case 'cikltip'          : $cikltip      = $akt_tomb[$key];  break;
+                                case 'ciklszorz'        : $ciklszorz    = $akt_tomb[$key];  break;
+                                case 'ciklnap'          : $ciklnap      = $akt_tomb[$key];  break;
+                                case 'hatosagi'         : $hatosagi     = $akt_tomb[$key];  break;
+                                case 'utnap_d'          : $utnap_d      = $akt_tomb[$key];  break;
+                                case 'leiras'           : $leiras       = $akt_tomb[$key];  break;
+								case 'telepid'          : $telephely_id = $akt_tomb[$key];  break;
+                                case 'riaszt'           : $riaszt       = $akt_tomb[$key];  break;
+                                case 'hozrend'          : $szemelyzet_id= $akt_tomb[$key];  break;
+                                case 'ciklho'           : $ciklho       = $akt_tomb[$key];  break;
+                                case 'ciklaltip'        : $ciklaltip    = $akt_tomb[$key];  break;
+                                case 'esnap_d'          : $esnap_d      = $akt_tomb[$key];  break;
+                                case 'kezdho'           : $kezdho       = $akt_tomb[$key];  break;
+                                case 'kezdnap'          : $kezdnap      = $akt_tomb[$key];  break;
+                                case 'vegeho'           : $vegeho       = $akt_tomb[$key];  break;
+                                case 'vegenap'          : $vegenap      = $akt_tomb[$key];  break;
+                                case 'aktkezd_d'        : $aktkezd_d    = $akt_tomb[$key];  break;
+                                case 'aktvege_d'        : $aktvege_d    = $akt_tomb[$key];  break;
+                                case 'ciklhet'          : $ciklhet      = $akt_tomb[$key];  break;
+                                case 'idoszakos'        : $idoszakos    = $akt_tomb[$key];  break;
+                                case 'utesnap_d'        : $utesnap_d    = $akt_tomb[$key];  break;
+                                case 'esem_d'           : $esem_d       = $akt_tomb[$key];  break;
+                                case 'loginnev'         : $loginnev     = $akt_tomb[$key];  break;
+                                case 'hataly_d'         : $hataly_d     = $akt_tomb[$key];  break;
+                                case 'aktiv'            : $aktiv        = $akt_tomb[$key];  break;
 							}
                             
                             $utnap_d   = str_replace('.', '-', $utnap_d);
@@ -1556,8 +1561,8 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                             }
                             
                             $adatbazis_kapcsolat->i('utemezett_feladatok',
-                                array('id', 'aktiv', 'telephely_id', 'obj_id', 'gep_id', 'nev', 'leiras', 'riaszt', 'szemelyzet_id', 'hatosagi', 'cikltip',     'ciklaltip', 'ciklho', 'ciklho2', 'ciklhet', 'ho_rendsz_het', 'ciklnap', 'ciklszorz', 'honapjan', 'hataly_d', 'utnap_d', 'aktkezd_d', 'aktvege_d', 'esnap_d', 'utesnap_d', 'esem_d', 'loginnev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr' ),
-                                array($id,  $aktiv,  $telephely_id,  $obj_id,  $gep_id,  $nev,  $leiras,  $riaszt,  $szemelyzet_id,  $hatosagi,  $cikltip,      $ciklaltip,  $ciklho,  $ciklho2,  $ciklhet,  $ho_rendsz_het,  $ciklnap,  $ciklszorz,  $honapjan,  $hataly_d,  $utnap_d,  $aktkezd_d,  $aktvege_d,  $esnap_d,  $utesnap_d,  $esem_d,  $login_nev, $update_dt,  $update_usr,  $insert_dt,  $insert_usr  )
+                                array('id', 'kezdho', 'kezdnap', 'vegeho', 'vegenap', 'idoszakos', 'aktiv', 'telephely_id', 'obj_id', 'gep_id', 'nev', 'leiras', 'riaszt', 'szemelyzet_id', 'hatosagi', 'cikltip',     'ciklaltip', 'ciklho', 'ciklho2', 'ciklhet', 'ho_rendsz_het', 'ciklnap', 'ciklszorz', 'honapjan', 'hataly_d', 'utnap_d', 'aktkezd_d', 'aktvege_d', 'esnap_d', 'utesnap_d', 'esem_d', 'loginnev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr' ),
+                                array($id,  $kezdho,  $kezdnap,  $vegeho,  $vegenap,  $idoszakos,  $aktiv,  $telephely_id,  $obj_id,  $gep_id,  $nev,  $leiras,  $riaszt,  $szemelyzet_id,  $hatosagi,  $cikltip,      $ciklaltip,  $ciklho,  $ciklho2,  $ciklhet,  $ho_rendsz_het,  $ciklnap,  $ciklszorz,  $honapjan,  $hataly_d,  $utnap_d,  $aktkezd_d,  $aktvege_d,  $esnap_d,  $utesnap_d,  $esem_d,  $login_nev, $update_dt,  $update_usr,  $insert_dt,  $insert_usr  )
                             );
 echo $adatbazis_kapcsolat->gp() . '<br>';
                         }

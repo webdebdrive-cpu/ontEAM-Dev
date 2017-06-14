@@ -1,93 +1,4 @@
 <?php
-/*  Select tömbök legyártása                                         *\
-
-    Tip: Ha a name és a value azonos, elég a value értéket megadni!
-
-\*                                                                   */
-
-
-/* Mintakód kategóriák kilistázására
-
-//Select tömb előállítása a termékekhez (egy szint mélység esetére)
-$select_kat = array();
-array_push($select_kat, array('name' => '- Válasszon -', 'value' => '' ));
-$kat = $adatbazis_kapcsolat -> select('id nev', 'kat', '', 'nev');
-foreach($kat as $kat_sor){
-	array_push($select_kat, array('name' => $kat_sor['nev'], 'value' => $kat_sor['id'] ));
-}
-*/
-
-
-/*
-//Rekurzív függvény a kategóriák bejárására: tetszőleges mélység bejárásához
-$select_kat = array();
-array_push($select_kat, array('name' => '- Válasszon -', 'value' => '' ));
-
-$kat = $adatbazis_kapcsolat -> select('id nev', 'kat', 'szulo=\'\'', 'nev');
-foreach( $kat as $kat_sor ){
-
-    array_push($select_kat, array('name' => $kat_sor['nev'], 'value' => $kat_sor['id'], 'style' => 'font-weight: bold' ));
-    get_alkat($kat_sor, 1);
-
-}
-function get_alkat($kat, $melyseg){
-
-    global $adatbazis_kapcsolat;
-    global $select_kat;
-
-
-    $behuzas = '';
-    for($i=0; $i<$melyseg; $i++){
-        $behuzas .= '&nbsp;&nbsp;&nbsp;';
-    }
-
-    $alkat = $adatbazis_kapcsolat -> select('id nev', 'kat', 'szulo='.$kat['id'], 'nev');
-    //array_push($select_kat, array('name' => $kat['nev'], 'value' => $kat['id'] ));
-    foreach( $alkat as $alkat_sor){
-        array_push($select_kat, array('name' => $behuzas.$kat['nev'].'&nbsp;»&nbsp;'.$alkat_sor['nev'], 'value' => $alkat_sor['id'] ));
-        get_alkat($alkat_sor, $melyseg+1);
-    }
-}
-*/
-
-
-/*
-//Két-három szint mélységű select esetére (a rekurzív lehet jobb!)
-$select_kat = array();
-array_push($select_kat, array('name' => '- Válasszon -', 'value' => '' ));
-
-$kat = $adatbazis_kapcsolat -> select('id nev', 'kat', 'szulo=\'\'', 'nev');
-foreach( $kat as $kat_sor ){
-	array_push($select_kat, array('label' => $kat_sor['nev']));
-
-	$alkat = $adatbazis_kapcsolat -> select('id nev', 'kat', 'szulo='.$kat_sor['id'], 'nev');
-	if($alkat){
-        foreach( $alkat as $alkat_sor){
-    		array_push($select_kat, array('name' => '&nbsp;'.$alkat_sor['nev'], 'value' => $alkat_sor['id'] ));
-
-//            //3 szint esetére
-//            $alalkat = $adatbazis_kapcsolat -> select('id nev', 'kat', 'szulo='.$alkat_sor['id'], 'nev');
-//            foreach( $alalkat as $alalkat_sor){
-//                array_push($select_kat, array('name' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.$alalkat_sor['nev'], 'value' => $alalkat_sor['id'] ));
-//            }
-
-    	}
-	}else{
-        array_push($select_kat, array('name' => '&nbsp;'.$kat_sor['nev'], 'value' => $kat_sor['id'] ));
-    }
-
-}
-*/
-
-//Select tömb előállítása manuálisan:
-$select_VALAMI = array();
-array_push($select_VALAMI, array('name' => '- Válasszon -', 'value' => ''));
-array_push($select_VALAMI, array('label' => 'Számok'));
-array_push($select_VALAMI, array('name'  => '1', 'value' => '1x'));
-array_push($select_VALAMI, array('name'  => '2', 'value' => '2x'));
-array_push($select_VALAMI, array('name'  => '3', 'value' => '3x'));
-array_push($select_VALAMI, array('label' => 'optiongroup_bezar'));
-
 /* Fizetési módok */
 $select_fiz_mod = array();
 array_push($select_fiz_mod, array('name' => '- Válasszon -',    'value' => ''));
@@ -192,6 +103,23 @@ array_push($select_ho_soran, array('name' => 'csütörtök',   'value' => '4'));
 array_push($select_ho_soran, array('name' => 'péntek',      'value' => '5'));
 array_push($select_ho_soran, array('name' => 'szombat',     'value' => '6'));
 array_push($select_ho_soran, array('name' => 'vasárnap',    'value' => '7'));
+
+
+//Select tömb Ütemezés típushoz
+$select_honapok = array();
+array_push($select_honapok, array('name' => '- Válasszon -','value' => '' ));
+array_push($select_honapok, array('name' => 'január',       'value' => '1'));
+array_push($select_honapok, array('name' => 'február',      'value' => '2'));
+array_push($select_honapok, array('name' => 'március',      'value' => '3'));
+array_push($select_honapok, array('name' => 'április',      'value' => '4'));
+array_push($select_honapok, array('name' => 'május',        'value' => '5'));
+array_push($select_honapok, array('name' => 'június',       'value' => '6'));
+array_push($select_honapok, array('name' => 'július',       'value' => '7'));
+array_push($select_honapok, array('name' => 'augusztus',    'value' => '8'));
+array_push($select_honapok, array('name' => 'szeptember',   'value' => '9'));
+array_push($select_honapok, array('name' => 'okotóber',     'value' => '10'));
+array_push($select_honapok, array('name' => 'november',     'value' => '11'));
+array_push($select_honapok, array('name' => 'december',     'value' => '12'));
 
 //Select tömb Ütemezés típushoz
 $select_szemelyzet = array();

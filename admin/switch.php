@@ -58,7 +58,7 @@ foreach($akt_tomb as $ertek){
                 $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
             }
 
-            $mezok .= $html.$ertek['post'];
+            $mezok .= $ertek['pre'].$html.$ertek['post'];
 
             if($ertek['osszevon']){
                 $osszevon_flag = 1;

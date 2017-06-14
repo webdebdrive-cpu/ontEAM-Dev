@@ -74,6 +74,36 @@ if($tobb_kep){
 
 }
 
+
+if (isset($_GET['datumra_utemezes'])) {
+    
+    include('datumra_utemezes.php');
+    
+    $sor = $adatbazis_kapcsolat->s('*', $megnevezes, "`recid`='{$_GET['id']}'");
+    $sor = $sor[0];
+
+    if(!$sor['esem_d']){
+        $sor['esem_d'] = date('Y-m-d');
+    }
+    $esem_d     = substr(str_replace('-', '.', $sor['esem_d']), 0, 10);
+    $esnap_d    = str_replace('-', '.', $sor['esnap_d']);
+    $aktkezd_d  = str_replace('-', '.', $sor['aktkezd_d']);
+    $aktvege_d  = str_replace('-', '.', $sor['aktvege_d']);
+
+
+    $szamla_html .=  "esemd: $esem_d<br>cikltip: $sor[cikltip]<br>ciklaltip: $sor[ciklaltip]<br>ciklszorz: $sor[ciklszorz]<br>ciklho: $sor[ciklho]<br>ciklhet: $sor[ciklhet]<br>ciklnap: $sor[ciklnap]<br>idoszakos: $sor[idoszakos]<br>kezdho: $sor[kezdho]<br>kezdnap: $sor[kezdnap]<br>vegeho: $sor[vegeho]<br>vegenap: $sor[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
+    $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
+    $szamla_html .= '<hr>utolso vegrehajtas: ' . $esnap_d;
+    $szamla_html .= '<br>kovetkezo: ' . $getnextvaliddate;
+    $szamla_html .= '<br>szabaly: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
+
+    echo $szamla_html;
+
+    $weblap -> leallit();
+    exit();
+        
+}
+
 if( isset($_POST['jogokhozzaad']) ) {
     $id = $_POST['id'];
 
@@ -342,21 +372,8 @@ if($gyorskereso_text){
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
-
-        include('datumra_utemezes.php');
         
-        $jobb_oldal = '';
-        
-        //Az esnap_d értékét a getnextvaliddate() függvény adná vissza.
-        $getnextvaliddate = getnextvaliddate(false, $sor["dvarhato"], $sor["cikltip"], $sor["ciklaltip"], $sor["ciklszorz"], $sor["ciklho"], $sor["ciklhet"], $sor["ciklnap"], $sor["idoszakos"], $sor["kezdho"], $sor["kezdnap"], $sor["vegeho"], $sor["vegenap"], $sor["aktkezd_d"], $sor["aktvege_d"]);
-        $jobb_oldal .= 'utolso vegrehajtas: ' . $sor["esnap_d"];
-        $jobb_oldal .= '<br>kovetkezo: ' . $getnextvaliddate;
-        $jobb_oldal .= '<br>szabaly: ' ;//. getcimke( $sor["cikltip"], $sor["ciklaltip"], $sor["ciklszorz"], $sor["ciklho"], $sor["ciklhet"], $sor["ciklnap"], $sor["esnap_d"]);
-        
-        //getnextvaliddate() amit visszaad értéket, azt add meg $sor["esnap_d"]-ként
-//        $jobb_oldal = 'utolso vegrehajtas: ' . $sor["esnap_d"] . '
-//            <BR>kovetkezo: ' . getnextvaliddate(false, $sor["dvarhato"], $sor["cikltip"], $sor["ciklaltip"], $sor["ciklszorz"], $sor["ciklho"], $sor["ciklhet"], $sor["ciklnap"], $sor["idoszakos"], $sor["kezdho"], $sor["kezdnap"], $sor["vegeho"], $sor["vegenap"], $sor["aktkezd_d"], $sor["aktvege_d"]) . '
-//            <BR>szabaly: ' . getcimke( $sor["cikltip"], $sor["ciklaltip"], $sor["ciklszorz"], $sor["ciklho"], $sor["ciklhet"], $sor["ciklnap"], $sor["esnap_d"]);
+        $jobb_oldal = '<input type="button" class="gomb" value="Dátumra ütemezés tesztelése" onclick="datumra_utemezes(\''.$_GET['id'].'\')">';
 
         $gombok = nl2('
             <div class="form_kuldes">
@@ -482,7 +499,7 @@ if($gyorskereso_text){
     }elseif(isset($_GET['megjegyzes'])) {
 
         $szamla_html .= nl2('
-            <div class="dt naplo kijCont" data-tabla="megjegyzes">
+            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzes">
                 <div class="dtr nFejlec">
                     <div class="dtc">Megjegyzés</div>
                     <div class="dtc">Hozzáadta</div>

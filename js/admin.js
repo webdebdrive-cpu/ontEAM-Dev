@@ -421,6 +421,7 @@ $(function() {
                 'beosztas',
                 'cash_flow',
                 'cikktorzs',
+                'energia',
                 'erteklista',
                 'eseti_fenntartas',
                 'eszkozkezeles',
@@ -439,8 +440,10 @@ $(function() {
                 'szallito',
                 'szamla',
                 'szerepkor',
+                'tervezes',
                 'torzsadat',
-                'utemezett_feladatok'
+                'utemezett_feladatok',
+                'uzemeltetesi_naplo'
             );
 
             /* Eltávolítjuk a bal oldali kijelöléseket */
@@ -1512,6 +1515,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);');
                     } else if( baseName(location.href) == 'bejelentes' && _get('megjegyzes') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                    } else if( baseName(location.href) == 'utemezett_feladatok' && _get('megjegyzes') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else {
                         $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?uj');
                     }
@@ -1707,3 +1712,18 @@ $(document).ready(function () {
         },
     });
 });
+
+
+/* Dátumra ütemezés tesztelésére */
+function datumra_utemezes(id){
+    $.ajax({
+        url: 'utemezett_feladatok.php',
+        type: 'GET',
+        data: esamp2es('id=' + id + '&amp;datumra_utemezes=' + new Date().getTime()),
+        success: function (html) {
+            if (html) {
+                alert2(html);
+            }
+        }
+    });
+}
