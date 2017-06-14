@@ -1,11 +1,16 @@
 <h2>Csoporthoz adás</h2>
-<form action="" id="addMegjegyzes" class="popupForm" method="post">
+<form action="" id="addCsoportForm" class="popupForm" method="post" onsubmit="return csoportbaRendez( this );">
     <div class="dt">
         <div class="dtr">
-            <div class="dtc">Megjegyzés:</div>
-            <div class="dtc form_jobb">
-                <textarea name="megjegyzes" class="gombm disableNav focus"></textarea>
-            </div>
+            <div class="dtc">Csoportok</div>
+            <div id="insertCsop" class="dtc form_jobb"></div>
+        </div>
+    </div>
+    <div class="addCsoport">
+        <a onclick="$('#csopCont').slideToggle(200);"><i class="material-icons">add</i>Új csoport hozzáadása</a>
+        <div id="csopCont" style="display: none;">
+            <input type="text" name="ujcsoportnev" value="" placeholder="Csoport neve...">
+            <input type="button" name="" class="gombb input" value="Hozzáad" onclick="addCsoport();">
         </div>
     </div>
     <div class="kuldes">

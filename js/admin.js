@@ -494,14 +494,13 @@ $(function() {
         }
     });
 
-    $(document).on('click', function(e) {
+    /*$(document).on('click', function(e) {
         var par = $(event.target).parent();
 
         if( !e.ctrlKey && !e.shiftKey && e.target.className.indexOf('km_false') === -1 && !par.hasClass('km_false') ) {
-            /* Eltávolítjuk a bal oldali kijelöléseket */
             kijelolesEltavolit();
         }
-    });
+    });*/
 
     $(document).on('click', '.foGomb', function() {
         if( !$(this).parent('.kijeloltek_muv').hasClass('active') ) {
@@ -845,9 +844,144 @@ $(function() {
         if( e.keyCode == 27 ) {
             alert2();
             felh_valt();
+            kijelolesEltavolit();
         }
     });
 });
+
+function csoportbolTorol( oszlop ) {
+    if( oszlop ) {
+        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+
+        if( szamlaSorok.length ) {
+            idk = {};
+
+            var i = 1;
+            szamlaSorok.each(function() {
+                var id = $(this).attr('data-recid');
+
+                idk[i] = id;
+                i++;
+            });
+
+            if( idk ) {
+                $.ajax({
+                 	url : 'esemenyek.php',
+                 	type: 'POST',
+                 	data: {
+                        oszlop  : oszlop,
+                        idk     : JSON.stringify(idk),
+                        csoportbolTorol : new Date().getTime()
+                    },
+                 	success: function(response) {
+                 		if(response) {
+                            response = JSON.parse(response);
+
+                            if( response.hiba ) {
+                                alert2(response.hiba);
+                                return false;
+                            }
+
+                            bejegyzesekLista('#rendezesSelect', 'asc', '', '');
+                            kijelolesEltavolit();
+                 		}
+                 	}
+                });
+            }
+        } else {
+            alert2('Nincsenek kijelölt sorok!');
+        }
+    }
+
+    alert2();
+}
+
+function addCsoport() {
+    var ujcsoport = $('input[name="ujcsoportnev"]');
+
+    if( ujcsoport.val() ) {
+        $('#ajaxfedo').removeClass('dn');
+
+        var addcsoport = $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'GET',
+         	data: esamp2es('csoportnev=' + ujcsoport.val() + '&amp;addCsoport=' + new Date().getTime()),
+         	success: function(html) {
+         		if(html) {
+         			html = JSON.parse(html);
+
+                    if( html.hiba ) {
+                        alert2(html.hiba);
+                        return false;
+                    }
+
+                    if( html.statusz == 'siker' ) {
+                        ujcsoport.val('');
+                        $('#insertCsop').html(html.html);
+                        $('#insertCsopHidden').html(html.html);
+                    }
+         		}
+         	}
+        });
+
+        $.when( addcsoport ).then(function() {
+            $('#ajaxfedo').addClass('dn');
+        });
+    } else {
+        alert2('Kérem adja meg a csoport nevét!');
+    }
+}
+
+function csoportbaRendez( that ) {
+    var csoportID   = $(that).find('select[name="csoportID"]'),
+        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+
+    if( csoportID.val() ) {
+        if( szamlaSorok.length ) {
+            idk = {};
+
+            var i = 1;
+            szamlaSorok.each(function() {
+                var id = $(this).attr('data-recid');
+
+                idk[i] = id;
+                i++;
+            });
+
+            if( idk ) {
+                $.ajax({
+                 	url : 'esemenyek.php',
+                 	type: 'POST',
+                 	data: {
+                        csoportID       : csoportID.val(),
+                        idk             : JSON.stringify(idk),
+                        csoportbaRendez : new Date().getTime()
+                    },
+                 	success: function(response) {
+                 		if(response) {
+                            response = JSON.parse(response);
+
+                            if( response.hiba ) {
+                                alert2(response.hiba);
+                                return false;
+                            }
+
+                            bejegyzesekLista('#rendezesSelect', 'asc', '', '');
+                            kijelolesEltavolit();
+                            popupZar();
+                 		}
+                 	}
+                });
+            }
+        } else {
+            alert2('Nincsenek kijelölt sorok!');
+        }
+    } else {
+        alert2('Kérem válasszon egy csoport');
+    }
+
+    return false;
+}
 
 function csoportMuvelet( oldal ) {
     $('#kmCont div.kijeloltek_muv').removeClass('active');
@@ -855,11 +989,11 @@ function csoportMuvelet( oldal ) {
     $.get('../sablon/admin/popup/' + oldal + '.html?cache=' + new Date().getTime(), function( data ) {
         $('#popupTart').html(data);
 
-        /*switch( oldal ) {
-            case 'szakterulet':
-                $('#addSzakterForm').attr('onsubmit', 'return addSzakterulet(\'' + _get('id') + '\', this);');
+        switch( oldal ) {
+            case 'csoporthoz_adas':
+                $('#insertCsop').html($('#insertCsopHidden select').clone());
             break;
-        }*/
+        }
 
         popupNyit();
     });
@@ -884,7 +1018,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
         $('#navGombok a.torles').addClass('disabled').attr('onclick', '');
     } else if( sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
         gomb_uzi = 'Biztosan törli a kijelölt sorokat?';
-        gomb_muv = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\');"><input class="gomb zold km_false" type="button" value="Nem" onclick="alert2()"></p>';
+        gomb_muv = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\');"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>';
 
         $('#navGombok a.torles').removeClass('disabled').attr('onclick', 'alert2(\'' + gomb_uzi + '\', gomb_muv);');
     }
@@ -1118,7 +1252,7 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
         rkat = '';
     }
 
-    if( ksz === undefined ) {
+    if( ksz === undefined || ksz == '' ) {
         ksz = '';
     } else {
         ksz = $(ksz).val();

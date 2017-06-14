@@ -154,7 +154,7 @@ switch($tabla) {
     break;
     case 'bejelentes.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid ikt_szam surgos telephely_id obj_id hiba_text';
+        $_OPTS['select']    = 'recid ikt_szam surgos telephely_id csoport_id obj_id hiba_text';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('ikt_szam');
@@ -871,7 +871,7 @@ if(basename(self())=='utemezett_feladatok.php' && isset($_GET['id'])){
         break;
         case 'w':
             $het_rejt = '';
-            
+
             $ciklszorz_w = $uf['ciklszorz'];
             //Kipiált hetek beállítása
             for($i=0; $i<strlen($uf['ciklnap']); $i++){
@@ -884,7 +884,7 @@ if(basename(self())=='utemezett_feladatok.php' && isset($_GET['id'])){
                     case 6: $sz_checked = ' checked'; break;
                     case 7: $v_checked  = ' checked'; break;
                 }
-            }    
+            }
         break;
     }
     
@@ -953,7 +953,7 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
                                                             <div class="dtc form_jobb">
                                                                 Ismétlődik <input maxlength="2" name="ism_het" id="ism_het" onkeyup="this.value = onlyNumbers(this.value); $(\'#mehet_gomb\').attr(\'disabled\', false);" style="width: 4rem" type="text" value="'.$ciklszorz_w.'">
                                                                 hetente a következő napokon:
-                                                            </div>    
+                                                            </div>
                                                             <div class="cb">
                                                                 <input name="h" id="h" type="checkbox"'.$h_checked.'>
                                                                 <label for="h" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
@@ -1200,6 +1200,87 @@ $eszkozkezeles_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 //{KOVETKEZO_TOMB}
 
+/* Csoportba rendezés */
+if( isset($_POST['csoportbolTorol']) ) {
+    $oszlop = $_POST['oszlop'];
+    $idk    = json_decode($_POST['idk'], true);
+
+    if( $oszlop && is_array($idk) ) {
+        $adatbazis_kapcsolat -> u('bejelentes', array($oszlop), array(0), "`recid` IN (".implode(',', $idk).")");
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+/* Csoportba rendezés */
+if( isset($_POST['csoportbaRendez']) ) {
+    $csoportID = $_POST['csoportID'];
+    $idk = json_decode($_POST['idk'], true);
+
+    if( $csoportID && is_array($idk) ) {
+        $is_csoport = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`recid` IN (".implode(',', $idk).") AND `csoport_id` > '0'", '', '');
+
+        if( !$is_csoport ) {
+            $adatbazis_kapcsolat -> u('bejelentes', array('csoport_id'), array($csoportID), "`recid` IN (".implode(',', $idk).")");
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            echo json_encode(array(
+                'hiba' => 'Kérem, csak olyan sorokat jelöljön ki, <br>amelyek még nem rendelkeznek csoporttal!'
+            ));
+        }
+    } else {
+        echo json_encode(array(
+            'hiba' => 'Ismeretlen hiba történt!'
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+/* Új csoport/várólista hozzáadása */
+if( isset($_GET['addCsoport']) ) {
+    $nev = $_GET['csoportnev'];
+
+    $csoport = $adatbazis_kapcsolat->s('nev', 'bejelentes_csoport', "`nev` = '{$nev}'", '', '1');
+
+    if( !$csoport ) {
+        $adatbazis_kapcsolat -> i('bejelentes_csoport', array('nev', 'insert_dt', 'insert_usr', 'update_dt', 'update_usr'), array($nev, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']));
+
+        /* Select előállítása */
+        $html = '<select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
+
+        $csoportok = $adatbazis_kapcsolat->s('recid nev', 'bejelentes_csoport', '', 'nev', '');
+
+        if( $csoportok ) {
+            foreach($csoportok as $csoport) {
+                $html .= '<option value="'.$csoport['recid'].'">'.$csoport['nev'].'</option>';
+            }
+        }
+
+        $html .= '</select>';
+
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'html' => $html
+        ));
+    } else {
+        echo json_encode(array(
+            'hiba' => 'Ilyen csoport már létezik!'
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
 
 /* Mellékletek törlése */
 if( isset($_POST['mellekTorol']) ) {
@@ -1472,7 +1553,7 @@ if( isset($_GET['szamlaLista']) ) {
         $lapozas = $lapozo -> kiir();
 
         if( $tabla == 'bejelentes' ) {
-            $order = 'surgos desc, '.$order;
+            $order = 'surgos desc, csoport_id asc, '.$order;
         }
 
         $szamla_lista = szamla_lista( $tabla, $_OPTS['select'], $where, $order, $lapozo -> getLimit() );

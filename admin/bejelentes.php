@@ -239,6 +239,19 @@ if($gyorskereso_text){
         );
     }
 
+    /* Lekérdezzük a csoportokat */
+    $szamla_html .= '<div id="insertCsopHidden" class="dn"><select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
+
+    $csoportok = $adatbazis_kapcsolat->s('recid nev', 'bejelentes_csoport', '', 'nev', '');
+
+    if( $csoportok ) {
+        foreach($csoportok as $csoport) {
+            $szamla_html .= '<option value="'.$csoport['recid'].'">'.$csoport['nev'].'</option>';
+        }
+    }
+
+    $szamla_html .= '</select></div>';
+
 	//Új termék felvitele
 	if(isset($_GET['uj']) && !$csak_szerkesztheto){
 
@@ -375,28 +388,31 @@ if($gyorskereso_text){
         if( _jog(2) ) {
             $gombok .= nl2('
                 <div id="kmCont">
-                    <input type="button" class="gomb_alert piros foGomb km_false" value="Elutasítás" title="Elutasítás">
+                    <script>
+                        csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                    </script>
+                    <input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás">
                     <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb km_false" value="Csoportosítás..." title="Csoportosítás...">
+                        <input type="button" class="gomb foGomb" value="Csoportosítás..." title="Csoportosítás...">
                         <div class="muv">
                             <ul>
-                                <li><a class="km_false" onclick="csoportMuvelet(\'csoporthoz_adas\');">Csoporthoz adás</a></li>
-                                <li><a class="km_false">Csoportból kivétel</a></li>
-                                <li><a class="km_false">Csoport átnevezése</a></li>
+                                <li><a onclick="csoportMuvelet(\'csoporthoz_adas\');">Csoporthoz adás</a></li>
+                                <li><a onclick="alert2(\'Biztos törli a kijelölt sorokat a megadott csoportokból?\', csoportKiveszGomb);">Csoportból kivétel</a></li>
+                                <li><a>Csoport átnevezése</a></li>
                             </ul>
                         </div>
                     </div>
                     <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb km_false" value="Várólista..." title="Várólista...">
+                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
                         <div class="muv">
                             <ul>
-                                <li><a class="km_false">Várólistához adás</a></li>
-                                <li><a class="km_false">Várólistból kivétel</a></li>
-                                <li><a class="km_false">Várólista átnevezése</a></li>
+                                <li><a>Várólistához adás</a></li>
+                                <li><a>Várólistból kivétel</a></li>
+                                <li><a>Várólista átnevezése</a></li>
                             </ul>
                         </div>
                     </div>
-                    <input type="button" class="gombb foGomb km_false" value="Munkalap készítése" title="Munkalap készítése">
+                    <input type="button" class="gombb foGomb" value="Munkalap készítése" title="Munkalap készítése">
                 </div>
             ');
         }
