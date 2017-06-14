@@ -399,7 +399,11 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
 
     $hiba_txt = 'Hiba'; //Csak hogy egy helyen kelljen átírni.
     
-    $ret = '<'.str_replace('#', '', 's#cript').'>function '.$fg.'{';
+    $ret = nl2('
+                <'.str_replace('#', '', 's#cript').'>
+                    var helyiseg_gep_mehet = false;
+                    function '.$fg.'{
+            ');
 
     $param = '';
     foreach($tomb as $ertek){
@@ -485,6 +489,19 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
                 }
             }
         }
+    }
+    
+    //Egyedi hibaüzenetek
+    if( basename(self())=='utemezett_feladatok.php' ){
+        $ret .= nl2('
+                var gep_id = $(\'#gep_id_autocomplete\').val();
+                var obj_id = $(\'#obj_id_autocomplete\').val();
+                if(!gep_id && !obj_id && !helyiseg_gep_mehet){
+                    uf_gomb = \'<div class="c"><input type="button" class="gomb" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb" value="Nem" onclick="alert2()"></div>\';
+                    alert2(\'Nem adott meg sem helyiséget sem gépet a feladathoz.<br>Folytatja?\', uf_gomb, \'Kérdés\');
+                    return false;
+                }
+                ');
     }
 
     //Ajaxos form módosítás
