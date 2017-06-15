@@ -1847,6 +1847,18 @@ $(document).ready(function () {
     });
 });
 
+/* Időszakos ütemezésnél az egyeszeri időszak kimullázása */
+function egyszeri_nullaz(){
+    $('#aktkezd_d').val('0000.00.00');
+    $('#aktvege_d').val('0000.00.00');
+}
+/* Időszakos ütemezésnél a szokásos időszak kimullázása */
+function szokasos_nullaz(){
+    $('#kezdho').val('');
+    $('#kezdnap').val('');
+    $('#vegeho').val('');
+    $('#vegenap').val('');
+}
 
 /* Dátumra ütemezés tesztelésére */
 function datumra_utemezes(id){
@@ -1856,7 +1868,9 @@ function datumra_utemezes(id){
         data: esamp2es('id=' + id + '&amp;datumra_utemezes=' + new Date().getTime()),
         success: function (html) {
             if (html) {
-                alert2(html);
+                
+                html = JSON.parse(html);
+                alert2(html['uzenet']);
             }
         }
     });

@@ -128,4 +128,7 @@ array_push($select_szemelyzet, array('name' => 'Telepített személyzet',     'v
 array_push($select_szemelyzet, array('name' => 'Mobilcsoport',              'value' => '2' ));
 array_push($select_szemelyzet, array('name' => 'Külső kivitelező',          'value' => '3' ));
 array_push($select_szemelyzet, array('name' => 'Diszpécser közp. vezető',   'value' => '4' ));
+array_push($select_szemelyzet, array('name' => 'Műszaki vezető',            'value' => '5' ));
+array_push($select_szemelyzet, array('name' => 'Műszaki vezető helyettes',  'value' => '6' ));
+array_push($select_szemelyzet, array('name' => 'Területi felelős',          'value' => '7' ));
 //{KOVETKEZO_SELECT}

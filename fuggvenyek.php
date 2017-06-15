@@ -68,6 +68,7 @@ function i_u($type, $tabla, $tomb){
 
     //Dátumra ütmezés, ha az ütemezett feldaatokat módosítjuk/töltjük fel
     if( $tabla == 'utemezett_feladatok' ) {
+
         if($_POST['cikltip']=='l'){
             array_push($oszlopok, 'ciklaltip'       );
             array_push($ertekek,  ''                );
@@ -117,13 +118,23 @@ function i_u($type, $tabla, $tomb){
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  $_POST['ism_het'] );
             $cikl_nap = '';
-            if($_POST['h']) { $cikl_nap .= '1'; }
-            if($_POST['k']) { $cikl_nap .= '2'; }
-            if($_POST['s']) { $cikl_nap .= '3'; }
-            if($_POST['cs']){ $cikl_nap .= '4'; }
-            if($_POST['p']) { $cikl_nap .= '5'; }
-            if($_POST['sz']){ $cikl_nap .= '6'; }
-            if($_POST['v']) { $cikl_nap .= '7'; }
+            if($type == 'insert') {
+                if($_POST['h']) { $cikl_nap .= '1'; }
+                if($_POST['k']) { $cikl_nap .= '2'; }
+                if($_POST['s']) { $cikl_nap .= '3'; }
+                if($_POST['cs']){ $cikl_nap .= '4'; }
+                if($_POST['p']) { $cikl_nap .= '5'; }
+                if($_POST['sz']){ $cikl_nap .= '6'; }
+                if($_POST['v']) { $cikl_nap .= '7'; }
+            }else{
+                if($_POST['h']=='true') { $cikl_nap .= '1'; }
+                if($_POST['k']=='true') { $cikl_nap .= '2'; }
+                if($_POST['s']=='true') { $cikl_nap .= '3'; }
+                if($_POST['cs']=='true'){ $cikl_nap .= '4'; }
+                if($_POST['p']=='true') { $cikl_nap .= '5'; }
+                if($_POST['sz']=='true'){ $cikl_nap .= '6'; }
+                if($_POST['v']=='true') { $cikl_nap .= '7'; }
+            }
 
             $index = array_search('ciklnap', $oszlopok);
             $ertekek[$index] = $cikl_nap;
@@ -231,8 +242,8 @@ function i_u($type, $tabla, $tomb){
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
         }
 
-		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
-//echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
+		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
+
         //Bejelentések iktatószám képzése
         if( $tabla == 'bejelentes' ) {
             $adatbazis_kapcsolat -> i('statusz',
@@ -402,6 +413,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
     $ret = nl2('
                 <'.str_replace('#', '', 's#cript').'>
                     var helyiseg_gep_mehet = false;
+                    var riasztas_mehet     = false;
+                    var utemezes_mehet     = false;
                     function '.$fg.'{
             ');
 
@@ -482,10 +495,12 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
             }
 
             if($ajax && !strstr($ertek['type'], 'file')/* tehát nem jsfile vagy sima file... */ ){
-                if($ertek['type']=='checkbox'){
-                    $param .= $ertek['name'].'=\'+$(\'#'.$ertek['name'].'\').is(\':checked\')+\'&amp;';
-                }  else {
-                    $param .= $ertek['name'].'=\'+$(\'#'.$ertek['name'].'\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+                if($ertek['name']){//Ha van neve, nem HTML pl.
+                    if($ertek['type']=='checkbox'){
+                        $param .= $ertek['name'].'=\'+$(\'#'.$ertek['name'].'\').is(\':checked\')+\'&amp;';
+                    }  else {
+                        $param .= $ertek['name'].'=\'+$(\'#'.$ertek['name'].'\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+                    }
                 }
             }
         }
@@ -493,14 +508,67 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
     
     //Egyedi hibaüzenetek
     if( basename(self())=='utemezett_feladatok.php' ){
+        
+        $param .= 'aktkezd_d=\'+$(\'#aktkezd_d\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'aktvege_d=\'+$(\'#aktvege_d\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'ism_het=\'+$(\'#ism_het\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'kezdho=\'+$(\'#kezdho\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'kezdnap=\'+$(\'#kezdnap\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'vegeho=\'+$(\'#vegeho\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'vegenap=\'+$(\'#vegenap\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'h=\'+$(\'#h\') .is(\':checked\')+\'&amp;';
+        $param .= 'k=\'+$(\'#k\') .is(\':checked\')+\'&amp;';
+        $param .= 's=\'+$(\'#s\') .is(\':checked\')+\'&amp;';
+        $param .= 'cs=\'+$(\'#cs\').is(\':checked\')+\'&amp;';
+        $param .= 'p=\'+$(\'#p\') .is(\':checked\')+\'&amp;';
+        $param .= 'sz=\'+$(\'#sz\').is(\':checked\')+\'&amp;';
+        $param .= 'v=\'+$(\'#v\') .is(\':checked\')+\'&amp;';
         $ret .= nl2('
-                var gep_id = $(\'#gep_id_autocomplete\').val();
-                var obj_id = $(\'#obj_id_autocomplete\').val();
-                if(!gep_id && !obj_id && !helyiseg_gep_mehet){
+            
+                /* gép és helyiség is üresen maradt figylemeztetés */
+                if(!$(\'#gep_id\').val() && !$(\'#obj_id\').val() && !helyiseg_gep_mehet){
                     uf_gomb = \'<div class="c"><input type="button" class="gomb" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb" value="Nem" onclick="alert2()"></div>\';
                     alert2(\'Nem adott meg sem helyiséget sem gépet a feladathoz.<br>Folytatja?\', uf_gomb, \'Kérdés\');
                     return false;
                 }
+
+                /* Riasztás 0 értékkel van beállítva, így mehet? */
+                if( (!$(\'#riaszt\').val() || $(\'#riaszt\').val()==0) && !riasztas_mehet ){
+                    uf_gomb2 = \'<div class="c"><input type="button" class="gomb" value="Igen" onclick="riasztas_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb" value="Nem" onclick="alert2()"></div>\';
+                    alert2(\'
+                        Ön a következőt választotta:
+                        <br>
+                        <br><b class="piros">Riasztás 0 nappal az esedékesség előtt.</b>
+                        <br>
+                        <br>Ha folytatja, a feladat az esedékesség napján készül munkalap!
+                        <br>
+                        <br>Folytatja?
+                    \', uf_gomb2, \'Kérdés\');
+                    return false;
+                }
+                
+                
+                /* Dátumra ütemezés közlése mentés előtt. */
+                if( !utemezes_mehet ){
+
+                    $.ajax({
+                        url : \'utemezett_feladatok.php\',
+                        type: \'GET\',
+                        data: esamp2es(\'id='.$_GET['id'].'&amp;datumra_utemezes=\' + new Date().getTime()),
+                        success: function(html) {
+                            
+                            html = JSON.parse(html);
+                            uf_gomb3 = \'<div class="c"><input type="button" class="gomb" value="Igen" onclick="utemezes_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb" value="Nem" onclick="alert2()"></div>\';
+                            alert2(html[\'uzenet\'], uf_gomb3, \'Kérdés\');
+                            $(\'#esnap_d\').val(html[\'esedekes\']);
+                            return false;
+                            
+                        }
+                    }); 
+                }else{
+                    alert2();
+                }
+                
                 ');
     }
 

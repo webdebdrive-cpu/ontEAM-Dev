@@ -76,7 +76,6 @@ if($tobb_kep){
 
 
 if (isset($_GET['datumra_utemezes'])) {
-    
     include('datumra_utemezes.php');
     
     $sor = $adatbazis_kapcsolat->s('*', $megnevezes, "`recid`='{$_GET['id']}'");
@@ -93,11 +92,11 @@ if (isset($_GET['datumra_utemezes'])) {
 
     $szamla_html .=  "esemd: $esem_d<br>cikltip: $sor[cikltip]<br>ciklaltip: $sor[ciklaltip]<br>ciklszorz: $sor[ciklszorz]<br>ciklho: $sor[ciklho]<br>ciklhet: $sor[ciklhet]<br>ciklnap: $sor[ciklnap]<br>idoszakos: $sor[idoszakos]<br>kezdho: $sor[kezdho]<br>kezdnap: $sor[kezdnap]<br>vegeho: $sor[vegeho]<br>vegenap: $sor[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
     $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
-    $szamla_html .= '<hr>utolso vegrehajtas: ' . $esnap_d;
-    $szamla_html .= '<br>kovetkezo: ' . $getnextvaliddate;
-    $szamla_html .= '<br>szabaly: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
+    $szamla_html .= '<hr>Utolsó végrehajtás: ' . $esnap_d;
+    $szamla_html .= '<br>Következő: ' . $getnextvaliddate;
+    $szamla_html .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
 
-    echo $szamla_html;
+    echo json_encode( array('uzenet' => 'Ön a következő ütemezést választotta:<br><div class="l">'.$szamla_html.'</div><br>Folytatja?', 'esedekes' => $getnextvaliddate) );
 
     $weblap -> leallit();
     exit();
@@ -259,7 +258,7 @@ if($gyorskereso_text){
         }
 
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
-
+        
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
@@ -469,8 +468,65 @@ if($gyorskereso_text){
 	//Ütemezés
     }elseif(isset($_GET['utemezes'])) {
 
-        $szamla_html .= 'Ide jön felsorolás szerűen, hogy a jövőben mely időpontokban fut majd le az ütemezés.';
+        include('datumra_utemezes.php');
         
+        $szamla_html .= 'Ön a következő ütemezést választotta:<br>';
+        
+        $sor = $adatbazis_kapcsolat->s('*', $megnevezes, "`recid`='{$_GET['id']}'");
+        $sor = $sor[0];
+
+        $kell_lista = true;
+        $utemezes = 'Folyamatos';
+        if($sor['idoszakos']){
+            if($sor['aktkezd_d']>'0000-00-00' && $sor['aktkezd_d']>'0000-00-00'){
+                $utemezes = $sor['aktkezd_d'].'-'.$sor['aktvege_d'];
+                if($sor['aktvege_d']<date('Y-m-d')){
+                    $utemezes = $sor['aktvege_d'].' után nincsenek további ütemezések.';
+                    $kell_lista = false;
+                }
+            }else{
+                require_once 'selectek.php';
+                $kezdho = '';
+                foreach($select_honapok as $honap){
+                    if($honap['value']==$sor['kezdho']){
+                        $kezdho = $honap['name'];
+                        break;
+                    }
+                }
+                $vegeho = '';
+                foreach($select_honapok as $honap){
+                    if($honap['value']==$sor['vegeho']){
+                        $vegeho = $honap['name'];
+                        break;
+                    }
+                }
+                $utemezes = $kezdho.' '.$sor['kezdnap'].'. - '.$vegeho.' '.$sor['vegenap'].'.';
+            }
+        }
+        
+        if(!$sor['esem_d']){
+            $sor['esem_d'] = date('Y-m-d');
+        }
+        $esem_d     = substr(str_replace('-', '.', $sor['esem_d']), 0, 10);
+        $esnap_d    = str_replace('-', '.', $sor['esnap_d']);
+        $aktkezd_d  = str_replace('-', '.', $sor['aktkezd_d']);
+        $aktvege_d  = str_replace('-', '.', $sor['aktvege_d']);
+
+
+        $szamla_html .=  "esemd: $esem_d<br>cikltip: $sor[cikltip]<br>ciklaltip: $sor[ciklaltip]<br>ciklszorz: $sor[ciklszorz]<br>ciklho: $sor[ciklho]<br>ciklhet: $sor[ciklhet]<br>ciklnap: $sor[ciklnap]<br>idoszakos: $sor[idoszakos]<br>kezdho: $sor[kezdho]<br>kezdnap: $sor[kezdnap]<br>vegeho: $sor[vegeho]<br>vegenap: $sor[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
+        $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
+        $szamla_html .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
+        $szamla_html .= '<hr>Ütemezés: ' . $utemezes;
+        $szamla_html .= '<hr>Esedékes: ' . $sor['esnap_d'];
+        $szamla_html .= '<hr>Utolsó végrehajtás: ' . $esnap_d;
+        $szamla_html .= '<br>Következő: ' . $getnextvaliddate;
+        $szamla_html .= '<br>';
+        $szamla_html .= '<br>Következő 10 iteráció:<br>';
+        
+        for($i=0; $i<10; $i++){
+            $getnextvaliddate = getnextvaliddate(false, $getnextvaliddate, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
+            $szamla_html .= $getnextvaliddate . '<br>';
+        }
         
         if( $_GET['ajax'] ) {
             echo json_encode(array(
