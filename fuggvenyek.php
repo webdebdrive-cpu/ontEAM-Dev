@@ -131,8 +131,8 @@ function i_u($type, $tabla, $tomb){
             array_push($oszlopok, 'ciklaltip'   );
             array_push($ertekek,  ''            );
         }
-        
-        
+
+
         //Úgy általánosságban még hozzáadjuk a kezdho, kezdnap, vegeho, vegenap értékeket
         array_push($oszlopok, 'kezdho',        'kezdnap',           'vegeho',           'vegenap',          'aktkezd_d',            'aktvege_d'           );
         array_push($ertekek, $_POST['kezdho'], $_POST['kezdnap'],   $_POST['vegeho'],   $_POST['vegenap'],  $_POST['aktkezd_d'],    $_POST['aktvege_d']   );
@@ -398,7 +398,7 @@ function i_u($type, $tabla, $tomb){
 function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
 
     $hiba_txt = 'Hiba'; //Csak hogy egy helyen kelljen átírni.
-    
+
     $ret = nl2('
                 <'.str_replace('#', '', 's#cript').'>
                     var helyiseg_gep_mehet = false;
@@ -490,7 +490,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
             }
         }
     }
-    
+
     //Egyedi hibaüzenetek
     if( basename(self())=='utemezett_feladatok.php' ){
         $ret .= nl2('
@@ -2603,4 +2603,65 @@ function getStatuszIdo( $time ) {
     $mp =  floor(($time % 86400 % 3600 % 60));
 
     return $napok.'nap '.sprintf('%02d', $ora).':'.sprintf('%02d', $perc).':'.sprintf('%02d', $mp);
+}
+
+/* Státusz hozzáadása */
+function addStatusz( $tabla = false, $id = false, $stat_id = false, $text = '' ) {
+    global $adatbazis_kapcsolat;
+
+    if( $tabla && $id && $stat_id ) {
+        /* Lekérjük az az éppen aktuális státusz */
+        $akt_statusz = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id, 'insert_dt desc', '1');
+
+        if( $akt_statusz ) {
+            $akt_statusz = $akt_statusz[0];
+
+            /* Megállapítjuk a státusz idejét */
+            $statusz_ido = round( time() - strtotime($akt_statusz['insert_dt']) );
+            $statusz_ido = getStatuszIdo( $statusz_ido );
+
+            /* Göngyölt státuszidő */
+            $elso_statusz = $adatbazis_kapcsolat->s('insert_dt', $tabla, 'id='.$id, 'insert_dt asc', '1');
+
+            if( $elso_statusz ) {
+                $elso_statusz = $elso_statusz[0];
+
+                $gongyolt_statido = round( time() - strtotime($elso_statusz['insert_dt']) );
+                $gongyolt_statido = getStatuszIdo( $gongyolt_statido );
+            }
+
+            /* Összesített státuszidő */
+            $elso_akt_stat = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id.' and stat_id='.$stat_id, 'insert_dt asc', '1');
+
+            $ossz_statido = '';
+            if( $elso_akt_stat ) {
+                $elso_akt_stat = $elso_akt_stat[0];
+
+                $ossz_statido = round( time() - strtotime($elso_akt_stat['insert_dt']) );
+                $ossz_statido = getStatuszIdo( $ossz_statido );
+
+                /* Frissítjük a sort */
+                $adatbazis_kapcsolat -> u($tabla,
+                    array('ossz_statido'),
+                    array($ossz_statido ),
+                    'id='.$id.' and stat_id='.$stat_id
+                );
+            }
+
+            /* Frissítjük a sort */
+            $adatbazis_kapcsolat -> u($tabla,
+                array('end_dt',             'statido',    'gongyolt_statido'),
+                array( date('Y-m-d H:i:s'), $statusz_ido, $gongyolt_statido ),
+                'recid='.$akt_statusz['recid']
+            );
+
+            /* Beszúrjuk az újat */
+            $adatbazis_kapcsolat -> i($tabla,
+                array('id', 'tabla',      'stat_id', 'text',  'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+                array($id,  'bejelentes',  $stat_id, $text,    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+            );
+        }
+    }
+
+    return false;
 }

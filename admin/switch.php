@@ -116,17 +116,27 @@ foreach($akt_tomb as $ertek){
             }
 
             if( $ertek['oldal'] == 'bejelentes' ) {
-                $statusz_sor = $adatbazis_kapcsolat->s('recid stat_id', 'statusz', "`tabla` = 'bejelentes' AND `id` = '".$_GET['id']."'", 'insert_dt desc', '1');
+                $statusz_sor = $adatbazis_kapcsolat->s('recid stat_id text', 'statusz', "`tabla` = 'bejelentes' AND `id` = '".$_GET['id']."'", 'insert_dt desc', '1');
 
                 $statusz = '';
                 if( $statusz_sor ) {
                     $statusz_sor = $statusz_sor[0];
 
-                    /* Státusz neve */
-                    $stat_nev = $adatbazis_kapcsolat->s('nev', 'statusz_text', 'recid='.$statusz_sor['stat_id'], '', '1');
+                    /* Státusz kiegészítés */
+                    $statusz_text = '<p>'.$statusz_sor['text'].'</p>';
 
-                    if( $stat_nev ) {
-                        $statusz = $stat_nev[0]['nev'];
+                    /* Státusz neve */
+                    $stat_text = $adatbazis_kapcsolat->s('nev szinkod', 'statusz_text', 'recid='.$statusz_sor['stat_id'], '', '1');
+
+                    if( $stat_text ) {
+                        $stat_text = $stat_text[0];
+
+                        $statusz = $stat_text['nev'];
+
+                        $text_color = '';
+                        if( $stat_text['szinkod'] ) {
+                            $text_color = ' style="color: '.$stat_text['szinkod'].';"';
+                        }
                     }
                 }
 
@@ -134,7 +144,8 @@ foreach($akt_tomb as $ertek){
                     <div class="dtr">
                         <div class="dtc form_bal"><span>'.$ertek['megn'].'</span></div>
                         <div class="dtc form_jobb statusz">
-                            <div class="text">'.$statusz.'</div>
+                            <div class="text"'.$text_color.'>'.$statusz.'</div>
+                            '.$statusz_text.'
                         </div>
                     </div>
                 ');

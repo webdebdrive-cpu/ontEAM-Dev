@@ -1,67 +1,6 @@
 <?php
 require_once('../weblap.php');
 
-if( isset($_GET['stat']) ) {
-    $tabla   = 'statusz';
-    $id      = 6;
-    $stat_id = 3;
-
-    /* Lekérjük az az éppen aktuális státusz */
-    $akt_statusz = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id, 'insert_dt desc', '1');
-
-    if( $akt_statusz ) {
-        $akt_statusz = $akt_statusz[0];
-
-        /* Megállapítjuk a státusz idejét */
-        $statusz_ido = round( time() - strtotime($akt_statusz['insert_dt']) );
-        $statusz_ido = getStatuszIdo( $statusz_ido );
-
-        /* Göngyölt státuszidő */
-        $elso_statusz = $adatbazis_kapcsolat->s('insert_dt', $tabla, 'id='.$id, 'insert_dt asc', '1');
-
-        if( $elso_statusz ) {
-            $elso_statusz = $elso_statusz[0];
-
-            $gongyolt_statido = round( time() - strtotime($elso_statusz['insert_dt']) );
-            $gongyolt_statido = getStatuszIdo( $gongyolt_statido );
-        }
-
-        /* Összesített státuszidő */
-        $elso_akt_stat = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id.' and stat_id='.$stat_id, 'insert_dt asc', '1');
-
-        $ossz_statido = '';
-        if( $elso_akt_stat ) {
-            $elso_akt_stat = $elso_akt_stat[0];
-
-            $ossz_statido = round( time() - strtotime($elso_akt_stat['insert_dt']) );
-            $ossz_statido = getStatuszIdo( $ossz_statido );
-
-            /* Frissítjük a sort */
-            $adatbazis_kapcsolat -> u($tabla,
-                array('ossz_statido'),
-                array($ossz_statido ),
-                'id='.$id.' and stat_id='.$stat_id
-            );
-        }
-
-        /* Frissítjük a sort */
-        $adatbazis_kapcsolat -> u($tabla,
-            array('end_dt',             'statido',    'gongyolt_statido'),
-            array( date('Y-m-d H:i:s'), $statusz_ido, $gongyolt_statido ),
-            'recid='.$akt_statusz['recid']
-        );
-
-        /* Beszúrjuk az újat */
-        $adatbazis_kapcsolat -> i($tabla,
-            array('id', 'tabla', 'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
-            array($id,  'bejelentes',  $stat_id,   date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
-        );
-    }
-
-    exit();
-}
-
-
 if( !_jog(0) ) {
     header('Content-Type: text/html; charset=utf-8');
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
@@ -391,7 +330,7 @@ if($gyorskereso_text){
                     <script>
                         csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                     </script>
-                    <input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás">
+                    <input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas\');">
                     <div class="kijeloltek_muv">
                         <input type="button" class="gomb foGomb" value="Csoportosítás..." title="Csoportosítás...">
                         <div class="muv">

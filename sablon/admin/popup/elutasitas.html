@@ -1,0 +1,15 @@
+<h2>Adja meg az elutasítás okát</h2>
+<form action="" id="elutasitasForm" class="popupForm" method="post" onsubmit="return bejegyzesElutasitas( this );">
+    <div class="dt">
+        <div class="dtr">
+            <div class="dtc form_bal">Elutasítás oka:</div>
+            <div class="dtc form_jobb">
+                <input type="text" name="indok" value="" placeholder="">
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>

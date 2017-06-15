@@ -849,10 +849,10 @@ $ho_rejt  = 'dn ';
 if(basename(self())=='utemezett_feladatok.php' && isset($_GET['id'])){
     $uf = $adatbazis_kapcsolat->s('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap', 'utemezett_feladatok', "`recid`='{$_GET['id']}'");
     $uf = $uf[0];
-    
+
     $uf['aktkezd_d'] = str_replace('-', '.', $uf['aktkezd_d']);
     $uf['aktvege_d'] = str_replace('-', '.', $uf['aktvege_d']);
-    
+
     switch($uf['cikltip']){
         case 'd':
             $nap_rejt = '';
@@ -887,7 +887,7 @@ if(basename(self())=='utemezett_feladatok.php' && isset($_GET['id'])){
             }
         break;
     }
-    
+
     //Időszakos ütemezés
     require_once 'selectek.php';
     require_once('../class/html/class.Input.php');
@@ -904,12 +904,12 @@ if(basename(self())=='utemezett_feladatok.php' && isset($_GET['id'])){
     $vege_ho -> name    = 'vegeho';
     $kezd_ho -> onchange = '$(\'#mehet_gomb\').attr(\'disabled\', false);';
     $vege_ho = $vege_ho -> getHtml();
-    
+
     $idoszakos_dn = ' class="dn"';
     if($uf['idoszakos']){
         $idoszakos_dn = '';
     }
-    
+
 }
 
 $megnevezes = 'utemezett_feladatok';
@@ -1023,7 +1023,7 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
                                                                                 <input type="text" name="kezdnap" value="'.$uf['kezdnap'].'" style="width: 3.5rem" maxlength="2"> . napjától - '.$vege_ho.'
                                                                                 <input type="text" name="vegenap" value="'.$uf['vegenap'].'" style="width: 3.5rem" maxlength="2"> . napjáig
                                                                                 <div style="margin-top: 0.5rem">
-                                                                                    Egyszeri ütemezés 
+                                                                                    Egyszeri ütemezés
                                                                                     <input class="datepicker" name="aktkezd_d" id="aktkezd_d" value="'.$uf['aktkezd_d'].'" type="text">
                                                                                     <span class="formText"> - </span>
                                                                                     <input class="datepicker" name="aktvege_d" id="aktvege_d" value="'.$uf['aktvege_d'].'" type="text">
@@ -1200,16 +1200,68 @@ $eszkozkezeles_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 //{KOVETKEZO_TOMB}
 
+/* Bejegyzések elutasítása */
+if( isset($_POST['bejegyzesElutasitas']) ) {
+    $recid = $_POST['recid'];
+    $indok = $_POST['indok'];
+    $idk   = json_decode($_POST['idk'], true);
+
+    if( $indok && is_array($idk) ) {
+        foreach($idk as $id) {
+            addStatusz( 'statusz', $id, 4, $indok );
+        }
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 /* Csoportba rendezés */
 if( isset($_POST['csoportbolTorol']) ) {
     $oszlop = $_POST['oszlop'];
     $idk    = json_decode($_POST['idk'], true);
 
     if( $oszlop && is_array($idk) ) {
+        $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+        $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
+
+        /* Kiszedjük a duplikációkat */
+        $csoportok = array_unique($csoportok);
+
+        /* Frissítjük a megfelelő sorokat */
         $adatbazis_kapcsolat -> u('bejelentes', array($oszlop), array(0), "`recid` IN (".implode(',', $idk).")");
 
+        /* Csoportok bejárása */
+        if( $csoportok ) {
+            foreach($csoportok as $csoport) {
+                $csoportok = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`csoport_id` = '{$csoport}' AND `torolve` = '0'", '', '1');
+
+                if( !$csoportok ) {
+                    $adatbazis_kapcsolat -> d('bejelentes_csoport', "`recid` = '{$csoport}'");
+                }
+            }
+        }
+
+        /* Select előállítása */
+        $html = '<select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
+
+        $csoportok = $adatbazis_kapcsolat->s('recid nev', 'bejelentes_csoport', '', 'nev', '');
+
+        if( $csoportok ) {
+            foreach($csoportok as $csoport) {
+                $html .= '<option value="'.$csoport['recid'].'">'.$csoport['nev'].'</option>';
+            }
+        }
+
+        $html .= '</select>';
+
         echo json_encode(array(
-            'statusz' => 'siker'
+            'statusz' => 'siker',
+            'html' => $html
         ));
     }
 
