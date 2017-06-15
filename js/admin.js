@@ -494,13 +494,19 @@ $(function() {
         }
     });
 
-    /*$(document).on('click', function(e) {
-        var par = $(event.target).parent();
+    $(document).on('click', function(e) {
+        $('.kijeloltek_muv').removeClass('active');
+
+        /*var par = $(event.target).parent();
 
         if( !e.ctrlKey && !e.shiftKey && e.target.className.indexOf('km_false') === -1 && !par.hasClass('km_false') ) {
             kijelolesEltavolit();
-        }
-    });*/
+        }*/
+    });
+
+    $(document).on('click', '.kijeloltek_muv', function(e) {
+        e.stopPropagation();
+    });
 
     $(document).on('click', '.foGomb', function() {
         if( !$(this).parent('.kijeloltek_muv').hasClass('active') ) {
@@ -849,6 +855,58 @@ $(function() {
     });
 });
 
+function bejegyzesElutasitas( that ) {
+    var indok = $(that).find('input[name="indok"]');
+
+    if( indok.val() ) {
+        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+
+        if( szamlaSorok.length ) {
+            idk = {};
+
+            var i = 1;
+            szamlaSorok.each(function() {
+                var id = $(this).attr('data-recid');
+
+                idk[i] = id;
+                i++;
+            });
+
+            if( idk ) {
+                $.ajax({
+                 	url : 'esemenyek.php',
+                 	type: 'POST',
+                 	data: {
+                        indok   : indok.val(),
+                        idk     : JSON.stringify(idk),
+                        bejegyzesElutasitas : new Date().getTime()
+                    },
+                 	success: function(response) {
+                 		if(response) {
+                            response = JSON.parse(response);
+
+                            if( response.hiba ) {
+                                alert2(response.hiba);
+                                return false;
+                            }
+
+                            kijelolesEltavolit();
+                            bejegyzesekLista('#rendezesSelect', 'asc', '', '');
+                            popupZar();
+                 		}
+                 	}
+                });
+            }
+        } else {
+            alert2('Nincsenek kijelölt sorok!');
+        }
+    } else {
+        alert2('Kérem adja meg az elutasítás okát!');
+    }
+
+    return false;
+}
+
 function csoportbolTorol( oszlop ) {
     if( oszlop ) {
         szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
@@ -882,8 +940,12 @@ function csoportbolTorol( oszlop ) {
                                 return false;
                             }
 
-                            bejegyzesekLista('#rendezesSelect', 'asc', '', '');
+                            if( response.statusz == 'siker' ) {
+                                $('#insertCsopHidden').html(response.html);
+                            }
+
                             kijelolesEltavolit();
+                            bejegyzesekLista('#rendezesSelect', 'asc', '', '');
                  		}
                  	}
                 });
@@ -906,19 +968,19 @@ function addCsoport() {
          	url : 'esemenyek.php',
          	type: 'GET',
          	data: esamp2es('csoportnev=' + ujcsoport.val() + '&amp;addCsoport=' + new Date().getTime()),
-         	success: function(html) {
-         		if(html) {
-         			html = JSON.parse(html);
+         	success: function(response) {
+         		if(response) {
+         			response = JSON.parse(response);
 
-                    if( html.hiba ) {
-                        alert2(html.hiba);
+                    if( response.hiba ) {
+                        alert2(response.hiba);
                         return false;
                     }
 
-                    if( html.statusz == 'siker' ) {
+                    if( response.statusz == 'siker' ) {
                         ujcsoport.val('');
-                        $('#insertCsop').html(html.html);
-                        $('#insertCsopHidden').html(html.html);
+                        $('#insertCsop').html(response.html);
+                        $('#insertCsopHidden').html(response.html);
                     }
          		}
          	}
@@ -966,8 +1028,8 @@ function csoportbaRendez( that ) {
                                 return false;
                             }
 
-                            bejegyzesekLista('#rendezesSelect', 'asc', '', '');
                             kijelolesEltavolit();
+                            bejegyzesekLista('#rendezesSelect', 'asc', '', '');
                             popupZar();
                  		}
                  	}
