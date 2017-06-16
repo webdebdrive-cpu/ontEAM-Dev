@@ -508,7 +508,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
 
     //Egyedi hibaüzenetek
     if( basename(self())=='utemezett_feladatok.php' ){
-        
+
         $param .= 'aktkezd_d=\'+$(\'#aktkezd_d\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
         $param .= 'aktvege_d=\'+$(\'#aktvege_d\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
         $param .= 'ism_het=\'+$(\'#ism_het\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
@@ -524,7 +524,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
         $param .= 'sz=\'+$(\'#sz\').is(\':checked\')+\'&amp;';
         $param .= 'v=\'+$(\'#v\') .is(\':checked\')+\'&amp;';
         $ret .= nl2('
-            
+
                 /* gép és helyiség is üresen maradt figylemeztetés */
                 if(!$(\'#gep_id\').val() && !$(\'#obj_id\').val() && !helyiseg_gep_mehet){
                     uf_gomb = \'<div class="c"><input type="button" class="gomb" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb" value="Nem" onclick="alert2()"></div>\';
@@ -546,8 +546,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
                     \', uf_gomb2, \'Kérdés\');
                     return false;
                 }
-                
-                
+
+
                 /* Dátumra ütemezés közlése mentés előtt. */
                 if( !utemezes_mehet ){
 
@@ -556,19 +556,19 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
                         type: \'GET\',
                         data: esamp2es(\'id='.$_GET['id'].'&amp;datumra_utemezes=\' + new Date().getTime()),
                         success: function(html) {
-                            
+
                             html = JSON.parse(html);
                             uf_gomb3 = \'<div class="c"><input type="button" class="gomb" value="Igen" onclick="utemezes_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb" value="Nem" onclick="alert2()"></div>\';
                             alert2(html[\'uzenet\'], uf_gomb3, \'Kérdés\');
                             $(\'#esnap_d\').val(html[\'esedekes\']);
                             return false;
-                            
+
                         }
-                    }); 
+                    });
                 }else{
                     alert2();
                 }
-                
+
                 ');
     }
 
@@ -2676,10 +2676,18 @@ function getStatuszIdo( $time ) {
 /* Státusz hozzáadása */
 function addStatusz( $tabla = false, $id = false, $stat_id = false, $text = '' ) {
     global $adatbazis_kapcsolat;
+    global $db_kapcs;
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
 
     if( $tabla && $id && $stat_id ) {
         /* Lekérjük az az éppen aktuális státusz */
-        $akt_statusz = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id, 'insert_dt desc', '1');
+        $sql = $akt_statusz = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id, 'insert_dt desc', '1');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
 
         if( $akt_statusz ) {
             $akt_statusz = $akt_statusz[0];
@@ -2689,7 +2697,11 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $text = '' )
             $statusz_ido = getStatuszIdo( $statusz_ido );
 
             /* Göngyölt státuszidő */
-            $elso_statusz = $adatbazis_kapcsolat->s('insert_dt', $tabla, 'id='.$id, 'insert_dt asc', '1');
+            $sql = $elso_statusz = $adatbazis_kapcsolat->s('insert_dt', $tabla, 'id='.$id, 'insert_dt asc', '1');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
 
             if( $elso_statusz ) {
                 $elso_statusz = $elso_statusz[0];
@@ -2699,7 +2711,11 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $text = '' )
             }
 
             /* Összesített státuszidő */
-            $elso_akt_stat = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id.' and stat_id='.$stat_id, 'insert_dt asc', '1');
+            $sql = $elso_akt_stat = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id.' and stat_id='.$stat_id, 'insert_dt asc', '1');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
 
             $ossz_statido = '';
             if( $elso_akt_stat ) {
@@ -2709,25 +2725,47 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $text = '' )
                 $ossz_statido = getStatuszIdo( $ossz_statido );
 
                 /* Frissítjük a sort */
-                $adatbazis_kapcsolat -> u($tabla,
+                $sql = $adatbazis_kapcsolat -> u($tabla,
                     array('ossz_statido'),
                     array($ossz_statido ),
                     'id='.$id.' and stat_id='.$stat_id
                 );
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
             }
 
             /* Frissítjük a sort */
-            $adatbazis_kapcsolat -> u($tabla,
+            $sql = $adatbazis_kapcsolat -> u($tabla,
                 array('end_dt',             'statido',    'gongyolt_statido'),
                 array( date('Y-m-d H:i:s'), $statusz_ido, $gongyolt_statido ),
                 'recid='.$akt_statusz['recid']
             );
 
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
             /* Beszúrjuk az újat */
-            $adatbazis_kapcsolat -> i($tabla,
+            $sql = $adatbazis_kapcsolat -> i($tabla,
                 array('id', 'tabla',      'stat_id', 'text',  'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
                 array($id,  'bejelentes',  $stat_id, $text,    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
             );
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( !$db_error ) {
+                mysqli_commit($db_kapcs);
+
+                return true;
+            } else {
+                mysqli_rollback($db_kapcs);
+
+                return false;
+            }
         }
     }
 

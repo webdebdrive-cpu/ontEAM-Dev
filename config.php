@@ -38,7 +38,7 @@ function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szi
 function get_db_user()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu'     : 'szinvatrendhu' );    } //Felhasználói név
 function get_db_pass()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'vikike'            : 'vikike' );           } //Jelszó
 function get_db_charset() { return 'UTF8';                                                                              } //Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
-function get_debug()      { return true;                                                                                } //Hibás adatbázislekérdezések megjelennek vagy sem
+function get_debug()      { return false;                                                                                } //Hibás adatbázislekérdezések megjelennek vagy sem
 
 //Weblap
 function get_admin()         { return 'admin/';                                 } // Admin könyvtár neve
@@ -77,6 +77,8 @@ function get_google()       { return '';   }    //https://plus.google.com/!GOOGL
 
 //Letöltésnél nem engedünk meg minden kiterjesztést letölteni
 function get_engedelyezett_letoltesek()  { return array('txt'); }
+
+function tranzakcioHiba() { return 'Az adatbázis műveletek részét, vagy egészét nem lehetett végrehajtani, kérem próbálja újra a folyamatot!'; }
 
 //Head
 function get_doctype() { return '';                 } //transitional, frameset (egyébként strict)

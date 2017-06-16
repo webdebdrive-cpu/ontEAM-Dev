@@ -563,7 +563,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
                 $ksz_where .= "`{$select}` LIKE '%{$_GET['ksz']}%' OR ";
             }
         }
-        
+
         if($ksz_where){
             $where .= '('.trim($ksz_where, ' OR ').')';
         }
@@ -610,7 +610,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     if( basename(self()) == 'bejelentes.php' ) {
         $_OPTS['order'] = 'surgos desc, csoport_id asc, '.$_OPTS['order'];
     }
-    
+
     $tartBal  = szamla_lista( $tabla, $_OPTS['select'], $where, $_OPTS['order'], $lapozo -> getLimit() );
     $keresodn = '';
 
@@ -679,6 +679,7 @@ $torles_icon = nl2('
             <i class="material-icons">delete</i>
         </a>
     ');
+
 $uj  = nl2('
         <a href="'.$uj_link.'" class="uj'.$uj_dis.'" title="Új">
             <i class="material-icons">add</i>
@@ -689,12 +690,11 @@ if(basename(self())=='bejelentes.php' && !_jog(1)){
     $torles_icon    = '';
     $uj             = '';
 }
+
 if(basename(self())=='utemezett_feladatok.php' && !_jog(4)){
     $torles_icon    = '';
     $uj             = '';
 }
-
-
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
