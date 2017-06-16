@@ -451,7 +451,7 @@ if($gyorskereso_text){
             ').$gombok;
         }
 
-        $gombok .= '<input type="button" class="gombb foGomb" value="Munkalap készítése" title="Munkalap készítése">';
+        $gombok .= '<input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" title="Munkalap készítése">';
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {

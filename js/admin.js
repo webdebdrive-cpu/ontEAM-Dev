@@ -1076,8 +1076,10 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
 
     if( !sorok.hasClass('kijelolve') && reszleg == 'fo' ) {
         $('#kmCont').removeClass('active');
+        $('#munkalapEgyeni').removeClass('dn');
     } else if( sorok.hasClass('kijelolve') && reszleg == 'fo' ) {
         $('#kmCont').addClass('active');
+        $('#munkalapEgyeni').addClass('dn');
     }
 
     if( !sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
@@ -1137,6 +1139,7 @@ function kijelolesEltavolit() {
 
         $('.kijeloltek_muv').removeClass('active');
         $('#kmCont').removeClass('active');
+        $('#munkalapEgyeni').removeClass('dn');
 
         if( _get('id') ) {
             $('#szamla-' + _get('id')).addClass('active');
