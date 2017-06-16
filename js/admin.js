@@ -1113,13 +1113,16 @@ function mellekTorol( tabla, mellek ) {
 
                     if( html.statusz == 'siker' ) {
                         szamlaBetolt(_get('id'), baseName(location.href) + '.php', mellek);
+                        alert2();
+                    }
+                    if( html.statusz == 'hiba' ) {
+                        alert2(html.uzenet, '', 'Hiba');
                     }
          		}
          	}
         });
     }
-
-    alert2();
+    
 }
 
 function kijelolesEltavolit() {

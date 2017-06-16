@@ -823,8 +823,6 @@ $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',         'class' => 'check'),
     array('type' => 'checkbox',        'megn' => '',                    'name' => 'telefon',        'class' => 'check', 'post' => ' közvetlenül telepített karbantartónak telefonon bejelentve'),
     array('type' => 'statusz',         'megn' => 'Státusz:',            'oldal' => 'bejelentes'),
-
-	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -1023,8 +1021,8 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
                                                                                 <input type="text" id="kezdnap" name="kezdnap" value="'.$uf['kezdnap'].'" style="width: 3.5rem" maxlength="2" onfocus="egyszeri_nullaz()"> . napjától - '.$vege_ho.'
                                                                                 <input type="text" id="vegenap" name="vegenap" value="'.$uf['vegenap'].'" style="width: 3.5rem" maxlength="2" onfocus="egyszeri_nullaz()"> . napjáig
                                                                                 <div style="margin-top: 0.5rem">
-                                                                                    Egyszeri ütemezés
-                                                                                    <input class="datepicker" name="aktkezd_d" id="aktkezd_d" value="'.$uf['aktkezd_d'].'" type="text">
+                                                                                    Egyszeri ütemezés 
+                                                                                    <input class="datepicker" id="aktkezd_d" name="aktkezd_d" value="'.$uf['aktkezd_d'].'" type="text" onblur="szokasos_nullaz()">
                                                                                     <span class="formText"> - </span>
                                                                                     <input class="datepicker" id="aktvege_d" name="aktvege_d" value="'.$uf['aktvege_d'].'" type="text" onblur="szokasos_nullaz()">
                                                                                 </div>
@@ -1339,6 +1337,16 @@ if( isset($_POST['mellekTorol']) ) {
     $tabla  = $_POST['tabla'];
     $idk    = json_decode($_POST['idk'], true);
 
+    //Ki-ki csak a saját megjegyzését törölheti
+    if($adatbazis_kapcsolat->s('id', $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`!='{$_SESSION[get_db_tabla().'user']}'")){
+        echo json_encode(array(
+            'statusz' => 'hiba',
+            'uzenet'  => 'Más által létrehozott bejegyzés nem törölhető!'
+        ));
+    $weblap->leallit();
+    exit();
+    }
+    
     if( $tabla && is_array($idk) ) {
         $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
 
@@ -1401,7 +1409,10 @@ if( isset($_POST['addMegjegyzes']) ) {
     $tabla  = $_POST['tabla'];
 
     if( $pageID && $megj ) {
-        $kapcsID = $adatbazis_kapcsolat -> i('megjegyzes', array('tabla', 'id', 'megj', 'insert_dt', 'insert_usr'), array($tabla, $pageID, $megj, date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']));
+        $kapcsID = $adatbazis_kapcsolat -> i('megjegyzes',
+                                                array('tabla',  'id',    'megj',    'insert_dt',         'insert_usr',                          'loginnev'                        ),
+                                                array($tabla,   $pageID, $megj,     date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'user'] )
+                                            );
 
         echo json_encode(array(
             'statusz' => 'siker',
@@ -1555,15 +1566,17 @@ if( isset($_GET['szamlaLista']) ) {
                 $where .= " AND ";
             }
 
+            $ksz_where = '';
             $selectek = explode(' ', $_OPTS['select']);
-
             foreach($selectek as $select) {
                 if( $select != 'recid' ) {
-                    $where .= "`{$select}` LIKE '%{$ksz}%' OR ";
+                    $ksz_where .= "`{$select}` LIKE '%{$ksz}%' OR ";
                 }
             }
+            if($ksz_where){
+                $where .= '('.trim($ksz_where, ' OR ').')';
+            }
 
-            $where = csonkit($where, 4);
         }
 
         //Lapozás előkészítése
@@ -1895,8 +1908,23 @@ foreach($postok as $ertek){
 
 	//Törlés id
 	if(isset($_GET[$ertek['torid']])){
+        
+        //Jogosultságkezelés
+        if($ertek['tabla']=='bejelentes' && !_jog(1)){
+            $weblap -> leallit(); exit;
+        }
+        if($ertek['tabla']=='utemezett_feladatok' && !_jog(4)){
+            $weblap -> leallit(); exit;
+        }
+        
+        //Csak az törölheti, aki létrehozta 
+        $loginnev = $adatbazis_kapcsolat->s('loginnev', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
+        $loginnev = $loginnev[0];
+        if($loginnev['loginnev']!=$_SESSION[get_db_tabla().'user']){
+            $weblap -> leallit(); exit;
+        }
 
-        $lekerdez = $adatbazis_kapcsolat -> select('*', $ertek['tabla'], 'recid='.$_GET[$ertek['torid']]);
+        $lekerdez = $adatbazis_kapcsolat -> select('*', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 		$sor      = $lekerdez[0];
 		$tomb     = $ertek['tomb'];

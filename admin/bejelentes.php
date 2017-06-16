@@ -192,7 +192,7 @@ if($gyorskereso_text){
     $szamla_html .= '</select></div>';
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && _jog(1) && !$csak_szerkesztheto){
 
         if( !_jog(1) ) {
             echo 'Nincs Jogosultságod új bejelentést feltölteni!';
@@ -357,7 +357,28 @@ if($gyorskereso_text){
         }
 
         if( !$csak_szerkesztheto ) {
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törlöd ezt a '.$szoveg.'?\',gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            //Jogosutságkezelés: csak az törölheti, aki létrehozta
+            if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            }else{
+                //Csak nyitott státusz törölhető
+                $statusz = $adatbazis_kapcsolat->s('stat_id', 'statusz', "`tabla` = '{$megnevezes}' AND `id` = '".$_GET['id']."'", 'insert_dt desc', '1');
+                $statusz = $statusz[0];
+                if($statusz['stat_id']!=1){
+                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak <b class="piros">nyitott</b> státuszú bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+                }else{
+                    $obj = $adatbazis_kapcsolat -> select('nev', 'obj', "`recid`='{$sor['obj_id']}'");
+                    $obj = $obj[0];
+                    $gombok .= nl2(' <script>var torol_kerdes = \'
+                                                                <div class="l">
+                                                                    Iktatószám: '.$sor['ikt_szam'].'
+                                                                    <br>Helyiség: '.addslashes($obj['nev']).'
+                                                                    <br>Hiba: '.addslashes($sor['hiba_text']).'
+                                                                </div>
+                                                                <br>Biztosan törlöd ezt a '.$szoveg.'?    
+                                                                \';</script><input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(torol_kerdes, gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">');
+                }
+            }
         }
 
         //$gombok .= ' <input type="button" id="kilepes_gomb" class="gombb_alert" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\');" value="Kilépés" title="Kilépés">';
@@ -397,11 +418,13 @@ if($gyorskereso_text){
 
         $jobb_oldal = '';
 
-        $gombok = nl2('
-            <div class="form_kuldes">
-                <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled="disabled" value="Mentés">
-            </div>
-        ').$gombok;
+        if(_jog(1)){
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled="disabled" value="Mentés">
+                </div>
+            ').$gombok;
+        }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {

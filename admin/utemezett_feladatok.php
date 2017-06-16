@@ -96,6 +96,11 @@ if (isset($_GET['datumra_utemezes'])) {
     $szamla_html .= '<br>Következő: ' . $getnextvaliddate;
     $szamla_html .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
 
+    //A hibaüzenetet ne tegyük a mezőbe
+    if( mb_substr($getnextvaliddate, 0, 10)=='Hibaüzenet' ){
+        $getnextvaliddate = '____.__.__';
+    }
+    
     echo json_encode( array('uzenet' => 'Ön a következő ütemezést választotta:<br><div class="l">'.$szamla_html.'</div><br>Folytatja?', 'esedekes' => $getnextvaliddate) );
 
     $weblap -> leallit();
@@ -208,7 +213,7 @@ if($gyorskereso_text){
     }
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && _jog(4) && !$csak_szerkesztheto){
 
         //NAVIGÁCIÓ
         $gombok = '';
@@ -334,7 +339,12 @@ if($gyorskereso_text){
         //$gombok .= ' <input type="button" id="visszavonas_gomb" disabled="disabled" class="gombb" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\', true);" value="Visszavonás" title="Visszavonás">';
 
         if( !$csak_szerkesztheto ) {
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\',gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            //Jogosutságkezelés: csak az törölheti, aki létrehozta
+            if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            }else{
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törlöd ezt a '.$szoveg.'?\', gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">';
+            }
         }
 
         //$gombok .= ' <input type="button" id="kilepes_gomb" class="gombb_alert" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\');" value="Kilépés" title="Kilépés">';
@@ -374,11 +384,14 @@ if($gyorskereso_text){
         
         $jobb_oldal = '<input type="button" class="gomb" value="Dátumra ütemezés tesztelése" onclick="datumra_utemezes(\''.$_GET['id'].'\')">';
 
-        $gombok = nl2('
-            <div class="form_kuldes">
-                <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled="disabled" value="Mentés">
-            </div>
-        ').$gombok;
+        /* Ha van jogosultsága ütemezett feladatot kezelni */
+        if(_jog(4)){
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled="disabled" value="Mentés">
+                </div>
+            ').$gombok;
+        }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
@@ -434,6 +447,7 @@ if($gyorskereso_text){
             for($j=0; $j<6; $j++){
 
                 $db = count($adatbazis_kapcsolat->s('id', 'utemezett_feladatok', "`esnap_d`='".date('Y-m-d', strtotime('+'.$j.' days'))."' AND `elv_ido_tol`='$ora:00'"));
+//echo $adatbazis_kapcsolat->gp() . '<br>';
                 if(!$db){
                     $db = '';
                 }

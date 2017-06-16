@@ -1,6 +1,6 @@
 function alert2(uzi, ok_gomb, cim) {
 
-    if( ok_gomb == null ){
+    if( !ok_gomb ){
         ok_gomb = '<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2()"></p>';
     }
 
