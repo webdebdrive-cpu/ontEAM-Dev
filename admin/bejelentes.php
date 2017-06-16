@@ -365,7 +365,7 @@ if($gyorskereso_text){
                 $statusz = $adatbazis_kapcsolat->s('stat_id', 'statusz', "`tabla` = '{$megnevezes}' AND `id` = '".$_GET['id']."'", 'insert_dt desc', '1');
                 $statusz = $statusz[0];
                 if($statusz['stat_id']!=1){
-                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak <b class="piros">nyitott</b> státuszú bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
                 }else{
                     $obj = $adatbazis_kapcsolat -> select('nev', 'obj', "`recid`='{$sor['obj_id']}'");
                     $obj = $obj[0];
