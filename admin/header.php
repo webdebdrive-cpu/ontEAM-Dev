@@ -404,7 +404,7 @@ $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'Költségnem
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['6'], 'Értéklisták' ), $almenu_sablon );
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['7'], 'Felhasználók' ), $almenu_sablon );
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['8'], 'Szerepkör' ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( '../tervek/', 'Látványtervek' ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( '../tervek/', 'Design' ), $almenu_sablon );
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
