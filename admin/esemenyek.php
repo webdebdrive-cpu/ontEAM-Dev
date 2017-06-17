@@ -514,16 +514,16 @@ switch($tabla) {
         $_OPTS['select']    = 'recid id nev';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('nev');
+        $_OPTS['rendezes']  = array('id', 'nev');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'nev';
+            $_GET['rend'] = 'id';
         }
 
         /* Default rendezési irány */
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
+            $_GET['irany'] = 'asc';
         }
     break;
     case 'ktgnem.php':
@@ -531,16 +531,16 @@ switch($tabla) {
         $_OPTS['select']    = 'recid id nev';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('nev');
+        $_OPTS['rendezes']  = array('id', 'nev');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'nev';
+            $_GET['rend'] = 'id';
         }
 
         /* Default rendezési irány */
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
+            $_GET['irany'] = 'asc';
         }
     break;
     case 'eszkozkezeles.php':

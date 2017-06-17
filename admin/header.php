@@ -394,6 +394,8 @@ if(basename(self())=='rendszer.php' && !$_GET['rkat']) { $oldalNev = 'Rendszer';
 if(basename(self())=='erteklista.php'           ) { $oldalNev = 'Értéklisták'; }
 if(basename(self())=='login.php'                ) { $oldalNev = 'Felhasználók'; }
 if(basename(self())=='szerepkor.php'            ) { $oldalNev = 'Szerepkörök'; }
+if(basename(self())=='ktghely.php'              ) { $oldalNev = 'Költséghelyek'; }
+if(basename(self())=='ktgnem.php'               ) { $oldalNev = 'Költségnemek'; }
 
 $aktmenuk  = '';
 //$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Áfa' ), $almenu_sablon );
@@ -452,7 +454,11 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 $header_html .= '<body'.$body_class;
     //Új feltöltésnél a név mezőn legyen a fókusz
     if( isset($_GET['uj']) ) {
-        $header_html .=' onload="if(document.getElementById(\'nev\')){document.getElementById(\'nev\').focus();}"';
+        if( basename(self()) == 'ktghely.php' || basename(self()) == 'ktgnem.php' ) {
+            $header_html .=' onload="if(document.getElementById(\'id\')){document.getElementById(\'id\').focus();}"';
+        } else {
+            $header_html .=' onload="if(document.getElementById(\'nev\')){document.getElementById(\'nev\').focus();}"';
+        }
     //Listánál a gyoskeresőn legyen a fókusz
     } elseif( isset($_GET['lista']) ) {
         $header_html .=' onload="if(document.getElementById(\'id\')){document.getElementById(\'id\').focus();}"';

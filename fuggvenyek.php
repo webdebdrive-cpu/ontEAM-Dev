@@ -240,6 +240,12 @@ function i_u($type, $tabla, $tomb){
         } else if( $tabla == 'gep' ) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
+        } else if( $tabla == 'ktghely' ) {
+            array_push($oszlopok, 'loginnev'                        );
+            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
+        } else if( $tabla == 'ktgnem' ) {
+            array_push($oszlopok, 'loginnev'                        );
+            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
         }
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
@@ -2341,7 +2347,7 @@ function ktghelyLista( $bejegyzesek, $tabla, $frissit ) {
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['nev'].'</span>
+                            <span>'.$bsz['id'].' - '.$bsz['nev'].'</span>
                         </a>';
 
             if( !$frissit ) {
@@ -2384,7 +2390,7 @@ function ktgnemLista( $bejegyzesek, $tabla, $frissit ) {
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['nev'].'</span>
+                            <span>'.$bsz['id'].' - '.$bsz['nev'].'</span>
                         </a>';
 
             if( !$frissit ) {
