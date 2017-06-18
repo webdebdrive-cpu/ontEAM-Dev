@@ -890,6 +890,10 @@ function bejegyzesElutasitas( that ) {
                                 return false;
                             }
 
+                            if( response.kieg ) {
+                                alert2(response.kieg);
+                            }
+
                             kijelolesEltavolit();
                             bejegyzesekLista('#rendezesSelect', 'asc', '', '');
                             popupZar();
@@ -946,6 +950,7 @@ function csoportbolTorol( oszlop ) {
 
                             kijelolesEltavolit();
                             bejegyzesekLista('#rendezesSelect', 'asc', '', '');
+                            alert2();
                  		}
                  	}
                 });
@@ -955,7 +960,6 @@ function csoportbolTorol( oszlop ) {
         }
     }
 
-    alert2();
 }
 
 function addCsoport() {
@@ -1072,8 +1076,10 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
 
     if( !sorok.hasClass('kijelolve') && reszleg == 'fo' ) {
         $('#kmCont').removeClass('active');
+        $('#munkalapEgyeni').removeClass('dn');
     } else if( sorok.hasClass('kijelolve') && reszleg == 'fo' ) {
         $('#kmCont').addClass('active');
+        $('#munkalapEgyeni').addClass('dn');
     }
 
     if( !sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
@@ -1111,18 +1117,20 @@ function mellekTorol( tabla, mellek ) {
          		if(html) {
          			html = JSON.parse(html);
 
+                    if( html.hiba ) {
+                        alert2(html.hiba, '', 'Hiba');
+                        return false;
+                    }
+
                     if( html.statusz == 'siker' ) {
                         szamlaBetolt(_get('id'), baseName(location.href) + '.php', mellek);
                         alert2();
-                    }
-                    if( html.statusz == 'hiba' ) {
-                        alert2(html.uzenet, '', 'Hiba');
                     }
          		}
          	}
         });
     }
-    
+
 }
 
 function kijelolesEltavolit() {
@@ -1131,6 +1139,7 @@ function kijelolesEltavolit() {
 
         $('.kijeloltek_muv').removeClass('active');
         $('#kmCont').removeClass('active');
+        $('#munkalapEgyeni').removeClass('dn');
 
         if( _get('id') ) {
             $('#szamla-' + _get('id')).addClass('active');
@@ -1933,7 +1942,7 @@ function datumra_utemezes(id){
         data: esamp2es('id=' + id + '&amp;datumra_utemezes=' + new Date().getTime()),
         success: function (html) {
             if (html) {
-                
+
                 html = JSON.parse(html);
                 alert2(html['uzenet']);
             }

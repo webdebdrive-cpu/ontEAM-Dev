@@ -266,12 +266,12 @@ class Adatbazis{
 		$insert = str_replace('--', '', $insert);
 		$this -> legutobbiParancs = $insert;
 
-        if(!mysqli_query($this -> adatbazis_kapcsolat, $insert) && $this -> debug){
+        if(!mysqli_query($this -> adatbazis_kapcsolat, $insert)){
 			if($this -> debug){
 				echo $insert.'<br>';
-				echo 'Adatbázis hiba sor beszúrásakor: '.mysqli_error();
+				echo 'Adatbázis hiba sor beszúrásakor: '.mysqli_error($this -> adatbazis_kapcsolat);
 			}
-			return -1;
+			return false;
 		}else{
 			return mysqli_insert_id($this -> adatbazis_kapcsolat);
 		}

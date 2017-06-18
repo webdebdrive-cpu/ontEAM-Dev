@@ -20,7 +20,7 @@ foreach($akt_tomb as $ertek){
             if($ertek['alert']){
                 $ertek['class'] .= ' csillag';
             }
-            
+
             //Onblurra a hidden mező is nullázódjon, ha üres volna a mező
             $ertek['onblur'] .= 'if(!$(this).val()){ $(\'#'.$ertek['name'].'\').val(\'\'); }';
 
@@ -139,7 +139,7 @@ foreach($akt_tomb as $ertek){
                 $mezok .= "</div></div>";
             }
         break;
-        
+
         case 'button':
             $input = new Input($ertek['type']);
             $input -> cssClass = $ertek['class'];
@@ -267,7 +267,7 @@ foreach($akt_tomb as $ertek){
                         $statusz = $stat_text['nev'];
 
                         $text_color = '';
-                        if( $stat_text['szinkod'] ) {
+                        if( $stat_text['szinkod'] && !strstr($stat_text['szinkod'], 'fff') ) {
                             $text_color = ' style="color: '.$stat_text['szinkod'].';"';
                         }
                     }

@@ -514,16 +514,16 @@ switch($tabla) {
         $_OPTS['select']    = 'recid id nev';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('nev');
+        $_OPTS['rendezes']  = array('id', 'nev');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'nev';
+            $_GET['rend'] = 'id';
         }
 
         /* Default rendezési irány */
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
+            $_GET['irany'] = 'asc';
         }
     break;
     case 'ktgnem.php':
@@ -531,16 +531,16 @@ switch($tabla) {
         $_OPTS['select']    = 'recid id nev';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('nev');
+        $_OPTS['rendezes']  = array('id', 'nev');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'nev';
+            $_GET['rend'] = 'id';
         }
 
         /* Default rendezési irány */
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
+            $_GET['irany'] = 'asc';
         }
     break;
     case 'eszkozkezeles.php':
@@ -1021,7 +1021,7 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
                                                                                 <input type="text" id="kezdnap" name="kezdnap" value="'.$uf['kezdnap'].'" style="width: 3.5rem" maxlength="2" onfocus="egyszeri_nullaz()"> . napjától - '.$vege_ho.'
                                                                                 <input type="text" id="vegenap" name="vegenap" value="'.$uf['vegenap'].'" style="width: 3.5rem" maxlength="2" onfocus="egyszeri_nullaz()"> . napjáig
                                                                                 <div style="margin-top: 0.5rem">
-                                                                                    Egyszeri ütemezés 
+                                                                                    Egyszeri ütemezés
                                                                                     <input class="datepicker" id="aktkezd_d" name="aktkezd_d" value="'.$uf['aktkezd_d'].'" type="text" onblur="szokasos_nullaz()">
                                                                                     <span class="formText"> - </span>
                                                                                     <input class="datepicker" id="aktvege_d" name="aktvege_d" value="'.$uf['aktvege_d'].'" type="text" onblur="szokasos_nullaz()">
@@ -1204,14 +1204,26 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
     $indok = $_POST['indok'];
     $idk   = json_decode($_POST['idk'], true);
 
+    $nemsikerult = array();
+
     if( $indok && is_array($idk) ) {
         foreach($idk as $id) {
-            addStatusz( 'statusz', $id, 4, $indok );
+            $statusz = addStatusz( 'statusz', $id, 4, $indok );
+
+            if( !$statusz ) {
+                $nemsikerult[] = $id;
+            }
         }
 
-        echo json_encode(array(
+        $return = array(
             'statusz' => 'siker'
-        ));
+        );
+
+        if( count($nemsikerult) ) {
+            $return['kieg'] = 'A következő recid-s sorok elutasítása nem sikerült: '.implode(',', $nemsikerult);
+        }
+
+        echo json_encode($return);
     }
 
     $weblap->leallit();
@@ -1223,23 +1235,43 @@ if( isset($_POST['csoportbolTorol']) ) {
     $oszlop = $_POST['oszlop'];
     $idk    = json_decode($_POST['idk'], true);
 
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
     if( $oszlop && is_array($idk) ) {
-        $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
         $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
 
         /* Kiszedjük a duplikációkat */
         $csoportok = array_unique($csoportok);
 
         /* Frissítjük a megfelelő sorokat */
-        $adatbazis_kapcsolat -> u('bejelentes', array($oszlop), array(0), "`recid` IN (".implode(',', $idk).")");
+        $sql = $adatbazis_kapcsolat -> u('bejelentes', array($oszlop), array(0), "`recid` IN (".implode(',', $idk).")");
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
 
         /* Csoportok bejárása */
         if( $csoportok ) {
             foreach($csoportok as $csoport) {
-                $csoportok = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`csoport_id` = '{$csoport}' AND `torolve` = '0'", '', '1');
+                $sql = $csoportok = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`csoport_id` = '{$csoport}' AND `torolve` = '0'", '', '1');
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
 
                 if( !$csoportok ) {
-                    $adatbazis_kapcsolat -> d('bejelentes_csoport', "`recid` = '{$csoport}'");
+                    $sql = $adatbazis_kapcsolat -> d('bejelentes_csoport', "`recid` = '{$csoport}'");
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
                 }
             }
         }
@@ -1247,7 +1279,11 @@ if( isset($_POST['csoportbolTorol']) ) {
         /* Select előállítása */
         $html = '<select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
 
-        $csoportok = $adatbazis_kapcsolat->s('recid nev', 'bejelentes_csoport', '', 'nev', '');
+        $sql = $csoportok = $adatbazis_kapcsolat->s('recid nev', 'bejelentes_csoport', '', 'nev', '');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
 
         if( $csoportok ) {
             foreach($csoportok as $csoport) {
@@ -1257,10 +1293,20 @@ if( isset($_POST['csoportbolTorol']) ) {
 
         $html .= '</select>';
 
-        echo json_encode(array(
-            'statusz' => 'siker',
-            'html' => $html
-        ));
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker',
+                'html' => $html
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
     }
 
     $weblap->leallit();
@@ -1272,15 +1318,36 @@ if( isset($_POST['csoportbaRendez']) ) {
     $csoportID = $_POST['csoportID'];
     $idk = json_decode($_POST['idk'], true);
 
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
     if( $csoportID && is_array($idk) ) {
-        $is_csoport = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`recid` IN (".implode(',', $idk).") AND `csoport_id` > '0'", '', '');
+        $sql = $is_csoport = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`recid` IN (".implode(',', $idk).") AND `csoport_id` > '0'", '', '');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
 
         if( !$is_csoport ) {
-            $adatbazis_kapcsolat -> u('bejelentes', array('csoport_id'), array($csoportID), "`recid` IN (".implode(',', $idk).")");
+            $sql = $adatbazis_kapcsolat -> u('bejelentes', array('csoport_id'), array($csoportID), "`recid` IN (".implode(',', $idk).")");
 
-            echo json_encode(array(
-                'statusz' => 'siker'
-            ));
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( !$db_error ) {
+                mysqli_commit($db_kapcs);
+
+                echo json_encode(array(
+                    'statusz' => 'siker'
+                ));
+            } else {
+                mysqli_rollback($db_kapcs);
+
+                echo json_encode(array(
+                    'hiba' => tranzakcioHiba()
+                ));
+            }
         } else {
             echo json_encode(array(
                 'hiba' => 'Kérem, csak olyan sorokat jelöljön ki, <br>amelyek még nem rendelkeznek csoporttal!'
@@ -1300,15 +1367,30 @@ if( isset($_POST['csoportbaRendez']) ) {
 if( isset($_GET['addCsoport']) ) {
     $nev = $_GET['csoportnev'];
 
-    $csoport = $adatbazis_kapcsolat->s('nev', 'bejelentes_csoport', "`nev` = '{$nev}'", '', '1');
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    $sql = $csoport = $adatbazis_kapcsolat->s('nev', 'bejelentes_csoport', "`nev` = '{$nev}'", '', '1');
+
+    if( $sql === false ) {
+        $db_error = true;
+    }
 
     if( !$csoport ) {
-        $adatbazis_kapcsolat -> i('bejelentes_csoport', array('nev', 'insert_dt', 'insert_usr', 'update_dt', 'update_usr'), array($nev, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']));
+        $sql = $adatbazis_kapcsolat -> i('bejelentes_csoport', array('nev', 'insert_dt', 'insert_usr', 'update_dt', 'update_usr'), array($nev, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']));
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
 
         /* Select előállítása */
         $html = '<select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
 
-        $csoportok = $adatbazis_kapcsolat->s('recid nev', 'bejelentes_csoport', '', 'nev', '');
+        $sql = $csoportok = $adatbazis_kapcsolat->s('recid nev', 'bejelentes_csoport', '', 'nev', '');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
 
         if( $csoportok ) {
             foreach($csoportok as $csoport) {
@@ -1318,10 +1400,20 @@ if( isset($_GET['addCsoport']) ) {
 
         $html .= '</select>';
 
-        echo json_encode(array(
-            'statusz' => 'siker',
-            'html' => $html
-        ));
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker',
+                'html' => $html
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
     } else {
         echo json_encode(array(
             'hiba' => 'Ilyen csoport már létezik!'
@@ -1337,22 +1429,43 @@ if( isset($_POST['mellekTorol']) ) {
     $tabla  = $_POST['tabla'];
     $idk    = json_decode($_POST['idk'], true);
 
-    //Ki-ki csak a saját megjegyzését törölheti
-    if($adatbazis_kapcsolat->s('id', $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`!='{$_SESSION[get_db_tabla().'user']}'")){
-        echo json_encode(array(
-            'statusz' => 'hiba',
-            'uzenet'  => 'Más által létrehozott bejegyzés nem törölhető!'
-        ));
-    $weblap->leallit();
-    exit();
-    }
-    
-    if( $tabla && is_array($idk) ) {
-        $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
 
+    //Ki-ki csak a saját megjegyzését törölheti
+    if( $sql = $adatbazis_kapcsolat->s('id', $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`!='{$_SESSION[get_db_tabla().'user']}'")){
         echo json_encode(array(
-            'statusz' => 'siker'
+            'hiba' => 'Más által létrehozott bejegyzés nem törölhető!'
         ));
+
+        $weblap->leallit();
+        exit();
+    }
+
+    if( $sql === false ) {
+        $db_error = true;
+    }
+
+    if( $tabla && is_array($idk) ) {
+        $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
     }
 
     $weblap->leallit();
@@ -1908,7 +2021,7 @@ foreach($postok as $ertek){
 
 	//Törlés id
 	if(isset($_GET[$ertek['torid']])){
-        
+
         //Jogosultságkezelés
         if($ertek['tabla']=='bejelentes' && !_jog(1)){
             $weblap -> leallit(); exit;
@@ -1916,8 +2029,8 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='utemezett_feladatok' && !_jog(4)){
             $weblap -> leallit(); exit;
         }
-        
-        //Csak az törölheti, aki létrehozta 
+
+        //Csak az törölheti, aki létrehozta
         $loginnev = $adatbazis_kapcsolat->s('loginnev', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
         $loginnev = $loginnev[0];
         if($loginnev['loginnev']!=$_SESSION[get_db_tabla().'user']){

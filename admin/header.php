@@ -394,6 +394,8 @@ if(basename(self())=='rendszer.php' && !$_GET['rkat']) { $oldalNev = 'Rendszer';
 if(basename(self())=='erteklista.php'           ) { $oldalNev = 'Értéklisták'; }
 if(basename(self())=='login.php'                ) { $oldalNev = 'Felhasználók'; }
 if(basename(self())=='szerepkor.php'            ) { $oldalNev = 'Szerepkörök'; }
+if(basename(self())=='ktghely.php'              ) { $oldalNev = 'Költséghelyek'; }
+if(basename(self())=='ktgnem.php'               ) { $oldalNev = 'Költségnemek'; }
 
 $aktmenuk  = '';
 //$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Áfa' ), $almenu_sablon );
@@ -452,7 +454,11 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 $header_html .= '<body'.$body_class;
     //Új feltöltésnél a név mezőn legyen a fókusz
     if( isset($_GET['uj']) ) {
-        $header_html .=' onload="if(document.getElementById(\'nev\')){document.getElementById(\'nev\').focus();}"';
+        if( basename(self()) == 'ktghely.php' || basename(self()) == 'ktgnem.php' ) {
+            $header_html .=' onload="if(document.getElementById(\'id\')){document.getElementById(\'id\').focus();}"';
+        } else {
+            $header_html .=' onload="if(document.getElementById(\'nev\')){document.getElementById(\'nev\').focus();}"';
+        }
     //Listánál a gyoskeresőn legyen a fókusz
     } elseif( isset($_GET['lista']) ) {
         $header_html .=' onload="if(document.getElementById(\'id\')){document.getElementById(\'id\').focus();}"';
@@ -564,7 +570,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
                 $ksz_where .= "`{$select}` LIKE '%{$_GET['ksz']}%' OR ";
             }
         }
-        
+
         if($ksz_where){
             $where .= '('.trim($ksz_where, ' OR ').')';
         }
@@ -611,7 +617,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     if( basename(self()) == 'bejelentes.php' ) {
         $_OPTS['order'] = 'surgos desc, csoport_id asc, '.$_OPTS['order'];
     }
-    
+
     $tartBal  = szamla_lista( $tabla, $_OPTS['select'], $where, $_OPTS['order'], $lapozo -> getLimit() );
     $keresodn = '';
 
@@ -680,6 +686,7 @@ $torles_icon = nl2('
             <i class="material-icons">delete</i>
         </a>
     ');
+
 $uj  = nl2('
         <a href="'.$uj_link.'" class="uj'.$uj_dis.'" title="Új">
             <i class="material-icons">add</i>
@@ -690,12 +697,11 @@ if(basename(self())=='bejelentes.php' && !_jog(1)){
     $torles_icon    = '';
     $uj             = '';
 }
+
 if(basename(self())=='utemezett_feladatok.php' && !_jog(4)){
     $torles_icon    = '';
     $uj             = '';
 }
-
-
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
