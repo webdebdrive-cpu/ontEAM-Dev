@@ -1,11 +1,17 @@
 <?php
 require_once('../weblap.php');
+
+if( !_jog(10) ) {
+    header('Content-Type: text/html; charset=utf-8');
+    exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
+}
+
 //Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $szerepkor_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'számlát';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'szerepkört';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 $gyorskereso_text       = '';       //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
 $oszlop_keres           = 'nev';                //Oszlopnevek, melyben keresünk (több oszlop is felsorolható vesszőkkel)
@@ -172,7 +178,7 @@ if($gyorskereso_text){
     }
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && _jog(11) && !$csak_szerkesztheto){
 
         //NAVIGÁCIÓ
         $gombok = '';
@@ -299,11 +305,7 @@ if($gyorskereso_text){
 
         if( !$csak_szerkesztheto ) {
             //Jogosutságkezelés: csak az törölheti, aki létrehozta
-            if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-            }else{
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törlöd ezt a '.$szoveg.'?\', gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">';
-            }
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">';
         }
 
         //$gombok .= ' <input type="button" id="kilepes_gomb" class="gombb_alert" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\');" value="Kilépés" title="Kilépés">';
@@ -343,11 +345,13 @@ if($gyorskereso_text){
 
         $jobb_oldal = '';
 
-        $gombok = nl2('
-            <div class="form_kuldes">
-                <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled="disabled" value="Mentés">
-            </div>
-        ').$gombok;
+        if(_jog(11)){
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled="disabled" value="Mentés">
+                </div>
+            ').$gombok;
+        }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {

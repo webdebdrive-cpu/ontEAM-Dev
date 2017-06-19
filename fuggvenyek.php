@@ -249,7 +249,11 @@ function i_u($type, $tabla, $tomb){
         }
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
-
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//echo '<pre style="font-size: 1.4rem">';
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//echo '</pre>';
+//exit;
         //Bejelentések iktatószám képzése
         if( $tabla == 'bejelentes' ) {
             $adatbazis_kapcsolat -> i('statusz',
@@ -874,9 +878,39 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 
 function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $limit = NULL, $frissit = false ) {
     global $adatbazis_kapcsolat;
-
+    global $db_kapcs;
+    
     if( $tabla ) {
-        $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
+        
+        //Rendezés tepelhely táblával JOIN-olva
+        if(strpos($order, 'telephely_id')!==false){
+            
+            //Először is az ordert felülírjuk
+            $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
+            //Select-et is kiegészítjük a rendezni kívánt oszloppal
+            $select .= ', `'.get_db_tabla().'telephely`.`nev`';
+            
+            $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
+            $mit   = array('WHERE');
+            $mivel = array('JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'telephely`.`id`=`'.get_db_tabla().$tabla.'`.`telephely_id` WHERE');
+            $sql = str_replace($mit, $mivel, $adatbazis_kapcsolat->gp());
+if (isset($_GET['debug'])) {
+    echo $sql . '<br>';
+}
+            
+            $bejegyzesek = array();
+            $sorok = mysqli_query($db_kapcs, $sql);
+            while($sor = mysqli_fetch_assoc($sorok)){
+                array_push($bejegyzesek, $sor);
+            }
+            
+        }else{
+            $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
+if (isset($_GET['debug'])) {
+    echo $adatbazis_kapcsolat->gp() . '<br>';
+}
+        }
+        
 
         if( $bejegyzesek ) {
             switch($tabla) {
@@ -1033,11 +1067,15 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
             /* Helység */
             $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
             $helyseg = $helyseg[0]['nev'];
+            
+            /* Hiba */
+            $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$bsz['hiba_id']}'");
+            $hiba = $hiba[0];
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span>'.$surgos.' '.$bsz['ikt_szam'].'</span>
                             <span>'.$telephely.' - '.$helyseg.'</span>
-                            <span>'.$bsz['hiba_text'].'</span>
+                            <span>'.$hiba['info'].'</span>
                          </a>';
 
             $csoport_class = '';
@@ -2044,7 +2082,7 @@ function cikktorzsLista( $bejegyzesek, $tabla, $frissit ) {
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['recid'].'</span>
+                            <span>'.$bsz['nev'].'</span>
                         </a>';
 
             if( !$frissit ) {
@@ -2506,17 +2544,20 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit ) {
 
 function getOszlopNev( $oszlop ) {
     $oszlopNevek = array(
-        'nev' => 'Név',
-        'ikt_szam' => 'Iktató szám',
-        'erkezett' => 'Érkezett',
-        'e-szamla' => 'E-számla',
-        'torolve' => 'Törölve',
-        'statusz' => 'Státusz',
-        'rkat' => 'Érték',
-        'csoport' => 'Név',
-        'id' => 'ID',
-        'teljes_nev' => 'Teljes név',
-        'szerepkor_id' => 'Szerepkör'
+        'aktiv'         => 'Aktív',
+        'csoport'       => 'Név',
+        'e-szamla'      => 'E-számla',
+        'esnap_d'       => 'Esedékesség',
+        'erkezett'      => 'Érkezett',
+        'id'            => 'ID',
+        'ikt_szam'      => 'Iktató szám',
+        'nev'           => 'Név',
+        'rkat'          => 'Érték',
+        'statusz'       => 'Státusz',
+        'szerepkor_id'  => 'Szerepkör',
+        'telephely_id'  => 'Szálloda',
+        'teljes_nev'    => 'Teljes név',
+        'torolve'       => 'Törölve',
     );
 
     if( basename(self()) == 'login.php' ) {

@@ -1,7 +1,7 @@
 div.menu{
     background: #004990;
     font-size: 1.5rem;
-    height: 5rem;
+    height: 4.2rem;
     padding: 0.5rem 1rem 0.5rem 1rem;
     width: 100%;
     z-index: 10;
@@ -30,9 +30,9 @@ div.menu{
 #sddm li a{
     display: block;
     color: #fff;
-    font-size: 1.7rem;
+    font-size: 1.6rem;
     margin: 0 0.1rem 0 0;
-    padding: 1rem 1rem;
+    padding: 0.5rem 0.9rem;
 	text-align: center;
 	text-decoration: none;
     width: 100%;
@@ -49,7 +49,7 @@ div.menu{
 	margin: 0;
 	padding: 0;
     position: absolute;
-    top: 4rem;
+    top: 3.6rem;
     z-index: 10000;
 }
 

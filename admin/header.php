@@ -400,12 +400,17 @@ if(basename(self())=='ktgnem.php'               ) { $oldalNev = 'Költségnemek'
 $aktmenuk  = '';
 //$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Áfa' ), $almenu_sablon );
 //$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Beosztás' ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Költséghelyek' ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'Költségnemek' ), $almenu_sablon );
-//$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['5'], 'Értéklisták' ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['6'], 'Értéklisták' ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['7'], 'Felhasználók' ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['8'], 'Szerepkör' ), $almenu_sablon );
+if(_jog(8)){
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Költséghelyek' ), $almenu_sablon );
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'Költségnemek' ), $almenu_sablon );
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['6'], 'Értéklisták' ), $almenu_sablon );
+}
+if(_jog(6)){
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['7'], 'Felhasználók' ), $almenu_sablon );
+}
+if(_jog(10)){
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['8'], 'Szerepkör' ), $almenu_sablon );
+}
 $aktmenuk .= str_replace( $akt_almenu_mit, array( '../tervek/" target="_blank', 'Design' ), $almenu_sablon );
 
 $style = '';
@@ -531,12 +536,21 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     }
 
     /* Rendezési irány */
-    $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▲ <span>A-Z</span></a>';
-    if( $_GET['irany'] && $_GET['irany'] == 'desc' ) {
-        $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'asc\', \''.$_GET['rkat'].'\' ); void(0);">▼ <span>Z-A</span></a>';
+    //Aktívnál fordítva van
+    if($_GET['rend']=='aktiv' || (basename(self())=='utemezett_feladatok.php' && !$_GET['rend']) ){
+        $_OPTS['order'] .= ' desc';
+        $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▼ <span>Z-A</span></a>';
+        if( $_GET['irany'] && $_GET['irany'] != 'desc' ) {
+            $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▲ <span>A-Z</span></a>';
+        }
+    }else{
+        $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▼ <span>Z-A</span></a>';
+        if( $_GET['irany'] && $_GET['irany'] == 'desc' ) {
+            $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'asc\', \''.$_GET['rkat'].'\' ); void(0);">▲ <span>A-Z</span></a>';
 
-        if( $_GET['rend'] && in_array($_GET['rend'], $rend_mezok) ) {
-            $_OPTS['order'] .= ' desc';
+            if( $_GET['rend'] && in_array($_GET['rend'], $rend_mezok) ) {
+                $_OPTS['order'] .= ' desc';
+            }
         }
     }
 
@@ -585,7 +599,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     $_GET['epo'] = 9999999999999;
 
-    $bejegyzesek = $adatbazis_kapcsolat->s($_OPTS['select'], $tabla, $where, $_OPTS['order'], '');
+    $bejegyzesek = $adatbazis_kapcsolat->s('recid', $tabla, $where);
     $lapozo = new Lapozo;
     $lapozo -> elem_osszes      = count($bejegyzesek);
     $lapozo -> fajl             = $_SERVER['PHP_SELF'];

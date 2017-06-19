@@ -123,7 +123,7 @@ switch($tabla) {
         $_OPTS['select']    = 'recid nev teljes_nev aktiv';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('teljes_nev', 'szerepkor_id');
+        $_OPTS['rendezes']  = array('teljes_nev', 'aktiv', 'szerepkor_id');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
@@ -154,10 +154,10 @@ switch($tabla) {
     break;
     case 'bejelentes.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid ikt_szam surgos telephely_id csoport_id obj_id hiba_text';
+        $_OPTS['select']    = '`'.get_db_tabla().'bejelentes`.`recid`, `'.get_db_tabla().'bejelentes`.`ikt_szam`, `'.get_db_tabla().'bejelentes`.`surgos`, `'.get_db_tabla().'bejelentes`.`telephely_id`, `'.get_db_tabla().'bejelentes`.`csoport_id`, `'.get_db_tabla().'bejelentes`.`obj_id`, `'.get_db_tabla().'bejelentes`.`hiba_id`';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('ikt_szam');
+        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
@@ -239,14 +239,14 @@ switch($tabla) {
     break;
     case 'utemezett_feladatok.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid id nev telephely_id obj_id aktiv';
+        $_OPTS['select']    = '`'.get_db_tabla().'utemezett_feladatok`.`recid`, `'.get_db_tabla().'utemezett_feladatok`.`id`, `'.get_db_tabla().'utemezett_feladatok`.`nev`, `'.get_db_tabla().'utemezett_feladatok`.`telephely_id`, `'.get_db_tabla().'utemezett_feladatok`.`obj_id`, `'.get_db_tabla().'utemezett_feladatok`.`aktiv`';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('id');
+        $_OPTS['rendezes']  = array('aktiv', 'telephely_id', 'esnap_d');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'id';
+            $_GET['rend'] = 'aktiv';
         }
 
         /* Default rendezési irány */
@@ -494,19 +494,14 @@ switch($tabla) {
     break;
     case 'cikktorzs.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid id';
+        $_OPTS['select']    = 'nev recid id';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('id');
+        $_OPTS['rendezes']  = array('nev');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'id';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
+            $_GET['rend'] = 'nev';
         }
     break;
     case 'ktghely.php':
@@ -553,11 +548,6 @@ switch($tabla) {
         /* Default rendezés */
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'nev';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
         }
     break;
 }
@@ -686,7 +676,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 /* Rendszer */
 $megnevezes = 'ktghely';
 $ktghely_tomb = $akt_tomb = array(
-    array('type' => 'text',         'megn' => 'ID:',             'name' => 'id',      'disabled' => $csakUjkent,       'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki az ID-t!', 'onblur' => 'id_foglalt_e(\''.$megnevezes.'.php\', $(this))', 'show' => true),
+    array('type' => 'text',         'megn' => 'ID:',             'name' => 'id',      'disabled' => $csakUjkent,    'alert' => 'Kérem töltse ki az ID-t!', 'onblur' => 'id_foglalt_e(\''.$megnevezes.'.php\', $(this))', 'maxlength' => 4, 'show' => true, 'style' => 'width: 5rem'),
     array('type' => 'text',         'megn' => 'Érték:',          'name' => 'nev',     'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',  'show' => true),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
@@ -696,7 +686,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 /* Rendszer */
 $megnevezes = 'ktgnem';
 $ktgnem_tomb = $akt_tomb = array(
-    array('type' => 'text',         'megn' => 'ID:',             'name' => 'id',      'disabled' => $csakUjkent,       'maxlength' => 250, 'class' => 'oriasi', 'onblur' => 'id_foglalt_e(\''.$megnevezes.'.php\', $(this))', 'alert' => 'Kérem töltse ki az ID-t!', 'show' => true),
+    array('type' => 'text',         'megn' => 'ID:',             'name' => 'id',      'disabled' => $csakUjkent,    'onblur' => 'id_foglalt_e(\''.$megnevezes.'.php\', $(this))', 'alert' => 'Kérem töltse ki az ID-t!', 'maxlength' => 4, 'show' => true, 'style' => 'width: 5rem'),
     array('type' => 'text',         'megn' => 'Érték:',          'name' => 'nev',     'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',  'show' => true),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
@@ -744,8 +734,8 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $megnevezes = 'erteklista';
 $erteklista_tomb = $akt_tomb = array(
 	//array('type' => 'text',             'megn' => 'ID:',         'name' => 'id',    'maxlength' => 250, 'class' => 'kicsi',     'alert' => 'Kérem töltse ki az ID-t!'),
-	array('type' => 'text',              'megn' => 'Érték:',      'name' => 'info',       'maxlength' => 250, 'class' => 'oriasi',    'alert' => 'Kérem töltse ki az értéket!'),
     array('type' => 'select_erteklista', 'megn' => 'Csoport:',    'name' => 'csoport',    'disabled' => $csakUjkent,    'alert' =>  $szoveg_reg['varos'][$megsz],    'alert' => 'Kérem válassza ki a csoportot!'),
+	array('type' => 'text',              'megn' => 'Érték:',      'name' => 'info',       'maxlength' => 250, 'class' => 'oriasi',    'alert' => 'Kérem töltse ki az értéket!'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -1193,11 +1183,11 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $megnevezes = 'cikktorzs';
 $cikktorzs_tomb = $akt_tomb = array(
 	array('type' => 'text',                     'megn' => 'Név:',                   'name' => 'nev',        'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a nevet!'),
-	array('type' => 'text',                     'megn' => 'Oracle cikkszám:',       'name' => 'oracikkid',  'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki az Oracle cikkszámot!'),
-	array('type' => 'text',                     'megn' => 'Mee:',                   'name' => 'cikkmee',    'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a Mee-t!'),
-    array('type' => 'autocomplete',             'megn' => 'Szakterület:',           'name' => 'szakter_id', 'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'erteklista', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'id_kiir' => 'recid'),
+	array('type' => 'text',                     'megn' => 'Oracle cikkszám:',       'name' => 'oracikkid',  'maxlength' => 10,  'style' => 'width: 9rem',     'alert' => 'Kérem töltse ki az Oracle cikkszámot!'),
+	array('type' => 'text',                     'megn' => 'Mee:',                   'name' => 'cikkmee',    'maxlength' => 5,   'style' => 'width: 5.1rem',   'alert' => 'Kérem töltse ki a Mee-t!'),
+    array('type' => 'autocomplete',             'megn' => 'Szakterület:',           'name' => 'szakter_id', 'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 19, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a szakterületet!'),
     array('type' => 'textarea',                 'megn' => 'Megjegyzés:',            'name' => 'leiras',     'disabled' => $disabled,    'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
-    array('type' => 'checkbox',                 'megn' => 'Szerelési segédanyag:',  'name' => 'segeda',     'class' => 'check'),
+    array('type' => 'checkbox',                 'megn' => 'Szerelési segédanyag:',  'name' => 'segedanyag', 'class' => 'check'),
     array('type' => 'checkbox',                 'megn' => 'Helyi beszerzésű:',      'name' => 'helyi',      'class' => 'check'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
@@ -1666,10 +1656,20 @@ if( isset($_GET['szamlaSorFrissit']) ) {
 }
 
 if( isset($_GET['szamlaLista']) ) {
+    
     $rend  = $_GET['rend'];
     $irany = $_GET['irany'];
     $tabla = $_GET['tabla'];
     $ksz   = $_GET['ksz'];
+    
+    //Aktív esetén a rendezés irányát meg kell fordítani (tehát az aktívak, egyesek legyenek elől)
+    if($rend=='aktiv'){
+        if($irany=='desc'){
+            $irany = 'asc';
+        }else{
+            $irany = 'desc';
+        }
+    }
 
     $order = '';
     if( $rend ) {
@@ -1750,6 +1750,7 @@ if( isset($_GET['szamlaLista']) ) {
 
         $lapozas = $lapozo -> kiir();
 
+        //Bejelentéseknél a sürgős és csoport alapvető rendezés
         if( $tabla == 'bejelentes' ) {
             $order = 'surgos desc, csoport_id asc, '.$order;
         }
@@ -2039,9 +2040,9 @@ foreach($postok as $ertek){
 		exit();
 	}
 
-	//Törlés id
+	//Törlés, töröl
 	if(isset($_GET[$ertek['torid']])){
-
+        
         //Jogosultságkezelés
         if($ertek['tabla']=='bejelentes' && !_jog(1)){
             $weblap -> leallit(); exit;
@@ -2049,12 +2050,19 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='utemezett_feladatok' && !_jog(4)){
             $weblap -> leallit(); exit;
         }
+        //Login egyáltalán nem törölhető
+        if($ertek['tabla']=='login'){
+            $weblap -> leallit(); exit;
+        }
 
         //Csak az törölheti, aki létrehozta
-        $loginnev = $adatbazis_kapcsolat->s('loginnev', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
-        $loginnev = $loginnev[0];
-        if($loginnev['loginnev']!=$_SESSION[get_db_tabla().'user']){
-            $weblap -> leallit(); exit;
+        $csak_aki_letrehozta_torolheti = array('bejelentes', 'utemezett_feladatok');
+        if( in_array($ertek['tabla'], $csak_aki_letrehozta_torolheti) ){
+            $loginnev = $adatbazis_kapcsolat->s('loginnev', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
+            $loginnev = $loginnev[0];
+            if($loginnev['loginnev']!=$_SESSION[get_db_tabla().'user']){
+                $weblap -> leallit(); exit;
+            }
         }
 
         $lekerdez = $adatbazis_kapcsolat -> select('*', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
