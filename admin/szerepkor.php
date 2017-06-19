@@ -76,10 +76,17 @@ if( isset($_POST['jogokhozzaad']) ) {
     unset($_POST['id']);
     unset($_POST['jogokhozzaad']);
 
-    /* Rendezzük a tömböt */
-    ksort($_POST);
+    /* Tömb sorrendezése */
+    $jogok = array();
+    foreach($_POST as $key => $value) {
+        $kulcs = str_replace('jog-', '', $key);
 
-    $adatbazis_kapcsolat -> u('szerepkor', array('flags'), array(implode('', $_POST)), 'recid='.$id);
+        $jogok[$kulcs] = $value;
+    }
+
+    ksort($jogok);
+
+    $adatbazis_kapcsolat -> u('szerepkor', array('flags'), array(implode('', $jogok)), 'recid='.$id);
 
     $weblap->leallit();
     hd($_SERVER['REQUEST_URI']);

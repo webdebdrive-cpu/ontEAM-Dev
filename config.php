@@ -78,7 +78,7 @@ function get_google()       { return '';   }    //https://plus.google.com/!GOOGL
 //Letöltésnél nem engedünk meg minden kiterjesztést letölteni
 function get_engedelyezett_letoltesek()  { return array('txt'); }
 
-function tranzakcioHiba() { return 'Az adatbázis műveletek részét, vagy egészét nem lehetett végrehajtani, kérem próbálja újra a folyamatot!'; }
+function tranzakcioHiba() { return 'Az adatbázis műveleteket nem lehetett végrehajtani, kérem próbálja újra a folyamatot!'; }
 
 //Head
 function get_doctype() { return '';                 } //transitional, frameset (egyébként strict)

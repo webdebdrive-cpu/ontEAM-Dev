@@ -75,11 +75,18 @@ if( isset($_POST['jogokhozzaad']) ) {
     /* Kitöröljük a nem kívánatos POST elemeket */
     unset($_POST['id']);
     unset($_POST['jogokhozzaad']);
+    
+    /* Tömb sorrendezése */
+    $jogok = array();
+    foreach($_POST as $key => $value) {
+        $kulcs = str_replace('jog-', '', $key);
 
-    /* Rendezzük a tömböt */
-    ksort($_POST);
+        $jogok[$kulcs] = $value;
+    }
 
-    $adatbazis_kapcsolat -> u('login', array('flags'), array(implode('', $_POST)), 'recid='.$id);
+    ksort($jogok);
+
+    $adatbazis_kapcsolat -> u('login', array('flags'), array(implode('', $jogok)), 'recid='.$id);
 
     $weblap->leallit();
     hd($_SERVER['REQUEST_URI']);
@@ -399,7 +406,6 @@ if($gyorskereso_text){
                     $jogEll['jog-'.$i] = 0;
                 }
 
-
                 $i++;
             }
 
@@ -534,13 +540,13 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html;
         }
-        
+
 
 	//Dokumentumok
 	}elseif(isset($_GET['dokumentumok'])){
 
         $szamla_html .= 'Dokumentumok felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -554,7 +560,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['megjegyzesek'])){
 
         $szamla_html .= 'Megjegyzések felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,

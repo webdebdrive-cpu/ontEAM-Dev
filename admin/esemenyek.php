@@ -1218,32 +1218,73 @@ $eszkozkezeles_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 //{KOVETKEZO_TOMB}
 
+/* Munkalap készítése */
+if( isset($_POST['munkalapKeszit']) ) {
+    $idk = json_decode($_POST['idk'], true);
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( is_array($idk) ) {
+        foreach($idk as $id) {
+            /* Státuszt folyamatban-ra állítjuk */
+            $statusz = addStatusz( 'statusz', $id, 2 );
+
+            if( $statusz === false ) {
+                $db_error = true;
+            }
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 /* Bejegyzések elutasítása */
 if( isset($_POST['bejegyzesElutasitas']) ) {
     $recid = $_POST['recid'];
     $indok = $_POST['indok'];
     $idk   = json_decode($_POST['idk'], true);
 
-    $nemsikerult = array();
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
 
     if( $indok && is_array($idk) ) {
         foreach($idk as $id) {
-            $statusz = addStatusz( 'statusz', $id, 4, $indok );
+            $statusz = addStatusz( 'statusz', $id, 3, $indok );
 
-            if( !$statusz ) {
-                $nemsikerult[] = $id;
+            if( $statusz === false ) {
+                $db_error = true;
             }
         }
 
-        $return = array(
-            'statusz' => 'siker'
-        );
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
 
-        if( count($nemsikerult) ) {
-            $return['kieg'] = 'A következő recid-s sorok elutasítása nem sikerült: '.implode(',', $nemsikerult);
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
         }
-
-        echo json_encode($return);
     }
 
     $weblap->leallit();

@@ -577,9 +577,9 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
 
                 ');
     }
-    
+
     if( basename(self())=='ktghely.php' || basename(self())=='ktgnem.php' ){
-        
+
         $ret .= nl2('
             if($(\'#id\').hasClass(\'foglalt_id\')){
                 alert2($(\'#id\').val()+\' - \'+$(\'#nev\').val()+\'<br>Ez a kód már használatban van!\', \'\', \'Hiba\');
@@ -2695,7 +2695,6 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $text = '' )
     global $db_kapcs;
 
     $db_error = false;
-    mysqli_autocommit($db_kapcs, false);
 
     if( $tabla && $id && $stat_id ) {
         /* Lekérjük az az éppen aktuális státusz */
@@ -2774,12 +2773,8 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $text = '' )
             }
 
             if( !$db_error ) {
-                mysqli_commit($db_kapcs);
-
                 return true;
             } else {
-                mysqli_rollback($db_kapcs);
-
                 return false;
             }
         }

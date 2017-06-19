@@ -855,6 +855,56 @@ $(function() {
     });
 });
 
+function munkalapKeszit( recid ) {
+    idk = {};
+
+    if( recid === undefined ) {
+        recid = false;
+    } else {
+        idk[1] = recid;
+    }
+
+    if( recid === false ) {
+        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+
+        if( szamlaSorok.length ) {
+            var i = 1;
+            szamlaSorok.each(function() {
+                var id = $(this).attr('data-recid');
+
+                idk[i] = id;
+                i++;
+            });
+        }
+    }
+
+    if( objLength(idk) ) {
+        $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'POST',
+         	data: {
+                idk: JSON.stringify(idk),
+                munkalapKeszit: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+         			if( response.hiba ) {
+                        alert2(response.hiba);
+                        return false;
+                    }
+
+                    kijelolesEltavolit();
+                    popupZar();
+         		}
+         	}
+        });
+    }
+
+    return false;
+}
+
 function bejegyzesElutasitas( that ) {
     var indok = $(that).find('input[name="indok"]');
 
@@ -872,7 +922,7 @@ function bejegyzesElutasitas( that ) {
                 i++;
             });
 
-            if( idk ) {
+            if( objLength( idk ) ) {
                 $.ajax({
                  	url : 'esemenyek.php',
                  	type: 'POST',
@@ -926,7 +976,7 @@ function csoportbolTorol( oszlop ) {
                 i++;
             });
 
-            if( idk ) {
+            if( objLength( idk ) ) {
                 $.ajax({
                  	url : 'esemenyek.php',
                  	type: 'POST',
@@ -1014,7 +1064,7 @@ function csoportbaRendez( that ) {
                 i++;
             });
 
-            if( idk ) {
+            if( objLength( idk ) ) {
                 $.ajax({
                  	url : 'esemenyek.php',
                  	type: 'POST',
@@ -1104,7 +1154,7 @@ function mellekTorol( tabla, mellek ) {
         i++;
     });
 
-    if( idk ) {
+    if( objLength( idk ) ) {
         $.ajax({
          	url : 'esemenyek.php',
          	type: 'POST',
@@ -1968,49 +2018,11 @@ function datumra_utemezes(id){
     });
 }
 
-function munkalapKeszit( recid ) {
-    idk = {};
-
-    if( recid === undefined ) {
-        recid = false;
-    } else {
-        idk[1] = recid;
-    }
-
-    if( recid === false ) {
-        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
-
-        if( szamlaSorok.length ) {
-            var i = 1;
-            szamlaSorok.each(function() {
-                var id = $(this).attr('data-recid');
-
-                idk[i] = id;
-                i++;
-            });
-        }
-    }
-
-    if( objLength(idk) ) {
-        $.ajax({
-         	url : 'valami.php',
-         	type: 'GET',
-         	data: esamp2es('valami=&amp;becsapas=' + new Date().getTime()),
-         	success: function(response) {
-         		if(response) {
-         			alert2(response);
-         		}
-         	}
-        });
-    }
-
-    return false;
-}
-
 function objLength(obj) {
     var size = 0, key;
     for (key in obj) {
         if (obj.hasOwnProperty(key)) size++;
     }
+
     return size;
 };
