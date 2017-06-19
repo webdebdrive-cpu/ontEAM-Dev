@@ -561,12 +561,12 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
                         url : \'utemezett_feladatok.php\',
                         type: \'GET\',
                         data: esamp2es(\'id='.$_GET['id'].'&amp;datumra_utemezes=\' + new Date().getTime()),
-                        success: function(html) {
+                        success: function(response) {
 
-                            html = JSON.parse(html);
+                            response = JSON.parse(response);
                             uf_gomb3 = \'<div class="c"><input type="button" class="gomb" value="Igen" onclick="utemezes_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb" value="Nem" onclick="alert2()"></div>\';
-                            alert2(html[\'uzenet\'], uf_gomb3, \'Kérdés\');
-                            $(\'#esnap_d\').val(html[\'esedekes\']);
+                            alert2(response[\'uzenet\'], uf_gomb3, \'Kérdés\');
+                            $(\'#esnap_d\').val(response[\'esedekes\']);
                             return false;
 
                         }
@@ -577,6 +577,16 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
 
                 ');
     }
+    
+    if( basename(self())=='ktghely.php' || basename(self())=='ktgnem.php' ){
+        
+        $ret .= nl2('
+            if($(\'#id\').hasClass(\'foglalt_id\')){
+                alert2($(\'#id\').val()+\' - \'+$(\'#nev\').val()+\'<br>Ez a kód már használatban van!\', \'\', \'Hiba\');
+                return false;
+            }
+        ');
+    }
 
     //Ajaxos form módosítás
     $ajax_kod = nl2('
@@ -584,18 +594,18 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
             url : \''.self().'?id='.$_GET['id'].'\',
             type: \'POST\',
             data: esamp2es(\''.$param.str_replace('.php', '', basename(self())).'lista=1&amp;szerkeszt=1&amp;ajax_form_modosit=\' + new Date().getTime()),
-            success: function(html) {
-                if( html ) {
-                    html = JSON.parse(html);
+            success: function(response) {
+                if( response ) {
+                    response = JSON.parse(response);
 
-                    if( html.statusz == \'hiba\' ) {
-                        alert2(html.uzenet, \'<p class="c"><input class="link gomb" value="Frissítés" onclick="location.reload();" type="button"></p>\');
+                    if( response.statusz == \'hiba\' ) {
+                        alert2(response.uzenet, \'<p class="c"><input class="link gomb" value="Frissítés" onclick="location.reload();" type="button"></p>\');
                         return false;
                     }
 
                     szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
 
-                    formAdatok = html.adatok;
+                    formAdatok = response.adatok;
 
                     gombokNullaz();
 

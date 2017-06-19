@@ -95,6 +95,18 @@ if(isset($_GET['siker']) && isset($_GET['modosit'])){
 
 }
 
+//Foglalt ID ellenőrzése
+if (isset($_GET['id_foglalt_e'])) {
+    
+    if($adatbazis_kapcsolat->s('id', $megnevezes, "`id`='{$_GET['id']}'")){
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
+    }
+    $weblap -> leallit();
+    exit;
+}
+
 
 /** Tartalom */
 if( !$_GET['ajax'] ) {

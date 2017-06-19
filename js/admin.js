@@ -1934,17 +1934,35 @@ function szokasos_nullaz(){
     $('#vegenap').val('');
 }
 
+/* Foglalt ID esetén az mezőre teszünk egy foglalt_id class-t, a JS ellenézés innen fogja tudni, hogy az űrlap nem postolható el*/
+function id_foglalt_e(fajl, mezo){
+    $.ajax({
+        url : fajl,
+        type: 'GET',
+        data: esamp2es('id=' + mezo.val() + '&amp;id_foglalt_e=' + new Date().getTime()),
+        success: function(response) {
+            if (response) {
+                response = JSON.parse(response);
+                mezo.addClass('foglalt_id');
+                alert2($('#id').val()+' - '+$('#nev').val()+'<br>Ez a kód már használatban van!', '', 'Hiba');
+                return false;
+            }else{
+                mezo.removeClass('foglalt_id');
+            }
+        }
+    });
+}
+
 /* Dátumra ütemezés tesztelésére */
 function datumra_utemezes(id){
     $.ajax({
         url: 'utemezett_feladatok.php',
         type: 'GET',
         data: esamp2es('id=' + id + '&amp;datumra_utemezes=' + new Date().getTime()),
-        success: function (html) {
-            if (html) {
-
-                html = JSON.parse(html);
-                alert2(html['uzenet']);
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+                alert2(response['uzenet']);
             }
         }
     });

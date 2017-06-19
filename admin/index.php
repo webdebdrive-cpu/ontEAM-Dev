@@ -19,7 +19,7 @@ if(isset($_GET['info'])){
 if (isset($_GET['loginnev_gyart'])) {
     require_once('../weblap.php');
     
-    $tabla = 'utemezett_feladatok';
+    $tabla = 'ktghely';
     
     $sorok = $adatbazis_kapcsolat->s('recid insert_usr', $tabla);
     foreach($sorok as $sor){
