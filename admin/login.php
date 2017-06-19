@@ -412,7 +412,6 @@ if($gyorskereso_text){
                     $jogEll['jog-'.$i] = 0;
                 }
 
-
                 $i++;
             }
 
@@ -547,13 +546,13 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html;
         }
-        
+
 
 	//Dokumentumok
 	}elseif(isset($_GET['dokumentumok'])){
 
         $szamla_html .= 'Dokumentumok felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -567,7 +566,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['megjegyzesek'])){
 
         $szamla_html .= 'Megjegyzések felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,

@@ -28,11 +28,6 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
-if( $_POST ) {
-    echo '<pre style="font-size: 1.4rem">', print_r($_POST), '</pre>';
-    exit();
-}
-
 //Több kép menedzseléséhez
 $tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
@@ -385,7 +380,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['bejelentesek'])){
 
         $szamla_html .= 'Bejelentések felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -399,7 +394,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['tortenet'])){
 
         $szamla_html .= 'Történet felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -413,7 +408,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['anyagigenyles'])){
 
         $szamla_html .= 'Anyagigénylés felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -427,7 +422,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['elszamolas'])){
 
         $szamla_html .= 'Elszámolás felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -436,13 +431,13 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html;
         }
-        
+
 
 	//Dokumentumok
 	}elseif(isset($_GET['dokumentumok'])){
 
         $szamla_html .= 'Dokumentumok felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -456,7 +451,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['megjegyzesek'])){
 
         $szamla_html .= 'Megjegyzések felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -465,7 +460,7 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html;
         }
-        
+
 	//Lista
 	}elseif(isset($_GET['lista'])){
 
