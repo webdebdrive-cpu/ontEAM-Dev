@@ -185,6 +185,10 @@ if( _jog(3) ) {
     );
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
     if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+    if(basename(self())=='utemezett_feladatok.php')     { $oldalNev = 'Ütemzett feladatok';         }
+    if(basename(self())=='rendszeres_karbantartas.php') { $oldalNev = 'Rendszeres karbantartás';    }
+    if(basename(self())=='eseti_fenntartas.php')        { $oldalNev = 'Eseti fenntartás';           }
+    if(basename(self())=='uzemeltetesi_naplo.php')      { $oldalNev = 'Üzemeltetési napló';         }
 
     $aktmenuk  = '';
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Munkalapok'                 ), $almenu_sablon );
@@ -210,6 +214,10 @@ $megn            = 'anyagok';
 $aloldalak       = array('cikktorzs.php', 'anyagigenyles.php', 'anyagrendeles.php', 'raktar.php');
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
 if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+if(basename(self())=='cikktorzs.php')       { $oldalNev = 'Cikktörzs';      }
+if(basename(self())=='anyagigenyles.php')   { $oldalNev = 'Anyagigénylés';  }
+if(basename(self())=='anyagrendeles.php')   { $oldalNev = 'Anyagrendelés';  }
+if(basename(self())=='raktar.php')          { $oldalNev = 'Raktár';         }
 
 $aktmenuk  = '';
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Cikktörzs'      ), $almenu_sablon );
@@ -273,7 +281,9 @@ $menu_nev_tobbes = 'Személyzet';
 $megn            = 'torzsadat';
 $aloldalak       = array($megn.'.php', 'szabadsagigeny.php', 'beosztas.php');
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+if(basename(self())==$megn.'.php')          { $oldalNev = $menu_nev;        }
+if(basename(self())=='szabadsagigeny.php')  { $oldalNev = 'Szabadságigény'; }
+if(basename(self())=='beosztas.php')        { $oldalNev = 'Beosztás';       }
 
 $aktmenuk  = '';
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Törzsadatok'        ), $almenu_sablon );
@@ -315,7 +325,9 @@ $menu_nev_tobbes = 'Projektek';
 $megn            = 'projektigenyles';
 $aloldalak       = array($megn.'.php', 'projektkezeles.php', 'cash_flow.php');
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+if(basename(self())==$megn.'.php')          { $oldalNev = $menu_nev;        }
+if(basename(self())=='projektkezeles.php')  { $oldalNev = 'Projektkezelés'; }
+if(basename(self())=='cash_flow.php')       { $oldalNev = 'Cash Flow';      }
 
 $aktmenuk  = '';
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Projektigénylések'  ), $almenu_sablon );
@@ -337,7 +349,9 @@ $menu_nev_tobbes = 'Dokumentumok';
 $megn            = 'fenntartasi_szerzodes';
 $aloldalak       = array($megn.'.php', 'szamla.php', 'szallito.php');
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev;  }
+if(basename(self())=='szamla.php'){ $oldalNev = 'Számla';   }
+if(basename(self())=='szamla.php'){ $oldalNev = 'Szállító'; }
 
 $aktmenuk  = '';
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Fenntartási szerződések'), $almenu_sablon );
@@ -381,7 +395,6 @@ if( $_GET['rkat'] || $_SESSION['rendszerkat'] ) {
 
     if( $rendszerKat ) {
         $rendszerKat = $rendszerKat[0];
-
         $oldalNev = $rendszerKat['nev'];
     }
 }
@@ -719,8 +732,8 @@ if(basename(self())=='utemezett_feladatok.php' && !_jog(4)){
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CSS}', '{CEGNEV}', '{MENUK}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{SELF}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',    '{UJ}'    ),
-    array( $css,    get_nev(),  $menuk,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $self,   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon,  $uj       ),
+    array('{CSS}', '{CEGNEV}', '{MENUK}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{SELF}', '{GET_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',    '{UJ}'    ),
+    array( $css,    get_nev(),  $menuk,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $self,   get_get(),   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon,  $uj       ),
     $header_sablon
 );
 

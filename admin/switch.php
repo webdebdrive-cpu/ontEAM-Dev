@@ -33,6 +33,7 @@ foreach($akt_tomb as $ertek){
             $input -> onblur        = $ertek['onblur'];
             $input -> onclick       = $ertek['onclick'];
             $input -> onfocus       = $ertek['onfocus'];
+            $input -> oninput       = $ertek['oninput'];
             $input -> onkeyup       = $ertek['onkeyup'];
             $input -> onchange      = $ertek['onchange'];
             $input -> style         = $ertek['style'];
@@ -1296,6 +1297,7 @@ foreach($akt_tomb as $ertek){
             $input -> onblur    = $ertek['onblur'];
             $input -> onclick   = $ertek['onclick'];
             $input -> onfocus   = $ertek['onfocus'];
+            $input -> oninput   = $ertek['oninput'];
             $input -> onkeyup   = $ertek['onkeyup'];
             $input -> style     = $ertek['style'];
             $input -> placeholder = $ertek['placeholder'];

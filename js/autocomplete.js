@@ -73,7 +73,7 @@
                 }
 
                 obj_id = '';
-                if( baseName(location.href) == 'bejelentes' ) {
+                if( baseName(location.href) == 'bejelentes' || baseName(location.href) == 'utemezett_feladatok' ) {
                     obj_id = $('#obj_id').val();
                 }
 

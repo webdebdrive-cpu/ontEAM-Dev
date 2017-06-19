@@ -68,7 +68,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         }
 
         /* Telephely id */
-        if( $_GET['telephely_id'] && ($_GET['tabla'] == 'obj' || $_GET['tabla'] == 'gep') ) {
+        if( $_GET['telephely_id'] && ($_GET['tabla'] == 'obj' || $_GET['tabla'] == 'eszkozkezeles') ) {
             if( $where_sql ) {
                 $where_sql .= " AND `telephely_id` = '".$_GET['telephely_id']."'";
             } else {
@@ -77,7 +77,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         }
 
         /* Objektm id */
-        if( $_GET['tabla'] == 'gep' && $_GET['obj_id'] ) {
+        if( $_GET['tabla'] == 'eszkozkezeles' && $_GET['obj_id'] ) {
             if( $where_sql ) {
                 $where_sql .= " AND `obj_id` = '".$_GET['obj_id']."'";
             } else {

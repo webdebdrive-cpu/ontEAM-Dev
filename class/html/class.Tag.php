@@ -35,6 +35,9 @@ class Tag{
     /** @var string - ondblclick érték*/
     public $ondblclick   = '';
 
+    /** @var string - oninput érték*/
+    public $oninput      = '';
+
     /** @var string - onkeydown érték*/
     public $onkeydown    = '';
 
@@ -114,6 +117,7 @@ class Tag{
         if($this -> onchange    ){ $return .= ' onchange="'     .$this -> onchange      .'"'; }
         if($this -> ondblclick  ){ $return .= ' ondblclick="'   .$this -> ondblclick    .'"'; }
         if($this -> onfocus     ){ $return .= ' onfocus="'      .$this -> onfocus       .'"'; }
+        if($this -> oninput     ){ $return .= ' oninput="'      .$this -> oninput       .'"'; }
         if($this -> onkeydown   ){ $return .= ' onkeydown="'    .$this -> onkeydown     .'"'; }
         if($this -> onkeypress  ){ $return .= ' onkeypress="'   .$this -> onkeypress    .'"'; }
         if($this -> onkeyup     ){ $return .= ' onkeyup="'      .$this -> onkeyup       .'"'; }
