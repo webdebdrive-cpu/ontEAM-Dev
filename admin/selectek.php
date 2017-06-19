@@ -131,4 +131,13 @@ array_push($select_szemelyzet, array('name' => 'Diszpécser közp. vezető',   '
 array_push($select_szemelyzet, array('name' => 'Műszaki vezető',            'value' => '5' ));
 array_push($select_szemelyzet, array('name' => 'Műszaki vezető helyettes',  'value' => '6' ));
 array_push($select_szemelyzet, array('name' => 'Területi felelős',          'value' => '7' ));
+
+
+/* Értéklista csoport */
+$select_erteklista = array();
+array_push($select_erteklista, array('name' => '-Válassz-', 'value' => '' ));
+$erteklistak = $adatbazis_kapcsolat -> select('csoport nev', 'erteklista_csoport', '', 'nev');
+foreach($erteklistak as $erteklista) {
+	array_push($select_erteklista, array('name' => $erteklista['nev'], 'value' => (int)$erteklista['csoport'] ));
+}
 //{KOVETKEZO_SELECT}

@@ -1,31 +1,6 @@
 <?php
 require_once('../weblap.php');
 
-if( isset($_GET['teszt']) ) {
-    $db_error = false;
-    mysqli_autocommit($db_kapcs, false);
-
-    $sql = $adatbazis_kapcsolat -> i('bejelentes', array('ikt_szam'), array('12345'));
-
-    if( $sql === false ) {
-        $db_error = true;
-    }
-
-    $sql = $adatbazis_kapcsolat -> i('bejelentes_csoport', array('nev'), array('kismacska'));
-
-    if( $sql === false ) {
-        $db_error = true;
-    }
-var_dump($db_error);
-    if( !$db_error ) {
-        mysqli_commit($db_kapcs);
-    } else {
-        mysqli_rollback($db_kapcs);
-    }
-
-    exit();
-}
-
 if( !_jog(0) ) {
     header('Content-Type: text/html; charset=utf-8');
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
@@ -376,7 +351,7 @@ if($gyorskereso_text){
                             </ul>
                         </div>
                     </div>
-                    <input type="button" class="gombb foGomb" value="Munkalap készítése" title="Munkalap készítése">
+                    <input type="button" class="gombb foGomb" value="Munkalap készítése" onclick="munkalapKeszit();" title="Munkalap készítése">
                 </div>
             ');
         }
@@ -451,7 +426,7 @@ if($gyorskereso_text){
             ').$gombok;
         }
 
-        $gombok .= '<input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" title="Munkalap készítése">';
+        $gombok .= '<input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="munkalapKeszit( \''.$_GET['id'].'\' );" title="Munkalap készítése">';
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
