@@ -1967,3 +1967,50 @@ function datumra_utemezes(id){
         }
     });
 }
+
+function munkalapKeszit( recid ) {
+    idk = {};
+
+    if( recid === undefined ) {
+        recid = false;
+    } else {
+        idk[1] = recid;
+    }
+
+    if( recid === false ) {
+        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+
+        if( szamlaSorok.length ) {
+            var i = 1;
+            szamlaSorok.each(function() {
+                var id = $(this).attr('data-recid');
+
+                idk[i] = id;
+                i++;
+            });
+        }
+    }
+
+    if( objLength(idk) ) {
+        $.ajax({
+         	url : 'valami.php',
+         	type: 'GET',
+         	data: esamp2es('valami=&amp;becsapas=' + new Date().getTime()),
+         	success: function(response) {
+         		if(response) {
+         			alert2(response);
+         		}
+         	}
+        });
+    }
+
+    return false;
+}
+
+function objLength(obj) {
+    var size = 0, key;
+    for (key in obj) {
+        if (obj.hasOwnProperty(key)) size++;
+    }
+    return size;
+};
