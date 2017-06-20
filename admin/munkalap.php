@@ -379,7 +379,53 @@ if($gyorskereso_text){
 	//Bejelentések
 	}elseif(isset($_GET['bejelentesek'])){
 
-        $szamla_html .= 'Bejelentések felülete';
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Iktató szám</div>
+                    <div class="dtc">Szálloda</div>
+                    <div class="dtc">Hiba</div>
+                    <div class="dtc">Bejelentve</div>
+                </div>
+        ');
+
+        $munkalap_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$_GET['id']}'", '', '');
+
+        if( $munkalap_kapcsok ) {
+            $i = 1;
+            foreach($munkalap_kapcsok as $munkalap_kapcs) {
+                $sor = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id obj_id hiba_id insert_dt', 'bejelentes', "`recid` = '".$munkalap_kapcs['bejelentes_id']."'", '', '1');
+
+                if( $sor ) {
+                    $sor = $sor[0];
+
+                    /* Telephely */
+                    $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
+                    $telephely = $telephely[0]['nev'];
+
+                    /* Helység */
+                    $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
+                    $helyseg = $helyseg[0]['nev'];
+
+                    /* Hiba */
+                    $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$sor['hiba_id']}'");
+                    $hiba = $hiba[0];
+
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                            <div class="dtc"><a href="bejelentes.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a></div>
+                            <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
+                            <div class="dtc">'.$hiba['info'].'</div>
+                            <div class="dtc">'.$sor['insert_dt'].'</div>
+                        </div>
+                    ');
+                }
+
+                $i++;
+            }
+        }
+
+        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
