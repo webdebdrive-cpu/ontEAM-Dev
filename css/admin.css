@@ -1538,7 +1538,12 @@ div.szamlaStatusz {
 
 div.szamlaFulek {
     border-bottom: 0.1rem solid #004990;
-    margin: 0rem 0rem 1rem 0rem;
+    position: fixed;
+    background: #fff;
+    margin: -1rem 0 0 0rem;
+    padding-top: 1rem;
+    width: 100%;
+    z-index: 1;
 }
 
 div.szamlaFulek a {
@@ -1564,7 +1569,7 @@ div.naplo {
 }
 
 div.naplo.szakter {
-    margin: 1rem 0rem 0rem 0rem;
+    margin: 4rem 0rem 0rem 0rem;
 }
 
 div.naplo div.nFejlec {
@@ -2143,6 +2148,7 @@ input.ora_perc{
 }
 
 #szerk_form{
+    margin-top: 5rem;
     margin-bottom: 5rem;
 }
 

@@ -382,7 +382,7 @@ if($gyorskereso_text){
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
         
-        $jobb_oldal = '<input type="button" class="gomb" value="Dátumra ütemezés tesztelése" onclick="datumra_utemezes(\''.$_GET['id'].'\')">';
+        $jobb_oldal = '';
 
         /* Ha van jogosultsága ütemezett feladatot kezelni */
         if(_jog(4)){
@@ -462,7 +462,7 @@ if($gyorskereso_text){
         }
 
         $szamla_html .= nl2('
-            <table class="csikos">
+            <table class="csikos" style="margin-top: 4rem">
             <tr>
                 <th>Órák</th>
                 '.$fejlec.'

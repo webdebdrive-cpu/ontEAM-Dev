@@ -21,8 +21,8 @@ $tomb = array(
                 'reload'     => $_POST['reload']
              );
 
-fajl_menedzser($_POST['megnevezes'], $tomb, $_POST['sorid'], $_POST['uj_mod']);
 
+fajl_menedzser($_POST['megnevezes'], $tomb, $_POST['sorid'], $_POST['uj_mod']);
 
 /**
 *	Kép menedzser kizárólag az eseményekhez való

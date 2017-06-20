@@ -137,7 +137,7 @@ if (isset($_GET['csv'])) {
     $open = fopen($fajlnev,'a');
     if($open){
 
-        $query      = mysqli_query($db_kapcs, 'SELECT 
+        $sql = 'SELECT 
                                                     `ikt_szam` as \'Iktatószám\',
                                                     `telephely_id` as \'Szálloda\',
                                                     `hiba_id` as \'Bejelentett hiba\',
@@ -146,7 +146,9 @@ if (isset($_GET['csv'])) {
                                                     `helyiseg_text` as \'Hely leírása\',
                                                     `gep_id` as \'Gépnév\',
                                                     `statusz_id` as \'Státusz\'
-                                                    FROM `'.get_db_tabla().$megnevezes.'` WHERE `recid`=\''.$_GET['id'].'\'');
+                                                    FROM `'.get_db_tabla().$megnevezes.'` WHERE '.$_SESSION['akt_where'];
+
+        $query      = mysqli_query($db_kapcs, $sql);
 
         $csvhead    = array();
         while($fejlec_nevek = mysqli_fetch_field($query)){

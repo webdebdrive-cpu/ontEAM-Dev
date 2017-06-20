@@ -102,21 +102,13 @@ switch($tabla) {
         }
     break;
     case 'erteklista.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid csoport info';
+        $_OPTS['select'] = ''; //Függvényeknél, szamla_lista()-nál beállítva
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('csoport');
 
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'csoport';
-        }
+        /* Default rendezés */ //Függvényeknél, szamla_lista()-nál beállítva
 
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
-        }
     break;
     case 'login.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
@@ -1484,13 +1476,15 @@ if( isset($_POST['mellekTorol']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     //Ki-ki csak a saját megjegyzését törölheti
-    if( $sql = $adatbazis_kapcsolat->s('id', $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`!='{$_SESSION[get_db_tabla().'user']}'")){
-        echo json_encode(array(
-            'hiba' => 'Más által létrehozott bejegyzés nem törölhető!'
-        ));
+    if($tabla!='telephely_kapcs'){//telephely_kapcs-nál nincs ilyen feltétel
+        if( $sql = $adatbazis_kapcsolat->s('id', $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`!='{$_SESSION[get_db_tabla().'user']}'")){
+            echo json_encode(array(
+                'hiba' => 'Más által létrehozott bejegyzés nem törölhető!'
+            ));
 
-        $weblap->leallit();
-        exit();
+            $weblap->leallit();
+            exit();
+        }
     }
 
     if( $sql === false ) {

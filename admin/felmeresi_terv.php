@@ -151,31 +151,31 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
-        /* Számla fülek */ 
-        $ful_tomb = array(
-            'modosit'       => 'Adatlap',
-            'tortenet'      => 'Történet',
-            'dokumentumok'  => 'Dokumentumok',
-            'megjegyzesek'  => 'Megjegyzések',
-        );
-
-        $fulek = '';
-        foreach($ful_tomb as $key => $value) {
-            $active = 'active';
-            if( isset($_GET[$key]) ) {
-                $active = ' class="active"';
-            }
-
-            $fulek .= '<a href="javascript: szamlaBetolt('.$_GET['id'].', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.'>'.$value.'</a>';
-        }
-
-        $szamla_html .= str_replace(
-            array('{FULEK}'),
-            array( $fulek  ),
-            fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
-        );
-    }
+//    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+//        /* Számla fülek */ 
+//        $ful_tomb = array(
+//            'modosit'       => 'Adatlap',
+//            'tortenet'      => 'Történet',
+//            'dokumentumok'  => 'Dokumentumok',
+//            'megjegyzesek'  => 'Megjegyzések',
+//        );
+//
+//        $fulek = '';
+//        foreach($ful_tomb as $key => $value) {
+//            $active = 'active';
+//            if( isset($_GET[$key]) ) {
+//                $active = ' class="active"';
+//            }
+//
+//            $fulek .= '<a href="javascript: szamlaBetolt('.$_GET['id'].', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.'>'.$value.'</a>';
+//        }
+//
+//        $szamla_html .= str_replace(
+//            array('{FULEK}'),
+//            array( $fulek  ),
+//            fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
+//        );
+//    }
 
 	//Új termék felvitele
 	if(isset($_GET['uj']) && !$csak_szerkesztheto){

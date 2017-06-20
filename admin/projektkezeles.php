@@ -155,12 +155,12 @@ if($gyorskereso_text){
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'projekt_team'  => 'Projekt-team',
+            'dokumentumok'  => 'Dokumentumok',
             'cash_flow'     => 'Cash-flow',
             'projektigeny'  => 'Projektigénylések',
             'rb_anyag'      => 'RB-anyagok',
             'tortenet'      => 'Történet',
             'garancialis'   => 'Garanciális munkák',
-            'dokumentumok'  => 'Dokumentumok',
             'megjegyzesek'  => 'Megjegyzések',
         );
 

@@ -437,7 +437,7 @@ if($gyorskereso_text){
         }
 
         $szamla_html .= nl2('
-            <table class="csikos">
+            <table class="csikos" style="margin-top: 4rem">
             <tr>
                 <th>Órák</th>
                 '.$fejlec.'

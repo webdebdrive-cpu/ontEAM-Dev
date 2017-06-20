@@ -155,11 +155,11 @@ if($gyorskereso_text){
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'dokumentumok'  => 'Dokumentumok',
-            'megjegyzesek'  => 'Megjegyzések',
             'esemenyek'     => 'Események',
             'engedelyek'    => 'Engedélyek',
             'felmeresi'     => 'Felmérési terv',
             'terkep'        => 'Térkép',
+            'megjegyzesek'  => 'Megjegyzések',
         );
 
         $fulek = '';

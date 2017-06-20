@@ -880,9 +880,10 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
     global $adatbazis_kapcsolat;
     global $db_kapcs;
     
+    $bejegyzesek = array();
     if( $tabla ) {
         
-        //Rendezés tepelhely táblával JOIN-olva
+        //Rendezés telephely táblával JOIN-olva
         if(strpos($order, 'telephely_id')!==false){
             
             //Először is az ordert felülírjuk
@@ -898,13 +899,36 @@ if (isset($_GET['debug'])) {
     echo $sql . '<br>';
 }
             
-            $bejegyzesek = array();
+            $sorok = mysqli_query($db_kapcs, $sql);
+            while($sor = mysqli_fetch_assoc($sorok)){
+                array_push($bejegyzesek, $sor);
+            }
+            
+        //Értéklistát csoport szerinti sorrenben, azon belül pedig infó szerinti sorrendben kell kilitázni
+        }elseif($tabla=='erteklista'){
+            
+            $sql = 'SELECT 
+                                                    `'.get_db_tabla().'erteklista`.`recid`,
+                                                    `'.get_db_tabla().'erteklista`.`csoport`,
+                                                    `'.get_db_tabla().'erteklista`.`info`,
+                                                    `'.get_db_tabla().'erteklista_csoport`.`nev` 
+                                                FROM `'.get_db_tabla().'erteklista`
+                                                JOIN `'.get_db_tabla().'erteklista_csoport` ON `'.get_db_tabla().'erteklista`.`csoport`=`'.get_db_tabla().'erteklista_csoport`.`csoport`
+                                                WHERE `'.get_db_tabla().'erteklista`.`torolve`=0
+                                                ORDER BY `'.get_db_tabla().'erteklista_csoport`.`nev`, `'.get_db_tabla().'erteklista`.`info`
+                                                ';
+if (isset($_GET['debug'])) {
+    echo $sql . '<br>';
+}
             $sorok = mysqli_query($db_kapcs, $sql);
             while($sor = mysqli_fetch_assoc($sorok)){
                 array_push($bejegyzesek, $sor);
             }
             
         }else{
+            
+            //Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
+            $_SESSION['akt_where'] = $where;
             $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
 if (isset($_GET['debug'])) {
     echo $adatbazis_kapcsolat->gp() . '<br>';
@@ -2258,18 +2282,13 @@ function loginLista( $bejegyzesek, $tabla, $frissit ) {
 }
 
 function erteklistaLista( $bejegyzesek, $tabla, $frissit ) {
+
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
         $csoport = $bejegyzesek[0]['csoport'];
-
-        $jClass = '';
-        if( _jog(2) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;

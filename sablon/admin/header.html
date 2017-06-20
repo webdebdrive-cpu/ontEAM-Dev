@@ -73,18 +73,38 @@
             <i class="material-icons">mode_edit</i>
         </a>-->
         {TORLES}
+        <a href="#" title="Visszavonás">
+            <i class="material-icons">history</i>
+        </a>
+        <a href="#" title="Újra">
+            <i class="material-icons">cached</i>
+        </a>
+        <a href="javascript:$('#{MEGN}ujkent_szerk').val('1'); $('#szerk_form').submit(); void(0);" title="Duplikálás">
+            <i class="material-icons">queue</i>
+        </a>
         <a href="{SELF}{GET_GET}&amp;csv" class="excel" title="Excel">
             <i class="material-icons">grid_on</i>
         </a>
         <a href="{SELF}{GET_GET}&amp;pdf" class="pdf" title="Pdf">
             <i class="material-icons">insert_drive_file</i>
         </a>
-        <a href="{SELF}{GET_GET}&amp;print" class="nyomtat" title="Nyomtatás">
+        <script>
+            nyomtat_megsem = '<div class="c"><input class="gomb" type="button" value="Mégsem" onclick="alert2()"></div>';
+        </script>
+        <a href="#" class="nyomtat" title="Nyomtatás" onclick="alert2('#nyomtatasi_nezet', nyomtat_megsem, 'Válasszon nyomtatási nézetet')">
             <i class="material-icons">print</i>
         </a>
     </div>
 </div>
-
+<div class="dn">
+    <div id="nyomtatasi_nezet">
+        Nyomtatási nézet választás...
+        <br><a href="{SELF}{GET_GET}&amp;print" target="_blank">A nézet</a>
+        <br><a href="{SELF}{GET_GET}&amp;print" target="_blank">B nézet</a>
+        <br><a href="{SELF}{GET_GET}&amp;print" target="_blank">C nézet</a>
+    </div>
+</div>
+{PRINT_JS}
 <div class="sor{CSS} clearFix">
     <div id="tartalomBal" class="bal"{TBALW}>
         <div class="szamlaLapozas fent clearFix">

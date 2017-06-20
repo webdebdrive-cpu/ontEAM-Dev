@@ -500,12 +500,10 @@ if($gyorskereso_text){
     }elseif(isset($_GET['szallodak'])) {
 
         $felh = $adatbazis_kapcsolat->s('recid nev', 'login', 'recid='.$_GET['id'], '', '1');
-
         if( $felh ) {
             $felh = $felh[0];
 
             $sorok = $adatbazis_kapcsolat->s('recid telephely_id', 'telephely_kapcs', '`nev`=\''.$felh['nev'].'\'');
-
             $szamla_html .= '<div id="tablazatBeszur">';
             if( $sorok ) {
                 /* Fejlécek */
@@ -517,18 +515,18 @@ if($gyorskereso_text){
                 ');
 
                 $i = 1;
-                foreach($sorok as $sor) {
-                    $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
+                $telephelyek = adatbazis2tomb($sorok, 'telephely_id');
+                $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $telephelyek).")", 'nev');
+                foreach($telephelyek as $telephely) {
+                    
+                    $kapcs_id = $adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`telephely_id`='{$telephely['id']}' AND `nev`='{$felh['nev']}'");
+                    $kapcs_id = $kapcs_id[0];
 
-                    if( $telephely ) {
-                        $telephely = $telephely[0];
-
-                        $szamla_html .= nl2('
-                            <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                                <div class="dtc full">'.$telephely['nev'].'</div>
-                            </div>
-                        ');
-                    }
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$kapcs_id['recid'].'" class="dtr nSor kijSor" data-id="'.$kapcs_id['recid'].'" data-i="'.$i.'">
+                            <div class="dtc full">'.$telephely['nev'].'</div>
+                        </div>
+                    ');
 
                     $i++;
                 }
