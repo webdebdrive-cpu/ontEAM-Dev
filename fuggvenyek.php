@@ -885,12 +885,12 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
         
         //Rendezés telephely táblával JOIN-olva
         if(strpos($order, 'telephely_id')!==false){
-            
+
             //Először is az ordert felülírjuk
             $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
             //Select-et is kiegészítjük a rendezni kívánt oszloppal
             $select .= ', `'.get_db_tabla().'telephely`.`nev`';
-            
+
             $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
             $mit   = array('WHERE');
             $mivel = array('JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'telephely`.`id`=`'.get_db_tabla().$tabla.'`.`telephely_id` WHERE');
@@ -924,7 +924,7 @@ if (isset($_GET['debug'])) {
             while($sor = mysqli_fetch_assoc($sorok)){
                 array_push($bejegyzesek, $sor);
             }
-            
+
         }else{
             
             //Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
@@ -934,7 +934,7 @@ if (isset($_GET['debug'])) {
     echo $adatbazis_kapcsolat->gp() . '<br>';
 }
         }
-        
+
 
         if( $bejegyzesek ) {
             switch($tabla) {
@@ -1063,7 +1063,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                     if( $csoportSor ) {
                         $csoportSor = $csoportSor[0];
 
-                        $html .= '<li class="szamla_datum"><strong>'.$csoportSor['nev'].'</strong></li>';
+                        $html .= '<li class="szamla_datum csoport" data-id="'.$aktCsoport.'"><span class="icon"></span><strong>'.$csoportSor['nev'].'</strong></li>';
                     }
 
                     $csoport = $aktCsoport;
@@ -1091,7 +1091,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
             /* Helység */
             $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
             $helyseg = $helyseg[0]['nev'];
-            
+
             /* Hiba */
             $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$bsz['hiba_id']}'");
             $hiba = $hiba[0];
@@ -1103,12 +1103,14 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                          </a>';
 
             $csoport_class = '';
+            $csoport_data = '';
             if( $bsz['csoport_id'] ) {
-                $csoport_class = ' behuz';
+                $csoport_class = ' behuz dn';
+                $csoport_data = ' data-csoportID="'.$bsz['csoport_id'].'"';
             }
 
             if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
             } else {
                 $html .= $li_tart;
             }

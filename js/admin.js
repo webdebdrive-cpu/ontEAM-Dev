@@ -593,6 +593,28 @@ $(function() {
         }
     });
 
+    $(document).on('click', 'ul.szamla_cont li.csoport', function(e) {
+        var sorok = $('#szamlaList li.szamla_sor'),
+            id = $(this).attr('data-id'),
+            kijelolheto = $('#szamlaList').hasClass('kijelolheto');
+
+        if( e.ctrlKey && kijelolheto ) {
+            if( !$('ul.szamla_cont li[data-csoportID="' + id + '"]').hasClass('kijelolve') ) {
+                $(this).addClass('active');
+                $('ul.szamla_cont li[data-csoportID="' + id + '"]').removeClass('dn');
+
+                $('ul.szamla_cont li[data-csoportID="' + id + '"]').addClass('kijelolve');
+            } else {
+                $('ul.szamla_cont li[data-csoportID="' + id + '"]').removeClass('kijelolve');
+            }
+        } else {
+            $(this).toggleClass('active');
+            $('ul.szamla_cont li[data-csoportID="' + id + '"]').toggleClass('dn');
+        }
+
+        kijeloltSzamlal( sorok, 'fo' );
+    });
+
     $('#tartalomBal').on('click', '#szamlaList li.szamla_sor', function(e) {
         var sorok = $('#szamlaList li.szamla_sor'),
             kijelolheto = $('#szamlaList').hasClass('kijelolheto');
@@ -894,6 +916,8 @@ function munkalapKeszit( recid ) {
                         alert2(response.hiba);
                         return false;
                     }
+
+                    location.href = 'munkalap.php?id=' + response.recid + '&modosit';
 
                     kijelolesEltavolit();
                     popupZar();

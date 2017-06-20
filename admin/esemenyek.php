@@ -1208,8 +1208,68 @@ if( isset($_POST['munkalapKeszit']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( is_array($idk) ) {
+        /* Ellenőrizzük a csoportokat */
+        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
+        $csoportok_unique = array_unique($csoportok);
+
+        $kijelolt_db = array_count_values($csoportok);
+
+        foreach( $csoportok_unique as $csu ) {
+            if( $csu > 0 ) {
+                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`csoport_id` = '{$csu}'", '', '');
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+
+                if( count($csoport_db) != $kijelolt_db[$csu] ) {
+                    echo json_encode(array(
+                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+        }
+
+        /* Ellenőrizzük a státuszokat is */
         foreach($idk as $id) {
-            /* Státuszt folyamatban-ra állítjuk */
+            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'statusz', 'id='.$id, 'insert_dt desc', '1');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $statusz ) {
+                $statusz = $statusz[0];
+
+                if( $statusz['stat_id'] != 1 ) {
+                    echo json_encode(array(
+                        'hiba' => 'Munkalap csak nyitott státuszú bejegyzésből készíthető!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            } else {
+                echo json_encode(array(
+                    'hiba' => 'Státusz nem található!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
+        /* Státuszt folyamatban-ra állítjuk */
+        foreach($idk as $id) {
             $statusz = addStatusz( 'statusz', $id, 2 );
 
             if( $statusz === false ) {
@@ -1218,10 +1278,33 @@ if( isset($_POST['munkalapKeszit']) ) {
         }
 
         if( !$db_error ) {
+            $recid = $adatbazis_kapcsolat -> i('munkalap', array('nev'), array('teszt'));
+
+            if( $recid === false ) {
+                $db_error = true;
+            }
+
+            /* Hozzákapcsoljuk a bejelentéseket */
+            foreach($idk as $id) {
+                $adatbazis_kapcsolat -> i('munkalap_kapcs',
+                    array('munkalap_id', 'bejelentes_id',  'update_dt',          'update_usr',                          'insert_dt',          'insert_usr',                            ),
+                    array($recid,        $id,               date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']  )
+                );
+            }
+
+            /* Felvesszük az első státuszt */
+            $adatbazis_kapcsolat -> i('statusz',
+                array('tabla',    'id',     'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+                array('munkalap',  $recid,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+            );
+        }
+
+        if( !$db_error ) {
             mysqli_commit($db_kapcs);
 
             echo json_encode(array(
-                'statusz' => 'siker'
+                'statusz' => 'siker',
+                'recid' => $recid
             ));
         } else {
             mysqli_rollback($db_kapcs);
@@ -1691,12 +1774,12 @@ if( isset($_GET['szamlaSorFrissit']) ) {
 }
 
 if( isset($_GET['szamlaLista']) ) {
-    
+
     $rend  = $_GET['rend'];
     $irany = $_GET['irany'];
     $tabla = $_GET['tabla'];
     $ksz   = $_GET['ksz'];
-    
+
     //Aktív esetén a rendezés irányát meg kell fordítani (tehát az aktívak, egyesek legyenek elől)
     if($rend=='aktiv'){
         if($irany=='desc'){
@@ -2077,7 +2160,7 @@ foreach($postok as $ertek){
 
 	//Törlés, töröl
 	if(isset($_GET[$ertek['torid']])){
-        
+
         //Jogosultságkezelés
         if($ertek['tabla']=='bejelentes' && !_jog(1)){
             $weblap -> leallit(); exit;
