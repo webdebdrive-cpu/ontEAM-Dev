@@ -285,6 +285,29 @@ function i_u($type, $tabla, $tomb){
 
 
 	} else {
+        /* Csak nyitott státuszú bejelentést lehet szerkeszteni */
+        if( $tabla == 'bejelentes' ) {
+            $akt_statusz = $adatbazis_kapcsolat->s('stat_id', $tabla.'_statusz', 'id='.$_GET['id'], 'insert_dt desc', '1');
+
+            if( $akt_statusz ) {
+                $akt_statusz = $akt_statusz[0];
+
+                if( $akt_statusz['stat_id'] != 1 ) {
+                    echo json_encode(array(
+                        'hiba' => 'Csak nyitott státuszú bejegyzést lehet módosítani!'
+                    ));
+
+                    exit();
+                }
+            } else {
+                echo json_encode(array(
+                    'hiba' => 'Státusz nem található!'
+                ));
+
+                exit();
+            }
+        }
+
         /* Ha volt változás, akkor logoljuk */
         $record = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
 
@@ -293,8 +316,7 @@ function i_u($type, $tabla, $tomb){
                 if( $_SESSION['formMod']['oldal'] == basename(self()) ) {
                     if( $_SESSION['formMod']['datetime'] != $record[0]['update_dt'] ) {
                         echo json_encode(array(
-                            'statusz' => 'hiba',
-                            'uzenet'  => 'Ezt a bejegyzést valaki más már módosította, <br>kérlek kezd előről a szerkesztést!'
+                            'hiba' => 'Ezt a bejegyzést valaki más már módosította, <br>kérlek kezd előről a szerkesztést!'
                         ));
 
                         exit();
@@ -602,8 +624,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
                 if( response ) {
                     response = JSON.parse(response);
 
-                    if( response.statusz == \'hiba\' ) {
-                        alert2(response.uzenet, \'<p class="c"><input class="link gomb" value="Frissítés" onclick="location.reload();" type="button"></p>\');
+                    if( response.hiba ) {
+                        alert2(response.hiba, \'<p class="c"><input class="link gomb" value="Frissítés" onclick="location.reload();" type="button"></p>\');
                         return false;
                     }
 
@@ -879,10 +901,10 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $limit = NULL, $frissit = false ) {
     global $adatbazis_kapcsolat;
     global $db_kapcs;
-    
+
     $bejegyzesek = array();
     if( $tabla ) {
-        
+
         //Rendezés telephely táblával JOIN-olva
         if(strpos($order, 'telephely_id')!==false){
 
@@ -898,20 +920,20 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
 if (isset($_GET['debug'])) {
     echo $sql . '<br>';
 }
-            
+
             $sorok = mysqli_query($db_kapcs, $sql);
             while($sor = mysqli_fetch_assoc($sorok)){
                 array_push($bejegyzesek, $sor);
             }
-            
+
         //Értéklistát csoport szerinti sorrenben, azon belül pedig infó szerinti sorrendben kell kilitázni
         }elseif($tabla=='erteklista'){
-            
-            $sql = 'SELECT 
+
+            $sql = 'SELECT
                                                     `'.get_db_tabla().'erteklista`.`recid`,
                                                     `'.get_db_tabla().'erteklista`.`csoport`,
                                                     `'.get_db_tabla().'erteklista`.`info`,
-                                                    `'.get_db_tabla().'erteklista_csoport`.`nev` 
+                                                    `'.get_db_tabla().'erteklista_csoport`.`nev`
                                                 FROM `'.get_db_tabla().'erteklista`
                                                 JOIN `'.get_db_tabla().'erteklista_csoport` ON `'.get_db_tabla().'erteklista`.`csoport`=`'.get_db_tabla().'erteklista_csoport`.`csoport`
                                                 WHERE `'.get_db_tabla().'erteklista`.`torolve`=0
@@ -926,7 +948,7 @@ if (isset($_GET['debug'])) {
             }
 
         }else{
-            
+
             //Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
             $_SESSION['akt_where'] = $where;
             $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
@@ -1063,7 +1085,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                     if( $csoportSor ) {
                         $csoportSor = $csoportSor[0];
 
-                        $html .= '<li class="szamla_datum csoport" data-id="'.$aktCsoport.'"><span class="icon"></span><strong>'.$csoportSor['nev'].'</strong></li>';
+                        $html .= '<li class="szamla_datum csoport" data-id="'.$aktCsoport.'"><span class="icon"></span><span class="csoportNev" data-id="'.$aktCsoport.'"><strong>'.$csoportSor['nev'].'</strong><i class="material-icons">create</i></li>';
                     }
 
                     $csoport = $aktCsoport;
@@ -2826,8 +2848,8 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $text = '' )
 
             /* Beszúrjuk az újat */
             $sql = $adatbazis_kapcsolat -> i($tabla,
-                array('id', 'tabla',      'stat_id', 'text',  'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
-                array($id,  'bejelentes',  $stat_id, $text,    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+                array('id',  'stat_id', 'text',  'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+                array($id,   $stat_id, $text,    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
             );
 
             if( $sql === false ) {

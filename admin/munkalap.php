@@ -29,16 +29,16 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 $szamla_html = '';
 
 //Több kép menedzseléséhez
-$tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
+$tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
-    function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
-    function get_tobbkep_csakkep()  { return 'true';    } // Lényeges, hogy egy string legyen
-    function get_tobbkep_kepmeret() { return 10;        } // MB-ban
+    function get_tobbkep_darab()    { return 10;         } // Maximum hány kép tallózható be
+    function get_tobbkep_csakkep()  { return 'false';    } // Lényeges, hogy egy string legyen
+    function get_tobbkep_kepmeret() { return 10;         } // MB-ban
     function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
         global $megnevezes;
         return $megnevezes.'_id';
     }
-    function get_tobbkep_tabla(){ return 'kepek';       } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
+    function get_tobbkep_tabla(){ return 'munkalap_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 
     //Kép törlésének lekezelése
     if (isset($_GET[$torles.'tobbkep_torol'])){
@@ -145,7 +145,7 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || isset($_GET['bejelentesek']) || isset($_GET['tortenet']) || isset($_GET['anyagigenyles']) || isset($_GET['elszamolas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || isset($_GET['bejelentesek']) || isset($_GET['tortenet']) || isset($_GET['anyagigenyles']) || isset($_GET['elszamolas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzes']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
@@ -154,7 +154,7 @@ if($gyorskereso_text){
             'anyagigenyles' => 'Anyagigénylések',
             'elszamolas'    => 'Elszámolás',
             'dokumentumok'  => 'Dokumentumok',
-            'megjegyzesek'  => 'Megjegyzések',
+            'megjegyzes'    => 'Megjegyzések',
         );
 
         $fulek = '';
@@ -439,12 +439,53 @@ if($gyorskereso_text){
 	//Történet
 	}elseif(isset($_GET['tortenet'])){
 
-        $szamla_html .= 'Történet felülete';
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Státusz</div>
+                    <div class="dtc">Kelte</div>
+                    <div class="dtc">Felhasználó</div>
+                    <div class="dtc">Státuszidő</div>
+                    <div class="dtc">Göngyölt státuszidő</div>
+                    <div class="dtc">Összesített státuszidő</div>
+                </div>
+        ');
+
+        $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido', $megnevezes.'_statusz', "`id` = '".$_GET['id']."'", 'insert_dt', '');
+
+        if( $sorok ) {
+            foreach($sorok as $sor) {
+                $statusz = $adatbazis_kapcsolat->s('nev szinkod', $megnevezes.'_statusz_text', 'recid='.$sor['stat_id'], '', '1');
+
+                $szinkod = '';
+                if( $statusz ) {
+                    $statusz = $statusz[0];
+
+                    $sor['statusz'] = $statusz['nev'];
+
+                    if( $statusz['szinkod'] ) {
+                        $szinkod = ' style="background: '.$statusz['szinkod'].';"';
+                    }
+                }
+
+                $szamla_html .= nl2('
+                    <div class="dtr nSor"'.$szinkod.'>
+                        <div class="dtc">'.$sor['statusz'].'</div>
+                        <div class="dtc">'.date('Y.m.d H:i:s', strtotime($sor['insert_dt'])).'</div>
+                        <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.$sor['statido'].'</div>
+                        <div class="dtc">'.$sor['gongyolt_statido'].'</div>
+                        <div class="dtc">'.$sor['ossz_statido'].'</div>
+                    </div>
+                ');
+            }
+        }
+
+        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'tartalom' => $szamla_html
             ));
         } else {
             echo $szamla_html;
@@ -482,7 +523,9 @@ if($gyorskereso_text){
 	//Dokumentumok
 	}elseif(isset($_GET['dokumentumok'])){
 
-        $szamla_html .= 'Dokumentumok felülete';
+        if( $tobb_kep ) {
+            require_once('tobb_kep.php');
+        }
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -494,9 +537,35 @@ if($gyorskereso_text){
         }
 
 	//Megjegyzések
-	}elseif(isset($_GET['megjegyzesek'])){
+	}elseif(isset($_GET['megjegyzes'])){
 
-        $szamla_html .= 'Megjegyzések felülete';
+        $szamla_html .= nl2('
+            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzes">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Megjegyzés</div>
+                    <div class="dtc">Hozzáadta</div>
+                    <div class="dtc">Hozzáadva</div>
+                </div>
+        ');
+
+        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
+
+        if( $sorok ) {
+            $i = 1;
+            foreach($sorok as $sor) {
+                $szamla_html .= nl2('
+                    <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                        <div class="dtc">'.nl2br($sor['megj']).'</div>
+                        <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.$sor['insert_dt'].'</div>
+                    </div>
+                ');
+
+                $i++;
+            }
+        }
+
+        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

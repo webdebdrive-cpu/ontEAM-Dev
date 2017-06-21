@@ -45,10 +45,10 @@ $almenu_sablon   = fajlbol_olvas('../sablon/admin/almenu.html', true);
 
 //Home ikon, csak ha már beléptünk
 if($_SESSION[get_db_tabla().'user_id']){
-    $menuk .= 
+    $menuk .=
             nl2('
                 <li onclick="location.href=\'index.php\'" class="link">
-                    <img src="../elemek/home.svg" alt="Home" style="margin: 0.2rem 0.5rem 0 0">
+                    <img src="../elemek/home.svg" alt="Home" style="margin: 0.4rem 1rem 0 0rem; max-width: 2rem;">
                 </li>
             ');
 }
@@ -673,6 +673,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } elseif( basename(self()) == 'utemezett_feladatok.php' && isset($_GET['megjegyzes']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+    } elseif( basename(self()) == 'munkalap.php' && isset($_GET['megjegyzes']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } else {
         $uj_link = self().'?uj';
     }
@@ -687,7 +689,7 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 
         /* Felhasználó név */
         $felh_nev = $felhasznalo['teljes_nev'];
-        
+
         $reszleg = erteklista(17, $felhasznalo['reszleg_id']);
     }
 }

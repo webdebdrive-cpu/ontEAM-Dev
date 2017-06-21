@@ -120,7 +120,7 @@ if(isset($_GET['siker']) && isset($_GET['modosit'])){
 }
 /* CSV generálása */
 if (isset($_GET['csv'])) {
-    
+
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
 
@@ -137,7 +137,7 @@ if (isset($_GET['csv'])) {
     $open = fopen($fajlnev,'a');
     if($open){
 
-        $sql = 'SELECT 
+        $sql = 'SELECT
                                                     `ikt_szam` as \'Iktatószám\',
                                                     `telephely_id` as \'Szálloda\',
                                                     `hiba_id` as \'Bejelentett hiba\',
@@ -155,7 +155,7 @@ if (isset($_GET['csv'])) {
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
         }
         fputcsv($open, $csvhead, ';');
- 
+
         while( $sorok = mysqli_fetch_assoc($query) ){
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
@@ -188,7 +188,7 @@ if (isset($_GET['csv'])) {
     header("Expires: 0");
 
     echo fajlbol_olvas($fajlnev);
-    
+
     $weblap->leallit();
     exit();
 }
@@ -543,11 +543,11 @@ if($gyorskereso_text){
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido', 'statusz', "`id` = '".$_GET['id']."'", 'insert_dt', '');
+        $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido', $megnevezes.'_statusz', "`id` = '".$_GET['id']."'", 'insert_dt', '');
 
         if( $sorok ) {
             foreach($sorok as $sor) {
-                $statusz = $adatbazis_kapcsolat->s('nev szinkod', 'statusz_text', 'recid='.$sor['stat_id'], '', '1');
+                $statusz = $adatbazis_kapcsolat->s('nev szinkod', $megnevezes.'_statusz_text', 'recid='.$sor['stat_id'], '', '1');
 
                 $szinkod = '';
                 if( $statusz ) {

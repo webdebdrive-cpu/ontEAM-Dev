@@ -248,10 +248,9 @@ foreach($akt_tomb as $ertek){
             if($ertek['value']){
                 $ertek['megn'] = $ertek['value'];
             }
-
             if( $ertek['oldal'] == 'bejelentes' ) {
-                $statusz_sor = $adatbazis_kapcsolat->s('recid stat_id text', 'statusz', "`tabla` = 'bejelentes' AND `id` = '".$_GET['id']."'", 'insert_dt desc', '1');
-
+                $statusz_sor = $adatbazis_kapcsolat->s('recid stat_id text', 'bejelentes_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc', '1');
+                
                 $statusz = '';
                 if( $statusz_sor ) {
                     $statusz_sor = $statusz_sor[0];
@@ -260,7 +259,7 @@ foreach($akt_tomb as $ertek){
                     $statusz_text = '<p>'.$statusz_sor['text'].'</p>';
 
                     /* Státusz neve */
-                    $stat_text = $adatbazis_kapcsolat->s('nev szinkod', 'statusz_text', 'recid='.$statusz_sor['stat_id'], '', '1');
+                    $stat_text = $adatbazis_kapcsolat->s('nev szinkod', 'bejelentes_statusz_text', 'recid='.$statusz_sor['stat_id'], '', '1');
 
                     if( $stat_text ) {
                         $stat_text = $stat_text[0];

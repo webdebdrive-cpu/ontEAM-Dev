@@ -21,6 +21,9 @@ if( $_POST['tabla'] ) {
         case 'utemezett_feladatok':
             $tobbkep_tablanev = 'utemezett_feladatok';
         break;
+        case 'munkalap':
+            $tobbkep_tablanev = 'munkalap_dok';
+        break;
     }
 }
 
@@ -30,6 +33,9 @@ switch(basename($_SERVER['PHP_SELF'])) {
     break;
     case 'utemezett_feladatok.php':
         $tobbkep_tablanev = 'utemezett_feladatok_dok';
+    break;
+    case 'munkalap.php':
+        $tobbkep_tablanev = 'munkalap_dok';
     break;
 }
 

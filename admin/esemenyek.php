@@ -1200,6 +1200,37 @@ $eszkozkezeles_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 //{KOVETKEZO_TOMB}
 
+/* Csoport átnevezése */
+if( isset($_GET['csoportAtnevezes']) ) {
+    $csoportID = $_GET['csoportID'];
+    $val = $_GET['val'];
+
+    if( $csoportID && $val ) {
+        $adatbazis_kapcsolat -> u('bejelentes_csoport', array('nev'), array($val), 'recid='.$csoportID);
+
+        /* Select előállítása */
+        $html = '<select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
+        $csoportok = $adatbazis_kapcsolat->s('recid nev', 'bejelentes_csoport', '', 'nev', '');
+
+        if( $csoportok ) {
+            foreach($csoportok as $csoport) {
+                $html .= '<option value="'.$csoport['recid'].'">'.$csoport['nev'].'</option>';
+            }
+        }
+
+        $html .= '</select>';
+
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'html' => $html,
+            'value' => $val
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 /* Munkalap készítése */
 if( isset($_POST['munkalapKeszit']) ) {
     $idk = json_decode($_POST['idk'], true);
@@ -1241,7 +1272,7 @@ if( isset($_POST['munkalapKeszit']) ) {
 
         /* Ellenőrizzük a státuszokat is */
         foreach($idk as $id) {
-            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'statusz', 'id='.$id, 'insert_dt desc', '1');
+            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'bejelentes_statusz', 'id='.$id, 'insert_dt desc', '1');
 
             if( $sql === false ) {
                 $db_error = true;
@@ -1270,7 +1301,7 @@ if( isset($_POST['munkalapKeszit']) ) {
 
         /* Státuszt folyamatban-ra állítjuk */
         foreach($idk as $id) {
-            $statusz = addStatusz( 'statusz', $id, 2 );
+            $statusz = addStatusz( 'bejelentes_statusz', $id, 2 );
 
             if( $statusz === false ) {
                 $db_error = true;
@@ -1286,17 +1317,25 @@ if( isset($_POST['munkalapKeszit']) ) {
 
             /* Hozzákapcsoljuk a bejelentéseket */
             foreach($idk as $id) {
-                $adatbazis_kapcsolat -> i('munkalap_kapcs',
+                $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
                     array('munkalap_id', 'bejelentes_id',  'update_dt',          'update_usr',                          'insert_dt',          'insert_usr',                            ),
                     array($recid,        $id,               date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']  )
                 );
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
             }
 
             /* Felvesszük az első státuszt */
-            $adatbazis_kapcsolat -> i('statusz',
-                array('tabla',    'id',     'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
-                array('munkalap',  $recid,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+            $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
+                array('id',     'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+                array($recid,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
             );
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
         }
 
         if( !$db_error ) {
@@ -1330,7 +1369,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
 
     if( $indok && is_array($idk) ) {
         foreach($idk as $id) {
-            $statusz = addStatusz( 'statusz', $id, 3, $indok );
+            $statusz = addStatusz( 'bejelentes_statusz', $id, 3, $indok );
 
             if( $statusz === false ) {
                 $db_error = true;

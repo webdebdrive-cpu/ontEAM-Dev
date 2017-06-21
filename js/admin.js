@@ -593,18 +593,32 @@ $(function() {
         }
     });
 
+    $(document).on('click', 'ul.szamla_cont li.csoport span.csoportNev', function(e) {
+        var text = $(this).find('strong').text(),
+            id   = $(this).attr('data-id');
+
+        alert2('Adja meg a csoport nevét: <br><input type=\"text\" id=\"csoport_nev_szerk\" name=\"csoport_nev_szerk\" value=\"' + text + '\" style=\"margin-top: 1rem; width: 28rem;\">', "<p class=\"c\"><input type=\"submit\" name=\"elkuld\" class=\"gomb zold\" value=\"Mentés\" onclick=\"csoportAtnevezes( " + id + " );\"><input type=\"button\" name=\"megsem\" class=\"gomb piros\" value=\"Mégsem\" onclick=\"alert2();\"></p>");
+
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
     $(document).on('click', 'ul.szamla_cont li.csoport', function(e) {
         var sorok = $('#szamlaList li.szamla_sor'),
             id = $(this).attr('data-id'),
             kijelolheto = $('#szamlaList').hasClass('kijelolheto');
 
         if( e.ctrlKey && kijelolheto ) {
+            sorok.removeClass('active');
+
             if( !$('ul.szamla_cont li[data-csoportID="' + id + '"]').hasClass('kijelolve') ) {
-                $(this).addClass('active');
-                $('ul.szamla_cont li[data-csoportID="' + id + '"]').removeClass('dn');
+                /*$(this).addClass('active');
+                $('ul.szamla_cont li[data-csoportID="' + id + '"]').removeClass('dn');*/
+                $(this).addClass('kijelolve');
 
                 $('ul.szamla_cont li[data-csoportID="' + id + '"]').addClass('kijelolve');
             } else {
+                $(this).removeClass('kijelolve');
                 $('ul.szamla_cont li[data-csoportID="' + id + '"]').removeClass('kijelolve');
             }
         } else {
@@ -876,6 +890,36 @@ $(function() {
         }
     });
 });
+
+function csoportAtnevezes( csoportID ) {
+    var val = $('#csoport_nev_szerk').val();
+
+    if( csoportID && val ) {
+        $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'GET',
+         	data: esamp2es('csoportID=' + csoportID + '&amp;val=' + val + '&amp;csoportAtnevezes=' + new Date().getTime()),
+         	success: function(response) {
+         		if(response) {
+         			response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba);
+                        return false;
+                    }
+
+                    if( response.html ) {
+                        $('#insertCsopHidden').html(response.html);
+                    }
+
+                    $('li.csoport[data-id="' + csoportID + '"] span.csoportNev strong').text(response.value);
+         		}
+         	}
+        });
+
+        alert2();
+    }
+}
 
 function munkalapKeszit( recid ) {
     idk = {};
@@ -1214,6 +1258,8 @@ function kijelolesEltavolit() {
         $('.kijeloltek_muv').removeClass('active');
         $('#kmCont').removeClass('active');
         $('#munkalapEgyeni').removeClass('dn');
+
+        $('ul.szamla_cont li.csoport').removeClass('kijelolve');
 
         if( _get('id') ) {
             $('#szamla-' + _get('id')).addClass('active');
@@ -1745,36 +1791,37 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     });
 
                     param = get_get([
-                                            'akt_nap',
-                                            'bejelentesek',
-                                            'cash_flow',
-                                            'dokumentumok',
-                                            'elszamolas',
-                                            'engedelyek',
-                                            'esemenyek',
-                                            'felmeresi',
-                                            'garancialis',
-                                            'id',
-                                            'jogosultsag',
-                                            'megjegyzes',
-                                            'megjegyzesek',
-                                            'modosit',
-                                            'naplo',
-                                            'naptar',
-                                            'uj',
-                                            'utemezes',
-                                            'projekt_team',
-                                            'projektigeny',
-                                            'rb_anyag',
-                                            'siker',
-                                            'statusz',
-                                            'szamlak',
-                                            'szallodak',
-                                            'szerkeszt',
-                                            'szakterulet',
-                                            'terkep',
-                                            'tortenet'
-                                    ], true);
+                        'akt_nap',
+                        'bejelentesek',
+                        'cash_flow',
+                        'dokumentumok',
+                        'elszamolas',
+                        'engedelyek',
+                        'esemenyek',
+                        'felmeresi',
+                        'garancialis',
+                        'id',
+                        'jogosultsag',
+                        'megjegyzes',
+                        'megjegyzesek',
+                        'modosit',
+                        'naplo',
+                        'naptar',
+                        'uj',
+                        'utemezes',
+                        'projekt_team',
+                        'projektigeny',
+                        'rb_anyag',
+                        'siker',
+                        'statusz',
+                        'szamlak',
+                        'szallodak',
+                        'szerkeszt',
+                        'szakterulet',
+                        'terkep',
+                        'tortenet',
+                        'anyagigenyles'
+                    ], true);
                     if( muvelet != 'uj' ) {
                         if( param.indexOf('?') !== -1 ) {
                             param += '&id=' + recid + '&' + esamp2es(muvelet);
@@ -1798,6 +1845,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     } else if( baseName(location.href) == 'bejelentes' && _get('megjegyzes') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'utemezett_feladatok' && _get('megjegyzes') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                    } else if( baseName(location.href) == 'munkalap' && _get('megjegyzes') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else {
                         $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?uj');
