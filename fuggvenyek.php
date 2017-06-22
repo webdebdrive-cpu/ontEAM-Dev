@@ -256,9 +256,9 @@ function i_u($type, $tabla, $tomb){
 //exit;
         //Bejelentések iktatószám képzése
         if( $tabla == 'bejelentes' ) {
-            $adatbazis_kapcsolat -> i('statusz',
-                array('tabla', 'id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
-                array($tabla,  $id,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+            $adatbazis_kapcsolat -> i('bejelentes_statusz',
+                array('id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+                array($id,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
             );
         }
 
@@ -906,7 +906,7 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
     if( $tabla ) {
 
         //Rendezés telephely táblával JOIN-olva
-        if(strpos($order, 'telephely_id')!==false){
+        if(strpos($order, 'telephely_id')!==false || strpos($select, 'telephely_id')!==false || strpos($select, 'obj_id')!==false){
 
             //Először is az ordert felülírjuk
             $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
@@ -915,7 +915,16 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
 
             $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
             $mit   = array('WHERE');
-            $mivel = array('JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'telephely`.`id`=`'.get_db_tabla().$tabla.'`.`telephely_id` WHERE');
+            
+            //Bejelentésnél még az értéklistát is felvesszük
+            $sql_kieg = '';
+            if($tabla=='bejelentes'){
+                $sql_kieg = nl2('
+                                    JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'erteklista`.`csoport`=4 AND `'.get_db_tabla().$tabla.'`.`hiba_id`=`'.get_db_tabla().'erteklista`.`recid`)
+                                    JOIN `'.get_db_tabla().'bejelentes_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'bejelentes_csoport`.`recid`
+                                ');
+            }
+            $mivel = array('JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id` JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid`'.$sql_kieg.' WHERE');
             $sql = str_replace($mit, $mivel, $adatbazis_kapcsolat->gp());
 if (isset($_GET['debug'])) {
     echo $sql . '<br>';
@@ -1615,7 +1624,7 @@ function torzsadatLista( $bejegyzesek, $tabla, $frissit ) {
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['recid'].'</span>
+                            <span>'.$bsz['nev'].'</span>
                         </a>';
 
             if( !$frissit ) {

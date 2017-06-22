@@ -1,7 +1,7 @@
 <?php
 if(isset($_GET['siker'])){
-
-	?><div class="info">A művelet sikeresen befejeződött!</div><?php
+    //A sikerességet nem írjuk ki
+	/*?><div class="info">A művelet sikeresen befejeződött!</div><?php*/
 
 }elseif(isset($_GET['hiba'])){
 

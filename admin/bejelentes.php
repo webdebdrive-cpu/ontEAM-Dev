@@ -327,7 +327,7 @@ if($gyorskereso_text){
 		require('switch.php');
 
         $gombok = nl2('<div class="form_kuldes">
-                          <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" value="Mentés">
+                          <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
                       </div>').$gombok;
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
@@ -436,7 +436,7 @@ if($gyorskereso_text){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
             }else{
                 //Csak nyitott státusz törölhető
-                $statusz = $adatbazis_kapcsolat->s('stat_id', 'statusz', "`tabla` = '{$megnevezes}' AND `id` = '".$_GET['id']."'", 'insert_dt desc', '1');
+                $statusz = $adatbazis_kapcsolat->s('stat_id', 'bejelentes_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc', '1');
                 $statusz = $statusz[0];
                 if($statusz['stat_id']!=1){
                     $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
@@ -495,7 +495,7 @@ if($gyorskereso_text){
         if(_jog(1)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled="disabled" value="Mentés">
+                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
                 </div>
             ').$gombok;
         }

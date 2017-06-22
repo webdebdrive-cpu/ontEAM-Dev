@@ -73,13 +73,13 @@
             <i class="material-icons">mode_edit</i>
         </a>-->
         {TORLES}
-        <a href="#" title="Visszavonás">
+        <a href="#" class="disabled" title="Visszavonás">
             <i class="material-icons">history</i>
         </a>
-        <a href="#" title="Újra">
+        <a href="#" class="disabled" title="Újra">
             <i class="material-icons">cached</i>
         </a>
-        <a href="javascript:$('#{MEGN}ujkent_szerk').val('1'); $('#szerk_form').submit(); void(0);" title="Duplikálás">
+        <a href="javascript:$('#{MEGN}ujkent_szerk').val('1'); document.getElementById('szerk_form').submit(); void(0);" title="Duplikálás">
             <i class="material-icons">queue</i>
         </a>
         <a href="{SELF}{GET_GET}&amp;csv" class="excel" title="Excel">

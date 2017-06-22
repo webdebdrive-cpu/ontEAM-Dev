@@ -243,7 +243,7 @@ if($gyorskereso_text){
 
         
         $gombok = nl2('<div class="form_kuldes">
-                          <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" value="Mentés">
+                          <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
                       </div>').$gombok;
 
 
@@ -359,7 +359,7 @@ if($gyorskereso_text){
         if(_jog(7)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled="disabled" value="Mentés">
+                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
                 </div>
             ').$gombok;
         }

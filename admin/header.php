@@ -592,9 +592,9 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     }
 
     if( $where ) {
-        $where .= " AND `torolve` = '0'";
+        $where .= " AND `".get_db_tabla()."$tabla`.`torolve` = '0'";
     } else {
-        $where = "`torolve` = '0'";
+        $where = "`".get_db_tabla()."$tabla`.`torolve` = '0'";
     }
 
     if( $_GET['ksz'] ) {
@@ -606,7 +606,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
         $ksz_where = '';
         foreach($selectek as $select) {
-            if( $select != 'recid' ) {
+            if( $select && $select != 'recid' ) {
                 if(strpos($select, '`')!==false){
                     $ksz_where .= trim($select, ',')." LIKE '%{$_GET['ksz']}%' OR ";
                 }else{

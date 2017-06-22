@@ -146,7 +146,19 @@ switch($tabla) {
     break;
     case 'bejelentes.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = '`'.get_db_tabla().'bejelentes`.`recid`, `'.get_db_tabla().'bejelentes`.`ikt_szam`, `'.get_db_tabla().'bejelentes`.`surgos`, `'.get_db_tabla().'bejelentes`.`telephely_id`, `'.get_db_tabla().'bejelentes`.`csoport_id`, `'.get_db_tabla().'bejelentes`.`obj_id`, `'.get_db_tabla().'bejelentes`.`hiba_id`';
+        $_OPTS['select']    = nl2('
+                                `'.get_db_tabla().'bejelentes`.`recid`,
+                                `'.get_db_tabla().'bejelentes`.`ikt_szam`,
+                                `'.get_db_tabla().'bejelentes`.`surgos`,
+                                `'.get_db_tabla().'bejelentes`.`telephely_id`,
+                                `'.get_db_tabla().'bejelentes`.`csoport_id`,
+                                `'.get_db_tabla().'bejelentes`.`obj_id`,
+                                `'.get_db_tabla().'bejelentes`.`hiba_id`,
+                                `'.get_db_tabla().'bejelentes_csoport`.`nev`,
+                                `'.get_db_tabla().'telephely`.`nev`,
+                                `'.get_db_tabla().'obj`.`nev`,
+                                `'.get_db_tabla().'erteklista`.`info`
+                                ');
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id');
@@ -231,7 +243,17 @@ switch($tabla) {
     break;
     case 'utemezett_feladatok.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = '`'.get_db_tabla().'utemezett_feladatok`.`recid`, `'.get_db_tabla().'utemezett_feladatok`.`id`, `'.get_db_tabla().'utemezett_feladatok`.`nev`, `'.get_db_tabla().'utemezett_feladatok`.`telephely_id`, `'.get_db_tabla().'utemezett_feladatok`.`obj_id`, `'.get_db_tabla().'utemezett_feladatok`.`aktiv`';
+        $_OPTS['select']    = nl2('
+                                    `'.get_db_tabla().'utemezett_feladatok`.`recid`,
+                                    `'.get_db_tabla().'utemezett_feladatok`.`id`,
+                                    `'.get_db_tabla().'utemezett_feladatok`.`nev`,
+                                    `'.get_db_tabla().'utemezett_feladatok`.`telephely_id`,
+                                    `'.get_db_tabla().'utemezett_feladatok`.`obj_id`,
+                                    `'.get_db_tabla().'utemezett_feladatok`.`aktiv`,
+                                    `'.get_db_tabla().'telephely`.`nev`,
+                                    `'.get_db_tabla().'obj`.`nev`
+                                ');
+        
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('aktiv', 'telephely_id', 'esnap_d');
@@ -333,19 +355,14 @@ switch($tabla) {
     break;
     case 'torzsadat.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid';
+        $_OPTS['select']    = 'recid nev';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('recid');
+        $_OPTS['rendezes']  = array('nev');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'recid';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
+            $_GET['rend'] = 'nev';
         }
     break;
     case 'anyagrendeles.php':
@@ -1089,7 +1106,8 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //Törzsadatok
 $megnevezes = 'torzsadat';
 $torzsadat_tomb = $akt_tomb = array(
-
+	array('type' => 'text',                 'megn' => 'Név:',               'name' => 'nev',                                'maxlength' => 250, 'class' => 'oriasi'),
+    array('type' => 'select_szemelyzet',    'megn' => 'Személyzet típus:',  'name' => 'szemelyzet_id', 'maxlength' => 250),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -1846,9 +1864,9 @@ if( isset($_GET['szamlaLista']) ) {
         }
 
         if( $where ) {
-            $where .= " AND `torolve` = '0'";
+            $where .= " AND `".get_db_tabla()."$tabla`.`torolve` = '0'";
         } else {
-            $where = "`torolve` = '0'";
+            $where = "`".get_db_tabla()."$tabla`.`torolve` = '0'";
         }
 
         if( $ksz ) {
@@ -1858,9 +1876,15 @@ if( isset($_GET['szamlaLista']) ) {
 
             $ksz_where = '';
             $selectek = explode(' ', $_OPTS['select']);
+
+            $ksz_where = '';
             foreach($selectek as $select) {
-                if( $select != 'recid' ) {
-                    $ksz_where .= "`{$select}` LIKE '%{$ksz}%' OR ";
+                if( $select && $select != 'recid' ) {
+                    if(strpos($select, '`')!==false){
+                        $ksz_where .= trim($select, ',')." LIKE '%{$ksz}%' OR ";
+                    }else{
+                        $ksz_where .= "`{$select}` LIKE '%{$ksz}%' OR ";
+                    }
                 }
             }
             if($ksz_where){
@@ -1879,7 +1903,7 @@ if( isset($_GET['szamlaLista']) ) {
         $_GET['epo'] = 9999999999999;
 
         $bejegyzesek = $adatbazis_kapcsolat->s($_OPTS['select'], $tabla, $where, '', '');
-
+//echo $adatbazis_kapcsolat->gp() . '<br>';
         $lapozo = new Lapozo;
         $lapozo -> elem_osszes      = count($bejegyzesek);
         $lapozo -> fajl             = $tabla.'.php';
@@ -2174,7 +2198,9 @@ foreach($postok as $ertek){
             }else{
                 //Csak akkor van továbbléptetés, ha nem ajaxosan hívtuk meg
                 if(!isset($_POST['ajax_form_modosit'])){
-                    header('location:'.self().'?uj');
+                    //header('location:'.self().'?uj')
+                    //Mégis a létrehozott adatlapra érkezzünk:
+                    header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba'))).'&id='.$tabla_id.'&siker');
                 }
             }
 
@@ -2211,55 +2237,58 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='login'){
             $weblap -> leallit(); exit;
         }
+        
+        //Törléssel kapcsolatos műveletek egy tranzakció
+        $db_error = false;
+        mysqli_autocommit($db_kapcs, false);
 
         //Csak az törölheti, aki létrehozta
         $csak_aki_letrehozta_torolheti = array('bejelentes', 'utemezett_feladatok');
         if( in_array($ertek['tabla'], $csak_aki_letrehozta_torolheti) ){
             $loginnev = $adatbazis_kapcsolat->s('loginnev', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
+            if( $loginnev === false ) {
+                $db_error = true;
+            }
             $loginnev = $loginnev[0];
             if($loginnev['loginnev']!=$_SESSION[get_db_tabla().'user']){
                 $weblap -> leallit(); exit;
             }
         }
-
         $lekerdez = $adatbazis_kapcsolat -> select('*', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
-//echo $adatbazis_kapcsolat->gp() . '<br>';
 		$sor      = $lekerdez[0];
-		$tomb     = $ertek['tomb'];
 
-        $fajl_oszlopok = array();
-		foreach($tomb as $fajl_ertek){
-            if($fajl_ertek['type'] == 'file' || $fajl_ertek['type'] == 'flashfile' || $fajl_ertek['type'] == 'jsfile'){
-				array_push($fajl_oszlopok, $fajl_ertek['oszlop']);
-			}
-		}
+        if( $lekerdez === false ) {
+            $db_error = true;
+        }
 
-		foreach( $fajl_oszlopok as $oszlop ){
-    		//Ha valóban ki van töltve az adatbázisban egy ilyen oszlop, akkor a fájl útját adatbázban tároltuk
-            if($sor[$oszlop] != ''){
+        
+        /* Kapcsolódó táblák törlése */
+        //Megjegyzéseket általánosságban
+        $sql = $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='{$ertek['tabla']}' AND `id`='{$sor['recid']}'");
+        if( $sql === false ) { $db_error = true; }
+        if($ertek['tabla']=='bejelentes'){
+            $sql = $adatbazis_kapcsolat->d('bejelentes_statusz', "`id`='{$sor['recid']}'");
+            if( $sql === false ) { $db_error = true; }
+            $fajlok = $adatbazis_kapcsolat->s('*', 'bejelentes_dok', "`bejelentes_id`='{$sor['recid']}'");
+            foreach($fajlok as $fajl){
+                unlink('../'.get_utvonal().$fajl['kepnev']);
+            }
 
-    			//ha van kiterjesztése
-    			if(strrpos($sor[$oszlop], '.')>0){
-    				remover('../'.get_utvonal().substr($sor[$oszlop],0,strrpos($sor[$oszlop],'.')).'*');
-    			}else{
-    				remover('../'.get_utvonal().$sor[$oszlop].'*');
-    			}
+            $sql = $adatbazis_kapcsolat->d('bejelentes_dok', "`bejelentes_id`='{$sor['recid']}'");
+            if( $sql === false ) { $db_error = true; }
+        }
 
-            //Egyébként az összes ID-vel kezdődő kép törlése, ha az ID nem üres
-    		}elseif($_GET[$ertek['torid']]!=''){
+        //Login táblából csak logikailag törlünk. Többi helyről fizikailag.
+        if($ertek['tabla']=='login'){
+            $sikeres_torles = $adatbazis_kapcsolat -> u($ertek['tabla'], array('torolve'), array(1), "`recid`='{$sor['recid']}'");
+        }else{
+            $sikeres_torles = $adatbazis_kapcsolat -> d($ertek['tabla'], "`recid`='{$sor['recid']}'");
+        }
+        
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
 
-    			$kepnev = '../'.get_utvonal().$ertek['tabla'].'/'.$_GET[$ertek['torid']];
-    			if(is_file($kepnev))       { if(!unlink($kepnev)){        return 'k3'; } }
-    			if(is_file($kepnev.'.jpg')){ if(!unlink($kepnev.'.jpg')){ return 'k3'; } }
-    			if(is_file($kepnev.'.gif')){ if(!unlink($kepnev.'.gif')){ return 'k3'; } }
-    			if(is_file($kepnev.'.png')){ if(!unlink($kepnev.'.png')){ return 'k3'; } }
-
-    			remover($kepnev.'_*');//Resized képek esetére
-    		}
-		}
-
-		if( $adatbazis_kapcsolat -> u($ertek['tabla'], array('torolve'), array(1), 'recid='.$_GET[$ertek['torid']]) ) {
-			if(isset($_GET['noload'])){
+            if(isset($_GET['noload'])){
 
                 //Visszaadjuk az elemek számát
                 echo number_format( count($adatbazis_kapcsolat->s('recid', $ertek['tabla'])), 0, '', '.' );
@@ -2272,18 +2301,23 @@ foreach($postok as $ertek){
 				header('location:'.self());
 				exit();
 			}
-		}else{
-			if(isset($_GET['noload'])){
-				echo 'A törlés nem sikerült!';
-				$weblap -> leallit();
-				exit();
-			}else{
-				$weblap -> leallit();
-				//header('location:'.self().str_replace('&amp;','&',get_get(array($ertek['torid']))).'&hiba');
-				header('location:'.self().str_replace('&amp;','&',get_get(array($ertek['torid']))).'&hiba');
-				exit();
-			}
-		}
+            
+        } else {
+            
+            mysqli_rollback($db_kapcs);
+
+            if(isset($_GET['noload'])){
+                echo 'A törlés nem sikerült!';
+                $weblap -> leallit();
+                exit();
+            }else{
+                $weblap -> leallit();
+                //header('location:'.self().str_replace('&amp;','&',get_get(array($ertek['torid']))).'&hiba');
+                header('location:'.self().str_replace('&amp;','&',get_get(array($ertek['torid']))).'&hiba');
+                exit();
+            }
+        }
+
 	}
 }
 

@@ -5,6 +5,12 @@ require_once('../class/html/class.Select.php');
 $osszevon_flag  = 0;
 $mezok          = '';
 foreach($akt_tomb as $ertek){
+    
+    //Sessionből feltöltjük a sort, ha üres. Újként szerkesztéshez kell, remélem nem kavar be máshol
+    if(isset($_GET['ujkent']) && !$sor[$ertek['name']] && $_SESSION[$ertek['name']]){
+        $sor[$ertek['name']] = $_SESSION[$ertek['name']];
+    }
+    
 	switch($ertek['type']){
 
 
