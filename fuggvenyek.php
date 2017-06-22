@@ -915,7 +915,7 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
 
             $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
             $mit   = array('WHERE');
-            
+
             //Bejelentésnél még az értéklistát is felvesszük
             $sql_kieg = '';
             if($tabla=='bejelentes'){
@@ -1070,7 +1070,7 @@ if (isset($_GET['debug'])) {
 
 function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
-
+    
     if( $bejegyzesek ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
 
