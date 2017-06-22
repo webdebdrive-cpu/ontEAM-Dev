@@ -910,6 +910,9 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
 
             //Először is az ordert felülírjuk
             $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
+            if($tabla=='bejelentes'){
+                $order = '`'.get_db_tabla().'bejelentes`.`surgos` DESC, `'.get_db_tabla().'bejelentes`.`ikt_szam`, `'.get_db_tabla().'bejelentes`.`telephely_id` '.$_GET['irany'];
+            }
             //Select-et is kiegészítjük a rendezni kívánt oszloppal
             $select .= ', `'.get_db_tabla().'telephely`.`nev`';
 
