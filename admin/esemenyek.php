@@ -253,7 +253,7 @@ switch($tabla) {
                                     `'.get_db_tabla().'telephely`.`nev`,
                                     `'.get_db_tabla().'obj`.`nev`
                                 ');
-        
+
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('aktiv', 'telephely_id', 'esnap_d');
@@ -1249,6 +1249,192 @@ if( isset($_GET['csoportAtnevezes']) ) {
     exit();
 }
 
+/* Várólistából kivétel */
+if( isset($_POST['varolistabolKivetel']) ) {
+    $idk = json_decode($_POST['idk'], true);
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( is_array($idk) ) {
+        /* Ellenőrizzük a csoportokat */
+        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
+        $csoportok_unique = array_unique($csoportok);
+
+        $kijelolt_db = array_count_values($csoportok);
+
+        foreach( $csoportok_unique as $csu ) {
+            if( $csu > 0 ) {
+                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`csoport_id` = '{$csu}'", '', '');
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+
+                if( count($csoport_db) != $kijelolt_db[$csu] ) {
+                    echo json_encode(array(
+                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+        }
+
+        /* Ellenőrizzük a státuszokat is */
+        foreach($idk as $id) {
+            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'bejelentes_statusz', 'id='.$id, 'insert_dt desc', '1');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $statusz ) {
+                $statusz = $statusz[0];
+
+                if( $statusz['stat_id'] != 4 ) {
+                    echo json_encode(array(
+                        'hiba' => 'Csak várakozó státuszú bejegyzésekről lehet levenni a várakoztatást!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            } else {
+                echo json_encode(array(
+                    'hiba' => 'Státusz nem található!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
+        /* Státuszt folyamatban-ra állítjuk */
+        foreach($idk as $id) {
+            $statusz = addStatusz( 'bejelentes_statusz', $id, 1 );
+
+            if( $statusz === false ) {
+                $db_error = true;
+            }
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
+    }
+}
+
+/* Várólistához adás */
+if( isset($_POST['varolistahozAdas']) ) {
+    $idk = json_decode($_POST['idk'], true);
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( is_array($idk) ) {
+        /* Ellenőrizzük a csoportokat */
+        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
+        $csoportok_unique = array_unique($csoportok);
+
+        $kijelolt_db = array_count_values($csoportok);
+
+        foreach( $csoportok_unique as $csu ) {
+            if( $csu > 0 ) {
+                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`csoport_id` = '{$csu}'", '', '');
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+
+                if( count($csoport_db) != $kijelolt_db[$csu] ) {
+                    echo json_encode(array(
+                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+        }
+
+        /* Ellenőrizzük a státuszokat is */
+        foreach($idk as $id) {
+            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'bejelentes_statusz', 'id='.$id, 'insert_dt desc', '1');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $statusz ) {
+                $statusz = $statusz[0];
+
+                if( $statusz['stat_id'] != 1 ) {
+                    echo json_encode(array(
+                        'hiba' => 'Csak nyitott státuszú bejegyzéseket lehet várólistához adni!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            } else {
+                echo json_encode(array(
+                    'hiba' => 'Státusz nem található!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
+        /* Státuszt folyamatban-ra állítjuk */
+        foreach($idk as $id) {
+            $statusz = addStatusz( 'bejelentes_statusz', $id, 4 );
+
+            if( $statusz === false ) {
+                $db_error = true;
+            }
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
+    }
+}
+
 /* Munkalap készítése */
 if( isset($_POST['munkalapKeszit']) ) {
     $idk = json_decode($_POST['idk'], true);
@@ -1378,19 +1564,33 @@ if( isset($_POST['munkalapKeszit']) ) {
 
 /* Bejegyzések elutasítása */
 if( isset($_POST['bejegyzesElutasitas']) ) {
-    $recid = $_POST['recid'];
-    $indok = $_POST['indok'];
-    $idk   = json_decode($_POST['idk'], true);
+    $recid          = $_POST['recid'];
+    $tabla          = $_POST['tabla'];
+    $memo           = $_POST['memo'];
+    $elutasitas_id  = $_POST['elutasitas_id'];
+    $idk            = json_decode($_POST['idk'], true);
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    if( $indok && is_array($idk) ) {
+    if( $elutasitas_id && is_array($idk) ) {
         foreach($idk as $id) {
-            $statusz = addStatusz( 'bejelentes_statusz', $id, 3, $indok );
+            $statusz = addStatusz( 'bejelentes_statusz', $id, 3, $elutasitas_id );
 
             if( $statusz === false ) {
                 $db_error = true;
+            }
+
+            /* Hozzáadjuk a megjegyzést is ha van */
+            if( $memo ) {
+                $sql = $adatbazis_kapcsolat -> i('megjegyzes',
+                    array('tabla', 'id', 'megj', 'loginnev',                       'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
+                    array($tabla,  $id,  $memo,  $_SESSION[get_db_tabla().'user'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+                );
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
             }
         }
 
@@ -2237,7 +2437,7 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='login'){
             $weblap -> leallit(); exit;
         }
-        
+
         //Törléssel kapcsolatos műveletek egy tranzakció
         $db_error = false;
         mysqli_autocommit($db_kapcs, false);
@@ -2261,12 +2461,12 @@ foreach($postok as $ertek){
             $db_error = true;
         }
 
-        
+
         /* Kapcsolódó táblák törlése */
         //Megjegyzéseket általánosságban
         $sql = $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='{$ertek['tabla']}' AND `id`='{$sor['recid']}'");
         if( $sql === false ) { $db_error = true; }
-        
+
         if($ertek['tabla']=='bejelentes'){
             $sql = $adatbazis_kapcsolat->d('bejelentes_statusz', "`id`='{$sor['recid']}'");
             if( $sql === false ) { $db_error = true; }
@@ -2288,7 +2488,7 @@ foreach($postok as $ertek){
         if( $sikeres_torles === false ) {
             $db_error = true;
         }
-        
+
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
 
@@ -2305,9 +2505,9 @@ foreach($postok as $ertek){
 				header('location:'.self());
 				exit();
 			}
-            
+
         } else {
-            
+
             mysqli_rollback($db_kapcs);
 
             if(isset($_GET['noload'])){

@@ -403,54 +403,61 @@ if($gyorskereso_text){
                 <div id="kmCont">
                     <script>
                         csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                        varolistahozGomb  = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"varolistahozAdas();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                        varolistabolGomb  = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"varolistabolKivetel();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                     </script>
-                    <input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas\');">
+                    <input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas\');" disabled="disabled">
                     <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb" value="Csoportosítás..." title="Csoportosítás...">
+                        <input type="button" class="gomb foGomb" value="Csoportosítás..." title="Csoportosítás..." disabled="disabled">
                         <div class="muv">
                             <ul>
                                 <li><a onclick="csoportMuvelet(\'csoporthoz_adas\');">Csoporthoz adás</a></li>
                                 <li><a onclick="alert2(\'Biztos törli a kijelölt sorokat a megadott csoportokból?\', csoportKiveszGomb);">Csoportból kivétel</a></li>
-                                <li><a>Csoport átnevezése</a></li>
+                                <!--<li><a>Csoport átnevezése</a></li>-->
                             </ul>
                         </div>
                     </div>
                     <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
+                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista..." disabled="disabled">
                         <div class="muv">
                             <ul>
-                                <li><a>Várólistához adás</a></li>
-                                <li><a>Várólistból kivétel</a></li>
-                                <li><a>Várólista átnevezése</a></li>
+                                <li><a onclick="alert2(\'Biztos várólistához adja a kijelölt bejegyzéseket?\', varolistahozGomb);">Várólistához adás</a></li>
+                                <li><a onclick="alert2(\'Biztos törli a várólistából a kijelölt bejegyzéseket?\', varolistabolGomb);">Várólistból kivétel</a></li>
                             </ul>
                         </div>
                     </div>
-                    <input type="button" class="gombb foGomb" value="Munkalap készítése" onclick="munkalapKeszit();" title="Munkalap készítése">
+                    <script>
+                        munkalapKeszitGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkalapKeszit();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                    </script>
+                    <input type="button" id="munkalapTobb" class="gombb foGomb dn" value="Munkalap készítése" onclick="alert2(\'Biztos munkalapot készít a kijelölt csoportokból?\', munkalapKeszitGomb);" title="Munkalap készítése" disabled="disabled">
                 </div>
             ');
         }
 
         if( !$csak_szerkesztheto ) {
             //Jogosutságkezelés: csak az törölheti, aki létrehozta
-            if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
+            if($sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-            }else{
+            } else {
                 //Csak nyitott státusz törölhető
                 $statusz = $adatbazis_kapcsolat->s('stat_id', 'bejelentes_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc', '1');
                 $statusz = $statusz[0];
-                if($statusz['stat_id']!=1){
+
+                if($statusz['stat_id'] != 1) {
                     $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-                }else{
+                } else {
                     $obj = $adatbazis_kapcsolat -> select('nev', 'obj', "`recid`='{$sor['obj_id']}'");
                     $obj = $obj[0];
-                    $gombok .= nl2(' <script>var torol_kerdes = \'
-                                                                <div class="l">
-                                                                    Iktatószám: '.$sor['ikt_szam'].'
-                                                                    <br>Helyiség: '.addslashes($obj['nev']).'
-                                                                    <br>Hiba: '.addslashes($sor['hiba_text']).'
-                                                                </div>
-                                                                <br>Biztosan törlöd ezt a '.$szoveg.'?
-                                                                \';</script><input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(torol_kerdes, gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">');
+                    $gombok .= nl2('
+                        <script>var torol_kerdes = \'
+                            <div class="l">
+                                Iktatószám: '.$sor['ikt_szam'].'
+                                <br>Helyiség: '.addslashes($obj['nev']).'
+                                <br>Hiba: '.addslashes($sor['hiba_text']).'
+                            </div>
+                            <br>Biztosan törlöd ezt a '.$szoveg.'?
+                        \';</script><input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(torol_kerdes, gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">
+                    ');
                 }
             }
         }
@@ -500,7 +507,12 @@ if($gyorskereso_text){
             ').$gombok;
         }
 
-        $gombok .= '<input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="munkalapKeszit( \''.$_GET['id'].'\' );" title="Munkalap készítése">';
+        $gombok .= nl2('
+            <script>
+                munkalapKeszitGombEgyeni = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkalapKeszit( \''.$_GET['id'].'\' );\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+            </script>
+            <input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="alert2(\'Biztos munkalapot készít a kijelölt csoportokból?\', munkalapKeszitGombEgyeni);" title="Munkalap készítése">
+        ');
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {

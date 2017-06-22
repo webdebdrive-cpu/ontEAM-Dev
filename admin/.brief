@@ -10,7 +10,7 @@ Jogosultságkzelés 3 dolgoból áll:
     Az adott rekordnak mi a státusza
 
 
-Bejelentéseknél van egy olyan státusz is, hogy várakozó. Ilyet is csak diszépcser tud csinláni.
+/*Bejelentéseknél van egy olyan státusz is, hogy várakozó. */Ilyet is csak diszépcser tud csinláni.
 A kijelölt sorokat és/vagy csoportokat tudja várakozóra tenni (tehát a csoport összes bejelentéséhez íródik ilyenkor egy státusz sor).
 Várakoztatni csak nyitott bejeltést lehet. Ha többet jelöltek ki, és van benne nem nyitott státuszú is, akkor hibaüzenet, és egyik sem vált várakozni státuszba. Még akkor SEM engedjük meg, ha már várakozva volna a státusza. Csak is kizárólag ha nyitott.
 Várólistáról levétel... értelem szerűen, amik váró stáuszban vannak.
@@ -23,11 +23,11 @@ A visszaadásnak is lesz oka, itt is egy értéklista és egy memó.
         - Anyaghiány
         - Időhiány
 
-Csoporotsításnál amikor elutasítunk bejelentéseket, akkor is egy értéklista jön fel, és ott is kell egy memo. Az értéklista értéke íródjon ki a státusz alatt, a memó meg menjen a megjegyzések fül alá új bejegyzésként.
-Csoport legyen ki-be nyitható. A csoport neve előtt legyen egy + jel, és azzal lehet nyitogatni. Alapból zárva vannak.
+//Csoporotsításnál amikor elutasítunk bejelentéseket, akkor is egy értéklista jön fel, és ott is kell egy memo. Az értéklista értéke íródjon ki a státusz alatt, a memó meg menjen a megjegyzések fül alá új bejegyzésként.
+//Csoport legyen ki-be nyitható. A csoport neve előtt legyen egy + jel, és azzal lehet nyitogatni. Alapból zárva vannak.
 Egy csoport szürgős, ha legalább egy sürgős eleme van. Ekkor a sor elején a sürgős ikon is megjelenik. De a csoport bejelentései nem válnak sürgőssé, csak a csoport!
 
-Csoportotsítás lesz bejeletéseknél, munkalapoknál és anyagkezelésnél.
+/*Csoportotsítás lesz bejeletéseknél,*/ munkalapoknál és anyagkezelésnél.
 
 Munkalapok:
     Hozzárendelt személyzetet is le kell tárolni az adatbázisban. Ilyen van az ütemezett feladatoknál is, annak mintájára.

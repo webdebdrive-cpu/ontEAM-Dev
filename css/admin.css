@@ -294,10 +294,6 @@ div.kijeloltek_muv div.muv li a:hover {
 }
 
 #kmCont {
-    display: none;
-}
-
-#kmCont.active {
     display: inline-block;
 }
 
@@ -414,6 +410,12 @@ textarea[disabled="disabled"] {
     background: #edeaea;
     color: #0d0d0d;
     cursor: default;
+}
+
+input[type="button"][disabled="disabled"] {
+    background: #cecdcd!important;
+    color: #a4a4a4!important;
+    cursor: default!important;
 }
 
 input:focus{

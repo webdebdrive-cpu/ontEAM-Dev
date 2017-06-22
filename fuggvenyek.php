@@ -651,7 +651,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
     $ret .= nl2('
             $(document).ready(function() {
                 $(\'form input[type="text"], #szerk_form textarea\').keyup(function() {
-                    $(\'#szerk_form input[type="submit"]\').addClass(\'gombb_alert\');
+                    /*$(\'#szerk_form input[type="submit"]\').addClass(\'gombb_alert\');*/
                 });
 
                 $(\'form input[type="checkbox"]\').click(function() {
@@ -1073,7 +1073,7 @@ if (isset($_GET['debug'])) {
 
 function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
-    
+
     if( $bejegyzesek ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
 
@@ -2786,7 +2786,7 @@ function getStatuszIdo( $time ) {
 }
 
 /* Státusz hozzáadása */
-function addStatusz( $tabla = false, $id = false, $stat_id = false, $text = '' ) {
+function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_id = 0 ) {
     global $adatbazis_kapcsolat;
     global $db_kapcs;
 
@@ -2860,8 +2860,8 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $text = '' )
 
             /* Beszúrjuk az újat */
             $sql = $adatbazis_kapcsolat -> i($tabla,
-                array('id',  'stat_id', 'text',  'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
-                array($id,   $stat_id, $text,    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+                array('id',  'stat_id', 'erteklista_id',  'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+                array($id,   $stat_id,  $erteklista_id,    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
             );
 
             if( $sql === false ) {

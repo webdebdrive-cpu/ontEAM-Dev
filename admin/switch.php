@@ -5,12 +5,12 @@ require_once('../class/html/class.Select.php');
 $osszevon_flag  = 0;
 $mezok          = '';
 foreach($akt_tomb as $ertek){
-    
+
     //Sessionből feltöltjük a sort, ha üres. Újként szerkesztéshez kell, remélem nem kavar be máshol
     if(isset($_GET['ujkent']) && !$sor[$ertek['name']] && $_SESSION[$ertek['name']]){
         $sor[$ertek['name']] = $_SESSION[$ertek['name']];
     }
-    
+
 	switch($ertek['type']){
 
 
@@ -255,14 +255,24 @@ foreach($akt_tomb as $ertek){
                 $ertek['megn'] = $ertek['value'];
             }
             if( $ertek['oldal'] == 'bejelentes' ) {
-                $statusz_sor = $adatbazis_kapcsolat->s('recid stat_id text', 'bejelentes_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc', '1');
-                
+                $statusz_sor = $adatbazis_kapcsolat->s('recid stat_id erteklista_id', 'bejelentes_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc', '1');
+
                 $statusz = '';
                 if( $statusz_sor ) {
                     $statusz_sor = $statusz_sor[0];
 
                     /* Státusz kiegészítés */
-                    $statusz_text = '<p>'.$statusz_sor['text'].'</p>';
+                    $statusz_text = '';
+
+                    if( $statusz_sor['erteklista_id'] ) {
+                        $ertek = $adatbazis_kapcsolat->s('info', 'erteklista', 'recid='.$statusz_sor['erteklista_id'], '', '1');
+                        
+                        if( $ertek ) {
+                            $ertek = $ertek[0];
+
+                            $statusz_text = '<p>'.$ertek['info'].'</p>';
+                        }
+                    }
 
                     /* Státusz neve */
                     $stat_text = $adatbazis_kapcsolat->s('nev szinkod', 'bejelentes_statusz_text', 'recid='.$statusz_sor['stat_id'], '', '1');
