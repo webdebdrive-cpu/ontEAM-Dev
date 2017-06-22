@@ -2891,3 +2891,17 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_
 
     return false;
 }
+
+//megnevezésből a megfelelő tömb betöltése központosítva
+function get_akt_tomb($megn){
+    
+    global $bejelentes_tomb;
+    global $login_tomb;
+    
+    switch($megn){
+        case 'bejelentes'   : $akt_tomb = $bejelentes_tomb; break;
+        case 'login'        : $akt_tomb = $login_tomb;      break;
+    }
+    
+    return $akt_tomb;
+}

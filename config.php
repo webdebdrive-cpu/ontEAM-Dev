@@ -96,22 +96,22 @@ function get_jsfajlok(){
 	$utvonal = '';
 	return array(
 		'js' => array(
-            $utvonal.'!js/jquery.js',
-            $utvonal.'js/jquery.easing.1.3.js',
-            $utvonal.'js/scrollto.js',
-            $utvonal.'js/main.js',
-            $utvonal.'js/esemenyek.js',
-            $utvonal.'js/alert.js',
+//            $utvonal.'!js/jquery.js',
+//            $utvonal.'js/jquery.easing.1.3.js',
+//            $utvonal.'js/scrollto.js',
+//            $utvonal.'js/main.js',
+//            $utvonal.'js/esemenyek.js',
+//            $utvonal.'js/alert.js',
             //{KOVETKEZO_JS}
 		),
 
 		'css' => array(
-            $utvonal.'css/nullaz.css',
-            $utvonal.'css/altalanos.css',
-            $utvonal.'css/tartalom.css',
-            $utvonal.'css/respo.css',
-            $utvonal.'css/alert.css',
-            $utvonal.'css/fancybox.css',
+//            $utvonal.'css/nullaz.css',
+//            $utvonal.'css/altalanos.css',
+//            $utvonal.'css/tartalom.css',
+//            $utvonal.'css/respo.css',
+//            $utvonal.'css/alert.css',
+//            $utvonal.'css/fancybox.css',
             //{KOVETKEZO_CSS}
 		)
 	);

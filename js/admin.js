@@ -881,6 +881,27 @@ $(function() {
             break;
         }*/
     });
+    
+    /* Szűrő mező váltáskor */
+    $('.f_szuro_mezo').on('change', function(e) {
+        var tabla    = $(this).attr('data-tabla');
+        var selected = $(this).find('option:selected');
+        
+        /* ha checkbox, akkor nem kell az operátor */
+         $.ajax({
+            url: 'header.php',
+            type: 'POST',
+            data: esamp2es('tabla=' + tabla + '&amp;name=' + $(this).val() + '&amp;get_feltetel=' + new Date().getTime()),
+            success: function (response) {
+                response = JSON.parse(response);
+                if (response) {
+                    $('#operator').html(response.operator);
+                    $('#feltetel').html(response.feltetel);
+                    $('#szures_submit').html('<input type="button" class="gomb f_szures_submit" value="Szűrés">');
+                }
+            }
+        });
+    });
 
     $(document).on('keyup', function(e) {
         if( e.keyCode == 27 ) {

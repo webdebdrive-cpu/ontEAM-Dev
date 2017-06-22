@@ -247,6 +247,10 @@ input.gomb.border{
     background: #76B958;
 }
 
+#mehet_gomb:disabled{
+    display: none;
+}
+
 div.kijeloltek_muv {
     display: inline-block;
     position: relative;

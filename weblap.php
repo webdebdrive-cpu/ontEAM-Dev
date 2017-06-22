@@ -7,6 +7,7 @@ require_once('class/class.Adatbazis.php');
 require_once('class/class.Head.php');
 require_once('class/html/class.Img.php');
 
+
 //Css-ben lévő képelemeket DATA-URI-ra cseréljük
 if (isset($_GET['css_img_uri'])) {
 
@@ -16,6 +17,7 @@ if (isset($_GET['css_img_uri'])) {
     }
 
 }
+
 
 $weblap = new Weblap();
 // Kötelező adatok kitöltése, nyelv, session, adatbázis csatlakozás beállítása
@@ -58,7 +60,6 @@ if($weblap -> db_prefix){
     }
 
 }
-
 //Majd a weblap indulhat, ekkor tölthető ki a meta (később már lesz kimenet)
     require_once('esemenyek.php');	//Ezt ne töröld, még ha üres is, kell, mert különben az admin nem működik
     require_once('meta.php');
