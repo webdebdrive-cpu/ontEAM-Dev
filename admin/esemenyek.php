@@ -2266,6 +2266,7 @@ foreach($postok as $ertek){
         //Megjegyzéseket általánosságban
         $sql = $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='{$ertek['tabla']}' AND `id`='{$sor['recid']}'");
         if( $sql === false ) { $db_error = true; }
+        
         if($ertek['tabla']=='bejelentes'){
             $sql = $adatbazis_kapcsolat->d('bejelentes_statusz', "`id`='{$sor['recid']}'");
             if( $sql === false ) { $db_error = true; }
@@ -2283,6 +2284,9 @@ foreach($postok as $ertek){
             $sikeres_torles = $adatbazis_kapcsolat -> u($ertek['tabla'], array('torolve'), array(1), "`recid`='{$sor['recid']}'");
         }else{
             $sikeres_torles = $adatbazis_kapcsolat -> d($ertek['tabla'], "`recid`='{$sor['recid']}'");
+        }
+        if( $sikeres_torles === false ) {
+            $db_error = true;
         }
         
         if( !$db_error ) {
