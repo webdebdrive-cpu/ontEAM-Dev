@@ -910,8 +910,21 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
 
             //Először is az ordert felülírjuk
             $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
+            
+            //Bejelentseknél a  rendezés külön problémakör:
             if($tabla=='bejelentes'){
-                $order = '`'.get_db_tabla().'bejelentes`.`surgos` DESC, `'.get_db_tabla().'bejelentes`.`ikt_szam`, `'.get_db_tabla().'bejelentes`.`telephely_id` '.$_GET['irany'];
+                //A sürgős mindig elől lesz, bármi is a rendezettség:
+                $order = '`'.get_db_tabla().'bejelentes_csoport`.`nev`, `'.get_db_tabla().'bejelentes`.`surgos` DESC,';
+                $irany_ikt_szam  = '';
+                $irany_telephely = '';
+                //Ha iktatószám szerint renezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+                if($_GET['rend']=='ikt_szam'){
+                    $order .= '`'.get_db_tabla().'bejelentes`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
+                }
+                //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
+                if($_GET['rend']=='telephely_id'){
+                    $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'bejelentes`.`ikt_szam`';
+                }
             }
             //Select-et is kiegészítjük a rendezni kívánt oszloppal
             $select .= ', `'.get_db_tabla().'telephely`.`nev`';
