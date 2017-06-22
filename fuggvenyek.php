@@ -921,8 +921,9 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
             if($tabla=='bejelentes'){
                 $sql_kieg = nl2('
                                     JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'erteklista`.`csoport`=4 AND `'.get_db_tabla().$tabla.'`.`hiba_id`=`'.get_db_tabla().'erteklista`.`recid`)
-                                    JOIN `'.get_db_tabla().'bejelentes_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'bejelentes_csoport`.`recid`
+                                    
                                 ');
+                //JOIN `'.get_db_tabla().'bejelentes_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'bejelentes_csoport`.`recid`
             }
             $mivel = array('JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id` JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid`'.$sql_kieg.' WHERE');
             $sql = str_replace($mit, $mivel, $adatbazis_kapcsolat->gp());
