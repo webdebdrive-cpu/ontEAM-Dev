@@ -160,7 +160,8 @@ switch($tabla) {
                                 `'.get_db_tabla().'erteklista`.`info`
                                 ');
 
-        $_OPTS['rendezes']  = ''; //fuggvenyek.phgp szamla_lista()-ban kerül megadásra
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
