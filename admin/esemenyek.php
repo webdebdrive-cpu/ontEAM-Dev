@@ -154,12 +154,13 @@ switch($tabla) {
                                 `'.get_db_tabla().'bejelentes`.`csoport_id`,
                                 `'.get_db_tabla().'bejelentes`.`obj_id`,
                                 `'.get_db_tabla().'bejelentes`.`hiba_id`,
-                                `'.get_db_tabla().'bejelentes_csoport`.`nev`,
+                                
                                 `'.get_db_tabla().'telephely`.`nev`,
                                 `'.get_db_tabla().'obj`.`nev`,
                                 `'.get_db_tabla().'erteklista`.`info`
                                 ');
-
+//`'.get_db_tabla().'bejelentes_csoport`.`nev`,
+        
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id');
 
