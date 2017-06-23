@@ -413,7 +413,7 @@ if($gyorskereso_text){
                             <ul>
                                 <li><a onclick="csoportMuvelet(\'csoporthoz_adas\');">Csoporthoz adás</a></li>
                                 <li><a onclick="alert2(\'Biztos törli a kijelölt sorokat a megadott csoportokból?\', csoportKiveszGomb);">Csoportból kivétel</a></li>
-                                <!--<li><a>Csoport átnevezése</a></li>-->
+                                <li><a onclick="csa_alert();">Csoport átnevezése</a></li>
                             </ul>
                         </div>
                     </div>
@@ -512,6 +512,7 @@ if($gyorskereso_text){
                 munkalapKeszitGombEgyeni = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkalapKeszit( \''.$_GET['id'].'\' );\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
             </script>
             <input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="alert2(\'Biztos munkalapot készít a kijelölt csoportokból?\', munkalapKeszitGombEgyeni);" title="Munkalap készítése">
+            <input type="button" class="gombb foGomb" value="Hozzáadás munkalaphoz" onclick="csoportMuvelet(\'munkalaphoz_adas\');" title="Hozzáadás munkalaphoz">
         ');
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';

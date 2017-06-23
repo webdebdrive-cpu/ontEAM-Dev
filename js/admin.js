@@ -593,16 +593,6 @@ $(function() {
         }
     });
 
-    $(document).on('click', 'ul.szamla_cont li.csoport span.csoportNev', function(e) {
-        var text = $(this).find('strong').text(),
-            id   = $(this).attr('data-id');
-
-        alert2('Adja meg a csoport nevét: <br><input type=\"text\" id=\"csoport_nev_szerk\" name=\"csoport_nev_szerk\" value=\"' + text + '\" style=\"margin-top: 1rem; width: 28rem;\">', "<p class=\"c\"><input type=\"submit\" name=\"elkuld\" class=\"gomb zold\" value=\"Mentés\" onclick=\"csoportAtnevezes( " + id + " );\"><input type=\"button\" name=\"megsem\" class=\"gomb piros\" value=\"Mégsem\" onclick=\"alert2();\"></p>");
-
-        e.preventDefault();
-        e.stopPropagation();
-    });
-
     $(document).on('click', 'ul.szamla_cont li.csoport', function(e) {
         var sorok = $('#szamlaList li.szamla_sor'),
             id = $(this).attr('data-id'),
@@ -881,12 +871,12 @@ $(function() {
             break;
         }*/
     });
-    
+
     /* Szűrő mező váltáskor */
     $('.f_szuro_mezo').on('change', function(e) {
         var tabla    = $(this).attr('data-tabla');
         var selected = $(this).find('option:selected');
-        
+
         /* ha checkbox, akkor nem kell az operátor */
          $.ajax({
             url: 'header.php',
@@ -944,6 +934,34 @@ function tobbBejegyzesTorol() {
         } else {
             alert2('Nincsenek kijelölt sorok!');
         }
+    }
+}
+
+function csa_alert() {
+    var csoportok = $('ul.szamla_cont li.csoport.kijelolve span.csoportNev');
+
+    $('#kmCont div.kijeloltek_muv').removeClass('active');
+
+    if( csoportok.length > 0 ) {
+        if( csoportok.length == 1 ) {
+            kijelolve_li = $('ul.szamla_cont li.kijelolve:not(.csoport)');
+
+            var text = $(csoportok).find('strong').text(),
+                id   = $(csoportok).attr('data-id');
+
+            /* Összes csoport elem száma */
+            csoport_li = $('ul.szamla_cont li.szamla_sor[data-csoportID="' + id + '"]');
+
+            if( kijelolve_li.length == csoport_li.length ) {
+                alert2('Adja meg a csoport nevét: <br><input type=\"text\" id=\"csoport_nev_szerk\" name=\"csoport_nev_szerk\" value=\"' + text + '\" style=\"margin-top: 1rem; width: 28rem;\">', "<p class=\"c\"><input type=\"submit\" name=\"elkuld\" class=\"gomb zold\" value=\"Mentés\" onclick=\"csoportAtnevezes( " + id + " );\"><input type=\"button\" name=\"megsem\" class=\"gomb piros\" value=\"Mégsem\" onclick=\"alert2();\"></p>");
+            } else {
+                alert2('Kérem csak egy csoportot jelöljön ki az átnevezéshez!');
+            }
+        } else {
+            alert2('Kérem egyszerre csak egy csoportot jelöljön meg az átnevezéshez!');
+        }
+    } else {
+        alert2('Kérem jelöljön meg egy csoportot az átnevezéshez!');
     }
 }
 
@@ -1070,7 +1088,7 @@ function csoportAtnevezes( csoportID ) {
 function munkalapKeszit( recid ) {
     idk = {};
 
-    if( recid === undefined ) {
+    if( recid === undefined || recid === false ) {
         recid = false;
     } else {
         idk[1] = recid;
@@ -1089,6 +1107,9 @@ function munkalapKeszit( recid ) {
             });
         }
     }
+
+    console.log(idk);
+    return false;
 
     if( objLength(idk) ) {
         $.ajax({
@@ -1322,15 +1343,40 @@ function csoportMuvelet( oldal ) {
     $('#kmCont div.kijeloltek_muv').removeClass('active');
 
     $.get('../sablon/admin/popup/' + oldal + '.html?cache=' + new Date().getTime(), function( data ) {
-        $('#popupTart').html(data);
 
         switch( oldal ) {
             case 'csoporthoz_adas':
+                $('#popupTart').html(data);
                 $('#insertCsop').html($('#insertCsopHidden select').clone());
+                popupNyit();
+            break;
+            case 'munkalaphoz_adas':
+                $('#popupTart').html(data);
+
+                var munkalapSelect = $.ajax({
+                 	url : 'esemenyek.php',
+                 	type: 'GET',
+                 	data: esamp2es('munkalapSelect=' + new Date().getTime()),
+                 	success: function(response) {
+                 		if(response) {
+                 			response = JSON.parse(response);
+
+                            if( response.hiba ) {
+                                alert2(response.hiba);
+                                return false;
+                            }
+
+                            $('#iMunkalapSelect').html(response.html);
+                 		}
+                 	}
+                });
+
+                $.when( munkalapSelect ).then(function() {
+                    popupNyit();
+                });
             break;
         }
 
-        popupNyit();
     });
 }
 
