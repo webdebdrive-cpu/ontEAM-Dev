@@ -1,0 +1,42 @@
+@page {
+    size: A4;
+}
+
+@media print {    
+    
+    .nyomtat_dn{
+        display: none !important;
+    }
+}
+
+body{
+    background: #ccc;
+}
+
+div.a4_allo {
+    background: #fff;
+    height: 99rem;
+    width: 70rem;
+    margin: auto;
+    position: relative;
+}
+
+div.nyomtat {
+  page-break-after: always;
+}
+
+div.footer{
+    display: table;
+    border-top: 0.1rem solid #333333;
+    position: absolute;
+    height: 3rem;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+
+img.nyomtat_ikon{
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+}

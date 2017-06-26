@@ -905,16 +905,48 @@ if(basename(self())=='utemezett_feladatok.php' && !_jog(4)){
     $uj             = '';
 }
 
-//Indítsuk el a nyomtatást
-$print_js = '';
-if (isset($_GET['print'])) {
-    $print_js = '<script>$(document).ready(function(){ window.print(); });</script>';
+
+
+
+
+/* Nyomtatások */
+if ($_GET['print']=='bej_lista') {
+    echo nl2('
+<link href="../css/nullaz.css" rel="stylesheet" type="text/css">
+<link href="../css/admin.css" rel="stylesheet" type="text/css">
+<link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
+<script src="../js/jquery.js"></script>
+<img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
+<title>Listanézet '.date('Y.m.d H:i:s').'</title>
+
+<div class="a4_allo"> 
+    <div class="padd">
+        Szűrő feltételek: <b>Nincs</b>
+    </div>
+    <div class="footer">
+        <div class="dtc padd">
+            '.$_SESSION[get_db_tabla().'teljes_nev'].'
+        </div>
+        <div class="dtc r padd">
+            '.date('Y.m.d H:i:s').'
+        </div>
+    </div>
+</div>
+            ');
+    
+    
+    
+    $weblap -> leallit();
+    exit;
 }
+
+
+
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CSS}', '{CEGNEV}', '{MENUK}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}',   '{PRINT_JS}'    ),
-    array( $css,    get_nev(),  $menuk,   $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,   $self,    get_get(),   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,      $print_js       ),
+    array('{CSS}', '{CEGNEV}', '{MENUK}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}'    ),
+    array( $css,    get_nev(),  $menuk,   $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,   $self,    get_get(),   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,       ),
     $header_sablon
 );
 

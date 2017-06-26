@@ -994,15 +994,15 @@ if (isset($_GET['debug'])) {
         }elseif($tabla=='erteklista'){
 
             $sql = 'SELECT
-                                                    `'.get_db_tabla().'erteklista`.`recid`,
-                                                    `'.get_db_tabla().'erteklista`.`csoport`,
-                                                    `'.get_db_tabla().'erteklista`.`info`,
-                                                    `'.get_db_tabla().'erteklista_csoport`.`nev`
-                                                FROM `'.get_db_tabla().'erteklista`
-                                                JOIN `'.get_db_tabla().'erteklista_csoport` ON `'.get_db_tabla().'erteklista`.`csoport`=`'.get_db_tabla().'erteklista_csoport`.`csoport`
-                                                WHERE `'.get_db_tabla().'erteklista`.`torolve`=0
-                                                ORDER BY `'.get_db_tabla().'erteklista_csoport`.`nev`, `'.get_db_tabla().'erteklista`.`info`
-                                                ';
+                        `'.get_db_tabla().'erteklista`.`recid`,
+                        `'.get_db_tabla().'erteklista`.`csoport`,
+                        `'.get_db_tabla().'erteklista`.`info`,
+                        `'.get_db_tabla().'erteklista_csoport`.`nev`
+                    FROM `'.get_db_tabla().'erteklista`
+                    JOIN `'.get_db_tabla().'erteklista_csoport` ON `'.get_db_tabla().'erteklista`.`csoport`=`'.get_db_tabla().'erteklista_csoport`.`csoport`
+                    WHERE `'.get_db_tabla().'erteklista`.`torolve`=0
+                    ORDER BY `'.get_db_tabla().'erteklista_csoport`.`nev`, `'.get_db_tabla().'erteklista`.`info`
+                    ';
 if (isset($_GET['debug'])) {
     echo $sql . '<br>';
 }
@@ -1013,13 +1013,13 @@ if (isset($_GET['debug'])) {
 
         }else{
 
-            //Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
-            $_SESSION['akt_where'] = $where;
             $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
 if (isset($_GET['debug'])) {
     echo $adatbazis_kapcsolat->gp() . '<br>';
 }
         }
+        //Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
+        $_SESSION['akt_where'] = $where;
 
 
         if( $bejegyzesek ) {

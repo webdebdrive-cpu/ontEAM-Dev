@@ -75,44 +75,6 @@ if($tobb_kep){
 
 }
 
-if( isset($_POST['jogokhozzaad']) ) {
-    $id = $_POST['id'];
-
-    /* Kitöröljük a nem kívánatos POST elemeket */
-    unset($_POST['id']);
-    unset($_POST['jogokhozzaad']);
-
-    /* Rendezzük a tömböt */
-    ksort($_POST);
-
-    $adatbazis_kapcsolat -> u('login', array('flags'), array(implode('', $_POST)), 'recid='.$id);
-
-    $weblap->leallit();
-    hd($_SERVER['REQUEST_URI']);
-
-    exit();
-}
-/*
-Ha true a config.php-ban:
-js/+jquery-ui.js aktiválni a config.php-ban az ADMIN JS és CSS RÉSZBEN!!!
-js/+admin_sorrendez.js aktiválni
-
-Hozzá kell adni ezt a fájlt:
-admin/+tobb_kep.php aktiválni
-
-Minta SQL
-CREATE TABLE IF NOT EXISTS `TABLA_kepek`(
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `"TERMEK"ID` int(10) unsigned default NULL,
-  `kepnev` varchar(100) NOT NULL default '',
-  `megj` varchar(200) NOT NULL default '',
-  `sor` int(11) NOT NULL default '0',
-  `datetime` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`id`)
-)
-
-Vízjelezéshez vissza kell kommentezni a +tobb_kep.php-ban a Képfeltöltésnél egy részt!
-*/
 
 /** Események */
 if(isset($_GET['siker']) && isset($_GET['modosit'])){
@@ -421,8 +383,8 @@ if($gyorskereso_text){
                         <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista..." disabled="disabled">
                         <div class="muv">
                             <ul>
-                                <li><a onclick="alert2(\'Biztos várólistához adja a kijelölt bejegyzéseket?\', varolistahozGomb);">Várólistához adás</a></li>
-                                <li><a onclick="alert2(\'Biztos törli a várólistából a kijelölt bejegyzéseket?\', varolistabolGomb);">Várólistból kivétel</a></li>
+                                <li><a onclick="alert2(\'Biztos várólistához adja a kijelölt bejelentéseket?\', varolistahozGomb);">Várólistához adás</a></li>
+                                <li><a onclick="alert2(\'Biztos törli a várólistából a kijelölt bejelentéseket?\', varolistabolGomb);">Várólistból kivétel</a></li>
                             </ul>
                         </div>
                     </div>
@@ -507,7 +469,7 @@ if($gyorskereso_text){
             <script>
                 munkalapKeszitGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkalapKeszit();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
             </script>
-            <input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="alert2(\'Biztos munkalapot készít a kijelölt bejegyzés(ek)ből?\', munkalapKeszitGomb);" title="Munkalap készítése">
+            <input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="alert2(\'Biztos munkalapot készít a kijelölt bejelentés(ek)ből?\', munkalapKeszitGomb);" title="Munkalap készítése">
         ');
 
         if( _jog(2) ) {

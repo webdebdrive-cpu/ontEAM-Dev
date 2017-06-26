@@ -23,6 +23,14 @@ JOGOSOLTSÁGKEZELÉSKOR, HA EGY ŰRLAP NEM SZERKESZTHETŐ:
 - esemenyek.php-ban az if(isset($_GET[$ertek['torid']])) résznél szintén blokkold a tölést
 - törlés ikonra kattintva hibaüzenet (pl. státusz miatt nem szerkeszthető): addott php fájl: <input type="button" id="recordTorol">-t keresd
 
+
 TÖRLÉSKOR A KAPCSOLÓDÓ TÁBLÁK LEKEZELÉSE:
 - esemenyek.php-ben a if(isset($_GET[$ertek['torid']])) részt keres, és ennek a végén találod.
 
+
+SZŰRÉS LEKEZELÉSE:
+- header.php
+
+
+NYOMATÁSI NÉZETEK KIGENEÁRLÁSA:
+- header.php
