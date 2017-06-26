@@ -150,26 +150,46 @@ function i_u($type, $tabla, $tomb){
     }
 
 	if($type == 'insert') {
+        
         /* Datetime-ot is frissítjük */
         if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
             array_push($oszlopok, 'insert_dt',          'insert_usr'                          );
             array_push($ertekek,   date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']);
         }
 
-        if( $tabla == 'login' ) {
-            if( $_POST['szerepkor_id'] ) {
-                $szerepkor = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
+        //Anyagigénylés
+        if( $tabla == 'anyagigenyles' ) {
+            
+            /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
+            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.date('y'), '', '');
 
-                if( $szerepkor ) {
-                    $szerepkor = $szerepkor[0];
+            if( $ikt_seq ) {
+                $ikt_seq = $ikt_seq[0];
 
-                    if( $szerepkor['flags'] ) {
-                        array_push($oszlopok, 'flags'             );
-                        array_push($ertekek,   $szerepkor['flags']);
-                    }
-                }
+                /* Sorszám */
+                $sorszam = $ikt_seq['sorszam'];
+
+                /* Sorszám növelés */
+                $sorszam++;
+
+                /* Letároljuk az új sorszámot */
+                $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
+            } else {
+                /* Sorszám */
+                $sorszam = 1;
+
+                $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
             }
 
+            /* Iktatószám formázása */
+            $ikt_szam = date('y').'/'.sprintf('%04d', $sorszam);
+            
+            array_push($oszlopok,  'ikt_szam');
+            array_push($ertekek,   $ikt_szam );
+
+            array_push($oszlopok, 'loginnev'                        );
+            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
+            
         //Bejelentések iktatószám képzése
         } else if( $tabla == 'bejelentes' ) {
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
@@ -202,6 +222,36 @@ function i_u($type, $tabla, $tomb){
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
+        //Gégpek
+        } else if( $tabla == 'gep' ) {
+            array_push($oszlopok, 'loginnev'                        );
+            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
+            
+        //Költséghely
+        } else if( $tabla == 'ktghely' ) {
+            array_push($oszlopok, 'loginnev'                        );
+            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
+            
+        //Költségnem
+        } else if( $tabla == 'ktgnem' ) {
+            array_push($oszlopok, 'loginnev'                        );
+            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
+            
+        //Login
+        }elseif( $tabla == 'login' ) {
+            if( $_POST['szerepkor_id'] ) {
+                $szerepkor = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
+
+                if( $szerepkor ) {
+                    $szerepkor = $szerepkor[0];
+
+                    if( $szerepkor['flags'] ) {
+                        array_push($oszlopok, 'flags'             );
+                        array_push($ertekek,   $szerepkor['flags']);
+                    }
+                }
+            }
+            
         //Ütemezett feladatok ID képzése
         } else if( $tabla == 'utemezett_feladatok' ) {
             /* ID formázása */
@@ -233,17 +283,6 @@ function i_u($type, $tabla, $tomb){
             array_push($oszlopok,  'id' );
             array_push($ertekek,   $id  );
 
-            array_push($oszlopok, 'loginnev'                        );
-            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
-
-        //Gégpek
-        } else if( $tabla == 'gep' ) {
-            array_push($oszlopok, 'loginnev'                        );
-            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
-        } else if( $tabla == 'ktghely' ) {
-            array_push($oszlopok, 'loginnev'                        );
-            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
-        } else if( $tabla == 'ktgnem' ) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
         }
@@ -1548,7 +1587,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['recid'].'</span>
+                            <span>'.$bsz['ikt_szam'].'</span>
                         </a>';
 
             if( !$frissit ) {

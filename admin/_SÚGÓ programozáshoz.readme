@@ -7,7 +7,7 @@
 - fuggvenyek.php-ben a szamla_lista() függvényt bővítsd ki, és annak megfelelően egy új függvényt is hozz létre.
 
 
-LOGINNEV nevű oszlop feltöltése
+LOGINNEV nevű oszlop feltöltése utólag az insert_usr alapján
 Ha kell egy loginnev nevű oszlop, de csak insert_usr adataid vannak, akkor az index.php elején találsz egy $_GET['loginnev_gyart'] karbantartó függvényt, amivel fel tudod tölteni az adatokat.
 FONTOS: ilyenkor  a fuggvenyek.php-ban az i_u()-nél fel kell venned a 'loginnev' oszlopot a tömbbe (lásd gépek esete):
        } else if( $tabla == 'cikktorzs' ) {

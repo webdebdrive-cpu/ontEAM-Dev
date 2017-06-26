@@ -321,19 +321,14 @@ switch($tabla) {
     break;
     case 'anyagigenyles.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid';
+        $_OPTS['select']    = 'recid ikt_szam';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('recid');
+        $_OPTS['rendezes']  = array('ikt_szam');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'recid';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
+            $_GET['rend'] = 'ikt_szam';
         }
     break;
     case 'energia.php':
@@ -1071,6 +1066,23 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //Anyagigénylés
 $megnevezes = 'anyagigenyles';
 $anyagigenyles_tomb = $akt_tomb = array(
+    array('type' => 'text',                     'megn' => 'Iktató szám:',           'name' => 'ikt_szam',      'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
+    array('type' => 'checkbox',                 'megn' => 'Készpénzes:',            'name' => 'keszpenz', 'post' => '<input type="button" value="Igénylés történet" style="margin-left: 2rem" class="gomb"> <input type="button" value="rendelés kép" class="gomb">'),
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',              'name' => 'telephely_id', 'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+    array('type' => 'autocomplete',             'megn' => 'Cikk név:',              'name' => 'cikktorzs_id',   'class' => 'oriasi disableNav csillag', 'tabla' => 'cikktorzs', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
+    array('type' => 'text',                     'megn' => 'Igénylet mennyiség:',    'name' => 'igmen',      'post' => ' db<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
+    array('type' => 'checkbox',                 'megn' => 'RB-s anyag:',            'name' => 'kulsosnek'),
+    array('type' => 'text',                     'megn' => 'Jóváhagyott mennyiség:', 'name' => 'jhmen',      'post' => ' db<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
+    array('type' => 'text',                     'megn' => '<span style="margin-left: 4rem"></span>Rendelés szám:',         'name' => 'rndid'),
+    array('type' => 'text',                     'megn' => 'Rendelt mennyiség:',     'name' => 'rndmen',     'post' => ' db<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
+    array('type' => 'text',                     'megn' => '<span style="margin-left: 1.2rem"></span>Rendelési egységár:',    'name' => 'rndear',     'post' => ' '.  get_penznem()),
+    array('type' => 'text',                     'megn' => 'Beérkezett mennyiség:',  'name' => 'erkmen',     'post' => ' db<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
+    array('type' => 'text',                     'megn' => '<span style="margin-left: 0.4rem"></span>Beérkezési egységár:',   'name' => 'erkear',     'post' => ' '.  get_penznem()),
+    array('type' => 'autocomplete',             'megn' => 'Pénznem:',               'name' => 'kcs_21',    'class' => 'disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 21, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a pénznemet!', 'style' => 'width: 5rem'),
+    array('type' => 'text',                     'megn' => 'Deviza rend. egységár:', 'name' => 'vrndear', 'osszevon' => 1),
+    array('type' => 'text',                     'megn' => '<span style="margin-left: 2.6rem"></span>Deviza beérk. egységár:','name' => 'verkear'),
+    array('type' => 'autocomplete',             'megn' => 'Szállító:',              'name' => 'szallito',   'class' => 'oriasi disableNav csillag', 'szuro' => 1, 'tabla' => 'szallito', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
+    //cikktorzs
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
