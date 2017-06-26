@@ -1385,7 +1385,16 @@ if( isset($_GET['munkalapSelect']) ) {
         $html = '<select id="munkalapID" name="munkalapID"><option value="">- Válassz -</option>';
 
         foreach($munkalapok as $munkalap) {
-            $html .= '<option value="'.$munkalap['recid'].'">'.$munkalap['recid'].'</option>';
+            $munkalap_statusz = $adatbazis_kapcsolat->s('stat_id', 'munkalap_statusz', "`id` = '{$munkalap['recid']}'", 'insert_dt desc', '1');
+
+            if( $munkalap_statusz ) {
+                $munkalap_statusz = $munkalap_statusz[0];
+
+                if( in_array($munkalap_statusz['stat_id'], array(1, 7, 2, 9)) ) {
+                    $html .= '<option value="'.$munkalap['recid'].'">'.$munkalap['recid'].'</option>';
+                }
+            }
+
         }
 
         $html .= '</select>';
