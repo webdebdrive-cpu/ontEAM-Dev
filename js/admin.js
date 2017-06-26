@@ -1085,31 +1085,85 @@ function csoportAtnevezes( csoportID ) {
     }
 }
 
-function munkalapKeszit( recid ) {
+function munkalaphozAdas() {
     idk = {};
 
-    if( recid === undefined || recid === false ) {
-        recid = false;
+    szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+
+    if( szamlaSorok.length ) {
+        var i = 1;
+        szamlaSorok.each(function() {
+            var id = $(this).attr('data-recid');
+
+            idk[i] = id;
+            i++;
+        });
     } else {
-        idk[1] = recid;
-    }
+        var recid = $('#szamlaBetolt').attr('data-recid');
 
-    if( recid === false ) {
-        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
-
-        if( szamlaSorok.length ) {
-            var i = 1;
-            szamlaSorok.each(function() {
-                var id = $(this).attr('data-recid');
-
-                idk[i] = id;
-                i++;
-            });
+        if( recid ) {
+            idk[1] = recid;
         }
     }
 
-    console.log(idk);
+    var munkalapID = $('#munkalapID').val();
+
+    if( munkalapID ) {
+        if( objLength(idk) ) {
+            $.ajax({
+                url : 'esemenyek.php',
+                type: 'POST',
+                data: {
+                    idk: JSON.stringify(idk),
+                    munkalapID: munkalapID,
+                    munkalaphozAdas: new Date().getTime()
+                },
+                success: function(response) {
+                    if(response) {
+                        response = JSON.parse(response);
+
+                        if( response.hiba ) {
+                            alert2(response.hiba);
+                            return false;
+                        }
+
+                        location.href = 'munkalap.php?id=' + response.recid + '&modosit';
+
+                        kijelolesEltavolit();
+                        popupZar();
+                    }
+                }
+            });
+        } else {
+            alert2('Nincsenek kijelölt sorok!');
+        }
+    } else {
+        alert2('Kérem válasszon egy munkalapot!');
+    }
+
     return false;
+}
+
+function munkalapKeszit() {
+    idk = {};
+
+    szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+
+    if( szamlaSorok.length ) {
+        var i = 1;
+        szamlaSorok.each(function() {
+            var id = $(this).attr('data-recid');
+
+            idk[i] = id;
+            i++;
+        });
+    } else {
+        var recid = $('#szamlaBetolt').attr('data-recid');
+
+        if( recid ) {
+            idk[1] = recid;
+        }
+    }
 
     if( objLength(idk) ) {
         $.ajax({
@@ -1392,8 +1446,6 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     if( !sorok.hasClass('kijelolve') && reszleg == 'fo' ) {
         $('#kmCont').find('input[type="button"]').attr('disabled', true);
         $('#navGombok a.torles').attr('onclick', 'naviTorles();');
-        $('#munkalapEgyeni').removeClass('dn');
-        $('#munkalapTobb').addClass('dn');
 
         if( _get('id') ) {
             $('#szamla-' + _get('id')).addClass('active');
@@ -1402,8 +1454,6 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     } else if( sorok.hasClass('kijelolve') && reszleg == 'fo' ) {
         $('#kmCont').find('input[type="button"]').attr('disabled', false);
         $('#navGombok a.torles').attr('onclick', 'tbt_alert();');
-        $('#munkalapEgyeni').addClass('dn');
-        $('#munkalapTobb').removeClass('dn');
     }
 
     if( !sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
@@ -1464,8 +1514,6 @@ function kijelolesEltavolit() {
         $('.kijeloltek_muv').removeClass('active');
         $('#kmCont').find('input[type="button"]').attr('disabled', true);
         $('#navGombok a.torles').attr('onclick', 'naviTorles();');
-        $('#munkalapEgyeni').removeClass('dn');
-        $('#munkalapTobb').addClass('dn');
 
         $('ul.szamla_cont li.csoport').removeClass('kijelolve');
 
@@ -1994,7 +2042,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
          		if(html) {
                     html = JSON.parse(html);
 
-         			$('#szamlaBetolt').html(html.tartalom).promise().done(function() {
+         			$('#szamlaBetolt').attr('data-recid', recid).html(html.tartalom).promise().done(function() {
                         dfrd1.resolve();
                     });
 

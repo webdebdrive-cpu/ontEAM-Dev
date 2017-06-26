@@ -1201,12 +1201,176 @@ $eszkozkezeles_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 //{KOVETKEZO_TOMB}
 
+
+/* Munkalaphoz adás */
+if( isset($_POST['munkalaphozAdas']) ) {
+    $idk = json_decode($_POST['idk'], true);
+    $munkalapID = $_POST['munkalapID'];
+
+    if( !_jog(2) ) {
+        echo json_encode(array(
+            'hiba' => 'Nincs megfelelő jogosultság a művelet végrehajtásához!'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( is_array($idk) && $munkalapID ) {
+        /* Ellenőrizzük a csoportokat */
+        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
+        $csoportok_unique = array_unique($csoportok);
+
+        $kijelolt_db = array_count_values($csoportok);
+
+        foreach( $csoportok_unique as $csu ) {
+            if( $csu > 0 ) {
+                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`csoport_id` = '{$csu}'", '', '');
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+
+                if( count($csoport_db) != $kijelolt_db[$csu] ) {
+                    echo json_encode(array(
+                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+        }
+
+        /* Ellenőrizzük a státuszokat is */
+        foreach($idk as $id) {
+            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'bejelentes_statusz', 'id='.$id, 'insert_dt desc', '1');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $statusz ) {
+                $statusz = $statusz[0];
+
+                if( $statusz['stat_id'] != 1 ) {
+                    $sql = $statusz_text = $adatbazis_kapcsolat->s('nev', 'bejelentes_statusz_text', "`recid` = '{$statusz['stat_id']}'", '', '1');
+                    $statusz_text = $statusz_text[0];
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    $sql = $bejelentes = $adatbazis_kapcsolat->s('ikt_szam', 'bejelentes', "`recid` = '{$id}'", '', '');
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    $hiba_kieg = '';
+                    if( $bejelentes ) {
+                        $bejelentes = $bejelentes[0];
+
+                        $hiba_kieg = '<br>A "'.$bejelentes['ikt_szam'].'" bejelentés státusza: '.$statusz_text['nev'];
+                    }
+
+                    echo json_encode(array(
+                        'hiba' => 'Munkalap csak nyitott státuszú bejegyzésből készíthető!'.$hiba_kieg
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            } else {
+                echo json_encode(array(
+                    'hiba' => 'Státusz nem található!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
+        /* Státuszt folyamatban-ra állítjuk */
+        foreach($idk as $id) {
+            $statusz = addStatusz( 'bejelentes_statusz', $id, 2 );
+
+            if( $statusz === false ) {
+                $db_error = true;
+            }
+        }
+
+        if( !$db_error ) {
+            $munkalap_statusz = $adatbazis_kapcsolat->s('stat_id', 'munkalap_statusz', "`id` = '{$munkalapID}'", 'insert_dt desc', '1');
+
+            if( $munkalap_statusz ) {
+                $munkalap_statusz = $munkalap_statusz[0];
+
+                if( in_array($munkalap_statusz['stat_id'], array(1, 7, 2, 9)) ) {
+                    /* Hozzákapcsoljuk a bejelentéseket */
+                    foreach($idk as $id) {
+                        $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
+                            array('munkalap_id', 'bejelentes_id',  'update_dt',          'update_usr',                          'insert_dt',          'insert_usr',                            ),
+                            array($munkalapID,    $id,              date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']  )
+                        );
+
+                        if( $sql === false ) {
+                            $db_error = true;
+                        }
+                    }
+                } else {
+                    echo json_encode(array(
+                        'hiba' => 'Csak nyitott, várakozó, folyamatban vagy anyagra vár státuszú munkalaphoz lehet bejelentéseket adni!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            } else {
+                echo json_encode(array(
+                    'hiba' => 'Munkalap státusz nem található!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker',
+                'recid' => $munkalapID
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 /* Csoport átnevezése */
 if( isset($_GET['munkalapSelect']) ) {
     $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', '', 'insert_dt desc', '');
 
     if( $munkalapok ) {
-        $html = '<select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
+        $html = '<select id="munkalapID" name="munkalapID"><option value="">- Válassz -</option>';
 
         foreach($munkalapok as $munkalap) {
             $html .= '<option value="'.$munkalap['recid'].'">'.$munkalap['recid'].'</option>';

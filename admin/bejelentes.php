@@ -223,7 +223,7 @@ if($gyorskereso_text){
 }
 
     if( !$_GET['ajax'] ) {
-        echo '<div id="szamlaBetolt">';
+        echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'">';
     }
 
     if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzes']) ) {
@@ -426,10 +426,6 @@ if($gyorskereso_text){
                             </ul>
                         </div>
                     </div>
-                    <script>
-                        munkalapKeszitGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkalapKeszit();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                    </script>
-                    <input type="button" id="munkalapTobb" class="gombb foGomb dn" value="Munkalap készítése" onclick="alert2(\'Biztos munkalapot készít a kijelölt csoportokból?\', munkalapKeszitGomb);" title="Munkalap készítése" disabled="disabled">
                 </div>
             ');
         }
@@ -509,11 +505,14 @@ if($gyorskereso_text){
 
         $gombok .= nl2('
             <script>
-                munkalapKeszitGombEgyeni = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkalapKeszit( \''.$_GET['id'].'\' );\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                munkalapKeszitGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkalapKeszit();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
             </script>
-            <input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="alert2(\'Biztos munkalapot készít a kijelölt csoportokból?\', munkalapKeszitGombEgyeni);" title="Munkalap készítése">
-            <input type="button" class="gombb foGomb" value="Hozzáadás munkalaphoz" onclick="csoportMuvelet(\'munkalaphoz_adas\');" title="Hozzáadás munkalaphoz">
+            <input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="alert2(\'Biztos munkalapot készít a kijelölt bejegyzés(ek)ből?\', munkalapKeszitGomb);" title="Munkalap készítése">
         ');
+
+        if( _jog(2) ) {
+            $gombok .= '<input type="button" class="gombb foGomb" value="Hozzáadás munkalaphoz" onclick="csoportMuvelet(\'munkalaphoz_adas\');" title="Hozzáadás munkalaphoz">';
+        }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
