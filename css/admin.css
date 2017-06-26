@@ -1637,8 +1637,21 @@ div.naplo.szakter {
     margin: 4rem 0rem 0rem 0rem;
 }
 
+div.naplo.munkalap {
+    margin: 2rem 0rem 0rem 0rem;
+}
+
+div.naplo.behuz {
+    margin: 0rem 0rem 0rem 0rem;
+    padding: 0rem 0rem 0rem 2rem;
+}
+
 div.naplo div.nFejlec {
     background: #f1eff0;
+}
+
+div.naplo.sotet div.nFejlec {
+    background: #7d7d7d;
 }
 
 div.naplo a.torles {
@@ -1656,6 +1669,14 @@ div.naplo a.torles {
 div.naplo div.nFejlec div.dtc {
     border-bottom: 0.1rem solid #8e8e8e;
     padding: 1rem 1.5rem 1rem 1.5rem;
+}
+
+div.naplo.sotet div.nFejlec div.dtc {
+    color: #fff;
+}
+
+div.naplo.kicsi div.nFejlec div.dtc {
+    padding: 0.5rem 1.5rem 0.5rem 1.5rem;
 }
 
 div.naplo div.nSor.uj {

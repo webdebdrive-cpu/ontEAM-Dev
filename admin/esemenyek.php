@@ -829,7 +829,7 @@ $bejelentes_dok_tomb = $akt_tomb = array(
 /* Munkalap */
 $megnevezes = 'munkalap';
 $munkalap_tomb = $akt_tomb = array(
-    array('type' => 'text',            'megn' => 'Iktató szám:',        'name' => 'recid',      'disabled' => false,       'maxlength' => 250, 'class' => 'oriasi'),
+    array('type' => 'text',            'megn' => 'Iktató szám:',        'name' => 'recid',      'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi'),
 
     //array('type' => 'statusz',         'megn' => 'Státusz:',            'oldal' => 'bejelentes'),
 );

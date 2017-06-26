@@ -364,6 +364,78 @@ if($gyorskereso_text){
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
 
+        /* Tétel sorok */
+        $sorok = $adatbazis_kapcsolat->s('recid atadta_dt insert_dt insert_usr', 'munkalap_tetel', "`munkalap_id` = '".$_GET['id']."'", 'insert_dt desc', '');
+
+        if( $sorok ) {
+            foreach($sorok as $sor) {
+                $szamla_html .= nl2('
+                    <div class="dt naplo sotet munkalap">
+                        <div class="dtr nFejlec">
+                            <div class="dtc">Felvette</div>
+                            <div class="dtc">Létrehozta</div>
+                            <div class="dtc">Átadta</div>
+                        </div>
+                ');
+
+                $szamla_html .= nl2('
+                    <div class="dtr nSor">
+                        <div class="dtc">'.date('Y.m.d H:i:s', strtotime($sor['insert_dt'])).'</div>
+                        <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.date('Y.m.d H:i:s', strtotime($sor['atadta_dt'])).'</div>
+                    </div>
+                ');
+
+                $szamla_html .= '</div>';
+
+                /* Elvégzett feladatok lekérdezése */
+                $feladatok = $adatbazis_kapcsolat->s('id tetel_id memo', 'munkalap_feladat', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
+
+                if( $feladatok ) {
+                    $szamla_html .= nl2('
+                        <div class="dt naplo munkalap kicsi behuz">
+                            <div class="dtr nFejlec">
+                                <div class="dtc">Elvégzett feladat</div>
+                                <div class="dtc">Memó</div>
+                            </div>
+                    ');
+
+                    foreach($feladatok as $feladat) {
+                        $szamla_html .= nl2('
+                            <div class="dtr nSor">
+                                <div class="dtc">'.erteklista(5, $feladat['id']).'</div>
+                                <div class="dtc">'.$feladat['memo'].'</div>
+                            </div>
+                        ');
+                    }
+
+                    $szamla_html .= '</div>';
+                }
+
+                /* Elvégzett feladatok lekérdezése */
+                $anyagok = $adatbazis_kapcsolat->s('cikk_nev', 'munkalap_anyag', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
+
+                if( $anyagok ) {
+                    $szamla_html .= nl2('
+                        <div class="dt naplo munkalap kicsi behuz">
+                            <div class="dtr nFejlec">
+                                <div class="dtc">Anyag felhasználás</div>
+                            </div>
+                    ');
+
+                    foreach($anyagok as $anyag) {
+                        $szamla_html .= nl2('
+                            <div class="dtr nSor">
+                                <div class="dtc">'.$anyag['cikk_nev'].'</div>
+                            </div>
+                        ');
+                    }
+
+                    $szamla_html .= '</div>';
+                }
+            }
+        }
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
