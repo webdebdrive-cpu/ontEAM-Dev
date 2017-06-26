@@ -220,6 +220,7 @@ input.gomb.border{
     border-radius: 0rem;
     border-top: 0.2rem solid #004990;
     margin: 1rem 0rem 0rem 0rem;
+    min-height: 5rem;
     padding: 1rem 1rem 1rem 1rem;
     position: fixed;
     bottom: 0rem;

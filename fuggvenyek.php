@@ -949,7 +949,7 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
 
             //Először is az ordert felülírjuk
             $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
-            
+
             //Bejelentseknél a  rendezés külön problémakör:
             if($tabla=='bejelentes'){
                 //A sürgős mindig elől lesz, bármi is a rendezettség:
@@ -1149,7 +1149,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                     if( $csoportSor ) {
                         $csoportSor = $csoportSor[0];
 
-                        $html .= '<li class="szamla_datum csoport" data-id="'.$aktCsoport.'"><span class="icon"></span><span class="csoportNev" data-id="'.$aktCsoport.'"><strong>'.$csoportSor['nev'].'</strong><i class="material-icons">create</i></li>';
+                        $html .= '<li class="szamla_datum csoport" data-id="'.$aktCsoport.'"><span class="icon"></span><span class="csoportNev" data-id="'.$aktCsoport.'"><strong>'.$csoportSor['nev'].'</strong></li>';
                     }
 
                     $csoport = $aktCsoport;
@@ -2933,14 +2933,14 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_
 
 //megnevezésből a megfelelő tömb betöltése központosítva
 function get_akt_tomb($megn){
-    
+
     global $bejelentes_tomb;
     global $login_tomb;
-    
+
     switch($megn){
         case 'bejelentes'   : $akt_tomb = $bejelentes_tomb; break;
         case 'login'        : $akt_tomb = $login_tomb;      break;
     }
-    
+
     return $akt_tomb;
 }

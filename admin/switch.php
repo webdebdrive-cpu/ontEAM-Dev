@@ -266,7 +266,7 @@ foreach($akt_tomb as $ertek){
 
                     if( $statusz_sor['erteklista_id'] ) {
                         $ertek = $adatbazis_kapcsolat->s('info', 'erteklista', 'recid='.$statusz_sor['erteklista_id'], '', '1');
-                        
+
                         if( $ertek ) {
                             $ertek = $ertek[0];
 

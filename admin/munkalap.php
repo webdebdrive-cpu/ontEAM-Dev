@@ -1,6 +1,7 @@
 <?php
 require_once('../weblap.php');
 //Config
+
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $munkalap_tomb;
