@@ -235,10 +235,10 @@ require_once('header.php');
 							//Azonosítás fejléc nevekkel
 							switch($key_kicsi) {
 
-								case 'id'               : $id       = $akt_tomb[$key];  break;
-								case 'nev'              : $nev      = $akt_tomb[$key];  break;
-								case 'recid'            : $recid    = $akt_tomb[$key];  break;
-								case 'aktiv'            : $aktiv    = $akt_tomb[$key];  break;
+								case 'id'               : $id       = trim($akt_tomb[$key]);  break;
+								case 'nev'              : $nev      = trim($akt_tomb[$key]);  break;
+								case 'recid'            : $recid    = trim($akt_tomb[$key]);  break;
+								case 'aktiv'            : $aktiv    = trim($akt_tomb[$key]);  break;
 
 							}
 						}
@@ -1036,14 +1036,14 @@ require_once('header.php');
 							//Azonosítás fejléc nevekkel
 							switch($key_kicsi) {
 
-								case 'csoport'          : (int)$csoport = $akt_tomb[$key];  break;
-								case 'data'             : (int)$id      = $akt_tomb[$key];  break;
-								case 'info'             : $info         = $akt_tomb[$key];  break;
-								case 'recid'            : $recid        = $akt_tomb[$key];  break;
-								case 'update_dt'        : $update_dt    = $akt_tomb[$key];  break;
-								case 'update_usr'       : $update_usr   = $akt_tomb[$key];  break;
-								case 'insert_dt'        : $insert_dt    = $akt_tomb[$key];  break;
-								case 'insert_usr'       : $insert_usr   = $akt_tomb[$key];  break;
+								case 'csoport'          : (int)$csoport = trim($akt_tomb[$key]);  break;
+								case 'data'             : (int)$id      = trim($akt_tomb[$key]);  break;
+								case 'info'             : $info         = trim($akt_tomb[$key]);  break;
+								case 'recid'            : $recid        = trim($akt_tomb[$key]);  break;
+								case 'update_dt'        : $update_dt    = trim($akt_tomb[$key]);  break;
+								case 'update_usr'       : $update_usr   = trim($akt_tomb[$key]);  break;
+								case 'insert_dt'        : $insert_dt    = trim($akt_tomb[$key]);  break;
+								case 'insert_usr'       : $insert_usr   = trim($akt_tomb[$key]);  break;
 
 							}
 						}
@@ -1163,57 +1163,57 @@ require_once('header.php');
 								case 'erk_dat'          :
                                     $erk_dat = str_replace('.', '-', $akt_tomb[$key]);
                                 break;
-								case 'iktszam'          : $iktszam      = $akt_tomb[$key];  break;
+								case 'iktszam'          : $iktszam      = trim($akt_tomb[$key]);  break;
 								case 'vissza_dat'       :
                                     $vissza_dat = str_replace('.', '-', $akt_tomb[$key]);
                                 break;
-								case 'szallkod'         : $szallkod     = $akt_tomb[$key];  break;
-								case 'szlaszam'         : $szlaszam     = $akt_tomb[$key];  break;
+								case 'szallkod'         : $szallkod     = trim($akt_tomb[$key]);  break;
+								case 'szlaszam'         : $szlaszam     = trim($akt_tomb[$key]);  break;
 								case 'telj_dat'         :
                                     $telj_dat = str_replace('.', '-', $akt_tomb[$key]);
                                 break;
 								case 'fizhat_dat'       :
                                     $fizhat_dat = str_replace('.', '-', $akt_tomb[$key]);
                                 break;
-								case 'szallitoid'       : $szallitoid   = $akt_tomb[$key];  break;
-								case 'targy'            : $targy        = $akt_tomb[$key];  break;
-								case 'netert'           : $netert       = $akt_tomb[$key];  break;
-								case 'brutert'          : $brutert      = $akt_tomb[$key];  break;
-								case 'kifmod'           : $kifmod       = $akt_tomb[$key];  break;
-								case 'kcs_03'           : $kcs_03       = $akt_tomb[$key];  break;
-								case 'kcs_56'           : $kcs_56       = $akt_tomb[$key];  break;
-								case 'kcs_06'           : $kcs_06       = $akt_tomb[$key];  break;
-								case 'valnetert'        : $valnetert    = $akt_tomb[$key];  break;
-								case 'valbrutert'       : $valbrutert   = $akt_tomb[$key];  break;
-								case 'valarf'           : $valarf       = $akt_tomb[$key];  break;
+								case 'szallitoid'       : $szallitoid   = trim($akt_tomb[$key]);  break;
+								case 'targy'            : $targy        = trim($akt_tomb[$key]);  break;
+								case 'netert'           : $netert       = trim($akt_tomb[$key]);  break;
+								case 'brutert'          : $brutert      = trim($akt_tomb[$key]);  break;
+								case 'kifmod'           : $kifmod       = trim($akt_tomb[$key]);  break;
+								case 'kcs_03'           : $kcs_03       = trim($akt_tomb[$key]);  break;
+								case 'kcs_56'           : $kcs_56       = trim($akt_tomb[$key]);  break;
+								case 'kcs_06'           : $kcs_06       = trim($akt_tomb[$key]);  break;
+								case 'valnetert'        : $valnetert    = trim($akt_tomb[$key]);  break;
+								case 'valbrutert'       : $valbrutert   = trim($akt_tomb[$key]);  break;
+								case 'valarf'           : $valarf       = trim($akt_tomb[$key]);  break;
 								case 'valarf_dat'       :
                                     $valarf_dat = str_replace('.', '-', $akt_tomb[$key]);
                                 break;
-								case 'kcs_51'           : $kcs_51       = $akt_tomb[$key];  break;
-								case 'kiseroszam'       : $kiseroszam   = $akt_tomb[$key];  break;
-								case 'rendszam'         : $rendszam     = $akt_tomb[$key];  break;
-								case 'bevszam'          : $bevszam      = $akt_tomb[$key];  break;
+								case 'kcs_51'           : $kcs_51       = trim($akt_tomb[$key]);  break;
+								case 'kiseroszam'       : $kiseroszam   = trim($akt_tomb[$key]);  break;
+								case 'rendszam'         : $rendszam     = trim($akt_tomb[$key]);  break;
+								case 'bevszam'          : $bevszam      = trim($akt_tomb[$key]);  break;
 								case 'ikt_dat'          :
                                     $ikt_dat = str_replace('.', '-', $akt_tomb[$key]);
                                 break;
-								case 'iktatta'          : $iktatta      = $akt_tomb[$key];  break;
+								case 'iktatta'          : $iktatta      = trim($akt_tomb[$key]);  break;
 								case 'kontir_dat'       :
                                     $kontir_dat = str_replace('.', '-', $akt_tomb[$key]);
                                 break;
-								case 'kontirozta'       : $kontirozta   = $akt_tomb[$key];  break;
+								case 'kontirozta'       : $kontirozta   = trim($akt_tomb[$key]);  break;
 								case 'igazol_dat'       :
                                     $igazol_dat = str_replace('.', '-', $akt_tomb[$key]);
                                 break;
-								case 'igazolta'         : $igazolta     = $akt_tomb[$key];  break;
+								case 'igazolta'         : $igazolta     = trim($akt_tomb[$key]);  break;
 								case 'elkuld_dat'       :
                                     $elkuld_dat = str_replace('.', '-', $akt_tomb[$key]);
                                 break;
-								case 'elkuldte'         : $elkuldte     = $akt_tomb[$key];  break;
-								case 'kif_dat'          : $kif_dat      = $akt_tomb[$key];  break;
-								case 'recid'            : $recid        = $akt_tomb[$key];  break;
-								case 'celszkod'         : $celszkod     = $akt_tomb[$key];  break;
-								case 'megjegyzes'       : $megjegyzes   = $akt_tomb[$key];  break;
-								case 'kcs_17'           : $kcs_17       = $akt_tomb[$key];  break;
+								case 'elkuldte'         : $elkuldte     = trim($akt_tomb[$key]);  break;
+								case 'kif_dat'          : $kif_dat      = trim($akt_tomb[$key]);  break;
+								case 'recid'            : $recid        = trim($akt_tomb[$key]);  break;
+								case 'celszkod'         : $celszkod     = trim($akt_tomb[$key]);  break;
+								case 'megjegyzes'       : $megjegyzes   = trim($akt_tomb[$key]);  break;
+								case 'kcs_17'           : $kcs_17       = trim($akt_tomb[$key]);  break;
 								case 'sablon'           :
                                     if( $akt_tomb[$key] == 'IGAZ' ) {
                                         $sablon = 1;
@@ -1221,12 +1221,12 @@ require_once('header.php');
                                         $sablon = 0;
                                     }
                                 break;
-								case 'szabadszal'       : $szabadszal   = $akt_tomb[$key];  break;
+								case 'szabadszal'       : $szabadszal   = trim($akt_tomb[$key]);  break;
 								case 'szkp_dat'         :
                                     $szkp_dat = str_replace('.', '-', $akt_tomb[$key]);
                                 break;
-								case 'szkpfeldol'       : $szkpfeldol   = $akt_tomb[$key];  break;
-								case 'afatipus'         : $afatipus     = $akt_tomb[$key];  break;
+								case 'szkpfeldol'       : $szkpfeldol   = trim($akt_tomb[$key]);  break;
+								case 'afatipus'         : $afatipus     = trim($akt_tomb[$key]);  break;
 								case 'torolt'           :
                                     if( $akt_tomb[$key] == 'IGAZ' ) {
                                         $torolt = 1;
@@ -1234,9 +1234,9 @@ require_once('header.php');
                                         $torolt = 0;
                                     }
                                 break;
-								case 'kcs2_17'          : $kcs2_17      = $akt_tomb[$key];  break;
-								case 'eszkozcsop'       : $eszkozcsop   = $akt_tomb[$key];  break;
-								case 'eszkozert'        : $eszkozert    = $akt_tomb[$key];  break;
+								case 'kcs2_17'          : $kcs2_17      = trim($akt_tomb[$key]);  break;
+								case 'eszkozcsop'       : $eszkozcsop   = trim($akt_tomb[$key]);  break;
+								case 'eszkozert'        : $eszkozert    = trim($akt_tomb[$key]);  break;
 								case 'eszla'            :
                                     if( $akt_tomb[$key] == 'IGAZ' ) {
                                         $eszla = 1;
@@ -1375,18 +1375,18 @@ require_once('header.php');
 
 							//Azonosítás fejléc nevekkel
 							switch($key_kicsi) {
-                                case 'id'               : $id           = $akt_tomb[$key];  break;
-								case 'nev'              : $nev          = $akt_tomb[$key];  break;
-								case 'oracikkid'        : $oracikkid    = $akt_tomb[$key];  break;
-                                case 'cikkmee'          : $cikkmee      = $akt_tomb[$key];  break;
-                                case 'kcs_19'           : $szakter_id   = $akt_tomb[$key];  break;
-                                case 'segedanyag'       : $segedanyag   = $akt_tomb[$key];  break;
-                                case 'helyi'            : $helyi        = $akt_tomb[$key];  break;
-                                case 'leiras'           : $leiras       = $akt_tomb[$key];  break;
-                                case 'update_dt'        : $update_dt    = $akt_tomb[$key];  break;
-								case 'update_usr'       : $update_usr   = $akt_tomb[$key];  break;
-								case 'insert_dt'        : $insert_dt    = $akt_tomb[$key];  break;
-								case 'insert_usr'       : $insert_usr   = $akt_tomb[$key];  break;
+                                case 'id'               : $id           = trim($akt_tomb[$key]);  break;
+								case 'nev'              : $nev          = trim($akt_tomb[$key]);  break;
+								case 'oracikkid'        : $oracikkid    = trim($akt_tomb[$key]);  break;
+                                case 'cikkmee'          : $cikkmee      = trim($akt_tomb[$key]);  break;
+                                case 'kcs_19'           : $szakter_id   = trim($akt_tomb[$key]);  break;
+                                case 'segedanyag'       : $segedanyag   = trim($akt_tomb[$key]);  break;
+                                case 'helyi'            : $helyi        = trim($akt_tomb[$key]);  break;
+                                case 'leiras'           : $leiras       = trim($akt_tomb[$key]);  break;
+                                case 'update_dt'        : $update_dt    = trim($akt_tomb[$key]);  break;
+								case 'update_usr'       : $update_usr   = trim($akt_tomb[$key]);  break;
+								case 'insert_dt'        : $insert_dt    = trim($akt_tomb[$key]);  break;
+								case 'insert_usr'       : $insert_usr   = trim($akt_tomb[$key]);  break;
 							}
 						}
 
@@ -1501,39 +1501,39 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
  
 							//Azonosítás fejléc nevekkel
 							switch($key_kicsi) {
-                                case 'update_dt'        : $update_dt    = $akt_tomb[$key];  break;
-								case 'update_usr'       : $update_usr   = $akt_tomb[$key];  break;
-								case 'insert_dt'        : $insert_dt    = $akt_tomb[$key];  break;
-								case 'insert_usr'       : $insert_usr   = $akt_tomb[$key];  break;
-                                case 'id'               : $id           = $akt_tomb[$key];  break;
-                                case 'objid'            : $obj_id       = $akt_tomb[$key];  break;
-                                case 'gepid'            : $gep_id       = $akt_tomb[$key];  break;
-                                case 'nev'              : $nev          = $akt_tomb[$key];  break;
-                                case 'cikltip'          : $cikltip      = $akt_tomb[$key];  break;
-                                case 'ciklszorz'        : $ciklszorz    = $akt_tomb[$key];  break;
-                                case 'ciklnap'          : $ciklnap      = $akt_tomb[$key];  break;
-                                case 'hatosagi'         : $hatosagi     = $akt_tomb[$key];  break;
-                                case 'utnap_d'          : $utnap_d      = $akt_tomb[$key];  break;
-                                case 'leiras'           : $leiras       = $akt_tomb[$key];  break;
-								case 'telepid'          : $telephely_id = $akt_tomb[$key];  break;
-                                case 'riaszt'           : $riaszt       = $akt_tomb[$key];  break;
-                                case 'hozrend'          : $szemelyzet_id= $akt_tomb[$key];  break;
-                                case 'ciklho'           : $ciklho       = $akt_tomb[$key];  break;
-                                case 'ciklaltip'        : $ciklaltip    = $akt_tomb[$key];  break;
-                                case 'esnap_d'          : $esnap_d      = $akt_tomb[$key];  break;
-                                case 'kezdho'           : $kezdho       = $akt_tomb[$key];  break;
-                                case 'kezdnap'          : $kezdnap      = $akt_tomb[$key];  break;
-                                case 'vegeho'           : $vegeho       = $akt_tomb[$key];  break;
-                                case 'vegenap'          : $vegenap      = $akt_tomb[$key];  break;
-                                case 'aktkezd_d'        : $aktkezd_d    = $akt_tomb[$key];  break;
-                                case 'aktvege_d'        : $aktvege_d    = $akt_tomb[$key];  break;
-                                case 'ciklhet'          : $ciklhet      = $akt_tomb[$key];  break;
-                                case 'idoszakos'        : $idoszakos    = $akt_tomb[$key];  break;
-                                case 'utesnap_d'        : $utesnap_d    = $akt_tomb[$key];  break;
-                                case 'esem_d'           : $esem_d       = $akt_tomb[$key];  break;
-                                case 'loginnev'         : $loginnev     = $akt_tomb[$key];  break;
-                                case 'hataly_d'         : $hataly_d     = $akt_tomb[$key];  break;
-                                case 'aktiv'            : $aktiv        = $akt_tomb[$key];  break;
+                                case 'update_dt'        : $update_dt    = trim($akt_tomb[$key]);  break;
+								case 'update_usr'       : $update_usr   = trim($akt_tomb[$key]);  break;
+								case 'insert_dt'        : $insert_dt    = trim($akt_tomb[$key]);  break;
+								case 'insert_usr'       : $insert_usr   = trim($akt_tomb[$key]);  break;
+                                case 'id'               : $id           = trim($akt_tomb[$key]);  break;
+                                case 'objid'            : $obj_id       = trim($akt_tomb[$key]);  break;
+                                case 'gepid'            : $gep_id       = trim($akt_tomb[$key]);  break;
+                                case 'nev'              : $nev          = trim($akt_tomb[$key]);  break;
+                                case 'cikltip'          : $cikltip      = trim($akt_tomb[$key]);  break;
+                                case 'ciklszorz'        : $ciklszorz    = trim($akt_tomb[$key]);  break;
+                                case 'ciklnap'          : $ciklnap      = trim($akt_tomb[$key]);  break;
+                                case 'hatosagi'         : $hatosagi     = trim($akt_tomb[$key]);  break;
+                                case 'utnap_d'          : $utnap_d      = trim($akt_tomb[$key]);  break;
+                                case 'leiras'           : $leiras       = trim($akt_tomb[$key]);  break;
+								case 'telepid'          : $telephely_id = trim($akt_tomb[$key]);  break;
+                                case 'riaszt'           : $riaszt       = trim($akt_tomb[$key]);  break;
+                                case 'hozrend'          : $szemelyzet_id= trim($akt_tomb[$key]);  break;
+                                case 'ciklho'           : $ciklho       = trim($akt_tomb[$key]);  break;
+                                case 'ciklaltip'        : $ciklaltip    = trim($akt_tomb[$key]);  break;
+                                case 'esnap_d'          : $esnap_d      = trim($akt_tomb[$key]);  break;
+                                case 'kezdho'           : $kezdho       = trim($akt_tomb[$key]);  break;
+                                case 'kezdnap'          : $kezdnap      = trim($akt_tomb[$key]);  break;
+                                case 'vegeho'           : $vegeho       = trim($akt_tomb[$key]);  break;
+                                case 'vegenap'          : $vegenap      = trim($akt_tomb[$key]);  break;
+                                case 'aktkezd_d'        : $aktkezd_d    = trim($akt_tomb[$key]);  break;
+                                case 'aktvege_d'        : $aktvege_d    = trim($akt_tomb[$key]);  break;
+                                case 'ciklhet'          : $ciklhet      = trim($akt_tomb[$key]);  break;
+                                case 'idoszakos'        : $idoszakos    = trim($akt_tomb[$key]);  break;
+                                case 'utesnap_d'        : $utesnap_d    = trim($akt_tomb[$key]);  break;
+                                case 'esem_d'           : $esem_d       = trim($akt_tomb[$key]);  break;
+                                case 'loginnev'         : $loginnev     = trim($akt_tomb[$key]);  break;
+                                case 'hataly_d'         : $hataly_d     = trim($akt_tomb[$key]);  break;
+                                case 'aktiv'            : $aktiv        = trim($akt_tomb[$key]);  break;
 							}
                             
                             $utnap_d   = str_replace('.', '-', $utnap_d);
@@ -1563,6 +1563,178 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                             $adatbazis_kapcsolat->i('utemezett_feladatok',
                                 array('id', 'kezdho', 'kezdnap', 'vegeho', 'vegenap', 'idoszakos', 'aktiv', 'telephely_id', 'obj_id', 'gep_id', 'nev', 'leiras', 'riaszt', 'szemelyzet_id', 'hatosagi', 'cikltip',     'ciklaltip', 'ciklho', 'ciklho2', 'ciklhet', 'ho_rendsz_het', 'ciklnap', 'ciklszorz', 'honapjan', 'hataly_d', 'utnap_d', 'aktkezd_d', 'aktvege_d', 'esnap_d', 'utesnap_d', 'esem_d', 'loginnev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr' ),
                                 array($id,  $kezdho,  $kezdnap,  $vegeho,  $vegenap,  $idoszakos,  $aktiv,  $telephely_id,  $obj_id,  $gep_id,  $nev,  $leiras,  $riaszt,  $szemelyzet_id,  $hatosagi,  $cikltip,      $ciklaltip,  $ciklho,  $ciklho2,  $ciklhet,  $ho_rendsz_het,  $ciklnap,  $ciklszorz,  $honapjan,  $hataly_d,  $utnap_d,  $aktkezd_d,  $aktvege_d,  $esnap_d,  $utesnap_d,  $esem_d,  $login_nev, $update_dt,  $update_usr,  $insert_dt,  $insert_usr  )
+                            );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+                        }
+
+					}
+
+					$k++;
+				}
+				fclose($csv_fajl);
+			}
+
+			//Ha volt log, akkor azt kiíratjuk
+			$filename = 'csv/log.txt';
+			if(is_file($filename) && filesize($filename)){
+				$handle = fopen($filename, 'r');
+				$log = fread($handle, filesize($filename));
+				fclose($handle);
+			}
+
+			if($log){
+
+				$html .= nl2('
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+								<p class="b" style="margin-top: 2rem">
+									A feltöltés során az alábbi hibák fordultak elő:
+								</p>
+								<p>'.$log.'</p>
+								<p class="r">
+									<a href="javascript:history.back()">« Vissza</a>
+								</p>
+							');
+
+			}else{
+				$html .= nl2('<h1>A frissítés megtörtént!</h1>');
+			}
+
+		}
+        
+	}elseif(isset($_GET['anyagigenyles'])){
+
+		if(!isset($_FILES['termekek'])){
+
+			$html .= nl2('
+							<form method="post" action="'.self().'?anyagigenyles" enctype="multipart/form-data">
+								<p class="c" style="margin: 2rem 0 0 0">
+									Tallózd be a CSV fájlt a <b>feladatok</b> frissítéséhez:
+									<input type="file" name="termekek">
+									<br><input type="submit" class="gombb" value="Frissít">
+								</p>
+							</form>
+						');
+
+		}else{
+
+			$fajlnev = 'csv/beszallitok.csv';
+
+			$mibol = 'windows-1250';
+			$mibe  = get_web_charset();
+
+			$mit   = array(' ','.',',',';','-','Ft','FT','ft','fT','"',"'");
+			$mivel = array('','','','','','','','','','','');
+
+			//Alapból mehet majd a feltöltés, de ha hiba van az adatok feldolgozásával, akkor ezzel megszakítható
+			//FIGYELEM! Ha ilyet használsz, akkor viszont ne soronként dolgozd fel az SQL a ciklusban, hanem készíts egy nagy stringet tele az SQL parancsokkal és egy $mehet-től függően futtasd le.
+			$mehet      = true;
+			$csv_sql    = '';
+			$log        = '';
+
+			if($_FILES['termekek']['tmp_name']){
+				fajlba_mentes($fajlnev.'_up', fajlbol_olvas($_FILES['termekek']['tmp_name']));
+			}
+
+			setlocale(LC_ALL,'hu_HU');
+
+			$_SESSION['sor_fejlec'] = array();
+
+			$k = 0;
+			if (($csv_fajl = fopen($fajlnev.'_up', 'r')) !== FALSE) {
+				$osszes_sor = count(file($fajlnev.'_up')) . '<br>';
+				while (($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE) {
+					$akt_tomb = array();
+
+					//Első oszlop a fejlécek
+					if($k == 0) {
+
+						foreach($sor as $key => $value) {
+                            $value = trim(mb_strtolower($value, 'UTF-8'));
+							$_SESSION['sor_fejlec'][] = $value;
+						}
+
+					} else {
+
+						foreach($sor as $key => $value) {
+							$akt_tomb[$_SESSION['sor_fejlec'][$key]] = $value;
+						}
+
+						foreach($akt_tomb as $key => $value) {
+							$akt_tomb[$key] = utf8($akt_tomb[$key]);
+						}
+
+						foreach($akt_tomb as $key => $value) {
+
+							$key_kicsi = trim(mb_strtolower($key, 'UTF-8'));
+ 
+							//Azonosítás fejléc nevekkel
+							switch($key_kicsi) {                                
+                                case 'update_dt'        : $update_dt    = trim($akt_tomb[$key]);  break;
+								case 'update_usr'       : $update_usr   = trim($akt_tomb[$key]);  break;
+								case 'insert_dt'        : $insert_dt    = trim($akt_tomb[$key]);  break;
+                                case 'insert_usr'       : $loginnev     = trim($akt_tomb[$key]);  break;
+                                case 'recid'            : $recid        = trim($akt_tomb[$key]);  break;
+                                case 'iktszam'          : $ikt_szam     = trim($akt_tomb[$key]);  break;
+								case 'telepid'          : $telephely_id = trim($akt_tomb[$key]);  break;
+                                case 'cikkid'           : $cikktorzs_id = trim($akt_tomb[$key]);  break;
+                                case 'nev'              : $nev          = trim($akt_tomb[$key]);  break;
+                                case 'cikkmee'          : $cikkmee      = trim($akt_tomb[$key]);  break;
+                                case 'igmen'            : $igmen        = trim($akt_tomb[$key]);  break;
+                                case 'igleir'           : $igleir       = trim($akt_tomb[$key]);  break;
+                                case 'jhmen'            : $jhmen        = trim($akt_tomb[$key]);  break;
+                                case 'rndmen'           : $rndmen       = trim($akt_tomb[$key]);  break;
+                                case 'rndear'           : $rndear       = trim($akt_tomb[$key]);  break;
+                                case 'rndid'            : $rndid        = trim($akt_tomb[$key]);  break;
+                                case 'erkmen'           : $erkmen       = trim($akt_tomb[$key]);  break;
+                                case 'erkear'           : $erkear       = trim($akt_tomb[$key]);  break;
+                                case 'erkcimid'         : $erkcimid     = trim($akt_tomb[$key]);  break;
+                                case 'szlacimid'        : $szlacimid    = trim($akt_tomb[$key]);  break;
+                                case 'elutleir'         : $elutleir     = trim($akt_tomb[$key]);  break;
+                                case 'statid'           : $statid       = trim($akt_tomb[$key]);  break;
+                                case 'keszpenz'         : $keszpenz     = trim($akt_tomb[$key]);  break;
+                                case 'uileir'           : $uileir       = nl2(trim($akt_tomb[$key]));  break;
+                                case 'szallitoid'       : $szallito     = trim($akt_tomb[$key]);  break;
+                                case 'oracikkid'        : $oracikkid    = trim($akt_tomb[$key]);  break;
+                                case 'aparecid'         : $aparecid     = trim($akt_tomb[$key]);  break;
+                                case 'kepfajl'          : $kepfajl      = trim($akt_tomb[$key]);  break;
+                                case 'rnd_dt'           : $rnd_dt       = trim($akt_tomb[$key]);  break;
+                                case 'kulsosnek'        : $kulsosnek    = trim($akt_tomb[$key]);  break;
+                                case 'szlaid'           : $szlaid       = trim($akt_tomb[$key]);  break;
+                                case 'rndmenleir'       : $rndmenleir   = trim($akt_tomb[$key]);  break;
+                                case 'vbrutert'         : $vbrutert     = trim($akt_tomb[$key]);  break;
+                                case 'vnetert'          : $vnetert      = trim($akt_tomb[$key]);  break;
+                                case 'kcs_21'           : $kcs_21       = trim($akt_tomb[$key]);  break;
+                                case 'arfolyam'         : $arfolyam     = trim($akt_tomb[$key]);  break;
+                                case 'atvaltva_d'       : $atvaltva_d   = trim($akt_tomb[$key]);  break;
+                                case 'vrndear'          : $vrndear      = trim($akt_tomb[$key]);  break;
+                                case 'verkear'          : $verkear      = trim($akt_tomb[$key]);  break;
+							}
+
+                            $atvaltva_d = str_replace('.', '-', $atvaltva_d);
+                            $rnd_dt     = str_replace('.', '-', $rnd_dt);
+                            $insert_dt  = str_replace('.', '-', $insert_dt);
+                            $update_dt  = str_replace('.', '-', $update_dt);
+                            
+                            $arfolyam   = str_replace(',', '.', $arfolyam);
+                            $erkear     = str_replace(',', '.', $erkear);
+                            $erkmen     = str_replace(',', '.', $erkmen);
+                            $igmen      = str_replace(',', '.', $igmen);
+                            $jhmen      = str_replace(',', '.', $jhmen);
+                            $rndear     = str_replace(',', '.', $rndear);
+                            $rndmen     = str_replace(',', '.', $rndmen);
+                            $vbrutert   = str_replace(',', '.', $vbrutert);
+                            $verkear    = str_replace(',', '.', $verkear);
+                            $vnetert    = str_replace(',', '.', $vnetert);
+                            $vrndear    = str_replace(',', '.', $vrndear);
+						}
+                        
+                        if($recid){
+                            
+                            $adatbazis_kapcsolat->i('anyagigenyles',
+                                array('recid', 'ikt_szam', 'telephely_id', 'cikktorzs_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'statid', 'keszpenz', 'uileir', 'szallito', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear',  'loginnev', 'update_dt', 'update_usr', 'insert_dt'  ),
+                                array($recid,  $ikt_szam,  $telephely_id,  $cikktorzs_id,  $nev,  $cikkmee,  $igmen,  $igleir,  $jhmen,  $rndmen,  $rndear,  $rndid,  $erkmen,  $erkear,  $erkcimid,  $szlacimid,  $elutleir,  $statid,  $keszpenz,  $uileir,  $szallito,    $oracikkid,  $aparecid,  $kepfajl,  $rnd_dt,  $kulsosnek,  $szlaid,  $rndmenleir,  $vbrutert,  $vnetert,  $kcs_21,  $arfolyam,  $atvaltva_d,  $vrndear,  $verkear, $loginnev,  $update_dt,  $update_usr,  $insert_dt   )
                             );
 echo $adatbazis_kapcsolat->gp() . '<br>';
                         }

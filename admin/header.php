@@ -524,6 +524,9 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
 $self = basename(self());
 $megn = trim( basename(self()), '.php' );
+
+
+
 /* Bal oldali nav panel */
 $tartBal  = '';
 $keresodn = ' dn';
@@ -698,21 +701,23 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 }
 
 
+
+
 /* Szűrés */
 if (isset($_POST['get_feltetel'])) {
     
-    $akt_tomb = get_akt_tomb($_POST['tabla']);
+    $akt_tomb_szures = get_akt_tomb($_POST['tabla']);
     
     $operator = nl2('
         <select>
             <option value="=" selected="selected">=</option>
         ');
     //Feltétel összerakása tömbből
-    foreach ($akt_tomb as $ertek){
+    foreach ($akt_tomb_szures as $ertek){
         if($ertek['name']==$_POST['name']){
             
             //Checkbox esetén Igen/Nem
-            if($elem['type']=='checkbox'){
+            if($ertek['type']=='checkbox'){
                 $feltetel = nl2('
                     <select>
                         <option value="1">Igen</option>
@@ -814,9 +819,9 @@ if (isset($_POST['get_feltetel'])) {
     exit;
 }
 
-$akt_tomb = get_akt_tomb($megn);
+$akt_tomb_szures = get_akt_tomb($megn);
 $sz_mezo = '';
-foreach($akt_tomb as $ertek){
+foreach($akt_tomb_szures as $ertek){
     if($ertek['szuro']){
         $sz_mezo .= '<option value="'.$ertek['name'].'">'.trim($ertek['megn'], ':').'</option>';
     }
