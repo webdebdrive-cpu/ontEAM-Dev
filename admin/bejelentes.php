@@ -230,12 +230,6 @@ if($gyorskereso_text){
 	//Új termék felvitele
 	if(isset($_GET['uj']) && _jog(1) && !$csak_szerkesztheto){
 
-        if( !_jog(1) ) {
-            echo 'Nincs Jogosultságod új bejelentést feltölteni!';
-            require_once('footer.php');
-            exit();
-        }
-
         //NAVIGÁCIÓ
         $gombok = '';
 	    //$gombok = '<input type="button" class="gombb" onclick="location.href=\''.self().'?lista\'" value="Lista" title="Lista megtekintése">';

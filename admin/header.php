@@ -216,30 +216,31 @@ if( _jog(3) ) {
 
 
 /* Anyagok */
-$menu_nev        = 'Anyagok';
-$menu_nev_kis    = 'anyagok';
-$menu_nev_tobbes = 'Anyagok';
-$megn            = 'anyagok';
-$aloldalak       = array('cikktorzs.php', 'anyagigenyles.php', 'anyagrendeles.php', 'raktar.php');
-if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-if(basename(self())=='cikktorzs.php')       { $oldalNev = 'Anyagok / Cikktörzs';        }
-if(basename(self())=='anyagigenyles.php')   { $oldalNev = 'Anyagok / Anyagigénylések';  }
-if(basename(self())=='anyagrendeles.php')   { $oldalNev = 'Anyagok / Anyagrendelések';  }
-if(basename(self())=='raktar.php')          { $oldalNev = 'Anyagok / Raktár';           }
+if(_jog(12)){
+    $menu_nev        = 'Anyagok';
+    $menu_nev_kis    = 'anyagok';
+    $menu_nev_tobbes = 'Anyagok';
+    $megn            = 'anyagok';
+    $aloldalak       = array('cikktorzs.php', 'anyagigenyles.php', 'anyagrendeles.php', 'raktar.php');
+    if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+    if(basename(self())=='cikktorzs.php')       { $oldalNev = 'Anyagok / Cikktörzs';        }
+    if(basename(self())=='anyagigenyles.php')   { $oldalNev = 'Anyagok / Anyagigénylések';  }
+    if(basename(self())=='anyagrendeles.php')   { $oldalNev = 'Anyagok / Anyagrendelések';  }
+    if(basename(self())=='raktar.php')          { $oldalNev = 'Anyagok / Raktár';           }
 
-$aktmenuk  = '';
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Anyagigénylések'), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Anyagrendelések'), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Raktár'         ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Cikktörzs'      ), $almenu_sablon );
+    $aktmenuk  = '';
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Anyagigénylések'), $almenu_sablon );
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Anyagrendelések'), $almenu_sablon );
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Raktár'         ), $almenu_sablon );
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Cikktörzs'      ), $almenu_sablon );
 
-$style = '';
-if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover"';
+    $style = '';
+    if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+        $style = ' class="hover"';
+    }
+
+    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
-
-$menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
-
 
 /* Eszközök */
 $menu_nev        = 'Eszközök';
@@ -901,6 +902,26 @@ if(basename(self())=='bejelentes.php' && !_jog(1)){
 }
 
 if(basename(self())=='utemezett_feladatok.php' && !_jog(4)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+if(basename(self())=='login.php' && !_jog(7)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+if(basename(self())=='erteklista.php' && !_jog(9)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+if(basename(self())=='erteklista.php' && !_jog(11)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+if( (basename(self())=='anyagigenyles.php' || basename(self())=='anyagrendeles.php' || basename(self())=='raktar.php' || basename(self())=='cikktorzs.php') && !_jog(13)){
     $torles_icon    = '';
     $uj             = '';
 }

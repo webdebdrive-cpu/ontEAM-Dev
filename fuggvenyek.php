@@ -945,18 +945,18 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
     if( $tabla ) {
 
         //Rendezés telephely táblával JOIN-olva
-        if(strpos($order, 'telephely_id')!==false || strpos($select, 'telephely_id')!==false || strpos($select, 'obj_id')!==false){
+        if(strpos($order, 'telephely_id')!==false || strpos($select, 'telephely_id')!==false){
 
             //Először is az ordert felülírjuk
             $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
 
-            //Bejelentseknél a  rendezés külön problémakör:
+            //Bejelentéseknél a rendezés külön problémakör:
             if($tabla=='bejelentes'){
                 //A sürgős mindig elől lesz, bármi is a rendezettség:
                 $order = '`'.get_db_tabla().'bejelentes_csoport`.`nev`, `'.get_db_tabla().'bejelentes`.`surgos` DESC,';
                 $irany_ikt_szam  = '';
                 $irany_telephely = '';
-                //Ha iktatószám szerint renezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+                //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
                 if($_GET['rend']=='ikt_szam'){
                     $order .= '`'.get_db_tabla().'bejelentes`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
                 }
@@ -965,6 +965,15 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
                     $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'bejelentes`.`ikt_szam`';
                 }
             }
+            
+            //Rendezés anyagigényléskor
+            if($tabla=='anyagigenyles'){
+                //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+                if($_GET['rend']=='ikt_szam'){
+                    $order = '`'.get_db_tabla().'anyagigenyles`.`ikt_szam` '.$_GET['irany'];
+                }
+            }
+            
             //Select-et is kiegészítjük a rendezni kívánt oszloppal
             $select .= ', `'.get_db_tabla().'telephely`.`nev`';
 
@@ -979,7 +988,10 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
                                     LEFT OUTER JOIN `'.get_db_tabla().'bejelentes_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'bejelentes_csoport`.`recid`
                                 ');
             }
-            $mivel = array('JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id` JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid`'.$sql_kieg.' WHERE');
+            if(strpos($select, 'obj_id')!==false){
+                $sql_kieg .= ' JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid` ';
+            }
+            $mivel = array('JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`'.$sql_kieg.' WHERE');
             $sql = str_replace($mit, $mivel, $adatbazis_kapcsolat->gp());
 if (isset($_GET['debug'])) {
     echo $sql . '<br>';
@@ -994,13 +1006,13 @@ if (isset($_GET['debug'])) {
         }elseif($tabla=='erteklista'){
 
             $sql = 'SELECT
-                        `'.get_db_tabla().'erteklista`.`recid`,
-                        `'.get_db_tabla().'erteklista`.`csoport`,
-                        `'.get_db_tabla().'erteklista`.`info`,
-                        `'.get_db_tabla().'erteklista_csoport`.`nev`
-                    FROM `'.get_db_tabla().'erteklista`
-                    JOIN `'.get_db_tabla().'erteklista_csoport` ON `'.get_db_tabla().'erteklista`.`csoport`=`'.get_db_tabla().'erteklista_csoport`.`csoport`
-                    WHERE `'.get_db_tabla().'erteklista`.`torolve`=0
+                            `'.get_db_tabla().'erteklista`.`recid`,
+                            `'.get_db_tabla().'erteklista`.`csoport`,
+                            `'.get_db_tabla().'erteklista`.`info`,
+                            `'.get_db_tabla().'erteklista_csoport`.`nev`
+                    FROM    `'.get_db_tabla().'erteklista`
+                    JOIN    `'.get_db_tabla().'erteklista_csoport` ON `'.get_db_tabla().'erteklista`.`csoport`=`'.get_db_tabla().'erteklista_csoport`.`csoport`
+                    WHERE   `'.get_db_tabla().'erteklista`.`torolve`=0
                     ORDER BY `'.get_db_tabla().'erteklista_csoport`.`nev`, `'.get_db_tabla().'erteklista`.`info`
                     ';
 if (isset($_GET['debug'])) {
@@ -1585,9 +1597,16 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
             if( $bsz['recid'] == $_GET['id'] ) {
                 $active = ' active';
             }
+            
+        
+            /* Telephely */
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
+            $telephely = $telephely[0];
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span>'.$bsz['ikt_szam'].'</span>
+                            <span>'.$telephely['nev'].'</span>
+                            <span>'.$bsz['anyagigenyles_nev'].'</span>
                         </a>';
 
             if( !$frissit ) {

@@ -1,5 +1,11 @@
 <?php
 require_once('../weblap.php');
+
+if( !_jog(12) ) {
+    header('Content-Type: text/html; charset=utf-8');
+    exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
+}
+
 //Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
@@ -74,45 +80,6 @@ if($tobb_kep){
 
 }
 
-if( isset($_POST['jogokhozzaad']) ) {
-    $id = $_POST['id'];
-
-    /* Kitöröljük a nem kívánatos POST elemeket */
-    unset($_POST['id']);
-    unset($_POST['jogokhozzaad']);
-
-    /* Rendezzük a tömböt */
-    ksort($_POST);
-
-    $adatbazis_kapcsolat -> u('login', array('flags'), array(implode('', $_POST)), 'recid='.$id);
-
-    $weblap->leallit();
-    hd($_SERVER['REQUEST_URI']);
-
-    exit();
-}
-/*
-Ha true a config.php-ban:
-js/+jquery-ui.js aktiválni a config.php-ban az ADMIN JS és CSS RÉSZBEN!!!
-js/+admin_sorrendez.js aktiválni
-
-Hozzá kell adni ezt a fájlt:
-admin/+tobb_kep.php aktiválni
-
-Minta SQL
-CREATE TABLE IF NOT EXISTS `TABLA_kepek`(
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `"TERMEK"ID` int(10) unsigned default NULL,
-  `kepnev` varchar(100) NOT NULL default '',
-  `megj` varchar(200) NOT NULL default '',
-  `sor` int(11) NOT NULL default '0',
-  `datetime` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`id`)
-)
-
-Vízjelezéshez vissza kell kommentezni a +tobb_kep.php-ban a Képfeltöltésnél egy részt!
-*/
-
 /** Események */
 if(isset($_GET['siker']) && isset($_GET['modosit'])){
 
@@ -178,7 +145,7 @@ if($gyorskereso_text){
     }
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && _jog(13) && !$csak_szerkesztheto){
 
         //NAVIGÁCIÓ
         $gombok = '';
@@ -349,11 +316,13 @@ if($gyorskereso_text){
 
         $jobb_oldal = '';
 
-        $gombok = nl2('
-            <div class="form_kuldes">
-                <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
-            </div>
-        ').$gombok;
+        if(_jog(13)){
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                </div>
+            ').$gombok;
+        }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {

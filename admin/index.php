@@ -33,6 +33,24 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
     
     exit;
 }
+
+//Anyagigénylés speciálisabb volt
+if (isset($_GET['loginnev_gyart_anyagigenyles'])) {
+    require_once('../weblap.php');
+    
+    $tabla = 'anyagigenyles';
+    
+    $sorok = $adatbazis_kapcsolat->s('recid loginnev', $tabla);
+    foreach($sorok as $sor){
+        $teljes_nev = $adatbazis_kapcsolat->s('teljes_nev', 'login', "`nev`='{$sor['loginnev']}'");
+        $teljes_nev = $teljes_nev[0]['teljes_nev'];
+        
+        $adatbazis_kapcsolat->u($tabla, array('insert_usr'), array($teljes_nev), "`recid`='{$sor['recid']}'");
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    
+    exit;
+}
 require_once('header.php');
 
 require_once('footer.php');

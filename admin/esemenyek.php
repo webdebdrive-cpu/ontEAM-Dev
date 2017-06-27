@@ -321,10 +321,15 @@ switch($tabla) {
     break;
     case 'anyagigenyles.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid ikt_szam';
+        $_OPTS['select']    = nl2('
+                                    `'.get_db_tabla().'anyagigenyles`.`recid`,
+                                    `'.get_db_tabla().'anyagigenyles`.`ikt_szam`,
+                                    `'.get_db_tabla().'anyagigenyles`.`nev` as `anyagigenyles_nev`,
+                                    `'.get_db_tabla().'anyagigenyles`.`telephely_id`
+                                ');
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('ikt_szam');
+        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
@@ -1050,7 +1055,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $megnevezes = 'anyagigenyles';
 $anyagigenyles_tomb = $akt_tomb = array(
     array('type' => 'text',                     'megn' => 'Iktató szám:',           'name' => 'ikt_szam',      'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
-    array('type' => 'checkbox',                 'megn' => 'Készpénzes:',            'name' => 'keszpenz', 'post' => '<input type="button" value="Igénylés történet" style="margin-left: 2rem" class="gomb"> <input type="button" value="rendelés kép" class="gomb">'),
+    array('type' => 'checkbox',                 'megn' => 'Készpénzes:',            'name' => 'keszpenz', 'post' => '<span style="margin-left: 2rem"></span><input type="button" value="rendelés kép" class="gomb">'),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',              'name' => 'telephely_id', 'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Cikk név:',              'name' => 'cikktorzs_id',   'class' => 'oriasi disableNav csillag', 'tabla' => 'cikktorzs', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
     array('type' => 'text',                     'megn' => 'Igénylet mennyiség:',    'name' => 'igmen',      'post' => ' db<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
@@ -2626,6 +2631,18 @@ foreach($postok as $ertek){
             $weblap -> leallit(); exit;
         }
         if($ertek['tabla']=='utemezett_feladatok' && !_jog(4)){
+            $weblap -> leallit(); exit;
+        }
+        if($ertek['tabla']=='login' && !_jog(7)){
+            $weblap -> leallit(); exit;
+        }
+        if($ertek['tabla']=='erteklista' && !_jog(9)){
+            $weblap -> leallit(); exit;
+        }
+        if($ertek['tabla']=='erteklista' && !_jog(11)){
+            $weblap -> leallit(); exit;
+        }
+        if( ($ertek['tabla']=='anyagrendeles' || $ertek['tabla']=='anyagigenyles' || $ertek['tabla']=='raktar' || $ertek['tabla']=='cikktorzs') && !_jog(13)){
             $weblap -> leallit(); exit;
         }
         //Login egyáltalán nem törölhető
