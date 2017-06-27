@@ -185,7 +185,7 @@ if($gyorskereso_text){
 }
 
     if( !$_GET['ajax'] ) {
-        echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'">';
+        echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
     if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzes']) ) {
@@ -213,19 +213,6 @@ if($gyorskereso_text){
             fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
         );
     }
-
-    /* Lekérdezzük a csoportokat */
-    $szamla_html .= '<div id="insertCsopHidden" class="dn"><select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
-
-    $csoportok = $adatbazis_kapcsolat->s('recid nev', 'bejelentes_csoport', '', 'nev', '');
-
-    if( $csoportok ) {
-        foreach($csoportok as $csoport) {
-            $szamla_html .= '<option value="'.$csoport['recid'].'">'.$csoport['nev'].'</option>';
-        }
-    }
-
-    $szamla_html .= '</select></div>';
 
 	//Új termék felvitele
 	if(isset($_GET['uj']) && _jog(1) && !$csak_szerkesztheto){

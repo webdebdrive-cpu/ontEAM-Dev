@@ -706,9 +706,9 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 
 /* Szűrés */
 if (isset($_POST['get_feltetel'])) {
-    
+
     $akt_tomb_szures = get_akt_tomb($_POST['tabla']);
-    
+
     $operator = nl2('
         <select>
             <option value="=" selected="selected">=</option>
@@ -716,7 +716,7 @@ if (isset($_POST['get_feltetel'])) {
     //Feltétel összerakása tömbből
     foreach ($akt_tomb_szures as $ertek){
         if($ertek['name']==$_POST['name']){
-            
+
             //Checkbox esetén Igen/Nem
             if($ertek['type']=='checkbox'){
                 $feltetel = nl2('
@@ -725,16 +725,16 @@ if (isset($_POST['get_feltetel'])) {
                         <option value="0">Nem</option>
                     </select>
                     ');
-                
+
             //Autocomplete esetén a switch.php alapján gyártunk egy inputot
             }elseif($ertek['type']=='autocomplete'){
-                
+
                 require_once('../class/html/class.Input.php');
                 $input = new Input('text');
 
                 //Onblurra a hidden mező is nullázódjon, ha üres volna a mező
                 $ertek['onblur'] .= 'if(!$(this).val()){ $(\'#'.$ertek['name'].'\').val(\'\'); }';
-                
+
                 $input -> id            = $ertek['name'].'_autocomp_szurobe';
                 $input -> name          = $ertek['name'].'_autocomp_szurobe';
                 $input -> placeholder   = $ertek['placeholder'];
@@ -788,7 +788,7 @@ if (isset($_POST['get_feltetel'])) {
                         });
                     </script>
                 ');
-                
+
             //Általános esetben egy szabadszavas mező
             }else{
                 $feltetel = '<input type="text" placeholder="Feltétel...">';
@@ -797,7 +797,7 @@ if (isset($_POST['get_feltetel'])) {
         }
     }
     $operator .= '</select>';
-    
+
     //Kapcsolódó szállodák felsorolása
     if($_POST['tabla'] == 'login' && $_POST['name']=='szalloda'){
         $feltetel = '<select>';
@@ -813,9 +813,9 @@ if (isset($_POST['get_feltetel'])) {
                 <input type="text" placeholder="Feltétel...">
             ');
     }
-    
+
     echo json_encode( array('feltetel' => $feltetel, 'operator' => $operator) );
-    
+
     $weblap -> leallit();
     exit;
 }
@@ -940,7 +940,7 @@ if ($_GET['print']=='bej_lista') {
 <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
 <title>Listanézet '.date('Y.m.d H:i:s').'</title>
 
-<div class="a4_allo"> 
+<div class="a4_allo">
     <div class="padd">
         Szűrő feltételek: <b>Nincs</b>
     </div>
@@ -954,9 +954,9 @@ if ($_GET['print']=='bej_lista') {
     </div>
 </div>
             ');
-    
-    
-    
+
+
+
     $weblap -> leallit();
     exit;
 }

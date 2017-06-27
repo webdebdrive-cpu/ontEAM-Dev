@@ -150,7 +150,7 @@ function i_u($type, $tabla, $tomb){
     }
 
 	if($type == 'insert') {
-        
+
         /* Datetime-ot is frissítjük */
         if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
             array_push($oszlopok, 'insert_dt',          'insert_usr'                          );
@@ -159,7 +159,7 @@ function i_u($type, $tabla, $tomb){
 
         //Anyagigénylés
         if( $tabla == 'anyagigenyles' ) {
-            
+
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
             $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.date('y'), '', '');
 
@@ -183,13 +183,13 @@ function i_u($type, $tabla, $tomb){
 
             /* Iktatószám formázása */
             $ikt_szam = date('y').'/'.sprintf('%04d', $sorszam);
-            
+
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );
 
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
-            
+
         //Bejelentések iktatószám képzése
         } else if( $tabla == 'bejelentes' ) {
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
@@ -226,17 +226,17 @@ function i_u($type, $tabla, $tomb){
         } else if( $tabla == 'gep' ) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
-            
+
         //Költséghely
         } else if( $tabla == 'ktghely' ) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
-            
+
         //Költségnem
         } else if( $tabla == 'ktgnem' ) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
-            
+
         //Login
         }elseif( $tabla == 'login' ) {
             if( $_POST['szerepkor_id'] ) {
@@ -251,7 +251,7 @@ function i_u($type, $tabla, $tomb){
                     }
                 }
             }
-            
+
         //Ütemezett feladatok ID képzése
         } else if( $tabla == 'utemezett_feladatok' ) {
             /* ID formázása */
@@ -965,7 +965,7 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
                     $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'bejelentes`.`ikt_szam`';
                 }
             }
-            
+
             //Rendezés anyagigényléskor
             if($tabla=='anyagigenyles'){
                 //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
@@ -973,7 +973,7 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
                     $order = '`'.get_db_tabla().'anyagigenyles`.`ikt_szam` '.$_GET['irany'];
                 }
             }
-            
+
             //Select-et is kiegészítjük a rendezni kívánt oszloppal
             $select .= ', `'.get_db_tabla().'telephely`.`nev`';
 
@@ -1161,7 +1161,19 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                     if( $csoportSor ) {
                         $csoportSor = $csoportSor[0];
 
-                        $html .= '<li class="szamla_datum csoport" data-id="'.$aktCsoport.'"><span class="icon"></span><span class="csoportNev" data-id="'.$aktCsoport.'"><strong>'.$csoportSor['nev'].'</strong></li>';
+                        /* Van e sürgős */
+                        $surgos_e = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`csoport_id` = '{$aktCsoport}' AND `surgos` > 0", '', '1');
+
+                        $surgos_icon = '';
+                        if( $surgos_e ) {
+                            $surgos_icon = nl2('
+                                <span class="icon bej piros">
+                                    <i class="material-icons">error</i>
+                                </span>
+                            ');
+                        }
+
+                        $html .= '<li class="szamla_datum csoport" data-id="'.$aktCsoport.'"><span class="icon"></span><span class="csoportNev" data-id="'.$aktCsoport.'"><strong>'.$surgos_icon.$csoportSor['nev'].'</strong></li>';
                     }
 
                     $csoport = $aktCsoport;
@@ -1229,6 +1241,8 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
+        $csoport = $bejegyzesek[0]['csoport_id'];
+
         $jClass = '';
         if( _jog(2) ) {
             $jClass = ' kijelolheto';
@@ -1240,6 +1254,34 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
+            if( !$frissit ) {
+                $aktCsoport = $bsz['csoport_id'];
+
+                if( $i == 1 || $csoport != $aktCsoport ) {
+                    $csoportSor = $adatbazis_kapcsolat->s('nev', 'munkalap_csoport', 'recid='.$aktCsoport, '', '1');
+
+                    if( $csoportSor ) {
+                        $csoportSor = $csoportSor[0];
+
+                        /* Van e sürgős */
+                        $surgos_e = $adatbazis_kapcsolat->s('recid', 'munkalap', "`csoport_id` = '{$aktCsoport}' AND `surgos` > 0", '', '1');
+
+                        $surgos_icon = '';
+                        if( $surgos_e ) {
+                            $surgos_icon = nl2('
+                                <span class="icon bej piros">
+                                    <i class="material-icons">error</i>
+                                </span>
+                            ');
+                        }
+
+                        $html .= '<li class="szamla_datum csoport" data-id="'.$aktCsoport.'"><span class="icon"></span><span class="csoportNev" data-id="'.$aktCsoport.'"><strong>'.$surgos_icon.$csoportSor['nev'].'</strong></li>';
+                    }
+
+                    $csoport = $aktCsoport;
+                }
+            }
+
             $surgos = '';
             if( $bsz['surgos'] ) {
                 $surgos = nl2('
@@ -1259,8 +1301,15 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['recid'].'</span>
                          </a>';
 
+            $csoport_class = '';
+            $csoport_data = '';
+            if( $bsz['csoport_id'] ) {
+                $csoport_class = ' behuz dn';
+                $csoport_data = ' data-csoportID="'.$bsz['csoport_id'].'"';
+            }
+
             if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
             } else {
                 $html .= $li_tart;
             }
@@ -1597,8 +1646,8 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
             if( $bsz['recid'] == $_GET['id'] ) {
                 $active = ' active';
             }
-            
-        
+
+
             /* Telephely */
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
             $telephely = $telephely[0];

@@ -175,7 +175,7 @@ switch($tabla) {
     break;
     case 'munkalap.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid ';
+        $_OPTS['select']    = 'recid csoport_id';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('recid');
@@ -834,7 +834,8 @@ $bejelentes_dok_tomb = $akt_tomb = array(
 /* Munkalap */
 $megnevezes = 'munkalap';
 $munkalap_tomb = $akt_tomb = array(
-    array('type' => 'text',            'megn' => 'Iktató szám:',        'name' => 'recid',      'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi'),
+    array('type' => 'text',                     'megn' => 'Iktató szám:',               'name' => 'recid',              'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi'),
+    array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'maxlength' => 250),
 
     //array('type' => 'statusz',         'megn' => 'Státusz:',            'oldal' => 'bejelentes'),
 );
@@ -1382,7 +1383,33 @@ if( isset($_POST['munkalaphozAdas']) ) {
     exit();
 }
 
-/* Csoport átnevezése */
+/* Csoport select */
+if( isset($_GET['csoportSelect']) ) {
+    $page = $_GET['page'];
+
+    /* Lekérdezzük a csoportokat */
+    $html .= '<select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
+
+    $csoportok = $adatbazis_kapcsolat->s('recid nev', $page.'_csoport', '', 'nev', '');
+
+    if( $csoportok ) {
+        foreach($csoportok as $csoport) {
+            $html .= '<option value="'.$csoport['recid'].'">'.$csoport['nev'].'</option>';
+        }
+    }
+
+    $html .= '</select>';
+
+    echo json_encode(array(
+        'statusz' => 'siker',
+        'html'    => $html
+    ));
+
+    $weblap->leallit();
+    exit();
+}
+
+/* Munkalap select */
 if( isset($_GET['munkalapSelect']) ) {
     $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', '', 'insert_dt desc', '');
 
@@ -1426,22 +1453,9 @@ if( isset($_GET['csoportAtnevezes']) ) {
     if( $csoportID && $val ) {
         $adatbazis_kapcsolat -> u('bejelentes_csoport', array('nev'), array($val), 'recid='.$csoportID);
 
-        /* Select előállítása */
-        $html = '<select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
-        $csoportok = $adatbazis_kapcsolat->s('recid nev', 'bejelentes_csoport', '', 'nev', '');
-
-        if( $csoportok ) {
-            foreach($csoportok as $csoport) {
-                $html .= '<option value="'.$csoport['recid'].'">'.$csoport['nev'].'</option>';
-            }
-        }
-
-        $html .= '</select>';
-
         echo json_encode(array(
             'statusz' => 'siker',
-            'html' => $html,
-            'value' => $val
+            'value'   => $val
         ));
     }
 
@@ -1900,19 +1914,20 @@ if( isset($_POST['csoportbolTorol']) ) {
 if( isset($_POST['csoportbaRendez']) ) {
     $csoportID = $_POST['csoportID'];
     $idk = json_decode($_POST['idk'], true);
+    $page = $_POST['page'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
     if( $csoportID && is_array($idk) ) {
-        $sql = $is_csoport = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`recid` IN (".implode(',', $idk).") AND `csoport_id` > '0'", '', '');
+        $sql = $is_csoport = $adatbazis_kapcsolat->s('recid', $page, "`recid` IN (".implode(',', $idk).") AND `csoport_id` > '0'", '', '');
 
         if( $sql === false ) {
             $db_error = true;
         }
 
         if( !$is_csoport ) {
-            $sql = $adatbazis_kapcsolat -> u('bejelentes', array('csoport_id'), array($csoportID), "`recid` IN (".implode(',', $idk).")");
+            $sql = $adatbazis_kapcsolat -> u($page, array('csoport_id'), array($csoportID), "`recid` IN (".implode(',', $idk).")");
 
             if( $sql === false ) {
                 $db_error = true;
@@ -1948,19 +1963,20 @@ if( isset($_POST['csoportbaRendez']) ) {
 
 /* Új csoport/várólista hozzáadása */
 if( isset($_GET['addCsoport']) ) {
-    $nev = $_GET['csoportnev'];
+    $nev  = $_GET['csoportnev'];
+    $page = $_GET['page'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sql = $csoport = $adatbazis_kapcsolat->s('nev', 'bejelentes_csoport', "`nev` = '{$nev}'", '', '1');
+    $sql = $csoport = $adatbazis_kapcsolat->s('nev', $page.'_csoport', "`nev` = '{$nev}'", '', '1');
 
     if( $sql === false ) {
         $db_error = true;
     }
 
     if( !$csoport ) {
-        $sql = $adatbazis_kapcsolat -> i('bejelentes_csoport', array('nev', 'insert_dt', 'insert_usr', 'update_dt', 'update_usr'), array($nev, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']));
+        $sql = $adatbazis_kapcsolat -> i($page.'_csoport', array('nev', 'insert_dt', 'insert_usr', 'update_dt', 'update_usr'), array($nev, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']));
 
         if( $sql === false ) {
             $db_error = true;
@@ -1969,7 +1985,7 @@ if( isset($_GET['addCsoport']) ) {
         /* Select előállítása */
         $html = '<select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
 
-        $sql = $csoportok = $adatbazis_kapcsolat->s('recid nev', 'bejelentes_csoport', '', 'nev', '');
+        $sql = $csoportok = $adatbazis_kapcsolat->s('recid nev', $page.'_csoport', '', 'nev', '');
 
         if( $sql === false ) {
             $db_error = true;
@@ -2010,13 +2026,14 @@ if( isset($_GET['addCsoport']) ) {
 /* Mellékletek törlése */
 if( isset($_POST['mellekTorol']) ) {
     $tabla  = $_POST['tabla'];
+    $recid  = $_POST['recid'];
     $idk    = json_decode($_POST['idk'], true);
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
     //Ki-ki csak a saját megjegyzését törölheti
-    if($tabla!='telephely_kapcs'){//telephely_kapcs-nál nincs ilyen feltétel
+    if( $tabla != 'telephely_kapcs' && $tabla != 'munkalap_kapcs' ) { //telephely_kapcs-nál nincs ilyen feltétel
         if( $sql = $adatbazis_kapcsolat->s('id', $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`!='{$_SESSION[get_db_tabla().'user']}'")){
             echo json_encode(array(
                 'hiba' => 'Más által létrehozott bejegyzés nem törölhető!'
@@ -2032,10 +2049,35 @@ if( isset($_POST['mellekTorol']) ) {
     }
 
     if( $tabla && is_array($idk) ) {
-        $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
+        if( $tabla == 'munkalap_kapcs' ) {
+            /* Újra nyitott státuszú lesz a bejegyzés */
+            foreach($idk as $id) {
+                $statusz = addStatusz( 'bejelentes_statusz', $id, 1 );
 
-        if( $sql === false ) {
-            $db_error = true;
+                if( $statusz === false ) {
+                    $db_error = true;
+                }
+
+                /* Töröljük a csoportjukat, ha lenne */
+                $sql = $adatbazis_kapcsolat -> u('bejelentes', array('csoport_id'), array(0), "`recid` = '{$id}'");
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+
+                /* Sorok törlése */
+                $sql = $adatbazis_kapcsolat -> d($tabla, "`munkalap_id` = '{$recid}' AND `bejelentes_id` = '{$id}'");
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+            }
+        } else {
+            $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
         }
 
         if( !$db_error ) {

@@ -143,7 +143,7 @@ if($gyorskereso_text){
 }
 
     if( !$_GET['ajax'] ) {
-        echo '<div id="szamlaBetolt">';
+        echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
     if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || isset($_GET['bejelentesek']) || isset($_GET['tortenet']) || isset($_GET['anyagigenyles']) || isset($_GET['elszamolas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzes']) ) {
@@ -351,6 +351,39 @@ if($gyorskereso_text){
             </div>
         ').$gombok;
 
+        /* Kijelöltekkel való művelet gombok */
+        if( _jog(2) ) {
+            $gombok .= nl2('
+                <div id="kmCont">
+                    <script>
+                        csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                        varolistahozGomb  = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"varolistahozAdas();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                        varolistabolGomb  = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"varolistabolKivetel();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                    </script>
+                    <input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas\');" disabled="disabled">
+                    <div class="kijeloltek_muv">
+                        <input type="button" class="gomb foGomb" value="Csoportosítás..." title="Csoportosítás..." disabled="disabled">
+                        <div class="muv">
+                            <ul>
+                                <li><a onclick="csoportMuvelet(\'csoporthoz_adas\');">Csoporthoz adás</a></li>
+                                <li><a onclick="alert2(\'Biztos törli a kijelölt sorokat a megadott csoportokból?\', csoportKiveszGomb);">Csoportból kivétel</a></li>
+                                <li><a onclick="csa_alert();">Csoport átnevezése</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="kijeloltek_muv">
+                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista..." disabled="disabled">
+                        <div class="muv">
+                            <ul>
+                                <li><a onclick="alert2(\'Biztos várólistához adja a kijelölt bejelentéseket?\', varolistahozGomb);">Várólistához adás</a></li>
+                                <li><a onclick="alert2(\'Biztos törli a várólistából a kijelölt bejelentéseket?\', varolistabolGomb);">Várólistból kivétel</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            ');
+        }
+
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
@@ -453,7 +486,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['bejelentesek'])){
 
         $szamla_html .= nl2('
-            <div class="dt naplo">
+            <div class="dt naplo kijCont" data-tabla="munkalap_kapcs" data-mellek="bejelentesek">
                 <div class="dtr nFejlec">
                     <div class="dtc">Iktató szám</div>
                     <div class="dtc">Szálloda</div>
@@ -462,7 +495,7 @@ if($gyorskereso_text){
                 </div>
         ');
 
-        $munkalap_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$_GET['id']}'", '', '');
+        $munkalap_kapcsok = $adatbazis_kapcsolat->s('recid bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$_GET['id']}'", '', '');
 
         if( $munkalap_kapcsok ) {
             $i = 1;
@@ -485,7 +518,7 @@ if($gyorskereso_text){
                     $hiba = $hiba[0];
 
                     $szamla_html .= nl2('
-                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                             <div class="dtc"><a href="bejelentes.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a></div>
                             <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
                             <div class="dtc">'.$hiba['info'].'</div>
