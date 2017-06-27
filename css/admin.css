@@ -1516,7 +1516,7 @@ ul.szamla_cont li.szamla_datum.csoport strong {
     font-size: 1.4rem;
 }
 
-ul.szamla_cont li.szamla_datum.csoport span.icon {
+ul.szamla_cont li.szamla_datum.csoport > span.icon {
     background: #fff;
     border: 0.1rem solid #333;
     height: 1.1rem;
@@ -1527,8 +1527,8 @@ ul.szamla_cont li.szamla_datum.csoport span.icon {
     z-index: 2;
 }
 
-ul.szamla_cont li.szamla_datum.csoport span.icon:before,
-ul.szamla_cont li.szamla_datum.csoport span.icon:after {
+ul.szamla_cont li.szamla_datum.csoport > span.icon:before,
+ul.szamla_cont li.szamla_datum.csoport > span.icon:after {
     background: #333;
     content: '';
     height: 0.1rem;
@@ -1550,6 +1550,15 @@ ul.szamla_cont li.szamla_datum.csoport .material-icons {
     font-size: 1.6rem;
     margin: 0rem 0rem 0rem 0.5rem;
     vertical-align: middle;
+}
+
+ul.szamla_cont li.szamla_datum.csoport span.icon.bej {
+    height: 1.6rem;
+    width: 1.6rem;
+}
+
+ul.szamla_cont li.szamla_datum.csoport span.icon.bej .material-icons {
+    margin: 0rem 0rem 0rem 0rem;
 }
 
 ul.szamla_cont li.active a {
@@ -2276,5 +2285,9 @@ div.szamlaLapozas div.lapoz.pontok {
 
 .kijCont .kijSor.kijelolve {
     background: #484848!important;
+    color: #fff;
+}
+
+.kijCont .kijSor.kijelolve a {
     color: #fff;
 }
