@@ -893,6 +893,14 @@ $(function() {
         });
     });
 
+    $(document).on('keyup', '.f_num', function(e) {
+        onlyNumbers($(this));
+    });
+    $(document).on('blur', '.f_num', function(e) {
+        $(this).val( ezresek($(this).val().replace(/ /g, '').replace('.', '').replace(',', '.'), 2, ',', ' ') );
+    });
+    
+    
     $(document).on('keyup', function(e) {
         if( e.keyCode == 27 ) {
             alert2();

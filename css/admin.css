@@ -541,6 +541,11 @@ input.check{
     margin-top: 0.8rem;
 }
 
+input.f_num{
+    text-align: right;
+    width: 7rem;
+}
+
 select{
     background: #F7F7F7;
     border: 0.1rem solid #CECECE;

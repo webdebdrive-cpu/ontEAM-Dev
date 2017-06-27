@@ -704,144 +704,14 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 
 
 
-/* Szűrés */
-if (isset($_POST['get_feltetel'])) {
-    
-    $akt_tomb_szures = get_akt_tomb($_POST['tabla']);
-    
-    $operator = nl2('
-        <select>
-            <option value="=" selected="selected">=</option>
-        ');
-    //Feltétel összerakása tömbből
-    foreach ($akt_tomb_szures as $ertek){
-        if($ertek['name']==$_POST['name']){
-            
-            //Checkbox esetén Igen/Nem
-            if($ertek['type']=='checkbox'){
-                $feltetel = nl2('
-                    <select>
-                        <option value="1">Igen</option>
-                        <option value="0">Nem</option>
-                    </select>
-                    ');
-                
-            //Autocomplete esetén a switch.php alapján gyártunk egy inputot
-            }elseif($ertek['type']=='autocomplete'){
-                
-                require_once('../class/html/class.Input.php');
-                $input = new Input('text');
+/* SZŰRÉS
+ *  $szures nevű változót állítja elő, benne a szűréssel kapcsolatos funkciókkal (selectek, feltételek) 
+ */
+require_once 'szures.php';
 
-                //Onblurra a hidden mező is nullázódjon, ha üres volna a mező
-                $ertek['onblur'] .= 'if(!$(this).val()){ $(\'#'.$ertek['name'].'\').val(\'\'); }';
-                
-                $input -> id            = $ertek['name'].'_autocomp_szurobe';
-                $input -> name          = $ertek['name'].'_autocomp_szurobe';
-                $input -> placeholder   = $ertek['placeholder'];
-                $input -> autocomplete  = 'off';
+/* NYOMTATÁS */
+require_once 'nyomtatas.php';
 
-                $kulso_val = $input -> value;
-                if( !$kulso_val ) {
-                    $kulso_val = 0;
-                }
-
-                $csoport_where = '';
-                if( $ertek['csoport'] ) {
-                    $csoport_where = ' and csoport='.$ertek['csoport'];
-                }
-
-                /* Lekérdezzük a külső tábla értékét */
-                $kulso_ertek = $adatbazis_kapcsolat->s($ertek['listaz'], $ertek['tabla'], $ertek['oszlop_keres'].'='.$kulso_val.$csoport_where, '', '1');
-                if( $kulso_ertek ) {
-                    $input -> value = $kulso_ertek[0][$ertek['listaz']];
-                }
-
-                $feltetel = $input -> getHtml().'<input type="hidden" name="'.$ertek['name'].'" id="'.$ertek['name'].'" value="'.$value.'">';
-
-                $rkat = 0;
-                if( $ertek['rkat'] ) {
-                    $rkat = $ertek['rkat'];
-                }
-
-                $csoport = 0;
-                if( $ertek['csoport'] ) {
-                    $csoport = $ertek['csoport'];
-                }
-
-                $id_kiir = 'recid';
-                if( $ertek['id_kiir'] ) {
-                    $id_kiir = $ertek['id_kiir'];
-                }
-
-                $feltetel .= nl2('
-                    <script>
-                        $(document).ready(function() {
-                            $(\'#'.$ertek['name'].'_autocomp_szurobe\').autocomplete({
-                                \'php_fajl\'        : \'../autocomplete.php\',
-                                \'tabla\'           : \''.$ertek['tabla'].'\',
-                                \'oszlop_keres\'    : \''.$ertek['oszlop_keres_autocomp'].'\',
-                                \'oszlop_listaz\'   : \''.$ertek['listaz'].'\',
-                                \'rkat\'            : '.$rkat.',
-                                \'csoport\'         : '.$csoport.',
-                                \'id_kiir\'         : \''.$id_kiir.'\'
-                            });
-                        });
-                    </script>
-                ');
-                
-            //Általános esetben egy szabadszavas mező
-            }else{
-                $feltetel = '<input type="text" placeholder="Feltétel...">';
-            }
-            break;
-        }
-    }
-    $operator .= '</select>';
-    
-    //Kapcsolódó szállodák felsorolása
-    if($_POST['tabla'] == 'login' && $_POST['name']=='szalloda'){
-        $feltetel = '<select>';
-        $feltetel .= '<option value="">-Válasszon szállodát-</option>';
-        $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', "", 'nev');
-        foreach($telephelyek as $telephely){
-            $feltetel .= '<option value="'.$telephely['id'].'">'.$telephely['nev'].'</option>';
-        }
-        $feltetel .= '</select>';
-    }
-    if($_POST['name']=='megjegyzes'){
-        $feltetel = nl2('
-                <input type="text" placeholder="Feltétel...">
-            ');
-    }
-    
-    echo json_encode( array('feltetel' => $feltetel, 'operator' => $operator) );
-    
-    $weblap -> leallit();
-    exit;
-}
-
-$akt_tomb_szures = get_akt_tomb($megn);
-$sz_mezo = '';
-foreach($akt_tomb_szures as $ertek){
-    if($ertek['szuro']){
-        $sz_mezo .= '<option value="'.$ertek['name'].'">'.trim($ertek['megn'], ':').'</option>';
-    }
-}
-//Felhasználók extra mezői
-if($megn == 'login'){
-    $sz_mezo .= '<option value="jogosultsag">Jogosultság</option>';
-    $sz_mezo .= '<option value="szalloda" data-tabla="telephely">Szálloda</option>';
-    $sz_mezo .= '<option value="megjegyzes" data-tabla="megjegyzes">Megjegyzés</option>';
-}
-$szures = nl2('
-        <select class="f_szuro_mezo" data-tabla="'.$megn.'">
-            <option value="">- Szűrési mező -</option>
-           '.$sz_mezo.'
-        </select>
-        <div id="operator" class="dib"></div>
-        <div id="feltetel" class="dib"></div>
-        <div id="szures_submit" class="dib"></div>
-    ');
 
 
 
@@ -850,7 +720,6 @@ $torol_dis = '';
 if( !isset($_GET['modosit']) ) {
     $torol_dis = ' disabled';
 }
-
 
 $szerk_dis = '';
 if( (isset($_GET['modosit']) && isset($_GET['szerkeszt'])) || !isset($_GET['modosit']) ) {
@@ -883,7 +752,7 @@ if( $_SESSION['nincs_jelsz'] ) {
 }
 
 
-//Törlés új új gombok ne is látsszon, ha nincs hozzá joga
+/* Törlés új új gombok ne is látsszon, ha nincs hozzá joga */
 $torles_icon = nl2('
         <a onclick="naviTorles();" class="torles'.$torol_dis.'" title="Törlés">
             <i class="material-icons">delete</i>
@@ -924,41 +793,6 @@ if(basename(self())=='erteklista.php' && !_jog(11)){
 if( (basename(self())=='anyagigenyles.php' || basename(self())=='anyagrendeles.php' || basename(self())=='raktar.php' || basename(self())=='cikktorzs.php') && !_jog(13)){
     $torles_icon    = '';
     $uj             = '';
-}
-
-
-
-
-
-/* Nyomtatások */
-if ($_GET['print']=='bej_lista') {
-    echo nl2('
-<link href="../css/nullaz.css" rel="stylesheet" type="text/css">
-<link href="../css/admin.css" rel="stylesheet" type="text/css">
-<link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
-<script src="../js/jquery.js"></script>
-<img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
-<title>Listanézet '.date('Y.m.d H:i:s').'</title>
-
-<div class="a4_allo"> 
-    <div class="padd">
-        Szűrő feltételek: <b>Nincs</b>
-    </div>
-    <div class="footer">
-        <div class="dtc padd">
-            '.$_SESSION[get_db_tabla().'teljes_nev'].'
-        </div>
-        <div class="dtc r padd">
-            '.date('Y.m.d H:i:s').'
-        </div>
-    </div>
-</div>
-            ');
-    
-    
-    
-    $weblap -> leallit();
-    exit;
 }
 
 
