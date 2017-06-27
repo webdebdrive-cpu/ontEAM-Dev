@@ -1321,6 +1321,15 @@ if( isset($_POST['munkalaphozAdas']) ) {
                 exit();
             }
         }
+        
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+            echo json_encode(array(
+                'mehet' => ''
+            ));
+            $weblap->leallit();
+            exit();
+        }        
 
         /* Státuszt folyamatban-ra állítjuk */
         foreach($idk as $id) {
@@ -1366,7 +1375,6 @@ if( isset($_POST['munkalaphozAdas']) ) {
                 exit();
             }
         }
-
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
 
@@ -1534,6 +1542,18 @@ if( isset($_POST['varolistabolKivetel']) ) {
                 exit();
             }
         }
+        
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+            
+            echo json_encode(array(
+                'hiba' => 'Biztos törli a várólistából a kijelölt bejelentéseket?',
+                'gomb' => '<input class="gomb piros" value="Igen" onclick="varolistabolKivetel();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+            ));
+                
+            $weblap->leallit();
+            exit();
+        }
 
         /* Státuszt folyamatban-ra állítjuk */
         foreach($idk as $id) {
@@ -1626,6 +1646,18 @@ if( isset($_POST['varolistahozAdas']) ) {
                 $weblap->leallit();
                 exit();
             }
+        }
+        
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+            
+            echo json_encode(array(
+                'hiba' => 'Biztos várólistához adja a kijelölt bejelentéseket?',
+                'gomb' => '<input class="gomb piros" value="Igen" onclick="varolistahozAdas();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+            ));
+                
+            $weblap->leallit();
+            exit();
         }
 
         /* Státuszt folyamatban-ra állítjuk */
@@ -1721,6 +1753,18 @@ if( isset($_POST['munkalapKeszit']) ) {
             }
         }
 
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+            
+            echo json_encode(array(
+                'hiba' => 'Biztos munkalapot készít a kijelölt bejelentés(ek)ből?',
+                'gomb' => '<input class="gomb piros" value="Igen" onclick="munkalapKeszit();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+            ));
+                
+            $weblap->leallit();
+            exit();
+        }
+        
         /* Státuszt folyamatban-ra állítjuk */
         foreach($idk as $id) {
             $statusz = addStatusz( 'bejelentes_statusz', $id, 2 );
@@ -1731,7 +1775,9 @@ if( isset($_POST['munkalapKeszit']) ) {
         }
 
         if( !$db_error ) {
-            $recid = $adatbazis_kapcsolat -> i('munkalap', array('nev'), array('teszt'));
+            $recid = $adatbazis_kapcsolat -> i('munkalap',  array('ikt_szam',   'update_dt',         'update_usr',                          'insert_dt',          'insert_usr'                              ),
+                                                            array('teszt',      date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']   )
+                                            );
 
             if( $recid === false ) {
                 $db_error = true;

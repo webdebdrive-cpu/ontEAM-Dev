@@ -112,6 +112,7 @@ td.bottom {
 .dt     { display: table;               }
 .dtc    { display: table-cell;          }
 .dtr    { display: table-row;           }
+.dtr.dn { display: none;                }
 
 .f1,  .f1:hover  { font-size: 0.1rem;   }
 .f2,  .f2:hover  { font-size: 0.2rem;   }

@@ -122,7 +122,6 @@
         $('#autocomplete').on('click', 'ul li', function() {
             var link = $('#autocomplete ul li.aktiv').attr('data-href'),
                 recid = $('#autocomplete ul li.aktiv').attr('data-recid');
-
             if(link){
                 location.href = link;
             }else{
