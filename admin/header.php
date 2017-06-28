@@ -46,8 +46,8 @@ $almenu_sablon   = fajlbol_olvas('../sablon/admin/almenu.html', true);
 if($_SESSION[get_db_tabla().'user_id']){
     $menuk .=
             nl2('
-                <li onclick="location.href=\'index.php\'" class="link">
-                    <img src="../elemek/home.svg" alt="Home" style="margin: 0.4rem 1rem 0 0rem; max-width: 2rem;">
+                <li class="link home">
+                    <a href="index.php"><i class="material-icons">home</i></a>
                 </li>
             ');
 }
@@ -71,8 +71,20 @@ $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Új '.$menu_
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], $menu_nev.' szerkesztése' ), $almenu_sablon );
 
 $style = '';
-if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $meg){
-    $style = ' class="hover"';
+if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+    $style = ' class="hover{STYLE_KIEG}"';
+}
+
+if( $aktmenuk ) {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+    } else {
+        $style = ' class="almenus"';
+    }
+} else {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', '', $style);
+    }
 }
 $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['1'], $meg, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 
@@ -115,7 +127,19 @@ $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], $menu_nev.' s
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover"';
+    $style = ' class="hover{STYLE_KIEG}"';
+}
+
+if( $aktmenuk ) {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+    } else {
+        $style = ' class="almenus"';
+    }
+} else {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', '', $style);
+    }
 }
 $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['1'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 */
@@ -134,7 +158,19 @@ if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
 $aktmenuk  = '';
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover"';
+    $style = ' class="hover{STYLE_KIEG}"';
+}
+
+if( $aktmenuk ) {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+    } else {
+        $style = ' class="almenus"';
+    }
+} else {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', '', $style);
+    }
 }
 
 //$menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
@@ -154,7 +190,19 @@ if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
 $aktmenuk  = '';
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover"';
+    $style = ' class="hover{STYLE_KIEG}"';
+}
+
+if( $aktmenuk ) {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+    } else {
+        $style = ' class="almenus"';
+    }
+} else {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', '', $style);
+    }
 }
 
 $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );*/
@@ -174,7 +222,19 @@ if( _jog(0) ) {
     $aktmenuk  = '';
     $style = '';
     if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-        $style = ' class="hover"';
+        $style = ' class="hover{STYLE_KIEG}"';
+    }
+
+    if( $aktmenuk ) {
+        if( $style ) {
+            $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+        } else {
+            $style = ' class="almenus"';
+        }
+    } else {
+        if( $style ) {
+            $style = str_replace('{STYLE_KIEG}', '', $style);
+        }
     }
 
     $menuk .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
@@ -209,7 +269,19 @@ if( _jog(3) ) {
 
     $style = '';
     if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-        $style = ' class="hover"';
+        $style = ' class="hover{STYLE_KIEG}"';
+    }
+
+    if( $aktmenuk ) {
+        if( $style ) {
+            $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+        } else {
+            $style = ' class="almenus"';
+        }
+    } else {
+        if( $style ) {
+            $style = str_replace('{STYLE_KIEG}', '', $style);
+        }
     }
 
     $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
@@ -245,7 +317,19 @@ if(_jog(19)){
 
     $style = '';
     if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-        $style = ' class="hover"';
+        $style = ' class="hover{STYLE_KIEG}"';
+    }
+
+    if( $aktmenuk ) {
+        if( $style ) {
+            $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+        } else {
+            $style = ' class="almenus"';
+        }
+    } else {
+        if( $style ) {
+            $style = str_replace('{STYLE_KIEG}', '', $style);
+        }
     }
 
     $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
@@ -267,7 +351,19 @@ $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Felmérési 
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover"';
+    $style = ' class="hover{STYLE_KIEG}"';
+}
+
+if( $aktmenuk ) {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+    } else {
+        $style = ' class="almenus"';
+    }
+} else {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', '', $style);
+    }
 }
 
 $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
@@ -287,7 +383,19 @@ $aktmenuk  = '';
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover"';
+    $style = ' class="hover{STYLE_KIEG}"';
+}
+
+if( $aktmenuk ) {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+    } else {
+        $style = ' class="almenus"';
+    }
+} else {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', '', $style);
+    }
 }
 
 $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
@@ -307,7 +415,19 @@ $aktmenuk  = '';
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover"';
+    $style = ' class="hover{STYLE_KIEG}"';
+}
+
+if( $aktmenuk ) {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+    } else {
+        $style = ' class="almenus"';
+    }
+} else {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', '', $style);
+    }
 }
 
 $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
@@ -332,7 +452,19 @@ $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Cash-flow'  
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover"';
+    $style = ' class="hover{STYLE_KIEG}"';
+}
+
+if( $aktmenuk ) {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+    } else {
+        $style = ' class="almenus"';
+    }
+} else {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', '', $style);
+    }
 }
 
 $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
@@ -357,7 +489,19 @@ $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Partnertörz
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover"';
+    $style = ' class="hover{STYLE_KIEG}"';
+}
+
+if( $aktmenuk ) {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+    } else {
+        $style = ' class="almenus"';
+    }
+} else {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', '', $style);
+    }
 }
 
 $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
@@ -382,7 +526,19 @@ $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Beosztások'
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover"';
+    $style = ' class="hover{STYLE_KIEG}"';
+}
+
+if( $aktmenuk ) {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+    } else {
+        $style = ' class="almenus"';
+    }
+} else {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', '', $style);
+    }
 }
 
 $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
@@ -450,7 +606,19 @@ $aktmenuk .= str_replace( $akt_almenu_mit, array( '../tervek/" target="_blank', 
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover"';
+    $style = ' class="hover{STYLE_KIEG}"';
+}
+
+if( $aktmenuk ) {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+    } else {
+        $style = ' class="almenus"';
+    }
+} else {
+    if( $style ) {
+        $style = str_replace('{STYLE_KIEG}', '', $style);
+    }
 }
 
 $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
@@ -748,12 +916,12 @@ if( isset($_GET['uj']) ) {
 }
 
 $belepve = nl2('
-    <div class="dtc nav c">
+    <div class="dtc nav c felh">
         <a href="javascript: felh_valt( true ); void(0);">'.$felh_nev.'</a>
         <br><span class="f11">'.$reszleg.'</span>
     </div>
-    <div class="dtc nav">
-        <a href="beleptetes.php?kilep">Kilépés</a>
+    <div class="dtc nav kilep">
+        <a href="beleptetes.php?kilep"><i class="material-icons">exit_to_app</i></a>
     </div>
 ');
 

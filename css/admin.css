@@ -1354,12 +1354,12 @@ table.rend_tetelek td.torol div:hover{
 }
 
 div.header {
-    height: 6rem;
+    height: 5rem;
     width: 100%;
 }
 
 div.header div.dtc {
-    height: 6rem;
+    height: 5rem;
     vertical-align: middle;
     white-space: nowrap;
     width: auto;
@@ -1373,19 +1373,34 @@ div.header div.dtc.nav a {
     font-size: 1.4rem;
 }
 
+div.header div.dtc.nav.kilep {
+    border-left: 0.1rem solid #e9e9e9;
+    padding: 0rem 1.8rem 0rem 1.8rem;
+    text-align: center;
+}
+
+div.header div.dtc.nav.kilep a {
+    display: inline-block;
+}
+
+div.header div.dtc.nav.felh,
+div.header div.dtc.nav.felh a {
+    color: #38474e;
+}
+
+div.header div.dtc.nav.felh a:hover {
+    text-decoration: none;
+}
+
 div.header div.dtc.logo {
     padding: 0rem 1rem 0rem 2rem;
 }
 
-div.header div.dtc:last-child {
-    padding-right: 2rem;
-}
-
 div.header div.dtc.logo a {
+    border-right: 0.1rem solid #e6e6e6;
     display: inline-block;
-    height: 3.5rem;
-    max-width: 100%;
-    width: 7.3rem;
+    height: 2rem;
+    width: 11.4rem;
 }
 
 div.header div.dtc.logo a img {
@@ -1402,6 +1417,7 @@ div.header div.dtc.bejelent {
 }
 
 div.header div.dtc.bejelent span {
+    color: #306084;
     display: block;
     font-size: 1.6rem;
     font-weight: 500;
@@ -1572,7 +1588,32 @@ ul.szamla_cont li.kijelolve a {
 }
 
 div.szamlaKereses {
+    background: #fffffd;
     position: relative;
+}
+
+div.szamlaKereses input {
+    background: #fff;
+    border: 0.1rem solid #ccdeec;
+    border-radius: 1.5rem;
+    padding: 0.5rem 1.5rem 0.4rem 1.5rem;
+}
+
+div.szamlaKereses input[type="button"] {
+    background: #4E77A6;
+    border: none;
+}
+
+div.szamlaKereses input[type="button"]:hover {
+    background: #6F98C7;
+}
+
+div.szamlaKereses select {
+    appearance: none;
+    background: #f5f7f6;
+    border: 0.1rem solid #ccdeec;
+    border-radius: 1.5rem;
+    padding: 0.3rem 3.5rem 0.5rem 1.5rem;
 }
 
 div.szamlaKereses div.ilb {
@@ -1583,6 +1624,10 @@ div.szamlaKereses div.ilb {
 
 div.szamlaKereses div.feltetelSzures {
     margin: 0rem 0rem 0rem 1rem;
+}
+
+div.szamlaKereses div.feltetelSzures div.dib {
+    vertical-align: top;
 }
 
 div.szamlaKereses div.feltetelSzures select {

@@ -1,7 +1,7 @@
 div.menu{
-    background: #004990;
+    background: #55a2fa;
     font-size: 1.5rem;
-    height: 4.2rem;
+    height: 4.5rem;
     padding: 0.5rem 1rem 0.5rem 1rem;
     width: 100%;
     z-index: 10;
@@ -15,12 +15,16 @@ div.menu{
 }
 
 #sddm li{
-	border-right: 0.1rem solid #6188B3;
     float: left;
     list-style: none;
     margin: 0;
     padding: 0;
+    margin: 0rem 0.1rem 0rem 0rem;
     position: relative;
+}
+
+#sddm li.home a {
+    padding: 0.5rem 0.7rem 0.2rem 0.7rem;
 }
 
 #sddm li:last-of-type{
@@ -32,31 +36,54 @@ div.menu{
     color: #fff;
     font-size: 1.6rem;
     margin: 0 0.1rem 0 0;
-    padding: 0.5rem 0.9rem;
+    padding: 0.8rem 0.9rem;
 	text-align: center;
 	text-decoration: none;
     width: 100%;
 }
 
-#sddm li a:hover, #sddm li a.hover{
-    background: #1261b0;
+#sddm li:hover > a, #sddm li > a.hover{
+    background: #fff;
+    border-radius: 0.2rem;
+    color: #3674c7;
 }
 
-#sddm div{
-    border: 0.1rem solid #1261b0;
-    border-radius: 0.2rem;
+#sddm li:hover > a.almenus {
+    border-radius: 0.2rem 0.2rem 0rem 0rem;
+    box-shadow: 0.1rem 0.1rem 0.4rem 0rem rgba(0, 0, 0, 0.4);
+    position: relative;
+}
+
+#sddm li:hover > a.almenus:after {
+    background: #fff;
+    content: '';
+    height: 0.4rem;
+    position: absolute;
+    bottom: 0rem;
+    left: 0rem;
+    width: 100%;
+    z-index: 10001;
+}
+
+#sddm li:hover div a {
+    color: #3e484a;
+}
+
+#sddm div {
+    box-shadow: 0.1rem 0.1rem 0.4rem 0rem rgba(0, 0, 0, 0.4);
     display: none;
 	margin: 0;
 	padding: 0;
     position: absolute;
-    top: 3.6rem;
+    top: 3.5rem;
     z-index: 10000;
 }
 
-
-#sddm div a{
-	background: #004990;
-    color: #fff;
+#sddm div a {
+	background: #fff;
+    border-bottom: 0.1rem solid #d1d6da;
+    border-radius: 0rem;
+    color: #3e484a;
     display: block;
     font-size: 1.4rem;
     margin: 0;
@@ -68,6 +95,17 @@ div.menu{
 	white-space: nowrap;
 }
 
-#sddm div a:hover{
-	background: #1261b0;
+#sddm div a:first-child {
+    border-radius: 0rem 0.3rem 0rem 0rem;
+}
+
+#sddm div a:last-child {
+    border-bottom: none;
+    border-radius: 0rem 0rem 0.3rem 0.3rem;
+}
+
+#sddm div a:hover {
+	background: #f7faff;
+    border-radius: 0rem;
+    color: #3e484a;
 }
