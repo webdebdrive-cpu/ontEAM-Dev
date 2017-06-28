@@ -952,8 +952,15 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
 
             //Bejelentéseknél a rendezés külön problémakör:
             if($tabla=='bejelentes'){
-                //A sürgős mindig elől lesz, bármi is a rendezettség:
-                $order = '`'.get_db_tabla().'bejelentes_csoport`.`nev`, `'.get_db_tabla().'bejelentes`.`surgos` DESC,';
+                
+                $order = '';
+                //Elsődleges rendezés a csport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
+                if(_jog(2)){
+                    $order .= '`'.get_db_tabla().'bejelentes_csoport`.`nev`, ';
+                }
+                //A sürgős mindig elől lesz, bármi is a rendezettség
+                $order .= '`'.get_db_tabla().'bejelentes`.`surgos` DESC, ';
+                
                 $irany_ikt_szam  = '';
                 $irany_telephely = '';
                 //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
@@ -978,7 +985,7 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
             $select .= ', `'.get_db_tabla().'telephely`.`nev`';
 
             $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
-            $mit   = array('WHERE');
+            $mit   = 'WHERE';
 
             //Bejelentésnél még az értéklistát is felvesszük
             $sql_kieg = '';
@@ -991,8 +998,15 @@ function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $li
             if(strpos($select, 'obj_id')!==false){
                 $sql_kieg .= ' JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid` ';
             }
-            $mivel = array('JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`'.$sql_kieg.' WHERE');
-            $sql = str_replace($mit, $mivel, $adatbazis_kapcsolat->gp());
+            $mivel = 'JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`'.$sql_kieg.' WHERE';
+            $sql = $adatbazis_kapcsolat->gp();
+            
+            //Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elá kell beszúrni a JOIN-t
+            if(strpos($sql, 'WHERE')===false){
+                $mit = 'ORDER BY';
+                $mivel = str_replace('WHERE', 'ORDER BY', $mivel);
+            }
+            $sql = str_replace($mit, $mivel, $sql);
 if (isset($_GET['debug'])) {
     echo $sql . '<br>';
 }
@@ -1152,7 +1166,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
-            if( !$frissit ) {
+            if( !$frissit && _jog(2)/* Csoportra bontás csak a diszpécsernek jelenik meg */ ) {
                 $aktCsoport = $bsz['csoport_id'];
 
                 if( $i == 1 || $csoport != $aktCsoport ) {
@@ -1214,7 +1228,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
 
             $csoport_class = '';
             $csoport_data = '';
-            if( $bsz['csoport_id'] ) {
+            if( $bsz['csoport_id'] && _jog(2) ) {
                 $csoport_class = ' behuz dn';
                 $csoport_data = ' data-csoportID="'.$bsz['csoport_id'].'"';
             }
@@ -1650,6 +1664,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
 
             /* Telephely */
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
+//echo $adatbazis_kapcsolat->gp() . '<br>';
             $telephely = $telephely[0];
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">

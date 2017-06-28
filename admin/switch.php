@@ -686,11 +686,12 @@ foreach($akt_tomb as $ertek){
             $select_felh_telephely = array();
             array_push($select_felh_telephely, array('name' => '- Válasszon -', 'value' => '' ));
 
-            /* Ha új sort szúrunk be, akkor a SESSION-ből vesszük ki a loginnevet, ha már szerkesztés alatt vagyunk, akkor pedig adatbázibsból */
-            $loginNev = $sor['loginnev'];
-            if( isset($_GET['uj']) ) {
+            /* Ha új sort szúrunk be, akkor a SESSION-ből vesszük ki a loginnevet, ha már szerkesztés alatt vagyunk, akkor pedig adatbázibsból
+             * UPDATE: a szállodákat mindig a SESSION userből számoljuk ki */
+//            $loginNev = $sor['loginnev'];
+//            if( isset($_GET['uj']) ) {
                 $loginNev = $_SESSION[get_db_tabla().'user'];
-            }
+//            }
 
             /* Kapcsolódó tábla adatai */
             $telephely_kapcs = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', '`nev`=\''.$loginNev.'\'');
@@ -702,6 +703,7 @@ foreach($akt_tomb as $ertek){
                     if( count($telephelyek) == 1 ) {
                         $sor['telephely_id'] = $telephely['id'];
                         $ertek['disabled'] = true;
+                        $ertek['post'] .= '<input type="hidden" name="telephely_id" id="telephely_id" value="'.$sor['telephely_id'].'">';
                     }
 
                     array_push($select_felh_telephely, array('name' => $telephely['nev'], 'value' => $telephely['id'] ));
@@ -722,6 +724,7 @@ foreach($akt_tomb as $ertek){
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
             $input -> onchange = $ertek['onchange'];
+            $input -> post     = $ertek['post'];
             $input -> style    = $ertek['style'];
 
             if($ertek['i']){
@@ -1334,6 +1337,9 @@ foreach($akt_tomb as $ertek){
                         if( $sor[ $ertek['name'] ] != '0000-00-00' ) {
                             $input -> value   = date('Y.m.d', strtotime($sor[ $ertek['name'] ]));
                         }
+                    //Ha numerikus adat, akkor formázzunk
+                    } elseif( strpos($ertek['class'], 'f_num')!==false ) {
+                        $input -> value   = number_format($sor[ $ertek['name'] ], 2, ',', ' ');
                     } else {
                         $input -> value   = $sor[ $ertek['name'] ];
                     }

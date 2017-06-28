@@ -2415,7 +2415,7 @@ function szuro_ertek_mezo_gen(that){
             response = JSON.parse(response);
             if (response) {
                 $('#feltetel').html(response.feltetel);
-                $('#szures_submit').html('<input type="button" class="gomb f_szures_submit" value="Szűrés">');
+                $('#szures_submit').html('<input type="button" class="gomb f_szures_submit" value="Szűrés"> <input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl">');
             }
         }
    });

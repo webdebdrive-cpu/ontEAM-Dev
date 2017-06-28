@@ -537,7 +537,7 @@ $megn = trim( basename(self()), '.php' );
 
 
 
-/* Bal oldali nav panel seelct-je */
+/* Bal oldali nav panel select-je */
 $tartBal  = '';
 $keresodn = ' dn';
 $rendezes = '';
@@ -609,10 +609,13 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     //Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
     //Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
+    $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
+    $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
     if($tabla == 'bejelentes'){
-        $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
-        $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
         $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+    }
+    if($tabla == 'anyagigenyles'){
+        $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
     }
 
     //Keresés
@@ -825,7 +828,7 @@ if( basename(self())=='cikktorzs.php' && !_jog(20)){
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
     array('{CSS}', '{CEGNEV}', '{MENUK}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}'    ),
-    array( $css,    get_nev(),  $menuk,   $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,   $self,    get_get(),   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,       ),
+    array( $css,    get_nev(),  $menuk,   $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    get_get(),   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,      ),
     $header_sablon
 );
 

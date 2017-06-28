@@ -351,15 +351,56 @@ if($gyorskereso_text){
 			require_once('tobb_kep.php');
 		}
 
-	//Történet
-	}elseif(isset($_GET['tortenet'])){
+	/* Történet */
+    }elseif(isset($_GET['tortenet'])) {
 
-        $szamla_html .= 'Történet felülete';
-        
+        $szamla_html .= nl2('
+            <div class="dt naplo">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Státusz</div>
+                    <div class="dtc">Kelte</div>
+                    <div class="dtc">Felhasználó</div>
+                    <div class="dtc">Státuszidő</div>
+                    <div class="dtc">Göngyölt státuszidő</div>
+                    <div class="dtc">Összesített státuszidő</div>
+                </div>
+        ');
+
+        $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido', $megnevezes.'_statusz', "`id` = '".$_GET['id']."'", 'insert_dt', '');
+
+        if( $sorok ) {
+            foreach($sorok as $sor) {
+                $statusz = $adatbazis_kapcsolat->s('nev szinkod', $megnevezes.'_statusz_text', 'recid='.$sor['stat_id'], '', '1');
+
+                $szinkod = '';
+                if( $statusz ) {
+                    $statusz = $statusz[0];
+
+                    $sor['statusz'] = $statusz['nev'];
+
+                    if( $statusz['szinkod'] ) {
+                        $szinkod = ' style="background: '.$statusz['szinkod'].';"';
+                    }
+                }
+
+                $szamla_html .= nl2('
+                    <div class="dtr nSor"'.$szinkod.'>
+                        <div class="dtc">'.$sor['statusz'].'</div>
+                        <div class="dtc">'.date('Y.m.d H:i:s', strtotime($sor['insert_dt'])).'</div>
+                        <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.$sor['statido'].'</div>
+                        <div class="dtc">'.$sor['gongyolt_statido'].'</div>
+                        <div class="dtc">'.$sor['ossz_statido'].'</div>
+                    </div>
+                ');
+            }
+        }
+
+        $szamla_html .= '</div>';
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'tartalom' => $szamla_html
             ));
         } else {
             echo $szamla_html;

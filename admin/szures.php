@@ -108,8 +108,12 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
                     //Onblurra a hidden mező is nullázódjon, ha üres volna a mező
                     $ertek['onblur'] .= 'if(!$(this).val()){ $(\'#'.$ertek['name'].'\').val(\'\'); }';
-
-                    $input -> cssClass     .= 'csillag';
+                    
+                    if($ertek['alert']){
+                        $ertek['class'] .= ' csillag';
+                    }
+                    
+                    $input -> cssClass      = $ertek['class'];
                     $input -> id            = $ertek['name'].'_autocomp_szurobe';
                     $input -> name          = $ertek['name'].'_autocomp_szurobe';
                     $input -> placeholder   = $ertek['placeholder'];

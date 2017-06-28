@@ -472,10 +472,21 @@ input.gomb{
     font-size: 1.4rem;
     padding: 0.6rem 1.2rem;
     position: relative;
+    transition: all ease-in-out 0.2s;
 }
 
 input.gomb:hover, input.gomb:focus, input.gomb:active{
     background: #6F98C7;
+    transition: all ease-in-out 0.2s;
+}
+
+input.gomb.piros{
+    background: #C44B4B;
+    transition: all ease-in-out 0.2s;
+}
+input.gomb.piros:hover, input.gomb.piros:focus, input.gomb.piros:active{
+    background: #D35454;
+    transition: all ease-in-out 0.2s;
 }
 
 input.gomb_alert{
