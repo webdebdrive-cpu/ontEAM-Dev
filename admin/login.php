@@ -450,19 +450,48 @@ if($gyorskereso_text){
                 usort($jogSorok, 'sortByOrder');
 
                 foreach($jogSorok as $jogSor) {
+                    
                     $checked = '';
                     if( $jogSor['value'] ) {
                         $checked = ' checked="checked"';
                     }
 
+                    $info = '';
+                    if($jogSor['i']){
+                        $info = '<div class="tooltip di" style="margin-left: 5rem"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$jogSor['i'].'</div></div>';
+                    }
+
+                    $onclick = '';
+                    $kikapcs = '';
+                    if($jogSor['kikapcs']){
+                        foreach(explode(',', $jogSor['kikapcs']) as $pipa_ki){
+                            $kikapcs .= '$(\'#jog-'.$pipa_ki.'\').prop(\'checked\', false).removeClass(\'mod\');';
+                        }
+                    }
+                    $bekapcs = '';
+                    if($jogSor['bekapcs']){
+                        foreach(explode(',', $jogSor['bekapcs']) as $pipa_be){
+                            $bekapcs .= '$(\'#jog-'.$pipa_be.'\').prop(\'checked\', true).addClass(\'mod\');';
+                        }
+                    }
+                    if($kikapcs || $bekapcs){
+                        $onclick = ' onclick="'.$kikapcs.$bekapcs.'"';
+                    }
+                    
+                    $dn = '';
+                    if($jogSor['torolve']){
+                        $dn = ' dn';
+                    }
+
                     $szamla_html .= nl2('
-                        <div class="dtr">
+                        <div class="dtr'.$dn.'">
                             <div class="dtc form_bal"><span>'.$jogSor['nev'].':</span></div>
                             <div class="dtc form_jobb">
                                 <div class="cb">
                                     <input type="hidden" name="jog-'.$jogSor['id'].'" value="0">
-                                    <input type="checkbox" class="check" name="jog-'.$jogSor['id'].'" id="jog-'.$jogSor['id'].'" value="1"'.$checked.'>
+                                    <input type="checkbox" class="check" name="jog-'.$jogSor['id'].'" id="jog-'.$jogSor['id'].'" value="1"'.$checked.$onclick.'>
                                     <label for="jog-'.$jogSor['id'].'"></label>
+                                    '.$info.'
                                 </div>
                             </div>
                         </div>

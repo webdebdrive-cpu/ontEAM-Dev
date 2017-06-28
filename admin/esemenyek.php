@@ -1054,23 +1054,27 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 //Anyagigénylés
 $megnevezes = 'anyagigenyles';
+$tav_04 = '<span style="margin-left: 0.5rem"></span>';
+$tav_12 = '<span style="margin-left: 1.2rem"></span>';
+$tav_26 = '<span style="margin-left: 2.6rem"></span>';
+$tav_4  = '<span style="margin-left: 4rem"></span>';
 $anyagigenyles_tomb = $akt_tomb = array(
-    array('type' => 'text',                     'megn' => 'Iktató szám:',           'name' => 'ikt_szam',      'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
-    array('type' => 'checkbox',                 'megn' => 'Készpénzes:',            'name' => 'keszpenz', 'post' => '<span style="margin-left: 2rem"></span><input type="button" value="rendelés kép" class="gomb">'),
-    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',              'name' => 'telephely_id', 'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
-    array('type' => 'autocomplete',             'megn' => 'Cikk név:',              'name' => 'cikktorzs_id',   'class' => 'oriasi disableNav csillag', 'tabla' => 'cikktorzs', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
-    array('type' => 'text',                     'megn' => 'Igénylet mennyiség:',    'name' => 'igmen',      'post' => ' db<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
-    array('type' => 'checkbox',                 'megn' => 'RB-s anyag:',            'name' => 'kulsosnek'),
-    array('type' => 'text',                     'megn' => 'Jóváhagyott mennyiség:', 'name' => 'jhmen',      'post' => ' db<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
-    array('type' => 'text',                     'megn' => '<span style="margin-left: 4rem"></span>Rendelés szám:',         'name' => 'rndid'),
-    array('type' => 'text',                     'megn' => 'Rendelt mennyiség:',     'name' => 'rndmen',     'post' => ' db<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
-    array('type' => 'text',                     'megn' => '<span style="margin-left: 1.2rem"></span>Rendelési egységár:',    'name' => 'rndear',     'post' => ' '.  get_penznem()),
-    array('type' => 'text',                     'megn' => 'Beérkezett mennyiség:',  'name' => 'erkmen',     'post' => ' db<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
-    array('type' => 'text',                     'megn' => '<span style="margin-left: 0.4rem"></span>Beérkezési egységár:',   'name' => 'erkear',     'post' => ' '.  get_penznem()),
-    array('type' => 'autocomplete',             'megn' => 'Pénznem:',               'name' => 'kcs_21',    'class' => 'disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 21, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a pénznemet!', 'style' => 'width: 5rem'),
-    array('type' => 'text',                     'megn' => 'Deviza rend. egységár:', 'name' => 'vrndear', 'osszevon' => 1),
-    array('type' => 'text',                     'megn' => '<span style="margin-left: 2.6rem"></span>Deviza beérk. egységár:','name' => 'verkear'),
-    array('type' => 'autocomplete',             'megn' => 'Szállító:',              'name' => 'szallito',   'class' => 'oriasi disableNav csillag', 'szuro' => 1, 'tabla' => 'szallito', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
+    array('type' => 'text',                     'megn' => 'Iktató szám:',                   'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 7rem'),
+    array('type' => 'checkbox',                 'megn' => 'Készpénzes:',                    'name' => 'keszpenz',       'szuro' => 1,   'disabled' => 1,   'post' => '<span style="margin-left: 2rem"></span><input type="button" value="rendelés kép" class="gomb">'),
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                      'name' => 'telephely_id',   'szuro' => 1,   'disabled' => 1,   'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+    array('type' => 'autocomplete',             'megn' => 'Cikk név:',                      'name' => 'cikktorzs_id',   'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav csillag', 'tabla' => 'cikktorzs', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
+    array('type' => 'text',                     'megn' => 'Igényelt mennyiség:',            'name' => 'igmen',          'szuro' => 1,   'disabled' => 1,   'class' => 'f_num', 'post' => ' db<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
+    array('type' => 'checkbox',                 'megn' => 'RB-s anyag:',                    'name' => 'kulsosnek',      'szuro' => 1,   'disabled' => 1),
+    array('type' => 'text',                     'megn' => 'Jóváhagyott mennyiség:',         'name' => 'jhmen',          'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'post' => ' db<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
+    array('type' => 'text',                     'megn' => $tav_4.'Rendelés szám:',          'name' => 'rndid',          'szuro' => 1,   'disabled' => 1,   'style' => 'width: 7rem'),
+    array('type' => 'text',                     'megn' => 'Rendelt mennyiség:',             'name' => 'rndmen',         'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'post' => ' db<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
+    array('type' => 'text',                     'megn' => $tav_12.'Rendelési egységár:',    'name' => 'rndear',         'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'post' => ' '.  get_penznem()),
+    array('type' => 'text',                     'megn' => 'Beérkezett mennyiség:',          'name' => 'erkmen',         'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'post' => ' db<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
+    array('type' => 'text',                     'megn' => $tav_04.'Beérkezési egységár:',   'name' => 'erkear',         'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'post' => ' '.  get_penznem()),
+    array('type' => 'autocomplete',             'megn' => 'Pénznem:',                       'name' => 'kcs_21',         'szuro' => 1,   'disabled' => 1,   'class' => 'disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 21, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a pénznemet!', 'style' => 'width: 5rem'),
+    array('type' => 'text',                     'megn' => 'Deviza rend. egységár:',         'name' => 'vrndear',        'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'osszevon' => 1),
+    array('type' => 'text',                     'megn' => $tav_26.'Deviza beérk. egységár:','name' => 'verkear',        'szuro' => 1,   'disabled' => 1,   'class' => 'f_num'),
+    array('type' => 'autocomplete',             'megn' => 'Szállító:',                      'name' => 'szallito',       'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav csillag', 'szuro' => 1, 'tabla' => 'szallito', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
     //cikktorzs
 
 );
@@ -1302,7 +1306,7 @@ if( isset($_POST['munkalaphozAdas']) ) {
                     }
 
                     echo json_encode(array(
-                        'hiba' => 'Munkalap csak nyitott státuszú bejegyzésből készíthető!'.$hiba_kieg
+                        'hiba' => 'Munkalap csak nyitott státuszú bejelentésből készíthető!'.$hiba_kieg
                     ));
 
                     $weblap->leallit();
@@ -1317,6 +1321,15 @@ if( isset($_POST['munkalaphozAdas']) ) {
                 exit();
             }
         }
+        
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+            echo json_encode(array(
+                'mehet' => ''
+            ));
+            $weblap->leallit();
+            exit();
+        }        
 
         /* Státuszt folyamatban-ra állítjuk */
         foreach($idk as $id) {
@@ -1362,7 +1375,6 @@ if( isset($_POST['munkalaphozAdas']) ) {
                 exit();
             }
         }
-
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
 
@@ -1530,6 +1542,18 @@ if( isset($_POST['varolistabolKivetel']) ) {
                 exit();
             }
         }
+        
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+            
+            echo json_encode(array(
+                'hiba' => 'Biztos törli a várólistából a kijelölt bejelentéseket?',
+                'gomb' => '<input class="gomb piros" value="Igen" onclick="varolistabolKivetel();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+            ));
+                
+            $weblap->leallit();
+            exit();
+        }
 
         /* Státuszt folyamatban-ra állítjuk */
         foreach($idk as $id) {
@@ -1623,6 +1647,18 @@ if( isset($_POST['varolistahozAdas']) ) {
                 exit();
             }
         }
+        
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+            
+            echo json_encode(array(
+                'hiba' => 'Biztos várólistához adja a kijelölt bejelentéseket?',
+                'gomb' => '<input class="gomb piros" value="Igen" onclick="varolistahozAdas();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+            ));
+                
+            $weblap->leallit();
+            exit();
+        }
 
         /* Státuszt folyamatban-ra állítjuk */
         foreach($idk as $id) {
@@ -1701,7 +1737,7 @@ if( isset($_POST['munkalapKeszit']) ) {
 
                 if( $statusz['stat_id'] != 1 ) {
                     echo json_encode(array(
-                        'hiba' => 'Munkalap csak nyitott státuszú bejegyzésből készíthető!'
+                        'hiba' => 'Munkalap csak nyitott státuszú bejelentésből készíthető!'
                     ));
 
                     $weblap->leallit();
@@ -1717,6 +1753,18 @@ if( isset($_POST['munkalapKeszit']) ) {
             }
         }
 
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+            
+            echo json_encode(array(
+                'hiba' => 'Biztos munkalapot készít a kijelölt bejelentés(ek)ből?',
+                'gomb' => '<input class="gomb piros" value="Igen" onclick="munkalapKeszit();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+            ));
+                
+            $weblap->leallit();
+            exit();
+        }
+        
         /* Státuszt folyamatban-ra állítjuk */
         foreach($idk as $id) {
             $statusz = addStatusz( 'bejelentes_statusz', $id, 2 );
@@ -1727,7 +1775,9 @@ if( isset($_POST['munkalapKeszit']) ) {
         }
 
         if( !$db_error ) {
-            $recid = $adatbazis_kapcsolat -> i('munkalap', array('nev'), array('teszt'));
+            $recid = $adatbazis_kapcsolat -> i('munkalap',  array('ikt_szam',   'update_dt',         'update_usr',                          'insert_dt',          'insert_usr'                              ),
+                                                            array('teszt',      date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']   )
+                                            );
 
             if( $recid === false ) {
                 $db_error = true;

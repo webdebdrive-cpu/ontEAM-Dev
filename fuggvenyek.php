@@ -3002,12 +3002,14 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_
 //megnevezésből a megfelelő tömb betöltése központosítva
 function get_akt_tomb($megn){
 
+    global $anyagigenyles_tomb;
     global $bejelentes_tomb;
     global $login_tomb;
 
     switch($megn){
-        case 'bejelentes'   : $akt_tomb = $bejelentes_tomb; break;
-        case 'login'        : $akt_tomb = $login_tomb;      break;
+        case 'anyagigenyles': $akt_tomb = $anyagigenyles_tomb;  break;
+        case 'bejelentes'   : $akt_tomb = $bejelentes_tomb;     break;
+        case 'login'        : $akt_tomb = $login_tomb;          break;
     }
 
     return $akt_tomb;

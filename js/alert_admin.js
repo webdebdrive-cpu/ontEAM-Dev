@@ -1,7 +1,7 @@
 function alert2(uzi, ok_gomb, cim) {
 
     if( !ok_gomb ){
-        ok_gomb = '<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2()"></p>';
+        ok_gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2()">';
     }
 
     /*Üres alert eltűntetés*/
@@ -56,7 +56,7 @@ function alert_kiir(uzi, ok_gomb, cim){
     }
 
     var alert2_html = '';
-    alert2_html    += '<div id="alert2"><div class="figy"><div class="header">'+cim+'</div><div class="tart">'+uzi+'</div><div class="f_footer">'+ ok_gomb +'</div></div></div>';
+    alert2_html    += '<div id="alert2"><div class="figy"><div class="header">'+cim+'</div><div class="tart">'+uzi+'</div><div class="f_footer c">'+ ok_gomb +'</div></div></div>';
 
     $('body').append('<div id="szurkit" class="dn"></div>');
     $('body').append(alert2_html);

@@ -346,8 +346,6 @@ if($gyorskereso_text){
                 <div id="kmCont">
                     <script>
                         csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                        varolistahozGomb  = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"varolistahozAdas();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                        varolistabolGomb  = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"varolistabolKivetel();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                     </script>
                     <input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas\');" disabled="disabled">
                     <div class="kijeloltek_muv">
@@ -364,8 +362,8 @@ if($gyorskereso_text){
                         <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista..." disabled="disabled">
                         <div class="muv">
                             <ul>
-                                <li><a onclick="alert2(\'Biztos várólistához adja a kijelölt bejelentéseket?\', varolistahozGomb);">Várólistához adás</a></li>
-                                <li><a onclick="alert2(\'Biztos törli a várólistából a kijelölt bejelentéseket?\', varolistabolGomb);">Várólistból kivétel</a></li>
+                                <li><a onclick="varolistahozAdas(\'csak kérdezünk még\');">Várólistához adás</a></li>
+                                <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\')">Várólistból kivétel</a></li>
                             </ul>
                         </div>
                     </div>
@@ -447,14 +445,11 @@ if($gyorskereso_text){
         }
 
         $gombok .= nl2('
-            <script>
-                munkalapKeszitGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkalapKeszit();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-            </script>
-            <input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="alert2(\'Biztos munkalapot készít a kijelölt bejelentés(ek)ből?\', munkalapKeszitGomb);" title="Munkalap készítése">
+            <input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="munkalapKeszit(\'csak kérdezünk még\')" title="Munkalap készítése">
         ');
 
         if( _jog(2) ) {
-            $gombok .= '<input type="button" class="gombb foGomb" value="Hozzáadás munkalaphoz" onclick="csoportMuvelet(\'munkalaphoz_adas\');" title="Hozzáadás munkalaphoz">';
+            $gombok .= '<input type="button" class="gombb foGomb" value="Hozzáadás munkalaphoz" onclick="munkalaphozAdas(\'csak kérdezünk még\');" title="Hozzáadás munkalaphoz">';
         }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
