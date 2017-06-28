@@ -168,6 +168,7 @@ if( _jog(0) ) {
     $megn            = 'bejelentes';
     $aloldalak       = array($megn.'.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+    //if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = 'Új bejelentés feltöltése'; }
     if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
 
     $aktmenuk  = '';
@@ -216,7 +217,7 @@ if( _jog(3) ) {
 
 
 /* Anyagok */
-if(_jog(12)){
+if(_jog(12) || _jog(16) || _jog(17) || _jog(19)){
     $menu_nev        = 'Anyagok';
     $menu_nev_kis    = 'anyagok';
     $menu_nev_tobbes = 'Anyagok';
@@ -229,10 +230,18 @@ if(_jog(12)){
     if(basename(self())=='raktar.php')          { $oldalNev = 'Anyagok / Raktár';           }
 
     $aktmenuk  = '';
+if(_jog(12)){
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Anyagigénylések'), $almenu_sablon );
+}
+if(_jog(16)){
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Anyagrendelések'), $almenu_sablon );
+}
+if(_jog(17)){
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Raktár'         ), $almenu_sablon );
+}
+if(_jog(19)){
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Cikktörzs'      ), $almenu_sablon );
+}
 
     $style = '';
     if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
@@ -528,7 +537,7 @@ $megn = trim( basename(self()), '.php' );
 
 
 
-/* Bal oldali nav panel */
+/* Bal oldali nav panel seelct-je */
 $tartBal  = '';
 $keresodn = ' dn';
 $rendezes = '';
@@ -591,23 +600,23 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     if( $tabla == 'rendszer' ) {
         if( $_GET['rkat'] ) {
             if( strstr($_GET['rkat'], ',') ) {
-                $where = "`rkat` IN (".$_GET['rkat'].")";
+                $where = "`rkat` IN (".$_GET['rkat'].") AND ";
             } else {
-                $where = "`rkat` = '".$_GET['rkat']."'";
+                $where = "`rkat` = '".$_GET['rkat']."' AND ";
             }
         }
     }
 
-    if( $where ) {
-        $where .= " AND `".get_db_tabla()."$tabla`.`torolve` = '0'";
-    } else {
-        $where = "`".get_db_tabla()."$tabla`.`torolve` = '0'";
+    //Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
+    //Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
+    if($tabla == 'bejelentes'){
+        $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
+        $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
+        $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
     }
 
+    //Keresés
     if( $_GET['ksz'] ) {
-        if( $where ) {
-            $where .= " AND ";
-        }
 
         $selectek = explode(' ', $_OPTS['select']);
 
@@ -623,10 +632,15 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         }
 
         if($ksz_where){
-            $where .= '('.trim($ksz_where, ' OR ').')';
+            $where .= '('.trim($ksz_where, ' OR ').') AND ';
         }
 
     }
+    
+    //Where feltétel lezárása
+    $where = trim($where, ' AND ');
+
+    
     //Lapozás előkészítése
     require_once('../class/class.Lapozo.php');
 
@@ -790,7 +804,17 @@ if(basename(self())=='erteklista.php' && !_jog(11)){
     $uj             = '';
 }
 
-if( (basename(self())=='anyagigenyles.php' || basename(self())=='anyagrendeles.php' || basename(self())=='raktar.php' || basename(self())=='cikktorzs.php') && !_jog(13)){
+if( basename(self())=='anyagigenyles.php' && !_jog(13)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+if( basename(self())=='raktar.php' && !_jog(18)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+if( basename(self())=='cikktorzs.php' && !_jog(20)){
     $torles_icon    = '';
     $uj             = '';
 }

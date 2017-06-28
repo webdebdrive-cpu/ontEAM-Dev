@@ -2734,7 +2734,13 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='erteklista' && !_jog(11)){
             $weblap -> leallit(); exit;
         }
-        if( ($ertek['tabla']=='anyagrendeles' || $ertek['tabla']=='anyagigenyles' || $ertek['tabla']=='raktar' || $ertek['tabla']=='cikktorzs') && !_jog(13)){
+        if($ertek['tabla']=='anyagigenyles' && !_jog(13)){
+            $weblap -> leallit(); exit;
+        }
+        if( $ertek['tabla']=='raktar' && !_jog(18)){
+            $weblap -> leallit(); exit;
+        }
+        if( $ertek['tabla']=='cikktorzs' && !_jog(20)){
             $weblap -> leallit(); exit;
         }
         //Login egyáltalán nem törölhető

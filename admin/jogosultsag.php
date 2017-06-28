@@ -27,5 +27,10 @@ $jogosultsagok = array(
     13 => array('nev' => 'Anyagigénylés kezelése',      'kat' => 3, 'sor' => 2, 'i' => 'vezető, új igénylés készítése', 'bekapcs' => '12'),
     14 => array('nev' => 'Igénylés jóváhagyása',        'kat' => 3, 'sor' => 3, 'i' => 'vezető, árak és mennyiségek jóváhagyása'),
     15 => array('nev' => 'Anyagrendelés készítése',     'kat' => 3, 'sor' => 4, 'i' => 'adminisztrátor hölgyek', 'bekapcs' => '12'),
+    16 => array('nev' => 'Anyagrendelés megtekintése',  'kat' => 3, 'sor' => 5),
+    17 => array('nev' => 'Raktár megtekintése',         'kat' => 3, 'sor' => 6, 'kikapcs' => '18'),
+    18 => array('nev' => 'Raktár kezelése',             'kat' => 3, 'sor' => 7, 'bekapcs' => '17'),
+    19 => array('nev' => 'Cikktörzs megtekintése',      'kat' => 3, 'sor' => 8, 'kikapcs' => '20'),
+    20 => array('nev' => 'Cikktörzs kezelése',          'kat' => 3, 'sor' => 9, 'bekapcs' => '19'),
 
 );

@@ -261,7 +261,7 @@ function get_tobbkep_thumb($sor_kepek){
             </div>
             <div id="megj_'.$azon.'_felirat" class="felirat f12 link c"'.$megj_szerkesztes_onclick.'>'.$felirat.'</div>
             <div class="nagyit">
-                <a href="'.$kep_utvonal.'" class="light" rel="album[]" target="_blank">
+                <a href="'.$kep_utvonal.'" class="light" rel="album[]" target="_blank" title="Letöltés">
                     <i class="material-icons">file_download</i>
                 </a>
             </div>
