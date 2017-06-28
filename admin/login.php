@@ -2,7 +2,13 @@
 require_once('../weblap.php');
 
 if( !_jog(6) ) {
+    if(!$_SESSION[get_db_tabla().'user']){
+        $weblap -> leallit();
+        header('Location: index.php');
+        exit;
+    }
     header('Content-Type: text/html; charset=utf-8');
+    $weblap -> leallit();
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
 }
 
@@ -456,9 +462,15 @@ if($gyorskereso_text){
                         $checked = ' checked="checked"';
                     }
 
-                    $info = '';
+                    //Tooltipőes súgó leszavazva, de legyen meg a kódja:
+//                    $info = '';
+//                    if($jogSor['i']){
+//                        $info = '<div class="tooltip di" style="margin-left: 5rem"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$jogSor['i'].'</div></div>';
+//                    }
+                    
+                    $jogSor['nev'] .= ':';
                     if($jogSor['i']){
-                        $info = '<div class="tooltip di" style="margin-left: 5rem"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$jogSor['i'].'</div></div>';
+                        $jogSor['nev'] .= '<br><i>('.$jogSor['i'].')</i><br><br>';
                     }
 
                     $onclick = '';
@@ -485,7 +497,7 @@ if($gyorskereso_text){
 
                     $szamla_html .= nl2('
                         <div class="dtr'.$dn.'">
-                            <div class="dtc form_bal"><span>'.$jogSor['nev'].':</span></div>
+                            <div class="dtc form_bal"><span>'.$jogSor['nev'].'</span></div>
                             <div class="dtc form_jobb">
                                 <div class="cb">
                                     <input type="hidden" name="jog-'.$jogSor['id'].'" value="0">
