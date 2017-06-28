@@ -2,7 +2,13 @@
 require_once('../weblap.php');
 
 if( !_jog(8) ) {
+    if(!$_SESSION[get_db_tabla().'user']){
+        $weblap -> leallit();
+        header('Location: index.php');
+        exit;
+    }
     header('Content-Type: text/html; charset=utf-8');
+    $weblap -> leallit();
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
 }
 
