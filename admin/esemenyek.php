@@ -2407,7 +2407,7 @@ if( isset($_GET['szamlaSorFrissit']) ) {
     $recid = $_GET['recid'];
 
     if( $tabla && $recid ) {
-        $szamla_lista = szamla_lista($tabla, $_OPTS['select'], 'recid='.$recid, '', '1', true );
+        $szamla_lista = szamla_lista('recid='.$recid);
 
         echo $szamla_lista;
     }
@@ -2418,119 +2418,12 @@ if( isset($_GET['szamlaSorFrissit']) ) {
 
 if( isset($_GET['szamlaLista']) ) {
 
-    $rend  = $_GET['rend'];
-    $irany = $_GET['irany'];
-    $tabla = $_GET['tabla'];
-    $ksz   = $_GET['ksz'];
+    $szamla_lista = szamla_lista('', $_GET['tabla']);
 
-    //Aktív esetén a rendezés irányát meg kell fordítani (tehát az aktívak, egyesek legyenek elől)
-    if($rend=='aktiv'){
-        if($irany=='desc'){
-            $irany = 'asc';
-        }else{
-            $irany = 'desc';
-        }
-    }
-
-    $order = '';
-    if( $rend ) {
-        $order = $rend.' '.$irany;
-    }
-
-    if( $tabla ) {
-        $where = '';
-        if( $tabla == 'rendszer' ) {
-            if( $_GET['rkat'] ) {
-                if( strstr($_GET['rkat'], ',') ) {
-                    $where = "`rkat` IN (".$_GET['rkat'].")";
-                } else {
-                    $where = "`rkat` = '".$_GET['rkat']."'";
-                }
-            }
-        }
-
-        if( $where ) {
-            $where .= " AND `".get_db_tabla()."$tabla`.`torolve` = '0'";
-        } else {
-            $where = "`".get_db_tabla()."$tabla`.`torolve` = '0'";
-        }
-
-        if( $ksz ) {
-            if( $where ) {
-                $where .= " AND ";
-            }
-
-            $ksz_where = '';
-            $selectek = explode(' ', $_OPTS['select']);
-
-            $ksz_where = '';
-            foreach($selectek as $select) {
-                if( $select && $select != 'recid' ) {
-                    if(strpos($select, '`')!==false){
-                        $ksz_where .= trim($select, ',')." LIKE '%{$ksz}%' OR ";
-                    }else{
-                        $ksz_where .= "`{$select}` LIKE '%{$ksz}%' OR ";
-                    }
-                }
-            }
-            if($ksz_where){
-                $where .= '('.trim($ksz_where, ' OR ').')';
-            }
-
-        }
-
-        //Lapozás előkészítése
-        require_once('../class/class.Lapozo.php');
-
-        if(!$_GET['oldal']){
-            $_GET['oldal'] = 1;
-        }
-
-        $_GET['epo'] = 9999999999999;
-
-        $bejegyzesek = $adatbazis_kapcsolat->s($_OPTS['select'], $tabla, $where, '', '');
-//echo $adatbazis_kapcsolat->gp() . '<br>';
-        $lapozo = new Lapozo;
-        $lapozo -> elem_osszes      = count($bejegyzesek);
-        $lapozo -> fajl             = $tabla.'.php';
-        $lapozo -> mind_var         = ''; //'Összes elem kilistázása' változó neve. Ha üres akkor nincs össsez oldal megjelenítés. Alapértelmezetten 'osszes'
-        //$lapozo -> epo_var         = 'epo';    //Elem per oldal változó neve
-        //$lapozo -> oldal_var       = 'oldal';  //Oldal változó neve
-        $lapozo -> kozep_meret      = 5;        //Nagy oldalszám esetén a középső intervallum mérete
-        //$lapozo -> max_fix_oldal   = 10;        //Ha a megadott számtól több oldal van, akkor jelenik meg az előző/követekző felirat
-        //$lapozo -> epo_array       = array(50, 100, 150);  //Elem per oldal mennyiségek ha választhatóak, akkor egy tömbbyi interrel adhatjuk át az opciókat
-        //$lapozo -> mind_text       = 'Összes oldal';  //pldalszámok mellett a "minden elem kilistázásának" felirata (ha $mind_var üres string akkor nem jelenik ez meg)
-        //$lapozo -> elozo_title     = '« Előző oldal';        //'Előző' felirat, link title-jéhez
-        //$lapozo -> kovet_title     = 'Következő oldal »';    //'Következő' felirat, link title-jéhez
-        //$lapozo -> kozep_meret     = 'Aktuális oldal';       //'Aktuális oldal' felirat, link title-jéhez
-
-        $utvonal = '../sablon/admin/';
-        $lapozo -> sablon_elozo       = $utvonal.'lapozas_elozo.html';
-        $lapozo -> sablon_kovetkezo   = $utvonal.'lapozas_kovet.html';
-        $lapozo -> sablon_oldalak     = $utvonal.'lapozas_oldalak.html';
-        $lapozo -> sablon_option      = $utvonal.'lapozas_option.html';
-        $lapozo -> sablon_pontok      = $utvonal.'lapozas_pontok.html';
-        $lapozo -> sablon_select      = $utvonal.'lapozas_select.html';
-
-        /* Számolás */
-        $lapozo -> lapozas();
-
-        $lapozas = $lapozo -> kiir();
-
-        //Bejelentéseknél a sürgős és csoport alapvető rendezés
-        if( $tabla == 'bejelentes' ) {
-            $order = 'surgos desc, csoport_id asc, '.$order;
-        } elseif( $tabla == 'munkalap' ) {
-            $order = 'csoport_id asc, '.$order;
-        }
-
-        $szamla_lista = szamla_lista( $tabla, $_OPTS['select'], $where, $order, $lapozo -> getLimit() );
-
-        if( $szamla_lista ) {
-            echo '<div class="szamlaLapozas fent clearFix">'.$lapozas.'</div>'.$szamla_lista.'<div class="szamlaLapozas clearFix">'.$lapozas.'</div>';
-        } else {
-            echo '<ul class="szamla_cont"><li class="szamla_datum"><strong>Nincs találat.</strong></li></ul>';
-        }
+    if( $szamla_lista ) {
+        echo '<div class="szamlaLapozas fent clearFix">'.$lapozas.'</div>'.$szamla_lista.'<div class="szamlaLapozas clearFix">'.$lapozas.'</div>';
+    } else {
+        echo '<ul class="szamla_cont"><li class="szamla_datum"><strong>Nincs találat.</strong></li></ul>';
     }
 
     $weblap->leallit();

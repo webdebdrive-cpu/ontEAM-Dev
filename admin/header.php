@@ -596,99 +596,16 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         }
     }
 
-    $where = '';
-    if( $tabla == 'rendszer' ) {
-        if( $_GET['rkat'] ) {
-            if( strstr($_GET['rkat'], ',') ) {
-                $where = "`rkat` IN (".$_GET['rkat'].") AND ";
-            } else {
-                $where = "`rkat` = '".$_GET['rkat']."' AND ";
-            }
-        }
+/* ....*/
+
+    $tartBal  = szamla_lista();
+    
+    if (isset($_GET['gyorskereso_ajax'])) {
+        echo $tartBal;
+        $weblap -> leallit();
+        exit;
     }
-
-    //Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
-    //Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
-    $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
-    $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
-    if($tabla == 'bejelentes'){
-        $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
-    }
-    if($tabla == 'anyagigenyles'){
-        $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
-    }
-
-    //Keresés
-    if( $_GET['ksz'] ) {
-
-        $selectek = explode(' ', $_OPTS['select']);
-
-        $ksz_where = '';
-        foreach($selectek as $select) {
-            if( $select && $select != 'recid' ) {
-                if(strpos($select, '`')!==false){
-                    $ksz_where .= trim($select, ',')." LIKE '%{$_GET['ksz']}%' OR ";
-                }else{
-                    $ksz_where .= "`{$select}` LIKE '%{$_GET['ksz']}%' OR ";
-                }
-            }
-        }
-
-        if($ksz_where){
-            $where .= '('.trim($ksz_where, ' OR ').') AND ';
-        }
-
-    }
-
-    //Where feltétel lezárása
-    $where = trim($where, ' AND ');
-
-
-    //Lapozás előkészítése
-    require_once('../class/class.Lapozo.php');
-
-    if(!$_GET['oldal']){
-        $_GET['oldal'] = 1;
-    }
-
-    $_GET['epo'] = 9999999999999;
-
-    $bejegyzesek = $adatbazis_kapcsolat->s('recid', $tabla, $where);
-    $lapozo = new Lapozo;
-    $lapozo -> elem_osszes      = count($bejegyzesek);
-    $lapozo -> fajl             = $_SERVER['PHP_SELF'];
-    $lapozo -> mind_var         = ''; //'Összes elem kilistázása' változó neve. Ha üres akkor nincs össsez oldal megjelenítés. Alapértelmezetten 'osszes'
-    //$lapozo -> epo_var         = 'epo';    //Elem per oldal változó neve
-    //$lapozo -> oldal_var       = 'oldal';  //Oldal változó neve
-    $lapozo -> kozep_meret      = 5; //Nagy oldalszám esetén a középső intervallum mérete
-    //$lapozo -> max_fix_oldal   = 10;        //Ha a megadott számtól több oldal van, akkor jelenik meg az előző/követekző felirat
-    //$lapozo -> epo_array       = array(50, 100, 150);  //Elem per oldal mennyiségek ha választhatóak, akkor egy tömbbyi interrel adhatjuk át az opciókat
-    //$lapozo -> mind_text       = 'Összes oldal';  //pldalszámok mellett a "minden elem kilistázásának" felirata (ha $mind_var üres string akkor nem jelenik ez meg)
-    //$lapozo -> elozo_title     = '« Előző oldal';        //'Előző' felirat, link title-jéhez
-    //$lapozo -> kovet_title     = 'Következő oldal »';    //'Következő' felirat, link title-jéhez
-    //$lapozo -> kozep_meret     = 'Aktuális oldal';       //'Aktuális oldal' felirat, link title-jéhez
-
-    $utvonal = '../sablon/admin/';
-    $lapozo -> sablon_elozo       = $utvonal.'lapozas_elozo.html';
-    $lapozo -> sablon_kovetkezo   = $utvonal.'lapozas_kovet.html';
-    $lapozo -> sablon_oldalak     = $utvonal.'lapozas_oldalak.html';
-    $lapozo -> sablon_option      = $utvonal.'lapozas_option.html';
-    $lapozo -> sablon_pontok      = $utvonal.'lapozas_pontok.html';
-    $lapozo -> sablon_select      = $utvonal.'lapozas_select.html';
-
-
-    /* Számolás */
-    $lapozo -> lapozas();
-
-    $lapozas = $lapozo -> kiir();
-
-    if( basename(self()) == 'bejelentes.php' ) {
-        $_OPTS['order'] = 'surgos desc, csoport_id asc, '.$_OPTS['order'];
-    } elseif( basename(self()) == 'munkalap.php' ) {
-        $_OPTS['order'] = 'csoport_id asc, '.$_OPTS['order'];
-    }
-
-    $tartBal  = szamla_lista( $tabla, $_OPTS['select'], $where, $_OPTS['order'], $lapozo -> getLimit() );
+    
     $keresodn = '';
 
     if( isset($_GET['szakterulet']) ) {

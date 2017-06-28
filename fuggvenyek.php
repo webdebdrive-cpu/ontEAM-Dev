@@ -971,216 +971,331 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 	}
 }
 
-function szamla_lista( $tabla, $select = NULL, $where = NULL, $order = NULL, $limit = NULL, $frissit = false ) {
+function szamla_lista( $where, $tabla ) {
+    
     global $adatbazis_kapcsolat;
     global $db_kapcs;
+    global $_OPTS;
 
-    $bejegyzesek = array();
-    if( $tabla ) {
-
-        //Rendezés telephely táblával JOIN-olva
-        if(strpos($order, 'telephely_id')!==false || strpos($select, 'telephely_id')!==false){
-
-            //Először is az ordert felülírjuk
-            $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
-
-            //Bejelentéseknél a rendezés külön problémakör:
-            if($tabla=='bejelentes'){
-                
-                $order = '';
-                //Elsődleges rendezés a csport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
-                if(_jog(2)){
-                    $order .= '`'.get_db_tabla().'bejelentes_csoport`.`nev`, ';
-                }
-                //A sürgős mindig elől lesz, bármi is a rendezettség
-                $order .= '`'.get_db_tabla().'bejelentes`.`surgos` DESC, ';
-                
-                $irany_ikt_szam  = '';
-                $irany_telephely = '';
-                //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
-                if($_GET['rend']=='ikt_szam'){
-                    $order .= '`'.get_db_tabla().'bejelentes`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
-                }
-                //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
-                if($_GET['rend']=='telephely_id'){
-                    $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'bejelentes`.`ikt_szam`';
-                }
-            }
-
-            //Rendezés anyagigényléskor
-            if($tabla=='anyagigenyles'){
-                //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
-                if($_GET['rend']=='ikt_szam'){
-                    $order = '`'.get_db_tabla().'anyagigenyles`.`ikt_szam` '.$_GET['irany'];
-                }
-            }
-
-            //Select-et is kiegészítjük a rendezni kívánt oszloppal
-            $select .= ', `'.get_db_tabla().'telephely`.`nev`';
-
-            $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
-            $mit   = 'WHERE';
-
-            //Bejelentésnél még az értéklistát is felvesszük
-            $sql_kieg = '';
-            if($tabla=='bejelentes'){
-                $sql_kieg = nl2('
-                                    JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'erteklista`.`csoport`=4 AND `'.get_db_tabla().$tabla.'`.`hiba_id`=`'.get_db_tabla().'erteklista`.`recid`)
-                                    LEFT OUTER JOIN `'.get_db_tabla().'bejelentes_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'bejelentes_csoport`.`recid`
-                                ');
-            }
-            if(strpos($select, 'obj_id')!==false){
-                $sql_kieg .= ' JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid` ';
-            }
-            $mivel = 'JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`'.$sql_kieg.' WHERE';
-            $sql = $adatbazis_kapcsolat->gp();
-            
-            //Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elá kell beszúrni a JOIN-t
-            if(strpos($sql, 'WHERE')===false){
-                $mit = 'ORDER BY';
-                $mivel = str_replace('WHERE', 'ORDER BY', $mivel);
-            }
-            $sql = str_replace($mit, $mivel, $sql);
-if (isset($_GET['debug'])) {
-    echo $sql . '<br>';
-}
-
-            $sorok = mysqli_query($db_kapcs, $sql);
-            while($sor = mysqli_fetch_assoc($sorok)){
-                array_push($bejegyzesek, $sor);
-            }
-
-        //Értéklistát csoport szerinti sorrenben, azon belül pedig infó szerinti sorrendben kell kilitázni
-        }elseif($tabla=='erteklista'){
-
-            $sql = 'SELECT
-                            `'.get_db_tabla().'erteklista`.`recid`,
-                            `'.get_db_tabla().'erteklista`.`csoport`,
-                            `'.get_db_tabla().'erteklista`.`info`,
-                            `'.get_db_tabla().'erteklista_csoport`.`nev`
-                    FROM    `'.get_db_tabla().'erteklista`
-                    JOIN    `'.get_db_tabla().'erteklista_csoport` ON `'.get_db_tabla().'erteklista`.`csoport`=`'.get_db_tabla().'erteklista_csoport`.`csoport`
-                    WHERE   `'.get_db_tabla().'erteklista`.`torolve`=0
-                    ORDER BY `'.get_db_tabla().'erteklista_csoport`.`nev`, `'.get_db_tabla().'erteklista`.`info`
-                    ';
-if (isset($_GET['debug'])) {
-    echo $sql . '<br>';
-}
-            $sorok = mysqli_query($db_kapcs, $sql);
-            while($sor = mysqli_fetch_assoc($sorok)){
-                array_push($bejegyzesek, $sor);
-            }
-
-        }else{
-
-            $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
-if (isset($_GET['debug'])) {
-    echo $adatbazis_kapcsolat->gp() . '<br>';
-}
-        }
-        //Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
-        $_SESSION['akt_where'] = $where;
-
-
-        if( $bejegyzesek ) {
-            switch($tabla) {
-                case 'anyagigenyles':
-                    $html = anyagigenylesLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'anyagrendeles':
-                    $html = anyagrendelesLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'bejelentes':
-                    $html = bejelentesLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'bejovo_szamlak':
-                    $html = bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'beosztas':
-                    $html = beosztasLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'cash_flow':
-                    $html = cash_flowLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'cikktorzs':
-                    $html = cikktorzsLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'energia':
-                    $html = energiaLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'erteklista':
-                    $html = erteklistaLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'eseti_fenntartas':
-                    $html = eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'eszkozkezeles':
-                    $html = eszkozkezelesLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'felmeresi_terv':
-                    $html = felmeresi_tervLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'fenntartasi_szerzodes':
-                    $html = fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'ktghely':
-                    $html = ktghelyLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'ktgnem':
-                    $html = ktghelyLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'login':
-                    $html = loginLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'munkalap':
-                    $html = munkalapLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'rendszeres_karbantartas':
-                    $html = rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'projektkezeles':
-                    $html = projektkezelesLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'projektigenyles':
-                    $html = projektigenylesLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'raktar':
-                    $html = raktarLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'rendszer':
-                    $html = rendszerLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'szamla':
-                    $html = szamlaLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'szallito':
-                    $html = szallitoLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'szabadsagigeny':
-                    $html = szabadsagigenyLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'szerepkor':
-                    $html = szerepkorLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'tervezes':
-                    $html = tervezesLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'torzsadat':
-                    $html = torzsadatLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'utemezett_feladatok':
-                    $html = utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit );
-                break;
-                case 'uzemeltetesi_naplo':
-                    $html = uzemeltetesi_naploLista( $bejegyzesek, $tabla, $frissit );
-                break;
-            }
-        }
-
-        return $html;
+    //Config
+    if(!$tabla){
+        $tabla  = str_replace('.php', '', basename(self()));
+    }
+    $select = $_OPTS['select'];
+    if($_GET['rend']){
+        $order = $_GET['rend'];
+    }else{
+        $order = $_OPTS['rend'];
     }
 
-    return false;
+    $irany = $_GET['irany'];
+    //Aktív esetén a rendezés irányát meg kell fordítani (tehát az aktívak, egyesek legyenek elől)
+    if($order=='aktiv'){
+        if($irany=='desc'){
+            $irany = 'asc';
+        }else{
+            $irany = 'desc';
+        }
+    }
+    $order .= ' '.$irany;
+    
+    //Ha nem egy konrét recid-t keresünk, akkor állítsuk elő a where feltételt
+    if(!$where){
+
+        if( $tabla == 'rendszer' ) {
+            if( $_GET['rkat'] ) {
+                if( strstr($_GET['rkat'], ',') ) {
+                    $where = "`rkat` IN (".$_GET['rkat'].") AND ";
+                } else {
+                    $where = "`rkat` = '".$_GET['rkat']."' AND ";
+                }
+            }
+        }
+
+        //Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
+        //Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
+        $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
+        $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
+        if($tabla == 'bejelentes'){
+            $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
+        if($tabla == 'anyagigenyles'){
+            $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
+
+        //Keresés
+        if( $_GET['ksz'] ) {
+
+            $selectek = explode(' ', $_OPTS['select']);
+
+            $ksz_where = '';
+            foreach($selectek as $select_tmp) {
+                if( $select_tmp && $select_tmp != 'recid' ) {
+                    if(strpos($select_tmp, '`')!==false){
+                        $ksz_where .= trim($select_tmp, ',')." LIKE '%{$_GET['ksz']}%' OR ";
+                    }else{
+                        $ksz_where .= "`{$select_tmp}` LIKE '%{$_GET['ksz']}%' OR ";
+                    }
+                }
+            }
+
+            if($ksz_where){
+                $where .= '('.trim($ksz_where, ' OR ').') AND ';
+            }
+
+        }
+
+        //Where feltétel lezárása
+        $where = trim($where, ' AND ');
+    
+    //Ha van megadva where feltétel, akkor az a recid=x, tehát frissítünk
+    }else{
+        $frissit = true;
+    }
+
+    //Lapozás előkészítése
+    require_once('../class/class.Lapozo.php');
+
+    if(!$_GET['oldal']){
+        $_GET['oldal'] = 1;
+    }
+
+    $_GET['epo'] = 9999999999999;
+
+    $bejegyzesek = $adatbazis_kapcsolat->s('recid', $tabla, $where);
+    $lapozo = new Lapozo;
+    $lapozo -> elem_osszes      = count($bejegyzesek);
+    $lapozo -> fajl             = $_SERVER['PHP_SELF'];
+    $lapozo -> mind_var         = ''; //'Összes elem kilistázása' változó neve. Ha üres akkor nincs össsez oldal megjelenítés. Alapértelmezetten 'osszes'
+    //$lapozo -> epo_var         = 'epo';    //Elem per oldal változó neve
+    //$lapozo -> oldal_var       = 'oldal';  //Oldal változó neve
+    $lapozo -> kozep_meret      = 5; //Nagy oldalszám esetén a középső intervallum mérete
+    //$lapozo -> max_fix_oldal   = 10;        //Ha a megadott számtól több oldal van, akkor jelenik meg az előző/követekző felirat
+    //$lapozo -> epo_array       = array(50, 100, 150);  //Elem per oldal mennyiségek ha választhatóak, akkor egy tömbbyi interrel adhatjuk át az opciókat
+    //$lapozo -> mind_text       = 'Összes oldal';  //pldalszámok mellett a "minden elem kilistázásának" felirata (ha $mind_var üres string akkor nem jelenik ez meg)
+    //$lapozo -> elozo_title     = '« Előző oldal';        //'Előző' felirat, link title-jéhez
+    //$lapozo -> kovet_title     = 'Következő oldal »';    //'Következő' felirat, link title-jéhez
+    //$lapozo -> kozep_meret     = 'Aktuális oldal';       //'Aktuális oldal' felirat, link title-jéhez
+
+    $utvonal = '../sablon/admin/';
+    $lapozo -> sablon_elozo       = $utvonal.'lapozas_elozo.html';
+    $lapozo -> sablon_kovetkezo   = $utvonal.'lapozas_kovet.html';
+    $lapozo -> sablon_oldalak     = $utvonal.'lapozas_oldalak.html';
+    $lapozo -> sablon_option      = $utvonal.'lapozas_option.html';
+    $lapozo -> sablon_pontok      = $utvonal.'lapozas_pontok.html';
+    $lapozo -> sablon_select      = $utvonal.'lapozas_select.html';
+
+
+    /* Számolás */
+    $lapozo -> lapozas();
+
+    $lapozas = $lapozo -> kiir();
+    
+    $limit = $lapozo ->getLimit();
+//echo 'sel:'.$select . ' ir:'.$irany.' or:'.$order.' lim:'.$limit.' where:'.$where.'<br>';
+
+    //Rendezés telephely táblával JOIN-olva
+    $bejegyzesek = array();
+    if(strpos($order, 'telephely_id')!==false || strpos($select, 'telephely_id')!==false){
+
+        //Először is az ordert felülírjuk
+        $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
+
+        //Bejelentéseknél a rendezés külön problémakör:
+        if($tabla=='bejelentes'){
+
+            $order = '';
+            //Elsődleges rendezés a csport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
+            if(_jog(2)){
+                $order .= '`'.get_db_tabla().'bejelentes_csoport`.`nev`, ';
+            }
+            //A sürgős mindig elől lesz, bármi is a rendezettség
+            $order .= '`'.get_db_tabla().'bejelentes`.`surgos` DESC, ';
+
+            $irany_ikt_szam  = '';
+            $irany_telephely = '';
+            //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            if($_GET['rend']=='ikt_szam'){
+                $order .= '`'.get_db_tabla().'bejelentes`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
+            }
+            //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
+            if($_GET['rend']=='telephely_id'){
+                $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'bejelentes`.`ikt_szam`';
+            }
+        }
+
+        //Rendezés anyagigényléskor
+        if($tabla=='anyagigenyles'){
+            //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            if($_GET['rend']=='ikt_szam'){
+                $order = '`'.get_db_tabla().'anyagigenyles`.`ikt_szam` '.$_GET['irany'];
+            }
+        }
+
+        //Rendezés munkalap esetén
+        if($tabla=='munkalap'){
+            $order = 'csoport_id asc, '.$order;
+        }
+
+        //Select-et is kiegészítjük a rendezni kívánt oszloppal
+        $select .= ', `'.get_db_tabla().'telephely`.`nev`';
+
+        $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
+        $mit   = 'WHERE';
+
+        //Bejelentésnél még az értéklistát is felvesszük
+        $sql_kieg = '';
+        if($tabla=='bejelentes'){
+            $sql_kieg = nl2('
+                                JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'erteklista`.`csoport`=4 AND `'.get_db_tabla().$tabla.'`.`hiba_id`=`'.get_db_tabla().'erteklista`.`recid`)
+                                LEFT OUTER JOIN `'.get_db_tabla().'bejelentes_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'bejelentes_csoport`.`recid`
+                            ');
+        }
+        if(strpos($select, 'obj_id')!==false){
+            $sql_kieg .= ' JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid` ';
+        }
+        $mivel = 'JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`'.$sql_kieg.' WHERE';
+        $sql = $adatbazis_kapcsolat->gp();
+
+        //Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elá kell beszúrni a JOIN-t
+        if(strpos($sql, 'WHERE')===false){
+            $mit = 'ORDER BY';
+            $mivel = str_replace('WHERE', 'ORDER BY', $mivel);
+        }
+        $sql = str_replace($mit, $mivel, $sql);
+
+        $sorok = mysqli_query($db_kapcs, $sql);
+        while($sor = mysqli_fetch_assoc($sorok)){
+            array_push($bejegyzesek, $sor);
+        }
+
+    //Értéklistát csoport szerinti sorrenben, azon belül pedig infó szerinti sorrendben kell kilitázni
+    }elseif($tabla=='erteklista'){
+
+        $sql = 'SELECT
+                        `'.get_db_tabla().'erteklista`.`recid`,
+                        `'.get_db_tabla().'erteklista`.`csoport`,
+                        `'.get_db_tabla().'erteklista`.`info`,
+                        `'.get_db_tabla().'erteklista_csoport`.`nev`
+                FROM    `'.get_db_tabla().'erteklista`
+                JOIN    `'.get_db_tabla().'erteklista_csoport` ON `'.get_db_tabla().'erteklista`.`csoport`=`'.get_db_tabla().'erteklista_csoport`.`csoport`
+                WHERE   `'.get_db_tabla().'erteklista`.`torolve`=0
+                ORDER BY `'.get_db_tabla().'erteklista_csoport`.`nev`, `'.get_db_tabla().'erteklista`.`info`
+                ';
+
+        $sorok = mysqli_query($db_kapcs, $sql);
+        while($sor = mysqli_fetch_assoc($sorok)){
+            array_push($bejegyzesek, $sor);
+        }
+
+    }else{
+        $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
+        $sql = $adatbazis_kapcsolat->gp();
+    }
+    //Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
+    $_SESSION['akt_sql'] = $sql;
+if (isset($_GET['debug'])) {
+    echo $_SESSION['akt_sql'] . '<br>';
+}
+
+
+    if( $bejegyzesek ) {
+        switch($tabla) {
+            case 'anyagigenyles':
+                $html = anyagigenylesLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'anyagrendeles':
+                $html = anyagrendelesLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'bejelentes':
+                $html = bejelentesLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'bejovo_szamlak':
+                $html = bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'beosztas':
+                $html = beosztasLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'cash_flow':
+                $html = cash_flowLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'cikktorzs':
+                $html = cikktorzsLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'energia':
+                $html = energiaLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'erteklista':
+                $html = erteklistaLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'eseti_fenntartas':
+                $html = eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'eszkozkezeles':
+                $html = eszkozkezelesLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'felmeresi_terv':
+                $html = felmeresi_tervLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'fenntartasi_szerzodes':
+                $html = fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'ktghely':
+                $html = ktghelyLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'ktgnem':
+                $html = ktghelyLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'login':
+                $html = loginLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'munkalap':
+                $html = munkalapLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'rendszeres_karbantartas':
+                $html = rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'projektkezeles':
+                $html = projektkezelesLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'projektigenyles':
+                $html = projektigenylesLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'raktar':
+                $html = raktarLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'rendszer':
+                $html = rendszerLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'szamla':
+                $html = szamlaLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'szallito':
+                $html = szallitoLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'szabadsagigeny':
+                $html = szabadsagigenyLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'szerepkor':
+                $html = szerepkorLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'tervezes':
+                $html = tervezesLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'torzsadat':
+                $html = torzsadatLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'utemezett_feladatok':
+                $html = utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit );
+            break;
+            case 'uzemeltetesi_naplo':
+                $html = uzemeltetesi_naploLista( $bejegyzesek, $tabla, $frissit );
+            break;
+        }
+    }
+
+    return $html;
+
 }
 
 function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {

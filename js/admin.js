@@ -493,15 +493,21 @@ $(function() {
             }
         }
     });
+    
+    /*Gyorskereső*/
+    $(document).on('keyup', '#rendezesKeres', function(e) {
+        $.ajax({
+            url: $(this).attr('data-tabla'),
+            type: 'GET',
+            data: esamp2es('ksz=' + $(this).val() + '&amp;gyorskereso_ajax=' + new Date().getTime()),
+            success: function (response) {
+                $('#tartalomBal').html(response);
+            }
+        });
+    });
 
     $(document).on('click', function(e) {
         $('.kijeloltek_muv').removeClass('active');
-
-        /*var par = $(event.target).parent();
-
-        if( !e.ctrlKey && !e.shiftKey && e.target.className.indexOf('km_false') === -1 && !par.hasClass('km_false') ) {
-            kijelolesEltavolit();
-        }*/
     });
 
     $(document).on('click', '.kijeloltek_muv', function(e) {
@@ -846,7 +852,7 @@ $(function() {
             $('#tipus_'+$(this).val()).show();
         }
 
-        /* VÁltáskor mindent nullázunk */
+        /* Váltáskor mindent nullázunk */
         $('#ciklnap').val('');
         $('#hetkoz_kent').prop('checked', false);
 
@@ -865,26 +871,6 @@ $(function() {
         $('#ciklho2').val('');
         $('#ho_rendsz') .prop('checked', false);
         $('#ho_rendsz_het') .prop('checked', false);
-
-        /*switch($(this).val()){
-            case 'l':
-                    datumra_utemez_mezok_nullaz('d');
-                    datumra_utemez_mezok_nullaz('w');
-                    datumra_utemez_mezok_nullaz('m');
-            break;
-            case 'd':
-                    datumra_utemez_mezok_nullaz('w');
-                    datumra_utemez_mezok_nullaz('m');
-            break;
-            case 'w':
-                    datumra_utemez_mezok_nullaz('d');
-                    datumra_utemez_mezok_nullaz('m');
-            break;
-            case 'm':
-                    datumra_utemez_mezok_nullaz('d');
-                    datumra_utemez_mezok_nullaz('w');
-            break;
-        }*/
     });
 
     /* Szűrő mező váltáskor */
@@ -1855,10 +1841,6 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
             }
         });
     }
-}
-
-function bejegyzesekKeres() {
-
 }
 
 function getHost() {

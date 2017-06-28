@@ -27,13 +27,11 @@ JOGOSOLTSÁGKEZELÉSKOR, HA EGY ŰRLAP NEM SZERKESZTHETŐ:
 TÖRLÉSKOR A KAPCSOLÓDÓ TÁBLÁK LEKEZELÉSE:
 - esemenyek.php-ben a if(isset($_GET[$ertek['torid']])) részt keres, és ennek a végén találod.
 
-BAL OLDALI NAVIGÁCIÓS PANEL TÉTELEINEK KISZÁMÍTÁSA (WHERE LEKÉRDEZÉS) + NAV PANEL TARTALMÁNAK KIÍRATÁSA ÉS RENDEZÉSE
-- header.php-ban a "Bal oldali nav panel select-je" szövegre keress rá.
+BAL OLDALI NAVIGÁCIÓS PANEL TÉTELEINEK KISZÁMÍTÁSA (WHERE LEKÉRDEZÉS) + NAV PANEL TARTALMÁNAK KIÍRATÁSA ÉS RENDEZÉSE + RENDEZÉSI IRÁNY NYILAI
+- fuggvenyek szamla_lista()-ban kerül kiszámításra a where feltétel. Ez a header.php és esemenyek.php-ban hívódik meg
 - A lista tartalmát viszont a függvényekben tudod beállítani: szamla_lista().
 - Bal oldali nav panel rendezése (sok JOIN-al) szintén a fuggvenyek.php szamla_lista() részben tudod beállítani
-
-RENDEZÉSI IRÁNY NYILAI
-- header.php-ban a "Bal oldali nav panel select-je" szövegre keress rá.
+- szamla_lista()-ban a "Bal oldali nav panel select-je" szövegre keress rá
 
 SZŰRÉS LEKEZELÉSE:
 - szures.php, amit header.php hív meg

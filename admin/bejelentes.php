@@ -105,16 +105,17 @@ if (isset($_GET['csv'])) {
     $open = fopen($fajlnev,'a');
     if($open){
 
+        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
         $sql = 'SELECT
                                                     `ikt_szam` as \'Iktatószám\',
-                                                    `telephely_id` as \'Szálloda\',
+                                                    `'.get_db_tabla().'bejelentes`.`telephely_id` as \'Szálloda\',
                                                     `hiba_id` as \'Bejelentett hiba\',
                                                     `hiba_text` as \'Hiba leírása\',
                                                     `obj_id` as \'Helyiség\',
                                                     `helyiseg_text` as \'Hely leírása\',
                                                     `gep_id` as \'Gépnév\',
                                                     `statusz_id` as \'Státusz\'
-                                                    FROM `'.get_db_tabla().$megnevezes.'` WHERE '.$_SESSION['akt_where'];
+                                                    '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);
 
