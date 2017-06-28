@@ -1472,6 +1472,10 @@ function csoportMuvelet( oldal ) {
                     popupNyit();
                 });
             break;
+            case 'elutasitas':
+                $('#popupTart').html(data);
+                popupNyit();
+            break;
         }
 
     });
