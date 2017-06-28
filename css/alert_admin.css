@@ -149,3 +149,44 @@ div.figy div.f_footer {
 div.noFooter div.figy div.f_footer {
     padding: 0rem 0rem 0rem 0rem;
 }
+
+div.alert_dt {
+    margin: 1rem 0rem 1rem 0rem;
+    width: 100%;
+}
+
+div.alert_dt div.adt_fejlec div.dtc {
+    background: #6a6a6a;
+    border-left: 0.1rem solid #909090;
+    border-bottom: 0.1rem solid #909090;
+    border-top: 0.1rem solid #909090;
+    color: #fff;
+    font-size: 1.2rem;
+    padding: 0.2rem 0.5rem 0.2rem 0.5rem;
+    vertical-align: middle;
+}
+
+div.alert_dt div.adt_fejlec div.dtc:last-child {
+    border-right: 0.1rem solid #909090;
+}
+
+div.alert_dt div.dtc span.icon {
+    height: 1.6rem;
+    width: 1.6rem;
+}
+
+div.alert_dt div.dtc span.icon .material-icons {
+    font-size: 1.6rem;
+}
+
+div.alert_dt div.adt_sor div.dtc {
+    border-left: 0.1rem solid #909090;
+    border-bottom: 0.1rem solid #909090;
+    font-size: 1.2rem;
+    padding: 0.2rem 0.5rem 0.2rem 0.5rem;
+    vertical-align: middle;
+}
+
+div.alert_dt div.adt_sor div.dtc:last-child {
+    border-right: 0.1rem solid #909090;
+}

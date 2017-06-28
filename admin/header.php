@@ -636,11 +636,11 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         }
 
     }
-    
+
     //Where feltétel lezárása
     $where = trim($where, ' AND ');
 
-    
+
     //Lapozás előkészítése
     require_once('../class/class.Lapozo.php');
 
@@ -681,6 +681,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     if( basename(self()) == 'bejelentes.php' ) {
         $_OPTS['order'] = 'surgos desc, csoport_id asc, '.$_OPTS['order'];
+    } elseif( basename(self()) == 'munkalap.php' ) {
+        $_OPTS['order'] = 'csoport_id asc, '.$_OPTS['order'];
     }
 
     $tartBal  = szamla_lista( $tabla, $_OPTS['select'], $where, $_OPTS['order'], $lapozo -> getLimit() );
@@ -719,7 +721,7 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 
 
 /* SZŰRÉS
- *  $szures nevű változót állítja elő, benne a szűréssel kapcsolatos funkciókkal (selectek, feltételek) 
+ *  $szures nevű változót állítja elő, benne a szűréssel kapcsolatos funkciókkal (selectek, feltételek)
  */
 require_once 'szures.php';
 

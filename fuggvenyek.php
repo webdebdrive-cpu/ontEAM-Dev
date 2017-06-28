@@ -477,7 +477,7 @@ function i_u($type, $tabla, $tomb){
 *	@param string: mi legyen a form ellenőrző függvény neve?
 *	@param bool:   lehet-e ajaxos vagy hagyományos?
 */
-function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
+function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
     $hiba_txt = 'Hiba'; //Csak hogy egy helyen kelljen átírni.
 
@@ -486,6 +486,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
                     var helyiseg_gep_mehet = false;
                     var riasztas_mehet     = false;
                     var utemezes_mehet     = false;
+                    var bejelentes_mehet   = false;
                     function '.$fg.'{
             ');
 
@@ -640,7 +641,35 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
                     alert2();
                 }
 
-                ');
+        ');
+    }
+
+    if( basename(self())=='bejelentes.php' ) {
+        $ret .= nl2('
+            if( !bejelentes_mehet ) {
+                $.ajax({
+                    url : \'esemenyek.php\',
+                    type: \'GET\',
+                    data: esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;folyamatban_munkak=\' + new Date().getTime()),
+                    success: function(response) {
+                        response = JSON.parse(response);
+
+                        if( response.hiba ) {
+                            if( response.gomb ) {
+                                alert2(response.hiba, response.gomb);
+                            } else {
+                                alert2(response.hiba);
+                            }
+                        }
+
+                    }
+                });
+
+                return false;
+            } else {
+                alert2();
+            }
+        ');
     }
 
     if( basename(self())=='ktghely.php' || basename(self())=='ktgnem.php' ){
@@ -664,7 +693,12 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false){
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        alert2(response.hiba, \'<p class="c"><input class="link gomb" value="Frissítés" onclick="location.reload();" type="button"></p>\');
+                        if( response.gomb ) {
+                            alert2(response.hiba, response.gomb);
+                        } else {
+                            alert2(response.hiba);
+                        }
+
                         return false;
                     }
 
