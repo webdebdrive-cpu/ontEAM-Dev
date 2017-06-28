@@ -367,7 +367,7 @@ if($gyorskereso_text){
                         <div class="muv">
                             <ul>
                                 <li><a onclick="varolistahozAdas(\'csak kérdezünk még\');">Várólistához adás</a></li>
-                                <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\')">Várólistból kivétel</a></li>
+                                <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\');">Várólistból kivétel</a></li>
                             </ul>
                         </div>
                     </div>

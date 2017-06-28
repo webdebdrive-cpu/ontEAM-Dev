@@ -1226,6 +1226,71 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 /* Munkalaphoz adás */
+if( isset($_GET['folyamatban_munkak']) ) {
+    $telephely_id = $_GET['telephely_id'];
+
+    $bejelentesek = $adatbazis_kapcsolat->s('ikt_szam surgos telephely_id obj_id hiba_id hiba_text', 'bejelentes', "`telephely_id` = '{$telephely_id}'", '', '');
+
+    if( $bejelentesek ) {
+        $html = nl2('
+            <div class="dt alert_dt">
+                <div class="dtr adt_fejlec">
+                    <div class="dtc">Iktató szám</div>
+                    <div class="dtc">Szálloda</div>
+                    <div class="dtc">Hely leírása</div>
+                    <div class="dtc">Bejelentett hiba</div>
+                    <div class="dtc">Hiba leírása</div>
+                    <div class="dtc">Sürgős</div>
+                </div>
+        ');
+
+        foreach($bejelentesek as $bejelentes) {
+            /* Telephely */
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bejelentes['telephely_id'], '', '1');
+            $telephely = $telephely[0]['nev'];
+
+            /* Helység */
+            $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bejelentes['obj_id'], '', '1');
+            $helyseg = $helyseg[0]['nev'];
+
+            /* Hiba */
+            $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$bejelentes['hiba_id']}'");
+            $hiba = $hiba[0];
+
+            $surgos = '';
+            if( $bejelentes['surgos'] ) {
+                $surgos = nl2('
+                    <span class="icon piros">
+                        <i class="material-icons">error</i>
+                    </span>
+                ');
+            }
+
+            $html .= nl2('
+                <div class="dtr adt_sor">
+                    <div class="dtc">'.$bejelentes['ikt_szam'].'</div>
+                    <div class="dtc">'.$telephely.'</div>
+                    <div class="dtc">'.$helyseg.'</div>
+                    <div class="dtc">'.$hiba['info'].'</div>
+                    <div class="dtc">'.$bejelentes['hiba_text'].'</div>
+                    <div class="dtc">'.$surgos.'</div>
+                </div>
+            ');
+        }
+
+        $html .= '</div>';
+
+        echo json_encode(array(
+            'hiba' => 'Folyamatban lévő munkák listája'.$html.'Folytatja a hibabejelentést?',
+            'gomb' => '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="bejelentes_mehet = true; $(\'#szerk_form\').submit();"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>'
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+/* Munkalaphoz adás */
 if( isset($_POST['munkalaphozAdas']) ) {
     $idk = json_decode($_POST['idk'], true);
     $munkalapID = $_POST['munkalapID'];
@@ -1322,7 +1387,7 @@ if( isset($_POST['munkalaphozAdas']) ) {
                 exit();
             }
         }
-        
+
         //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
         if (isset($_POST['csak_kerdezunk'])) {
             echo json_encode(array(
@@ -1330,7 +1395,7 @@ if( isset($_POST['munkalaphozAdas']) ) {
             ));
             $weblap->leallit();
             exit();
-        }        
+        }
 
         /* Státuszt folyamatban-ra állítjuk */
         foreach($idk as $id) {
@@ -1462,9 +1527,10 @@ if( isset($_GET['munkalapSelect']) ) {
 if( isset($_GET['csoportAtnevezes']) ) {
     $csoportID = $_GET['csoportID'];
     $val = $_GET['val'];
+    $page = $_GET['page'];
 
-    if( $csoportID && $val ) {
-        $adatbazis_kapcsolat -> u('bejelentes_csoport', array('nev'), array($val), 'recid='.$csoportID);
+    if( $csoportID && $val && $page ) {
+        $adatbazis_kapcsolat -> u($page.'_csoport', array('nev'), array($val), 'recid='.$csoportID);
 
         echo json_encode(array(
             'statusz' => 'siker',
@@ -1479,13 +1545,14 @@ if( isset($_GET['csoportAtnevezes']) ) {
 /* Várólistából kivétel */
 if( isset($_POST['varolistabolKivetel']) ) {
     $idk = json_decode($_POST['idk'], true);
+    $page = $_POST['page'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
     if( is_array($idk) ) {
         /* Ellenőrizzük a csoportokat */
-        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")", '', '');
 
         if( $sql === false ) {
             $db_error = true;
@@ -1498,7 +1565,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
 
         foreach( $csoportok_unique as $csu ) {
             if( $csu > 0 ) {
-                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`csoport_id` = '{$csu}'", '', '');
+                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', $page, "`csoport_id` = '{$csu}'", '', '');
 
                 if( $sql === false ) {
                     $db_error = true;
@@ -1515,9 +1582,18 @@ if( isset($_POST['varolistabolKivetel']) ) {
             }
         }
 
+        switch( $page ) {
+            case 'bejelentes':
+                $varakozo = 4;
+            break;
+            case 'munkalap':
+                $varakozo = 7;
+            break;
+        }
+
         /* Ellenőrizzük a státuszokat is */
         foreach($idk as $id) {
-            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'bejelentes_statusz', 'id='.$id, 'insert_dt desc', '1');
+            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'insert_dt desc', '1');
 
             if( $sql === false ) {
                 $db_error = true;
@@ -1526,7 +1602,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
             if( $statusz ) {
                 $statusz = $statusz[0];
 
-                if( $statusz['stat_id'] != 4 ) {
+                if( $statusz['stat_id'] != $varakozo ) {
                     echo json_encode(array(
                         'hiba' => 'Csak várakozó státuszú bejegyzésekről lehet levenni a várakoztatást!'
                     ));
@@ -1543,22 +1619,22 @@ if( isset($_POST['varolistabolKivetel']) ) {
                 exit();
             }
         }
-        
+
         //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
         if (isset($_POST['csak_kerdezunk'])) {
-            
+
             echo json_encode(array(
                 'hiba' => 'Biztos törli a várólistából a kijelölt bejelentéseket?',
                 'gomb' => '<input class="gomb piros" value="Igen" onclick="varolistabolKivetel();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
             ));
-                
+
             $weblap->leallit();
             exit();
         }
 
-        /* Státuszt folyamatban-ra állítjuk */
+        /* Státuszt nyitott-ra állítjuk */
         foreach($idk as $id) {
-            $statusz = addStatusz( 'bejelentes_statusz', $id, 1 );
+            $statusz = addStatusz( $page.'_statusz', $id, 1 );
 
             if( $statusz === false ) {
                 $db_error = true;
@@ -1579,18 +1655,22 @@ if( isset($_POST['varolistabolKivetel']) ) {
             ));
         }
     }
+
+    $weblap->leallit();
+    exit();
 }
 
 /* Várólistához adás */
 if( isset($_POST['varolistahozAdas']) ) {
     $idk = json_decode($_POST['idk'], true);
+    $page = $_POST['page'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
     if( is_array($idk) ) {
         /* Ellenőrizzük a csoportokat */
-        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")", '', '');
 
         if( $sql === false ) {
             $db_error = true;
@@ -1603,7 +1683,7 @@ if( isset($_POST['varolistahozAdas']) ) {
 
         foreach( $csoportok_unique as $csu ) {
             if( $csu > 0 ) {
-                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`csoport_id` = '{$csu}'", '', '');
+                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', $page, "`csoport_id` = '{$csu}'", '', '');
 
                 if( $sql === false ) {
                     $db_error = true;
@@ -1622,7 +1702,7 @@ if( isset($_POST['varolistahozAdas']) ) {
 
         /* Ellenőrizzük a státuszokat is */
         foreach($idk as $id) {
-            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'bejelentes_statusz', 'id='.$id, 'insert_dt desc', '1');
+            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'insert_dt desc', '1');
 
             if( $sql === false ) {
                 $db_error = true;
@@ -1648,22 +1728,31 @@ if( isset($_POST['varolistahozAdas']) ) {
                 exit();
             }
         }
-        
+
         //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
         if (isset($_POST['csak_kerdezunk'])) {
-            
+
             echo json_encode(array(
                 'hiba' => 'Biztos várólistához adja a kijelölt bejelentéseket?',
                 'gomb' => '<input class="gomb piros" value="Igen" onclick="varolistahozAdas();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
             ));
-                
+
             $weblap->leallit();
             exit();
         }
 
-        /* Státuszt folyamatban-ra állítjuk */
+        /* Státuszt Várakozó-ra állítjuk */
+        switch( $page ) {
+            case 'bejelentes':
+                $varakozo = 4;
+            break;
+            case 'munkalap':
+                $varakozo = 7;
+            break;
+        }
+
         foreach($idk as $id) {
-            $statusz = addStatusz( 'bejelentes_statusz', $id, 4 );
+            $statusz = addStatusz( $page.'_statusz', $id, $varakozo );
 
             if( $statusz === false ) {
                 $db_error = true;
@@ -1684,6 +1773,9 @@ if( isset($_POST['varolistahozAdas']) ) {
             ));
         }
     }
+
+    $weblap->leallit();
+    exit();
 }
 
 /* Munkalap készítése */
@@ -1756,16 +1848,16 @@ if( isset($_POST['munkalapKeszit']) ) {
 
         //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
         if (isset($_POST['csak_kerdezunk'])) {
-            
+
             echo json_encode(array(
                 'hiba' => 'Biztos munkalapot készít a kijelölt bejelentés(ek)ből?',
                 'gomb' => '<input class="gomb piros" value="Igen" onclick="munkalapKeszit();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
             ));
-                
+
             $weblap->leallit();
             exit();
         }
-        
+
         /* Státuszt folyamatban-ra állítjuk */
         foreach($idk as $id) {
             $statusz = addStatusz( 'bejelentes_statusz', $id, 2 );
@@ -1882,12 +1974,13 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
 if( isset($_POST['csoportbolTorol']) ) {
     $oszlop = $_POST['oszlop'];
     $idk    = json_decode($_POST['idk'], true);
+    $page   = $_POST['page'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
     if( $oszlop && is_array($idk) ) {
-        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")", '', '');
 
         if( $sql === false ) {
             $db_error = true;
@@ -1899,7 +1992,7 @@ if( isset($_POST['csoportbolTorol']) ) {
         $csoportok = array_unique($csoportok);
 
         /* Frissítjük a megfelelő sorokat */
-        $sql = $adatbazis_kapcsolat -> u('bejelentes', array($oszlop), array(0), "`recid` IN (".implode(',', $idk).")");
+        $sql = $adatbazis_kapcsolat -> u($page, array($oszlop), array(0), "`recid` IN (".implode(',', $idk).")");
 
         if( $sql === false ) {
             $db_error = true;
@@ -1908,14 +2001,14 @@ if( isset($_POST['csoportbolTorol']) ) {
         /* Csoportok bejárása */
         if( $csoportok ) {
             foreach($csoportok as $csoport) {
-                $sql = $csoportok = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`csoport_id` = '{$csoport}' AND `torolve` = '0'", '', '1');
+                $sql = $csoportok = $adatbazis_kapcsolat->s('recid', $page, "`csoport_id` = '{$csoport}' AND `torolve` = '0'", '', '1');
 
                 if( $sql === false ) {
                     $db_error = true;
                 }
 
                 if( !$csoportok ) {
-                    $sql = $adatbazis_kapcsolat -> d('bejelentes_csoport', "`recid` = '{$csoport}'");
+                    $sql = $adatbazis_kapcsolat -> d($page.'_csoport', "`recid` = '{$csoport}'");
 
                     if( $sql === false ) {
                         $db_error = true;
@@ -1927,7 +2020,7 @@ if( isset($_POST['csoportbolTorol']) ) {
         /* Select előállítása */
         $html = '<select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
 
-        $sql = $csoportok = $adatbazis_kapcsolat->s('recid nev', 'bejelentes_csoport', '', 'nev', '');
+        $sql = $csoportok = $adatbazis_kapcsolat->s('recid nev', $page.'_csoport', '', 'nev', '');
 
         if( $sql === false ) {
             $db_error = true;
@@ -2427,6 +2520,8 @@ if( isset($_GET['szamlaLista']) ) {
         //Bejelentéseknél a sürgős és csoport alapvető rendezés
         if( $tabla == 'bejelentes' ) {
             $order = 'surgos desc, csoport_id asc, '.$order;
+        } elseif( $tabla == 'munkalap' ) {
+            $order = 'csoport_id asc, '.$order;
         }
 
         $szamla_lista = szamla_lista( $tabla, $_OPTS['select'], $where, $order, $lapozo -> getLimit() );

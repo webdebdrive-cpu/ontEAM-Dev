@@ -691,6 +691,21 @@ $(function() {
 
                 kijeloltSzamlal( sorok, 'fo' );
             }
+
+            var csoportID = $(this).attr('data-csoportID');
+
+            if( csoportID !== undefined ) {
+                var csoport_db = $('ul.szamla_cont li.szamla_sor[data-csoportID="' + csoportID + '"]').length;
+                    csoport_db_kijelolve = $('ul.szamla_cont li.szamla_sor[data-csoportID="' + csoportID + '"].kijelolve').length;
+
+                    if( csoport_db == csoport_db_kijelolve ) {
+                        if( !$('ul.szamla_cont li.csoport[data-id="' + csoportID + '"]').hasClass('kijelolve') ) {
+                            $('ul.szamla_cont li.csoport[data-id="' + csoportID + '"]').addClass('kijelolve');
+                        }
+                    } else {
+                        $('ul.szamla_cont li.csoport[data-id="' + csoportID + '"]').removeClass('kijelolve');
+                    }
+            }
         }
     });
 
@@ -902,8 +917,8 @@ $(function() {
     $(document).on('blur', '.f_num', function(e) {
         $(this).val( ezresek($(this).val().replace(/ /g, '').replace('.', '').replace(',', '.'), 2, ',', ' ') );
     });
-    
-    
+
+
     $(document).on('keyup', function(e) {
         if( e.keyCode == 27 ) {
             alert2();
@@ -995,11 +1010,14 @@ function varolistabolKivetel(csak_kerdezunk) {
         });
 
         if( objLength(idk) ) {
+            var page = $('#szamlaBetolt').attr('data-page');
+
             $.ajax({
              	url : 'esemenyek.php',
              	type: 'POST',
              	data: {
                     idk                 : JSON.stringify(idk),
+                    page                : page,
                     csak_kerdezunk      : csak_kerdezunk,
                     varolistabolKivetel : new Date().getTime()
                 },
@@ -1008,7 +1026,12 @@ function varolistabolKivetel(csak_kerdezunk) {
                         response = JSON.parse(response);
 
              			if( response.hiba ) {
-                            alert2(response.hiba,response.gomb);
+                            if( response.gomb ) {
+                                alert2(response.hiba, response.gomb);
+                            } else {
+                                alert2(response.hiba);
+                            }
+
                             return false;
                         }
 
@@ -1039,11 +1062,14 @@ function varolistahozAdas(csak_kerdezunk) {
         });
 
         if( objLength(idk) ) {
+            var page = $('#szamlaBetolt').attr('data-page');
+
             $.ajax({
              	url : 'esemenyek.php',
              	type: 'POST',
              	data: {
                     idk             : JSON.stringify(idk),
+                    page            : page,
                     csak_kerdezunk  : csak_kerdezunk,
                     varolistahozAdas: new Date().getTime()
                 },
@@ -1052,7 +1078,12 @@ function varolistahozAdas(csak_kerdezunk) {
                         response = JSON.parse(response);
 
              			if( response.hiba ) {
-                            alert2(response.hiba, response.gomb);
+                            if( response.gomb ) {
+                                alert2(response.hiba, response.gomb);
+                            } else {
+                                alert2(response.hiba);
+                            }
+
                             return false;
                         }
 
@@ -1069,13 +1100,14 @@ function varolistahozAdas(csak_kerdezunk) {
 }
 
 function csoportAtnevezes( csoportID ) {
-    var val = $('#csoport_nev_szerk').val();
+    var val = $('#csoport_nev_szerk').val(),
+        page = $('#szamlaBetolt').attr('data-page');
 
-    if( csoportID && val ) {
+    if( csoportID && val && page ) {
         $.ajax({
          	url : 'esemenyek.php',
          	type: 'GET',
-         	data: esamp2es('csoportID=' + csoportID + '&amp;val=' + val + '&amp;csoportAtnevezes=' + new Date().getTime()),
+         	data: esamp2es('page=' + page + '&amp;csoportID=' + csoportID + '&amp;val=' + val + '&amp;csoportAtnevezes=' + new Date().getTime()),
          	success: function(response) {
          		if(response) {
          			response = JSON.parse(response);
@@ -1139,10 +1171,10 @@ function munkalaphozAdas(csak_kerdezunk) {
                             alert2(response.hiba);
                             return false;
                         }
-                        
-                        if(csak_kerdezunk){
+
+                        if(csak_kerdezunk) {
                             csoportMuvelet('munkalaphoz_adas');
-                        }else{
+                        } else {
                             location.href = 'munkalap.php?id=' + response.recid + '&modosit';
 
                             kijelolesEltavolit();
@@ -1196,7 +1228,12 @@ function munkalapKeszit(csak_kerdezunk) {
                     response = JSON.parse(response);
 
          			if( response.hiba ) {
-                        alert2(response.hiba, response.gomb);
+                        if( response.gomb ) {
+                            alert2(response.hiba, response.gomb);
+                        } else {
+                            alert2(response.hiba);
+                        }
+
                         return false;
                     }
 
@@ -1289,12 +1326,15 @@ function csoportbolTorol( oszlop ) {
             });
 
             if( objLength( idk ) ) {
+                var page = $('#szamlaBetolt').attr('data-page');
+
                 $.ajax({
                  	url : 'esemenyek.php',
                  	type: 'POST',
                  	data: {
                         oszlop  : oszlop,
                         idk     : JSON.stringify(idk),
+                        page    : page,
                         csoportbolTorol : new Date().getTime()
                     },
                  	success: function(response) {
@@ -1376,9 +1416,9 @@ function csoportbaRendez( that ) {
                 i++;
             });
 
-            var page = $('#szamlaBetolt').attr('data-page');
-
             if( objLength( idk ) ) {
+                var page = $('#szamlaBetolt').attr('data-page');
+
                 $.ajax({
                  	url : 'esemenyek.php',
                  	type: 'POST',
@@ -1446,7 +1486,7 @@ function csoportMuvelet( oldal ) {
                     popupNyit();
                 });
             break;
-            
+
             case 'munkalaphoz_adas':
                 $('#popupTart').html(data);
 
