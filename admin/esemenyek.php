@@ -2407,7 +2407,7 @@ if( isset($_GET['szamlaSorFrissit']) ) {
     $recid = $_GET['recid'];
 
     if( $tabla && $recid ) {
-        $szamla_lista = szamla_lista('recid='.$recid);
+        $szamla_lista = szamla_lista("`recid` = '{$recid}'", $tabla);
 
         echo $szamla_lista;
     }

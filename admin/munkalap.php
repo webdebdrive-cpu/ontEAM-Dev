@@ -377,6 +377,17 @@ if($gyorskereso_text){
                             </ul>
                         </div>
                     </div>
+                    <div class="kijeloltek_muv">
+                        <input type="button" class="gomb foGomb" value="Munka átadása..." title="Munka átadása..." disabled="disabled">
+                        <div class="muv">
+                            <ul>
+                                <li><a onclick="csoportMuvelet(\'munkalap_telepitett\');">Telepített</a></li>
+                                <li><a onclick="csoportMuvelet(\'munkalap_mobil\');">Mobil</a></li>
+                                <li><a onclick="csoportMuvelet(\'munkalap_kulso\');">Külső</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <input type="button" class="gombb foGomb" value="Bejelentés levétele" onclick="" title="Bejelentés levétele" disabled="disabled">
                 </div>
             ');
         }

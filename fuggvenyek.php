@@ -972,7 +972,7 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 }
 
 function szamla_lista( $where, $tabla ) {
-    
+
     global $adatbazis_kapcsolat;
     global $db_kapcs;
     global $_OPTS;
@@ -998,7 +998,7 @@ function szamla_lista( $where, $tabla ) {
         }
     }
     $order .= ' '.$irany;
-    
+
     //Ha nem egy konrét recid-t keresünk, akkor állítsuk elő a where feltételt
     if(!$where){
 
@@ -1047,7 +1047,7 @@ function szamla_lista( $where, $tabla ) {
 
         //Where feltétel lezárása
         $where = trim($where, ' AND ');
-    
+
     //Ha van megadva where feltétel, akkor az a recid=x, tehát frissítünk
     }else{
         $frissit = true;
@@ -1090,7 +1090,7 @@ function szamla_lista( $where, $tabla ) {
     $lapozo -> lapozas();
 
     $lapozas = $lapozo -> kiir();
-    
+
     $limit = $lapozo ->getLimit();
 //echo 'sel:'.$select . ' ir:'.$irany.' or:'.$order.' lim:'.$limit.' where:'.$where.'<br>';
 
@@ -1197,7 +1197,6 @@ function szamla_lista( $where, $tabla ) {
 if (isset($_GET['debug'])) {
     echo $_SESSION['akt_sql'] . '<br>';
 }
-
 
     if( $bejegyzesek ) {
         switch($tabla) {
@@ -2910,7 +2909,7 @@ function getOszlopNev( $oszlop ) {
     }
 }
 
-function erteklista($csoport, $id) { 
+function erteklista($csoport, $id) {
     global $adatbazis_kapcsolat;
 
     $sor = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
