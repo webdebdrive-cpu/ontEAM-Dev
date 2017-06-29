@@ -254,51 +254,50 @@ foreach($akt_tomb as $ertek){
             if($ertek['value']){
                 $ertek['megn'] = $ertek['value'];
             }
-            if( $ertek['oldal'] == 'bejelentes' ) {
-                $statusz_sor = $adatbazis_kapcsolat->s('recid stat_id erteklista_id', 'bejelentes_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc', '1');
+            
+            $statusz_sor = $adatbazis_kapcsolat->s('recid stat_id erteklista_id', $ertek['oldal'].'_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc', '1');
+            $statusz = '';
+            if( $statusz_sor ) {
+                $statusz_sor = $statusz_sor[0];
 
-                $statusz = '';
-                if( $statusz_sor ) {
-                    $statusz_sor = $statusz_sor[0];
+                /* Státusz kiegészítés */
+                $statusz_text = '';
 
-                    /* Státusz kiegészítés */
-                    $statusz_text = '';
+                if( $statusz_sor['erteklista_id'] ) {
+                    $ertek = $adatbazis_kapcsolat->s('info', 'erteklista', 'recid='.$statusz_sor['erteklista_id'], '', '1');
 
-                    if( $statusz_sor['erteklista_id'] ) {
-                        $ertek = $adatbazis_kapcsolat->s('info', 'erteklista', 'recid='.$statusz_sor['erteklista_id'], '', '1');
+                    if( $ertek ) {
+                        $ertek = $ertek[0];
 
-                        if( $ertek ) {
-                            $ertek = $ertek[0];
-
-                            $statusz_text = '<p>'.$ertek['info'].'</p>';
-                        }
-                    }
-
-                    /* Státusz neve */
-                    $stat_text = $adatbazis_kapcsolat->s('nev szinkod', 'bejelentes_statusz_text', 'recid='.$statusz_sor['stat_id'], '', '1');
-
-                    if( $stat_text ) {
-                        $stat_text = $stat_text[0];
-
-                        $statusz = $stat_text['nev'];
-
-                        $text_color = '';
-                        if( $stat_text['szinkod'] && !strstr($stat_text['szinkod'], 'fff') ) {
-                            $text_color = ' style="color: '.$stat_text['szinkod'].';"';
-                        }
+                        $statusz_text = '<p>'.$ertek['info'].'</p>';
                     }
                 }
 
-                $mezok .= nl2('
-                    <div class="dtr">
-                        <div class="dtc form_bal"><span>'.$ertek['megn'].'</span></div>
-                        <div class="dtc form_jobb statusz">
-                            <div class="text"'.$text_color.'>'.$statusz.'</div>
-                            '.$statusz_text.'
-                        </div>
-                    </div>
-                ');
+                /* Státusz neve */
+                $stat_text = $adatbazis_kapcsolat->s('nev szinkod', $ertek['oldal'].'_statusz_text', 'recid='.$statusz_sor['stat_id'], '', '1');
+
+                if( $stat_text ) {
+                    $stat_text = $stat_text[0];
+
+                    $statusz = $stat_text['nev'];
+
+                    $text_color = '';
+                    if( $stat_text['szinkod'] && !strstr($stat_text['szinkod'], 'fff') ) {
+                        $text_color = ' style="color: '.$stat_text['szinkod'].';"';
+                    }
+                }
             }
+
+            $mezok .= nl2('
+                <div class="dtr">
+                    <div class="dtc form_bal"><span>'.$ertek['megn'].'</span></div>
+                    <div class="dtc form_jobb statusz">
+                        <div class="text"'.$text_color.'>'.$statusz.'</div>
+                        '.$statusz_text.'
+                    </div>
+                </div>
+            ');
+            
         break;
 
         case 'dl':
@@ -569,51 +568,6 @@ foreach($akt_tomb as $ertek){
             $input -> value    = $ertek['value'];
 
             $html = $input -> getHtml();
-
-            //Összevonások lekezelése és tartalom összefűzése
-            if(!$osszevon_flag){
-                $mezok .= nl2("
-                                <div class=\"dtr\">
-                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
-                                    <div class=\"dtc form_jobb\">
-                            ");
-            }else{
-                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
-            }
-
-            $mezok .= $html;
-
-            if($ertek['osszevon']){
-                $osszevon_flag = 1;
-            }else{
-                $osszevon_flag = 0;
-                $mezok .= "</div></div>";
-            }
-        break;
-
-		case 'select_VALAMI':
-            $input = new Select($select_VALAMI, $sor['x']);
-            $input -> cssClass = $ertek['class'];
-            $input -> disabled = $ertek['disabled'];
-            $input -> id       = $ertek['name'];
-            $input -> name     = $ertek['name'];
-            $input -> naptar   = $ertek['naptar'];
-            $input -> onblur   = $ertek['onblur'];
-            $input -> onclick  = $ertek['onclick'];
-            $input -> onfocus  = $ertek['onfocus'];
-            $input -> style    = $ertek['style'];
-
-            if($ertek['i']){
-                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
-            }
-
-            //Ezt csak akkor aktiváld, ha alapértelmezett értéket szeretnél neki definiálni, de VIGYÁZZ!, a $sor['VALAMI']-t se írja felül, hisz a konstruktornak ez ad értéket! Pl. így: if(!$ertek['value']){ $ertek['value'] = $sor['VALAMI']; }
-            //$input -> value    = $ertek['value'];
-
-            $html = $input -> getHtml();
-            if($ertek['alert']){
-                //$html .= ' *';
-            }
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){

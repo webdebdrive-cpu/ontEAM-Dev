@@ -24,9 +24,9 @@ $jogosultsagok = array(
     11 => array('nev' => 'Szerepkörök kezelése',        'kat' => 2, 'sor' => 11, 'bekapcs' => '10'),
 
     12 => array('nev' => 'Anyagigénylés megtekintése',  'kat' => 3, 'sor' => 1, 'kikapcs' => '13,15'),
-    13 => array('nev' => 'Anyagigénylés kezelése',      'kat' => 3, 'sor' => 2, 'i' => 'vezető, új igénylés készítése', 'bekapcs' => '12'),
-    14 => array('nev' => 'Igénylés jóváhagyása',        'kat' => 3, 'sor' => 3, 'i' => 'vezető, árak és mennyiségek jóváhagyása'),
-    15 => array('nev' => 'Anyagrendelés készítése',     'kat' => 3, 'sor' => 4, 'i' => 'adminisztrátor hölgyek', 'bekapcs' => '12'),
+    13 => array('nev' => 'Anyagigénylés kezelése',      'kat' => 3, 'sor' => 2, 'i' => 'Vezető, új igénylés készítése. Törölhet, ha a státusza nyitott, árazva, várakozó.', 'bekapcs' => '12'),
+    14 => array('nev' => 'Igénylés jóváhagyása',        'kat' => 3, 'sor' => 3, 'i' => 'Vezető, árak és mennyiségek jóváhagyása.'),
+    15 => array('nev' => 'Anyagrendelés készítése',     'kat' => 3, 'sor' => 4, 'i' => 'Adminisztrátor hölgyek', 'bekapcs' => '12'),
     16 => array('nev' => 'Anyagrendelés megtekintése',  'kat' => 3, 'sor' => 5),
     17 => array('nev' => 'Raktár megtekintése',         'kat' => 3, 'sor' => 6, 'kikapcs' => '18'),
     18 => array('nev' => 'Raktár kezelése',             'kat' => 3, 'sor' => 7, 'bekapcs' => '17'),

@@ -153,6 +153,8 @@ if($gyorskereso_text){
 	//Új termék felvitele
 	if(isset($_GET['uj']) && _jog(13) && !$csak_szerkesztheto){
 
+        $akt_tomb = $anyagigenyles_tomb_feltolt;
+        
         //NAVIGÁCIÓ
         $gombok = '';
 	    //$gombok = '<input type="button" class="gombb" onclick="location.href=\''.self().'?lista\'" value="Lista" title="Lista megtekintése">';
@@ -181,7 +183,6 @@ if($gyorskereso_text){
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
-	    $form_mit    = array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}');
 
         /* Javascipt-es ellenőrzéshez */
         $tabla = str_replace('.php', '', basename(self()));
@@ -216,8 +217,68 @@ if($gyorskereso_text){
             }
         }
 
-	    $form_mivel   = array($js, self(), $mezok, $megnevezes, $ckeditor, $gombok, $muv_style);
+	    $form_mit     = array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
+	    $form_mivel   = array($js,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
+        
+        //Igénylésre váró anyagok a munkalapokon:
+        //A beloginolt user szállodáit érintő munkalapokat szedjük össze
+        $szallodak = get_akt_login_szallodai();
+        if($szallodak){
+            
+            $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`telephely_id` IN (".implode(',', $szallodak).")");
+            $munkalapok = adatbazis2tomb($munkalapok, 'recid');
+            if($munkalapok){
+                
+
+                $anyagok_html = '';
+                $anyagok = $adatbazis_kapcsolat->s('*', 'munkalap_anyag', "`munkalap_id` IN (".implode(',', $munkalapok).") AND `stat_id`=1");
+                foreach($anyagok as $anyag){
+                    
+                    $szalloda = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$anyag['telephely_id']}'");
+                    $szalloda = $szalloda[0];
+                    
+                    $anyagok_html .= nl2('
+                                    <tr>
+                                        <td>'.$szalloda['nev'].'</td>
+                                        <td>'.$anyag['cikk_id'].'</td>
+                                        <td>'.$anyag['cikk_nev'].'</td>
+                                        <td>'.$anyag['szuk_men'].'</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td>'.$anyag['cikk_mee'].'</td>
+                                        <td><input type="button" value="Mutat" class="gomb"></td>
+                                        <td><input type="button" value="Igénylés" class="gomb"></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                    ');
+                }
+                
+                if($anyagok_html){
+                    $szamla_html .= nl2('
+                                        <p style="margin-top: 2rem" class="b">Igénylésre váró anyagok a munkalapokon:</p>
+                                        <table class="csikos">
+                                        <tr>
+                                            <th>Szálloda</th>
+                                            <th>Cikk</th>
+                                            <th>Név</th>
+                                            <th>Munkalapon igénylésre vár</th>
+                                            <th>Munkalapon anyagra vár</th>
+                                            <th>Igénylés rendelés folyamatában</th>
+                                            <th>Mee</th>
+                                            <th>Anyagra váró feladatok</th>
+                                            <th>Anyagra igénylése</th>
+                                            <th>Már igényelve</th>
+                                            <th>Anyag rendelkezésre áll</th>
+                                        </tr>
+                                        '.$anyagok_html.'
+                                    ');
+                }
+
+                $szamla_html .= '</table>';
+            }
+        }
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

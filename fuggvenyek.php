@@ -183,6 +183,23 @@ function i_u($type, $tabla, $tomb){
 
             /* Iktatószám formázása */
             $ikt_szam = date('y').'/'.sprintf('%04d', $sorszam);
+            
+
+            //Miután a $_POST['nev']-et fevettük cikkid-nak, csak uztána írjuk felül
+            $cikk_nev = $adatbazis_kapcsolat->s('nev', 'cikktorzs', "`id`='{$_POST['nev']}'");
+            $cikk_nev = $cikk_nev[0];
+            
+            $i = 0;
+            foreach($oszlopok as $oszl){
+                if($oszl=='nev'){
+                    $ertekek[$i] = $cikk_nev['nev'];
+                }
+                $i++;
+            }
+            
+            //Cikk nevet letároljuk a cikknévbe
+            array_push($oszlopok,  'cikktorzs_id');
+            array_push($ertekek,   $_POST['nev'] );
 
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );
@@ -398,7 +415,7 @@ function i_u($type, $tabla, $tomb){
         }
 
         if( $tabla == 'login' ) {
-            if( $_POST['szerepkor_id'] && !$record['flags'] ) {
+            if( $_POST['szerepkor_id'] && !$record[0]['flags'] ) {
                 $szerepkor = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
 
                 if( $szerepkor ) {
@@ -498,13 +515,17 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 //Csak akkor figyelünk lenti paramétereket, ha egyáltalán az elem létezik. Ezzel egy csomó JS hibát elekerólhetünk és debuggolós szívásokat
                 $ret .= 'if($(\'#'.$ertek['name'].'\').length){ ';
 
-                if($ertek['alert']!=''){
+                if($ertek['alert']){
                     $focus_autocomp = $ertek['name'];
                     if( $ertek['type'] == 'autocomplete' ) {
                         $focus_autocomp = $ertek['name'].'_autocomp';
                     }
 
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); '.$focus_autocomp.'.focus();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
+                }
+                //Ha numerikus a mező, akkor a 0,00 is üres értéknek számít
+                if(strpos($ertek['class'], 'f_num')!==false){
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0,00\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
                 }
 
                 if($ertek['mail']){
@@ -1014,8 +1035,7 @@ function szamla_lista( $where, $tabla ) {
 
         //Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
         //Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
-        $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
-        $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
+        $szallodak = get_akt_login_szallodai();
         if($tabla == 'bejelentes'){
             $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
@@ -3176,4 +3196,12 @@ function get_akt_tomb($megn){
     }
 
     return $akt_tomb;
+}
+
+/* Az aktuálisan bejelentkezett felhasználóhoz rendelt szállodák ID_ját adja vissza. Ez többször előfroduló igén, azért van kiszervezve függvénybe. */
+function get_akt_login_szallodai(){
+    global $adatbazis_kapcsolat;
+    
+    $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
+    return adatbazis2tomb($szallodak, 'telephely_id');
 }
