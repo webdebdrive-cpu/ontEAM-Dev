@@ -3,7 +3,7 @@ $jogosultsagKatok = array(
     0 => array('nev' => 'Bejelentések',     'sor' => 0),
     1 => array('nev' => 'Munkalapok',       'sor' => 1),
     2 => array('nev' => 'Rendszer',         'sor' => 2),
-    3 => array('nev' => 'Anyagigénylés',    'sor' => 3),
+    3 => array('nev' => 'Anyagok',          'sor' => 3),
 );
 
 $jogosultsagok = array(
