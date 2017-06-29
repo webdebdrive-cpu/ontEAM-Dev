@@ -493,7 +493,7 @@ $(function() {
             }
         }
     });
-    
+
     /*Gyorskereső*/
     $(document).on('keyup', '#rendezesKeres', function(e) {
         $.ajax({
@@ -1498,7 +1498,23 @@ function csoportMuvelet( oldal ) {
                     popupNyit();
                 });
             break;
+
             case 'elutasitas':
+                $('#popupTart').html(data);
+                popupNyit();
+            break;
+
+            case 'munkalap_telepitett':
+                $('#popupTart').html(data);
+                popupNyit();
+            break;
+
+            case 'munkalap_mobil':
+                $('#popupTart').html(data);
+                popupNyit();
+            break;
+
+            case 'munkalap_kulso':
                 $('#popupTart').html(data);
                 popupNyit();
             break;
