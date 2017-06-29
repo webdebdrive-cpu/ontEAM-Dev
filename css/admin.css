@@ -1618,6 +1618,14 @@ div.szamlaKereses input[type="button"] {
 div.szamlaKereses input[type="button"]:hover {
     background: #6F98C7;
 }
+div.szamlaKereses input[type="button"].piros{
+    background: #C44B4B;
+    transition: all ease-in-out 0.2s;
+}
+div.szamlaKereses input[type="button"].piros:hover, div.szamlaKereses input[type="button"].piros:focus, div.szamlaKereses input[type="button"].piros:active{
+    background: #D35454;
+    transition: all ease-in-out 0.2s;
+}
 
 div.szamlaKereses select {
     appearance: none;

@@ -51,6 +51,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
     
     exit;
 }
+
 require_once('header.php');
 
 require_once('footer.php');

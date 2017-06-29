@@ -2910,7 +2910,7 @@ function getOszlopNev( $oszlop ) {
     }
 }
 
-function erteklista($csoport, $id) {
+function erteklista($csoport, $id) { 
     global $adatbazis_kapcsolat;
 
     $sor = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
