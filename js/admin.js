@@ -2162,7 +2162,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         'szakterulet',
                         'terkep',
                         'tortenet',
-                        'anyagigenyles'
+                        'anyagigenyles',
+                        'tetel'
                     ], true);
                     if( muvelet != 'uj' ) {
                         if( param.indexOf('?') !== -1 ) {
