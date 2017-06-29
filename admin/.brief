@@ -12,8 +12,8 @@ Jogosultságkzelés 3 dolgoból áll:
 
 /*Bejelentéseknél van egy olyan státusz is, hogy várakozó. */Ilyet is csak diszépcser tud csinláni.
 A kijelölt sorokat és/vagy csoportokat tudja várakozóra tenni (tehát a csoport összes bejelentéséhez íródik ilyenkor egy státusz sor).
-Várakoztatni csak nyitott bejeltést lehet. Ha többet jelöltek ki, és van benne nem nyitott státuszú is, akkor hibaüzenet, és egyik sem vált várakozni státuszba. Még akkor SEM engedjük meg, ha már várakozva volna a státusza. Csak is kizárólag ha nyitott.
-Várólistáról levétel... értelem szerűen, amik váró stáuszban vannak.
+//Várakoztatni csak nyitott bejeltést lehet. Ha többet jelöltek ki, és van benne nem nyitott státuszú is, akkor hibaüzenet, és egyik sem vált várakozni státuszba. Még akkor SEM engedjük meg, ha már várakozva volna a státusza. Csak is kizárólag ha nyitott.
+//Várólistáról levétel... értelem szerűen, amik váró stáuszban vannak.
 Amikor valamit várólistához adunk, akkor jöjjön fel egy select: várakoztatás oka, alá meg egy memó, szabaszavas mező.
     Okok:
         - Külső kivitelezőre vár
@@ -23,14 +23,20 @@ A visszaadásnak is lesz oka, itt is egy értéklista és egy memó.
         - Anyaghiány
         - Időhiány
 
+        //bejelentéseknél igen/nem 
+
+
+
+
+
 //Csoporotsításnál amikor elutasítunk bejelentéseket, akkor is egy értéklista jön fel, és ott is kell egy memo. Az értéklista értéke íródjon ki a státusz alatt, a memó meg menjen a megjegyzések fül alá új bejegyzésként.
 //Csoport legyen ki-be nyitható. A csoport neve előtt legyen egy + jel, és azzal lehet nyitogatni. Alapból zárva vannak.
-Egy csoport szürgős, ha legalább egy sürgős eleme van. Ekkor a sor elején a sürgős ikon is megjelenik. De a csoport bejelentései nem válnak sürgőssé, csak a csoport!
+Egy csoport szürgős, ha legalább egy sürgős eleme van. /*Ekkor a sor elején a sürgős ikon is megjelenik. De a csoport bejelentései nem válnak sürgőssé, csak a csoport!*/
 
 /*Csoportotsítás lesz bejeletéseknél,*/ munkalapoknál és anyagkezelésnél.
 
 Munkalapok:
-    Hozzárendelt személyzetet is le kell tárolni az adatbázisban. Ilyen van az ütemezett feladatoknál is, annak mintájára.
+    //Hozzárendelt személyzetet is le kell tárolni az adatbázisban. Ilyen van az ütemezett feladatoknál is, annak mintájára.
     //Munkalapot csak nyitott sátusztból lehet készíteni.
     //NEM kell konrtollt nyomni ahhoz, hogy munkalap készítése gomb megjelenjen. Egy diszpécser esetén ez alapból az űrlap késze, HA nyitott a bejelentés státusza.
     //De 2-3 sort kijelölve azokból is lehet EGY munkalapot készíteni.
@@ -39,12 +45,12 @@ Munkalapok:
     //A munkalapon van egy bejelentések fül. Ide kell felsorolni, hogy mely bejelentésekből képződött. Ez azokból az adatokból álljon, mint ami a bejelentések navpaneljén is látható + a bejelentés időpontját.
     //Az új munkalap ekkor NYITOTT státuszú.
 
-    Munkalap egyedi bejelentésből, csoportból, vagy kombinációjából készülhet. Viszont egy csoport csak egy bejelentéséből külön nem készülhet munkalap, csak a komplett csoportból. Tehát azt egy csoportnak tekintjük.
-    Adatbázis szinten úgy kezelljük, mintha minden egyes bejelentést egyesével megjelöltük volna, és abból munkalapot készítettünk volna.
+    //Munkalap egyedi bejelentésből, csoportból, vagy kombinációjából készülhet. Viszont egy csoport csak egy bejelentéséből külön nem készülhet munkalap, csak a komplett csoportból. Tehát azt egy csoportnak tekintjük.
+    //Adatbázis szinten úgy kezelljük, mintha minden egyes bejelentést egyesével megjelöltük volna, és abból munkalapot készítettünk volna.
 
-    Egy munkalapon ha több bejelentés is szerepel, akkor lehetőséget kell biztosítani arra, hogy azt onna lekerüljön. Ekkor az a bejelentés egy önnálló bejelentéstként kerül vissza, még akkor is ha csoportban volt. Ekkor a státusza nyitottra vált.
+    //Egy munkalapon ha több bejelentés is szerepel, akkor lehetőséget kell biztosítani arra, hogy azt onna lekerüljön. Ekkor az a bejelentés egy önnálló bejelentéstként kerül vissza, még akkor is ha csoportban volt. Ekkor a státusza nyitottra vált.
 
-    Dokumentumonkál szóba jött, hogy a bejelentéseket átmásolnánk, de NEM KELL.
+    //Dokumentumonkál szóba jött, hogy a bejelentéseket átmásolnánk, de NEM KELL.
     Felajánlottam azt is, hogy a Munkalapoknál a Dok fül alatt csinálni egy "összképet" az oda vonatkozó bejelentések dokumentumaiból, hogy átláthatóbb legyen. Ez jó ötlet, DE MÉG NEM KELL!
     Egyelőre a munkalapnak egy saját adatbázisa van, ahhoz lehet újabb dokumentumot feltölteni, ami meg  a bejelentéshez lehett feltöltve, az meg a bejelenetés adatlapjáról lesz elérhető. Tehát nincs másolgatás, meg variálás.
 
