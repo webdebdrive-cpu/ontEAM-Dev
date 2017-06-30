@@ -903,6 +903,40 @@ $(function() {
     $(document).on('blur', '.f_num', function(e) {
         $(this).val( ezresek($(this).val().replace(/ /g, '').replace('.', '').replace(',', '.'), 2, ',', ' ') );
     });
+    
+    /* Anyagigénylésnél a mennyiség mező kitöltése szálloda + anyag ismerete alapján */
+    $(document).on('focus', '.f_anyagig_menny_feltolt', function(e) {
+        if(!$(this).val()){
+            anyagig_id = '#th'+$('#telephely_id').val()+'a'+$('#nev').val();
+            $('#igmen').val( $(anyagig_id).html() );
+        }
+    });
+    $(document).on('click', '.f_anyagigenyles_mezok_kitolt', function(e) {
+        recid_egyedi_azon   = $(this).attr('data-recid_egyedi_azon');
+        telephely_id        = $(this).attr('data-telephely_id');
+        cikk_id             = $('#cikk_id_' +recid_egyedi_azon).html();
+        nev_autocompl       = $('#cikk_nev_'+recid_egyedi_azon).html();
+        igmen               = $('#th'+telephely_id+'a'+cikk_id).html();
+        
+        $('#telephely_id')  .val(telephely_id);
+        $('#nev_autocomp')  .val(nev_autocompl);
+        $('#nev')           .val(cikk_id);
+        $('#igmen')         .val(igmen);
+    });
+    $(document).on('click', '.f_anyag_rendelkezesre_all', function(e) {
+        
+        telephely_id = $(this).attr('data-telephely_id');
+        cikk_id      = $(this).attr('data-cikk_id');
+        
+        $.ajax({
+            url: 'anyagigenyles.php',
+            type: 'POST',
+            data: esamp2es('telephely_id=' + telephely_id + '&amp;cikk_id=' + cikk_id + '&amp;f_anyag_rendelkezesre_all=' + new Date().getTime()),
+            success: function (response) {
+                /*location.reload();*/
+            }
+        });
+    });
 
 
     $(document).on('keyup', function(e) {
