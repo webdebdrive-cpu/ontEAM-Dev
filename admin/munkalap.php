@@ -151,10 +151,10 @@ if($gyorskereso_text){
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tetel'         => 'Tételek',
-            'bejelentesek'  => 'Bejelentések',
             'tortenet'      => 'Történet',
-            'anyagigenyles' => 'Anyagigénylések',
+            'bejelentesek'  => 'Bejelentések',
             'elszamolas'    => 'Elszámolás',
+            'anyagigenyles' => 'Anyagigénylések',
             'dokumentumok'  => 'Dokumentumok',
             'megjegyzes'    => 'Megjegyzések',
         );
@@ -385,10 +385,13 @@ if($gyorskereso_text){
                                 <li><a onclick="csoportMuvelet(\'munkalap_telepitett\');">Telepített</a></li>
                                 <li><a onclick="csoportMuvelet(\'munkalap_mobil\');">Mobil</a></li>
                                 <li><a onclick="csoportMuvelet(\'munkalap_kulso\');">Külső</a></li>
+                                <li><a onclick="">Adminisztrátor</a></li>
+                                <li><a onclick="">Műszaki vezető</a></li>
+                                <li><a onclick="">Területi vezető</a></li>
+                                <li><a onclick="">Diszp. közp. vezető</a></li>
                             </ul>
                         </div>
                     </div>
-                    <input type="button" class="gombb foGomb" value="Bejelentés levétele" onclick="" title="Bejelentés levétele" disabled="disabled">
                 </div>
             ');
         }

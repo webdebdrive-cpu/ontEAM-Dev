@@ -175,7 +175,7 @@ switch($tabla) {
     break;
     case 'munkalap.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid csoport_id';
+        $_OPTS['select']    = 'recid ikt_szam csoport_id';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('recid');
@@ -834,12 +834,17 @@ $bejelentes_dok_tomb = $akt_tomb = array(
 /* Munkalap */
 $megnevezes = 'munkalap';
 $munkalap_tomb = $akt_tomb = array(
-    array('type' => 'text',                     'megn' => 'Iktató szám:',               'name' => 'recid',              'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi'),
+    array('type' => 'text',                     'megn' => 'Iktató szám:',               'name' => 'ikt_szam',           'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'textarea',                 'megn' => 'Leírása:',                   'name' => 'text',               'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
-    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id', 'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id',       'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">reorder</i></a>'),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
+    array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id'),
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'maxlength' => 250),
+    array('type' => 'text',                     'megn' => 'Kezdés/befejezési idő:',     'name' => 'elv_ido_tol',        'class' => 'ora_perc', 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
+	array('type' => 'text',                     'megn' => '',                           'name' => 'elv_ido_ig',         'class' => 'ora_perc'),
+
+    array('type' => 'checkbox',                 'megn' => 'Sürgős',                     'name' => 'surgos',             'class' => 'check'),
 
     //array('type' => 'statusz',         'megn' => 'Státusz:',            'oldal' => 'bejelentes'),
 );
@@ -1351,6 +1356,25 @@ if( isset($_POST['munkalaphozAdas']) ) {
             }
         }
 
+        /* Ellenőrizzük a szállodákat is */
+        $sql = $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
+        $szallodak_unique = array_unique($szallodak);
+
+        if( count($szallodak_unique) > 1 ) {
+            echo json_encode(array(
+                'hiba' => 'Csak azonos szállodával rendelkező bejegyzéseket lehet munkalappá alakítani!'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
         /* Ellenőrizzük a státuszokat is */
         foreach($idk as $id) {
             $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'bejelentes_statusz', 'id='.$id, 'insert_dt desc', '1');
@@ -1829,6 +1853,25 @@ if( isset($_POST['munkalapKeszit']) ) {
             }
         }
 
+        /* Ellenőrizzük a szállodákat is */
+        $sql = $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
+        $szallodak_unique = array_unique($szallodak);
+
+        if( count($szallodak_unique) > 1 ) {
+            echo json_encode(array(
+                'hiba' => 'Csak azonos szállodával rendelkező bejegyzéseket lehet munkalappá alakítani!'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
         /* Ellenőrizzük a státuszokat is */
         foreach($idk as $id) {
             $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'bejelentes_statusz', 'id='.$id, 'insert_dt desc', '1');
@@ -1880,9 +1923,57 @@ if( isset($_POST['munkalapKeszit']) ) {
         }
 
         if( !$db_error ) {
-            $recid = $adatbazis_kapcsolat -> i('munkalap',  array('ikt_szam',   'update_dt',         'update_usr',                          'insert_dt',          'insert_usr'                              ),
-                                                            array('teszt',      date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']   )
-                                            );
+            /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
+            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla` = 'munkalap' AND `ev` = '".date('y')."'", '', '');
+
+            if( $ikt_seq === false ) {
+                $db_error = true;
+            }
+
+            if( $ikt_seq ) {
+                $ikt_seq = $ikt_seq[0];
+
+                /* Sorszám */
+                $sorszam = $ikt_seq['sorszam'];
+
+                /* Sorszám növelés */
+                $sorszam++;
+
+                /* Letároljuk az új sorszámot */
+                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+            } else {
+                /* Sorszám */
+                $sorszam = 1;
+
+                $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), 'munkalap'));
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+            }
+
+            /* Iktatószám formázása */
+            $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
+
+            /* Ellenőrizzük a szállodákat is */
+            $sql = $telephely_id = $adatbazis_kapcsolat->s('telephely_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '1');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $telephely_id ) {
+                $telephely_id = $telephely_id[0]['telephely_id'];
+            }
+
+            /* Munkalap beszúrása */
+            $recid = $adatbazis_kapcsolat -> i('munkalap',
+                array('ikt_szam',   'statusz_id',  'tipus_id',  'telephely_id', 'update_dt',         'update_usr',                          'insert_dt',          'insert_usr'                              ),
+                array($ikt_szam,     1,             1,          $telephely_id,   date('Y-m-d H:i:s'),$_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']   )
+            );
 
             if( $recid === false ) {
                 $db_error = true;
