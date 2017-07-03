@@ -922,6 +922,8 @@ $(function() {
         $('#nev_autocomp')  .val(nev_autocompl);
         $('#nev')           .val(cikk_id);
         $('#igmen')         .val(igmen);
+        
+        $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert'); 
     });
     $(document).on('click', '.f_anyag_rendelkezesre_all', function(e) {
         

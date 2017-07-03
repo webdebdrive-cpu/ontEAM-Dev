@@ -698,14 +698,14 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
                 /* gép és helyiség is üresen maradt figylemeztetés */
                 if(!$(\'#gep_id\').val() && !$(\'#obj_id\').val() && !helyiseg_gep_mehet){
-                    uf_gomb = \'<div class="c"><input type="button" class="gomb" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb" value="Nem" onclick="alert2()"></div>\';
+                    uf_gomb = \'<div class="c"><input type="button" class="gomb piros" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()"></div>\';
                     alert2(\'Nem adott meg sem helyiséget sem gépet a feladathoz.<br>Folytatja?\', uf_gomb, \'Kérdés\');
                     return false;
                 }
 
                 /* Riasztás 0 értékkel van beállítva, így mehet? */
                 if( (!$(\'#riaszt\').val() || $(\'#riaszt\').val()==0) && !riasztas_mehet ){
-                    uf_gomb2 = \'<div class="c"><input type="button" class="gomb" value="Igen" onclick="riasztas_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb" value="Nem" onclick="alert2()"></div>\';
+                    uf_gomb2 = \'<div class="c"><input type="button" class="gomb piros" value="Igen" onclick="riasztas_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()"></div>\';
                     alert2(\'
                         Ön a következőt választotta:
                         <br>
@@ -729,7 +729,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         success: function(response) {
 
                             response = JSON.parse(response);
-                            uf_gomb3 = \'<div class="c"><input type="button" class="gomb" value="Igen" onclick="utemezes_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb" value="Nem" onclick="alert2()"></div>\';
+                            uf_gomb3 = \'<div class="c"><input type="button" class="gomb piros" value="Igen" onclick="utemezes_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()"></div>\';
                             alert2(response[\'uzenet\'], uf_gomb3, \'Kérdés\');
                             $(\'#esnap_d\').val(response[\'esedekes\']);
                             return false;
@@ -745,10 +745,18 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
     if( basename(self())=='anyagigenyles.php' ) {
         $ret .= nl2('
+
+            if( !$(\'#nev\').val() ){
+                alert2(\'Kérjük válasszon ki egy cikknevet az értéklistából!\', \'\', \'Hiba\');
+                return false;
+            }
+
             anyagig_id = \'#th\'+$(\'#telephely_id\').val()+\'a\'+$(\'#nev\').val();
             min_mennyiseg = $(anyagig_id).html();
+            mee           = $(anyagig_id+\'_mee\').html();
+            gomb          = \'<input type="button" class="gomb piros" value="Igen" onclick="$(\\\'#igmen\\\').val(min_mennyiseg); $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()">\';
             if(min_mennyiseg && min_mennyiseg>$(\'#igmen\').val()){
-                alert2(\'Legalább \'+min_mennyiseg+\' \'+$(anyagig_id+\'_mee\').html()+\' igényleni kell!\');
+                alert2(\'Igényelt mennyiség: \' + $(\'#igmen\').val() + \' \'+mee+\'<br>Minimális igényelhető mennyiség: \' +min_mennyiseg+\' \'+mee+\'<br>Ha folytatja, \' +min_mennyiseg+\' \'+mee+\' lesz igényelve.<br>Folytatja?\', gomb, \'Hiba\');
                 return false;
             }
 
