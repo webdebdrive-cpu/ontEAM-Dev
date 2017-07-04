@@ -509,40 +509,47 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $
 
 
 /* Személyzet */
-$menu_nev        = 'Személyzet';
-$menu_nev_kis    = 'személyzet';
-$menu_nev_tobbes = 'Személyzet';
-$megn            = 'torzsadat';
-$aloldalak       = array($megn.'.php', 'szabadsagigeny.php', 'beosztas.php');
-if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-if(basename(self())=='torzsadat.php')       { $oldalNev = 'Személyzet / Törzsadatok';       }
-if(basename(self())=='szabadsagigeny.php')  { $oldalNev = 'Személyzet / Szabadságigények';  }
-if(basename(self())=='beosztas.php')        { $oldalNev = 'Személyzet / Beosztások';        }
+if(_jog(25) || _jog(27) || _jog(29)){
+    $menu_nev        = 'Személyzet';
+    $menu_nev_kis    = 'személyzet';
+    $menu_nev_tobbes = 'Személyzet';
+    $megn            = 'torzsadat';
+    $aloldalak       = array($megn.'.php', 'szabadsagigeny.php', 'beosztas.php');
+    if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+    if(basename(self())=='torzsadat.php')       { $oldalNev = 'Személyzet / Törzsadatok';       }
+    if(basename(self())=='szabadsagigeny.php')  { $oldalNev = 'Személyzet / Szabadságigények';  }
+    if(basename(self())=='beosztas.php')        { $oldalNev = 'Személyzet / Beosztások';        }
 
-$aktmenuk  = '';
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Törzsadatok'        ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Szabadságigények'   ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Beosztások'         ), $almenu_sablon );
+    $aktmenuk  = '';
+    if(_jog(25)){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Törzsadatok'        ), $almenu_sablon );
+    }
+    if(_jog(27)){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Szabadságigények'   ), $almenu_sablon );
+    }
+    if(_jog(29)){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Beosztások'         ), $almenu_sablon );
+    }
 
-$style = '';
-if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover{STYLE_KIEG}"';
-}
+    $style = '';
+    if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+        $style = ' class="hover{STYLE_KIEG}"';
+    }
 
-if( $aktmenuk ) {
-    if( $style ) {
-        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+    if( $aktmenuk ) {
+        if( $style ) {
+            $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+        } else {
+            $style = ' class="almenus"';
+        }
     } else {
-        $style = ' class="almenus"';
+        if( $style ) {
+            $style = str_replace('{STYLE_KIEG}', '', $style);
+        }
     }
-} else {
-    if( $style ) {
-        $style = str_replace('{STYLE_KIEG}', '', $style);
-    }
+
+    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
-
-$menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
-
 
 
 
@@ -774,14 +781,16 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         exit;
     }
     
+    /* Új ikonra kattintva mi történik */
     $keresodn = '';
-
     if( isset($_GET['szakterulet']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);';
-    } elseif( isset($_GET['szallodak']) ) {
-        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);';
     } elseif( basename(self()) == 'bejelentes.php' && isset($_GET['megjegyzes']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+    } elseif( basename(self()) == 'beosztas.php' && isset($_GET['naptar']) ) {
+        $uj_link = self().get_get(array('uj', 'epo', 'order', 'oldal', 'rend', 'kat')).'&amp;uj_naptar';
+    } elseif( isset($_GET['szallodak']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);';
     } elseif( basename(self()) == 'utemezett_feladatok.php' && isset($_GET['megjegyzes']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } elseif( basename(self()) == 'munkalap.php' && isset($_GET['megjegyzes']) ) {
@@ -856,7 +865,7 @@ if( $_SESSION['nincs_jelsz'] ) {
 }
 
 
-/* Törlés új új gombok ne is látsszon, ha nincs hozzá joga */
+/* Törlés és új gombok ne is látsszon, ha nincs hozzá joga */
 $torles_icon = nl2('
         <a onclick="naviTorles();" class="torles'.$torol_dis.'" title="Törlés">
             <i class="material-icons">delete</i>
@@ -905,6 +914,21 @@ if( basename(self())=='raktar.php' && !_jog(18)){
 }
 
 if( basename(self())=='cikktorzs.php' && !_jog(20)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+if( basename(self())=='torzsadat.php' && !_jog(26)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+if( basename(self())=='szabadsagigeny.php' && !_jog(28)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+if( basename(self())=='beosztas.php' && !_jog(30)){
     $torles_icon    = '';
     $uj             = '';
 }

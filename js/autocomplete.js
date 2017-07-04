@@ -138,7 +138,9 @@
                         var name = $(this).attr('name');
 
                         if( stop ) {
-                            document.getElementById(name).focus();
+                            if($('#'+name).length){
+                                document.getElementById(name).focus();
+                            }
                             return false;
                         }
 

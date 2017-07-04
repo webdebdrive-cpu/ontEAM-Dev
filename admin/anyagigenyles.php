@@ -404,7 +404,6 @@ if($gyorskereso_text){
         if( !$csak_szerkesztheto ) {
             //Törölhet, ha van hozzá joga és a bejegzés folyamabtan van (tehát nem törölt, sem lezárt)
             if(_jog(13)){
-                
                 $nincs_folyamatban_statuszok = array(5, 20);
                 if(!in_array($sor['statusz_id'], $nincs_folyamatban_statuszok)){
                     $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Az anyagigénylés nem törölhető, mert a státusza nem NYITOTT, ÁRAZVA vagy VÁRAKOZÓ!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';

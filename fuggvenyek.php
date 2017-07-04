@@ -367,6 +367,9 @@ function i_u($type, $tabla, $tomb){
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '</pre>';
 //exit;
+//  
+        //Itt újabb if felételek jönnek a táblákra. Azért kerültek ide, mert itt már felhasználjuk a létrejött bejegyzés ID-ját (ezért nem fentebb kezeltük le)
+        
         //Bejelentések iktatószám képzése
         if( $tabla == 'bejelentes' ) {
             $sql = $adatbazis_kapcsolat -> i('bejelentes_statusz',
@@ -444,6 +447,22 @@ function i_u($type, $tabla, $tomb){
                 }
             }
         }
+        
+        /* Anyagugénylés státusz beszúrása */
+        if( $tabla == 'anyagigenyles' ) {
+            $sql = $adatbazis_kapcsolat -> i('anyagigenyles_statusz',
+                array('id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+                array($id,   5,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+            );
+            if( $sql === false ) {
+                $db_error = true;
+            }
+            $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('statusz_id'), array(5), "`recid`='$id'");
+            if( $sql === false ) {
+                $db_error = true;
+            }
+        }
+        
 
         /* Kezdeményezett művelet */
         $muvelet = 'A(z) '.$tabla.'-ba új recordot szúrt be a következő azonosítóval: '.$id.'.';
@@ -470,7 +489,9 @@ function i_u($type, $tabla, $tomb){
             $db_error = true;
         }
 
+    //Update
 	} else {
+        
         /* Csak nyitott státuszú bejelentést lehet szerkeszteni */
         if( $tabla == 'bejelentes' ) {
             $akt_statusz = $adatbazis_kapcsolat->s('stat_id', $tabla.'_statusz', 'id='.$_GET['id'], 'insert_dt desc', '1');
@@ -568,8 +589,23 @@ function i_u($type, $tabla, $tomb){
             }
         }
 
+        //Szeméyzet aktív/ianktív váltása a hozzá tartozó login-t is aktív/inaktiválja
+        if( $tabla == 'torzsadat' ) {
+            $login_nev = $adatbazis_kapcsolat->s('felh_loginnev', $tabla, "`recid`='{$_GET['id']}'");
+            $login_nev = $login_nev[0];
+            if( $login_nev === false ) {
+                $db_error = true;
+            }
+            if($login_nev){
+                $sql = $adatbazis_kapcsolat->u('login', array('aktiv'), array($_POST['aktiv']), "`nev`='{$login_nev['felh_loginnev']}'");
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+            }
+        }
 
-		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
+
+		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
 //echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
         if( $id === false ) {
             $db_error = true;
@@ -686,6 +722,14 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 if(strpos($ertek['class'], 'f_num')!==false){
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0,00\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
                 }
+                //Ha dátum mező, akkor a ____.__.__ is üresnek számít
+                if(strpos($ertek['class'], 'datepicker')!==false){
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'____.__.__\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
+                }
+                //Ha dátum mező, akkor a ____.__.__ __:__:__ is üresnek számít
+                if(strpos($ertek['class'], 'datetimepicker')!==false){
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'____.__.__ __:__:__\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
+                }
 
                 if($ertek['mail']){
                     $ret .= "str=document.getElementById('$ertek[name]').value.trim(); if(str){ filter=/^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i; if (!filter.test(str)){ document.getElementById('$ertek[name]').focus(); document.getElementById('$ertek[name]').className='alert'; alert2('Helytelen e-mail cím!', \'\', \''.$hiba_txt.'\'); scrollto('#$ertek[name]', 500); return false; } }";
@@ -759,6 +803,75 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     }
 
     //Egyedi hibaüzenetek
+    if( basename(self())=='anyagigenyles.php' ) {
+        $ret .= nl2('
+
+            if( !$(\'#nev\').val() ){
+                alert2(\'Kérjük válasszon ki egy cikknevet az értéklistából!\', \'\', \'Hiba\');
+                return false;
+            }
+
+            anyagig_id = \'#th\'+$(\'#telephely_id\').val()+\'a\'+$(\'#nev\').val();
+            min_mennyiseg = $(anyagig_id).html();
+            mee           = $(anyagig_id+\'_mee\').html();
+            gomb          = \'<input type="button" class="gomb piros" value="Igen" onclick="$(\\\'#igmen\\\').val(min_mennyiseg); $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()">\';
+            if(min_mennyiseg && min_mennyiseg>$(\'#igmen\').val()){
+                alert2(\'Igényelt mennyiség: \' + $(\'#igmen\').val() + \' \'+mee+\'<br>Minimális igényelhető mennyiség: \' +min_mennyiseg+\' \'+mee+\'<br>Ha folytatja, \' +min_mennyiseg+\' \'+mee+\' lesz igényelve.<br>Folytatja?\', gomb, \'Hiba\');
+                return false;
+            }
+
+        ');
+    }
+
+    if( basename(self())=='bejelentes.php' ) {
+        $ret .= nl2('
+            if( !bejelentes_mehet ) {
+                $.ajax({
+                    url : \'esemenyek.php\',
+                    type: \'GET\',
+                    data: esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;folyamatban_munkak=\' + new Date().getTime()),
+                    success: function(response) {
+                        response = JSON.parse(response);
+
+                        if( response.hiba ) {
+                            if( response.gomb ) {
+                                alert2(response.hiba, response.gomb);
+                            } else {
+                                alert2(response.hiba);
+                            }
+                        }
+
+                    }
+                });
+
+                return false;
+            } else {
+                alert2();
+            }
+        ');
+    }
+
+    //Személyzet -> Beosztás -> Naptár fül alatt nem a hagyományos form feldogozás törétnik majd, hanem egy beosztas_naptarba_teszt() FGV-t hívunk meg
+    if( basename(self())=='beosztas.php' && isset($_GET['naptar']) ) {
+        $ret .= nl2('
+            if( $(\'#beosztas\').val()==1 && !$(\'#szerepkor\').val() ) {
+                alert2(\'Kérjük adja meg a szerepkört!\', \'\', \'Hiba\');
+            }
+            beosztas_naptarba_teszt(\''.$_GET['id'].'\');
+            return false;
+        ');
+    }
+
+    if( basename(self())=='ktghely.php' || basename(self())=='ktgnem.php' ){
+
+        $ret .= nl2('
+            if($(\'#id\').hasClass(\'foglalt_id\')){
+                alert2($(\'#id\').val()+\' - \'+$(\'#nev\').val()+\'<br>Ez a kód már használatban van!\', \'\', \'Hiba\');
+                return false;
+            }
+        ');
+    }
+    
     if( basename(self())=='utemezett_feladatok.php' ){
 
         $param .= 'aktkezd_d=\'+$(\'#aktkezd_d\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
@@ -821,64 +934,6 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     alert2();
                 }
 
-        ');
-    }
-
-    if( basename(self())=='anyagigenyles.php' ) {
-        $ret .= nl2('
-
-            if( !$(\'#nev\').val() ){
-                alert2(\'Kérjük válasszon ki egy cikknevet az értéklistából!\', \'\', \'Hiba\');
-                return false;
-            }
-
-            anyagig_id = \'#th\'+$(\'#telephely_id\').val()+\'a\'+$(\'#nev\').val();
-            min_mennyiseg = $(anyagig_id).html();
-            mee           = $(anyagig_id+\'_mee\').html();
-            gomb          = \'<input type="button" class="gomb piros" value="Igen" onclick="$(\\\'#igmen\\\').val(min_mennyiseg); $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()">\';
-            if(min_mennyiseg && min_mennyiseg>$(\'#igmen\').val()){
-                alert2(\'Igényelt mennyiség: \' + $(\'#igmen\').val() + \' \'+mee+\'<br>Minimális igényelhető mennyiség: \' +min_mennyiseg+\' \'+mee+\'<br>Ha folytatja, \' +min_mennyiseg+\' \'+mee+\' lesz igényelve.<br>Folytatja?\', gomb, \'Hiba\');
-                return false;
-            }
-
-        ');
-    }
-
-    if( basename(self())=='bejelentes.php' ) {
-        $ret .= nl2('
-            if( !bejelentes_mehet ) {
-                $.ajax({
-                    url : \'esemenyek.php\',
-                    type: \'GET\',
-                    data: esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;folyamatban_munkak=\' + new Date().getTime()),
-                    success: function(response) {
-                        response = JSON.parse(response);
-
-                        if( response.hiba ) {
-                            if( response.gomb ) {
-                                alert2(response.hiba, response.gomb);
-                            } else {
-                                alert2(response.hiba);
-                            }
-                        }
-
-                    }
-                });
-
-                return false;
-            } else {
-                alert2();
-            }
-        ');
-    }
-
-    if( basename(self())=='ktghely.php' || basename(self())=='ktgnem.php' ){
-
-        $ret .= nl2('
-            if($(\'#id\').hasClass(\'foglalt_id\')){
-                alert2($(\'#id\').val()+\' - \'+$(\'#nev\').val()+\'<br>Ez a kód már használatban van!\', \'\', \'Hiba\');
-                return false;
-            }
         ');
     }
 
@@ -2190,13 +2245,8 @@ function beosztasLista( $bejegyzesek, $tabla, $frissit ) {
 
     if( $bejegyzesek ) {
 
-        $jClass = '';
-        if( _jog(2) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -2205,9 +2255,14 @@ function beosztasLista( $bejegyzesek, $tabla, $frissit ) {
             if( $bsz['recid'] == $_GET['id'] ) {
                 $active = ' active';
             }
+            
+            /* Telephely */
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
+            $telephely = $telephely[0]['nev'];
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['recid'].'</span>
+                            <span>'.$bsz['cim'].'</span>
+                            <span>'.$telephely.' '.$bsz['tol'].' - '.$bsz['ig'].'</span>
                         </a>';
 
             if( !$frissit ) {
@@ -3378,12 +3433,16 @@ function get_akt_tomb($megn){
 
     global $anyagigenyles_tomb;
     global $bejelentes_tomb;
+    global $beosztas_tomb;
     global $login_tomb;
+    global $torzsadat_tomb;
 
     switch($megn){
         case 'anyagigenyles': $akt_tomb = $anyagigenyles_tomb;  break;
         case 'bejelentes'   : $akt_tomb = $bejelentes_tomb;     break;
+        case 'beosztas'     : $akt_tomb = $beosztas_tomb;       break;
         case 'login'        : $akt_tomb = $login_tomb;          break;
+        case 'torzsadat'    : $akt_tomb = $torzsadat_tomb;      break;
     }
 
     return $akt_tomb;
@@ -3424,4 +3483,76 @@ function munkalap_folyamatbanra_halehet($munkalapidk){
         return false;
     }
 
+}
+
+
+function beosztas_naptar($beosztas_id){
+    
+    global $adatbazis_kapcsolat;
+    
+    $idoint = $adatbazis_kapcsolat->s('tol ig', 'beosztas', "`recid`='$beosztas_id'");
+    $idoint = $idoint[0];
+
+    $kezd = strtotime($idoint['tol']);
+    $veg  = strtotime($idoint['ig']);
+    $napok = floor(($veg - $kezd) / (60 * 60 * 24))+1;
+
+    $naptar = nl2('
+                <table>
+                <tr>
+                    <th>
+                        Dátum
+                    </th>
+                ');
+    for($i=0; $i<$napok; $i++){
+        $naptar .= '<th colspan="24">'.date('Y.m.d', $kezd+60*60*24*$i).'</th>';
+        for($ora = 0; $ora <24; $ora++){
+            $orak_fejlec .= '<th>'.$ora.':00</th>';
+        }
+    }
+    $naptar .= nl2('
+                    </tr>
+                    <tr>
+                        <th>
+                            Órák
+                        </th>
+                        '.$orak_fejlec.'
+                    </tr>
+                ');
+    
+    $sorok = $adatbazis_kapcsolat->s('felh_loginnev tol ig', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'");
+    foreach($sorok as $sor){
+        $szemelyzet = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='{$sor['felh_loginnev']}'");
+        $szemelyzet = $szemelyzet[0];
+        
+        $sor_cellak = '';
+        for($i=0; $i<$napok; $i++){
+            for($ora = 0; $ora <24; $ora++){
+                $datum = date('Y-m-d', $kezd+60*60*24*$i);
+                $ora_kiir = $ora;
+                if($ora_kiir<10){
+                    $ora_kiir = '0'.$ora;
+                }
+                $ora_kiir   = $ora_kiir.':00:00';
+                if($sor['tol']<=$datum.' '.$ora_kiir && $sor['ig']>=$datum.' '.$ora_kiir){
+                    $sor_cellak .= '<td class="foglalt">&nbsp;</td>';
+                }else{
+                    $sor_cellak .= '<td>&nbsp;</td>';
+                }
+            }
+        }
+
+        $naptar .= nl2('
+                        <tr>
+                            <th>
+                                '.$szemelyzet['nev'].'
+                            </th>
+                            '.$sor_cellak.'
+                        </tr>
+                    ');
+    }
+    
+    $naptar .= '</table>';
+    
+    return '<div class="beosztas_naptar">'.$naptar.'</div>';
 }

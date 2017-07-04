@@ -721,7 +721,8 @@ $(function() {
             type = $(this).attr('type'),
             val  = $(this).val();
 
-        if( name != 'mehet_gomb' ) {
+        if( name != 'mehet_gomb'  ) {
+            
             var taroltVal = htmlspecialchars_decode(formAdatok[name]);
 
             if( type == 'checkbox' ) {
@@ -2170,7 +2171,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
 
                     param = get_get([
                         'akt_nap',
+                        'anyagigenyles',
                         'bejelentesek',
+                        'beosztasok',
                         'cash_flow',
                         'dokumentumok',
                         'elszamolas',
@@ -2193,12 +2196,12 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         'siker',
                         'statusz',
                         'szamlak',
+                        'szabadsag',
                         'szallodak',
                         'szerkeszt',
                         'szakterulet',
                         'terkep',
                         'tortenet',
-                        'anyagigenyles',
                         'tetel'
                     ], true);
                     if( muvelet != 'uj' ) {
@@ -2281,47 +2284,49 @@ function ertekFoglalt(originVal, value, tabla, mezo) {
 }
 
 function htmlspecialchars_decode(string, quoteStyle) {
-    var optTemp = 0;
-    var i = 0;
-    var noquotes = false;
-    if(typeof quoteStyle === 'undefined') {
-        quoteStyle = 2;
-    }
-    string = string.toString().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-    var OPTS = {
-        'ENT_NOQUOTES': 0,
-        'ENT_HTML_QUOTE_SINGLE': 1,
-        'ENT_HTML_QUOTE_DOUBLE': 2,
-        'ENT_COMPAT': 2,
-        'ENT_QUOTES': 3,
-        'ENT_IGNORE': 4
-    };
-
-    if(quoteStyle === 0) {
-        noquotes = true;
-    }
-
-    if(typeof quoteStyle !== 'number') {
-        quoteStyle = [].concat(quoteStyle);
-        for (i = 0; i < quoteStyle.length; i++) {
-            if(OPTS[quoteStyle[i]] === 0) {
-                noquotes = true;
-            } else if(OPTS[quoteStyle[i]]) {
-                optTemp = optTemp | OPTS[quoteStyle[i]];
-            }
+    if(string){
+        var optTemp = 0;
+        var i = 0;
+        var noquotes = false;
+        if(typeof quoteStyle === 'undefined') {
+            quoteStyle = 2;
         }
-        quoteStyle = optTemp;
-    }
+        string = string.toString().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        var OPTS = {
+            'ENT_NOQUOTES': 0,
+            'ENT_HTML_QUOTE_SINGLE': 1,
+            'ENT_HTML_QUOTE_DOUBLE': 2,
+            'ENT_COMPAT': 2,
+            'ENT_QUOTES': 3,
+            'ENT_IGNORE': 4
+        };
 
-    if(quoteStyle & OPTS.ENT_HTML_QUOTE_SINGLE) {
-        string = string.replace(/&#0*39;/g, "'");
-    }
+        if(quoteStyle === 0) {
+            noquotes = true;
+        }
 
-    if(!noquotes) {
-        string = string.replace(/&quot;/g, '"');
-    }
+        if(typeof quoteStyle !== 'number') {
+            quoteStyle = [].concat(quoteStyle);
+            for (i = 0; i < quoteStyle.length; i++) {
+                if(OPTS[quoteStyle[i]] === 0) {
+                    noquotes = true;
+                } else if(OPTS[quoteStyle[i]]) {
+                    optTemp = optTemp | OPTS[quoteStyle[i]];
+                }
+            }
+            quoteStyle = optTemp;
+        }
 
-    string = string.replace(/&amp;/g, '&');
+        if(quoteStyle & OPTS.ENT_HTML_QUOTE_SINGLE) {
+            string = string.replace(/&#0*39;/g, "'");
+        }
+
+        if(!noquotes) {
+            string = string.replace(/&quot;/g, '"');
+        }
+
+        string = string.replace(/&amp;/g, '&');
+    }
     return string;
 }
 
@@ -2494,4 +2499,33 @@ function szuro_ertek_mezo_gen(that){
             }
         }
    });
+}
+
+/* Személyzet -> Beosztás -> Naptár fül alatt a felvesz gomb lekezelése */
+function beosztas_naptarba_teszt(beosztas_id){
+    $.ajax({
+        url: 'beosztas.php',
+        type: 'POST',
+        data: {
+            beosztas_id     : beosztas_id,
+            tol             : $('#tol').val(),
+            ig              : $('#ig').val(),
+            beosztas        : $('#beosztas').val(),
+            szerepkor       : $('#szerepkor').val(),
+            felh_loginnev   : $('#felh_loginnev').val(),
+            beosztas_naptarba_teszt : new Date().getTime()
+        },
+        success: function (response) {
+            response = JSON.parse(response);
+            if(response.siker){
+                $('.beosztas_naptar').replaceWith(response.naptar);
+                $('#mehet_gomb').removeClass('gombb_alert');
+            }
+            if(response.hiba){
+                alert2(response.hiba);
+            }
+        }
+    });
+    
+    
 }

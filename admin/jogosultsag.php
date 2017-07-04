@@ -13,8 +13,8 @@ $jogosultsagok = array(
     1  => array('nev' => 'Bejelentések kezelése',        'kat' => 0, 'sor' => 1, 'bekapcs' => '0'),
     2  => array('nev' => 'Munkalapot készíthet',         'kat' => 0, 'sor' => 2, 'i' => 'diszpécserek', 'bekapcs' => '1,0'),
 
-    3  => array('nev' => 'Munkalap megtekintése',                    'kat' => 1, 'sor' => 3, 'kikapcs' => '5'),
-    4  => array('torolve' => 'TÖRÖLVE',  'nev' => 'Munkalap kezelése',                        'kat' => 1, 'sor' => 4),
+    3  => array('nev' => 'Munkalap megtekintése',                               'kat' => 1, 'sor' => 3, 'kikapcs' => '5'),
+    4  => array('torolve' => 'TÖRÖLVE',  'nev' => 'Munkalap kezelése',          'kat' => 1, 'sor' => 4),
     5  => array('nev' => 'Csak hozzárendelt munkalapok kezelése',               'kat' => 1, 'sor' => 5, 'i' => 'telepített vagy mobil', 'bekapcs' => '3'),
     21 => array('nev' => 'Munkalapok kezelése mint műszaki vezető',             'kat' => 1, 'sor' => 6),
     22 => array('nev' => 'Munkalapok kezelése mint területi felelős',           'kat' => 1, 'sor' => 7),

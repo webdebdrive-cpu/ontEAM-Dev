@@ -1,5 +1,17 @@
 <?php
 require_once('../weblap.php');
+
+if( !_jog(25) ) {
+    if(!$_SESSION[get_db_tabla().'user']){
+        $weblap -> leallit();
+        header('Location: index.php');
+        exit;
+    }
+    header('Content-Type: text/html; charset=utf-8');
+    $weblap -> leallit();
+    exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
+}
+
 //Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
@@ -151,10 +163,12 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['beosztasok']) || isset($_GET['szabadsag']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         /* Számla fülek */ 
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
+            'beosztasok'    => 'Beosztások',
+            'szabadsag'     => 'Szabadság',
             'tortenet'      => 'Történet',
             'dokumentumok'  => 'Dokumentumok',
             'megjegyzesek'  => 'Megjegyzések',
@@ -178,7 +192,7 @@ if($gyorskereso_text){
     }
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && !$csak_szerkesztheto){
+	if(isset($_GET['uj'])  && _jog(26) && !$csak_szerkesztheto){
 
         //NAVIGÁCIÓ
         $gombok = '';
@@ -349,11 +363,13 @@ if($gyorskereso_text){
 
         $jobb_oldal = '';
 
-        $gombok = nl2('
-            <div class="form_kuldes">
-                <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
-            </div>
-        ').$gombok;
+        if(_jog(26)){
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                </div>
+            ').$gombok;
+        }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
@@ -380,6 +396,34 @@ if($gyorskereso_text){
         if($tobb_kep){
 			require_once('tobb_kep.php');
 		}
+
+	//Beosztások
+	}elseif(isset($_GET['beosztasok'])){
+
+        $szamla_html .= 'Beosztások felülete';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
+        
+	//Szabadságok
+	}elseif(isset($_GET['szabadsag'])){
+        
+        $szamla_html .= 'Szabadság felülete';
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
 
 	//Történet
 	}elseif(isset($_GET['tortenet'])){
