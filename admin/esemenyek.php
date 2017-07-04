@@ -836,17 +836,17 @@ $bejelentes_dok_tomb = $akt_tomb = array(
 /* Munkalap */
 $megnevezes = 'munkalap';
 $munkalap_tomb = $akt_tomb = array(
-    array('type' => 'text',                     'megn' => 'Iktató szám:',               'name' => 'ikt_szam',           'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi'),
-    array('type' => 'textarea',                 'megn' => 'Leírása:',                   'name' => 'text',               'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
-    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id',       'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
-    array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">reorder</i></a>'),
-    array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
-    array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id'),
-    array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id'),
-    array('type' => 'text',                     'megn' => 'Kezdés/befejezési idő:',     'name' => 'elv_ido_tol',        'class' => 'ora_perc', 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
-	array('type' => 'text',                     'megn' => '',                           'name' => 'elv_ido_ig',         'class' => 'ora_perc'),
+    array('type' => 'text',                     'megn' => 'Iktató szám:',               'name' => 'ikt_szam',           'disabled' => 1,        'maxlength' => 250, 'class' => 'oriasi'),
+    array('type' => 'textarea',                 'megn' => 'Leírása:',                   'name' => 'text',               'disabled' => 0,        'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id',       'disabled' => 1,        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+    array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'disabled' => 1,        'class' => 'oriasi disableNav', 'style' => '', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => '', 'post' => ''),
+    array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'disabled' => 1,        'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
+    array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'disabled' => 1,        'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id'),
+    array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'disabled' => 1),
+    array('type' => 'text',                     'megn' => 'Kezdés/befejezési idő:',     'name' => 'elv_ido_tol',        'disabled' => 1,        'class' => 'ora_perc', 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
+	array('type' => 'text',                     'megn' => '',                           'name' => 'elv_ido_ig',         'disabled' => 1,        'class' => 'ora_perc'),
 
-    array('type' => 'checkbox',                 'megn' => 'Sürgős',                     'name' => 'surgos',             'class' => 'check'),
+    array('type' => 'checkbox',                 'megn' => 'Sürgős',                     'name' => 'surgos',             'disabled' => 1,        'class' => 'check'),
 
     //array('type' => 'statusz',         'megn' => 'Státusz:',            'oldal' => 'bejelentes'),
 );
@@ -1410,7 +1410,7 @@ if( isset($_POST['munkalaphozAdas']) ) {
 
         /* Ellenőrizzük a státuszokat is */
         foreach($idk as $id) {
-            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'bejelentes_statusz', 'id='.$id, 'insert_dt desc', '1');
+            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'bejelentes_statusz', 'id='.$id, 'recid desc', '1');
 
             if( $sql === false ) {
                 $db_error = true;
@@ -1476,7 +1476,7 @@ if( isset($_POST['munkalaphozAdas']) ) {
         }
 
         if( !$db_error ) {
-            $munkalap_statusz = $adatbazis_kapcsolat->s('stat_id', 'munkalap_statusz', "`id` = '{$munkalapID}'", 'insert_dt desc', '1');
+            $munkalap_statusz = $adatbazis_kapcsolat->s('stat_id', 'munkalap_statusz', "`id` = '{$munkalapID}'", 'recid desc', '1');
 
             if( $munkalap_statusz ) {
                 $munkalap_statusz = $munkalap_statusz[0];
@@ -1564,7 +1564,7 @@ if( isset($_GET['munkalapSelect']) ) {
         $html = '<select id="munkalapID" name="munkalapID"><option value="">- Válassz -</option>';
 
         foreach($munkalapok as $munkalap) {
-            $munkalap_statusz = $adatbazis_kapcsolat->s('stat_id', 'munkalap_statusz', "`id` = '{$munkalap['recid']}'", 'insert_dt desc', '1');
+            $munkalap_statusz = $adatbazis_kapcsolat->s('stat_id', 'munkalap_statusz', "`id` = '{$munkalap['recid']}'", 'recid desc', '1');
 
             if( $munkalap_statusz ) {
                 $munkalap_statusz = $munkalap_statusz[0];
@@ -1662,7 +1662,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
 
         /* Ellenőrizzük a státuszokat is */
         foreach($idk as $id) {
-            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'insert_dt desc', '1');
+            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'recid desc', '1');
 
             if( $sql === false ) {
                 $db_error = true;
@@ -1771,7 +1771,7 @@ if( isset($_POST['varolistahozAdas']) ) {
 
         /* Ellenőrizzük a státuszokat is */
         foreach($idk as $id) {
-            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'insert_dt desc', '1');
+            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'recid desc', '1');
 
             if( $sql === false ) {
                 $db_error = true;
@@ -1847,6 +1847,97 @@ if( isset($_POST['varolistahozAdas']) ) {
     exit();
 }
 
+/* Munkalap átadása diszpécser központnak */
+if( isset($_POST['munkalapDiszpKozp']) ) {
+    $recid = $_POST['recid'];
+
+    if( $recid ) {
+        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(4), "`recid` = '{$recid}'");
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }
+}
+
+/* Munkalap átadása területi vezetőnek */
+if( isset($_POST['munkalapTeruletiVezeto']) ) {
+    $recid = $_POST['recid'];
+
+    if( $recid ) {
+        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(7), "`recid` = '{$recid}'");
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }
+}
+
+/* Munkalap átadása műszaki vezetőnek */
+if( isset($_POST['munkalapMuszakiVezeto']) ) {
+    $recid = $_POST['recid'];
+
+    if( $recid ) {
+        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(5), "`recid` = '{$recid}'");
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }
+}
+
+/* Munkalap átadása adminisztrátornak */
+if( isset($_POST['munkalapAdminisztrator']) ) {
+    $recid = $_POST['recid'];
+
+    if( $recid ) {
+        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(6), "`recid` = '{$recid}'");
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }
+}
+
+/* Munkalap átadása mobil csoportnak */
+if( isset($_POST['munkalapMobil']) ) {
+    $recid = $_POST['recid'];
+
+    if( $recid ) {
+        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(2), "`recid` = '{$recid}'");
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }
+}
+
+/* Munkalap átadása külső csoportnak */
+if( isset($_POST['munkalapKulso']) ) {
+    $recid = $_POST['recid'];
+
+    if( $recid ) {
+        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(3), "`recid` = '{$recid}'");
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }
+}
+
+/* Munkalap átadása telepített csoportnak */
+if( isset($_POST['munkalapTelepitett']) ) {
+    $recid = $_POST['recid'];
+
+    if( $recid ) {
+        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(1), "`recid` = '{$recid}'");
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }
+}
+
 /* Munkalap készítése */
 if( isset($_POST['munkalapKeszit']) ) {
     $idk = json_decode($_POST['idk'], true);
@@ -1907,7 +1998,7 @@ if( isset($_POST['munkalapKeszit']) ) {
 
         /* Ellenőrizzük a státuszokat is */
         foreach($idk as $id) {
-            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'bejelentes_statusz', 'id='.$id, 'insert_dt desc', '1');
+            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'bejelentes_statusz', 'id='.$id, 'recid desc', '1');
 
             if( $sql === false ) {
                 $db_error = true;

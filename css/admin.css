@@ -2053,6 +2053,11 @@ div.navGombok a.disabled .material-icons {
     width: 100%;
 }
 
+#popup div.popup_tart div.dt div.dtc.form_jobb.plr0 {
+    padding-left: 0rem;
+    padding-right: 0rem;
+}
+
 #popup div.popup_tart div.dt div.dtc input[type="text"] {
     width: 100%;
 }

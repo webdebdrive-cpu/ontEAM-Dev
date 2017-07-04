@@ -253,8 +253,8 @@ foreach($akt_tomb as $ertek){
             if($ertek['value']){
                 $ertek['megn'] = $ertek['value'];
             }
-            
-            $statusz_sor = $adatbazis_kapcsolat->s('recid stat_id erteklista_id', $ertek['oldal'].'_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc', '1');
+
+            $statusz_sor = $adatbazis_kapcsolat->s('recid stat_id erteklista_id', $ertek['oldal'].'_statusz', "`id` = '".$_GET['id']."'", 'recid desc', '1');
             $statusz = '';
             if( $statusz_sor ) {
                 $statusz_sor = $statusz_sor[0];
@@ -263,12 +263,12 @@ foreach($akt_tomb as $ertek){
                 $statusz_text = '';
 
                 if( $statusz_sor['erteklista_id'] ) {
-                    $ertek = $adatbazis_kapcsolat->s('info', 'erteklista', 'recid='.$statusz_sor['erteklista_id'], '', '1');
+                    $erteklista = $adatbazis_kapcsolat->s('info', 'erteklista', 'recid='.$statusz_sor['erteklista_id'], '', '1');
 
                     if( $ertek ) {
-                        $ertek = $ertek[0];
+                        $erteklista = $erteklista[0];
 
-                        $statusz_text = '<p>'.$ertek['info'].'</p>';
+                        $statusz_text = '<p>'.$erteklista['info'].'</p>';
                     }
                 }
 
@@ -296,7 +296,7 @@ foreach($akt_tomb as $ertek){
                     </div>
                 </div>
             ');
-            
+
         break;
 
         case 'dl':
