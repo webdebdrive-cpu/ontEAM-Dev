@@ -22,11 +22,17 @@ if (isset($_POST['f_szuro_mezo'])) {
                 $operator .= '<option value="like">Tartalmazza</option>';
                 $operator .= '<option value="ures">Üres</option>';
                 
+            //beosztása esetén
+            }elseif($ertek['type']=='select_szemelyzet'){
+                
+                $operator .= '<option value="=" selected>=</option>';
+                $operator .= '<option value="ures">Üres</option>';
+                
             //Általános esetben egy szabadszavas mező
             }else{
                 
                 //Numerikus adatok operátora
-                if( strpos($ertek['class'], 'f_num')!==false){
+                if( strpos($ertek['class'], 'f_num')!==false || strpos($ertek['class'], 'datepicker')!==false){
                     $operator .= '<option value="=" selected>=</option>';
                     $operator .= '<option value="&gt;=">&gt;=</option>';
                     $operator .= '<option value="&lt;=">&lt;=</option>';
@@ -175,12 +181,32 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                         </script>
                     ');
 
+                //Autocomplete esetén a switch.php alapján gyártunk egy inputot
+                }elseif($ertek['type']=='select_szemelyzet'){
+                    
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+                    
+                    $input = new Select($select_szemelyzet);
+                    $feltetel = $input -> getHtml();
+                    
                 //Általános esetben egy szabadszavas mező
                 }else{
 
                     //Numerikus adatok operátora
                     if( strpos($ertek['class'], 'f_num')!==false){
                         $feltetel = '<input type="text" placeholder="Érték..." class="f_num">';
+                    }elseif( strpos($ertek['class'], 'datepicker')!==false){
+                        $feltetel = nl2('
+                            <input type="text" placeholder="____.__.__" class="datepicker">
+                            <script>$(\'.datepicker\').datetimepicker({
+                                                            timepicker      : false,
+                                                            mask            : true,
+                                                            format          :\'Y.m.d\',
+                                                            validateOnBlur  : false
+                                                        });
+                            </script>
+                        ');
                     }else{
                         $feltetel = '<input type="text" placeholder="Feltétel...">';
                     }
@@ -191,7 +217,11 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
         }
 
         //Kapcsolódó szállodák felsorolása
-        if( ($_POST['tabla'] == 'login' && $_POST['mezo']=='szalloda') || ($_POST['tabla'] == 'anyagigenyles' && $_POST['mezo']=='telephely_id') ){
+        if( 
+                ($_POST['tabla'] == 'login'         && $_POST['mezo']=='szalloda'       ) ||
+                ($_POST['tabla'] == 'anyagigenyles' && $_POST['mezo']=='telephely_id'   ) ||
+                ($_POST['tabla'] == 'beosztas'      && $_POST['mezo']=='telephely_id'   ) 
+            ){
 
             $feltetel = '<select>';
             $feltetel .= '<option value="">-Válasszon szállodát-</option>';
@@ -219,10 +249,14 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
     exit;
 }
 
+//echo $megn . '<br>';
 $akt_tomb_szures = get_akt_tomb($megn);
 $sz_mezo = '';
 foreach($akt_tomb_szures as $ertek){
     if($ertek['szuro']){
+        if($ertek['megn_szurobe']){
+            $ertek['megn'] = $ertek['megn_szurobe'];
+        }
         $sz_mezo .= '<option value="'.$ertek['name'].'">'.trim($ertek['megn'], ':').'</option>';
     }
 }

@@ -1,5 +1,17 @@
 <?php
 require_once('../weblap.php');
+
+if( !_jog(29) ) {
+    if(!$_SESSION[get_db_tabla().'user']){
+        $weblap -> leallit();
+        header('Location: index.php');
+        exit;
+    }
+    header('Content-Type: text/html; charset=utf-8');
+    $weblap -> leallit();
+    exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
+}
+
 //Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
@@ -28,9 +40,114 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
-if( $_POST ) {
-    echo '<pre style="font-size: 1.4rem">', print_r($_POST), '</pre>';
-    exit();
+
+//Naptárba tevés
+if (isset($_POST['beosztas_naptarba_teszt'])) {
+    
+    //Tranzakció indul
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $felh_loginnev = $adatbazis_kapcsolat->s('felh_loginnev', 'torzsadat', "`recid`='{$_POST['felh_loginnev']}'");
+    if($felh_loginnev===false){
+        $db_error = true;
+    }
+    $felh_loginnev = $felh_loginnev[0]['felh_loginnev'];
+    
+    $_POST['tol'] = str_replace('.', '-', $_POST['tol']);
+    $_POST['ig']  = str_replace('.', '-', $_POST['ig']);
+    
+    //Előbb nézzük meg, hogy nincs-e ütközés más időponttal
+    $utkozes = $adatbazis_kapcsolat->s('id', 'beosztas_naptar', nl2("
+                                                                `beosztas_id`='{$_POST['beosztas_id']}' AND
+                                                                `felh_loginnev`='$felh_loginnev'        AND
+                                                                (
+                                                                    (`tol`<'{$_POST['ig']}' AND `ig`>'{$_POST['ig']}') OR
+                                                                    (`ig`>'{$_POST['tol']}' AND `tol`<'{$_POST['tol']}') OR
+                                                                    (`tol`>'{$_POST['tol']}' AND `ig`<'{$_POST['ig']}')
+                                                                )"));
+    
+    if($utkozes===false){
+        $db_error = true;
+    }
+    //Ha nincs ütközés, vagy felülírhatjuk, akkor beszúrjuk
+    if(!$utkozes || $_POST['felulir']){
+        $sql = $adatbazis_kapcsolat->i('beosztas_naptar',   array('beosztas_id',         'tol',        'ig',           'beosztas',         'szerepkor',        'felh_loginnev'),
+                                                            array($_POST['beosztas_id'], $_POST['tol'], $_POST['ig'], $_POST['beosztas'], $_POST['szerepkor'], $felh_loginnev)
+                                        );
+        if($sql===false){
+            $db_error = true;
+        }
+        
+        //Ha felül kell írni, akkor 3 estet le kell kezelni
+        if($_POST['felulir']){
+            
+            //Ha teljes az átfedés, akkor az eredeti bejegyzést töröljük, hisz egy új jött létre helyette
+            $sql1 = $adatbazis_kapcsolat->d('beosztas_naptar', "`beosztas_id`='{$_POST['beosztas_id']}' AND `felh_loginnev`='$felh_loginnev' AND `tol`>'{$_POST['tol']}' AND `ig`<'{$_POST['ig']}'");
+            $sql2 = $adatbazis_kapcsolat->d('beosztas_naptar', "`beosztas_id`='{$_POST['beosztas_id']}' AND `felh_loginnev`='$felh_loginnev' AND `tol`<'{$_POST['tol']}' AND `ig`>'{$_POST['ig']}'");
+            
+            //Jobbról-balról ha belőg az új beosztás, akkor arrébb toljuk a vég/kezdő időpontot
+            $sql3 = $adatbazis_kapcsolat->u('beosztas_naptar', array('tol'), array($_POST['ig']),  "`beosztas_id`='{$_POST['beosztas_id']}' AND `felh_loginnev`='$felh_loginnev' AND `tol`<'{$_POST['ig']}' AND `ig`>'{$_POST['ig']}'  ");
+            $sql4 = $adatbazis_kapcsolat->u('beosztas_naptar', array('ig'),  array($_POST['tol']), "`beosztas_id`='{$_POST['beosztas_id']}' AND `felh_loginnev`='$felh_loginnev' AND `ig`>'{$_POST['tol']}' AND `tol`<'{$_POST['tol']}'");
+            if($sql1===false || $sql2===false || $sql3===false || $sql4===false){
+                $db_error = true;
+            }
+            
+        }
+        
+    //Ha van ütközés, rákérdezünk, hogy biztosan?
+    }else{
+        
+        //a már megengedtük a felülírást, akkor nem kérdezzük meg újra
+        if(!$_POST['felulir']){
+            echo json_encode( array('hiba' => 'Az új beosztás időpontja ütközik. Felülírja?', 'gomb' => '<input type="button" class="gomb piros" value="Igen" onclick="beosztas_naptarba_teszt(\''.$_POST['beosztas_id'].'\', \'írd felül\'); alert2();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()">'));
+            mysqli_rollback($db_kapcs);
+        }
+        $weblap -> leallit();
+        exit;
+    }
+    
+    
+    if(!$db_error){
+        echo json_encode( array('siker' => 'siker', 'naptar' => beosztas_naptar($_POST['beosztas_id'])) );
+        mysqli_commit($db_kapcs);
+    }else{
+        echo json_encode( array('hiba' => 'Az adatbázisba írás során hiba történt!'));        
+        mysqli_rollback($db_kapcs);
+    }
+
+    
+    $weblap -> leallit();
+    exit;
+}
+
+//Beosztás naptár 
+if (isset($_POST['naptar_torol'])) {
+
+    //Tranzakció indul
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $beosztas_id = $adatbazis_kapcsolat->s('beosztas_id', 'beosztas_naptar', "`recid`='{$_POST['id']}'");
+    if($beosztas_id===false){
+        $db_error = true;
+    }
+    $beosztas_id = $beosztas_id[0]['beosztas_id'];
+    $sql = $adatbazis_kapcsolat->d('beosztas_naptar', "`recid`='{$_POST['id']}'");
+    if($sql===false){
+        $db_error = true;
+    }
+    
+    if(!$db_error){
+        echo json_encode( array('siker' => 'siker', 'naptar' => beosztas_naptar($beosztas_id)) );
+        mysqli_commit($db_kapcs);
+    }else{
+        echo json_encode( array('hiba' => 'Az adatbázisba írás során hiba történt!'));        
+        mysqli_rollback($db_kapcs);
+    }
+    
+    $weblap -> leallit();
+    exit;
 }
 
 //Több kép menedzseléséhez
@@ -151,34 +268,35 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
-//    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
-//        /* Számla fülek */ 
-//        $ful_tomb = array(
-//            'modosit'       => 'Adatlap',
-//            'tortenet'      => 'Történet',
-//            'dokumentumok'  => 'Dokumentumok',
-//            'megjegyzesek'  => 'Megjegyzések',
-//        );
-//
-//        $fulek = '';
-//        foreach($ful_tomb as $key => $value) {
-//            $active = 'active';
-//            if( isset($_GET[$key]) ) {
-//                $active = ' class="active"';
-//            }
-//
-//            $fulek .= '<a href="javascript: szamlaBetolt('.$_GET['id'].', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.'>'.$value.'</a>';
-//        }
-//
-//        $szamla_html .= str_replace(
-//            array('{FULEK}'),
-//            array( $fulek  ),
-//            fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
-//        );
-//    }
+    if( isset($_GET['modosit']) || isset($_GET['naptar']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+        /* Számla fülek */ 
+        $ful_tomb = array(
+            'modosit'       => 'Adatlap',
+            'naptar'        => 'Naptár',
+            'tortenet'      => 'Történet',
+            'dokumentumok'  => 'Dokumentumok',
+            'megjegyzesek'  => 'Megjegyzések',
+        );
+
+        $fulek = '';
+        foreach($ful_tomb as $key => $value) {
+            $active = 'active';
+            if( isset($_GET[$key]) ) {
+                $active = ' class="active"';
+            }
+
+            $fulek .= '<a href="javascript: szamlaBetolt('.$_GET['id'].', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.'>'.$value.'</a>';
+        }
+
+        $szamla_html .= str_replace(
+            array('{FULEK}'),
+            array( $fulek  ),
+            fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
+        );
+    }
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && _jog(30) && !$csak_szerkesztheto){
 
         //NAVIGÁCIÓ
         $gombok = '';
@@ -349,11 +467,13 @@ if($gyorskereso_text){
 
         $jobb_oldal = '';
 
-        $gombok = nl2('
-            <div class="form_kuldes">
-                <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
-            </div>
-        ').$gombok;
+        if(_jog(30)){
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                </div>
+            ').$gombok;
+        }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 6).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
@@ -361,10 +481,12 @@ if($gyorskereso_text){
                 $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 6).'px);"';
             }
         }
+        
+        $action = 'javascript:beosztas_naptar_hozzaad()';
 
 	    $szamla_html .= str_replace(
-            array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'),
-            array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style  ),
+            array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',   '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'),
+            array( $js,    $action,    $mezok,    $megnevezes,    '',       '',             '',         ''          ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
 
@@ -380,6 +502,47 @@ if($gyorskereso_text){
         if($tobb_kep){
 			require_once('tobb_kep.php');
 		}
+
+	//Naptár
+	}elseif(isset($_GET['naptar'])){
+
+		// Ez elkészíti a $mezok változót
+        $akt_tomb = $beosztas_naptar_tomb;
+        
+	    //FORM
+	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
+        
+        $sor = array();
+        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
+        
+		require('switch.php');
+
+        if(_jog(30)){
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" value="Naptárba tesz">
+                    <input type="button" class="gombb" name="mehet_gomb" id="mehet_gomb_kivesz" value="Naptárból kivesz" onclick="naptar_torol_kerdez()">
+                    <input type="hidden" name="naptar_torol_id" id="naptar_torol_id" value="">
+                </div>
+            ').$gombok;
+        }
+
+	    $szamla_html .= str_replace(
+            array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'),
+            array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style  ),
+            fajlbol_olvas('../sablon/admin/form_modosit.html', true)
+        );
+        
+        $szamla_html .= beosztas_naptar($_GET['id']);
+        
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
 
 	//Történet
 	}elseif(isset($_GET['tortenet'])){

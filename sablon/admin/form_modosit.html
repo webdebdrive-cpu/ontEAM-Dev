@@ -15,6 +15,14 @@
                         validateOnBlur      : false,
                         onChangeDateTime    : function(){ $('#mehet_gomb').addClass('gombb_alert'); }
                     });
+                    $('.datetimepicker').datetimepicker({
+                        timepicker          : true,
+                        mask                : true,
+                        format              :'Y.m.d H:i:00',
+                        validateOnBlur      : false,
+                        step                : 60,
+                        onChangeDateTime    : function(){ $('#mehet_gomb').addClass('gombb_alert'); }
+                    });
                     $('.ora_perc').datetimepicker({
                         datepicker          : false,
                         mask                : true,

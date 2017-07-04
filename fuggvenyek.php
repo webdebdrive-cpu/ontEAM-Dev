@@ -22,6 +22,11 @@
 */
 function i_u($type, $tabla, $tomb){
 	global $adatbazis_kapcsolat;
+	global $db_kapcs;
+
+    //Tranzakció indul
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
 
     $nevid   = '';
 
@@ -162,7 +167,9 @@ function i_u($type, $tabla, $tomb){
 
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
             $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.date('y'), '', '');
-
+            if( $ikt_seq === false ) {
+                $db_error = true;
+            }
             if( $ikt_seq ) {
                 $ikt_seq = $ikt_seq[0];
 
@@ -173,16 +180,48 @@ function i_u($type, $tabla, $tomb){
                 $sorszam++;
 
                 /* Letároljuk az új sorszámot */
-                $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
+                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
+                if( $sql === false ) {
+                    $db_error = true;
+                }
             } else {
                 /* Sorszám */
                 $sorszam = 1;
 
-                $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
+                $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
+                if( $sql === false ) {
+                    $db_error = true;
+                }
             }
 
             /* Iktatószám formázása */
             $ikt_szam = date('y').'/'.sprintf('%04d', $sorszam);
+
+
+            /* Új anyagigényléskor a munkalaphoz tartozó anagok státuszán állítani kell */
+            $sql = $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array(2), "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$_POST['nev']}'");
+            if( $cikk_nev === false ) {
+                $db_error = true;
+            }
+
+            //Miután a $_POST['nev']-et felvettük cikkid-nak, csak utána írjuk felül
+            $cikk_nev = $adatbazis_kapcsolat->s('nev', 'cikktorzs', "`id`='{$_POST['nev']}'");
+            if( $cikk_nev === false ) {
+                $db_error = true;
+            }
+            $cikk_nev = $cikk_nev[0];
+
+            $i = 0;
+            foreach($oszlopok as $oszl){
+                if($oszl=='nev'){
+                    $ertekek[$i] = $cikk_nev['nev'];
+                }
+                $i++;
+            }
+
+            //Cikk nevet letároljuk a cikknévbe
+            array_push($oszlopok,  'cikktorzs_id'   );
+            array_push($ertekek,   $_POST['nev']    );
 
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );
@@ -194,7 +233,9 @@ function i_u($type, $tabla, $tomb){
         } else if( $tabla == 'bejelentes' ) {
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
             $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.date('y'), '', '');
-
+            if( $ikt_seq === false ) {
+                $db_error = true;
+            }
             if( $ikt_seq ) {
                 $ikt_seq = $ikt_seq[0];
 
@@ -205,12 +246,18 @@ function i_u($type, $tabla, $tomb){
                 $sorszam++;
 
                 /* Letároljuk az új sorszámot */
-                $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
+                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
+                if( $sql === false ) {
+                    $db_error = true;
+                }
             } else {
                 /* Sorszám */
                 $sorszam = 1;
 
-                $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
+                $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
+                if( $sql === false ) {
+                    $db_error = true;
+                }
             }
 
             /* Iktatószám formázása */
@@ -241,7 +288,9 @@ function i_u($type, $tabla, $tomb){
         }elseif( $tabla == 'login' ) {
             if( $_POST['szerepkor_id'] ) {
                 $szerepkor = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
-
+                if( $szerepkor === false ) {
+                    $db_error = true;
+                }
                 if( $szerepkor ) {
                     $szerepkor = $szerepkor[0];
 
@@ -259,8 +308,12 @@ function i_u($type, $tabla, $tomb){
             //Szálloda azonosító
             $szalloda   = $adatbazis_kapcsolat->s('azon', 'telephely', "`id`='{$_POST['telephely_id']}'");
             $szalloda   = $szalloda[0]['azon'];
+
             /* Megnézzük, hogy az adott hotell nevével létezik e bejegyzés */
             $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.$szalloda, '', '');
+            if( $ikt_seq === false ) {
+                $db_error = true;
+            }
             if( $ikt_seq ) {
                 $ikt_seq = $ikt_seq[0];
 
@@ -271,12 +324,18 @@ function i_u($type, $tabla, $tomb){
                 $sorszam++;
 
                 /* Letároljuk az új sorszámot */
-                $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.$szalloda);
+                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.$szalloda);
+                if( $sql === false ) {
+                    $db_error = true;
+                }
             } else {
                 /* Sorszám */
                 $sorszam = 1;
 
-                $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, $szalloda, $tabla));
+                $id = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, $szalloda, $tabla));
+                if( $id === false ) {
+                    $db_error = true;
+                }
             }
             $id         = $szalloda.sprintf('%04d', $sorszam);
 
@@ -285,21 +344,147 @@ function i_u($type, $tabla, $tomb){
 
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
+        } else if( $tabla == 'erteklista' ) {
+            $ertek = $adatbazis_kapcsolat->s('id', 'erteklista', "`csoport` = '".$_POST['csoport']."'", '', '');
+
+            if( $ertek ) {
+                $ertek_id = count($ertek) + 1;
+            } else {
+                $ertek_id = 1;
+            }
+
+            array_push($oszlopok,  'id'       );
+            array_push($ertekek,   $ertek_id  );
         }
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
+        if( $id === false ) {
+            $db_error = true;
+        }
+
+
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '<pre style="font-size: 1.4rem">';
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '</pre>';
 //exit;
+//
+        //Itt újabb if felételek jönnek a táblákra. Azért kerültek ide, mert itt már felhasználjuk a létrejött bejegyzés ID-ját (ezért nem fentebb kezeltük le)
+
         //Bejelentések iktatószám képzése
         if( $tabla == 'bejelentes' ) {
-            $adatbazis_kapcsolat -> i('bejelentes_statusz',
+            $sql = $adatbazis_kapcsolat -> i('bejelentes_statusz',
                 array('id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
                 array($id,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
             );
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            /* Megvizsgáljuk, hogy egy/több szállodás modell */
+            $telephely = $adatbazis_kapcsolat->s('modell', 'telephely', "`id` = '".$_POST['telephely_id']."'", '', '1');
+
+            if( $telephely ) {
+                $telephely = $telephely[0];
+
+                /* Egyszállodás modell, így rögtön munkalapot generálunk belőle */
+                if( !$telephely['modell'] ) {
+                    /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
+                    $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla` = 'munkalap' AND `ev` = '".date('y')."'", '', '');
+
+                    if( $ikt_seq === false ) {
+                        $db_error = true;
+                    }
+
+                    if( $ikt_seq ) {
+                        $ikt_seq = $ikt_seq[0];
+
+                        /* Sorszám */
+                        $sorszam = $ikt_seq['sorszam'];
+
+                        /* Sorszám növelés */
+                        $sorszam++;
+
+                        /* Letároljuk az új sorszámot */
+                        $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
+
+                        if( $sql === false ) {
+                            $db_error = true;
+                        }
+                    } else {
+                        /* Sorszám */
+                        $sorszam = 1;
+
+                        $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), 'munkalap'));
+                        if( $sql === false ) {
+                            $db_error = true;
+                        }
+                    }
+
+                    /* Iktatószám formázása */
+                    $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
+
+                    /* Munkalap beszúrása */
+                    $recid = $adatbazis_kapcsolat -> i('munkalap',
+                        array('ikt_szam',   'statusz_id',  'tipus_id',  'telephely_id',        'update_dt',          'update_usr',                          'insert_dt',          'insert_usr'                              ),
+                        array($ikt_szam,     1,             1,          $_POST['telephely_id'], date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']   )
+                    );
+
+                    if( $recid === false ) {
+                        $db_error = true;
+                    }
+
+                    /* Felvesszük az első státuszt */
+                    $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
+                        array('id',     'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+                        array($recid,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+                    );
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    $statusz2 = addStatusz( 'munkalap_statusz', $recid, 2 );
+
+                    if( $statusz2 === false ) {
+                        $db_error = true;
+                    }
+
+                    $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
+                        array('munkalap_id', 'bejelentes_id',  'update_dt',          'update_usr',                          'insert_dt',          'insert_usr',                            ),
+                        array($recid,        $id,               date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']  )
+                    );
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    /* Bejelentést is folyamatbanra állítjuk */
+                    $statusz3 = addStatusz( 'bejelentes_statusz', $id, 2 );
+
+                    if( $statusz3 === false ) {
+                        $db_error = true;
+                    }
+                }
+            }
         }
+
+        /* Anyagugénylés státusz beszúrása */
+        if( $tabla == 'anyagigenyles' ) {
+            $sql = $adatbazis_kapcsolat -> i('anyagigenyles_statusz',
+                array('id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+                array($id,   5,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+            );
+            if( $sql === false ) {
+                $db_error = true;
+            }
+            $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('statusz_id'), array(5), "`recid`='$id'");
+            if( $sql === false ) {
+                $db_error = true;
+            }
+        }
+
 
         /* Kezdeményezett művelet */
         $muvelet = 'A(z) '.$tabla.'-ba új recordot szúrt be a következő azonosítóval: '.$id.'.';
@@ -316,17 +501,26 @@ function i_u($type, $tabla, $tomb){
             }
         }
 
-        $adatbazis_kapcsolat -> i(
+        $sql = $adatbazis_kapcsolat -> i(
             'log',
             array( 'felh_id',                          'nev',       'valtozas'),
             array( $_SESSION[get_db_tabla().'user_id'], $muvelet,   $valtozas )
         );
 
+        if( $sql === false ) {
+            $db_error = true;
+        }
 
+    //Update
 	} else {
+
         /* Csak nyitott státuszú bejelentést lehet szerkeszteni */
         if( $tabla == 'bejelentes' ) {
-            $akt_statusz = $adatbazis_kapcsolat->s('stat_id', $tabla.'_statusz', 'id='.$_GET['id'], 'insert_dt desc', '1');
+            $akt_statusz = $adatbazis_kapcsolat->s('stat_id', $tabla.'_statusz', 'id='.$_GET['id'], 'recid desc', '1');
+
+            if( $akt_statusz === false ) {
+                $db_error = true;
+            }
 
             if( $akt_statusz ) {
                 $akt_statusz = $akt_statusz[0];
@@ -349,7 +543,9 @@ function i_u($type, $tabla, $tomb){
 
         /* Ha volt változás, akkor logoljuk */
         $record = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
-
+        if( $record === false ) {
+            $db_error = true;
+        }
         if( $record ) {
             if( $record[0]['datetime'] ) {
                 if( $_SESSION['formMod']['oldal'] == basename(self()) ) {
@@ -384,11 +580,14 @@ function i_u($type, $tabla, $tomb){
                 }
             }
 
-            $adatbazis_kapcsolat -> i(
+            $sql = $adatbazis_kapcsolat -> i(
                 'log',
                 array( 'felh_id',                          'nev',       'valtozas'),
                 array( $_SESSION[get_db_tabla().'user_id'], $muvelet,   $valtozas )
             );
+            if( $sql === false ) {
+                $db_error = true;
+            }
         }
 
         /* Datetime-ot is frissítjük */
@@ -398,9 +597,11 @@ function i_u($type, $tabla, $tomb){
         }
 
         if( $tabla == 'login' ) {
-            if( $_POST['szerepkor_id'] && !$record['flags'] ) {
+            if( $_POST['szerepkor_id'] && !$record[0]['flags'] ) {
                 $szerepkor = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
-
+                if( $szerepkor === false ) {
+                    $db_error = true;
+                }
                 if( $szerepkor ) {
                     $szerepkor = $szerepkor[0];
 
@@ -412,12 +613,32 @@ function i_u($type, $tabla, $tomb){
             }
         }
 
+        //Szeméyzet aktív/ianktív váltása a hozzá tartozó login-t is aktív/inaktiválja
+        if( $tabla == 'torzsadat' ) {
+            $login_nev = $adatbazis_kapcsolat->s('felh_loginnev', $tabla, "`recid`='{$_GET['id']}'");
+            $login_nev = $login_nev[0];
+            if( $login_nev === false ) {
+                $db_error = true;
+            }
+            if($login_nev){
+                $sql = $adatbazis_kapcsolat->u('login', array('aktiv'), array($_POST['aktiv']), "`nev`='{$login_nev['felh_loginnev']}'");
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+            }
+        }
 
-		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, 'recid='.$_GET['id']);
+
+		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
 //echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
+        if( $id === false ) {
+            $db_error = true;
+        }
         if( $id ) {
             $sor = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
-
+            if( $sor === false ) {
+                $db_error = true;
+            }
             if( $sor ) {
                 $_SESSION['formMod'] = array(
                     'datetime' => $sor[0]['update_dt'],
@@ -427,7 +648,9 @@ function i_u($type, $tabla, $tomb){
                 foreach($tomb as $value) {
                     if( $value['type'] == 'autocomplete' ) {
                         $kulso_ertek = $adatbazis_kapcsolat->s('recid nev', $value['tabla'], 'recid='.$sor[0][$value['name']], '', '1');
-
+                        if( $kulso_ertek === false ) {
+                            $db_error = true;
+                        }
                         $sor[0][$value['name'].'_autocomp'] = '';
                         if( $kulso_ertek ) {
                             $sor[0][$value['name'].'_autocomp'] = $kulso_ertek[0]['nev'];
@@ -455,6 +678,9 @@ function i_u($type, $tabla, $tomb){
         }
         $nevid_tomb = array();
         $nevidk = $adatbazis_kapcsolat -> s('nevid', $tabla, '`nevid` LIKE \''.$nevid.'%\'');
+        if( $nevidk === false ) {
+            $db_error = true;
+        }
         foreach($nevidk as $nev_id){
             array_push($nevid_tomb, $nev_id['nevid']);
         }
@@ -463,8 +689,18 @@ function i_u($type, $tabla, $tomb){
             $nevid = fajlnev_sorszamoz($nevid);
         }
 
-		$adatbazis_kapcsolat -> u($tabla, 'nevid', $nevid, 'id='.$id);
+		$sql = $adatbazis_kapcsolat -> u($tabla, 'nevid', $nevid, 'id='.$id);
+        if( $sql === false ) {
+            $db_error = true;
+        }
 	}
+
+    //Tranzakció kommitolása, vagy rollback-ezése
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+    } else {
+        mysqli_rollback($db_kapcs);
+    }
 
 	return array('', $id);
 }
@@ -498,13 +734,25 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 //Csak akkor figyelünk lenti paramétereket, ha egyáltalán az elem létezik. Ezzel egy csomó JS hibát elekerólhetünk és debuggolós szívásokat
                 $ret .= 'if($(\'#'.$ertek['name'].'\').length){ ';
 
-                if($ertek['alert']!=''){
+                if($ertek['alert']){
                     $focus_autocomp = $ertek['name'];
                     if( $ertek['type'] == 'autocomplete' ) {
                         $focus_autocomp = $ertek['name'].'_autocomp';
                     }
 
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); '.$focus_autocomp.'.focus();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
+                }
+                //Ha numerikus a mező, akkor a 0,00 is üres értéknek számít
+                if(strpos($ertek['class'], 'f_num')!==false){
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0,00\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
+                }
+                //Ha dátum mező, akkor a ____.__.__ is üresnek számít
+                if(strpos($ertek['class'], 'datepicker')!==false){
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'____.__.__\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
+                }
+                //Ha dátum mező, akkor a ____.__.__ __:__:__ is üresnek számít
+                if(strpos($ertek['class'], 'datetimepicker')!==false){
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'____.__.__ __:__:__\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
                 }
 
                 if($ertek['mail']){
@@ -579,67 +827,22 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     }
 
     //Egyedi hibaüzenetek
-    if( basename(self())=='utemezett_feladatok.php' ){
-
-        $param .= 'aktkezd_d=\'+$(\'#aktkezd_d\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
-        $param .= 'aktvege_d=\'+$(\'#aktvege_d\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
-        $param .= 'ism_het=\'+$(\'#ism_het\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
-        $param .= 'kezdho=\'+$(\'#kezdho\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
-        $param .= 'kezdnap=\'+$(\'#kezdnap\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
-        $param .= 'vegeho=\'+$(\'#vegeho\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
-        $param .= 'vegenap=\'+$(\'#vegenap\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
-        $param .= 'h=\'+$(\'#h\') .is(\':checked\')+\'&amp;';
-        $param .= 'k=\'+$(\'#k\') .is(\':checked\')+\'&amp;';
-        $param .= 's=\'+$(\'#s\') .is(\':checked\')+\'&amp;';
-        $param .= 'cs=\'+$(\'#cs\').is(\':checked\')+\'&amp;';
-        $param .= 'p=\'+$(\'#p\') .is(\':checked\')+\'&amp;';
-        $param .= 'sz=\'+$(\'#sz\').is(\':checked\')+\'&amp;';
-        $param .= 'v=\'+$(\'#v\') .is(\':checked\')+\'&amp;';
+    if( basename(self())=='anyagigenyles.php' ) {
         $ret .= nl2('
 
-                /* gép és helyiség is üresen maradt figylemeztetés */
-                if(!$(\'#gep_id\').val() && !$(\'#obj_id\').val() && !helyiseg_gep_mehet){
-                    uf_gomb = \'<div class="c"><input type="button" class="gomb" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb" value="Nem" onclick="alert2()"></div>\';
-                    alert2(\'Nem adott meg sem helyiséget sem gépet a feladathoz.<br>Folytatja?\', uf_gomb, \'Kérdés\');
-                    return false;
-                }
+            if( !$(\'#nev\').val() ){
+                alert2(\'Kérjük válasszon ki egy cikknevet az értéklistából!\', \'\', \'Hiba\');
+                return false;
+            }
 
-                /* Riasztás 0 értékkel van beállítva, így mehet? */
-                if( (!$(\'#riaszt\').val() || $(\'#riaszt\').val()==0) && !riasztas_mehet ){
-                    uf_gomb2 = \'<div class="c"><input type="button" class="gomb" value="Igen" onclick="riasztas_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb" value="Nem" onclick="alert2()"></div>\';
-                    alert2(\'
-                        Ön a következőt választotta:
-                        <br>
-                        <br><b class="piros">Riasztás 0 nappal az esedékesség előtt.</b>
-                        <br>
-                        <br>Ha folytatja, a feladat az esedékesség napján készül munkalap!
-                        <br>
-                        <br>Folytatja?
-                    \', uf_gomb2, \'Kérdés\');
-                    return false;
-                }
-
-
-                /* Dátumra ütemezés közlése mentés előtt. */
-                if( !utemezes_mehet ){
-
-                    $.ajax({
-                        url : \'utemezett_feladatok.php\',
-                        type: \'GET\',
-                        data: esamp2es(\'id='.$_GET['id'].'&amp;datumra_utemezes=\' + new Date().getTime()),
-                        success: function(response) {
-
-                            response = JSON.parse(response);
-                            uf_gomb3 = \'<div class="c"><input type="button" class="gomb" value="Igen" onclick="utemezes_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb" value="Nem" onclick="alert2()"></div>\';
-                            alert2(response[\'uzenet\'], uf_gomb3, \'Kérdés\');
-                            $(\'#esnap_d\').val(response[\'esedekes\']);
-                            return false;
-
-                        }
-                    });
-                }else{
-                    alert2();
-                }
+            anyagig_id = \'#th\'+$(\'#telephely_id\').val()+\'a\'+$(\'#nev\').val();
+            min_mennyiseg = $(anyagig_id).html();
+            mee           = $(anyagig_id+\'_mee\').html();
+            gomb          = \'<input type="button" class="gomb piros" value="Igen" onclick="$(\\\'#igmen\\\').val(min_mennyiseg); $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()">\';
+            if(min_mennyiseg && min_mennyiseg>$(\'#igmen\').val()){
+                alert2(\'Igényelt mennyiség: \' + $(\'#igmen\').val() + \' \'+mee+\'<br>Minimális igényelhető mennyiség: \' +min_mennyiseg+\' \'+mee+\'<br>Ha folytatja, \' +min_mennyiseg+\' \'+mee+\' lesz igényelve.<br>Folytatja?\', gomb, \'Hiba\');
+                return false;
+            }
 
         ');
     }
@@ -666,9 +869,19 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 });
 
                 return false;
-            } else {
-                alert2();
             }
+        ');
+    }
+
+    //Személyzet -> Beosztás -> Naptár fül alatt nem a hagyományos form feldogozás törétnik majd, hanem egy beosztas_naptarba_teszt() FGV-t hívunk meg
+    if( basename(self())=='beosztas.php' && isset($_GET['naptar']) ) {
+        $ret .= nl2('
+            if( $(\'#beosztas\').val()==1 && !$(\'#szerepkor\').val() ) {
+                alert2(\'Kérjük adja meg a szerepkört!\', \'\', \'Hiba\');
+                return false;
+            }
+            beosztas_naptarba_teszt(\''.$_GET['id'].'\');
+            return false;
         ');
     }
 
@@ -679,6 +892,71 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 alert2($(\'#id\').val()+\' - \'+$(\'#nev\').val()+\'<br>Ez a kód már használatban van!\', \'\', \'Hiba\');
                 return false;
             }
+        ');
+    }
+
+    if( basename(self())=='utemezett_feladatok.php' ){
+
+        $param .= 'aktkezd_d=\'+$(\'#aktkezd_d\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'aktvege_d=\'+$(\'#aktvege_d\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'ism_het=\'+$(\'#ism_het\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'kezdho=\'+$(\'#kezdho\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'kezdnap=\'+$(\'#kezdnap\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'vegeho=\'+$(\'#vegeho\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'vegenap=\'+$(\'#vegenap\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'h=\'+$(\'#h\') .is(\':checked\')+\'&amp;';
+        $param .= 'k=\'+$(\'#k\') .is(\':checked\')+\'&amp;';
+        $param .= 's=\'+$(\'#s\') .is(\':checked\')+\'&amp;';
+        $param .= 'cs=\'+$(\'#cs\').is(\':checked\')+\'&amp;';
+        $param .= 'p=\'+$(\'#p\') .is(\':checked\')+\'&amp;';
+        $param .= 'sz=\'+$(\'#sz\').is(\':checked\')+\'&amp;';
+        $param .= 'v=\'+$(\'#v\') .is(\':checked\')+\'&amp;';
+        $ret .= nl2('
+
+                /* gép és helyiség is üresen maradt figylemeztetés */
+                if(!$(\'#gep_id\').val() && !$(\'#obj_id\').val() && !helyiseg_gep_mehet){
+                    uf_gomb = \'<div class="c"><input type="button" class="gomb piros" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()"></div>\';
+                    alert2(\'Nem adott meg sem helyiséget sem gépet a feladathoz.<br>Folytatja?\', uf_gomb, \'Kérdés\');
+                    return false;
+                }
+
+                /* Riasztás 0 értékkel van beállítva, így mehet? */
+                if( (!$(\'#riaszt\').val() || $(\'#riaszt\').val()==0) && !riasztas_mehet ){
+                    uf_gomb2 = \'<div class="c"><input type="button" class="gomb piros" value="Igen" onclick="riasztas_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()"></div>\';
+                    alert2(\'
+                        Ön a következőt választotta:
+                        <br>
+                        <br><b class="piros">Riasztás 0 nappal az esedékesség előtt.</b>
+                        <br>
+                        <br>Ha folytatja, a feladat az esedékesség napján készül munkalap!
+                        <br>
+                        <br>Folytatja?
+                    \', uf_gomb2, \'Kérdés\');
+                    return false;
+                }
+
+
+                /* Dátumra ütemezés közlése mentés előtt. */
+                if( !utemezes_mehet ){
+
+                    $.ajax({
+                        url : \'utemezett_feladatok.php\',
+                        type: \'GET\',
+                        data: esamp2es(\'id='.$_GET['id'].'&amp;datumra_utemezes=\' + new Date().getTime()),
+                        success: function(response) {
+
+                            response = JSON.parse(response);
+                            uf_gomb3 = \'<div class="c"><input type="button" class="gomb piros" value="Igen" onclick="utemezes_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()"></div>\';
+                            alert2(response[\'uzenet\'], uf_gomb3, \'Kérdés\');
+                            $(\'#esnap_d\').val(response[\'esedekes\']);
+                            return false;
+
+                        }
+                    });
+                }else{
+                    alert2();
+                }
+
         ');
     }
 
@@ -700,6 +978,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         }
 
                         return false;
+                    } else {
+                        alert2();
                     }
 
                     szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
@@ -971,8 +1251,9 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 	}
 }
 
+/* Központi SQL előállítása a bal oldali navpanel elemeinek kiszámításához (where feltétel, rendezés) */
 function szamla_lista( $where, $tabla ) {
-    
+
     global $adatbazis_kapcsolat;
     global $db_kapcs;
     global $_OPTS;
@@ -998,7 +1279,7 @@ function szamla_lista( $where, $tabla ) {
         }
     }
     $order .= ' '.$irany;
-    
+
     //Ha nem egy konrét recid-t keresünk, akkor állítsuk elő a where feltételt
     if(!$where){
 
@@ -1014,8 +1295,7 @@ function szamla_lista( $where, $tabla ) {
 
         //Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
         //Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
-        $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
-        $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
+        $szallodak = get_akt_login_szallodai();
         if($tabla == 'bejelentes'){
             $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
@@ -1045,9 +1325,14 @@ function szamla_lista( $where, $tabla ) {
 
         }
 
+        //ha van $_GET['idk'] változónk, akkor azokra az ID-kra még pluszban szűrünk
+        if ($_GET['recidk']) {
+            $where .= '`recid` IN ('.$_GET['recidk'].') AND ';
+        }
+
         //Where feltétel lezárása
         $where = trim($where, ' AND ');
-    
+
     //Ha van megadva where feltétel, akkor az a recid=x, tehát frissítünk
     }else{
         $frissit = true;
@@ -1090,7 +1375,7 @@ function szamla_lista( $where, $tabla ) {
     $lapozo -> lapozas();
 
     $lapozas = $lapozo -> kiir();
-    
+
     $limit = $lapozo ->getLimit();
 //echo 'sel:'.$select . ' ir:'.$irany.' or:'.$order.' lim:'.$limit.' where:'.$where.'<br>';
 
@@ -1192,12 +1477,13 @@ function szamla_lista( $where, $tabla ) {
         $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
         $sql = $adatbazis_kapcsolat->gp();
     }
+
     //Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
     $_SESSION['akt_sql'] = $sql;
-if (isset($_GET['debug'])) {
+
+if(isset($_GET['debug'])) {
     echo $_SESSION['akt_sql'] . '<br>';
 }
-
 
     if( $bejegyzesek ) {
         switch($tabla) {
@@ -1461,7 +1747,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
 
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['recid'].'</span>
+                            <span>'.$bsz['ikt_szam'].'</span>
                          </a>';
 
             $csoport_class = '';
@@ -1986,13 +2272,8 @@ function beosztasLista( $bejegyzesek, $tabla, $frissit ) {
 
     if( $bejegyzesek ) {
 
-        $jClass = '';
-        if( _jog(2) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -2002,8 +2283,13 @@ function beosztasLista( $bejegyzesek, $tabla, $frissit ) {
                 $active = ' active';
             }
 
+            /* Telephely */
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
+            $telephely = $telephely[0]['nev'];
+
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['recid'].'</span>
+                            <span>'.$bsz['cim'].'</span>
+                            <span>'.$telephely.' '.$bsz['tol'].' - '.$bsz['ig'].'</span>
                         </a>';
 
             if( !$frissit ) {
@@ -3072,7 +3358,6 @@ function getStatuszIdo( $time ) {
 /* Státusz hozzáadása */
 function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_id = 0 ) {
     global $adatbazis_kapcsolat;
-    global $db_kapcs;
 
     $db_error = false;
 
@@ -3147,10 +3432,17 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_
                 array('id',  'stat_id', 'erteklista_id',  'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
                 array($id,   $stat_id,  $erteklista_id,    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
             );
-
             if( $sql === false ) {
                 $db_error = true;
             }
+
+            /* Az alap tábla státusz oszlopát is karban tartjuk */
+            $alap_tabla = str_replace('_statusz', '', $tabla);
+            $sql = $adatbazis_kapcsolat->u($alap_tabla, array('statusz_id'), array($stat_id), "`recid`='$id'");
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
 
             if( !$db_error ) {
                 return true;
@@ -3168,13 +3460,147 @@ function get_akt_tomb($megn){
 
     global $anyagigenyles_tomb;
     global $bejelentes_tomb;
+    global $beosztas_tomb;
     global $login_tomb;
+    global $torzsadat_tomb;
 
     switch($megn){
         case 'anyagigenyles': $akt_tomb = $anyagigenyles_tomb;  break;
         case 'bejelentes'   : $akt_tomb = $bejelentes_tomb;     break;
+        case 'beosztas'     : $akt_tomb = $beosztas_tomb;       break;
         case 'login'        : $akt_tomb = $login_tomb;          break;
+        case 'torzsadat'    : $akt_tomb = $torzsadat_tomb;      break;
     }
 
     return $akt_tomb;
+}
+
+/* Az aktuálisan bejelentkezett felhasználóhoz rendelt szállodák ID_ját adja vissza. Ez többször előfroduló igén, azért van kiszervezve függvénybe. */
+function get_akt_login_szallodai(){
+    global $adatbazis_kapcsolat;
+
+    $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
+    return adatbazis2tomb($szallodak, 'telephely_id');
+}
+
+//A kapott munkalapID-k alapján bejárjuk a munkalapokat. Ha adott munkalapon minden anyag státusza 0 (beérkezett), akkor maga a munkalap státusza folyamatbanra állítható
+function munkalap_folyamatbanra_halehet($munkalapidk){
+
+    global $adatbazis_kapcsolat;
+
+    $db_error = false;
+
+    foreach($munkalapidk as $mukalap_id){
+        //Ha nincs olyan anyag, aminek a státusza ne 0 volna, akkor a munkalap státuszát folyamatbanra váltjuk
+        $sql = $adatbazis_kapcsolat->s('recid', 'munkalap_anyag', "`munkalap_id`='$mukalap_id' AND `stat_id`!='0'");
+        if( $sql === false ) {
+            $db_error = true;
+            return false;
+        }
+        if(!$sql){
+            if(!addStatusz( 'munkalap_statusz', $mukalap_id, 2 )){
+                $db_error = true;
+            }
+        }
+    }
+
+    if( !$db_error ) {
+        return true;
+    } else {
+        return false;
+    }
+
+}
+
+
+function beosztas_naptar($beosztas_id){
+
+    global $adatbazis_kapcsolat;
+
+    $idoint = $adatbazis_kapcsolat->s('tol ig', 'beosztas', "`recid`='$beosztas_id'");
+    $idoint = $idoint[0];
+
+    $kezd = strtotime($idoint['tol']);
+    $veg  = strtotime($idoint['ig']);
+    $napok = floor(($veg - $kezd) / (60 * 60 * 24))+1;
+
+    $naptar = nl2('
+                <table>
+                <tr>
+                    <th>
+                        Dátum
+                    </th>
+                ');
+    for($i=0; $i<$napok; $i++){
+        $naptar .= '<th colspan="24">'.date('Y.m.d', $kezd+60*60*24*$i).'</th>';
+        for($ora = 0; $ora <24; $ora++){
+            $orak_fejlec .= '<th>'.$ora.':00</th>';
+        }
+    }
+    $naptar .= nl2('
+                    </tr>
+                    <tr>
+                        <th>
+                            Órák
+                        </th>
+                        '.$orak_fejlec.'
+                    </tr>
+                ');
+
+    $sorok = $adatbazis_kapcsolat->s('felh_loginnev tol ig', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'");
+    foreach($sorok as $sor){
+        $szemelyzet = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='{$sor['felh_loginnev']}'");
+        $szemelyzet = $szemelyzet[0];
+
+        $sor_cellak = '';
+        for($i=0; $i<$napok; $i++){
+            for($ora = 0; $ora <24; $ora++){
+                $datum = date('Y-m-d', $kezd+60*60*24*$i);
+                $ora_kiir = $ora;
+                if($ora_kiir<10){
+                    $ora_kiir = '0'.$ora;
+                }
+                $ora_kiir   = $ora_kiir.':00:00';
+                
+                $foglalt = false;
+                $recid   = 0;
+                foreach($idopontok as $idopont){
+                    if($idopont['tol']<=$datum.' '.$ora_kiir && $idopont['ig']>$datum.' '.$ora_kiir){
+                        $foglalt = true;
+                        $recid   = $idopont['recid'];
+                        array_push($recidk, $recid); 
+                        break;
+                    }
+                }
+                
+                if($foglalt){
+                    $sor_cellak .= '<td class="foglalt beosztas_'.$recid.'" onclick="naptar_torol_beallit(\''.$recid.'\')">&nbsp;</td>';
+                }else{
+                    $sor_cellak .= '<td>&nbsp;</td>';
+                }
+            }
+        }
+
+        $naptar .= nl2('
+                        <tr>
+                            <th>
+                                '.$szemelyzet['nev'].'
+                            </th>
+                            '.$sor_cellak.'
+                        </tr>
+                    ');
+        
+    }
+
+    $naptar .= '</table>';
+    
+    //Az összegyűjtött recid-kből tudunk csunálni egy CSS-t, amivel a határvonalakat me gtudjuk rajzolni
+    $css = '';
+    $recidk = array_unique($recidk);
+    foreach($recidk as $id){
+        $css .= '.beosztas_naptar table td.beosztas_'.$id.' ~ .beosztas_'.$id.'{ border-left: 0.1rem solid rgba(0,0,0,0); } ';
+    }
+    $naptar = '<style type="text/css">'.$css.'</style>'.$naptar;
+    
+    return '<div class="beosztas_naptar">'.$naptar.'</div>';
 }

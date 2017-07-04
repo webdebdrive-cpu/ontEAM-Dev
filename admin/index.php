@@ -16,9 +16,10 @@ if(isset($_GET['info'])){
 }
 
 
+require_once('../weblap.php');
+
 //Ha egy tálbának utólag adsz egy loginnev nevű oszlopnevet
 if (isset($_GET['loginnev_gyart'])) {
-    require_once('../weblap.php');
     
     $tabla = 'ktgnem';
     
@@ -36,7 +37,6 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 
 //Anyagigénylés speciálisabb volt
 if (isset($_GET['loginnev_gyart_anyagigenyles'])) {
-    require_once('../weblap.php');
     
     $tabla = 'anyagigenyles';
     
@@ -51,7 +51,23 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
     
     exit;
 }
-require_once('header.php');
 
+
+//Státusz feltöltés, ha csak az adott bejegyzés státusza volna kitöltve és tröténet tábla még nem
+if (isset($_GET['statusz_fetlolt'])) {
+    $tabla = 'anyagigenyles';
+    $anyagok = $adatbazis_kapcsolat->s('recid statid', $tabla);
+    foreach($anyagok as $anyag){
+        $adatbazis_kapcsolat->i($tabla.'_statusz',  array('stat_id',        'id'            ),
+                                                    array($anyag['statid'], $anyag['recid'] )
+                                );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    
+    exit;
+}
+
+
+require_once('header.php');
 require_once('footer.php');
 ?>

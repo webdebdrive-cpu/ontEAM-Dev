@@ -89,7 +89,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         $return = '<ul>';
 
         $select_kieg = '';
-        if( $_GET['tabla'] == 'erteklista' ) {
+        if( $_GET['tabla'] == 'erteklista' || $_GET['tabla'] == 'cikktorzs' ) {
             $select_kieg = ' `id`,';
         } else if( $_GET['tabla'] == 'obj' ) {
             $select_kieg = ' `telephely_id`,';

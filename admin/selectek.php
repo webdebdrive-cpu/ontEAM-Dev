@@ -121,7 +121,7 @@ array_push($select_honapok, array('name' => 'okotóber',     'value' => '10'));
 array_push($select_honapok, array('name' => 'november',     'value' => '11'));
 array_push($select_honapok, array('name' => 'december',     'value' => '12'));
 
-//Select tömb Ütemezés típushoz
+//Ütemezés típushoz
 $select_szemelyzet = array();
 array_push($select_szemelyzet, array('name' => '- Válasszon -', 'value' => '' ));
 array_push($select_szemelyzet, array('name' => 'Telepített személyzet',     'value' => '1' ));
@@ -131,6 +131,12 @@ array_push($select_szemelyzet, array('name' => 'Diszpécser közp. vezető',   '
 array_push($select_szemelyzet, array('name' => 'Műszaki vezető',            'value' => '5' ));
 array_push($select_szemelyzet, array('name' => 'Műszaki vezető helyettes',  'value' => '6' ));
 array_push($select_szemelyzet, array('name' => 'Területi felelős',          'value' => '7' ));
+
+//Beosztás tipus
+$select_beosztas = array();
+array_push($select_beosztas, array('name' => '- Válasszon -', 'value' => '' ));
+array_push($select_beosztas, array('name' => 'Munkavégzés',     'value' => '1' ));
+array_push($select_beosztas, array('name' => 'Szabadság',       'value' => '2' ));
 
 
 /* Értéklista csoport */

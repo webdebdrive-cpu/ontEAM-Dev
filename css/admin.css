@@ -1618,6 +1618,14 @@ div.szamlaKereses input[type="button"] {
 div.szamlaKereses input[type="button"]:hover {
     background: #6F98C7;
 }
+div.szamlaKereses input[type="button"].piros{
+    background: #C44B4B;
+    transition: all ease-in-out 0.2s;
+}
+div.szamlaKereses input[type="button"].piros:hover, div.szamlaKereses input[type="button"].piros:focus, div.szamlaKereses input[type="button"].piros:active{
+    background: #D35454;
+    transition: all ease-in-out 0.2s;
+}
 
 div.szamlaKereses select {
     appearance: none;
@@ -2026,6 +2034,12 @@ div.navGombok a.disabled .material-icons {
     padding: 0rem 0rem 0.5rem 0rem;
 }
 
+#popup div.popup_tart p {
+    font-size: 1.4rem;
+    font-weight: 700;
+    padding: 0.5rem 0rem 0.5rem 0rem;
+}
+
 #popup div.popup_tart div.dt {
     width: 100%;
 }
@@ -2037,6 +2051,11 @@ div.navGombok a.disabled .material-icons {
 
 #popup div.popup_tart div.dt div.dtc.form_jobb {
     width: 100%;
+}
+
+#popup div.popup_tart div.dt div.dtc.form_jobb.plr0 {
+    padding-left: 0rem;
+    padding-right: 0rem;
 }
 
 #popup div.popup_tart div.dt div.dtc input[type="text"] {
@@ -2297,7 +2316,11 @@ table.csikos tr.link:hover{
 }
 
 input.datepicker{
-    width: 8.4rem;
+    width: 9.7rem;
+}
+
+input.datetimepicker{
+    width: 12rem;
 }
 
 input.ora_perc{
@@ -2346,4 +2369,53 @@ div.szamlaLapozas div.lapoz.pontok {
 
 .kijCont .kijSor.kijelolve a {
     color: #fff;
+}
+
+.beosztas_naptar{
+    overflow-x: scroll;
+    overflow-y: visible;
+    padding: 0;
+    margin: 3rem 0 0 17.4rem;
+    width: 70rem;
+}
+.beosztas_naptar table th, .beosztas_naptar table td {
+    padding: 0.2rem;
+    border-bottom: 0.1rem solid #fff;
+}
+.beosztas_naptar table tr th:first-of-type {
+    font-weight: normal;
+    font-size: 1.1rem;
+    height: 2.3rem;
+    padding: 0.4rem 0.5rem 0.2rem 0.4rem;
+}
+.beosztas_naptar table tr th:first-of-type {
+  position: absolute;
+  left: 1rem;
+  margin-top: -0.1rem;
+  top: auto;
+  text-align: left;
+  width: 18rem;
+}
+
+.beosztas_naptar table tr:first-of-type th {
+    background: #55A2FA;
+    border: 0.1rem solid #fff;
+    color: #fff;
+    font-weight: normal;
+}
+
+.beosztas_naptar table tr:nth-of-type(2) th {
+    background: #4995EB;
+    border: 0.1rem solid #fff;
+    color: #fff;
+    font-weight: normal;
+}
+
+.beosztas_naptar table td.foglalt {
+    background: #CBE3FF;
+    border-left: 0.1rem solid #fff;
+}
+
+.beosztas_naptar table td.foglalt.kijelol {
+    background: #FB4747;
 }

@@ -146,14 +146,15 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || isset($_GET['bejelentesek']) || isset($_GET['tortenet']) || isset($_GET['anyagigenyles']) || isset($_GET['elszamolas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzes']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || isset($_GET['bejelentesek']) || isset($_GET['tortenet']) || isset($_GET['anyagigenyles']) || isset($_GET['elszamolas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzes']) || isset($_GET['tetel']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            'bejelentesek'  => 'Bejelentések',
+            'tetel'         => 'Tételek',
             'tortenet'      => 'Történet',
-            'anyagigenyles' => 'Anyagigénylések',
+            'bejelentesek'  => 'Bejelentések',
             'elszamolas'    => 'Elszámolás',
+            'anyagigenyles' => 'Anyagigénylések',
             'dokumentumok'  => 'Dokumentumok',
             'megjegyzes'    => 'Megjegyzések',
         );
@@ -377,6 +378,20 @@ if($gyorskereso_text){
                             </ul>
                         </div>
                     </div>
+                    <div class="kijeloltek_muv">
+                        <input type="button" class="gomb foGomb" value="Munka átadása..." title="Munka átadása..." disabled="disabled">
+                        <div class="muv">
+                            <ul>
+                                <li><a onclick="csoportMuvelet(\'munkalap_telepitett\');">Telepített</a></li>
+                                <li><a onclick="csoportMuvelet(\'munkalap_mobil\');">Mobil</a></li>
+                                <li><a onclick="csoportMuvelet(\'munkalap_kulso\');">Külső</a></li>
+                                <li><a onclick="csoportMuvelet(\'munkalap_adminisztrator\');">Adminisztrátor</a></li>
+                                <li><a onclick="csoportMuvelet(\'munkalap_muszaki_vezeto\');">Műszaki vezető</a></li>
+                                <li><a onclick="csoportMuvelet(\'munkalap_teruleti_vezeto\');">Területi vezető</a></li>
+                                <li><a onclick="csoportMuvelet(\'munkalap_diszp_kozp\');">Diszp. közp. vezető</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             ');
         }
@@ -393,6 +408,21 @@ if($gyorskereso_text){
             array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style  ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+        if($tobb_kep){
+			require_once('tobb_kep.php');
+		}
+
+    } elseif(isset($_GET['tetel'])) {
 
         /* Tétel sorok */
         $sorok = $adatbazis_kapcsolat->s('recid atadta_dt insert_dt insert_usr', 'munkalap_tetel', "`munkalap_id` = '".$_GET['id']."'", 'insert_dt desc', '');
@@ -474,10 +504,6 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html;
         }
-
-        if($tobb_kep){
-			require_once('tobb_kep.php');
-		}
 
 	//Bejelentések
 	}elseif(isset($_GET['bejelentesek'])){

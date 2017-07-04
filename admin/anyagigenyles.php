@@ -36,13 +36,40 @@ $szel                   = get_indexkep_sz();    //Kiskép szélessége
 $ujkent_szerkesztheto   = true;                 //Szerkesztésnél elérhető egy gomb, melyre kattintva a termékadatai átkerülnek az új feltöltésbe
 
 $ckeditor_js            = '../'.get_utvonal().'wysiwyg/ckeditor.js';    //Ckeditor JS útvonala
-$formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          //Azok az oszlopneveket sorold fel, melyek numerikus értéket is tartalmazhatnak, de nem szeretnéd, ha lista nézetben ezres csoportra bontaná
+$formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');   //Azok az oszlopneveket sorold fel, melyek numerikus értéket is tartalmazhatnak, de nem szeretnéd, ha lista nézetben ezres csoportra bontaná
 
 $szamla_html = '';
 
-if( $_POST ) {
-    echo '<pre style="font-size: 1.4rem">', print_r($_POST), '</pre>';
-    exit();
+//Anyag rendelkezésre áll lekezelése
+if (isset($_POST['f_anyag_rendelkezesre_all'])) {
+    
+    //Tranzakció indul
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    //Az érintett munkalap anyagok státuszait 0-ra állítjuk
+    $sql = $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array(0), "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$_POST['cikk_id']}'");
+    if( $sql === false ) {
+        $db_error = true;
+    }
+    
+    $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_anyag', "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$_POST['cikk_id']}'");
+    $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
+
+    //Lefuttatjuk a munkalap_folyamatbanra_halehet függvényt, ezzel ha lehet, folyamatbanra állítva a munkalap státuszát
+    if(munkalap_folyamatbanra_halehet($munkalapok)===false){
+        $db_error = true;
+    }
+    
+    //Tranzakció kommitolása, vagy rollback-ezése
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+    } else {
+        mysqli_rollback($db_kapcs);
+    }
+    
+    $weblap -> leallit();
+    exit;
 }
 
 //Több kép menedzseléséhez
@@ -153,6 +180,8 @@ if($gyorskereso_text){
 	//Új termék felvitele
 	if(isset($_GET['uj']) && _jog(13) && !$csak_szerkesztheto){
 
+        $akt_tomb = $anyagigenyles_tomb_feltolt;
+        
         //NAVIGÁCIÓ
         $gombok = '';
 	    //$gombok = '<input type="button" class="gombb" onclick="location.href=\''.self().'?lista\'" value="Lista" title="Lista megtekintése">';
@@ -181,7 +210,6 @@ if($gyorskereso_text){
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
-	    $form_mit    = array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}');
 
         /* Javascipt-es ellenőrzéshez */
         $tabla = str_replace('.php', '', basename(self()));
@@ -216,8 +244,105 @@ if($gyorskereso_text){
             }
         }
 
-	    $form_mivel   = array($js, self(), $mezok, $megnevezes, $ckeditor, $gombok, $muv_style);
+	    $form_mit     = array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
+	    $form_mivel   = array($js,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
+        
+        //Igénylésre váró anyagok a munkalapokon:
+        //A beloginolt user szállodáit érintő munkalapokat szedjük össze
+        $szallodak = get_akt_login_szallodai();
+        if($szallodak){
+            
+            $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`telephely_id` IN (".implode(',', $szallodak).")");
+            $munkalapok = adatbazis2tomb($munkalapok, 'recid');
+            if($munkalapok){
+                
+
+                $anyagok_html = '';
+                //Szállodánként járjuk be, és azon belül az egyes anyagokat összegezzük
+                $munkalapok = implode(',', $munkalapok);
+                $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`=1");
+                foreach($telephelyek as $telephely){
+                    
+                    //Azon belül anyagonként járjuk be
+                    $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`=1 AND `telephely_id`='{$telephely['telephely_id']}'");
+                    foreach($anyagok as $anyag){
+                        
+                        //Igénylésre váró darabszám kiszámítása
+                        $ig_var = 0;
+                        $akt_anyagok = $adatbazis_kapcsolat->s('recid cikk_nev cikk_id szuk_men cikk_mee', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `cikk_id`='{$anyag['cikk_id']}' AND `stat_id`=1 AND `telephely_id`='{$telephely['telephely_id']}'");
+                        foreach($akt_anyagok as $akt_anyag){
+                            $recid_egyedi_azon  = $akt_anyag['recid'];
+                            $cikk_nev           = $akt_anyag['cikk_nev'];
+                            $cikk_id            = $akt_anyag['cikk_id'];
+                            $cikk_mee           = $akt_anyag['cikk_mee'];
+                            $ig_var            += $akt_anyag['szuk_men'];
+                        }
+
+                        //Anyagra váró darabszám kiszámítása (ugyanaz, csak másik státuszt figyelünk)
+                        $anyag_var = 0;
+                        $akt_anyagok = $adatbazis_kapcsolat->s('szuk_men', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`=2 AND `telephely_id`='{$telephely['telephely_id']}'");
+                        foreach($akt_anyagok as $akt_anyag){
+                            $anyag_var += $akt_anyag['szuk_men'];
+                        }
+
+                        //Rendelés folyamatban kiszámítása: az összes olyan anyagigénylés, ahol adott anag cikkszámmal dolgozunk és a státusza nem "törölt" és nem "lezárt"
+                        $folyamatban = 0;
+                        $folyamatbanok = $adatbazis_kapcsolat->s('igmen', $megnevezes, "`cikktorzs_id`='$cikk_id' AND `telephely_id`='{$telephely['telephely_id']}' AND `statusz_id` NOT IN (50, 51)");
+                        foreach($folyamatbanok as $foly){
+                            $folyamatban += $foly['igmen'];
+                        }
+
+                        $szalloda = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$telephely['telephely_id']}'");
+                        $szalloda = $szalloda[0];
+
+                        $mar_igenyelve = '(nincs igénylés)';
+                        if($folyamatban){
+                            $mar_igenyelve = '<input type="button" value="Már igényelve" class="gomb">';
+                        }
+
+                        $anyagok_html .= nl2('
+                                        <tr>
+                                            <td>'.$szalloda['nev'].'</td>
+                                            <td id="cikk_id_'.$recid_egyedi_azon.'">'.$cikk_id.'</td>
+                                            <td id="cikk_nev_'.$recid_egyedi_azon.'">'.$cikk_nev.'</td>
+                                            <td class="r piros" id="th'.$telephely['telephely_id'].'a'.$cikk_id.'">'.number_format($ig_var, 2, ',', ' ').'</td>
+                                            <td class="r">'.number_format($anyag_var, 2, ',', ' ').'</td>
+                                            <td class="r zold">'.number_format($folyamatban, 2, ',', ' ').'</td>
+                                            <td id="th'.$telephely['telephely_id'].'a'.$cikk_id.'_mee">'.$cikk_mee.'</td>
+                                            <td><input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$munkalapok.'\')"></td>
+                                            <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'"></td>
+                                            <td>'.$mar_igenyelve.'</td>
+                                            <td><input type="button" value="Anyag rendelkezésre áll" class="gomb f_anyag_rendelkezesre_all" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$cikk_id.'"></td>
+                                        </tr>
+                                        ');
+                    }
+                }
+                
+                if($anyagok_html){
+                    $szamla_html .= nl2('
+                                        <p style="margin-top: 2rem" class="b">Igénylésre váró anyagok a munkalapokon:</p>
+                                        <table class="csikos">
+                                        <tr>
+                                            <th>Szálloda</th>
+                                            <th>Cikk</th>
+                                            <th>Név</th>
+                                            <th>Munkalapon igénylésre vár</th>
+                                            <th>Munkalapon anyagra vár</th>
+                                            <th>Igénylés rendelés folyamatában</th>
+                                            <th>Mee</th>
+                                            <th>Anyagra váró feladatok</th>
+                                            <th>Anyagra igénylése</th>
+                                            <th>Már igényelve</th>
+                                            <th>Anyag rendelkezésre áll</th>
+                                        </tr>
+                                        '.$anyagok_html.'
+                                    ');
+                }
+
+                $szamla_html .= '</table>';
+            }
+        }
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -277,7 +402,18 @@ if($gyorskereso_text){
         //$gombok .= ' <input type="button" id="visszavonas_gomb" disabled="disabled" class="gombb" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\', true);" value="Visszavonás" title="Visszavonás">';
 
         if( !$csak_szerkesztheto ) {
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">';
+            //Törölhet, ha van hozzá joga és a bejegzés folyamabtan van (tehát nem törölt, sem lezárt)
+            if(_jog(13)){
+                $nincs_folyamatban_statuszok = array(5, 20);
+                if(!in_array($sor['statusz_id'], $nincs_folyamatban_statuszok)){
+                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Az anyagigénylés nem törölhető, mert a státusza nem NYITOTT, ÁRAZVA vagy VÁRAKOZÓ!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+                }else{
+                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">';    
+                }
+                
+            }else{
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága törléshez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            }
         }
 
         //$gombok .= ' <input type="button" id="kilepes_gomb" class="gombb_alert" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\');" value="Kilépés" title="Kilépés">';
