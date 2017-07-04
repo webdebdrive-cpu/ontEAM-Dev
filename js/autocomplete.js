@@ -26,6 +26,7 @@
             oszlop_listaz   : '',                   /* Adatbázis tábla oszlopa, amiket listázunk    */
             rkat            : 0,                    /* Rendszer kategóriára szűrünk                 */
             id_kiir         : '',
+            recid           : '',                   /* Az aktuális űrlap reid-ja. Néha szükség van rá */
             csoport         : 0
         };
 
@@ -91,6 +92,7 @@
                             rkat            : options.rkat,
                             id_kiir         : options.id_kiir,
                             csoport         : options.csoport,
+                            recid           : options.recid,
                             telephely_id    : telephely_id,
                             obj_id          : obj_id
                         },

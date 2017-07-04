@@ -12,6 +12,11 @@ if( in_array( $_FILES[$_POST['megnevezes']]['type'], $tiltott_fajlok ) ){
     exit;
 }
 
+if(kit($_FILES[$_POST['megnevezes']]['name'])=='php'){
+    echo 'nice try :)';
+    exit;
+}
+
 $tomb = array(
                 'algoritmus' => $_POST['algoritmus'],
                 'oszlop'     => $_POST['oszlop'],

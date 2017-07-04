@@ -236,11 +236,11 @@ switch($tabla) {
                             ');
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('cim');
+        $_OPTS['rendezes']  = array('telephely_id');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'cim';
+            $_GET['rend'] = 'telephely_id';
         }
     break;
     case 'utemezett_feladatok.php':
@@ -1148,7 +1148,7 @@ $megnevezes = 'beosztas';
 $beosztas_tomb = $akt_tomb = array(
 	array('type' => 'text',                     'megn' => 'Cím:',               'name' => 'cim',                                'szuro' => 1,   'class' => 'oriasi',       'maxlength' => 250),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',          'name' => 'telephely_id',   'disabled' => 1,    'szuro' => 1,       'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this ); '),
-	array('type' => 'text',                     'megn' => 'Időpont:',           'name' => 'tol',            'disabled' => 1,    'szuro' => 1,   'class' => 'kicsi datepicker', 'megn_szurobe' => 'Időpont tól', 'osszevon' => 1),
+	array('type' => 'text',                     'megn' => 'Időszak:',           'name' => 'tol',            'disabled' => 1,    'szuro' => 1,   'class' => 'kicsi datepicker', 'megn_szurobe' => 'Időpont tól', 'osszevon' => 1),
 	array('type' => 'text',                     'megn' => ' - ',                'name' => 'ig',             'disabled' => 1,    'szuro' => 1,   'class' => 'kicsi datepicker', 'megn_szurobe' => 'Időpont ig'),
 	array('type' => 'text',                     'megn' => 'Készítette:',        'name' => 'insert_usr',     'disabled' => 1,    'szuro' => 1,   'class' => 'oriasi'),
 	array('type' => 'text',                     'megn' => 'Készítés ideje:',    'name' => 'insert_dt',      'disabled' => 1,    'szuro' => 1),
@@ -2632,9 +2632,8 @@ if( isset($_GET['ertekFoglalt']) ) {
 if( isset($_GET['szamlaSorFrissit']) ) {
     $tabla = $_GET['tabla'];
     $recid = $_GET['recid'];
-
     if( $tabla && $recid ) {
-        $szamla_lista = szamla_lista("`recid` = '{$recid}'", $tabla);
+        $szamla_lista = szamla_lista("`".get_db_tabla().$tabla."`.`recid` = '{$recid}'", $tabla);
 
         echo $szamla_lista;
     }

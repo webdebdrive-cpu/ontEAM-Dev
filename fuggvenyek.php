@@ -1386,6 +1386,22 @@ function szamla_lista( $where, $tabla ) {
         //Először is az ordert felülírjuk
         $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
 
+        //Rendezés anyagigényléskor
+        if($tabla=='anyagigenyles'){
+            //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            if($_GET['rend']=='ikt_szam'){
+                $order = '`'.get_db_tabla().'anyagigenyles`.`ikt_szam` '.$_GET['irany'];
+            }
+        }
+
+        //Rendezés beosztásnál
+        if($tabla=='beosztas'){
+            //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            if($_GET['rend']=='telephely_id'){
+                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'beosztas`.`tol`';
+            }
+        }
+
         //Bejelentéseknél a rendezés külön problémakör:
         if($tabla=='bejelentes'){
 
@@ -1406,14 +1422,6 @@ function szamla_lista( $where, $tabla ) {
             //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             if($_GET['rend']=='telephely_id'){
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'bejelentes`.`ikt_szam`';
-            }
-        }
-
-        //Rendezés anyagigényléskor
-        if($tabla=='anyagigenyles'){
-            //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
-            if($_GET['rend']=='ikt_szam'){
-                $order = '`'.get_db_tabla().'anyagigenyles`.`ikt_szam` '.$_GET['irany'];
             }
         }
 
@@ -3171,6 +3179,7 @@ function getOszlopNev( $oszlop ) {
     $oszlopNevek = array(
         'aktiv'         => 'Aktív',
         'csoport'       => 'Név',
+        'cim'           => 'Cím',
         'e-szamla'      => 'E-számla',
         'esnap_d'       => 'Esedékesség',
         'erkezett'      => 'Érkezett',
@@ -3534,7 +3543,7 @@ function beosztas_naptar($beosztas_id){
     for($i=0; $i<$napok; $i++){
         $naptar .= '<th colspan="24">'.date('Y.m.d', $kezd+60*60*24*$i).'</th>';
         for($ora = 0; $ora <24; $ora++){
-            $orak_fejlec .= '<th>'.$ora.':00</th>';
+            $orak_fejlec .= '<th>'.$ora.'</th>';
         }
     }
     $naptar .= nl2('
@@ -3547,11 +3556,20 @@ function beosztas_naptar($beosztas_id){
                     </tr>
                 ');
 
-    $sorok = $adatbazis_kapcsolat->s('felh_loginnev tol ig', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'");
-    foreach($sorok as $sor){
-        $szemelyzet = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='{$sor['felh_loginnev']}'");
+    $recidk = array();
+    $szemelyzet = $adatbazis_kapcsolat->s('distinct felh_loginnev', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'");
+    $szemelyzet = adatbazis2tomb($szemelyzet, 'felh_loginnev');
+    foreach ($szemelyzet as $szemely){
+        
+        $szemelyzet = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='{$szemely}'");
         $szemelyzet = $szemelyzet[0];
 
+        $idopontok = array();
+        $sorok = $adatbazis_kapcsolat->s('recid tol ig', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}' AND `felh_loginnev`='$szemely'");
+        foreach($sorok as $sor){
+            array_push($idopontok, $sor);
+        }
+        
         $sor_cellak = '';
         for($i=0; $i<$napok; $i++){
             for($ora = 0; $ora <24; $ora++){
@@ -3574,7 +3592,7 @@ function beosztas_naptar($beosztas_id){
                 }
                 
                 if($foglalt){
-                    $sor_cellak .= '<td class="foglalt beosztas_'.$recid.'" onclick="naptar_torol_beallit(\''.$recid.'\')">&nbsp;</td>';
+                    $sor_cellak .= '<td class="foglalt beosztas_'.$recid.'" data-recid="'.$recid.'">&nbsp;</td>';
                 }else{
                     $sor_cellak .= '<td>&nbsp;</td>';
                 }

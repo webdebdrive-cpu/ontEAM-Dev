@@ -941,6 +941,14 @@ $(function() {
         });
     });
 
+    $(document).on('click', '.beosztas_naptar td', function(e) {
+        recid = $(this).attr('data-recid');
+        if(recid){
+            naptar_torol_beallit(recid);
+        }else{
+            $('.foglalt.kijelol').removeClass('kijelol');
+        }
+    });
 
     $(document).on('keyup', function(e) {
         if( e.keyCode == 27 ) {
@@ -2463,7 +2471,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     } else if( _get('szallodak') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);');
                     } else if( baseName(location.href) == 'beosztas' && _get('naptar') ) {
-                        $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?naptar&id='+_get('id'));
+                        $('#navGombok a.uj').attr('href', 'javascript: $(\'.form_rejtve\').show(); void(0);'); 
                     } else if( baseName(location.href) == 'bejelentes' && _get('megjegyzes') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'utemezett_feladatok' && _get('megjegyzes') ) {

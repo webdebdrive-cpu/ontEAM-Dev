@@ -119,6 +119,7 @@ foreach($akt_tomb as $ertek){
                             \'oszlop_listaz\'   : \''.$ertek['listaz'].'\',
                             \'rkat\'            : '.$rkat.',
                             \'csoport\'         : '.$csoport.',
+                            \'recid\'           : '.$_GET['id'].',
                             \'id_kiir\'         : \''.$id_kiir.'\'
                         });
                     });
@@ -302,7 +303,7 @@ foreach($akt_tomb as $ertek){
         case 'dl':
             $html = din_list( $ertek['tabla'], $ertek['oszlop'], $ertek['name'], $ertek['php_fajl'], $sor[ $ertek['name'] ], $sor[ $ertek['dl_kellid'] ], $ertek['default'] );
             if($ertek['alert']){
-                $html .= ' *';
+                
             }
 
             //Összevonások lekezelése és tartalom összefűzése
@@ -343,7 +344,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
             if($ertek['alert']){
-                $html .= ' *';
+                
             }
 
             //Összevonások lekezelése és tartalom összefűzése
@@ -609,9 +610,6 @@ foreach($akt_tomb as $ertek){
             //$input -> value    = $ertek['value'];
 
             $html = $input -> getHtml();
-            if($ertek['alert']){
-                //$html .= ' *';
-            }
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
@@ -730,9 +728,6 @@ foreach($akt_tomb as $ertek){
             //$input -> value    = $ertek['value'];
 
             $html = $input -> getHtml();
-            if($ertek['alert']){
-                $html .= ' *';
-            }
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
@@ -775,9 +770,6 @@ foreach($akt_tomb as $ertek){
             //$input -> value    = $ertek['value'];
 
             $html = $input -> getHtml();
-            if($ertek['alert']){
-                $html .= ' *';
-            }
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
@@ -820,9 +812,6 @@ foreach($akt_tomb as $ertek){
             //$input -> value    = $ertek['value'];
 
             $html = $input -> getHtml();
-            if($ertek['alert']){
-                $html .= ' *';
-            }
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
@@ -865,9 +854,6 @@ foreach($akt_tomb as $ertek){
             //$input -> value    = $ertek['value'];
 
             $html = $input -> getHtml();
-            if($ertek['alert']){
-                $html .= ' *';
-            }
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
@@ -910,9 +896,6 @@ foreach($akt_tomb as $ertek){
             //$input -> value    = $ertek['value'];
 
             $html = $input -> getHtml();
-            if($ertek['alert']){
-                $html .= ' *';
-            }
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
@@ -955,9 +938,6 @@ foreach($akt_tomb as $ertek){
             //$input -> value    = $ertek['value'];
 
             $html = $input -> getHtml();
-            if($ertek['alert']){
-                $html .= ' *';
-            }
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
@@ -1000,9 +980,6 @@ foreach($akt_tomb as $ertek){
             //$input -> value    = $ertek['value'];
 
             $html = $input -> getHtml();
-            if($ertek['alert']){
-                $html .= ' *';
-            }
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
@@ -1047,9 +1024,6 @@ foreach($akt_tomb as $ertek){
             //$input -> value    = $ertek['value'];
 
             $html = $input -> getHtml();
-            if($ertek['alert']){
-                $html .= ' *';
-            }
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
@@ -1094,9 +1068,6 @@ foreach($akt_tomb as $ertek){
             //$input -> value    = $ertek['value'];
 
             $html = $input -> getHtml();
-            if($ertek['alert']){
-                $html .= ' *';
-            }
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
@@ -1141,9 +1112,6 @@ foreach($akt_tomb as $ertek){
             //$input -> value    = $ertek['value'];
 
             $html = $input -> getHtml();
-            if($ertek['alert']){
-                $html .= ' *';
-            }
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
@@ -1188,9 +1156,6 @@ foreach($akt_tomb as $ertek){
             //$input -> value    = $ertek['value'];
 
             $html = $input -> getHtml();
-            if($ertek['alert']){
-                $html .= ' *';
-            }
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
@@ -1236,9 +1201,6 @@ foreach($akt_tomb as $ertek){
             //$input -> value    = $ertek['value'];
 
             $html = $input -> getHtml();
-            if($ertek['alert']){
-                $html .= ' *';
-            }
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){

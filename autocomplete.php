@@ -43,7 +43,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
 
         //Utolsó 4 karater levágása
         $where_sql =  substr($where_sql, 0, strlen($where_sql) - 4);
-        $oszlopok  =  substr($oszlopok, 0,  strlen($oszlopok)  - 2);
+        $oszlopok  =  substr($oszlopok,  0, strlen($oszlopok)  - 2);
 
         if( $where_sql ) {
             $where_sql = ' WHERE '.$where_sql;
@@ -93,6 +93,22 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             $select_kieg = ' `id`,';
         } else if( $_GET['tabla'] == 'obj' ) {
             $select_kieg = ' `telephely_id`,';
+        }
+        
+        //Ha törzsadatlistát kérünk le, akkor a találati listát egész bonyolultan számítjuk ki:
+        if($_GET['tabla']=='torzsadat'){
+            
+            //melyik szállodánál vagyunk
+            $szalloda = $adatbazis_kapcsolat->s('telephely_id', 'beosztas', "`recid`='{$_GET['recid']}'");
+            $szalloda = $szalloda[0];
+            
+            //Ehhez milyen loginok tartoznak:
+            $felhok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$szalloda['telephely_id']}'");
+            $felhok = adatbazis2tomb($felhok, 'nev');
+            
+            $where_sql = " WHERE `felh_loginnev` IN ('".implode('\', \'', $felhok)."')";
+            //$loginnevek = $adatbazis_kapcsolat->s('recid nev', 'torzsadat', "`felh_loginnev` IN ('".implode('\', \'', $felhok)."')");
+            
         }
 
 //echo 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`';
