@@ -8,6 +8,7 @@
 
 ÚJ BEJEGYZÉS FELTÖLTÉS IKONRA KATTINTVA MI TRÖTÉNJEN
 - header.php-ben erre keress rá: "Új ikonra kattintva mi történik"
+- admin.js-ben erre keress rá: "Új ikonra kattintva mi történik"
 
 ÚJ FÜL KIALAKÍTÁSAKOR
 - adott php fájl elején a $ful_tomb -öt egészítsd ki, illetve kközvetelnül előtte a $_GET-ekve is vedd fel az új paramétereket

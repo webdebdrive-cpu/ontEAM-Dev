@@ -2220,10 +2220,13 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
 
                     window.history.pushState("", "", getHost() + param );
 
+                    /* Új ikonra kattintva mi történik */
                     if( _get('szakterulet') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);');
                     } else if( _get('szallodak') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);');
+                    } else if( baseName(location.href) == 'beosztas' && _get('naptar') ) {
+                        $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?naptar&id='+_get('id'));
                     } else if( baseName(location.href) == 'bejelentes' && _get('megjegyzes') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'utemezett_feladatok' && _get('megjegyzes') ) {
@@ -2502,12 +2505,13 @@ function szuro_ertek_mezo_gen(that){
 }
 
 /* Személyzet -> Beosztás -> Naptár fül alatt a felvesz gomb lekezelése */
-function beosztas_naptarba_teszt(beosztas_id){
+function beosztas_naptarba_teszt(beosztas_id, felulir){
     $.ajax({
         url: 'beosztas.php',
         type: 'POST',
         data: {
             beosztas_id     : beosztas_id,
+            felulir         : felulir,
             tol             : $('#tol').val(),
             ig              : $('#ig').val(),
             beosztas        : $('#beosztas').val(),
@@ -2520,12 +2524,58 @@ function beosztas_naptarba_teszt(beosztas_id){
             if(response.siker){
                 $('.beosztas_naptar').replaceWith(response.naptar);
                 $('#mehet_gomb').removeClass('gombb_alert');
+                $('#tol').val('____.__.__ __:__').removeClass('mod');
+                $('#ig').val('____.__.__ __:__').removeClass('mod');
+                $('#beosztas').val('').removeClass('mod');
+                $('#szerepkor').val('').removeClass('mod');
+                $('#felh_loginnev').val('').removeClass('mod');
+                $('#felh_loginnev_autocomp').val('').removeClass('mod');
+            }
+            if(response.hiba){
+                if(response.gomb){
+                    alert2(response.hiba, response.gomb);
+                }else{
+                    alert2(response.hiba);
+                }
+            }
+        }
+    });
+    
+    
+}
+
+function naptar_torol_beallit(naptar_id){
+    console.log(naptar_id);
+    $('#naptar_torol_id').val(naptar_id);
+    $('#mehet_gomb_kivesz').addClass('gombb_alert');
+    $('.foglalt').removeClass('kijelol');
+    $('.beosztas_'+naptar_id).addClass('kijelol');
+}
+
+function naptar_torol_kerdez(){
+    gomb = '<input class="gomb piros" type="button" value="Igen" onclick="naptar_torol()"> <input class="gomb zold" type="button" value="Nem" onclick="alert2()">';
+    alert2('Biztosan törli ezt a beosztást?', gomb);
+}
+
+function naptar_torol(){
+    $.ajax({
+        url: 'beosztas.php',
+        type: 'POST',
+        data: {
+            id: $('#naptar_torol_id').val(),
+            naptar_torol: new Date().getTime()
+        },
+        success: function (response) {
+            response = JSON.parse(response);
+            if(response.siker){
+                $('.beosztas_naptar').replaceWith(response.naptar);
+                $('#mehet_gomb_kivesz').removeClass('gombb_alert');
+                $('#naptar_torol_id').val('');
+                alert2();
             }
             if(response.hiba){
                 alert2(response.hiba);
             }
         }
     });
-    
-    
 }

@@ -2370,15 +2370,18 @@ div.szamlaLapozas div.lapoz.pontok {
     overflow-x: scroll;
     overflow-y: visible;
     padding: 0;
-    margin: 3rem 0 0 9.4rem;
+    margin: 3rem 0 0 17.4rem;
     width: 70rem;
 }
 .beosztas_naptar table th, .beosztas_naptar table td {
     padding: 0.2rem;
+    border-bottom: 0.1rem solid #fff;
 }
 .beosztas_naptar table tr th:first-of-type {
     font-weight: normal;
-    padding: 0.2rem 0.5rem 0.2rem 0.2rem;
+    font-size: 1.1rem;
+    height: 2.3rem;
+    padding: 0.4rem 0.5rem 0.2rem 0.4rem;
 }
 .beosztas_naptar table tr th:first-of-type {
   position: absolute;
@@ -2386,7 +2389,7 @@ div.szamlaLapozas div.lapoz.pontok {
   margin-top: -0.1rem;
   top: auto;
   text-align: left;
-  width: 10rem;
+  width: 18rem;
 }
 
 .beosztas_naptar table tr:first-of-type th {
@@ -2405,4 +2408,9 @@ div.szamlaLapozas div.lapoz.pontok {
 
 .beosztas_naptar table td.foglalt {
     background: #CBE3FF;
+    border-left: 0.1rem solid #fff;
+}
+
+.beosztas_naptar table td.foglalt.kijelol {
+    background: #FB4747;
 }

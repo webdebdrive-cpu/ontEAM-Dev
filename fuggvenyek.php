@@ -856,6 +856,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         $ret .= nl2('
             if( $(\'#beosztas\').val()==1 && !$(\'#szerepkor\').val() ) {
                 alert2(\'Kérjük adja meg a szerepkört!\', \'\', \'Hiba\');
+                return false;
             }
             beosztas_naptarba_teszt(\''.$_GET['id'].'\');
             return false;
@@ -3520,10 +3521,19 @@ function beosztas_naptar($beosztas_id){
                     </tr>
                 ');
     
-    $sorok = $adatbazis_kapcsolat->s('felh_loginnev tol ig', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'");
-    foreach($sorok as $sor){
-        $szemelyzet = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='{$sor['felh_loginnev']}'");
+    $recidk = array();
+    $szemelyzet = $adatbazis_kapcsolat->s('distinct felh_loginnev', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'");
+    $szemelyzet = adatbazis2tomb($szemelyzet, 'felh_loginnev');
+    foreach ($szemelyzet as $szemely){
+        
+        $szemelyzet = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='{$szemely}'");
         $szemelyzet = $szemelyzet[0];
+
+        $idopontok = array();
+        $sorok = $adatbazis_kapcsolat->s('recid tol ig', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}' AND `felh_loginnev`='$szemely'");
+        foreach($sorok as $sor){
+            array_push($idopontok, $sor);
+        }
         
         $sor_cellak = '';
         for($i=0; $i<$napok; $i++){
@@ -3534,8 +3544,20 @@ function beosztas_naptar($beosztas_id){
                     $ora_kiir = '0'.$ora;
                 }
                 $ora_kiir   = $ora_kiir.':00:00';
-                if($sor['tol']<=$datum.' '.$ora_kiir && $sor['ig']>=$datum.' '.$ora_kiir){
-                    $sor_cellak .= '<td class="foglalt">&nbsp;</td>';
+                
+                $foglalt = false;
+                $recid   = 0;
+                foreach($idopontok as $idopont){
+                    if($idopont['tol']<=$datum.' '.$ora_kiir && $idopont['ig']>$datum.' '.$ora_kiir){
+                        $foglalt = true;
+                        $recid   = $idopont['recid'];
+                        array_push($recidk, $recid); 
+                        break;
+                    }
+                }
+                
+                if($foglalt){
+                    $sor_cellak .= '<td class="foglalt beosztas_'.$recid.'" onclick="naptar_torol_beallit(\''.$recid.'\')">&nbsp;</td>';
                 }else{
                     $sor_cellak .= '<td>&nbsp;</td>';
                 }
@@ -3550,9 +3572,18 @@ function beosztas_naptar($beosztas_id){
                             '.$sor_cellak.'
                         </tr>
                     ');
+        
     }
     
     $naptar .= '</table>';
+    
+    //Az összegyűjtött recid-kből tudunk csunálni egy CSS-t, amivel a határvonalakat me gtudjuk rajzolni
+    $css = '';
+    $recidk = array_unique($recidk);
+    foreach($recidk as $id){
+        $css .= '.beosztas_naptar table td.beosztas_'.$id.' ~ .beosztas_'.$id.'{ border-left: 0.1rem solid rgba(0,0,0,0); } ';
+    }
+    $naptar = '<style type="text/css">'.$css.'</style>'.$naptar;
     
     return '<div class="beosztas_naptar">'.$naptar.'</div>';
 }
