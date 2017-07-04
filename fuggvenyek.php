@@ -362,14 +362,15 @@ function i_u($type, $tabla, $tomb){
             $db_error = true;
         }
 
+
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '<pre style="font-size: 1.4rem">';
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '</pre>';
 //exit;
-//  
+//
         //Itt újabb if felételek jönnek a táblákra. Azért kerültek ide, mert itt már felhasználjuk a létrejött bejegyzés ID-ját (ezért nem fentebb kezeltük le)
-        
+
         //Bejelentések iktatószám képzése
         if( $tabla == 'bejelentes' ) {
             $sql = $adatbazis_kapcsolat -> i('bejelentes_statusz',
@@ -434,20 +435,41 @@ function i_u($type, $tabla, $tomb){
                         $db_error = true;
                     }
 
-                    $statusz  = addStatusz( 'munkalap_statusz', $id, 1 );
-                    $statusz2 = addStatusz( 'munkalap_statusz', $id, 2 );
+                    /* Felvesszük az első státuszt */
+                    $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
+                        array('id',     'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+                        array($recid,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+                    );
 
-                    if( $statusz === false ) {
+                    if( $sql === false ) {
                         $db_error = true;
                     }
 
+                    $statusz2 = addStatusz( 'munkalap_statusz', $recid, 2 );
+
                     if( $statusz2 === false ) {
+                        $db_error = true;
+                    }
+
+                    $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
+                        array('munkalap_id', 'bejelentes_id',  'update_dt',          'update_usr',                          'insert_dt',          'insert_usr',                            ),
+                        array($recid,        $id,               date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']  )
+                    );
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    /* Bejelentést is folyamatbanra állítjuk */
+                    $statusz3 = addStatusz( 'bejelentes_statusz', $id, 2 );
+
+                    if( $statusz3 === false ) {
                         $db_error = true;
                     }
                 }
             }
         }
-        
+
         /* Anyagugénylés státusz beszúrása */
         if( $tabla == 'anyagigenyles' ) {
             $sql = $adatbazis_kapcsolat -> i('anyagigenyles_statusz',
@@ -462,7 +484,7 @@ function i_u($type, $tabla, $tomb){
                 $db_error = true;
             }
         }
-        
+
 
         /* Kezdeményezett művelet */
         $muvelet = 'A(z) '.$tabla.'-ba új recordot szúrt be a következő azonosítóval: '.$id.'.';
@@ -491,13 +513,15 @@ function i_u($type, $tabla, $tomb){
 
     //Update
 	} else {
-        
+
         /* Csak nyitott státuszú bejelentést lehet szerkeszteni */
         if( $tabla == 'bejelentes' ) {
-            $akt_statusz = $adatbazis_kapcsolat->s('stat_id', $tabla.'_statusz', 'id='.$_GET['id'], 'insert_dt desc', '1');
+            $akt_statusz = $adatbazis_kapcsolat->s('stat_id', $tabla.'_statusz', 'id='.$_GET['id'], 'recid desc', '1');
+
             if( $akt_statusz === false ) {
                 $db_error = true;
             }
+
             if( $akt_statusz ) {
                 $akt_statusz = $akt_statusz[0];
 
@@ -845,8 +869,6 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 });
 
                 return false;
-            } else {
-                alert2();
             }
         ');
     }
@@ -871,7 +893,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             }
         ');
     }
-    
+
     if( basename(self())=='utemezett_feladatok.php' ){
 
         $param .= 'aktkezd_d=\'+$(\'#aktkezd_d\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
@@ -955,6 +977,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         }
 
                         return false;
+                    } else {
+                        alert2();
                     }
 
                     szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
@@ -1452,9 +1476,11 @@ function szamla_lista( $where, $tabla ) {
         $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
         $sql = $adatbazis_kapcsolat->gp();
     }
+
     //Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
     $_SESSION['akt_sql'] = $sql;
-if (isset($_GET['debug'])) {
+
+if(isset($_GET['debug'])) {
     echo $_SESSION['akt_sql'] . '<br>';
 }
 
@@ -2255,7 +2281,7 @@ function beosztasLista( $bejegyzesek, $tabla, $frissit ) {
             if( $bsz['recid'] == $_GET['id'] ) {
                 $active = ' active';
             }
-            
+
             /* Telephely */
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
             $telephely = $telephely[0]['nev'];
@@ -3487,9 +3513,9 @@ function munkalap_folyamatbanra_halehet($munkalapidk){
 
 
 function beosztas_naptar($beosztas_id){
-    
+
     global $adatbazis_kapcsolat;
-    
+
     $idoint = $adatbazis_kapcsolat->s('tol ig', 'beosztas', "`recid`='$beosztas_id'");
     $idoint = $idoint[0];
 
@@ -3519,12 +3545,12 @@ function beosztas_naptar($beosztas_id){
                         '.$orak_fejlec.'
                     </tr>
                 ');
-    
+
     $sorok = $adatbazis_kapcsolat->s('felh_loginnev tol ig', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'");
     foreach($sorok as $sor){
         $szemelyzet = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='{$sor['felh_loginnev']}'");
         $szemelyzet = $szemelyzet[0];
-        
+
         $sor_cellak = '';
         for($i=0; $i<$napok; $i++){
             for($ora = 0; $ora <24; $ora++){
@@ -3551,8 +3577,8 @@ function beosztas_naptar($beosztas_id){
                         </tr>
                     ');
     }
-    
+
     $naptar .= '</table>';
-    
+
     return '<div class="beosztas_naptar">'.$naptar.'</div>';
 }

@@ -385,10 +385,10 @@ if($gyorskereso_text){
                                 <li><a onclick="csoportMuvelet(\'munkalap_telepitett\');">Telepített</a></li>
                                 <li><a onclick="csoportMuvelet(\'munkalap_mobil\');">Mobil</a></li>
                                 <li><a onclick="csoportMuvelet(\'munkalap_kulso\');">Külső</a></li>
-                                <li><a onclick="">Adminisztrátor</a></li>
-                                <li><a onclick="">Műszaki vezető</a></li>
-                                <li><a onclick="">Területi vezető</a></li>
-                                <li><a onclick="">Diszp. közp. vezető</a></li>
+                                <li><a onclick="csoportMuvelet(\'munkalap_adminisztrator\');">Adminisztrátor</a></li>
+                                <li><a onclick="csoportMuvelet(\'munkalap_muszaki_vezeto\');">Műszaki vezető</a></li>
+                                <li><a onclick="csoportMuvelet(\'munkalap_teruleti_vezeto\');">Területi vezető</a></li>
+                                <li><a onclick="csoportMuvelet(\'munkalap_diszp_kozp\');">Diszp. közp. vezető</a></li>
                             </ul>
                         </div>
                     </div>

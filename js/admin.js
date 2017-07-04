@@ -722,7 +722,7 @@ $(function() {
             val  = $(this).val();
 
         if( name != 'mehet_gomb'  ) {
-            
+
             var taroltVal = htmlspecialchars_decode(formAdatok[name]);
 
             if( type == 'checkbox' ) {
@@ -904,7 +904,7 @@ $(function() {
     $(document).on('blur', '.f_num', function(e) {
         $(this).val( ezresek($(this).val().replace(/ /g, '').replace('.', '').replace(',', '.'), 2, ',', ' ') );
     });
-    
+
     /* Anyagigénylésnél a mennyiség mező kitöltése szálloda + anyag ismerete alapján */
     $(document).on('focus', '.f_anyagig_menny_feltolt', function(e) {
         if(!$(this).val()){
@@ -918,19 +918,19 @@ $(function() {
         cikk_id             = $('#cikk_id_' +recid_egyedi_azon).html();
         nev_autocompl       = $('#cikk_nev_'+recid_egyedi_azon).html();
         igmen               = $('#th'+telephely_id+'a'+cikk_id).html();
-        
+
         $('#telephely_id')  .val(telephely_id);
         $('#nev_autocomp')  .val(nev_autocompl);
         $('#nev')           .val(cikk_id);
         $('#igmen')         .val(igmen);
-        
-        $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert'); 
+
+        $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
     });
     $(document).on('click', '.f_anyag_rendelkezesre_all', function(e) {
-        
+
         telephely_id = $(this).attr('data-telephely_id');
         cikk_id      = $(this).attr('data-cikk_id');
-        
+
         $.ajax({
             url: 'anyagigenyles.php',
             type: 'POST',
@@ -1212,6 +1212,223 @@ function munkalaphozAdas(csak_kerdezunk) {
     } else {
         alert2('Kérem válasszon egy munkalapot!');
     }
+
+    return false;
+}
+
+function munkalapDiszpKozp() {
+    $.ajax({
+     	url : 'esemenyek.php',
+     	type: 'POST',
+     	data: {
+            recid: _get('id'),
+            munkalapDiszpKozp: new Date().getTime()
+        },
+     	success: function(response) {
+     		if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    if( response.gomb ) {
+                        alert2(response.hiba, response.gomb);
+                    } else {
+                        alert2(response.hiba);
+                    }
+
+                    return false;
+                }
+
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                popupZar();
+     		}
+     	}
+    });
+
+    return false;
+}
+
+function munkalapTeruletiVezeto() {
+    $.ajax({
+     	url : 'esemenyek.php',
+     	type: 'POST',
+     	data: {
+            recid: _get('id'),
+            munkalapTeruletiVezeto: new Date().getTime()
+        },
+     	success: function(response) {
+     		if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    if( response.gomb ) {
+                        alert2(response.hiba, response.gomb);
+                    } else {
+                        alert2(response.hiba);
+                    }
+
+                    return false;
+                }
+
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                popupZar();
+     		}
+     	}
+    });
+
+    return false;
+}
+
+function munkalapMuszakiVezeto() {
+    $.ajax({
+     	url : 'esemenyek.php',
+     	type: 'POST',
+     	data: {
+            recid: _get('id'),
+            munkalapMuszakiVezeto: new Date().getTime()
+        },
+     	success: function(response) {
+     		if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    if( response.gomb ) {
+                        alert2(response.hiba, response.gomb);
+                    } else {
+                        alert2(response.hiba);
+                    }
+
+                    return false;
+                }
+
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                popupZar();
+     		}
+     	}
+    });
+
+    return false;
+}
+
+function munkalapAdminisztrator() {
+    $.ajax({
+     	url : 'esemenyek.php',
+     	type: 'POST',
+     	data: {
+            recid: _get('id'),
+            munkalapAdminisztrator: new Date().getTime()
+        },
+     	success: function(response) {
+     		if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    if( response.gomb ) {
+                        alert2(response.hiba, response.gomb);
+                    } else {
+                        alert2(response.hiba);
+                    }
+
+                    return false;
+                }
+
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                popupZar();
+     		}
+     	}
+    });
+
+    return false;
+}
+
+function munkalapMobil() {
+    $.ajax({
+     	url : 'esemenyek.php',
+     	type: 'POST',
+     	data: {
+            recid: _get('id'),
+            munkalapMobil: new Date().getTime()
+        },
+     	success: function(response) {
+     		if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    if( response.gomb ) {
+                        alert2(response.hiba, response.gomb);
+                    } else {
+                        alert2(response.hiba);
+                    }
+
+                    return false;
+                }
+
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                popupZar();
+     		}
+     	}
+    });
+
+    return false;
+}
+
+function munkalapKulso() {
+    $.ajax({
+     	url : 'esemenyek.php',
+     	type: 'POST',
+     	data: {
+            recid: _get('id'),
+            munkalapKulso: new Date().getTime()
+        },
+     	success: function(response) {
+     		if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    if( response.gomb ) {
+                        alert2(response.hiba, response.gomb);
+                    } else {
+                        alert2(response.hiba);
+                    }
+
+                    return false;
+                }
+
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                popupZar();
+     		}
+     	}
+    });
+
+    return false;
+}
+
+function munkalapTelepitett() {
+    $.ajax({
+     	url : 'esemenyek.php',
+     	type: 'POST',
+     	data: {
+            recid: _get('id'),
+            munkalapTelepitett: new Date().getTime()
+        },
+     	success: function(response) {
+     		if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    if( response.gomb ) {
+                        alert2(response.hiba, response.gomb);
+                    } else {
+                        alert2(response.hiba);
+                    }
+
+                    return false;
+                }
+
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                popupZar();
+     		}
+     	}
+    });
 
     return false;
 }
@@ -1552,6 +1769,26 @@ function csoportMuvelet( oldal ) {
             break;
 
             case 'munkalap_kulso':
+                $('#popupTart').html(data);
+                popupNyit();
+            break;
+
+            case 'munkalap_adminisztrator':
+                $('#popupTart').html(data);
+                popupNyit();
+            break;
+
+            case 'munkalap_muszaki_vezeto':
+                $('#popupTart').html(data);
+                popupNyit();
+            break;
+
+            case 'munkalap_teruleti_vezeto':
+                $('#popupTart').html(data);
+                popupNyit();
+            break;
+
+            case 'munkalap_diszp_kozp':
                 $('#popupTart').html(data);
                 popupNyit();
             break;
@@ -2526,6 +2763,6 @@ function beosztas_naptarba_teszt(beosztas_id){
             }
         }
     });
-    
-    
+
+
 }
