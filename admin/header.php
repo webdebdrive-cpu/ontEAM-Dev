@@ -702,7 +702,7 @@ $tjobbw = '';
 if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
     if( $_COOKIE['csuszkaSzelesseg'] ) {
         $tbalw  = ' style="width: '.$_COOKIE['csuszkaSzelesseg'].'px;"';
-        $tjobbw = ' style="width: calc(100% - '.$_COOKIE['csuszkaSzelesseg'].'px);"';
+        $tjobbw = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
     }
 }
 
@@ -774,13 +774,13 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 /* ....*/
 
     $tartBal  = szamla_lista();
-    
+
     if (isset($_GET['gyorskereso_ajax'])) {
         echo $tartBal;
         $weblap -> leallit();
         exit;
     }
-    
+
     /* Új ikonra kattintva mi történik */
     $keresodn = '';
     if( isset($_GET['szakterulet']) ) {

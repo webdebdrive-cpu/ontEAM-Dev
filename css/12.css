@@ -55,10 +55,12 @@ div.szamlaKereses {
 }
 
 .sor.kethasabos {
-    border-top: 0.1rem solid #004990;
-    height: calc(100% - 14.5rem);
+    background: #f4f6f5;
+    box-shadow: inset 0rem 0.1rem 0.5rem 0rem rgba(0, 0, 0, 0.1);
+    height: calc(100% - 13rem);
     max-width: 100%;
     min-width: 100%;
+    padding: 1.6rem 0rem 0rem 0rem;
 }
 
 .sor div.bal {
@@ -66,6 +68,8 @@ div.szamlaKereses {
 }
 
 .sor.kethasabos div.bal {
+    background: #fff;
+    box-shadow: 0.1rem 0.1rem 0.5rem 0rem rgba(0, 0, 0, 0.2);
     display: block;
     float: left;
     overflow-y: auto;
@@ -79,29 +83,33 @@ div.szamlaKereses {
 }
 
 .sor.kethasabos div.jobb {
+    background: #fff;
+    box-shadow: 0.1rem 0.1rem 0.7rem 0rem rgba(0, 0, 0, 0.2);
     display: block;
     float: right;
-    height: calc( 100% - 5.1rem );
+    height: calc( 100% - 8.9rem );
     overflow-y: auto;
+    margin: 3.6rem 0rem 0rem 0rem;
     padding: 0rem 0rem 0rem 0rem;
     position: relative;
-    width: calc(100% - 40rem);
+    width: calc(100% - 41.6rem);
 }
 
 .sor.kethasabos div.jobb div.bborder {
-    border-left: 0.2rem solid #004990;
-    border-right: 0.2rem solid #004990;
+    background: transparent;
     cursor: col-resize;
-    height: 100%;
+    height: calc(100% - 18rem);
+    margin-left: -1.6rem;
     position: fixed;
-    width: 0.6rem;
+    width: 1.6rem;
     z-index: 20;
 }
 
 .sor div.jobb div.tKeret {
+    background: #fff;
     display: table;
     position: relative;
-    padding: 1rem 1.5rem 1rem 1.5rem;
+    padding: 0rem 0rem 0rem 0rem;
     width: 100%;
 }
 

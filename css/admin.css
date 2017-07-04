@@ -216,9 +216,8 @@ input.gomb.border{
 }
 
 .muveletek {
-    background: rgba(255, 255, 255, 1);
+    background: transparent;
     border-radius: 0rem;
-    border-top: 0.2rem solid #004990;
     margin: 1rem 0rem 0rem 0rem;
     min-height: 5rem;
     padding: 1rem 1rem 1rem 1rem;
@@ -1448,7 +1447,7 @@ ul.szamla_cont li.behuz a {
 }
 
 ul.szamla_cont li a {
-    border-bottom: 0.1rem solid #d6d6d6;
+    border-top: 0.1rem solid #d6d6d6;
     color: #242424;
     cursor: pointer;
     display: block;
@@ -1456,6 +1455,14 @@ ul.szamla_cont li a {
     user-select: none;
     padding: 0.2rem 1rem 0.2rem 3rem;
     width: 100%;
+}
+
+ul.szamla_cont li:last-child a {
+    border-bottom: 0.1rem solid #d6d6d6;
+}
+
+ul.szamla_cont li.active:last-child a {
+    border-bottom: 0.1rem solid #55a2fa;
 }
 
 ul.szamla_cont li a.szamla {
@@ -1509,8 +1516,8 @@ ul.szamla_cont li a span.statusz {
 }
 
 ul.szamla_cont li a:hover {
-    background: #1976D2;
-    color: #fff;
+    background: #f1f8ff;
+    color: #242424;
     text-decoration: none;
 }
 
@@ -1524,7 +1531,8 @@ ul.szamla_cont li.szamla_datum strong {
 }
 
 ul.szamla_cont li.szamla_datum.csoport {
-    border-bottom: 0.1rem solid #d6d6d6;
+    border-top: 0.1rem solid #d6d6d6;
+    border-bottom: none;
     cursor: pointer;
     padding: 0.5rem 1rem 0.5rem 3rem;
     position: relative;
@@ -1589,8 +1597,13 @@ ul.szamla_cont li.szamla_datum.csoport span.icon.bej .material-icons {
 }
 
 ul.szamla_cont li.active a {
-    background: #0D47A1;
+    background: #55a2fa;
+    border-top: 0.1rem solid #55a2fa;
     color: #fff;
+}
+
+ul.szamla_cont li:not(.csoport).active + li a {
+    border-top: 0.1rem solid #55a2fa;
 }
 
 ul.szamla_cont li.kijelolve a {
@@ -1680,10 +1693,10 @@ div.szamlaStatusz {
 }
 
 div.szamlaFulek {
-    background: #fff;
-    border-bottom: 0.1rem solid #004990;
-    margin: -5rem 0rem 0rem 0rem;
-    padding-top: 1rem;
+    background: #f4f6f5;
+    border-bottom: 0.1rem solid #edefee;
+    margin: -5.1rem 0rem 0rem -1.5rem;
+    padding-top: 0rem;
     position: fixed;
     width: 100%;
     z-index: 1;
@@ -1691,16 +1704,18 @@ div.szamlaFulek {
 
 div.szamlaFulek a {
     border-radius: 0.1rem 0.1rem 0rem 0rem;
+    color: #3a4549;
     display: inline-block;
     float: left;
     font-size: 1.4rem;
     margin: 0rem .3rem 0rem 0rem;
-    padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+    padding: 1rem 1.5rem 1rem 1.5rem;
 }
 
 div.szamlaFulek a.active {
-    background: #1565C0;
+    background: #55a2fa;
     color: #fff;
+    font-weight: 700;
 }
 
 div.szamlaFulek a:hover {
@@ -1782,7 +1797,7 @@ div.naplo div.nSor div.dtc {
 
 #szamlaBetolt {
     display: table;
-    padding: 4rem 0rem 0rem 0rem;
+    padding: 1.5rem 1.5rem 1.5rem 1.5rem;
     width: 100%;
 }
 
@@ -2418,4 +2433,32 @@ div.szamlaLapozas div.lapoz.pontok {
 
 .beosztas_naptar table td.foglalt.kijelol {
     background: #FB4747;
+}
+
+#csuszkaallit span {
+    background: #b4b8b7;
+    height: 0.3rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 0.3rem;
+}
+
+#csuszkaallit span:after,
+#csuszkaallit span:before {
+    background: #b4b8b7;
+    content: '';
+    height: 0.3rem;
+    position: absolute;
+    left: 0rem;
+    width: 0.3rem;
+}
+
+#csuszkaallit span:after {
+    top: -0.5rem;
+}
+
+#csuszkaallit span:before {
+    top: 0.5rem;
 }

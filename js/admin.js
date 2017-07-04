@@ -381,8 +381,8 @@ $(function() {
 
             if( nbWidth > 150 && nbWidth < 800 ) {
                 $('#tartalomBal').css('width', nbWidth);
-                $('#tartalomJobb').css('width', 'calc(100% - ' + Math.abs(nbWidth) + 'px)');
-                $('.muveletek').css('width', 'calc(100% - ' + (Math.abs(nbWidth) + 6) + 'px)');
+                $('#tartalomJobb').css('width', 'calc(100% - ' + (Math.abs(nbWidth) + 16) + 'px)');
+                $('.muveletek').css('width', 'calc(100% - ' + (Math.abs(nbWidth) + 16) + 'px)');
 
                 createCookie('csuszkaSzelesseg', Math.abs(nbWidth), 365);
             }
@@ -2785,8 +2785,8 @@ function beosztas_naptarba_teszt(beosztas_id, felulir){
             }
         }
     });
-    
-    
+
+
 }
 
 function naptar_torol_beallit(naptar_id){
