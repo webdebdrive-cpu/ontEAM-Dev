@@ -1278,9 +1278,9 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 /* Munkalaphoz adás */
 if( isset($_GET['folyamatban_munkak']) ) {
     $telephely_id = $_GET['telephely_id'];
+    $obj_id       = $_GET['obj_id'];
 
-    $bejelentesek = $adatbazis_kapcsolat->s('ikt_szam surgos telephely_id obj_id hiba_id hiba_text', 'bejelentes', "`telephely_id` = '{$telephely_id}'", '', '');
-
+    $bejelentesek = $adatbazis_kapcsolat->s('ikt_szam surgos telephely_id obj_id hiba_id hiba_text', 'bejelentes', "`telephely_id` = '{$telephely_id}' AND `obj_id` = '{$obj_id}'");
     if( $bejelentesek ) {
         $html = nl2('
             <div class="dt alert_dt">

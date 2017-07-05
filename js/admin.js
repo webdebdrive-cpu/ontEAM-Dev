@@ -876,27 +876,19 @@ $(function() {
 
     /* Szűrő mező váltáskor */
     $(document).on('change', '.f_szuro_mezo', function(e) {
-        var tabla    = $(this).attr('data-tabla');
-        var selected = $(this).find('option:selected');
-
-         $.ajax({
-            url: 'header.php',
-            type: 'POST',
-            data: esamp2es('tabla=' + tabla + '&amp;mezo=' + $(this).val() + '&amp;f_szuro_mezo=' + new Date().getTime()),
-            success: function (response) {
-                response = JSON.parse(response);
-                if (response) {
-                    $('#operator').html(response.operator);
-                    szuro_ertek_mezo_gen($('.f_szuro_mezo_operator'));
-                }
-            }
-        });
+        operator_beallit($(this));
     });
 
     /* Operátor váltáskor is változik a feltétel mező */
     $(document).on('change', '.f_szuro_mezo_operator', function(e) {
         szuro_ertek_mezo_gen($(this));
     });
+    
+    /* Szűrés érvényesítése */
+    $(document).on('click', '.f_szures_submit', function(e) {
+        location.href=baseName(location.href)+'.php?mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+$('.f_felt').val();
+    });
+    
 
     $(document).on('keyup', '.f_num', function(e) {
         onlyNumbers($(this));
@@ -2732,13 +2724,30 @@ function objLength(obj) {
     return size;
 };
 
-function szuro_ertek_mezo_gen(that){
+function operator_beallit(that, selected, felt){
+    var tabla    = that.attr('data-tabla');
+
+     $.ajax({
+        url: 'header.php',
+        type: 'POST',
+        data: esamp2es('tabla=' + tabla + '&amp;selected=' + selected + '&amp;mezo=' + that.val() + '&amp;f_szuro_mezo=' + new Date().getTime()),
+        success: function (response) {
+            response = JSON.parse(response);
+            if (response) {
+                $('#operator').html(response.operator);
+                szuro_ertek_mezo_gen($('.f_szuro_mezo_operator'), felt);
+            }
+        }
+    });
+}
+
+function szuro_ertek_mezo_gen(that, felt){
     var tabla    = that.attr('data-tabla');
     var selected = that.find('option:selected');
     $.ajax({
         url: 'header.php',
         type: 'POST',
-        data: esamp2es('tabla=' + tabla + '&amp;mezo=' + $('.f_szuro_mezo').val() + '&amp;selected=' + selected.val() + '&amp;f_szuro_mezo_operator=' + new Date().getTime()),
+        data: esamp2es('tabla=' + tabla + '&amp;mezo=' + $('.f_szuro_mezo').val() + '&amp;selected=' + selected.val() + '&amp;felt=' + felt + '&amp;f_szuro_mezo_operator=' + new Date().getTime()),
         success: function (response) {
             response = JSON.parse(response);
             if (response) {

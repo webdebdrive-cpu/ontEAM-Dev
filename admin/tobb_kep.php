@@ -220,7 +220,7 @@ $tobbkep_html .= str_replace($sorrend_ujkep_mit, $sorrend_ujkep_mivel, $sorrend_
 $i     = 0;
 $kepek = $adatbazis_kapcsolat -> select('*', $tobbkep_tablanev, get_tobbkep_oszlopnev().'='.$_GET['id'], 'sor');
 
-$tobbkep_html .= '<div><ul id="sorrendezes_tobbkep" title="'.$_SESSION['fajl']['oszlop'].'">';
+$tobbkep_html .= '<div><ul id="sorrendezes_tobbkep">';
 foreach($kepek as $sor_kepek){
     $tobbkep_html .= get_tobbkep_thumb($sor_kepek);
 }

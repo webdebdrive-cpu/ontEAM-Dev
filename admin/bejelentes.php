@@ -442,11 +442,20 @@ if($gyorskereso_text){
         $jobb_oldal = '';
 
         if(_jog(1)){
-            $gombok = nl2('
-                <div class="form_kuldes">
-                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
-                </div>
-            ').$gombok;
+            
+            //Ha valaki bejelentő, és nem diszpécser, akkor csak saját bejelentéseit szerkesztheti
+            $nem_szerkesztheti = false;
+            if(!_jog(2) && $sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
+                $nem_szerkesztheti = true;
+            }
+            
+            if(!$nem_szerkesztheti){
+                $gombok = nl2('
+                    <div class="form_kuldes">
+                        <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                    </div>
+                ').$gombok;
+            }
         }
 
         if( _jog(2) ) {

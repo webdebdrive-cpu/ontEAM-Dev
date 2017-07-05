@@ -4,6 +4,13 @@ if (isset($_POST['f_szuro_mezo'])) {
     
     $akt_tomb_szures = get_akt_tomb($_POST['tabla']);
     
+    $selected_equal = '';
+    $selected_like = '';
+    $selected_empty = '';
+    if($_POST['selected']=='equal'){ $selected_equal = ' selected'; }
+    if($_POST['selected']=='like') { $selected_like  = ' selected'; }
+    if($_POST['selected']=='empty'){ $selected_empty = ' selected'; }
+    
     $operator = '';
     //Feltétel összerakása tömbből
     foreach ($akt_tomb_szures as $ertek){
@@ -12,38 +19,38 @@ if (isset($_POST['f_szuro_mezo'])) {
             //Checkbox esetén Igen/Nem
             if($ertek['type']=='checkbox'){
                 
-                $operator .= '<option value="=" selected>=</option>';
+                $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 
                 
             //Autocomplete esetén a switch.php alapján gyártunk egy inputot
             }elseif($ertek['type']=='autocomplete'){
                 
-                $operator .= '<option value="=" selected>=</option>';
-                $operator .= '<option value="like">Tartalmazza</option>';
-                $operator .= '<option value="ures">Üres</option>';
+                $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+                $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
+                $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
                 
             //beosztása esetén
             }elseif($ertek['type']=='select_szemelyzet'){
                 
-                $operator .= '<option value="=" selected>=</option>';
-                $operator .= '<option value="ures">Üres</option>';
+                $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+                $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
                 
             //Általános esetben egy szabadszavas mező
             }else{
                 
                 //Numerikus adatok operátora
                 if( strpos($ertek['class'], 'f_num')!==false || strpos($ertek['class'], 'datepicker')!==false){
-                    $operator .= '<option value="=" selected>=</option>';
+                    $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                     $operator .= '<option value="&gt;=">&gt;=</option>';
                     $operator .= '<option value="&lt;=">&lt;=</option>';
                     $operator .= '<option value="&gt;">&gt;</option>';
                     $operator .= '<option value="&lt;">&lt;</option>';
                     $operator .= '<option value="&lt;&gt;">&lt;&gt;</option>';
-                    $operator .= '<option value="ures">Üres</option>';
+                    $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
                 }else{
-                    $operator .= '<option value="=" selected>=</option>';
-                    $operator .= '<option value="like">Tartalmazza</option>';
-                    $operator .= '<option value="ures">Üres</option>';
+                    $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+                    $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
+                    $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
                 }
                 
             }
@@ -55,15 +62,13 @@ if (isset($_POST['f_szuro_mezo'])) {
     if( ($_POST['tabla'] == 'login' && $_POST['mezo']=='szalloda') || ($_POST['tabla'] == 'anyagigenyles' && $_POST['mezo']=='telephely_id') ){
         
         //Ilyenkor felülírva az operátorokat, csak egyenlőségjel van
-        $operator = '<option value="=" selected>=</option>';
+        $operator = '<option value="equal"'.$selected_equal.'>=</option>';
         
     }
     
     //Megjegyzés esetén tartalmazza operátor + szabadszavas mező
     if($_POST['mezo']=='megjegyzes'){
-        
-        $operator .= '<option value="like" selected>Tartalmazza</option>';
-        
+        $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
     }
     
     //Operátor select bezárása
@@ -80,12 +85,25 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
     $akt_tomb_szures = get_akt_tomb($_POST['tabla']);
     
+    $selected_null = '';
+    $selected_egy  = '';
+    if($_POST['felt']=='0'){
+        $selected_null = ' selected';
+    }
+    if($_POST['felt']=='1'){
+        $selected_egy = ' selected';
+    }
+    
+    if($_POST['felt']=='undefined'){
+        $_POST['felt'] = '';
+    }
+    
     //Ha az éppen kiválasztott operátor az ures, akkor az alábbit adjuk vissza és kész
     if($_POST['selected']=='ures'){
         $feltetel = nl2('
-            <select>
-                <option value="1">Igen</option>
-                <option value="0">Nem</option>
+            <select class="f_felt">
+                <option value="1"'.$selected_egy.'>Igen</option>
+                <option value="0"'.$selected_null.'>Nem</option>
             </select>
             ');
     
@@ -99,9 +117,9 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                 if($ertek['type']=='checkbox'){
 
                     $feltetel = nl2('
-                        <select>
-                            <option value="1">Igen</option>
-                            <option value="0">Nem</option>
+                        <select class="f_felt">
+                            <option value="1"'.$selected_egy.'>Igen</option>
+                            <option value="0"'.$selected_null.'>Nem</option>
                         </select>
                         ');
 
@@ -112,6 +130,8 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     require_once('../class/html/class.Input.php');
                     $input = new Input('text');
 
+                    $input -> value = $_POST['felt'];
+                    
                     //Onblurra a hidden mező is nullázódjon, ha üres volna a mező
                     $ertek['onblur'] .= 'if(!$(this).val()){ $(\'#'.$ertek['name'].'\').val(\'\'); }';
                     
@@ -187,7 +207,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
                     
-                    $input = new Select($select_szemelyzet);
+                    $input = new Select($select_szemelyzet, $_POST['felt']);
                     $feltetel = $input -> getHtml();
                     
                 //Általános esetben egy szabadszavas mező
@@ -195,10 +215,10 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
                     //Numerikus adatok operátora
                     if( strpos($ertek['class'], 'f_num')!==false){
-                        $feltetel = '<input type="text" placeholder="Érték..." class="f_num">';
+                        $feltetel = '<input type="text" placeholder="Érték..." class="f_num f_felt" value="'.$_POST['felt'].'">';
                     }elseif( strpos($ertek['class'], 'datepicker')!==false){
                         $feltetel = nl2('
-                            <input type="text" placeholder="____.__.__" class="datepicker">
+                            <input type="text" placeholder="____.__.__" class="datepicker f_felt" value="'.$_POST['felt'].'">
                             <script>$(\'.datepicker\').datetimepicker({
                                                             timepicker      : false,
                                                             mask            : true,
@@ -208,7 +228,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                             </script>
                         ');
                     }else{
-                        $feltetel = '<input type="text" placeholder="Feltétel...">';
+                        $feltetel = '<input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_POST['felt'].'">';
                     }
 
                 }
@@ -223,10 +243,14 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                 ($_POST['tabla'] == 'beosztas'      && $_POST['mezo']=='telephely_id'   ) 
             ){
 
-            $feltetel = '<select>';
+            $feltetel = '<select class="f_felt">';
             $feltetel .= '<option value="">-Válasszon szállodát-</option>';
             $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', "", 'nev');
             foreach($telephelyek as $telephely){
+                $selected = '';
+                if($telephely['id']==$_POST['felt']){
+                    $selected = ' selected';
+                }
                 $feltetel .= '<option value="'.$telephely['id'].'">'.$telephely['nev'].'</option>';
             }
             $feltetel .= '</select>';
@@ -237,7 +261,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
         if($_POST['mezo']=='megjegyzes'){
 
             $feltetel = nl2('
-                    <input type="text" placeholder="Feltétel...">
+                    <input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_POST['felt'].'">
                 ');
 
         }
@@ -257,7 +281,11 @@ foreach($akt_tomb_szures as $ertek){
         if($ertek['megn_szurobe']){
             $ertek['megn'] = $ertek['megn_szurobe'];
         }
-        $sz_mezo .= '<option value="'.$ertek['name'].'">'.trim($ertek['megn'], ':').'</option>';
+        $selected = '';
+        if($ertek['name']==$_GET['mezo']){
+            $selected = ' selected';
+        }
+        $sz_mezo .= '<option value="'.$ertek['name'].'"'.$selected.'>'.trim($ertek['megn'], ':').'</option>';
     }
 }
 
@@ -279,4 +307,14 @@ $szures = nl2('
         <div id="feltetel" class="dib"></div>
         <div id="szures_submit" class="dib"></div>
     ');
+
+if (isset($_GET['mezo'])) {
+    $szures .= nl2('
+        <script>
+        $(document).ready(function () {
+            operator_beallit($(\'.f_szuro_mezo\'), \''.$_GET['op'].'\', \''.addslashes($_GET['felt']).'\');
+        });
+        </script>
+        ');
+}
 ?>

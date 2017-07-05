@@ -853,7 +853,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 $.ajax({
                     url : \'esemenyek.php\',
                     type: \'GET\',
-                    data: esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;folyamatban_munkak=\' + new Date().getTime()),
+                    data: esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;obj_id=\' + $(\'#obj_id\').val() + \'&amp;folyamatban_munkak=\' + new Date().getTime()),
                     success: function(response) {
                         response = JSON.parse(response);
 
@@ -1327,7 +1327,7 @@ function szamla_lista( $where, $tabla ) {
 
         //ha van $_GET['idk'] változónk, akkor azokra az ID-kra még pluszban szűrünk
         if ($_GET['recidk']) {
-            $where .= '`recid` IN ('.$_GET['recidk'].') AND ';
+            $where .= '`'.get_db_tabla().$tabla.'`.`recid` IN ('.$_GET['recidk'].') AND ';
         }
 
         //Where feltétel lezárása
