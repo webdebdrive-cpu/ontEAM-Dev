@@ -210,7 +210,7 @@ if($gyorskereso_text){
                 $active = ' class="active"';
             }
 
-            $fulek .= '<a href="javascript: szamlaBetolt('.$_GET['id'].', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.'>'.$value.'</a>';
+            $fulek .= '<a href="javascript: szamlaBetolt('.$_GET['id'].', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
         }
 
         $szamla_html .= str_replace(
@@ -442,13 +442,13 @@ if($gyorskereso_text){
         $jobb_oldal = '';
 
         if(_jog(1)){
-            
+
             //Ha valaki bejelentő, és nem diszpécser, akkor csak saját bejelentéseit szerkesztheti
             $nem_szerkesztheti = false;
             if(!_jog(2) && $sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
                 $nem_szerkesztheti = true;
             }
-            
+
             if(!$nem_szerkesztheti){
                 $gombok = nl2('
                     <div class="form_kuldes">

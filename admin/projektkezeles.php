@@ -171,7 +171,7 @@ if($gyorskereso_text){
                 $active = ' class="active"';
             }
 
-            $fulek .= '<a href="javascript: szamlaBetolt('.$_GET['id'].', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.'>'.$value.'</a>';
+            $fulek .= '<a href="javascript: szamlaBetolt('.$_GET['id'].', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
         }
 
         $szamla_html .= str_replace(
@@ -387,7 +387,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['cash_flow'])){
 
         $szamla_html .= 'Cash flow felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -401,7 +401,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['projekt_team'])){
 
         $szamla_html .= 'Projekt team felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -415,7 +415,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['projektigeny'])){
 
         $szamla_html .= 'Projektigény felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -429,7 +429,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['tortenet'])){
 
         $szamla_html .= 'Történet felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -443,7 +443,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['rb_anyag'])){
 
         $szamla_html .= 'RB-anyagok felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -457,7 +457,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['garancialis'])){
 
         $szamla_html .= 'Garanciális munkák felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -466,13 +466,13 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html;
         }
-        
+
 
 	//Dokumentumok
 	}elseif(isset($_GET['dokumentumok'])){
 
         $szamla_html .= 'Dokumentumok felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -486,7 +486,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['megjegyzesek'])){
 
         $szamla_html .= 'Megjegyzések felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -495,7 +495,7 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html;
         }
-        
+
 	//Lista
 	}elseif(isset($_GET['lista'])){
 

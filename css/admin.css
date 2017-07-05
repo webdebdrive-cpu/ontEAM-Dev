@@ -450,6 +450,10 @@ input.kicsi{
     width: 9.5rem;
 }
 
+input.kozepes{
+    width: 25%;
+}
+
 input.nagy{
     width: 50%;
 }
@@ -1727,11 +1731,11 @@ div.naplo {
 }
 
 div.naplo.szakter {
-    margin: 4rem 0rem 0rem 0rem;
+    margin: 0rem 0rem 0rem 0rem;
 }
 
 div.naplo.munkalap {
-    margin: 2rem 0rem 0rem 0rem;
+    margin: 0rem 0rem 0rem 0rem;
 }
 
 div.naplo.behuz {

@@ -266,6 +266,9 @@ function i_u($type, $tabla, $tomb){
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );
 
+            array_push($oszlopok,  'statusz_id');
+            array_push($ertekek,    1          );
+
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
@@ -850,9 +853,12 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     if( basename(self())=='bejelentes.php' ) {
         $ret .= nl2('
             if( !bejelentes_mehet ) {
+                var folyamatban_hiba = false;
+
                 $.ajax({
                     url : \'esemenyek.php\',
                     type: \'GET\',
+                    async: false,
                     data: esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;obj_id=\' + $(\'#obj_id\').val() + \'&amp;folyamatban_munkak=\' + new Date().getTime()),
                     success: function(response) {
                         response = JSON.parse(response);
@@ -863,12 +869,16 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                             } else {
                                 alert2(response.hiba);
                             }
+
+                            folyamatban_hiba = true;
                         }
 
                     }
                 });
 
-                return false;
+                if( folyamatban_hiba ) {
+                    return false;
+                }
             }
         ');
     }
@@ -1299,8 +1309,17 @@ function szamla_lista( $where, $tabla ) {
         if($tabla == 'bejelentes'){
             $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
+
         if($tabla == 'anyagigenyles'){
             $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
+
+        if($tabla == 'munkalap'){
+            $where = "`".get_db_tabla()."munkalap`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+
+            if( _jog(3) && _jog(5) && !_jog(0) && !_jog(1) ) {
+                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '1' AND (`".get_db_tabla()."munkalap`.`statusz_id` = '2' OR `".get_db_tabla()."munkalap`.`statusz_id` = '8') AND ";
+            }
         }
 
         //Keresés
@@ -3372,7 +3391,7 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_
 
     if( $tabla && $id && $stat_id ) {
         /* Lekérjük az az éppen aktuális státusz */
-        $sql = $akt_statusz = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id, 'insert_dt desc', '1');
+        $sql = $akt_statusz = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id, 'recid desc', '1');
 
         if( $sql === false ) {
             $db_error = true;
@@ -3386,7 +3405,7 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_
             $statusz_ido = getStatuszIdo( $statusz_ido );
 
             /* Göngyölt státuszidő */
-            $sql = $elso_statusz = $adatbazis_kapcsolat->s('insert_dt', $tabla, 'id='.$id, 'insert_dt asc', '1');
+            $sql = $elso_statusz = $adatbazis_kapcsolat->s('insert_dt', $tabla, 'id='.$id, 'recid asc', '1');
 
             if( $sql === false ) {
                 $db_error = true;
@@ -3400,7 +3419,7 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_
             }
 
             /* Összesített státuszidő */
-            $sql = $elso_akt_stat = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id.' and stat_id='.$stat_id, 'insert_dt asc', '1');
+            $sql = $elso_akt_stat = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, 'id='.$id.' and stat_id='.$stat_id, 'recid asc', '1');
 
             if( $sql === false ) {
                 $db_error = true;
@@ -3441,6 +3460,7 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_
                 array('id',  'stat_id', 'erteklista_id',  'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
                 array($id,   $stat_id,  $erteklista_id,    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
             );
+
             if( $sql === false ) {
                 $db_error = true;
             }
@@ -3560,7 +3580,7 @@ function beosztas_naptar($beosztas_id){
     $szemelyzet = $adatbazis_kapcsolat->s('distinct felh_loginnev', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'");
     $szemelyzet = adatbazis2tomb($szemelyzet, 'felh_loginnev');
     foreach ($szemelyzet as $szemely){
-        
+
         $szemelyzet = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='{$szemely}'");
         $szemelyzet = $szemelyzet[0];
 
@@ -3569,7 +3589,7 @@ function beosztas_naptar($beosztas_id){
         foreach($sorok as $sor){
             array_push($idopontok, $sor);
         }
-        
+
         $sor_cellak = '';
         for($i=0; $i<$napok; $i++){
             for($ora = 0; $ora <24; $ora++){
@@ -3579,18 +3599,18 @@ function beosztas_naptar($beosztas_id){
                     $ora_kiir = '0'.$ora;
                 }
                 $ora_kiir   = $ora_kiir.':00:00';
-                
+
                 $foglalt = false;
                 $recid   = 0;
                 foreach($idopontok as $idopont){
                     if($idopont['tol']<=$datum.' '.$ora_kiir && $idopont['ig']>$datum.' '.$ora_kiir){
                         $foglalt = true;
                         $recid   = $idopont['recid'];
-                        array_push($recidk, $recid); 
+                        array_push($recidk, $recid);
                         break;
                     }
                 }
-                
+
                 if($foglalt){
                     $sor_cellak .= '<td class="foglalt beosztas_'.$recid.'" data-recid="'.$recid.'">&nbsp;</td>';
                 }else{
@@ -3607,11 +3627,11 @@ function beosztas_naptar($beosztas_id){
                             '.$sor_cellak.'
                         </tr>
                     ');
-        
+
     }
 
     $naptar .= '</table>';
-    
+
     //Az összegyűjtött recid-kből tudunk csunálni egy CSS-t, amivel a határvonalakat me gtudjuk rajzolni
     $css = '';
     $recidk = array_unique($recidk);
@@ -3619,6 +3639,6 @@ function beosztas_naptar($beosztas_id){
         $css .= '.beosztas_naptar table td.beosztas_'.$id.' ~ .beosztas_'.$id.'{ border-left: 0.1rem solid rgba(0,0,0,0); } ';
     }
     $naptar = '<style type="text/css">'.$css.'</style>'.$naptar;
-    
+
     return '<div class="beosztas_naptar">'.$naptar.'</div>';
 }
