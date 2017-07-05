@@ -119,7 +119,10 @@ foreach($akt_tomb as $ertek){
                             \'oszlop_listaz\'   : \''.$ertek['listaz'].'\',
                             \'rkat\'            : '.$rkat.',
                             \'csoport\'         : '.$csoport.',
-                            \'recid\'           : '.$_GET['id'].',
+                            \'recid\'           : \''.$_GET['id'].'\',
+                            \'mezo\'            : \''.$_GET['mezo'].'\',
+                            \'op\'              : \''.$_GET['op'].'\',
+                            \'felt\'            : \''.$_GET['felt'].'\',
                             \'id_kiir\'         : \''.$id_kiir.'\'
                         });
                     });

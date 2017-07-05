@@ -886,7 +886,15 @@ $(function() {
     
     /* Szűrés érvényesítése */
     $(document).on('click', '.f_szures_submit', function(e) {
-        location.href=baseName(location.href)+'.php?mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+$('.f_felt').val();
+        felt = $('.f_felt').val();
+        /* Autocompletenek az ID-ját tegyük az URL-be */
+        if($('.f_felt').attr('id')){
+            felt_id = $('.f_felt').attr('id').replace('_autocomp', '');
+            if($('#'+felt_id).length){
+                felt = $('#'+felt_id).val();
+            }
+        }
+        location.href=baseName(location.href)+'.php?mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt;
     });
     
 
@@ -2752,7 +2760,7 @@ function szuro_ertek_mezo_gen(that, felt){
             response = JSON.parse(response);
             if (response) {
                 $('#feltetel').html(response.feltetel);
-                $('#szures_submit').html('<input type="button" class="gomb f_szures_submit" value="Szűrés"> <input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl">');
+                $('#szures_submit').html('<input type="button" class="gomb f_szures_submit" value="Szűrés"> <input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl" onclick="location.href=\''+tabla+'.php\'">');
             }
         }
    });

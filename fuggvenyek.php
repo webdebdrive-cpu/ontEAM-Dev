@@ -1280,7 +1280,7 @@ function szamla_lista( $where, $tabla ) {
     }
     $order .= ' '.$irany;
 
-    //Ha nem egy konrét recid-t keresünk, akkor állítsuk elő a where feltételt
+    //Ha nem egy konkrét recid-t keresünk, akkor állítsuk elő a where feltételt
     if(!$where){
 
         if( $tabla == 'rendszer' ) {
@@ -1323,6 +1323,11 @@ function szamla_lista( $where, $tabla ) {
                 $where .= '('.trim($ksz_where, ' OR ').') AND ';
             }
 
+        }
+        
+        //Szűrés lekezelése
+        if ($_GET['mezo'] && $_GET['op']) {
+            $where .= get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla).' AND ';
         }
 
         //ha van $_GET['idk'] változónk, akkor azokra az ID-kra még pluszban szűrünk
@@ -1462,7 +1467,7 @@ function szamla_lista( $where, $tabla ) {
             array_push($bejegyzesek, $sor);
         }
 
-    //Értéklistát csoport szerinti sorrenben, azon belül pedig infó szerinti sorrendben kell kilitázni
+    //Értéklistát csoport szerinti sorrenben, azon belül pedig infó szerinti sorrendben kell kilistázni
     }elseif($tabla=='erteklista'){
 
         $sql = 'SELECT
@@ -1482,8 +1487,19 @@ function szamla_lista( $where, $tabla ) {
         }
 
     }else{
-        $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
+
+        //Szűréskor kell pár JOIN-olás a külső táblákhoz
+        $join = '';
+        if ($tabla=='login' && $_GET['mezo']=='szalloda') {
+            $join = ' JOIN `'.get_db_tabla().'telephely_kapcs` ON `'.get_db_tabla().'login`.`nev`=`'.get_db_tabla().'telephely_kapcs`.`nev`';
+        }
+        if ($tabla=='login' && $_GET['mezo']=='megjegyzes') {
+            $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\'login\' AND `'.get_db_tabla().'login`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
+        }
+        
+        $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit, '', '', $join);
         $sql = $adatbazis_kapcsolat->gp();
+        
     }
 
     //Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
@@ -1588,6 +1604,10 @@ if(isset($_GET['debug'])) {
         }
     }
 
+    if(!$html){
+        $html = '<div class="p c b">Nincs találat a megadott feltételekre!</div>';
+    }
+    
     return $html;
 
 }
@@ -3621,4 +3641,39 @@ function beosztas_naptar($beosztas_id){
     $naptar = '<style type="text/css">'.$css.'</style>'.$naptar;
     
     return '<div class="beosztas_naptar">'.$naptar.'</div>';
+}
+
+//A kapott mező, operátor és feltétel alapján előállítja a where feltétel kiegészítését
+function get_szures_where_kieg($mezo, $op, $felt, $tabla){
+    
+    switch ($op){
+        case 'equal'    : $op = '=';    break;
+        case 'not_eq'   : $op = '!=';   break;
+        case 'gteq'     : $op = '>=';   break;
+        case 'lteq'     : $op = '<=';   break;
+        case 'gt'       : $op = '>';    break;
+        case 'lt'       : $op = '<';    break;
+        case 'like'     : $op = ' LIKE '; $felt = '%'.$felt.'%'; break;
+        case 'empty'    : 
+            if($felt==1){
+                $op = '=';
+            }else{
+                $op = '!=';  
+            }
+            $felt = '\'\'';
+        break;
+    }
+    
+    //Külső táblák kapcsolása
+    //A szamla_lista() föggvényben is állítsd be a JOIN-okat
+    if($tabla=='login' && $mezo=='szalloda'){
+        return '`'.get_db_tabla().'telephely_kapcs`.`telephely_id`=\''.$felt.'\'';
+    }elseif($tabla=='login' && $mezo=='megjegyzes'){
+        return '`'.get_db_tabla().'megjegyzes`.`megj` LIKE \''.$felt.'\'';
+    }elseif($tabla=='login' && $mezo=='jogosultsag'){
+        return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
+    }else{
+        return '`'.$mezo.'`'.$op.'\''.$felt.'\'';
+    }
+    
 }

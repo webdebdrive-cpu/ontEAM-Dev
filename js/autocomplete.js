@@ -27,6 +27,9 @@
             rkat            : 0,                    /* Rendszer kategóriára szűrünk                 */
             id_kiir         : '',
             recid           : '',                   /* Az aktuális űrlap reid-ja. Néha szükség van rá */
+            mezo            : '',                   /* Szűréssel kapcsolatos GET-ek */
+            op              : '',
+            felt            : '',
             csoport         : 0
         };
 
@@ -93,6 +96,9 @@
                             id_kiir         : options.id_kiir,
                             csoport         : options.csoport,
                             recid           : options.recid,
+                            mezo            : options.mezo,
+                            op              : options.op,
+                            felt            : options.felt,
                             telephely_id    : telephely_id,
                             obj_id          : obj_id
                         },

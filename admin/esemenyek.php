@@ -112,7 +112,12 @@ switch($tabla) {
     break;
     case 'login.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid nev teljes_nev aktiv';
+        $_OPTS['select']    = nl2('
+                                    `'.get_db_tabla().'login`.`recid`,
+                                    `'.get_db_tabla().'login`.`nev`,
+                                    `'.get_db_tabla().'login`.`teljes_nev`,
+                                    `'.get_db_tabla().'login`.`aktiv`
+                                ');
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('teljes_nev', 'aktiv', 'szerepkor_id');

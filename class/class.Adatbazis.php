@@ -151,9 +151,11 @@ class Adatbazis{
     * @param  string  Order (opcionális)
     * @param  string  Limit (opcionális)
     * @param  string  group_by (opcionális). Mi alaján legyen group by
+    * @param  string  num-rows csak a sorok számára van szükség
+    * @param  string  join csatlakozás másik táblához. Ennek értéke egy szépen leírt JOIN legyen. Pl.  JOIN `'.get_db_tabla().'tabla_kulso` ON `'.get_db_tabla().'tabla_alap`.`nev`=`'.get_db_tabla().'tabla_kulso`.`nev`
     * @return array   A lekérdezett sorok, vagy hamis
     */
-    public function select($oszlopok, $tabla, $where = null, $order = null, $limit = null, $group_by = null, $num_rows = false){
+    public function select($oszlopok, $tabla, $where = null, $order = null, $limit = null, $group_by = null, $num_rows = false, $join = false){
 
         $this -> eredmeny = array();
 
@@ -167,6 +169,10 @@ class Adatbazis{
         }
 
         $select = 'SELECT '.$oszlopok.' FROM '.$tabla;
+
+        if($join){
+            $select .= $join;
+        }
 
 		if($where != null){
 			$select .= ' WHERE '.$where;
@@ -215,8 +221,8 @@ class Adatbazis{
     /**
     * @desc  Select röviden (az eredeti függvényt hívja meg)
     */
-    public function s($oszlopok, $tabla, $where = null, $order = null, $limit = null, $group_by = false, $num_rows = false){
-        return $this -> select($oszlopok, $tabla, $where, $order, $limit, $group_by, $num_rows);
+    public function s($oszlopok, $tabla, $where = null, $order = null, $limit = null, $group_by = false, $num_rows = false, $join = false){
+        return $this -> select($oszlopok, $tabla, $where, $order, $limit, $group_by, $num_rows, $join);
     }
 
     /**

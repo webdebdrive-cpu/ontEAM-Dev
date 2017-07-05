@@ -7,9 +7,14 @@ if (isset($_POST['f_szuro_mezo'])) {
     $selected_equal = '';
     $selected_like = '';
     $selected_empty = '';
-    if($_POST['selected']=='equal'){ $selected_equal = ' selected'; }
-    if($_POST['selected']=='like') { $selected_like  = ' selected'; }
-    if($_POST['selected']=='empty'){ $selected_empty = ' selected'; }
+    if($_POST['selected']=='equal'  ){ $selected_equal  = ' selected'; }
+    if($_POST['selected']=='like'   ){ $selected_like   = ' selected'; }
+    if($_POST['selected']=='empty'  ){ $selected_empty  = ' selected'; }
+    if($_POST['selected']=='gteq'   ){ $selected_gteq   = ' selected'; }
+    if($_POST['selected']=='lteq'   ){ $selected_lteq   = ' selected'; }
+    if($_POST['selected']=='gt'     ){ $selected_gt     = ' selected'; }
+    if($_POST['selected']=='lt'     ){ $selected_lt     = ' selected'; }
+    if($_POST['selected']=='not_eq' ){ $selected_not_eq = ' selected'; }
     
     $operator = '';
     //Feltétel összerakása tömbből
@@ -26,7 +31,6 @@ if (isset($_POST['f_szuro_mezo'])) {
             }elseif($ertek['type']=='autocomplete'){
                 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
-                $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
                 $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
                 
             //beosztása esetén
@@ -41,11 +45,11 @@ if (isset($_POST['f_szuro_mezo'])) {
                 //Numerikus adatok operátora
                 if( strpos($ertek['class'], 'f_num')!==false || strpos($ertek['class'], 'datepicker')!==false){
                     $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
-                    $operator .= '<option value="&gt;=">&gt;=</option>';
-                    $operator .= '<option value="&lt;=">&lt;=</option>';
-                    $operator .= '<option value="&gt;">&gt;</option>';
-                    $operator .= '<option value="&lt;">&lt;</option>';
-                    $operator .= '<option value="&lt;&gt;">&lt;&gt;</option>';
+                    $operator .= '<option value="gteq"'.$selected_gteq.'>&gt;=</option>';
+                    $operator .= '<option value="lteq"'.$selected_lteq.'>&lt;=</option>';
+                    $operator .= '<option value="gt"'.$selected_gt.'>&gt;</option>';
+                    $operator .= '<option value="lt"'.$selected_lt.'>&lt;</option>';
+                    $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
                     $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
                 }else{
                     $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
@@ -69,6 +73,11 @@ if (isset($_POST['f_szuro_mezo'])) {
     //Megjegyzés esetén tartalmazza operátor + szabadszavas mező
     if($_POST['mezo']=='megjegyzes'){
         $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
+    }
+    
+    //Jogosultság =
+    if($_POST['mezo']=='jogosultsag'){
+        $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
     }
     
     //Operátor select bezárása
@@ -99,7 +108,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
     }
     
     //Ha az éppen kiválasztott operátor az ures, akkor az alábbit adjuk vissza és kész
-    if($_POST['selected']=='ures'){
+    if($_POST['selected']=='empty'){
         $feltetel = nl2('
             <select class="f_felt">
                 <option value="1"'.$selected_egy.'>Igen</option>
@@ -139,7 +148,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                         $ertek['class'] .= ' csillag';
                     }
                     
-                    $input -> cssClass      = $ertek['class'];
+                    $input -> cssClass      = $ertek['class'].' f_felt';
                     $input -> id            = $ertek['name'].'_autocomp_szurobe';
                     $input -> name          = $ertek['name'].'_autocomp_szurobe';
                     $input -> placeholder   = $ertek['placeholder'];
@@ -168,7 +177,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                         $input -> value = $kulso_ertek[0][$ertek['listaz']];
                     }
 
-                    $feltetel = $input -> getHtml().'<input type="hidden" name="'.$ertek['name'].'_szurobe" id="'.$ertek['name'].'_szurobe" value="'.$value.'">';
+                    $feltetel = $input -> getHtml().'<input type="hidden" name="'.$ertek['name'].'_szurobe" id="'.$ertek['name'].'_szurobe" value="'.$_POST['felt'].'">';
 
                     $rkat = 0;
                     if( $ertek['rkat'] ) {
@@ -208,6 +217,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     require_once('selectek.php');
                     
                     $input = new Select($select_szemelyzet, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
                     
                 //Általános esetben egy szabadszavas mező
@@ -251,7 +261,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                 if($telephely['id']==$_POST['felt']){
                     $selected = ' selected';
                 }
-                $feltetel .= '<option value="'.$telephely['id'].'">'.$telephely['nev'].'</option>';
+                $feltetel .= '<option value="'.$telephely['id'].'"'.$selected.'>'.$telephely['nev'].'</option>';
             }
             $feltetel .= '</select>';
 
@@ -263,6 +273,33 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
             $feltetel = nl2('
                     <input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_POST['felt'].'">
                 ');
+
+        }
+        
+        //Jogosultság esetén
+        if($_POST['mezo']=='jogosultsag'){
+
+            require_once 'jogosultsag.php';
+            
+            $feltetel = '<select class="f_felt">';
+            
+            $jog_kat_i = 0;
+            foreach($jogosultsagKatok as $jog_kat_kulcs => $jog_kat){
+                $feltetel .= '<optgroup label="'.$jog_kat['nev'].'">';
+                foreach($jogosultsagok as $jog_sor => $jog){
+                    if($jog['kat']==$jog_kat_kulcs){
+                        
+                        $selected = '';
+                        if($jog_sor==$_POST['felt']){
+                            $selected = ' selected';
+                        }
+                        $feltetel .= '<option value="'.$jog_sor.'"'.$selected.'>'.$jog['nev'].'</option>';
+                    }
+                }
+                $feltetel .= '</optgroup>';
+                $jog_kat_i++;
+            }
+            $feltetel .= '</select>';
 
         }
     }
@@ -291,12 +328,28 @@ foreach($akt_tomb_szures as $ertek){
 
 //Extra szűrő mezők
 if($megn == 'anyagigenyles'){
-    $sz_mezo .= '<option value="megjegyzes" data-tabla="megjegyzes">Megjegyzés</option>';
+    $selected_megj  = '';
+    if($_GET['mezo']=='megjegyzes'){
+        $selected_megj = ' selected';
+    }
+    $sz_mezo .= '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>Megjegyzés</option>';
 }
 if($megn == 'login'){
-    $sz_mezo .= '<option value="jogosultsag">Jogosultság</option>';
-    $sz_mezo .= '<option value="szalloda" data-tabla="telephely">Szálloda</option>';
-    $sz_mezo .= '<option value="megjegyzes" data-tabla="megjegyzes">Megjegyzés</option>';
+    $selected_jog   = '';
+    $selected_szall = '';
+    $selected_megj  = '';
+    if($_GET['mezo']=='jogosultsag'){
+        $selected_jog = ' selected';
+    }
+    if($_GET['mezo']=='szalloda'){
+        $selected_szall = ' selected';
+    }
+    if($_GET['mezo']=='megjegyzes'){
+        $selected_megj = ' selected';
+    }
+    $sz_mezo .= '<option value="jogosultsag"'.$selected_jog.'>Jogosultság</option>';
+    $sz_mezo .= '<option value="szalloda" data-tabla="telephely"'.$selected_szall.'>Szálloda</option>';
+    $sz_mezo .= '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>Megjegyzés</option>';
 }
 $szures = nl2('
         <select class="f_szuro_mezo" data-tabla="'.$megn.'">
