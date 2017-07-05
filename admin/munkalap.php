@@ -166,7 +166,7 @@ if($gyorskereso_text){
                 $active = ' class="active"';
             }
 
-            $fulek .= '<a href="javascript: szamlaBetolt('.$_GET['id'].', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.'>'.$value.'</a>';
+            $fulek .= '<a href="javascript: szamlaBetolt('.$_GET['id'].', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
         }
 
         $szamla_html .= str_replace(
@@ -394,6 +394,13 @@ if($gyorskereso_text){
                     </div>
                 </div>
             ');
+        } else if( _jog(3) && _jog(5) ) {
+            $gombok .= nl2('
+                <script>
+                    munkalapFelvetelGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkalapFelvesz(\''.$_GET['id'].'\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                </script>
+                <input type="button" class="gomb foGomb" value="Munka felvétele" title="Munka felvétele" onclick="alert2(\'Biztosan felveszi a munkát?\', munkalapFelvetelGomb);">
+            ');
         }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
@@ -440,8 +447,8 @@ if($gyorskereso_text){
 
                 $szamla_html .= nl2('
                     <div class="dtr nSor">
-                        <div class="dtc">'.date('Y.m.d H:i:s', strtotime($sor['insert_dt'])).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.date('Y.m.d H:i:s', strtotime($sor['insert_dt'])).'</div>
                         <div class="dtc">'.date('Y.m.d H:i:s', strtotime($sor['atadta_dt'])).'</div>
                     </div>
                 ');

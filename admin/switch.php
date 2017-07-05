@@ -306,7 +306,7 @@ foreach($akt_tomb as $ertek){
         case 'dl':
             $html = din_list( $ertek['tabla'], $ertek['oszlop'], $ertek['name'], $ertek['php_fajl'], $sor[ $ertek['name'] ], $sor[ $ertek['dl_kellid'] ], $ertek['default'] );
             if($ertek['alert']){
-                
+
             }
 
             //Összevonások lekezelése és tartalom összefűzése
@@ -347,7 +347,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
             if($ertek['alert']){
-                
+
             }
 
             //Összevonások lekezelése és tartalom összefűzése
