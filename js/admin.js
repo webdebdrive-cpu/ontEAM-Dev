@@ -507,8 +507,20 @@ $(function() {
         });
     });
 
+    /* Általánosan kattintva a dokumentumban */
     $(document).on('click', function(e) {
         $('.kijeloltek_muv').removeClass('active');
+        $('.foglalt').removeClass('kijelol');
+    });
+    
+    /* Beosztás naptár bejegyzés törlésre kijelölés */
+    $(document).on('click', '.foglalt', function(e) {
+        naptar_id = $(this).attr('data-recid');
+        $('#naptar_torol_id').val(naptar_id);
+        $('#mehet_gomb_kivesz').addClass('gombb_alert');
+        $('.foglalt').removeClass('kijelol');
+        $('.beosztas_'+naptar_id).addClass('kijelol');
+        e.stopPropagation();
     });
 
     $(document).on('click', '.kijeloltek_muv', function(e) {
@@ -940,15 +952,6 @@ $(function() {
                 /*location.reload();*/
             }
         });
-    });
-
-    $(document).on('click', '.beosztas_naptar td', function(e) {
-        recid = $(this).attr('data-recid');
-        if(recid){
-            naptar_torol_beallit(recid);
-        }else{
-            $('.foglalt.kijelol').removeClass('kijelol');
-        }
     });
     
     $(document).on('keyup', '.f_loginnev', function(e) {
@@ -2850,14 +2853,6 @@ function beosztas_naptarba_teszt(beosztas_id, felulir){
     });
 
 
-}
-
-function naptar_torol_beallit(naptar_id){
-    console.log(naptar_id);
-    $('#naptar_torol_id').val(naptar_id);
-    $('#mehet_gomb_kivesz').addClass('gombb_alert');
-    $('.foglalt').removeClass('kijelol');
-    $('.beosztas_'+naptar_id).addClass('kijelol');
 }
 
 function naptar_torol_kerdez(){
