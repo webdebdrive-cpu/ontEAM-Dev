@@ -346,11 +346,15 @@ if($gyorskereso_text){
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
-        $gombok = nl2('
-            <div class="form_kuldes">
-                <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
-            </div>
-        ').$gombok;
+
+        //Csak akkor lehet menteni, ha a státusza nyitott
+        if($sor['statusz_id']==1){
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                </div>
+            ').$gombok;
+        }
 
         /* Kijelöltekkel való művelet gombok */
         if( _jog(2) ) {

@@ -782,7 +782,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'bejelentes.php' && isset($_GET['megjegyzes']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } elseif( basename(self()) == 'beosztas.php' && isset($_GET['naptar']) ) {
-        $uj_link = 'javascript: $(\'.form_rejtve\').show();; void(0)';
+        $uj_link = 'javascript: $(\'#szerk_form div.dt\').show(); void(0)';
     } elseif( isset($_GET['szallodak']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);';
     } elseif( basename(self()) == 'utemezett_feladatok.php' && isset($_GET['megjegyzes']) ) {

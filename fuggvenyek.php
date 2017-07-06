@@ -890,6 +890,9 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 alert2(\'Kérjük adja meg a szerepkört!\', \'\', \'Hiba\');
                 return false;
             }
+            
+            
+
             beosztas_naptarba_teszt(\''.$_GET['id'].'\');
             return false;
         ');
@@ -3573,7 +3576,18 @@ function beosztas_naptar($beosztas_id){
     $veg  = strtotime($idoint['ig']);
     $napok = floor(($veg - $kezd) / (60 * 60 * 24))+1;
 
+    require 'selectek.php';
+    $szerepkorok = '';
+    foreach($select_szemelyzet as $szerepkor){
+        if($szerepkor['szin']){
+            $szerepkorok .= '<div style="background: '.$szerepkor['szin'].'; padding: 0.2rem 0.4rem; font-size: 1.1rem">'.$szerepkor['name'].'</div>';
+        }
+    }
     $naptar = nl2('
+                <div class="dib" style="position: fixed; right: 0">
+                    '.$szerepkorok.'
+                </div>
+                <div id="kijelolt_erteke"></div>
                 <table>
                 <tr>
                     <th>
@@ -3588,13 +3602,13 @@ function beosztas_naptar($beosztas_id){
     }
     $naptar .= nl2('
                     </tr>
-                    <tr>
-                        <th>
-                            Órák
-                        </th>
-                        '.$orak_fejlec.'
-                    </tr>
                 ');
+//                    <tr>
+//                        <th>
+//                            Órák
+//                        </th>
+//                        '.$orak_fejlec.'
+//                    </tr>
 
     $recidk = array();
     $szemelyzet = $adatbazis_kapcsolat->s('distinct felh_loginnev', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'");

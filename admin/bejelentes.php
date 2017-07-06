@@ -448,6 +448,11 @@ if($gyorskereso_text){
             if(!_jog(2) && $sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
                 $nem_szerkesztheti = true;
             }
+            
+            //Ha nem nyitott, akkor senki sem szerkesztheti
+            if($sor['statusz_id']!=1){
+                $nem_szerkesztheti = true;
+            }
 
             if(!$nem_szerkesztheti){
                 $gombok = nl2('

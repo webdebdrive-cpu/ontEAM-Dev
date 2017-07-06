@@ -510,16 +510,20 @@ $(function() {
     /* Általánosan kattintva a dokumentumban */
     $(document).on('click', function(e) {
         $('.kijeloltek_muv').removeClass('active');
+        
+        /* Beoszutás naptár felületéhez */
         $('.foglalt').removeClass('kijelol');
+        $('#mehet_gomb_kivesz').attr('disabled', 'disabled');
     });
     
     /* Beosztás naptár bejegyzés törlésre kijelölés */
     $(document).on('click', '.foglalt', function(e) {
         naptar_id = $(this).attr('data-recid');
         $('#naptar_torol_id').val(naptar_id);
-        $('#mehet_gomb_kivesz').addClass('gombb_alert');
+        $('#mehet_gomb_kivesz').removeAttr('disabled');
         $('.foglalt').removeClass('kijelol');
         $('.beosztas_'+naptar_id).addClass('kijelol');
+        $('#kijelolt_erteke').html('teszt');
         e.stopPropagation();
     });
 
@@ -729,7 +733,7 @@ $(function() {
     });
 
     formModositva = false;
-    $('#tartalomJobb').on('keyup change paste', '#szerk_form input, #szerk_form select, #szerk_form textarea', function(e) {
+    $('#tartalomJobb').on('input', '#szerk_form input, #szerk_form select, #szerk_form textarea', function(e) {
         var name = $(this).attr('name'),
             type = $(this).attr('type'),
             val  = $(this).val();
@@ -737,6 +741,9 @@ $(function() {
         if( name != 'mehet_gomb'  ) {
 
             var taroltVal = htmlspecialchars_decode(formAdatok[name]);
+            if(taroltVal===undefined){
+                taroltVal = '';
+            }
 
             if( type == 'checkbox' ) {
                 val = $(this).prop('checked');
@@ -2519,7 +2526,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     } else if( _get('szallodak') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);');
                     } else if( baseName(location.href) == 'beosztas' && _get('naptar') ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: $(\'.form_rejtve\').show(); void(0);');
+                        $('#navGombok a.uj').attr('href', 'javascript: $(\'#szerk_form div.dt\').show(); void(0);');
                     } else if( baseName(location.href) == 'bejelentes' && _get('megjegyzes') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'utemezett_feladatok' && _get('megjegyzes') ) {
@@ -2882,3 +2889,26 @@ function naptar_torol(){
         }
     });
 }
+
+/* Beosztás naptárba tevéskor csak a beosztás adatlapon megaodtt intervallumon belüli dátum adaható meg */
+/*
+ * Törölhetőfunction beosztas_idoszak_ell(mezo){
+    $.ajax({
+        url: 'beosztas.php',
+        type: 'POST',
+        data: {
+            id   : $('#get_id').val(),
+            mezo : mezo,
+            tol  : $('#tol').val(),
+            ig   : $('#ig').val(),
+            beosztas_idoszak_ell: new Date().getTime()
+        },
+        success: function (response) {
+            response = JSON.parse(response);
+            if(response.hiba){
+                alert2(response.hiba, '', 'Hiba');
+                $('#'+mezo).val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0');
+            }
+        }
+    });
+}*/

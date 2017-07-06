@@ -10,15 +10,24 @@
                 $(document).ready(function () {
                     $('.datepicker').datetimepicker({
                         timepicker          : false,
-                        mask                : true,
+                        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
                         format              :'Y.m.d',
                         validateOnBlur      : false,
                         onChangeDateTime    : function(){ $('#mehet_gomb').addClass('gombb_alert'); }
                     });
                     $('.datetimepicker').datetimepicker({
                         timepicker          : true,
-                        mask                : true,
+                        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0',
                         format              :'Y.m.d H:i:00',
+                        validateOnBlur      : false,
+                        step                : 60,
+                        onChangeDateTime    : function(){ $('#mehet_gomb').addClass('gombb_alert'); }
+                    });
+                    /* Beosztás új naptár bejegyzéséhez */
+                    $('.datetimepicker_nomp').datetimepicker({
+                        timepicker          : true,
+                        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0',
+                        format              :'Y.m.d H:00',
                         validateOnBlur      : false,
                         step                : 60,
                         onChangeDateTime    : function(){ $('#mehet_gomb').addClass('gombb_alert'); }
@@ -31,6 +40,7 @@
                         step                : 60,
                         onChangeDateTime    : function(){ $('#mehet_gomb').addClass('gombb_alert'); }
                     });
+                    
                 });
             </script>
             <div>

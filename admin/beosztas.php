@@ -41,6 +41,54 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 $szamla_html = '';
 
 
+//Naptárba tevés dátum input ellenőrzése
+/* Törölhető
+if (isset($_POST['beosztas_idoszak_ell'])) {
+    
+    $ertek = $adatbazis_kapcsolat->s('tol ig', 'beosztas', "`recid`='{$_POST['id']}'");
+    $ertek = $ertek[0];
+    
+    //Ha mindkét dátum meg lett adva, akkor azt is ellenőrizzük, hogy nincsenek-e átfedésben
+    if( substr($_POST['tol'], 0, 1) && substr($_POST['ig'], 0, 1) ){
+        if($_POST['tol'] >= $_POST['ig']){
+            echo json_encode(array('hiba' => 'A végdátum nem lehet korábbi mint a kezdődátum!'));
+            $weblap -> leallit();
+            exit;
+        }
+    }
+    
+    $_POST['tol'] = str_replace('.', '-', substr($_POST['tol'], 0, 10));
+    $_POST['ig']  = str_replace('.', '-', substr($_POST['ig'],  0, 10));
+    
+    if($_POST['mezo']=='tol'){
+        if($ertek['tol'] > $_POST['tol']){
+            echo json_encode(array('hiba' => 'A kezdődátum nem lehet korábbi mint az adatlap időszaka!'));
+            $weblap -> leallit();
+            exit;
+        }
+        if($ertek['ig'] < $_POST['tol']){
+            echo json_encode(array('hiba' => 'A kezdődátum nem lehet későbbi mint az adatlap időszaka!'));
+            $weblap -> leallit();
+            exit;
+        }
+    }
+    if($_POST['mezo']=='ig'){
+        if($ertek['ig'] < $_POST['ig']){
+            echo json_encode(array('hiba' => 'A végdátum nem lehet későbbi mint az adatlap időszaka!'));
+            $weblap -> leallit();
+            exit;
+        }
+        if($ertek['tol'] > $_POST['ig']){
+            echo json_encode(array('hiba' => 'A végdátum nem lehet korábbi mint az adatlap időszaka!'));
+            $weblap -> leallit();
+            exit;
+        }
+    }
+    
+    $weblap -> leallit();
+    exit;
+}*/
+
 //Naptárba tevés
 if (isset($_POST['beosztas_naptarba_teszt'])) {
     
@@ -516,24 +564,29 @@ if($gyorskereso_text){
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
         
 		require('switch.php');
+        
+        $beosztas = $adatbazis_kapcsolat->s('tol ig', 'beosztas', "`recid`='{$_GET['id']}'");
+        $beosztas = $beosztas[0];
 
         if(_jog(30)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" value="Naptárba tesz">
-                    <input type="button" class="gombb" name="mehet_gomb" id="mehet_gomb_kivesz" value="Naptárból kivesz" onclick="naptar_torol_kerdez()">
+                    <input type="submit" class="gombb gombb_alert" disabled id="mehet_gomb" value="Naptárba tesz">
+                    <input type="button" class="gombb gombb_alert" disabled id="mehet_gomb_kivesz" value="Naptárból kivesz" onclick="naptar_torol_kerdez()">
                     <input type="hidden" name="naptar_torol_id" id="naptar_torol_id" value="">
+                    <input type="hidden" name="get_id" id="get_id" value="'.$_GET['id'].'">
+                    <input type="text" name="idoszak_tol" id="idoszak_tol" value="'.$beosztas['tol'].'">
+                    <input type="text" name="idoszak_ig" id="idoszak_ig" value="'.$beosztas['ig'].'">
                 </div>
             ').$gombok;
         }
 
 	    $szamla_html .= 
-        '<div class="dn form_rejtve">'.
-        str_replace(
-            array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'),
-            array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style  ),
-            fajlbol_olvas('../sablon/admin/form_modosit.html', true)
-        ).'</div>';
+            str_replace(
+                array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'),
+                array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style  ),
+                fajlbol_olvas('../sablon/admin/form_modosit.html', true)
+            ).'<script>$(document).ready(function () { $(\'#szerk_form div.dt\').hide(); });</script>';
         
         $szamla_html .= beosztas_naptar($_GET['id']);
         

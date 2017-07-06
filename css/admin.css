@@ -247,7 +247,7 @@ input.gomb.border{
     background: #76B958;
 }
 
-#mehet_gomb:disabled{
+.gombb:disabled{
     display: none;
 }
 
@@ -460,6 +460,21 @@ input.nagy{
 
 input.oriasi{
     width: 100%;
+}
+
+input.date_hossz{
+    width: 8.5rem;
+    white-space: pre;
+}
+
+input.datetime_hossz{
+    width: 12rem;
+    white-space: pre;
+}
+
+input.datetimepicker_nomp{
+    width: 12rem;
+    white-space: pre;
 }
 
 input:focus{
@@ -2334,14 +2349,6 @@ table.csikos tr.link:hover{
     transition: all ease-in-out 0.2s;
 }
 
-input.datepicker{
-    width: 9.7rem;
-}
-
-input.datetimepicker{
-    width: 12rem;
-}
-
 input.ora_perc{
     width: 5.2rem;
 }
@@ -2391,15 +2398,19 @@ div.szamlaLapozas div.lapoz.pontok {
 }
 
 .beosztas_naptar{
+    cursor: default;
     overflow-x: scroll;
     overflow-y: visible;
     padding: 0;
     margin: 3rem 0 0 17.4rem;
     width: 70rem;
 }
+.beosztas_naptar table th, .beosztas_naptar table tr {
+    border-bottom: 0.1rem solid #ccc;
+}
 .beosztas_naptar table th, .beosztas_naptar table td {
-    padding: 0.2rem;
-    border-bottom: 0.1rem solid #fff;
+    height: 2.2rem;
+    line-height: 1;
 }
 .beosztas_naptar table tr th:first-of-type {
     font-weight: normal;
@@ -2423,12 +2434,12 @@ div.szamlaLapozas div.lapoz.pontok {
     font-weight: normal;
 }
 
-.beosztas_naptar table tr:nth-of-type(2) th {
+/*.beosztas_naptar table tr:nth-of-type(2) th {
     background: #4995EB;
     border: 0.1rem solid #fff;
     color: #fff;
     font-weight: normal;
-}
+}*/
 
 .beosztas_naptar table td.foglalt {
     background: #CBE3FF;
