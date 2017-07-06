@@ -10,18 +10,18 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
         value: '2015-04-15 12:12',  // Alapértelmezett érték
         lang:'ch',                  // Nyelv beállítása
         closeOnDateSelect: true,    // Kattintás után záródjon be
-        
+
         disabledDates:['1986/01/08','1986/01/09','1986/01/10'],
         startDate:	'1986/01/05',
         step: 10,
         format:'d.m.Y H:i',
         defaultDate: '+03.01.1970',
         defaultTime: '10:00',
-        
+
         minDate:'-1970/01/02',//yesterday is minimum date(for today use 0 or -1970/01/01)
         maxDate:'+1970/01/02'//tomorrow is maximum date calendar
         ... további infok, példák: http://xdsoft.net/jqplugins/datetimepicker/
-        
+
     });
 */
 /**
