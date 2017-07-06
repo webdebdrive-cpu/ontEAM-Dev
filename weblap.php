@@ -130,4 +130,5 @@ if(basename(self())=='erteklista.php'       && isset($_GET['uj'])){ $navi = 'Új
 if(basename(self())=='login.php'            && isset($_GET['uj'])){ $navi = 'Új felhasználó feltöltése'; }
 if(basename(self())=='szerepkor.php'        && isset($_GET['uj'])){ $navi = 'Új szerepkör feltöltése'; }
 if(basename(self())=='bejelentes.php'       && isset($_GET['uj'])){ $navi = 'Új bejelentes feltöltése'; }
+if(basename(self())=='munkalap.php'         && isset($_GET['uj'])){ $navi = 'Új munkalap feltöltése'; }
 ?>

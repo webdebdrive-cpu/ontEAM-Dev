@@ -440,7 +440,7 @@ function i_u($type, $tabla, $tomb){
 
                     /* Felvesszük az első státuszt */
                     $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
-                        array('id',     'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+                        array('id',     'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
                         array($recid,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
                     );
 
@@ -1343,7 +1343,7 @@ function szamla_lista( $where, $tabla ) {
             }
 
         }
-        
+
         //Szűrés lekezelése
         if ($_GET['mezo'] && $_GET['op']) {
             $where .= get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla).' AND ';
@@ -1515,10 +1515,10 @@ function szamla_lista( $where, $tabla ) {
         if ($tabla=='login' && $_GET['mezo']=='megjegyzes') {
             $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\'login\' AND `'.get_db_tabla().'login`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
-        
+
         $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit, '', '', $join);
         $sql = $adatbazis_kapcsolat->gp();
-        
+
     }
 
     //Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
@@ -1626,7 +1626,7 @@ if(isset($_GET['debug'])) {
     if(!$html){
         $html = '<div class="p c b">Nincs találat a megadott feltételekre!</div>';
     }
-    
+
     return $html;
 
 }
@@ -1669,7 +1669,18 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                             ');
                         }
 
-                        $html .= '<li class="szamla_datum csoport" data-id="'.$aktCsoport.'"><span class="icon"></span><span class="csoportNev" data-id="'.$aktCsoport.'"><strong>'.$surgos_icon.$csoportSor['nev'].'</strong></li>';
+                        $csoport_bej = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`csoport_id` = '{$aktCsoport}'", '', '');
+
+                        $csoport_active = '';
+                        if( $csoport_bej ) {
+                            $csoport_bej = adatbazis2tomb($csoport_bej, 'recid');
+
+                            if( in_array($_GET['id'], $csoport_bej) ) {
+                                $csoport_active = ' active';
+                            }
+                        }
+
+                        $html .= '<li class="szamla_datum csoport'.$csoport_active.'" data-id="'.$aktCsoport.'"><span class="icon"></span><span class="csoportNev" data-id="'.$aktCsoport.'">'.$surgos_icon.'<strong>'.$csoportSor['nev'].'</strong></li>';
                     }
 
                     $csoport = $aktCsoport;
@@ -1712,6 +1723,17 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
             $csoport_data = '';
             if( $bsz['csoport_id'] && _jog(2) ) {
                 $csoport_class = ' behuz dn';
+
+                $akt_csoport = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` = '{$_GET['id']}'", '', '1');
+
+                if( $akt_csoport ) {
+                    $akt_csoport = $akt_csoport[0];
+
+                    if( $akt_csoport['csoport_id'] == $bsz['csoport_id'] ) {
+                        $csoport_class = ' behuz';
+                    }
+                }
+
                 $csoport_data = ' data-csoportID="'.$bsz['csoport_id'].'"';
             }
 
@@ -1771,7 +1793,18 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
                             ');
                         }
 
-                        $html .= '<li class="szamla_datum csoport" data-id="'.$aktCsoport.'"><span class="icon"></span><span class="csoportNev" data-id="'.$aktCsoport.'"><strong>'.$surgos_icon.$csoportSor['nev'].'</strong></li>';
+                        $csoport_bej = $adatbazis_kapcsolat->s('recid', 'munkalap', "`csoport_id` = '{$aktCsoport}'", '', '');
+
+                        $csoport_active = '';
+                        if( $csoport_bej ) {
+                            $csoport_bej = adatbazis2tomb($csoport_bej, 'recid');
+
+                            if( in_array($_GET['id'], $csoport_bej) ) {
+                                $csoport_active = ' active';
+                            }
+                        }
+
+                        $html .= '<li class="szamla_datum csoport'.$csoport_active.'" data-id="'.$aktCsoport.'"><span class="icon"></span><span class="csoportNev" data-id="'.$aktCsoport.'">'.$surgos_icon.'<strong>'.$csoportSor['nev'].'</strong></li>';
                     }
 
                     $csoport = $aktCsoport;
@@ -1801,6 +1834,17 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
             $csoport_data = '';
             if( $bsz['csoport_id'] ) {
                 $csoport_class = ' behuz dn';
+
+                $akt_csoport = $adatbazis_kapcsolat->s('csoport_id', 'munkalap', "`recid` = '{$_GET['id']}'", '', '1');
+
+                if( $akt_csoport ) {
+                    $akt_csoport = $akt_csoport[0];
+
+                    if( $akt_csoport['csoport_id'] == $bsz['csoport_id'] ) {
+                        $csoport_class = ' behuz';
+                    }
+                }
+
                 $csoport_data = ' data-csoportID="'.$bsz['csoport_id'].'"';
             }
 
@@ -3248,7 +3292,7 @@ function erteklista($csoport, $id) {
     global $adatbazis_kapcsolat;
 
     $sor = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
-
+    
     if( $sor ) {
         $sor = $sor[0];
 
@@ -3665,7 +3709,7 @@ function beosztas_naptar($beosztas_id){
 
 //A kapott mező, operátor és feltétel alapján előállítja a where feltétel kiegészítését
 function get_szures_where_kieg($mezo, $op, $felt, $tabla){
-    
+
     switch ($op){
         case 'equal'    : $op = '=';    break;
         case 'not_eq'   : $op = '!=';   break;
@@ -3674,16 +3718,16 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         case 'gt'       : $op = '>';    break;
         case 'lt'       : $op = '<';    break;
         case 'like'     : $op = ' LIKE '; $felt = '%'.$felt.'%'; break;
-        case 'empty'    : 
+        case 'empty'    :
             if($felt==1){
                 $op = '=';
             }else{
-                $op = '!=';  
+                $op = '!=';
             }
             $felt = '\'\'';
         break;
     }
-    
+
     //Külső táblák kapcsolása
     //A szamla_lista() föggvényben is állítsd be a JOIN-okat
     if($tabla=='login' && $mezo=='szalloda'){
@@ -3695,5 +3739,5 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     }else{
         return '`'.$mezo.'`'.$op.'\''.$felt.'\'';
     }
-    
+
 }

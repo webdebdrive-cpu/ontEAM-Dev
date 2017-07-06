@@ -846,7 +846,7 @@ $munkalap_tomb = $akt_tomb = array(
     array('type' => 'checkbox',                 'megn' => 'Visszaadva:',                'name' => 'visszaadva',         'disabled' => 1,        'class' => 'check'),
     array('type' => 'textarea',                 'megn' => 'Leírása:',                   'name' => 'text',               'disabled' => 0,        'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id',       'disabled' => 1,        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
-    array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'disabled' => 1,        'class' => 'oriasi disableNav', 'style' => '', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => '', 'post' => ''),
+    array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'disabled' => 1,        'class' => 'oriasi disableNav', 'style' => '', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'onclick' => '', 'post' => ''),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'disabled' => 1,        'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'disabled' => 1,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id'),
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'disabled' => 1),
@@ -1280,6 +1280,97 @@ $eszkozkezeles_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 //{KOVETKEZO_TOMB}
 
+
+/* Átadás diszpécsernek */
+if( isset($_POST['atadasDiszpecsernek']) ) {
+    $recid = $_POST['recid'];
+    $erteklista_id = $_POST['erteklista_id'];
+    $memo = $_POST['memo'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $erteklista_id ) {
+        
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
+    } else {
+        echo json_encode(array(
+            'hiba' => 'Adja meg az átadás okát!'
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+/* Munkalaphoz adás */
+if( isset($_POST['feladatHozzaadas']) ) {
+    $recid = $_POST['recid'];
+    $erteklista_id = $_POST['erteklista_id'];
+    $memo = $_POST['memo'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $erteklista_id ) {
+        $sql = $akt_tetel = $adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $akt_tetel ) {
+            $akt_tetel = $akt_tetel[0];
+
+            $sql = $adatbazis_kapcsolat -> i('munkalap_feladat',
+                array('tetel_id',          'erteklista_id',    'memo',       'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+                array($akt_tetel['recid'], $erteklista_id,     $memo, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+            );
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( !$db_error ) {
+                mysqli_commit($db_kapcs);
+
+                echo json_encode(array(
+                    'statusz' => 'siker'
+                ));
+            } else {
+                mysqli_rollback($db_kapcs);
+
+                echo json_encode(array(
+                    'hiba' => tranzakcioHiba()
+                ));
+            }
+        } else {
+            echo json_encode(array(
+                'hiba' => 'Hiba: Tétel nem található!'
+            ));
+        }
+    } else {
+        echo json_encode(array(
+            'hiba' => 'Adja meg az elvégzett munkát!'
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
 
 /* Munkalaphoz adás */
 if( isset($_GET['folyamatban_munkak']) ) {
