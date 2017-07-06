@@ -132,6 +132,76 @@ if(isset($_GET['siker']) && isset($_GET['modosit'])){
 
 }
 
+/* CSV generálása */
+if (isset($_GET['csv'])) {
+
+    $mibol   = get_web_charset();
+    $mibe    = 'windows-1250';
+
+    //Régi fájlok törlése
+    $utvonal = 'export/csv/';
+    $fajlok = konyvtar_bejar($utvonal);
+    foreach($fajlok as $fajl){
+        if(filemtime($fajl)<(time()-60*60)){
+            unlink($fajl);
+        }
+    }
+
+    $fajlnev = $utvonal.'csv'.time().'.csv';
+    $open = fopen($fajlnev,'a');
+    if($open){
+
+        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+        $sql = 'SELECT
+                                                    `nev` as \'Loginnév\',
+                                                    `teljes_nev` as \'Teljes név\',
+                                                    `usertel` as \'Telefon\',
+                                                    `usermail` as \'E-mail\',
+                                                    `szerepkor_id` as \'Szerepkör\',
+                                                    `beosztas_id` as \'Beosztás\',
+                                                    `reszleg_id` as \'Részleg\',
+                                                    `virtual` as \'Virtuális\',
+                                                    `torolve` as \'Törölve\',
+                                                    `aktiv` as \'Aktiv\'
+                                                    '.$lekerdezes_fromtol;
+
+        $query      = mysqli_query($db_kapcs, $sql);
+
+        $csvhead    = array();
+        while($fejlec_nevek = mysqli_fetch_field($query)){
+            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+        }
+        fputcsv($open, $csvhead, ';');
+
+        while( $sorok = mysqli_fetch_assoc($query) ){
+            $csvcont = array();
+            foreach( $sorok as $kulcs => $sor ) {
+                if($kulcs=='Szerepkör'){
+                    $sor = $adatbazis_kapcsolat->s('nev', 'szerepkor', "`recid`='{$sor}'");
+                    $sor = $sor[0]['nev'];
+                }
+                if($kulcs=='Beosztás' || $kulcs=='Részleg'){
+                    $sor = $adatbazis_kapcsolat->s('info', 'erteklista', "`id`='{$sor}'");
+                    $sor = $sor[0]['info'];
+                }
+                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+            }
+            fputcsv($open, $csvcont, ';');
+        }
+    }
+    fclose($open);
+
+    header("Content-type: text/csv");
+    header("Content-Disposition: attachment; filename=$megnevezes.csv");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    echo fajlbol_olvas($fajlnev);
+
+    $weblap->leallit();
+    exit();
+}
+
 
 /** Tartalom */
 if( !$_GET['ajax'] ) {

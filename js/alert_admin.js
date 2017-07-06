@@ -23,7 +23,7 @@ function alert2(uzi, ok_gomb, cim) {
 
         if(uzi.substring(0,1)=='#'){
 
-            uzi = $(uzi).html();
+            uzi = $(uzi).html().replace('{KSZ}', '&amp;ksz='+$('#rendezesKeres').val());
             alert_kiir(uzi, ok_gomb, cim);
             return true;
 

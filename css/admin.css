@@ -2434,6 +2434,27 @@ div.szamlaLapozas div.lapoz.pontok {
     background: #CBE3FF;
     border-left: 0.1rem solid #fff;
 }
+.beosztas_naptar table td.foglalt.szerepkor_1 {
+    background: #CBE3FF;
+}
+.beosztas_naptar table td.foglalt.szerepkor_2 {
+    background: #CCFFCB;
+}
+.beosztas_naptar table td.foglalt.szerepkor_3 {
+    background: #FCFFCB;
+}
+.beosztas_naptar table td.foglalt.szerepkor_4 {
+    background: #FFEBCB;
+}
+.beosztas_naptar table td.foglalt.szerepkor_5 {
+    background: #FFCBCB;
+}
+.beosztas_naptar table td.foglalt.szerepkor_6 {
+    background: #FFCBF1;
+}
+.beosztas_naptar table td.foglalt.szerepkor_7 {
+    background: #E0CBFF;
+}
 
 .beosztas_naptar table td.foglalt.kijelol {
     background: #FB4747;

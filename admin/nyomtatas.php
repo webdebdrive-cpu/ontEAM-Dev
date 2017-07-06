@@ -1,5 +1,40 @@
 <?php
-if ($_GET['print']=='bej_lista') {
+if ($_GET['print']=='lista') {
+    
+    if ($_GET['mezo']) {
+        $feltetel = '';
+        $akt_tomb_szures = get_akt_tomb(trim(basename(self()), '.php'));
+        foreach ($akt_tomb_szures as $ertek){
+            if($ertek['name']==$_GET['mezo']){
+                $feltetel .= trim($ertek['megn'], ':');
+                break;
+            }
+        }
+        switch ($_GET['op']){
+            case 'equal'    : $feltetel .= ' = ';           break;
+            case 'like'     : $feltetel .= ' tartalmazza '; break;
+            case 'gteq'     : $feltetel .= ' >= ';          break;
+            case 'lteq'     : $feltetel .= ' <= ';          break;
+            case 'gt'       : $feltetel .= ' > ';           break;
+            case 'lt'       : $feltetel .= ' < ';           break;
+            case 'not_eq'   : $feltetel .= ' <> ';          break;
+            case 'empty': 
+                if($_GET['felt']==0){
+                    $feltetel .= ' nem üres';
+                }else{
+                    $feltetel .= ' üres';
+                }
+                $_GET['felt'] = '';
+            break;
+        }
+        $feltetel .= $_GET['felt'];
+        
+        if($_GET['ksz']){
+            $feltetel .= ' Tovább szűkítve a következő keresőszóval: '.$_GET['ksz'];
+        }
+        $feltetel = 'Szűrő feltételek: <b>'.$feltetel.'</b>';
+    }
+    
     echo nl2('
 <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
 <link href="../css/admin.css" rel="stylesheet" type="text/css">
@@ -10,7 +45,7 @@ if ($_GET['print']=='bej_lista') {
 
 <div class="a4_allo"> 
     <div class="padd">
-        Szűrő feltételek: <b>Nincs</b>
+        '.$feltetel.'
     </div>
     <div class="footer">
         <div class="dtc padd">

@@ -640,14 +640,8 @@ if(is_file('!telepitesek.php')){
 $header_html = '';
 $head = $weblap -> head_keszit();
 
-if(get_alapnyelv()=='hu'){
-    $title_prefix = 'Admin oldal - ';
-}else{
-    $title_prefix = 'Backend - ';
-}
-
 $head -> setDocType ( get_doctype() );
-$head -> setTitle   ( $tit.$title_prefix.' '.get_domain() );
+$head -> setTitle   ( get_title() );
 $head -> setDesc    ( '' );
 $head -> setKeywords( '' );
 $head -> charset       = get_web_charset();
@@ -942,6 +936,20 @@ $header_html .= str_replace(
     array( $css,    get_nev(),  $menuk,   $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    get_get(),   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,      ),
     $header_sablon
 );
+
+//Nyomtatási popup
+
+$header_html .= nl2('
+<div class="dn">
+    <div id="nyomtatasi_nezet">
+        Nyomtatási nézet választás...
+        <br><a href="'.self().get_get().'&amp;print=lista{KSZ}" target="_blank">Listanézet</a>
+        <br><a href="#" target="_blank">B nézet</a>
+        <br><a href="#" target="_blank">C nézet</a>
+    </div>
+</div>
+    ');
+
 
 echo $header_html.fajlbol_olvas('../sablon/admin/js_beagyazasok.html', true);
 

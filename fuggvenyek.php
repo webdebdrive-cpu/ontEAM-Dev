@@ -3583,7 +3583,7 @@ function beosztas_naptar($beosztas_id){
     for($i=0; $i<$napok; $i++){
         $naptar .= '<th colspan="24">'.date('Y.m.d', $kezd+60*60*24*$i).'</th>';
         for($ora = 0; $ora <24; $ora++){
-            $orak_fejlec .= '<th>'.$ora.'</th>';
+            $orak_fejlec .= '<th>&nbsp;</th>';
         }
     }
     $naptar .= nl2('
@@ -3605,7 +3605,7 @@ function beosztas_naptar($beosztas_id){
         $szemelyzet = $szemelyzet[0];
 
         $idopontok = array();
-        $sorok = $adatbazis_kapcsolat->s('recid tol ig', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}' AND `felh_loginnev`='$szemely'");
+        $sorok = $adatbazis_kapcsolat->s('recid tol ig szerepkor', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}' AND `felh_loginnev`='$szemely'");
         foreach($sorok as $sor){
             array_push($idopontok, $sor);
         }
@@ -3632,7 +3632,7 @@ function beosztas_naptar($beosztas_id){
                 }
 
                 if($foglalt){
-                    $sor_cellak .= '<td class="foglalt beosztas_'.$recid.'" data-recid="'.$recid.'">&nbsp;</td>';
+                    $sor_cellak .= '<td class="foglalt beosztas_'.$recid.' szerepkor_'.$idopont['szerepkor'].'" data-recid="'.$recid.'">&nbsp;</td>';
                 }else{
                     $sor_cellak .= '<td>&nbsp;</td>';
                 }

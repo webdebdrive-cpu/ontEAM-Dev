@@ -762,7 +762,7 @@ $megnevezes = 'login';
 $login_tomb = $akt_tomb = array(
     array('type' => 'checkbox',         'megn' => 'Aktív felhasználó:',         'name' => 'aktiv',          'class' => 'check',             'szuro' => 1,   'osszevon' => true),
     array('type' => 'checkbox',         'megn' => 'Virtuális felhasználó:',     'name' => 'virtual',        'class' => 'check',             'szuro' => 1),
-    array('type' => 'text',             'megn' => 'Login név:',                 'name' => 'nev',            'class' => 'oriasi',            'szuro' => 1,   'disabled' => $disabled_szerk,  'maxlength' => 250, 'alert' => 'Kérem töltse ki a login nevet!'),
+    array('type' => 'text',             'megn' => 'Login név:',                 'name' => 'nev',            'class' => 'f_loginnev',        'szuro' => 1,   'disabled' => $disabled_szerk,  'maxlength' => 10, 'alert' => 'Kérem töltse ki a login nevet!', 'style' => 'width: 10rem'),
     array('type' => 'text',             'megn' => 'Név:',                       'name' => 'teljes_nev',     'class' => 'oriasi',            'szuro' => 1,                 'maxlength' => 250, 'alert' => 'Kérem töltse ki a nevet!'),
     array('type' => 'checkbox',         'megn' => 'Jelszóval rendelkezik:',     'name' => 'van_jelszo',     'class' => 'check',             'szuro' => 1),
     array('type' => 'autocomplete',     'megn' => 'Beosztás:',                  'name' => 'beosztas_id',    'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a beosztást!'),

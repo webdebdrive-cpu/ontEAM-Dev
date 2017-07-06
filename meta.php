@@ -4,71 +4,25 @@ function get_title(){
     
     global $adatbazis_kapcsolat;
     
-	$title = get_nev().' ';
+	$title = '';
 	//global $tartalom_tomb; Ha tartalom többől generálunk ki tartalmat
 	
 	switch(basename(self())){
 		
-        case 'index.php':
-        /*Minta kód, termékek kilistázására, kategóriájukra stb.. 
-            if($_GET['id']){
-            
-                $_GET['id'] = sql_ertek($_GET['id']);
-                
-                $termek = $adatbazis_kapcsolat -> select('nev marka kat', 'termek', 'id='.$_GET['id']);
-                $termek = $termek[0];
-                
-                $marka = $adatbazis_kapcsolat -> select('nev', 'marka', 'id='.$termek['marka']);
-                $marka = $marka[0];
-                
-                $kat = $adatbazis_kapcsolat -> select('nev', 'kat', 'id='.$termek['kat']);
-                $kat = $kat[0];
-                
-                $title .= $marka['nev'].' '.$termek['nev'].' '.$kat['nev'];
-            
-            }elseif(isset($_GET['kat'])){
-                
-                $_GET['kat'] = sql_ertek($_GET['kat']);
-                $kategoria = $adatbazis_kapcsolat -> select('nev', 'kat', 'id='.$_GET['kat']);
-                $kategoria = $kategoria[0];
-                $title .= $kategoria['nev'];
-                
-            }elseif(isset($_GET['marka'])){
-                 
-                 $_GET['marka'] = sql_ertek($_GET['marka']);
-                 $marka = $adatbazis_kapcsolat -> select('nev', 'marka', 'id='.$_GET['marka']);
-                 $marka = $marka[0];
-                 $title .= $marka['nev'];
-            
-            }elseif(isset($_GET['ksz'])){
-                
-                $_GET['ksz'] = sql_ertek($_GET['ksz']);
-                $title .= 'Találatok a '.$_GET['ksz'].' kulcsszóra';
-                
-            }else{
-                
-                $termekek = $adatbazis_kapcsolat -> select('nev', 'termek', 'kiemelt>0');
-                foreach($termekek as $termek){
-                    $title .= ' '.$termek['nev'];
-                }
-                
-            }
-            */
-        break;
+        case 'login.php'                : $title .= 'Rendszer / Felhasználók';      break;
+        case 'bejelentes.php'           : $title .= 'Bejelentések';                 break;
+        case 'munkalap.php'             : $title .= 'Munkák / Munkalapok';          break;
+        case 'utemezett_feladatok.php'  : $title .= 'Munkák / Ütemzett feladatok';  break;
+        case 'munkalap.php'     : $title .= 'Munkalapok';       break;
+        case 'munkalap.php'     : $title .= 'Munkalapok';       break;
+        case 'munkalap.php'     : $title .= 'Munkalapok';       break;
+        case 'munkalap.php'     : $title .= 'Munkalapok';       break;
+        case 'munkalap.php'     : $title .= 'Munkalapok';       break;
+        case 'munkalap.php'     : $title .= 'Munkalapok';       break;
+        case 'munkalap.php'     : $title .= 'Munkalapok';       break;
+        case 'munkalap.php'     : $title .= 'Munkalapok';       break;
+        case 'munkalap.php'     : $title .= 'Munkalapok';       break;
         
-        case 'regisztracio.php':
-            if (isset($_GET['elf'])) {
-                $title .= 'Elfelejtett jelszó';
-            }elseif (isset($_GET['login'])) {
-                $title .= 'Bejelentkezés';
-            }else{
-                $title .= 'Regisztráció';
-            }
-        break;
-        
-        case 'kosar.php':
-            $title .= 'Kosár';
-        break;
 	}
 	
 	return $title;

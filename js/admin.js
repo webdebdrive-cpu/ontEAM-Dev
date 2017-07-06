@@ -950,6 +950,10 @@ $(function() {
             $('.foglalt.kijelol').removeClass('kijelol');
         }
     });
+    
+    $(document).on('keyup', '.f_loginnev', function(e) {
+        $(this).val( $(this).val().replace(/\W/g, '') );
+    });
 
     $(document).on('keyup', function(e) {
         if( e.keyCode == 27 ) {
@@ -2833,6 +2837,7 @@ function beosztas_naptarba_teszt(beosztas_id, felulir){
                 $('#szerepkor').val('').removeClass('mod');
                 $('#felh_loginnev').val('').removeClass('mod');
                 $('#felh_loginnev_autocomp').val('').removeClass('mod');
+                $('.beosztas_rejt').addClass('dn');
             }
             if(response.hiba){
                 if(response.gomb){

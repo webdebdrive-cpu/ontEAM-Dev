@@ -85,6 +85,15 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             }
         }
 
+        /* Szállítók esetén csak az aktívakat soroljuk fel */
+        if( $_GET['tabla'] == 'szallito' ) {
+            if( $where_sql ) {
+                $where_sql .= " AND `aktiv` = '1'";
+            } else {
+                $where_sql .= " WHERE `aktiv` = '1'";
+            }
+        }
+
         //DL lista elemeinek előállítása
         $return = '<ul>';
 
