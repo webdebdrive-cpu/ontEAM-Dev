@@ -30,6 +30,7 @@
             mezo            : '',                   /* Szűréssel kapcsolatos GET-ek */
             op              : '',
             felt            : '',
+            popupba         : '',
             csoport         : 0
         };
 
@@ -37,6 +38,9 @@
 
         if( !$('#autocomplete').length ) {
             $('body').append('<div id="autocomplete"></div>');
+        }
+        if(options.popupba){
+            $('#autocomplete').addClass('popupba');
         }
 
         $(this).keyup(function(e) {

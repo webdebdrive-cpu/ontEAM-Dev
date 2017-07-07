@@ -9,6 +9,9 @@
 	display: none;
     z-index: 51;
 }
+#autocomplete.popupba{
+    z-index: 10001;
+}
 
 #autocomplete ul {
 	border: 0.1rem solid #004990;

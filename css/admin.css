@@ -462,17 +462,12 @@ input.oriasi{
     width: 100%;
 }
 
-input.date_hossz{
+input.datepicker{
     width: 8.5rem;
     white-space: pre;
 }
 
-input.datetime_hossz{
-    width: 12rem;
-    white-space: pre;
-}
-
-input.datetimepicker_nomp{
+input.datetimepicker{
     width: 12rem;
     white-space: pre;
 }
@@ -2397,12 +2392,15 @@ div.szamlaLapozas div.lapoz.pontok {
     color: #fff;
 }
 
+#kijelolt_erteke{
+    margin-top: 3rem;
+}
 .beosztas_naptar{
     cursor: default;
     overflow-x: scroll;
     overflow-y: visible;
     padding: 0;
-    margin: 3rem 0 0 17.4rem;
+    margin: 0 0 0 17.4rem;
     width: 70rem;
 }
 .beosztas_naptar table th, .beosztas_naptar table tr {

@@ -249,12 +249,6 @@ if($gyorskereso_text){
 
         //Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
-	    if($elonezet){
-           $gombok .= ' <input type="button" class="gombb" onclick="window.open(\''.$elonezet.'\')" value="Előnézet" title="Előnézet">';
-        }
-        if($sorrendezes){
-            $gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().'?sorrend\'" value="Sorrend" title="Sorrendezés">';
-        }
 
         /* Kijelöltekkel való művelet gombok */
         if( _jog(2) ) {
@@ -315,7 +309,7 @@ if($gyorskereso_text){
             }
         }
 
-        if(_jog(1)){
+        if(_jog(1) && !_jog(2)){
 
             //Ha valaki bejelentő, és nem diszpécser, akkor csak saját bejelentéseit szerkesztheti
             $nem_szerkesztheti = false;
@@ -355,7 +349,7 @@ if($gyorskereso_text){
     }
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && _jog(1) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && _jog(1) && !_jog(2) && !$csak_szerkesztheto){
 
         //NAVIGÁCIÓ
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);

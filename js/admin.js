@@ -523,7 +523,17 @@ $(function() {
         $('#mehet_gomb_kivesz').removeAttr('disabled');
         $('.foglalt').removeClass('kijelol');
         $('.beosztas_'+naptar_id).addClass('kijelol');
-        $('#kijelolt_erteke').html('teszt');
+        $.ajax({
+            url: 'beosztas.php',
+            type: 'POST',
+            data: {
+                id                  : naptar_id,
+                get_beosztas_adatok : new Date().getTime()
+            },
+            success: function (response) {
+                $('#kijelolt_erteke').html(response);
+            }
+        });
         e.stopPropagation();
     });
 
@@ -773,7 +783,29 @@ $(function() {
 
                     taroltVal = ev + '.' + honap + '.' + nap;
                 } else {
-                    taroltVal = '____.__.__';
+                    taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0';
+                }
+            }
+
+            if( $(this).hasClass('datetimepicker') ) {
+                if( formAdatok[name] != '0000-00-00 00:00' ) {
+                    var date = new Date(formAdatok[name]);
+
+                    var ev    = date.getFullYear(),
+                        honap = date.getMonth() + 1,
+                        nap   = date.getDate();
+
+                    if( honap >= 0 && honap < 10 ) {
+                        honap = '0' + honap;
+                    }
+
+                    if( nap >= 0 && nap < 10 ) {
+                        nap = '0' + nap;
+                    }
+
+                    taroltVal = ev + '.' + honap + '.' + nap;
+                } else {
+                    taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0';
                 }
             }
 
@@ -1993,6 +2025,59 @@ function csoportMuvelet( oldal ) {
         }
 
     });
+}
+
+
+function arazas() {
+    idk = {};
+
+    szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+
+    if( szamlaSorok.length ) {
+        var i = 1;
+        szamlaSorok.each(function() {
+            var id = $(this).attr('data-recid');
+
+            idk[i] = id;
+            i++;
+        });
+    } else {
+        var recid = $('#szamlaBetolt').attr('data-recid');
+
+        if( recid ) {
+            idk[1] = recid;
+        }
+    }
+
+    if( objLength(idk) ) {
+        $.ajax({
+            url : 'esemenyek.php',
+            type: 'POST',
+            data: {
+                idk     : JSON.stringify(idk),
+                arazas  : new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, '', 'Hiba');
+                        return false;
+                    }
+                    if( response.popup ) {
+                        alert2(response.popup, '', 'Rendelési adatok megadása');
+                        return false;
+                    }
+
+                }
+            }
+        });
+    } else {
+        alert2('Nincsenek kijelölt sorok!');
+    }
+
+    return false;
 }
 
 function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {

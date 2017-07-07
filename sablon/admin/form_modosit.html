@@ -9,37 +9,37 @@
             <script>
                 $(document).ready(function () {
                     $('.datepicker').datetimepicker({
-                        timepicker          : false,
-                        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+                        closeOnDateSelect   : true,
                         format              :'Y.m.d',
+                        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+                        timepicker          : false,
                         validateOnBlur      : false,
-                        onChangeDateTime    : function(){ $('#mehet_gomb').addClass('gombb_alert'); }
+                        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
                     });
                     $('.datetimepicker').datetimepicker({
-                        timepicker          : true,
-                        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0',
+                        closeOnDateSelect   : true,
                         format              :'Y.m.d H:i:00',
-                        validateOnBlur      : false,
-                        step                : 60,
-                        onChangeDateTime    : function(){ $('#mehet_gomb').addClass('gombb_alert'); }
-                    });
-                    /* Beosztás új naptár bejegyzéséhez */
-                    $('.datetimepicker_nomp').datetimepicker({
-                        timepicker          : true,
                         mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0',
-                        format              :'Y.m.d H:00',
-                        validateOnBlur      : false,
+                        timepicker          : true,
                         step                : 60,
-                        onChangeDateTime    : function(){ $('#mehet_gomb').addClass('gombb_alert'); }
+                        validateOnBlur      : false,
+                        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
                     });
                     $('.ora_perc').datetimepicker({
+                        closeOnDateSelect   : true,
                         datepicker          : false,
-                        mask                : true,
                         format              :'H:i',
-                        validateOnBlur      : false,
+                        mask                : true,
                         step                : 60,
-                        onChangeDateTime    : function(){ $('#mehet_gomb').addClass('gombb_alert'); }
+                        validateOnBlur      : false,
+                        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
                     });
+                    
+                    /* Ha az űrlapnak nincs submit-ja, akkor minden mezőjét tiltunk. */
+                    if(!$('#szerk_form input[type="submit"]').length){
+                        $('#szerk_form input, #szerk_form textarea, #szerk_form select').attr('disabled', true);
+                        $('#szerk_form input.foGomb').removeAttr('disabled');
+                    }
                     
                 });
             </script>

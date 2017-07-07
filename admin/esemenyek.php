@@ -1139,10 +1139,10 @@ $megnevezes = 'torzsadat';
 $torzsadat_tomb = $akt_tomb = array(
     array('type' => 'checkbox',             'megn' => 'Aktív:',                 'name' => 'aktiv',                                  'szuro' => 1,   'class' => 'check'),
 	array('type' => 'text',                 'megn' => 'Munkavállaló neve:',     'name' => 'nev',            'maxlength' => 250,     'szuro' => 1,   'class' => 'oriasi'),
-	array('type' => 'text',                 'megn' => 'Születési ideje:',       'name' => 'szul_datum',                             'szuro' => 1,   'class' => 'kicsi datepicker date_hossz'),
+	array('type' => 'text',                 'megn' => 'Születési ideje:',       'name' => 'szul_datum',                             'szuro' => 1,   'class' => 'kicsi datepicker'),
 	array('type' => 'text',                 'megn' => 'Szakmája:',              'name' => 'szakma',         'maxlength' => 250,     'szuro' => 1,   'class' => 'oriasi'),
     array('type' => 'select_szemelyzet',    'megn' => 'Beosztása:',             'name' => 'szemelyzet_id',                          'szuro' => 1),
-	array('type' => 'text',                 'megn' => 'Munkaviszony kezdete:',  'name' => 'munka_kezd',                             'szuro' => 1,   'class' => 'kicsi datepicker date_hossz'),
+	array('type' => 'text',                 'megn' => 'Munkaviszony kezdete:',  'name' => 'munka_kezd',                             'szuro' => 1,   'class' => 'kicsi datepicker'),
 	array('type' => 'text',                 'megn' => 'Kompetenciák:',          'name' => 'komp',           'maxlength' => 250,     'szuro' => 1,   'class' => 'oriasi'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -1153,20 +1153,20 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $megnevezes = 'beosztas';
 $beosztas_tomb = $akt_tomb = array(
 	array('type' => 'text',                     'megn' => 'Cím:',               'name' => 'cim',                                'szuro' => 1,   'class' => 'oriasi',       'maxlength' => 250),
-    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',          'name' => 'telephely_id',   'disabled' => 1,    'szuro' => 1,       'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this ); '),
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',          'name' => 'telephely_id',   'disabled' => 1,    'szuro' => 1,    'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this ); '),
 	array('type' => 'text',                     'megn' => 'Időszak:',           'name' => 'tol',            'disabled' => 1,    'szuro' => 1,   'class' => 'kicsi datepicker', 'megn_szurobe' => 'Időpont tól', 'osszevon' => 1),
 	array('type' => 'text',                     'megn' => ' - ',                'name' => 'ig',             'disabled' => 1,    'szuro' => 1,   'class' => 'kicsi datepicker', 'megn_szurobe' => 'Időpont ig'),
 	array('type' => 'text',                     'megn' => 'Készítette:',        'name' => 'insert_usr',     'disabled' => 1,    'szuro' => 1,   'class' => 'oriasi'),
-	array('type' => 'text',                     'megn' => 'Készítés ideje:',    'name' => 'insert_dt',      'disabled' => 1,    'szuro' => 1,   'class' => 'date_hossz'),
+	array('type' => 'text',                     'megn' => 'Készítés ideje:',    'name' => 'insert_dt',      'disabled' => 1,    'szuro' => 1,   'class' => 'datepicker'),
 	array('type' => 'text',                     'megn' => 'Utoljára mentette:', 'name' => 'update_usr',     'disabled' => 1,    'szuro' => 1,   'class' => 'oriasi'),
-	array('type' => 'text',                     'megn' => 'Mentés ideje:',      'name' => 'update_dt',      'disabled' => 1,    'szuro' => 1,   'class' => 'date_hossz'),
+	array('type' => 'text',                     'megn' => 'Mentés ideje:',      'name' => 'update_dt',      'disabled' => 1,    'szuro' => 1,   'class' => 'datepicker'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 $megnevezes = 'beosztas_naptar';
 $beosztas_naptar_tomb = $akt_tomb = array(
-	array('type' => 'text',                     'megn' => 'Időszak:',           'name' => 'tol',            'class' => 'kicsi datetimepicker_nomp datetime_hossz', 'megn_szurobe' => 'Időszak tól', 'maxlength' => 16, 'alert' => 'Kérjük adja meg az időszak kezdetét!', 'osszevon' => 1   ),
-	array('type' => 'text',                     'megn' => ' - ',                'name' => 'ig',             'class' => 'kicsi datetimepicker_nomp datetime_hossz', 'megn_szurobe' => 'Időszak ig',  'maxlength' => 16, 'alert' => 'Kérjük adja meg az időszak végét!'                       ),
+	array('type' => 'text',                     'megn' => 'Időszak:',           'name' => 'tol',            'class' => 'kicsi datetimepicker', 'megn_szurobe' => 'Időszak tól', 'maxlength' => 16, 'alert' => 'Kérjük adja meg az időszak kezdetét!', 'osszevon' => 1   ),
+	array('type' => 'text',                     'megn' => ' - ',                'name' => 'ig',             'class' => 'kicsi datetimepicker', 'megn_szurobe' => 'Időszak ig',  'maxlength' => 16, 'alert' => 'Kérjük adja meg az időszak végét!'                       ),
     array('type' => 'select_beosztas',          'megn' => 'Beosztás tipus:',    'name' => 'beosztas',       'onchange' => 'if($(this).val()==1){ $(\'.beosztas_rejt\').removeClass(\'dn\'); }else{ $(\'.beosztas_rejt\').addClass(\'dn\'); }',          'alert' => 'Kérjük adja meg a beosztás típusát!'),
     array('type' => 'select_szemelyzet',        'megn' => 'Szerepkör:',         'name' => 'szerepkor',      'dtr_class' => ' dn beosztas_rejt'),
     array('type' => 'autocomplete',             'megn' => 'Név:',               'name' => 'felh_loginnev',  'class' => 'disableNav',   'tabla' => 'torzsadat',  'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a személy nevét!'),
@@ -1709,10 +1709,126 @@ if( isset($_GET['csoportAtnevezes']) ) {
     exit();
 }
 
+/* Várólistához adás és kivétel config */
+$idk = json_decode($_POST['idk'], true);
+$page = $_POST['page'];
+
+//Mik az egyes státusz ID-k?
+$nyitott_statid  = array(1);
+$varakozo_statid = 4;
+if($page=='anyagigenyles'){
+    $nyitott_statid  = array(5,20);
+    $varakozo_statid = 52;
+}
+if($page=='munkalap'){
+    $varakozo_statid = 7;
+}
+if( isset($_POST['varolistahozAdas']) ) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( is_array($idk) ) {
+        /* Ellenőrizzük a csoportokat */
+        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")", '', '');
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
+        $csoportok_unique = array_unique($csoportok);
+
+        $kijelolt_db = array_count_values($csoportok);
+
+        foreach( $csoportok_unique as $csu ) {
+            if( $csu > 0 ) {
+                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', $page, "`csoport_id` = '{$csu}'", '', '');
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+
+                if( count($csoport_db) != $kijelolt_db[$csu] ) {
+                    echo json_encode(array(
+                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+        }
+
+        /* Ellenőrizzük a státuszokat is */
+        foreach($idk as $id) {
+            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'recid desc', '1');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $statusz ) {
+                $statusz = $statusz[0];
+
+                if(  !in_array($statusz['stat_id'], $nyitott_statid) ) {
+                    echo json_encode(array(
+                        'hiba' => 'Csak nyitott státuszú bejegyzéseket lehet várólistához adni!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            } else {
+                echo json_encode(array(
+                    'hiba' => 'Státusz nem található!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+
+            echo json_encode(array(
+                'hiba' => 'Biztos várólistához adja a kijelölt bejelentéseket?',
+                'gomb' => '<input class="gomb piros" value="Igen" onclick="varolistahozAdas();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        foreach($idk as $id) {
+            $statusz = addStatusz( $page.'_statusz', $id, $varakozo_statid );
+
+            if( $statusz === false ) {
+                $db_error = true;
+            }
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 /* Várólistából kivétel */
 if( isset($_POST['varolistabolKivetel']) ) {
-    $idk = json_decode($_POST['idk'], true);
-    $page = $_POST['page'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -1749,15 +1865,6 @@ if( isset($_POST['varolistabolKivetel']) ) {
             }
         }
 
-        switch( $page ) {
-            case 'bejelentes':
-                $varakozo = 4;
-            break;
-            case 'munkalap':
-                $varakozo = 7;
-            break;
-        }
-
         /* Ellenőrizzük a státuszokat is */
         foreach($idk as $id) {
             $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'recid desc', '1');
@@ -1769,7 +1876,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
             if( $statusz ) {
                 $statusz = $statusz[0];
 
-                if( $statusz['stat_id'] != $varakozo ) {
+                if( $statusz['stat_id'] != $varakozo_statid ) {
                     echo json_encode(array(
                         'hiba' => 'Csak várakozó státuszú bejegyzésekről lehet levenni a várakoztatást!'
                     ));
@@ -1801,125 +1908,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
 
         /* Státuszt nyitott-ra állítjuk */
         foreach($idk as $id) {
-            $statusz = addStatusz( $page.'_statusz', $id, 1 );
-
-            if( $statusz === false ) {
-                $db_error = true;
-            }
-        }
-
-        if( !$db_error ) {
-            mysqli_commit($db_kapcs);
-
-            echo json_encode(array(
-                'statusz' => 'siker'
-            ));
-        } else {
-            mysqli_rollback($db_kapcs);
-
-            echo json_encode(array(
-                'hiba' => tranzakcioHiba()
-            ));
-        }
-    }
-
-    $weblap->leallit();
-    exit();
-}
-
-/* Várólistához adás */
-if( isset($_POST['varolistahozAdas']) ) {
-    $idk = json_decode($_POST['idk'], true);
-    $page = $_POST['page'];
-
-    $db_error = false;
-    mysqli_autocommit($db_kapcs, false);
-
-    if( is_array($idk) ) {
-        /* Ellenőrizzük a csoportokat */
-        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")", '', '');
-
-        if( $sql === false ) {
-            $db_error = true;
-        }
-
-        $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
-        $csoportok_unique = array_unique($csoportok);
-
-        $kijelolt_db = array_count_values($csoportok);
-
-        foreach( $csoportok_unique as $csu ) {
-            if( $csu > 0 ) {
-                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', $page, "`csoport_id` = '{$csu}'", '', '');
-
-                if( $sql === false ) {
-                    $db_error = true;
-                }
-
-                if( count($csoport_db) != $kijelolt_db[$csu] ) {
-                    echo json_encode(array(
-                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
-                    ));
-
-                    $weblap->leallit();
-                    exit();
-                }
-            }
-        }
-
-        /* Ellenőrizzük a státuszokat is */
-        foreach($idk as $id) {
-            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'recid desc', '1');
-
-            if( $sql === false ) {
-                $db_error = true;
-            }
-
-            if( $statusz ) {
-                $statusz = $statusz[0];
-
-                if( $statusz['stat_id'] != 1 ) {
-                    echo json_encode(array(
-                        'hiba' => 'Csak nyitott státuszú bejegyzéseket lehet várólistához adni!'
-                    ));
-
-                    $weblap->leallit();
-                    exit();
-                }
-            } else {
-                echo json_encode(array(
-                    'hiba' => 'Státusz nem található!'
-                ));
-
-                $weblap->leallit();
-                exit();
-            }
-        }
-
-        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
-        if (isset($_POST['csak_kerdezunk'])) {
-
-            echo json_encode(array(
-                'hiba' => 'Biztos várólistához adja a kijelölt bejelentéseket?',
-                'gomb' => '<input class="gomb piros" value="Igen" onclick="varolistahozAdas();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
-            ));
-
-            $weblap->leallit();
-            exit();
-        }
-
-        /* Státuszt Várakozó-ra állítjuk */
-        switch( $page ) {
-            case 'bejelentes':
-                $varakozo = 4;
-            break;
-            case 'munkalap':
-                $varakozo = 7;
-            break;
-        }
-
-        foreach($idk as $id) {
-            $statusz = addStatusz( $page.'_statusz', $id, $varakozo );
+            $statusz = addStatusz( $page.'_statusz', $id, $nyitott_statid[0] );
 
             if( $statusz === false ) {
                 $db_error = true;
@@ -2526,6 +2515,188 @@ if( isset($_GET['addCsoport']) ) {
         echo json_encode(array(
             'hiba' => 'Ilyen csoport már létezik!'
         ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+/* Árazás */
+if( isset($_POST['arazas']) ) {
+    $idk = json_decode($_POST['idk'], true);
+    $munkalapID = $_POST['munkalapID'];
+
+    if( !_jog(15) ) {
+        echo json_encode(array(
+            'hiba' => 'Nincs megfelelő jogosultság a művelet végrehajtásához!'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( is_array($idk) ) {
+        /* Ellenőrizzük a csoportokat */
+        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'anyagigenyles', "`recid` IN (".implode(',', $idk).")", '', '');
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
+        $csoportok_unique = array_unique($csoportok);
+
+        $kijelolt_db = array_count_values($csoportok);
+
+        foreach( $csoportok_unique as $csu ) {
+            if( $csu > 0 ) {
+                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', 'anyagigenyles', "`csoport_id` = '{$csu}'", '', '');
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+
+                if( count($csoport_db) != $kijelolt_db[$csu] ) {
+                    echo json_encode(array(
+                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+        }
+
+        /* Ellenőrizzük a státuszokat is */
+        foreach($idk as $id) {
+            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'anyagigenyles_statusz', 'id='.$id, 'recid desc', '1');
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $statusz ) {
+                $statusz = $statusz[0];
+
+                if( $statusz['stat_id'] != 5 ) {
+                    $sql = $statusz_text = $adatbazis_kapcsolat->s('nev', 'anyagigenyles_statusz_text', "`recid` = '{$statusz['stat_id']}'", '', '1');
+                    $statusz_text = $statusz_text[0];
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    $sql = $bejelentes = $adatbazis_kapcsolat->s('ikt_szam', 'anyagigenyles', "`recid` = '{$id}'", '', '');
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    $hiba_kieg = '';
+                    if( $bejelentes ) {
+                        $bejelentes = $bejelentes[0];
+
+                        $hiba_kieg = '<br>A "'.$bejelentes['ikt_szam'].'" anyagigénylés státusza: '.$statusz_text['nev'];
+                    }
+
+                    echo json_encode(array(
+                        'hiba' => 'Árazni csak nyitott státuszú anyagigénylést lehet!'.$hiba_kieg
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            } else {
+                echo json_encode(array(
+                    'hiba' => 'Státusz nem található!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
+        //Legutóbb ellenőrzott rekod ID-ja az $id változóban, induljunk ki abból
+        $igenyles = $adatbazis_kapcsolat->s('cikktorzs_id nev igmen cikkmee', 'anyagigenyles', "`recid`='$id'");
+        $igenyles = $igenyles[0];
+        $popup = nl2('
+                <div class="l">
+                    <table style="font-weight: normal; font-size: 1.2rem;">
+                    <tr>
+                        <td class="p">Cikk:</td>
+                        <td class="p">'.$igenyles['cikktorzs_id'].'</td>
+                    </tr>
+                    <tr>
+                        <td class="p">Név:</td>
+                        <td class="p">'.$igenyles['nev'].'</td>
+                    </tr>
+                    <tr>
+                        <td class="p">Igényelt mennyiség:</td>
+                        <td class="p">'.$igenyles['igmen'].' '.$igenyles['cikkmee'].'</td>
+                    </tr>
+                    <tr>
+                        <td class="p">Szállító:</td>
+                        <td class="p">
+                            <input type="text" autocomplete="off" name="pop_szallito_autocomp" id="pop_szallito_autocomp" onblur="if(!$(this).val()){ $(\'#pop_szallito\').val(\'\'); }">
+                            <input type="hidden" name="pop_szallito" id="pop_szallito">
+                            <script>
+                            $(document).ready(function() {
+                                $(\'#pop_szallito_autocomp\').autocomplete({
+                                    \'php_fajl\'        : \'../autocomplete.php\',
+                                    \'tabla\'           : \'szallito\',
+                                    \'oszlop_keres\'    : \'nev\',
+                                    \'oszlop_listaz\'   : \'nev\',
+                                    \'id_kiir\'         : \'recid\',
+                                    \'popupba\'         : true
+                                });
+                            });
+                            </script>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="p">Rendelt mennyiség:</td>
+                        <td class="p"><input type="text" name="pop_rndmen" id="pop_rndmen" class="f_num" style="width: 3rem"> '.$igenyles['cikkmee'].'</td>
+                    </tr>
+                    <tr>
+                        <td class="p">Pénznem:</td>
+                        <td class="p">
+                            <input autocomplete="off" type="text" name="pop_kcs_21_autocomp" id="pop_kcs_21_autocomp" style="width: 5rem">
+                            <input type="hidden" name="pop_kcs_21" id="pop_kcs_21">
+                            <script>
+                            $(document).ready(function() {
+                                $(\'#pop_kcs_21_autocomp\').autocomplete({
+                                    \'php_fajl\'        : \'../autocomplete.php\',
+                                    \'tabla\'           : \'erteklista\',
+                                    \'oszlop_keres\'    : \'info\',
+                                    \'oszlop_listaz\'   : \'info\',
+                                    \'csoport\'         : 21,
+                                    \'id_kiir\'         : \'id\',
+                                    \'popupba\'         : true
+                                });
+                            });
+                            </script>
+                        </td>
+                    </tr>
+                    </table>
+                </div>
+                ');
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'popup' => $popup
+            ));
+            
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
     }
 
     $weblap->leallit();

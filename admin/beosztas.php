@@ -36,58 +36,37 @@ $szel                   = get_indexkep_sz();    //Kiskép szélessége
 $ujkent_szerkesztheto   = true;                 //Szerkesztésnél elérhető egy gomb, melyre kattintva a termékadatai átkerülnek az új feltöltésbe
 
 $ckeditor_js            = '../'.get_utvonal().'wysiwyg/ckeditor.js';    //Ckeditor JS útvonala
-$formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          //Azok az oszlopneveket sorold fel, melyek numerikus értéket is tartalmazhatnak, de nem szeretnéd, ha lista nézetben ezres csoportra bontaná
+$formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');   //Azok az oszlopneveket sorold fel, melyek numerikus értéket is tartalmazhatnak, de nem szeretnéd, ha lista nézetben ezres csoportra bontaná
 
 $szamla_html = '';
 
 
-//Naptárba tevés dátum input ellenőrzése
-/* Törölhető
-if (isset($_POST['beosztas_idoszak_ell'])) {
+//Adott beosztás adatinak lekérése kiíratáshoz
+if (isset($_POST['get_beosztas_adatok'])) {
     
-    $ertek = $adatbazis_kapcsolat->s('tol ig', 'beosztas', "`recid`='{$_POST['id']}'");
-    $ertek = $ertek[0];
+    $naptar = $adatbazis_kapcsolat->s('felh_loginnev beosztas tol ig', 'beosztas_naptar', "`recid`='{$_POST['id']}'");
+    $naptar = $naptar[0];
+    $szemelyzet = $adatbazis_kapcsolat->s('nev szemelyzet_id', 'torzsadat', "`felh_loginnev`='{$naptar['felh_loginnev']}'");
+    $szemelyzet = $szemelyzet[0];
     
-    //Ha mindkét dátum meg lett adva, akkor azt is ellenőrizzük, hogy nincsenek-e átfedésben
-    if( substr($_POST['tol'], 0, 1) && substr($_POST['ig'], 0, 1) ){
-        if($_POST['tol'] >= $_POST['ig']){
-            echo json_encode(array('hiba' => 'A végdátum nem lehet korábbi mint a kezdődátum!'));
-            $weblap -> leallit();
-            exit;
+    $ret = $szemelyzet['nev'].' - ';
+    if($naptar['beosztas']==1){
+        require 'selectek.php';
+        foreach($select_szemelyzet as $szerepkor){
+            if($szerepkor['value']==$szemelyzet['szemelyzet_id']){
+                $ret .= $szerepkor['name'];
+            }
         }
+    }else{
+        $ret .= 'Szabadság';
     }
     
-    $_POST['tol'] = str_replace('.', '-', substr($_POST['tol'], 0, 10));
-    $_POST['ig']  = str_replace('.', '-', substr($_POST['ig'],  0, 10));
-    
-    if($_POST['mezo']=='tol'){
-        if($ertek['tol'] > $_POST['tol']){
-            echo json_encode(array('hiba' => 'A kezdődátum nem lehet korábbi mint az adatlap időszaka!'));
-            $weblap -> leallit();
-            exit;
-        }
-        if($ertek['ig'] < $_POST['tol']){
-            echo json_encode(array('hiba' => 'A kezdődátum nem lehet későbbi mint az adatlap időszaka!'));
-            $weblap -> leallit();
-            exit;
-        }
-    }
-    if($_POST['mezo']=='ig'){
-        if($ertek['ig'] < $_POST['ig']){
-            echo json_encode(array('hiba' => 'A végdátum nem lehet későbbi mint az adatlap időszaka!'));
-            $weblap -> leallit();
-            exit;
-        }
-        if($ertek['tol'] > $_POST['ig']){
-            echo json_encode(array('hiba' => 'A végdátum nem lehet korábbi mint az adatlap időszaka!'));
-            $weblap -> leallit();
-            exit;
-        }
-    }
+    $ret .= ' | '.substr($naptar['tol'], 0, 16).' - '.substr($naptar['ig'], 0, 16);
+    echo $ret;
     
     $weblap -> leallit();
     exit;
-}*/
+}
 
 //Naptárba tevés
 if (isset($_POST['beosztas_naptarba_teszt'])) {
@@ -570,13 +549,15 @@ if($gyorskereso_text){
 
         if(_jog(30)){
             $gombok = nl2('
-                <div class="form_kuldes">
-                    <input type="submit" class="gombb gombb_alert" disabled id="mehet_gomb" value="Naptárba tesz">
-                    <input type="button" class="gombb gombb_alert" disabled id="mehet_gomb_kivesz" value="Naptárból kivesz" onclick="naptar_torol_kerdez()">
-                    <input type="hidden" name="naptar_torol_id" id="naptar_torol_id" value="">
-                    <input type="hidden" name="get_id" id="get_id" value="'.$_GET['id'].'">
-                    <input type="text" name="idoszak_tol" id="idoszak_tol" value="'.$beosztas['tol'].'">
-                    <input type="text" name="idoszak_ig" id="idoszak_ig" value="'.$beosztas['ig'].'">
+                <div class="muveletek" style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);">
+                    <div class="form_kuldes">
+                        <input type="submit" class="gombb gombb_alert" disabled id="mehet_gomb" value="Naptárba tesz">
+                        <input type="button" class="gombb gombb_alert" disabled id="mehet_gomb_kivesz" value="Naptárból kivesz" onclick="naptar_torol_kerdez()">
+                        <input type="hidden" name="naptar_torol_id" id="naptar_torol_id" value="">
+                        <input type="hidden" name="get_id" id="get_id" value="'.$_GET['id'].'">
+                        <input type="hidden" name="idoszak_tol" id="idoszak_tol" value="'.$beosztas['tol'].'">
+                        <input type="hidden" name="idoszak_ig" id="idoszak_ig" value="'.$beosztas['ig'].'">
+                    </div>
                 </div>
             ').$gombok;
         }

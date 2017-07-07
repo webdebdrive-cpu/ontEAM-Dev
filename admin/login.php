@@ -391,8 +391,7 @@ if($gyorskereso_text){
         //$gombok .= ' <input type="button" id="visszavonas_gomb" disabled="disabled" class="gombb" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\', true);" value="Visszavonás" title="Visszavonás">';
 
         if( !$csak_szerkesztheto ) {
-            //Jogosutságkezelés: csak az törölheti, aki létrehozta
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Felhasználó nem törölhető, csak inaktiválható!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Személyzet nem törölhető! Helyette kérjük vegye ki az aktív pipát!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }
 
         //$gombok .= ' <input type="button" id="kilepes_gomb" class="gombb_alert" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\');" value="Kilépés" title="Kilépés">';

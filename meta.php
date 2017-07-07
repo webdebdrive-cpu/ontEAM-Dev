@@ -4,11 +4,18 @@ function get_title(){
 
     global $adatbazis_kapcsolat;
 
-	$title = '';
+	$title = 'ontEAM - ';
 	//global $tartalom_tomb; Ha tartalom többől generálunk ki tartalmat
 
 	switch(basename(self())){
 
+        case 'index.php': 
+            if(!$_SESSION[get_db_tabla().'user_id']){
+                $title .= 'Bejelentkezés';
+            }else{
+                $title = trim($title, ' - ');
+            }
+        break;
         case 'bejelentes.php'               : $title .= 'Bejelentések';                            break;
         case 'munkalap.php'                 : $title .= 'Munkák / Munkalapok';                     break;
         case 'utemezett_feladatok.php'      : $title .= 'Munkák / Ütemzett feladatok';             break;

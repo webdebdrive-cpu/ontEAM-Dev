@@ -875,6 +875,11 @@ $uj  = nl2('
 if(basename(self())=='bejelentes.php' && !_jog(1)){
     $torles_icon    = '';
     $uj             = '';
+    
+}
+//Diszpécser sem tölthet fel újat
+if(basename(self())=='bejelentes.php' && _jog(2)){
+    $uj = '';
 }
 
 if(basename(self())=='utemezett_feladatok.php' && !_jog(4)){

@@ -1,6 +1,6 @@
 <?php
 require_once('../weblap.php');
-
+//15
 if( !_jog(12) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
@@ -148,7 +148,7 @@ if($gyorskereso_text){
 }
 
     if( !$_GET['ajax'] ) {
-        echo '<div id="szamlaBetolt">';
+        echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
     if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
@@ -176,18 +176,109 @@ if($gyorskereso_text){
             fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
         );
     }
+    
+    /* Gombok kirajzolása minden oldalra */
+    $gombok = '';
+    if( isset($_GET['uj']) ) {
+        
+        //Újat csak "Anyagigénylés kezelése" joggal lehet
+        if(_jog(13)){
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                </div>
+            ');
+
+            $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
+            if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+                if( $_COOKIE['csuszkaSzelesseg'] ) {
+                    $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
+                }
+            }
+
+            /* Műveletek box */
+            $gombok = nl2('
+                <div class="muveletek"'.$muv_style.'>
+                    '.$gombok.'
+                </div>
+            ');
+        }
+    
+    //Módosítás gombok
+    } else {
+        
+        $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
+		$sor = $sor[0];
+
+        //Js, a törlés gombhoz
+	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
+
+        /* Anyag */
+        if( _jog(15) ) {
+            $gombok .= nl2('
+                <div id="kmCont">
+                    <div class="kijeloltek_muv">
+                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista..." disabled="disabled">
+                        <div class="muv">
+                            <ul>
+                                <li><a onclick="varolistahozAdas(\'csak kérdezünk még\');">Várólistához adás</a></li>
+                                <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\');">Várólistból kivétel</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <input type="button" class="gombb foGomb" value="Árazás" onclick="arazas()">
+                    <input type="button" class="gombb foGomb" value="Küldés jóváhagyásra">
+                    <input type="button" class="gombb foGomb" value="Rendelés készítése">
+                </div>
+            ');
+        }
+
+        if( !$csak_szerkesztheto ) {
+            //Jogosutságkezelés: csak az törölheti, aki létrehozta
+            if($sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            } else {
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">';
+            }
+        }
+
+        if( _jog(13) ){
+
+            //Csak saját bejelentéseit szerkesztheti
+            $nem_szerkesztheti = false;
+            if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
+                $nem_szerkesztheti = true;
+            }
+
+            if(!$nem_szerkesztheti && isset($_GET['modosit'])){
+                $gombok = nl2('
+                    <div class="form_kuldes">
+                        <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                    </div>
+                ').$gombok;
+            }
+        }
+
+        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
+        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+            if( $_COOKIE['csuszkaSzelesseg'] ) {
+                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
+            }
+        }
+
+        /* Műveletek box */
+        $gombok = nl2('
+            <div class="muveletek"'.$muv_style.'>
+                '.$gombok.'
+            </div>
+        ');
+    }
 
 	//Új termék felvitele
 	if(isset($_GET['uj']) && _jog(13) && !$csak_szerkesztheto){
 
         $akt_tomb = $anyagigenyles_tomb_feltolt;
         
-        //NAVIGÁCIÓ
-        $gombok = '';
-	    //$gombok = '<input type="button" class="gombb" onclick="location.href=\''.self().'?lista\'" value="Lista" title="Lista megtekintése">';
-        //$gombok .= ' <input type="button" id="visszavonas_gomb" disabled="disabled" class="gombb" onclick="szamlaBetolt(\'1\', \''.basename(self()).'\', \'uj\', true);" value="Visszavonás" title="Visszavonás">';
-        //$gombok .= ' <input type="button" id="kilepes_gomb" class="gombb_alert" onclick="location.href = \''.basename(self()).'\';" value="Kilépés" title="Kilépés">';
-
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
@@ -232,10 +323,6 @@ if($gyorskereso_text){
         
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
-
-        $gombok = nl2('<div class="form_kuldes">
-                          <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
-                      </div>').$gombok;
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
@@ -384,23 +471,6 @@ if($gyorskereso_text){
 
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
 
-	    //Js, a törlés gombhoz
-	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
-	    if($elonezet){
-           $gombok .= ' <input type="button" class="gombb" onclick="window.open(\''.$elonezet.'\')" value="Előnézet" title="Előnézet">';
-        }
-        if($sorrendezes){
-            $gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().'?sorrend\'" value="Sorrend" title="Sorrendezés">';
-        }
-        if($ujkent_szerkesztheto && !$csak_szerkesztheto){
-            //$gombok .= ' <input type="button" class="gombb" onclick="document.getElementById(\''.$megnevezes.'ujkent_szerk\').value=\'1\'; document.getElementById(\'szerk_form\').submit()" title="Újként szerkeszt" value="Újként">';
-        }
-        if(!$csak_szerkesztheto){
-            //$gombok .= ' <input type="button" id="rocordUj" class="gombb dn" onclick="location.href=\''.self().'?uj\'" value="Új" title="Új feltöltés">';
-        }
-        //$gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().get_get(array('modosit','errnum','kephiba','siker','id', 'szerkeszt', 'ajax')).'&amp;lista\'" value="Lista" title="Lista megtekintése">';
-        //$gombok .= ' <input type="button" id="visszavonas_gomb" disabled="disabled" class="gombb" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\', true);" value="Visszavonás" title="Visszavonás">';
-
         if( !$csak_szerkesztheto ) {
             //Törölhet, ha van hozzá joga és a bejegzés folyamabtan van (tehát nem törölt, sem lezárt)
             if(_jog(13)){
@@ -452,14 +522,6 @@ if($gyorskereso_text){
 		require('switch.php');
 
         $jobb_oldal = '';
-
-        if(_jog(13)){
-            $gombok = nl2('
-                <div class="form_kuldes">
-                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
-                </div>
-            ').$gombok;
-        }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {

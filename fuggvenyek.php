@@ -519,6 +519,13 @@ function i_u($type, $tabla, $tomb){
 
         /* Csak nyitott státuszú bejelentést lehet szerkeszteni */
         if( $tabla == 'bejelentes' ) {
+            
+            //Diszpécser nem módosíthat bejelentést
+            if(_jog(2)){
+                $weblap -> leallit();
+                exit;
+            }
+            
             $akt_statusz = $adatbazis_kapcsolat->s('stat_id', $tabla.'_statusz', 'id='.$_GET['id'], 'recid desc', '1');
 
             if( $akt_statusz === false ) {
@@ -749,13 +756,9 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 if(strpos($ertek['class'], 'f_num')!==false){
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0,00\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
                 }
-                //Ha dátum mező, akkor a ____.__.__ is üresnek számít
-                if(strpos($ertek['class'], 'datepicker')!==false){
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'____.__.__\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
-                }
-                //Ha dátum mező, akkor a ____.__.__ __:__:__ is üresnek számít
-                if(strpos($ertek['class'], 'datetimepicker')!==false){
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'____.__.__ __:__:__\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
+                //Ha dátum mező, akkor az ürességet másképp figyeljük
+                if(strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false){
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.substring(0,1)==\'\xa0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
                 }
 
                 if($ertek['mail']){
@@ -891,7 +894,30 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 return false;
             }
             
-            
+            tol = $(\'#tol\').val().substring(0, 10).replace(/\./g, \'-\');
+            ig  = $(\'#ig\').val().substring(0, 10).replace(/\./g, \'-\');
+            idoszak_tol = $(\'#idoszak_tol\').val();
+            idoszak_ig  = $(\'#idoszak_ig\').val();
+            if(idoszak_tol > tol){
+                alert2(\'A kezdődátum nem lehet korábbi mint az adatlap időszaka!\', \'\', \'Hiba\');
+                return false;
+            }
+            if(idoszak_ig < tol){
+                alert2(\'A kezdődátum nem lehet későbbi mint az adatlap időszaka!\', \'\', \'Hiba\');
+                return false;
+            }
+            if(idoszak_ig < ig){
+                alert2(\'A végdátum nem lehet későbbi mint az adatlap időszaka!\', \'\', \'Hiba\');
+                return false;
+            }
+            if(idoszak_tol > ig){
+                alert2(\'A végdátum nem lehet korábbi mint az adatlap időszaka!\', \'\', \'Hiba\');
+                return false;
+            }
+            if(tol >= ig){
+                alert2(\'A végdátum nem lehet korábbi mint a kezdődátum!\', \'\', \'Hiba\');
+                return false; 
+            }
 
             beosztas_naptarba_teszt(\''.$_GET['id'].'\');
             return false;
@@ -3631,7 +3657,6 @@ function beosztas_naptar($beosztas_id){
                 <div class="dib" style="position: fixed; right: 0">
                     '.$szerepkorok.'
                 </div>
-                <div id="kijelolt_erteke"></div>
                 <table>
                 <tr>
                     <th>
@@ -3718,7 +3743,7 @@ function beosztas_naptar($beosztas_id){
     }
     $naptar = '<style type="text/css">'.$css.'</style>'.$naptar;
 
-    return '<div class="beosztas_naptar">'.$naptar.'</div>';
+    return '<div id="kijelolt_erteke"></div><div class="beosztas_naptar">'.$naptar.'</div>';
 }
 
 //A kapott mező, operátor és feltétel alapján előállítja a where feltétel kiegészítését
