@@ -101,7 +101,7 @@ div.alert2 input.gombb {
     padding: 0.8rem 1.4rem;
 }
 
-#alert2 table input[type='text']{
+#alert2 table.popup input[type='text']{
     font-size: 1.2rem;
     padding: 0.2rem 0.4rem;
 }

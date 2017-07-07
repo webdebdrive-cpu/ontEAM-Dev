@@ -2539,6 +2539,7 @@ if( isset($_POST['arazas']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( is_array($idk) ) {
+        
         /* Ellenőrizzük a csoportokat */
         $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'anyagigenyles', "`recid` IN (".implode(',', $idk).")", '', '');
         if( $sql === false ) {
@@ -2569,10 +2570,12 @@ if( isset($_POST['arazas']) ) {
             }
         }
 
-        /* Ellenőrizzük a státuszokat is */
+        /* Ellenőrizzük a státuszokat és hogy az anyag, szállító, pénznem és egységár megegyezik-e a kiválasztott soroknál (vagy üres) */
+        $idk_inputba = '';
         foreach($idk as $id) {
+            
+            $idk_inputba .= $id.',';
             $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'anyagigenyles_statusz', 'id='.$id, 'recid desc', '1');
-//echo $adatbazis_kapcsolat->gp() . '<br>';
             if( $sql === false ) {
                 $db_error = true;
             }
@@ -2581,15 +2584,14 @@ if( isset($_POST['arazas']) ) {
                 $statusz = $statusz[0];
 
                 if( $statusz['stat_id'] != 5 ) {
+                    
                     $sql = $statusz_text = $adatbazis_kapcsolat->s('nev', 'anyagigenyles_statusz_text', "`recid` = '{$statusz['stat_id']}'", '', '1');
                     $statusz_text = $statusz_text[0];
-
                     if( $sql === false ) {
                         $db_error = true;
                     }
 
                     $sql = $bejelentes = $adatbazis_kapcsolat->s('ikt_szam', 'anyagigenyles', "`recid` = '{$id}'", '', '');
-
                     if( $sql === false ) {
                         $db_error = true;
                     }
@@ -2604,10 +2606,38 @@ if( isset($_POST['arazas']) ) {
                     echo json_encode(array(
                         'hiba' => 'Árazni csak nyitott státuszú anyagigénylést lehet!'.$hiba_kieg
                     ));
-
                     $weblap->leallit();
                     exit();
+                    
+                }else{
+                    
+                    //Ha van eltérés az előző bejegyzéshez képest (üres mező megengedett) akkro hibaüzenet:
+                    $igenyles = $adatbazis_kapcsolat->s('cikktorzs_id szallito kcs_21 rndear', 'anyagigenyles', "`recid`='{$id}'");
+                    $igenyles = $igenyles[0];
+                    if(
+                            ($elozo_cikktorzs_id && $igenyles['cikktorzs_id'] && $elozo_cikktorzs_id != $igenyles['cikktorzs_id']) ||
+                            ($elozo_szallito     && $igenyles['szallito']     && $elozo_szallito     != $igenyles['szallito']    ) ||
+                            ($elozo_kcs_21       && $igenyles['kcs_21']       && $elozo_kcs_21       != $igenyles['kcs_21']      ) ||
+                            ($elozo_rndear       && $igenyles['rndear']       && $elozo_rndear       != $igenyles['rndear']      )
+                        ){
+                        echo json_encode(array(
+                            'hiba' => 'Árazni csak azonos cikkeket, azonos szállítóval, pénznemmel és egységárral lehet!'.$hiba_kieg
+                        ));
+                        $weblap->leallit();
+                        exit();
+                    }
+                    $elozo_cikktorzs_id = $igenyles['cikktorzs_id'];
+                    $elozo_szallito     = $igenyles['szallito'];
+                    $elozo_kcs_21       = $igenyles['kcs_21'];
+                    $elozo_rndear       = $igenyles['rndear'];
+                    
+                    //Ha ki van töltve a szállító (mivel kötelező mezők, ekkor ki lesz töltve a pénznem és rend. egységár is, akkor azt az ID-t töltjük be a popupba
+                    if($igenyles['szallito']){
+                        $betoltid = $id;
+                    }
+                    
                 }
+                
             } else {
                 echo json_encode(array(
                     'hiba' => 'Státusz nem található!'
@@ -2617,30 +2647,38 @@ if( isset($_POST['arazas']) ) {
                 exit();
             }
         }
+        
 
         //Legutóbb ellenőrzott rekod ID-ja az $id változóban, induljunk ki abból
-        $igenyles = $adatbazis_kapcsolat->s('cikktorzs_id nev igmen cikkmee', 'anyagigenyles', "`recid`='$id'");
+        $igenyles = $adatbazis_kapcsolat->s('cikktorzs_id nev igmen cikkmee rndmen rndear kcs_21 szallito verkear vrndear', 'anyagigenyles', "`recid`='$betoltid'");
         $igenyles = $igenyles[0];
+        
+        $penznem_txt = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`='21' AND `id`='{$igenyles['kcs_21']}'");
+        $penznem_txt = $penznem_txt[0];
+        
+        $szallito_txt = $adatbazis_kapcsolat->s('nev', 'szallito', "`recid`='{$igenyles['szallito']}'");
+        $szallito_txt = $szallito_txt[0];
         $popup = nl2('
+                <p class="piros b" id="popup_hiba"></p>
                 <div class="l">
-                    <table style="font-weight: normal; font-size: 1.2rem;">
+                    <table class="popup" style="font-weight: normal; font-size: 1.2rem;">
                     <tr>
-                        <td class="p">Cikk:</td>
-                        <td class="p">'.$igenyles['cikktorzs_id'].'</td>
+                        <td class="p r">Cikk:</td>
+                        <td class="p" colspan="3">'.$igenyles['cikktorzs_id'].'</td>
                     </tr>
                     <tr>
-                        <td class="p">Név:</td>
-                        <td class="p">'.$igenyles['nev'].'</td>
+                        <td class="p r">Név:</td>
+                        <td class="p" colspan="3">'.$igenyles['nev'].'</td>
                     </tr>
                     <tr>
-                        <td class="p">Igényelt mennyiség:</td>
-                        <td class="p">'.$igenyles['igmen'].' '.$igenyles['cikkmee'].'</td>
+                        <td class="p r">Igényelt mennyiség:</td>
+                        <td class="p" colspan="3">'.$igenyles['igmen'].' '.$igenyles['cikkmee'].'</td>
                     </tr>
                     <tr>
-                        <td class="p">Szállító:</td>
-                        <td class="p">
-                            <input type="text" autocomplete="off" name="pop_szallito_autocomp" id="pop_szallito_autocomp" onblur="if(!$(this).val()){ $(\'#pop_szallito\').val(\'\'); }">
-                            <input type="hidden" name="pop_szallito" id="pop_szallito">
+                        <td class="p r">Szállító:</td>
+                        <td class="p" colspan="3">
+                            <input type="text" autocomplete="off" name="pop_szallito_autocomp" id="pop_szallito_autocomp" onblur="if(!$(this).val()){ $(\'#pop_szallito\').val(\'\'); }" value="'.$szallito_txt['nev'].'">
+                            <input type="hidden" name="pop_szallito" id="pop_szallito" value="'.$igenyles['szallito'].'">
                             <script>
                             $(document).ready(function() {
                                 $(\'#pop_szallito_autocomp\').autocomplete({
@@ -2656,14 +2694,16 @@ if( isset($_POST['arazas']) ) {
                         </td>
                     </tr>
                     <tr>
-                        <td class="p">Rendelt mennyiség:</td>
-                        <td class="p"><input type="text" name="pop_rndmen" id="pop_rndmen" class="f_num" style="width: 3rem"> '.$igenyles['cikkmee'].'</td>
+                        <td class="p r">Rendelt mennyiség:</td>
+                        <td class="p"><input type="text" name="pop_rndmen" id="pop_rndmen" class="f_num" style="width: 3rem" value="'.$igenyles['rndmen'].'"> '.$igenyles['cikkmee'].'</td>
+                        <td class="p r">Rendelési összeg:</td>
+                        <td class="p">1234 '.get_penznem().'</td>
                     </tr>
                     <tr>
-                        <td class="p">Pénznem:</td>
-                        <td class="p">
-                            <input autocomplete="off" type="text" name="pop_kcs_21_autocomp" id="pop_kcs_21_autocomp" style="width: 5rem">
-                            <input type="hidden" name="pop_kcs_21" id="pop_kcs_21">
+                        <td class="p r">Pénznem:</td>
+                        <td class="p" colspan="3">
+                            <input autocomplete="off" type="text" name="pop_kcs_21_autocomp" id="pop_kcs_21_autocomp" style="width: 5rem" value="'.$penznem_txt['info'].'">
+                            <input type="hidden" name="pop_kcs_21" id="pop_kcs_21" value="'.$igenyles['kcs_21'].'">
                             <script>
                             $(document).ready(function() {
                                 $(\'#pop_kcs_21_autocomp\').autocomplete({
@@ -2679,7 +2719,30 @@ if( isset($_POST['arazas']) ) {
                             </script>
                         </td>
                     </tr>
+                    <tr>
+                        <td class="p r">Rendelési egységár:</td>
+                        <td class="p"><input type="text" name="pop_rndear" id="pop_rndear" class="f_num" value="'.$igenyles['rndear'].'"> '.get_penznem().'</td>
+                        <td class="p r">Árfolyam:</td>
+                        <td class="p"><input type="text" name="pop_verkear" id="pop_verkear" class="f_num" value="'.$igenyles['verkear'].'"></td>
+                    </tr>
+                    <tr>
+                        <td class="p r">Átváltva:</td>
+                        <td class="p"><input type="text" name="pop_vatlva" id="pop_vatlva" class="f_num" value="'.$igenyles['pop_vatlva'].'">
+                        <td class="p r">Deviza rend. egységár:</td>
+                        <td class="p"><input type="text" name="pop_arfolyam" id="pop_arfolyam" class="f_num" value="'.$igenyles['arfolyam'].'"></td>
+                    </tr>
+                    <tr>
+                        <td class="p r"></td>
+                        <td class="p" colspan="3">
+                            <div class="cb">
+                                <input class="check" name="pop_nbf" id="pop_nbf" type="checkbox">
+                                <label for="pop_nbf"></label>
+                            </div>
+                            Danubius fuvar
+                        </td>
+                    </tr>
                     </table>
+                    <input type="hidden" name="idk" id="idk" value="'.trim($idk_inputba, ',').'">
                 </div>
                 ');
 

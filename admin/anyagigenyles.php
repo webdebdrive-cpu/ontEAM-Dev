@@ -118,6 +118,19 @@ if(isset($_GET['siker']) && isset($_GET['modosit'])){
 
 }
 
+//Áazás mentése
+if ($_POST['arazas_ment']) {
+    
+    $_POST['rndear'] = str_replace(array(' ', ','), array('', '.'), $_POST['rndear']);
+    
+    $adatbazis_kapcsolat->u('anyagigenyles',    array('szallito',         'kcs_21',         'rndear'        ),
+                                                array($_POST['szallito'], $_POST['kcs_21'], $_POST['rndear']),
+                            "`recid` IN (".$_POST['idk'].")");
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    $weblap -> leallit();
+    exit();
+}
+
 
 /** Tartalom */
 if( !$_GET['ajax'] ) {

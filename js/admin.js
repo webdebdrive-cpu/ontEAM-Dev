@@ -2066,7 +2066,7 @@ function arazas() {
                         return false;
                     }
                     if( response.popup ) {
-                        alert2(response.popup, '', 'Rendelési adatok megadása');
+                        alert2(response.popup, '<input type="button" class="gomb zold" value="Mentés" onclick="arazas_ment()"> <input type="button" class="gomb piros" value="Mégsem" onclick="alert2()">', 'Rendelési adatok megadása');
                         return false;
                     }
 
@@ -2078,6 +2078,39 @@ function arazas() {
     }
 
     return false;
+}
+function arazas_ment(){
+    if(!$('#pop_szallito').val()){
+        $('#popup_hiba').html('Kérjük adja meg a szállítót!');
+        alert_raz();
+    }
+    if(!$('#pop_kcs_21').val()){
+        $('#popup_hiba').html('Kérjük adja meg a rendelési egységárat!');
+        alert_raz();
+    }
+    if(!$('#pop_rndear').val() || $('#pop_rndear').val()=='0,00'){
+        $('#popup_hiba').html('Kérjük adja meg a rendelési egységárat!');
+        alert_raz();
+    }
+    $.ajax({
+        url: 'anyagigenyles.php',
+        type: 'POST',
+        data: {
+            idk         : $('#idk').val(),
+            szallito    : $('#pop_szallito').val(),
+            kcs_21      : $('#pop_kcs_21').val(),
+            rndear      : $('#pop_rndear').val(),
+            arazas_ment : new Date().getTime()
+        },
+        success: function (response) {
+            /* 2do: sorokat befrissíteni */
+            idk = $('#idk').val().split(",");
+            idk.forEach(function(id) {
+                szamlaSorFrissit('anyagigenyles', id);
+            });
+            alert2();
+        }
+    });
 }
 
 function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
