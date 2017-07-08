@@ -1552,8 +1552,8 @@ ul.szamla_cont li.szamla_datum.csoport {
     position: relative;
 }
 
-ul.szamla_cont li.szamla_datum.csoport.kijelolve {
-    background: #484848;
+ul.szamla_cont li.szamla_datum.csoport.kijelolve { 
+    background: #55A2FA;
 }
 
 ul.szamla_cont li.szamla_datum.csoport.kijelolve strong,
@@ -1621,7 +1621,7 @@ ul.szamla_cont li:not(.csoport).active + li a {
 }
 
 ul.szamla_cont li.kijelolve a {
-    background: #484848;
+    background: #55A2FA;
     color: #fff;
 }
 

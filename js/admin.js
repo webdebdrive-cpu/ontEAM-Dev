@@ -653,12 +653,12 @@ $(function() {
     });
 
     $('#tartalomBal').on('click', '#szamlaList li.szamla_sor', function(e) {
-        var sorok = $('#szamlaList li.szamla_sor'),
+        var sorok       = $('#szamlaList li.szamla_sor'),
             kijelolheto = $('#szamlaList').hasClass('kijelolheto');
 
         if( !e.ctrlKey && !e.shiftKey || !kijelolheto ) {
             sorok.removeClass('active kijelolve');
-            $(this).addClass('active');
+            $(this).addClass('active kijelolve');
 
             /* Navigálás */
             var recid   = $(this).find('a.szamla').attr('data-recid'),
@@ -1172,6 +1172,236 @@ function varolistahozAdas(csak_kerdezunk) {
                         }
 
                         kijelolesEltavolit();
+                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                        alert2();
+             		}
+             	}
+            });
+        } else {
+            alert2('Nincsenek kijelölt sorok!');
+        }
+    }
+}
+
+function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
+    szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+    if( szamlaSorok.length ) {
+        idk = {};
+
+        var i = 1;
+        szamlaSorok.each(function() {
+            var id = $(this).attr('data-recid');
+
+            idk[i] = id;
+            i++;
+        });
+
+        if( objLength(idk) ) {
+            var page = $('#szamlaBetolt').attr('data-page');
+
+            $.ajax({
+             	url : 'anyagigenyles.php',
+             	type: 'POST',
+             	data: {
+                    idk                 : JSON.stringify(idk),
+                    page                : page,
+                    csak_kerdezunk      : csak_kerdezunk,
+                    kuldes_jovahagyasra : new Date().getTime()
+                },
+             	success: function(response) {
+             		if(response) {
+                        response = JSON.parse(response);
+
+             			if( response.hiba ) {
+                            if( response.gomb ) {
+                                alert2(response.hiba, response.gomb);
+                            } else {
+                                alert2(response.hiba);
+                            }
+
+                            return false;
+                        }
+                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                        alert2();
+             		}
+             	}
+            });
+        } else {
+            alert2('Nincsenek kijelölt sorok!');
+        }
+    }
+}
+
+function anyagigenyles_jovahagy(csak_kerdezunk) {
+    szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+    if( szamlaSorok.length ) {
+        idk = {};
+
+        var i = 1;
+        szamlaSorok.each(function() {
+            var id = $(this).attr('data-recid');
+
+            idk[i] = id;
+            i++;
+        });
+
+        if( objLength(idk) ) {
+            var page = $('#szamlaBetolt').attr('data-page');
+
+            $.ajax({
+             	url : 'anyagigenyles.php',
+             	type: 'POST',
+             	data: {
+                    idk                     : JSON.stringify(idk),
+                    page                    : page,
+                    jhmen                   : $('#jhmen').val(),
+                    csak_kerdezunk          : csak_kerdezunk,
+                    anyagigenyles_jovahagy  : new Date().getTime()
+                },
+             	success: function(response) {
+             		if(response) {
+                        response = JSON.parse(response);
+
+             			if( response.hiba ) {
+                            if( response.gomb ) {
+                                alert2(response.hiba, response.gomb);
+                            } else {
+                                gomb = '';
+                                if(response.focus){
+                                    gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').focus()">';
+                                }
+                                alert2(response.hiba, gomb);
+                            }
+                            if(response.focus){
+                                $('#'+response.focus).focus();
+                            }
+
+                            return false;
+                        }
+                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                        alert2();
+             		}
+             	}
+            });
+        } else {
+            alert2('Nincsenek kijelölt sorok!');
+        }
+    }
+}
+
+function anyagigenyles_elutasitas(csak_kerdezunk) {
+    szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+    if( szamlaSorok.length ) {
+        idk = {};
+
+        var i = 1;
+        szamlaSorok.each(function() {
+            var id = $(this).attr('data-recid');
+
+            idk[i] = id;
+            i++;
+        });
+
+        if( objLength(idk) ) {
+            var page = $('#szamlaBetolt').attr('data-page');
+
+            var oka = '';
+            if(!csak_kerdezunk){
+                oka = $('#pop_indoklas').val();
+                if(!oka){
+                    $('#hibauzi').html('Indoklás nélkül nem lehet elutasítani az anyagigénylést!');
+                    $('#pop_indoklas').focus();
+                    alert_raz();
+                    return false;
+                }
+            }
+
+            $.ajax({
+             	url : 'anyagigenyles.php',
+             	type: 'POST',
+             	data: {
+                    idk                         : JSON.stringify(idk),
+                    page                        : page,
+                    csak_kerdezunk              : csak_kerdezunk,
+                    oka                         : oka,
+                    anyagigenyles_elutasitas    : new Date().getTime()
+                },
+             	success: function(response) {
+             		if(response) {
+                        response = JSON.parse(response);
+
+             			if( response.hiba ) {
+                            if( response.gomb ) {
+                                alert2(response.hiba, response.gomb);
+                            } else {
+                                gomb = '';
+                                if(response.focus){
+                                    gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').focus()">';
+                                }
+                                alert2(response.hiba, gomb);
+                            }
+                            if(response.focus){
+                                $('#'+response.focus).focus();
+                            }
+
+                            return false;
+                        }
+                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                        alert2();
+             		}
+             	}
+            });
+        } else {
+            alert2('Nincsenek kijelölt sorok!');
+        }
+    }
+}
+
+function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
+    szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+    if( szamlaSorok.length ) {
+        idk = {};
+
+        var i = 1;
+        szamlaSorok.each(function() {
+            var id = $(this).attr('data-recid');
+
+            idk[i] = id;
+            i++;
+        });
+
+        if( objLength(idk) ) {
+            var page = $('#szamlaBetolt').attr('data-page');
+
+            $.ajax({
+             	url : 'anyagigenyles.php',
+             	type: 'POST',
+             	data: {
+                    idk                         : JSON.stringify(idk),
+                    page                        : page,
+                    csak_kerdezunk              : csak_kerdezunk,
+                    anyagigenyles_mind_jovahagy : new Date().getTime()
+                },
+             	success: function(response) {
+             		if(response) {
+                        response = JSON.parse(response);
+
+             			if( response.hiba ) {
+                            if( response.gomb ) {
+                                alert2(response.hiba, response.gomb);
+                            } else {
+                                gomb = '';
+                                if(response.focus){
+                                    gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').focus()">';
+                                }
+                                alert2(response.hiba, gomb);
+                            }
+                            if(response.focus){
+                                $('#'+response.focus).focus();
+                            }
+
+                            return false;
+                        }
                         szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                         alert2();
              		}
@@ -2263,13 +2493,13 @@ function kijelolesEltavolit() {
         $('#szamlaList li.szamla_sor').removeClass('active kijelolve');
 
         $('.kijeloltek_muv').removeClass('active');
-        $('#kmCont').find('input[type="button"]').attr('disabled', true);
+        /*Csoportos gombokat sem retjük el soha $('#kmCont').find('input[type="button"]').attr('disabled', true);*/
         $('#navGombok a.torles').attr('onclick', 'naviTorles();');
 
         $('ul.szamla_cont li.csoport').removeClass('kijelolve');
 
         if( _get('id') ) {
-            $('#szamla-' + _get('id')).addClass('active');
+            $('#szamla-' + _get('id')).addClass('active kijelolve');
         }
     }
 
@@ -2278,31 +2508,6 @@ function kijelolesEltavolit() {
         $('#navGombok a.torles').addClass('disabled').attr('onclick', '');
     }
 }
-
-/*
-function datumra_utemez_mezok_nullaz(id){
-    if(id=='d'){
-        $('#ciklnap').val('');
-        $('#hetkoz_kent').prop('checked', false);
-    }
-    if(id=='w'){
-        $('#ciklhet').val('');
-        $('#h') .prop('checked', false);
-        $('#k') .prop('checked', false);
-        $('#s') .prop('checked', false);
-        $('#cs').prop('checked', false);
-        $('#p') .prop('checked', false);
-        $('#sz').prop('checked', false);
-        $('#v') .prop('checked', false);
-    }
-    if(id=='m'){
-        $('#ciklho').val('');
-        $('#honapjan') .prop('checked', false);
-        $('#ciklho2').val('');
-        $('#ho_rendsz') .prop('checked', false);
-        $('#ho_rendsz_het') .prop('checked', false);
-    }
-}*/
 
 function obj_gen() {
     $('#ajaxfedo').removeClass('dn');
@@ -3219,26 +3424,3 @@ function naptar_torol(){
         }
     });
 }
-
-/* Beosztás naptárba tevéskor csak a beosztás adatlapon megaodtt intervallumon belüli dátum adaható meg */
-/*
- * Törölhetőfunction beosztas_idoszak_ell(mezo){
-    $.ajax({
-        url: 'beosztas.php',
-        type: 'POST',
-        data: {
-            id   : $('#get_id').val(),
-            mezo : mezo,
-            tol  : $('#tol').val(),
-            ig   : $('#ig').val(),
-            beosztas_idoszak_ell: new Date().getTime()
-        },
-        success: function (response) {
-            response = JSON.parse(response);
-            if(response.hiba){
-                alert2(response.hiba, '', 'Hiba');
-                $('#'+mezo).val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0');
-            }
-        }
-    });
-}*/

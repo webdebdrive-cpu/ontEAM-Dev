@@ -237,7 +237,7 @@ if($gyorskereso_text){
                         csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                     </script>
                     <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb" value="Csoportosítás..." title="Csoportosítás..." disabled="disabled">
+                        <input type="button" class="gomb foGomb" value="Csoportosítás..." title="Csoportosítás...">
                         <div class="muv">
                             <ul>
                                 <li><a onclick="csoportMuvelet(\'csoporthoz_adas\');">Csoporthoz adás</a></li>
@@ -247,7 +247,7 @@ if($gyorskereso_text){
                         </div>
                     </div>
                     <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista..." disabled="disabled">
+                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
                         <div class="muv">
                             <ul>
                                 <li><a onclick="varolistahozAdas(\'csak kérdezünk még\');">Várólistához adás</a></li>
@@ -256,7 +256,7 @@ if($gyorskereso_text){
                         </div>
                     </div>
                     <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb" value="Munka átadása..." title="Munka átadása..." disabled="disabled">
+                        <input type="button" class="gomb foGomb" value="Munka átadása..." title="Munka átadása...">
                         <div class="muv">
                             <ul>
                                 <li><a onclick="csoportMuvelet(\'munkalap_telepitett\');">Telepített</a></li>
