@@ -1019,6 +1019,41 @@ $(function() {
     });
 });
 
+function anyagHozzaad( formID ) {
+    var form = $(formID);
+
+    var cikknev = form.find('input[name="cikk_id_autocomp"]'),
+        cikkID = form.find('input[name="cikk_id"]'),
+        felh_menny = form.find('input[name="felh_menny"]'),
+        cikkmee = form.find('.insertMee').eq(0).text();
+
+    if( cikknev.val() == '' || cikkID.val() == '' ) {
+        alert2('Válassza ki a cikket!');
+        return false;
+    }
+
+    if( felh_menny.val() == '' ) {
+        alert2('Adja meg a felhasznált mennyiséget!');
+        return false;
+    }
+
+    var table_sor = '<tr>' +
+                        '<td>' + cikkID.val() + '</td>' +
+                        '<td>' + cikknev.val() + '</td>' +
+                        '<td>' + felh_menny.val() + '</td>' +
+                        '<td>' + cikkmee + '</td>' +
+                        '<td></td>' +
+                        '<td><a onclick="$(this).parents(\'tr\').remove();"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
+                    '</tr>';
+
+    $('#insertTable table.csikos').append(table_sor);
+
+    cikkID.val('');
+    cikknev.val('');
+    felh_menny.val('');
+    form.find('.insertMee').text('');
+}
+
 function tobbBejegyzesTorol() {
     szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
 
