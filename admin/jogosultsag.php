@@ -21,10 +21,10 @@ $jogosultsagok = array(
     23 => array('nev' => 'Munkalapok kezelése mint Diszp.központ vezető',   'kat' => 1, 'sor' => 8, 'bekapcs' => '3', 'kikapcs' => '21,22,5,24'),
     24 => array('nev' => 'Munkalapok kezelése mint adminisztrátor',         'kat' => 1, 'sor' => 9, 'bekapcs' => '3', 'kikapcs' => '21,22,23,5'),
 
-    6  => array('nev' => 'Felhasználók megtekintése',   'kat' => 2, 'sor' => 6, 'kikapcs' => '7'),
-    7  => array('nev' => 'Felhasználók kezelése',       'kat' => 2, 'sor' => 7, 'bekapcs' => '6'),
-    8  => array('nev' => 'Értéklisták megtekintése',    'kat' => 2, 'sor' => 8, 'kikapcs' => '9'),
-    9  => array('nev' => 'Értéklisták kezelése',        'kat' => 2, 'sor' => 9, 'bekapcs' => '8'),
+    6  => array('nev' => 'Felhasználók megtekintése',   'kat' => 2, 'sor' => 6,  'kikapcs' => '7'),
+    7  => array('nev' => 'Felhasználók kezelése',       'kat' => 2, 'sor' => 7,  'bekapcs' => '6'),
+    8  => array('nev' => 'Értéklisták megtekintése',    'kat' => 2, 'sor' => 8,  'kikapcs' => '9'),
+    9  => array('nev' => 'Értéklisták kezelése',        'kat' => 2, 'sor' => 9,  'bekapcs' => '8'),
     10 => array('nev' => 'Szerepkörök megtekintése',    'kat' => 2, 'sor' => 10, 'kikapcs' => '11'),
     11 => array('nev' => 'Szerepkörök kezelése',        'kat' => 2, 'sor' => 11, 'bekapcs' => '10'),
 

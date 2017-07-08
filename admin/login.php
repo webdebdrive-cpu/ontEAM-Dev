@@ -575,6 +575,7 @@ if($gyorskereso_text){
                 </div>
                 </div></form>
             ');
+            
         }
 
         if( $_GET['ajax'] ) {

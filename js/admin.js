@@ -749,7 +749,8 @@ $(function() {
     });
 
     formModositva = false;
-    $('#tartalomJobb').on('input', '#szerk_form input, #szerk_form select, #szerk_form textarea', function(e) {
+    $('#tartalomJobb').on('keyup change paste', '#szerk_form input, #szerk_form select, #szerk_form textarea', function(e) {
+
         var name = $(this).attr('name'),
             type = $(this).attr('type'),
             val  = $(this).val();
@@ -760,7 +761,6 @@ $(function() {
             if(taroltVal===undefined){
                 taroltVal = '';
             }
-
             if( type == 'checkbox' ) {
                 val = $(this).prop('checked');
             }
