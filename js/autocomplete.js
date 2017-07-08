@@ -135,6 +135,12 @@
         $('#autocomplete').on('click', 'ul li', function() {
             var link = $('#autocomplete ul li.aktiv').attr('data-href'),
                 recid = $('#autocomplete ul li.aktiv').attr('data-recid');
+
+            var mee = $('#autocomplete ul li.aktiv').attr('data-mee');
+            if( mee !== undefined ) {
+                $('.insertMee').text(mee);
+            }
+
             if(link){
                 location.href = link;
             }else{
@@ -162,7 +168,7 @@
                         }
                     });
                 }
-                
+
                 /* Árazás popuphoz */
                 if(options.arazas_beallit){
                     rend_ossz_beallit();
@@ -233,6 +239,11 @@
                     var link = $('#autocomplete ul li.aktiv').attr('data-href'),
                         recid = $('#autocomplete ul li.aktiv').attr('data-recid');
 
+                    var mee = $('#autocomplete ul li.aktiv').attr('data-mee');
+                    if( mee !== undefined ) {
+                        $('.insertMee').text(mee);
+                    }
+
                     if(link){
                         location.href = link;
                     }else{
@@ -260,7 +271,7 @@
                                 }
                             });
                         }
-                        
+
                         /* Árazás popuphoz */
                         if(options.arazas_beallit){
                             rend_ossz_beallit();

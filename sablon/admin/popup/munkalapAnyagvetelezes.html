@@ -1,0 +1,35 @@
+<h2>Anyag vételezés</h2>
+<form action="" id="munkAnyagVetelezForm" class="popupForm" method="post" onsubmit="return munkAnyagVetelezes( this );">
+    <div class="dt">
+        <div class="dtr">
+            <div class="dtc form_bal">Cikk:</div>
+            <div class="dtc form_jobb">
+                <input type="text" autocomplete="off" class="oriasi disableNav csillag focus" name="cikk_id_autocomp" id="cikk_id_autocomp" onblur="if(!$(this).val()){ $('#cikk_id').val(''); }" value="">
+                <input type="hidden" name="cikk_id" id="cikk_id" value="">
+                <script>
+                    $(document).ready(function() {
+                        $('#cikk_id_autocomp').autocomplete({
+                            'php_fajl'      : '../autocomplete.php',
+                            'tabla'         : 'cikktorzs',
+                            'oszlop_keres'  : 'nev',
+                            'oszlop_listaz' : 'nev',
+                            'id_kiir'       : 'recid'
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+        <div class="dtr">
+            <div class="dtc form_bal">Felh. menny.:</div>
+            <div class="dtc form_jobb wsn">
+                <input type="text" name="memo" value="" placeholder="">
+                <span class="insertMee"></span>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <button type="button" name="button">Hozzáad</button>
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
