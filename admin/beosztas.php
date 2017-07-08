@@ -327,10 +327,7 @@ if($gyorskereso_text){
 
         //NAVIGÁCIÓ
         $gombok = '';
-	    //$gombok = '<input type="button" class="gombb" onclick="location.href=\''.self().'?lista\'" value="Lista" title="Lista megtekintése">';
-        //$gombok .= ' <input type="button" id="visszavonas_gomb" disabled="disabled" class="gombb" onclick="szamlaBetolt(\'1\', \''.basename(self()).'\', \'uj\', true);" value="Visszavonás" title="Visszavonás">';
-        //$gombok .= ' <input type="button" id="kilepes_gomb" class="gombb_alert" onclick="location.href = \''.basename(self()).'\';" value="Kilépés" title="Kilépés">';
-
+        
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );

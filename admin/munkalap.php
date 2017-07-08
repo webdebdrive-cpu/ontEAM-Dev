@@ -480,8 +480,8 @@ if($gyorskereso_text){
                 $szamla_html .= nl2('
                     <div class="dtr nSor">
                         <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.date('Y.m.d H:i:s', strtotime($sor['insert_dt'])).'</div>
-                        <div class="dtc">'.date('Y.m.d H:i:s', strtotime($sor['atadta_dt'])).'</div>
+                        <div class="dtc">'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</div>
+                        <div class="dtc">'.date('Y.m.d H:i', strtotime($sor['atadta_dt'])).'</div>
                     </div>
                 ');
 

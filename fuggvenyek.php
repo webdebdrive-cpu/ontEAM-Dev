@@ -3577,6 +3577,18 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_
     return false;
 }
 
+/* Megjegyzés beszúrása */
+function addMegj( $tabla, $id, $megj ) {
+    global $adatbazis_kapcsolat;
+    $datum = date('Y-m-d H:i:s');
+    if(!$adatbazis_kapcsolat->i('megjegyzes',   array('tabla', 'id', 'megj', 'loginnev',                       'update_dt', 'update_usr',                           'insert_dt', 'insert_usr'                           ),
+                                                array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $datum,      $_SESSION[get_db_tabla().'teljes_nev'], $datum,      $_SESSION[get_db_tabla().'teljes_nev'] )
+                                )
+    ){
+        return false;
+    }
+}
+
 //megnevezésből a megfelelő tömb betöltése központosítva
 function get_akt_tomb($megn){
 

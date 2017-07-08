@@ -11,8 +11,7 @@
 	padding-left: 0;
 	padding-top: 2px;
 	position: absolute;
-	z-index: 9999;
-	-moz-box-sizing: border-box;
+	z-index: 10000;
 	box-sizing: border-box;
 	display: none;
 }

@@ -121,12 +121,52 @@ if(isset($_GET['siker']) && isset($_GET['modosit'])){
 //Áazás mentése
 if ($_POST['arazas_ment']) {
     
-    $_POST['rndear'] = str_replace(array(' ', ','), array('', '.'), $_POST['rndear']);
+    $_POST['ig_menny']  = str_replace(array(' ', ','), array('', '.'), $_POST['ig_menny']);
+    $_POST['rndear']    = str_replace(array(' ', ','), array('', '.'), $_POST['rndear']);
+    $_POST['rndmen']    = str_replace(array(' ', ','), array('', '.'), $_POST['rndmen']);
+    $_POST['vrndear']   = str_replace(array(' ', ','), array('', '.'), $_POST['vrndear']);
+    $_POST['verkear']   = str_replace(array(' ', ','), array('', '.'), $_POST['verkear']);
+    $idk = explode(',', $_POST['idk']);
     
-    $adatbazis_kapcsolat->u('anyagigenyles',    array('szallito',         'kcs_21',         'rndear'        ),
-                                                array($_POST['szallito'], $_POST['kcs_21'], $_POST['rndear']),
-                            "`recid` IN (".$_POST['idk'].")");
-echo $adatbazis_kapcsolat->gp() . '<br>';
+    //Tranzakció indul
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    //Több sor esetén a rendelt mennyiséget nem írjuk felül
+    if(count($idk)>1){
+        $sql = $adatbazis_kapcsolat->u('anyagigenyles',     array('szallito',         'kcs_21',         'rndear',           'vrndear',          'verkear',          'atvaltva_d',           'erkcimid'        ),
+                                                            array($_POST['szallito'], $_POST['kcs_21'], $_POST['rndear'],   $_POST['vrndear'],   $_POST['verkear'], $_POST['atvaltva_d'],   $_POST['erkcimid']),
+                                        "`recid` IN (".$_POST['idk'].")");
+        
+    //Egy sor esetén a rendelt mennyiséget is felülírjuk
+    }else{
+        $sql = $adatbazis_kapcsolat->u('anyagigenyles',     array('szallito',         'kcs_21',         'rndear',           'rndmen',           'vrndear',          'verkear',          'atvaltva_d',         'erkcimid'        ),
+                                                            array($_POST['szallito'], $_POST['kcs_21'], $_POST['rndear'],   $_POST['rndmen'],   $_POST['vrndear'],   $_POST['verkear'], $_POST['atvaltva_d'], $_POST['erkcimid']),
+                                        "`recid` IN (".$_POST['idk'].")");
+    }
+    if( $sql === false ) {
+        $db_error = true;
+    }
+    
+    //Ha az igényléstől kisebb a rendelés, akkor megjegyzést is fűztek hozzá
+    if($_POST['ig_menny']>$_POST['rndmen']){
+        foreach($idk as $id){
+            $megj = addMegj('anyagigenyles', $id, 'A rendelési mennyiség megváltozott.'."\r\n".'Indoklás: '.$_POST['indok']);
+            if($megj===false){
+                $db_error = true;
+            }
+        }
+    }
+    
+    //Tranzakció kommitolása, vagy rollback-ezése
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array('hiba' => 'Az adatbázisba való íráskor hiba történt!'));
+    }
+    
+
     $weblap -> leallit();
     exit();
 }
@@ -597,7 +637,7 @@ if($gyorskereso_text){
                 $szamla_html .= nl2('
                     <div class="dtr nSor"'.$szinkod.'>
                         <div class="dtc">'.$sor['statusz'].'</div>
-                        <div class="dtc">'.date('Y.m.d H:i:s', strtotime($sor['insert_dt'])).'</div>
+                        <div class="dtc">'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
                         <div class="dtc">'.$sor['statido'].'</div>
                         <div class="dtc">'.$sor['gongyolt_statido'].'</div>
@@ -631,18 +671,42 @@ if($gyorskereso_text){
             echo $szamla_html;
         }
 
-	//Megjegyzések
-	}elseif(isset($_GET['megjegyzesek'])){
+    /* Megjegyzés */
+    }elseif(isset($_GET['megjegyzesek'])) {
 
-        $szamla_html .= 'Megjegyzések felülete';
-        
+        $szamla_html .= nl2('
+            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzes">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Megjegyzés</div>
+                    <div class="dtc">Hozzáadta</div>
+                    <div class="dtc">Hozzáadva</div>
+                </div>
+        ');
+
+        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
+        if( $sorok ) {
+            $i = 1;
+            foreach($sorok as $sor) {
+                $szamla_html .= nl2('
+                    <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                        <div class="dtc">'.nl2br($sor['megj']).'</div>
+                        <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.$sor['insert_dt'].'</div>
+                    </div>
+                ');
+
+                $i++;
+            }
+        }
+
+        $szamla_html .= '</div>';
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'tartalom' => $szamla_html.$gombok
             ));
         } else {
-            echo $szamla_html;
+            echo $szamla_html.$gombok;
         }
 
 	//Lista

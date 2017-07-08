@@ -792,6 +792,12 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } else {
         $uj_link = self().'?uj';
     }
+    
+    //Diszpécser nem hozhat létre új bejegyzést
+    if( basename(self()) == 'bejelentes.php' && _jog(2) ) {
+        $uj_link = 'javascript: alert2(\'Diszpécserként nem hozhat létre új bejelentést!\'); void(0);';
+    }
+    
 }
 
 $felh_nev = '';
@@ -876,10 +882,6 @@ if(basename(self())=='bejelentes.php' && !_jog(1)){
     $torles_icon    = '';
     $uj             = '';
     
-}
-//Diszpécser sem tölthet fel újat
-if(basename(self())=='bejelentes.php' && _jog(2)){
-    $uj = '';
 }
 
 if(basename(self())=='utemezett_feladatok.php' && !_jog(4)){

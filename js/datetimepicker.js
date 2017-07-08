@@ -650,9 +650,15 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 					}
 
 					if ($.type(options.mask) === 'string') {
-						if (!isValidValue(options.mask, input.val())) {
+						/*Szóközös mmaszk miatt ezt inaktiváltuk
+                        if (!isValidValue(options.mask, input.val())) {
 							input.val(options.mask.replace(/[0-9]/g, '_'));
 						}
+                        Helyette a feltétel, hogy üres-e az input:
+                         */
+                        if (!input.val()) {
+                            input.val(options.mask.replace(/[0-9]/g, '_'));
+                        }
 
 						input.on('keydown.xdsoft', function (event) {
 							var val = this.value,

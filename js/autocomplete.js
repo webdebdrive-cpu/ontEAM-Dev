@@ -31,6 +31,7 @@
             op              : '',
             felt            : '',
             popupba         : '',
+            arazas_beallit  : '',
             csoport         : 0
         };
 
@@ -160,10 +161,11 @@
                             stop = true;
                         }
                     });
-                    /*moveCaretToEnd(document.getElementById(mezo.attr('name')));
-                    window.setTimeout(function() {
-                        moveCaretToEnd(document.getElementById(mezo.attr('name')));
-                    }, 1);*/
+                }
+                
+                /* Árazás popuphoz */
+                if(options.arazas_beallit){
+                    rend_ossz_beallit();
                 }
 
                 if( setting.tabla == 'obj' ) {
@@ -227,6 +229,7 @@
             }
             if(e.keyCode==13) {
                 if( $('#autocomplete ul li').hasClass('aktiv') ) {
+
                     var link = $('#autocomplete ul li.aktiv').attr('data-href'),
                         recid = $('#autocomplete ul li.aktiv').attr('data-recid');
 
@@ -246,14 +249,21 @@
                                 var name = $(this).attr('name');
 
                                 if( stop ) {
-                                    document.getElementById(name).focus();
-                                    return false;
+                                    if($('#'+name).length){
+                                        document.getElementById(name).focus();
+                                        return false;
+                                    }
                                 }
 
                                 if( name == mezo_nev ) {
                                     stop = true;
                                 }
                             });
+                        }
+                        
+                        /* Árazás popuphoz */
+                        if(options.arazas_beallit){
+                            rend_ossz_beallit();
                         }
                     }
 

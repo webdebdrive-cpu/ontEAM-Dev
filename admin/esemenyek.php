@@ -760,7 +760,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 /* Felhasználók */
 $megnevezes = 'login';
 $login_tomb = $akt_tomb = array(
-    array('type' => 'checkbox',         'megn' => 'Aktív felhasználó:',         'name' => 'aktiv',          'class' => 'check',             'szuro' => 1,   'osszevon' => true),
+    array('type' => 'checkbox',         'megn' => 'Aktív felhasználó:',         'name' => 'aktiv',          'class' => 'check',             'szuro' => 1, 'post' => '<span style="margin-right: 4rem"></span>',   'osszevon' => true),
     array('type' => 'checkbox',         'megn' => 'Virtuális felhasználó:',     'name' => 'virtual',        'class' => 'check',             'szuro' => 1),
     array('type' => 'text',             'megn' => 'Login név:',                 'name' => 'nev',            'class' => 'f_loginnev',        'szuro' => 1,   'disabled' => $disabled_szerk,  'maxlength' => 10, 'alert' => 'Kérem töltse ki a login nevet!', 'style' => 'width: 10rem'),
     array('type' => 'text',             'megn' => 'Név:',                       'name' => 'teljes_nev',     'class' => 'oriasi',            'szuro' => 1,                 'maxlength' => 250, 'alert' => 'Kérem töltse ki a nevet!'),
@@ -841,8 +841,8 @@ $bejelentes_dok_tomb = $akt_tomb = array(
 /* Munkalap */
 $megnevezes = 'munkalap';
 $munkalap_tomb = $akt_tomb = array(
-    array('type' => 'text',                     'megn' => 'Iktató szám:',               'name' => 'ikt_szam',           'disabled' => 1,        'maxlength' => 250, 'class' => 'kicsi', 'osszevon' => 1),
-    array('type' => 'checkbox',                 'megn' => 'Sürgős:',                    'name' => 'surgos',             'disabled' => 1,        'class' => 'check', 'osszevon' => 1),
+    array('type' => 'text',                     'megn' => 'Iktató szám:',               'name' => 'ikt_szam',           'disabled' => 1,        'maxlength' => 250, 'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
+    array('type' => 'checkbox',                 'megn' => 'Sürgős:',                    'name' => 'surgos',             'disabled' => 1,        'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
     array('type' => 'checkbox',                 'megn' => 'Visszaadva:',                'name' => 'visszaadva',         'disabled' => 1,        'class' => 'check'),
     array('type' => 'textarea',                 'megn' => 'Leírása:',                   'name' => 'text',               'disabled' => 0,        'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id',       'disabled' => 1,        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
@@ -1076,7 +1076,7 @@ $tav_12 = '<span style="margin-left: 1.2rem"></span>';
 $tav_26 = '<span style="margin-left: 2.6rem"></span>';
 $tav_4  = '<span style="margin-left: 4rem"></span>';
 $anyagigenyles_tomb = $akt_tomb = array(
-    array('type' => 'text',                     'megn' => 'Iktató szám:',                   'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 7rem'),
+    array('type' => 'text',                     'megn' => 'Iktató szám:',                   'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 8rem'),
     array('type' => 'checkbox',                 'megn' => 'Készpénzes:',                    'name' => 'keszpenz',       'szuro' => 1,   'disabled' => 1,   'post' => '<span style="margin-left: 2rem"></span><input type="button" value="rendelés kép" class="gomb">'),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                      'name' => 'telephely_id',   'szuro' => 1,   'disabled' => 1,   'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'text',                     'megn' => 'Cikkszám:',                      'name' => 'cikktorzs_id',   'szuro' => 1,   'disabled' => 1),
@@ -2572,6 +2572,8 @@ if( isset($_POST['arazas']) ) {
 
         /* Ellenőrizzük a státuszokat és hogy az anyag, szállító, pénznem és egységár megegyezik-e a kiválasztott soroknál (vagy üres) */
         $idk_inputba = '';
+        $ossz_ig_menny   = 0;
+        $ossz_rend_menny = 0;
         foreach($idk as $id) {
             
             $idk_inputba .= $id.',';
@@ -2612,7 +2614,7 @@ if( isset($_POST['arazas']) ) {
                 }else{
                     
                     //Ha van eltérés az előző bejegyzéshez képest (üres mező megengedett) akkro hibaüzenet:
-                    $igenyles = $adatbazis_kapcsolat->s('cikktorzs_id szallito kcs_21 rndear', 'anyagigenyles', "`recid`='{$id}'");
+                    $igenyles = $adatbazis_kapcsolat->s('cikktorzs_id szallito kcs_21 rndear igmen rndmen', 'anyagigenyles', "`recid`='{$id}'");
                     $igenyles = $igenyles[0];
                     if(
                             ($elozo_cikktorzs_id && $igenyles['cikktorzs_id'] && $elozo_cikktorzs_id != $igenyles['cikktorzs_id']) ||
@@ -2636,6 +2638,10 @@ if( isset($_POST['arazas']) ) {
                         $betoltid = $id;
                     }
                     
+                    //Adjuk össze az igényelt mennyiségeket
+                    $ossz_ig_menny   += $igenyles['igmen'];
+                    $ossz_rend_menny += $igenyles['rndmen'];
+                    
                 }
                 
             } else {
@@ -2648,10 +2654,37 @@ if( isset($_POST['arazas']) ) {
             }
         }
         
+        //Ha egyik sem volt kitöltve, akkor vesszük az utoplsó ID-t. Ekkor más default értékeket is beállítunk
+        $default_ertekek_mutat = false;
+        if(!$betoltid){
+            $betoltid = $id;
+            $default_ertekek_mutat = true;
+        }
+        
+        //Ha több sor van kijelölve, akkor a rendelt mennyiséget disable-zzük
+        $rndmen_disabled = '';
+        if(count($idk)>1){
+            $rndmen_disabled = ' disabled';
+        }
 
         //Legutóbb ellenőrzott rekod ID-ja az $id változóban, induljunk ki abból
-        $igenyles = $adatbazis_kapcsolat->s('cikktorzs_id nev igmen cikkmee rndmen rndear kcs_21 szallito verkear vrndear', 'anyagigenyles', "`recid`='$betoltid'");
+        $igenyles = $adatbazis_kapcsolat->s('*', 'anyagigenyles', "`recid`='$betoltid'");
         $igenyles = $igenyles[0];
+        
+        if($default_ertekek_mutat){
+            $ossz_rend_menny    = $igenyles['igmen'];
+            $igenyles['kcs_21'] = 5;
+        }
+
+        $igenyles['atvaltva_d'] = str_replace('-', '.', $igenyles['atvaltva_d']);
+        $dbf_checked = '';
+        $szall_sel   = '';
+        $mszk_sel    = '';
+        switch($igenyles['erkcimid']){
+            case 1: $szall_sel   = ' selected'; break;
+            case 2: $mszk_sel    = ' selected'; break;
+            case 3: $dbf_checked = ' checked';  break;
+        }
         
         $penznem_txt = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`='21' AND `id`='{$igenyles['kcs_21']}'");
         $penznem_txt = $penznem_txt[0];
@@ -2660,6 +2693,7 @@ if( isset($_POST['arazas']) ) {
         $szallito_txt = $szallito_txt[0];
         $popup = nl2('
                 <p class="piros b" id="popup_hiba"></p>
+                
                 <div class="l">
                     <table class="popup" style="font-weight: normal; font-size: 1.2rem;">
                     <tr>
@@ -2672,12 +2706,12 @@ if( isset($_POST['arazas']) ) {
                     </tr>
                     <tr>
                         <td class="p r">Igényelt mennyiség:</td>
-                        <td class="p" colspan="3">'.$igenyles['igmen'].' '.$igenyles['cikkmee'].'</td>
+                        <td class="p" colspan="3">'.number_format($ossz_ig_menny, 2, ',', ' ').' '.$igenyles['cikkmee'].'</td>
                     </tr>
                     <tr>
                         <td class="p r">Szállító:</td>
                         <td class="p" colspan="3">
-                            <input type="text" autocomplete="off" name="pop_szallito_autocomp" id="pop_szallito_autocomp" onblur="if(!$(this).val()){ $(\'#pop_szallito\').val(\'\'); }" value="'.$szallito_txt['nev'].'">
+                            <input type="text" autocomplete="off" class="oriasi csillag" name="pop_szallito_autocomp" id="pop_szallito_autocomp" onblur="if(!$(this).val()){ $(\'#pop_szallito\').val(\'\'); }" value="'.$szallito_txt['nev'].'">
                             <input type="hidden" name="pop_szallito" id="pop_szallito" value="'.$igenyles['szallito'].'">
                             <script>
                             $(document).ready(function() {
@@ -2695,14 +2729,18 @@ if( isset($_POST['arazas']) ) {
                     </tr>
                     <tr>
                         <td class="p r">Rendelt mennyiség:</td>
-                        <td class="p"><input type="text" name="pop_rndmen" id="pop_rndmen" class="f_num" style="width: 3rem" value="'.$igenyles['rndmen'].'"> '.$igenyles['cikkmee'].'</td>
+                        <td class="p"><input'.$rndmen_disabled.' type="text" name="pop_rndmen" id="pop_rndmen" class="f_num" value="'.number_format($ossz_rend_menny, 2, ',', ' ').'"> '.$igenyles['cikkmee'].'</td>
                         <td class="p r">Rendelési összeg:</td>
-                        <td class="p">1234 '.get_penznem().'</td>
+                        <td class="p"><span id="rend_osszeg"></span> '.get_penznem().'</td>
+                    </tr>
+                    <tr id="indoklas_tr" class="dn">
+                        <td class="p r">Eltérő rendelési<br>mennyiség indoklása:</td>
+                        <td class="p" colspan="3"><input type="text" id="pop_indoklas" name="pop_indoklas" class="oriasi"></td>
                     </tr>
                     <tr>
                         <td class="p r">Pénznem:</td>
                         <td class="p" colspan="3">
-                            <input autocomplete="off" type="text" name="pop_kcs_21_autocomp" id="pop_kcs_21_autocomp" style="width: 5rem" value="'.$penznem_txt['info'].'">
+                            <input type="text" autocomplete="off" class="csillag" name="pop_kcs_21_autocomp" id="pop_kcs_21_autocomp" style="width: 5rem" value="'.$penznem_txt['info'].'">
                             <input type="hidden" name="pop_kcs_21" id="pop_kcs_21" value="'.$igenyles['kcs_21'].'">
                             <script>
                             $(document).ready(function() {
@@ -2713,7 +2751,8 @@ if( isset($_POST['arazas']) ) {
                                     \'oszlop_listaz\'   : \'info\',
                                     \'csoport\'         : 21,
                                     \'id_kiir\'         : \'id\',
-                                    \'popupba\'         : true
+                                    \'popupba\'         : true,
+                                    \'arazas_beallit\'  : true
                                 });
                             });
                             </script>
@@ -2721,29 +2760,99 @@ if( isset($_POST['arazas']) ) {
                     </tr>
                     <tr>
                         <td class="p r">Rendelési egységár:</td>
-                        <td class="p"><input type="text" name="pop_rndear" id="pop_rndear" class="f_num" value="'.$igenyles['rndear'].'"> '.get_penznem().'</td>
+                        <td class="p"><input type="text" name="pop_rndear" id="pop_rndear" class="f_num" value="'.number_format($igenyles['rndear'], 2, ',', ' ').'"> '.get_penznem().'</td>
                         <td class="p r">Árfolyam:</td>
-                        <td class="p"><input type="text" name="pop_verkear" id="pop_verkear" class="f_num" value="'.$igenyles['verkear'].'"></td>
+                        <td class="p"><input type="text" name="pop_verkear" id="pop_verkear" class="f_num" value="'.number_format($igenyles['verkear'], 2, ',', ' ').'"></td>
                     </tr>
                     <tr>
                         <td class="p r">Átváltva:</td>
-                        <td class="p"><input type="text" name="pop_vatlva" id="pop_vatlva" class="f_num" value="'.$igenyles['pop_vatlva'].'">
+                        <td class="p"><input type="text" name="pop_atvaltva_d" id="pop_atvaltva_d" class="datepicker" value="'.$igenyles['atvaltva_d'].'">
                         <td class="p r">Deviza rend. egységár:</td>
-                        <td class="p"><input type="text" name="pop_arfolyam" id="pop_arfolyam" class="f_num" value="'.$igenyles['arfolyam'].'"></td>
+                        <td class="p"><input type="text" name="pop_vrndear" id="pop_vrndear" class="f_num" value="'.number_format($igenyles['vrndear'], 2, ',', ' ').'"></td>
                     </tr>
                     <tr>
                         <td class="p r"></td>
                         <td class="p" colspan="3">
                             <div class="cb">
-                                <input class="check" name="pop_nbf" id="pop_nbf" type="checkbox">
-                                <label for="pop_nbf"></label>
+                                <input class="check" name="pop_dbf" id="pop_dbf" type="checkbox"'.$dbf_checked.' onclick="if( $(this).prop(\'checked\') ){ $(\'#pop_erkcimid\').val(\'\'); }">
+                                <label for="pop_dbf"></label>
                             </div>
                             Danubius fuvar
                         </td>
                     </tr>
+                    <tr>
+                        <td class="p r">Szállítási cím:</td>
+                        <td class="p" colspan="3">
+                            <select id="pop_erkcimid" name="pop_erkcimid" onchange="if( $(this).val() ){ $(\'#pop_dbf\').prop(\'checked\', false); }">
+                                <option value="">-Válasszon-</option>
+                                <option value="1"'.$szall_sel.'>Szálloda</option>
+                                <option value="2"'.$mszk_sel.'>MSZK</option>
+                            </select>
+                        </td>
+                    </tr>
                     </table>
                     <input type="hidden" name="idk" id="idk" value="'.trim($idk_inputba, ',').'">
+                    <input type="hidden" name="pop_ig_menny" id="pop_ig_menny" value="'.number_format($ossz_ig_menny, 2, ',', ' ').'">
                 </div>
+                <script>
+                
+                    /* Dátumozó */
+                    $(\'.datepicker\').datetimepicker({
+                        closeOnDateSelect   : true,
+                        format              :\'Y.m.d\',
+                        timepicker          : false,
+                        validateOnBlur      : false,
+                    });
+                    
+                    /* Betöltéskor*/
+                    $(document).ready(function () {
+                        rend_ossz_beallit();
+                    });
+                    
+                    /* Pénznem cserekor */
+                    $(document).on(\'keyup\', \'#pop_verkear, #pop_vrndear, #pop_rndmen\', function(e) {
+                       rend_ossz_beallit();
+                    });
+                    
+                    function rend_ossz_beallit(){
+                        
+                        arfolyam = $(\'#pop_vrndear\').val().replace(\',\', \'.\').replace(/ /g, \'\');
+                        ig_menny = $(\'#pop_ig_menny\').val().replace(\',\', \'.\').replace(/ /g,\'\');
+                        rndear   = $(\'#pop_rndear\').val().replace(\',\', \'.\').replace(/ /g, \'\');
+                        rndmen   = $(\'#pop_rndmen\').val().replace(\',\', \'.\').replace(/ /g, \'\');
+                        verkear  = $(\'#pop_verkear\').val().replace(\',\', \'.\').replace(/ /g, \'\');
+                
+                        if(rndmen<ig_menny){
+                            $(\'#indoklas_tr\').show();
+                        }else{
+                            $(\'#indoklas_tr\').hide();
+                        }
+                        
+                        /* HUF esetén */
+                        if($(\'#pop_kcs_21\').val()==5){
+                            
+                            $(\'#pop_rndear\').removeAttr(\'disabled\').addClass(\'csillag\');
+                            $(\'#pop_verkear\').attr(\'disabled\', 1).val(\'0,00\');
+                            $(\'#pop_vrndear\').attr(\'disabled\', 1).val(\'0,00\');
+                            $(\'#pop_atvaltva_d\').attr(\'disabled\', 1).val(\'    .  .  \');
+                            
+                            rend_osszeg = rndmen*rndear;
+                            $(\'#rend_osszeg\').html(ezresek2(rend_osszeg.toFixed(2)));
+                        
+                        /* Deviza esetén */
+                        }else{
+                        
+                            $(\'#pop_verkear\').removeAttr(\'disabled\').addClass(\'csillag\');
+                            $(\'#pop_vrndear\').removeAttr(\'disabled\').addClass(\'csillag\');
+                            $(\'#pop_atvaltva_d\').removeAttr(\'disabled\').addClass(\'csillag\');
+                            $(\'#pop_rndear\').attr(\'disabled\', 1);
+                            
+                            rend_osszeg = rndmen*verkear*arfolyam;
+                            $(\'#pop_rndear\').val( ezresek2(verkear*arfolyam) );
+                            $(\'#rend_osszeg\').html(ezresek2(rend_osszeg.toFixed(2)));
+                        }
+                    }
+                </script>
                 ');
 
         if( !$db_error ) {
@@ -3307,6 +3416,10 @@ foreach($postok as $ertek){
 
         //Jogosultságkezelés
         if($ertek['tabla']=='bejelentes' && !_jog(1)){
+            $weblap -> leallit(); exit;
+        }
+        //Diszpécsser nem törölhet bejegyzést
+        if($ertek['tabla']=='bejelentes' && _jog(2)){
             $weblap -> leallit(); exit;
         }
         if($ertek['tabla']=='utemezett_feladatok' && !_jog(4)){

@@ -194,13 +194,13 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzes']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tortenet'      => 'Történet',
             'dokumentumok'  => 'Dokumentumok',
-            'megjegyzes'    => 'Megjegyzések'
+            'megjegyzesek'    => 'Megjegyzések'
         );
 
         $fulek = '';
@@ -282,16 +282,22 @@ if($gyorskereso_text){
         }
 
         if( !$csak_szerkesztheto ) {
+            //Jogosutságkezelés: diszpécser nem törölhet
+            if(_jog(2)) {
+                $gombok .= nl2('
+                        <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nem törölhet bejelentést diszpécserként!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">
+                        <div id="diszpecser" class="dn">Innen fogja tudni a JS, hogy diszpécser vagyunk</div>
+                        ');
             //Jogosutságkezelés: csak az törölheti, aki létrehozta
-            if($sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            } elseif($sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejelentéstú törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
             } else {
                 //Csak nyitott státusz törölhető
                 $statusz = $adatbazis_kapcsolat->s('stat_id', 'bejelentes_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc', '1');
                 $statusz = $statusz[0];
 
                 if($statusz['stat_id'] != 1) {
-                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
                 } else {
                     $obj = $adatbazis_kapcsolat -> select('nev', 'obj', "`recid`='{$sor['obj_id']}'");
                     $obj = $obj[0];
@@ -530,7 +536,7 @@ if($gyorskereso_text){
                 $szamla_html .= nl2('
                     <div class="dtr nSor"'.$szinkod.'>
                         <div class="dtc">'.$sor['statusz'].'</div>
-                        <div class="dtc">'.date('Y.m.d H:i:s', strtotime($sor['insert_dt'])).'</div>
+                        <div class="dtc">'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
                         <div class="dtc">'.$sor['statido'].'</div>
                         <div class="dtc">'.$sor['gongyolt_statido'].'</div>
@@ -566,7 +572,7 @@ if($gyorskereso_text){
         }
 
     /* Megjegyzés */
-    }elseif(isset($_GET['megjegyzes'])) {
+    }elseif(isset($_GET['megjegyzesek'])) {
 
         $szamla_html .= nl2('
             <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzes">
