@@ -1038,9 +1038,9 @@ function anyagHozzaad( formID ) {
     }
 
     var table_sor = '<tr>' +
-                        '<td>' + cikkID.val() + '</td>' +
+                        '<td>' + cikkID.val() + '<input type="hidden" name="addCikkID[]" value="' + cikkID.val() + '"></td>' +
                         '<td>' + cikknev.val() + '</td>' +
-                        '<td>' + felh_menny.val() + '</td>' +
+                        '<td>' + felh_menny.val() + '<input type="hidden" name="addCikkFelhMenny[]" value="' + felh_menny.val() + '"></td>' +
                         '<td>' + cikkmee + '</td>' +
                         '<td></td>' +
                         '<td><a onclick="$(this).parents(\'tr\').remove();"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
@@ -1052,6 +1052,8 @@ function anyagHozzaad( formID ) {
     cikknev.val('');
     felh_menny.val('');
     form.find('.insertMee').text('');
+
+    document.getElementById('cikk_id_autocomp').focus();
 }
 
 function tobbBejegyzesTorol() {
@@ -1314,6 +1316,46 @@ function munkalaphozAdas(csak_kerdezunk) {
         }
     } else {
         alert2('Kérem válasszon egy munkalapot!');
+    }
+
+    return false;
+}
+
+function munkAnyagVetelezes( that ) {
+    var addCikkID = $(that).find('input[name="addCikkID[]"]'),
+        addCikkFelhMenny = $(that).find('input[name="addCikkFelhMenny[]"]');
+
+    if( addCikkID.length && addCikkFelhMenny.length ) {
+        $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'POST',
+         	data: {
+                recid: _get('id'),
+                addCikkID: addCikkID.serialize(),
+                addCikkFelhMenny: addCikkFelhMenny.serialize(),
+                munkAnyagVetelezes: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        if( response.gomb ) {
+                            alert2(response.hiba, response.gomb);
+                        } else {
+                            alert2(response.hiba);
+                        }
+
+                        return false;
+                    }
+                    
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+                    popupZar();
+         		}
+         	}
+        });
+    } else {
+        alert2('Kérem válasszon felhasznált mennyiséget!');
     }
 
     return false;

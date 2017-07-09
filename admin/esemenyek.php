@@ -1281,6 +1281,76 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //{KOVETKEZO_TOMB}
 
 
+/* Munkalap anyag vételezés */
+if( isset($_POST['munkAnyagVetelezes']) ) {
+    $recid = $_POST['recid'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+        /* Cikkek */
+        parse_str($_POST['addCikkID']);
+
+        /* Felhasznált mennyiség */
+        parse_str($_POST['addCikkFelhMenny']);
+
+        if( count($addCikkID) && count($addCikkID) == count($addCikkFelhMenny) ) {
+            $sql = $akt_tetel = $adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $akt_tetel ) {
+                $akt_tetel = $akt_tetel[0];
+
+                foreach($addCikkID as $key => $value) {
+                    $sql = $cikk_sor = $adatbazis_kapcsolat->s('recid nev cikkmee', 'cikktorzs', "`recid` = '{$value}'", '', '1');
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    if( $cikk_sor ) {
+                        $cikk_sor = $cikk_sor[0];
+
+                        $sql = $adatbazis_kapcsolat -> i('munkalap_anyag',
+                            array('munkalap_id', 'tetel_id',          'cikk_id',            'cikk_nev',         'cikk_mee',             'cikk_men',              'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
+                            array($recid,        $akt_tetel['recid'], $cikk_sor['recid'],   $cikk_sor['nev'],   $cikk_sor['cikkmee'],   $addCikkFelhMenny[$key],  date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'])
+                        );
+
+                        if( $sql === false ) {
+                            $db_error = true;
+                        }
+                    }
+                }
+            }
+
+            if( !$db_error ) {
+                mysqli_commit($db_kapcs);
+
+                echo json_encode(array(
+                    'statusz' => 'siker'
+                ));
+            } else {
+                mysqli_rollback($db_kapcs);
+
+                echo json_encode(array(
+                    'hiba' => tranzakcioHiba()
+                ));
+            }
+        } else {
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 /* Átadás diszpécsernek */
 if( isset($_POST['munkalapKeszre']) ) {
     $recid = $_POST['recid'];

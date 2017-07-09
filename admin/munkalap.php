@@ -523,13 +523,14 @@ if($gyorskereso_text){
                 }
 
                 /* Elvégzett feladatok lekérdezése */
-                $anyagok = $adatbazis_kapcsolat->s('cikk_nev', 'munkalap_anyag', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
+                $anyagok = $adatbazis_kapcsolat->s('cikk_nev cikk_men cikk_mee', 'munkalap_anyag', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
 
                 if( $anyagok ) {
                     $szamla_html .= nl2('
                         <div class="dt naplo munkalap kicsi behuz">
                             <div class="dtr nFejlec">
                                 <div class="dtc">Anyag felhasználás</div>
+                                <div class="dtc">Felhasznált mennyiség</div>
                             </div>
                     ');
 
@@ -537,6 +538,7 @@ if($gyorskereso_text){
                         $szamla_html .= nl2('
                             <div class="dtr nSor">
                                 <div class="dtc">'.$anyag['cikk_nev'].'</div>
+                                <div class="dtc">'.$anyag['cikk_men'].' '.$anyag['cikk_mee'].'</div>
                             </div>
                         ');
                     }
