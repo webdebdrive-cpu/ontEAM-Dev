@@ -403,6 +403,7 @@ $(function() {
         }
     });
 
+    /* Léptetés lefele nyíllal */
     $(document).on('keyup', function(e) {
         if( e.keyCode == 38 || e.keyCode == 40 ) {
             var className = e.target.className;
@@ -455,7 +456,7 @@ $(function() {
                 var active = $('#szamlaList li.szamla_sor.active').index('#szamlaList li.szamla_sor'),
                     szamlaDb = $('#szamlaList li.szamla_sor').length - 1;
 
-                $('#szamlaList li.szamla_sor').removeClass('active');
+                $('#szamlaList li.szamla_sor').removeClass('active').removeClass('kijelolve');
 
                 if( e.keyCode == 38 ) {
                     kovSzamlaSor = active - 1;

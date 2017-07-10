@@ -135,9 +135,9 @@
         });
 
         $('#autocomplete').on('click', 'ul li', function(e) {
+
             var link = $('#autocomplete ul li.aktiv').attr('data-href'),
                 recid = $('#autocomplete ul li.aktiv').attr('data-recid');
-
             var mee = $('#autocomplete ul li.aktiv').attr('data-mee');
             if( mee !== undefined ) {
                 $('.insertMee').text(mee);
@@ -181,7 +181,6 @@
                     gepVane();
                 }
                 
-                e.stopPropagation();
             }
         });
 
@@ -197,6 +196,7 @@
             }
         });
 
+        /* Bárhova kattintva az oldalon, vagy Entert nomva, az autocomplete záródjon be  */
         $(document).click(function() {
             $('#autocomplete').css({'display':'none'}).html('');
         });
@@ -206,18 +206,21 @@
             }
         });
 
-        /*Mezőt elhagyva bezárjuk az autocomplete-t*/
-        $(this).blur(function(e) {
-            $('#autocomplete').css({'display':'none'}).html('');
-            if(!van_uj_erteke){
-                $(this).val(eredeti_val);
+        
+        /* Tab esetén záródjon be az autocomplete, és ha nem változott az értéke, írjuk vissza az eredetit */
+        $(this).keydown(function(e) {
+            if (e.keyCode == 9) {
+                $('#autocomplete').css({'display':'none'}).html('');
+                if(!van_uj_erteke){
+                    $(this).val(eredeti_val);
+                }
             }
         });
-        
         $(this).keyup(function(e) {
             var aktiv  = $('#autocomplete ul li.aktiv');
             var first   = $('#autocomplete ul li:first-child');
             var last    = $('#autocomplete ul li:last-child');
+
 
             if(e.keyCode==40) {
                 if(!$('#autocomplete ul li').hasClass('aktiv')) {
