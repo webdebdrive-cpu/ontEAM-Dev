@@ -2297,7 +2297,9 @@ function csoportMuvelet( oldal ) {
                 });
 
                 $.when( ajax ).then(function() {
-                    popupNyit();
+                    if(popup_nem_mmutat==0){
+                        popupNyit();
+                    }
                 });
             break;
 
