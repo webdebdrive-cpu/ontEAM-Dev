@@ -366,12 +366,11 @@ function i_u($type, $tabla, $tomb){
         }
 
 
-//echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '<pre style="font-size: 1.4rem">';
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '</pre>';
 //exit;
-//
+
         //Itt újabb if felételek jönnek a táblákra. Azért kerültek ide, mert itt már felhasználjuk a létrejött bejegyzés ID-ját (ezért nem fentebb kezeltük le)
 
         //Bejelentések iktatószám képzése
@@ -903,15 +902,15 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 return false;
             }
             if(idoszak_ig < tol){
-                alert2(\'A kezdődátum nem lehet későbbi mint az adatlap időszaka!\', \'\', \'Hiba\');
+                alert2(\'A kezdődátum nem lehet későbbi mint \'+idoszak_ig+\'!\', \'\', \'Hiba\');
                 return false;
             }
             if(idoszak_ig < ig){
-                alert2(\'A végdátum nem lehet későbbi mint az adatlap időszaka!\', \'\', \'Hiba\');
+                alert2(\'A végdátum nem lehet későbbi mint \'+idoszak_ig+\'!\', \'\', \'Hiba\');
                 return false;
             }
             if(idoszak_tol > ig){
-                alert2(\'A végdátum nem lehet korábbi mint az adatlap időszaka!\', \'\', \'Hiba\');
+                alert2(\'A végdátum nem lehet korábbi mint \'+idoszak_tol+\'!\', \'\', \'Hiba\');
                 return false;
             }
             if(tol >= ig){
@@ -1666,6 +1665,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
     if( $bejegyzesek ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
 
+        //Csak diszpécser tud sorokat kijelölni
         $jClass = '';
         if( _jog(2) ) {
             $jClass = ' kijelolheto';
@@ -1688,7 +1688,6 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
 
                         /* Van e sürgős */
                         $surgos_e = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`csoport_id` = '{$aktCsoport}' AND `surgos` > 0", '', '1');
-
                         $surgos_icon = '';
                         if( $surgos_e ) {
                             $surgos_icon = nl2('
@@ -1699,7 +1698,6 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                         }
 
                         $csoport_bej = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`csoport_id` = '{$aktCsoport}'", '', '');
-
                         $csoport_active = '';
                         if( $csoport_bej ) {
                             $csoport_bej = adatbazis2tomb($csoport_bej, 'recid');
@@ -1708,8 +1706,14 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                                 $csoport_active = ' active';
                             }
                         }
-
-                        $html .= '<li class="szamla_datum csoport'.$csoport_active.'" data-id="'.$aktCsoport.'"><span class="icon"></span><span class="csoportNev" data-id="'.$aktCsoport.'">'.$surgos_icon.'<strong>'.$csoportSor['nev'].'</strong></li>';
+                        
+                        
+                        //Ha van legalább egy nyitott eleme, akkor biztosan nyitott a csoport is (elvégre a csoport státusza csak eygszerre mozoghat)
+                        $bold = '';
+                        if($adatbazis_kapcsolat->s('recid', 'bejelentes', "`csoport_id` = '{$aktCsoport}' AND `statusz_id`=1", '', '1')){
+                            $bold = ' class="b"';
+                        }
+                        $html .= '<li class="szamla_datum csoport'.$csoport_active.'" data-id="'.$aktCsoport.'"><span class="icon"></span><span class="csoportNev" data-id="'.$aktCsoport.'">'.$surgos_icon.'<span'.$bold.'>'.$csoportSor['nev'].'</span></li>';
                     }
 
                     $csoport = $aktCsoport;
@@ -1741,11 +1745,17 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
             /* Hiba */
             $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$bsz['hiba_id']}'");
             $hiba = $hiba[0];
+            
+            //Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
+            $bold = '';
+            if($bsz['statusz_id']==1){
+                $bold = ' class="b"';
+            }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$surgos.' '.$bsz['ikt_szam'].'</span>
-                            <span>'.$telephely.' - '.$helyseg.'</span>
-                            <span>'.$hiba['info'].'</span>
+                            <span'.$bold.'>'.$surgos.' '.$bsz['ikt_szam'].'</span>
+                            <span'.$bold.'>'.$telephely.' - '.$helyseg.'</span>
+                            <span'.$bold.'>'.$hiba['info'].'</span>
                          </a>';
 
             $csoport_class = '';
@@ -2410,7 +2420,7 @@ function beosztasLista( $bejegyzesek, $tabla, $frissit ) {
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span>'.$bsz['cim'].'</span>
-                            <span>'.$telephely.' '.$bsz['tol'].' - '.$bsz['ig'].'</span>
+                            <span>'.$telephely.' '.str_replace('-', '.', $bsz['tol']).' - '.str_replace('-', '.', $bsz['ig']).'</span>
                         </a>';
 
             if( !$frissit ) {

@@ -967,7 +967,11 @@ $(function() {
         onlyNumbers($(this));
     });
     $(document).on('blur', '.f_num', function(e) {
-        $(this).val( ezresek($(this).val().replace(/ /g, '').replace('.', '').replace(',', '.'), 2, ',', ' ') );
+        tort = 2;
+        if($(this).attr('data-tort')){
+            tort = $(this).attr('data-tort');
+        }
+        $(this).val( ezresek($(this).val().replace(/ /g, '').replace('.', '').replace(',', '.'), tort, ',', ' ') );
     });
 
     /* Anyagigénylésnél a mennyiség mező kitöltése szálloda + anyag ismerete alapján */
@@ -2227,7 +2231,7 @@ function arazas() {
 
     if( objLength(idk) ) {
         $.ajax({
-            url : 'esemenyek.php',
+            url : 'anyagigenyles.php',
             type: 'POST',
             data: {
                 idk     : JSON.stringify(idk),
@@ -2256,51 +2260,11 @@ function arazas() {
     return false;
 }
 function arazas_ment(){
-    if(!$('#pop_szallito').val()){
-        $('#popup_hiba').html('Kérjük adja meg a szállítót!');
-        alert_raz();
-        return false;
-    }
 
     pop_ig_menny = $('#pop_ig_menny').val().replace(',', '.').replace(/ /g,'');
     pop_rndmen   = $('#pop_rndmen').val().replace(',', '.').replace(/ /g,'');
-    if(pop_ig_menny < pop_rndmen){
-        $('#popup_hiba').html('A rendelt mennyiség nem lehet több az igényelt mennyiségtől!');
-        alert_raz();
-        return false;
-    }
     if(pop_ig_menny > pop_rndmen && !$('#pop_indoklas').val()){
-        $('#popup_hiba').html('Kérjük adja meg a rendelési mennyiség<br>megváltoztatásának indoklását!');
         $('#indoklas_tr').show();
-        return false;
-    }
-    if(!$('#pop_kcs_21').val()){
-        $('#popup_hiba').html('Kérjük adja meg a rendelési egységárat!');
-        alert_raz();
-        return false;
-    }
-    if(!$('#pop_rndear').val() || $('#pop_rndear').val()=='0,00'){
-        $('#popup_hiba').html('Kérjük adja meg a rendelési egységárat!');
-        alert_raz();
-        return false;
-    }
-    /* Deviza esetén */
-    if($('#pop_kcs_21').val()!=5){
-        if(!$('#pop_verkear').val() || $('#pop_verkear').val()=='0,00'){
-            $('#popup_hiba').html('Kérjük adja meg az árfolyamot!');
-            alert_raz();
-            return false;
-        }
-        if(!$('#pop_vrndear').val() || $('#pop_vrndear').val()=='0,00'){
-            $('#popup_hiba').html('Kérjük adja meg a Deviza rend. egységárat!');
-            alert_raz();
-            return false;
-        }
-        if(!$('#pop_atvaltva_d').val() || $('#pop_atvaltva_d').val()=='0000.00.00'){
-            $('#popup_hiba').html('Kérjük adja meg az átváltás dátumát!');
-            alert_raz();
-            return false;
-        }
     }
 
     if($('#pop_dbf').prop('checked')==false && !$('#pop_erkcimid').val()){
@@ -2324,7 +2288,7 @@ function arazas_ment(){
             rndear      : $('#pop_rndear').val(),
             rndmen      : $('#pop_rndmen').val(),
             vrndear     : $('#pop_vrndear').val(),
-            verkear     : $('#pop_verkear').val(),
+            arfolyam    : $('#pop_arfolyam').val(),
             atvaltva_d  : $('#pop_atvaltva_d').val(),
             ig_menny    : $('#pop_ig_menny').val(),
             indok       : $('#pop_indoklas').val(),
@@ -2338,6 +2302,9 @@ function arazas_ment(){
                 if( response.hiba ) {
                     $('#popup_hiba').html(response.hiba);
                     alert_raz();
+                    if(response.focus){
+                        $('#'+response.focus).focus();
+                    }
                     return false;
                 }
             }

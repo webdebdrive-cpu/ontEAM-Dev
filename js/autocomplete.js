@@ -35,6 +35,8 @@
             csoport         : 0
         };
 
+        var eredeti_val = $(this).val();
+        var van_uj_erteke = false;
         var options = $.extend(defaults, options);
 
         if( !$('#autocomplete').length ) {
@@ -132,7 +134,7 @@
             $(this).removeClass('aktiv');
         });
 
-        $('#autocomplete').on('click', 'ul li', function() {
+        $('#autocomplete').on('click', 'ul li', function(e) {
             var link = $('#autocomplete ul li.aktiv').attr('data-href'),
                 recid = $('#autocomplete ul li.aktiv').attr('data-recid');
 
@@ -145,6 +147,7 @@
                 location.href = link;
             }else{
                 mezo.val( $('#autocomplete ul li.aktiv').html() ).change();
+                van_uj_erteke = true;
 
                 if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                     mezo_nev = mezo.attr('name').replace('_autocomp', '');
@@ -177,6 +180,8 @@
                 if( setting.tabla == 'obj' ) {
                     gepVane();
                 }
+                
+                e.stopPropagation();
             }
         });
 
@@ -201,6 +206,14 @@
             }
         });
 
+        /*Mezőt elhagyva bezárjuk az autocomplete-t*/
+        $(this).blur(function(e) {
+            $('#autocomplete').css({'display':'none'}).html('');
+            if(!van_uj_erteke){
+                $(this).val(eredeti_val);
+            }
+        });
+        
         $(this).keyup(function(e) {
             var aktiv  = $('#autocomplete ul li.aktiv');
             var first   = $('#autocomplete ul li:first-child');
@@ -248,7 +261,8 @@
                         location.href = link;
                     }else{
                         mezo.val( $('#autocomplete ul li.aktiv').html() ).change();
-
+                        van_uj_erteke = true;
+                        
                         if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                             mezo_nev = mezo.attr('name').replace('_autocomp', '');
                             $('input[name="' + mezo_nev + '"]').val(recid);
@@ -276,6 +290,8 @@
                         if(options.arazas_beallit){
                             rend_ossz_beallit();
                         }
+                        
+                        e.stopPropagation();
                     }
 
                     if( options.tabla == 'obj' ) {

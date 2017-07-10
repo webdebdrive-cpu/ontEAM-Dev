@@ -1270,6 +1270,11 @@ foreach($akt_tomb as $ertek){
             if($ertek['alert']){
                 $ertek['class'] .= ' csillag';
             }
+            
+            if($ertek['data']){
+                $input -> data = $ertek['data'];
+            }
+            
 
             $input -> cssClass  = $ertek['class'];
             $input -> disabled  = $ertek['disabled'];
@@ -1301,11 +1306,15 @@ foreach($akt_tomb as $ertek){
                 }else{
                     if( strstr($ertek['class'], 'datepicker') ) {
                         if( $sor[ $ertek['name'] ] != '0000-00-00' ) {
-                            $input -> value   = date('Y.m.d', strtotime($sor[ $ertek['name'] ]));
+                            $input -> value   = date('Y.m.d H:i', strtotime($sor[ $ertek['name'] ]));
                         }
                     //Ha numerikus adat, akkor formázzunk
                     } elseif( strpos($ertek['class'], 'f_num')!==false ) {
-                        $input -> value   = number_format($sor[ $ertek['name'] ], 2, ',', ' ');
+                        $tort = 2;
+                        if( strpos($ertek['data'], 'data-tort')!==false ){
+                            $tort = str_replace(array('data-tort="', '"'), array('', ''), $ertek['data']);
+                        }
+                        $input -> value   = number_format($sor[ $ertek['name'] ], $tort, ',', ' ');
                     } else {
                         $input -> value   = $sor[ $ertek['name'] ];
                     }
