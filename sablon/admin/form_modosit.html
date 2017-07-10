@@ -29,13 +29,13 @@
                         closeOnDateSelect   : true,
                         datepicker          : false,
                         format              :'H:i',
-                        mask                : true,
+                        mask                : '\xa0\xa0:\xa0\xa0',
                         step                : 60,
                         validateOnBlur      : false,
                         onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
                     });
                     
-                    /* Ha az űrlapnak nincs submit-ja, akkor minden mezőjét tiltunk. */
+                    /* Ha az űrlapnak nincs submit-ja, akkor minden mezőjét tiltunk.  */
                     if(!$('#szerk_form input[type="submit"]').length){
                         $('#szerk_form input, #szerk_form textarea, #szerk_form select').attr('disabled', true);
                         $('#szerk_form input.foGomb').removeAttr('disabled');

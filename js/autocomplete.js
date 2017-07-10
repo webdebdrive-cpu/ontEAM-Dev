@@ -35,6 +35,7 @@
             csoport         : 0
         };
 
+        
         var eredeti_val = $(this).val();
         var van_uj_erteke = false;
         var options = $.extend(defaults, options);
@@ -148,6 +149,7 @@
             }else{
                 mezo.val( $('#autocomplete ul li.aktiv').html() ).change();
                 van_uj_erteke = true;
+                eredeti_val = mezo.val();
 
                 if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                     mezo_nev = mezo.attr('name').replace('_autocomp', '');
@@ -197,8 +199,10 @@
         });
 
         /* Bárhova kattintva az oldalon, vagy Entert nomva, az autocomplete záródjon be  */
+        that = $(this);
         $(document).click(function() {
             $('#autocomplete').css({'display':'none'}).html('');
+            that.val(eredeti_val);
         });
         $(document).keyup(function(e) {
             if(e.keyCode == 27){
@@ -211,9 +215,7 @@
         $(this).keydown(function(e) {
             if (e.keyCode == 9) {
                 $('#autocomplete').css({'display':'none'}).html('');
-                if(!van_uj_erteke){
-                    $(this).val(eredeti_val);
-                }
+                $(this).val(eredeti_val);
             }
         });
         $(this).keyup(function(e) {
@@ -265,6 +267,7 @@
                     }else{
                         mezo.val( $('#autocomplete ul li.aktiv').html() ).change();
                         van_uj_erteke = true;
+                        eredeti_val = mezo.val();
                         
                         if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                             mezo_nev = mezo.attr('name').replace('_autocomp', '');

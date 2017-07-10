@@ -252,6 +252,7 @@ if($gyorskereso_text){
 
         /* Kijelöltekkel való művelet gombok */
         if( _jog(2) ) {
+            
             $gombok .= nl2('
                 <div id="kmCont">
                     <script>
@@ -288,16 +289,24 @@ if($gyorskereso_text){
                         <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nem törölhet bejelentést diszpécserként!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">
                         <div id="diszpecser" class="dn">Innen fogja tudni a JS, hogy diszpécser vagyunk</div>
                         ');
-            //Jogosutságkezelés: csak az törölheti, aki létrehozta
-            } elseif($sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejelentéstú törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+
+            //Csak nyitott státusz törölhető
             } else {
-                //Csak nyitott státusz törölhető
+                
+                
                 $statusz = $adatbazis_kapcsolat->s('stat_id', 'bejelentes_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc', '1');
                 $statusz = $statusz[0];
 
+                //Csak nyitott státuszú törölhető
                 if($statusz['stat_id'] != 1) {
+
                     $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+
+                //Csak saját bejelentéstú törölhető!
+                } elseif($sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
+
+                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+
                 } else {
                     $obj = $adatbazis_kapcsolat -> select('nev', 'obj', "`recid`='{$sor['obj_id']}'");
                     $obj = $obj[0];
@@ -312,6 +321,7 @@ if($gyorskereso_text){
                         \';</script><input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(torol_kerdes, gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">
                     ');
                 }
+
             }
         }
 

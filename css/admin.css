@@ -247,7 +247,7 @@ input.gomb.border{
     background: #76B958;
 }
 
-.gombb:disabled{
+.gomb:disabled, .gombb:disabled, .foGomb:disabled { 
     display: none;
 }
 
@@ -2116,6 +2116,7 @@ div.navGombok a.disabled .material-icons {
 }
 
 #popup div.popup_tart div.dt div.dtc input[type="text"] {
+    min-width: 40rem;
     width: 100%;
 }
 

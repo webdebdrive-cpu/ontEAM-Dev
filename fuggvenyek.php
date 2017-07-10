@@ -1750,6 +1750,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
             $bold = '';
             if($bsz['statusz_id']==1){
                 $bold = ' class="b"';
+                $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat utassuk-e meg vagy sem
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">

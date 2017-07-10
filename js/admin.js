@@ -2224,6 +2224,19 @@ function csoportMuvelet( oldal ) {
 
         switch( oldal ) {
             case 'csoporthoz_adas':
+                
+                var popup_nem_mmutat = 0;
+                var iktatok = '';
+                $('.kijelolve').each(function () {
+                    if(!$(this).hasClass('nyitott_statuszu')){
+                        iktatok += $(this).find('span:first-of-type').html()+'<br>';
+                        popup_nem_mmutat++;
+                    }
+                });
+                if(popup_nem_mmutat>0){
+                    alert2('Az alábbi iktatószámok státuszai nem nyitottak, így nem adhatóak csoporthoz:<br>'+iktatok);
+                }
+                
                 $('#popupTart').html(data);
 
                 var page = $('#szamlaBetolt').attr('data-page');
@@ -2246,7 +2259,9 @@ function csoportMuvelet( oldal ) {
                 });
 
                 $.when( csoportSelect ).then(function() {
-                    popupNyit();
+                    if(popup_nem_mmutat==0){
+                        popupNyit();
+                    }
                 });
             break;
 
@@ -2399,6 +2414,7 @@ function arazas_ment(){
     });
 }
 
+/* Bal oldali navpanelben ellenőrizzük, hogy van-e olyan bejegyzés, ami ki vanjelölve. Ha igen, csak akkor jelennek meg a csoportos műveletes gombok (#kmCont inputjai) */
 function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     if( tabla === undefined ) {
         tabla = '';
@@ -2521,6 +2537,18 @@ function addObj( that ) {
 
     $('input[name="obj_id"]').val(recid).change();
     $('input[name="obj_id_autocomp"]').val(text).change();
+    
+    /* Az autocomplete-t újra rá kell tenni, hogy az alapértelmezett értéke az üresség lehessen */
+    $('#obj_id_autocomp').autocomplete({
+        'php_fajl'      : '../autocomplete.php',
+        'tabla'         : 'obj',
+        'oszlop_keres'  : 'nev',
+        'oszlop_listaz' : 'nev',
+        'rkat'          : 0,
+        'csoport'       : 0,
+        'recid'         : '41',
+        'id_kiir'       : 'recid'
+    });
 
     var form = $('input[name="obj_id"]').parents('#szerk_form');
 
@@ -3162,6 +3190,18 @@ function szallodaVane( that ) {
         if( $(that).attr('name') == 'telephely_id' ) {
             $('#obj_id_autocomp').attr('disabled', false).val('').removeClass('mod');
             $('#obj_id').val('');
+
+            /* Az autocomplete-t újra rá kell tenni, hogy az alapértelmezett értéke az üresség lehessen */
+            $('#obj_id_autocomp').autocomplete({
+                'php_fajl'      : '../autocomplete.php',
+                'tabla'         : 'obj',
+                'oszlop_keres'  : 'nev',
+                'oszlop_listaz' : 'nev',
+                'rkat'          : 0,
+                'csoport'       : 0,
+                'recid'         : '41',
+                'id_kiir'       : 'recid'
+            });
 
             $('#gep_id_autocomp').val('').removeClass('mod');
             $('#gep_id').val('');

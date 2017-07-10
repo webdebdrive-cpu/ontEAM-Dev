@@ -1605,6 +1605,7 @@ if( isset($_GET['folyamatban_munkak']) ) {
             'gomb' => '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="bejelentes_mehet = true; $(\'#szerk_form\').submit();"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>'
         ));
     }
+    echo json_encode(array('siker' => 1));
 
     $weblap->leallit();
     exit();
@@ -1689,7 +1690,7 @@ if( isset($_POST['munkalaphozAdas']) ) {
             if( $statusz ) {
                 $statusz = $statusz[0];
 
-                if( $statusz['stat_id'] != 1 ) {
+                if( $statusz['stat_id'] != 1 && $statusz['stat_id'] != 2 ) {
                     $sql = $statusz_text = $adatbazis_kapcsolat->s('nev', 'bejelentes_statusz_text', "`recid` = '{$statusz['stat_id']}'", '', '1');
                     $statusz_text = $statusz_text[0];
 
@@ -1711,7 +1712,7 @@ if( isset($_POST['munkalaphozAdas']) ) {
                     }
 
                     echo json_encode(array(
-                        'hiba' => 'Munkalap csak nyitott státuszú bejelentésből készíthető!'.$hiba_kieg
+                        'hiba' => 'Munkalaphoz hozzáadni csak nyitott státuszú bejelentést lehet!'.$hiba_kieg
                     ));
 
                     $weblap->leallit();
@@ -2365,7 +2366,7 @@ if( isset($_POST['munkalapKeszit']) ) {
             if( $statusz ) {
                 $statusz = $statusz[0];
 
-                if( $statusz['stat_id'] != 1 ) {
+                if( $statusz['stat_id'] != 1 && $statusz['stat_id'] != 2 ) {
                     echo json_encode(array(
                         'hiba' => 'Munkalap csak nyitott státuszú bejelentésből készíthető!'
                     ));
