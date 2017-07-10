@@ -259,7 +259,7 @@ if($gyorskereso_text){
                         <input type="button" class="gomb foGomb" value="Munka átadása..." title="Munka átadása...">
                         <div class="muv">
                             <ul>
-                                <li><a onclick="csoportMuvelet(\'munkalap_telepitett\');">Telepített</a></li>
+                                <li><a onclick="munkalapTelepitett(\'csak kérdezünk még\');">Telepített</a></li>
                                 <li><a onclick="csoportMuvelet(\'munkalap_mobil\');">Mobil</a></li>
                                 <li><a onclick="csoportMuvelet(\'munkalap_kulso\');">Külső</a></li>
                                 <li><a onclick="csoportMuvelet(\'munkalap_adminisztrator\');">Adminisztrátor</a></li>
@@ -275,11 +275,10 @@ if($gyorskereso_text){
 
             $gombok .= nl2('
                 <input type="button" class="gomb foGomb" value="Elvégzett feladat hozzáadása" title="Elvégzett feladat hozzáadása" onclick="csoportMuvelet(\'feladatHozzaad\')">
-                <input type="button" class="gomb foGomb" value="Készre jelentés" title="Készre jelentés" onclick="">
-
+                <input type="button" class="gomb foGomb" value="Készre jelentés" title="Készre jelentés" onclick="munkalapKeszre(\'csak kérdezünk még\');">
                 <input type="button" class="gomb foGomb" value="Átadás diszpécsernek" title="Átadás diszpécsernek" onclick="csoportMuvelet(\'atadasDiszpecsernek\')">
                 <input type="button" class="gomb foGomb" value="Anyagigénylés szükséges" title="Anyagigénylés szükséges" onclick="">
-                <input type="button" class="gomb foGomb" value="Anyag vételezés" title="Anyag vételezés" onclick="">
+                <input type="button" class="gomb foGomb" value="Anyag vételezés" title="Anyag vételezés" onclick="csoportMuvelet(\'munkalapAnyagvetelezes\');">
             ');
 
         } else if( _jog(3) && _jog(5) ) {
@@ -464,7 +463,7 @@ if($gyorskereso_text){
     } elseif(isset($_GET['tetel'])) {
 
         /* Tétel sorok */
-        $sorok = $adatbazis_kapcsolat->s('recid atadta_dt insert_dt insert_usr', 'munkalap_tetel', "`munkalap_id` = '".$_GET['id']."'", 'insert_dt desc', '');
+        $sorok = $adatbazis_kapcsolat->s('recid atadta_dt visszaadva insert_dt insert_usr', 'munkalap_tetel', "`munkalap_id` = '".$_GET['id']."'", 'insert_dt desc', '');
 
         if( $sorok ) {
             foreach($sorok as $sor) {
@@ -474,14 +473,26 @@ if($gyorskereso_text){
                             <div class="dtc">Felvette</div>
                             <div class="dtc">Létrehozta</div>
                             <div class="dtc">Átadta</div>
+                            <div class="dtc">Visszaadva</div>
                         </div>
                 ');
+
+                $visszaadva = 'nem';
+                if( $sor['visszaadva'] ) {
+                    $visszaadva = 'igen';
+                }
+
+                $atadta = '';
+                if( $sor['atadta_dt'] != '0000-00-00 00:00:00' ) {
+                    $atadta = date('Y.m.d H:i', strtotime($sor['atadta_dt']));
+                }
 
                 $szamla_html .= nl2('
                     <div class="dtr nSor">
                         <div class="dtc">'.$sor['insert_usr'].'</div>
                         <div class="dtc">'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</div>
-                        <div class="dtc">'.date('Y.m.d H:i', strtotime($sor['atadta_dt'])).'</div>
+                        <div class="dtc">'.$atadta.'</div>
+                        <div class="dtc">'.$visszaadva.'</div>
                     </div>
                 ');
 

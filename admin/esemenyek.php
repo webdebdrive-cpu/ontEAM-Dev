@@ -1282,6 +1282,72 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 /* Átadás diszpécsernek */
+if( isset($_POST['munkalapKeszre']) ) {
+    $recid = $_POST['recid'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+        $sql = $akt_tetel = $adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $akt_tetel ) {
+            $akt_tetel = $akt_tetel[0];
+
+            /* Ellenőrizzük, hogy van e elvégzett munka hozzáadva */
+            $is_feladat = $adatbazis_kapcsolat->s('recid', 'munkalap_feladat', "`tetel_id` = '".$akt_tetel['recid']."'", '', '1');
+
+            if( !$is_feladat ) {
+                echo json_encode(array(
+                    'hiba' => 'Adjon meg elvégzett munkát!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+
+            echo json_encode(array(
+                'hiba' => 'Biztosan készre jelenti a munkát?',
+                'gomb' => '<input class="gomb piros" value="Igen" onclick="munkalapKeszre();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        /* Készre állítjuk a munkát */
+        if( !addStatusz( 'munkalap_statusz', $recid, 10 ) ) {
+            $db_error = true;
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+/* Átadás diszpécsernek */
 if( isset($_POST['atadasDiszpecsernek']) ) {
     $recid = $_POST['recid'];
     $erteklista_id = $_POST['erteklista_id'];
@@ -1291,7 +1357,27 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $erteklista_id ) {
-        
+        /* Beszúrjuk a munkalap tételt */
+        $sql = $adatbazis_kapcsolat -> i('munkalap_tetel',
+            array('munkalap_id', 'erteklista_id', 'visszaadva', 'atadta_dt',            'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+            array($recid,        $erteklista_id,   1,            date('Y-m-d H:i:s'),    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'],     date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+        );
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        /* Frissítjuk a munkalap visszaadva sorát */
+        $sql = $adatbazis_kapcsolat -> u('munkalap', array('visszaadva'), array(1), "`recid` = '{$recid}'");
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        /* Nyitott státuszra állítjuk a munkalapot */
+        if( !addStatusz( 'munkalap_statusz', $recid, 1 ) ) {
+            $db_error = true;
+        }
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -1335,9 +1421,24 @@ if( isset($_POST['feladatHozzaadas']) ) {
         if( $akt_tetel ) {
             $akt_tetel = $akt_tetel[0];
 
+            $is_feladat = $adatbazis_kapcsolat->s('recid', 'munkalap_feladat', "`tetel_id` = '".$akt_tetel['recid']."' AND `erteklista_id` = '{$erteklista_id}'", '', '1');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $is_feladat ) {
+                echo json_encode(array(
+                    'hiba' => 'A(z) "'.erteklista(5, $erteklista_id).'" feladat már hozzáadásra került!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+
             $sql = $adatbazis_kapcsolat -> i('munkalap_feladat',
-                array('tetel_id',          'erteklista_id',    'memo',       'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
-                array($akt_tetel['recid'], $erteklista_id,     $memo, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+                array('munkalap_id', 'tetel_id',          'erteklista_id',    'memo',       'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
+                array($recid,        $akt_tetel['recid'], $erteklista_id,     $memo, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
             );
 
             if( $sql === false ) {
@@ -1724,7 +1825,7 @@ if($page=='munkalap'){
     $varakozo_statid = 7;
 }
 if( isset($_POST['varolistahozAdas']) ) {
-    
+
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
@@ -2016,12 +2117,71 @@ if( isset($_POST['munkalapKulso']) ) {
 if( isset($_POST['munkalapTelepitett']) ) {
     $recid = $_POST['recid'];
 
-    if( $recid ) {
-        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(1), "`recid` = '{$recid}'");
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
 
-        echo json_encode(array(
-            'statusz' => 'siker'
-        ));
+    if( $recid ) {
+        $sql = $akt_statusz = $adatbazis_kapcsolat->s('statusz_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $akt_statusz ) {
+            $akt_statusz = $akt_statusz[0];
+
+            if( $akt_statusz['statusz_id'] != 1 ) {
+                echo json_encode(array(
+                    'hiba' => 'Munklapot kiadása csak nyitott státusz esetén lehetséges!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        } else {
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+
+            echo json_encode(array(
+                'hiba' => 'Biztosan telepített csoportnak adja a munkát?',
+                'gomb' => '<input class="gomb piros" value="Igen" onclick="munkalapTelepitett();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(1, 0), "`recid` = '{$recid}'");
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( !addStatusz( 'munkalap_statusz', $recid, 2 ) ) {
+            $db_error = true;
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
     }
 }
 
@@ -2539,7 +2699,7 @@ if( isset($_POST['arazas']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( is_array($idk) ) {
-        
+
         /* Ellenőrizzük a csoportokat */
         $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'anyagigenyles', "`recid` IN (".implode(',', $idk).")", '', '');
         if( $sql === false ) {
@@ -2575,7 +2735,7 @@ if( isset($_POST['arazas']) ) {
         $ossz_ig_menny   = 0;
         $ossz_rend_menny = 0;
         foreach($idk as $id) {
-            
+
             $idk_inputba .= $id.',';
             $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'anyagigenyles_statusz', 'id='.$id, 'recid desc', '1');
             if( $sql === false ) {
@@ -2586,7 +2746,7 @@ if( isset($_POST['arazas']) ) {
                 $statusz = $statusz[0];
 
                 if( $statusz['stat_id'] != 5 ) {
-                    
+
                     $sql = $statusz_text = $adatbazis_kapcsolat->s('nev', 'anyagigenyles_statusz_text', "`recid` = '{$statusz['stat_id']}'", '', '1');
                     $statusz_text = $statusz_text[0];
                     if( $sql === false ) {
@@ -2610,9 +2770,9 @@ if( isset($_POST['arazas']) ) {
                     ));
                     $weblap->leallit();
                     exit();
-                    
+
                 }else{
-                    
+
                     //Ha van eltérés az előző bejegyzéshez képest (üres mező megengedett) akkro hibaüzenet:
                     $igenyles = $adatbazis_kapcsolat->s('cikktorzs_id szallito kcs_21 rndear igmen rndmen', 'anyagigenyles', "`recid`='{$id}'");
                     $igenyles = $igenyles[0];
@@ -2632,18 +2792,18 @@ if( isset($_POST['arazas']) ) {
                     $elozo_szallito     = $igenyles['szallito'];
                     $elozo_kcs_21       = $igenyles['kcs_21'];
                     $elozo_rndear       = $igenyles['rndear'];
-                    
+
                     //Ha ki van töltve a szállító (mivel kötelező mezők, ekkor ki lesz töltve a pénznem és rend. egységár is, akkor azt az ID-t töltjük be a popupba
                     if($igenyles['szallito']){
                         $betoltid = $id;
                     }
-                    
+
                     //Adjuk össze az igényelt mennyiségeket
                     $ossz_ig_menny   += $igenyles['igmen'];
                     $ossz_rend_menny += $igenyles['rndmen'];
-                    
+
                 }
-                
+
             } else {
                 echo json_encode(array(
                     'hiba' => 'Státusz nem található!'
@@ -2653,14 +2813,14 @@ if( isset($_POST['arazas']) ) {
                 exit();
             }
         }
-        
+
         //Ha egyik sem volt kitöltve, akkor vesszük az utoplsó ID-t. Ekkor más default értékeket is beállítunk
         $default_ertekek_mutat = false;
         if(!$betoltid){
             $betoltid = $id;
             $default_ertekek_mutat = true;
         }
-        
+
         //Ha több sor van kijelölve, akkor a rendelt mennyiséget disable-zzük
         $rndmen_disabled = '';
         if(count($idk)>1){
@@ -2670,7 +2830,7 @@ if( isset($_POST['arazas']) ) {
         //Legutóbb ellenőrzott rekod ID-ja az $id változóban, induljunk ki abból
         $igenyles = $adatbazis_kapcsolat->s('*', 'anyagigenyles', "`recid`='$betoltid'");
         $igenyles = $igenyles[0];
-        
+
         if($default_ertekek_mutat){
             $ossz_rend_menny    = $igenyles['igmen'];
             $igenyles['kcs_21'] = 5;
@@ -2685,15 +2845,15 @@ if( isset($_POST['arazas']) ) {
             case 2: $mszk_sel    = ' selected'; break;
             case 3: $dbf_checked = ' checked';  break;
         }
-        
+
         $penznem_txt = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`='21' AND `id`='{$igenyles['kcs_21']}'");
         $penznem_txt = $penznem_txt[0];
-        
+
         $szallito_txt = $adatbazis_kapcsolat->s('nev', 'szallito', "`recid`='{$igenyles['szallito']}'");
         $szallito_txt = $szallito_txt[0];
         $popup = nl2('
                 <p class="piros b" id="popup_hiba"></p>
-                
+
                 <div class="l">
                     <table class="popup" style="font-weight: normal; font-size: 1.2rem;">
                     <tr>
@@ -2795,7 +2955,7 @@ if( isset($_POST['arazas']) ) {
                     <input type="hidden" name="pop_ig_menny" id="pop_ig_menny" value="'.number_format($ossz_ig_menny, 2, ',', ' ').'">
                 </div>
                 <script>
-                
+
                     /* Dátumozó */
                     $(\'.datepicker\').datetimepicker({
                         closeOnDateSelect   : true,
@@ -2803,50 +2963,50 @@ if( isset($_POST['arazas']) ) {
                         timepicker          : false,
                         validateOnBlur      : false,
                     });
-                    
+
                     /* Betöltéskor*/
                     $(document).ready(function () {
                         rend_ossz_beallit();
                     });
-                    
+
                     /* Pénznem cserekor */
                     $(document).on(\'keyup\', \'#pop_verkear, #pop_vrndear, #pop_rndmen\', function(e) {
                        rend_ossz_beallit();
                     });
-                    
+
                     function rend_ossz_beallit(){
-                        
+
                         arfolyam = $(\'#pop_vrndear\').val().replace(\',\', \'.\').replace(/ /g, \'\');
                         ig_menny = $(\'#pop_ig_menny\').val().replace(\',\', \'.\').replace(/ /g,\'\');
                         rndear   = $(\'#pop_rndear\').val().replace(\',\', \'.\').replace(/ /g, \'\');
                         rndmen   = $(\'#pop_rndmen\').val().replace(\',\', \'.\').replace(/ /g, \'\');
                         verkear  = $(\'#pop_verkear\').val().replace(\',\', \'.\').replace(/ /g, \'\');
-                
+
                         if(rndmen<ig_menny){
                             $(\'#indoklas_tr\').show();
                         }else{
                             $(\'#indoklas_tr\').hide();
                         }
-                        
+
                         /* HUF esetén */
                         if($(\'#pop_kcs_21\').val()==5){
-                            
+
                             $(\'#pop_rndear\').removeAttr(\'disabled\').addClass(\'csillag\');
                             $(\'#pop_verkear\').attr(\'disabled\', 1).val(\'0,00\');
                             $(\'#pop_vrndear\').attr(\'disabled\', 1).val(\'0,00\');
                             $(\'#pop_atvaltva_d\').attr(\'disabled\', 1).val(\'    .  .  \');
-                            
+
                             rend_osszeg = rndmen*rndear;
                             $(\'#rend_osszeg\').html(ezresek2(rend_osszeg.toFixed(2)));
-                        
+
                         /* Deviza esetén */
                         }else{
-                        
+
                             $(\'#pop_verkear\').removeAttr(\'disabled\').addClass(\'csillag\');
                             $(\'#pop_vrndear\').removeAttr(\'disabled\').addClass(\'csillag\');
                             $(\'#pop_atvaltva_d\').removeAttr(\'disabled\').addClass(\'csillag\');
                             $(\'#pop_rndear\').attr(\'disabled\', 1);
-                            
+
                             rend_osszeg = rndmen*verkear*arfolyam;
                             $(\'#pop_rndear\').val( ezresek2(verkear*arfolyam) );
                             $(\'#rend_osszeg\').html(ezresek2(rend_osszeg.toFixed(2)));
@@ -2861,7 +3021,7 @@ if( isset($_POST['arazas']) ) {
             echo json_encode(array(
                 'popup' => $popup
             ));
-            
+
         } else {
             mysqli_rollback($db_kapcs);
 

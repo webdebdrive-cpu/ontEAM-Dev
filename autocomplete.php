@@ -103,28 +103,37 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         } else if( $_GET['tabla'] == 'obj' ) {
             $select_kieg = ' `telephely_id`,';
         }
-        
+
+        if( $_GET['tabla'] == 'cikktorzs' ) {
+            $select_kieg .= ' `cikkmee`,';
+        }
+
         //Ha törzsadatlistát kérünk le, akkor a találati listát egész bonyolultan számítjuk ki:
         if($_GET['tabla']=='torzsadat'){
-            
+
             //melyik szállodánál vagyunk
             $szalloda = $adatbazis_kapcsolat->s('telephely_id', 'beosztas', "`recid`='{$_GET['recid']}'");
             $szalloda = $szalloda[0];
-            
+
             //Ehhez milyen loginok tartoznak:
             $felhok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$szalloda['telephely_id']}'");
             $felhok = adatbazis2tomb($felhok, 'nev');
-            
+
             $where_sql = " WHERE `felh_loginnev` IN ('".implode('\', \'', $felhok)."')";
             //$loginnevek = $adatbazis_kapcsolat->s('recid nev', 'torzsadat', "`felh_loginnev` IN ('".implode('\', \'', $felhok)."')");
-            
+
         }
 
 //echo 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`'; exit;
         $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
         while( $sor = mysqli_fetch_array($lekerdez) ) {
 
-            $return .= '<li data-recid="'.$sor[$_GET['id_kiir']].'">';
+            $cikkmee_attr = '';
+            if( $_GET['tabla'] == 'cikktorzs' ) {
+                $cikkmee_attr = ' data-mee="'.$sor['cikkmee'].'"';
+            }
+
+            $return .= '<li data-recid="'.$sor[$_GET['id_kiir']].'"'.$cikkmee_attr.'>';
 
             if( $_GET['tabla'] == 'obj' ) {
                 $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');

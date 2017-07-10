@@ -396,8 +396,8 @@ table.table_mod td:nth-of-type(2){
 
 input{
     color: #4c4c4c;
-    background: #F7F7F7;
-    border: 0.1rem solid #CECECE;
+    background: #fff;
+    border: 0.1rem solid #cecfd1;
     border-radius: 0.2rem;
     font-size: 1.2rem;
     padding: 0.5rem 0.8rem 0.4rem 0.9rem;
@@ -410,7 +410,8 @@ input.gombm {
 input[disabled="disabled"],
 select[disabled="disabled"],
 textarea[disabled="disabled"] {
-    background: #edeaea;
+    background: #f3f3f3;
+    border: 0.1rem solid #cecfd1!important;
     color: #0d0d0d;
     cursor: default;
 }
@@ -432,7 +433,7 @@ textarea.mod {
 }
 
 input[type="text"]:focus{
-    border: 0.1rem solid #226294;
+    border: 0.1rem solid #52a3f5;
 }
 
 input.mini{
@@ -572,7 +573,7 @@ input.f_num{
 
 select{
     background: #F7F7F7;
-    border: 0.1rem solid #CECECE;
+    border: 0.1rem solid #cecfd1;
     border-radius: 0.2rem;
     color: #4c4c4c;
     cursor: pointer;
@@ -582,7 +583,7 @@ select{
 }
 
 select:focus{
-    border: 0.1rem solid #226294;
+    border: 0.1rem solid #52a3f5;
     color: #000;
 }
 
@@ -623,7 +624,7 @@ table.table_mod{
 }
 
 textarea{
-    background: #F7F7F7;
+    background: #fff;
     border: 0.1rem solid #CECECE;
     border-radius: 0.2rem;
     color: #4c4c4c;
@@ -1055,7 +1056,7 @@ input.webdeb{
 }
 
 .cb label {
-	background: #F7F7F7;
+	background: #fff;
     border: 0.1rem solid #CECECE;
     border-radius: 0.2rem;
 	box-shadow: inset rem 0.1rem 0.1rem rgba(0,0,0,0.5), rem 0.1rem rem rgba(255,255,255,.4);
@@ -1082,18 +1083,18 @@ input.webdeb{
 
 .cb label:after {
 	background: transparent;
-    border: 0.3rem solid #4E77A6;
+    border: 0.2rem solid #54a4fb;
 	border-top: none;
 	border-right: none;
 	content: '';
-	height: 0.5rem;
-	left: 0.4rem;
+	height: 0.4rem;
+	left: 0.5rem;
     opacity: 0;
 	filter: alpha(opacity=0);
     position: absolute;
-    top: 0.4rem;
+    top: 0.5rem;
     transform: rotate(-45deg);
-    width: 0.9rem;
+    width: 0.8rem;
 }
 
 .cb label:hover::after {
@@ -1108,7 +1109,8 @@ input.webdeb{
 
 /* Input végébe csillag, ha kötelező */
 .csillag, .csillag:focus{
-    background: #ffffc5;
+    background: #fff;
+    border-left: 0.4rem solid #52a3f5!important;
 }
 
 /* Rendelések szerkesztéséhez */
@@ -1924,9 +1926,11 @@ div.naplo div.nSor div.dtc {
 
 div.szamlaKereses div.navGombok {
     float: right;
+    padding: 0.2rem 0rem 0rem 0rem;
 }
 
 div.navGombok a {
+    border-radius: 0.3rem;
     cursor: pointer;
     display: inline-block;
     float: left;
@@ -1937,7 +1941,12 @@ div.navGombok a {
     width: 2.2rem;
 }
 
+div.navGombok a:hover {
+    background: #8bc264;
+}
+
 div.navGombok a .material-icons {
+    color: #34434a;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -1949,50 +1958,62 @@ div.navGombok a.disabled {
 }
 
 div.navGombok a.elo .material-icons {
-    font-size: 2.2rem;
+    font-size: 1.8rem;
 }
 
 div.navGombok a.kov .material-icons {
-    font-size: 2.2rem;
+    font-size: 1.8rem;
 }
 
 div.navGombok a.elso .material-icons {
-    font-size: 2.2rem;
+    font-size: 1.8rem;
 }
 
 div.navGombok a.utolso .material-icons {
-    font-size: 2.2rem;
+    font-size: 1.8rem;
 }
 
 div.navGombok a.uj .material-icons {
     color: #07a927;
-    font-size: 2.2rem;
+    font-size: 1.8rem;
 }
 
 div.navGombok a.szerk .material-icons {
     color: #e6e500;
-    font-size: 2rem;
+    font-size: 1.8rem;
 }
 
 div.navGombok a.torles .material-icons {
     color: #eb453b;
-    font-size: 2rem;
+    font-size: 1.6rem;
 }
 
-div.navGombok a.excel .material-icons {
+div.navGombok a.visszavon .material-icons {
     font-size: 1.8rem;
 }
 
+div.navGombok a.ujra .material-icons {
+    font-size: 1.8rem;
+}
+
+div.navGombok a.duplikal .material-icons {
+    font-size: 1.8rem;
+}
+
+div.navGombok a.excel .material-icons {
+    font-size: 1.4rem;
+}
+
 div.navGombok a.pdf .material-icons {
-    font-size: 2rem;
+    font-size: 1.8rem;
 }
 
 div.navGombok a.nyomtat .material-icons {
-    font-size: 2rem;
+    font-size: 1.8rem;
 }
 
 div.navGombok a:hover .material-icons {
-    color: #044aff;
+    color: #fff;
 }
 
 div.navGombok a.disabled .material-icons {
@@ -2084,6 +2105,11 @@ div.navGombok a.disabled .material-icons {
     width: 100%;
 }
 
+#popup div.popup_tart div.dt div.dtc.form_jobb.wsn {
+    padding-right: 4.5rem;
+    white-space: nowrap;
+}
+
 #popup div.popup_tart div.dt div.dtc.form_jobb.plr0 {
     padding-left: 0rem;
     padding-right: 0rem;
@@ -2134,6 +2160,7 @@ div.navGombok a.disabled .material-icons {
     text-align: center;
 }
 
+#popup div.popup_tart button,
 #popup div.popup_tart input[type="submit"] {
     background: #69A64E;
     border: 0;
@@ -2145,6 +2172,7 @@ div.navGombok a.disabled .material-icons {
     position: relative;
 }
 
+#popup div.popup_tart button:hover,
 #popup div.popup_tart input[type="submit"]:hover {
     background: #76B958;
 }
