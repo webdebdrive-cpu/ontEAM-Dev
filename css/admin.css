@@ -654,7 +654,7 @@ textarea.oriasiTargy{
 }
 
 textarea:focus{
-    border: 0.1rem solid #226294;
+    border: 0.1rem solid #55a2fa;
 }
 
 p.form_felirat{
@@ -1554,7 +1554,7 @@ ul.szamla_cont li.szamla_datum.csoport {
     position: relative;
 }
 
-ul.szamla_cont li.szamla_datum.csoport.kijelolve { 
+ul.szamla_cont li.szamla_datum.csoport.kijelolve {
     background: #55A2FA;
 }
 

@@ -277,7 +277,7 @@ if($gyorskereso_text){
                 <input type="button" class="gomb foGomb" value="Elvégzett feladat hozzáadása" title="Elvégzett feladat hozzáadása" onclick="csoportMuvelet(\'feladatHozzaad\')">
                 <input type="button" class="gomb foGomb" value="Készre jelentés" title="Készre jelentés" onclick="munkalapKeszre(\'csak kérdezünk még\');">
                 <input type="button" class="gomb foGomb" value="Átadás diszpécsernek" title="Átadás diszpécsernek" onclick="csoportMuvelet(\'atadasDiszpecsernek\')">
-                <input type="button" class="gomb foGomb" value="Anyagigénylés szükséges" title="Anyagigénylés szükséges" onclick="">
+                <input type="button" class="gomb foGomb" value="Anyagigénylés szükséges" title="Anyagigénylés szükséges" onclick="csoportMuvelet(\'munkalapAnyagigenyles\');">
                 <input type="button" class="gomb foGomb" value="Anyag vételezés" title="Anyag vételezés" onclick="csoportMuvelet(\'munkalapAnyagvetelezes\');">
             ');
 
@@ -514,7 +514,7 @@ if($gyorskereso_text){
                         $szamla_html .= nl2('
                             <div class="dtr nSor">
                                 <div class="dtc">'.erteklista(5, $feladat['erteklista_id']).'</div>
-                                <div class="dtc">'.$feladat['memo'].'</div>
+                                <div class="dtc">'.nl2br($feladat['memo']).'</div>
                             </div>
                         ');
                     }

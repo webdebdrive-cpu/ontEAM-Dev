@@ -1024,7 +1024,30 @@ $(function() {
     });
 });
 
-function anyagHozzaad( formID ) {
+function munkAnyagTorol( recid, that ) {
+    if( recid ) {
+        $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'POST',
+            async: false,
+         	data: {
+                recid: recid,
+                munkAnyagTorol: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+         			response = JSON.parse(response);
+
+                    $(that).parents('tr').remove();
+         		}
+         	}
+        });
+    } else {
+        $(that).parents('tr').remove();
+    }
+}
+
+function munkAnyagHozzaad( formID ) {
     var form = $(formID);
 
     var cikknev = form.find('input[name="cikk_id_autocomp"]'),
@@ -1032,23 +1055,36 @@ function anyagHozzaad( formID ) {
         felh_menny = form.find('input[name="felh_menny"]'),
         cikkmee = form.find('.insertMee').eq(0).text();
 
+    var addCikkID = form.find('input[name="addCikkID[]"]').map(function(){return $(this).val();}).get();
+
+    if( addCikkID.length ) {
+        for(key in addCikkID) {
+            if( addCikkID[key] == cikkID.val() ) {
+                alert2('Ez az anyag már hozzá van adva a munkalaptételhez!');
+                return false;
+            }
+        }
+    }
+
     if( cikknev.val() == '' || cikkID.val() == '' ) {
         alert2('Válassza ki a cikket!');
+        document.getElementById('cikk_id_autocomp').focus();
         return false;
     }
 
     if( felh_menny.val() == '' ) {
         alert2('Adja meg a felhasznált mennyiséget!');
+        document.getElementById('felh_menny').focus();
         return false;
     }
 
     var table_sor = '<tr>' +
-                        '<td>' + cikkID.val() + '<input type="hidden" name="addCikkID[]" value="' + cikkID.val() + '"></td>' +
+                        '<td>' + cikkID.val() + '<input type="hidden" name="addCikkID[]" value="' + cikkID.val() + '"><input type="hidden" name="addCikkUj[]" value="1"></td>' +
                         '<td>' + cikknev.val() + '</td>' +
                         '<td>' + felh_menny.val() + '<input type="hidden" name="addCikkFelhMenny[]" value="' + felh_menny.val() + '"></td>' +
                         '<td>' + cikkmee + '</td>' +
                         '<td></td>' +
-                        '<td><a onclick="$(this).parents(\'tr\').remove();"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
+                        '<td><a onclick="munkAnyagTorol( false, this );"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
                     '</tr>';
 
     $('#insertTable table.csikos').append(table_sor);
@@ -1557,7 +1593,8 @@ function munkalaphozAdas(csak_kerdezunk) {
 }
 
 function munkAnyagVetelezes( that ) {
-    var addCikkID = $(that).find('input[name="addCikkID[]"]'),
+    var addCikkUj = $(that).find('input[name="addCikkUj[]"]'),
+        addCikkID = $(that).find('input[name="addCikkID[]"]'),
         addCikkFelhMenny = $(that).find('input[name="addCikkFelhMenny[]"]');
 
     if( addCikkID.length && addCikkFelhMenny.length ) {
@@ -1566,6 +1603,7 @@ function munkAnyagVetelezes( that ) {
          	type: 'POST',
          	data: {
                 recid: _get('id'),
+                addCikkUj: addCikkUj.serialize(),
                 addCikkID: addCikkID.serialize(),
                 addCikkFelhMenny: addCikkFelhMenny.serialize(),
                 munkAnyagVetelezes: new Date().getTime()
@@ -1583,7 +1621,7 @@ function munkAnyagVetelezes( that ) {
 
                         return false;
                     }
-                    
+
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
                     popupZar();
          		}
@@ -1598,7 +1636,7 @@ function munkAnyagVetelezes( that ) {
 
 function atadasDiszpecsernek( that ) {
     var erteklista_id = $(that).find('input[name="erteklista_id"]'),
-        memo = $(that).find('input[name="memo"]');
+        memo = $(that).find('textarea[name="atadas_memo"]');
 
     if( erteklista_id ) {
         $.ajax({
@@ -1637,7 +1675,7 @@ function atadasDiszpecsernek( that ) {
 
 function feladatHozzaadas( that ) {
     var erteklista_id = $(that).find('input[name="erteklista_id"]'),
-        memo = $(that).find('input[name="memo"]');
+        memo = $(that).find('textarea[name="feladat_memo"]');
 
     if( erteklista_id ) {
         $.ajax({
@@ -2240,7 +2278,7 @@ function csoportMuvelet( oldal ) {
                 $('#popupTart').html(data);
 
                 var page = $('#szamlaBetolt').attr('data-page');
-                var csoportSelect = $.ajax({
+                var ajax = $.ajax({
                  	url : 'esemenyek.php',
                  	type: 'GET',
                  	data: esamp2es('page=' + page + '&amp;csoportSelect=' + new Date().getTime()),
@@ -2258,17 +2296,15 @@ function csoportMuvelet( oldal ) {
                  	}
                 });
 
-                $.when( csoportSelect ).then(function() {
-                    if(popup_nem_mmutat==0){
-                        popupNyit();
-                    }
+                $.when( ajax ).then(function() {
+                    popupNyit();
                 });
             break;
 
             case 'munkalaphoz_adas':
                 $('#popupTart').html(data);
 
-                var munkalapSelect = $.ajax({
+                var ajax = $.ajax({
                  	url : 'esemenyek.php',
                  	type: 'GET',
                  	data: esamp2es('munkalapSelect=' + new Date().getTime()),
@@ -2286,7 +2322,76 @@ function csoportMuvelet( oldal ) {
                  	}
                 });
 
-                $.when( munkalapSelect ).then(function() {
+                $.when( ajax ).then(function() {
+                    popupNyit();
+                });
+            break;
+
+            case 'munkalapAnyagigenyles':
+                $('#popupTart').html(data);
+
+                var ajax = $.ajax({
+                 	url : 'esemenyek.php',
+                 	type: 'POST',
+                 	data: {
+                        recid: _get('id'),
+                        szuk_menny: true,
+                        getMunkalapAnyagok: new Date().getTime()
+                    },
+                 	success: function(response) {
+                 		if(response) {
+                 			response = JSON.parse(response);
+
+                            if( response.hiba ) {
+                                if( response.gomb ) {
+                                    alert2(response.hiba, response.gomb);
+                                } else {
+                                    alert2(response.hiba);
+                                }
+
+                                return false;
+                            }
+
+                            $('#insertTable').html(response.html);
+                 		}
+                 	}
+                });
+
+                $.when( ajax ).then(function() {
+                    popupNyit();
+                });
+            break;
+
+            case 'munkalapAnyagvetelezes':
+                $('#popupTart').html(data);
+
+                var ajax = $.ajax({
+                 	url : 'esemenyek.php',
+                 	type: 'POST',
+                 	data: {
+                        recid: _get('id'),
+                        getMunkalapAnyagok: new Date().getTime()
+                    },
+                 	success: function(response) {
+                 		if(response) {
+                 			response = JSON.parse(response);
+
+                            if( response.hiba ) {
+                                if( response.gomb ) {
+                                    alert2(response.hiba, response.gomb);
+                                } else {
+                                    alert2(response.hiba);
+                                }
+
+                                return false;
+                            }
+
+                            $('#insertTable').html(response.html);
+                 		}
+                 	}
+                });
+
+                $.when( ajax ).then(function() {
                     popupNyit();
                 });
             break;
