@@ -1282,6 +1282,116 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //{KOVETKEZO_TOMB}
 
 
+/* Munkalap anyagok */
+if( isset($_POST['munkAnyagTorol']) ) {
+    $recid = $_POST['recid'];
+
+    if( $recid ) {
+        $adatbazis_kapcsolat -> d('munkalap_anyag', "`recid` = '{$recid}'");
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+/* Munkalap anyagok */
+if( isset($_POST['getMunkalapAnyagok']) ) {
+    $recid = $_POST['recid'];
+    $szuk_menny = $_POST['szuk_menny'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+        $sql = $akt_tetel = $adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $akt_tetel ) {
+            $akt_tetel = $akt_tetel[0];
+
+            $sql = $anyagok = $adatbazis_kapcsolat->s('recid cikk_id cikk_nev cikk_men cikk_mee', 'munkalap_anyag', "`munkalap_id` = '{$recid}' AND `tetel_id` = '".$akt_tetel['recid']."'", '', '');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $anyagok ) {
+                $sorok = '';
+                foreach($anyagok as $anyag) {
+                    $sz_td = '';
+                    if( $szuk_menny ) {
+                        $sz_td = '<td></td>';
+                    }
+
+                    $sorok .= nl2('
+                        <tr>
+                            <td>'.$anyag['cikk_id'].'<input type="hidden" name="addCikkID[]" value="'.$anyag['cikk_id'].'"><input type="hidden" name="addCikkUj[]" value="0"></td>
+                            <td>'.$anyag['cikk_nev'].'</td>
+                            <td>'.$anyag['cikk_men'].'<input type="hidden" name="addCikkFelhMenny[]" value="'.$anyag['cikk_men'].'"></td>
+                            '.$sz_td.'
+                            <td>'.$anyag['cikk_mee'].'</td>
+                            <td></td>
+                            <td><a onclick="munkAnyagTorol( \''.$anyag['recid'].'\', this );"><span class="icon"><i class="material-icons">delete</i></span></a></td>
+                        </tr>
+                    ');
+                }
+
+                $html = '';
+                if($sorok) {
+                    $sz_th = '';
+                    if( $szuk_menny ) {
+                        $sz_th = '<th>Szükséges mennyiség</th>';
+                    }
+
+                    $html = nl2('
+                        <table class="csikos">
+                            <tr>
+                                <th>Cikk</th>
+                                <th>Név</th>
+                                <th>Felhasznált mennyiség</th>
+                                '.$sz_th.'
+                                <th>Mee</th>
+                                <th>Anyag státusz</th>
+                                <th></th>
+                            </tr>
+                            '.$sorok.'
+                        </table>
+                    ');
+                }
+
+                if( !$db_error ) {
+                    mysqli_commit($db_kapcs);
+
+                    echo json_encode(array(
+                        'statusz' => 'siker',
+                        'html' => $html
+                    ));
+                } else {
+                    mysqli_rollback($db_kapcs);
+
+                    echo json_encode(array(
+                        'hiba' => tranzakcioHiba()
+                    ));
+                }
+            }
+        } else {
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 /* Munkalap anyag vételezés */
 if( isset($_POST['munkAnyagVetelezes']) ) {
     $recid = $_POST['recid'];
@@ -1290,6 +1400,9 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
+        /* Új */
+        parse_str($_POST['addCikkUj']);
+
         /* Cikkek */
         parse_str($_POST['addCikkID']);
 
@@ -1307,6 +1420,12 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
                 $akt_tetel = $akt_tetel[0];
 
                 foreach($addCikkID as $key => $value) {
+                    $sql = $is_anyag = $adatbazis_kapcsolat->s('recid', 'munkalap_anyag', "`munkalap_id` = '{$recid}' AND `tetel_id` = '".$akt_tetel['recid']."' AND `cikk_id` = '{$value}'", '', '1');
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
                     $sql = $cikk_sor = $adatbazis_kapcsolat->s('recid nev cikkmee', 'cikktorzs', "`recid` = '{$value}'", '', '1');
 
                     if( $sql === false ) {
@@ -1315,14 +1434,27 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
 
                     if( $cikk_sor ) {
                         $cikk_sor = $cikk_sor[0];
+                    }
 
-                        $sql = $adatbazis_kapcsolat -> i('munkalap_anyag',
-                            array('munkalap_id', 'tetel_id',          'cikk_id',            'cikk_nev',         'cikk_mee',             'cikk_men',              'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
-                            array($recid,        $akt_tetel['recid'], $cikk_sor['recid'],   $cikk_sor['nev'],   $cikk_sor['cikkmee'],   $addCikkFelhMenny[$key],  date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'])
-                        );
+                    if( $is_anyag && $addCikkUj[$key] ) {
+                        echo json_encode(array(
+                            'hiba' => 'A(z) "'.$cikk_sor['nev'].'" anyag már hozzáadásra került!'
+                        ));
 
-                        if( $sql === false ) {
-                            $db_error = true;
+                        $weblap->leallit();
+                        exit();
+                    }
+
+                    if( $addCikkUj[$key] ) {
+                        if( $cikk_sor ) {
+                            $sql = $adatbazis_kapcsolat -> i('munkalap_anyag',
+                                array('munkalap_id', 'tetel_id',          'cikk_id',            'cikk_nev',         'cikk_mee',             'cikk_men',              'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
+                                array($recid,        $akt_tetel['recid'], $cikk_sor['recid'],   $cikk_sor['nev'],   $cikk_sor['cikkmee'],   $addCikkFelhMenny[$key],  date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'])
+                            );
+
+                            if( $sql === false ) {
+                                $db_error = true;
+                            }
                         }
                     }
                 }
