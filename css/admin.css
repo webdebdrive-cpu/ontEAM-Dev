@@ -247,7 +247,7 @@ input.gomb.border{
     background: #76B958;
 }
 
-.gomb:disabled, .gombb:disabled, .foGomb:disabled { 
+.gomb:disabled, .gombb:disabled, .foGomb:disabled {
     display: none;
 }
 
@@ -2351,26 +2351,39 @@ table.csikos{
     border: 0.1rem solid #C9D3DD;
 }
 
+table.csikos.al{
+    border: 0.1rem solid #d9dfe6;
+}
+
+table.csikos.behuz {
+    margin: 0rem 0rem 0rem 2rem;
+}
+
 table.csikos tr{
+    background: #ECEDEE;
     transition: all ease-in-out 0.2s;
 }
 
 table.csikos tr:nth-of-type(2n){
-    background: #ECEDEE;
+    background: #fff;
 }
 
 table.csikos th{
-    background: #DDE8F3;
-    border-right: 0.1rem solid #004990;
+    background: #7cabd7;
+    border-right: 0.1rem solid #9dcbf6;
     font-weight: bold;
     font-size: 1.3rem;
     padding: 0.5rem 1.5rem;
 }
 
+table.csikos.al th{
+    background: #e2ecf6;
+}
+
 table.csikos td{
     padding: 0.2rem 1.5rem;
     font-size: 1.2rem;
-    border-right: 0.1rem solid #004990;
+    border-right: 0.1rem solid #9dcbf6;
 }
 table.csikos td:first-of-type{
     font-weight: bold;

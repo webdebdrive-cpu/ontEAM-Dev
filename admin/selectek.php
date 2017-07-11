@@ -138,6 +138,12 @@ array_push($select_beosztas, array('name' => '- Válasszon -', 'value' => '' ));
 array_push($select_beosztas, array('name' => 'Munkavégzés',     'value' => '1' ));
 array_push($select_beosztas, array('name' => 'Szabadság',       'value' => '2' ));
 
+/* Anyag státuszok */
+$munkAnyag_statusz = array(
+    1 => 'Rendelkezésre áll',
+    2 => 'Anyagigénylés szükséges',
+    3 => 'Igényelve'
+);
 
 /* Értéklista csoport */
 $select_erteklista = array();

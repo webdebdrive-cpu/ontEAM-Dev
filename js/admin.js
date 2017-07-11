@@ -1047,12 +1047,13 @@ function munkAnyagTorol( recid, that ) {
     }
 }
 
-function munkAnyagHozzaad( formID ) {
+function munkAnyagHozzaad( formID, igenyles ) {
     var form = $(formID);
 
     var cikknev = form.find('input[name="cikk_id_autocomp"]'),
         cikkID = form.find('input[name="cikk_id"]'),
         felh_menny = form.find('input[name="felh_menny"]'),
+        szuk_menny = form.find('input[name="szuk_menny"]'),
         cikkmee = form.find('.insertMee').eq(0).text();
 
     var addCikkID = form.find('input[name="addCikkID[]"]').map(function(){return $(this).val();}).get();
@@ -1061,6 +1062,15 @@ function munkAnyagHozzaad( formID ) {
         for(key in addCikkID) {
             if( addCikkID[key] == cikkID.val() ) {
                 alert2('Ez az anyag már hozzá van adva a munkalaptételhez!');
+
+                cikkID.val('');
+                cikknev.val('');
+                felh_menny.val('');
+                szuk_menny.val('');
+                form.find('.insertMee').text('');
+
+                document.getElementById('cikk_id_autocomp').focus();
+
                 return false;
             }
         }
@@ -1078,10 +1088,16 @@ function munkAnyagHozzaad( formID ) {
         return false;
     }
 
+    var sz_td = '';
+    if( igenyles ) {
+        sz_td = '<td>' + szuk_menny.val() + '<input type="hidden" name="addCikkSzukMenny[]" value="' + szuk_menny.val() + '"></td>';
+    }
+
     var table_sor = '<tr>' +
                         '<td>' + cikkID.val() + '<input type="hidden" name="addCikkID[]" value="' + cikkID.val() + '"><input type="hidden" name="addCikkUj[]" value="1"></td>' +
                         '<td>' + cikknev.val() + '</td>' +
                         '<td>' + felh_menny.val() + '<input type="hidden" name="addCikkFelhMenny[]" value="' + felh_menny.val() + '"></td>' +
+                        sz_td +
                         '<td>' + cikkmee + '</td>' +
                         '<td></td>' +
                         '<td><a onclick="munkAnyagTorol( false, this );"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
@@ -1092,9 +1108,12 @@ function munkAnyagHozzaad( formID ) {
     cikkID.val('');
     cikknev.val('');
     felh_menny.val('');
+    szuk_menny.val('');
     form.find('.insertMee').text('');
 
     document.getElementById('cikk_id_autocomp').focus();
+
+    return false;
 }
 
 function tobbBejegyzesTorol() {
@@ -1587,6 +1606,55 @@ function munkalaphozAdas(csak_kerdezunk) {
         }
     } else {
         alert2('Kérem válasszon egy munkalapot!');
+    }
+
+    return false;
+}
+
+function munkAnyagIgenyles( that, csak_kerdezunk ) {
+    var addCikkUj = $(that).find('input[name="addCikkUj[]"]'),
+        addCikkID = $(that).find('input[name="addCikkID[]"]'),
+        addCikkFelhMenny = $(that).find('input[name="addCikkFelhMenny[]"]'),
+        addCikkSzukMenny = $(that).find('input[name="addCikkSzukMenny[]"]');
+
+    if( addCikkID.length && addCikkFelhMenny.length ) {
+        $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'POST',
+         	data: {
+                recid: _get('id'),
+                addCikkUj: addCikkUj.serialize(),
+                addCikkID: addCikkID.serialize(),
+                addCikkFelhMenny: addCikkFelhMenny.serialize(),
+                addCikkSzukMenny: addCikkSzukMenny.serialize(),
+                csak_kerdezunk: csak_kerdezunk,
+                munkAnyagIgenyles: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        if( response.gomb ) {
+                            alert2(response.hiba, response.gomb);
+                        } else {
+                            alert2(response.hiba);
+                        }
+
+                        return false;
+                    }
+
+                    if( response.refresh ) {
+                        location.href = 'munkalap.php';
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+                    popupZar();
+                    alert2();
+         		}
+         	}
+        });
     }
 
     return false;
@@ -2262,7 +2330,7 @@ function csoportMuvelet( oldal ) {
 
         switch( oldal ) {
             case 'csoporthoz_adas':
-                
+
                 var popup_nem_mmutat = 0;
                 var iktatok = '';
                 $('.kijelolve').each(function () {
@@ -2274,7 +2342,7 @@ function csoportMuvelet( oldal ) {
                 if(popup_nem_mmutat>0){
                     alert2('Az alábbi iktatószámok státuszai nem nyitottak, így nem adhatóak csoporthoz:<br>'+iktatok);
                 }
-                
+
                 $('#popupTart').html(data);
 
                 var page = $('#szamlaBetolt').attr('data-page');
@@ -2644,7 +2712,7 @@ function addObj( that ) {
 
     $('input[name="obj_id"]').val(recid).change();
     $('input[name="obj_id_autocomp"]').val(text).change();
-    
+
     /* Az autocomplete-t újra rá kell tenni, hogy az alapértelmezett értéke az üresség lehessen */
     $('#obj_id_autocomp').autocomplete({
         'php_fajl'      : '../autocomplete.php',

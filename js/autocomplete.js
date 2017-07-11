@@ -35,7 +35,7 @@
             csoport         : 0
         };
 
-        
+
         var eredeti_val = $(this).val();
         var van_uj_erteke = false;
         var options = $.extend(defaults, options);
@@ -182,7 +182,7 @@
                 if( setting.tabla == 'obj' ) {
                     gepVane();
                 }
-                
+
             }
         });
 
@@ -202,15 +202,16 @@
         that = $(this);
         $(document).click(function() {
             $('#autocomplete').css({'display':'none'}).html('');
-            that.val(eredeti_val);
+            /*that.val(eredeti_val);*/
         });
+
         $(document).keyup(function(e) {
             if(e.keyCode == 27){
                 $("#autocomplete").css({'display':'none'}).html('');
             }
         });
 
-        
+
         /* Tab esetén záródjon be az autocomplete, és ha nem változott az értéke, írjuk vissza az eredetit */
         $(this).keydown(function(e) {
             if (e.keyCode == 9) {
@@ -268,7 +269,7 @@
                         mezo.val( $('#autocomplete ul li.aktiv').html() ).change();
                         van_uj_erteke = true;
                         eredeti_val = mezo.val();
-                        
+
                         if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                             mezo_nev = mezo.attr('name').replace('_autocomp', '');
                             $('input[name="' + mezo_nev + '"]').val(recid);
@@ -296,7 +297,7 @@
                         if(options.arazas_beallit){
                             rend_ossz_beallit();
                         }
-                        
+
                         e.stopPropagation();
                     }
 

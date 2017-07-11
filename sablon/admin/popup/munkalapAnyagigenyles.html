@@ -1,5 +1,5 @@
 <h2>Anyagigénylés</h2>
-<form action="" id="munkAnyagAnyagigenyles" class="popupForm" method="post" onsubmit="return munkAnyagVetelezes( this );">
+<form action="" id="munkAnyagAnyagigenyles" class="popupForm" method="post" onsubmit="return munkAnyagIgenyles( this, 'csak kérdezünk még' );">
     <div class="dt">
         <div class="dtr">
             <div class="dtc form_bal">Cikk:</div>
@@ -22,14 +22,14 @@
         <div class="dtr">
             <div class="dtc form_bal">Felh. menny.:</div>
             <div class="dtc form_jobb wsn">
-                <input type="text" id="felh_menny" name="felh_menny" value="" placeholder="" style="width: 5rem;">
+                <input type="text" id="felh_menny" name="felh_menny" value="" placeholder="" autocomplete="off" style="min-width: 5rem; width: 5rem;">
                 <span class="insertMee"></span>
             </div>
         </div>
         <div class="dtr">
             <div class="dtc form_bal">Szük. menny.:</div>
             <div class="dtc form_jobb wsn">
-                <input type="text" id="szuk_menny" name="szuk_menny" value="" placeholder="" style="width: 5rem;">
+                <input type="text" id="szuk_menny" name="szuk_menny" value="" placeholder="" autocomplete="off" style="min-width: 5rem; width: 5rem;">
                 <span class="insertMee"></span>
             </div>
         </div>
@@ -48,7 +48,7 @@
         </table>
     </div>
     <div class="kuldes">
-        <button type="button" name="button" onclick="munkAnyagHozzaad( '#munkAnyagAnyagigenyles' );">Hozzáad</button>
+        <button type="button" name="button" onclick="munkAnyagHozzaad( '#munkAnyagAnyagigenyles', true );">Hozzáad</button>
         <input type="submit" name="elkuld" value="Mentés">
         <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
     </div>

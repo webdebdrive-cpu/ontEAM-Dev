@@ -468,13 +468,13 @@ if($gyorskereso_text){
         if( $sorok ) {
             foreach($sorok as $sor) {
                 $szamla_html .= nl2('
-                    <div class="dt naplo sotet munkalap">
-                        <div class="dtr nFejlec">
-                            <div class="dtc">Felvette</div>
-                            <div class="dtc">Létrehozta</div>
-                            <div class="dtc">Átadta</div>
-                            <div class="dtc">Visszaadva</div>
-                        </div>
+                    <table class="csikos full">
+                        <tr>
+                            <th>Felvette</th>
+                            <th>Létrehozta</th>
+                            <th>Átadta</th>
+                            <th>Visszaadva</th>
+                        </tr>
                 ');
 
                 $visszaadva = 'nem';
@@ -488,62 +488,66 @@ if($gyorskereso_text){
                 }
 
                 $szamla_html .= nl2('
-                    <div class="dtr nSor">
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
-                        <div class="dtc">'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</div>
-                        <div class="dtc">'.$atadta.'</div>
-                        <div class="dtc">'.$visszaadva.'</div>
-                    </div>
+                    <tr >
+                        <td>'.$sor['insert_usr'].'</td>
+                        <td>'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</td>
+                        <td>'.$atadta.'</td>
+                        <td>'.$visszaadva.'</td>
+                    </tr>
                 ');
 
-                $szamla_html .= '</div>';
+                $szamla_html .= '</table>';
 
                 /* Elvégzett feladatok lekérdezése */
                 $feladatok = $adatbazis_kapcsolat->s('erteklista_id tetel_id memo', 'munkalap_feladat', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
 
                 if( $feladatok ) {
                     $szamla_html .= nl2('
-                        <div class="dt naplo munkalap kicsi behuz">
-                            <div class="dtr nFejlec">
-                                <div class="dtc">Elvégzett feladat</div>
-                                <div class="dtc">Memó</div>
-                            </div>
+                        <table class="csikos full al behuz">
+                            <tr>
+                                <th>Elvégzett feladat</th>
+                                <th>Memó</th>
+                            </tr>
                     ');
 
                     foreach($feladatok as $feladat) {
                         $szamla_html .= nl2('
-                            <div class="dtr nSor">
-                                <div class="dtc">'.erteklista(5, $feladat['erteklista_id']).'</div>
-                                <div class="dtc">'.nl2br($feladat['memo']).'</div>
-                            </div>
+                            <tr>
+                                <td>'.erteklista(5, $feladat['erteklista_id']).'</td>
+                                <td>'.nl2br($feladat['memo']).'</td>
+                            </tr>
                         ');
                     }
 
-                    $szamla_html .= '</div>';
+                    $szamla_html .= '</table>';
                 }
 
                 /* Elvégzett feladatok lekérdezése */
-                $anyagok = $adatbazis_kapcsolat->s('cikk_nev cikk_men cikk_mee', 'munkalap_anyag', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
+                $anyagok = $adatbazis_kapcsolat->s('cikk_nev cikk_men szuk_men cikk_mee stat_id', 'munkalap_anyag', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
 
                 if( $anyagok ) {
                     $szamla_html .= nl2('
-                        <div class="dt naplo munkalap kicsi behuz">
-                            <div class="dtr nFejlec">
-                                <div class="dtc">Anyag felhasználás</div>
-                                <div class="dtc">Felhasznált mennyiség</div>
-                            </div>
+                        <table class="csikos full al behuz">
+                            <tr>
+                                <th>Anyag felhasználás</th>
+                                <th>Felhasznált mennyiség</th>
+                                <th>Szükséges mennyiség</th>
+                                <th>Anyag státusz</th>
+                            </tr>
                     ');
 
                     foreach($anyagok as $anyag) {
                         $szamla_html .= nl2('
-                            <div class="dtr nSor">
-                                <div class="dtc">'.$anyag['cikk_nev'].'</div>
-                                <div class="dtc">'.$anyag['cikk_men'].' '.$anyag['cikk_mee'].'</div>
-                            </div>
+                            <tr>
+                                <td>'.$anyag['cikk_nev'].'</td>
+                                <td>'.$anyag['cikk_men'].' '.$anyag['cikk_mee'].'</td>
+                                <td>'.$anyag['szuk_men'].' '.$anyag['cikk_mee'].'</td>
+                                <td>'.$munkAnyag_statusz[$anyag['stat_id']].'</td>
+                            </tr>
                         ');
                     }
 
-                    $szamla_html .= '</div>';
+                    $szamla_html .= '</table>';
                 }
             }
         }
