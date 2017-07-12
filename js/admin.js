@@ -2466,6 +2466,41 @@ function csoportMuvelet( oldal ) {
                 });
             break;
 
+            case 'munkalap_mobil':
+                $('#popupTart').html(data);
+
+                var ajax = $.ajax({
+                    url : 'munkalap.php',
+                    type: 'POST',
+                    data: {
+                        recid: _get('id'),
+                        hozzBeosztasNelkul: new Date().getTime()
+                    },
+                    success: function(response) {
+                        if(response) {
+                            response = JSON.parse(response);
+
+                            if( response.hiba ) {
+                                if( response.gomb ) {
+                                    alert2(response.hiba, response.gomb);
+                                } else {
+                                    alert2(response.hiba);
+                                }
+
+                                return false;
+                            }
+
+                            $('#hozzBeosztasNelkul').html(response.beosztasNelkul);
+                            $('#szemRendelt').html(response.szemRendelt);
+                        }
+                    }
+                });
+
+                $.when( ajax ).then(function() {
+                    popupNyit();
+                });
+            break;
+
             default:
                 $('#popupTart').html(data);
                 popupNyit();
@@ -3186,6 +3221,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         'garancialis',
                         'id',
                         'jogosultsag',
+                        'megjegyzes',
                         'megjegyzesek',
                         'modosit',
                         'naplo',

@@ -109,7 +109,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         }
 
         //Ha törzsadatlistát kérünk le, akkor a találati listát egész bonyolultan számítjuk ki:
-        if($_GET['tabla']=='torzsadat'){
+        if( $_GET['tabla'] == 'torzsadat' && $_GET['recid'] ) {
 
             //melyik szállodánál vagyunk
             $szalloda = $adatbazis_kapcsolat->s('telephely_id', 'beosztas', "`recid`='{$_GET['recid']}'");
@@ -126,6 +126,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
 
 //echo 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`'; exit;
         $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
+        //echo 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`';
         while( $sor = mysqli_fetch_array($lekerdez) ) {
 
             $cikkmee_attr = '';

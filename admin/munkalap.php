@@ -70,6 +70,142 @@ if($tobb_kep){
 
 }
 
+if( isset($_POST['hozzBeosztasNelkul']) ) {
+    $recid = $_POST['recid'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+        /* Hozzárendelt munkalapok beosztás nélkül */
+        $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id surgos', 'munkalap', "", '', '');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        $beosztasNelkul = '';
+        if( $munkalapok ) {
+            $sorok = '';
+            $i = 1;
+            foreach($munkalapok as $munkalap) {
+                /* Telephely */
+                $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$munkalap['telephely_id'], '', '1');
+                $telephely = $telephely[0]['nev'];
+
+                /* Sürgős e */
+                $surgos = 'nem';
+                if( $munkalap['surgos'] ) {
+                    $surgos = 'igen';
+                }
+
+                $sorok .= nl2('
+                    <tr class="kijSor" data-id="'.$munkalap['recid'].'" data-i="'.$i.'">
+                        <td>'.$munkalap['ikt_szam'].'<input type="hidden" name="addCikkID[]" value="'.$munkalap['recid'].'"><input type="hidden" name="addCikkUj[]" value="0"></td>
+                        <td>'.$telephely.'</td>
+                        <td>'.$surgos.'</td>
+                    </tr>
+                ');
+
+                $i++;
+            }
+
+            if($sorok) {
+                $beosztasNelkul = nl2('
+                    <table class="csikos kicsi kijCont">
+                        <tr>
+                            <th>Ikt. szám</th>
+                            <th>Szálloda</th>
+                            <th>Sürgős</th>
+                        </tr>
+                        '.$sorok.'
+                    </table>
+                ');
+            }
+        }
+
+        /* Személyzethez rendelt munkalapok */
+        $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id statusz_id mobilnev surgos', 'munkalap', "`recid` = '{$recid}'", '', '');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        $szemRendelt = '';
+        if( $munkalapok ) {
+            $sorok = '';
+            $i = 1;
+            foreach($munkalapok as $munkalap) {
+                /* Telephely */
+                $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$munkalap['telephely_id'], '', '1');
+                $telephely = $telephely[0]['nev'];
+
+                /* Sürgős e */
+                $surgos = 'nem';
+                if( $munkalap['surgos'] ) {
+                    $surgos = 'igen';
+                }
+
+                /* Státusz */
+                $statusz = '';
+                if( $munkalap['statusz_id'] ) {
+                    $statusz = $adatbazis_kapcsolat->s('recid nev', 'munkalap_statusz_text', "`recid` = '".$munkalap['statusz_id']."'", '', '1');
+
+                    if( $statusz ) {
+                        $statusz = $statusz[0];
+                    }
+                }
+
+                $sorok .= nl2('
+                    <tr class="kijSor" data-id="'.$munkalap['recid'].'" data-i="'.$i.'">
+                        <td>'.$munkalap['mobilnev'].'</td>
+                        <td>'.$statusz['nev'].'</td>
+                        <td>'.$munkalap['ikt_szam'].'<input type="hidden" name="addCikkID[]" value="'.$munkalap['recid'].'"><input type="hidden" name="addCikkUj[]" value="0"></td>
+                        <td>'.$telephely.'</td>
+                        <td>'.$surgos.'</td>
+                    </tr>
+                ');
+
+                $i++;
+            }
+
+            if($sorok) {
+                $szemRendelt = nl2('
+                    <table class="csikos kicsi kijCont">
+                        <tr>
+                            <th>Név</th>
+                            <th>Mlap státusz</th>
+                            <th>Ikt. szám</th>
+                            <th>Szálloda</th>
+                            <th>Sürgős</th>
+                        </tr>
+                        '.$sorok.'
+                    </table>
+                ');
+            }
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker',
+                'beosztasNelkul' => $beosztasNelkul,
+                'szemRendelt' => $szemRendelt
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 if( isset($_POST['jogokhozzaad']) ) {
     $id = $_POST['id'];
 
