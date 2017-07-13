@@ -2425,19 +2425,6 @@ if( isset($_POST['munkalapAdminisztrator']) ) {
     }
 }
 
-/* Munkalap átadása mobil csoportnak */
-if( isset($_POST['munkalapMobil']) ) {
-    $recid = $_POST['recid'];
-
-    if( $recid ) {
-        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(2), "`recid` = '{$recid}'");
-
-        echo json_encode(array(
-            'statusz' => 'siker'
-        ));
-    }
-}
-
 /* Munkalap átadása külső csoportnak */
 if( isset($_POST['munkalapKulso']) ) {
     $recid = $_POST['recid'];

@@ -6,12 +6,18 @@
                 <p>Hozzárendelt munkalapok beosztás nélkül</p>
                 <div id="hozzBeosztasNelkul" class="mobilkeret"></div>
                 <div class="clearFix">
-                    <button type="button" name="button" class="flr" style="margin-top: 1rem;" onclick="">Vissza a bejelentések közé</button>
+                    <script>
+                        munkBejelKozeGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkBejelKoze();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                    </script>
+                    <button type="button" name="button" class="flr" style="margin-top: 1rem;" onclick="alert2('Biztos, hogy kiveszi a munkalapot a mobil beosztásból?', munkBejelKozeGomb);">Vissza a munkalapok közé</button>
                 </div>
                 <p>Személyzethez rendelt munkalapok</p>
                 <div id="szemRendelt" class="mobilkeret"></div>
                 <div class="clearFix">
-                    <button type="button" name="button" class="flr" style="margin-top: 1rem;" onclick="">Hozzárendelés megszüntetése</button>
+                    <script>
+                        munkHozzMegszuntetGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkHozzMegszuntet();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                    </script>
+                    <button type="button" name="button" class="flr" style="margin-top: 1rem;" onclick="alert2('Biztosan megszüneteti a hozzárendelést?', munkHozzMegszuntetGomb);">Hozzárendelés megszüntetése</button>
                 </div>
             </td>
             <td class="mtj">
@@ -30,7 +36,7 @@
                         });
                     });
                 </script>
-                <button type="button" name="button" style="margin-top: 1rem;" onclick="">Hozzárendelés személyzethez</button>
+                <button type="button" name="button" style="margin-top: 1rem;" onclick="munkHozzSzemely();">Hozzárendelés személyzethez</button>
             </td>
         </tr>
     </table>

@@ -70,6 +70,29 @@ if($tobb_kep){
 
 }
 
+/* Munkalap átadása mobil csoportnak */
+if( isset($_POST['munkalapMobil']) ) {
+    $recid = $_POST['recid'];
+
+    /* Hozzárendelt csoport törlése */
+    parse_str($_POST['munkMobilKivetel']);
+
+    /* Hozzárendelt személyzet törlése */
+    parse_str($_POST['munkHozzMegszuntet']);
+
+    /* Törzsadat csatolása a munkalaphoz */
+    parse_str($_POST['addTorzsID']);
+    parse_str($_POST['addTorzsCikkID']);
+
+    
+
+    //$adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(2), "`recid` = '{$recid}'");
+    echo json_encode(array(
+        'statusz' => 'siker'
+    ));
+}
+
+/* Munkalap sorok lekérdezése */
 if( isset($_POST['hozzBeosztasNelkul']) ) {
     $recid = $_POST['recid'];
 
@@ -78,7 +101,7 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
 
     if( $recid ) {
         /* Hozzárendelt munkalapok beosztás nélkül */
-        $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id surgos', 'munkalap', "", '', '');
+        $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id statusz_id surgos', 'munkalap', "`szemelyzet_id` = '2'", '', '');
 
         if( $sql === false ) {
             $db_error = true;
@@ -99,9 +122,21 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
                     $surgos = 'igen';
                 }
 
+                /* Státusz */
+                $statusz = '';
+                if( $munkalap['statusz_id'] ) {
+                    $statusz = $adatbazis_kapcsolat->s('recid nev', 'munkalap_statusz_text', "`recid` = '".$munkalap['statusz_id']."'", '', '1');
+
+                    if( $statusz ) {
+                        $statusz = $statusz[0];
+                    }
+                }
+
                 $sorok .= nl2('
-                    <tr class="kijSor" data-id="'.$munkalap['recid'].'" data-i="'.$i.'">
-                        <td>'.$munkalap['ikt_szam'].'<input type="hidden" name="addCikkID[]" value="'.$munkalap['recid'].'"><input type="hidden" name="addCikkUj[]" value="0"></td>
+                    <tr class="kijSor" data-recid="'.$munkalap['recid'].'" data-i="'.$i.'">
+                        <td class="nev"></td>
+                        <td>'.$statusz['nev'].'</td>
+                        <td>'.$munkalap['ikt_szam'].'</td>
                         <td>'.$telephely.'</td>
                         <td>'.$surgos.'</td>
                     </tr>
@@ -110,22 +145,22 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
                 $i++;
             }
 
-            if($sorok) {
-                $beosztasNelkul = nl2('
-                    <table class="csikos kicsi kijCont">
-                        <tr>
-                            <th>Ikt. szám</th>
-                            <th>Szálloda</th>
-                            <th>Sürgős</th>
-                        </tr>
-                        '.$sorok.'
-                    </table>
-                ');
-            }
+            $beosztasNelkul = nl2('
+                <table class="csikos kicsi kijCont">
+                    <tr>
+                        <th>Név</th>
+                        <th>Mlap státusz</th>
+                        <th>Ikt. szám</th>
+                        <th>Szálloda</th>
+                        <th>Sürgős</th>
+                    </tr>
+                    '.$sorok.'
+                </table>
+            ');
         }
 
         /* Személyzethez rendelt munkalapok */
-        $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id statusz_id mobilnev surgos', 'munkalap', "`recid` = '{$recid}'", '', '');
+        $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id statusz_id mobilnev surgos', 'munkalap', "`mobilnev` != ''", '', '');
 
         if( $sql === false ) {
             $db_error = true;
@@ -157,10 +192,10 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
                 }
 
                 $sorok .= nl2('
-                    <tr class="kijSor" data-id="'.$munkalap['recid'].'" data-i="'.$i.'">
-                        <td>'.$munkalap['mobilnev'].'</td>
+                    <tr class="kijSor" data-recid="'.$munkalap['recid'].'" data-i="'.$i.'">
+                        <td class="nev">'.$munkalap['mobilnev'].'</td>
                         <td>'.$statusz['nev'].'</td>
-                        <td>'.$munkalap['ikt_szam'].'<input type="hidden" name="addCikkID[]" value="'.$munkalap['recid'].'"><input type="hidden" name="addCikkUj[]" value="0"></td>
+                        <td>'.$munkalap['ikt_szam'].'</td>
                         <td>'.$telephely.'</td>
                         <td>'.$surgos.'</td>
                     </tr>
@@ -169,20 +204,18 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
                 $i++;
             }
 
-            if($sorok) {
-                $szemRendelt = nl2('
-                    <table class="csikos kicsi kijCont">
-                        <tr>
-                            <th>Név</th>
-                            <th>Mlap státusz</th>
-                            <th>Ikt. szám</th>
-                            <th>Szálloda</th>
-                            <th>Sürgős</th>
-                        </tr>
-                        '.$sorok.'
-                    </table>
-                ');
-            }
+            $szemRendelt = nl2('
+                <table class="csikos kicsi kijCont">
+                    <tr>
+                        <th>Név</th>
+                        <th>Mlap státusz</th>
+                        <th>Ikt. szám</th>
+                        <th>Szálloda</th>
+                        <th>Sürgős</th>
+                    </tr>
+                    '.$sorok.'
+                </table>
+            ');
         }
 
         if( !$db_error ) {
