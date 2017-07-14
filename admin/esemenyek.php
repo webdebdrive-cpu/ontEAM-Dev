@@ -181,7 +181,13 @@ switch($tabla) {
     break;
     case 'munkalap.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid ikt_szam csoport_id';
+        $_OPTS['select']    = nl2('
+            `'.get_db_tabla().'munkalap`.`recid`,
+            `'.get_db_tabla().'munkalap`.`ikt_szam`,
+            `'.get_db_tabla().'munkalap`.`statusz_id`,
+            `'.get_db_tabla().'munkalap`.`telephely_id`,
+            `'.get_db_tabla().'munkalap`.`csoport_id`
+        ');
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('recid');

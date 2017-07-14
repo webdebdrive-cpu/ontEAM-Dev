@@ -1223,7 +1223,7 @@ function munkHozzSzemely() {
                 var id = $(this).attr('data-recid');
 
                 $(this).appendTo('#szemRendelt table');
-                $(this).find('td.nev').html(torzsNev.val() + '<input type="hidden" name="addTorzsID[]" value="' + torzsID.val() + '"><input type="hidden" name="addTorzsCikkID[]" value="' + id + '">');
+                $(this).find('td.nev').html(torzsNev.val() + '<input type="hidden" name="addTorzsID[]" value="' + torzsID.val() + '"><input type="hidden" name="addTorzsMunkID[]" value="' + id + '">');
 
                 idk[i] = id;
                 i++;
@@ -1991,24 +1991,50 @@ function munkalapAdminisztrator() {
     return false;
 }
 
-function munkalapMobil() {
-    /* Nyitottá tesszük a munkalapot */
+function munkalapMobil( that ) {
+    /* Hozzárendelt csoport törlése */
     var munkMobilKivetel = $(that).find('input[name="munkMobilKivetel[]"]');
 
+    /* Hozzárendelt személyzet törlése */
     var munkHozzMegszuntet = $(that).find('input[name="munkHozzMegszuntet[]"]');
 
+    /* Törzsadat csatolása a munkalaphoz */
     var addTorzsID = $(that).find('input[name="addTorzsID[]"]'),
-        addTorzsCikkID = $(that).find('input[name="addTorzsCikkID[]"]');
+        addTorzsMunkID = $(that).find('input[name="addTorzsMunkID[]"]');
 
-    if( munkMobilKivetel.length ) {
+    var idk = {};
+    var i = 1;
+
+    var sorok = $('#hozzBeosztasNelkul table tr.kijSor');
+    if( sorok.length ) {
+        sorok.each(function() {
+            var id = $(this).attr('data-recid');
+
+            idk[i] = id;
+            i++;
+        });
+    }
+
+    var sorok = $('#szemRendelt table tr.kijSor');
+    if( sorok.length ) {
+        sorok.each(function() {
+            var id = $(this).attr('data-recid');
+
+            idk[i] = id;
+            i++;
+        });
+    }
+
+    if( objLength(idk) ) {
         $.ajax({
          	url : 'munkalap.php',
          	type: 'POST',
          	data: {
+                idk : JSON.stringify(idk),
                 munkMobilKivetel: munkMobilKivetel.serialize(),
                 munkHozzMegszuntet: munkHozzMegszuntet.serialize(),
                 addTorzsID: addTorzsID.serialize(),
-                addTorzsCikkID: addTorzsCikkID.serialize(),
+                addTorzsMunkID: addTorzsMunkID.serialize(),
                 munkalapMobil: new Date().getTime()
             },
          	success: function(response) {
@@ -2025,7 +2051,7 @@ function munkalapMobil() {
                         return false;
                     }
 
-
+                    location.href = 'munkalap.php';
          		}
          	}
         });
@@ -2567,36 +2593,59 @@ function csoportMuvelet( oldal ) {
             case 'munkalap_mobil':
                 $('#popupTart').html(data);
 
-                var ajax = $.ajax({
-                    url : 'munkalap.php',
-                    type: 'POST',
-                    data: {
-                        recid: _get('id'),
-                        hozzBeosztasNelkul: new Date().getTime()
-                    },
-                    success: function(response) {
-                        if(response) {
-                            response = JSON.parse(response);
+                idk = {};
 
-                            if( response.hiba ) {
-                                if( response.gomb ) {
-                                    alert2(response.hiba, response.gomb);
-                                } else {
-                                    alert2(response.hiba);
+                szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+
+                if( szamlaSorok.length ) {
+                    var i = 1;
+                    szamlaSorok.each(function() {
+                        var id = $(this).attr('data-recid');
+
+                        idk[i] = id;
+                        i++;
+                    });
+                } else {
+                    var recid = $('#szamlaBetolt').attr('data-recid');
+
+                    if( recid ) {
+                        idk[1] = recid;
+                    }
+                }
+
+                if( objLength(idk) ) {
+                    var ajax = $.ajax({
+                        url : 'munkalap.php',
+                        type: 'POST',
+                        data: {
+                            idk: JSON.stringify(idk),
+                            hozzBeosztasNelkul: new Date().getTime()
+                        },
+                        success: function(response) {
+                            if(response) {
+                                response = JSON.parse(response);
+
+                                if( response.hiba ) {
+                                    if( response.gomb ) {
+                                        alert2(response.hiba, response.gomb);
+                                    } else {
+                                        alert2(response.hiba);
+                                    }
+
+                                    popupZar();
+                                    return false;
                                 }
 
-                                return false;
+                                $('#hozzBeosztasNelkul').html(response.beosztasNelkul);
+                                $('#szemRendelt').html(response.szemRendelt);
+
+                                popupNyit();
                             }
-
-                            $('#hozzBeosztasNelkul').html(response.beosztasNelkul);
-                            $('#szemRendelt').html(response.szemRendelt);
                         }
-                    }
-                });
-
-                $.when( ajax ).then(function() {
-                    popupNyit();
-                });
+                    });
+                } else {
+                    alert2('Nincsenek kijelölt sorok!');
+                }
             break;
 
             default:

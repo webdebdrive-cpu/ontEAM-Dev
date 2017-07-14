@@ -518,13 +518,13 @@ function i_u($type, $tabla, $tomb){
 
         /* Csak nyitott státuszú bejelentést lehet szerkeszteni */
         if( $tabla == 'bejelentes' ) {
-            
+
             //Diszpécser nem módosíthat bejelentést
             if(_jog(2)){
                 $weblap -> leallit();
                 exit;
             }
-            
+
             $akt_statusz = $adatbazis_kapcsolat->s('stat_id', $tabla.'_statusz', 'id='.$_GET['id'], 'recid desc', '1');
 
             if( $akt_statusz === false ) {
@@ -892,7 +892,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 alert2(\'Kérjük adja meg a szerepkört!\', \'\', \'Hiba\');
                 return false;
             }
-            
+
             tol = $(\'#tol\').val().substring(0, 10).replace(/\./g, \'-\');
             ig  = $(\'#ig\').val().substring(0, 10).replace(/\./g, \'-\');
             idoszak_tol = $(\'#idoszak_tol\').val();
@@ -915,7 +915,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             }
             if(tol >= ig){
                 alert2(\'A végdátum nem lehet korábbi mint a kezdődátum!\', \'\', \'Hiba\');
-                return false; 
+                return false;
             }
 
             beosztas_naptarba_teszt(\''.$_GET['id'].'\');
@@ -1706,8 +1706,8 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                                 $csoport_active = ' active';
                             }
                         }
-                        
-                        
+
+
                         //Ha van legalább egy nyitott eleme, akkor biztosan nyitott a csoport is (elvégre a csoport státusza csak eygszerre mozoghat)
                         $bold = '';
                         if($adatbazis_kapcsolat->s('recid', 'bejelentes', "`csoport_id` = '{$aktCsoport}' AND `statusz_id`=1", '', '1')){
@@ -1745,7 +1745,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
             /* Hiba */
             $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$bsz['hiba_id']}'");
             $hiba = $hiba[0];
-            
+
             //Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
             $bold = '';
             if($bsz['statusz_id']==1){
@@ -1860,14 +1860,30 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
                 ');
             }
 
+            $statusz = '';
+            if( $bsz['statusz_id'] ) {
+                $statusz_sor = $adatbazis_kapcsolat->s('recid nev szinkod', 'munkalap_statusz_text', 'recid='.$bsz['statusz_id'], '', '1');
+
+                if( $statusz_sor ) {
+                    $statusz_sor = $statusz_sor[0];
+
+                    $statusz = $statusz_sor['nev'];
+                }
+            }
+
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
                 $active = ' active kijelolve';
             }
 
+            /* Telephely */
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
+            $telephely = $telephely[0]['nev'];
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span>'.$bsz['ikt_szam'].'</span>
+                            <span>'.$telephely.'</span>
+                            <span>'.$statusz.'</span>
                          </a>';
 
             $csoport_class = '';
@@ -3333,7 +3349,7 @@ function erteklista($csoport, $id) {
     global $adatbazis_kapcsolat;
 
     $sor = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
-    
+
     if( $sor ) {
         $sor = $sor[0];
 
