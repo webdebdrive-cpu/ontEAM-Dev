@@ -53,3 +53,8 @@ NYOMATÁSI NÉZETEK KIGENEÁRLÁSA:
 
 STÁTUSZOK KARBANTARTÁSA
 - addStatusz() függvénnyel írj be értéket és akkor rendben lesz. Ennek előfeltétele, hogy már egy státusza legyen (pl. egy alap NYITOTT).
+
+KIJELÖLÉSEK MŰKÖDÉSE (SOROK MEGJELÖLÉSE BAL NAVPANELEN ÉS FÜLEK ALATTI SOROKNÁL)
+- admin.js-ben erre keress rá: Aloldalon/fülek alatti felsorolás kijelölések lekezelése. Pl. felhasználók szállodái.
+- admin.js-ben erre keress rá: Csoportra kattintás
+- admin.js-ben erre keress rá: Bal oldali nav panelen kattintunk egy bejegyzésre. Ekkor lekezeljük mi történik a kijelöésekkel

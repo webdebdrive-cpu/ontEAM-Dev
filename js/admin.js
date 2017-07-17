@@ -355,7 +355,7 @@ function felh_valt( valt ) {
 
 $(function() {
     setTimeout(function() {
-        if( !$('#szamlaList li.szamla_sor').hasClass('active') && !_get('uj') ) {
+        if( !$('#szamlaList li.szamla_sor').hasClass('kijelolve') && !_get('uj') ) {
             $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
         }
     }, 1);
@@ -453,10 +453,10 @@ $(function() {
             if( inArray(baseName(location.href), ketHasabos) ) {
                 tabla = baseName(location.href);
 
-                var active = $('#szamlaList li.szamla_sor.active').index('#szamlaList li.szamla_sor'),
+                var active = $('#szamlaList li.szamla_sor.kijelolve').index('#szamlaList li.szamla_sor'),
                     szamlaDb = $('#szamlaList li.szamla_sor').length - 1;
 
-                $('#szamlaList li.szamla_sor').removeClass('active').removeClass('kijelolve');
+                $('#szamlaList li.szamla_sor')./*removeClass('active').*/removeClass('kijelolve');
 
                 if( e.keyCode == 38 ) {
                     kovSzamlaSor = active - 1;
@@ -472,7 +472,7 @@ $(function() {
                     }
                 }
 
-                $('#szamlaList li.szamla_sor').eq(kovSzamlaSor).addClass('active');
+                $('#szamlaList li.szamla_sor').eq(kovSzamlaSor).addClass('kijelolve');
 
                 var szamlaID = $('#szamlaList li.szamla_sor').eq(kovSzamlaSor).attr('data-recid');
 
@@ -568,29 +568,30 @@ $(function() {
         }
     });
 
+    /* Aloldalon/fülek alatti felsorolás kijelölések lekezelése. Pl. felhasználók szállodái. */
     $(document).on('click', '.kijCont .kijSor', function(e) {
         var parent = $(this).parents('.kijCont'),
             tabla  = parent.attr('data-tabla'),
             mellek = parent.attr('data-mellek'),
             sorok  = parent.find('.kijSor');
 
+        /* SHIFT gomb lekezelése */
         if( e.shiftKey ) {
-            sorok.removeClass('active');
 
             if( !sorok.hasClass('kijelolve') ) {
                 $(this).addClass('kijelolve');
 
                 /* Tömeges kijelöléshez */
-                sorok.removeClass('akt');
-                $(this).addClass('akt');
+                /*sorok.removeClass('akt');
+                $(this).addClass('akt');*/
 
                 kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
             } else {
-                var akt_id = parseInt( parent.find('.kijSor.akt').attr('data-i') );
+                var akt_id = parseInt( parent.find('.kijelolve').attr('data-i') );
 
                 /* Tömeges kijelöléshez */
-                sorok.removeClass('akt');
-                $(this).addClass('akt');
+                /*sorok.removeClass('akt');
+                $(this).addClass('akt');*/
 
                 var uj_akt_id = parseInt( $(this).attr('data-i') );
 
@@ -610,12 +611,9 @@ $(function() {
 
                 kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
             }
+            
+        /* CTRL gombbal további sorok megjelölése */
         } else if( e.ctrlKey ) {
-            sorok.removeClass('active');
-
-            /* Tömeges kijelöléshez */
-            sorok.removeClass('akt');
-            $(this).addClass('akt');
 
             if( $(this).hasClass('kijelolve') ) {
                 $(this).removeClass('kijelolve');
@@ -624,42 +622,79 @@ $(function() {
             }
 
             kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
+            
+        /* Sima kattintás */
+        }else{
+            
+            sorok.removeClass('kijelolve');
+            $(this).addClass('kijelolve');
+
+            kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
         }
+        
     });
 
+    /* Csoportra kattintás */
     $(document).on('click', 'ul.szamla_cont li.csoport', function(e) {
-        var sorok = $('#szamlaList li.szamla_sor'),
-            id = $(this).attr('data-id'),
+        var sorok       = $('#szamlaList li.szamla_sor'),
+            id          = $(this).attr('data-id'),
             kijelolheto = $('#szamlaList').hasClass('kijelolheto');
 
-        if( e.ctrlKey && kijelolheto ) {
-            sorok.removeClass('active');
-
-            if( !$('ul.szamla_cont li[data-csoportID="' + id + '"]').hasClass('kijelolve') ) {
-                /*$(this).addClass('active');
-                $('ul.szamla_cont li[data-csoportID="' + id + '"]').removeClass('dn');*/
+        if( kijelolheto ) {
+            /* Ha CTRL gombot használunk, másképp kell eljárni: ha meg volt jelölve, le kell venni a megjelöléseket */
+            if(e.ctrlKey){
+                
+                if($(this).hasClass('kijelolve')){
+                    $(this).removeClass('kijelolve');
+                    $('ul.szamla_cont li[data-csoportid="' + id + '"]').removeClass('kijelolve');
+                }else{
+                    $(this).addClass('kijelolve');
+                    $('ul.szamla_cont li[data-csoportid="' + id + '"]').addClass('kijelolve');
+                }
+                
+            /* Sima kattintás esetén pedig a nem ehhez a csoporthoz tartozó sorokról kell levenni a kijelölést */
+            }else{
+                
+                /* Minden olyan sor, ami nem a csoport része, arról levesszük a kijelölést */
+                sorok.each(function () {
+                    if($(this).attr('data-csoportid')!=id){
+                        $(this).removeClass('kijelolve');
+                    }
+                });
+                
                 $(this).addClass('kijelolve');
-
-                $('ul.szamla_cont li[data-csoportID="' + id + '"]').addClass('kijelolve');
-            } else {
-                $(this).removeClass('kijelolve');
-                $('ul.szamla_cont li[data-csoportID="' + id + '"]').removeClass('kijelolve');
+                $('ul.szamla_cont li[data-csoportid="' + id + '"]').addClass('kijelolve');
+                
             }
-        } else {
-            $(this).toggleClass('active');
-            $('ul.szamla_cont li[data-csoportID="' + id + '"]').toggleClass('dn');
+
         }
 
         kijeloltSzamlal( sorok, 'fo' );
     });
+    /* Csoport előtti + ikonra kattintva nyitjuk le */
+    $(document).on('click', 'ul.szamla_cont li.csoport span.icon', function(e) {
+        var szulo_li = $(this).parent('li');
+        var id       = szulo_li.attr('data-id');
+        
+        szulo_li.toggleClass('nyitva');
+        $('ul.szamla_cont li[data-csoportID="' + id + '"]').toggleClass('dn');
+        
+        e.preventDefault();
+        e.stopPropagation();
+    });
 
+   /* Bal oldali nav panelen kattintunk egy bejegyzésre. Ekkor lekezeljük mi történik a kijelöésekkel */
     $('#tartalomBal').on('click', '#szamlaList li.szamla_sor', function(e) {
         var sorok       = $('#szamlaList li.szamla_sor'),
+            csoportok   = $('#szamlaList li.csoport'),
             kijelolheto = $('#szamlaList').hasClass('kijelolheto');
 
-        if( !e.ctrlKey && !e.shiftKey || !kijelolheto ) {
-            sorok.removeClass('active kijelolve');
-            $(this).addClass('active kijelolve');
+        /* Ha nem használtunk sem CTRL-t, sem SHIFT gombot, vagy ha a több sor kijelölése nem engedélyezett */
+        if( (!e.ctrlKey && !e.shiftKey) || !kijelolheto ) {
+            
+            sorok.removeClass('akt').removeClass('kijelolve');
+            csoportok.removeClass('akt').removeClass('kijelolve');
+            $(this).addClass('akt kijelolve');
 
             /* Navigálás */
             var recid   = $(this).find('a.szamla').attr('data-recid'),
@@ -679,24 +714,28 @@ $(function() {
             scrollLeptet();
             e.preventDefault();
             e.stopPropagation();
+            
+        /* CTRL és SHIFT lekezelése */
         } else {
+            
+            /* Bal oldali navpanel shift gomb használata */
             if( e.shiftKey && kijelolheto ) {
-                sorok.removeClass('active');
+                /*sorok.removeClass('active');*/
 
                 if( !sorok.hasClass('kijelolve') ) {
                     $(this).addClass('kijelolve');
 
                     /* Tömeges kijelöléshez */
-                    sorok.removeClass('akt');
-                    $(this).addClass('akt');
-
-                    kijeloltSzamlal( sorok, 'fo' );
+                    /*sorok.removeClass('akt');
+                    $(this).addClass('akt');*/
+                    
                 } else {
-                    var akt_id = parseInt( $('#szamlaList.kijelolheto li.szamla_sor.akt').attr('data-i') );
+                    
+                    var akt_id = parseInt( $('#szamlaList.kijelolheto li.szamla_sor.kijelolve').attr('data-i') );
 
                     /* Tömeges kijelöléshez */
-                    sorok.removeClass('akt');
-                    $(this).addClass('akt');
+                    /*sorok.removeClass('akt');
+                    $(this).addClass('akt');*/
 
                     var uj_akt_id = parseInt( $(this).attr('data-i') );
 
@@ -714,14 +753,16 @@ $(function() {
                         }
                     }
 
-                    kijeloltSzamlal( sorok, 'fo' );
                 }
+                kijeloltSzamlal( sorok, 'fo' );
+                
+            /* Bal oldali navőanel CTRL gombbal való kijelölgetése */
             } else if( e.ctrlKey && kijelolheto ) {
-                sorok.removeClass('active');
+                /*sorok.removeClass('active');*/
 
                 /* Tömeges kijelöléshez */
-                sorok.removeClass('akt');
-                $(this).addClass('akt');
+                /*sorok.removeClass('akt');*/
+                $(this).parent().find('.kijelolve')/*.addClass('akt')*/;
 
                 if( $(this).hasClass('kijelolve') ) {
                     $(this).removeClass('kijelolve');
@@ -844,7 +885,7 @@ $(function() {
     });
 
     if( $('.szamla_sor').hasClass('active') ) {
-        active_top = $('.szamla_sor.active').position().top;
+        active_top = $('.kijelolve:first-of-type').position().top;
         $('#tartalomBal').scrollTop(active_top - 250);
     }
 
@@ -2710,11 +2751,13 @@ function csoportMuvelet( oldal ) {
                 }
             break;
 
-            /* Az elutasítást csak egy soron lehet elvégezni. */
+            /* Az elutasítást csak egy soron lehet elvégezni és csak akkor, ha nyitott. */
             case 'elutasitas':
                 szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
                 if( szamlaSorok.length>1 ) {
                     alert2('Egyszerre csak egy sor utasítható el!', '', 'Hiba');
+                }else if( !$('#szamlaList li.szamla_sor.kijelolve').hasClass('nyitott_statuszu') ){
+                    alert2('Csak nyitott státuszú bejelentés utasítható el!', '', 'Hiba');
                 }else{
                     
                     /* Az előző feltétel miatt itt biztosan csak egy sor van megjelölve */
@@ -2863,15 +2906,16 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     }
 
     if( !sorok.hasClass('kijelolve') && reszleg == 'fo' ) {
-        $('#kmCont').find('input[type="button"]').attr('disabled', true);
+        /*$('#kmCont').find('input[type="button"]').attr('disabled', true);*/
         $('#navGombok a.torles').attr('onclick', 'naviTorles();');
 
         if( _get('id') ) {
-            $('#szamla-' + _get('id')).addClass('active');
+            /*$('.szamla_sor').removeClass('akt');*/
+            $('#szamla-' + _get('id')).addClass('kijelolve');
         }
 
     } else if( sorok.hasClass('kijelolve') && reszleg == 'fo' ) {
-        $('#kmCont').find('input[type="button"]').attr('disabled', false);
+        /*$('#kmCont').find('input[type="button"]').attr('disabled', false);*/
         $('#navGombok a.torles').attr('onclick', 'tbt_alert();');
     }
 
@@ -2928,8 +2972,9 @@ function mellekTorol( tabla, mellek ) {
 }
 
 function kijelolesEltavolit() {
+    
     if( $('#szamlaList li.szamla_sor').hasClass('kijelolve') ) {
-        $('#szamlaList li.szamla_sor').removeClass('active kijelolve');
+        $('#szamlaList li.szamla_sor')./*removeClass('active').*/removeClass('kijelolve');
 
         $('.kijeloltek_muv').removeClass('active');
         /*Csoportos gombokat sem retjük el soha $('#kmCont').find('input[type="button"]').attr('disabled', true);*/
@@ -3078,8 +3123,8 @@ function naviTorles() {
 }
 
 function scrollLeptet() {
-    var active_top      = $('.szamla_sor.active').position().top,
-        activeHeight    = $('.szamla_sor.active').outerHeight(),
+    var active_top      = $('.szamla_sor.kijelolve').position().top,
+        activeHeight    = $('.szamla_sor.kijelolve').outerHeight(),
         tartBalHeight   = $('#tartalomBal').outerHeight();
 
     /* Összeadjuk az active elem magasságát és a felső eltolását */
@@ -3087,11 +3132,11 @@ function scrollLeptet() {
 
     if( (aTopH - activeHeight) < 0 ) {
         $('#tartalomBal').scrollTop(0);
-        aTop = $('.szamla_sor.active').position().top;
+        aTop = $('.szamla_sor.kijelolve').position().top;
         $('#tartalomBal').scrollTop(aTop - 250);
     } else if( aTopH > tartBalHeight ) {
         $('#tartalomBal').scrollTop(0);
-        aTop = $('.szamla_sor.active').position().top;
+        aTop = $('.szamla_sor.kijelolve').position().top;
         $('#tartalomBal').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
     }
 }
@@ -3115,8 +3160,8 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
     }
 
     var recid = '';
-    if( $('.szamla_sor').hasClass('active') ) {
-        recid = $('.szamla_sor.active').attr('data-recid');
+    if( $('.szamla_sor').hasClass('kijelolve') ) {
+        recid = $('.szamla_sor.kijelolve').attr('data-recid');
     }
 
     if( tabla ) {
@@ -3156,8 +3201,8 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
 
             $('#rendezesIrany').attr('href', 'javascript: bejegyzesekLista( \'#rendezesSelect\', \'' + ri + '\', \'' + rkat + '\' ); void(0);').html(rt);
 
-            if( $('.szamla_sor').hasClass('active') ) {
-                active_top = $('.szamla_sor.active').position().top;
+            if( $('.szamla_sor').hasClass('kijelolve') ) {
+                active_top = $('.szamla_sor.kijelolve').position().top;
                 $('#tartalomBal').scrollTop(active_top - 250);
             }
         });
