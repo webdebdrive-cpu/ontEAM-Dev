@@ -2401,7 +2401,15 @@ table.csikos th{
     font-size: 1.4rem;
     padding: 1rem 1rem;
     text-align: left;
-    width: 20%;
+    width: auto;
+}
+
+table.csikos th.nev {
+    width: 60%;
+}
+
+table.csikos th.torles {
+    width: 4rem;
 }
 
 table.csikos.kicsi th {
@@ -2420,6 +2428,7 @@ table.csikos td{
     font-size: 1.4rem;
     font-weight: 400;
     padding: 1rem 1rem 1rem 1rem;
+    white-space: nowrap;
 }
 
 table.csikos.kicsi td {

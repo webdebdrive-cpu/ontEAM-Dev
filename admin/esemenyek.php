@@ -1289,6 +1289,22 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //{KOVETKEZO_TOMB}
 
 
+/* Munkalap feladat */
+if( isset($_POST['munkFeladatTorol']) ) {
+    $recid = $_POST['recid'];
+
+    if( $recid ) {
+        $adatbazis_kapcsolat -> d('munkalap_feladat', "`recid` = '{$recid}'");
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 /* Munkalap anyagok */
 if( isset($_POST['munkAnyagTorol']) ) {
     $recid = $_POST['recid'];
@@ -1366,7 +1382,7 @@ if( isset($_POST['getMunkalapAnyagok']) ) {
                                 '.$sz_th.'
                                 <th>Mee</th>
                                 <th>Anyag státusz</th>
-                                <th></th>
+                                <th class="torles"></th>
                             </tr>
                             '.$sorok.'
                         </table>
@@ -1508,7 +1524,11 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
                     }
 
                     /* Utolsó tételnél átállítjuk az átadta mező értékét */
-                    $adatbazis_kapcsolat -> u('munkalap_tetel', array('atadta_dt', 'visszaadva'), array(date('Y-m-d H:i:s'), 1), "`recid` = '".$akt_tetel['recid']."'");
+                    $sql = $adatbazis_kapcsolat -> u('munkalap_tetel', array('atadta_dt', 'visszaadva'), array(date('Y-m-d H:i:s'), 1), "`recid` = '".$akt_tetel['recid']."'");
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
                 }
             }
 
@@ -1679,6 +1699,30 @@ if( isset($_POST['munkalapKeszre']) ) {
         /* Készre állítjuk a munkát */
         if( !addStatusz( 'munkalap_statusz', $recid, 10 ) ) {
             $db_error = true;
+        }
+
+        $sql = $akt_tetel = $adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $akt_tetel ) {
+            $akt_tetel = $akt_tetel[0];
+
+            /* Munkalapon töröljük a személyzetet és a mobil loginnevet */
+            $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'mobil_loginnev'), array(0, ''), "`recid` = '{$recid}'");
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            /* Utolsó tételnél átállítjuk az átadta mező értékét */
+            $sql = $adatbazis_kapcsolat -> u('munkalap_tetel', array('atadta_dt', 'visszaadva'), array(date('Y-m-d H:i:s'), 1), "`recid` = '".$akt_tetel['recid']."'");
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
         }
 
         if( !$db_error ) {

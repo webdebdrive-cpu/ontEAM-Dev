@@ -1024,6 +1024,30 @@ $(function() {
     });
 });
 
+function munkFeladatTorol( recid, that ) {
+    if( recid ) {
+        $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'POST',
+            async: false,
+         	data: {
+                recid: recid,
+                munkFeladatTorol: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+         			response = JSON.parse(response);
+
+                    $(that).parents('tr').remove();
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+         		}
+         	}
+        });
+    } else {
+        $(that).parents('tr').remove();
+    }
+}
+
 function munkAnyagTorol( recid, that ) {
     if( recid ) {
         $.ajax({
@@ -2716,6 +2740,40 @@ function csoportMuvelet( oldal ) {
                 } else {
                     alert2('Nincsenek kijelölt sorok!');
                 }
+            break;
+
+            case 'feladatHozzaad':
+                $('#popupTart').html(data);
+
+                var ajax = $.ajax({
+                    url : 'munkalap.php',
+                    type: 'POST',
+                    data: {
+                        recid: _get('id'),
+                        getMunkalapFeladatok: new Date().getTime()
+                    },
+                    success: function(response) {
+                        if(response) {
+                            response = JSON.parse(response);
+
+                            if( response.hiba ) {
+                                if( response.gomb ) {
+                                    alert2(response.hiba, response.gomb);
+                                } else {
+                                    alert2(response.hiba);
+                                }
+
+                                return false;
+                            }
+
+                            $('#insertTable').html(response.html);
+                        }
+                    }
+                });
+
+                $.when( ajax ).then(function() {
+                    popupNyit();
+                });
             break;
 
             /* Az elutasítást csak egy soron lehet elvégezni. */
