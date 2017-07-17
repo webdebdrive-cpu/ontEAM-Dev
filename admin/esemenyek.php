@@ -1493,12 +1493,22 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
                         }
                     }
                 }
-            }
 
-            /* Anyagra vár szátuszba kerül */
-            if( $szuk_menny ) {
-                if( !addStatusz( 'munkalap_statusz', $recid, 9 ) ) {
-                    $db_error = true;
+                /* Anyagra vár szátuszba kerül */
+                if( $szuk_menny ) {
+                    if( !addStatusz( 'munkalap_statusz', $recid, 9 ) ) {
+                        $db_error = true;
+                    }
+
+                    /* Munkalapon töröljük a személyzetet és a mobil loginnevet */
+                    $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'mobil_loginnev'), array(0, ''), "`recid` = '{$recid}'");
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    /* Utolsó tételnél átállítjuk az átadta mező értékét */
+                    $adatbazis_kapcsolat -> u('munkalap_tetel', array('atadta_dt', 'visszaadva'), array(date('Y-m-d H:i:s'), 1), "`recid` = '".$akt_tetel['recid']."'");
                 }
             }
 
@@ -1876,7 +1886,7 @@ if( isset($_GET['folyamatban_munkak']) ) {
             'hiba' => 'Folyamatban lévő munkák listája'.$html.'Folytatja a hibabejelentést?',
             'gomb' => '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="bejelentes_mehet = true; $(\'#szerk_form\').submit();"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>'
         ));
-        
+
         $weblap->leallit();
         exit();
     }

@@ -1123,10 +1123,18 @@ function munkAnyagHozzaad( formID, igenyles ) {
         return false;
     }
 
-    if( felh_menny.val() == '' ) {
+    if( !igenyles && felh_menny.val() == '' ) {
         alert2('Adja meg a felhasznált mennyiséget!');
         document.getElementById('felh_menny').focus();
         return false;
+    }
+
+    if( igenyles ) {
+        if( felh_menny.val() == '' && szuk_menny.val() == '' ) {
+            alert2('Adja meg a felhasznát, vagy a szükséges mennyiséget!');
+            document.getElementById('felh_menny').focus();
+            return false;
+        }
     }
 
     var sz_td = '';
@@ -2759,7 +2767,7 @@ function csoportMuvelet( oldal ) {
                 }else if( !$('#szamlaList li.szamla_sor.kijelolve').hasClass('nyitott_statuszu') ){
                     alert2('Csak nyitott státuszú bejelentés utasítható el!', '', 'Hiba');
                 }else{
-                    
+
                     /* Az előző feltétel miatt itt biztosan csak egy sor van megjelölve */
                     if($('#szamlaList li.szamla_sor.kijelolve').hasClass('behuz')){
                         alert2('Csoportosított sor nem utasítható el.<br>Előbb vegye ki a csoportból!', '', 'Hiba');
