@@ -52,8 +52,8 @@ function get_alk()           { return
                    ($_SERVER['HTTP_HOST']=='localhost') ? '' : '';            } // Rewritre rule localhoston is működjön, itt a www mappán belüli mappát add meg
 function get_country()       { return 'Hungary';                                     } // Pl.: Hungary
 function css_img()           { return true;                                     } //Ha igaz, akkor a CSS-ben levő képeket DATA URI-ként beágyazza a CSS tartalmába, egyébént marad sima hivatkozás
-function get_domain()        { return 'www.danubiushotel.hu';                        }
-function get_mail($kiir)     { return !$kiir ? 'info@danubiushotel.hu' :
+function get_domain()        { return 'www.onteam.hu';                        }
+function get_mail($kiir)     { return !$kiir ? 'info@onteam.hu' :
            mail_rejtes('<a href="mailto:'.get_mail().'">'.get_mail().'</a>'); }
 function get_megsz()         { return 'magaz';                                  }
 function get_mail_charset()  { return 'UTF-8';                                  } //ISO-8859-1, ISO-8859-2, Windows-1250, Windows-1251

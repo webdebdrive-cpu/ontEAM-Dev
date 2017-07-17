@@ -1179,8 +1179,11 @@ function csa_alert() {
     }
 }
 
+/**/
 function tbt_alert() {
-    alert2('Biztos törli a kijelölt bejegyzéseket?', "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"tobbBejegyzesTorol();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>");
+    /*alert2('Biztos törli a kijelölt bejegyzéseket?', "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"tobbBejegyzesTorol();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>");*/
+    /*Korábban rákérdezett, de több sort valójában nem is törölhető.*/
+    alert2('Egyszerre csak egy rekord törölhető!', '', 'Hiba');
 }
 
 function munkHozzMegszuntet() {
@@ -1397,6 +1400,55 @@ function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
                     page                : page,
                     csak_kerdezunk      : csak_kerdezunk,
                     kuldes_jovahagyasra : new Date().getTime()
+                },
+             	success: function(response) {
+             		if(response) {
+                        response = JSON.parse(response);
+
+             			if( response.hiba ) {
+                            if( response.gomb ) {
+                                alert2(response.hiba, response.gomb);
+                            } else {
+                                alert2(response.hiba);
+                            }
+
+                            return false;
+                        }
+                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                        alert2();
+             		}
+             	}
+            });
+        } else {
+            alert2('Nincsenek kijelölt sorok!');
+        }
+    }
+}
+
+function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
+    szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+    if( szamlaSorok.length ) {
+        idk = {};
+
+        var i = 1;
+        szamlaSorok.each(function() {
+            var id = $(this).attr('data-recid');
+
+            idk[i] = id;
+            i++;
+        });
+
+        if( objLength(idk) ) {
+            var page = $('#szamlaBetolt').attr('data-page');
+
+            $.ajax({
+             	url : 'anyagigenyles.php',
+             	type: 'POST',
+             	data: {
+                    idk                 : JSON.stringify(idk),
+                    page                : page,
+                    csak_kerdezunk      : csak_kerdezunk,
+                    rendeles_keszit     : new Date().getTime()
                 },
              	success: function(response) {
              		if(response) {
@@ -2455,16 +2507,26 @@ function csoportMuvelet( oldal ) {
         switch( oldal ) {
             case 'csoporthoz_adas':
 
-                var popup_nem_mmutat = 0;
+                var mar_csoportosak         = '';
+                var nem_nyitott_statuszuak  = '';
                 var iktatok = '';
                 $('.kijelolve').each(function () {
+                    /* Ha már van csopotja */
+                    if($(this).hasClass('behuz')){
+                        mar_csoportosak += $(this).find('span:first-of-type').html()+'<br>';
+                    }
+                    /* Ha nem nyitott astátuszas */
                     if(!$(this).hasClass('nyitott_statuszu')){
-                        iktatok += $(this).find('span:first-of-type').html()+'<br>';
-                        popup_nem_mmutat++;
+                        nem_nyitott_statuszuak += $(this).find('span:first-of-type').html()+'<br>';
                     }
                 });
-                if(popup_nem_mmutat>0){
-                    alert2('Az alábbi iktatószámok státuszai nem nyitottak, így nem adhatóak csoporthoz:<br>'+iktatok);
+                if(mar_csoportosak){
+                    alert2('Az alábbi iktatószámok már csoport részei, így nem adhatóak újból csoporthoz:<br>'+mar_csoportosak);
+                    return false;
+                }
+                if(nem_nyitott_statuszuak){
+                    alert2('Az alábbi iktatószámok státuszai nem nyitottak, így nem adhatóak csoporthoz:<br>'+nem_nyitott_statuszuak);
+                    return false;
                 }
 
                 $('#popupTart').html(data);
@@ -2489,7 +2551,7 @@ function csoportMuvelet( oldal ) {
                 });
 
                 $.when( ajax ).then(function() {
-                    if(popup_nem_mmutat==0){
+                    if(nem_nyitott_statuszuak==0){
                         popupNyit();
                     }
                 });
@@ -2648,6 +2710,25 @@ function csoportMuvelet( oldal ) {
                 }
             break;
 
+            /* Az elutasítást csak egy soron lehet elvégezni. */
+            case 'elutasitas':
+                szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+                if( szamlaSorok.length>1 ) {
+                    alert2('Egyszerre csak egy sor utasítható el!', '', 'Hiba');
+                }else{
+                    
+                    /* Az előző feltétel miatt itt biztosan csak egy sor van megjelölve */
+                    if($('#szamlaList li.szamla_sor.kijelolve').hasClass('behuz')){
+                        alert2('Csoportosított sor nem utasítható el.<br>Előbb vegye ki a csoportból!', '', 'Hiba');
+                    /* Egybként jöhet az elutasítás panel */
+                    }else{
+                        $('#popupTart').html(data);
+                        popupNyit();
+                    }
+
+                }
+            break;
+
             default:
                 $('#popupTart').html(data);
                 popupNyit();
@@ -2771,7 +2852,7 @@ function arazas_ment(){
     });
 }
 
-/* Bal oldali navpanelben ellenőrizzük, hogy van-e olyan bejegyzés, ami ki vanjelölve. Ha igen, csak akkor jelennek meg a csoportos műveletes gombok (#kmCont inputjai) */
+/* Bal oldali navpanelben ellenőrizzük, hogy van-e olyan bejegyzés, ami ki van jelölve. */
 function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     if( tabla === undefined ) {
         tabla = '';
@@ -3123,7 +3204,7 @@ function felhValt( that ) {
                             return false;
                         }
 
-                        $('#beleptet_alert div.header').html('<h1 style="color: #FF5353">Helytelen felhasználói név vagy jelszó!</h1');
+                        $('#beleptet_alert div.header').html('<h1 style="color: #FF5353">Helytelen felhasználó név vagy jelszó!</h1');
                         return false;
                     }
 

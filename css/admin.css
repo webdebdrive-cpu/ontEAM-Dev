@@ -632,6 +632,7 @@ textarea{
     font-family: Tahoma;
     padding: 0.9rem 0.8rem 0.7rem 0.9rem;
     vertical-align: bottom;
+    resize: none;
 }
 
 textarea.kicsi{

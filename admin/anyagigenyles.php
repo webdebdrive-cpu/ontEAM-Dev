@@ -211,7 +211,7 @@ if( isset($_POST['arazas']) ) {
 
                 }else{
 
-                    //Ha van eltérés az előző bejegyzéshez képest (üres mező megengedett) akkro hibaüzenet:
+                    //Ha van eltérés az előző bejegyzéshez képest (üres mező megengedett) akkor hibaüzenet:
                     $igenyles = $adatbazis_kapcsolat->s('cikktorzs_id szallito kcs_21 rndear igmen rndmen', 'anyagigenyles', "`recid`='{$id}'");
                     $igenyles = $igenyles[0];
                     if(
@@ -683,7 +683,7 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
                     exit();
                 }
                 
-                //Valóban árazva van-e? Sztállító és egységár megadva
+                //Valóban árazva van-e? Szállító és egységár megadva
                 $igenyles = $adatbazis_kapcsolat->s('szallito rndear kcs_21', 'anyagigenyles', "`recid`='$id'");
                 $igenyles = $igenyles[0];
                 if(!$igenyles['szallito'] || !$igenyles['rndear'] || !$igenyles['kcs_21']){
@@ -1120,6 +1120,200 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
 }
 
 
+//Rendelés készítése
+if( isset($_POST['rendeles_keszit']) ) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    //hatása, hogy Megrendelve státuszt kap
+    $jovahagyva_statid  = 25;
+    $megrendelve_statid = 30;
+    
+    if( is_array($idk) ) {
+        /* Ellenőrizzük a csoportokat */
+        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")", '', '');
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
+        $csoportok_unique = array_unique($csoportok);
+
+        $kijelolt_db = array_count_values($csoportok);
+
+        foreach( $csoportok_unique as $csu ) {
+            if( $csu > 0 ) {
+                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', $page, "`csoport_id` = '{$csu}'", '', '');
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+
+                if( count($csoport_db) != $kijelolt_db[$csu] ) {
+                    echo json_encode(array(
+                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+        }
+
+        // Ellenőrizzük a státuszokat és hogy mind jóváhagyva van-e?
+        foreach($idk as $id) {
+
+            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'recid desc', '1');
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $statusz ) {
+
+                $statusz = $statusz[0];
+                if(  $statusz['stat_id']!=$jovahagyva_statid ) {
+                    echo json_encode(array(
+                        'hiba' => 'Csak jóváhagyva státuszú anyagigénylésekből lehet rendelést készíteni!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                    
+                }else{
+
+                    //Ha van eltérés az előző bejegyzéshez képest (üres mező megengedett) akkor hibaüzenet:
+                    $igenyles = $adatbazis_kapcsolat->s('cikktorzs_id szallito kcs_21 rndear igmen rndmen', 'anyagigenyles', "`recid`='{$id}'");
+                    $igenyles = $igenyles[0];
+                    if(
+                            ($elozo_szallito     && $igenyles['szallito']     && $elozo_szallito     != $igenyles['szallito']    ) ||
+                            ($elozo_kcs_21       && $igenyles['kcs_21']       && $elozo_kcs_21       != $igenyles['kcs_21']      )
+                        ){
+                        echo json_encode(array(
+                            'hiba' => 'Csak azonos szállítóval és pénznemmel rendelkező anyagigénylésekből lehet rendelést készíteni!'
+                        ));
+                        $weblap->leallit();
+                        exit();
+                    }
+                    $elozo_szallito     = $igenyles['szallito'];
+                    $elozo_kcs_21       = $igenyles['kcs_21'];
+
+                    //Ha ki van töltve a szállító (mivel kötelező mezők, ekkor ki lesz töltve a pénznem és rend. egységár is, akkor azt az ID-t töltjük be a popupba
+                    if($igenyles['szallito']){
+                        $betoltid = $id;
+                    }
+
+                }
+                
+            } else {
+                echo json_encode(array(
+                    'hiba' => 'Státusz nem található!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+
+            echo json_encode(array(
+                'hiba' => count($idk).' db anyagigénylés van kijelölve.<br>Biztos, hogy elkészíti a megrendelést?',
+                'gomb' => '<input class="gomb piros" value="Igen" onclick="anyagigenyles_rendeles_keszit();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+            ));
+            
+            $weblap->leallit();
+            exit();
+        }
+        
+        /* Ha mehet a rendelés készítése, akkor: */
+        //Szekvencia táblából kiszámoljuk a rendelés következő sorszámát
+        
+        /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
+        $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', '`tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\'');
+        if( $ikt_seq === false ) {
+            $db_error = true;
+        }
+        if( $ikt_seq ) {
+            $ikt_seq = $ikt_seq[0];
+
+            /* Sorszám */
+            $sorszam = $ikt_seq['sorszam'];
+
+            /* Sorszám növelés */
+            $sorszam++;
+
+            /* Letároljuk az új sorszámot */
+            $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), '`tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\'');
+            if( $sql === false ) {
+                $db_error = true;
+            }
+        } else {
+            /* Sorszám */
+            $sorszam = 1;
+
+            $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), 'cikkrendfej'));
+            if( $sql === false ) {
+                $db_error = true;
+            }
+        }
+        
+        /* Rendelés ID formázása */
+        $rndid = 'R'.date('y').'/'.sprintf('%04d', $sorszam);
+        $rnd_dt = date('Y-m-d H:i:s');
+        $pdf_utvonal = 'doc/rendeles/'.date('y').'/'.$elozo_szallito.'/'.str_replace('/', '_', $rndid).'.pdf';
+        
+        //Létrehozunk egy új rendelésfej bejegyzést
+        $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('statusz_id', 'rndid', 'rnd_dt',  'kepfajl',     'szallitoid',    'insert_dt',          'insert_usr',                           'update_usr'                            ),
+                                                                    array(1,            $rndid,  $rnd_dt,   $pdf_utvonal,  $elozo_szallito, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                    );
+        if( $cikkrendfej_id === false ) {
+            $db_error = true;
+        }
+        
+        /* Felvesszük az első státuszt */
+        $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
+            array('id',             'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
+            array($cikkrendfej_id,  1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+        );
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        //Anyagigénylés sorok updatelése (státuszt is, illetve egyéb mezőket is)
+        foreach($idk as $id) {
+            $statusz = addStatusz( $page.'_statusz', $id, $megrendelve_statid );
+            if( $statusz === false ) {
+                $db_error = true;
+            }
+            
+            //Az anyagigénylés érintett sorait updateljük
+            $adatbazis_kapcsolat->u('anyagigenyles',    array('rndid', 'rnd_dt', 'kepfajl',    'update_usr',                           'aparecid'       ),
+                                                        array($rndid,  $rnd_dt,  $pdf_utvonal, $_SESSION[get_db_tabla().'teljes_nev'], $cikkrendfej_id  ),
+                                    "`recid`='$id'");
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+
 /** Tartalom */
 if( !$_GET['ajax'] ) {
     require_once('header.php');
@@ -1259,7 +1453,7 @@ if($gyorskereso_text){
                     </div>
                     <input type="button" class="gombb foGomb" value="Árazás" onclick="arazas()">
                     <input type="button" class="gombb foGomb" value="Küldés jóváhagyásra" onclick="anyagigenyles_kuldes_jovahagyasra(\'csak kérdezünk még\')">
-                    <input type="button" class="gombb foGomb" value="Rendelés készítése">
+                    <input type="button" class="gombb foGomb" value="Rendelés készítése" onclick="anyagigenyles_rendeles_keszit(\'csak kérdezünk még\')">
                 </div>
             ');
         }
@@ -1618,6 +1812,9 @@ if($gyorskereso_text){
                     }
                 }
 
+                //Adatbázisba eleinte szóköz nélkül került be a nap, ezért biztonság kedvéért egy szóközt még beszúrunk, illetve a 0nap-ot is kiszűrjük (bár ez egy adatbázis frissítés után már felesleges)
+                $sor['statido']          = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['statido']);
+                $sor['gongyolt_statido'] = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['gongyolt_statido']);
                 $szamla_html .= nl2('
                     <div class="dtr nSor"'.$szinkod.'>
                         <div class="dtc">'.$sor['statusz'].'</div>

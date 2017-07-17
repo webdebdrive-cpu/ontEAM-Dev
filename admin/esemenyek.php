@@ -1876,6 +1876,9 @@ if( isset($_GET['folyamatban_munkak']) ) {
             'hiba' => 'Folyamatban lévő munkák listája'.$html.'Folytatja a hibabejelentést?',
             'gomb' => '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="bejelentes_mehet = true; $(\'#szerk_form\').submit();"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>'
         ));
+        
+        $weblap->leallit();
+        exit();
     }
     echo json_encode(array('siker' => 1));
 
@@ -2195,7 +2198,7 @@ if( isset($_POST['varolistahozAdas']) ) {
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
-                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                        'hiba' => 'Csoportosított sor önmagában nem várakoztatható. Előbb vegye ki a csoportból!'
                     ));
 
                     $weblap->leallit();
@@ -2301,7 +2304,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
-                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                        'hiba' => 'Csoportosított sor önmagában nem vehető le várólistáról. Előbb vegye ki a csoportból!'
                     ));
 
                     $weblap->leallit();
@@ -2482,7 +2485,7 @@ if( isset($_POST['munkalapTelepitett']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
-                'hiba' => 'Biztosan telepített csoportnak adja a munkát?',
+                'hiba' => 'Biztosan telepített karbantartónak adja át a munkát?',
                 'gomb' => '<input class="gomb piros" value="Igen" onclick="munkalapTelepitett();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
             ));
 

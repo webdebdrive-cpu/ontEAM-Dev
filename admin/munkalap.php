@@ -1037,7 +1037,10 @@ if($gyorskereso_text){
                         $szinkod = ' style="background: '.$statusz['szinkod'].';"';
                     }
                 }
-
+                
+                //Adatbázisba eleinte szóköz nélkül került be a nap, ezért biztonság kedvéért egy szóközt még beszúrunk, illetve a 0nap-ot is kiszűrjük (bár ez egy adatbázis frissítés után már felesleges)
+                $sor['statido']          = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['statido']);
+                $sor['gongyolt_statido'] = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['gongyolt_statido']);
                 $szamla_html .= nl2('
                     <div class="dtr nSor"'.$szinkod.'>
                         <div class="dtc">'.$sor['statusz'].'</div>

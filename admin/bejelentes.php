@@ -308,14 +308,34 @@ if($gyorskereso_text){
                     $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
 
                 } else {
-                    $obj = $adatbazis_kapcsolat -> select('nev', 'obj', "`recid`='{$sor['obj_id']}'");
+                    
+                    $obj = $adatbazis_kapcsolat -> select('nev telephely_id', 'obj', "`recid`='{$sor['obj_id']}'");
                     $obj = $obj[0];
+                    
+                    $szalloda = $adatbazis_kapcsolat -> select('nev', 'telephely', "`id`='{$obj['telephely_id']}'");
+                    $szalloda = $szalloda[0];
+                    
+                    $gep_nev = '';
+                    if($sor['gep_id']){
+                        $gep = $adatbazis_kapcsolat -> select('nev', 'eszkozkezeles', "`recid`='{$sor['gep_id']}'");
+                        $gep = $gep[0];
+                        if($gep['nev']){
+                            $gep_nev = '<br>Gép: '.addslashes($gep['nev']);
+                        }
+                    }
+                    
+                    //Hiba felirat, csak ha van hiba
+                    if($sor['hiba_text']){
+                        $sor['hiba_text'] = '<br>Hiba: '.addslashes($sor['hiba_text']);
+                    }
                     $gombok .= nl2('
                         <script>var torol_kerdes = \'
                             <div class="l">
                                 Iktatószám: '.$sor['ikt_szam'].'
+                                <br>Szálloda: '.addslashes($szalloda['nev']).'
                                 <br>Helyiség: '.addslashes($obj['nev']).'
-                                <br>Hiba: '.addslashes($sor['hiba_text']).'
+                                '.$sor['hiba_text'].'
+                                '.$gep_nev.'
                             </div>
                             <br>Biztosan törlöd ezt a '.$szoveg.'?
                         \';</script><input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(torol_kerdes, gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">
@@ -542,7 +562,10 @@ if($gyorskereso_text){
                         $szinkod = ' style="background: '.$statusz['szinkod'].';"';
                     }
                 }
-
+                
+                //Adatbázisba eleinte szóköz nélkül került be a nap, ezért biztonság kedvéért egy szóközt még beszúrunk, illetve a 0nap-ot is kiszűrjük (bár ez egy adatbázis frissítés után már felesleges)
+                $sor['statido']          = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['statido']);
+                $sor['gongyolt_statido'] = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['gongyolt_statido']);
                 $szamla_html .= nl2('
                     <div class="dtr nSor"'.$szinkod.'>
                         <div class="dtc">'.$sor['statusz'].'</div>

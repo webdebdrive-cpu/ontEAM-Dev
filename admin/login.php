@@ -285,6 +285,10 @@ if($gyorskereso_text){
 
 	//Új termék felvitele
 	if(isset($_GET['uj']) && _jog(7) && !$csak_szerkesztheto){
+        
+        if (isset($_GET['foglalt_nev'])) {
+            $navi = '<span class="piros">Ez a loginnév már foglalt!</span>';
+        }
 
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');

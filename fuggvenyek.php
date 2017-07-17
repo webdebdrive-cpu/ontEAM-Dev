@@ -289,6 +289,14 @@ function i_u($type, $tabla, $tomb){
 
         //Login
         }elseif( $tabla == 'login' ) {
+            
+            //Nem lehet ugyanazt a loginnevet kétszer felhasználni
+            if($adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$_POST['nev']}'")){
+                header('Location:login.php?uj&foglalt_nev');
+                $weblap -> leallit();
+                exit;
+            }
+            
             if( $_POST['szerepkor_id'] ) {
                 $szerepkor = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
                 if( $szerepkor === false ) {
@@ -442,7 +450,6 @@ function i_u($type, $tabla, $tomb){
                         array('id',     'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
                         array($recid,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
                     );
-
                     if( $sql === false ) {
                         $db_error = true;
                     }
@@ -863,6 +870,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     async: false,
                     data: esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;obj_id=\' + $(\'#obj_id\').val() + \'&amp;folyamatban_munkak=\' + new Date().getTime()),
                     success: function(response) {
+
                         response = JSON.parse(response);
 
                         if( response.hiba ) {
@@ -3500,8 +3508,14 @@ function getStatuszIdo( $time ) {
 
     /* Másodperc */
     $mp =  floor(($time % 86400 % 3600 % 60));
+    
+    //Napokat csak akkor fűzzük hozzá, ha nagyobb mint 0
+    $napok_string = '';
+    if($napok){
+        $napok_string = $napok.' nap ';
+    }
 
-    return $napok.'nap '.sprintf('%02d', $ora).':'.sprintf('%02d', $perc).':'.sprintf('%02d', $mp);
+    return $napok_string.sprintf('%02d', $ora).':'.sprintf('%02d', $perc).':'.sprintf('%02d', $mp);
 }
 
 /* Státusz hozzáadása */

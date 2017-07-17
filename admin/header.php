@@ -990,7 +990,7 @@ if( $_SESSION[get_db_tabla().'user_id'] ) {
 
     $felirat = '';
     if(isset($_GET['hiba'])){
-        $felirat = '<h1 style="color: #fff">Helytelen felhasználói név vagy jelszó!</h1>';
+        $felirat = '<h1 style="color: #fff">Helytelen felhasználó név vagy jelszó!</h1>';
     }else{
         $felirat = '<h1>Bejelentkezés</h1>';
     }
