@@ -848,21 +848,21 @@ if($gyorskereso_text){
     } elseif(isset($_GET['tetel'])) {
 
         /* Tétel sorok */
-        $sorok = $adatbazis_kapcsolat->s('recid atadta_dt visszaadva insert_dt insert_usr', 'munkalap_tetel', "`munkalap_id` = '".$_GET['id']."'", 'insert_dt desc', '');
+        $sorok = $adatbazis_kapcsolat->s('recid atadta_dt visszaadva erteklista_id insert_dt insert_usr', 'munkalap_tetel', "`munkalap_id` = '".$_GET['id']."'", 'insert_dt desc', '');
 
         if( $sorok ) {
             foreach($sorok as $sor) {
                 $szamla_html .= nl2('
                     <table class="csikos full">
                         <tr>
-                            <th>Felvette</th>
+                            <th>Személyzet</th>
                             <th>Létrehozta</th>
                             <th>Átadta</th>
                             <th>Visszaadva</th>
                         </tr>
                 ');
 
-                $visszaadva = 'nem';
+                $visszaadva = '';
                 if( $sor['visszaadva'] ) {
                     $visszaadva = 'igen';
                 }
@@ -872,11 +872,19 @@ if($gyorskereso_text){
                     $atadta = date('Y.m.d H:i', strtotime($sor['atadta_dt']));
                 }
 
+                $atadas_oka = erteklista(7, $sor['erteklista_id']);
+                if( $atadas_oka ) {
+                    $atadas_oka = '<br>'.$atadas_oka;
+                }
+
+                /* Szerepkör */
+                
+
                 $szamla_html .= nl2('
                     <tr >
                         <td>'.$sor['insert_usr'].'</td>
                         <td>'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</td>
-                        <td>'.$atadta.'</td>
+                        <td>'.$atadta.$atadas_oka.'</td>
                         <td>'.$visszaadva.'</td>
                     </tr>
                 ');
@@ -891,7 +899,7 @@ if($gyorskereso_text){
                         <table class="csikos full al behuz">
                             <tr>
                                 <th>Elvégzett feladat</th>
-                                <th>Memó</th>
+                                <th>Leírás</th>
                             </tr>
                     ');
 
@@ -1037,7 +1045,7 @@ if($gyorskereso_text){
                         $szinkod = ' style="background: '.$statusz['szinkod'].';"';
                     }
                 }
-                
+
                 //Adatbázisba eleinte szóköz nélkül került be a nap, ezért biztonság kedvéért egy szóközt még beszúrunk, illetve a 0nap-ot is kiszűrjük (bár ez egy adatbázis frissítés után már felesleges)
                 $sor['statido']          = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['statido']);
                 $sor['gongyolt_statido'] = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['gongyolt_statido']);
