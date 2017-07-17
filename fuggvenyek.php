@@ -437,8 +437,8 @@ function i_u($type, $tabla, $tomb){
 
                     /* Munkalap beszúrása */
                     $recid = $adatbazis_kapcsolat -> i('munkalap',
-                        array('ikt_szam',   'statusz_id',  'tipus_id',  'telephely_id',        'update_dt',          'update_usr',                          'insert_dt',          'insert_usr'                              ),
-                        array($ikt_szam,     1,             1,          $_POST['telephely_id'], date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']   )
+                        array('ikt_szam',   'statusz_id',  'tipus_id',  'telephely_id',        'loginnev',                        'update_dt',          'update_usr',                          'insert_dt',          'insert_usr'                              ),
+                        array($ikt_szam,     1,             1,          $_POST['telephely_id'], $_SESSION[get_db_tabla().'user'], date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']   )
                     );
 
                     if( $recid === false ) {
@@ -1739,7 +1739,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
 
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             /* Telephely */

@@ -1594,7 +1594,7 @@ ul.szamla_cont li.szamla_datum.csoport span.icon:after {
     transform: rotate(90deg);
 }
 
-ul.szamla_cont li.szamla_datum.csoport.active span.icon:after {
+ul.szamla_cont li.szamla_datum.csoport.nyitva span.icon:after {
     transform: rotate(0deg);
 }
 
@@ -2488,7 +2488,7 @@ div.szamlaLapozas div.lapoz.pontok {
 }
 
 .kijCont .kijSor.kijelolve {
-    background: #484848!important;
+    background: #55A2FA!important;
     color: #fff;
 }
 

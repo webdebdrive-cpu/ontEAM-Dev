@@ -21,7 +21,7 @@ require_once('../weblap.php');
 //Ha egy tálbának utólag adsz egy loginnev nevű oszlopnevet
 if (isset($_GET['loginnev_gyart'])) {
     
-    $tabla = 'ktgnem';
+    $tabla = 'munkalap';
     
     $sorok = $adatbazis_kapcsolat->s('recid insert_usr', $tabla);
     foreach($sorok as $sor){

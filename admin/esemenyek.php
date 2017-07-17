@@ -2001,7 +2001,7 @@ if( isset($_POST['munkalaphozAdas']) ) {
 
         if( count($szallodak_unique) > 1 ) {
             echo json_encode(array(
-                'hiba' => 'Csak azonos szállodával rendelkező bejegyzéseket lehet munkalappá alakítani!'
+                'hiba' => 'Csak azonos szállodával rendelkező bejelentéseket lehet munkalappá alakítani!'
             ));
 
             $weblap->leallit();
@@ -2252,7 +2252,7 @@ if( isset($_POST['varolistahozAdas']) ) {
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
-                        'hiba' => 'Csoportosított sor önmagában nem várakoztatható. Előbb vegye ki a csoportból!'
+                        'hiba' => 'Csoportosított munkalap önmagában nem várakoztatható. Előbb vegye ki a csoportból!'
                     ));
 
                     $weblap->leallit();
@@ -2274,7 +2274,7 @@ if( isset($_POST['varolistahozAdas']) ) {
 
                 if(  !in_array($statusz['stat_id'], $nyitott_statid) ) {
                     echo json_encode(array(
-                        'hiba' => 'Csak nyitott státuszú bejegyzéseket lehet várólistához adni!'
+                        'hiba' => 'Csak nyitott státuszú munkalapokat lehet várólistához adni!'
                     ));
 
                     $weblap->leallit();
@@ -2294,7 +2294,7 @@ if( isset($_POST['varolistahozAdas']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
-                'hiba' => 'Biztos várólistához adja a kijelölt bejelentéseket?',
+                'hiba' => 'Biztos várólistához adja a kijelölt munkalapot?',
                 'gomb' => '<input class="gomb piros" value="Igen" onclick="varolistahozAdas();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
             ));
 
@@ -2358,7 +2358,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
-                        'hiba' => 'Csoportosított sor önmagában nem vehető le várólistáról. Előbb vegye ki a csoportból!'
+                        'hiba' => 'Csoportosított munkalap önmagában nem vehető le várólistáról. Előbb vegye ki a csoportból!'
                     ));
 
                     $weblap->leallit();
@@ -2380,7 +2380,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
 
                 if( $statusz['stat_id'] != $varakozo_statid ) {
                     echo json_encode(array(
-                        'hiba' => 'Csak várakozó státuszú bejegyzésekről lehet levenni a várakoztatást!'
+                        'hiba' => 'Csak várakozó státuszú munkalapról lehet levenni a várakoztatást!'
                     ));
 
                     $weblap->leallit();
@@ -2400,7 +2400,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
-                'hiba' => 'Biztos törli a várólistából a kijelölt bejelentéseket?',
+                'hiba' => 'Biztos kiveszi a várólistából a kijelölt munkalapot?',
                 'gomb' => '<input class="gomb piros" value="Igen" onclick="varolistabolKivetel();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
             ));
 
@@ -2770,8 +2770,8 @@ if( isset($_POST['munkalapKeszit']) ) {
 
             /* Munkalap beszúrása */
             $recid = $adatbazis_kapcsolat -> i('munkalap',
-                array('ikt_szam',   'statusz_id',  'tipus_id',  'telephely_id', 'update_dt',         'update_usr',                          'insert_dt',          'insert_usr'                              ),
-                array($ikt_szam,     1,             1,          $telephely_id,   date('Y-m-d H:i:s'),$_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']   )
+                array('ikt_szam',   'statusz_id',  'tipus_id',  'telephely_id', 'loginnev',                         'update_dt',         'update_usr',                          'insert_dt',          'insert_usr'                              ),
+                array($ikt_szam,     1,             1,          $telephely_id,  $_SESSION[get_db_tabla().'user'],   date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']   )
             );
 
             if( $recid === false ) {
