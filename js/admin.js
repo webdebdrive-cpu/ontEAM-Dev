@@ -1502,6 +1502,12 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
     szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
     if( szamlaSorok.length ) {
         idk = {};
+        
+        mehet = '';
+        if(csak_kerdezunk=='mehet'){
+            csak_kerdezunk  = '';
+            mehet           = 'mehet';
+        }
 
         var i = 1;
         szamlaSorok.each(function() {
@@ -1521,6 +1527,7 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
                     idk                 : JSON.stringify(idk),
                     page                : page,
                     csak_kerdezunk      : csak_kerdezunk,
+                    mehet_db_be         : mehet,
                     rendeles_keszit     : new Date().getTime()
                 },
              	success: function(response) {
@@ -1529,7 +1536,7 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
 
              			if( response.hiba ) {
                             if( response.gomb ) {
-                                alert2(response.hiba, response.gomb);
+                                alert2(response.hiba, response.gomb, response.felirat);
                             } else {
                                 alert2(response.hiba);
                             }

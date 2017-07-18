@@ -41,6 +41,105 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');   //Azok a
 $szamla_html = '';
 
 //Anyag rendelkezésre áll lekezelése
+if (isset($_GET['nyomtat_szall'])) {
+    
+    $adatok = base64_decode($_GET['nyomtat_szall']);
+    list($sorszam, $idk) = explode('|', $adatok);
+    $idk = json_decode($idk, true);
+ 
+    //Szállító kiszámítása
+    $szallito = $adatbazis_kapcsolat->s('szallito', 'anyagigenyles', "`recid`='{$idk[1]}'");
+    $szallito = $szallito[0];
+
+    $szallito = $adatbazis_kapcsolat->s('nev knev tel tel2 isz varos utca', 'szallito', "`recid`='{$szallito['szallito']}'");
+    $szallito = $szallito[0];
+    
+    //Anyagigénylés ID-k bejárása
+    $tetelek_html = '';
+    foreach($idk as $id){
+        $tetelek_html .= $id;
+    }
+    echo nl2('
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
+    <link href="../css/admin.css" rel="stylesheet" type="text/css">
+    <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
+    <script src="../js/jquery.js"></script>
+    <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
+</head>
+<body>
+    <div class="a4_allo"> 
+        <div class="padd">
+            <table class="full">
+            <tr>
+                <td style="width: 33%" class="f11">
+                    Danubius Zrt.
+                    <br>Műszaki szolgáltató központ
+                    <br>ontEAM
+                </td>
+                <td class="b c" style="width: 34%">
+                    Megrendelés sz.: '.$sorszam.'
+                </td>
+                <td class="f11 r" style="width: 33%">1/1. lap</td>
+            </tr>
+            </table>
+            
+            <table style="margin: auto; margin-top: 2rem; width: 95%">
+            <tr>
+                <td class="f13 b" style="width: 50%; padding: 0 1rem">
+                    Szállító:
+                </td>
+                <td class="f13 b" style="width: 50%; padding: 0 1rem">
+                    Megrendelő:
+                </td>
+            </tr>
+            </table>
+            <table style="margin: auto; margin-top: 0rem; width: 95%">
+            <tr>
+                <td class="f12 vat" style="width: 50%; border: 0.1rem solid #ddd; padding: 1rem">
+                    Név: '.$szallito['nev'].'
+                    <br>Kapcs.: '.$szallito['knev'].'
+                    <br>Tel.: '.$szallito['tel'].'
+                    <br>Fax.: '.$szallito['tel2'].'
+                    <br>Cím.: '.$szallito['isz'].' '.$szallito['varos'].', '.$szallito['utca'].'
+                </td>
+                <td class="f12 vat" style="width: 50%; border: 0.1rem solid #ddd; padding: 1rem">
+                    Név: Műszaki szolgáltató központ
+                    <br>Üi.: '.$_SESSION[get_db_tabla().'teljes_nev'].'
+                </td>
+            </tr>
+            </table>
+            
+            <div class="f13" style="margin: 2rem 0 0.3rem 0;">
+                Tisztelt szállító!
+                <br><b>A szállító levelet vagy a számla másolatát minden esetben hagyja az árú átvevőjénél és a számlán tüntesse fel megrendelőnk számát, ellenkező esetben a számlát nem áll módunkban befogadni!</b> 
+            </div>
+            <div class="f14" style="margin: 0 0 0.5rem 0;">
+                Megrendeljük Önöktől az alábbi anyagokat.
+            </div>
+            
+            <div><i>I. Cikkenkénti összesítés:</i></div>
+            '.$tetelek_html.'
+        </div>
+        <div class="footer">
+            <div class="dtc padd">
+                '.$_SESSION[get_db_tabla().'teljes_nev'].'
+            </div>
+            <div class="dtc r padd">
+                '.date('Y.m.d H:i:s').'
+            </div>
+        </div>
+    </div>
+<body>
+            ');
+    
+    $weblap -> leallit();
+    exit;
+}
+
+
 if (isset($_POST['f_anyag_rendelkezesre_all'])) {
     
     //Tranzakció indul
@@ -1216,7 +1315,7 @@ if( isset($_POST['rendeles_keszit']) ) {
         }
 
         //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
-        if (isset($_POST['csak_kerdezunk'])) {
+        if ($_POST['csak_kerdezunk']) {
 
             echo json_encode(array(
                 'hiba' => count($idk).' db anyagigénylés van kijelölve.<br>Biztos, hogy elkészíti a megrendelést?',
@@ -1227,9 +1326,36 @@ if( isset($_POST['rendeles_keszit']) ) {
             exit();
         }
         
-        /* Ha mehet a rendelés készítése, akkor: */
-        //Szekvencia táblából kiszámoljuk a rendelés következő sorszámát
+
+        //Ha még nem kaptunk utasítást arra, hogy mehet adatbáziba, akkor a nyomtatási képeket ajánjuk fel
+        if ($_POST['mehet_db_be']!='mehet') {
+            
+            mysqli_query($db_kapcs, 'SET AUTOCOMMIT=0');
+            $sorszam = mysqli_query($db_kapcs, 'SELECT `sorszam`+1 FROM `'.get_db_tabla().'iktszam_seq` WHERE `tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\' FOR UPDATE;');
+            $sorszam = mysqli_fetch_array($sorszam);
+            $sorszam = 'R'.date('y').'/'.sprintf('%04d', $sorszam[0]).'|'.$_POST['idk'];
+            $sorszam_kodolva = trim(base64_encode($sorszam), '=');
+
+            echo json_encode(array(
+                'hiba'      => nl2('
+                                    <div class="l">
+                                        Válasszon nyomtatási képet:
+                                        <br><a target="_blank" href="'.self().'?nyomtat_szall='.$sorszam_kodolva.'">Szállító</a>
+                                        <br><a target="_blank" href="'.self().'?nyomtat_cim='.$sorszam_kodolva.'">Cím</a>
+                                        <br><a target="_blank" href="'.self().'?nyomtat_oracle='.$sorszam_kodolva.'">Oracle cikkszám</a>
+                                        <br>
+                                        <br>Sikerült a nyomtatás?
+                                    </div>
+                                    '),
+                'gomb'      => '<input class="gomb piros" value="Igen" onclick="anyagigenyles_rendeles_keszit(\'mehet\');" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">',
+                'felirat'   => 'Nyomtatás'
+            ));
+            
+            $weblap->leallit();
+            exit();
+        }
         
+        //Szekvencia táblából kiszámoljuk a rendelés következő sorszámát
         /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
         $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', '`tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\'');
         if( $ikt_seq === false ) {
@@ -1259,40 +1385,44 @@ if( isset($_POST['rendeles_keszit']) ) {
             }
         }
         
-        /* Rendelés ID formázása */
-        $rndid = 'R'.date('y').'/'.sprintf('%04d', $sorszam);
-        $rnd_dt = date('Y-m-d H:i:s');
-        $pdf_utvonal = 'doc/rendeles/'.date('y').'/'.$elozo_szallito.'/'.str_replace('/', '_', $rndid).'.pdf';
-        
-        //Létrehozunk egy új rendelésfej bejegyzést
-        $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('statusz_id', 'rndid', 'rnd_dt',  'kepfajl',     'szallitoid',    'insert_dt',          'insert_usr',                           'update_usr'                            ),
-                                                                    array(1,            $rndid,  $rnd_dt,   $pdf_utvonal,  $elozo_szallito, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
-                                                    );
-        if( $cikkrendfej_id === false ) {
-            $db_error = true;
-        }
-        
-        /* Felvesszük az első státuszt */
-        $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
-            array('id',             'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
-            array($cikkrendfej_id,  1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
-        );
-        if( $sql === false ) {
-            $db_error = true;
-        }
-
-        //Anyagigénylés sorok updatelése (státuszt is, illetve egyéb mezőket is)
-        foreach($idk as $id) {
-            $statusz = addStatusz( $page.'_statusz', $id, $megrendelve_statid );
-            if( $statusz === false ) {
-                $db_error = true;
-            }
-            
-            //Az anyagigénylés érintett sorait updateljük
-            $adatbazis_kapcsolat->u('anyagigenyles',    array('rndid', 'rnd_dt', 'kepfajl',    'update_usr',                           'aparecid'       ),
-                                                        array($rndid,  $rnd_dt,  $pdf_utvonal, $_SESSION[get_db_tabla().'teljes_nev'], $cikkrendfej_id  ),
-                                    "`recid`='$id'");
-        }
+        //Most kommitoljuk el a popupban lekért sorszámáot
+        mysqli_query($db_kapcs, 'COMMIT');
+     
+        //Tesztelés idejére kommentezve
+//        /* Rendelés ID formázása */
+//        $rndid = 'R'.date('y').'/'.sprintf('%04d', $sorszam);
+//        $rnd_dt = date('Y-m-d H:i:s');
+//        $pdf_utvonal = 'doc/rendeles/'.date('y').'/'.$elozo_szallito.'/'.str_replace('/', '_', $rndid).'.pdf';
+//        
+//        //Létrehozunk egy új rendelésfej bejegyzést
+//        $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('statusz_id', 'rndid', 'rnd_dt',  'kepfajl',     'szallitoid',    'insert_dt',          'insert_usr',                           'update_usr'                            ),
+//                                                                    array(1,            $rndid,  $rnd_dt,   $pdf_utvonal,  $elozo_szallito, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
+//                                                    );
+//        if( $cikkrendfej_id === false ) {
+//            $db_error = true;
+//        }
+//        
+//        /* Felvesszük az első státuszt */
+//        $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
+//            array('id',             'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
+//            array($cikkrendfej_id,  1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+//        );
+//        if( $sql === false ) {
+//            $db_error = true;
+//        }
+//
+//        //Anyagigénylés sorok updatelése (státuszt is, illetve egyéb mezőket is)
+//        foreach($idk as $id) {
+//            $statusz = addStatusz( $page.'_statusz', $id, $megrendelve_statid );
+//            if( $statusz === false ) {
+//                $db_error = true;
+//            }
+//            
+//            //Az anyagigénylés érintett sorait updateljük
+//            $adatbazis_kapcsolat->u('anyagigenyles',    array('rndid', 'rnd_dt', 'kepfajl',    'update_usr',                           'aparecid'       ),
+//                                                        array($rndid,  $rnd_dt,  $pdf_utvonal, $_SESSION[get_db_tabla().'teljes_nev'], $cikkrendfej_id  ),
+//                                    "`recid`='$id'");
+//        }
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);

@@ -16,7 +16,29 @@ if(isset($_GET['info'])){
 }
 
 
+
 require_once('../weblap.php');
+
+if (isset($_GET['trans'])) {
+    
+    
+        $eredmen = mysqli_query($db_kapcs, 'SET AUTOCOMMIT=0');
+        $eredmen = mysqli_query($db_kapcs, 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
+        $eredmen = mysqli_query($db_kapcs, 'START TRANSACTION');
+        $eredmen = mysqli_query($db_kapcs, 'SELECT `sorszam`+1 FROM `hotel_iktszam_seq` WHERE `tabla`=\'anyagigenyles\' AND `ev`=\'17\' FOR UPDATE;');
+        $eredmen = mysqli_fetch_assoc($eredmen);
+        var_dump($eredmen);
+    
+    if(isset($_GET['irok'])){
+        mysqli_query($db_kapcs, 'UPDATE `hotel_iktszam_seq` SET `sorszam`=`sorszam`+1 WHERE `tabla`=\'anyagigenyles\' AND `ev`=\'17\';');
+        $eredmen = mysqli_query($db_kapcs, 'SELECT `sorszam` FROM `hotel_iktszam_seq` WHERE `tabla`=\'anyagigenyles\' AND `ev`=\'17\' FOR UPDATE;');
+        $eredmen = mysqli_fetch_assoc($eredmen);
+        var_dump($eredmen);
+    }
+    if (isset($_GET['comm'])) {
+        $eredmen = mysqli_query($db_kapcs, 'COMMIT');
+    }
+}
 
 //Ha egy tálbának utólag adsz egy loginnev nevű oszlopnevet
 if (isset($_GET['loginnev_gyart'])) {
