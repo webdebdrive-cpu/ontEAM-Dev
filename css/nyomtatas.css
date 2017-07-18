@@ -15,14 +15,33 @@ body{
 
 div.a4_allo {
     background: #fff;
-    height: 99rem;
-    width: 70rem;
+    display: table;
     margin: auto;
+    margin-bottom: 3rem;
+    page-break-after: always;
     position: relative;
+    width: 70rem;
+}
+
+div.minh{
+    min-height: 99rem;
+}
+
+div.fejlec {
+    display: table-header-group;
+}
+div.fejlec span.szamlalo:after {
+    counter-increment: page;
+    content: counter(page);
 }
 
 div.nyomtat {
   page-break-after: always;
+}
+
+div.lap_alja{
+    position: absolute;
+    bottom: 4rem;
 }
 
 div.footer{
@@ -39,4 +58,9 @@ img.nyomtat_ikon{
     position: fixed;
     top: 2rem;
     right: 2rem;
+}
+
+table.border td, table.border th{
+    border: 0.1rem solid #ddd;
+    padding: 0.3rem 0.5rem;
 }

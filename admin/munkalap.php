@@ -1136,7 +1136,7 @@ if($gyorskereso_text){
                     <div class="dtc">Felhasználó</div>
                     <div class="dtc">Státuszidő</div>
                     <div class="dtc">Göngyölt státuszidő</div>
-                    <div class="dtc">Összesített státuszidő</div>
+                    <!--<div class="dtc">Összesített státuszidő</div>-->
                 </div>
         ');
 
@@ -1168,7 +1168,7 @@ if($gyorskereso_text){
                         <div class="dtc">'.$sor['insert_usr'].'</div>
                         <div class="dtc">'.$sor['statido'].'</div>
                         <div class="dtc">'.$sor['gongyolt_statido'].'</div>
-                        <div class="dtc">'.$sor['ossz_statido'].'</div>
+                        <!--<div class="dtc">'.$sor['ossz_statido'].'</div>-->
                     </div>
                 ');
             }

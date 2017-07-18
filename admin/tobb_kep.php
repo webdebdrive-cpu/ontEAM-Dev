@@ -248,8 +248,9 @@ function get_tobbkep_thumb($sor_kepek){
         }
 
         $azon    = 'kep'.$sor_kepek['recid'];
-        $megj_szerkesztes_onclick = ' onclick="get_tobbkep_megj(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \'megj_atir'.$azon.'\'); alert2(\'Dokumentum átnevezése:\', gomb'.$azon.');"';
+        //2017.07.18 - nem nevezhetőek át, helyette töltsük le $megj_szerkesztes_onclick = ' onclick="get_tobbkep_megj(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \'megj_atir'.$azon.'\'); alert2(\'Dokumentum átnevezése:\', gomb'.$azon.');"';
         /* title="'.$sor_kepek['kepnev'].'" */
+        $megj_szerkesztes_onclick = ' onclick="window.open(\''.$kep_utvonal.'\')"';
         $tobbkep_html .= nl2('
             <li id="'.$azon.'" title="">
             <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>

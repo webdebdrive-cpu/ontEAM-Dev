@@ -1711,17 +1711,31 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                             $csoport_bej = adatbazis2tomb($csoport_bej, 'recid');
 
                             if( in_array($_GET['id'], $csoport_bej) ) {
-                                $csoport_active = ' active';
+                                $csoport_active = ' kijelolve';
                             }
                         }
 
 
-                        //Ha van legalább egy nyitott eleme, akkor biztosan nyitott a csoport is (elvégre a csoport státusza csak eygszerre mozoghat)
                         $bold = '';
-                        if($adatbazis_kapcsolat->s('recid', 'bejelentes', "`csoport_id` = '{$aktCsoport}' AND `statusz_id`=1", '', '1')){
+                        $bejelentes = $adatbazis_kapcsolat->s('recid telephely_id', 'bejelentes', "`csoport_id` = '{$aktCsoport}' AND `statusz_id`=1", '', '1');
+                        $bejelentes = $bejelentes[0];
+                        //Ha van legalább egy nyitott eleme, akkor biztosan nyitott a csoport is (elvégre a csoport státusza csak eygszerre mozoghat)
+                        if($bejelentes){
                             $bold = ' class="b"';
                         }
-                        $html .= '<li class="szamla_datum csoport'.$csoport_active.'" data-id="'.$aktCsoport.'"><span class="icon"></span><span class="csoportNev" data-id="'.$aktCsoport.'">'.$surgos_icon.'<span'.$bold.'>'.$csoportSor['nev'].'</span></li>';
+                        //Egy csoporton belül biztosan csak olyan bejelentések lesznek, amiknek azonos a telephelye
+                        $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$bejelentes['telephely_id']}'");
+                        $telephely = $telephely[0];
+                        
+                        $html .= nl2('
+                                    <li class="szamla_datum csoport'.$csoport_active.'" data-id="'.$aktCsoport.'">
+                                        <span class="icon"></span>
+                                        <span class="csoportNev" data-id="'.$aktCsoport.'">
+                                            '.$surgos_icon.'<span'.$bold.'>'.$csoportSor['nev'].'
+                                        </span>
+                                        <br>'.$telephely['nev'].'
+                                    </li>
+                                    ');
                     }
 
                     $csoport = $aktCsoport;
@@ -1758,7 +1772,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
             $bold = '';
             if($bsz['statusz_id']==1){
                 $bold = ' class="b"';
-                $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat utassuk-e meg vagy sem
+                $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -1848,7 +1862,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
                             $csoport_bej = adatbazis2tomb($csoport_bej, 'recid');
 
                             if( in_array($_GET['id'], $csoport_bej) ) {
-                                $csoport_active = ' active';
+                                $csoport_active = ' kijelolve';
                             }
                         }
 
@@ -1881,7 +1895,14 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
 
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
+            }
+
+            //Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
+            $bold = '';
+            if($bsz['statusz_id']==1){
+                $bold = ' class="b"';
+                $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
 
             /* Telephely */
@@ -1889,9 +1910,9 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
             $telephely = $telephely[0]['nev'];
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['ikt_szam'].'</span>
-                            <span>'.$telephely.'</span>
-                            <span>'.$statusz.'</span>
+                            <span'.$bold.'>'.$bsz['ikt_szam'].'</span>
+                            <span'.$bold.'>'.$telephely.'</span>
+                            <span'.$bold.'>'.$statusz.'</span>
                          </a>';
 
             $csoport_class = '';
@@ -1956,7 +1977,7 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             /* Telephely */
@@ -2034,7 +2055,7 @@ function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2090,7 +2111,7 @@ function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2146,7 +2167,7 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2202,7 +2223,7 @@ function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2249,7 +2270,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
 
@@ -2303,7 +2324,7 @@ function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2349,7 +2370,7 @@ function torzsadatLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2395,7 +2416,7 @@ function szabadsagigenyLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2436,7 +2457,7 @@ function beosztasLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             /* Telephely */
@@ -2487,7 +2508,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2533,7 +2554,7 @@ function anyagrendelesLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2579,7 +2600,7 @@ function uzemeltetesi_naploLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2625,7 +2646,7 @@ function energiaLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2671,7 +2692,7 @@ function tervezesLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2717,7 +2738,7 @@ function cash_flowLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2763,7 +2784,7 @@ function raktarLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2816,7 +2837,7 @@ function szamlaLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2864,7 +2885,7 @@ function cikktorzsLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2915,7 +2936,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -2960,7 +2981,7 @@ function szerepkorLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
@@ -3004,7 +3025,7 @@ function loginLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $aktiv = nl2('
@@ -3073,7 +3094,7 @@ function erteklistaLista( $bejegyzesek, $tabla, $frissit ) {
 
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -3116,7 +3137,7 @@ function szallitoLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $aktiv = nl2('
@@ -3172,7 +3193,7 @@ function ktghelyLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -3215,7 +3236,7 @@ function ktgnemLista( $bejegyzesek, $tabla, $frissit ) {
         foreach($bejegyzesek as $bsz) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -3268,7 +3289,7 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit ) {
 
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' active kijelolve';
+                $active = ' kijelolve';
             }
 
             $statusz = '';
@@ -3429,7 +3450,7 @@ function obj_gen( $telephelyID = false ) {
             if( $fokatok ) {
                 $active = '';
                 if( $telephelyID == $telephely['id'] ) {
-                    $active = ' active kijelolve';
+                    $active = ' kijelolve';
                 }
 
                 $fokat_html .= '<ul class="alkatok'.$active.'">';
@@ -3833,4 +3854,22 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         return '`'.$mezo.'`'.$op.'\''.$felt.'\'';
     }
 
+}
+
+/* Az adatbázisba letárolt pros stringből visszaadja azt a mezőértéket, amire szükségünk van */
+function get_props($props, $mezo){
+    $props = htmlspecialchars_decode($props);
+    $props = explode("\n", $props);
+    foreach($props as $p){
+        $akt_mezo = trim($p, '<');
+        $akt_mezo = explode('>', $akt_mezo);
+        $akt_mezo = $akt_mezo[0];
+        if(strtolower($akt_mezo) == strtolower($mezo)){
+            $p = explode('>', $p);
+            $p = $p[1];
+            $p = explode('<', $p);
+            $p = $p[0];
+            return $p;
+        }
+    }
 }
