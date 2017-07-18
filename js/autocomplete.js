@@ -35,10 +35,10 @@
             csoport         : 0
         };
 
-
-        var eredeti_val = $(this).val();
         var van_uj_erteke = false;
         var options = $.extend(defaults, options);
+
+        $(this).attr('data-origin-val', $(this).val());
 
         if( !$('#autocomplete').length ) {
             $('body').append('<div id="autocomplete"></div>');
@@ -149,7 +149,8 @@
             }else{
                 mezo.val( $('#autocomplete ul li.aktiv').html() ).change();
                 van_uj_erteke = true;
-                eredeti_val = mezo.val();
+
+                mezo.attr('data-origin-val', mezo.val());
 
                 if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                     mezo_nev = mezo.attr('name').replace('_autocomp', '');
@@ -202,7 +203,6 @@
         that = $(this);
         $(document).click(function() {
             $('#autocomplete').css({'display':'none'}).html('');
-            /*that.val(eredeti_val);*/
         });
 
         $(document).keyup(function(e) {
@@ -216,9 +216,9 @@
         $(this).keydown(function(e) {
             if (e.keyCode == 9) {
                 $('#autocomplete').css({'display':'none'}).html('');
-                $(this).val(eredeti_val);
             }
         });
+
         $(this).keyup(function(e) {
             var aktiv  = $('#autocomplete ul li.aktiv');
             var first   = $('#autocomplete ul li:first-child');
@@ -268,7 +268,8 @@
                     }else{
                         mezo.val( $('#autocomplete ul li.aktiv').html() ).change();
                         van_uj_erteke = true;
-                        eredeti_val = mezo.val();
+
+                        mezo.attr('data-origin-val', mezo.val());
 
                         if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                             mezo_nev = mezo.attr('name').replace('_autocomp', '');

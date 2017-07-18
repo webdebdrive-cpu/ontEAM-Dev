@@ -289,14 +289,14 @@ function i_u($type, $tabla, $tomb){
 
         //Login
         }elseif( $tabla == 'login' ) {
-            
+
             //Nem lehet ugyanazt a loginnevet kétszer felhasználni
             if($adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$_POST['nev']}'")){
                 header('Location:login.php?uj&foglalt_nev');
                 $weblap -> leallit();
                 exit;
             }
-            
+
             if( $_POST['szerepkor_id'] ) {
                 $szerepkor = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
                 if( $szerepkor === false ) {
@@ -1354,7 +1354,7 @@ function szamla_lista( $where, $tabla ) {
             $where = "`".get_db_tabla()."munkalap`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
 
             if( _jog(3) && _jog(5) && !_jog(0) && !_jog(1) ) {
-                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '1' AND (`".get_db_tabla()."munkalap`.`statusz_id` = '2' OR `".get_db_tabla()."munkalap`.`statusz_id` = '8') AND ";
+                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` IN (1, 2) AND `".get_db_tabla()."munkalap`.`statusz_id` IN (2, 8) AND ";
             }
         }
 
@@ -3508,7 +3508,7 @@ function getStatuszIdo( $time ) {
 
     /* Másodperc */
     $mp =  floor(($time % 86400 % 3600 % 60));
-    
+
     //Napokat csak akkor fűzzük hozzá, ha nagyobb mint 0
     $napok_string = '';
     if($napok){

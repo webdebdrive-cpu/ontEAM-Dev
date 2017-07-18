@@ -1771,7 +1771,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
         }
 
         /* Frissítjuk a munkalap visszaadva sorát */
-        $sql = $adatbazis_kapcsolat -> u('munkalap', array('visszaadva'), array(1), "`recid` = '{$recid}'");
+        $sql = $adatbazis_kapcsolat -> u('munkalap', array('visszaadva', 'szemelyzet_id', 'mobil_loginnev'), array(1, 0, ''), "`recid` = '{$recid}'");
 
         if( $sql === false ) {
             $db_error = true;
