@@ -611,7 +611,7 @@ $(function() {
 
                 kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
             }
-            
+
         /* CTRL gombbal további sorok megjelölése */
         } else if( e.ctrlKey ) {
 
@@ -622,16 +622,16 @@ $(function() {
             }
 
             kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
-            
+
         /* Sima kattintás */
         }else{
-            
+
             sorok.removeClass('kijelolve');
             $(this).addClass('kijelolve');
 
             kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
         }
-        
+
     });
 
     /* Csoportra kattintás */
@@ -643,7 +643,7 @@ $(function() {
         if( kijelolheto ) {
             /* Ha CTRL gombot használunk, másképp kell eljárni: ha meg volt jelölve, le kell venni a megjelöléseket */
             if(e.ctrlKey){
-                
+
                 if($(this).hasClass('kijelolve')){
                     $(this).removeClass('kijelolve');
                     $('ul.szamla_cont li[data-csoportid="' + id + '"]').removeClass('kijelolve');
@@ -651,17 +651,17 @@ $(function() {
                     $(this).addClass('kijelolve');
                     $('ul.szamla_cont li[data-csoportid="' + id + '"]').addClass('kijelolve');
                 }
-                
+
             /* Sima kattintás esetén pedig a nem ehhez a csoporthoz tartozó sorokról kell levenni a kijelölést */
             }else{
-                
+
                 /* Minden olyan sor, ami nem a csoport része, arról levesszük a kijelölést */
                 sorok.each(function () {
                     if($(this).attr('data-csoportid')!=id){
                         $(this).removeClass('kijelolve');
                     }
                 });
-                
+
                 $(this).addClass('kijelolve');
                 $('ul.szamla_cont li[data-csoportid="' + id + '"]').addClass('kijelolve');
                 
@@ -677,10 +677,10 @@ $(function() {
     $(document).on('click', 'ul.szamla_cont li.csoport span.icon', function(e) {
         var szulo_li = $(this).parent('li');
         var id       = szulo_li.attr('data-id');
-        
+
         szulo_li.toggleClass('nyitva');
         $('ul.szamla_cont li[data-csoportID="' + id + '"]').toggleClass('dn');
-        
+
         e.preventDefault();
         e.stopPropagation();
     });
@@ -693,7 +693,7 @@ $(function() {
 
         /* Ha nem használtunk sem CTRL-t, sem SHIFT gombot, vagy ha a több sor kijelölése nem engedélyezett */
         if( (!e.ctrlKey && !e.shiftKey) || !kijelolheto ) {
-            
+
             sorok.removeClass('akt').removeClass('kijelolve');
             csoportok.removeClass('akt').removeClass('kijelolve');
             $(this).addClass('akt kijelolve');
@@ -716,10 +716,10 @@ $(function() {
             scrollLeptet();
             e.preventDefault();
             e.stopPropagation();
-            
+
         /* CTRL és SHIFT lekezelése */
         } else {
-            
+
             /* Bal oldali navpanel shift gomb használata */
             if( e.shiftKey && kijelolheto ) {
                 /*sorok.removeClass('active');*/
@@ -730,9 +730,9 @@ $(function() {
                     /* Tömeges kijelöléshez */
                     /*sorok.removeClass('akt');
                     $(this).addClass('akt');*/
-                    
+
                 } else {
-                    
+
                     var akt_id = parseInt( $('#szamlaList.kijelolheto li.szamla_sor.kijelolve').attr('data-i') );
 
                     /* Tömeges kijelöléshez */
@@ -757,7 +757,7 @@ $(function() {
 
                 }
                 kijeloltSzamlal( sorok, 'fo' );
-                
+
             /* Bal oldali navőanel CTRL gombbal való kijelölgetése */
             } else if( e.ctrlKey && kijelolheto ) {
                 /*sorok.removeClass('active');*/
@@ -886,10 +886,10 @@ $(function() {
         }
     });
 
-    if( $('.szamla_sor').hasClass('active') ) {
+    /*if( $('.szamla_sor').hasClass('active') ) {
         active_top = $('.kijelolve:first-of-type').position().top;
         $('#tartalomBal').scrollTop(active_top - 250);
-    }
+    }*/
 
     $('img.f_svg').each(function(){
         var $img     = jQuery(this);
@@ -1063,6 +1063,44 @@ $(function() {
             alert2();
             felh_valt();
             kijelolesEltavolit();
+        }
+    });
+
+    /* Autocomplete érték visszaírásához kell */
+    ev = false;
+    $(document).on('click', function(event) {
+        if( ev ) {
+            var id = event.target.id;
+
+            if( ev !== false && id !== undefined && id.indexOf('_autocomp') === -1 ) {
+                var elementID = ev.target.id;
+
+                if( elementID.indexOf('_autocomp') !== -1 ) {
+                    var originVal = $('#' + elementID).attr('data-origin-val');
+                    var ertekID = $('#' + elementID.replace('_autocomp', '')).val();
+
+                    if( ertekID ) {
+                        $('#' + elementID).val(originVal).change();
+                    }
+                }
+            }
+        }
+
+        ev = event;
+    });
+
+    $(document).on('keydown', 'input[type="text"]', function(event) {
+        if( event.keyCode == 9 ) {
+            var elementID = $(this).attr('id');
+
+            if( elementID.indexOf('_autocomp') !== -1 ) {
+                var originVal = $(this).attr('data-origin-val');
+                var ertekID = $(this).val();
+
+                if( ertekID ) {
+                    $(this).val(originVal).change();
+                }
+            }
         }
     });
 });
@@ -1266,6 +1304,21 @@ function munkHozzMegszuntet() {
 
     if( szamlaSorok.length ) {
         idk = {};
+
+        hiba = false;
+        szamlaSorok.each(function() {
+            var statid = $(this).attr('data-statid');
+
+            if( statid == 8 ) {
+                alert2('Kérem csak folyamatban státuszú sorokat jelöljön meg!');
+
+                hiba = true;
+            }
+        });
+
+        if( hiba ) {
+            return false;
+        }
 
         var i = 1;
         szamlaSorok.each(function() {
@@ -1504,7 +1557,7 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
     szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
     if( szamlaSorok.length ) {
         idk = {};
-        
+
         mehet = '';
         if(csak_kerdezunk=='mehet'){
             csak_kerdezunk  = '';
@@ -1920,6 +1973,36 @@ function munkAnyagVetelezes( that ) {
     }
 
     return false;
+}
+
+function atadasMuszVeznek() {
+    if( _get('id') ) {
+        $.ajax({
+         	url : 'munkalap.php',
+         	type: 'POST',
+         	data: {
+                recid: _get('id'),
+                atadasMuszVeznek: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        if( response.gomb ) {
+                            alert2(response.hiba, response.gomb);
+                        } else {
+                            alert2(response.hiba);
+                        }
+
+                        return false;
+                    }
+
+                    location.href = 'munkalap.php';
+         		}
+         	}
+        });
+    }
 }
 
 function atadasDiszpecsernek( that ) {
@@ -3047,7 +3130,7 @@ function mellekTorol( tabla, mellek ) {
 }
 
 function kijelolesEltavolit() {
-    
+
     if( $('#szamlaList li.szamla_sor').hasClass('kijelolve') ) {
         $('#szamlaList li.szamla_sor').removeClass('kijelolve');
 
