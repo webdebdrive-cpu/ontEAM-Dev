@@ -1611,6 +1611,7 @@ if($gyorskereso_text){
                     //Azon belül anyagonként járjuk be
                     $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`=1 AND `telephely_id`='{$telephely['telephely_id']}'");
                     foreach($anyagok as $anyag){
+//echo $adatbazis_kapcsolat->gp() . '<br>';
                         
                         //A mutat linkbe csak azokat a munkalapokID-kat kell fevenni, ami adott anyag/státusz/telephelyhez tartozik
                         $akt_munkalapok = $adatbazis_kapcsolat->s('distinct munkalap_id', 'munkalap_anyag', "`cikk_id`='{$anyag['cikk_id']}' AND `stat_id`=1 AND `telephely_id`='{$telephely['telephely_id']}'");
