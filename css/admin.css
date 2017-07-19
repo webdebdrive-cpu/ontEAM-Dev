@@ -568,7 +568,7 @@ input.check{
 
 input.f_num{
     text-align: right;
-    width: 7rem;
+    width: 9rem;
 }
 
 select{
@@ -1449,6 +1449,9 @@ div.header div.dtc.bejelent span {
     font-size: 1.6rem;
     font-weight: 500;
     text-transform: none;
+}
+div.header div.dtc.bejelent span.dn {
+    display: none;
 }
 
 ul.szamla_cont li {

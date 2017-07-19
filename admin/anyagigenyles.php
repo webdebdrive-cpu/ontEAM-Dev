@@ -161,7 +161,7 @@ if( isset($_POST['arazas']) ) {
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
-                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                        'hiba' => 'Csoportosított anyagigénylés önmagában nem árazható. Előbb vegye ki a csoportból!'
                     ));
 
                     $weblap->leallit();
@@ -656,7 +656,7 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
-                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                        'hiba' => 'Csoportosított anyagigénylés önmagában nem küldhető jóváhagyásra. Előbb vegye ki a csoportból!'
                     ));
 
                     $weblap->leallit();
@@ -780,7 +780,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
-                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                        'hiba' => 'Csoportosított anyagigénylés önmagában nem hagyható jóvá. Előbb vegye ki a csoportból!'
                     ));
 
                     $weblap->leallit();
@@ -927,7 +927,7 @@ if( isset($_POST['anyagigenyles_elutasitas']) ) {
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
-                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                        'hiba' => 'Csoportosított anyagigénylés önmagában nem utasítható el. Előbb vegye ki a csoportból!'
                     ));
 
                     $weblap->leallit();
@@ -1051,7 +1051,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
-                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                        'hiba' => 'Csoportosított anyagigénylés önmagában nem küldhető jóváhagyásra. Előbb vegye ki a csoportból!'
                     ));
 
                     $weblap->leallit();
@@ -1154,7 +1154,7 @@ if( isset($_POST['rendeles_keszit']) ) {
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
-                        'hiba' => 'Egy csoportot nem lehet megbontani, minden elemének kijelölése szükséges!'
+                        'hiba' => 'Csoportosított anyagigénylésből önmagában nem készíthető rendelés. Előbb vegye ki a csoportból!'
                     ));
 
                     $weblap->leallit();
@@ -1606,12 +1606,17 @@ if($gyorskereso_text){
                 $anyagok_html = '';
                 //Szállodánként járjuk be, és azon belül az egyes anyagokat összegezzük
                 $munkalapok = implode(',', $munkalapok);
-                $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`=1");
+                $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`=1 AND `telephely_id`!=0");
                 foreach($telephelyek as $telephely){
                     
                     //Azon belül anyagonként járjuk be
                     $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`=1 AND `telephely_id`='{$telephely['telephely_id']}'");
                     foreach($anyagok as $anyag){
+                        
+                        //A mutat linkbe csak azokat a munkalapokID-kat kell fevenni, ami adott anyag/státusz/telephelyhez tartozik
+                        $akt_munkalapok = $adatbazis_kapcsolat->s('distinct munkalap_id', 'munkalap_anyag', "`cikk_id`='{$anyag['cikk_id']}' AND `stat_id`=1 AND `telephely_id`='{$telephely['telephely_id']}'");
+                        $akt_munkalapok = adatbazis2tomb($akt_munkalapok, 'munkalap_id');
+                        $akt_munkalapok = implode(',', $akt_munkalapok);
                         
                         //Igénylésre váró darabszám kiszámítása
                         $ig_var = 0;
@@ -1631,7 +1636,7 @@ if($gyorskereso_text){
                             $anyag_var += $akt_anyag['szuk_men'];
                         }
 
-                        //Rendelés folyamatban kiszámítása: az összes olyan anyagigénylés, ahol adott anag cikkszámmal dolgozunk és a státusza nem "törölt" és nem "lezárt"
+                        //Rendelés folyamatban kiszámítása: az összes olyan anyagigénylés, ahol adott anyag cikkszámmal dolgozunk és a státusza nem "törölt" és nem "lezárt"
                         $folyamatban = 0;
                         $folyamatbanok = $adatbazis_kapcsolat->s('igmen', $megnevezes, "`cikktorzs_id`='$cikk_id' AND `telephely_id`='{$telephely['telephely_id']}' AND `statusz_id` NOT IN (50, 51)");
                         foreach($folyamatbanok as $foly){
@@ -1655,7 +1660,7 @@ if($gyorskereso_text){
                                             <td class="r">'.number_format($anyag_var, 2, ',', ' ').'</td>
                                             <td class="r zold">'.number_format($folyamatban, 2, ',', ' ').'</td>
                                             <td id="th'.$telephely['telephely_id'].'a'.$cikk_id.'_mee">'.$cikk_mee.'</td>
-                                            <td><input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$munkalapok.'\')"></td>
+                                            <td><input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$akt_munkalapok.'\')"></td>
                                             <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'"></td>
                                             <td>'.$mar_igenyelve.'</td>
                                             <td><input type="button" value="Anyag rendelkezésre áll" class="gomb f_anyag_rendelkezesre_all" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$cikk_id.'"></td>
@@ -1677,7 +1682,7 @@ if($gyorskereso_text){
                                             <th>Igénylés rendelés folyamatában</th>
                                             <th>Mee</th>
                                             <th>Anyagra váró feladatok</th>
-                                            <th>Anyagra igénylése</th>
+                                            <th>Anyag igénylés</th>
                                             <th>Már igényelve</th>
                                             <th>Anyag rendelkezésre áll</th>
                                         </tr>
@@ -1824,7 +1829,7 @@ if($gyorskereso_text){
                     <div class="dtc">Felhasználó</div>
                     <div class="dtc">Státuszidő</div>
                     <div class="dtc">Göngyölt státuszidő</div>
-                    <div class="dtc">Összesített státuszidő</div>
+                    <!--<div class="dtc">Összesített státuszidő</div>-->
                 </div>
         ');
 
@@ -1856,7 +1861,7 @@ if($gyorskereso_text){
                         <div class="dtc">'.$sor['insert_usr'].'</div>
                         <div class="dtc">'.$sor['statido'].'</div>
                         <div class="dtc">'.$sor['gongyolt_statido'].'</div>
-                        <div class="dtc">'.$sor['ossz_statido'].'</div>
+                        <!--<div class="dtc">'.$sor['ossz_statido'].'</div>-->
                     </div>
                 ');
             }

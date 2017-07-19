@@ -790,7 +790,38 @@ $(function() {
                     }
             }
         }
+        
+        /* A fentiekkel kapcsolatos figyelmeztetések */
+        /* Ha van csoport elem megjelölve, akkor azt viszgáljuk meg, hogy a csoport összes eleme meg van-e jelölve */
+        var van_resz_csoport  = false;
+        var tobb_resz_csoport = 0;
+        elozo_csoportid = '';
+        if($('li.szamla_sor.behuz.kijelolve').length){
+            $('li.szamla_sor.behuz.kijelolve').each(function () {
+                csoportid = $(this).attr('data-csoportid');
+                $('li.szamla_sor.behuz[data-csoportid="'+csoportid+'"]').each(function () {
+                    if(!$(this).hasClass('kijelolve')){
+                        van_resz_csoport = true;
+                        if(elozo_csoportid && elozo_csoportid!=csoportid){
+                            tobb_resz_csoport = true;                        
+                        }
+                    }
+                });
+                elozo_csoportid = csoportid;
+            });
+            
+            /* Ha van félig megjelölt csoport és szabadon álló bejegyzés, akkor hibaüzenet */
+            if(van_resz_csoport && $('li.szamla_sor.kijelolve:not(\'.behuz\')').length){
+                alert2('Szabad és csoportosított '+$('#rekord_neve').html().toLowerCase()+' egyszerre nem jelölhetők!');
+            }
+            if(van_resz_csoport){
+                alert2('Külön csoportosított '+$('#rekord_neve').html().toLowerCase()+' egyszerre nem jelölhetők!');
+            }
+        }
+        
     });
+    
+    
 
     formModositva = false;
     $('#tartalomJobb').on('keyup change paste', '#szerk_form input, #szerk_form select, #szerk_form textarea', function(e) {
@@ -2686,11 +2717,11 @@ function csoportMuvelet( oldal ) {
                     }
                 });
                 if(mar_csoportosak){
-                    alert2('Az alábbi iktatószámok már csoport részei, így nem adhatóak újból csoporthoz:<br>'+mar_csoportosak);
+                    alert2('Az alábbi '+$('#rekord_neve').html().toLowerCase()+' már csoport részei, így nem adhatóak újból csoporthoz:<br>'+mar_csoportosak);
                     return false;
                 }
                 if(nem_nyitott_statuszuak){
-                    alert2('Az alábbi iktatószámok státuszai nem nyitottak, így nem adhatóak csoporthoz:<br>'+nem_nyitott_statuszuak);
+                    alert2('Az alábbi '+$('#rekord_neve').html().toLowerCase()+' státuszai nem nyitottak, így nem adhatóak csoporthoz:<br>'+nem_nyitott_statuszuak);
                     return false;
                 }
 
@@ -2913,14 +2944,14 @@ function csoportMuvelet( oldal ) {
             case 'elutasitas':
                 szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
                 if( szamlaSorok.length>1 ) {
-                    alert2('Egyszerre csak egy sor utasítható el!', '', 'Hiba');
+                    alert2('Egyszerre csak egy '+$('#rekord_neve_tobb').html()+' utasítható el!', '', 'Hiba');
                 }else if( !$('#szamlaList li.szamla_sor.kijelolve').hasClass('nyitott_statuszu') ){
-                    alert2('Csak nyitott státuszú bejelentés utasítható el!', '', 'Hiba');
+                    alert2('Csak nyitott státuszú '+$('#rekord_neve_tobb').html()+' utasítható el!', '', 'Hiba');
                 }else{
 
                     /* Az előző feltétel miatt itt biztosan csak egy sor van megjelölve */
                     if($('#szamlaList li.szamla_sor.kijelolve').hasClass('behuz')){
-                        alert2('Csoportosított sor nem utasítható el.<br>Előbb vegye ki a csoportból!', '', 'Hiba');
+                        alert2('Csoportosított '+$('#rekord_neve_tobb').html()+' nem utasítható el.<br>Előbb vegye ki a csoportból!', '', 'Hiba');
                     /* Egybként jöhet az elutasítás panel */
                     }else{
                         $('#popupTart').html(data);
@@ -3709,7 +3740,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     }
 
                     if(baseName(location.href) == 'bejelentes' && $('#diszpecser').length){
-                        $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Diszpécserként nem hozhat létre új bejegyzést!\'); void(0);');
+                        $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Diszpécserként nem hozhat létre új bejelentést!\'); void(0);');
                     }
                     
                     /* Ha épp egy csoporton állunk, akkor elrejtük a jobb oldali tartalmakat */

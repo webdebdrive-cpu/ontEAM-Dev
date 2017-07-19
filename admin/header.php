@@ -217,7 +217,7 @@ if( _jog(0) ) {
     $aloldalak       = array($megn.'.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
     //if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = 'Új bejelentés feltöltése'; }
-    if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
+    if(basename(self())==$megn.'.php'){ $oldalNev = '<span id="rekord_neve">'.$menu_nev.'</span><span class="dn" id="rekord_neve_tobb">bejelentés</span>'; }
 
     $aktmenuk  = '';
     $style = '';
@@ -254,11 +254,11 @@ if( _jog(3) ) {
                 'uzemeltetesi_naplo.php',
     );
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-    if(basename(self())=='munkalap.php')                { $oldalNev = 'Munkák / Munkalapok';                }
-    if(basename(self())=='utemezett_feladatok.php')     { $oldalNev = 'Munkák / Ütemzett feladatok';        }
-    if(basename(self())=='rendszeres_karbantartas.php') { $oldalNev = 'Munkák / Rendszeres karbantartás';   }
-    if(basename(self())=='eseti_fenntartas.php')        { $oldalNev = 'Munkák / Eseti fenntartás';          }
-    if(basename(self())=='uzemeltetesi_naplo.php')      { $oldalNev = 'Munkák / Üzemeltetési napló';        }
+    if(basename(self())=='munkalap.php')                { $oldalNev = 'Munkák / <span id="rekord_neve">Munkalapok</span><span class="dn" id="rekord_neve_tobb">munkalap</span>';  }
+    if(basename(self())=='utemezett_feladatok.php')     { $oldalNev = 'Munkák / Ütemzett feladatok';                        }
+    if(basename(self())=='rendszeres_karbantartas.php') { $oldalNev = 'Munkák / Rendszeres karbantartás';                   }
+    if(basename(self())=='eseti_fenntartas.php')        { $oldalNev = 'Munkák / Eseti fenntartás';                          }
+    if(basename(self())=='uzemeltetesi_naplo.php')      { $oldalNev = 'Munkák / Üzemeltetési napló';                        }
 
     $aktmenuk  = '';
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Munkalapok'                 ), $almenu_sablon );
