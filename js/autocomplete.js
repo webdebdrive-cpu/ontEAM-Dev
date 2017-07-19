@@ -85,7 +85,7 @@
                 }
 
                 obj_id = '';
-                if( baseName(location.href) == 'bejelentes' || baseName(location.href) == 'utemezett_feladatok' ) {
+                if( baseName(location.href) == 'bejelentes' || baseName(location.href) == 'utemezett_feladatok' || baseName(location.href) == 'munkalap' ) {
                     obj_id = $('#obj_id').val();
                 }
 
