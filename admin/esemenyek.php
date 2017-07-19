@@ -350,7 +350,7 @@ switch($tabla) {
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'ikt_szam';
         }
-        
+
         /* Default rendezési irány */
         if( !$_GET['irany'] ) {
             $_GET['irany'] = 'desc';
@@ -872,6 +872,7 @@ $munkalap_tomb = $akt_tomb = array(
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'disabled' => $csakUjkent),
     array('type' => 'text',                     'megn' => 'Kezdés/befejezési idő:',     'name' => 'elv_ido_tol',        'disabled' => $csakUjkent,        'class' => 'ora_perc', 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
 	array('type' => 'text',                     'megn' => '',                           'name' => 'elv_ido_ig',         'disabled' => $csakUjkent,        'class' => 'ora_perc'),
+	//array('type' => 'nosql',                    'name' => 'ujkentSzerkID'),
 
 
     //array('type' => 'statusz',         'megn' => 'Státusz:',            'oldal' => 'bejelentes'),
@@ -3605,13 +3606,28 @@ foreach($postok as $ertek){
         }
 
 		//Ha az újként szerkesztés post nem üres, akkor beállítjuk a $_POST-olt értékeket egy SESSION-ba, majd ezzekkel az adatokkal indul egy új feltöltés adatlapja
-		if($_POST[$ertek['tabla'].'ujkent_szerk']){
-			foreach($ertek['tomb'] as $akt_tomb_ertek){
-				$_SESSION[$akt_tomb_ertek['name']] = stripslashes( $_POST[$akt_tomb_ertek['name']] );
-			}
-			$adatbazis_kapcsolat -> bezar();
-			header('location:'.self().'?uj&ujkent');
-			exit();
+		if($_POST[$ertek['tabla'].'ujkent_szerk']) {
+            $sor = $adatbazis_kapcsolat -> select('*', $ertek['tabla'], 'recid='.$_GET['id']);
+
+            if( $sor ) {
+                $sor = $sor[0];
+
+                foreach($ertek['tomb'] as $akt_tomb_ertek) {
+                    if( $akt_tomb_ertek['name'] != 'ikt_szam' ) {
+                        $_SESSION[$akt_tomb_ertek['name']] = stripslashes( $sor[$akt_tomb_ertek['name']] );
+                    } else {
+                        $_SESSION[$akt_tomb_ertek['name']] = '';
+                    }
+    			}
+
+                $adatbazis_kapcsolat -> bezar();
+    			header('location:'.self().'?uj&ujkent='.$_GET['id']);
+    			exit();
+            } else {
+                $adatbazis_kapcsolat -> bezar();
+    			header('location:'.self());
+    			exit();
+            }
 		}
 
 		if(isset($_POST[$ertek['uj']])){

@@ -67,7 +67,10 @@
         <a href="#" class="ujra" title="Újra">
             <i class="material-icons">cached</i>
         </a>
-        <a href="javascript:$('#{MEGN}ujkent_szerk').val('1'); document.getElementById('szerk_form').submit(); void(0);" class="duplikal" title="Duplikálás">
+        <script>
+            duplikalGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"$('#{MEGN}ujkent_szerk').val('1'); document.getElementById('szerk_form').submit();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+        </script>
+        <a class="duplikal" title="Duplikálás" onclick="alert2('Biztos, hogy duplikálja?', duplikalGomb);">
             <i class="material-icons">queue</i>
         </a>
         <a href="{SELF}{GET_GET}&amp;csv" class="excel" title="Excel">
