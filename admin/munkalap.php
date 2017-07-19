@@ -78,40 +78,55 @@ if( isset($_POST['atadasMuszVeznek']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
-        /* Beszúrjuk a munkalap tételt */
-        $sql = $adatbazis_kapcsolat -> i('munkalap_tetel',
-            array('munkalap_id', 'visszaadva', 'atadta_dt',            'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
-            array($recid,         1,            date('Y-m-d H:i:s'),    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'],     date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
-        );
+        $sql = $akt_tetel = $adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
 
         if( $sql === false ) {
             $db_error = true;
         }
 
-        /* Frissítjuk a munkalap visszaadva sorát */
-        $sql = $adatbazis_kapcsolat -> u('munkalap', array('visszaadva', 'szemelyzet_id', 'mobil_loginnev'), array(1, 5, ''), "`recid` = '{$recid}'");
+        if( $akt_tetel ) {
+            $akt_tetel = $akt_tetel[0];
 
-        if( $sql === false ) {
-            $db_error = true;
-        }
+            /* Frissítjük a munkalap tételt */
+            $sql = $adatbazis_kapcsolat -> u('munkalap_tetel',
+                array('atadta_dt',           'visszaadva', 'update_dt',          'update_usr'                           ),
+                array( date('Y-m-d H:i:s'),   1,            date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] ),
+                "`recid` = '".$akt_tetel['recid']."'"
+            );
 
-        /* Folyamatban státuszra állítjuk a munkalapot */
-        if( !addStatusz( 'munkalap_statusz', $recid, 2 ) ) {
-            $db_error = true;
-        }
+            if( $sql === false ) {
+                $db_error = true;
+            }
 
-        if( !$db_error ) {
-            mysqli_commit($db_kapcs);
+            /* Frissítjuk a munkalap visszaadva sorát */
+            $sql = $adatbazis_kapcsolat -> u('munkalap',
+                array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'update_dt',          'update_usr'                           ),
+                array( 1,            5,              '',                date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] ),
+                "`recid` = '{$recid}'"
+            );
 
-            echo json_encode(array(
-                'statusz' => 'siker'
-            ));
-        } else {
-            mysqli_rollback($db_kapcs);
+            if( $sql === false ) {
+                $db_error = true;
+            }
 
-            echo json_encode(array(
-                'hiba' => tranzakcioHiba()
-            ));
+            /* Folyamatban státuszra állítjuk a munkalapot */
+            if( !addStatusz( 'munkalap_statusz', $recid, 2 ) ) {
+                $db_error = true;
+            }
+
+            if( !$db_error ) {
+                mysqli_commit($db_kapcs);
+
+                echo json_encode(array(
+                    'statusz' => 'siker'
+                ));
+            } else {
+                mysqli_rollback($db_kapcs);
+
+                echo json_encode(array(
+                    'hiba' => tranzakcioHiba()
+                ));
+            }
         }
     } else {
         echo json_encode(array(

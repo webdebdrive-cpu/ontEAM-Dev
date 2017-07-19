@@ -1523,14 +1523,22 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
                     }
 
                     /* Munkalapon töröljük a személyzetet és a mobil loginnevet */
-                    $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'mobil_loginnev'), array(0, ''), "`recid` = '{$recid}'");
+                    $sql = $adatbazis_kapcsolat -> u('munkalap',
+                        array('szemelyzet_id', 'mobil_loginnev', 'update_dt',          'update_usr'                           ),
+                        array( 0,              '',                date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] ),
+                        "`recid` = '{$recid}'"
+                    );
 
                     if( $sql === false ) {
                         $db_error = true;
                     }
 
                     /* Utolsó tételnél átállítjuk az átadta mező értékét */
-                    $sql = $adatbazis_kapcsolat -> u('munkalap_tetel', array('atadta_dt', 'visszaadva'), array(date('Y-m-d H:i:s'), 1), "`recid` = '".$akt_tetel['recid']."'");
+                    $sql = $adatbazis_kapcsolat -> u('munkalap_tetel',
+                        array('atadta_dt',          'visszaadva', 'update_dt',          'update_usr'                           ),
+                        array( date('Y-m-d H:i:s'),  1,            date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] ),
+                        "`recid` = '".$akt_tetel['recid']."'"
+                    );
 
                     if( $sql === false ) {
                         $db_error = true;
@@ -1717,14 +1725,22 @@ if( isset($_POST['munkalapKeszre']) ) {
             $akt_tetel = $akt_tetel[0];
 
             /* Munkalapon töröljük a személyzetet és a mobil loginnevet */
-            $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'mobil_loginnev'), array(0, ''), "`recid` = '{$recid}'");
+            $sql = $adatbazis_kapcsolat -> u('munkalap',
+                array('szemelyzet_id', 'mobil_loginnev', 'update_dt',          'update_usr'                           ),
+                array( 0,              '',                date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] ), 
+                "`recid` = '{$recid}'"
+            );
 
             if( $sql === false ) {
                 $db_error = true;
             }
 
             /* Utolsó tételnél átállítjuk az átadta mező értékét */
-            $sql = $adatbazis_kapcsolat -> u('munkalap_tetel', array('atadta_dt', 'visszaadva'), array(date('Y-m-d H:i:s'), 1), "`recid` = '".$akt_tetel['recid']."'");
+            $sql = $adatbazis_kapcsolat -> u('munkalap_tetel',
+                array('atadta_dt',          'visszaadva', 'update_dt',          'update_usr'                           ),
+                array( date('Y-m-d H:i:s'),  1,            date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] ),
+                "`recid` = '".$akt_tetel['recid']."'"
+            );
 
             if( $sql === false ) {
                 $db_error = true;
@@ -1760,45 +1776,70 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $erteklista_id ) {
-        /* Beszúrjuk a munkalap tételt */
-        $sql = $adatbazis_kapcsolat -> i('munkalap_tetel',
-            array('munkalap_id', 'erteklista_id', 'visszaadva', 'atadta_dt',            'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
-            array($recid,        $erteklista_id,   1,            date('Y-m-d H:i:s'),    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'],     date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
-        );
+        $sql = $akt_tetel = $adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
 
         if( $sql === false ) {
             $db_error = true;
         }
 
-        /* Frissítjuk a munkalap visszaadva sorát */
-        $sql = $adatbazis_kapcsolat -> u('munkalap', array('visszaadva', 'szemelyzet_id', 'mobil_loginnev'), array(1, 0, ''), "`recid` = '{$recid}'");
+        if( $akt_tetel ) {
+            $akt_tetel = $akt_tetel[0];
 
-        if( $sql === false ) {
-            $db_error = true;
-        }
+            /* Frissítjük a munkalap tételt */
+            $sql = $adatbazis_kapcsolat -> u('munkalap_tetel',
+                array('atadta_dt',           'visszaadva', 'update_dt',          'update_usr'                           ),
+                array( date('Y-m-d H:i:s'),   1,            date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] ),
+                "`recid` = '".$akt_tetel['recid']."'"
+            );
 
-        /* Nyitott státuszra állítjuk a munkalapot */
-        if( !addStatusz( 'munkalap_statusz', $recid, 1 ) ) {
-            $db_error = true;
-        }
+            if( $sql === false ) {
+                $db_error = true;
+            }
 
-        if( !$db_error ) {
-            mysqli_commit($db_kapcs);
+            /* Frissítjuk a munkalap visszaadva sorát */
+            $sql = $adatbazis_kapcsolat -> u('munkalap',
+                array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'update_dt',          'update_usr'                           ),
+                array( 1,            0,              '',                date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] ),
+                "`recid` = '{$recid}'"
+            );
 
-            echo json_encode(array(
-                'statusz' => 'siker'
-            ));
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            /* Nyitott státuszra állítjuk a munkalapot */
+            if( !addStatusz( 'munkalap_statusz', $recid, 1 ) ) {
+                $db_error = true;
+            }
+
+            if( !$db_error ) {
+                mysqli_commit($db_kapcs);
+
+                echo json_encode(array(
+                    'statusz' => 'siker'
+                ));
+            } else {
+                mysqli_rollback($db_kapcs);
+
+                echo json_encode(array(
+                    'hiba' => tranzakcioHiba()
+                ));
+            }
         } else {
-            mysqli_rollback($db_kapcs);
-
             echo json_encode(array(
                 'hiba' => tranzakcioHiba()
             ));
+
+            $weblap->leallit();
+            exit();
         }
     } else {
         echo json_encode(array(
             'hiba' => 'Adja meg az átadás okát!'
         ));
+
+        $weblap->leallit();
+        exit();
     }
 
     $weblap->leallit();
