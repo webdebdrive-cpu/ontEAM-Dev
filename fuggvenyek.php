@@ -272,6 +272,44 @@ function i_u($type, $tabla, $tomb){
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
+        } else if( $tabla == 'munkalap' ) {
+            /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
+            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla` = 'munkalap' AND `ev` = '".date('y')."'", '', '');
+
+            if( $ikt_seq === false ) {
+                $db_error = true;
+            }
+
+            if( $ikt_seq ) {
+                $ikt_seq = $ikt_seq[0];
+
+                /* Sorszám */
+                $sorszam = $ikt_seq['sorszam'];
+
+                /* Sorszám növelés */
+                $sorszam++;
+
+                /* Letároljuk az új sorszámot */
+                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+            } else {
+                /* Sorszám */
+                $sorszam = 1;
+
+                $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), 'munkalap'));
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+            }
+
+            /* Iktatószám formázása */
+            $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
+
+            array_push($oszlopok,  'ikt_szam');
+            array_push($ertekek,   $ikt_szam );
         //Gégpek
         } else if( $tabla == 'gep' ) {
             array_push($oszlopok, 'loginnev'                        );
@@ -1726,7 +1764,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                         //Egy csoporton belül biztosan csak olyan bejelentések lesznek, amiknek azonos a telephelye
                         $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$bejelentes['telephely_id']}'");
                         $telephely = $telephely[0];
-                        
+
                         $html .= nl2('
                                     <li class="szamla_datum csoport'.$csoport_active.'" data-id="'.$aktCsoport.'">
                                         <span class="icon"></span>

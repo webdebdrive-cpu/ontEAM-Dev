@@ -856,16 +856,16 @@ $megnevezes = 'munkalap';
 $munkalap_tomb = $akt_tomb = array(
     array('type' => 'statusz',                  'megn' => 'Státusz:',                   'oldal' => $megnevezes),
     array('type' => 'text',                     'megn' => 'Iktató szám:',               'name' => 'ikt_szam',           'disabled' => 1,        'maxlength' => 250, 'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
-    array('type' => 'checkbox',                 'megn' => 'Sürgős:',                    'name' => 'surgos',             'disabled' => 1,        'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
+    array('type' => 'checkbox',                 'megn' => 'Sürgős:',                    'name' => 'surgos',             'disabled' => $csakUjkent,        'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
     array('type' => 'checkbox',                 'megn' => 'Visszaadva:',                'name' => 'visszaadva',         'disabled' => 1,        'class' => 'check'),
     array('type' => 'textarea',                 'megn' => 'Leírása:',                   'name' => 'text',               'disabled' => 0,        'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
-    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id',       'disabled' => 1,        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
-    array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'disabled' => 1,        'class' => 'oriasi disableNav', 'style' => '', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'onclick' => '', 'post' => ''),
-    array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'disabled' => 1,        'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
-    array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'disabled' => 1,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id'),
-    array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'disabled' => 1),
-    array('type' => 'text',                     'megn' => 'Kezdés/befejezési idő:',     'name' => 'elv_ido_tol',        'disabled' => 1,        'class' => 'ora_perc', 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
-	array('type' => 'text',                     'megn' => '',                           'name' => 'elv_ido_ig',         'disabled' => 1,        'class' => 'ora_perc'),
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id',       'disabled' => $csakUjkent,        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+    array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'style' => '', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'onclick' => '', 'post' => ''),
+    array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
+    array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'disabled' => $csakUjkent,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id'),
+    array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'disabled' => $csakUjkent),
+    array('type' => 'text',                     'megn' => 'Kezdés/befejezési idő:',     'name' => 'elv_ido_tol',        'disabled' => $csakUjkent,        'class' => 'ora_perc', 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
+	array('type' => 'text',                     'megn' => '',                           'name' => 'elv_ido_ig',         'disabled' => $csakUjkent,        'class' => 'ora_perc'),
 
 
     //array('type' => 'statusz',         'megn' => 'Státusz:',            'oldal' => 'bejelentes'),
@@ -1727,7 +1727,7 @@ if( isset($_POST['munkalapKeszre']) ) {
             /* Munkalapon töröljük a személyzetet és a mobil loginnevet */
             $sql = $adatbazis_kapcsolat -> u('munkalap',
                 array('szemelyzet_id', 'mobil_loginnev', 'update_dt',          'update_usr'                           ),
-                array( 0,              '',                date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] ), 
+                array( 0,              '',                date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] ),
                 "`recid` = '{$recid}'"
             );
 
