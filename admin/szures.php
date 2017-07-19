@@ -75,9 +75,9 @@ if (isset($_POST['f_szuro_mezo'])) {
         $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
     }
     
-    //Jogosultság =
-    if($_POST['mezo']=='jogosultsag'){
-        $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+    //Jogosultságnál és Státusznál csak =
+    if($_POST['mezo']=='jogosultsag' || $_POST['mezo']=='statusz_id'){
+        $operator = '<option value="equal"'.$selected_equal.'>=</option>';
     }
     
     //Operátor select bezárása
@@ -247,7 +247,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
         }
 
         //Kapcsolódó szállodák felsorolása
-        if( 
+        if(
                 ($_POST['tabla'] == 'login'         && $_POST['mezo']=='szalloda'       ) ||
                 ($_POST['tabla'] == 'anyagigenyles' && $_POST['mezo']=='telephely_id'   ) ||
                 ($_POST['tabla'] == 'beosztas'      && $_POST['mezo']=='telephely_id'   ) 
@@ -298,6 +298,23 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                 }
                 $feltetel .= '</optgroup>';
                 $jog_kat_i++;
+            }
+            $feltetel .= '</select>';
+
+        }
+        
+        //Státusz esetén
+        if($_POST['mezo']=='statusz_id'){
+            
+            $feltetel = '<select class="f_felt">';
+            $feltetel .= '<option value="">-Válasszon státuszt-</option>';
+            $stauszok = $adatbazis_kapcsolat->s('recid nev', $_POST['tabla'].'_statusz_text');
+            foreach($stauszok as $statusz){
+                $selected = '';
+                if($_GET['felt']==$statusz['recid']){
+                    $selected = ' selected';
+                }
+                $feltetel .= '<option value="'.$statusz['recid'].'"'.$selected.'>'.$statusz['nev'].'</option>';
             }
             $feltetel .= '</select>';
 

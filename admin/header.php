@@ -702,9 +702,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
 
 $self = basename(self());
-$megn = trim( basename(self()), '.php' );
-
-
+$megn = str_replace('.php', '', basename(self()) );
 
 /* Bal oldali nav panel select-je */
 $tartBal  = '';
@@ -816,7 +814,6 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 
 
 
-
 /* SZŰRÉS
  *  $szures nevű változót állítja elő, benne a szűréssel kapcsolatos funkciókkal (selectek, feltételek)
  */
@@ -863,7 +860,6 @@ if( $_SESSION['nincs_jelsz'] ) {
     $oldalNev = 'Bejelentkezés';
     $belepve  = '';
 }
-
 
 /* Törlés és új gombok ne is látsszon, ha nincs hozzá joga */
 $torles_icon = nl2('
@@ -933,8 +929,6 @@ if( basename(self())=='beosztas.php' && !_jog(30)){
     $torles_icon    = '';
     $uj             = '';
 }
-
-
 
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);

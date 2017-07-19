@@ -416,7 +416,7 @@ if( isset($_POST['arazas']) ) {
                     });
 
                     /* Pénznem cserekor */
-                    $(document).on(\'keyup\', \'#pop_arfolyam, #pop_vrndear, #pop_rndmen, #pop_vrndear\', function(e) {
+                    $(document).on(\'keyup\', \'#pop_arfolyam, #pop_vrndear, #pop_rndmen, #pop_rndear, #pop_vrndear\', function(e) {
                        rend_ossz_beallit();
                     });
 
@@ -437,14 +437,13 @@ if( isset($_POST['arazas']) ) {
 
                         /* HUF esetén */
                         if($(\'#pop_kcs_21\').val()==5){
-
                             $(\'#pop_rndear\').removeAttr(\'disabled\').addClass(\'csillag\');
                             $(\'#pop_arfolyam\').attr(\'disabled\', 1).val(\'0,0000\');
                             $(\'#pop_vrndear\').attr(\'disabled\', 1).val(\'0,0000\');
                             $(\'#pop_atvaltva_d\').attr(\'disabled\', 1).val(\'    .  .  \');
 
                             rend_osszeg = rndmen*rndear;
-                            $(\'#rend_osszeg\').html(ezresek2(rend_osszeg.toFixed(2)));
+                            $(\'#rend_osszeg\').html(ezresek(rend_osszeg, 4, \',\', \' \'));
 
                         /* Deviza esetén */
                         }else{

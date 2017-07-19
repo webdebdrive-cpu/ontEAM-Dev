@@ -200,21 +200,21 @@ function i_u($type, $tabla, $tomb){
 
             /* Új anyagigényléskor a munkalaphoz tartozó anagok státuszán állítani kell */
             $sql = $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array(2), "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$_POST['nev']}'");
-            if( $cikk_nev === false ) {
+            if( $sql === false ) {
                 $db_error = true;
             }
 
             //Miután a $_POST['nev']-et felvettük cikkid-nak, csak utána írjuk felül
-            $cikk_nev = $adatbazis_kapcsolat->s('nev', 'cikktorzs', "`id`='{$_POST['nev']}'");
-            if( $cikk_nev === false ) {
+            $cikktorzs = $adatbazis_kapcsolat->s('nev cikkmee', 'cikktorzs', "`id`='{$_POST['nev']}'");
+            if( $cikktorzs === false ) {
                 $db_error = true;
             }
-            $cikk_nev = $cikk_nev[0];
+            $cikktorzs = $cikktorzs[0];
 
             $i = 0;
             foreach($oszlopok as $oszl){
                 if($oszl=='nev'){
-                    $ertekek[$i] = $cikk_nev['nev'];
+                    $ertekek[$i] = $cikktorzs['nev'];
                 }
                 $i++;
             }
@@ -223,8 +223,13 @@ function i_u($type, $tabla, $tomb){
             array_push($oszlopok,  'cikktorzs_id'   );
             array_push($ertekek,   $_POST['nev']    );
 
+            //Beállítjuk az iktatószámot
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );
+
+            //Mennyisgéi egységet pedig az anyag mennyiségi egységéből
+            array_push($oszlopok,  'cikkmee');
+            array_push($ertekek,   $cikktorzs['cikkmee'] );
 
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
@@ -731,7 +736,7 @@ function i_u($type, $tabla, $tomb){
 */
 function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
-    $hiba_txt = 'Hiba'; //Csak hogy egy helyen kelljen átírni.
+    $hiba_txt = 'Kérdés-megerősítés'; //Csak hogy egy helyen kelljen átírni.
 
     $ret = nl2('
                 <'.str_replace('#', '', 's#cript').'>
@@ -1910,8 +1915,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
             $telephely = $telephely[0]['nev'];
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span'.$bold.'>'.$bsz['ikt_szam'].'</span>
-                            <span'.$bold.'>'.$telephely.'</span>
+                            <span'.$bold.'>'.$bsz['ikt_szam'].' - '.$telephely.'</span>
                             <span'.$bold.'>'.$statusz.'</span>
                          </a>';
 
@@ -2276,13 +2280,16 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
 
             /* Telephely */
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
-//echo $adatbazis_kapcsolat->gp() . '<br>';
             $telephely = $telephely[0];
 
+            /* Státusz */
+            $statusz = $adatbazis_kapcsolat->s('nev', 'anyagigenyles_statusz_text', "`recid`='{$bsz['statusz_id']}'");
+            $statusz = $statusz[0];
+
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['ikt_szam'].'</span>
-                            <span>'.$telephely['nev'].'</span>
+                            <span>'.$bsz['ikt_szam'].' '.$telephely['nev'].'</span>
                             <span>'.$bsz['anyagigenyles_nev'].'</span>
+                            <span>'.$statusz['nev'].'</span>
                         </a>';
 
             if( !$frissit ) {
@@ -3355,8 +3362,10 @@ function getOszlopNev( $oszlop ) {
         'id'            => 'ID',
         'ikt_szam'      => 'Iktató szám',
         'nev'           => 'Név',
+        'recid'         => 'Rendszer ID',
         'rkat'          => 'Érték',
         'statusz'       => 'Státusz',
+        'statusz_id'    => 'Státusz',
         'szerepkor_id'  => 'Szerepkör',
         'telephely_id'  => 'Szálloda',
         'teljes_nev'    => 'Teljes név',
@@ -3659,6 +3668,7 @@ function get_akt_tomb($megn){
     global $bejelentes_tomb;
     global $beosztas_tomb;
     global $login_tomb;
+    global $munkalap_tomb;
     global $torzsadat_tomb;
 
     switch($megn){
@@ -3666,6 +3676,7 @@ function get_akt_tomb($megn){
         case 'bejelentes'   : $akt_tomb = $bejelentes_tomb;     break;
         case 'beosztas'     : $akt_tomb = $beosztas_tomb;       break;
         case 'login'        : $akt_tomb = $login_tomb;          break;
+        case 'munkalap'     : $akt_tomb = $munkalap_tomb;       break;
         case 'torzsadat'    : $akt_tomb = $torzsadat_tomb;      break;
     }
 

@@ -41,6 +41,8 @@ BAL OLDALI NAVIGÁCIÓS PANEL TÉTELEINEK KISZÁMÍTÁSA (WHERE LEKÉRDEZÉS) + 
 - A lista tartalmát viszont a függvényekben tudod beállítani: szamla_lista().
 - Bal oldali nav panel rendezése (sok JOIN-al) szintén a fuggvenyek.php szamla_lista() részben tudod beállítani
 - szamla_lista()-ban a "Bal oldali nav panel select-je" szövegre keress rá
+- Adott menüpont bal oldali navpanel szerkezete a menüpont DB táblaneve+Lista függvénnyel állítható be. Pl. anyagigenylesLista() (fuggvenyek.php)
+- A rendezés select rendes feliratait a getOszlopNev() függvénynél állítható be (oszlolpnévhez kötött felirat)
 
 SZŰRÉS LEKEZELÉSE:
 - szures.php, amit header.php hív meg
@@ -58,3 +60,6 @@ KIJELÖLÉSEK MŰKÖDÉSE (SOROK MEGJELÖLÉSE BAL NAVPANELEN ÉS FÜLEK ALATTI 
 - admin.js-ben erre keress rá: Aloldalon/fülek alatti felsorolás kijelölések lekezelése. Pl. felhasználók szállodái.
 - admin.js-ben erre keress rá: Csoportra kattintás
 - admin.js-ben erre keress rá: Bal oldali nav panelen kattintunk egy bejegyzésre. Ekkor lekezeljük mi történik a kijelöésekkel
+
+CIKKTORZSBŐL LEKÉRT AUTOCOMPLETE ESETÉN A MENNYISÉGI EGYSÉG AUTOMATIKUSAN BEÍRÓDIK
+Ha van egy autocompletes input, ami cikktörzsből dolgozik, akkor ebben az űrlapban elhelyezett <span class="insertMee"></span> span-ba be fog íródni a mennyiségi egység is
