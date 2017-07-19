@@ -1270,11 +1270,11 @@ foreach($akt_tomb as $ertek){
             if($ertek['alert']){
                 $ertek['class'] .= ' csillag';
             }
-            
+
             if($ertek['data']){
                 $input -> data = $ertek['data'];
             }
-            
+
 
             $input -> cssClass  = $ertek['class'];
             $input -> disabled  = $ertek['disabled'];

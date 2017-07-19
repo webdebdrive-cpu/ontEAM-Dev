@@ -754,7 +754,7 @@ if($gyorskereso_text){
 
         if( !$csak_szerkesztheto ) {
             //Jogosutságkezelés: csak az törölheti, aki létrehozta
-            if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
+            if($sor['loginnev'] != $_SESSION[get_db_tabla().'user']){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
             }else{
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">';
@@ -876,7 +876,7 @@ if($gyorskereso_text){
     }
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && !$csak_szerkesztheto) {
 
         //NAVIGÁCIÓ
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
@@ -888,11 +888,12 @@ if($gyorskereso_text){
 	    require_once('info.php');
 
 	    //FORM
-		if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
+		if(isset($_GET['ujkent'])) {
+            foreach($akt_tomb as $ertek) {
+				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
 		}
+
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
         //Ckeditort csak akkor húzzuk be, ha kell
@@ -924,6 +925,8 @@ if($gyorskereso_text){
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
+
+        //$mezok .= '<input type="text" id="ujkentSzerkID" name="ujkentSzerkID" value="'.$_GET['ujkent'].'">';
 
 	    $form_mivel   = array($js, self(), $mezok, $megnevezes, $ckeditor, $gombok);
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);

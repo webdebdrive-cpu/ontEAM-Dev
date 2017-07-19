@@ -32,7 +32,7 @@ function i_u($type, $tabla, $tomb){
 
     $oszlopok = array();
     $ertekek  = array();
-
+//echo '<pre style="font-size: 1.4rem">', print_r($_SESSION), '</pre>';exit();
 	$i = 0;
 	foreach($tomb as $ertek) { //értékek párosítása
 
