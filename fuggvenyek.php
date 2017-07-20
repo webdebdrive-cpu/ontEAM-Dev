@@ -20,7 +20,7 @@
 *
 *	@return array: első része a $errnum második pedig a beszúrt vagy módosított sor id-je
 */
-function i_u($type, $tabla, $tomb){
+function i_u($type, $tabla, $tomb) {
 	global $adatbazis_kapcsolat;
 	global $db_kapcs;
 
@@ -35,40 +35,41 @@ function i_u($type, $tabla, $tomb){
 
 	$i = 0;
 	foreach($tomb as $ertek) { //értékek párosítása
+        if( $ertek['name'] != 'ujkentSzerkID' ) {
+    		//Ha alert-es egy mező, és a post-ja üres, akkor hiba! (nem adott meg egy kötelező mezőt)
+            if($ertek['alert'] != '' && $_POST[$ertek['name']] == '' && !$ertek['disabled']) {
+    			return array($i, '');
+    			break;
+    		}
 
-		//Ha alert-es egy mező, és a post-ja üres, akkor hiba! (nem adott meg egy kötelező mezőt)
-        if($ertek['alert'] != '' && $_POST[$ertek['name']] == '' && !$ertek['disabled']) {
-			return array($i, '');
-			break;
-		}
+            //Ha az adott esemenyek.php tomb sora tartalmaz nevid jelzést, akkor ezt a sort eltároljuk, mert ennek a nevéből gyártuk névid-t
+            if($ertek['nevid'] == true) {
+    			$nevid = $ertek;
+    		}
 
-        //Ha az adott esemenyek.php tomb sora tartalmaz nevid jelzést, akkor ezt a sort eltároljuk, mert ennek a nevéből gyártuk névid-t
-        if($ertek['nevid'] == true) {
-			$nevid = $ertek;
-		}
+    		//Wysiwyg útvonalszépítés a feltöltött képekre, HA van egyáltalán fájlfeltöltés
+    		if($ertek['wysiwyg'] && $ertek['feltoltes']) {
+                $_POST[$ertek['name']] = str_replace('wysiwyg/ckfinder/core/connector/php/../../../../../', '', $_POST[$ertek['name']]);
+            }
 
-		//Wysiwyg útvonalszépítés a feltöltött képekre, HA van egyáltalán fájlfeltöltés
-		if($ertek['wysiwyg'] && $ertek['feltoltes']) {
-            $_POST[$ertek['name']] = str_replace('wysiwyg/ckfinder/core/connector/php/../../../../../', '', $_POST[$ertek['name']]);
+            //Ha felhasználó adatlapját módosítjuk, és van megadva jelszó, akkor lecseréljük a mostanit
+            if($tabla=='felh' && $ertek['name']=='reg_jelsz' && $_POST[$ertek['name']]) {
+                $_POST[$ertek['name']] = sha1($_POST[$ertek['name']]); //sha1 helyett más elkódolást is használhatnánk, de ez javasolt. A lényeg, hogy legyen összhangban a class.Felhasznalo konfigjával
+            }
+
+            //Ha van datepicker class-ja, akkor dátum, és a pontokat kötőjelre cseréljük
+            if(strpos($ertek['class'], 'datepicker')!==false){
+                $_POST[$ertek['name']] = str_replace('.', '-', $_POST[$ertek['name']]);
+            }
+
+    		//Ha nem gomb, nem fájl és nem disabled és az oszlopnév sem üres és maga a POST egyáltalán létezik is (ne nullázzunk felül el nem küldött POST miatt)
+    		if($ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && !($ertek['disabled'] && $type == 'update'/*Tiltott mezőket beszúrni lehet csak moddolni nem*/) && $ertek['name'] && isset($_POST[$ertek['name']]) ) {
+    			array_push($oszlopok, $ertek['name']);
+    			array_push($ertekek, trim($_POST[$ertek['name']]));
+    		}
+
+    		$i++;
         }
-
-        //Ha felhasználó adatlapját módosítjuk, és van megadva jelszó, akkor lecseréljük a mostanit
-        if($tabla=='felh' && $ertek['name']=='reg_jelsz' && $_POST[$ertek['name']]) {
-            $_POST[$ertek['name']] = sha1($_POST[$ertek['name']]); //sha1 helyett más elkódolást is használhatnánk, de ez javasolt. A lényeg, hogy legyen összhangban a class.Felhasznalo konfigjával
-        }
-
-        //Ha van datepicker class-ja, akkor dátum, és a pontokat kötőjelre cseréljük
-        if(strpos($ertek['class'], 'datepicker')!==false){
-            $_POST[$ertek['name']] = str_replace('.', '-', $_POST[$ertek['name']]);
-        }
-
-		//Ha nem gomb, nem fájl és nem disabled és az oszlopnév sem üres és maga a POST egyáltalán létezik is (ne nullázzunk felül el nem küldött POST miatt)
-		if($ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && !($ertek['disabled'] && $type == 'update'/*Tiltott mezőket beszúrni lehet csak moddolni nem*/) && $ertek['name'] && isset($_POST[$ertek['name']]) ) {
-			array_push($oszlopok, $ertek['name']);
-			array_push($ertekek, trim($_POST[$ertek['name']]));
-		}
-
-		$i++;
 	}
 
     //Dátumra ütmezés, ha az ütemezett feldaatokat módosítjuk/töltjük fel
@@ -315,6 +316,9 @@ function i_u($type, $tabla, $tomb){
 
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );
+
+            array_push($oszlopok,  'statusz_id');
+            array_push($ertekek,    1          );
         //Gégpek
         } else if( $tabla == 'gep' ) {
             array_push($oszlopok, 'loginnev'                        );
@@ -331,7 +335,7 @@ function i_u($type, $tabla, $tomb){
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
         //Login
-        }elseif( $tabla == 'login' ) {
+        } elseif( $tabla == 'login' ) {
 
             //Nem lehet ugyanazt a loginnevet kétszer felhasználni
             if($adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$_POST['nev']}'")){
@@ -415,7 +419,6 @@ function i_u($type, $tabla, $tomb){
         if( $id === false ) {
             $db_error = true;
         }
-
 
 //echo '<pre style="font-size: 1.4rem">';
 //echo $adatbazis_kapcsolat->gp() . '<br>';
@@ -538,6 +541,16 @@ function i_u($type, $tabla, $tomb){
                         $db_error = true;
                     }
                 }
+            }
+
+            /* Felvesszük az első státuszt */
+            $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
+                array('id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_usr'                          ),
+                array($id,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+            );
+
+            if( $sql === false ) {
+                $db_error = true;
             }
         }
 
@@ -663,6 +676,7 @@ function i_u($type, $tabla, $tomb){
                 array( 'felh_id',                          'nev',       'valtozas'),
                 array( $_SESSION[get_db_tabla().'user_id'], $muvelet,   $valtozas )
             );
+
             if( $sql === false ) {
                 $db_error = true;
             }
@@ -1102,13 +1116,14 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         });
     ');
 
-    if($ajax){
+    if( $ajax ) {
         $ret .= nl2('; '.$ajax_kod.'
             ; return false; }
             ');
-    }else{
+    } else {
         $ret .= '; return true;	}';
     }
+
     $ret .= nl2('
             $(document).ready(function() {
                 $(\'form input[type="text"], #szerk_form textarea\').keyup(function() {

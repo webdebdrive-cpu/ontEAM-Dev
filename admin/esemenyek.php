@@ -3677,7 +3677,7 @@ foreach($postok as $ertek){
                 if(!isset($_POST['ajax_form_modosit'])){
                     //header('location:'.self().'?uj')
                     //Mégis a létrehozott adatlapra érkezzünk:
-                    header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba'))).'&id='.$tabla_id.'&siker');
+                    header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba', 'oldal', 'epo', 'kat', 'rend', 'irany', 'order'))).'&id='.$tabla_id.'&siker');
                 }
             }
 
