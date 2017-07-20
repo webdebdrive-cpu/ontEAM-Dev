@@ -544,7 +544,7 @@ function i_u($type, $tabla, $tomb) {
                     }
                 }
             }
-            
+
             /* Felvesszük az első státuszt */
             $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
                 array('id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_usr'                          ),
@@ -1433,7 +1433,11 @@ function szamla_lista( $where, $tabla ) {
             $where = "`".get_db_tabla()."munkalap`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
 
             if( _jog(3) && _jog(5) && !_jog(0) && !_jog(1) ) {
-                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` IN (1, 2) AND `".get_db_tabla()."munkalap`.`statusz_id` IN (2, 8) AND ";
+                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '1' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (2, 8) AND ";
+            } else if( _jog(3) && _jog(31) && !_jog(0) && !_jog(1) ) {
+                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '2' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (2, 8) AND ";
+            }else if( _jog(3) && _jog(21) && !_jog(0) && !_jog(1) ) {
+                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '5' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (2, 8, 10) AND ";
             }
         }
 
@@ -1913,7 +1917,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
-            if( !$frissit ) {
+            if( !$frissit && _jog(2) ) {
                 $aktCsoport = $bsz['csoport_id'];
 
                 if( $i == 1 || $csoport != $aktCsoport ) {
@@ -1995,7 +1999,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
 
             $csoport_class = '';
             $csoport_data = '';
-            if( $bsz['csoport_id'] ) {
+            if( $bsz['csoport_id'] && _jog(2) ) {
                 $csoport_class = ' behuz dn';
 
                 $akt_csoport = $adatbazis_kapcsolat->s('csoport_id', 'munkalap', "`recid` = '{$_GET['id']}'", '', '1');

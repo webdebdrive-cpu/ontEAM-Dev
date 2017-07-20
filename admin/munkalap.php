@@ -459,7 +459,7 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
         $osszes_sor = 0;
 
         /* Hozzárendelt munkalapok beosztás nélkül */
-        $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id statusz_id surgos', 'munkalap', "(`szemelyzet_id` = '2' AND `statusz_id` = '2' AND `mobil_loginnev` = '') OR (`recid` IN (".implode(',', $idk).") AND `szemelyzet_id` = '0' AND `statusz_id` IN (1) AND `mobil_loginnev` = '')", '', '');
+        $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id statusz_id surgos', 'munkalap', "(`szemelyzet_id` = '2' AND `statusz_id` = '2' AND `mobil_loginnev` = '') OR (`recid` IN (".implode(',', $idk).") AND `szemelyzet_id` IN (0, 2) AND `statusz_id` IN (1) AND `mobil_loginnev` = '')", '', '');
 
         $osszes_sor += count($munkalapok);
 
@@ -827,7 +827,7 @@ if($gyorskereso_text){
                     </div>
                 </div>
             ');
-        } else if( _jog(3) && _jog(5) && in_array($sor['statusz_id'], array(8, 10)) ) {
+        } else if( ((_jog(3) && _jog(5)) || (_jog(3) && _jog(31)) || (_jog(3) && _jog(21))) && in_array($sor['statusz_id'], array(8, 10)) ) {
 
             $telephely = $adatbazis_kapcsolat->s('modell', 'telephely', 'id='.$sor['telephely_id'], '', '1');
 
@@ -857,7 +857,7 @@ if($gyorskereso_text){
                 <input type="button" class="gomb foGomb" value="Anyag vételezés" title="Anyag vételezés" onclick="csoportMuvelet(\'munkalapAnyagvetelezes\');">
             ');
 
-        } else if( _jog(3) && _jog(5) ) {
+        } else if( (_jog(3) && _jog(5)) || (_jog(3) && _jog(31)) || (_jog(3) && _jog(21)) ) {
             $telephely = $adatbazis_kapcsolat -> select('nev', 'telephely', "`id`='{$sor['telephely_id']}'");
             $telephely = $telephely[0];
 
