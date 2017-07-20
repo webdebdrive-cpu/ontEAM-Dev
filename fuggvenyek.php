@@ -32,7 +32,7 @@ function i_u($type, $tabla, $tomb){
 
     $oszlopok = array();
     $ertekek  = array();
-//echo '<pre style="font-size: 1.4rem">', print_r($_SESSION), '</pre>';exit();
+
 	$i = 0;
 	foreach($tomb as $ertek) { //értékek párosítása
 
@@ -516,6 +516,25 @@ function i_u($type, $tabla, $tomb){
                     $statusz3 = addStatusz( 'bejelentes_statusz', $id, 2 );
 
                     if( $statusz3 === false ) {
+                        $db_error = true;
+                    }
+                }
+            }
+        } else if( $tabla == 'munkalap' && $_POST['ujkentSzerkID'] ) {
+            $sql = $munk_kapcs = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '".$_POST['ujkentSzerkID']."'", '', '');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $munk_kapcs ) {
+                foreach($munk_kapcs as $mkapcs) {
+                    $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
+                        array('munkalap_id', 'bejelentes_id',         'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                             ),
+                        array($id,           $mkapcs['bejelentes_id'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']   )
+                    );
+
+                    if( $sql === false ) {
                         $db_error = true;
                     }
                 }

@@ -934,7 +934,7 @@ if($gyorskereso_text){
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
-        //$mezok .= '<input type="text" id="ujkentSzerkID" name="ujkentSzerkID" value="'.$_GET['ujkent'].'">';
+        $mezok .= '<input type="hidden" id="ujkentSzerkID" name="ujkentSzerkID" value="'.$_GET['ujkent'].'">';
 
 	    $form_mivel   = array($js, self(), $mezok, $megnevezes, $ckeditor, $gombok);
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);

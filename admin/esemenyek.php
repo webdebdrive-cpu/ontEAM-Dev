@@ -872,7 +872,7 @@ $munkalap_tomb = $akt_tomb = array(
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'disabled' => $csakUjkent),
     array('type' => 'text',                     'megn' => 'Kezdés/befejezési idő:',     'name' => 'elv_ido_tol',        'disabled' => $csakUjkent,        'class' => 'ora_perc', 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
 	array('type' => 'text',                     'megn' => '',                           'name' => 'elv_ido_ig',         'disabled' => $csakUjkent,        'class' => 'ora_perc'),
-	//array('type' => 'nosql',                    'name' => 'ujkentSzerkID'),
+	array('type' => 'nosql',                    'name' => 'ujkentSzerkID'),
 
 
     //array('type' => 'statusz',         'megn' => 'Státusz:',            'oldal' => 'bejelentes'),
