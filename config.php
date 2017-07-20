@@ -17,7 +17,9 @@ error_reporting(E_ERROR);                       //Csak a hibákat írja ki
 
 
 //Konstansok
-define('CIKKIGN_STAT_MEGRENDELVE', '1');
+define('DISZPNAG_STAT_VAN_ANYAG',       '00');
+define('DISZPNAG_STAT_ANYAGRA_VAR',     '01');
+define('DISZPNAG_STAT_ANYAG_IGENYELVE', '02');
 
 
 

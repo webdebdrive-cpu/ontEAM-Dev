@@ -1,6 +1,19 @@
 <?php
 require_once('../weblap.php');
-//15
+
+if (isset($_GET['adatok_karbantart'])) {
+    $statuszok = $adatbazis_kapcsolat->s('recid stat_id', 'munkalap_anyag');
+    foreach($statuszok as $statusz){
+        switch($statusz['stat_id']){
+            case '0': $statid = '00'; break;
+            case '1': $statid = '01'; break;
+            case '2': $statid = '02'; break;
+        }
+        $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array($statid), "`recid`='{$statusz['recid']}'");
+    }
+    exit;
+}
+
 if( !_jog(12) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
@@ -50,7 +63,7 @@ if (isset($_POST['f_anyag_rendelkezesre_all'])) {
     mysqli_autocommit($db_kapcs, false);
     
     //Az érintett munkalap anyagok státuszait 0-ra állítjuk
-    $sql = $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array(0), "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$_POST['cikk_id']}'");
+    $sql = $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array(DISZPNAG_STAT_VAN_ANYAG), "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$_POST['cikk_id']}'");
     if( $sql === false ) {
         $db_error = true;
     }
@@ -1715,18 +1728,18 @@ if($gyorskereso_text){
                 foreach($telephelyek as $telephely){
                     
                     //Azon belül anyagonként járjuk be
-                    $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`=1 AND `telephely_id`='{$telephely['telephely_id']}'");
+                    $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`='".DISZPNAG_STAT_ANYAGRA_VAR."' AND `telephely_id`='{$telephely['telephely_id']}'");
                     foreach($anyagok as $anyag){
 //echo $adatbazis_kapcsolat->gp() . '<br>';
                         
                         //A mutat linkbe csak azokat a munkalapokID-kat kell fevenni, ami adott anyag/státusz/telephelyhez tartozik
-                        $akt_munkalapok = $adatbazis_kapcsolat->s('distinct munkalap_id', 'munkalap_anyag', "`cikk_id`='{$anyag['cikk_id']}' AND `stat_id`=1 AND `telephely_id`='{$telephely['telephely_id']}'");
+                        $akt_munkalapok = $adatbazis_kapcsolat->s('distinct munkalap_id', 'munkalap_anyag', "`cikk_id`='{$anyag['cikk_id']}' AND `stat_id`='".DISZPNAG_STAT_ANYAGRA_VAR."' AND `telephely_id`='{$telephely['telephely_id']}'");
                         $akt_munkalapok = adatbazis2tomb($akt_munkalapok, 'munkalap_id');
                         $akt_munkalapok = implode(',', $akt_munkalapok);
                         
                         //Igénylésre váró darabszám kiszámítása
                         $ig_var = 0;
-                        $akt_anyagok = $adatbazis_kapcsolat->s('recid cikk_nev cikk_id szuk_men cikk_mee', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `cikk_id`='{$anyag['cikk_id']}' AND `stat_id`=1 AND `telephely_id`='{$telephely['telephely_id']}'");
+                        $akt_anyagok = $adatbazis_kapcsolat->s('recid cikk_nev cikk_id szuk_men cikk_mee', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `cikk_id`='{$anyag['cikk_id']}' AND `stat_id`='".DISZPNAG_STAT_ANYAGRA_VAR."' AND `telephely_id`='{$telephely['telephely_id']}'");
                         foreach($akt_anyagok as $akt_anyag){
                             $recid_egyedi_azon  = $akt_anyag['recid'];
                             $cikk_nev           = $akt_anyag['cikk_nev'];
@@ -1737,7 +1750,7 @@ if($gyorskereso_text){
 
                         //Anyagra váró darabszám kiszámítása (ugyanaz, csak másik státuszt figyelünk)
                         $anyag_var = 0;
-                        $akt_anyagok = $adatbazis_kapcsolat->s('szuk_men', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`=2 AND `telephely_id`='{$telephely['telephely_id']}'");
+                        $akt_anyagok = $adatbazis_kapcsolat->s('szuk_men', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`='".DISZPNAG_STAT_ANYAG_IGENYELVE."' AND `telephely_id`='{$telephely['telephely_id']}'");
                         foreach($akt_anyagok as $akt_anyag){
                             $anyag_var += $akt_anyag['szuk_men'];
                         }

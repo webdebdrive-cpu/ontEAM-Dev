@@ -1520,9 +1520,9 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
 
                     if( $addCikkUj[$key] ) {
                         if( $cikk_sor ) {
-                            $stat_id = 0;
+                            $stat_id = DISZPNAG_STAT_VAN_ANYAG;
                             if( !empty($addCikkSzukMenny[$key]) && $addCikkSzukMenny[$key] > 0 ) {
-                                $stat_id = 1;
+                                $stat_id = DISZPNAG_STAT_ANYAGRA_VAR;
                             }
 
                             $sql = $mlap = $adatbazis_kapcsolat->s('telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
