@@ -389,8 +389,8 @@ require_once('header.php');
                         $usertel = '';
 
                         $adatbazis_kapcsolat->i('login',
-                            array('beosztas_id', 'reszleg_id', 'szerepkor_id', 'van_jelszo', 'fer', 'virtual', 'statusz', 'usertel', 'usermail', 'nev',     'teljes_nev', 'flags', 'aktiv', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr'  ),
-                            array($kcs_18,       $kcs_17,       $statid,        $chk3,        $fer,  $virtual,  $statid,   $usertel,  $usermail,  $loginnev, $nev,         $flgs,   $aktiv,  $update_dt,  $update_usr,  $insert_dt,  $insert_usr   )
+                            array('beosztas_id', 'reszleg_id', 'szerepkor_id', 'van_jelszo', 'fer', 'virtual', 'statusz', 'usertel', 'usermail', 'nev',     'teljes_nev', 'flags', 'aktiv',  'update_usr', 'insert_dt', 'insert_usr'  ),
+                            array($kcs_18,       $kcs_17,       $statid,        $chk3,        $fer,  $virtual,  $statid,   $usertel,  $usermail,  $loginnev, $nev,         $flgs,   $aktiv,  $update_usr,  $insert_dt,  $insert_usr   )
                         );
 
 						echo $adatbazis_kapcsolat->gp() . '<br>';
@@ -515,8 +515,8 @@ require_once('header.php');
 
 
                         $adatbazis_kapcsolat->i('telephely',
-                            array('id', 'nev', 'recid', 'props', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr'  ),
-                            array($id,  $nev,  $recid,  $props,  $update_dt,  $update_usr,  $insert_dt,  $insert_usr   )
+                            array('id', 'nev', 'recid', 'props', 'update_usr', 'insert_dt', 'insert_usr'  ),
+                            array($id,  $nev,  $recid,  $props,  $update_usr,  $insert_dt,  $insert_usr   )
                         );
 
 						echo $adatbazis_kapcsolat->gp() . '<br>';
@@ -643,8 +643,8 @@ require_once('header.php');
 
 
                         $adatbazis_kapcsolat->i('gep',
-                            array('recid', 'telephely_id', 'obj_id', 'nev', 'azon', 'megj', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr'  ),
-                            array($recid,   $telepid,      $objid,   $nev,   $azon, $megj,  $update_dt,  $update_usr,  $insert_dt,  $insert_usr   )
+                            array('recid', 'telephely_id', 'obj_id', 'nev', 'azon', 'megj', 'update_usr', 'insert_dt', 'insert_usr'  ),
+                            array($recid,   $telepid,      $objid,   $nev,   $azon, $megj,  $update_usr,  $insert_dt,  $insert_usr   )
                         );
 
 						echo $adatbazis_kapcsolat->gp() . '<br>';
@@ -770,8 +770,8 @@ require_once('header.php');
 
 
                         $adatbazis_kapcsolat->i('obj',
-                            array('recid', 'telephely_id', 'szulo',   'nev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr'  ),
-                            array($recid,   $telepid,      $parentid, $nev,  $update_dt,  $update_usr,  $insert_dt,  $insert_usr   )
+                            array('recid', 'telephely_id', 'szulo',   'nev', 'update_usr', 'insert_dt', 'insert_usr'  ),
+                            array($recid,   $telepid,      $parentid, $nev,  $update_usr,  $insert_dt,  $insert_usr   )
                         );
 
 						echo $adatbazis_kapcsolat->gp() . '<br>';
@@ -1049,8 +1049,8 @@ require_once('header.php');
 						}
 
                         $adatbazis_kapcsolat->i('erteklista',
-                            array('csoport', 'id', 'info', 'recid', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr'  ),
-                            array($csoport,  $id,  $info,  $recid,  $update_dt,  $update_usr,  $insert_dt,  $insert_usr   )
+                            array('csoport', 'id', 'info', 'recid', 'update_usr', 'insert_dt', 'insert_usr'  ),
+                            array($csoport,  $id,  $info,  $recid,  $update_usr,  $insert_dt,  $insert_usr   )
                         );
 
 						echo $adatbazis_kapcsolat->gp() . '<br>';
@@ -1391,8 +1391,8 @@ require_once('header.php');
 						}
 
                         $adatbazis_kapcsolat->i('cikktorzs',
-                            array('id', 'nev', 'oracikkid', 'cikkmee', 'szakter_id', 'segedanyag',  'helyi', 'leiras', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr' ),
-                            array($id,  $nev,  $oracikkid,  $cikkmee,  $szakter_id,  $segedanyag,   $helyi,   $leiras, $update_dt,  $update_usr,  $insert_dt,  $insert_usr  )
+                            array('id', 'nev', 'oracikkid', 'cikkmee', 'szakter_id', 'segedanyag',  'helyi', 'leiras', 'update_usr', 'insert_dt', 'insert_usr' ),
+                            array($id,  $nev,  $oracikkid,  $cikkmee,  $szakter_id,  $segedanyag,   $helyi,   $leiras, $update_usr,  $insert_dt,  $insert_usr  )
                         );
 echo $adatbazis_kapcsolat->gp() . '<br>';
 
@@ -1561,8 +1561,8 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                             }
                             
                             $adatbazis_kapcsolat->i('utemezett_feladatok',
-                                array('id', 'kezdho', 'kezdnap', 'vegeho', 'vegenap', 'idoszakos', 'aktiv', 'telephely_id', 'obj_id', 'gep_id', 'nev', 'leiras', 'riaszt', 'szemelyzet_id', 'hatosagi', 'cikltip',     'ciklaltip', 'ciklho', 'ciklho2', 'ciklhet', 'ho_rendsz_het', 'ciklnap', 'ciklszorz', 'honapjan', 'hataly_d', 'utnap_d', 'aktkezd_d', 'aktvege_d', 'esnap_d', 'utesnap_d', 'esem_d', 'loginnev', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr' ),
-                                array($id,  $kezdho,  $kezdnap,  $vegeho,  $vegenap,  $idoszakos,  $aktiv,  $telephely_id,  $obj_id,  $gep_id,  $nev,  $leiras,  $riaszt,  $szemelyzet_id,  $hatosagi,  $cikltip,      $ciklaltip,  $ciklho,  $ciklho2,  $ciklhet,  $ho_rendsz_het,  $ciklnap,  $ciklszorz,  $honapjan,  $hataly_d,  $utnap_d,  $aktkezd_d,  $aktvege_d,  $esnap_d,  $utesnap_d,  $esem_d,  $login_nev, $update_dt,  $update_usr,  $insert_dt,  $insert_usr  )
+                                array('id', 'kezdho', 'kezdnap', 'vegeho', 'vegenap', 'idoszakos', 'aktiv', 'telephely_id', 'obj_id', 'gep_id', 'nev', 'leiras', 'riaszt', 'szemelyzet_id', 'hatosagi', 'cikltip',     'ciklaltip', 'ciklho', 'ciklho2', 'ciklhet', 'ho_rendsz_het', 'ciklnap', 'ciklszorz', 'honapjan', 'hataly_d', 'utnap_d', 'aktkezd_d', 'aktvege_d', 'esnap_d', 'utesnap_d', 'esem_d', 'loginnev', 'update_usr', 'insert_dt', 'insert_usr' ),
+                                array($id,  $kezdho,  $kezdnap,  $vegeho,  $vegenap,  $idoszakos,  $aktiv,  $telephely_id,  $obj_id,  $gep_id,  $nev,  $leiras,  $riaszt,  $szemelyzet_id,  $hatosagi,  $cikltip,      $ciklaltip,  $ciklho,  $ciklho2,  $ciklhet,  $ho_rendsz_het,  $ciklnap,  $ciklszorz,  $honapjan,  $hataly_d,  $utnap_d,  $aktkezd_d,  $aktvege_d,  $esnap_d,  $utesnap_d,  $esem_d,  $login_nev, $update_usr,  $insert_dt,  $insert_usr  )
                             );
 echo $adatbazis_kapcsolat->gp() . '<br>';
                         }
@@ -1739,8 +1739,8 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                         if($recid){
                             
                             $adatbazis_kapcsolat->i('anyagigenyles',
-                                array('recid', 'ikt_szam', 'telephely_id', 'cikktorzs_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'statusz_id', 'keszpenz', 'uileir', 'szallito', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear',  'loginnev', 'update_dt', 'update_usr', 'insert_dt'  ),
-                                array($recid,  $ikt_szam,  $telephely_id,  $cikktorzs_id,  $nev,  $cikkmee,  $igmen,  $igleir,  $jhmen,  $rndmen,  $rndear,  $rndid,  $erkmen,  $erkear,  $erkcimid,  $szlacimid,  $elutleir,  $statusz_id,  $keszpenz,  $uileir,  $szallito,  $oracikkid,  $aparecid,  $kepfajl,  $rnd_dt,  $kulsosnek,  $szlaid,  $rndmenleir,  $vbrutert,  $vnetert,  $kcs_21,  $arfolyam,  $atvaltva_d,  $vrndear,  $verkear,   $loginnev,  $update_dt,  $update_usr,  $insert_dt   )
+                                array('recid', 'ikt_szam', 'telephely_id', 'cikktorzs_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'statusz_id', 'keszpenz', 'uileir', 'szallito', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear',  'loginnev', 'update_usr', 'insert_dt'  ),
+                                array($recid,  $ikt_szam,  $telephely_id,  $cikktorzs_id,  $nev,  $cikkmee,  $igmen,  $igleir,  $jhmen,  $rndmen,  $rndear,  $rndid,  $erkmen,  $erkear,  $erkcimid,  $szlacimid,  $elutleir,  $statusz_id,  $keszpenz,  $uileir,  $szallito,  $oracikkid,  $aparecid,  $kepfajl,  $rnd_dt,  $kulsosnek,  $szlaid,  $rndmenleir,  $vbrutert,  $vnetert,  $kcs_21,  $arfolyam,  $atvaltva_d,  $vrndear,  $verkear,   $loginnev,  $update_usr,  $insert_dt   )
                             );
 echo $adatbazis_kapcsolat->gp() . '<br>';
                         }

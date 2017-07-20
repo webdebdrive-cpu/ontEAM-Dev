@@ -1306,8 +1306,8 @@ if( isset($_POST['rendeles_keszit']) ) {
         
         /* Felvesszük az első státuszt */
         $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
-            array('id',             'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
-            array($cikkrendfej_id,  1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+            array('id',             'stat_id', 'insert_dt',          'insert_usr',                              'update_usr'                          ),
+            array($cikkrendfej_id,  1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
         );
         if( $sql === false ) {
             $db_error = true;
@@ -1822,8 +1822,8 @@ if($gyorskereso_text){
 
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
-                'datetime' => $sor['update_dt'],
-                'oldal' => basename(self())
+                'datetime'  => $sor['update_dt'],
+                'oldal'     => basename(self())
             );
         }
 

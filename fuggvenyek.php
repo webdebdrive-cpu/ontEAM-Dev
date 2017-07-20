@@ -427,8 +427,8 @@ function i_u($type, $tabla, $tomb){
         //Bejelentések iktatószám képzése
         if( $tabla == 'bejelentes' ) {
             $sql = $adatbazis_kapcsolat -> i('bejelentes_statusz',
-                array('id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
-                array($id,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+                array('id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_usr'                           ),
+                array($id,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
             );
 
             if( $sql === false ) {
@@ -480,8 +480,8 @@ function i_u($type, $tabla, $tomb){
 
                     /* Munkalap beszúrása */
                     $recid = $adatbazis_kapcsolat -> i('munkalap',
-                        array('ikt_szam',   'statusz_id',  'tipus_id',  'telephely_id',        'loginnev',                        'update_dt',          'update_usr',                          'insert_dt',          'insert_usr'                              ),
-                        array($ikt_szam,     1,             1,          $_POST['telephely_id'], $_SESSION[get_db_tabla().'user'], date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']   )
+                        array('ikt_szam',   'statusz_id',  'tipus_id',  'telephely_id',        'loginnev',                        'update_usr',                          'insert_dt',          'insert_usr'                              ),
+                        array($ikt_szam,     1,             1,          $_POST['telephely_id'], $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']   )
                     );
 
                     if( $recid === false ) {
@@ -490,8 +490,8 @@ function i_u($type, $tabla, $tomb){
 
                     /* Felvesszük az első státuszt */
                     $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
-                        array('id',     'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
-                        array($recid,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+                        array('id',     'stat_id', 'insert_dt',          'insert_usr',                              'update_usr'                          ),
+                        array($recid,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
                     );
                     if( $sql === false ) {
                         $db_error = true;
@@ -504,8 +504,8 @@ function i_u($type, $tabla, $tomb){
                     }
 
                     $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
-                        array('munkalap_id', 'bejelentes_id',  'update_dt',          'update_usr',                          'insert_dt',          'insert_usr',                            ),
-                        array($recid,        $id,               date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']  )
+                        array('munkalap_id', 'bejelentes_id',  'update_usr',                          'insert_dt',          'insert_usr',                            ),
+                        array($recid,        $id,              $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']  )
                     );
 
                     if( $sql === false ) {
@@ -525,8 +525,8 @@ function i_u($type, $tabla, $tomb){
         /* Anyagugénylés státusz beszúrása */
         if( $tabla == 'anyagigenyles' ) {
             $sql = $adatbazis_kapcsolat -> i('anyagigenyles_statusz',
-                array('id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
-                array($id,   5,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+                array('id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_usr'                           ),
+                array($id,   5,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
             );
             if( $sql === false ) {
                 $db_error = true;
@@ -651,8 +651,8 @@ function i_u($type, $tabla, $tomb){
 
         /* Datetime-ot is frissítjük */
         if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
-            array_push($oszlopok, 'update_dt',          'update_usr'                          );
-            array_push($ertekek,   date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']);
+            array_push($oszlopok, 'update_usr'                          );
+            array_push($ertekek,  $_SESSION[get_db_tabla().'teljes_nev']);
         }
 
         if( $tabla == 'login' ) {
@@ -3660,8 +3660,8 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_
 
             /* Beszúrjuk az újat */
             $sql = $adatbazis_kapcsolat -> i($tabla,
-                array('id',  'stat_id', 'erteklista_id',  'insert_dt',          'insert_usr',                              'update_dt',          'update_usr',                           'text' ),
-                array($id,   $stat_id,  $erteklista_id,    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], $memo  )
+                array('id',  'stat_id', 'erteklista_id',  'insert_dt',          'insert_usr',                              'update_usr',                           'text' ),
+                array($id,   $stat_id,  $erteklista_id,    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'], $memo  )
             );
 
 
@@ -3692,8 +3692,8 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_
 function addMegj( $tabla, $id, $megj ) {
     global $adatbazis_kapcsolat;
     $datum = date('Y-m-d H:i:s');
-    $ins   = $adatbazis_kapcsolat->i('megjegyzes',  array('tabla', 'id', 'megj', 'loginnev',                       'update_dt', 'update_usr',                           'insert_dt', 'insert_usr'                           ),
-                                                    array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $datum,      $_SESSION[get_db_tabla().'teljes_nev'], $datum,      $_SESSION[get_db_tabla().'teljes_nev'] )
+    $ins   = $adatbazis_kapcsolat->i('megjegyzes',  array('tabla', 'id', 'megj', 'loginnev',                       'update_usr',                           'insert_dt', 'insert_usr'                           ),
+                                                    array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], $datum,      $_SESSION[get_db_tabla().'teljes_nev'] )
                                     );
     if(!$ins){
         return false;
