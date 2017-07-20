@@ -268,7 +268,7 @@ if($gyorskereso_text){
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
                 'datetime' => $sor['update_dt'],
-                'oldal' => basename(self())
+                'oldal'    => basename(self())
             );
         }
 

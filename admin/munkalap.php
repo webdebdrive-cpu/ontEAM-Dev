@@ -89,8 +89,8 @@ if( isset($_POST['atadasMuszVeznek']) ) {
 
             /* Frissítjük a munkalap tételt */
             $sql = $adatbazis_kapcsolat -> u('munkalap_tetel',
-                array('atadta_dt',           'visszaadva', 'update_dt',          'update_usr'                           ),
-                array( date('Y-m-d H:i:s'),   1,            date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] ),
+                array('atadta_dt',           'visszaadva', 'update_usr'                           ),
+                array( date('Y-m-d H:i:s'),   1,           $_SESSION[get_db_tabla().'teljes_nev'] ),
                 "`recid` = '".$akt_tetel['recid']."'"
             );
 
@@ -273,8 +273,8 @@ if( isset($_POST['munkalapMobil']) ) {
                     $munkalap = $munkalap[0];
 
                     $sql = $adatbazis_kapcsolat -> u('munkalap',
-                        array('szemelyzet_id', 'mobil_loginnev', 'update_dt',          'update_usr'                          ),
-                        array( 0,              '',                date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']),
+                        array('szemelyzet_id', 'mobil_loginnev', 'update_usr'                          ),
+                        array( 0,              '',               $_SESSION[get_db_tabla().'teljes_nev']),
                         "`recid` = '{$value}'"
                     );
 
@@ -352,8 +352,8 @@ if( isset($_POST['munkalapMobil']) ) {
                         $torzslap = $torzslap[0];
 
                         $sql = $adatbazis_kapcsolat -> u('munkalap',
-                            array('szemelyzet_id', 'mobil_loginnev',           'update_dt',          'update_usr'                          ),
-                            array(2,               $torzslap['felh_loginnev'],  date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']),
+                            array('szemelyzet_id', 'mobil_loginnev',           'update_usr'                          ),
+                            array(2,               $torzslap['felh_loginnev'], $_SESSION[get_db_tabla().'teljes_nev']),
                             "`recid` = '{$value}'"
                         );
 
@@ -962,7 +962,7 @@ if($gyorskereso_text){
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
                 'datetime' => $sor['update_dt'],
-                'oldal' => basename(self())
+                'oldal'    => basename(self())
             );
         }
 

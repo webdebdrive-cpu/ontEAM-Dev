@@ -16,22 +16,12 @@ ini_set('display_errors' ,  '0'             );
 error_reporting(E_ERROR);                       //Csak a hibákat írja ki
 
 
-/*
-Session élettartam beállítása
-$cookie_timeout  = 60 * 60 * 9;
-$garbage_timeout = $cookie_timeout + 600;
+//Konstansok
+define('CIKKIGN_STAT_MEGRENDELVE', '1');
 
-session_set_cookie_params($cookie_timeout);             //session.cookie_lifetime értékét állítja be
-ini_set('session.gc_maxlifetime', $garbage_timeout);    //session.gc_maxlifetime értékét állítja be
 
-*/
-
-/*
-set_time_limit(3600); //Kitoljuk a time limit-et egy órára
-*/
 
 //Adatbázis
-
 function get_db_tabla()   { return 'hotel_';                                                                            } //Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
 function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'localhost'         : 'localhost' );        } //Host
 function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu1'    : 'wdbhu' );   } //Adatbázis neve
