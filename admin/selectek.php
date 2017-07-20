@@ -140,9 +140,9 @@ array_push($select_beosztas, array('name' => 'Szabadság',       'value' => '2' 
 
 /* Anyag státuszok */
 $munkAnyag_statusz = array(
-    1 => 'Rendelkezésre áll',
-    2 => 'Anyagigénylés szükséges',
-    3 => 'Igényelve'
+    0 => 'Rendelkezésre áll',
+    1 => 'Anyagigénylés szükséges',
+    2 => 'Igényelve'
 );
 
 /* Értéklista csoport */

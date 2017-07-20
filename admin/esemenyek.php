@@ -1520,9 +1520,9 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
 
                     if( $addCikkUj[$key] ) {
                         if( $cikk_sor ) {
-                            $stat_id = 1;
+                            $stat_id = 0;
                             if( !empty($addCikkSzukMenny[$key]) && $addCikkSzukMenny[$key] > 0 ) {
-                                $stat_id = 2;
+                                $stat_id = 1;
                             }
 
                             $sql = $adatbazis_kapcsolat -> i('munkalap_anyag',
@@ -1834,7 +1834,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
             }
             /* Hozzáadjuk a megjegyzést is ha van */
             if( $memo ) {
-                
+
                 $megj_felvesz = addMegj('munkalap', $recid, $memo);
                 if( $megj_felvesz === false ) {
                     $db_error = true;
@@ -2918,7 +2918,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
 
             /* Hozzáadjuk a megjegyzést is ha van */
             if( $memo ) {
-                
+
                 $megj_felvesz = addMegj($tabla, $id, $memo);
                 if( $megj_felvesz === false ) {
                     $db_error = true;
@@ -3268,7 +3268,7 @@ if( isset($_POST['addMegjegyzes']) ) {
     $tabla  = $_POST['tabla'];
 
     if( $pageID && $megj ) {
-        
+
         addMegj( $tabla, $pageID, $megj );
 
         echo json_encode(array(
