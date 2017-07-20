@@ -719,10 +719,18 @@ if($gyorskereso_text){
     /* Gombok kirajzolása minden oldalra */
     $gombok = '';
     if( isset($_GET['uj']) ) {
+        $disabled = '';
+        $class = '';
+        if( !$_GET['ujkent'] ) {
+            $disabled = ' disabled';
+        } else {
+            $class = ' gombb_alert';
+        }
+
         /* Gombok */
         $gombok = nl2('
             <div class="form_kuldes">
-                <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                <input type="submit" class="gombb'.$class.'" name="mehet_gomb" id="mehet_gomb"'.$disabled.' value="Mentés">
             </div>
         ');
 
