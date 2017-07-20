@@ -1525,9 +1525,16 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
                                 $stat_id = 1;
                             }
 
+                            $sql = $mlap = $adatbazis_kapcsolat->s('telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+                            $mlap = $mlap[0];
+
+                            if( $sql === false ) {
+                                $db_error = true;
+                            }
+
                             $sql = $adatbazis_kapcsolat -> i('munkalap_anyag',
-                                array('munkalap_id', 'tetel_id',          'cikk_id',            'cikk_nev',         'cikk_mee',             'cikk_men',              'szuk_men',                'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
-                                array($recid,        $akt_tetel['recid'], $cikk_sor['recid'],   $cikk_sor['nev'],   $cikk_sor['cikkmee'],   $addCikkFelhMenny[$key], $addCikkSzukMenny[$key],   $stat_id,   date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'])
+                                array('munkalap_id', 'telephely_id',        'tetel_id',          'cikk_id',            'cikk_nev',         'cikk_mee',             'cikk_men',              'szuk_men',                'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
+                                array($recid,        $mlap['telephely_id'], $akt_tetel['recid'], $cikk_sor['recid'],   $cikk_sor['nev'],   $cikk_sor['cikkmee'],   $addCikkFelhMenny[$key], $addCikkSzukMenny[$key],   $stat_id,   date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'])
                             );
 
                             if( $sql === false ) {
