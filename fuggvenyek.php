@@ -523,26 +523,28 @@ function i_u($type, $tabla, $tomb) {
                     }
                 }
             }
-        } else if( $tabla == 'munkalap' && $_POST['ujkentSzerkID'] ) {
-            $sql = $munk_kapcs = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '".$_POST['ujkentSzerkID']."'", '', '');
+        } else if( $tabla == 'munkalap' ) {
+            if( $_POST['ujkentSzerkID'] ) {
+                $sql = $munk_kapcs = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '".$_POST['ujkentSzerkID']."'", '', '');
 
-            if( $sql === false ) {
-                $db_error = true;
-            }
+                if( $sql === false ) {
+                    $db_error = true;
+                }
 
-            if( $munk_kapcs ) {
-                foreach($munk_kapcs as $mkapcs) {
-                    $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
-                        array('munkalap_id', 'bejelentes_id',         'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                             ),
-                        array($id,           $mkapcs['bejelentes_id'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']   )
-                    );
+                if( $munk_kapcs ) {
+                    foreach($munk_kapcs as $mkapcs) {
+                        $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
+                            array('munkalap_id', 'bejelentes_id',         'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                             ),
+                            array($id,           $mkapcs['bejelentes_id'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']   )
+                        );
 
-                    if( $sql === false ) {
-                        $db_error = true;
+                        if( $sql === false ) {
+                            $db_error = true;
+                        }
                     }
                 }
             }
-
+            
             /* Felvesszük az első státuszt */
             $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
                 array('id', 'stat_id', 'insert_dt',          'insert_usr',                              'update_usr'                          ),
