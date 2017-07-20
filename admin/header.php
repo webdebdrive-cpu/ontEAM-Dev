@@ -777,22 +777,22 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     $keresodn = '';
     if( isset($_GET['szakterulet']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);';
-    } elseif( basename(self()) == 'bejelentes.php' && isset($_GET['megjegyzes']) ) {
+    } elseif( basename(self()) == 'bejelentes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } elseif( basename(self()) == 'beosztas.php' && isset($_GET['naptar']) ) {
         $uj_link = 'javascript: $(\'#szerk_form div.dt\').show(); void(0)';
     } elseif( isset($_GET['szallodak']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);';
-    } elseif( basename(self()) == 'utemezett_feladatok.php' && isset($_GET['megjegyzes']) ) {
+    } elseif( basename(self()) == 'utemezett_feladatok.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-    } elseif( basename(self()) == 'munkalap.php' && isset($_GET['megjegyzes']) ) {
+    } elseif( basename(self()) == 'munkalap.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } else {
         $uj_link = self().'?uj';
     }
     
     //Diszpécser nem hozhat létre új bejegyzést
-    if( basename(self()) == 'bejelentes.php' && _jog(2) ) {
+    if( !isset($_GET['megjegyzesek']) && basename(self()) == 'bejelentes.php' && _jog(2)  ) {
         $uj_link = 'javascript: alert2(\'Diszpécserként nem hozhat létre új bejelentést!\'); void(0);';
     }
     

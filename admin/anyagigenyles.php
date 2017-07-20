@@ -1291,40 +1291,40 @@ if( isset($_POST['rendeles_keszit']) ) {
         mysqli_query($db_kapcs, 'COMMIT');
      
         //Tesztelés idejére kommentezve
-//        /* Rendelés ID formázása */
-//        $rndid = 'R'.date('y').'/'.sprintf('%04d', $sorszam);
-//        $rnd_dt = date('Y-m-d H:i:s');
-//        $pdf_utvonal = 'doc/rendeles/'.date('y').'/'.$elozo_szallito.'/'.str_replace('/', '_', $rndid).'.pdf';
-//        
-//        //Létrehozunk egy új rendelésfej bejegyzést
-//        $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('statusz_id', 'rndid', 'rnd_dt',  'kepfajl',     'szallitoid',    'insert_dt',          'insert_usr',                           'update_usr'                            ),
-//                                                                    array(1,            $rndid,  $rnd_dt,   $pdf_utvonal,  $elozo_szallito, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
-//                                                    );
-//        if( $cikkrendfej_id === false ) {
-//            $db_error = true;
-//        }
-//        
-//        /* Felvesszük az első státuszt */
-//        $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
-//            array('id',             'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
-//            array($cikkrendfej_id,  1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
-//        );
-//        if( $sql === false ) {
-//            $db_error = true;
-//        }
-//
-//        //Anyagigénylés sorok updatelése (státuszt is, illetve egyéb mezőket is)
-//        foreach($idk as $id) {
-//            $statusz = addStatusz( $page.'_statusz', $id, $megrendelve_statid );
-//            if( $statusz === false ) {
-//                $db_error = true;
-//            }
-//            
-//            //Az anyagigénylés érintett sorait updateljük
-//            $adatbazis_kapcsolat->u('anyagigenyles',    array('rndid', 'rnd_dt', 'kepfajl',    'update_usr',                           'aparecid'       ),
-//                                                        array($rndid,  $rnd_dt,  $pdf_utvonal, $_SESSION[get_db_tabla().'teljes_nev'], $cikkrendfej_id  ),
-//                                    "`recid`='$id'");
-//        }
+        /* Rendelés ID formázása */
+        $rndid = 'R'.date('y').'/'.sprintf('%04d', $sorszam);
+        $rnd_dt = date('Y-m-d H:i:s');
+        $pdf_utvonal = 'doc/rendeles/'.date('y').'/'.$elozo_szallito.'/'.str_replace('/', '_', $rndid).'.pdf';
+        
+        //Létrehozunk egy új rendelésfej bejegyzést
+        $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('statusz_id', 'rndid', 'rnd_dt',  'kepfajl',     'szallitoid',    'insert_dt',          'insert_usr',                           'update_usr'                            ),
+                                                                    array(1,            $rndid,  $rnd_dt,   $pdf_utvonal,  $elozo_szallito, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                    );
+        if( $cikkrendfej_id === false ) {
+            $db_error = true;
+        }
+        
+        /* Felvesszük az első státuszt */
+        $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
+            array('id',             'stat_id', 'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
+            array($cikkrendfej_id,  1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+        );
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        //Anyagigénylés sorok updatelése (státuszt is, illetve egyéb mezőket is)
+        foreach($idk as $id) {
+            $statusz = addStatusz( $page.'_statusz', $id, $megrendelve_statid );
+            if( $statusz === false ) {
+                $db_error = true;
+            }
+            
+            //Az anyagigénylés érintett sorait updateljük
+            $adatbazis_kapcsolat->u('anyagigenyles',    array('rndid', 'rnd_dt', 'kepfajl',    'update_usr',                           'aparecid'       ),
+                                                        array($rndid,  $rnd_dt,  $pdf_utvonal, $_SESSION[get_db_tabla().'teljes_nev'], $cikkrendfej_id  ),
+                                    "`recid`='$id'");
+        }
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -1344,6 +1344,104 @@ if( isset($_POST['rendeles_keszit']) ) {
     $weblap->leallit();
     exit();
 }
+
+//Anyagigénylés érkeztetése
+if (isset($_POST['anyagigenyles_erkeztet'])) {
+
+    //Rendelésszám lekérdezése
+    if($_POST['rsz']){
+    
+        $recid = $adatbazis_kapcsolat->s('recid', 'cikkrendfej', "`rndid`='{$_POST['rsz']}'");
+        $recid = $recid[0];
+        if(!$recid){
+            echo json_encode(array(
+                'hiba' => 'Nincs ilyen rendelésszám az anyagigénylés naplóban!'
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        if(!$adatbazis_kapcsolat->s('recid', 'cikkrendfej', "`rndid`='{$_POST['rsz']}' AND `statusz_id`=1")){
+            echo json_encode(array(
+                'hiba' => 'Ehhez a megrendeléshez már rögzítve vannak a beérkezett mennyiségek!'
+            ));
+            $weblap->leallit();
+            exit();
+        }
+
+        $html = nl2('
+                <table class="csikos kicsi anyagig_erkeztet">
+                <tr>
+                    <th>Szálloda</th>
+                    <th>Cikk</th>
+                    <th>Név</th>
+                    <th>Igénylet mennyiség</th>
+                    <th>Rendelt mennyiség</th>
+                    <th>Előzőleg beérkezett mennyiség</th>
+                    <th>Beérkezett mennyiség</th>
+                    <th>Mee</th>
+                    <th>Nem lesz több beérkezés</th>
+                    <th>Anyagra váró feladatok diszpécsernaplóban</th>
+                </tr>
+            ');
+        $igenylesek = $adatbazis_kapcsolat->s('recid telephely_id cikktorzs_id nev igmen rndmen erkmen cikkmee', 'anyagigenyles', "`aparecid`='{$recid['recid']}'");
+        foreach($igenylesek as $igeny){
+
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$igeny['telephely_id']}'");
+            $telephely = $telephely[0];
+
+            $gomb = '(nincs anyagra váró feladatok a diszpécser naplóban)';
+            $gomb = '<input type="button" value="Mutat" class="gomb">';
+
+            $html .= nl2('
+                        <tr>
+                            <td id="erkeztet_szall_'.$igeny['recid'].'">'.$telephely['nev'].'</td>
+                            <td id="erkeztet_cikkid_'.$igeny['recid'].'">'.$igeny['cikktorzs_id'].'</td>
+                            <td>'.$igeny['nev'].'</td>
+                            <td class="r">'.number_format($igeny['igmen'], 2, ',', ' ').'</td>
+                            <td class="r">'.number_format($igeny['rndmen'], 2, ',', ' ').'</td>
+                            <td class="r" id="marerkmen_'.$igeny['recid'].'">'.number_format($XXX, 2, ',', ' ').'</td>
+                            <td class="r"><input type="text" class="f_num erkmen" data-id="'.$igeny['recid'].'" id="erkmen_'.$igeny['recid'].'" value="'.number_format($igeny['erkmen'], 2, ',', ' ').'"></td>
+                            <td class="c">'.$igeny['cikkmee'].'</td>
+                            <td class="c">
+                                <div class="cb">
+                                    <input type="checkbox" class="nem_tobb_beerk" data-id="'.$igeny['recid'].'" id="nem_tobb_'.$igeny['recid'].'">
+                                    <label for="nem_tobb_'.$igeny['recid'].'"></label>
+                                </div>
+                            </td>
+                            <td class="c">'.$gomb.'</td>
+                        </tr>
+                        ');
+        }
+        $html .= '</table>';
+    
+        echo json_encode(array(
+            'html' =>  $html
+        ));
+        
+    }
+    
+    //Anyagigénylések feldolgozása
+    if($_POST['idk']){
+        
+        $adatok = explode('|', $_POST['idk']);
+        foreach($adatok as $adat){
+            list($id, $mennyiseg, $pipa) = explode('#', $adat);
+            //Ha nincs ID, nem is csinálunk semmit
+            if($id){
+                
+                if(!$pipa && (!$mennyiseg || $mennyiseg=='0.00')){
+                    echo $id . '<br>';
+                }
+                
+            }
+        }
+        
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 
 
 /** Tartalom */
@@ -1489,6 +1587,14 @@ if($gyorskereso_text){
                 </div>
             ');
         }
+        /* Anyagigénylés érkeztetése */
+        if( _jog(13) ) {
+            $gombok .= nl2('
+                <div id="kmCont">
+                    <input type="button" class="gombb foGomb" value="Anyagok érkeztetése" onclick="csoportMuvelet(\'anyagigenyles_erkeztet\')">
+                </div>
+            ');
+        }
 
         if( !$csak_szerkesztheto ) {
             //Jogosutságkezelés: csak az törölheti, aki létrehozta
@@ -1605,7 +1711,7 @@ if($gyorskereso_text){
                 $anyagok_html = '';
                 //Szállodánként járjuk be, és azon belül az egyes anyagokat összegezzük
                 $munkalapok = implode(',', $munkalapok);
-                $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`=1 AND `telephely_id`!=0");
+                $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`=1");
                 foreach($telephelyek as $telephely){
                     
                     //Azon belül anyagonként járjuk be
@@ -1829,12 +1935,12 @@ if($gyorskereso_text){
                     <div class="dtc">Felhasználó</div>
                     <div class="dtc">Státuszidő</div>
                     <div class="dtc">Göngyölt státuszidő</div>
+                    <div class="dtc">Megjegyzés</div>
                     <!--<div class="dtc">Összesített státuszidő</div>-->
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido', $megnevezes.'_statusz', "`id` = '".$_GET['id']."'", 'insert_dt', '');
-
+        $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido text', $megnevezes.'_statusz', "`id` = '".$_GET['id']."'", 'insert_dt', '');
         if( $sorok ) {
             foreach($sorok as $sor) {
                 $statusz = $adatbazis_kapcsolat->s('nev szinkod', $megnevezes.'_statusz_text', 'recid='.$sor['stat_id'], '', '1');
@@ -1861,6 +1967,7 @@ if($gyorskereso_text){
                         <div class="dtc">'.$sor['insert_usr'].'</div>
                         <div class="dtc">'.$sor['statido'].'</div>
                         <div class="dtc">'.$sor['gongyolt_statido'].'</div>
+                        <div class="dtc">'.nl2br2($sor['text']).'</div>
                         <!--<div class="dtc">'.$sor['ossz_statido'].'</div>-->
                     </div>
                 ');
@@ -1895,7 +2002,7 @@ if($gyorskereso_text){
     }elseif(isset($_GET['megjegyzesek'])) {
 
         $szamla_html .= nl2('
-            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzes">
+            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzesek">
                 <div class="dtr nFejlec">
                     <div class="dtc">Megjegyzés</div>
                     <div class="dtc">Hozzáadta</div>

@@ -774,7 +774,7 @@ function i_u($type, $tabla, $tomb){
 */
 function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
-    $hiba_txt = 'Kérdés-megerősítés'; //Csak hogy egy helyen kelljen átírni.
+    $hiba_txt = 'Hiba'; //Csak hogy egy helyen kelljen átírni.
 
     $ret = nl2('
                 <'.str_replace('#', '', 's#cript').'>
@@ -3587,7 +3587,7 @@ function getStatuszIdo( $time ) {
 }
 
 /* Státusz hozzáadása */
-function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_id = 0 ) {
+function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_id = 0, $memo = '' ) {
     global $adatbazis_kapcsolat;
 
     $db_error = false;
@@ -3660,9 +3660,10 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_
 
             /* Beszúrjuk az újat */
             $sql = $adatbazis_kapcsolat -> i($tabla,
-                array('id',  'stat_id', 'erteklista_id',  'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                           ),
-                array($id,   $stat_id,  $erteklista_id,    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
+                array('id',  'stat_id', 'erteklista_id',  'insert_dt',          'insert_usr',                              'update_dt',          'update_usr',                           'text' ),
+                array($id,   $stat_id,  $erteklista_id,    date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], $memo  )
             );
+
 
             if( $sql === false ) {
                 $db_error = true;
@@ -3691,10 +3692,10 @@ function addStatusz( $tabla = false, $id = false, $stat_id = false, $erteklista_
 function addMegj( $tabla, $id, $megj ) {
     global $adatbazis_kapcsolat;
     $datum = date('Y-m-d H:i:s');
-    if(!$adatbazis_kapcsolat->i('megjegyzes',   array('tabla', 'id', 'megj', 'loginnev',                       'update_dt', 'update_usr',                           'insert_dt', 'insert_usr'                           ),
-                                                array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $datum,      $_SESSION[get_db_tabla().'teljes_nev'], $datum,      $_SESSION[get_db_tabla().'teljes_nev'] )
-                                )
-    ){
+    $ins   = $adatbazis_kapcsolat->i('megjegyzes',  array('tabla', 'id', 'megj', 'loginnev',                       'update_dt', 'update_usr',                           'insert_dt', 'insert_usr'                           ),
+                                                    array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $datum,      $_SESSION[get_db_tabla().'teljes_nev'], $datum,      $_SESSION[get_db_tabla().'teljes_nev'] )
+                                    );
+    if(!$ins){
         return false;
     }
 }

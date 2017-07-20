@@ -542,12 +542,12 @@ if($gyorskereso_text){
                     <div class="dtc">Felhasználó</div>
                     <div class="dtc">Státuszidő</div>
                     <div class="dtc">Göngyölt státuszidő</div>
+                    <div class="dtc">Megjegyzés</div>
                     <!--<div class="dtc">Összesített státuszidő</div>-->
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido', $megnevezes.'_statusz', "`id` = '".$_GET['id']."'", 'insert_dt', '');
-
+        $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido text', $megnevezes.'_statusz', "`id` = '".$_GET['id']."'", 'insert_dt', '');
         if( $sorok ) {
             foreach($sorok as $sor) {
                 $statusz = $adatbazis_kapcsolat->s('nev szinkod', $megnevezes.'_statusz_text', 'recid='.$sor['stat_id'], '', '1');
@@ -574,6 +574,7 @@ if($gyorskereso_text){
                         <div class="dtc">'.$sor['insert_usr'].'</div>
                         <div class="dtc">'.$sor['statido'].'</div>
                         <div class="dtc">'.$sor['gongyolt_statido'].'</div>
+                        <div class="dtc">'.nl2br2($sor['text']).'</div>
                         <!--<div class="dtc">'.$sor['ossz_statido'].'</div>-->
                     </div>
                 ');
@@ -609,7 +610,7 @@ if($gyorskereso_text){
     }elseif(isset($_GET['megjegyzesek'])) {
 
         $szamla_html .= nl2('
-            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzes">
+            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzesek">
                 <div class="dtr nFejlec">
                     <div class="dtc">Megjegyzés</div>
                     <div class="dtc">Hozzáadta</div>

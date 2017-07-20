@@ -1,0 +1,28 @@
+<h2>Anyagok érkeztetése</h2>
+<form action="" id="anyagErkForm" class="popupForm" method="post" onsubmit="return anyagigenyles_erkeztet();">
+    
+    <div class="c">
+        Adjon meg egy rendelésszámot!
+        <table>
+            <tr>
+                <td class="r p">Rendelés szám:</td>
+                <td class="l p"><input type="text" id="rsz"></td>
+            </tr>
+            <tr>
+                <td class="r p">Szállító:</td>
+                <td class="l p"><input type="text" id="szallito"></td>
+            </tr>
+        </table>
+
+    </div>
+    
+    <div id="rendeles_tetelek">
+        
+    </div>
+    
+    <div class="kuldes">
+        <input name="elkuld" value="Ok" type="submit">
+        <input name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();" type="button">
+    </div>
+    
+</form>

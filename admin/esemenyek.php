@@ -1191,10 +1191,10 @@ $beosztas_tomb = $akt_tomb = array(
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',          'name' => 'telephely_id',   'disabled' => $disabled,    'szuro' => 1,    'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this ); '),
 	array('type' => 'text',                     'megn' => 'Időszak:',           'name' => 'tol',            'disabled' => $disabled,    'szuro' => 1,   'class' => 'kicsi datepicker', 'megn_szurobe' => 'Időpont tól', 'osszevon' => 1),
 	array('type' => 'text',                     'megn' => ' - ',                'name' => 'ig',             'disabled' => $disabled,    'szuro' => 1,   'class' => 'kicsi datepicker', 'megn_szurobe' => 'Időpont ig'),
-	array('type' => 'text',                     'megn' => 'Készítette:',        'name' => 'insert_usr',     'disabled' => $disabled,    'szuro' => 1,   'class' => 'oriasi'),
-	array('type' => 'text',                     'megn' => 'Készítés ideje:',    'name' => 'insert_dt',      'disabled' => $disabled,    'szuro' => 1,   'class' => 'datetimepicker'),
-	array('type' => 'text',                     'megn' => 'Utoljára mentette:', 'name' => 'update_usr',     'disabled' => $disabled,    'szuro' => 1,   'class' => 'oriasi'),
-	array('type' => 'text',                     'megn' => 'Mentés ideje:',      'name' => 'update_dt',      'disabled' => $disabled,    'szuro' => 1,   'class' => 'datetimepicker'),
+	array('type' => 'text',                     'megn' => 'Készítette:',        'name' => 'insert_usr',     'disabled' => 1,            'szuro' => 1,   'class' => 'oriasi'),
+	array('type' => 'text',                     'megn' => 'Készítés ideje:',    'name' => 'insert_dt',      'disabled' => 1,            'szuro' => 1,   'class' => 'datetimepicker'),
+	array('type' => 'text',                     'megn' => 'Utoljára mentette:', 'name' => 'update_usr',     'disabled' => 1,            'szuro' => 1,   'class' => 'oriasi'),
+	array('type' => 'text',                     'megn' => 'Mentés ideje:',      'name' => 'update_dt',      'disabled' => 1,            'szuro' => 1,   'class' => 'datetimepicker'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -1789,9 +1789,9 @@ if( isset($_POST['munkalapKeszre']) ) {
 
 /* Átadás diszpécsernek */
 if( isset($_POST['atadasDiszpecsernek']) ) {
-    $recid = $_POST['recid'];
-    $erteklista_id = $_POST['erteklista_id'];
-    $memo = $_POST['memo'];
+    $recid          = $_POST['recid'];
+    $erteklista_id  = $_POST['erteklista_id'];
+    $memo           = $_POST['memo'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -1829,8 +1829,16 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
             }
 
             /* Nyitott státuszra állítjuk a munkalapot */
-            if( !addStatusz( 'munkalap_statusz', $recid, 1 ) ) {
+            if( !addStatusz( 'munkalap_statusz', $recid, 1, '', $memo ) ) {
                 $db_error = true;
+            }
+            /* Hozzáadjuk a megjegyzést is ha van */
+            if( $memo ) {
+                
+                $megj_felvesz = addMegj('munkalap', $recid, $memo);
+                if( $megj_felvesz === false ) {
+                    $db_error = true;
+                }
             }
 
             if( !$db_error ) {
@@ -2902,7 +2910,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
 
     if( $elutasitas_id && is_array($idk) ) {
         foreach($idk as $id) {
-            $statusz = addStatusz( 'bejelentes_statusz', $id, 3, $elutasitas_id );
+            $statusz = addStatusz( 'bejelentes_statusz', $id, 3, $elutasitas_id, $memo );
 
             if( $statusz === false ) {
                 $db_error = true;
@@ -2910,12 +2918,9 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
 
             /* Hozzáadjuk a megjegyzést is ha van */
             if( $memo ) {
-                $sql = $adatbazis_kapcsolat -> i('megjegyzes',
-                    array('tabla', 'id', 'megj', 'loginnev',                       'insert_dt',          'insert_usr',                              'update_dt',          'update_usr'                          ),
-                    array($tabla,  $id,  $memo,  $_SESSION[get_db_tabla().'user'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] )
-                );
-
-                if( $sql === false ) {
+                
+                $megj_felvesz = addMegj($tabla, $id, $memo);
+                if( $megj_felvesz === false ) {
                     $db_error = true;
                 }
             }
@@ -3263,10 +3268,8 @@ if( isset($_POST['addMegjegyzes']) ) {
     $tabla  = $_POST['tabla'];
 
     if( $pageID && $megj ) {
-        $kapcsID = $adatbazis_kapcsolat -> i('megjegyzes',
-                                                array('tabla',  'id',    'megj',    'insert_dt',         'insert_usr',                          'loginnev'                        ),
-                                                array($tabla,   $pageID, $megj,     date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'user'] )
-                                            );
+        
+        addMegj( $tabla, $pageID, $megj );
 
         echo json_encode(array(
             'statusz' => 'siker',

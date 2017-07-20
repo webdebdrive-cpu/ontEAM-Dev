@@ -185,14 +185,14 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || isset($_GET['utemezes']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzes']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || isset($_GET['utemezes']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'naptar'        => 'Naptár',
             'modosit'       => 'Adatlap',
             'utemezes'      => 'Ütemezések',
             'dokumentumok'  => 'Dokumentumok',
-            'megjegyzes'    => 'Megjegyzések',
+            'megjegyzesek'  => 'Megjegyzések',
         );
 
         $fulek = '';
@@ -566,10 +566,10 @@ if($gyorskereso_text){
         }
 
     /* Megjegyzés */
-    }elseif(isset($_GET['megjegyzes'])) {
+    }elseif(isset($_GET['megjegyzesek'])) {
 
         $szamla_html .= nl2('
-            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzes">
+            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzesek">
                 <div class="dtr nFejlec">
                     <div class="dtc">Megjegyzés</div>
                     <div class="dtc">Hozzáadta</div>

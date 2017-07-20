@@ -686,7 +686,7 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || isset($_GET['bejelentesek']) || isset($_GET['tortenet']) || isset($_GET['anyagigenyles']) || isset($_GET['elszamolas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzes']) || isset($_GET['tetel']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || isset($_GET['bejelentesek']) || isset($_GET['tortenet']) || isset($_GET['anyagigenyles']) || isset($_GET['elszamolas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['tetel']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
@@ -696,7 +696,7 @@ if($gyorskereso_text){
             'elszamolas'    => 'Elszámolás',
             'anyagigenyles' => 'Anyagigénylések',
             'dokumentumok'  => 'Dokumentumok',
-            'megjegyzes'    => 'Megjegyzések',
+            'megjegyzesek'  => 'Megjegyzések',
         );
 
         $fulek = '';
@@ -753,11 +753,19 @@ if($gyorskereso_text){
         }
 
         if( !$csak_szerkesztheto ) {
-            //Jogosutságkezelés: csak az törölheti, aki létrehozta
-            if($sor['loginnev'] != $_SESSION[get_db_tabla().'user']){
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            //Csak diszpécser vagy diszpkp vezető törölhet
+            if(!_jog(2) && !_jog(23)){
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága munkalap törléséhez!\')" value="Töröl" title="Töröl">';
             }else{
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">';
+                
+                //Egyébként nézzük meg, hogy van-e tétel vagy bejelentés rajta. Ha van, akkor sem törölhető
+                if($adatbazis_kapcsolat->s('id', 'munkalap_tetel', "`munkalap_id`='{$_GET['id']}'")){
+                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A munkalap nem törölhető, mert munkavégzéseket tartalmaz!\')" value="Töröl" title="Töröl">';
+                }elseif($adatbazis_kapcsolat->s('recid ', 'munkalap_kapcs', "`munkalap_id` = '{$_GET['id']}'")){
+                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Munkalap törlése előtt vegye le róla a bejelentéseket!\')" value="Töröl" title="Töröl">';
+                }else{
+                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">';
+                }
             }
         }
 
@@ -1226,12 +1234,12 @@ if($gyorskereso_text){
                     <div class="dtc">Felhasználó</div>
                     <div class="dtc">Státuszidő</div>
                     <div class="dtc">Göngyölt státuszidő</div>
+                    <div class="dtc">Megjegyzés</div>
                     <!--<div class="dtc">Összesített státuszidő</div>-->
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido', $megnevezes.'_statusz', "`id` = '".$_GET['id']."'", 'insert_dt', '');
-
+        $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido text', $megnevezes.'_statusz', "`id` = '".$_GET['id']."'", 'insert_dt', '');
         if( $sorok ) {
             foreach($sorok as $sor) {
                 $statusz = $adatbazis_kapcsolat->s('nev szinkod', $megnevezes.'_statusz_text', 'recid='.$sor['stat_id'], '', '1');
@@ -1258,6 +1266,7 @@ if($gyorskereso_text){
                         <div class="dtc">'.$sor['insert_usr'].'</div>
                         <div class="dtc">'.$sor['statido'].'</div>
                         <div class="dtc">'.$sor['gongyolt_statido'].'</div>
+                        <div class="dtc">'.nl2br2($sor['text']).'</div>
                         <!--<div class="dtc">'.$sor['ossz_statido'].'</div>-->
                     </div>
                 ');
@@ -1320,10 +1329,10 @@ if($gyorskereso_text){
         }
 
 	//Megjegyzések
-	}elseif(isset($_GET['megjegyzes'])){
+	}elseif(isset($_GET['megjegyzesek'])){
 
         $szamla_html .= nl2('
-            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzes">
+            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzesek">
                 <div class="dtr nFejlec">
                     <div class="dtc">Megjegyzés</div>
                     <div class="dtc">Hozzáadta</div>
