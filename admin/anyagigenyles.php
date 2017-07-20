@@ -198,7 +198,7 @@ if( isset($_POST['arazas']) ) {
             if( $statusz ) {
                 $statusz = $statusz[0];
 
-                if( $statusz['stat_id'] != 5 ) {
+                if( $statusz['stat_id'] != CIKKIGN_STAT_NYITOTT ) {
 
                     $sql = $statusz_text = $adatbazis_kapcsolat->s('nev', 'anyagigenyles_statusz_text', "`recid` = '{$statusz['stat_id']}'", '', '1');
                     $statusz_text = $statusz_text[0];
@@ -636,15 +636,11 @@ if ($_POST['arazas_ment']) {
     exit();
 }
 
-//Küldés jóváhagyásra
+//Küldés jóváhagyásra hatása, hogy Árazva státuszt kap
 if( isset($_POST['kuldes_jovahagyasra']) ) {
     
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-
-    //hatása, hogy Árazva státuszt kap
-    $nyitott_statid = 5;
-    $arazva_statid  = 20;
     
     if( is_array($idk) ) {
         /* Ellenőrizzük a csoportokat */
@@ -688,7 +684,7 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
             if( $statusz ) {
 
                 $statusz = $statusz[0];
-                if(  $statusz['stat_id']!=$nyitott_statid ) {
+                if(  $statusz['stat_id']!=CIKKIGN_STAT_NYITOTT ) {
                     echo json_encode(array(
                         'hiba' => 'Csak nyitott státuszú anyagigényléseket lehet jóváhagyásra küldeni!'
                     ));
@@ -732,8 +728,7 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
         }
 
         foreach($idk as $id) {
-            $statusz = addStatusz( $page.'_statusz', $id, $arazva_statid );
-
+            $statusz = addStatusz( $page.'_statusz', $id, CIKKIGN_STAT_ARAZVA );
             if( $statusz === false ) {
                 $db_error = true;
             }
@@ -766,7 +761,6 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
 
     //hatása, hogy Jóváhagyva státuszt kap illetve pár mezőt kitöltünk még az adatbázisban
     $arazva_statid      = 20;
-    $jovahagyva_statid  = 25;
     
     $_POST['jhmen'] = str_replace(array(' ', ','), array('', '.'), $_POST['jhmen']);
     
@@ -811,7 +805,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
 
             if( $statusz ) {
                 $statusz = $statusz[0];
-                if(  $statusz['stat_id']!=$arazva_statid ) {
+                if(  $statusz['stat_id']!=CIKKIGN_STAT_ARAZVA ) {
                     echo json_encode(array(
                         'hiba' => 'Csak árazva státuszú anyagigényléseket lehet jóváhagyni küldeni!'
                     ));
@@ -876,7 +870,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
         foreach($idk as $id) {
             
             //Státusz léptetés jóváhagyvára
-            $statusz = addStatusz( $page.'_statusz', $id, $jovahagyva_statid );
+            $statusz = addStatusz( $page.'_statusz', $id, CIKKIGN_STAT_JOVAHAGYVA );
             if( $statusz === false ) {
                 $db_error = true;
             }
@@ -914,7 +908,6 @@ if( isset($_POST['anyagigenyles_elutasitas']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     //hatása, hogy Jóváhagyva státuszt kap illetve pár mezőt kitöltünk még az adatbázisban
-    $arazva_statid      = 20;
     $elutasitva_statid  = 91;
     
     if( is_array($idk) ) {
@@ -958,7 +951,7 @@ if( isset($_POST['anyagigenyles_elutasitas']) ) {
 
             if( $statusz ) {
                 $statusz = $statusz[0];
-                if(  $statusz['stat_id']!=$arazva_statid ) {
+                if(  $statusz['stat_id']!=CIKKIGN_STAT_ARAZVA ) {
                     echo json_encode(array(
                         'hiba' => 'Csak árazva státuszú anyagigényléseket lehet elutasítani!'
                     ));
@@ -1031,15 +1024,11 @@ if( isset($_POST['anyagigenyles_elutasitas']) ) {
     exit();
 }
 
-//Anyagigénylés elutasítása
+//Anyagigénylés elutasítása: hatása, hogy Jóváhagyva státuszt kap illetve pár mezőt kitöltünk még az adatbázisban
 if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
     
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-
-    //hatása, hogy Jóváhagyva státuszt kap illetve pár mezőt kitöltünk még az adatbázisban
-    $arazva_statid      = 20;
-    $jovahagyva_statid  = 25;
     
     if( is_array($idk) ) {
         /* Ellenőrizzük a csoportokat */
@@ -1104,7 +1093,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
                     $db_error = true;
                 }
                 
-                $statusz = addStatusz( $page.'_statusz', $igeny['recid'], $jovahagyva_statid );
+                $statusz = addStatusz( $page.'_statusz', $igeny['recid'], CIKKIGN_STAT_JOVAHAGYVA );
                 if( $statusz === false ) {
                     $db_error = true;
                 }
@@ -1134,15 +1123,11 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
 }
 
 
-//Rendelés készítése
+//Rendelés készítése: hatása, hogy Megrendelve státuszt kap
 if( isset($_POST['rendeles_keszit']) ) {
     
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-
-    //hatása, hogy Megrendelve státuszt kap
-    $jovahagyva_statid  = 25;
-    $megrendelve_statid = 30;
     
     if( is_array($idk) ) {
         /* Ellenőrizzük a csoportokat */
@@ -1186,7 +1171,7 @@ if( isset($_POST['rendeles_keszit']) ) {
             if( $statusz ) {
 
                 $statusz = $statusz[0];
-                if(  $statusz['stat_id']!=$jovahagyva_statid ) {
+                if(  $statusz['stat_id']!=CIKKIGN_STAT_JOVAHAGYVA ) {
                     echo json_encode(array(
                         'hiba' => 'Csak jóváhagyva státuszú anyagigénylésekből lehet rendelést készíteni!'
                     ));
@@ -1328,7 +1313,7 @@ if( isset($_POST['rendeles_keszit']) ) {
 
         //Anyagigénylés sorok updatelése (státuszt is, illetve egyéb mezőket is)
         foreach($idk as $id) {
-            $statusz = addStatusz( $page.'_statusz', $id, $megrendelve_statid );
+            $statusz = addStatusz( $page.'_statusz', $id, CIKKIGN_STAT_MEGRENDELVE );
             if( $statusz === false ) {
                 $db_error = true;
             }
@@ -1433,7 +1418,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
         
     }
     
-    //Anyagigénylések feldolgozása
+    //Anyagigénylés érkeztetésének feldolgozása
     if($_POST['idk']){
         
         $adatok = explode('|', $_POST['idk']);
@@ -1443,7 +1428,42 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
             if($id){
                 
                 if(!$pipa && (!$mennyiseg || $mennyiseg=='0.00')){
-                    echo $id . '<br>';
+                    
+                    $anyagigenyles = $adatbazis_kapcsolat->s('rndmen', 'anyagigenyles', "`recid`='$id'");
+                    $anyagigenyles = $anyagigenyles[0];
+                    
+                    $osszeg = $osszeg;
+                    
+                    //HA marerkmen+erkmen=0 ÉS nemfogerk=1 AKKOR statid=CIKKIGN_STAT_NEM_ERKEZETT
+                    if( ($osszeg==0 || $osszeg==0.00) && $pipa){
+                        $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_NEM_ERKEZETT );
+                        if( $statusz === false ) {
+                            $db_error = true;
+                        }
+                    
+                        
+                    //marerkmen+erkmen>=rndmen VAGY marerkmen+erkmen>0 ÉS nemfogerk=1
+                    }else if( ($osszeg > $anyagigenyles['rndmen'] || $osszeg > 0 || $osszeg==0.00) && $pipa){
+                        $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_BEERKEZETT );
+                        if( $statusz === false ) {
+                            $db_error = true;
+                        }
+                    
+                    //- HA marerkmen+erkmen>0 ÉS marerkmen+erkmen<rndmen ÉS nemfogerk=0 AKKOR statid=CIKKIGN_STAT_RESZBENBEERK
+                    }elseif( $osszeg > 0 && $osszeg < $anyagigenyles['rndmen'] && !$pipa){
+                        $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_BEERKEZETT  );
+                        if( $statusz === false ) {
+                            $db_error = true;
+                        }
+                    }
+      
+                    //Végül update
+                    $adatbazis_kapcsolat -> u('anyagigenyles',  array('erkmen', 'update_usr'),
+                                                                array($osszeg,  $_SESSION[get_db_tabla().'teljes_nev']),
+                                                "`recid`='$id'"
+                                            );
+  
+                    
                 }
                 
             }

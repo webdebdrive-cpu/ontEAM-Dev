@@ -124,13 +124,13 @@ array_push($select_honapok, array('name' => 'december',     'value' => '12'));
 //Ütemezés típushoz
 $select_szemelyzet = array();
 array_push($select_szemelyzet, array('name' => '- Válasszon -', 'value' => '' ));
-array_push($select_szemelyzet, array('name' => 'Telepített személyzet',     'value' => '1','szin' => '#CBE3FF' ));
-array_push($select_szemelyzet, array('name' => 'Mobilcsoport',              'value' => '2','szin' => '#CCFFCB' ));
-array_push($select_szemelyzet, array('name' => 'Külső kivitelező',          'value' => '3','szin' => '#FCFFCB' ));
-array_push($select_szemelyzet, array('name' => 'Diszpécser közp. vezető',   'value' => '4','szin' => '#FFEBCB' ));
-array_push($select_szemelyzet, array('name' => 'Műszaki vezető',            'value' => '5','szin' => '#FFCBCB' ));
-array_push($select_szemelyzet, array('name' => 'Műszaki vezető helyettes',  'value' => '6','szin' => '#FFCBF1' ));
-array_push($select_szemelyzet, array('name' => 'Területi felelős',          'value' => '7','szin' => '#E0CBFF' ));
+array_push($select_szemelyzet, array('name' => 'Telepített személyzet',     'value' => TELEPITETT_SZEMELYZET,   'szin' => '#CBE3FF' ));
+array_push($select_szemelyzet, array('name' => 'Mobilcsoport',              'value' => MOBILCSOPORT,            'szin' => '#CCFFCB' ));
+array_push($select_szemelyzet, array('name' => 'Külső kivitelező',          'value' => KULSO_KIVITELEZO,        'szin' => '#FCFFCB' ));
+array_push($select_szemelyzet, array('name' => 'Diszpécser közp. vezető',   'value' => DISZPECSER_KOZP_VEZETO,  'szin' => '#FFEBCB' ));
+array_push($select_szemelyzet, array('name' => 'Műszaki vezető',            'value' => MUSZAKI_VEZETO,          'szin' => '#FFCBCB' ));
+array_push($select_szemelyzet, array('name' => 'Műszaki vezető helyettes',  'value' => MUSZAKI_VEZETO_HELYETTES,'szin' => '#FFCBF1' ));
+array_push($select_szemelyzet, array('name' => 'Területi felelős',          'value' => TERULETI_FELELOS,        'szin' => '#E0CBFF' ));
 
 //Beosztás tipus
 $select_beosztas = array();
@@ -140,9 +140,9 @@ array_push($select_beosztas, array('name' => 'Szabadság',       'value' => '2' 
 
 /* Anyag státuszok */
 $munkAnyag_statusz = array(
-    0 => 'Rendelkezésre áll',
-    1 => 'Anyagigénylés szükséges',
-    2 => 'Igényelve'
+    DISZPNAG_STAT_VAN_ANYAG         => 'Rendelkezésre áll',
+    DISZPNAG_STAT_ANYAGRA_VAR       => 'Anyagigénylés szükséges',
+    DISZPNAG_STAT_ANYAG_IGENYELVE   => 'Igényelve'
 );
 
 /* Értéklista csoport */

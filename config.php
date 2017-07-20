@@ -16,10 +16,42 @@ ini_set('display_errors' ,  '0'             );
 error_reporting(E_ERROR);                       //Csak a hibákat írja ki
 
 
-//Konstansok
+/*Konstansok*/
+
+/* Státuszok */
+//Munkalap Anyagigénylés státuszok
 define('DISZPNAG_STAT_VAN_ANYAG',       '00');
 define('DISZPNAG_STAT_ANYAGRA_VAR',     '01');
 define('DISZPNAG_STAT_ANYAG_IGENYELVE', '02');
+
+//Anyagigénylés státuszok
+define('CIKKIGN_STAT_NYITOTT',           '05');
+define('CIKKIGN_STAT_MEGR_OSSZEALL',     '10');
+define('CIKKIGN_STAT_ARAZVA',            '20');
+define('CIKKIGN_STAT_JOVAHAGYVA',        '25');
+define('CIKKIGN_STAT_MEGRENDELVE',       '30');
+define('CIKKIGN_STAT_RESZBENBEERK',      '35');
+define('CIKKIGN_STAT_BEERKEZETT ',       '40');
+define('CIKKIGN_STAT_SZLA_BEERK',        '45');
+define('CIKKIGN_STAT_LEZART',            '50');
+define('CIKKIGN_STAT_TOROLT',            '51');
+define('CIKKIGN_STAT_VARAKOZO',          '52');
+define('CIKKIGN_STAT_NEM_ERKEZETT',      '90');
+define('CIKKIGN_STAT_ELUTASITVA',        '91');
+
+//személyzettípusok
+define('TELEPITETT_SZEMELYZET',         '1' );
+define('MOBILCSOPORT',                  '2' );
+define('KULSO_KIVITELEZO',              '3' );
+define('DISZPECSER_KOZP_VEZETO',        '4' );
+define('MUSZAKI_VEZETO',                '5' );
+define('MUSZAKI_VEZETO_HELYETTES',      '6' );
+define('TERULETI_FELELOS',              '7' );
+
+//MozgásID-k
+define('MOZGID_RAKTAR_BE',              '01' );
+define('MOZGID_RAKTAR_KI',              '02' );
+define('MOZGID_LELTAR',                 '03' );
 
 
 

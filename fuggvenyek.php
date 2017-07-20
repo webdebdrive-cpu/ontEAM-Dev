@@ -1432,7 +1432,7 @@ function szamla_lista( $where, $tabla ) {
         if($tabla == 'munkalap'){
             $where = "`".get_db_tabla()."munkalap`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
 
-            if( _jog(3) && _jog(5) && !_jog(0) && !_jog(1) ) {
+            if( _jog(3) && (_jog(5) || _jog(31) ) && !_jog(0) && !_jog(1) ) {
                 $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '1' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (2, 8) AND ";
             } else if( _jog(3) && _jog(31) && !_jog(0) && !_jog(1) ) {
                 $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '2' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (2, 8) AND ";

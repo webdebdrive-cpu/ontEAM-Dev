@@ -827,7 +827,7 @@ if($gyorskereso_text){
                     </div>
                 </div>
             ');
-        } else if( ((_jog(3) && _jog(5)) || (_jog(3) && _jog(31)) || (_jog(3) && _jog(21))) && in_array($sor['statusz_id'], array(8, 10)) ) {
+        } else if( ((_jog(3) && (_jog(5) || _jog(31)) ) || (_jog(3) && _jog(31)) || (_jog(3) && _jog(21))) && in_array($sor['statusz_id'], array(8, 10)) ) {
 
             $telephely = $adatbazis_kapcsolat->s('modell', 'telephely', 'id='.$sor['telephely_id'], '', '1');
 
@@ -857,7 +857,7 @@ if($gyorskereso_text){
                 <input type="button" class="gomb foGomb" value="Anyag vételezés" title="Anyag vételezés" onclick="csoportMuvelet(\'munkalapAnyagvetelezes\');">
             ');
 
-        } else if( (_jog(3) && _jog(5)) || (_jog(3) && _jog(31)) || (_jog(3) && _jog(21)) ) {
+        } else if( (_jog(3) && (_jog(5) || _jog(31)) ) || (_jog(3) && _jog(31)) || (_jog(3) && _jog(21)) ) {
             $telephely = $adatbazis_kapcsolat -> select('nev', 'telephely', "`id`='{$sor['telephely_id']}'");
             $telephely = $telephely[0];
 
