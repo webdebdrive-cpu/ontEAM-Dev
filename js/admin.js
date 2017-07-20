@@ -1465,7 +1465,7 @@ function varolistabolKivetel(csak_kerdezunk) {
                             if( response.gomb ) {
                                 alert2(response.hiba, response.gomb);
                             } else {
-                                alert2(response.hiba);
+                                alert2(response.hiba, '', 'Hiba');
                             }
 
                             return false;
@@ -1517,7 +1517,7 @@ function varolistahozAdas(csak_kerdezunk) {
                             if( response.gomb ) {
                                 alert2(response.hiba, response.gomb);
                             } else {
-                                alert2(response.hiba);
+                                alert2(response.hiba, '', 'Hiba');
                             }
 
                             return false;
@@ -1568,7 +1568,7 @@ function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
                             if( response.gomb ) {
                                 alert2(response.hiba, response.gomb);
                             } else {
-                                alert2(response.hiba);
+                                alert2(response.hiba, '', 'Hiba');
                             }
 
                             return false;
@@ -1624,7 +1624,7 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
                             if( response.gomb ) {
                                 alert2(response.hiba, response.gomb, response.felirat);
                             } else {
-                                alert2(response.hiba);
+                                alert2(response.hiba, '', 'Hiba');
                             }
 
                             return false;
@@ -1678,7 +1678,7 @@ function anyagigenyles_jovahagy(csak_kerdezunk) {
                                 if(response.focus){
                                     gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').focus()">';
                                 }
-                                alert2(response.hiba, gomb);
+                                alert2(response.hiba, gomb, 'Hiba');
                             }
                             if(response.focus){
                                 $('#'+response.focus).focus();
@@ -1746,7 +1746,7 @@ function anyagigenyles_elutasitas(csak_kerdezunk) {
                                 if(response.focus){
                                     gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').focus()">';
                                 }
-                                alert2(response.hiba, gomb);
+                                alert2(response.hiba, gomb, 'Hiba');
                             }
                             if(response.focus){
                                 $('#'+response.focus).focus();
@@ -1802,7 +1802,7 @@ function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
                                 if(response.focus){
                                     gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').focus()">';
                                 }
-                                alert2(response.hiba, gomb);
+                                alert2(response.hiba, gomb, 'Hiba');
                             }
                             if(response.focus){
                                 $('#'+response.focus).focus();
@@ -1835,7 +1835,7 @@ function csoportAtnevezes( csoportID ) {
          			response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        alert2(response.hiba);
+                        alert2(response.hiba, '', 'Hiba');
                         return false;
                     }
 
@@ -1890,7 +1890,7 @@ function munkalaphozAdas(csak_kerdezunk) {
                         response = JSON.parse(response);
 
                         if( response.hiba ) {
-                            alert2(response.hiba);
+                            alert2(response.hiba, '', 'Hiba');
                             return false;
                         }
 
@@ -1942,7 +1942,7 @@ function munkAnyagIgenyles( that, csak_kerdezunk ) {
                         if( response.gomb ) {
                             alert2(response.hiba, response.gomb);
                         } else {
-                            alert2(response.hiba);
+                            alert2(response.hiba, '', 'Hiba');
                         }
 
                         return false;
@@ -1988,7 +1988,7 @@ function munkAnyagVetelezes( that ) {
                         if( response.gomb ) {
                             alert2(response.hiba, response.gomb);
                         } else {
-                            alert2(response.hiba);
+                            alert2(response.hiba, '', 'Hiba');
                         }
 
                         return false;
@@ -2023,7 +2023,7 @@ function atadasMuszVeznek() {
                         if( response.gomb ) {
                             alert2(response.hiba, response.gomb);
                         } else {
-                            alert2(response.hiba);
+                            alert2(response.hiba, '', 'Hiba');
                         }
 
                         return false;
@@ -2058,7 +2058,7 @@ function atadasDiszpecsernek( that ) {
                         if( response.gomb ) {
                             alert2(response.hiba, response.gomb);
                         } else {
-                            alert2(response.hiba);
+                            alert2(response.hiba, '', 'Hiba');
                         }
 
                         return false;
@@ -2097,7 +2097,7 @@ function feladatHozzaadas( that ) {
                         if( response.gomb ) {
                             alert2(response.hiba, response.gomb);
                         } else {
-                            alert2(response.hiba);
+                            alert2(response.hiba, '', 'Hiba');
                         }
 
                         return false;
@@ -2131,7 +2131,7 @@ function munkalapDiszpKozp() {
                     if( response.gomb ) {
                         alert2(response.hiba, response.gomb);
                     } else {
-                        alert2(response.hiba);
+                        alert2(response.hiba, '', 'Hiba');
                     }
 
                     return false;
@@ -2162,7 +2162,7 @@ function munkalapTeruletiVezeto() {
                     if( response.gomb ) {
                         alert2(response.hiba, response.gomb);
                     } else {
-                        alert2(response.hiba);
+                        alert2(response.hiba, '', 'Hiba');
                     }
 
                     return false;
@@ -2193,7 +2193,7 @@ function munkalapMuszakiVezeto() {
                     if( response.gomb ) {
                         alert2(response.hiba, response.gomb);
                     } else {
-                        alert2(response.hiba);
+                        alert2(response.hiba, '', 'Hiba');
                     }
 
                     return false;
@@ -2224,7 +2224,7 @@ function munkalapAdminisztrator() {
                     if( response.gomb ) {
                         alert2(response.hiba, response.gomb);
                     } else {
-                        alert2(response.hiba);
+                        alert2(response.hiba, '', 'Hiba');
                     }
 
                     return false;
@@ -2293,7 +2293,7 @@ function munkalapMobil( that ) {
                         if( response.gomb ) {
                             alert2(response.hiba, response.gomb);
                         } else {
-                            alert2(response.hiba);
+                            alert2(response.hiba, '', 'Hiba');
                         }
 
                         return false;
@@ -2324,7 +2324,7 @@ function munkalapKulso() {
                     if( response.gomb ) {
                         alert2(response.hiba, response.gomb);
                     } else {
-                        alert2(response.hiba);
+                        alert2(response.hiba, '', 'Hiba');
                     }
 
                     return false;
@@ -2358,7 +2358,7 @@ function munkalapKeszre(csak_kerdezunk) {
                     if( response.gomb ) {
                         alert2(response.hiba, response.gomb);
                     } else {
-                        alert2(response.hiba);
+                        alert2(response.hiba, '', 'Hiba');
                     }
 
                     return false;
@@ -2391,7 +2391,7 @@ function munkalapTelepitett(csak_kerdezunk) {
                     if( response.gomb ) {
                         alert2(response.hiba, response.gomb);
                     } else {
-                        alert2(response.hiba);
+                        alert2(response.hiba, '', 'Hiba');
                     }
 
                     return false;
@@ -2425,7 +2425,7 @@ function munkalapFelvesz( recid ) {
                         if( response.gomb ) {
                             alert2(response.hiba, response.gomb);
                         } else {
-                            alert2(response.hiba);
+                            alert2(response.hiba, '', 'Hiba');
                         }
 
                         return false;
@@ -2478,7 +2478,7 @@ function munkalapKeszit(csak_kerdezunk) {
                         if( response.gomb ) {
                             alert2(response.hiba, response.gomb);
                         } else {
-                            alert2(response.hiba);
+                            alert2(response.hiba, '', 'Hiba');
                         }
 
                         return false;
@@ -2533,12 +2533,12 @@ function bejegyzesElutasitas( that ) {
                             response = JSON.parse(response);
 
                             if( response.hiba ) {
-                                alert2(response.hiba);
+                                alert2(response.hiba, '', 'Hiba');
                                 return false;
                             }
 
                             if( response.kieg ) {
-                                alert2(response.kieg);
+                                alert2(response.kieg, '', 'Hiba');
                             }
 
                             kijelolesEltavolit();
@@ -2590,7 +2590,7 @@ function csoportbolTorol( oszlop ) {
                             response = JSON.parse(response);
 
                             if( response.hiba ) {
-                                alert2(response.hiba);
+                                alert2(response.hiba, '', 'Hiba');
                                 return false;
                             }
 
@@ -2626,7 +2626,7 @@ function addCsoport() {
          			response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        alert2(response.hiba);
+                        alert2(response.hiba, '', 'Hiba');
                         return false;
                     }
 
@@ -2675,7 +2675,7 @@ function csoportbaRendez( that ) {
                             response = JSON.parse(response);
 
                             if( response.hiba ) {
-                                alert2(response.hiba);
+                                alert2(response.hiba, '', 'Hiba');
                                 return false;
                             }
 
@@ -2738,7 +2738,7 @@ function csoportMuvelet( oldal ) {
                  			response = JSON.parse(response);
 
                             if( response.hiba ) {
-                                alert2(response.hiba);
+                                alert2(response.hiba, '', 'Hiba');
                                 return false;
                             }
 
@@ -2766,7 +2766,7 @@ function csoportMuvelet( oldal ) {
                  			response = JSON.parse(response);
 
                             if( response.hiba ) {
-                                alert2(response.hiba);
+                                alert2(response.hiba, '', 'Hiba');
                                 return false;
                             }
 
@@ -2799,7 +2799,7 @@ function csoportMuvelet( oldal ) {
                                 if( response.gomb ) {
                                     alert2(response.hiba, response.gomb);
                                 } else {
-                                    alert2(response.hiba);
+                                    alert2(response.hiba, '', 'Hiba');
                                 }
 
                                 return false;
@@ -2833,7 +2833,7 @@ function csoportMuvelet( oldal ) {
                                 if( response.gomb ) {
                                     alert2(response.hiba, response.gomb);
                                 } else {
-                                    alert2(response.hiba);
+                                    alert2(response.hiba, '', 'Hiba');
                                 }
 
                                 return false;
@@ -2888,7 +2888,7 @@ function csoportMuvelet( oldal ) {
                                     if( response.gomb ) {
                                         alert2(response.hiba, response.gomb);
                                     } else {
-                                        alert2(response.hiba);
+                                        alert2(response.hiba, '', 'Hiba');
                                     }
 
                                     popupZar();
@@ -2925,7 +2925,7 @@ function csoportMuvelet( oldal ) {
                                 if( response.gomb ) {
                                     alert2(response.hiba, response.gomb);
                                 } else {
-                                    alert2(response.hiba);
+                                    alert2(response.hiba, '', 'Hiba');
                                 }
 
                                 return false;
@@ -3167,7 +3167,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz 
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        alert2(response.hiba);
+                        alert2(response.hiba, '', 'Hiba');
                         return false;
                     }else{
                         $('#rendeles_tetelek').html(response.html);
@@ -3564,7 +3564,7 @@ function addSzakterulet( szallitoID, that ) {
                     html = JSON.parse(html);
 
                     if( html.statusz == 'hiba' ) {
-                        alert2(html.uzi);
+                        alert2(html.uzi, '', 'Hiba');
                         return false;
                     }
 
@@ -3604,7 +3604,7 @@ function addMegjegyzes( pageID, that ) {
                     html = JSON.parse(html);
 
                     if( html.statusz == 'hiba' ) {
-                        alert2(html.uzi);
+                        alert2(html.uzi, '', 'Hiba');
                         return false;
                     }
 
@@ -3638,7 +3638,7 @@ function addSzalloda( loginID, that ) {
                     html = JSON.parse(html);
 
                     if( html.statusz == 'hiba' ) {
-                        alert2(html.uzi);
+                        alert2(html.uzi, '', 'Hiba');
                         return false;
                     }
 
@@ -4173,7 +4173,7 @@ function beosztas_naptarba_teszt(beosztas_id, felulir){
                 if(response.gomb){
                     alert2(response.hiba, response.gomb);
                 }else{
-                    alert2(response.hiba);
+                    alert2(response.hiba, '', 'Hiba');
                 }
             }
         }
@@ -4204,7 +4204,7 @@ function naptar_torol(){
                 alert2();
             }
             if(response.hiba){
-                alert2(response.hiba);
+                alert2(response.hiba, '', 'Hiba');
             }
         }
     });

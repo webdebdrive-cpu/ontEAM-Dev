@@ -850,7 +850,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 }
 
                 if($ertek['name'] == 'jelsz2'){
-                    $ret .= 'if(document.getElementById(\'reg_jelsz\').value.length < 4 ){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'A jelszó hossza minimum 4 karakter legyen!\');return false;}';
+                    $ret .= 'if(document.getElementById(\'reg_jelsz\').value.length < 4 ){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'A jelszó hossza minimum 4 karakter legyen!\', \'\', \''.$hiba_txt.'\');return false;}';
                     $ret .= 'if(document.getElementById(\'jelsz2\').value != document.getElementById(\'reg_jelsz\').value){document.getElementById(\''.$ertek['name'].'\').className += \' alert\';alert2(\'A jelszavak nem egyeznek meg!\', \'\', \''.$hiba_txt.'\');return false;}';
                 }
 
@@ -955,7 +955,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                             if( response.gomb ) {
                                 alert2(response.hiba, response.gomb);
                             } else {
-                                alert2(response.hiba);
+                                alert2(response.hiba, \'\', \''.$hiba_txt.'\');
                             }
 
                             folyamatban_hiba = true;
@@ -979,28 +979,28 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 return false;
             }
 
-            tol = $(\'#tol\').val().substring(0, 10).replace(/\./g, \'-\');
-            ig  = $(\'#ig\').val().substring(0, 10).replace(/\./g, \'-\');
+            tol = $(\'#tol\').val().substring(0, 13).replace(/\./g, \'-\');
+            ig  = $(\'#ig\').val().substring(0, 13).replace(/\./g, \'-\');
             idoszak_tol = $(\'#idoszak_tol\').val();
             idoszak_ig  = $(\'#idoszak_ig\').val();
             if(idoszak_tol > tol){
-                alert2(\'A kezdődátum nem lehet korábbi mint az adatlap időszaka!\', \'\', \'Hiba\');
+                alert2(\'A kezdődátum nem lehet korábbi mint az adatlap időszaka!\', \'\', \''.$hiba_txt.'\');
                 return false;
             }
             if(idoszak_ig < tol){
-                alert2(\'A kezdődátum nem lehet későbbi mint \'+idoszak_ig+\'!\', \'\', \'Hiba\');
+                alert2(\'A kezdődátum nem lehet későbbi mint \'+idoszak_ig+\'!\', \'\', \''.$hiba_txt.'\');
                 return false;
             }
             if(idoszak_ig < ig){
-                alert2(\'A végdátum nem lehet későbbi mint \'+idoszak_ig+\'!\', \'\', \'Hiba\');
+                alert2(\'A végdátum nem lehet későbbi mint \'+idoszak_ig+\'!\', \'\', \''.$hiba_txt.'\');
                 return false;
             }
             if(idoszak_tol > ig){
-                alert2(\'A végdátum nem lehet korábbi mint \'+idoszak_tol+\'!\', \'\', \'Hiba\');
+                alert2(\'A végdátum nem lehet korábbi mint \'+idoszak_tol+\'!\', \'\', \''.$hiba_txt.'\');
                 return false;
             }
             if(tol >= ig){
-                alert2(\'A végdátum nem lehet korábbi mint a kezdődátum!\', \'\', \'Hiba\');
+                alert2(\'A végdátum nem lehet korábbi mint a kezdődátum!\'+tol+\'-\'+ig, \'\', \''.$hiba_txt.'\');
                 return false;
             }
 
@@ -1013,7 +1013,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
         $ret .= nl2('
             if($(\'#id\').hasClass(\'foglalt_id\')){
-                alert2($(\'#id\').val()+\' - \'+$(\'#nev\').val()+\'<br>Ez a kód már használatban van!\', \'\', \'Hiba\');
+                alert2($(\'#id\').val()+\' - \'+$(\'#nev\').val()+\'<br>Ez a kód már használatban van!\', \'\', \''.$hiba_txt.'\');
                 return false;
             }
         ');
@@ -1040,7 +1040,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 /* gép és helyiség is üresen maradt figylemeztetés */
                 if(!$(\'#gep_id\').val() && !$(\'#obj_id\').val() && !helyiseg_gep_mehet){
                     uf_gomb = \'<div class="c"><input type="button" class="gomb piros" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()"></div>\';
-                    alert2(\'Nem adott meg sem helyiséget sem gépet a feladathoz.<br>Folytatja?\', uf_gomb, \'Kérdés\');
+                    alert2(\'Nem adott meg sem helyiséget sem gépet a feladathoz.<br>Folytatja?\', uf_gomb);
                     return false;
                 }
 
@@ -1055,7 +1055,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         <br>Ha folytatja, a feladat az esedékesség napján készül munkalap!
                         <br>
                         <br>Folytatja?
-                    \', uf_gomb2, \'Kérdés\');
+                    \', uf_gomb2);
                     return false;
                 }
 
@@ -1071,7 +1071,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
                             response = JSON.parse(response);
                             uf_gomb3 = \'<div class="c"><input type="button" class="gomb piros" value="Igen" onclick="utemezes_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()"></div>\';
-                            alert2(response[\'uzenet\'], uf_gomb3, \'Kérdés\');
+                            alert2(response[\'uzenet\'], uf_gomb3);
                             $(\'#esnap_d\').val(response[\'esedekes\']);
                             return false;
 
@@ -1098,7 +1098,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         if( response.gomb ) {
                             alert2(response.hiba, response.gomb);
                         } else {
-                            alert2(response.hiba);
+                            alert2(response.hiba, \'\', \''.$hiba_txt.'\');
                         }
 
                         return false;
@@ -3825,6 +3825,88 @@ function beosztas_naptar($beosztas_id){
                     </th>
                 ');
     for($i=0; $i<$napok; $i++){
+        $naptar .= '<th>'.date('d', $kezd+60*60*24*$i).'</th>';
+    }
+    $naptar .= nl2('
+                    </tr>
+                ');
+
+    $szorzo   = 0.743;
+    $recidk = array();
+    $szemelyzet = $adatbazis_kapcsolat->s('distinct felh_loginnev', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'");
+    $szemelyzet = adatbazis2tomb($szemelyzet, 'felh_loginnev');
+    foreach ($szemelyzet as $szemely){
+
+        $szemelyzet = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='{$szemely}'");
+        $szemelyzet = $szemelyzet[0];
+
+        $idopontok = array();
+        $sorok = $adatbazis_kapcsolat->s('recid tol ig szerepkor', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}' AND `felh_loginnev`='$szemely'");
+        foreach($sorok as $sor){
+            array_push($idopontok, $sor);
+        }
+
+        $sor_cellak = '<td colspan="'.$napok.'">';
+
+        foreach($idopontok as $idopont){
+            
+            $orak_kezdestol_rem = round((strtotime($idopont['tol'])-$kezd)                      / (60*60)/10*$szorzo);
+            $orak_hossza_rem    = round((strtotime($idopont['ig'] )-strtotime($idopont['tol'])) / (60*60)/10*$szorzo);
+
+            $foglalt = true;
+            $recid   = $idopont['recid'];
+            $style   = 'margin-left: '.$orak_kezdestol_rem.'rem; ';
+            $style  .= 'width: '.$orak_hossza_rem.'rem';
+            $text    = substr($idopont['tol'], 0, 13).'-'.substr($idopont['ig'], 0, 13);
+            $title   = substr($idopont['tol'], 0, 13).'-'.substr($idopont['ig'], 0, 13);
+            $sor_cellak .= '<div title="'.$title.'" class="foglalt beosztas_'.$recid.' szerepkor_'.$idopont['szerepkor'].'" data-recid="'.$recid.'" style="'.$style.'">'.$text.'</div>';
+        }
+
+        $sor_cellak .= '</td>';
+
+        $naptar .= nl2('
+                        <tr>
+                            <th>
+                                '.$szemelyzet['nev'].'
+                            </th>
+                            '.$sor_cellak.'
+                        </tr>
+                    ');
+
+    }
+
+    $naptar .= '</table>';
+
+    return '<div id="kijelolt_erteke"></div><div class="beosztas_naptar">'.$naptar.'</div>';
+    
+    /*
+    global $adatbazis_kapcsolat;
+
+    $idoint = $adatbazis_kapcsolat->s('tol ig', 'beosztas', "`recid`='$beosztas_id'");
+    $idoint = $idoint[0];
+
+    $kezd = strtotime($idoint['tol']);
+    $veg  = strtotime($idoint['ig']);
+    $napok = floor(($veg - $kezd) / (60 * 60 * 24))+1;
+
+    require 'selectek.php';
+    $szerepkorok = '';
+    foreach($select_szemelyzet as $szerepkor){
+        if($szerepkor['szin']){
+            $szerepkorok .= '<div style="background: '.$szerepkor['szin'].'; padding: 0.2rem 0.4rem; font-size: 1.1rem">'.$szerepkor['name'].'</div>';
+        }
+    }
+    $naptar = nl2('
+                <div class="dib" style="position: fixed; right: 0">
+                    '.$szerepkorok.'
+                </div>
+                <table>
+                <tr>
+                    <th>
+                        Dátum
+                    </th>
+                ');
+    for($i=0; $i<$napok; $i++){
         $naptar .= '<th colspan="24">'.date('Y.m.d', $kezd+60*60*24*$i).'</th>';
         for($ora = 0; $ora <24; $ora++){
             $orak_fejlec .= '<th>&nbsp;</th>';
@@ -3833,12 +3915,6 @@ function beosztas_naptar($beosztas_id){
     $naptar .= nl2('
                     </tr>
                 ');
-//                    <tr>
-//                        <th>
-//                            Órák
-//                        </th>
-//                        '.$orak_fejlec.'
-//                    </tr>
 
     $recidk = array();
     $szemelyzet = $adatbazis_kapcsolat->s('distinct felh_loginnev', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'");
@@ -3905,6 +3981,7 @@ function beosztas_naptar($beosztas_id){
     $naptar = '<style type="text/css">'.$css.'</style>'.$naptar;
 
     return '<div id="kijelolt_erteke"></div><div class="beosztas_naptar">'.$naptar.'</div>';
+     */
 }
 
 //A kapott mező, operátor és feltétel alapján előállítja a where feltétel kiegészítését

@@ -348,6 +348,9 @@ if($gyorskereso_text){
         
     } elseif(isset($_GET['naptar'])) {
         
+        $beosztas = $adatbazis_kapcsolat->s('tol ig', 'beosztas', "`recid`='{$_GET['id']}'");
+        $beosztas = $beosztas[0];
+        
         if(_jog(30)){
             $gombok = nl2('
                 <div class="muveletek" style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);">
@@ -382,7 +385,7 @@ if($gyorskereso_text){
             if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
             }else{
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">';
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
             }
         }
         
@@ -584,9 +587,6 @@ if($gyorskereso_text){
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
         
 		require('switch.php');
-        
-        $beosztas = $adatbazis_kapcsolat->s('tol ig', 'beosztas', "`recid`='{$_GET['id']}'");
-        $beosztas = $beosztas[0];
 
 	    $szamla_html .= 
             str_replace(

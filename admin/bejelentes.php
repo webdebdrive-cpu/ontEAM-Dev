@@ -338,7 +338,7 @@ if($gyorskereso_text){
                                 '.$gep_nev.'
                             </div>
                             <br>Biztosan törlöd ezt a '.$szoveg.'?
-                        \';</script><input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(torol_kerdes, gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">
+                        \';</script><input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(torol_kerdes, gomb'.$_GET['id'].')" value="Töröl" title="Töröl">
                     ');
                 }
 
