@@ -2051,6 +2051,15 @@ if( isset($_POST['munkalaphozAdas']) ) {
         $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
         $csoportok_unique = array_unique($csoportok);
 
+        if( count($csoportok_unique) > 1 ) {
+            echo json_encode(array(
+                'hiba' => 'Csoportos és szabad bejelentésekből nem lehet egy munkalapot készíteni. <br>A szabad bejelentéseket előbb adja a csoporthoz!'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
         $kijelolt_db = array_count_values($csoportok);
 
         foreach( $csoportok_unique as $csu ) {
@@ -2089,6 +2098,44 @@ if( isset($_POST['munkalaphozAdas']) ) {
 
             $weblap->leallit();
             exit();
+        }
+
+        $sql = $mlap = $adatbazis_kapcsolat->s('telephely_id', 'munkalap', "`recid` = '{$munkalapID}'", '', '1');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $mlap ) {
+            $mlap = $mlap[0];
+
+            $elsoID = array_shift(array_values($idk));
+            $sql = $bej_telep = $adatbazis_kapcsolat->s('telephely_id', 'bejelentes', "`recid` = '".$elsoID."'", '', '1');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $bej_telep ) {
+                $bej_telep = $bej_telep[0];
+
+                if( $mlap['telephely_id'] != $bej_telep['telephely_id'] ) {
+                    $sql = $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$mlap['telephely_id'], '', '1');
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    $telephely = $telephely[0]['nev'];
+
+                    echo json_encode(array(
+                        'hiba' => 'Ehhez a munkalaphoz csak a '.$telephely.' szálloda bejelentése adható!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
         }
 
         /* Ellenőrizzük a státuszokat is */
@@ -2147,6 +2194,41 @@ if( isset($_POST['munkalaphozAdas']) ) {
             ));
             $weblap->leallit();
             exit();
+        }
+
+        /* Többi munkalaphoz is hozzáadjuk a bejegyzéseket */
+        if( $munkalapID > 0 ) {
+            $sql = $mKapcs = $adatbazis_kapcsolat->s('recid bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$munkalapID}'", '', '1');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $mKapcs ) {
+                $mKapcs = $mKapcs[0];
+
+                /* Megnézzük, hogy ez a bejelentés szerepel e máshol */
+                $sql = $isMKapcsok = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '".$mKapcs['bejelentes_id']."' AND `munkalap_id` != '{$munkalapID}'", '', '');
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+                
+                if( $isMKapcsok ) {
+                    foreach($isMKapcsok as $isMKapcs) {
+                        foreach($idk as $id) {
+                            $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
+                                array('munkalap_id',              'bejelentes_id',  'update_usr',                          'insert_dt',          'insert_usr',                            ),
+                                array($isMKapcs['munkalap_id'],    $id,             $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']  )
+                            );
+
+                            if( $sql === false ) {
+                                $db_error = true;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         /* Státuszt folyamatban-ra állítjuk */
@@ -2241,7 +2323,7 @@ if( isset($_GET['csoportSelect']) ) {
 
 /* Munkalap select */
 if( isset($_GET['munkalapSelect']) ) {
-    $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', '', 'insert_dt desc', '');
+    $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam', 'munkalap', '', 'insert_dt desc', '');
 
     if( $munkalapok ) {
         $html = '<select id="munkalapID" name="munkalapID"><option value="">- Válassz -</option>';
@@ -2253,7 +2335,7 @@ if( isset($_GET['munkalapSelect']) ) {
                 $munkalap_statusz = $munkalap_statusz[0];
 
                 if( in_array($munkalap_statusz['stat_id'], array(1, 7, 2, 9)) ) {
-                    $html .= '<option value="'.$munkalap['recid'].'">'.$munkalap['recid'].'</option>';
+                    $html .= '<option value="'.$munkalap['recid'].'">'.$munkalap['ikt_szam'].'</option>';
                 }
             }
 
@@ -2714,6 +2796,15 @@ if( isset($_POST['munkalapKeszit']) ) {
         $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
         $csoportok_unique = array_unique($csoportok);
 
+        if( count($csoportok_unique) > 1 ) {
+            echo json_encode(array(
+                'hiba' => 'Csoportos és szabad bejelentésekből nem lehet egy munkalapot készíteni. <br>A szabad bejelentéseket előbb adja a csoporthoz!'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
         $kijelolt_db = array_count_values($csoportok);
 
         foreach( $csoportok_unique as $csu ) {
@@ -2767,7 +2858,7 @@ if( isset($_POST['munkalapKeszit']) ) {
 
                 if( $statusz['stat_id'] != 1 && $statusz['stat_id'] != 2 ) {
                     echo json_encode(array(
-                        'hiba' => 'Munkalap csak nyitott státuszú bejelentésből készíthető!'
+                        'hiba' => 'Csak Nyitott vagy Folyamatban státuszú bejelentésből készíthető munkalap!'
                     ));
 
                     $weblap->leallit();
@@ -2783,8 +2874,29 @@ if( isset($_POST['munkalapKeszit']) ) {
             }
         }
 
+        /* Ellenőrizzük, hogy van e már belőlük munkalap */
+        foreach($idk as $id) {
+            $sql = $isMlap = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$id}'", '', '1');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $isMlap ) {
+                $isMlap = $isMlap[0];
+
+                echo json_encode(array(
+                    'hiba' => 'Ehhez a bejelentéshez már készült munkalap. <br>Ha mégegyet szeretne készíteni, duplikálja a munkalapot! <br>Duplikálja most a munkalapot?',
+                    'gomb' => '<input class="gomb piros" value="Igen" onclick="location.href = \'munkalap.php?uj&ujkent='.$isMlap['munkalap_id'].'\';" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
         //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
-        if (isset($_POST['csak_kerdezunk'])) {
+        if(isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
                 'hiba' => 'Biztos munkalapot készít a kijelölt bejelentés(ek)ből?',
