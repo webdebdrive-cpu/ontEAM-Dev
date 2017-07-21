@@ -381,7 +381,7 @@ if( isset($_POST['arazas']) ) {
                         <td class="p r">Rendelési egységár:</td>
                         <td class="p"><input type="text" name="pop_rndear" id="pop_rndear" class="f_num" data-tort="4" value="'.number_format($igenyles['rndear'], 4, ',', ' ').'"> '.get_penznem().'</td>
                         <td class="p r">Árfolyam:</td>
-                        <td class="p"><input type="text" name="pop_arfolyam" id="pop_arfolyam" class="f_num" data-tort="4" value="'.number_format($igenyles['arfolyam'], 4, ',', ' ').'"></td>
+                        <td class="p"><input type="text" name="pop_arfolyam" id="pop_arfolyam" class="f_num" data-tort="5" value="'.number_format($igenyles['arfolyam'], 5, ',', ' ').'"></td>
                     </tr>
                     <tr>
                         <td class="p r">Átváltva:</td>
@@ -451,7 +451,7 @@ if( isset($_POST['arazas']) ) {
                         /* HUF esetén */
                         if($(\'#pop_kcs_21\').val()==5){
                             $(\'#pop_rndear\').removeAttr(\'disabled\').addClass(\'csillag\');
-                            $(\'#pop_arfolyam\').attr(\'disabled\', 1).val(\'0,0000\');
+                            $(\'#pop_arfolyam\').attr(\'disabled\', 1).val(\'0,00000\');
                             $(\'#pop_vrndear\').attr(\'disabled\', 1).val(\'0,0000\');
                             $(\'#pop_atvaltva_d\').attr(\'disabled\', 1).val(\'    .  .  \');
 
@@ -467,7 +467,7 @@ if( isset($_POST['arazas']) ) {
                             $(\'#pop_rndear\').attr(\'disabled\', 1);
 
                             rend_osszeg = rndmen*arfolyam*arfolyam;
-                            $(\'#pop_rndear\').val( ezresek(arfolyam*vrndear, 4, \',\', \' \') );
+                            $(\'#pop_rndear\').val( ezresek(arfolyam*vrndear, 5, \',\', \' \') );
                             $(\'#rend_osszeg\').html(ezresek(rend_osszeg, 4, \',\', \' \'));
                             $(\'#rend_osszeg2\').html(ezresek(rndmen*vrndear, 4, \',\', \' \')+\' \'+$(\'#pop_kcs_21_autocomp\').val());
 
@@ -581,6 +581,8 @@ if ($_POST['arazas_ment']) {
             $weblap -> leallit();
             exit();
         }
+        
+        $_POST['atvaltva_d'] = trim($_POST['atvaltva_d'], '. ');
         if(!$_POST['atvaltva_d'] || $_POST['atvaltva_d']=='0000.00.00'){
             echo json_encode(
                         array(
@@ -1231,9 +1233,11 @@ if( isset($_POST['rendeles_keszit']) ) {
         if ($_POST['mehet_db_be']!='mehet') {
             
             mysqli_query($db_kapcs, 'SET AUTOCOMMIT=0');
-            $sorszam = mysqli_query($db_kapcs, 'SELECT `sorszam`+1 FROM `'.get_db_tabla().'iktszam_seq` WHERE `tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\' FOR UPDATE;');
-            $sorszam = mysqli_fetch_array($sorszam);
-            $sorszam = 'R'.date('y').'/'.sprintf('%04d', $sorszam[0]).'|'.$_POST['idk'];
+            $sorszam = mysqli_query($db_kapcs, 'SELECT `sorszam` FROM `'.get_db_tabla().'iktszam_seq` WHERE `tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\' FOR UPDATE;');
+            $sorszam = mysql_fetch_array($sorszam);
+            $sorszam = $sorszam[0]+1;
+            mysqli_query($db_kapcs, 'UPDATE `'.get_db_tabla().'iktszam_seq` SET `sorszam`=\''.$sorszam.'\' WHERE `tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\'');
+            $sorszam = 'R'.date('y').'/'.sprintf('%04d', $sorszam).'|'.$_POST['idk'];
             $sorszam_kodolva = trim(base64_encode($sorszam), '=');
 
             echo json_encode(array(
@@ -1285,7 +1289,7 @@ if( isset($_POST['rendeles_keszit']) ) {
             }
         }
         
-        //Most kommitoljuk el a popupban lekért sorszámáot
+        //Most kommitoljuk el a popupban lekért sorszámot
         mysqli_query($db_kapcs, 'COMMIT');
      
         //Tesztelés idejére kommentezve

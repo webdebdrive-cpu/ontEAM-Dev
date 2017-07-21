@@ -23,7 +23,11 @@
                         timepicker          : true,
                         step                : 60,
                         validateOnBlur      : false,
-                        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
+                        onChangeDateTime    : function(dp, $input){ 
+                            $('#mehet_gomb').removeAttr('disabled');
+                            /* Órapontosak vagyunk */
+                            $input.val( $input.val().substring(0, 14)+'00' );
+                        }
                     });
                     $('.ora_perc').datetimepicker({
                         closeOnDateSelect   : true,
@@ -32,7 +36,11 @@
                         mask                : /*'__:__'*/'\xa0\xa0:\xa0\xa0',
                         step                : 60,
                         validateOnBlur      : false,
-                        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
+                        onChangeDateTime    : function(dp, $input){
+                            $('#mehet_gomb').removeAttr('disabled');
+                            /* Órapontosak vagyunk */
+                            $input.val( $input.val().substring(0, 3)+'00' );
+                        }
                     });
                     
                     /* Ha az űrlapnak nincs submit-ja, akkor minden mezőjét tiltunk.  */
