@@ -10,7 +10,14 @@
             </tr>
             <tr>
                 <td class="r p">Szállító:</td>
-                <td class="l p"><input type="text" id="szallito"></td>
+                <td class="l p">
+                    <input type="text" id="pop_szallito" disabled>
+                    <script>
+                        $(document).ready(function(){
+                            $('#pop_szallito').val($('#szallito_autocomp').val());
+                        });
+                    </script>
+                </td>
             </tr>
         </table>
 

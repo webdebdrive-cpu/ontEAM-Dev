@@ -177,9 +177,9 @@ if(isset($_POST['login'])) {
                     $_SESSION[get_db_tabla().'user_id']     = $felhasznalo['recid'];
                     $_SESSION[get_db_tabla().'rights']      = str_split($felhasznalo['flags']);
 
-                    if(!$_SESSION['kert_url']){
-                        $_SESSION['kert_url'] = get_domain().'/'.get_admin();
-                    }
+//                    if(!$_SESSION['kert_url']){
+//                        $_SESSION['kert_url'] = get_domain().'/'.get_admin();
+//                    }
 
                     if( $_POST['ajax'] ) {
                         echo json_encode(array(

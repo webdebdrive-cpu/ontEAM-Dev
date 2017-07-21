@@ -1086,6 +1086,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
     //Ajaxos form módosítás
     $ajax_kod = nl2('
+
         $.ajax({
             url : \''.self().'?id='.$_GET['id'].'\',
             type: \'POST\',
@@ -1093,7 +1094,6 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             success: function(response) {
                 if( response ) {
                     response = JSON.parse(response);
-
                     if( response.hiba ) {
                         if( response.gomb ) {
                             alert2(response.hiba, response.gomb);
@@ -1524,8 +1524,7 @@ function szamla_lista( $where, $tabla ) {
 
     //Rendezés telephely táblával JOIN-olva
     $bejegyzesek = array();
-    if(strpos($order, 'telephely_id')!==false || strpos($select, 'telephely_id')!==false){
-
+    if(strpos($order, 'telephely_id')!==false  || strpos($select, 'telephely_id')!==false){
         //Először is az ordert felülírjuk
         $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
 

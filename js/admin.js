@@ -3095,12 +3095,14 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz 
         ures_men_ek_pipa0 = '';
         ures_men_ek_pipa1 = '';
         idk               = '';
-        $('table.anyagig_erkeztet .erkmen').each(function () {
+        hibauzi           = '';
+        $('table.anyagig_erkeztet .erkmen').each(function (e) {
             id          = $(this).attr('data-id');
             szalloda    = $('#erkeztet_szall_'+id).html();
             cikkid      = $('#erkeztet_cikkid_'+id).html();
-            erkmen      = $(this).val().replace(',', '.').replace(' ', '');
+            rndmen      = $('#rndmen_'+id).html().replace(',', '.').replace(' ', '');
             marerkmen   = $('#marerkmen_'+id).html().replace(',', '.').replace(' ', '');
+            erkmen      = $(this).val().replace(',', '.').replace(' ', '');
             nem_tobb    = $('#nem_tobb_'+id).prop('checked');
 
             if(nem_tobb){
@@ -3109,24 +3111,40 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz 
                 nem_tobb = '0';
             }
 
+            /* Beérkezett mennyiség nem lehet negatív */
             if(erkmen<0){
-                alert2('Beérkezett mennyiség nem lehet kevesebb, mint 0!', '<input class="link gomb" value="Ok" onclick="alert2();$(\'#erkmen_'+id+'\').focus()" type="button">');
+                hibauzi = 'Beérkezett mennyiség nem lehet kevesebb, mint 0!';
                 $(this).addClass('alert');
                 return false;
             }
-
-            /*"NEM Pipált sorokra, ha üres marerkmen és erkmen is:"*/
-            if(!nem_tobb && (!erkmen || erkmen==0) && (!marerkmen || marerkmen==0)){
+            
+            /* Beérkezett mennyiség nem lehet több,<br>mint a rendelt mennyiség minusz az előzőleg beérkezett mennyiség! */
+            if(erkmen>rndmen-marerkmen){
+                hibauzi = 'Beérkezett mennyiség nem lehet több,<br>mint a rendelt mennyiség minusz az előzőleg beérkezett mennyiség!';
+                $(this).addClass('alert');
+                return false;
+            }
+            
+            /* NEM Pipált sorokra, ha üres marerkmen és erkmen is */
+            if(nem_tobb==0 && (!erkmen || erkmen==0.00) && (!marerkmen || marerkmen==0.00)){
                 ures_men_ek_pipa0 += szalloda+' '+cikkid+'<br>';
             }
-            if(nem_tobb && (!erkmen || erkmen==0) && (!marerkmen || marerkmen==0)){
+            
+            /* Pipált sorokra, ha üres marerkmen és erkmen is */
+            if(nem_tobb==1  && (!erkmen || erkmen==0.00) && (!marerkmen || marerkmen==0.00)){
                 ures_men_ek_pipa1 += szalloda+' '+cikkid+'<br>';
             }
 
             idk += id+'#'+erkmen+'#'+nem_tobb+'|';
 
         });
-
+        
+        /* A hibaüzenetet itt írjuk ki, és nem az each ciklusban, mert akkor tovább futna a JS kód, ott nem űködik a return false mert az egy külön függvény */
+        if(hibauzi){
+            alert2(hibauzi, '<input class="link gomb" value="Ok" onclick="alert2();$(\'#erkmen_'+id+'\').focus()" type="button">');
+            return false;
+        }
+        
         /* ha volt üres pipa mellett üres mennyiség sor, akkor rákrédezünk */
         if(ures_men_ek_pipa0 && !ures_men_ek_pipa0_kesz){
             gombok = '<input class="link gomb" value="Igen" onclick="anyagigenyles_erkeztet(\'ures_men_ek_pipa0_kesz nem kérdezzük meg megint\')" type="button"> <input class="link gomb" value="Nem" onclick="alert2()" type="button">';
@@ -3148,7 +3166,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz 
                 anyagigenyles_erkeztet  : new Date().getTime()
             },
             success: function (response) {
-
+                popupZar();
             }
         });
 

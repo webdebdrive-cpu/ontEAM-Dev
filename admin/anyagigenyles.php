@@ -1067,7 +1067,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
 
             $ertek = 0;
-            $igenylesek = $adatbazis_kapcsolat->s('igmen rndear', 'anyagigenyles', "`statusz_id`=20");
+            $igenylesek = $adatbazis_kapcsolat->s('igmen rndear', 'anyagigenyles', "`statusz_id`='".CIKKIGN_STAT_ARAZVA."'");
             foreach ($igenylesek as $igeny){
                 $ertek += $igeny['igmen']*$igeny['rndear'];
             }
@@ -1083,11 +1083,11 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
             $weblap->leallit();
             exit();
         }
-
+        
         foreach($idk as $id) {
             
             //Státusz léptetés jóváhagyvára
-            $igenylesek = $adatbazis_kapcsolat->s('recid rndmen', 'anyagigenyles', "`statusz_id`=20");
+            $igenylesek = $adatbazis_kapcsolat->s('recid rndmen', 'anyagigenyles', "`statusz_id`='".CIKKIGN_STAT_ARAZVA."'");
             foreach ($igenylesek as $igeny){
                 
                 $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('jhmen'), array($igeny['rndmen']), "`recid`='{$igeny['recid']}'");
@@ -1362,7 +1362,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
             $weblap->leallit();
             exit();
         }
-        if(!$adatbazis_kapcsolat->s('recid', 'cikkrendfej', "`rndid`='{$_POST['rsz']}' AND `statusz_id`=1")){
+        if($adatbazis_kapcsolat->s('recid', 'cikkrendfej', "`rndid`='{$_POST['rsz']}' AND `statusz_id`>'".CIKKIGN_STAT_MEGRENDELVE."'")){
             echo json_encode(array(
                 'hiba' => 'Ehhez a megrendeléshez már rögzítve vannak a beérkezett mennyiségek!'
             ));
@@ -1385,37 +1385,48 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                     <th>Anyagra váró feladatok diszpécsernaplóban</th>
                 </tr>
             ');
-        $igenylesek = $adatbazis_kapcsolat->s('recid telephely_id cikktorzs_id nev igmen rndmen erkmen cikkmee', 'anyagigenyles', "`aparecid`='{$recid['recid']}'");
-        foreach($igenylesek as $igeny){
+        
+        //Beloginolt user szállodáira is szűrünk
+        $szallodak = get_akt_login_szallodai();
+        if($szallodak){
+            
+            $igenylesek = $adatbazis_kapcsolat->s('recid telephely_id cikktorzs_id nev igmen rndmen erkmen cikkmee', 'anyagigenyles', "`aparecid`='{$recid['recid']}' AND `telephely_id` IN (".implode(',', $szallodak).")");
+            foreach($igenylesek as $igeny){
 
-            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$igeny['telephely_id']}'");
-            $telephely = $telephely[0];
+                $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$igeny['telephely_id']}'");
+                $telephely = $telephely[0];
 
-            $gomb = '(nincs anyagra váró feladatok a diszpécser naplóban)';
-            $gomb = '<input type="button" value="Mutat" class="gomb">';
+                $gomb = '(nincs anyagra váró feladatok a diszpécser naplóban)';
+                //munkalap_anyag táblában keresünk olyan sorokat, ahol a státusz nem DISZPNAG_STAT_VAN_ANYAG, és a cikkid-ja adott anyagigénylés cikkid-ja. Ha van ilyen akkor Mutat gomb
+                $hianyzo_anyagok = $adatbazis_kapcsolat->s('distinct munkalap_id', 'munkalap_anyag', "`stat_id`!='".DISZPNAG_STAT_VAN_ANYAG."' AND `cikk_id`='{$igeny['cikktorzs_id']}'");
+                $hianyzo_anyagok = adatbazis2tomb($hianyzo_anyagok, 'munkalap_id');
+                $hianyzo_anyagok = implode(',', $hianyzo_anyagok);
+                if($hianyzo_anyagok){
+                    $gomb = '<input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$hianyzo_anyagok.'\')">';
+                }
 
-            $html .= nl2('
-                        <tr>
-                            <td id="erkeztet_szall_'.$igeny['recid'].'">'.$telephely['nev'].'</td>
-                            <td id="erkeztet_cikkid_'.$igeny['recid'].'">'.$igeny['cikktorzs_id'].'</td>
-                            <td>'.$igeny['nev'].'</td>
-                            <td class="r">'.number_format($igeny['igmen'], 2, ',', ' ').'</td>
-                            <td class="r">'.number_format($igeny['rndmen'], 2, ',', ' ').'</td>
-                            <td class="r" id="marerkmen_'.$igeny['recid'].'">'.number_format($XXX, 2, ',', ' ').'</td>
-                            <td class="r"><input type="text" class="f_num erkmen" data-id="'.$igeny['recid'].'" id="erkmen_'.$igeny['recid'].'" value="'.number_format($igeny['erkmen'], 2, ',', ' ').'"></td>
-                            <td class="c">'.$igeny['cikkmee'].'</td>
-                            <td class="c">
-                                <div class="cb">
-                                    <input type="checkbox" class="nem_tobb_beerk" data-id="'.$igeny['recid'].'" id="nem_tobb_'.$igeny['recid'].'">
-                                    <label for="nem_tobb_'.$igeny['recid'].'"></label>
-                                </div>
-                            </td>
-                            <td class="c">'.$gomb.'</td>
-                        </tr>
-                        ');
+                $html .= nl2('
+                            <tr>
+                                <td id="erkeztet_szall_'.$igeny['recid'].'">'.$telephely['nev'].'</td>
+                                <td id="erkeztet_cikkid_'.$igeny['recid'].'">'.$igeny['cikktorzs_id'].'</td>
+                                <td>'.$igeny['nev'].'</td>
+                                <td class="r">'.number_format($igeny['igmen'], 2, ',', ' ').'</td>
+                                <td class="r" id="rndmen_'.$igeny['recid'].'">'.number_format($igeny['rndmen'], 2, ',', ' ').'</td>
+                                <td class="r" id="marerkmen_'.$igeny['recid'].'">'.number_format($igeny['erkmen'], 2, ',', ' ').'</td>
+                                <td class="r"><input type="text" class="f_num erkmen" data-id="'.$igeny['recid'].'" id="erkmen_'.$igeny['recid'].'" value="0,00"></td>
+                                <td class="c">'.$igeny['cikkmee'].'</td>
+                                <td class="c">
+                                    <div class="cb">
+                                        <input type="checkbox" class="nem_tobb_beerk" data-id="'.$igeny['recid'].'" id="nem_tobb_'.$igeny['recid'].'">
+                                        <label for="nem_tobb_'.$igeny['recid'].'"></label>
+                                    </div>
+                                </td>
+                                <td class="c">'.$gomb.'</td>
+                            </tr>
+                            ');
+            }
+            $html .= '</table>';
         }
-        $html .= '</table>';
-    
         echo json_encode(array(
             'html' =>  $html
         ));
@@ -1425,52 +1436,114 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
     //Anyagigénylés érkeztetésének feldolgozása
     if($_POST['idk']){
         
+        //Tranzakció indul
+        $db_error = false;
+        mysqli_autocommit($db_kapcs, false);
+        
         $adatok = explode('|', $_POST['idk']);
         foreach($adatok as $adat){
-            list($id, $mennyiseg, $pipa) = explode('#', $adat);
+            list($id, $erkmen, $nemfogerk) = explode('#', $adat);
             //Ha nincs ID, nem is csinálunk semmit
             if($id){
                 
-                if(!$pipa && (!$mennyiseg || $mennyiseg=='0.00')){
+                $anyagigenyles = $adatbazis_kapcsolat->s('*', 'anyagigenyles', "`recid`='$id'");
+                if($anyagigenyles===false){
+                    $db_error = false;
+                }
+                $anyagigenyles = $anyagigenyles[0];
+                
+                $marerkmen = $anyagigenyles['erkmen'];
+                $rndmen    = $anyagigenyles['rndmen'];
+                
                     
-                    $anyagigenyles = $adatbazis_kapcsolat->s('rndmen', 'anyagigenyles', "`recid`='$id'");
-                    $anyagigenyles = $anyagigenyles[0];
-                    
-                    $osszeg = $osszeg;
-                    
-                    //HA marerkmen+erkmen=0 ÉS nemfogerk=1 AKKOR statid=CIKKIGN_STAT_NEM_ERKEZETT
-                    if( ($osszeg==0 || $osszeg==0.00) && $pipa){
-                        $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_NEM_ERKEZETT );
-                        if( $statusz === false ) {
-                            $db_error = true;
-                        }
-                    
-                        
-                    //marerkmen+erkmen>=rndmen VAGY marerkmen+erkmen>0 ÉS nemfogerk=1
-                    }else if( ($osszeg > $anyagigenyles['rndmen'] || $osszeg > 0 || $osszeg==0.00) && $pipa){
-                        $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_BEERKEZETT );
-                        if( $statusz === false ) {
-                            $db_error = true;
-                        }
-                    
-                    //- HA marerkmen+erkmen>0 ÉS marerkmen+erkmen<rndmen ÉS nemfogerk=0 AKKOR statid=CIKKIGN_STAT_RESZBENBEERK
-                    }elseif( $osszeg > 0 && $osszeg < $anyagigenyles['rndmen'] && !$pipa){
-                        $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_BEERKEZETT  );
-                        if( $statusz === false ) {
-                            $db_error = true;
-                        }
+                //HA marerkmen+erkmen=0 ÉS nemfogerk=1 AKKOR statid=CIKKIGN_STAT_NEM_ERKEZETT
+                if( ($marerkmen+$erkmen==0 || $osszeg==0.00) && $nemfogerk){
+                    $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_NEM_ERKEZETT );
+                    if( $statusz === false ) {
+                        $db_error = true;
                     }
-      
-                    //Végül update
-                    $adatbazis_kapcsolat -> u('anyagigenyles',  array('erkmen', 'update_usr'),
-                                                                array($osszeg,  $_SESSION[get_db_tabla().'teljes_nev']),
-                                                "`recid`='$id'"
+
+
+                //HA marerkmen+erkmen>=rndmen VAGY (marerkmen+erkmen>0 ÉS nemfogerk=1), AKKOR statid=CIKKIGN_STAT_BEERKEZETT
+                }else if( $marerkmen+$erkmen>=$rndmen || ($marerkmen+$erkmen>0  && $nemfogerk) ){
+                    $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_BEERKEZETT );
+                    if( $statusz === false ) {
+                        $db_error = true;
+                    }
+
+                //HA marerkmen+erkmen>0 ÉS marerkmen+erkmen<rndmen ÉS nemfogerk=0 AKKOR statid=CIKKIGN_STAT_RESZBENBEERK
+                }elseif( $marerkmen+$erkmen>0 && $marerkmen+$erkmen<$rndmen && !$nemfogerk){
+                    $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_RESZBENBEERK  );
+                    if( $statusz === false ) {
+                        $db_error = true;
+                    }
+                }
+
+                //Végül UPDATE cikkign SET erkmen=marerkmen+erkmen, update_usr= WHERE recid=
+                $adatbazis_kapcsolat -> u('anyagigenyles',  array('erkmen',             'update_usr'                            ),
+                                                            array($marerkmen+$erkmen,   $_SESSION[get_db_tabla().'teljes_nev']  ),
+                                            "`recid`='$id'"
+                                        );
+
+                //Ha erkmen>0 INSERT mozgas             SET telepid=,                           szallitoid=,                cikkid=,                        cikkmen=erkmen, mozgid=MOZGID_RAKTAR_BE, mozgir=1, rendtetid=recid, update_usr=, insert_usr=, insert_dt=NOW()
+                if($erkmen){
+                    $adatbazis_kapcsolat->i('mozgas',   array('telepid',                      'szallitoid',               'cikkid',                       'cikkmen', 'mozgid',          'mozgir', 'rendtetid', 'update_usr',                           'insert_usr',                            'insert_dt' ),
+                                                        array($anyagigenyles['telephely_id'], $anyagigenyles['szallito'], $anyagigenyles['cikktorzs_id'], $erkmen,   MOZGID_RAKTAR_BE,  1,        $id,         $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()'     )
                                             );
-  
+                }
+                
+                //HA marerkmen+erkmen>=rndmen VAGY nemfogerk=1, AKKOR archiválunk
+                if($marerkmen+$erkmen>=$rndmen || $nemfogerk){
                     
+                    //Ha marerkmen+erkmen=0, statid=CIKKIGN_STAT_NEM_ERKEZETT
+                    if($marerkmen+$erkmen==0){
+                        $statid = CIKKIGN_STAT_NEM_ERKEZETT;
+                    //Ha elutleir nem üres, statid=CIKKIGN_STAT_ELUTASITVA
+                    }elseif($anyagigenyles['elutleir']){
+                        $statid = CIKKIGN_STAT_ELUTASITVA;
+                    //Amúgy: statid=CIKKIGN_STAT_LEZARVA
+                    }else{
+                        $statid = CIKKIGN_STAT_LEZARVA;
+                    }
+                    
+                    //Oszlopok társítása
+                    $oszlopok        = array('iktszam',  'telepid',      'cikkid',       'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallitoid', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'rndrecid', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
+                    $anyagig_oszlop  = array('ikt_szam', 'telephely_id', 'cikktorzs_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallito',   'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'recid',    'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
+                    
+                    $ertekek  = array();
+                    foreach($anyagig_oszlop as $oszlop){
+                        array_push($ertekek, $anyagigenyles[$oszlop]);
+                    }
+                    
+                    array_push($oszlopok, 'statid', 'update_usr',                             'insert_usr',                           'insert_dt' );
+                    array_push($ertekek,  $statid,  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()'     );
+                    $cikkrnd = $adatbazis_kapcsolat->i('cikkrnd', $oszlopok, $ertekek);
+                    if($cikkrnd===false){
+                        $db_error = true;
+                    }
+                    
+                    $torles  = $adatbazis_kapcsolat->d('anyagigenyles',         "`recid`='$id'");
+                    $torles2 = $adatbazis_kapcsolat->d('anyagigenyles_statusz', "`id`='$id'");
+                    if($torles===false || $torles2===false){
+                        $db_error = true;
+                    }
                 }
                 
             }
+        }
+        
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
         }
         
     }
@@ -1626,9 +1699,16 @@ if($gyorskereso_text){
         }
         /* Anyagigénylés érkeztetése */
         if( _jog(13) ) {
+            
+            $statusz_kiterium = array(CIKKIGN_STAT_MEGRENDELVE, CIKKIGN_STAT_RESZBENBEERK);
+            if( !in_array($sor['statusz_id'], $statusz_kiterium) ){
+                $onclick = 'alert2(\'Csak megrendelt vagy részben beérkezett státuszú anyagigénylés érkeztethető!\', \'\', \'Hiba\');';
+            }else{
+                $onclick = 'csoportMuvelet(\'anyagigenyles_erkeztet\')';
+            }
             $gombok .= nl2('
                 <div id="kmCont">
-                    <input type="button" class="gombb foGomb" value="Anyagok érkeztetése" onclick="csoportMuvelet(\'anyagigenyles_erkeztet\')">
+                    <input type="button" class="gombb foGomb" value="Anyagok érkeztetése" onclick="'.$onclick.'">
                 </div>
             ');
         }
