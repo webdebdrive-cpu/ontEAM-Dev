@@ -3745,6 +3745,7 @@ function _get( ertek ) {
 }
 
 function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
+    
     if( szerkeszt === undefined ) {
         szerkeszt = false;
     }
@@ -3839,7 +3840,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     }
 
                     /* Bal oldali navpanel sorát is frissítjük */
-                    szamlaSorFrissit(page.replace('.php', ''), recid);
+                    if(page.replace('.php', '')!='erteklista'){
+                        szamlaSorFrissit(page.replace('.php', ''), recid);
+                    }
 
                     /* URL mod */
                     window.history.pushState("", "", getHost() + param );
@@ -3852,6 +3855,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     } else if( baseName(location.href) == 'beosztas' && _get('naptar') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: $(\'#szerk_form div.dt\').show(); void(0);');
                     } else if( baseName(location.href) == 'bejelentes' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                    } else if( baseName(location.href) == 'cikktorzs' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'utemezett_feladatok' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');

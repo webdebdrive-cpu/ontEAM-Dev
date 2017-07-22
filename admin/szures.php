@@ -210,13 +210,23 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                         </script>
                     ');
 
-                //Autocomplete esetén a switch.php alapján gyártunk egy inputot
+                //select_szemelyzet
                 }elseif($ertek['type']=='select_szemelyzet'){
                     
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
                     
                     $input = new Select($select_szemelyzet, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
+                    $feltetel = $input -> getHtml();
+
+                //select_szemelyzet
+                }elseif($ertek['type']=='select_cikltip'){
+                    
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+                    
+                    $input = new Select($select_cikltip, $_POST['cikltip']);
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
                     
@@ -228,12 +238,13 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                         $feltetel = '<input type="text" placeholder="Érték..." class="f_num f_felt" value="'.$_POST['felt'].'">';
                     }elseif( strpos($ertek['class'], 'datepicker')!==false){
                         $feltetel = nl2('
-                            <input type="text" placeholder="____.__.__" class="datepicker f_felt" value="'.$_POST['felt'].'">
+                            <input type="text" placeholder=" . . " class="datepicker f_felt" value="'.$_POST['felt'].'">
                             <script>$(\'.datepicker\').datetimepicker({
-                                                            timepicker      : false,
-                                                            mask            : true,
-                                                            format          :\'Y.m.d\',
-                                                            validateOnBlur  : false
+                                                            timepicker          : false,
+                                                            closeOnDateSelect   : true,
+                                                            mask                : \'\\xa0\\xa0\\xa0\\xa0.\\xa0\\xa0.\\xa0\\xa0\',
+                                                            format              :\'Y.m.d\',
+                                                            validateOnBlur      : false
                                                         });
                             </script>
                         ');
@@ -248,16 +259,17 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
         //Kapcsolódó szállodák felsorolása
         if(
-                ($_POST['tabla'] == 'anyagigenyles' && $_POST['mezo']=='telephely_id'   ) ||
-                ($_POST['tabla'] == 'bejelentes'    && $_POST['mezo']=='telephely_id'   ) ||
-                ($_POST['tabla'] == 'beosztas'      && $_POST['mezo']=='telephely_id'   ) ||
-                ($_POST['tabla'] == 'login'         && $_POST['mezo']=='szalloda'       ) ||
-                ($_POST['tabla'] == 'munkalap'      && $_POST['mezo']=='telephely_id'   )
+                ($_POST['tabla'] == 'anyagigenyles'         && $_POST['mezo']=='telephely_id'   ) ||
+                ($_POST['tabla'] == 'bejelentes'            && $_POST['mezo']=='telephely_id'   ) ||
+                ($_POST['tabla'] == 'beosztas'              && $_POST['mezo']=='telephely_id'   ) ||
+                ($_POST['tabla'] == 'login'                 && $_POST['mezo']=='szalloda'       ) ||
+                ($_POST['tabla'] == 'munkalap'              && $_POST['mezo']=='telephely_id'   ) ||
+                ($_POST['tabla'] == 'utemezett_feladatok'   && $_POST['mezo']=='telephely_id'   )
             ){
 
             $feltetel = '<select class="f_felt">';
             $feltetel .= '<option value="">-Válasszon szállodát-</option>';
-            $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', "", 'nev');
+            $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', trim(get_akt_login_szallodai('sql', 'id'), ' AND '), 'nev');
             foreach($telephelyek as $telephely){
                 $selected = '';
                 if($telephely['id']==$_POST['felt']){
@@ -321,6 +333,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
             $feltetel .= '</select>';
 
         }
+        
     }
     
     echo json_encode( array('feltetel' => $feltetel) );

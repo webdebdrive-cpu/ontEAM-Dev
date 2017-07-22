@@ -462,7 +462,7 @@ class Adatbazis{
 					if( !in_array($reszek[$i], $kivetelek) ){
 						$muveleti_jel = preg_replace('/(.*)(!=|<=|>=)(.*)/', '$2', $reszek[$i]);
 						//Ha a fentiekre nem volt illeszkedés (tehát a művleti jel megegyzeik a részek[i]-vel), akkor az
-						//egykarakterű operátorokre illesztünk
+						//egykarakterű operátorokra illesztünk
 						if( $muveleti_jel == $reszek[$i]){
 							$muveleti_jel = preg_replace('/(.*)(=|<|>)(.*)/', '$2', $reszek[$i]);
 						}

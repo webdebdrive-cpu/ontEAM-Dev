@@ -783,6 +783,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } elseif( basename(self()) == 'beosztas.php' && isset($_GET['naptar']) ) {
         $uj_link = 'javascript: $(\'#szerk_form div.dt\').show(); void(0)';
+    } elseif( basename(self()) == 'cikktorzs.php' && isset($_GET['megjegyzesek']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } elseif( isset($_GET['szallodak']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);';
     } elseif( basename(self()) == 'utemezett_feladatok.php' && isset($_GET['megjegyzesek']) ) {
@@ -819,7 +821,10 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 /* SZŰRÉS
  *  $szures nevű változót állítja elő, benne a szűréssel kapcsolatos funkciókkal (selectek, feltételek)
  */
-require_once 'szures.php';
+$nem_kell_szuro = array('ktghely', 'ktgnem', 'szerepkor');
+if( !in_array($megn, $nem_kell_szuro)){
+    require_once 'szures.php';
+}
 
 /* NYOMTATÁS */
 require_once 'nyomtatas.php';
