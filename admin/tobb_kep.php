@@ -226,7 +226,7 @@ $tobbkep_html .= str_replace($sorrend_ujkep_mit, $sorrend_ujkep_mivel, $sorrend_
 $i     = 0;
 $kepek = $adatbazis_kapcsolat -> select('*', $tobbkep_tablanev, get_tobbkep_oszlopnev().'='.$_GET['id'], 'sor');
 
-$tobbkep_html .= '<div><ul id="sorrendezes_tobbkep">';
+$tobbkep_html .= '<div><ul id="sorrendezes_tobbkep" class="kijCont">';
 foreach($kepek as $sor_kepek){
     $tobbkep_html .= get_tobbkep_thumb($sor_kepek);
 }
@@ -256,22 +256,22 @@ function get_tobbkep_thumb($sor_kepek){
         $azon    = 'kep'.$sor_kepek['recid'];
         //2017.07.18 - nem nevezhetőek át, helyette töltsük le $megj_szerkesztes_onclick = ' onclick="get_tobbkep_megj(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \'megj_atir'.$azon.'\'); alert2(\'Dokumentum átnevezése:\', gomb'.$azon.');"';
         /* title="'.$sor_kepek['kepnev'].'" */
-        $megj_szerkesztes_onclick = ' onclick="window.open(\''.$kep_utvonal.'\')"';
+        //$megj_szerkesztes_onclick = ' onclick="window.open(\''.$kep_utvonal.'\')"';
         $tobbkep_html .= nl2('
-            <li id="'.$azon.'" title="">
-            <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
-            <!--<div class="torol" onclick="tobbkep_torol(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \''.$azon.'\');">
-                <img alt="x" class="dn" src="../elemek/admin/torol_hover.png" />
-            </div>-->
-            <div class="kep">
-                <div>'.$kep -> getHtml().'</div>
-            </div>
-            <div id="megj_'.$azon.'_felirat" class="felirat f12 link c"'.$megj_szerkesztes_onclick.'>'.$felirat.'</div>
-            <div class="nagyit">
-                <a href="'.$kep_utvonal.'" class="light" rel="album[]" target="_blank" title="Letöltés">
-                    <i class="material-icons">file_download</i>
-                </a>
-            </div>
+            <li id="'.$azon.'" class="kijSor" title="'.$sor_kepek['megj'].'" data-recid="'.$sor_kepek['recid'].'">
+                <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
+                <!--<div class="torol" onclick="tobbkep_torol(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \''.$azon.'\');">
+                    <img alt="x" class="dn" src="../elemek/admin/torol_hover.png" />
+                </div>-->
+                <div class="kep">
+                    <div>'.$kep -> getHtml().'</div>
+                </div>
+                <div id="megj_'.$azon.'_felirat" class="felirat f12 link c"'.$megj_szerkesztes_onclick.'>'.$felirat.'</div>
+                <div class="nagyit">
+                    <a href="'.$kep_utvonal.'" class="light" rel="album[]" target="_blank" title="Letöltés">
+                        <i class="material-icons">file_download</i>
+                    </a>
+                </div>
         ');
         $tobbkep_html .= '</li>';
 

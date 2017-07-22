@@ -631,7 +631,6 @@ $(function() {
 
             kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
         }
-
     });
 
     /* Csoportra kattintás */
@@ -3117,19 +3116,19 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz 
                 $(this).addClass('alert');
                 return false;
             }
-            
+
             /* Beérkezett mennyiség nem lehet több,<br>mint a rendelt mennyiség minusz az előzőleg beérkezett mennyiség! */
             if(erkmen>rndmen-marerkmen){
                 hibauzi = 'Beérkezett mennyiség nem lehet több,<br>mint a rendelt mennyiség minusz az előzőleg beérkezett mennyiség!';
                 $(this).addClass('alert');
                 return false;
             }
-            
+
             /* NEM Pipált sorokra, ha üres marerkmen és erkmen is */
             if(nem_tobb==0 && (!erkmen || erkmen==0.00) && (!marerkmen || marerkmen==0.00)){
                 ures_men_ek_pipa0 += szalloda+' '+cikkid+'<br>';
             }
-            
+
             /* Pipált sorokra, ha üres marerkmen és erkmen is */
             if(nem_tobb==1  && (!erkmen || erkmen==0.00) && (!marerkmen || marerkmen==0.00)){
                 ures_men_ek_pipa1 += szalloda+' '+cikkid+'<br>';
@@ -3138,13 +3137,13 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz 
             idk += id+'#'+erkmen+'#'+nem_tobb+'|';
 
         });
-        
+
         /* A hibaüzenetet itt írjuk ki, és nem az each ciklusban, mert akkor tovább futna a JS kód, ott nem űködik a return false mert az egy külön függvény */
         if(hibauzi){
             alert2(hibauzi, '<input class="link gomb" value="Ok" onclick="alert2();$(\'#erkmen_'+id+'\').focus()" type="button">');
             return false;
         }
-        
+
         /* ha volt üres pipa mellett üres mennyiség sor, akkor rákrédezünk */
         if(ures_men_ek_pipa0 && !ures_men_ek_pipa0_kesz){
             gombok = '<input class="link gomb" value="Igen" onclick="anyagigenyles_erkeztet(\'ures_men_ek_pipa0_kesz nem kérdezzük meg megint\')" type="button"> <input class="link gomb" value="Nem" onclick="alert2()" type="button">';
@@ -3838,7 +3837,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     } else {
                         param += '?uj';
                     }
-                    
+
                     /* Bal oldali navpanel sorát is frissítjük */
                     szamlaSorFrissit(page.replace('.php', ''), recid);
 

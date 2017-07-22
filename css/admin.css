@@ -857,9 +857,8 @@ div.jsff_thumb div.torol:hover{
     cursor: default;
     display: table;
     overflow: hidden;
-    margin: 1rem 0rem 1rem 0rem;
+    margin: 0.5rem 0rem 0.5rem 0rem;
     position: relative;
-    transition: background 150ms;
     text-align: left;
     width: 100%;
 }
@@ -906,6 +905,10 @@ div.jsff_thumb div.torol:hover{
     width: 2.2rem;
 }
 
+#sorrendezes_tobbkep li div.nagyit a {
+    display: inline-block;
+}
+
 #sorrendezes li:hover div.torol:hover,
 #sorrendezes_album li:hover div.torol:hover,
 #sorrendezes_tobbkep li:hover div.torol:hover,
@@ -937,7 +940,7 @@ div.jsff_thumb div.torol:hover{
     border-radius: 0.2rem 0rem 0rem 0.2rem;
     cursor: default;
     display: table-cell;
-    height: 5rem;
+    height: 3rem;
     overflow: hidden;
     padding: 0rem 0rem 0rem 2rem;
     vertical-align: middle;
@@ -997,10 +1000,10 @@ div.jsff_thumb div.torol:hover{
     white-space: nowrap;
 }
 
-#sorrendezes li:hover,
-#sorrendezes_album li:hover,
-#sorrendezes_tobbkep li:hover,
-#sorrendezes_bejegyzes li:hover {
+#sorrendezes li:not(.kijelolve):hover,
+#sorrendezes_album li:not(.kijelolve):hover,
+#sorrendezes_tobbkep li:not(.kijelolve):hover,
+#sorrendezes_bejegyzes li:not(.kijelolve):hover {
     background: #E9F1FB!important;
 }
 
