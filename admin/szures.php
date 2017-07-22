@@ -45,6 +45,9 @@ if (isset($_POST['f_szuro_mezo'])) {
                 //Numerikus adatok operátora
                 if( strpos($ertek['class'], 'f_num')!==false || strpos($ertek['class'], 'datepicker')!==false){
                     $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+                    if(strpos($ertek['class'], 'datepicker')!==false){
+                        $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
+                    }
                     $operator .= '<option value="gteq"'.$selected_gteq.'>&gt;=</option>';
                     $operator .= '<option value="lteq"'.$selected_lteq.'>&lt;=</option>';
                     $operator .= '<option value="gt"'.$selected_gt.'>&gt;</option>';
@@ -236,6 +239,8 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     //Numerikus adatok operátora
                     if( strpos($ertek['class'], 'f_num')!==false){
                         $feltetel = '<input type="text" placeholder="Érték..." class="f_num f_felt" value="'.$_POST['felt'].'">';
+                    
+                    //Dátum mezők
                     }elseif( strpos($ertek['class'], 'datepicker')!==false){
                         $feltetel = nl2('
                             <input type="text" placeholder=" . . " class="datepicker f_felt" value="'.$_POST['felt'].'">
@@ -258,14 +263,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
         }
 
         //Kapcsolódó szállodák felsorolása
-        if(
-                ($_POST['tabla'] == 'anyagigenyles'         && $_POST['mezo']=='telephely_id'   ) ||
-                ($_POST['tabla'] == 'bejelentes'            && $_POST['mezo']=='telephely_id'   ) ||
-                ($_POST['tabla'] == 'beosztas'              && $_POST['mezo']=='telephely_id'   ) ||
-                ($_POST['tabla'] == 'login'                 && $_POST['mezo']=='szalloda'       ) ||
-                ($_POST['tabla'] == 'munkalap'              && $_POST['mezo']=='telephely_id'   ) ||
-                ($_POST['tabla'] == 'utemezett_feladatok'   && $_POST['mezo']=='telephely_id'   )
-            ){
+        if( $_POST['mezo']=='telephely_id' || ($_POST['tabla']=='login' && $_POST['mezo']=='szalloda' ) ){
 
             $feltetel = '<select class="f_felt">';
             $feltetel .= '<option value="">-Válasszon szállodát-</option>';

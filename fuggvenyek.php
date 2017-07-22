@@ -3799,6 +3799,7 @@ function get_akt_tomb($megn){
     global $bejelentes_tomb;
     global $beosztas_tomb;
     global $cikktorzs_tomb;
+    global $eszkozkezeles_tomb;
     global $login_tomb;
     global $munkalap_tomb;
     global $utemezett_feladatok_tomb;
@@ -3809,6 +3810,7 @@ function get_akt_tomb($megn){
         case 'bejelentes'           : $akt_tomb = $bejelentes_tomb;             break;
         case 'beosztas'             : $akt_tomb = $beosztas_tomb;               break;
         case 'cikktorzs'            : $akt_tomb = $cikktorzs_tomb;              break;
+        case 'eszkozkezeles'        : $akt_tomb = $eszkozkezeles_tomb;          break;
         case 'login'                : $akt_tomb = $login_tomb;                  break;
         case 'munkalap'             : $akt_tomb = $munkalap_tomb;               break;
         case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
