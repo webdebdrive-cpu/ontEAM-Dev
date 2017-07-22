@@ -1080,7 +1080,7 @@ $(function() {
             type: 'POST',
             data: esamp2es('telephely_id=' + telephely_id + '&amp;cikk_id=' + cikk_id + '&amp;f_anyag_rendelkezesre_all=' + new Date().getTime()),
             success: function (response) {
-                /*location.reload();*/
+                $('#sor_'+cikk_id).fadeOut();
             }
         });
     });
@@ -3838,14 +3838,18 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     } else {
                         param += '?uj';
                     }
+                    
+                    /* Bal oldali navpanel sorát is frissítjük */
+                    szamlaSorFrissit(page.replace('.php', ''), recid);
 
+                    /* URL mod */
                     window.history.pushState("", "", getHost() + param );
 
                     /* Új ikonra kattintva mi történik */
                     if( _get('szakterulet') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);');
-                    } else if( _get('szallodak') ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);');
+                    } else if( baseName(location.href) == 'anyagigenyles' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'beosztas' && _get('naptar') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: $(\'#szerk_form div.dt\').show(); void(0);');
                     } else if( baseName(location.href) == 'bejelentes' && _get('megjegyzesek') ) {
@@ -3854,6 +3858,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'munkalap' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                    } else if( _get('szallodak') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);');
                     } else {
                         $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?uj');
                     }

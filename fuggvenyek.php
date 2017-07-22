@@ -215,7 +215,7 @@ function i_u($type, $tabla, $tomb) {
             $i = 0;
             foreach($oszlopok as $oszl){
                 if($oszl=='nev'){
-                    $ertekek[$i] = $cikktorzs['nev'];
+                    $ertekek[$i] = htmlspecialchars_decode($cikktorzs['nev']);
                 }
                 $i++;
             }
@@ -423,6 +423,7 @@ function i_u($type, $tabla, $tomb) {
 //echo '<pre style="font-size: 1.4rem">';
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '</pre>';
+//mysqli_commit($db_kapcs);
 //exit;
 
         //Itt újabb if felételek jönnek a táblákra. Azért kerültek ide, mert itt már felhasználjuk a létrejött bejegyzés ID-ját (ezért nem fentebb kezeltük le)
@@ -2365,7 +2366,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span>'.$bsz['ikt_szam'].' '.$telephely['nev'].'</span>
-                            <span>'.$bsz['anyagigenyles_nev'].'</span>
+                            <span>'.$bsz['cikktorzs_id'].' '.$bsz['anyagigenyles_nev'].'</span>
                             <span>'.$statusz['nev'].'</span>
                         </a>';
 
@@ -2973,7 +2974,7 @@ function cikktorzsLista( $bejegyzesek, $tabla, $frissit ) {
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['nev'].'</span>
+                            <span>'.$bsz['id'].' '.$bsz['nev'].'</span>
                         </a>';
 
             if( !$frissit ) {
@@ -3436,7 +3437,7 @@ function getOszlopNev( $oszlop ) {
         'e-szamla'      => 'E-számla',
         'esnap_d'       => 'Esedékesség',
         'erkezett'      => 'Érkezett',
-        'id'            => 'ID',
+        'id'            => 'Kód',
         'ikt_szam'      => 'Iktató szám',
         'nev'           => 'Név',
         'recid'         => 'Rendszer ID',
@@ -3529,6 +3530,10 @@ function obj_gen( $telephelyID = false ) {
     if( $telephelyek ) {
         $html .= '<h2>Objektumok hierarchiája</h2><ul class="telephelyek">';
 
+        $egy_szalloda_nyitva = '';
+        if( count($telephelyek)==1 ){
+            $egy_szalloda_nyitva = ' active';
+        }
         foreach($telephelyek as $telephely) {
             $fokatok = $adatbazis_kapcsolat->s('recid telephely_id nev szulo', 'obj', 'szulo=0 and telephely_id='.$telephely['id'], '', '');
 
@@ -3539,7 +3544,7 @@ function obj_gen( $telephelyID = false ) {
                     $active = ' kijelolve';
                 }
 
-                $fokat_html .= '<ul class="alkatok'.$active.'">';
+                $fokat_html .= '<ul class="alkatok'.$active.$egy_szalloda_nyitva.'">';
 
                 foreach($fokatok as $fokat) {
                     $katok = $adatbazis_kapcsolat->s('recid telephely_id nev szulo', 'obj', 'szulo='.$fokat['recid'], '', '');
@@ -3762,11 +3767,29 @@ function get_akt_tomb($megn){
 }
 
 /* Az aktuálisan bejelentkezett felhasználóhoz rendelt szállodák ID_ját adja vissza. Ez többször előfroduló igén, azért van kiszervezve függvénybe. */
-function get_akt_login_szallodai(){
+function get_akt_login_szallodai($sqlt_adj_vissza, $telephely_id_oszlop_helyett_masik_oszlop){
     global $adatbazis_kapcsolat;
 
     $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
-    return adatbazis2tomb($szallodak, 'telephely_id');
+    $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
+    
+    //SQL-t adjunk vissza
+    if($sqlt_adj_vissza){
+        $oszlop = 'telephely_id';
+        if($telephely_id_oszlop_helyett_masik_oszlop){
+            $oszlop = $telephely_id_oszlop_helyett_masik_oszlop;
+        }
+        //Ha tartozik hozzá szálloda
+        if($szallodak){
+            return ' AND `'.$oszlop.'` IN ('.implode(', ', $szallodak).')';
+        //Ha nem tartozik hozzá szálloda, akkor így válik majd hamissá az SQL feltétele
+        }else{
+            return ' AND `'.$oszlop.'`=0';
+        }
+    //Tömböt adunk vissza a szálloda ID-kal
+    }else{
+        return $szallodak;
+    }
 }
 
 //A kapott munkalapID-k alapján bejárjuk a munkalapokat. Ha adott munkalapon minden anyag státusza 0 (beérkezett), akkor maga a munkalap státusza folyamatbanra állítható

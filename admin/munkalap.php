@@ -39,7 +39,11 @@ if($tobb_kep){
         global $megnevezes;
         return $megnevezes.'_id';
     }
-    function get_tobbkep_tabla(){ return 'munkalap_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
+    function get_tobbkep_tabla(){                           // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
+        global $megnevezes;
+        return $megnevezes.'_dok';
+        
+    }
 
     //Kép törlésének lekezelése
     if (isset($_GET[$torles.'tobbkep_torol'])){
@@ -858,8 +862,15 @@ if($gyorskereso_text){
             ');
 
         } else if( (_jog(3) && (_jog(5) || _jog(31)) ) || (_jog(3) && _jog(31)) || (_jog(3) && _jog(21)) ) {
+            
             $telephely = $adatbazis_kapcsolat -> select('nev', 'telephely', "`id`='{$sor['telephely_id']}'");
             $telephely = $telephely[0];
+            
+            if($sor['statusz_id']==MUNKALAP_STAT_FOLYAMATBAN){
+                $onclick = 'alert2(munkalapFelveszKerdes, munkalapFelvetelGomb);';
+            }else{
+                $onclick = 'alert2(\'Csak folyamatban levő munkalap vehető fel!\', \'\', \'Hiba\');';
+            }
 
             $gombok .= nl2('
                 <script>
@@ -872,7 +883,7 @@ if($gyorskereso_text){
 
                     munkalapFelvetelGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkalapFelvesz(\''.$_GET['id'].'\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                 </script>
-                <input type="button" class="gomb foGomb" value="Munka felvétele" title="Munka felvétele" onclick="alert2(munkalapFelveszKerdes, munkalapFelvetelGomb);">
+                <input type="button" class="gomb foGomb" value="Munka felvétele" title="Munka felvétele" onclick="'.$onclick.'">
             ');
         }
 

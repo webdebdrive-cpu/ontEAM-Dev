@@ -777,6 +777,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     $keresodn = '';
     if( isset($_GET['szakterulet']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);';
+    } elseif( basename(self()) == 'anyagigenyles.php' && isset($_GET['megjegyzesek']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } elseif( basename(self()) == 'bejelentes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } elseif( basename(self()) == 'beosztas.php' && isset($_GET['naptar']) ) {

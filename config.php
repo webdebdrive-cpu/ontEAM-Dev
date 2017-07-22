@@ -19,6 +19,19 @@ error_reporting(E_ERROR);                       //Csak a hibákat írja ki
 /*Konstansok*/
 
 /* Státuszok */
+//Munkalap státuszok
+define('MUNKALAP_STAT_NYITOTT',         '01');
+define('MUNKALAP_STAT_FOLYAMATBAN',     '01');
+define('MUNKALAP_STAT_ELUTASITVA',      '03');
+define('MUNKALAP_STAT_HOZZARENDELT',    '05');
+define('MUNKALAP_STAT_TOROLT',          '06');
+define('MUNKALAP_STAT_VARAKOZO',        '07');
+define('MUNKALAP_STAT_FELVEVE',         '08');
+define('MUNKALAP_STAT_ANYAGRAVAR',      '09');
+define('MUNKALAP_STAT_KESZ_IG',         '10');
+define('MUNKALAP_STAT_LEZART',          '11');
+define('MUNKALAP_STAT_IGAZOLT',         '12');
+
 //Munkalap Anyagigénylés státuszok
 define('DISZPNAG_STAT_VAN_ANYAG',       '00');
 define('DISZPNAG_STAT_ANYAGRA_VAR',     '01');

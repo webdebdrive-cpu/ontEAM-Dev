@@ -248,9 +248,11 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
         //Kapcsolódó szállodák felsorolása
         if(
-                ($_POST['tabla'] == 'login'         && $_POST['mezo']=='szalloda'       ) ||
                 ($_POST['tabla'] == 'anyagigenyles' && $_POST['mezo']=='telephely_id'   ) ||
-                ($_POST['tabla'] == 'beosztas'      && $_POST['mezo']=='telephely_id'   ) 
+                ($_POST['tabla'] == 'bejelentes'    && $_POST['mezo']=='telephely_id'   ) ||
+                ($_POST['tabla'] == 'beosztas'      && $_POST['mezo']=='telephely_id'   ) ||
+                ($_POST['tabla'] == 'login'         && $_POST['mezo']=='szalloda'       ) ||
+                ($_POST['tabla'] == 'munkalap'      && $_POST['mezo']=='telephely_id'   )
             ){
 
             $feltetel = '<select class="f_felt">';
@@ -311,7 +313,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
             $stauszok = $adatbazis_kapcsolat->s('recid nev', $_POST['tabla'].'_statusz_text');
             foreach($stauszok as $statusz){
                 $selected = '';
-                if($_GET['felt']==$statusz['recid']){
+                if($_POST['felt']==$statusz['recid']){
                     $selected = ' selected';
                 }
                 $feltetel .= '<option value="'.$statusz['recid'].'"'.$selected.'>'.$statusz['nev'].'</option>';

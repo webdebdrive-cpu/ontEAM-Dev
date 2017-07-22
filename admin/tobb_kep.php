@@ -15,6 +15,9 @@ require_once('../class/html/class.Img.php');
 
 if( $_POST['tabla'] ) {
     switch($_POST['tabla']) {
+        case 'anyagigenyles':
+            $tobbkep_tablanev = 'anyagigenyles_dok';
+        break;
         case 'bejelentes':
             $tobbkep_tablanev = 'bejelentes_dok';
         break;
@@ -28,6 +31,9 @@ if( $_POST['tabla'] ) {
 }
 
 switch(basename($_SERVER['PHP_SELF'])) {
+    case 'anyagigenyles.php':
+        $tobbkep_tablanev = 'anyagigenyles_dok';
+    break;
     case 'bejelentes.php':
         $tobbkep_tablanev = 'bejelentes_dok';
     break;

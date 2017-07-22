@@ -89,16 +89,20 @@ if (isset($_POST['f_anyag_rendelkezesre_all'])) {
 
 
 //Több kép menedzseléséhez
-$tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
+$tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
-    function get_tobbkep_csakkep()  { return 'true';    } // Lényeges, hogy egy string legyen
+    function get_tobbkep_csakkep()  { return 'false';   } // Lényeges, hogy egy string legyen
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
     function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
         global $megnevezes;
         return $megnevezes.'_id';
     }
-    function get_tobbkep_tabla(){ return 'kepek';       } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
+    function get_tobbkep_tabla(){                           // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
+        global $megnevezes;
+        return $megnevezes.'_dok';
+        
+    }
 
     //Kép törlésének lekezelése
     if (isset($_GET[$torles.'tobbkep_torol'])){
@@ -467,7 +471,7 @@ if( isset($_POST['arazas']) ) {
                             $(\'#pop_rndear\').attr(\'disabled\', 1);
 
                             rend_osszeg = rndmen*arfolyam*arfolyam;
-                            $(\'#pop_rndear\').val( ezresek(arfolyam*vrndear, 5, \',\', \' \') );
+                            $(\'#pop_rndear\').val( ezresek(arfolyam*vrndear, 4, \',\', \' \') );
                             $(\'#rend_osszeg\').html(ezresek(rend_osszeg, 4, \',\', \' \'));
                             $(\'#rend_osszeg2\').html(ezresek(rndmen*vrndear, 4, \',\', \' \')+\' \'+$(\'#pop_kcs_21_autocomp\').val());
 
@@ -755,47 +759,15 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
     exit();
 }
 
-//Küldés jóváhagyásra
+//Anyagigénylés jóváhagyása. Hatása, hogy Jóváhagyva státuszt kap illetve pár mezőt kitöltünk még az adatbázisban
 if( isset($_POST['anyagigenyles_jovahagy']) ) {
     
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-
-    //hatása, hogy Jóváhagyva státuszt kap illetve pár mezőt kitöltünk még az adatbázisban
-    $arazva_statid      = 20;
     
     $_POST['jhmen'] = str_replace(array(' ', ','), array('', '.'), $_POST['jhmen']);
     
     if( is_array($idk) ) {
-        /* Ellenőrizzük a csoportokat */
-        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")", '', '');
-        if( $sql === false ) {
-            $db_error = true;
-        }
-
-        $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
-        $csoportok_unique = array_unique($csoportok);
-
-        $kijelolt_db = array_count_values($csoportok);
-
-        foreach( $csoportok_unique as $csu ) {
-            if( $csu > 0 ) {
-                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', $page, "`csoport_id` = '{$csu}'", '', '');
-
-                if( $sql === false ) {
-                    $db_error = true;
-                }
-
-                if( count($csoport_db) != $kijelolt_db[$csu] ) {
-                    echo json_encode(array(
-                        'hiba' => 'Csoportosított anyagigénylés önmagában nem hagyható jóvá. Előbb vegye ki a csoportból!'
-                    ));
-
-                    $weblap->leallit();
-                    exit();
-                }
-            }
-        }
         
         // Ellenőrizzük a státuszokat, és feltételeket
         foreach($idk as $id) {
@@ -1026,98 +998,69 @@ if( isset($_POST['anyagigenyles_elutasitas']) ) {
     exit();
 }
 
-//Anyagigénylés elutasítása: hatása, hogy Jóváhagyva státuszt kap illetve pár mezőt kitöltünk még az adatbázisban
+//Minden anyagigénylés jóváhagyása: hatása jóváhagyva státuszt kap
 if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
     
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-    
-    if( is_array($idk) ) {
-        /* Ellenőrizzük a csoportokat */
-        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")", '', '');
+
+    //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+    if (isset($_POST['csak_kerdezunk'])) {
+
+        $ertek = 0;
+        $igenylesek = $adatbazis_kapcsolat->s('igmen rndear', 'anyagigenyles', "`statusz_id`='".CIKKIGN_STAT_ARAZVA."'".get_akt_login_szallodai('sql'));
+        //Ha nincs találáat, akkor hibaüzi és kilépés
+        if(!$igenylesek){
+            echo json_encode(array(
+                'hiba' => nl2('
+                                Jelenleg egyik anyagigénylés sincs árazva státuszba,<br>tehát nincs jóváhagyásra váró anyagigénylés!
+                            '),
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        foreach ($igenylesek as $igeny){
+            $ertek += $igeny['igmen']*$igeny['rndear'];
+        }
+
+        echo json_encode(array(
+            'hiba' => nl2('
+                            Jóváhagyásra váró érték: '.number_format($ertek, 2, ',', ' ').' '.get_penznem().'
+                            <br>Folytatja?
+                        '),
+            'gomb' => '<input class="gomb piros" value="Igen" onclick="anyagigenyles_mind_jovahagy();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+
+
+    //Státusz léptetés jóváhagyvára
+    $igenylesek = $adatbazis_kapcsolat->s('recid rndmen', 'anyagigenyles', "`statusz_id`='".CIKKIGN_STAT_ARAZVA."'".get_akt_login_szallodai('sql'));
+    foreach ($igenylesek as $igeny){
+
+        $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('jhmen'), array($igeny['rndmen']), "`recid`='{$igeny['recid']}'");
         if( $sql === false ) {
             $db_error = true;
         }
 
-        $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
-        $csoportok_unique = array_unique($csoportok);
-
-        $kijelolt_db = array_count_values($csoportok);
-
-        foreach( $csoportok_unique as $csu ) {
-            if( $csu > 0 ) {
-                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', $page, "`csoport_id` = '{$csu}'", '', '');
-
-                if( $sql === false ) {
-                    $db_error = true;
-                }
-
-                if( count($csoport_db) != $kijelolt_db[$csu] ) {
-                    echo json_encode(array(
-                        'hiba' => 'Csoportosított anyagigénylés önmagában nem küldhető jóváhagyásra. Előbb vegye ki a csoportból!'
-                    ));
-
-                    $weblap->leallit();
-                    exit();
-                }
-            }
+        $statusz = addStatusz( $page.'_statusz', $igeny['recid'], CIKKIGN_STAT_JOVAHAGYVA );
+        if( $statusz === false ) {
+            $db_error = true;
         }
+    }
 
-        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
-        if (isset($_POST['csak_kerdezunk'])) {
-
-            $ertek = 0;
-            $igenylesek = $adatbazis_kapcsolat->s('igmen rndear', 'anyagigenyles', "`statusz_id`='".CIKKIGN_STAT_ARAZVA."'");
-            foreach ($igenylesek as $igeny){
-                $ertek += $igeny['igmen']*$igeny['rndear'];
-            }
-            
-            echo json_encode(array(
-                'hiba' => nl2('
-                                Jóváhagyásra váró érték: '.number_format($ertek, 2, ',', ' ').' '.get_penznem().'
-                                <br>Folytatja?
-                            '),
-                'gomb' => '<input class="gomb piros" value="Igen" onclick="anyagigenyles_mind_jovahagy();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
-            ));
-
-            $weblap->leallit();
-            exit();
-        }
-        
-        foreach($idk as $id) {
-            
-            //Státusz léptetés jóváhagyvára
-            $igenylesek = $adatbazis_kapcsolat->s('recid rndmen', 'anyagigenyles', "`statusz_id`='".CIKKIGN_STAT_ARAZVA."'");
-            foreach ($igenylesek as $igeny){
-                
-                $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('jhmen'), array($igeny['rndmen']), "`recid`='{$igeny['recid']}'");
-                if( $sql === false ) {
-                    $db_error = true;
-                }
-                
-                $statusz = addStatusz( $page.'_statusz', $igeny['recid'], CIKKIGN_STAT_JOVAHAGYVA );
-                if( $statusz === false ) {
-                    $db_error = true;
-                }
-            }
-            
-            if( addMegj('anyagigenyles', $id, $_POST['oka']) === false ) {
-                $db_error = true;
-            }
-            
-        }
-
-        if( !$db_error ) {
-            mysqli_commit($db_kapcs);
-            echo json_encode(array(
-                'statusz' => 'siker'
-            ));
-        } else {
-            mysqli_rollback($db_kapcs);
-            echo json_encode(array(
-                'hiba' => tranzakcioHiba()
-            ));
-        }
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
     }
 
     $weblap->leallit();
@@ -1875,7 +1818,7 @@ if($gyorskereso_text){
                         }
 
                         $anyagok_html .= nl2('
-                                        <tr>
+                                        <tr id="sor_'.$cikk_id.'">
                                             <td>'.$szalloda['nev'].'</td>
                                             <td id="cikk_id_'.$recid_egyedi_azon.'">'.$cikk_id.'</td>
                                             <td id="cikk_nev_'.$recid_egyedi_azon.'">'.$cikk_nev.'</td>
@@ -2104,19 +2047,22 @@ if($gyorskereso_text){
 	//Dokumentumok
 	}elseif(isset($_GET['dokumentumok'])){
 
-        $szamla_html .= 'Dokumentumok felülete';
-        
+        if( $tobb_kep ) {
+            require_once('tobb_kep.php');
+        }
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html,
+                'tartalom' => $szamla_html.$gombok,
                 'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
-            echo $szamla_html;
+            echo $szamla_html.$gombok;
         }
 
     /* Megjegyzés */
-    }elseif(isset($_GET['megjegyzesek'])) {
+	//Megjegyzések
+	}elseif(isset($_GET['megjegyzesek'])){
 
         $szamla_html .= nl2('
             <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzesek">
@@ -2128,6 +2074,7 @@ if($gyorskereso_text){
         ');
 
         $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
+
         if( $sorok ) {
             $i = 1;
             foreach($sorok as $sor) {
@@ -2147,7 +2094,8 @@ if($gyorskereso_text){
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html.$gombok
+                'tartalom' => $szamla_html.$gombok,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html.$gombok;
