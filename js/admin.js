@@ -3745,7 +3745,7 @@ function _get( ertek ) {
 }
 
 function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
-    
+
     if( szerkeszt === undefined ) {
         szerkeszt = false;
     }
@@ -3783,7 +3783,6 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
          		if(html) {
 
                     html = JSON.parse(html);
-
 
          			$('#szamlaBetolt').attr('data-recid', recid).html(html.tartalom).promise().done(function() {
                         dfrd1.resolve();
@@ -3825,6 +3824,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         'tetel',
                         'ujkent'
                     ], true);
+
                     if( muvelet != 'uj' ) {
                         if( param.indexOf('?') !== -1 ) {
                             param += '&id=' + recid + '&' + esamp2es(muvelet);

@@ -1459,7 +1459,7 @@ function szamla_lista( $where, $tabla ) {
                 $select_feldogloz = $select_tmp.$maradek;
             }
 //var_dump($select_feldogloz);
-            
+
             $selectek = explode(' ', $select_feldogloz);
             $ksz_where = '';
             foreach($selectek as $select_tmp) {
@@ -1540,7 +1540,7 @@ function szamla_lista( $where, $tabla ) {
     //Rendezés telephely táblával JOIN-olva, ha telephely_id alapján rendezünk vagy a selectben szerepel ez az oszlop
     $bejegyzesek = array();
     if(strpos($order, 'telephely_id')!==false  || strpos($select, 'telephely_id')!==false){
-        
+
         //Először is az ordert felülírjuk
         $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
 
@@ -1585,7 +1585,7 @@ function szamla_lista( $where, $tabla ) {
 
         //Rendezés munkalap esetén
         if($tabla=='munkalap'){
-            
+
             $order = '';
             //Elsődleges rendezés a csport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
             if(_jog(2)){
@@ -1604,7 +1604,7 @@ function szamla_lista( $where, $tabla ) {
             if($_GET['rend']=='telephely_id'){
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'munkalap`.`ikt_szam`';
             }
-            
+
         }
 
         //Select-et is kiegészítjük a rendezni kívánt oszloppal
@@ -1655,7 +1655,7 @@ function szamla_lista( $where, $tabla ) {
         if($where){
             $where = ' AND '.$where;
         }
-        
+
         $sql = 'SELECT
                         `'.get_db_tabla().'erteklista`.`recid`,
                         `'.get_db_tabla().'erteklista`.`csoport`,
@@ -1842,7 +1842,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                             $csoport_bej = adatbazis2tomb($csoport_bej, 'recid');
 
                             if( in_array($_GET['id'], $csoport_bej) ) {
-                                $csoport_active = ' kijelolve';
+                                //$csoport_active = ' kijelolve';
                             }
                         }
 
@@ -1882,6 +1882,15 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                 ');
             }
 
+            $kesz = '';
+            if( $bsz['statusz_id'] == BEJELENTES_STAT_KESZ_IG ) {
+                $kesz = nl2('
+                    <span class="icon zold">
+                        <i class="material-icons">done</i>
+                    </span>
+                ');
+            }
+
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
                 $active = ' kijelolve';
@@ -1907,7 +1916,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span'.$bold.'>'.$surgos.' '.$bsz['ikt_szam'].'</span>
+                            <span'.$bold.'>'.$kesz.$surgos.' '.$bsz['ikt_szam'].'</span>
                             <span'.$bold.'>'.$telephely.' - '.$helyseg.'</span>
                             <span'.$bold.'>'.$hiba['info'].'</span>
                          </a>';
@@ -1993,7 +2002,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
                             $csoport_bej = adatbazis2tomb($csoport_bej, 'recid');
 
                             if( in_array($_GET['id'], $csoport_bej) ) {
-                                $csoport_active = ' kijelolve';
+                                //$csoport_active = ' kijelolve';
                             }
                         }
 
@@ -2009,6 +2018,15 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
                 $surgos = nl2('
                     <span class="icon piros">
                         <i class="material-icons">error</i>
+                    </span>
+                ');
+            }
+
+            $kesz = '';
+            if( $bsz['statusz_id'] == MUNKALAP_STAT_KESZ_IG ) {
+                $kesz = nl2('
+                    <span class="icon zold">
+                        <i class="material-icons">done</i>
                     </span>
                 ');
             }
@@ -2031,7 +2049,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
 
             //Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
             $bold = '';
-            if($bsz['statusz_id']==1){
+            if($bsz['statusz_id'] == 1){
                 $bold = ' class="b"';
                 $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
@@ -2041,7 +2059,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
             $telephely = $telephely[0]['nev'];
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span'.$bold.'>'.$bsz['ikt_szam'].' - '.$telephely.'</span>
+                            <span'.$bold.'>'.$kesz.$surgos.$bsz['ikt_szam'].' - '.$telephely.'</span>
                             <span'.$bold.'>'.$statusz.'</span>
                          </a>';
 
@@ -3824,7 +3842,7 @@ function get_akt_login_szallodai($sqlt_adj_vissza, $telephely_id_oszlop_helyett_
 
     $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
     $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
-    
+
     //SQL-t adjunk vissza
     if($sqlt_adj_vissza){
         $oszlop = 'telephely_id';
@@ -3927,7 +3945,7 @@ function beosztas_naptar($beosztas_id){
         $sor_cellak = '<td colspan="'.$napok.'">';
 
         foreach($idopontok as $idopont){
-            
+
             $orak_kezdestol_rem = round((strtotime($idopont['tol'])-$kezd)                      / (60*60)/10*$szorzo);
             $orak_hossza_rem    = round((strtotime($idopont['ig'] )-strtotime($idopont['tol'])) / (60*60)/10*$szorzo);
 

@@ -728,9 +728,9 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $megnevezes = 'log';
 $log_tomb = $akt_tomb = array(
 	array('type' => 'text',            'megn' => 'Felh:',     'name' => 'felh_id',   'maxlength' => 250, 'class' => 'oriasi', 'kulso_tabla' => 'login|nev'),
-	array('type' => 'text',            'megn' => 'Művelet:',  'name' => 'nev',       'maxlength' => 250, 'class' => 'oriasi'),
+	array('type' => 'text',            'megn' => 'Művelet:',  'name' => 'nev',       'maxlength' => 250, 'class' => 'oriasi', 'show' => true),
     array('type' => 'textarea',        'megn' => 'Változás:', 'name' => 'valtozas',  'class' => 'oriasi'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/, 'wysiwyg' => 'Min2'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '200'/*<=WYSIWYG esetére*/),
-    array('type' => 'text',            'megn' => 'Dátum:',    'name' => 'datetime',  'class' => 'normal datepicker', 'value' => ''/*$datum*/),
+    array('type' => 'text',            'megn' => 'Dátum:',    'name' => 'datetime',  'class' => 'normal datepicker', 'value' => '',/*$datum*/ 'show' => true),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -1727,6 +1727,26 @@ if( isset($_POST['munkalapKeszre']) ) {
             }
         }
 
+        /* Ellenőrizzük, hogy felvéve státuszban van e */
+        $sql = $munkalap = $adatbazis_kapcsolat->s('statusz_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $munkalap ) {
+            $munkalap = $munkalap[0];
+
+            if( $munkalap['statusz_id'] != MUNKALAP_STAT_FELVEVE ) {
+                echo json_encode(array(
+                    'hiba' => 'Csak felvéve státuszú bejelentést lehet készre jelenteni!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
         //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
         if (isset($_POST['csak_kerdezunk'])) {
 
@@ -1740,7 +1760,7 @@ if( isset($_POST['munkalapKeszre']) ) {
         }
 
         /* Készre állítjuk a munkát */
-        if( !addStatusz( 'munkalap_statusz', $recid, 10 ) ) {
+        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_KESZ_IG ) ) {
             $db_error = true;
         }
 
@@ -1773,6 +1793,61 @@ if( isset($_POST['munkalapKeszre']) ) {
 
             if( $sql === false ) {
                 $db_error = true;
+            }
+        }
+
+        /* Megnézzük, hogy a bejelentései szerepelnek e máshol */
+        $sql = $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $bejelentesek ) {
+            /* Megnézzük, hogy máshol szerepel e */
+            $sql = $mashol_bej = $adatbazis_kapcsolat->s('munkalap_id bejelentes_id', 'munkalap_kapcs', "`bejelentes_id` = '".$bejelentesek[0]['bejelentes_id']."' AND `munkalap_id` != '{$recid}'", '', '');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            /* Ha szerepel */
+            if( $mashol_bej ) {
+                $osszes_munkalap = count($mashol_bej);
+                $elkeszult_munkalapok = 0;
+
+                /* Megnézzük az összes munkalap státuszát */
+                foreach($mashol_bej as $mbej) {
+                    $munkalap = $adatbazis_kapcsolat->s('statusz_id', 'munkalap', "`recid` = '".$mbej['munkalap_id']."'", '', '1');
+
+                    if( $munkalap ) {
+                        $munkalap = $munkalap[0];
+
+                        if( $munkalap['statusz_id'] == MUNKALAP_STAT_KESZ_IG ) {
+                            $elkeszult_munkalapok++;
+                        }
+                    }
+                }
+
+                /* Ha mind elkészült, tehát ez az utolsó igazolásra váró, akkor a bejelentések státuszát átváltjuk */
+                if( $osszes_munkalap == $elkeszult_munkalapok ) {
+                    /* Lekérdezzük a bejelentéseit */
+                    foreach($bejelentesek as $bejelentes) {
+                        /* Átállítjuk a bejelentések státuszát Igazolásra várra */
+                        if( !addStatusz( 'bejelentes_statusz', $bejelentes['bejelentes_id'], BEJELENTES_STAT_KESZ_IG ) ) {
+                            $db_error = true;
+                        }
+                    }
+                }
+            /* Ha nem szerepl akkor */
+            } else {
+                /* Lekérdezzük a bejelentéseit */
+                foreach($bejelentesek as $bejelentes) {
+                    /* Átállítjuk a bejelentések státuszát Igazolásra várra */
+                    if( !addStatusz( 'bejelentes_statusz', $bejelentes['bejelentes_id'], BEJELENTES_STAT_KESZ_IG ) ) {
+                        $db_error = true;
+                    }
+                }
             }
         }
 
@@ -2214,7 +2289,7 @@ if( isset($_POST['munkalaphozAdas']) ) {
                 if( $sql === false ) {
                     $db_error = true;
                 }
-                
+
                 if( $isMKapcsok ) {
                     foreach($isMKapcsok as $isMKapcs) {
                         foreach($idk as $id) {
@@ -3274,7 +3349,7 @@ if( isset($_POST['mellekTorol']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     //Ki-ki csak a saját megjegyzését törölheti
-    if( $tabla != 'telephely_kapcs' && $tabla != 'munkalap_kapcs' ) { //telephely_kapcs-nál nincs ilyen feltétel
+    if( $tabla != 'telephely_kapcs' && $tabla != 'munkalap_kapcs' && !strstr($tabla, '_dok') ) { //telephely_kapcs-nál nincs ilyen feltétel
         if( $sql = $adatbazis_kapcsolat->s('id', $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`!='{$_SESSION[get_db_tabla().'user']}'")){
             echo json_encode(array(
                 'hiba' => 'Más által létrehozott bejegyzés nem törölhető!'
@@ -3311,6 +3386,65 @@ if( isset($_POST['mellekTorol']) ) {
 
                 if( $sql === false ) {
                     $db_error = true;
+                }
+            }
+        } else if( strstr($tabla, '_dok') ) {
+            $sql = $sor = $adatbazis_kapcsolat->s('statusz_id', str_replace('_dok', '', $tabla), "`recid` = '{$recid}'", '', '');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $sor ) {
+                $sor = $sor[0];
+
+                if( $sor['statusz_id'] == 1 ) {
+                    $sql = $fajlok = $adatbazis_kapcsolat->s('recid kepnev megj', $tabla, "`recid` IN (".implode(',', $idk).")", '', '');
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    if( $fajlok ) {
+                        $mit = 'A(z) '.str_replace('_dok', '', $tabla).' '.$recid.'. recordját módosította.';
+                        $valtozas = 'A következő fájlokat törölte: <br>';
+
+                        foreach($fajlok as $fajl) {
+                            $utvonal = '../'.get_utvonal().$fajl['kepnev'];
+
+                            if( is_file($utvonal) ) {
+                                /* Töröljük a fájlt */
+                                unlink($utvonal);
+
+                                /* Töröljük a sort is */
+                                $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` = '".$fajl['recid']."'");
+
+                                if( $sql === false ) {
+                                    $db_error = true;
+                                }
+
+                                /* Log változás */
+                                $valtozas .= '<strong>'.$utvonal.'</strong><br>';
+                            }
+                        }
+
+                        /* Logoljuk */
+                        $sql = $adatbazis_kapcsolat -> i('log',
+                            array('felh_id',                            'nev', 'valtozas'),
+                            array($_SESSION[get_db_tabla().'user_id'],  $mit,  $valtozas )
+                        );
+
+                        if( $sql === false ) {
+                            $db_error = true;
+                        }
+                    }
+                } else {
+                    echo json_encode(array(
+                        'hiba' => 'Csak nyitott státuszú bejegyzések dokumentumai törölhetőek!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
                 }
             }
         } else {

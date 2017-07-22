@@ -50,6 +50,7 @@ if(isset($_POST['session_name'])){
 
     session_id($_POST['session_name']);
     session_start();
+
     require_once('../weblap.php');
     $utvonal = '../'.get_utvonal().'doc';
 
@@ -102,7 +103,7 @@ if(isset($_POST['session_name'])){
 
         case 0:
             //Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
-            $kepnev = $utvonal.'/'.time().'.'.kit($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
+            $kepnev = $utvonal.'/'.time().'_'.rand(1, 10000).'.'.kit($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
 
             //Fájlfeltöltés
             if(move_uploaded_file($_FILES[ $_SESSION['fajl']['megnevezes'] ]['tmp_name'], $kepnev)){
@@ -114,7 +115,10 @@ if(isset($_POST['session_name'])){
                 $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'], array($_SESSION['fajl']['oszlop'], 'kepnev', 'megj'), array($_SESSION['fajl']['termek_id'], str_replace('../'.get_utvonal(), '', $kepnev), basename($kepnev) ) );
                 $sor_kepek = $adatbazis_kapcsolat->s('*', $_SESSION['fajl']['tabla'], 'recid='.$id);
                 $sor_kepek = $sor_kepek[0];
-                echo get_tobbkep_thumb($sor_kepek);
+
+                $osszes_sor = $adatbazis_kapcsolat->s('recid', $_SESSION['fajl']['tabla'], '');
+
+                echo get_tobbkep_thumb($sor_kepek, count($osszes_sor));
             }
         break;
     }
@@ -226,9 +230,12 @@ $tobbkep_html .= str_replace($sorrend_ujkep_mit, $sorrend_ujkep_mivel, $sorrend_
 $i     = 0;
 $kepek = $adatbazis_kapcsolat -> select('*', $tobbkep_tablanev, get_tobbkep_oszlopnev().'='.$_GET['id'], 'sor');
 
-$tobbkep_html .= '<div><ul id="sorrendezes_tobbkep" class="kijCont">';
-foreach($kepek as $sor_kepek){
-    $tobbkep_html .= get_tobbkep_thumb($sor_kepek);
+$tobbkep_html .= '<div><ul id="sorrendezes_tobbkep" class="kijCont" data-tabla="'.$tobbkep_tablanev.'" data-mellek="dokumentumok">';
+$i = 1;
+foreach($kepek as $sor_kepek) {
+    $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i);
+
+    $i++;
 }
 $tobbkep_html .= '</ul></div>';
 $szamla_html .= $tobbkep_html;
@@ -238,7 +245,7 @@ $szamla_html .= $tobbkep_html;
 
 
 /* A több képe thumbnailját hozza létre, egy adatbázis sorból */
-function get_tobbkep_thumb($sor_kepek){
+function get_tobbkep_thumb($sor_kepek, $i) {
 
     require_once('../weblap.php');
 
@@ -258,7 +265,7 @@ function get_tobbkep_thumb($sor_kepek){
         /* title="'.$sor_kepek['kepnev'].'" */
         //$megj_szerkesztes_onclick = ' onclick="window.open(\''.$kep_utvonal.'\')"';
         $tobbkep_html .= nl2('
-            <li id="'.$azon.'" class="kijSor" title="'.$sor_kepek['megj'].'" data-recid="'.$sor_kepek['recid'].'">
+            <li id="'.$azon.'" class="kijSor" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'">
                 <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
                 <!--<div class="torol" onclick="tobbkep_torol(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \''.$azon.'\');">
                     <img alt="x" class="dn" src="../elemek/admin/torol_hover.png" />
