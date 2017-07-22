@@ -1445,8 +1445,22 @@ function szamla_lista( $where, $tabla ) {
         //Keresés
         if( $_GET['ksz'] ) {
 
-            $selectek = explode(' ', $_OPTS['select']);
-
+            //Ki kell szűrni az " ... as " részeket.
+            $select_feldogloz = nl2($_OPTS['select']);
+            if(strpos($select_feldogloz, '` as `')!==false){
+                $as_resz = strpos($select_feldogloz, '` as `');
+//var_dump($as_resz);
+                $select_tmp = substr($select_feldogloz, 1, $as_resz);
+                //maradékból vágjuk ki az as `ami ide van írva` részt. 4. ` karaterig vágunk
+                $maradek    = substr($select_feldogloz, $as_resz);
+                for($i=0; $i<4; $i++){
+                    $maradek = substr($maradek, 0, strpos('`'));
+                }
+                $select_feldogloz = $select_tmp.$maradek;
+            }
+//var_dump($select_feldogloz);
+            
+            $selectek = explode(' ', $select_feldogloz);
             $ksz_where = '';
             foreach($selectek as $select_tmp) {
                 if( $select_tmp && $select_tmp != 'recid' ) {
@@ -1523,9 +1537,10 @@ function szamla_lista( $where, $tabla ) {
     $limit = $lapozo ->getLimit();
 //echo 'sel:'.$select . ' ir:'.$irany.' or:'.$order.' lim:'.$limit.' where:'.$where.'<br>';
 
-    //Rendezés telephely táblával JOIN-olva
+    //Rendezés telephely táblával JOIN-olva, ha telephely_id alapján rendezünk vagy a selectben szerepel ez az oszlop
     $bejegyzesek = array();
     if(strpos($order, 'telephely_id')!==false  || strpos($select, 'telephely_id')!==false){
+        
         //Először is az ordert felülírjuk
         $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
 
@@ -1549,7 +1564,7 @@ function szamla_lista( $where, $tabla ) {
         if($tabla=='bejelentes'){
 
             $order = '';
-            //Elsődleges rendezés a csport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
+            //Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
             if(_jog(2)){
                 $order .= '`'.get_db_tabla().'bejelentes_csoport`.`nev`, ';
             }
@@ -1570,7 +1585,26 @@ function szamla_lista( $where, $tabla ) {
 
         //Rendezés munkalap esetén
         if($tabla=='munkalap'){
-            $order = 'csoport_id asc, '.$order;
+            
+            $order = '';
+            //Elsődleges rendezés a csport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
+            if(_jog(2)){
+                $order .= '`'.get_db_tabla().'munkalap_csoport`.`nev`, ';
+            }
+            //A sürgős mindig elől lesz, bármi is a rendezettség
+            $order .= '`'.get_db_tabla().'munkalap`.`surgos` DESC, ';
+
+            $irany_ikt_szam  = '';
+            $irany_telephely = '';
+            //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            if($_GET['rend']=='ikt_szam'){
+                $order .= '`'.get_db_tabla().'munkalap`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
+            }
+            //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
+            if($_GET['rend']=='telephely_id'){
+                $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'munkalap`.`ikt_szam`';
+            }
+            
         }
 
         //Select-et is kiegészítjük a rendezni kívánt oszloppal
@@ -1579,12 +1613,17 @@ function szamla_lista( $where, $tabla ) {
         $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
         $mit   = 'WHERE';
 
-        //Bejelentésnél még az értéklistát is felvesszük
+        //Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
         $sql_kieg = '';
         if($tabla=='bejelentes'){
             $sql_kieg = nl2('
                                 JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'erteklista`.`csoport`=4 AND `'.get_db_tabla().$tabla.'`.`hiba_id`=`'.get_db_tabla().'erteklista`.`recid`)
                                 LEFT OUTER JOIN `'.get_db_tabla().'bejelentes_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'bejelentes_csoport`.`recid`
+                            ');
+        }
+        if($tabla=='munkalap'){
+            $sql_kieg = nl2('
+                                LEFT OUTER JOIN `'.get_db_tabla().'munkalap_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'munkalap_csoport`.`recid`
                             ');
         }
         if(strpos($select, 'obj_id')!==false){
@@ -1608,6 +1647,11 @@ function szamla_lista( $where, $tabla ) {
     //Értéklistát csoport szerinti sorrenben, azon belül pedig infó szerinti sorrendben kell kilistázni
     }elseif($tabla=='erteklista'){
 
+        //Gyorskeresőnél képződhet where feltétel
+        if($where){
+            $where = ' AND '.$where;
+        }
+        
         $sql = 'SELECT
                         `'.get_db_tabla().'erteklista`.`recid`,
                         `'.get_db_tabla().'erteklista`.`csoport`,
@@ -1615,7 +1659,7 @@ function szamla_lista( $where, $tabla ) {
                         `'.get_db_tabla().'erteklista_csoport`.`nev`
                 FROM    `'.get_db_tabla().'erteklista`
                 JOIN    `'.get_db_tabla().'erteklista_csoport` ON `'.get_db_tabla().'erteklista`.`csoport`=`'.get_db_tabla().'erteklista_csoport`.`csoport`
-                WHERE   `'.get_db_tabla().'erteklista`.`torolve`=0
+                WHERE   `'.get_db_tabla().'erteklista`.`torolve`=0'.$where.'
                 ORDER BY `'.get_db_tabla().'erteklista_csoport`.`nev`, `'.get_db_tabla().'erteklista`.`info`
                 ';
 
@@ -3752,15 +3796,17 @@ function get_akt_tomb($megn){
     global $beosztas_tomb;
     global $login_tomb;
     global $munkalap_tomb;
+    global $utemezett_feladatok_tomb;
     global $torzsadat_tomb;
 
     switch($megn){
-        case 'anyagigenyles': $akt_tomb = $anyagigenyles_tomb;  break;
-        case 'bejelentes'   : $akt_tomb = $bejelentes_tomb;     break;
-        case 'beosztas'     : $akt_tomb = $beosztas_tomb;       break;
-        case 'login'        : $akt_tomb = $login_tomb;          break;
-        case 'munkalap'     : $akt_tomb = $munkalap_tomb;       break;
-        case 'torzsadat'    : $akt_tomb = $torzsadat_tomb;      break;
+        case 'anyagigenyles'        : $akt_tomb = $anyagigenyles_tomb;          break;
+        case 'bejelentes'           : $akt_tomb = $bejelentes_tomb;             break;
+        case 'beosztas'             : $akt_tomb = $beosztas_tomb;               break;
+        case 'login'                : $akt_tomb = $login_tomb;                  break;
+        case 'munkalap'             : $akt_tomb = $munkalap_tomb;               break;
+        case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
+        case 'torzsadat'            : $akt_tomb = $torzsadat_tomb;              break;
     }
 
     return $akt_tomb;

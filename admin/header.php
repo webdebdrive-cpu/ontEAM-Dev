@@ -819,7 +819,10 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 /* SZŰRÉS
  *  $szures nevű változót állítja elő, benne a szűréssel kapcsolatos funkciókkal (selectek, feltételek)
  */
-require_once 'szures.php';
+$nem_kell_szuro = array('ktghely', 'ktgnem', 'szerepkor');
+if( !in_array($megn, $nem_kell_szuro)){
+    require_once 'szures.php';
+}
 
 /* NYOMTATÁS */
 require_once 'nyomtatas.php';

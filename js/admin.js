@@ -3746,6 +3746,7 @@ function _get( ertek ) {
 }
 
 function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
+    
     if( szerkeszt === undefined ) {
         szerkeszt = false;
     }
@@ -3840,7 +3841,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     }
                     
                     /* Bal oldali navpanel sorát is frissítjük */
-                    szamlaSorFrissit(page.replace('.php', ''), recid);
+                    if(page.replace('.php', '')!='erteklista'){
+                        szamlaSorFrissit(page.replace('.php', ''), recid);
+                    }
 
                     /* URL mod */
                     window.history.pushState("", "", getHost() + param );

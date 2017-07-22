@@ -63,3 +63,8 @@ KIJELÖLÉSEK MŰKÖDÉSE (SOROK MEGJELÖLÉSE BAL NAVPANELEN ÉS FÜLEK ALATTI 
 
 CIKKTORZSBŐL LEKÉRT AUTOCOMPLETE ESETÉN A MENNYISÉGI EGYSÉG AUTOMATIKUSAN BEÍRÓDIK
 Ha van egy autocompletes input, ami cikktörzsből dolgozik, akkor ebben az űrlapban elhelyezett <span class="insertMee"></span> span-ba be fog íródni a mennyiségi egység is
+
+GOMBOK KISZERVEZÉSE ÁLTALÁNOSAN
+- Új feltöltés űrlap feltétele elé összegyűjteni a jogosultásgokat és kialakítani a nyomógombokat (pl. anyagigényles.php mintájára)
+- Új és modosít részen belül törölni minden $gomb változót
+- Ha van extra fül, akkor ott a $szamla_html-t meg kell toldani a gombbal is
