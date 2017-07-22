@@ -269,7 +269,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
             $feltetel = '<select class="f_felt">';
             $feltetel .= '<option value="">-Válasszon szállodát-</option>';
-            $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', "", 'nev');
+            $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', trim(get_akt_login_szallodai('sql', 'id'), ' AND '), 'nev');
             foreach($telephelyek as $telephely){
                 $selected = '';
                 if($telephely['id']==$_POST['felt']){

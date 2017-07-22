@@ -1616,15 +1616,19 @@ function szamla_lista( $where, $tabla ) {
         //Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
         $sql_kieg = '';
         if($tabla=='bejelentes'){
-            $sql_kieg = nl2('
+            $sql_kieg .= nl2('
                                 JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'erteklista`.`csoport`=4 AND `'.get_db_tabla().$tabla.'`.`hiba_id`=`'.get_db_tabla().'erteklista`.`recid`)
                                 LEFT OUTER JOIN `'.get_db_tabla().'bejelentes_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'bejelentes_csoport`.`recid`
                             ');
         }
         if($tabla=='munkalap'){
-            $sql_kieg = nl2('
+            $sql_kieg .= nl2('
                                 LEFT OUTER JOIN `'.get_db_tabla().'munkalap_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'munkalap_csoport`.`recid`
                             ');
+        }
+        //Szűréskor megjegyzés JOIN
+        if ($_GET['mezo']=='megjegyzes') {
+            $sql_kieg .= ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
         if(strpos($select, 'obj_id')!==false){
             $sql_kieg .= ' JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid` ';
@@ -1672,11 +1676,11 @@ function szamla_lista( $where, $tabla ) {
 
         //Szűréskor kell pár JOIN-olás a külső táblákhoz
         $join = '';
+        if ($_GET['mezo']=='megjegyzes') {
+            $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
+        }
         if ($tabla=='login' && $_GET['mezo']=='szalloda') {
             $join = ' JOIN `'.get_db_tabla().'telephely_kapcs` ON `'.get_db_tabla().'login`.`nev`=`'.get_db_tabla().'telephely_kapcs`.`nev`';
-        }
-        if ($tabla=='login' && $_GET['mezo']=='megjegyzes') {
-            $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\'login\' AND `'.get_db_tabla().'login`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
 
         $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit, '', '', $join);
@@ -3794,6 +3798,7 @@ function get_akt_tomb($megn){
     global $anyagigenyles_tomb;
     global $bejelentes_tomb;
     global $beosztas_tomb;
+    global $cikktorzs_tomb;
     global $login_tomb;
     global $munkalap_tomb;
     global $utemezett_feladatok_tomb;
@@ -3803,6 +3808,7 @@ function get_akt_tomb($megn){
         case 'anyagigenyles'        : $akt_tomb = $anyagigenyles_tomb;          break;
         case 'bejelentes'           : $akt_tomb = $bejelentes_tomb;             break;
         case 'beosztas'             : $akt_tomb = $beosztas_tomb;               break;
+        case 'cikktorzs'            : $akt_tomb = $cikktorzs_tomb;              break;
         case 'login'                : $akt_tomb = $login_tomb;                  break;
         case 'munkalap'             : $akt_tomb = $munkalap_tomb;               break;
         case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
@@ -3950,110 +3956,6 @@ function beosztas_naptar($beosztas_id){
     $naptar .= '</table>';
 
     return '<div id="kijelolt_erteke"></div><div class="beosztas_naptar">'.$naptar.'</div>';
-    
-    /*
-    global $adatbazis_kapcsolat;
-
-    $idoint = $adatbazis_kapcsolat->s('tol ig', 'beosztas', "`recid`='$beosztas_id'");
-    $idoint = $idoint[0];
-
-    $kezd = strtotime($idoint['tol']);
-    $veg  = strtotime($idoint['ig']);
-    $napok = floor(($veg - $kezd) / (60 * 60 * 24))+1;
-
-    require 'selectek.php';
-    $szerepkorok = '';
-    foreach($select_szemelyzet as $szerepkor){
-        if($szerepkor['szin']){
-            $szerepkorok .= '<div style="background: '.$szerepkor['szin'].'; padding: 0.2rem 0.4rem; font-size: 1.1rem">'.$szerepkor['name'].'</div>';
-        }
-    }
-    $naptar = nl2('
-                <div class="dib" style="position: fixed; right: 0">
-                    '.$szerepkorok.'
-                </div>
-                <table>
-                <tr>
-                    <th>
-                        Dátum
-                    </th>
-                ');
-    for($i=0; $i<$napok; $i++){
-        $naptar .= '<th colspan="24">'.date('Y.m.d', $kezd+60*60*24*$i).'</th>';
-        for($ora = 0; $ora <24; $ora++){
-            $orak_fejlec .= '<th>&nbsp;</th>';
-        }
-    }
-    $naptar .= nl2('
-                    </tr>
-                ');
-
-    $recidk = array();
-    $szemelyzet = $adatbazis_kapcsolat->s('distinct felh_loginnev', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'");
-    $szemelyzet = adatbazis2tomb($szemelyzet, 'felh_loginnev');
-    foreach ($szemelyzet as $szemely){
-
-        $szemelyzet = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='{$szemely}'");
-        $szemelyzet = $szemelyzet[0];
-
-        $idopontok = array();
-        $sorok = $adatbazis_kapcsolat->s('recid tol ig szerepkor', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}' AND `felh_loginnev`='$szemely'");
-        foreach($sorok as $sor){
-            array_push($idopontok, $sor);
-        }
-
-        $sor_cellak = '';
-        for($i=0; $i<$napok; $i++){
-            for($ora = 0; $ora <24; $ora++){
-                $datum = date('Y-m-d', $kezd+60*60*24*$i);
-                $ora_kiir = $ora;
-                if($ora_kiir<10){
-                    $ora_kiir = '0'.$ora;
-                }
-                $ora_kiir   = $ora_kiir.':00:00';
-
-                $foglalt = false;
-                $recid   = 0;
-                foreach($idopontok as $idopont){
-                    if($idopont['tol']<=$datum.' '.$ora_kiir && $idopont['ig']>$datum.' '.$ora_kiir){
-                        $foglalt = true;
-                        $recid   = $idopont['recid'];
-                        array_push($recidk, $recid);
-                        break;
-                    }
-                }
-
-                if($foglalt){
-                    $sor_cellak .= '<td class="foglalt beosztas_'.$recid.' szerepkor_'.$idopont['szerepkor'].'" data-recid="'.$recid.'">&nbsp;</td>';
-                }else{
-                    $sor_cellak .= '<td>&nbsp;</td>';
-                }
-            }
-        }
-
-        $naptar .= nl2('
-                        <tr>
-                            <th>
-                                '.$szemelyzet['nev'].'
-                            </th>
-                            '.$sor_cellak.'
-                        </tr>
-                    ');
-
-    }
-
-    $naptar .= '</table>';
-
-    //Az összegyűjtött recid-kből tudunk csunálni egy CSS-t, amivel a határvonalakat me gtudjuk rajzolni
-    $css = '';
-    $recidk = array_unique($recidk);
-    foreach($recidk as $id){
-        $css .= '.beosztas_naptar table td.beosztas_'.$id.' ~ .beosztas_'.$id.'{ border-left: 0.1rem solid rgba(0,0,0,0); } ';
-    }
-    $naptar = '<style type="text/css">'.$css.'</style>'.$naptar;
-
-    return '<div id="kijelolt_erteke"></div><div class="beosztas_naptar">'.$naptar.'</div>';
-     */
 }
 
 //A kapott mező, operátor és feltétel alapján előállítja a where feltétel kiegészítését
@@ -4078,11 +3980,13 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     }
 
     //Külső táblák kapcsolása
-    //A szamla_lista() föggvényben is állítsd be a JOIN-okat
-    if($tabla=='login' && $mezo=='szalloda'){
+    //A szamla_lista() függvényben is állítsd be a JOIN-okat
+    if($mezo=='megjegyzes'){
+        return '`'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().'megjegyzes`.`megj` LIKE \''.$felt.'\'';
+    }elseif($tabla=='anyagigenyles' && $mezo=='nev'){
+        return '`'.get_db_tabla().'anyagigenyles`.`nev` LIKE \'%'.$felt.'%\'';
+    }elseif($tabla=='login' && $mezo=='szalloda'){
         return '`'.get_db_tabla().'telephely_kapcs`.`telephely_id`=\''.$felt.'\'';
-    }elseif($tabla=='login' && $mezo=='megjegyzes'){
-        return '`'.get_db_tabla().'megjegyzes`.`megj` LIKE \''.$felt.'\'';
     }elseif($tabla=='login' && $mezo=='jogosultsag'){
         return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
     }else{

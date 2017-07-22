@@ -48,7 +48,7 @@ SZŰRÉS LEKEZELÉSE:
 - szures.php, amit header.php hív meg
 - esemenyek.php-ban a tömböt egészítsd ki a 'szuro' => 1 paraméterrel.
 - fuggvenyek.php adott php fájlt visszadja-e a get_akt_tomb() függvénnyel?
-
+- SQL-t a get_szures_where_kieg() függvény számolja ki
 
 NYOMATÁSI NÉZETEK KIGENEÁRLÁSA:
 - header.php
