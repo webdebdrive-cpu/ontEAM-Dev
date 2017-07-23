@@ -1437,8 +1437,10 @@ function szamla_lista( $where, $tabla ) {
                 $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '1' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (2, 8) AND ";
             } else if( _jog(3) && _jog(31) && !_jog(0) && !_jog(1) ) {
                 $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '2' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (2, 8) AND ";
-            }else if( _jog(3) && _jog(21) && !_jog(0) && !_jog(1) ) {
+            } else if( _jog(3) && _jog(21) && !_jog(0) && !_jog(1) ) {
                 $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '5' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (2, 8, 10) AND ";
+            } else if( _jog(3) && _jog(23) && !_jog(0) && !_jog(1) ) {
+                $where .= '';
             }
         }
 
