@@ -839,7 +839,9 @@ div.jsff_thumb div.torol:hover{
     padding: 1rem 0 0.3rem 0;
 }
 
-
+#sorrendezes_tobbkep {
+    margin: 0.5rem 0rem 0rem 0rem;
+}
 
 /* Több kép thumbnailjai */
 #sorrendezes,
@@ -857,9 +859,8 @@ div.jsff_thumb div.torol:hover{
     cursor: default;
     display: table;
     overflow: hidden;
-    margin: 1rem 0rem 1rem 0rem;
+    margin: 0rem 0rem 0rem 0rem;
     position: relative;
-    transition: background 150ms;
     text-align: left;
     width: 100%;
 }
@@ -868,7 +869,7 @@ div.jsff_thumb div.torol:hover{
 #sorrendezes_album li div.nagyit,
 #sorrendezes_tobbkep li div.nagyit,
 #sorrendezes_bejegyzes li div.nagyit {
-    border: 0.1rem solid #dadbde;
+    border-bottom: 0.1rem solid #dadbde;
     border-left: none;
     border-radius: 0rem 0.2rem 0.2rem 0rem;
     display: table-cell;
@@ -893,8 +894,6 @@ div.jsff_thumb div.torol:hover{
 #sorrendezes_tobbkep li div.torol,
 #sorrendezes_bejegyzes li div.torol{
     background: url('../elemek/admin/torol.png') no-repeat center;
-    border-top-right-radius: 0.5rem;
-    border-bottom-left-radius: 0.5rem;
     border: 0.2rem solid #dadbde;
     border-right: none;
     border-top: none;
@@ -904,6 +903,10 @@ div.jsff_thumb div.torol:hover{
     top: 0rem;
     right: 0rem;
     width: 2.2rem;
+}
+
+#sorrendezes_tobbkep li div.nagyit a {
+    display: inline-block;
 }
 
 #sorrendezes li:hover div.torol:hover,
@@ -932,12 +935,11 @@ div.jsff_thumb div.torol:hover{
 #sorrendezes_album li div.kep,
 #sorrendezes_tobbkep li div.kep,
 #sorrendezes_bejegyzes li div.kep{
-    border: 0.1rem solid #dadbde;
+    border-bottom: 0.1rem solid #dadbde;
     border-right: none;
-    border-radius: 0.2rem 0rem 0rem 0.2rem;
     cursor: default;
     display: table-cell;
-    height: 5rem;
+    height: 3rem;
     overflow: hidden;
     padding: 0rem 0rem 0rem 2rem;
     vertical-align: middle;
@@ -981,8 +983,7 @@ div.jsff_thumb div.torol:hover{
 #sorrendezes_album li div.felirat,
 #sorrendezes_tobbkep li div.felirat,
 #sorrendezes_bejegyzes li div.felirat {
-    border-radius: 0.2rem;
-    border: 0.1rem solid #dadbde;
+    border-bottom: 0.1rem solid #dadbde;
     border-left: none;
     border-right: none;
     color: #414141;
@@ -997,10 +998,10 @@ div.jsff_thumb div.torol:hover{
     white-space: nowrap;
 }
 
-#sorrendezes li:hover,
-#sorrendezes_album li:hover,
-#sorrendezes_tobbkep li:hover,
-#sorrendezes_bejegyzes li:hover {
+#sorrendezes li:not(.kijelolve):hover,
+#sorrendezes_album li:not(.kijelolve):hover,
+#sorrendezes_tobbkep li:not(.kijelolve):hover,
+#sorrendezes_bejegyzes li:not(.kijelolve):hover {
     background: #E9F1FB!important;
 }
 
@@ -1602,14 +1603,13 @@ ul.szamla_cont li.szamla_datum.csoport.nyitva span.icon:after {
 }
 
 ul.szamla_cont li.szamla_datum.csoport .material-icons {
-    font-size: 1.6rem;
+    font-size: 1.3rem;
     margin: 0rem 0rem 0rem 0.5rem;
-    vertical-align: middle;
 }
 
 ul.szamla_cont li.szamla_datum.csoport span.icon.bej {
-    height: 1.6rem;
-    width: 1.6rem;
+    height: 1.5rem;
+    width: 1.3rem;
 }
 
 ul.szamla_cont li.szamla_datum.csoport span.icon.bej .material-icons {
@@ -2220,17 +2220,17 @@ div.navGombok a.disabled .material-icons {
 
 span.icon {
     display: inline-block!important;
-    height: 2rem;
+    height: 1.5rem;
     vertical-align: bottom;
-    width: 2rem;
+    width: 1.5rem;
 }
 
 span.icon .material-icons {
-    font-size: 2rem;
+    font-size: 1.3rem;
 }
 
 span.icon.zold .material-icons {
-    color: #07a927;
+    color: #005c12;
 }
 
 span.icon.piros .material-icons {

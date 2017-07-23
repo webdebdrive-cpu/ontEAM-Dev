@@ -42,7 +42,7 @@ if($tobb_kep){
     function get_tobbkep_tabla(){                           // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
         global $megnevezes;
         return $megnevezes.'_dok';
-        
+
     }
 
     //Kép törlésének lekezelése
@@ -862,11 +862,11 @@ if($gyorskereso_text){
             ');
 
         } else if( (_jog(3) && (_jog(5) || _jog(31)) ) || (_jog(3) && _jog(31)) || (_jog(3) && _jog(21)) ) {
-            
+
             $telephely = $adatbazis_kapcsolat -> select('nev', 'telephely', "`id`='{$sor['telephely_id']}'");
             $telephely = $telephely[0];
-            
-            if($sor['statusz_id']==MUNKALAP_STAT_FOLYAMATBAN){
+
+            if( $sor['statusz_id'] == MUNKALAP_STAT_FOLYAMATBAN ) {
                 $onclick = 'alert2(munkalapFelveszKerdes, munkalapFelvetelGomb);';
             }else{
                 $onclick = 'alert2(\'Csak folyamatban levő munkalap vehető fel!\', \'\', \'Hiba\');';
@@ -1054,7 +1054,7 @@ if($gyorskereso_text){
                 'tartalom' => $szamla_html,
                 'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
-            
+
         } else {
             echo $szamla_html;
         }
