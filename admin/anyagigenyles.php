@@ -875,45 +875,13 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
     exit();
 }
 
-//Anyagigénylés elutasítása
+//Anyagigénylés elutasítása: hatása, hogy Jóváhagyva státuszt kap illetve pár mezőt kitöltünk még az adatbázisban
 if( isset($_POST['anyagigenyles_elutasitas']) ) {
     
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    //hatása, hogy Jóváhagyva státuszt kap illetve pár mezőt kitöltünk még az adatbázisban
-    $elutasitva_statid  = 91;
-    
     if( is_array($idk) ) {
-        /* Ellenőrizzük a csoportokat */
-        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")", '', '');
-        if( $sql === false ) {
-            $db_error = true;
-        }
-
-        $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
-        $csoportok_unique = array_unique($csoportok);
-
-        $kijelolt_db = array_count_values($csoportok);
-
-        foreach( $csoportok_unique as $csu ) {
-            if( $csu > 0 ) {
-                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', $page, "`csoport_id` = '{$csu}'", '', '');
-
-                if( $sql === false ) {
-                    $db_error = true;
-                }
-
-                if( count($csoport_db) != $kijelolt_db[$csu] ) {
-                    echo json_encode(array(
-                        'hiba' => 'Csoportosított anyagigénylés önmagában nem utasítható el. Előbb vegye ki a csoportból!'
-                    ));
-
-                    $weblap->leallit();
-                    exit();
-                }
-            }
-        }
         
         // Ellenőrizzük a státuszokat, és feltételeket
         foreach($idk as $id) {
@@ -962,10 +930,15 @@ if( isset($_POST['anyagigenyles_elutasitas']) ) {
 
         foreach($idk as $id) {
             
-            //Státusz léptetés jóváhagyvára
-            $statusz = addStatusz( $page.'_statusz', $id, $elutasitva_statid );
+            //Státusz léptetés elutasítvára
+            $statusz = addStatusz( $page.'_statusz', $id, CIKKIGN_STAT_ELUTASITVA, '', $_POST['oka'] );
             if( $statusz === false ) {
                 $db_error = true;
+            }
+            if($_POST['oka']){
+                if( addMegj('anyagigenyles', $id, $_POST['oka']) === false ) {
+                    $db_error = true;
+                }
             }
 
             $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('jhmen'), array(0), "`recid`='$id'"); 
@@ -973,9 +946,6 @@ if( isset($_POST['anyagigenyles_elutasitas']) ) {
                 $db_error = true;
             }
             
-            if( addMegj('anyagigenyles', $id, $_POST['oka']) === false ) {
-                $db_error = true;
-            }
             
         }
 
@@ -1357,7 +1327,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                                 <td class="r" id="rndmen_'.$igeny['recid'].'">'.number_format($igeny['rndmen'], 2, ',', ' ').'</td>
                                 <td class="r" id="marerkmen_'.$igeny['recid'].'">'.number_format($igeny['erkmen'], 2, ',', ' ').'</td>
                                 <td class="r"><input type="text" class="f_num erkmen" data-id="'.$igeny['recid'].'" id="erkmen_'.$igeny['recid'].'" value="0,00"></td>
-                                <td class="c">'.$igeny['cikkmee'].'</td>
+                                <td class="c" id="mee_'.$igeny['recid'].'">'.$igeny['cikkmee'].'</td>
                                 <td class="c">
                                     <div class="cb">
                                         <input type="checkbox" class="nem_tobb_beerk" data-id="'.$igeny['recid'].'" id="nem_tobb_'.$igeny['recid'].'">
@@ -1450,8 +1420,8 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                     }
                     
                     //Oszlopok társítása
-                    $oszlopok        = array('iktszam',  'telepid',      'cikkid',       'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallitoid', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'rndrecid', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
-                    $anyagig_oszlop  = array('ikt_szam', 'telephely_id', 'cikktorzs_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallito',   'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'recid',    'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
+                    $oszlopok        = array('recid', 'iktszam',  'telepid',      'cikkid',       'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallitoid', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
+                    $anyagig_oszlop  = array('recid', 'ikt_szam', 'telephely_id', 'cikktorzs_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallito',   'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
                     
                     $ertekek  = array();
                     foreach($anyagig_oszlop as $oszlop){
@@ -1465,11 +1435,11 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                         $db_error = true;
                     }
                     
-                    $torles  = $adatbazis_kapcsolat->d('anyagigenyles',         "`recid`='$id'");
-                    $torles2 = $adatbazis_kapcsolat->d('anyagigenyles_statusz', "`id`='$id'");
-                    if($torles===false || $torles2===false){
-                        $db_error = true;
-                    }
+//                    $torles  = $adatbazis_kapcsolat->d('anyagigenyles',         "`recid`='$id'");
+//                    $torles2 = $adatbazis_kapcsolat->d('anyagigenyles_statusz', "`id`='$id'");
+//                    if($torles===false || $torles2===false){
+//                        $db_error = true;
+//                    }
                 }
                 
             }
@@ -1889,11 +1859,17 @@ if($gyorskereso_text){
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                $kulso_ertek = $adatbazis_kapcsolat->s('recid nev', $tomb['tabla'], 'recid='.$sor[$tomb['name']], '', '1');
+                if($tomb['tabla']  == 'erteklista'){
+                    $oszlop = 'info';
+                    $kulso_ertek = $adatbazis_kapcsolat->s('recid '.$oszlop, $tomb['tabla'], "`id`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
+                }else{
+                    $oszlop = 'nev';
+                    $kulso_ertek = $adatbazis_kapcsolat->s('recid '.$oszlop, $tomb['tabla'], 'recid='.$sor[$tomb['name']], '', '1');
+                }
 
                 $sor[$tomb['name'].'_autocomp'] = '';
                 if( $kulso_ertek ) {
-                    $sor[$tomb['name'].'_autocomp'] = $kulso_ertek[0]['nev'];
+                    $sor[$tomb['name'].'_autocomp'] = $kulso_ertek[0][$oszlop];
                 }
             }
         }

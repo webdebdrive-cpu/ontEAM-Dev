@@ -528,11 +528,11 @@ switch($tabla) {
         $_OPTS['select']    = 'nev recid id';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('nev');
+        $_OPTS['rendezes']  = array('id');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'nev';
+            $_GET['rend'] = 'id';
         }
     break;
     case 'ktghely.php':
@@ -1294,7 +1294,7 @@ $cikktorzs_tomb = $akt_tomb = array(
 	array('type' => 'text',                     'megn' => 'Oracle cikkszám:',       'name' => 'oracikkid',  'szuro' => 1,  'maxlength' => 10,  'style' => 'width: 9rem',     'alert' => 'Kérem töltse ki az Oracle cikkszámot!'),
 	array('type' => 'text',                     'megn' => 'Mee:',                   'name' => 'cikkmee',    'szuro' => 1,  'maxlength' => 5,   'style' => 'width: 5.1rem',   'alert' => 'Kérem töltse ki a Mee-t!'),
     array('type' => 'autocomplete',             'megn' => 'Szakterület:',           'name' => 'szakter_id', 'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 19, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a szakterületet!'),
-    array('type' => 'textarea',                 'megn' => 'Megjegyzés:',            'name' => 'leiras',     'szuro' => 1,  'disabled' => $disabled,    'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
+    array('type' => 'textarea',                 'megn' => 'Leírás:',                'name' => 'leiras',     'szuro' => 1,  'class' => 'oriasiTargy'),
     array('type' => 'checkbox',                 'megn' => 'Szerelési segédanyag:',  'name' => 'segedanyag', 'szuro' => 1,  'class' => 'check'),
     array('type' => 'checkbox',                 'megn' => 'Helyi beszerzésű:',      'name' => 'helyi',      'szuro' => 1,  'class' => 'check'),
 
@@ -1547,7 +1547,7 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
 
                 /* Anyagra vár szátuszba kerül */
                 if( $szuk_menny ) {
-                    if( !addStatusz( 'munkalap_statusz', $recid, 9 ) ) {
+                    if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ANYAGRAVAR ) ) {
                         $db_error = true;
                     }
 
@@ -1765,7 +1765,6 @@ if( isset($_POST['munkalapKeszre']) ) {
         }
 
         $sql = $akt_tetel = $adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
-
         if( $sql === false ) {
             $db_error = true;
         }
@@ -1912,12 +1911,11 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
             }
 
             /* Nyitott státuszra állítjuk a munkalapot */
-            if( !addStatusz( 'munkalap_statusz', $recid, 1, '', $memo ) ) {
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT, '', $memo ) ) {
                 $db_error = true;
             }
             /* Hozzáadjuk a megjegyzést is ha van */
             if( $memo ) {
-
                 $megj_felvesz = addMegj('munkalap', $recid, $memo);
                 if( $megj_felvesz === false ) {
                     $db_error = true;
@@ -2309,7 +2307,7 @@ if( isset($_POST['munkalaphozAdas']) ) {
 
         /* Státuszt folyamatban-ra állítjuk */
         foreach($idk as $id) {
-            $statusz = addStatusz( 'bejelentes_statusz', $id, 2 );
+            $statusz = addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_FOLYAMATBAN );
 
             if( $statusz === false ) {
                 $db_error = true;
@@ -2457,14 +2455,20 @@ $idk = json_decode($_POST['idk'], true);
 $page = $_POST['page'];
 
 //Mik az egyes státusz ID-k?
-$nyitott_statid  = array(1);
-$varakozo_statid = 4;
+$hibauzi_szoveg         = 'bejelentés';
+$hibauzi_szoveg_targy   = 'bejelentést';
+$nyitott_statid         = array(BEJELENTES_STAT_NYITOTT);
+$varakozo_statid        = BEJELENTES_STAT_VARAKOZO;
 if($page=='anyagigenyles'){
-    $nyitott_statid  = array(5,20);
-    $varakozo_statid = 52;
+    $hibauzi_szoveg         = 'anyagigénylés';
+    $hibauzi_szoveg_targy   = 'anyagigénylést';
+    $nyitott_statid         = array(CIKKIGN_STAT_NYITOTT,CIKKIGN_STAT_ARAZVA);
+    $varakozo_statid        = CIKKIGN_STAT_VARAKOZO;
 }
 if($page=='munkalap'){
-    $varakozo_statid = 7;
+    $hibauzi_szoveg         = 'munkalap';
+    $hibauzi_szoveg_targy   = 'munkalapot';
+    $varakozo_statid        = MUNKALAP_STAT_VARAKOZO;
 }
 if( isset($_POST['varolistahozAdas']) ) {
 
@@ -2493,7 +2497,7 @@ if( isset($_POST['varolistahozAdas']) ) {
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
-                        'hiba' => 'Csoportosított munkalap önmagában nem várakoztatható. Előbb vegye ki a csoportból!'
+                        'hiba' => 'Csoportosított '.$hibauzi_szoveg.' önmagában nem várakoztatható. Előbb vegye ki a csoportból!'
                     ));
 
                     $weblap->leallit();
@@ -2515,7 +2519,7 @@ if( isset($_POST['varolistahozAdas']) ) {
 
                 if(  !in_array($statusz['stat_id'], $nyitott_statid) ) {
                     echo json_encode(array(
-                        'hiba' => 'Csak nyitott státuszú munkalapokat lehet várólistához adni!'
+                        'hiba' => 'Csak nyitott státuszú '.$hibauzi_szoveg_targy.' lehet várólistához adni!'
                     ));
 
                     $weblap->leallit();
@@ -2535,7 +2539,7 @@ if( isset($_POST['varolistahozAdas']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
-                'hiba' => 'Biztos várólistához adja a kijelölt munkalapot?',
+                'hiba' => 'Biztos várólistához adja a kijelölt '.$hibauzi_szoveg_targy.'?',
                 'gomb' => '<input class="gomb piros" value="Igen" onclick="varolistahozAdas();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
             ));
 
@@ -2794,7 +2798,7 @@ if( isset($_POST['munkalapTelepitett']) ) {
             $db_error = true;
         }
 
-        if( !addStatusz( 'munkalap_statusz', $recid, 2 ) ) {
+        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) ) {
             $db_error = true;
         }
 
@@ -2822,7 +2826,7 @@ if( isset($_POST['munkalapFelvesz']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
-        if( !addStatusz( 'munkalap_statusz', $recid, 8 ) ) {
+        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FELVEVE ) ) {
             $db_error = true;
         }
 
@@ -2985,7 +2989,7 @@ if( isset($_POST['munkalapKeszit']) ) {
 
         /* Státuszt folyamatban-ra állítjuk */
         foreach($idk as $id) {
-            $statusz = addStatusz( 'bejelentes_statusz', $id, 2 );
+            $statusz = addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_FOLYAMATBAN );
 
             if( $statusz === false ) {
                 $db_error = true;
@@ -3105,7 +3109,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
 
     if( $elutasitas_id && is_array($idk) ) {
         foreach($idk as $id) {
-            $statusz = addStatusz( 'bejelentes_statusz', $id, 3, $elutasitas_id, $memo );
+            $statusz = addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_ELUTASITVA, $elutasitas_id, $memo );
 
             if( $statusz === false ) {
                 $db_error = true;
@@ -3368,7 +3372,7 @@ if( isset($_POST['mellekTorol']) ) {
         if( $tabla == 'munkalap_kapcs' ) {
             /* Újra nyitott státuszú lesz a bejegyzés */
             foreach($idk as $id) {
-                $statusz = addStatusz( 'bejelentes_statusz', $id, 1 );
+                $statusz = addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_NYITOTT );
 
                 if( $statusz === false ) {
                     $db_error = true;

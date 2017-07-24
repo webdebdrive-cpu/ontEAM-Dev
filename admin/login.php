@@ -375,20 +375,26 @@ if($gyorskereso_text){
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                $kulso_ertek = $adatbazis_kapcsolat->s('recid nev', $tomb['tabla'], 'recid='.$sor[$tomb['name']], '', '1');
+                if($tomb['tabla']  == 'erteklista'){
+                    $oszlop = 'info';
+                    $kulso_ertek = $adatbazis_kapcsolat->s('recid '.$oszlop, $tomb['tabla'], "`id`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
+                }else{
+                    $oszlop = 'nev';
+                    $kulso_ertek = $adatbazis_kapcsolat->s('recid '.$oszlop, $tomb['tabla'], 'recid='.$sor[$tomb['name']], '', '1');
+                }
 
                 $sor[$tomb['name'].'_autocomp'] = '';
                 if( $kulso_ertek ) {
-                    $sor[$tomb['name'].'_autocomp'] = $kulso_ertek[0]['nev'];
+                    $sor[$tomb['name'].'_autocomp'] = $kulso_ertek[0][$oszlop];
                 }
             }
         }
-        
+
         $json_sor = array();
         foreach($sor as $kulcs => $elem){
             $json_sor[$kulcs] = str_replace("\r\n", "#UJSOR#", $elem);
         }
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
+        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
@@ -536,7 +542,7 @@ if($gyorskereso_text){
                         }
                     }
                     $bekapcs = '';
-                    if($jogSor['bekapcs']){
+                    if($jogSor['bekapcs']!=''){
                         foreach(explode(',', $jogSor['bekapcs']) as $pipa_be){
                             $bekapcs .= '$(\'#jog-'.$pipa_be.'\').prop(\'checked\', true).addClass(\'mod\');';
                         }

@@ -504,7 +504,7 @@ function i_u($type, $tabla, $tomb) {
                         $db_error = true;
                     }
 
-                    $statusz2 = addStatusz( 'munkalap_statusz', $recid, 2 );
+                    $statusz2 = addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN );
 
                     if( $statusz2 === false ) {
                         $db_error = true;
@@ -520,7 +520,7 @@ function i_u($type, $tabla, $tomb) {
                     }
 
                     /* Bejelentést is folyamatbanra állítjuk */
-                    $statusz3 = addStatusz( 'bejelentes_statusz', $id, 2 );
+                    $statusz3 = addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_FOLYAMATBAN );
 
                     if( $statusz3 === false ) {
                         $db_error = true;
@@ -1620,8 +1620,10 @@ function szamla_lista( $where, $tabla ) {
     $bejegyzesek = array();
     if(strpos($order, 'telephely_id')!==false  || strpos($select, 'telephely_id')!==false){
 
-        //Először is az ordert felülírjuk
-        $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
+        //Először is az ordert felülírjuk, ha eszerint akartunk rendezni
+        if(strpos($order, 'telephely_id')!==false){
+            $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
+        }
 
         //Rendezés anyagigényléskor
         if($tabla=='anyagigenyles'){
@@ -1660,13 +1662,15 @@ function szamla_lista( $where, $tabla ) {
             if($_GET['rend']=='telephely_id'){
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'bejelentes`.`ikt_szam`';
             }
+            
+            $order = trim($order, ',');
         }
 
         //Rendezés munkalap esetén
         if($tabla=='munkalap'){
 
             $order = '';
-            //Elsődleges rendezés a csport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
+            //Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
             if(_jog(2)){
                 $order .= '`'.get_db_tabla().'munkalap_csoport`.`nev`, ';
             }
@@ -1683,12 +1687,17 @@ function szamla_lista( $where, $tabla ) {
             if($_GET['rend']=='telephely_id'){
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'munkalap`.`ikt_szam`';
             }
+            //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
+            if($_GET['rend']=='statusz_id'){
+                $order .= '`'.get_db_tabla().'munkalap`.`statusz_id` '.$_GET['irany'];
+            }
+            
+            $order = trim($order, ', ');
 
         }
 
         //Select-et is kiegészítjük a rendezni kívánt oszloppal
         $select .= ', `'.get_db_tabla().'telephely`.`nev`';
-
         $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
         $mit   = 'WHERE';
 
@@ -1727,7 +1736,7 @@ function szamla_lista( $where, $tabla ) {
             array_push($bejegyzesek, $sor);
         }
 
-    //Értéklistát csoport szerinti sorrenben, azon belül pedig infó szerinti sorrendben kell kilistázni
+    //Értéklistát csoport szerinti sorrendben, azon belül pedig infó szerinti sorrendben kell kilistázni
     }elseif($tabla=='erteklista'){
 
         //Gyorskeresőnél képződhet where feltétel
@@ -3946,7 +3955,7 @@ function munkalap_folyamatbanra_halehet($munkalapidk){
             return false;
         }
         if(!$sql){
-            if(!addStatusz( 'munkalap_statusz', $mukalap_id, 2 )){
+            if(!addStatusz( 'munkalap_statusz', $mukalap_id, MUNKALAP_STAT_FOLYAMATBAN )){
                 $db_error = true;
             }
         }

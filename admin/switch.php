@@ -30,6 +30,7 @@ foreach($akt_tomb as $ertek){
             //Onblurra a hidden mező is nullázódjon, ha üres volna a mező
             $ertek['onblur'] .= 'if(!$(this).val()){ $(\'#'.$ertek['name'].'\').val(\'\'); }';
 
+            $input -> autocomplete  = 'off';
             $input -> cssClass      = $ertek['class'];
             $input -> disabled      = $ertek['disabled'];
             $input -> id            = $ertek['name'].'_autocomp';
@@ -44,7 +45,6 @@ foreach($akt_tomb as $ertek){
             $input -> onchange      = $ertek['onchange'];
             $input -> style         = $ertek['style'];
             $input -> placeholder   = $ertek['placeholder'];
-            $input -> autocomplete  = 'off';
             $input -> post          = $ertek['post'];
             $input -> pre           = $ertek['pre'];
             if($ertek['i']){
@@ -225,7 +225,7 @@ foreach($akt_tomb as $ertek){
 
             $disabled = '';
             if( $ertek['disabled'] ) {
-                $disabled = ' disabled="disabled"';
+                $disabled = ' disabled';
             }
 
             $statusz = '';
@@ -417,7 +417,7 @@ foreach($akt_tomb as $ertek){
 		case 'info':
             $mezok .= nl2('<div class="dtr">
                               <div class="dtc form_bal"><span>'.$ertek['megn'].'</span></div>
-                              <div class="dtc form_jobb"><input type="text" name="'.$ertek['name'].'" class="oriasi" value="'.$ertek['value'].'" disabled="disabled"></div>
+                              <div class="dtc form_jobb"><input type="text" name="'.$ertek['name'].'" class="oriasi" value="'.$ertek['value'].'" disabled></div>
                           </div>');
         break;
 
@@ -509,6 +509,7 @@ foreach($akt_tomb as $ertek){
                 $ertek['class'] .= ' csillag';
             }
 
+            $input -> autocomplete = 'off';
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
@@ -1275,7 +1276,10 @@ foreach($akt_tomb as $ertek){
                 $input -> data = $ertek['data'];
             }
 
+            //Egyelőre fixen off
+            $autocomplete = 'off';
 
+            $input -> autocomplete  = $autocomplete;
             $input -> cssClass  = $ertek['class'];
             $input -> disabled  = $ertek['disabled'];
             $input -> id        = $ertek['name'];

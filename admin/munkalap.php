@@ -166,6 +166,11 @@ if( isset($_POST['diszKozpVezAtadas']) ) {
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT, '', $memo ) ) {
                 $db_error = true;
             }
+            if( $memo ) {
+                if( addMegj('munkalap', $recid, $memo) === false ) {
+                    $db_error = true;
+                }
+            }
 
             $sql = $munk_bejek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '');
 
@@ -177,6 +182,11 @@ if( isset($_POST['diszKozpVezAtadas']) ) {
                 foreach($munk_bejek as $munk_bej) {
                     if( !addStatusz( 'bejelentes_statusz', $munk_bej['bejelentes_id'], BEJELENTES_STAT_FOLYAMATBAN, '', $memo ) ) {
                         $db_error = true;
+                    }
+                    if( $memo ) {
+                        if( addMegj('bejelentes', $munk_bej['bejelentes_id'], $memo) === false ) {
+                            $db_error = true;
+                        }
                     }
                 }
             }
@@ -241,7 +251,7 @@ if( isset($_POST['atadasMuszVeznek']) ) {
             }
 
             /* Folyamatban státuszra állítjuk a munkalapot */
-            if( !addStatusz( 'munkalap_statusz', $recid, 2 ) ) {
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) ) {
                 $db_error = true;
             }
 
@@ -413,8 +423,8 @@ if( isset($_POST['munkalapMobil']) ) {
                         $db_error = true;
                     }
 
-                    if( $munkalap['statusz_id'] != 1 ) {
-                        if( !addStatusz( 'munkalap_statusz', $value, 1 ) ) {
+                    if( $munkalap['statusz_id'] != MUNKALAP_STAT_NYITOTT ) {
+                        if( !addStatusz( 'munkalap_statusz', $value, MUNKALAP_STAT_NYITOTT ) ) {
                             $db_error = true;
                         }
                     }
@@ -521,8 +531,8 @@ if( isset($_POST['munkalapMobil']) ) {
                 if( $munkalap ) {
                     $munkalap = $munkalap[0];
 
-                    if( $munkalap['statusz_id'] != 2 ) {
-                        if( !addStatusz( 'munkalap_statusz', $id, 2 ) ) {
+                    if( $munkalap['statusz_id'] != MUNKALAP_STAT_FOLYAMATBAN ) {
+                        if( !addStatusz( 'munkalap_statusz', $id, MUNKALAP_STAT_FOLYAMATBAN ) ) {
                             $db_error = true;
                         }
                     }

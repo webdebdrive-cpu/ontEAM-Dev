@@ -157,6 +157,10 @@
                     $('input[name="' + mezo_nev + '"]').val(recid);
 
                     var form = $('input[name="' + mezo_nev + '"]').parents('#szerk_form');
+                    /* Lehet nem egy űrlapon vagyunk, hanem egy alert2-ben, ebben keressünk inputot */
+                    if($('#alert2').length){
+                        form = $('#alert2');
+                    }
 
                     stop = false;
                     form.find('input, select, textarea').each(function() {

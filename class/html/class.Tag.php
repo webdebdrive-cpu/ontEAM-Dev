@@ -17,7 +17,7 @@ class Tag{
     /** @var string - disabled*/
     public $disabled     = '';
 
-    /** @var string - disabled*/
+    /** @var string - data*/
     public $data     = '';
 
     /** @var string - az input id-je*/
@@ -108,12 +108,11 @@ class Tag{
 
         $return = '';
 
-        if($this -> tag == 'textarea' ){ $return .= ' rows="1" cols="1"'; }
         if($this -> alert       ){ $return .= ' data-alert="'   .$this -> alert         .'"'; }
         if($this -> autocomplete){ $return .= ' autocomplete="' .$this -> autocomplete  .'"'; }
         if($this -> cssClass    ){ $return .= ' class="'        .$this -> cssClass      .'"'; }
         if($this -> data        ){ $return .= ' '.$this -> data;                              }
-        if($this -> disabled    ){ $return .= ' disabled="disabled"';                         }
+        if($this -> disabled    ){ $return .= ' disabled';                                    }
         if($this -> name        ){ $return .= ' name="'         .$this -> name          .'"'; }
         if($this -> id          ){ $return .= ' id="'           .$this -> id            .'"'; }
         if($this -> onblur      ){ $return .= ' onblur="'       .$this -> onblur        .'"'; }

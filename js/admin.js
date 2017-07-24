@@ -588,8 +588,11 @@ $(function() {
 
                 kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
             } else {
-                var akt_id = parseInt( parent.find('.kijelolve').attr('data-i') );
-
+                
+                var akt_id = parseInt( $(this).prevAll('.kijelolve').attr('data-i') );
+                if(!akt_id){
+                    akt_id = parseInt( $(this).nextAll('.kijelolve').attr('data-i') );
+                }
                 /* Tömeges kijelöléshez */
                 /*sorok.removeClass('akt');
                 $(this).addClass('akt');*/
@@ -733,8 +736,11 @@ $(function() {
 
                 } else {
 
-                    var akt_id = parseInt( $('#szamlaList.kijelolheto li.szamla_sor.kijelolve').attr('data-i') );
-
+                    /*var akt_id = parseInt( $('#szamlaList.kijelolheto li.szamla_sor.kijelolve').attr('data-i') );*/
+                    var akt_id = parseInt( $(this).prevAll('.kijelolve').attr('data-i') );
+                    if(!akt_id){
+                        akt_id = parseInt( $(this).nextAll('.kijelolve').attr('data-i') );
+                    }
                     /* Tömeges kijelöléshez */
                     /*sorok.removeClass('akt');
                     $(this).addClass('akt');*/
@@ -3279,15 +3285,16 @@ function arazas_ment(){
 }
 
 /* Anyagigénylés érkezetése */
-function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz ) {
+function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz, tulrendeles_megkerdezve ) {
 
     /* ha van már táblázat, akkor azt dolgozzuk fel */
     if($('#rendeles_tetelek').html().trim()){
 
-        ures_men_ek_pipa0 = '';
-        ures_men_ek_pipa1 = '';
-        idk               = '';
-        hibauzi           = '';
+        ures_men_ek_pipa0   = '';
+        ures_men_ek_pipa1   = '';
+        tulrendeles_hibauzi = '';
+        idk                 = '';
+        hibauzi             = '';
         $('table.anyagig_erkeztet .erkmen').each(function (e) {
             id          = $(this).attr('data-id');
             szalloda    = $('#erkeztet_szall_'+id).html();
@@ -3296,6 +3303,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz 
             marerkmen   = $('#marerkmen_'+id).html().replace(',', '.').replace(' ', '');
             erkmen      = $(this).val().replace(',', '.').replace(' ', '');
             nem_tobb    = $('#nem_tobb_'+id).prop('checked');
+            mee         = $('#mee_'+id).html();
 
             if(nem_tobb){
                 nem_tobb = '1';
@@ -3311,9 +3319,16 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz 
             }
 
             /* Beérkezett mennyiség nem lehet több,<br>mint a rendelt mennyiség minusz az előzőleg beérkezett mennyiség! */
-            if(erkmen>rndmen-marerkmen){
+            /*if(erkmen>rndmen-marerkmen){
                 hibauzi = 'Beérkezett mennyiség nem lehet több,<br>mint a rendelt mennyiség minusz az előzőleg beérkezett mennyiség!';
                 $(this).addClass('alert');
+                return false;
+            }*/
+            if(erkmen>rndmen-marerkmen && !tulrendeles_megkerdezve){
+                gombok = '<input class="link gomb" value="Igen" onclick="anyagigenyles_erkeztet(\'\', \'\', \'tulrendelés már megkérdezve\')" type="button"> <input class="link gomb" value="Nem" onclick="alert2()" type="button">';
+                hibauzi = 'Rendelt mennyiség: '+erkmen+' '+mee+'<br>Összes beérkezett mennyiség: '+(marerkmen+erkmen)+' '+mee+'<br>Ha folytatja, a beérkezett mennyiség több lesz, mint a rendelt mennyiség!<br>Folytatja?';
+                $(this).addClass('alert');
+                tulrendeles_hibauzi = true;
                 return false;
             }
 
@@ -3331,20 +3346,26 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz 
 
         });
 
+        /* ha túl lesz rendelve, rákérdezünk */
+        if(tulrendeles_hibauzi){
+            alert2(hibauzi, gombok);
+            return false;
+        }
+
         /* A hibaüzenetet itt írjuk ki, és nem az each ciklusban, mert akkor tovább futna a JS kód, ott nem űködik a return false mert az egy külön függvény */
         if(hibauzi){
-            alert2(hibauzi, '<input class="link gomb" value="Ok" onclick="alert2();$(\'#erkmen_'+id+'\').focus()" type="button">');
+            alert2(hibauzi, '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#erkmen_'+id+'\').focus()" type="button">');
             return false;
         }
 
         /* ha volt üres pipa mellett üres mennyiség sor, akkor rákrédezünk */
         if(ures_men_ek_pipa0 && !ures_men_ek_pipa0_kesz){
-            gombok = '<input class="link gomb" value="Igen" onclick="anyagigenyles_erkeztet(\'ures_men_ek_pipa0_kesz nem kérdezzük meg megint\')" type="button"> <input class="link gomb" value="Nem" onclick="alert2()" type="button">';
+            gombok = '<input class="link gomb" value="Igen" onclick="anyagigenyles_erkeztet(\'ures_men_ek_pipa0_kesz nem kérdezzük meg megint\', \'\', \'túlrendelés kérdésen már túl vagyunk\')" type="button"> <input class="link gomb" value="Nem" onclick="alert2()" type="button">';
             alert2(ures_men_ek_pipa0+'<div class="l">Ezekhez az anyagokhoz nem adott meg beérkezett mennyiséget.<br>Ha folytatja, továbbra is beérkezésre váró státuszban maradnak!<br>Folytatja?</div>', gombok);
             return false;
         }
         if(ures_men_ek_pipa1 && !ures_men_ek_pipa1_kesz){
-            gombok = '<input class="link gomb" value="Igen" onclick="anyagigenyles_erkeztet(\'ures_men_ek_pipa0_kesz nem kérdezzük meg megint\', \'ures_men_ek_pipa1_kesz nem kérdezzük meg megint\')" type="button"> <input class="link gomb" value="Nem" onclick="alert2()" type="button">';
+            gombok = '<input class="link gomb" value="Igen" onclick="anyagigenyles_erkeztet(\'ures_men_ek_pipa0_kesz nem kérdezzük meg megint\', \'ures_men_ek_pipa1_kesz nem kérdezzük meg megint\', \'túlrendelés kérdésen már túl vagyunk\')" type="button"> <input class="link gomb" value="Nem" onclick="alert2()" type="button">';
             alert2(ures_men_ek_pipa1+'<div class="l">Ezekhez az anyagokhoz nem adott meg beérkezett mennyiséget.<br>Biztos, hogy már nem fognak beérkezni?<br>Folytatja?</div>', gombok);
             return false;
         }
@@ -4042,11 +4063,14 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     /* URL mod */
                     window.history.pushState("", "", getHost() + param );
 
+
                     /* Új ikonra kattintva mi történik */
                     if( _get('szakterulet') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);');
                     } else if( baseName(location.href) == 'anyagigenyles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                    } else if( baseName(location.href) == 'anyagigenyles' && !_get('megjegyzesek') && _jogok[13]==0 ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Önnen nincs jogosultsága új anyagigénylés feltöltéséhez!\', \'\', \'Hiba\'); void(0);');
                     } else if( baseName(location.href) == 'beosztas' && _get('naptar') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: $(\'#szerk_form div.dt\').show(); void(0);');
                     } else if( baseName(location.href) == 'bejelentes' && _get('megjegyzesek') ) {

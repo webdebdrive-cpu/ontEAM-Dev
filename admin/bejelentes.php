@@ -125,6 +125,11 @@ if( isset($_POST['bejelentesElutasit']) ) {
             if( !addStatusz( 'bejelentes_statusz', $recid, BEJELENTES_STAT_VIZSG_ALATT, $elutasitas_id, $memo ) ) {
                 $db_error = true;
             }
+            if($memo){
+                if( addMegj('bejelentes', $recid, $memo) === false ) {
+                    $db_error = true;
+                }
+            }
 
             /* Megnézzük a munkalapjait */
             $sql = $munkalap_kapcs = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$recid}'", '', '1');
@@ -147,6 +152,11 @@ if( isset($_POST['bejelentesElutasit']) ) {
                     foreach($munk_kapcsok as $munk_kapcs) {
                         if( !addStatusz( 'bejelentes_statusz', $munk_kapcs['bejelentes_id'], BEJELENTES_STAT_VIZSG_ALATT, $elutasitas_id, $memo ) ) {
                             $db_error = true;
+                        }
+                        if( $memo ) {
+                            if( addMegj('bejelentes', $munk_kapcs['bejelentes_id'], $memo) === false ) {
+                                $db_error = true;
+                            }
                         }
                     }
                 }

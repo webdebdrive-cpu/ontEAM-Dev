@@ -729,7 +729,13 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
                 $selected = ' selected="selected"';
             }
 
-            $rendezes .= '<option value="'.$rend_mezo.'"'.$selected.'>'.getOszlopNev($rend_mezo).'</option>';
+            //Cikktorzsnél az ID legyen cikkszám
+            $rend_mezo_txt = getOszlopNev($rend_mezo);
+            if(basename(self())=='cikktorzs.php' && $rend_mezo=='id'){
+                $rend_mezo_txt = 'Cikkszám';
+            }
+            
+            $rendezes .= '<option value="'.$rend_mezo.'"'.$selected.'>'.$rend_mezo_txt.'</option>';
 
             $i++;
         }
@@ -782,6 +788,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);';
     } elseif( basename(self()) == 'anyagigenyles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+    } elseif( basename(self()) == 'anyagigenyles.php' && !isset($_GET['megjegyzesek']) && !_jog(13) ) {
+        $uj_link = 'javascript: alert2(\'Önnen nincs jogosultsága új anyagigénylés feltöltéséhez!\', \'\', \'Hiba\'); void(0);';
     } elseif( basename(self()) == 'bejelentes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } elseif( basename(self()) == 'beosztas.php' && isset($_GET['naptar']) ) {
@@ -912,7 +920,7 @@ if(basename(self())=='erteklista.php' && !_jog(11)){
 
 if( basename(self())=='anyagigenyles.php' && !_jog(13)){
     $torles_icon    = '';
-    $uj             = '';
+    //$uj             = '';
 }
 
 if( basename(self())=='raktar.php' && !_jog(18)){
@@ -948,8 +956,8 @@ $header_html .= str_replace(
     $header_sablon
 );
 
-//Nyomtatási popup
 
+//Nyomtatási popup
 $header_html .= nl2('
 <div class="dn">
     <div id="nyomtatasi_nezet">
@@ -959,6 +967,16 @@ $header_html .= nl2('
         <br><a href="#" target="_blank">C nézet</a>
     </div>
 </div>
+    ');
+//Jogosultság tomb JS-be
+$jogok = '';
+foreach ($_SESSION[get_db_tabla().'rights'] as $jog){
+    $jogok .= $jog;
+}
+$header_html .= nl2('
+<script>
+    var _jogok = \''.$jogok.'\';
+</script>
     ');
 
 

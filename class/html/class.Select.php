@@ -9,12 +9,6 @@ require_once('class.Tag.php');
 
 class Select extends Tag{
 
-    /** @var boolean - disabled vagy sem*/
-    public $disabled = '';
-    
-    /** @var string - onchange attribútum*/
-    public $onchange = '';
-
     /** @var string - a kiválasztott opcio (selected)*/
     public $value    = array();
     
@@ -40,8 +34,6 @@ class Select extends Tag{
    	public function getHtml(){
         
         $sajatAttributumok = '';
-        if($this -> onchange){ $sajatAttributumok .= ' onchange="'.$this -> onchange.'"'; }
-        if($this -> disabled){ $sajatAttributumok .= ' disabled="disabled"';              }
         
         $opciokHtml = '';
         if($this -> opciok){

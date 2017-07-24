@@ -9,9 +9,6 @@ class Input extends Tag{
 
     /** @var boolean - radio és checkbox-hoz*/
     public $checked  = false;
-    
-    /** @var boolean */
-    public $disabled  = false;
 
     /** @var array - ha egy fált az admin oldalon meg akarunk tekinteni vagy töröln.
     * Ide egy tömbböt várunk array( fajlnev, id, oszlop, sorid, nev)
@@ -55,7 +52,6 @@ class Input extends Tag{
         $sajatAttributumok = '';
         if($this -> maxlength && is_numeric($this -> maxlength) ){ $sajatAttributumok .= ' maxlength="'  .$this -> maxlength.'"'; }
         if($this -> checked   && ($this -> type == 'checkbox' || $this -> type == 'radio') ){ $sajatAttributumok .= ' checked="checked"'; }
-        if($this -> disabled){ $sajatAttributumok .= ' disabled="disabled"'; }
         
         $extrak = '';
 		if($this -> jelszoMeter && $this -> type == 'text'){

@@ -106,28 +106,6 @@ if( isset($_POST['jogokhozzaad']) ) {
     exit();
 }
 
-/*
-Ha true a config.php-ban:
-js/+jquery-ui.js aktiválni a config.php-ban az ADMIN JS és CSS RÉSZBEN!!!
-js/+admin_sorrendez.js aktiválni
-
-Hozzá kell adni ezt a fájlt:
-admin/+tobb_kep.php aktiválni
-
-Minta SQL
-CREATE TABLE IF NOT EXISTS `TABLA_kepek`(
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `"TERMEK"ID` int(10) unsigned default NULL,
-  `kepnev` varchar(100) NOT NULL default '',
-  `megj` varchar(200) NOT NULL default '',
-  `sor` int(11) NOT NULL default '0',
-  `datetime` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`id`)
-)
-
-Vízjelezéshez vissza kell kommentezni a +tobb_kep.php-ban a Képfeltöltésnél egy részt!
-*/
-
 /** Események */
 if(isset($_GET['siker']) && isset($_GET['modosit'])){
 
@@ -418,7 +396,6 @@ if($gyorskereso_text){
                     $jogEll['jog-'.$i] = 0;
                 }
 
-
                 $i++;
             }
 
@@ -457,19 +434,54 @@ if($gyorskereso_text){
                 usort($jogSorok, 'sortByOrder');
 
                 foreach($jogSorok as $jogSor) {
+                    
                     $checked = '';
                     if( $jogSor['value'] ) {
                         $checked = ' checked="checked"';
                     }
 
+                    //Tooltipőes súgó leszavazva, de legyen meg a kódja:
+//                    $info = '';
+//                    if($jogSor['i']){
+//                        $info = '<div class="tooltip di" style="margin-left: 5rem"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$jogSor['i'].'</div></div>';
+//                    }
+                    
+                    $jogSor['nev'] .= ':';
+                    if($jogSor['i']){
+                        $jogSor['nev'] .= '<br><i>('.$jogSor['i'].')</i><br><br>';
+                    }
+
+                    $onclick = '';
+                    $kikapcs = '';
+                    if($jogSor['kikapcs']){
+                        foreach(explode(',', $jogSor['kikapcs']) as $pipa_ki){
+                            $kikapcs .= '$(\'#jog-'.$pipa_ki.'\').prop(\'checked\', false).removeClass(\'mod\');';
+                        }
+                    }
+                    $bekapcs = '';
+                    if($jogSor['bekapcs']!=''){
+                        foreach(explode(',', $jogSor['bekapcs']) as $pipa_be){
+                            $bekapcs .= '$(\'#jog-'.$pipa_be.'\').prop(\'checked\', true).addClass(\'mod\');';
+                        }
+                    }
+                    if($kikapcs || $bekapcs){
+                        $onclick = ' onclick="'.$kikapcs.$bekapcs.'"';
+                    }
+                    
+                    $dn = '';
+                    if($jogSor['torolve']){
+                        $dn = ' dn';
+                    }
+
                     $szamla_html .= nl2('
-                        <div class="dtr">
-                            <div class="dtc form_bal"><span>'.$jogSor['nev'].':</span></div>
+                        <div class="dtr'.$dn.'">
+                            <div class="dtc form_bal"><span>'.$jogSor['nev'].'</span></div>
                             <div class="dtc form_jobb">
                                 <div class="cb">
                                     <input type="hidden" name="jog-'.$jogSor['id'].'" value="0">
-                                    <input type="checkbox" class="check" name="jog-'.$jogSor['id'].'" id="jog-'.$jogSor['id'].'" value="1"'.$checked.'>
+                                    <input type="checkbox" class="check" name="jog-'.$jogSor['id'].'" id="jog-'.$jogSor['id'].'" value="1"'.$checked.$onclick.'>
                                     <label for="jog-'.$jogSor['id'].'"></label>
+                                    '.$info.'
                                 </div>
                             </div>
                         </div>
@@ -482,7 +494,7 @@ if($gyorskereso_text){
                 <div class="muveletek">
                     <div class="form_kuldes">
                         <input type="hidden" name="id" value="'.$_GET['id'].'">
-                        <input type="submit" class="gombb" name="jogokhozzaad" id="mehet_gomb" value="Mentés">
+                        <input type="submit" class="gombb" name="jogokhozzaad" id="mehet_gomb" disabled value="Mentés">
                     </div>
                 </div>
                 </div></form>
