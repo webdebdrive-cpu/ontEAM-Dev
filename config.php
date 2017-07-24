@@ -25,6 +25,8 @@ define('BEJELENTES_STAT_FOLYAMATBAN',   '02');
 define('BEJELENTES_STAT_ELUTASITVA',    '03');
 define('BEJELENTES_STAT_VARAKOZO',      '04');
 define('BEJELENTES_STAT_KESZ_IG',       '05');
+define('BEJELENTES_STAT_VIZSG_ALATT',   '06');
+define('BEJELENTES_STAT_LEZART',        '07');
 
 //Munkalap státuszok
 define('MUNKALAP_STAT_NYITOTT',         '01');

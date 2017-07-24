@@ -691,13 +691,16 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     $css = ' kethasabos';
 }
 
-$tbalw  = '';
-$tjobbw = '';
+$tbalw      = '';
+$tjobbw     = '';
+$csuszkadn  = ' dn';
 if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
     if( $_COOKIE['csuszkaSzelesseg'] ) {
         $tbalw  = ' style="width: '.$_COOKIE['csuszkaSzelesseg'].'px;"';
         $tjobbw = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
     }
+
+    $csuszkadn  = '';
 }
 
 
@@ -794,12 +797,12 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } else {
         $uj_link = self().'?uj';
     }
-    
+
     //Diszpécser nem hozhat létre új bejegyzést
     if( !isset($_GET['megjegyzesek']) && basename(self()) == 'bejelentes.php' && _jog(2)  ) {
         $uj_link = 'javascript: alert2(\'Diszpécserként nem hozhat létre új bejelentést!\'); void(0);';
     }
-    
+
 }
 
 $felh_nev = '';
@@ -884,7 +887,7 @@ $uj  = nl2('
 if(basename(self())=='bejelentes.php' && !_jog(1)){
     $torles_icon    = '';
     $uj             = '';
-    
+
 }
 
 if(basename(self())=='utemezett_feladatok.php' && !_jog(4)){
@@ -940,8 +943,8 @@ if( basename(self())=='beosztas.php' && !_jog(30)){
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CSS}', '{CEGNEV}', '{MENUK}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}'    ),
-    array( $css,    get_nev(),  $menuk,   $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    get_get(),   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,      ),
+    array('{CSS}', '{CEGNEV}', '{MENUK}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}', '{CSUSZKADN}'  ),
+    array( $css,    get_nev(),  $menuk,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    get_get(),   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,    $csuszkadn    ),
     $header_sablon
 );
 

@@ -1,0 +1,36 @@
+<h2>Adja meg az elutasítás okát</h2>
+<form action="" id="bejElutasitasForm" class="popupForm" method="post" onsubmit="return bejelentesElutasit( this );">
+    <div class="dt">
+        <div class="dtr">
+            <div class="dtc form_bal">Elutasítás oka:</div>
+            <div class="dtc form_jobb">
+                <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="elutasitas_id_autocomp" id="elutasitas_id_autocomp" onblur="if(!$(this).val()){ $('#elutasitas_id').val(''); }" value="">
+                <input type="hidden" name="elutasitas_id" id="elutasitas_id" value="">
+                <script>
+                    $(document).ready(function() {
+                        $('#elutasitas_id_autocomp').autocomplete({
+                            'php_fajl'      : '../autocomplete.php',
+                            'tabla'         : 'erteklista',
+                            'oszlop_keres'  : 'info',
+                            'oszlop_listaz' : 'info',
+                            'rkat'          : 0,
+                            'csoport'       : 7,
+                            'id_kiir'       : 'recid'
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+        <div class="dtr">
+            <div class="dtc form_bal">Leírás:</div>
+            <div class="dtc form_jobb">
+                <textarea id="elutasitas_memo" name="elutasitas_memo"></textarea>
+            </div>
+        </div>
+    </div>
+    <p>Elutasítja a hiba készrejelentését?</p>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>

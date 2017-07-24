@@ -1159,6 +1159,94 @@ function munkFeladatTorol( recid, that ) {
     }
 }
 
+function bejelentesElutasit( that ) {
+    var elutasitas_id = $(that).find('input[name="elutasitas_id"]'),
+                 memo = $(that).find('textarea[name="elutasitas_memo"]');
+
+    if( elutasitas_id.val() == '' ) {
+        alert2('Kérem válassza ki az elutasítás okát.');
+        document.getElementById('elutasitas_id_autocomp').focus();
+        return false;
+    }
+
+    if( memo.val() == '' ) {
+        alert2('Kérem adja meg az elutasítás okát.');
+        document.getElementById('elutasitas_memo').focus();
+        return false;
+    }
+
+    if( _get('id') && elutasitas_id.val() && memo.val() ) {
+        $.ajax({
+         	url : 'bejelentes.php',
+         	type: 'POST',
+         	data: {
+                recid: _get('id'),
+                elutasitas_id: elutasitas_id.val(),
+                memo: memo.val(),
+                validate: 'false',
+                bejelentesElutasit: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        console.log('ok');
+                        if( response.gomb ) {
+                            alert2(response.hiba, response.gomb);
+                        } else {
+                            alert2(response.hiba, '', 'Hiba');
+                        }
+
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    popupZar();
+         		}
+         	}
+        });
+    }
+
+    return false;
+}
+
+function bejelentesIgazolas( recid, csak_kerdezunk ) {
+    if( csak_kerdezunk === undefined ) {
+        csak_kerdezunk = false;
+    }
+
+    if( recid ) {
+        $.ajax({
+         	url : 'bejelentes.php',
+         	type: 'POST',
+         	data: {
+                recid: recid,
+                csak_kerdezunk: csak_kerdezunk,
+                bejelentesIgazolas: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        if( response.gomb ) {
+                            alert2(response.hiba, response.gomb);
+                        } else {
+                            alert2(response.hiba, '', 'Hiba');
+                        }
+
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    alert2();
+         		}
+         	}
+        });
+    }
+}
+
 function munkAnyagTorol( recid, that ) {
     if( recid ) {
         $.ajax({
@@ -2960,6 +3048,37 @@ function csoportMuvelet( oldal ) {
                     }
 
                 }
+            break;
+
+            case 'bejelentesElutasit':
+                $('#popupTart').html(data);
+
+                $.ajax({
+                 	url : 'bejelentes.php',
+                 	type: 'POST',
+                 	data: {
+                        recid: _get('id'),
+                        validate: 'true',
+                        bejelentesElutasit: new Date().getTime()
+                    },
+                 	success: function(response) {
+                 		if(response) {
+                            response = JSON.parse(response);
+
+                            if( response.hiba ) {
+                                if( response.gomb ) {
+                                    alert2(response.hiba, response.gomb);
+                                } else {
+                                    alert2(response.hiba, '', 'Hiba');
+                                }
+
+                                return false;
+                            }
+
+                            popupNyit();
+                 		}
+                 	}
+                });
             break;
 
             default:
