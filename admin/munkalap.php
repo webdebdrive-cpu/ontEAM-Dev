@@ -74,6 +74,133 @@ if($tobb_kep){
 
 }
 
+/* Diszpécser központ vezető átadás */
+if( isset($_POST['diszKozpVezAtadas']) ) {
+    $recid  = $_POST['recid'];
+    $memo   = $_POST['memo'];
+    $validate = $_POST['validate'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+        $sql = $munkalap = $adatbazis_kapcsolat->s('statusz_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $munkalap ) {
+            $munkalap = $munkalap[0];
+
+            if( $munkalap['statusz_id'] == MUNKALAP_STAT_ANYAGRAVAR || $munkalap['statusz_id'] == MUNKALAP_STAT_FELVEVE ) {
+                echo json_encode(array(
+                    'hiba' => 'Anyagra vár és felvéve státuszú munkalapokat nem lehet átadni!',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+
+            if( $munkalap['statusz_id'] == MUNKALAP_STAT_KESZ_IG ) {
+                $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '1');
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+
+                if( $munk_kapcsok ) {
+                    $munk_kapcsok = $munk_kapcsok[0];
+
+                    $sql = $bejelentes = $adatbazis_kapcsolat->s('statusz_id', 'bejelentes', "`recid` = '".$munk_kapcsok['bejelentes_id']."'", '', '1');
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    if( $bejelentes ) {
+                        $bejelentes = $bejelentes[0];
+
+                        if( $bejelentes['statusz_id'] != BEJELENTES_STAT_VIZSG_ALATT ) {
+                            echo json_encode(array(
+                                'hiba' => 'Csak vizsgálat alatt lévő bejelentéseket lehet átadni!',
+                            ));
+
+                            $weblap->leallit();
+                            exit();
+                        }
+
+                        $tobb_munk = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id` = '".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id` != '{$recid}'", '', '');
+
+                        /* Több munkalaphoz kapcsolódik a bejelentés */
+                        if( $tobb_munk ) {
+                            $szoveg_kiir = 'A munkalap bejelentéséhez további munkalapok vannak kapcsolva. Ha folytatja, a többi munkalapot sem lehet lezárni, mert a bejelentés visszakerül Folyamatban státuszba. Előbb zárja le a többi munkalapot és utoljára adja vissza ezt a munkalapot a diszpécsernek! Folytatja?';
+                        /* Csak egy munkalaphoz kapcsolódik a bejelentés */
+                        } else {
+                            $szoveg_kiir = 'Ha folytatja, a munkalap és a bejelentései Folyamatban státuszba kerülnek. Folytatja?';
+                        }
+                    }
+                }
+            } else {
+                echo json_encode(array(
+                    'hiba' => 'Csak kész, igazolásra váró státuszú munkalap adható át!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
+        if( $validate == 'true' ) {
+            echo json_encode(array(
+                'statusz' => 'siker',
+                'szoveg_kiir' => $szoveg_kiir
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        /* Elutasítás */
+        if( $munkalap ) {
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT, '', $memo ) ) {
+                $db_error = true;
+            }
+
+            $sql = $munk_bejek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $munk_bejek ) {
+                foreach($munk_bejek as $munk_bej) {
+                    if( !addStatusz( 'bejelentes_statusz', $munk_bej['bejelentes_id'], BEJELENTES_STAT_FOLYAMATBAN, '', $memo ) ) {
+                        $db_error = true;
+                    }
+                }
+            }
+
+            if( !$db_error ) {
+                mysqli_commit($db_kapcs);
+
+                echo json_encode(array(
+                    'statusz' => 'siker'
+                ));
+            } else {
+                mysqli_rollback($db_kapcs);
+
+                echo json_encode(array(
+                    'hiba' => tranzakcioHiba()
+                ));
+            }
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 /* Átadás műszaki vezetőnek */
 if( isset($_POST['atadasMuszVeznek']) ) {
     $recid = $_POST['recid'];
@@ -831,7 +958,17 @@ if($gyorskereso_text){
                     </div>
                 </div>
             ');
-        } else if( (((_jog(3) && (_jog(5) || _jog(31)) ) || (_jog(3) && _jog(31)) || (_jog(3) && _jog(21))) && in_array($sor['statusz_id'], array(8, 10))) || (_jog(3) && _jog(23)) ) {
+
+        } else if( _jog(3) && _jog(23) ) {
+
+            $gombok .= nl2('
+                <div id="kmCont">
+                    <input type="button" class="gombb foGomb" value="Átadás" title="Átadás" onclick="csoportMuvelet( \'diszKozpVezAtadas\' );">
+                    <input type="button" class="gomb_alert piros foGomb" value="Lezárás" title="Lezárás" onclick="">
+                </div>
+            ');
+
+        } else if( (((_jog(3) && (_jog(5) || _jog(31)) ) || (_jog(3) && _jog(31)) || (_jog(3) && _jog(21))) && in_array($sor['statusz_id'], array(8, 10))) ) {
 
             $telephely = $adatbazis_kapcsolat->s('modell', 'telephely', 'id='.$sor['telephely_id'], '', '1');
 

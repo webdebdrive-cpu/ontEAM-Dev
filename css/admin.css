@@ -2225,8 +2225,19 @@ span.icon {
     width: 1.5rem;
 }
 
+table.csikos span.icon {
+    display: inline-block!important;
+    height: 2rem;
+    vertical-align: bottom;
+    width: 2rem;
+}
+
 span.icon .material-icons {
     font-size: 1.3rem;
+}
+
+table.csikos span.icon .material-icons {
+    font-size: 2rem;
 }
 
 span.icon.zold .material-icons {
