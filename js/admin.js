@@ -4315,8 +4315,8 @@ function beosztas_naptarba_teszt(beosztas_id, felulir){
             if(response.siker){
                 $('.beosztas_naptar').replaceWith(response.naptar);
                 $('#mehet_gomb').removeClass('gombb_alert');
-                $('#tol').val('____.__.__ __:__').removeClass('mod');
-                $('#ig').val('____.__.__ __:__').removeClass('mod');
+                $('#tol').val('    .  .     :  ').removeClass('mod');
+                $('#ig').val('    .  .     :  ').removeClass('mod');
                 $('#beosztas').val('').removeClass('mod');
                 $('#szerepkor').val('').removeClass('mod');
                 $('#felh_loginnev').val('').removeClass('mod');

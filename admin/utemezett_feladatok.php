@@ -86,19 +86,16 @@ if (isset($_GET['datumra_utemezes'])) {
     }
     $esem_d     = substr(str_replace('-', '.', $sor['esem_d']), 0, 10);
     $esnap_d    = str_replace('-', '.', $sor['esnap_d']);
-    $aktkezd_d  = str_replace('-', '.', $sor['aktkezd_d']);
-    $aktvege_d  = str_replace('-', '.', $sor['aktvege_d']);
 
-
-    $szamla_html .=  "esemd: $esem_d<br>cikltip: $sor[cikltip]<br>ciklaltip: $sor[ciklaltip]<br>ciklszorz: $sor[ciklszorz]<br>ciklho: $sor[ciklho]<br>ciklhet: $sor[ciklhet]<br>ciklnap: $sor[ciklnap]<br>idoszakos: $sor[idoszakos]<br>kezdho: $sor[kezdho]<br>kezdnap: $sor[kezdnap]<br>vegeho: $sor[vegeho]<br>vegenap: $sor[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
-    $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
-    $szamla_html .= '<hr>Utolsó végrehajtás: ' . $esnap_d;
+    $szamla_html .=  "esemd: $esem_d<br>cikltip: $_GET[cikltip]<br>ciklaltip: $_GET[ciklaltip]<br>ciklszorz: $_GET[ciklszorz_]<br>ciklho: $_GET[ciklho]<br>ciklhet: $_GET[ciklhet]<br>ciklnap: $_GET[ciklnap]<br>idoszakos: $_GET[idoszakos]<br>kezdho: $_GET[kezdho]<br>kezdnap: $_GET[kezdnap]<br>vegeho: $_GET[vegeho]<br>vegenap: $_GET[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
+    $getnextvaliddate = getnextvaliddate(false, $esem_d, $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $_GET['idoszakos'], $_GET['kezdho'], $_GET['kezdnap'], $_GET['vegeho'], $_GET['vegenap'], $aktkezd_d, $aktvege_d);
+    $szamla_html .= '<hr>Következő esedékesség (esnap_d): ' . $esnap_d;
     $szamla_html .= '<br>Következő: ' . $getnextvaliddate;
-    $szamla_html .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
+    $szamla_html .= '<br>Szabály: ' . getcimke( $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $getnextvaliddate).'<br><br>';
 
     //A hibaüzenetet ne tegyük a mezőbe
     if( mb_substr($getnextvaliddate, 0, 10)=='Hibaüzenet' ){
-        $getnextvaliddate = '____.__.__';
+        $getnextvaliddate = '    .  .  ';
     }
     
     echo json_encode( array('uzenet' => 'Ön a következő ütemezést választotta:<br><div class="l">'.$szamla_html.'</div><br>Folytatja?', 'esedekes' => $getnextvaliddate) );

@@ -19,7 +19,7 @@ foreach($akt_tomb as $ertek){
 
             //Ha ezresít, automatikusan meghívunk rá két JS-t
             if( $ertek['ezresit'] ){
-                $ertek['onkeyup'] .= '; onlyNumbers(this); this.value=ezresek(this.value,\'.\')';
+                $ertek['onkeyup'] .= '; onlyNumbers($(this)); this.value=ezresek(this.value,\'.\')';
                 $sor[$ertek['name']] = number_format($sor[$ertek['name']], 0, '', '.');
             }
 
@@ -1263,7 +1263,7 @@ foreach($akt_tomb as $ertek){
 
             //Ha ezresít, automatikusan meghívunk rá két JS-t
             if( $ertek['ezresit'] ){
-                $ertek['onkeyup'] .= '; onlyNumbers(this); this.value=ezresek(this.value,\'.\')';
+                $ertek['onkeyup'] .= '; onlyNumbers($(this)); this.value=ezresek(this.value,\'.\')';
                 $sor[$ertek['name']] = number_format($sor[$ertek['name']], 0, '', '.');
             }
 

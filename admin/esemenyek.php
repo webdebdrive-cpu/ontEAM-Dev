@@ -649,11 +649,11 @@ $bejovo_szamlak_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Fiz. hat.:',          'name' => 'fiz_hat',        'disabled' => $disabled,    'class' => 'kicsi datepicker', 'value' => $datum, 'osszevon' => true),
     array('type' => 'select_fiz_mod',       'megn' => 'Fiz. mód:',           'name' => 'fiz_mod',        'disabled' => $disabled),
     array('type' => 'textarea',             'megn' => 'Tárgy:',              'name' => 'targy',          'disabled' => $disabled,    'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
-    array('type' => 'text',                 'megn' => 'Bruttó:',             'name' => 'brutto',         'disabled' => $disabled,    'class' => 'kicsi', 'maxlength' => 10, 'ezresit' => true, 'post' => ' '.get_penznem(), 'osszevon' => true, 'onkeyup' => 'this.value = onlyNumbers(this.value);'),
-    array('type' => 'text',                 'megn' => 'Nettó:',              'name' => 'netto',          'disabled' => $disabled,    'class' => 'kicsi', 'maxlength' => 10, 'ezresit' => true, 'post' => ' '.get_penznem(), 'osszevon' => true, 'onkeyup' => 'this.value = onlyNumbers(this.value);'),
+    array('type' => 'text',                 'megn' => 'Bruttó:',             'name' => 'brutto',         'disabled' => $disabled,    'class' => 'kicsi', 'maxlength' => 10, 'ezresit' => true, 'post' => ' '.get_penznem(), 'osszevon' => true, 'onkeyup' => 'onlyNumbers( $(this) );'),
+    array('type' => 'text',                 'megn' => 'Nettó:',              'name' => 'netto',          'disabled' => $disabled,    'class' => 'kicsi', 'maxlength' => 10, 'ezresit' => true, 'post' => ' '.get_penznem(), 'osszevon' => true, 'onkeyup' => 'onlyNumbers( $(this) );'),
     array('type' => 'select_afa_tipus',     'megn' => 'Áfa típus:',          'name' => 'fiz_mod',        'disabled' => $disabled),
-    array('type' => 'text',                 'megn' => 'Valuta Bruttó:',      'name' => 'valuta_brutto',  'disabled' => $disabled,    'class' => 'kicsi', 'maxlength' => 20, 'osszevon' => true, 'onkeyup' => 'this.value = onlyNumbers(this.value);'),
-    array('type' => 'text',                 'megn' => 'Valuta nettó:',       'name' => 'valuta_netto',   'disabled' => $disabled,    'class' => 'kicsi', 'maxlength' => 20, 'osszevon' => true, 'onkeyup' => 'this.value = onlyNumbers(this.value);'),
+    array('type' => 'text',                 'megn' => 'Valuta Bruttó:',      'name' => 'valuta_brutto',  'disabled' => $disabled,    'class' => 'kicsi', 'maxlength' => 20, 'osszevon' => true, 'onkeyup' => 'onlyNumbers( $(this) );'),
+    array('type' => 'text',                 'megn' => 'Valuta nettó:',       'name' => 'valuta_netto',   'disabled' => $disabled,    'class' => 'kicsi', 'maxlength' => 20, 'osszevon' => true, 'onkeyup' => 'onlyNumbers( $(this) );'),
     array('type' => 'text',                 'megn' => 'Árfolyam:',           'name' => 'arfolyam',       'disabled' => $disabled,    'class' => 'kicsi', 'maxlength' => 20),
     array('type' => 'text',                 'megn' => 'Részleg:',            'name' => 'reszleg',        'disabled' => $disabled,    'class' => 'normal disableNav', 'osszevon' => true),
     array('type' => 'text',                 'megn' => 'Átváltva:',           'name' => 'atvaltva',       'disabled' => $disabled,    'class' => 'kicsi datepicker', 'value' => $datum),
@@ -977,7 +977,7 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
 
         //Naponta
         array('type' => 'html',                     'megn' => nl2('<div id="tipus_d" style="padding: 0" class="'.$nap_rejt.'cikltip">')),
-        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklnap',       'pre' => 'Ismétlődik ', 'post' => ' naponta', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value); $(\'#hetkoz_kent\').prop(\'checked\', false)', 'value' => $ciklnap),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklnap',       'pre' => 'Ismétlődik ', 'post' => ' naponta', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'onlyNumbers( $(this) ); $(\'#hetkoz_kent\').prop(\'checked\', false)', 'value' => $ciklnap),
         array('type' => 'html',                     'megn' => nl2('
                                                                     <div class="cb">
                                                                         <input'.$hetkoznapokent.' name="hetkoz_kent" id="hetkoz_kent" onclick="$(\'#ciklnap\').val(\'\')" type="checkbox">
@@ -990,7 +990,7 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
         array('type' => 'html',                     'megn' => nl2('<div id="tipus_w" style="padding: 0" class="'.$het_rejt.'cikltip">')),
         array('type' => 'html',                     'megn' => nl2('
                                                             <div class="dtc form_jobb">
-                                                                Ismétlődik <input maxlength="2" name="ism_het" id="ism_het" onkeyup="this.value = onlyNumbers(this.value); $(\'#mehet_gomb\').attr(\'disabled\', false);" style="width: 4rem" type="text" value="'.$ciklszorz_w.'">
+                                                                Ismétlődik <input maxlength="2" name="ism_het" id="ism_het" onkeyup="onlyNumbers( $(this) ); $(\'#mehet_gomb\').attr(\'disabled\', false);" style="width: 4rem" type="text" value="'.$ciklszorz_w.'">
                                                                 hetente a következő napokon:
                                                             </div>
                                                             <div class="cb">
@@ -1045,9 +1045,9 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
 
         //Havonta
         array('type' => 'html',                     'megn' => nl2('<div id="tipus_m" style="padding: 0" class="'.$ho_rejt.'cikltip">')),
-        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklho',     'pre' => 'Ismétlődik ', 'post' => ' havonta a hónap ', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value); $(\'#ciklho2\').val(\'\'); $(\'#ciklhet\').val(\'\'); $(\'#ho_rendsz_het\').val(\'\');', 'osszevon' => 1, 'value' => $ciklnap_honap),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklho',     'pre' => 'Ismétlődik ', 'post' => ' havonta a hónap ', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'onlyNumbers( $(this) ); $(\'#ciklho2\').val(\'\'); $(\'#ciklhet\').val(\'\'); $(\'#ho_rendsz_het\').val(\'\');', 'osszevon' => 1, 'value' => $ciklnap_honap),
         array('type' => 'select_honapjan',          'megn' => '',                   'name' => 'honapjan',                               'post' => ' napján'),
-        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklho2',    'pre' => 'Ismétlődik ', 'post' => ' havonta a ', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'this.value = onlyNumbers(this.value); $(\'#ciklho\').val(\'\'); $(\'#honapjan\').val(\'\')', 'osszevon' => 1),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklho2',    'pre' => 'Ismétlődik ', 'post' => ' havonta a ', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'onlyNumbers( $(this) ); $(\'#ciklho\').val(\'\'); $(\'#honapjan\').val(\'\')', 'osszevon' => 1),
         array('type' => 'select_ho_ism',            'megn' => '',                   'name' => 'ciklhet',        'osszevon' => 1),
         array('type' => 'select_ho_soran',          'megn' => '',                   'name' => 'ho_rendsz_het',  'post' => ' során'),
         array('type' => 'html',                     'megn' => nl2('</div>')),

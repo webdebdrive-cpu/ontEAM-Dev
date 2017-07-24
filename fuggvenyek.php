@@ -113,11 +113,14 @@ function i_u($type, $tabla, $tomb) {
         }
 
         if($_POST['ciklho2']){
-            array_push($oszlopok, 'ciklaltip'               );
-            array_push($ertekek,  '2'                       );
+            array_push($oszlopok, 'ciklaltip'       );
+            array_push($ertekek,  '2'               );
 
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  $_POST['ciklho2'] );
+
+            $index = array_search('ciklnap', $oszlopok);
+            $ertekek[$index] = $_POST['ho_rendsz_het'];
         }
 
         if($_POST['ism_het']){
@@ -1064,10 +1067,82 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 /* Dátumra ütemezés közlése mentés előtt. */
                 if( !utemezes_mehet ){
 
+                    /* Ciklus szorzó kiszámítása */
+                    ciklszorz_val = 0;
+                    if( $(\'#ciklnap\').val()>0 ){ ciklszorz_val = $(\'#ciklnap\').val(); }
+                    if( $(\'#ciklho\').val()>0 ) { ciklszorz_val = $(\'#ciklho\').val();  }
+                    if( $(\'#ciklho2\').val()>0 ){ ciklszorz_val = $(\'#ciklho2\').val(); }
+                    if( $(\'#ism_het\').val()>0 ){ ciklszorz_val = $(\'#ism_het\').val(); }
+                    
+                    /* Időszakos pipa lekezelése */
+                    idoszakos_val = 0;
+                    if($(\'#idoszakos\').prop(\'checked\')){
+                        idoszakos_val = 1;
+                    }
+                    
+                    /* Ciklustítpus beállítása */
+                    ciklaltip_val = \'\';
+                    if($(\'#ciklnap\').val()>0){
+                        ciklaltip_val = 1;
+                    }
+                    if($(\'#hetkoz_kent\').prop(\'checked\')){
+                        ciklaltip_val = 2;
+                    }
+                    if($(\'#ciklho\').val()>0){
+                        ciklaltip_val = 1;
+                    }
+                    if( $(\'#ciklho2\').val()>0 ){
+                        ciklaltip_val = 2;
+                    }
+                    
+                    /* Alapból a mező értéke, de a későbbi feltételeknél ez felülíródhat még */
+                    ciklnap_val = $(\'#ciklnap\').val();
+                    ciklho_val  = $(\'#ciklho\').val();
+                    if($(\'#ciklho2\').val()>0){
+                        ciklho_val  = $(\'#ciklho2\').val();
+                        ciklnap_val = $(\'#ho_rendsz_het\').val();
+                    }
+                    
+                    /* Havi ciklus esetén */
+                    if( $(\'#ciklho\').val()>0 ){
+                        ciklnap_val = $(\'#honapjan\').val();
+                    }
+
+                    /* Ha van heti rendszrességű ismétlés, akkor a cikl_nap-ot be kell állítani */
+                    if( $(\'#ism_het\').val()>0 ){
+                        ciklnap_val = \'\';
+                        if($(\'#h\').prop(\'checked\')) { ciklnap_val += \'1\'; }
+                        if($(\'#k\').prop(\'checked\')) { ciklnap_val += \'2\'; }
+                        if($(\'#s\').prop(\'checked\')) { ciklnap_val += \'3\'; }
+                        if($(\'#cs\').prop(\'checked\')){ ciklnap_val += \'4\'; }
+                        if($(\'#p\').prop(\'checked\')) { ciklnap_val += \'5\'; }
+                        if($(\'#sz\').prop(\'checked\')){ ciklnap_val += \'6\'; }
+                        if($(\'#v\').prop(\'checked\')) { ciklnap_val += \'7\'; }
+                    }
+                    
+                    
                     $.ajax({
                         url : \'utemezett_feladatok.php\',
                         type: \'GET\',
-                        data: esamp2es(\'id='.$_GET['id'].'&amp;datumra_utemezes=\' + new Date().getTime()),
+                        data: {
+                            id              : \''.$_GET['id'].'\',
+                            ciklszorz_      : ciklszorz_val,
+                            esnap_d         : $(\'#esnap_d\').val(),
+                            aktkezd_d       : $(\'#aktkezd_d\').val(),
+                            aktvege_d       : $(\'#aktvege_d\').val(),
+                            cikltip         : $(\'#cikltip\').val(),
+                            ciklaltip       : ciklaltip_val,
+                            ciklszorz       : $(\'#ciklszorz\').val(),
+                            ciklho          : ciklho_val,
+                            ciklhet         : $(\'#ciklhet\').val(),
+                            ciklnap         : ciklnap_val,
+                            idoszakos       : idoszakos_val,
+                            kezdho          : $(\'#kezdho\').val(),
+                            kezdnap         : $(\'#kezdnap\').val(),
+                            vegeho          : $(\'#vegeho\').val(),
+                            vegenap         : $(\'#vegenap\').val(),
+                            datumra_utemezes: new Date().getTime()
+                        },
                         success: function(response) {
 
                             response = JSON.parse(response);
@@ -1088,7 +1163,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
     //Ajaxos form módosítás
     $ajax_kod = nl2('
-
+        utemezes_mehet = false;
         $.ajax({
             url : \''.self().'?id='.$_GET['id'].'\',
             type: \'POST\',
