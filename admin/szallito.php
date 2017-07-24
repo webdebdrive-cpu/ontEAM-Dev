@@ -261,6 +261,10 @@ if($gyorskereso_text){
             }
         }
 
+        $json_sor = array();
+        foreach($sor as $kulcs => $elem){
+            v
+        }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
 
 	    //Js, a törlés gombhoz

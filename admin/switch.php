@@ -1298,14 +1298,21 @@ foreach($akt_tomb as $ertek){
                 }
             }
 
-            if(!$sor[ $ertek['name'] ]) {
+            if($sor[ $ertek['name'] ]=='') {
                 $input -> value   = $ertek['value'];
             }else{
                 if($ertek['szam']) {
                     $input -> value   = number_format($sor[ $ertek['name'] ], '', '', '.');
                 }else{
+                    
+                    //Date
                     if( strstr($ertek['class'], 'datepicker') ) {
                         if( $sor[ $ertek['name'] ] != '0000-00-00' ) {
+                            $input -> value   = date('Y.m.d', strtotime($sor[ $ertek['name'] ]));
+                        }
+                    //Datetime
+                    } elseif( strstr($ertek['class'], 'datetimepicker') ) {
+                        if( $sor[ $ertek['name'] ] != '0000-00-00 00:00:00' ) {
                             $input -> value   = date('Y.m.d H:i', strtotime($sor[ $ertek['name'] ]));
                         }
                     //Ha numerikus adat, akkor formázzunk

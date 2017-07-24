@@ -16,6 +16,9 @@
 - Előbbinél lényeges, hogy legyen kimenetel, ajax számára. Legalább egy mondatot írj ki.
 - admin.js-ben a "param = get_get([" -ra keress rá, és itt is vedd fel az új fülek paraméterét
 
+LE-FEL LÉPTETEÉS LEKEZELÉSE
+- admin.js "Léptetés lefele nyíllal, lépkedve le fel"-re keress rá
+
 LOGINNEV nevű oszlop feltöltése utólag az insert_usr alapján
 Ha kell egy loginnev nevű oszlop, de csak insert_usr adataid vannak, akkor az index.php elején találsz egy $_GET['loginnev_gyart'] karbantartó függvényt, amivel fel tudod tölteni az adatokat.
 FONTOS: ilyenkor  a fuggvenyek.php-ban az i_u()-nél fel kell venned a 'loginnev' oszlopot a tömbbe (lásd gépek esete):
@@ -65,6 +68,6 @@ CIKKTORZSBŐL LEKÉRT AUTOCOMPLETE ESETÉN A MENNYISÉGI EGYSÉG AUTOMATIKUSAN B
 Ha van egy autocompletes input, ami cikktörzsből dolgozik, akkor ebben az űrlapban elhelyezett <span class="insertMee"></span> span-ba be fog íródni a mennyiségi egység is
 
 GOMBOK KISZERVEZÉSE ÁLTALÁNOSAN
-- Új feltöltés űrlap feltétele elé összegyűjteni a jogosultásgokat és kialakítani a nyomógombokat (pl. anyagigényles.php mintájára)
-- Új és modosít részen belül törölni minden $gomb változót
-- Ha van extra fül, akkor ott a $szamla_html-t meg kell toldani a gombbal is
+- Új feltöltés űrlap feltétele elé összegyűjteni a jogosultásgokat és kialakítani a nyomógombokat (pl. anyagigényles.php mintájára) Erre keress rá: "Gombok kirajzolása minden oldalra"
+- Új és modosít részen belül törölni minden $gomb változót, de csak miután beállítottad a gombokat, kialakítottad a jogokat.
+- Ha van extra fül, akkor ott a $szamla_html-t meg kell toldani a $gombok-al is

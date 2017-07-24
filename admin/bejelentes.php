@@ -637,7 +637,11 @@ if($gyorskereso_text){
             }
         }
 
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
+        $json_sor = array();
+        foreach($sor as $kulcs => $elem){
+            $json_sor[$kulcs] = str_replace("\r\n", "#UJSOR#", $elem);
+        }
+        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;

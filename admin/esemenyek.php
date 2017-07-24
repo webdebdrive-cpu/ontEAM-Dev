@@ -261,7 +261,7 @@ switch($tabla) {
         $_OPTS['select']    = nl2('
                                     `'.get_db_tabla().'utemezett_feladatok`.`recid`,
                                     `'.get_db_tabla().'utemezett_feladatok`.`id`,
-                                    `'.get_db_tabla().'utemezett_feladatok`.`nev`,
+                                    `'.get_db_tabla().'utemezett_feladatok`.`nev` as `uf_nev`,
                                     `'.get_db_tabla().'utemezett_feladatok`.`telephely_id`,
                                     `'.get_db_tabla().'utemezett_feladatok`.`obj_id`,
                                     `'.get_db_tabla().'utemezett_feladatok`.`aktiv`,

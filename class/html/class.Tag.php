@@ -132,7 +132,7 @@ class Tag{
         if($this -> placeholder ){ $return .= ' placeholder="'  .$this -> placeholder   .'"'; }
         if($this -> style       ){ $return .= ' style="'        .$this -> style         .'"'; }
         if($this -> title       ){ $return .= ' title="'        .$this -> title         .'"'; }
-        if($this -> value       ){ $return .= ' value="'        .$this -> value         .'"'; }
+        if($this -> value!=''   ){ $return .= ' value="'        .$this -> value         .'"'; }
 
 
         return $return;

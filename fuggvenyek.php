@@ -825,7 +825,6 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     foreach($tomb as $ertek){
         if( $ertek['type'] != 'statusz' && $ertek['type'] != 'info' ) {
             if($ertek['name']) {
-
                 //Csak akkor figyelünk lenti paramétereket, ha egyáltalán az elem létezik. Ezzel egy csomó JS hibát elekerólhetünk és debuggolós szívásokat
                 $ret .= 'if($(\'#'.$ertek['name'].'\').length){ ';
 
@@ -842,8 +841,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0,00\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
                 }
                 //Ha dátum mező, akkor az ürességet másképp figyeljük
-                if(strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false){
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.substring(0,1)==\'\xa0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
+                if($ertek['alert'] && (strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false)){
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.substring(0,1)==\'\xa0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; } ';
                 }
 
                 if($ertek['mail']){
@@ -916,6 +915,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             }
         }
     }
+
 
     //Egyedi hibaüzenetek
     if( basename(self())=='anyagigenyles.php' ) {
@@ -1426,11 +1426,12 @@ function szamla_lista( $where, $tabla ) {
         if($tabla == 'bejelentes'){
             $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
-
         if($tabla == 'anyagigenyles'){
             $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
-
+        if($tabla == 'utemezett_feladatok'){
+            $where = "`".get_db_tabla()."utemezett_feladatok`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
         if($tabla == 'munkalap'){
             $where = "`".get_db_tabla()."munkalap`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
 
@@ -2154,7 +2155,7 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit ) {
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span>'.$aktiv.' '.$telephely.' - '.$helyseg.'</span>
-                            <span>'.$bsz['nev'].'</span>
+                            <span>'.$bsz['uf_nev'].'</span> 
                         </a>';
 
             if( !$frissit ) {
@@ -2165,7 +2166,7 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit ) {
 
             $i++;
         }
-
+        
         if( !$frissit ) {
             $html .= nl2('
                 </ul>
@@ -2225,9 +2226,6 @@ function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit ) {
         if( !$frissit ) {
             $html .= nl2('
                 </ul>
-                <div id="naptar" class="'.$naptar_dn.'">
-                    <div class="naptar"></div>
-                </div>
             ');
         }
 
@@ -2281,9 +2279,6 @@ function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit ) {
         if( !$frissit ) {
             $html .= nl2('
                 </ul>
-                <div id="naptar" class="'.$naptar_dn.'">
-                    <div class="naptar"></div>
-                </div>
             ');
         }
 
@@ -2337,9 +2332,6 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit ) {
         if( !$frissit ) {
             $html .= nl2('
                 </ul>
-                <div id="naptar" class="'.$naptar_dn.'">
-                    <div class="naptar"></div>
-                </div>
             ');
         }
 
@@ -3010,9 +3002,6 @@ function szamlaLista( $bejegyzesek, $tabla, $frissit ) {
         if( !$frissit ) {
             $html .= nl2('
                 </ul>
-                <div id="naptar" class="'.$naptar_dn.'">
-                    <div class="naptar"></div>
-                </div>
             ');
         }
 

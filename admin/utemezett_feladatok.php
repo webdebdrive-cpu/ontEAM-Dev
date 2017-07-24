@@ -368,8 +368,12 @@ if($gyorskereso_text){
                 }
             }
         }
-
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
+   
+        $json_sor = array();
+        foreach($sor as $kulcs => $elem){
+            $json_sor[$kulcs] = str_replace("\r\n", "#UJSOR#", $elem);
+        }
+        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
@@ -402,7 +406,7 @@ if($gyorskereso_text){
         }
 
 		// Ez elkészíti a $mezok változót
-		require('switch.php');
+        require('switch.php');
         
         $jobb_oldal = '';
 
@@ -422,7 +426,7 @@ if($gyorskereso_text){
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html;
@@ -435,7 +439,7 @@ if($gyorskereso_text){
 	//Státusz
     }elseif(isset($_GET['naptar'])) {
 
-        //Hét beoszás fejélce
+        //Hét beoszás fejléce
         $fejlec = '';
         if(isset($_GET['akt_nap'])){
             $indulo = date2int($_GET['akt_nap']);

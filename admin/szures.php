@@ -228,8 +228,8 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
-                    
-                    $input = new Select($select_cikltip, $_POST['cikltip']);
+
+                    $input = new Select($select_cikltip, $_POST['felt']);
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
                     

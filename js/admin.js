@@ -1,3 +1,5 @@
+var naptar_latszik_nincs_leptetes = false; /* Ha a bal oldali navpanelben naptár jelenik meg, a léptetetést kikapcsolju */
+
 function lap_tetejere(){
     if(getKepernyoMagas()<getOldalMagas()){
     	document.write('<div class="nyil" onclick="scrollto(\'#teto\', 1000)" title="Lap tetejére"></div>');
@@ -403,14 +405,13 @@ $(function() {
         }
     });
 
-    /* Léptetés lefele nyíllal */
+    /* Léptetés lefele nyíllal, lépkedve le fel */
     $(document).on('keyup', function(e) {
         if( e.keyCode == 38 || e.keyCode == 40 ) {
             var className = e.target.className;
-
             popup_display = $('#popup').css('display');
 
-            if( (className !== undefined && className.indexOf('disableNav') !== -1) || popup_display == 'block' || $('#alert2').length || !$('#beleptet_alert').hasClass('dn') || $('#naptar').length ) {
+            if( (className !== undefined && className.indexOf('disableNav') !== -1) || popup_display == 'block' || $('#alert2').length || !$('#beleptet_alert').hasClass('dn') || naptar_latszik_nincs_leptetes ) {
                 return false;
             }
 
@@ -883,6 +884,10 @@ $(function() {
                 }
             }
 
+            //Újsort le kell csérélni. Checkboxok miatt kell ez az if elé
+            if(val && val!=true){
+                val = val.replace(/(\r|\n)/g, '#UJSOR#');
+            }
             if( taroltVal != val ) {
                 $(this).addClass('mod');
             } else {
@@ -3874,6 +3879,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
         szerk = 'szerkeszt=1&amp;';
     }
 
+    naptar_latszik_nincs_leptetes = false;
     var dfrd1 = $.Deferred();
 
     /* Naptár megjelenítése */
@@ -3882,6 +3888,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
             $('#naptar').show();
             $('#szamlaList').hide();
             $('#utemezes').hide();
+            naptar_latszik_nincs_leptetes = true;
         }else if(muvelet.indexOf('utemezes')>=0){
             $('#utemezes').show();
             $('#szamlaList').hide();
