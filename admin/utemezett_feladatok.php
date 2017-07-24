@@ -248,7 +248,7 @@ if($gyorskereso_text){
         //Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
-        if( _jog(4) || true /*MEGBESZÉLENDŐ MÉG*/){
+        if( _jog(5) || true /*MEGBESZÉLENDŐ MÉG*/){
 
             $gombok = nl2('
                 <div class="form_kuldes">
@@ -273,7 +273,7 @@ if($gyorskereso_text){
     }
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && _jog(4) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && _jog(5) && !$csak_szerkesztheto){
         
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');

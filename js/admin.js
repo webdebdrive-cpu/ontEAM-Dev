@@ -4231,7 +4231,7 @@ function id_foglalt_e(fajl, mezo){
 }
 
 /* Dátumra ütemezés tesztelésére */
-function datumra_utemezes(id){
+/*Már nem kell. function datumra_utemezes(id){
     $.ajax({
         url: 'utemezett_feladatok.php',
         type: 'GET',
@@ -4243,7 +4243,7 @@ function datumra_utemezes(id){
             }
         }
     });
-}
+}*/
 
 function objLength(obj) {
     var size = 0, key;

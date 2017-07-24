@@ -1078,6 +1078,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
                         }
                     });
+                    return false;
                 }else{
                     alert2();
                 }
