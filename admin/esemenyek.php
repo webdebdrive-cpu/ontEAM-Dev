@@ -528,7 +528,7 @@ switch($tabla) {
         $_OPTS['select']    = 'nev recid id';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('id');
+        $_OPTS['rendezes']  = array('id', 'nev');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
@@ -1494,15 +1494,14 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
                 $akt_tetel = $akt_tetel[0];
 
                 foreach($addCikkID as $key => $value) {
+                    
                     $sql = $is_anyag = $adatbazis_kapcsolat->s('recid', 'munkalap_anyag', "`munkalap_id` = '{$recid}' AND `tetel_id` = '".$akt_tetel['recid']."' AND `cikk_id` = '{$value}'", '', '1');
-
                     if( $sql === false ) {
                         $db_error = true;
                     }
 
-                    $sql = $cikk_sor = $adatbazis_kapcsolat->s('recid nev cikkmee', 'cikktorzs', "`recid` = '{$value}'", '', '1');
-
-                    if( $sql === false ) {
+                    $cikk_sor = $adatbazis_kapcsolat->s('id nev cikkmee oracikkid', 'cikktorzs', "`id` = '{$value}'");
+                    if( $cikk_sor === false ) {
                         $db_error = true;
                     }
 
@@ -1534,8 +1533,8 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
                             }
 
                             $sql = $adatbazis_kapcsolat -> i('munkalap_anyag',
-                                array('munkalap_id', 'telephely_id',        'tetel_id',          'cikk_id',            'cikk_nev',         'cikk_mee',             'cikk_men',              'szuk_men',                'stat_id', 'insert_dt',          'insert_usr',                              'update_usr'                          ),
-                                array($recid,        $mlap['telephely_id'], $akt_tetel['recid'], $cikk_sor['recid'],   $cikk_sor['nev'],   $cikk_sor['cikkmee'],   $addCikkFelhMenny[$key], $addCikkSzukMenny[$key],   $stat_id,   date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
+                                array('munkalap_id', 'telephely_id',        'tetel_id',          'cikk_id',       'oracikkid',            'cikk_nev',                                'cikk_mee',             'cikk_men',              'szuk_men',                'stat_id', 'insert_dt',          'insert_usr',                              'update_usr'                          ),
+                                array($recid,        $mlap['telephely_id'], $akt_tetel['recid'], $cikk_sor['id'], $cikk_sor['oracikkid'], htmlspecialchars_decode($cikk_sor['nev']), $cikk_sor['cikkmee'],   $addCikkFelhMenny[$key], $addCikkSzukMenny[$key],   $stat_id,   date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
                             );
 
                             if( $sql === false ) {

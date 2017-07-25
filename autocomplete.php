@@ -131,7 +131,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
 
             $cikkmee_attr = '';
             if( $_GET['tabla'] == 'cikktorzs' ) {
-                $cikkmee_attr = ' data-mee="'.$sor['cikkmee'].'"';
+                $cikkmee_attr = ' data-mee="'.$sor['cikkmee'].'" data-cikkid="'.$sor['id'].'"';
             }
 
             $return .= '<li data-recid="'.$sor[$_GET['id_kiir']].'"'.$cikkmee_attr.'>';

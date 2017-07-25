@@ -68,10 +68,9 @@ if (isset($_POST['f_anyag_rendelkezesre_all'])) {
         $db_error = true;
     }
     
+    //Lefuttatjuk a munkalap_folyamatbanra_halehet függvényt, ezzel ha lehet, folyamatbanra állítva a munkalap státuszát
     $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_anyag', "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$_POST['cikk_id']}'");
     $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
-
-    //Lefuttatjuk a munkalap_folyamatbanra_halehet függvényt, ezzel ha lehet, folyamatbanra állítva a munkalap státuszát
     if(munkalap_folyamatbanra_halehet($munkalapok)===false){
         $db_error = true;
     }
@@ -812,7 +811,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
                 if($_POST['jhmen']>$igenyles['rndmen']){
                     echo json_encode(array(
                         'hiba'  => 'A jóváhagyott mennyiség nem lehet több, mint a jóváhagyásra váró mennyiség ('.$igenyles['rndmen'].' '.$igenyles['cikkmee'].')!',
-                        'focus' => 'jhmen'
+                        'focus' => 'jhmen',
                     ));
 
                     $weblap->leallit();
@@ -849,7 +848,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
                 $db_error = true;
             }
 
-            $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('jhmen'), array($_POST['jhmen']), "`recid`='$id'");
+            $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('jhmen', 'rndmen'), array($_POST['jhmen'], $_POST['jhmen']), "`recid`='$id'");
             if( $sql === false ) {
                 $db_error = true;
             }
@@ -1765,6 +1764,11 @@ if($gyorskereso_text){
                             $ig_var            += $akt_anyag['szuk_men'];
                         }
 
+                        //A cikktörzs rec_id-jáéra van szükségünk a későbbiekben. ID alapján megkeressük
+                        $cikkid_origi = $cikk_id;
+                        $cikk_id = $adatbazis_kapcsolat->s('recid', 'cikktorzs', "`id`='{$cikkid_origi}'");
+                        $cikk_id = $cikk_id[0]['recid'];
+                        
                         //Anyagra váró darabszám kiszámítása (ugyanaz, csak másik státuszt figyelünk)
                         $anyag_var = 0;
                         $akt_anyagok = $adatbazis_kapcsolat->s('szuk_men', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`='".DISZPNAG_STAT_ANYAG_IGENYELVE."' AND `telephely_id`='{$telephely['telephely_id']}'");
@@ -1799,7 +1803,7 @@ if($gyorskereso_text){
                                             <td><input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$akt_munkalapok.'\')"></td>
                                             <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'"></td>
                                             <td>'.$mar_igenyelve.'</td>
-                                            <td><input type="button" value="Anyag rendelkezésre áll" class="gomb f_anyag_rendelkezesre_all" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$cikk_id.'"></td>
+                                            <td><input type="button" value="Anyag rendelkezésre áll" class="gomb f_anyag_rendelkezesre_all" data-telephely_id="'.$telephely['telephely_id'].'" data-cikkid_origi="'.$cikkid_origi.'" data-cikk_id="'.$cikk_id.'"></td>
                                         </tr>
                                         ');
                     }

@@ -137,11 +137,15 @@
 
         $('#autocomplete').on('click', 'ul li', function(e) {
 
-            var link = $('#autocomplete ul li.aktiv').attr('data-href'),
-                recid = $('#autocomplete ul li.aktiv').attr('data-recid');
+            var link   = $('#autocomplete ul li.aktiv').attr('data-href'),
+                recid  = $('#autocomplete ul li.aktiv').attr('data-recid'),
+                cikkid = $('#autocomplete ul li.aktiv').attr('data-cikkid');
             var mee = $('#autocomplete ul li.aktiv').attr('data-mee');
             if( mee !== undefined ) {
                 $('.insertMee').text(mee);
+            }
+            if( cikkid !== undefined ) {
+                $('#cikkid_origi').val(cikkid);
             }
 
             if(link){
