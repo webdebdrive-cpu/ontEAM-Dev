@@ -539,7 +539,7 @@ if( isset($_POST['atadasMuszVeznek']) ) {
             /* Frissítjuk a munkalap visszaadva sorát */
             $sql = $adatbazis_kapcsolat -> u('munkalap',
                 array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'update_dt',          'update_usr'                           ),
-                array( 1,            5,              '',                date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] ),
+                array( 1,            MUSZAKI_VEZETO, '',                date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'] ),
                 "`recid` = '{$recid}'"
             );
 
@@ -1295,7 +1295,7 @@ if($gyorskereso_text){
                 $telephely = $telephely[0]['modell'];
 
                 /* Több szállodás modell */
-                if( $telephely ) {
+                if( !$telephely ) {
                     $atadas_gomb = nl2('
                         <script>
                             muszVezAtadGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"atadasMuszVeznek();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
