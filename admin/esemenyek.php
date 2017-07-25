@@ -1660,8 +1660,8 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
                     if( $addCikkUj[$key] ) {
                         if( $cikk_sor ) {
                             $sql = $adatbazis_kapcsolat -> i('munkalap_anyag',
-                                array('munkalap_id', 'tetel_id',          'cikk_id',            'cikk_nev',         'cikk_mee',             'cikk_men',              'insert_dt',          'insert_usr',                              'update_usr'                          ),
-                                array($recid,        $akt_tetel['recid'], $cikk_sor['recid'],   $cikk_sor['nev'],   $cikk_sor['cikkmee'],   $addCikkFelhMenny[$key],  date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
+                                array('munkalap_id', 'tetel_id',            'stat_id',                  'cikk_id',            'cikk_nev',         'cikk_mee',             'cikk_men',              'insert_dt',          'insert_usr',                              'update_usr'                          ),
+                                array($recid,        $akt_tetel['recid'],    DISZPNAG_STAT_VAN_ANYAG,   $cikk_sor['recid'],   $cikk_sor['nev'],   $cikk_sor['cikkmee'],   $addCikkFelhMenny[$key],  date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
                             );
 
                             if( $sql === false ) {
