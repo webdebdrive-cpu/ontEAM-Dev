@@ -1,0 +1,16 @@
+<h2>Lezárás indoka:</h2>
+<form action="" id="diszKozpVezLezarasForm" class="popupForm" method="post" onsubmit="return diszKozpVezLezaras( this );">
+    <div class="dt">
+        <div class="dtr">
+            <div class="dtc form_bal">Leírás:</div>
+            <div class="dtc form_jobb">
+                <textarea name="indoklas_memo"></textarea>
+            </div>
+        </div>
+    </div>
+    <div id="szoveg_kiirt"></div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Igen">
+        <input type="button" name="megsem" class="gombb_alert" value="Nem" onclick="popupZar();">
+    </div>
+</form>

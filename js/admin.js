@@ -588,7 +588,7 @@ $(function() {
 
                 kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
             } else {
-                
+
                 var akt_id = parseInt( $(this).prevAll('.kijelolve').attr('data-i') );
                 if(!akt_id){
                     akt_id = parseInt( $(this).nextAll('.kijelolve').attr('data-i') );
@@ -1182,6 +1182,45 @@ function diszKozpVezAtadas( that ) {
                 validate: 'false',
                 memo: memo.val(),
                 diszKozpVezAtadas: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        if( response.gomb ) {
+                            alert2(response.hiba, response.gomb);
+                        } else {
+                            alert2(response.hiba, '', 'Hiba');
+                        }
+
+                        return false;
+                    }
+
+                    location.href = 'munkalap.php';
+         		}
+         	}
+        });
+    } else {
+        alert2('Adja meg a visszaadás okát!');
+    }
+
+    return false;
+}
+
+function diszKozpVezLezaras( that ) {
+    var memo = $(that).find('textarea[name="indoklas_memo"]');
+console.log(memo.val());
+return false;
+    if( memo.val() ) {
+        $.ajax({
+         	url : 'munkalap.php',
+         	type: 'POST',
+         	data: {
+                recid: _get('id'),
+                validate: 'false',
+                memo: memo.val(),
+                diszKozpVezLezaras: new Date().getTime()
             },
          	success: function(response) {
          		if(response) {
@@ -3139,6 +3178,38 @@ function csoportMuvelet( oldal ) {
                         recid: _get('id'),
                         validate: 'true',
                         diszKozpVezAtadas: new Date().getTime()
+                    },
+                 	success: function(response) {
+                 		if(response) {
+                            response = JSON.parse(response);
+
+                            if( response.hiba ) {
+                                if( response.gomb ) {
+                                    alert2(response.hiba, response.gomb);
+                                } else {
+                                    alert2(response.hiba, '', 'Hiba');
+                                }
+
+                                return false;
+                            }
+
+                            $('#szoveg_kiirt').html('<p>' + response.szoveg_kiir + '</p>');
+                            popupNyit();
+                 		}
+                 	}
+                });
+            break;
+
+            case 'diszKozpVezLezaras':
+                $('#popupTart').html(data);
+
+                $.ajax({
+                 	url : 'munkalap.php',
+                 	type: 'POST',
+                 	data: {
+                        recid: _get('id'),
+                        validate: 'true',
+                        diszKozpVezLezaras: new Date().getTime()
                     },
                  	success: function(response) {
                  		if(response) {
