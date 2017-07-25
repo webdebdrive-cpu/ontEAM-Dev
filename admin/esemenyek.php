@@ -1889,8 +1889,8 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
 
             /* Frissítjük a munkalap tételt */
             $sql = $adatbazis_kapcsolat -> u('munkalap_tetel',
-                array('atadta_dt',           'visszaadva', 'update_usr'                           ),
-                array( date('Y-m-d H:i:s'),   1,           $_SESSION[get_db_tabla().'teljes_nev'] ),
+                array('atadta_dt',           'visszaadva', 'erteklista_id', 'update_usr'                           ),
+                array( date('Y-m-d H:i:s'),   1,           $erteklista_id,  $_SESSION[get_db_tabla().'teljes_nev'] ),
                 "`recid` = '".$akt_tetel['recid']."'"
             );
 
@@ -1910,7 +1910,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
             }
 
             /* Nyitott státuszra állítjuk a munkalapot */
-            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT, '', $memo ) ) {
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT, $erteklista_id, $memo ) ) {
                 $db_error = true;
             }
             /* Hozzáadjuk a megjegyzést is ha van */
