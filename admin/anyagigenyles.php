@@ -1156,9 +1156,9 @@ if( isset($_POST['rendeles_keszit']) ) {
                 'hiba'      => nl2('
                                     <div class="l">
                                         Válasszon nyomtatási képet:
-                                        <br><a target="_blank" href="'.self().'?nyomtat='.$sorszam_kodolva.'&amp;szall">Szállító</a>
-                                        <br><a target="_blank" href="'.self().'?nyomtat='.$sorszam_kodolva.'&amp;cim">Cím</a>
-                                        <br><a target="_blank" href="'.self().'?nyomtat='.$sorszam_kodolva.'&amp;oracle">Oracle cikkszám</a>
+                                        <br><a target="_blank" href="'.self().'?nyomtat='.$sorszam_kodolva.'&amp;szall">Megrendelés a szállítónak</a>
+                                        <br><a target="_blank" href="'.self().'?nyomtat='.$sorszam_kodolva.'&amp;cim">Szállítási címenkénti összesítés</a>
+                                        <br><a target="_blank" href="'.self().'?nyomtat='.$sorszam_kodolva.'&amp;oracle">Oracle cikkszámonkénti összesítés</a>
                                         <br>
                                         <br>Sikerült a nyomtatás?
                                     </div>
@@ -1404,45 +1404,51 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                                             );
                 }
                 
-                //HA marerkmen+erkmen>=rndmen VAGY nemfogerk=1, AKKOR archiválunk
-                if($marerkmen+$erkmen>=$rndmen || $nemfogerk){
-                    
-                    //Ha marerkmen+erkmen=0, statid=CIKKIGN_STAT_NEM_ERKEZETT
-                    if($marerkmen+$erkmen==0){
-                        $statid = CIKKIGN_STAT_NEM_ERKEZETT;
-                    //Ha elutleir nem üres, statid=CIKKIGN_STAT_ELUTASITVA
-                    }elseif($anyagigenyles['elutleir']){
-                        $statid = CIKKIGN_STAT_ELUTASITVA;
-                    //Amúgy: statid=CIKKIGN_STAT_LEZARVA
-                    }else{
-                        $statid = CIKKIGN_STAT_LEZARVA;
-                    }
-                    
-                    //Oszlopok társítása
-                    $oszlopok        = array('recid', 'iktszam',  'telepid',      'cikkid',       'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallitoid', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
-                    $anyagig_oszlop  = array('recid', 'ikt_szam', 'telephely_id', 'cikktorzs_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallito',   'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
-                    
-                    $ertekek  = array();
-                    foreach($anyagig_oszlop as $oszlop){
-                        array_push($ertekek, $anyagigenyles[$oszlop]);
-                    }
-                    
-                    array_push($oszlopok, 'statid', 'update_usr',                             'insert_usr',                           'insert_dt' );
-                    array_push($ertekek,  $statid,  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()'     );
-                    $cikkrnd = $adatbazis_kapcsolat->i('cikkrnd', $oszlopok, $ertekek);
-                    if($cikkrnd===false){
-                        $db_error = true;
-                    }
-                    
-//                    $torles  = $adatbazis_kapcsolat->d('anyagigenyles',         "`recid`='$id'");
-//                    $torles2 = $adatbazis_kapcsolat->d('anyagigenyles_statusz', "`id`='$id'");
-//                    if($torles===false || $torles2===false){
-//                        $db_error = true;
-//                    }
-                }
                 
             }
         }
+        
+        //Ciklus után minden esetben átírjuk cikkrndfej tábla statidet mysql procedúrával: call setcikkrndfejstatid(aparecid,loginuser.nev);
+        mysqli_query($db_kapcs, 'setcikkrndfejstatid('.$anyagigenyles['aparecid'].', \''.$_SESSION[get_db_tabla().'teljes_nev'].'\')');
+        
+        
+        
+        //Archiválás egy lépésben törétnik, ha minden anyagigénylés sor státusza > 35
+//        if($marerkmen+$erkmen>=$rndmen || $nemfogerk){
+//
+//            //Ha marerkmen+erkmen=0, statid=CIKKIGN_STAT_NEM_ERKEZETT
+//            if($marerkmen+$erkmen==0){
+//                $statid = CIKKIGN_STAT_NEM_ERKEZETT;
+//            //Ha elutleir nem üres, statid=CIKKIGN_STAT_ELUTASITVA
+//            }elseif($anyagigenyles['elutleir']){
+//                $statid = CIKKIGN_STAT_ELUTASITVA;
+//            //Amúgy: statid=CIKKIGN_STAT_LEZARVA
+//            }else{
+//                $statid = CIKKIGN_STAT_LEZARVA;
+//            }
+//
+//            //Oszlopok társítása
+//            $oszlopok        = array('recid', 'iktszam',  'telepid',      'cikkid',       'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallitoid', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
+//            $anyagig_oszlop  = array('recid', 'ikt_szam', 'telephely_id', 'cikktorzs_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallito',   'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
+//
+//            $ertekek  = array();
+//            foreach($anyagig_oszlop as $oszlop){
+//                array_push($ertekek, $anyagigenyles[$oszlop]);
+//            }
+//
+//            array_push($oszlopok, 'statid', 'update_usr',                             'insert_usr',                           'insert_dt' );
+//            array_push($ertekek,  $statid,  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()'     );
+//            $cikkrnd = $adatbazis_kapcsolat->i('cikkrnd', $oszlopok, $ertekek);
+//            if($cikkrnd===false){
+//                $db_error = true;
+//            }
+//
+//            $torles  = $adatbazis_kapcsolat->d('anyagigenyles',         "`recid`='$id'");
+//            $torles2 = $adatbazis_kapcsolat->d('anyagigenyles_statusz', "`id`='$id'");
+//            if($torles===false || $torles2===false){
+//                $db_error = true;
+//            }
+//        }
         
         if( !$db_error ) {
             mysqli_commit($db_kapcs);

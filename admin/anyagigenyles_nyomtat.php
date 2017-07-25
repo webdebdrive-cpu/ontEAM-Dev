@@ -6,7 +6,7 @@ if (isset($_GET['nyomtat'])) {
     list($sorszam, $idk) = explode('|', $adatok);
     $idk                 = json_decode($idk, true);
     $idk_impl            = implode(',', $idk);
- 
+
     //Szállító kiszámítása
     $szallito = $adatbazis_kapcsolat->s('szallito kcs_21', 'anyagigenyles', "`recid`='{$idk[1]}'");
     $szallito = $szallito[0];
@@ -222,17 +222,17 @@ if (isset($_GET['oracle'])) {
 
             //Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
             $ossz = 0;
-            $anyagok = $adatbazis_kapcsolat->s('distinct cikktorzs_id', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$telephely['id']}'");
+            $anyagok = $adatbazis_kapcsolat->s('distinct oracikkid', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$telephely['id']}'");
             foreach($anyagok as $anyag){
 
                 $rndmen = 0;
-                $anyag_lek = $adatbazis_kapcsolat->s('cikktorzs_id nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `cikktorzs_id`='{$anyag['cikktorzs_id']}' AND `telephely_id`='{$telephely['id']}'");
+                $anyag_lek = $adatbazis_kapcsolat->s('cikktorzs_id nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `oracikkid`='{$anyag['oracikkid']}' AND `telephely_id`='{$telephely['id']}'");
                 foreach($anyag_lek as $a_lek){
                     $rndmen += $a_lek['rndmen'];
                 }
                 $tetelek_html .= nl2('
                                 <tr>
-                                    <td>'.$a_lek['cikktorzs_id'].'</td>
+                                    <td>'.$anyag['oracikkid'].'</td>
                                     <td class="r">'.number_format($rndmen*$a_lek['rndear'], 4, ',', ' ').'</td>
                                 </tr>
                                 ');
@@ -254,6 +254,7 @@ if (isset($_GET['oracle'])) {
 
                         <div class="f16 c" style="margin: 2rem 0 0.3rem 0;">
                             '.$telephely['nev'].' részére
+                            <br>Oracle cikkszámonként összesítve
                         </div>
                         '.get_fejlec($szallito).'
 
@@ -368,6 +369,13 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                         <table class="border full" style="font-size: 1.2rem ;margin: auto; margin-top: 1rem; margin-bottom: 1rem">
                     ');
     
+    //Van egy fix cím
+    $telephely = $adatbazis_kapcsolat->s('nev props', 'telephely', "`id`='".NYOMTATAS_FIX_CIM."'");
+    $telephely = $telephely[0];
+    $szn = get_props($telephely['props'], 'SZN');
+    $cim = get_props($telephely['props'], 'cim');
+    $fix_cim  = $szn.' '.$cim;
+    
     if($idk_impl){
         $anyagok = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")$sql_kieg");
         foreach($anyagok as $anyag){
@@ -387,25 +395,31 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
             switch($igenyles['erkcimid']){
                 case 1:
                     //aktuális szálloda SZN+CÍM+ha szálloda=2032,” Szondi utcai teherporta”
-                    $szall_cim = $szn.' '.$cim;
-                    if($anyag['telephely_id']==2032){
+                    $szall_cim .= $szn.' '.$cim;
+                    if($anyag['telephely_id']==NYOMTATAS_KIVETELES_CIM){
                         $szall_cim .= ' Szondi utcai teherporta';
                     }
                 break;
-                case 2: break;
-                case 3: break;
+                case 2:
+                    $szall_cim .= $fix_cim;
+                break;
+                case 3:
+                    $szall_cim .= 'Danubius fuvar';
+                break;
             }
             $szallcim_html .= nl2('
                             <tr>
                                 <td class="b">
                                     Szállítási cím:
                                     <br>Számlázási cím:
+                                    <br>Adószám:
                                     <br>Számlaküldési cím:
                                 </td>
                                 <td>
-                                    '.$szn.' '.$cim.'
+                                    '.$szall_cim.'
                                     <br>'.$szl.' '.$cim.'
-                                    <br>'.$szl.' '.$cim.'
+                                    <br>'.NYOMTATAS_ADOSZAM.'
+                                    <br>'.$fix_cim.'
                                 </td>
                             </tr>
                             ');

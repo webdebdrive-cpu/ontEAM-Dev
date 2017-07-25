@@ -1165,6 +1165,7 @@ if($gyorskereso_text){
     /* Gombok kirajzolása minden oldalra */
     $gombok = '';
     if( isset($_GET['uj']) ) {
+        
         $disabled = '';
         $class = '';
         if( !$_GET['ujkent'] ) {
@@ -1193,7 +1194,9 @@ if($gyorskereso_text){
                 '.$gombok.'
             </div>
         ');
+        
     } else {
+        
         $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
         $sor = $sor[0];
 
@@ -1206,30 +1209,30 @@ if($gyorskereso_text){
             $gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().'?sorrend\'" value="Sorrend" title="Sorrendezés">';
         }
 
-        if( !$csak_szerkesztheto ) {
-            //Csak diszpécser vagy diszpkp vezető törölhet
-            if(!_jog(2) && !_jog(23)){
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága munkalap törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-            }else{
+        //Csak diszpécser vagy diszpkp vezető törölhet
+        if(!_jog(2) && !_jog(23)){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága munkalap törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        }else{
 
-                //Egyébként nézzük meg, hogy van-e tétel vagy bejelentés rajta. Ha van, akkor sem törölhető
-                if($adatbazis_kapcsolat->s('id', 'munkalap_tetel', "`munkalap_id`='{$_GET['id']}'")){
-                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A munkalap nem törölhető, mert munkavégzéseket tartalmaz!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-                }elseif($adatbazis_kapcsolat->s('recid ', 'munkalap_kapcs', "`munkalap_id` = '{$_GET['id']}'")){
-                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Munkalap törlése előtt vegye le róla a bejelentéseket!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-                }else{
-                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
-                }
+            //Egyébként nézzük meg, hogy van-e tétel vagy bejelentés rajta. Ha van, akkor sem törölhető
+            if($adatbazis_kapcsolat->s('id', 'munkalap_tetel', "`munkalap_id`='{$_GET['id']}'")){
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A munkalap nem törölhető, mert munkavégzéseket tartalmaz!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            }elseif($adatbazis_kapcsolat->s('recid ', 'munkalap_kapcs', "`munkalap_id` = '{$_GET['id']}'")){
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Munkalap törlése előtt vegye le róla a bejelentéseket!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            }else{
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            }
+            
+            //Munkalap adatlapja csak akkor szerkeszthető, ha a státusz nyitott vagy folyamatban, és a belépett felhasználó diszpécser vagy diszpécser közp vezető
+            if( isset($_GET['modosit']) && in_array($sor['statusz_id'], array(MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_FOLYAMATBAN)) ) {
+                $gombok = nl2('
+                    <div class="form_kuldes">
+                        <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                    </div>
+                ').$gombok;
             }
         }
 
-        if( isset($_GET['modosit']) ) {
-            $gombok = nl2('
-                <div class="form_kuldes">
-                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
-                </div>
-            ').$gombok;
-        }
 
         /* Kijelöltekkel való művelet gombok */
         if( _jog(2) ) {
@@ -1632,8 +1635,8 @@ if($gyorskereso_text){
                             <tr>
                                 <td>'.$anyag['cikk_id'].'</td>
                                 <td>'.$anyag['cikk_nev'].'</td>
-                                <td>'.$cikk_men.'</td>
-                                <td>'.$szuk_men.'</td>
+                                <td class="r">'.$cikk_men.'</td>
+                                <td class="r">'.$szuk_men.'</td>
                                 <td>'.$munkAnyag_statusz[$anyag['stat_id']].'</td>
                             </tr>
                         ');

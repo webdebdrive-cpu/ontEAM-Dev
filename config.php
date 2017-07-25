@@ -75,18 +75,29 @@ define('MOZGID_RAKTAR_BE',              '01' );
 define('MOZGID_RAKTAR_KI',              '02' );
 define('MOZGID_LELTAR',                 '03' );
 
+define('NYOMTATAS_ADOSZAM',  '10219522-2-44' );
+define('NYOMTATAS_FIX_CIM',         1040     );
+define('NYOMTATAS_KIVETELES_CIM',   2032     );
 
+//JOGOK
+define('JOG_BEJELENTES_MEGTEKINT',  0 );
+define('JOG_BEJELENTES_KEZEL',      1 );
+define('JOG_MUNKALAP_MEGTEKINT',    3 );
+define('JOG_MUNKALAP_TELEPITETT',   5 );
+define('JOG_MUNKALAP_MUSZAKI_VEZ',  21 );
+define('JOG_MUNKALAP_DISZP_KP_VEZ', 23 );
+define('JOG_MUNKALAP_MOBIL',        31);
 
 //Adatbázis
 function get_db_tabla()   { return 'hotel_';                                                                            } //Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
-//function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'localhost'         : 'localhost' );        } //Host
-//function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu1'    : 'wdbhu' );   } //Adatbázis neve
-//function get_db_user()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu'     : 'wdbtdb' );    } //Felhasználói név
-//function get_db_pass()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'vikike'            : 'h3rbdzto' );           } //Jelszó
 function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'localhost'         : 'localhost' );        } //Host
-function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu1'    : 'szinvatrendhu1' );   } //Adatbázis neve
-function get_db_user()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu'     : 'szinvatrendhu' );    } //Felhasználói név
-function get_db_pass()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'vikike'            : 'vikike' );           } //Jelszó
+function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu1'    : 'wdbhu' );   } //Adatbázis neve
+function get_db_user()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu'     : 'wdbtdb' );    } //Felhasználói név
+function get_db_pass()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'vikike'            : 'h3rbdzto' );           } //Jelszó
+//function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'localhost'         : 'localhost' );        } //Host
+//function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu1'    : 'szinvatrendhu1' );   } //Adatbázis neve
+//function get_db_user()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu'     : 'szinvatrendhu' );    } //Felhasználói név
+//function get_db_pass()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'vikike'            : 'vikike' );           } //Jelszó
 function get_db_charset() { return 'UTF8';                                                                              } //Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
 function get_debug()      { return false;                                                                                } //Hibás adatbázislekérdezések megjelennek vagy sem
 

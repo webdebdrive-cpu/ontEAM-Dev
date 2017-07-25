@@ -1388,13 +1388,13 @@ function munkAnyagHozzaad( formID, igenyles ) {
 
     var sz_td = '';
     if( igenyles ) {
-        sz_td = '<td>' + szuk_menny.val() + '<input type="hidden" name="addCikkSzukMenny[]" value="' + szuk_menny.val() + '"></td>';
+        sz_td = '<td class="r">' + szuk_menny.val() + '<input type="hidden" name="addCikkSzukMenny[]" value="' + szuk_menny.val() + '"></td>';
     }
 
     var table_sor = '<tr>' +
                         '<td>' + cikkid_origi.val() + '<input type="hidden" name="addCikkID[]" value="' + cikkid_origi.val() + '"><input type="hidden" name="addCikkUj[]" value="1"></td>' +
                         '<td>' + cikknev.val() + '</td>' +
-                        '<td>' + felh_menny.val() + '<input type="hidden" name="addCikkFelhMenny[]" value="' + felh_menny.val() + '"></td>' +
+                        '<td class="r">' + felh_menny.val() + '<input type="hidden" name="addCikkFelhMenny[]" value="' + felh_menny.val() + '"></td>' +
                         sz_td +
                         '<td>' + cikkmee + '</td>' +
                         '<td></td>' +
