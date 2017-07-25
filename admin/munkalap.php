@@ -221,126 +221,241 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
-        if( $validate == 'true' ) {
-            $sql = $munkalap = $adatbazis_kapcsolat->s('statusz_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $sql = $munkalap = $adatbazis_kapcsolat->s('statusz_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
 
-            if( $sql === false ) {
-                $db_error = true;
-            }
-
-            if( $munkalap ) {
-                $munkalap = $munkalap[0];
-
-                /* Ha nem kész státuszban van a munkalap */
-                if( $munkalap['statusz_id'] != BEJELENTES_STAT_KESZ_IG ) {
-                    /* Megnézzük hogy van e több munkalapja a bejelentésnek */
-                    $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '1');
-
-                    if( $sql === false ) {
-                        $db_error = true;
-                    }
-
-                    if( $munk_kapcsok ) {
-                        $munk_kapcsok = $munk_kapcsok[0];
-
-                        $sql = $bejelentes = $adatbazis_kapcsolat->s('statusz_id', 'bejelentes', "`recid` = '".$munk_kapcsok['bejelentes_id']."'", '', '1');
-
-                        if( $sql === false ) {
-                            $db_error = true;
-                        }
-
-                        if( $bejelentes ) {
-                            $bejelentes = $bejelentes[0];
-
-                            $tobb_munk = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id` = '".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id` != '{$recid}'", '', '');
-
-                            /* Több munkalaphoz kapcsolódik a bejelentés */
-                            if( $tobb_munk ) {
-                                $szoveg_kiir = 'A munkalap bejelentéséhez további munkalapok vannak kapcsolva. A többi munkalap nem lesz lezárva. Folytatja?';
-                            /* Csak egy munkalaphoz kapcsolódik a bejelentés */
-                            } else {
-                                $szoveg_kiir = 'Ha folytatja, a munkalap és bejelentései is lezárásra kerülnek.';
-                            }
-                        }
-                    }
-
-                    if( $validate == 'true' ) {
-                        echo json_encode(array(
-                            'statusz' => 'siker',
-                            'szoveg_kiir' => $szoveg_kiir
-                        ));
-
-                        $weblap->leallit();
-                        exit();
-                    /* Feldolgozás */
-                    } else {
-                        
-
-                        if( !$db_error ) {
-                            mysqli_commit($db_kapcs);
-
-                            echo json_encode(array(
-                                'statusz' => 'siker'
-                            ));
-                        } else {
-                            mysqli_rollback($db_kapcs);
-
-                            echo json_encode(array(
-                                'hiba' => tranzakcioHiba()
-                            ));
-                        }
-                    }
-                }
-
-                /* Ha a munkalap kész státuszban van */
-                if( $munkalap['statusz_id'] == MUNKALAP_STAT_KESZ_IG ) {
-                    $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '1');
-
-                    if( $sql === false ) {
-                        $db_error = true;
-                    }
-
-                    if( $munk_kapcsok ) {
-                        $munk_kapcsok = $munk_kapcsok[0];
-
-                        $sql = $bejelentes = $adatbazis_kapcsolat->s('statusz_id', 'bejelentes', "`recid` = '".$munk_kapcsok['bejelentes_id']."'", '', '1');
-
-                        if( $sql === false ) {
-                            $db_error = true;
-                        }
-
-                        if( $bejelentes ) {
-                            $bejelentes = $bejelentes[0];
-
-                            if( $bejelentes['statusz_id'] != BEJELENTES_STAT_VIZSG_ALATT ) {
-                                echo json_encode(array(
-                                    'hiba' => 'Csak vizsgálat alatt lévő bejelentéseket lehet átadni!',
-                                ));
-
-                                $weblap->leallit();
-                                exit();
-                            }
-
-                            $tobb_munk = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id` = '".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id` != '{$recid}'", '', '');
-
-                            /* Több munkalaphoz kapcsolódik a bejelentés */
-                            if( $tobb_munk ) {
-                                $szoveg_kiir = 'A munkalap bejelentéséhez további munkalapok vannak kapcsolva. Ha folytatja, a többi munkalapot sem lehet lezárni, mert a bejelentés visszakerül Folyamatban státuszba. Előbb zárja le a többi munkalapot és utoljára adja vissza ezt a munkalapot a diszpécsernek! Folytatja?';
-                            /* Csak egy munkalaphoz kapcsolódik a bejelentés */
-                            } else {
-                                $szoveg_kiir = 'Ha folytatja, a munkalap és a bejelentései Folyamatban státuszba kerülnek. Folytatja?';
-                            }
-                        }
-                    }
-                }
-            }
-
-            $weblap->leallit();
-            exit();
+        if( $sql === false ) {
+            $db_error = true;
         }
 
+        if( $munkalap ) {
+            $munkalap = $munkalap[0];
 
+            /* Ha nem kész státuszban van a munkalap */
+            if( $munkalap['statusz_id'] != MUNKALAP_STAT_KESZ_IG ) {
+                if( $munkalap['statusz_id'] == MUNKALAP_STAT_LEZART ) {
+                    echo json_encode(array(
+                        'hiba' => 'Lezárt munkalapot nem lehet újra lezárni!',
+                    ));
 
+                    $weblap->leallit();
+                    exit();
+                }
+
+                $is_tobbmunk = false;
+
+                /* Megnézzük hogy van e több munkalapja a bejelentésnek */
+                $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '1');
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+
+                if( $munk_kapcsok ) {
+                    $munk_kapcsok = $munk_kapcsok[0];
+
+                    $sql = $bejelentes = $adatbazis_kapcsolat->s('statusz_id', 'bejelentes', "`recid` = '".$munk_kapcsok['bejelentes_id']."'", '', '1');
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    if( $bejelentes ) {
+                        $bejelentes = $bejelentes[0];
+
+                        $tobb_munk = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id` = '".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id` != '{$recid}'", '', '');
+
+                        /* Több munkalaphoz kapcsolódik a bejelentés */
+                        if( $tobb_munk ) {
+                            $szoveg_kiir = 'A munkalap bejelentéséhez további munkalapok vannak kapcsolva. A többi munkalap nem lesz lezárva. Folytatja?';
+
+                            $is_tobbmunk = true;
+                        /* Csak egy munkalaphoz kapcsolódik a bejelentés */
+                        } else {
+                            $szoveg_kiir = 'Ha folytatja, a munkalap és bejelentései is lezárásra kerülnek. Folytatja?';
+                        }
+                    }
+                }
+
+                if( $validate == 'true' ) {
+                    echo json_encode(array(
+                        'statusz'     => 'siker',
+                        'popup_cim'   => 'Lezárás indoka:',
+                        'szoveg_kiir' => $szoveg_kiir
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                /* Feldolgozás */
+                } else {
+                    /* Munkalap lezárul */
+                    if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_LEZART, '', $memo ) ) {
+                        $db_error = true;
+                    }
+
+                    if( $memo ) {
+                        if( addMegj('munkalap', $recid, $memo) === false ) {
+                            $db_error = true;
+                        }
+                    }
+
+                    /* Ha egy munkalapja van a bejelentéseknek */
+                    if( !$is_tobbmunk ) {
+                        /* Lezárjuk a bejelentéseket is */
+                        $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '');
+
+                        if( $sql === false ) {
+                            $db_error = true;
+                        }
+
+                        if( $munk_kapcsok ) {
+                            foreach($munk_kapcsok as $munk_kapcs) {
+                                if( !addStatusz( 'bejelentes_statusz', $munk_kapcs['bejelentes_id'], BEJELENTES_STAT_LEZART, '', $memo ) ) {
+                                    $db_error = true;
+                                }
+
+                                if( $memo ) {
+                                    if( addMegj('bejelentes', $munk_kapcs['bejelentes_id'], $memo) === false ) {
+                                        $db_error = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if( !$db_error ) {
+                        mysqli_commit($db_kapcs);
+
+                        echo json_encode(array(
+                            'statusz' => 'siker'
+                        ));
+                    } else {
+                        mysqli_rollback($db_kapcs);
+
+                        echo json_encode(array(
+                            'hiba' => tranzakcioHiba()
+                        ));
+                    }
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+
+            /* Ha a munkalap kész státuszban van */
+            if( $munkalap['statusz_id'] == MUNKALAP_STAT_KESZ_IG ) {
+                $is_tobbmunk = false;
+
+                $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '1');
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+
+                if( $munk_kapcsok ) {
+                    $munk_kapcsok = $munk_kapcsok[0];
+
+                    $sql = $bejelentes = $adatbazis_kapcsolat->s('statusz_id', 'bejelentes', "`recid` = '".$munk_kapcsok['bejelentes_id']."'", '', '1');
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    if( $bejelentes ) {
+                        $bejelentes = $bejelentes[0];
+
+                        if( $bejelentes['statusz_id'] != BEJELENTES_STAT_VIZSG_ALATT ) {
+                            $stat_text = $adatbazis_kapcsolat->s('nev', 'munkalap_statusz_text', "`recid` = '".$bejelentes['statusz_id']."'", '', '1');
+                            $stat_text = $stat_text[0];
+
+                            echo json_encode(array(
+                                'hiba' => 'A munkalap bejelentése '.$stat_text['nev'].' státuszban van. A munkalapot nem lehet lezárni!',
+                            ));
+
+                            $weblap->leallit();
+                            exit();
+                        }
+
+                        $tobb_munk = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id` = '".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id` != '{$recid}'", '', '');
+
+                        /* Több munkalaphoz kapcsolódik a bejelentés */
+                        if( $tobb_munk ) {
+                            $szoveg_kiir = 'A munkalap bejelentéséhez további munkalapok vannak kapcsolva. A többi munkalap nem lesz lezárva. Folytatja?';
+
+                            $is_tobbmunk = true;
+                        /* Csak egy munkalaphoz kapcsolódik a bejelentés */
+                        } else {
+                            $szoveg_kiir = 'Ha folytatja, a munkalap és a bejelentései lezárulnak. Folytatja?';
+                        }
+                    }
+                }
+
+                if( $validate == 'true' ) {
+                    echo json_encode(array(
+                        'statusz'     => 'siker',
+                        'popup_cim'   => 'Reklamáció elutasításának oka:',
+                        'szoveg_kiir' => $szoveg_kiir
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                /* Feldolgozás */
+                } else {
+                    /* Munkalap lezárul */
+                    if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_LEZART, '', $memo ) ) {
+                        $db_error = true;
+                    }
+
+                    if( $memo ) {
+                        if( addMegj('munkalap', $recid, $memo) === false ) {
+                            $db_error = true;
+                        }
+                    }
+
+                    /* Ha egy munkalapja van a bejelentéseknek */
+                    if( !$is_tobbmunk ) {
+                        /* Lezárjuk a bejelentéseket is */
+                        $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '');
+
+                        if( $sql === false ) {
+                            $db_error = true;
+                        }
+
+                        if( $munk_kapcsok ) {
+                            foreach($munk_kapcsok as $munk_kapcs) {
+                                if( !addStatusz( 'bejelentes_statusz', $munk_kapcs['bejelentes_id'], BEJELENTES_STAT_LEZART, '', $memo ) ) {
+                                    $db_error = true;
+                                }
+
+                                if( $memo ) {
+                                    if( addMegj('bejelentes', $munk_kapcs['bejelentes_id'], $memo) === false ) {
+                                        $db_error = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if( !$db_error ) {
+                        mysqli_commit($db_kapcs);
+
+                        echo json_encode(array(
+                            'statusz' => 'siker'
+                        ));
+                    } else {
+                        mysqli_rollback($db_kapcs);
+
+                        echo json_encode(array(
+                            'hiba' => tranzakcioHiba()
+                        ));
+                    }
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+        }
+
+        $weblap->leallit();
         exit();
 
         /* Elutasítás */
@@ -713,6 +828,14 @@ if( isset($_POST['munkalapMobil']) ) {
                 if( $munkalap ) {
                     $munkalap = $munkalap[0];
 
+                    /* Hozzárendeljük a mobil személyzetet */
+                    $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(MOBILCSOPORT), "`recid` = '{$id}'");
+
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+
+                    /* Folyamatbanra állítjuk */
                     if( $munkalap['statusz_id'] != MUNKALAP_STAT_FOLYAMATBAN ) {
                         if( !addStatusz( 'munkalap_statusz', $id, MUNKALAP_STAT_FOLYAMATBAN ) ) {
                             $db_error = true;
