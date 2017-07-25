@@ -1041,7 +1041,7 @@ $(function() {
     $(document).on('click', '.f_anyagigenyles_mezok_kitolt', function(e) {
         recid_egyedi_azon   = $(this).attr('data-recid_egyedi_azon');
         telephely_id        = $(this).attr('data-telephely_id');
-        cikk_id             = $('#cikk_id_' +recid_egyedi_azon).html();
+        cikk_id             = $(this).attr('data-cikk_id');
         nev_autocompl       = $('#cikk_nev_'+recid_egyedi_azon).html();
         igmen               = $('#th'+telephely_id+'a'+cikk_id).html();
         mee                 = $('#th'+telephely_id+'a'+cikk_id+'_mee').html();

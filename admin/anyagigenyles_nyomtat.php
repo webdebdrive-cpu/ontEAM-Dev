@@ -37,7 +37,7 @@ if (isset($_GET['szall'])) {
                         ');
     
         //Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
-        $ossz = 0;
+        $ossz     = 0;
         $anyagok = $adatbazis_kapcsolat->s('distinct cikktorzs_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
         foreach($anyagok as $anyag){
 
@@ -46,6 +46,7 @@ if (isset($_GET['szall'])) {
             foreach($anyag_lek as $a_lek){
                 $rndmen += $a_lek['rndmen'];
             }
+
             $tetelek_html .= nl2('
                             <tr>
                                 <td>'.$a_lek['nev'].'</td>
@@ -67,6 +68,7 @@ if (isset($_GET['szall'])) {
                         </tr>
                         </table>
                         ');
+
     }
     
     
@@ -283,10 +285,19 @@ function get_fejlec_top($sorszam, $lapszammal){
         <div class="fejlec">
             <table class="full">
             <tr>
-                <td style="width: 33%; padding-left: 1rem" class="f11">
-                    Danubius Zrt.
-                    <br>Műszaki szolgáltató központ
-                    <br>ontEAM
+                <td style="width: 33%; padding-left: 1rem">
+                    <table class="full">
+                    <tr>
+                        <td style="padding: 0.4rem 0.4rem 0 0">
+                            <img src="../elemek/dh_logo.png" alt="Logo">
+                        </td>
+                        <td class="f11">
+                            Danubius Zrt.
+                            <br>Műszaki szolgáltató központ
+                            <br>ontEAM
+                        </td>
+                    </tr>
+                    </table>
                 </td>
                 <td class="b c" style="width: 34%">
                     Megrendelés sz.: '.$sorszam.'
@@ -301,6 +312,16 @@ function get_fejlec_top($sorszam, $lapszammal){
 }
 
 function get_fejlec($szallito){
+    
+    global $adatbazis_kapcsolat;
+    
+    $tel_kieg = '';
+    $login = $adatbazis_kapcsolat->s('usertel', 'login', "`recid`='{$_SESSION[get_db_tabla().'user_id']}'");
+    $login = $login[0];
+    if($login['usertel']){
+        $tel_kieg = '<br>Tel.: '.$login['usertel'];
+    }
+    
     return nl2('
             <div style="padding: 0 1.5rem 0 1.5rem">
                 <table style="margin: auto; margin-top: 2rem; width: 95%">
@@ -326,6 +347,7 @@ function get_fejlec($szallito){
                     <td class="f12 vat" style="width: 50%; padding: 1rem">
                         Név: Műszaki szolgáltató központ
                         <br>Üi.: '.$_SESSION[get_db_tabla().'teljes_nev'].'
+                        '.$tel_kieg.'
                     </td>
                 </tr>
                 </table>
@@ -349,6 +371,9 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
     if($idk_impl){
         $anyagok = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")$sql_kieg");
         foreach($anyagok as $anyag){
+            
+            $igenyles = $adatbazis_kapcsolat->s('erkcimid', 'anyagigenyles', "`recid` IN (".$idk_impl.")$sql_kieg AND `telephely_id`='{$anyag['telephely_id']}'");
+            $igenyles = $igenyles[0];
 
             $telephely = $adatbazis_kapcsolat->s('nev props', 'telephely', "`id`='{$anyag['telephely_id']}'");
             $telephely = $telephely[0];
@@ -356,6 +381,20 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
             $szn = get_props($telephely['props'], 'SZN');
             $szl = get_props($telephely['props'], 'SZLACIM');
             $cim = get_props($telephely['props'], 'cim');
+            
+            //erkcimid mező értéke alapján változik a szállítási cím
+            $szall_cim = '';
+            switch($igenyles['erkcimid']){
+                case 1:
+                    //aktuális szálloda SZN+CÍM+ha szálloda=2032,” Szondi utcai teherporta”
+                    $szall_cim = $szn.' '.$cim;
+                    if($anyag['telephely_id']==2032){
+                        $szall_cim .= ' Szondi utcai teherporta';
+                    }
+                break;
+                case 2: break;
+                case 3: break;
+            }
             $szallcim_html .= nl2('
                             <tr>
                                 <td class="b">
@@ -438,6 +477,14 @@ function get_keret(){
 <body>
     <div class="a4_allo"> 
         {TARTALOM}
+        <div class="footer">
+            <div class="dtc padd">
+            </div>
+            <div class="dtc r padd">
+                '.$_SESSION[get_db_tabla().'user'].'
+                '.date('Y.m.d H:i:s').'
+            </div>
+        </div>
     </div>
 <body>
         ');
