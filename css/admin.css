@@ -2418,15 +2418,35 @@ table.csikos th{
     font-size: 1.4rem;
     padding: 1rem 1rem;
     text-align: left;
-    width: auto;
+    width: 20%;
 }
 
 table.csikos th.nev {
-    width: 60%;
+    width: 40%;
 }
 
 table.csikos th.torles {
     width: 4rem;
+}
+
+table.csikos th.anyag_th1 {
+    width: 7%;
+}
+
+table.csikos th.anyag_th2 {
+    width: 20%;
+}
+
+table.csikos th.anyag_th3 {
+    width: 20%;
+}
+
+table.csikos th.anyag_th4 {
+    width: 20%;
+}
+
+table.csikos th.anyag_th5 {
+    width: 20%;
 }
 
 table.csikos.kicsi th {
