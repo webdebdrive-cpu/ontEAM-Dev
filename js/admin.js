@@ -3287,136 +3287,132 @@ function csoportMuvelet( oldal ) {
                     });
                 break;
 
+                /* Az elutasítást csak egy soron lehet elvégezni. */
+                case 'elutasitas':
+                    szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+                    if( szamlaSorok.length>1 ) {
+                        alert2('Egyszerre csak egy '+$('#rekord_neve_tobb').html()+' utasítható el!', '', 'Hiba');
+                    }else if( !$('#szamlaList li.szamla_sor.kijelolve').hasClass('nyitott_statuszu') ){
+                        alert2('Csak nyitott státuszú '+$('#rekord_neve_tobb').html()+' utasítható el!', '', 'Hiba');
+                    }else{
+
+                        /* Az előző feltétel miatt itt biztosan csak egy sor van megjelölve */
+                        if($('#szamlaList li.szamla_sor.kijelolve').hasClass('behuz')){
+                            alert2('Csoportosított '+$('#rekord_neve_tobb').html()+' nem utasítható el.<br>Előbb vegye ki a csoportból!', '', 'Hiba');
+
+                        /* Egybként jöhet az elutasítás panel */
+                        }else{
+                            $('#popupTart').html(data);
+                            popupNyit();
+                        }
+
+                    }
+                break;
+
+                case 'bejelentesElutasit':
+                    $('#popupTart').html(data);
+
+                    $.ajax({
+                        url : 'bejelentes.php',
+                        type: 'POST',
+                        data: {
+                            recid: _get('id'),
+                            validate: 'true',
+                            bejelentesElutasit: new Date().getTime()
+                        },
+                        success: function(response) {
+                            if(response) {
+                                response = JSON.parse(response);
+
+                                if( response.hiba ) {
+                                    if( response.gomb ) {
+                                        alert2(response.hiba, response.gomb);
+                                    } else {
+                                        alert2(response.hiba, '', 'Hiba');
+                                    }
+
+                                    return false;
+                                }
+
+                                popupNyit();
+                            }
+                        }
+                    });
+                break;
+
+                case 'diszKozpVezAtadas':
+                    $('#popupTart').html(data);
+
+                    $.ajax({
+                        url : 'munkalap.php',
+                        type: 'POST',
+                        data: {
+                            recid: _get('id'),
+                            validate: 'true',
+                            diszKozpVezAtadas: new Date().getTime()
+                        },
+                        success: function(response) {
+                            if(response) {
+                                response = JSON.parse(response);
+
+                                if( response.hiba ) {
+                                    if( response.gomb ) {
+                                        alert2(response.hiba, response.gomb);
+                                    } else {
+                                        alert2(response.hiba, '', 'Hiba');
+                                    }
+
+                                    return false;
+                                }
+
+                                $('#szoveg_kiirt').html('<p>' + response.szoveg_kiir + '</p>');
+                                popupNyit();
+                            }
+                        }
+                    });
+                break;
+
+                case 'diszKozpVezLezaras':
+                    $('#popupTart').html(data);
+
+                    $.ajax({
+                        url : 'munkalap.php',
+                        type: 'POST',
+                        data: {
+                            recid: _get('id'),
+                            validate: 'true',
+                            diszKozpVezLezaras: new Date().getTime()
+                        },
+                        success: function(response) {
+                            if(response) {
+                                response = JSON.parse(response);
+
+                                if( response.hiba ) {
+                                    if( response.gomb ) {
+                                        alert2(response.hiba, response.gomb);
+                                    } else {
+                                        alert2(response.hiba, '', 'Hiba');
+                                    }
+
+                                    return false;
+                                }
+
+                                $('#szoveg_kiirt').html('<p>' + response.szoveg_kiir + '</p>');
+                                popupNyit();
+                            }
+                        }
+                    });
+                break;
+
                 default:
                     $('#popupTart').html(data);
                     popupNyit();
                 break;
             }
 
-            /* Az elutasítást csak egy soron lehet elvégezni. */
-            case 'elutasitas':
-                szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
-                if( szamlaSorok.length>1 ) {
-                    alert2('Egyszerre csak egy '+$('#rekord_neve_tobb').html()+' utasítható el!', '', 'Hiba');
-                }else if( !$('#szamlaList li.szamla_sor.kijelolve').hasClass('nyitott_statuszu') ){
-                    alert2('Csak nyitott státuszú '+$('#rekord_neve_tobb').html()+' utasítható el!', '', 'Hiba');
-                }else{
+        });
 
-                    /* Az előző feltétel miatt itt biztosan csak egy sor van megjelölve */
-                    if($('#szamlaList li.szamla_sor.kijelolve').hasClass('behuz')){
-                        alert2('Csoportosított '+$('#rekord_neve_tobb').html()+' nem utasítható el.<br>Előbb vegye ki a csoportból!', '', 'Hiba');
-
-                    /* Egybként jöhet az elutasítás panel */
-                    }else{
-                        $('#popupTart').html(data);
-                        popupNyit();
-                    }
-
-                }
-            break;
-
-            case 'bejelentesElutasit':
-                $('#popupTart').html(data);
-
-                $.ajax({
-                 	url : 'bejelentes.php',
-                 	type: 'POST',
-                 	data: {
-                        recid: _get('id'),
-                        validate: 'true',
-                        bejelentesElutasit: new Date().getTime()
-                    },
-                 	success: function(response) {
-                 		if(response) {
-                            response = JSON.parse(response);
-
-                            if( response.hiba ) {
-                                if( response.gomb ) {
-                                    alert2(response.hiba, response.gomb);
-                                } else {
-                                    alert2(response.hiba, '', 'Hiba');
-                                }
-
-                                return false;
-                            }
-
-                            popupNyit();
-                 		}
-                 	}
-                });
-            break;
-
-            case 'diszKozpVezAtadas':
-                $('#popupTart').html(data);
-
-                $.ajax({
-                 	url : 'munkalap.php',
-                 	type: 'POST',
-                 	data: {
-                        recid: _get('id'),
-                        validate: 'true',
-                        diszKozpVezAtadas: new Date().getTime()
-                    },
-                 	success: function(response) {
-                 		if(response) {
-                            response = JSON.parse(response);
-
-                            if( response.hiba ) {
-                                if( response.gomb ) {
-                                    alert2(response.hiba, response.gomb);
-                                } else {
-                                    alert2(response.hiba, '', 'Hiba');
-                                }
-
-                                return false;
-                            }
-
-                            $('#szoveg_kiirt').html('<p>' + response.szoveg_kiir + '</p>');
-                            popupNyit();
-                 		}
-                 	}
-                });
-            break;
-
-            case 'diszKozpVezLezaras':
-                $('#popupTart').html(data);
-
-                $.ajax({
-                 	url : 'munkalap.php',
-                 	type: 'POST',
-                 	data: {
-                        recid: _get('id'),
-                        validate: 'true',
-                        diszKozpVezLezaras: new Date().getTime()
-                    },
-                 	success: function(response) {
-                 		if(response) {
-                            response = JSON.parse(response);
-
-                            if( response.hiba ) {
-                                if( response.gomb ) {
-                                    alert2(response.hiba, response.gomb);
-                                } else {
-                                    alert2(response.hiba, '', 'Hiba');
-                                }
-
-                                return false;
-                            }
-
-                            $('#szoveg_kiirt').html('<p>' + response.szoveg_kiir + '</p>');
-                            popupNyit();
-                 		}
-                 	}
-                });
-            break;
-
-            default:
-                $('#popupTart').html(data);
-                popupNyit();
-            break;
-        }
-
-    });
+    }
 }
 
 /* Anyagigénylés árazása */
