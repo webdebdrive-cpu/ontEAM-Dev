@@ -75,6 +75,29 @@ if($tobb_kep){
 }
 
 /* Munkalap lezárás */
+if( isset($_POST['munkalap_kulsoSelect']) ) {
+    require_once('selectek.php');
+
+    if( $select_szemelyzet ) {
+        $select = '<select id="p_szemelyzet_id" name="p_szemelyzet_id">';
+
+        foreach($select_szemelyzet as $value) {
+            $select .= '<option value="'.$value['value'].'">'.$value['name'].'</option>';
+        }
+
+        $select .= '</select>';
+
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'select' => $select
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+/* Munkalap lezárás */
 if( isset($_POST['munkalapLezaras']) ) {
     $recid = $_POST['recid'];
 
@@ -1136,7 +1159,7 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
                     $weblap->leallit();
                     exit();
                 }
-                
+
             }
         }
 
@@ -1931,7 +1954,7 @@ if($gyorskereso_text){
                     /* Hiba */
                     $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$sor['hiba_id']}'");
                     $hiba = $hiba[0];
-                    
+
                     /* Státusz */
                     $statusz = $adatbazis_kapcsolat->s('nev', 'bejelentes_statusz_text', "`recid`='{$sor['statusz_id']}'");
                     $statusz = $statusz[0];

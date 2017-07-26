@@ -1,18 +1,18 @@
 <h2>Munkalap átadása</h2>
-<form action="" id="munkalapKulso" class="popupForm" method="post" onsubmit="return munkalapKulso();">
+<form action="" id="munkalapKulso" class="popupForm" method="post" onsubmit="return munkalapKulso( this );">
     <p>Válasszon külső kivitelezőt:</p>
     <div class="dt">
         <div class="dtr">
             <div class="dtc form_jobb plr0">
-                <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="torzsadat_id_autocomp" id="torzsadat_id_autocomp" onblur="if(!$(this).val()){ $('#torzsadat_id').val(''); }" value="">
-                <input type="hidden" name="torzsadat_id" id="torzsadat_id" value="">
+                <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="szallito_id_autocomp" id="szallito_id_autocomp" onblur="if(!$(this).val()){ $('#szallito_id').val(''); }" value="">
+                <input type="hidden" name="szallito_id" id="szallito_id" value="">
                 <script>
                      $(document).ready(function() {
-                         $('#torzsadat_id_autocomp').autocomplete({
+                         $('#szallito_id_autocomp').autocomplete({
                              'php_fajl'         : '../autocomplete.php',
                              'tabla'            : 'szallito',
                              'oszlop_keres'     : 'nev',
-                             'oszlop_listaz'    : 'id, nev',
+                             'oszlop_listaz'    : 'nev',
                              'rkat'             : 0,
                              'csoport'          : 0,
                              'id_kiir'          : 'id'
@@ -25,15 +25,7 @@
     <p>vagy átadás hozzárendelt személyzetnek:</p>
     <div class="dt">
         <div class="dtr">
-            <div class="dtc form_jobb plr0">
-                <select class="" name="">
-                    <option value="">- Válassz -</option>
-                    <option value="">Adminisztrátor</option>
-                    <option value="">Műszaki vezető</option>
-                    <option value="">Területi vezető </option>
-                    <option value="">Diszpécser központ vezető</option>
-                </select>
-            </div>
+            <div id="hozzRendSelect" class="dtc form_jobb plr0"></div>
         </div>
     </div>
     <div class="kuldes">

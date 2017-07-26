@@ -102,6 +102,8 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             $select_kieg = ' `id`,';
         } else if( $_GET['tabla'] == 'obj' ) {
             $select_kieg = ' `telephely_id`,';
+        } else if( $_GET['tabla'] == 'szallito' ) {
+            $select_kieg = ' `id`,';
         }
 
         if( $_GET['tabla'] == 'cikktorzs' ) {
