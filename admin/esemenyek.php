@@ -201,7 +201,7 @@ switch($tabla) {
 
         /* Default rendezési irány */
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = '';
+            $_GET['irany'] = 'desc';
         }
     break;
     case 'uzemeltetesi_naplo.php':
@@ -861,6 +861,16 @@ $bejelentes_dok_tomb = $akt_tomb = array(
 
 
 /* Munkalap */
+if(isset($_GET['modosit'])){
+    $munkalap = $adatbazis_kapcsolat->s('szemelyzet_id mobil_loginnev', 'munkalap', "`recid`='{$_GET['id']}'");
+    $munkalap = $munkalap[0];
+    $hozrend_mobilnev = '';
+    if($munkalap['szemelyzet_id']==MOBILCSOPORT && $munkalap['mobil_loginnev']){
+        $torzsadat = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='{$munkalap['mobil_loginnev']}'");
+        $torzsadat = $torzsadat[0];
+        $hozrend_mobilnev = $torzsadat['nev'];
+    }
+}
 $megnevezes = 'munkalap';
 $munkalap_tomb = $akt_tomb = array(
     array('type' => 'statusz',                  'megn' => 'Státusz:',                   'name' => 'statusz_id',         'szuro' => 1,           'oldal' => $megnevezes),
@@ -872,7 +882,7 @@ $munkalap_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'style' => '', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'onclick' => '', 'post' => ''),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id'),
-    array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'szuro' => 1, 'disabled' => $csakUjkent),
+    array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'szuro' => 1, 'disabled' => $csakUjkent,        'post'  => ' '.$hozrend_mobilnev),
     array('type' => 'text',                     'megn' => 'Kezdés/befejezési idő:',     'name' => 'elv_ido_tol',        'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'ora_perc', 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
 	array('type' => 'text',                     'megn' => '',                           'name' => 'elv_ido_ig',                       'disabled' => $csakUjkent,        'class' => 'ora_perc'),
 	array('type' => 'nosql',                    'name' => 'ujkentSzerkID'),
@@ -3261,18 +3271,20 @@ if( isset($_POST['csoportbaRendez']) ) {
         //Csoportban milyen szállodájú bejegyzések vannak? Csak ilyet adható hozzá.
         $egy_csoport_elem = $adatbazis_kapcsolat -> s('recid', $page, "`csoport_id`='$csoportID'", '', '1');
         $egy_csoport_elem = $egy_csoport_elem[0];
-        $telephelye = $adatbazis_kapcsolat->s('telephely_id', $page, "`recid`='{$egy_csoport_elem['recid']}'");
-        $telephelye = $telephelye[0];
-        $akt_elem_telephelye = $adatbazis_kapcsolat->s('telephely_id', $page, "`recid` IN (".implode(',', $idk).")", '', '1');
-        $akt_elem_telephelye = $akt_elem_telephelye[0];
-        if($telephelye['telephely_id']!=$akt_elem_telephelye['telephely_id']){
-            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$telephelye['telephely_id']}'");
-            $telephely = $telephely[0];
-            echo json_encode(array(
-                'hiba' => 'A csoportban csak a következő szállodához tartozó '.$hibauzi_param.' vehet fel: '.$telephely['nev']
-            ));
-            $weblap->leallit();
-            exit();
+        if($egy_csoport_elem){
+            $telephelye = $adatbazis_kapcsolat->s('telephely_id', $page, "`recid`='{$egy_csoport_elem['recid']}'");
+            $telephelye = $telephelye[0];
+            $akt_elem_telephelye = $adatbazis_kapcsolat->s('telephely_id', $page, "`recid` IN (".implode(',', $idk).")", '', '1');
+            $akt_elem_telephelye = $akt_elem_telephelye[0];
+            if($telephelye['telephely_id']!=$akt_elem_telephelye['telephely_id']){
+                $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$telephelye['telephely_id']}'");
+                $telephely = $telephely[0];
+                echo json_encode(array(
+                    'hiba' => 'A csoportban csak a következő szállodához tartozó '.$hibauzi_param.' vehet fel: '.$telephely['nev']
+                ));
+                $weblap->leallit();
+                exit();
+            }
         }
 
         if( !$is_csoport ) {

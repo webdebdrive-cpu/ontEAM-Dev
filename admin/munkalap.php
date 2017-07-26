@@ -113,7 +113,6 @@ if( isset($_POST['diszKozpVezAtadas']) ) {
                     $munk_kapcsok = $munk_kapcsok[0];
 
                     $sql = $bejelentes = $adatbazis_kapcsolat->s('statusz_id', 'bejelentes', "`recid` = '".$munk_kapcsok['bejelentes_id']."'", '', '1');
-
                     if( $sql === false ) {
                         $db_error = true;
                     }
@@ -1769,16 +1768,16 @@ if($gyorskereso_text){
                     <div class="dtc">Szálloda</div>
                     <div class="dtc">Hiba</div>
                     <div class="dtc">Bejelentve</div>
+                    <div class="dtc">Státusz</div>
                 </div>
         ');
 
-        $munkalap_kapcsok = $adatbazis_kapcsolat->s('recid bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$_GET['id']}'", '', '');
-
+        $munkalap_kapcsok = $adatbazis_kapcsolat->s('recid bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$_GET['id']}'");
         if( $munkalap_kapcsok ) {
             $i = 1;
             foreach($munkalap_kapcsok as $munkalap_kapcs) {
-                $sor = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id obj_id hiba_id insert_dt', 'bejelentes', "`recid` = '".$munkalap_kapcs['bejelentes_id']."'", '', '1');
 
+                $sor = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id obj_id hiba_id insert_dt statusz_id', 'bejelentes', "`recid` = '".$munkalap_kapcs['bejelentes_id']."'", '', '1');
                 if( $sor ) {
                     $sor = $sor[0];
 
@@ -1793,6 +1792,10 @@ if($gyorskereso_text){
                     /* Hiba */
                     $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$sor['hiba_id']}'");
                     $hiba = $hiba[0];
+                    
+                    /* Státusz */
+                    $statusz = $adatbazis_kapcsolat->s('nev', 'bejelentes_statusz_text', "`recid`='{$sor['statusz_id']}'");
+                    $statusz = $statusz[0];
 
                     $szamla_html .= nl2('
                         <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
@@ -1800,6 +1803,7 @@ if($gyorskereso_text){
                             <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
                             <div class="dtc">'.$hiba['info'].'</div>
                             <div class="dtc">'.$sor['insert_dt'].'</div>
+                            <div class="dtc">'.$statusz['nev'].'</div>
                         </div>
                     ');
                 }

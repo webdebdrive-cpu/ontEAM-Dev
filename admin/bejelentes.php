@@ -357,13 +357,14 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['munkalapok']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tortenet'      => 'Történet',
+            'munkalapok'    => 'Munkalapok',
             'dokumentumok'  => 'Dokumentumok',
-            'megjegyzesek'    => 'Megjegyzések'
+            'megjegyzesek'  => 'Megjegyzések'
         );
 
         $fulek = '';
@@ -766,6 +767,65 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html.$gombok;
         }
+        
+	//Munkalapok
+	}elseif(isset($_GET['munkalapok'])){
+
+        $szamla_html .= nl2('
+            <div class="dt naplo kijCont" data-tabla="munkalap_kapcs" data-mellek="munkalapok">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Iktató szám</div>
+                    <div class="dtc">Szálloda</div>
+                    <div class="dtc">Létrehozva</div>
+                    <div class="dtc">Státusz</div>
+                </div>
+        ');
+
+        $munkalap_kapcsok = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$_GET['id']}'");
+        if( $munkalap_kapcsok ) {
+            $i = 1;
+            foreach($munkalap_kapcsok as $munkalap_kapcs) {
+                $sor = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id obj_id insert_dt statusz_id', 'munkalap', "`recid` = '".$munkalap_kapcs['munkalap_id']."'", '', '1');
+                if( $sor ) {
+                    $sor = $sor[0];
+
+                    /* Telephely */
+                    $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
+                    $telephely = $telephely[0]['nev'];
+
+                    /* Helység */
+                    $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
+                    $helyseg = $helyseg[0]['nev'];
+                    
+                    /* Státusz */
+                    $statusz = $adatbazis_kapcsolat->s('nev', 'bejelentes_statusz_text', "`recid`='{$sor['statusz_id']}'");
+                    $statusz = $statusz[0];
+
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                            <div class="dtc"><a href="munkalap.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a></div>
+                            <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
+                            <div class="dtc">'.$sor['insert_dt'].'</div>
+                            <div class="dtc">'.$statusz['nev'].'</div>
+                        </div>
+                    ');
+                }
+
+                $i++;
+            }
+        }
+
+        $szamla_html .= '</div>';
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
+
 
     /* Dokumentumok */
     }elseif(isset($_GET['dokumentumok'])) {

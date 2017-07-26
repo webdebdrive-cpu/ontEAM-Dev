@@ -17,14 +17,14 @@ div.a4_allo {
     background: #fff;
     display: table;
     margin: auto;
-    margin-bottom: 3rem;
+    margin-bottom: 30px;
     page-break-after: always;
     position: relative;
-    width: 70rem;
+    width: 640px;
 }
 
 div.minh{
-    min-height: 99rem;
+    min-height: 990px;
 }
 
 div.fejlec {
@@ -41,15 +41,15 @@ div.nyomtat {
 
 div.lap_alja{
     position: absolute;
-    bottom: 4rem;
+    bottom: 40px;
 }
 
 div.footer{
     bottom: 0;
-    border-top: 0.1rem solid #333333;
+    border-top: 1px solid #333333;
     display: table;
-    font-size: 1.1rem;
-    height: 3rem;
+    font-size: 11px;
+    height: 30px;
     left: 0;
     position: absolute;
     width: 100%;
@@ -57,11 +57,11 @@ div.footer{
 
 img.nyomtat_ikon{
     position: fixed;
-    top: 2rem;
-    right: 2rem;
+    top: 20px;
+    right: 20px;
 }
 
 table.border td, table.border th{
-    border: 0.1rem solid #ddd;
-    padding: 0.3rem 0.5rem;
+    border: 1px solid #ddd;
+    padding: 3px 0.5rem;
 }

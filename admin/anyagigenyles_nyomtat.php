@@ -26,7 +26,7 @@ if (isset($_GET['szall'])) {
         
         //Cikkenkénti összesítés
         $tetelek_html = '
-                            <table class="border full" style="font-size: 1.2rem ;margin: auto; margin-top: 1rem; margin-bottom: 1rem">
+                            <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px">
                             <tr>
                                 <th>Név</th>
                                 <th>Mee</th>
@@ -79,22 +79,22 @@ if (isset($_GET['szall'])) {
             
                 '.get_fejlec($szallito).'
 
-                <div class="f14" style="margin: 2rem 0 0.3rem 0;">
+                <div style="font-size: 14px; margin: 20px 0 3px 0;">
                     Tisztelt szállító!
                 </div>
-                <div class="f13" style="margin: 0 0 0.3rem 0;">
+                <div style="font-size: 13px; margin: 0 0 3px 0;">
                     <b>A szállító levelet vagy a számla másolatát minden esetben hagyja az árú átvevőjénél és a számlán tüntesse fel megrendelőnk számát, ellenkező esetben a számlát nem áll módunkban befogadni!</b> 
                 </div>
-                <div class="f14" style="margin: 0 0 0.5rem 0;">
+                <div style="font-size: 14px; margin: 0 0 5px 0;">
                     Megrendeljük Önöktől az alábbi anyagokat.
                 </div>
 
-                <div class="i">I. Cikkenkénti összesítés:</div>
+                <div class="i" style="font-size: 14px">I. Cikkenkénti összesítés:</div>
                 '.$tetelek_html.'
-                <div class="i">II. Szállítási címenkénti összesítés:</div>
+                <div class="i" style="font-size: 14px">II. Szállítási címenkénti összesítés:</div>
                 '.szallitasi_cimenkenti_lista($idk_impl).'
                 
-                <div class="f13" style="margin: 3rem 0 0.3rem 0;">
+                <div style="font-size: 13px; margin: 30px 0 3px 0;">
                     Üdvözlettel,
                     <br>Budapest, '.date_formaz(date('Y-m-d')).'
                 </div>
@@ -138,7 +138,7 @@ if (isset($_GET['cim'])) {
 
             //Cikkenkénti összesítés
             $tetelek_html = '
-                                <table class="border full" style="font-size: 1.2rem ;margin: auto; margin-top: 1rem; margin-bottom: 1rem">
+                                <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px">
                                 <tr>
                                     <th>Cikk</th>
                                     <th>Név</th>
@@ -146,7 +146,7 @@ if (isset($_GET['cim'])) {
                                     <th>Rendelt mennyiség</th>
                                     <th>Nettó rendelési egységár</th>
                                     <th>Nettó összesen ('.$penznem['info'].')</th>
-                                    <th style="width: 20rem">Megjegyzés</th>
+                                    <th style="width: 200px">Megjegyzés</th>
                                 </tr>
                             ';
 
@@ -192,7 +192,7 @@ if (isset($_GET['cim'])) {
                 '.get_fejlec_top($sorszam).'
                 <div class="padd minh">
 
-                        <div class="f16 c" style="margin: 2rem 0 0.3rem 0;">
+                        <div class="f16 c" style="margin: 20px 0 3px 0;">
                             '.$telephely['nev'].' részére
                         </div>
                         '.get_fejlec($szallito).'
@@ -226,7 +226,7 @@ if (isset($_GET['oracle'])) {
 
             //Cikkenkénti összesítés
             $tetelek_html = '
-                                <table class="border full" style="font-size: 1.2rem ;margin: auto; margin-top: 1rem; margin-bottom: 1rem">
+                                <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px">
                                 <tr>
                                     <th>Oracle cikkszám</th>
                                     <th>Nettó összesen ('.$penznem['info'].')</th>
@@ -265,7 +265,7 @@ if (isset($_GET['oracle'])) {
                 '.get_fejlec_top($sorszam).'
                 <div class="padd minh">
 
-                        <div class="f16 c" style="margin: 2rem 0 0.3rem 0;">
+                        <div class="f16 c" style="margin: 20px 0 3px 0;">
                             '.$telephely['nev'].' részére
                             <br>Oracle cikkszámonként összesítve
                         </div>
@@ -299,13 +299,13 @@ function get_fejlec_top($sorszam, $lapszammal){
         <div class="fejlec">
             <table class="full">
             <tr>
-                <td style="width: 33%; padding-left: 1rem">
+                <td style="width: 33%; padding-left: 10px">
                     <table class="full">
                     <tr>
-                        <td style="padding: 0.4rem 0.4rem 0 0">
+                        <td style="padding: 4px 4px 0 0">
                             <img src="../elemek/dh_logo.png" alt="Logo">
                         </td>
-                        <td class="f11">
+                        <td style="font-size: 11px">
                             Danubius Zrt.
                             <br>Műszaki szolgáltató központ
                             <br>ontEAM
@@ -316,7 +316,7 @@ function get_fejlec_top($sorszam, $lapszammal){
                 <td class="b c" style="width: 34%">
                     Megrendelés sz.: '.$sorszam.'
                 </td>
-                <td class="f11 r" style="width: 33%; padding-right: 1rem">
+                <td class="r" style="font-size: 11px; width: 33%; padding-right: 10px">
                     '.$lapszammal.'1. lap
                 </td>
             </tr>
@@ -337,28 +337,28 @@ function get_fejlec($szallito){
     }
     
     return '
-            <div style="padding: 0 1.5rem 0 1.5rem">
-                <table style="margin: auto; margin-top: 2rem; width: 95%">
+            <div style="padding: 0 15px 0 15px">
+                <table style="margin: auto; margin-top: 20px; width: 95%">
                 <tr>
-                    <td class="f13 b" style="width: 50%; padding: 0 1rem">
+                    <td class="b" style="font-size: 13px; width: 50%; padding: 0 10px">
                         Szállító:
                     </td>
-                    <td class="f13 b" style="width: 50%; padding: 0 1rem">
+                    <td class="b" style="font-size: 13px; width: 50%; padding: 0 10px">
                         Megrendelő:
                     </td>
                 </tr>
                 </table>
 
-                <table class="border full" style="margin: auto; margin-top: 0rem;">
+                <table class="border full" style="margin: auto; margin-top: 0;">
                 <tr>
-                    <td class="f12 vat" style="width: 50%; padding: 1rem">
+                    <td class="vat" style="font-size: 12px; width: 50%; padding: 10px; border: 1px solid #ddd;">
                         Név: '.$szallito['nev'].'
                         <br>Kapcs.: '.$szallito['knev'].'
                         <br>Tel.: '.$szallito['tel'].'
                         <br>Fax.: '.$szallito['tel2'].'
                         <br>Cím.: '.$szallito['isz'].' '.$szallito['varos'].', '.$szallito['utca'].'
                     </td>
-                    <td class="f12 vat" style="width: 50%; padding: 1rem">
+                    <td class="vat" style="font-size: 12px; width: 50%; padding: 10px; border: 1px solid #ddd;">
                         Név: Műszaki szolgáltató központ
                         <br>Üi.: '.$_SESSION[get_db_tabla().'teljes_nev'].'
                         '.$tel_kieg.'
@@ -379,7 +379,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
     
     //Szállítási címenkénti összesítés
     $szallcim_html = '
-                        <table class="border full" style="font-size: 1.2rem ;margin: auto; margin-top: 1rem; margin-bottom: 1rem">
+                        <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px">
                     ';
     
     //Van egy fix cím
@@ -422,13 +422,13 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
             }
             $szallcim_html .= '
                             <tr>
-                                <td class="b">
+                                <td class="b" style="border: 1px solid #ddd;">
                                     Szállítási cím:
                                     <br>Számlázási cím:
                                     <br>Adószám:
                                     <br>Számlaküldési cím:
                                 </td>
-                                <td>
+                                <td style="border: 1px solid #ddd;">
                                     '.$szall_cim.'
                                     <br>'.$szl.' '.$cim.'
                                     <br>'.NYOMTATAS_ADOSZAM.'
@@ -450,8 +450,8 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                 
                 $szallcim_html .= '
                                 <tr>
-                                    <td class="vat c">'.number_format($rndmen, 2, ',', '.').' '.$a_lek_db['cikkmee'].'</td>
-                                    <td class="vat">'.$a_lek_db['nev'].'</td>
+                                    <td class="vat c" style="border: 1px solid #ddd;">'.number_format($rndmen, 2, ',', '.').' '.$a_lek_db['cikkmee'].'</td>
+                                    <td class="vat" style="border: 1px solid #ddd;">'.$a_lek_db['nev'].'</td>
                                 </tr>
                                 ';
             }
@@ -459,7 +459,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
             //Telephelyek után egy kis elválasztó
             $szallcim_html .= '
                             <tr>
-                                <td colspan="2" style="padding: 0.7rem; border-left: 0; border-right: 0; border-bottom: 0"></td>
+                                <td colspan="2" style="border: 1px solid #ddd; padding: 7px; border-left: 0; border-right: 0; border-bottom: 0"></td>
                             </tr>
                             ';
         }
@@ -473,7 +473,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
 
 function get_alairasok(){
     return '
-                <table class="full" style="font-size: 1.2rem; margin-top: 8rem">
+                <table class="full" style="font-size: 12px; margin-top: 80px">
                 <tr>
                     <td class="c">
                         .................................................
@@ -507,7 +507,7 @@ function get_keret(){
         <div class="footer">
             <div class="dtc padd">
             </div>
-            <div class="dtc r padd">
+            <div class="dtc r padd" style="font-size: 11px">
                 '.$_SESSION[get_db_tabla().'user'].'
                 '.date('Y.m.d H:i:s').'
             </div>

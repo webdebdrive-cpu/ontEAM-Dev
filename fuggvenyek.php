@@ -1517,11 +1517,8 @@ function szamla_lista( $where, $tabla ) {
                 //Belépve mint mobil
                 } else if( _jog(JOG_MUNKALAP_MOBIL) ) {
                     $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".MOBILCSOPORT."' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.", ".MUNKALAP_STAT_LEZART.") AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}')";
-                //Belépve mint műszaki vezető
-                } else if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) ) {
-                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".MUSZAKI_VEZETO." AND `".get_db_tabla()."munkalap`.`statusz_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.") AND ";
                 //Belépve mint diszp. kp. vezető
-                } else if( _jog(JOG_MUNKALAP_DISZP_KP_VEZ) || _jog(MUSZAKI_VEZETO) || _jog(JOG_DISZPECSER) ) {
+                } else if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) || _jog(JOG_MUNKALAP_DISZP_KP_VEZ) || _jog(JOG_DISZPECSER) ||  _jog(JOG_MUNKALAP_TER_FELELOS) ) {
                     $where .= '';
                 }
                 
@@ -1679,7 +1676,7 @@ function szamla_lista( $where, $tabla ) {
 
             $order = '';
             //Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
-            if(_jog(2)){
+            if(_jog(JOG_DISZPECSER)){
                 $order .= '`'.get_db_tabla().'munkalap_csoport`.`nev`, ';
             }
             //A sürgős mindig elől lesz, bármi is a rendezettség
