@@ -2502,7 +2502,7 @@ function munkalapMobil( that ) {
                 i++;
             });
         }
-        
+
         if( objLength(idk) ) {
             $.ajax({
                 url : 'munkalap.php',
@@ -2588,6 +2588,43 @@ function munkalapKeszre(csak_kerdezunk) {
                 recid: _get('id'),
                 csak_kerdezunk: csak_kerdezunk,
                 munkalapKeszre: new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        if( response.gomb ) {
+                            alert2(response.hiba, response.gomb);
+                        } else {
+                            alert2(response.hiba, '', 'Hiba');
+                        }
+
+                        return false;
+                    }
+
+                    location.href = get_get();
+                }
+            }
+        });
+
+    }
+    return false;
+}
+
+function munkalapLezaras(csak_kerdezunk) {
+
+    if(balnav_kijelol_ell()){
+
+        alert2();
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid: _get('id'),
+                csak_kerdezunk: csak_kerdezunk,
+                munkalapLezaras: new Date().getTime()
             },
             success: function(response) {
                 if(response) {

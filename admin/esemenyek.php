@@ -1773,8 +1773,8 @@ if( isset($_POST['munkalapKeszre']) ) {
 
             /* Munkalapon töröljük a személyzetet és a mobil loginnevet */
             $sql = $adatbazis_kapcsolat -> u('munkalap',
-                array('szemelyzet_id', 'mobil_loginnev', 'update_usr'                           ),
-                array( 0,              '',               $_SESSION[get_db_tabla().'teljes_nev'] ),
+                array(/*'szemelyzet_id', 'mobil_loginnev',*/ 'update_usr'                           ),
+                array(/* 0,              '',              */ $_SESSION[get_db_tabla().'teljes_nev'] ),
                 "`recid` = '{$recid}'"
             );
 
