@@ -349,7 +349,7 @@ function felh_valt( valt ) {
 
     if( valt ) {
         $('div.loginAlert').removeClass('dn');
-        document.getElementById('login_nev').focus(function() { this.select(); });
+        document.getElementById('login_nev').select();
     } else {
         $('div.loginAlert').addClass('dn');
     }
@@ -517,7 +517,36 @@ $(function() {
         $('.foglalt').removeClass('kijelol');
         $('#mehet_gomb_kivesz').attr('disabled', 'disabled');
     });
+    /* Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk
+     
+     *2do: Checkbox-ra hogyna lehetne léptetni?
+     *     elsubmitolja az űrlapot, ezért a submit gombot sima gombra kell cserélni ami a form-ot submitolja, de akkor a form_modosit.html-ben nem fog működni a if(!$('#szerk_form input[type="submit"]').length) feltétle, tehát azt is át kell írni.
+ */
+    $(document).on('keyup', 'input', function(e) {
+        if (e.which == 13) {
+            
+            mezo_nev = $(this).attr('name');
+            stop = false;
+            $('form').find('input, select, textarea').each(function() {
+                var name = $(this).attr('name');
 
+                /* Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is */
+                if( stop && $(this).is(':visible') ) {
+                    if($('#'+name).length){
+                        document.getElementById(name).select();
+                    }
+                    return false;
+                }
+
+                if( name == mezo_nev ) {
+                    stop = true;
+                }
+            });
+            
+            e.preventDefault();
+        }
+    });
+    
     /* Beosztás naptár bejegyzés törlésre kijelölés */
     $(document).on('click', '.foglalt', function(e) {
         naptar_id = $(this).attr('data-recid');
@@ -957,7 +986,7 @@ $(function() {
     });
 
     $(document).ajaxComplete(function (event, xhr, settings) {
-        $('form.popupForm input.focus').focus(function() { this.select(); });
+        $('form.popupForm input.focus').select();
         $('#ajaxfedo').addClass('dn');
     });
 
@@ -1228,13 +1257,13 @@ function bejelentesElutasit( that ) {
 
     if( elutasitas_id.val() == '' ) {
         alert2('Kérem válassza ki az elutasítás okát.');
-        document.getElementById('elutasitas_id_autocomp').focus(function() { this.select(); });
+        document.getElementById('elutasitas_id_autocomp').select();
         return false;
     }
 
     if( memo.val() == '' ) {
         alert2('Kérem adja meg az elutasítás okát.');
-        document.getElementById('elutasitas_memo').focus(function() { this.select(); });
+        document.getElementById('elutasitas_memo').select();
         return false;
     }
 
@@ -1359,7 +1388,7 @@ function munkAnyagHozzaad( formID, igenyles ) {
                 szuk_menny.val('');
                 form.find('.insertMee').text('');
 
-                document.getElementById('cikk_id_autocomp').focus(function() { this.select(); });
+                document.getElementById('cikk_id_autocomp').select();
 
                 return false;
             }
@@ -1368,20 +1397,20 @@ function munkAnyagHozzaad( formID, igenyles ) {
 
     if( cikknev.val() == '' || cikkID.val() == '' ) {
         alert2('Válassza ki a cikket!');
-        document.getElementById('cikk_id_autocomp').focus(function() { this.select(); });
+        document.getElementById('cikk_id_autocomp').select();
         return false;
     }
 
     if( !igenyles && felh_menny.val() == '' ) {
         alert2('Adja meg a felhasznált mennyiséget!');
-        document.getElementById('felh_menny').focus(function() { this.select(); });
+        document.getElementById('felh_menny').select();
         return false;
     }
 
     if( igenyles ) {
         if( felh_menny.val() == '' && szuk_menny.val() == '' ) {
             alert2('Adja meg a felhasznát, vagy a szükséges mennyiséget!');
-            document.getElementById('felh_menny').focus(function() { this.select(); });
+            document.getElementById('felh_menny').select();
             return false;
         }
     }
@@ -1409,7 +1438,7 @@ function munkAnyagHozzaad( formID, igenyles ) {
     szuk_menny.val('');
     form.find('.insertMee').text('');
 
-    document.getElementById('cikk_id_autocomp').focus(function() { this.select(); });
+    document.getElementById('cikk_id_autocomp').select();
 
     return false;
 }
@@ -1569,7 +1598,7 @@ function munkHozzSzemely() {
                 alert2();
             } else {
                 alert2('Kérem válasszon személyzetet!');
-                document.getElementById('torzsadat_id_autocomp').focus(function() { this.select(); });
+                document.getElementById('torzsadat_id_autocomp').select();
             }
         } else {
             alert2('Kérem jelöljön ki sorokat!');
@@ -1867,12 +1896,12 @@ function anyagigenyles_jovahagy(csak_kerdezunk) {
                                 } else {
                                     gomb = '';
                                     if(response.focus){
-                                        gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').focus()">';
+                                        gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').select()">';
                                     }
                                     alert2(response.hiba, gomb, 'Hiba');
                                 }
                                 if(response.focus){
-                                    $('#'+response.focus).focus(function() { this.select(); });
+                                    $('#'+response.focus).select();
                                 }
 
                                 return false;
@@ -1913,7 +1942,7 @@ function anyagigenyles_elutasitas(csak_kerdezunk) {
                     oka = $('#pop_indoklas').val();
                     if(!oka){
                         $('#hibauzi').html('Indoklás nélkül nem lehet elutasítani az anyagigénylést!');
-                        $('#pop_indoklas').focus(function() { this.select(); });
+                        $('#pop_indoklas').select();
                         alert_raz();
                         return false;
                     }
@@ -1939,12 +1968,12 @@ function anyagigenyles_elutasitas(csak_kerdezunk) {
                                 } else {
                                     gomb = '';
                                     if(response.focus){
-                                        gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').focus(function() { this.select(); });">';
+                                        gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').select();">';
                                     }
                                     alert2(response.hiba, gomb, 'Hiba');
                                 }
                                 if(response.focus){
-                                    $('#'+response.focus).focus(function() { this.select(); });
+                                    $('#'+response.focus).select();
                                 }
 
                                 return false;
@@ -1999,12 +2028,12 @@ function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
                                 } else {
                                     gomb = '';
                                     if(response.focus){
-                                        gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').focus(function() { this.select(); });">';
+                                        gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').select();">';
                                     }
                                     alert2(response.hiba, gomb, 'Hiba');
                                 }
                                 if(response.focus){
-                                    $('#'+response.focus).focus(function() { this.select(); });
+                                    $('#'+response.focus).select();
                                 }
 
                                 return false;
@@ -2967,7 +2996,9 @@ function csoportMuvelet( oldal ) {
 
                     var mar_csoportosak         = '';
                     var nem_nyitott_statuszuak  = '';
-                    var iktatok = '';
+                    var iktatok                 = '';
+                    var elozo_telephely_id      = '';
+                    var nem_azonos_szalloda     = '';
                     $('.kijelolve').each(function () {
                         /* Ha már van csopotja */
                         if($(this).hasClass('behuz')){
@@ -2977,13 +3008,24 @@ function csoportMuvelet( oldal ) {
                         if(!$(this).hasClass('nyitott_statuszu')){
                             nem_nyitott_statuszuak += $(this).find('span:first-of-type').html()+'<br>';
                         }
+                        
+                        /* Ha nem azonosak a szállodák */
+                        if(elozo_telephely_id && $(this).attr('data-telephely_id')!=elozo_telephely_id){
+                            nem_azonos_szalloda = true;
+                        }
+                        elozo_telephely_id = $(this).attr('data-telephely_id');
+
                     });
                     if(mar_csoportosak){
-                        alert2('Az alábbi '+$('#rekord_neve').html().toLowerCase()+' már csoport részei, így nem adhatóak újból csoporthoz:<br>'+mar_csoportosak);
+                        alert2('Az alábbi '+$('#rekord_neve').html().toLowerCase()+' már csoport részei, így nem adhatóak újból csoporthoz:<br>'+mar_csoportosak, '', 'Hiba');
                         return false;
                     }
                     if(nem_nyitott_statuszuak){
-                        alert2('Az alábbi '+$('#rekord_neve').html().toLowerCase()+' státuszai nem nyitottak, így nem adhatóak csoporthoz:<br>'+nem_nyitott_statuszuak);
+                        alert2('Az alábbi '+$('#rekord_neve').html().toLowerCase()+' státuszai nem nyitottak, így nem adhatóak csoporthoz:<br>'+nem_nyitott_statuszuak, '', 'Hiba');
+                        return false;
+                    }
+                    if(nem_azonos_szalloda){
+                        alert2('Csak azonos szállodához tartozó '+$('#rekord_neve').html().toLowerCase()+' adhatóak csoporthoz!<br>', '', 'Hiba');
                         return false;
                     }
 
@@ -3515,7 +3557,7 @@ function arazas_ment(){
                     $('#popup_hiba').html(response.hiba);
                     alert_raz();
                     if(response.focus){
-                        $('#'+response.focus).focus(function() { this.select(); });
+                        $('#'+response.focus).select();
                     }
                     return false;
                 }
@@ -3603,7 +3645,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
 
         /* A hibaüzenetet itt írjuk ki, és nem az each ciklusban, mert akkor tovább futna a JS kód, ott nem űködik a return false mert az egy külön függvény */
         if(hibauzi){
-            alert2(hibauzi, '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#erkmen_'+id+'\').focus(function() { this.select(); });" type="button">');
+            alert2(hibauzi, '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#erkmen_'+id+'\').select();" type="button">');
             return false;
         }
 
@@ -3655,6 +3697,9 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                         $('#pop_szallito').val(response.szallito);
                         $('#pop_szallito').attr('disabled', true);
                         $('#rendeles_tetelek').html(response.html);
+                        
+                        /* Ráfókuszálás, kijelölés az első sor inputjára*/
+                        $('#rendeles_tetelek input:text').first().select();
                     }
 
                 }
@@ -3810,7 +3855,7 @@ function addObj( that ) {
         var name = $(this).attr('name');
 
         if( stop ) {
-            document.getElementById(name).focus(function() { this.select(); });;
+            document.getElementById(name).select();
             return false;
         }
 
@@ -3851,7 +3896,7 @@ function popupZar() {
 /* Popup megjelenítése és fókus az első inputra */
 function popupNyit() {
     $('#popup').css('display', 'block');
-    $('#popup input:text, #popup textarea').first().focus(function() { this.select(); });;
+    $('#popup input:text, #popup textarea').first().select();
 }
 
 function inArray( keresett, tomb ) {

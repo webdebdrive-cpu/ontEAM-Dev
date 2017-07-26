@@ -13,6 +13,17 @@ if (isset($_GET['adatok_karbantart'])) {
     }
     exit;
 }
+if (isset($_GET['adat_javit_tmp'])) {
+    $anyagigenyles = $adatbazis_kapcsolat->s('recid cikktorzs_id', 'anyagigenyles');
+    foreach($anyagigenyles as $anyag){
+        $ora = $adatbazis_kapcsolat->s('oracikkid', 'cikktorzs', "`id`='{$anyag['cikktorzs_id']}'");
+        $ora = $ora[0];
+
+        $adatbazis_kapcsolat->u('anyagigenyles', array('oracikkid'), array($ora['oracikkid']), "`recid`='{$anyag['recid']}'");
+        echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    exit;
+}
 
 if( !_jog(12) ) {
     if(!$_SESSION[get_db_tabla().'user']){
@@ -1213,8 +1224,8 @@ if( isset($_POST['rendeles_keszit']) ) {
         $pdf_utvonal = 'doc/rendeles/'.date('y').'/'.$elozo_szallito.'/'.str_replace('/', '_', $rndid).'.pdf';
         
         //Létrehozunk egy új rendelésfej bejegyzést
-        $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('statusz_id', 'rndid', 'rnd_dt',  'kepfajl',     'szallitoid',    'insert_dt',          'insert_usr',                           'update_usr'                            ),
-                                                                    array(1,            $rndid,  $rnd_dt,   $pdf_utvonal,  $elozo_szallito, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
+        $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('statusz_id',             'rndid', 'rnd_dt',  'kepfajl',     'szallitoid',    'insert_dt',          'insert_usr',                           'update_usr'                            ),
+                                                                    array(CIKKIGN_STAT_MEGRENDELVE, $rndid,  $rnd_dt,   $pdf_utvonal,  $elozo_szallito, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
                                                     );
         if( $cikkrendfej_id === false ) {
             $db_error = true;
@@ -1222,8 +1233,8 @@ if( isset($_POST['rendeles_keszit']) ) {
         
         /* Felvesszük az első státuszt */
         $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
-            array('id',             'stat_id', 'insert_dt',          'insert_usr',                              'update_usr'                          ),
-            array($cikkrendfej_id,  1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+            array('id',             'stat_id',                  'insert_dt',          'insert_usr',                              'update_usr'                          ),
+            array($cikkrendfej_id,  CIKKIGN_STAT_MEGRENDELVE,   date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
         );
         if( $sql === false ) {
             $db_error = true;
@@ -1304,7 +1315,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
         $szallodak = get_akt_login_szallodai();
         if($szallodak){
             
-            $igenylesek = $adatbazis_kapcsolat->s('recid telephely_id cikktorzs_id nev igmen rndmen erkmen cikkmee szallito', 'anyagigenyles', "`aparecid`='{$recid['recid']}' AND `telephely_id` IN (".implode(',', $szallodak).")");
+            $igenylesek = $adatbazis_kapcsolat->s('recid telephely_id cikktorzs_id nev igmen rndmen erkmen cikkmee szallito statusz_id', 'anyagigenyles', "`aparecid`='{$recid['recid']}' AND `telephely_id` IN (".implode(',', $szallodak).")");
             foreach($igenylesek as $igeny){
 
                 $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$igeny['telephely_id']}'");
@@ -1318,20 +1329,28 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                 if($hianyzo_anyagok){
                     $gomb = '<input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$hianyzo_anyagok.'\')">';
                 }
+                
+                //Ha a státusz nagyobb mit a beérkezett, akkor azokat már csak szürkén jelenítjük meg disabledezve
+                $szurkit  = '';
+                $disabled = '';
+                if($igeny>CIKKIGN_STAT_RESZBENBEERK){
+                    $szurkit  = ' class="erkeztet_szurkit"';
+                    $disabled = ' disabled';
+                }
 
                 $html .= nl2('
-                            <tr>
+                            <tr'.$szurkit.'>
                                 <td id="erkeztet_szall_'.$igeny['recid'].'">'.$telephely['nev'].'</td>
                                 <td id="erkeztet_cikkid_'.$igeny['recid'].'">'.$igeny['cikktorzs_id'].'</td>
                                 <td>'.$igeny['nev'].'</td>
                                 <td class="r">'.number_format($igeny['igmen'], 2, ',', ' ').'</td>
                                 <td class="r" id="rndmen_'.$igeny['recid'].'">'.number_format($igeny['rndmen'], 2, ',', ' ').'</td>
                                 <td class="r" id="marerkmen_'.$igeny['recid'].'">'.number_format($igeny['erkmen'], 2, ',', ' ').'</td>
-                                <td class="r"><input type="text" class="f_num erkmen" data-id="'.$igeny['recid'].'" id="erkmen_'.$igeny['recid'].'" value="0,00"></td>
+                                <td class="r"><input type="text" class="f_num erkmen" data-id="'.$igeny['recid'].'" id="erkmen_'.$igeny['recid'].'" value="0,00"'.$disabled.'></td>
                                 <td class="c" id="mee_'.$igeny['recid'].'">'.$igeny['cikkmee'].'</td>
                                 <td class="c">
                                     <div class="cb">
-                                        <input type="checkbox" class="nem_tobb_beerk" data-id="'.$igeny['recid'].'" id="nem_tobb_'.$igeny['recid'].'">
+                                        <input type="checkbox" class="nem_tobb_beerk" data-id="'.$igeny['recid'].'" id="nem_tobb_'.$igeny['recid'].'"'.$disabled.'>
                                         <label for="nem_tobb_'.$igeny['recid'].'"></label>
                                     </div>
                                 </td>
@@ -1377,7 +1396,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                 
                     
                 //HA marerkmen+erkmen=0 ÉS nemfogerk=1 AKKOR statid=CIKKIGN_STAT_NEM_ERKEZETT
-                if( ($marerkmen+$erkmen==0 || $osszeg==0.00) && $nemfogerk){
+                if( ($marerkmen+$erkmen==0 || $marerkmen+$erkmen==0.00) && $nemfogerk){
                     $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_NEM_ERKEZETT );
                     if( $statusz === false ) {
                         $db_error = true;
@@ -1400,16 +1419,22 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                 }
 
                 //Végül UPDATE cikkign SET erkmen=marerkmen+erkmen, update_usr= WHERE recid=
-                $adatbazis_kapcsolat -> u('anyagigenyles',  array('erkmen',             'update_usr'                            ),
-                                                            array($marerkmen+$erkmen,   $_SESSION[get_db_tabla().'teljes_nev']  ),
-                                            "`recid`='$id'"
-                                        );
+                $sql = $adatbazis_kapcsolat -> u('anyagigenyles',   array('erkmen',             'update_usr'                            ),
+                                                                    array($marerkmen+$erkmen,   $_SESSION[get_db_tabla().'teljes_nev']  ),
+                                                    "`recid`='$id'"
+                                                );
+                if( $sql === false ) {
+                    $db_error = true;
+                }
 
-                //Ha erkmen>0 INSERT mozgas             SET telepid=,                           szallitoid=,                cikkid=,                        cikkmen=erkmen, mozgid=MOZGID_RAKTAR_BE, mozgir=1, rendtetid=recid, update_usr=, insert_usr=, insert_dt=NOW()
-                if($erkmen){
-                    $adatbazis_kapcsolat->i('mozgas',   array('telepid',                      'szallitoid',               'cikkid',                       'cikkmen', 'mozgid',          'mozgir', 'rendtetid', 'update_usr',                           'insert_usr',                            'insert_dt' ),
-                                                        array($anyagigenyles['telephely_id'], $anyagigenyles['szallito'], $anyagigenyles['cikktorzs_id'], $erkmen,   MOZGID_RAKTAR_BE,  1,        $id,         $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()'     )
-                                            );
+                //Ha erkmen>0 INSERT mozgas                    SET telepid=,                           szallitoid=,                cikkid=,                        cikkmen=erkmen, mozgid=MOZGID_RAKTAR_BE, mozgir=1, rendtetid=recid, update_usr=, insert_usr=, insert_dt=NOW()
+                if($erkmen>0){
+                    $sql = $adatbazis_kapcsolat->i('mozgas',    array('telepid',                      'szallitoid',               'cikkid',                       'cikkmen', 'mozgid',          'mozgir', 'rendtetid', 'update_usr',                           'insert_usr',                            'insert_dt' ),
+                                                                array($anyagigenyles['telephely_id'], $anyagigenyles['szallito'], $anyagigenyles['cikktorzs_id'], $erkmen,   MOZGID_RAKTAR_BE,  1,        $id,         $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()'     )
+                                                    );
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
                 }
                 
                 
@@ -1417,8 +1442,10 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
         }
         
         //Ciklus után minden esetben átírjuk cikkrndfej tábla statidet mysql procedúrával: call setcikkrndfejstatid(aparecid,loginuser.nev);
-        mysqli_query($db_kapcs, 'setcikkrndfejstatid('.$anyagigenyles['aparecid'].', \''.$_SESSION[get_db_tabla().'teljes_nev'].'\')');
-        
+        $sql = mysqli_query($db_kapcs, 'setcikkrndfejstatid('.$anyagigenyles['aparecid'].', \''.$_SESSION[get_db_tabla().'teljes_nev'].'\')');
+        if( $sql === false ) {
+            $db_error = true;
+        }
         
         
         //Archiválás egy lépésben törétnik, ha minden anyagigénylés sor státusza > 35
@@ -1626,12 +1653,7 @@ if($gyorskereso_text){
         /* Anyagigénylés érkeztetése */
         if( _jog(13) ) {
             
-            $statusz_kiterium = array(CIKKIGN_STAT_MEGRENDELVE, CIKKIGN_STAT_RESZBENBEERK);
-            if( !in_array($sor['statusz_id'], $statusz_kiterium) ){
-                $onclick = 'alert2(\'Csak megrendelt vagy részben beérkezett státuszú anyagigénylés érkeztethető!\', \'\', \'Hiba\');';
-            }else{
-                $onclick = 'csoportMuvelet(\'anyagigenyles_erkeztet\')';
-            }
+            $onclick = 'csoportMuvelet(\'anyagigenyles_erkeztet\')';
             $gombok .= nl2('
                 <div id="kmCont">
                     <input type="button" class="gombb foGomb" value="Anyagok érkeztetése" onclick="'.$onclick.'">

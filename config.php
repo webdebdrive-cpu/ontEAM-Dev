@@ -53,7 +53,7 @@ define('CIKKIGN_STAT_ARAZVA',            '20');
 define('CIKKIGN_STAT_JOVAHAGYVA',        '25');
 define('CIKKIGN_STAT_MEGRENDELVE',       '30');
 define('CIKKIGN_STAT_RESZBENBEERK',      '35');
-define('CIKKIGN_STAT_BEERKEZETT ',       '40');
+define('CIKKIGN_STAT_BEERKEZETT',        '40');
 define('CIKKIGN_STAT_SZLA_BEERK',        '45');
 define('CIKKIGN_STAT_LEZART',            '50');
 define('CIKKIGN_STAT_TOROLT',            '51');
@@ -85,9 +85,10 @@ define('JOG_BEJELENTES_KEZEL',      1 );
 define('JOG_DISZPECSER',            2 );
 define('JOG_MUNKALAP_MEGTEKINT',    3 );
 define('JOG_MUNKALAP_TELEPITETT',   5 );
-define('JOG_MUNKALAP_MUSZAKI_VEZ',  21 );
-define('JOG_MUNKALAP_ADMIN',        24 );
-define('JOG_MUNKALAP_DISZP_KP_VEZ', 23 );
+define('JOG_ANYAGREND_MEGTEKINT',   16);
+define('JOG_MUNKALAP_MUSZAKI_VEZ',  21);
+define('JOG_MUNKALAP_ADMIN',        24);
+define('JOG_MUNKALAP_DISZP_KP_VEZ', 23);
 define('JOG_MUNKALAP_MOBIL',        31);
 
 //Adatbázis

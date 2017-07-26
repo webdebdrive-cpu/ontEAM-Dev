@@ -166,13 +166,14 @@
                         form = $('#alert2');
                     }
 
+                    /* Autcomplete után a következő inputra fókusz */
                     stop = false;
                     form.find('input, select, textarea').each(function() {
                         var name = $(this).attr('name');
 
                         if( stop ) {
                             if($('#'+name).length){
-                                document.getElementById(name).focus();
+                                document.getElementById(name).focus(function() { this.select(); });
                             }
                             return false;
                         }

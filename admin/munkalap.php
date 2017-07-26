@@ -872,7 +872,7 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
     if( is_array($idk) ) {
         foreach($idk as $id) {
 
-            $sql = $statusz = $adatbazis_kapcsolat->s('statusz_id', 'munkalap', "`recid` = '{$id}'");
+            $sql = $statusz = $adatbazis_kapcsolat->s('statusz_id szemelyzet_id', 'munkalap', "`recid` = '{$id}'");
             if( $sql === false ) {
                 $db_error = '3';
             }
@@ -880,14 +880,24 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
             if( $statusz ) {
                 $statusz = $statusz[0];
 
-                if( !in_array($statusz['statusz_id'], array(MUNKALAP_STAT_NYITOTT)) ) {
+                if( !in_array($statusz['statusz_id'], array(MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_FOLYAMATBAN)) ) {
                     echo json_encode(array(
-                        'hiba' => 'Kérem csak nyitott státuszú munkalapokat jelöljön meg!'
+                        'hiba' => 'Kérem csak nyitott vagy folyamatban státuszú munkalapokat jelöljön meg!'
                     ));
 
                     $weblap->leallit();
                     exit();
                 }
+
+                if( $statusz['statusz_id'] == MUNKALAP_STAT_FOLYAMATBAN && $statusz['szemelyzet_id']!=MOBILCSOPORT ) {
+                    echo json_encode(array(
+                        'hiba' => 'Ha a munkalap státusza folyamatban státuszú, akkor csak mobilcsoporthoz rendelt munkalap jelölhető meg!'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+                
             } else {
                 echo json_encode(array(
                     'hiba' => tranzakcioHiba()

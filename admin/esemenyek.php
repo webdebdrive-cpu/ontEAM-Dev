@@ -187,6 +187,7 @@ switch($tabla) {
             `'.get_db_tabla().'munkalap`.`statusz_id`,
             `'.get_db_tabla().'munkalap`.`telephely_id`,
             `'.get_db_tabla().'munkalap`.`csoport_id`,
+            `'.get_db_tabla().'munkalap`.`surgos`,
             `'.get_db_tabla().'munkalap_csoport`.`nev`
         ');
 
@@ -3230,22 +3231,52 @@ if( isset($_POST['csoportbolTorol']) ) {
 /* Csoportba rendezés */
 if( isset($_POST['csoportbaRendez']) ) {
     $csoportID = $_POST['csoportID'];
-    $idk = json_decode($_POST['idk'], true);
-    $page = $_POST['page'];
+    $idk       = json_decode($_POST['idk'], true);
+    $page      = $_POST['page'];
+    
+    switch($page){
+        case 'bejelentes': $hibauzi_param = 'bejelentést'; break;
+        case 'mukalap'   : $hibauzi_param = 'munkalapot'; break;
+    }
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
     if( $csoportID && is_array($idk) ) {
-        $sql = $is_csoport = $adatbazis_kapcsolat->s('recid', $page, "`recid` IN (".implode(',', $idk).") AND `csoport_id` > '0'", '', '');
-
-        if( $sql === false ) {
+        $is_csoport = $adatbazis_kapcsolat->s('recid', $page, "`recid` IN (".implode(',', $idk).") AND `csoport_id` > '0'", '', '');
+        if( $is_csoport === false ) {
             $db_error = true;
+        }
+        
+        //Ellenőrizzük, hogy azonos szállodához tartoznak-e a bejeletések. Ha nem: hiba
+        $szallodak = $adatbazis_kapcsolat->s('distinct telephely_id', $page, "`recid` IN (".implode(',', $idk).")");
+        if(count($szallodak)>1){
+            echo json_encode(array(
+                'hiba' => 'Csak azonos szállodához tartozót '.$hibauzi_param.' csoportosíthat!'
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        
+        //Csoportban milyen szállodájú bejegyzések vannak? Csak ilyet adható hozzá.
+        $egy_csoport_elem = $adatbazis_kapcsolat -> s('recid', $page, "`csoport_id`='$csoportID'", '', '1');
+        $egy_csoport_elem = $egy_csoport_elem[0];
+        $telephelye = $adatbazis_kapcsolat->s('telephely_id', $page, "`recid`='{$egy_csoport_elem['recid']}'");
+        $telephelye = $telephelye[0];
+        $akt_elem_telephelye = $adatbazis_kapcsolat->s('telephely_id', $page, "`recid` IN (".implode(',', $idk).")", '', '1');
+        $akt_elem_telephelye = $akt_elem_telephelye[0];
+        if($telephelye['telephely_id']!=$akt_elem_telephelye['telephely_id']){
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$telephelye['telephely_id']}'");
+            $telephely = $telephely[0];
+            echo json_encode(array(
+                'hiba' => 'A csoportban csak a következő szállodához tartozó '.$hibauzi_param.' vehet fel: '.$telephely['nev']
+            ));
+            $weblap->leallit();
+            exit();
         }
 
         if( !$is_csoport ) {
             $sql = $adatbazis_kapcsolat -> u($page, array('csoport_id'), array($csoportID), "`recid` IN (".implode(',', $idk).")");
-
             if( $sql === false ) {
                 $db_error = true;
             }
@@ -3265,7 +3296,7 @@ if( isset($_POST['csoportbaRendez']) ) {
             }
         } else {
             echo json_encode(array(
-                'hiba' => 'Kérem, csak olyan sorokat jelöljön ki, <br>amelyek még nem rendelkeznek csoporttal!'
+                'hiba' => 'Kérem, csak olyan '.$hibauzi_param.' jelöljön ki, <br>amelyek még nem rendelkeznek csoporttal!'
             ));
         }
     } else {

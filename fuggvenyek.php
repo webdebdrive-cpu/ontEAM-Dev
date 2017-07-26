@@ -1513,10 +1513,10 @@ function szamla_lista( $where, $tabla ) {
                 
                 //Belépve mint telepített
                 if( _jog(JOG_MUNKALAP_TELEPITETT) ) {
-                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".TELEPITETT_SZEMELYZET."' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.") AND ";
+                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".TELEPITETT_SZEMELYZET."' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.", ".MUNKALAP_STAT_LEZART.") AND ";
                 //Belépve mint mobil
                 } else if( _jog(JOG_MUNKALAP_MOBIL) ) {
-                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".MOBILCSOPORT."' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.") AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}')";
+                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".MOBILCSOPORT."' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.", ".MUNKALAP_STAT_LEZART.") AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}')";
                 //Belépve mint műszaki vezető
                 } else if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) ) {
                     $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".MUSZAKI_VEZETO." AND `".get_db_tabla()."munkalap`.`statusz_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.") AND ";
@@ -2036,7 +2036,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
             }
 
             if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
             } else {
                 $html .= $li_tart;
             }
@@ -2081,7 +2081,6 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
 
                         /* Van e sürgős */
                         $surgos_e = $adatbazis_kapcsolat->s('recid', 'munkalap', "`csoport_id` = '{$aktCsoport}' AND `surgos` > 0", '', '1');
-
                         $surgos_icon = '';
                         if( $surgos_e ) {
                             $surgos_icon = nl2('
@@ -2102,7 +2101,14 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
                             }
                         }
 
-                        $html .= '<li class="szamla_datum csoport'.$csoport_active.'" data-id="'.$aktCsoport.'"><span class="icon"></span><span class="csoportNev" data-id="'.$aktCsoport.'">'.$surgos_icon.'<strong>'.$csoportSor['nev'].'</strong></li>';
+                        $html .= nl2('
+                                    <li class="szamla_datum csoport'.$csoport_active.'" data-id="'.$aktCsoport.'">
+                                        <span class="icon"></span>
+                                        <span class="csoportNev" data-id="'.$aktCsoport.'">
+                                        '.$surgos_icon.'
+                                        <strong>'.$csoportSor['nev'].'</strong>
+                                    </li>
+                                    ');
                     }
 
                     $csoport = $aktCsoport;
@@ -2161,7 +2167,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
 
             $csoport_class = '';
             $csoport_data = '';
-            if( $bsz['csoport_id'] && _jog(2) ) {
+            if( $bsz['csoport_id'] && _jog(JOG_DISZPECSER) ) {
                 $csoport_class = ' behuz dn';
 
                 $akt_csoport = $adatbazis_kapcsolat->s('csoport_id', 'munkalap', "`recid` = '{$_GET['id']}'", '', '1');
@@ -2178,7 +2184,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
             }
 
             if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
             } else {
                 $html .= $li_tart;
             }

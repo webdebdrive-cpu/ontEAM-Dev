@@ -2654,3 +2654,8 @@ div.szamlaLapozas div.lapoz.pontok {
 #csuszkaallit span:before {
     top: 0.5rem;
 }
+
+
+tr.erkeztet_szurkit{
+    opacity: 0.6;
+}
