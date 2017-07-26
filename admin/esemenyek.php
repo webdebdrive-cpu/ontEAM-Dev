@@ -3900,7 +3900,13 @@ foreach($postok as $ertek){
 
 		//Ha az újként szerkesztés post nem üres, akkor beállítjuk a $_POST-olt értékeket egy SESSION-ba, majd ezzekkel az adatokkal indul egy új feltöltés adatlapja
 		if($_POST[$ertek['tabla'].'ujkent_szerk']) {
-            $sor = $adatbazis_kapcsolat -> select('*', $ertek['tabla'], 'recid='.$_GET['id']);
+            if( $_GET['ujkent'] ) {
+                $id = $_GET['ujkent'];
+            } else {
+                $id = $_GET['id'];
+            }
+
+            $sor = $adatbazis_kapcsolat -> select('*', $ertek['tabla'], 'recid='.$id);
 
             if( $sor ) {
                 $sor = $sor[0];
