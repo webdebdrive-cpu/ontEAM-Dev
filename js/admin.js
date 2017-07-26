@@ -3019,7 +3019,7 @@ function csoportbaRendez( that ) {
     return false;
 }
 
-function csoportMuvelet( oldal ) {
+function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
 
     /* Csak akkor hajtjuk végre, ha a bal oldali kijelölések is rendben vannak */
@@ -3217,8 +3217,9 @@ function csoportMuvelet( oldal ) {
                             url : 'munkalap.php',
                             type: 'POST',
                             data: {
-                                idk: JSON.stringify(idk),
-                                hozzBeosztasNelkul: new Date().getTime()
+                                idk                 : JSON.stringify(idk),
+                                no_statusz_hiba     : mobilnal_no_statusz_hiba,
+                                hozzBeosztasNelkul  : new Date().getTime()
                             },
                             success: function(response) {
                                 if(response) {

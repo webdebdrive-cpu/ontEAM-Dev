@@ -388,7 +388,7 @@ if($gyorskereso_text){
     $gombok = '';
     if( isset($_GET['uj']) ) {
         /* Gombok */
-        $gombok = nl2('
+        $gombok .= nl2('
             <div class="form_kuldes">
                 <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
             </div>
@@ -412,7 +412,7 @@ if($gyorskereso_text){
 		$sor = $sor[0];
 
         //Js, a törlés gombhoz
-	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
+	    $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         /* Kijelöltekkel való művelet gombok */
         if( _jog(2) ) {
@@ -446,74 +446,73 @@ if($gyorskereso_text){
             ');
         }
 
-        if( !$csak_szerkesztheto ) {
-            //Jogosutságkezelés: diszpécser nem törölhet
-            if(_jog(2)) {
-                $gombok .= nl2('
-                        <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nem törölhet bejelentést diszpécserként!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">
-                        <div id="diszpecser" class="dn">Innen fogja tudni a JS, hogy diszpécser vagyunk</div>
-                        ');
+        /* Törlés gomb hibaüzenetei */
+        //Jogosutságkezelés: diszpécser nem törölhet
+        if(_jog(JOG_DISZPECSER)) {
+            $gombok .= nl2('
+                    <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nem törölhet bejelentést diszpécserként!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">
+                    <div id="diszpecser" class="dn">Innen fogja tudni a JS, hogy diszpécser vagyunk</div>
+                    ');
 
-            //Csak nyitott státusz törölhető
+        //Ha nem diszpécser
+        } else {
+
+
+            $statusz = $adatbazis_kapcsolat->s('stat_id', 'bejelentes_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc', '1');
+            $statusz = $statusz[0];
+
+            //Csak nyitott státuszú törölhető
+            if($statusz['stat_id'] != 1) {
+
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+
+            //Csak saját bejelentés törölhető!
+            } elseif($sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
+
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+
             } else {
 
+                $obj = $adatbazis_kapcsolat -> select('nev telephely_id', 'obj', "`recid`='{$sor['obj_id']}'");
+                $obj = $obj[0];
 
-                $statusz = $adatbazis_kapcsolat->s('stat_id', 'bejelentes_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc', '1');
-                $statusz = $statusz[0];
+                $szalloda = $adatbazis_kapcsolat -> select('nev', 'telephely', "`id`='{$obj['telephely_id']}'");
+                $szalloda = $szalloda[0];
 
-                //Csak nyitott státuszú törölhető
-                if($statusz['stat_id'] != 1) {
-
-                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-
-                //Csak saját bejelentéstú törölhető!
-                } elseif($sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
-
-                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-
-                } else {
-
-                    $obj = $adatbazis_kapcsolat -> select('nev telephely_id', 'obj', "`recid`='{$sor['obj_id']}'");
-                    $obj = $obj[0];
-
-                    $szalloda = $adatbazis_kapcsolat -> select('nev', 'telephely', "`id`='{$obj['telephely_id']}'");
-                    $szalloda = $szalloda[0];
-
-                    $gep_nev = '';
-                    if($sor['gep_id']){
-                        $gep = $adatbazis_kapcsolat -> select('nev', 'eszkozkezeles', "`recid`='{$sor['gep_id']}'");
-                        $gep = $gep[0];
-                        if($gep['nev']){
-                            $gep_nev = '<br>Gép: '.addslashes($gep['nev']);
-                        }
+                $gep_nev = '';
+                if($sor['gep_id']){
+                    $gep = $adatbazis_kapcsolat -> select('nev', 'eszkozkezeles', "`recid`='{$sor['gep_id']}'");
+                    $gep = $gep[0];
+                    if($gep['nev']){
+                        $gep_nev = '<br>Gép: '.addslashes($gep['nev']);
                     }
-
-                    //Hiba felirat, csak ha van hiba
-                    if($sor['hiba_text']){
-                        $sor['hiba_text'] = '<br>Hiba: '.addslashes($sor['hiba_text']);
-                    }
-                    $gombok .= nl2('
-                        <script>var torol_kerdes = \'
-                            <div class="l">
-                                Iktatószám: '.$sor['ikt_szam'].'
-                                <br>Szálloda: '.addslashes($szalloda['nev']).'
-                                <br>Helyiség: '.addslashes($obj['nev']).'
-                                '.$sor['hiba_text'].'
-                                '.$gep_nev.'
-                            </div>
-                            <br>Biztosan törlöd ezt a '.$szoveg.'?
-                        \';</script><input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(torol_kerdes, gomb'.$_GET['id'].')" value="Töröl" title="Töröl">
-                    ');
                 }
 
+                //Hiba felirat, csak ha van hiba
+                if($sor['hiba_text']){
+                    $sor['hiba_text'] = '<br>Hiba: '.addslashes($sor['hiba_text']);
+                }
+                $gombok .= nl2('
+                    <script>var torol_kerdes = \'
+                        <div class="l">
+                            Iktatószám: '.$sor['ikt_szam'].'
+                            <br>Szálloda: '.addslashes($szalloda['nev']).'
+                            <br>Helyiség: '.addslashes($obj['nev']).'
+                            '.$sor['hiba_text'].'
+                            '.$gep_nev.'
+                        </div>
+                        <br>Biztosan törlöd ezt a '.$szoveg.'?
+                    \';</script><input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(torol_kerdes, gomb'.$_GET['id'].')" value="Töröl" title="Töröl">
+                ');
             }
+
         }
 
-        if(_jog(1) && !_jog(2)){
+        //Ha valaki bejelentő, és nem diszpécser, akkor csak saját bejelentéseit szerkesztheti
+        if(_jog(JOG_BEJELENTES_KEZEL) && !_jog(JOG_DISZPECSER)){
 
-            //Ha valaki bejelentő, és nem diszpécser, akkor csak saját bejelentéseit szerkesztheti
             $nem_szerkesztheti = false;
-            if(!_jog(2) && $sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
+            if(!_jog(JOG_DISZPECSER) && $sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
                 $nem_szerkesztheti = true;
             }
 
@@ -535,7 +534,7 @@ if($gyorskereso_text){
             }
         }
 
-        if( _jog(2) ) {
+        if( _jog(JOG_DISZPECSER) ) {
             $gombok .= nl2('
                 <input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="munkalapKeszit(\'csak kérdezünk még\')" title="Munkalap készítése">
             ');
@@ -558,7 +557,7 @@ if($gyorskereso_text){
     }
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && _jog(1) && !_jog(2) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && _jog(JOG_BEJELENTES_KEZEL) && !_jog(JOG_DISZPECSER) && !$csak_szerkesztheto){
 
         //NAVIGÁCIÓ
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
@@ -650,7 +649,7 @@ if($gyorskereso_text){
 
         $json_sor = array();
         foreach($sor as $kulcs => $elem){
-            $json_sor[$kulcs] = str_replace("\r\n", "#UJSOR#", $elem);
+            $json_sor[$kulcs] = nl2(str_replace("\n", "#UJSOR#", $elem));
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 

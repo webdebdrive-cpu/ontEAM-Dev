@@ -1108,17 +1108,19 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
     if( is_array($idk) ) {
         foreach($idk as $id) {
 
-            $sql = $statusz = $adatbazis_kapcsolat->s('statusz_id szemelyzet_id', 'munkalap', "`recid` = '{$id}'");
-            if( $sql === false ) {
+            $statusz = $adatbazis_kapcsolat->s('statusz_id szemelyzet_id', 'munkalap', "`recid` = '{$id}'");
+            if( $statusz === false ) {
                 $db_error = '3';
             }
 
-            if( $statusz ) {
+            //2. körben már nem kell figyelni a státuszokból eredő hibákat
+            if( $statusz && !isset($_POST['no_statusz_hiba']) ) {
                 $statusz = $statusz[0];
 
                 if( !in_array($statusz['statusz_id'], array(MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_FOLYAMATBAN)) ) {
                     echo json_encode(array(
-                        'hiba' => 'Kérem csak nyitott vagy folyamatban státuszú munkalapokat jelöljön meg!'
+                        'hiba' => 'Kérem csak nyitott vagy folyamatban státuszú munkalapokat jelöljön meg!',
+                        'gomb' => '<input class="link gomb" value="Ok" onclick="csoportMuvelet(\'munkalap_mobil\', \'státus hibafigyelés nélkül\'); alert2();" type="button">'
                     ));
 
                     $weblap->leallit();
@@ -1127,20 +1129,14 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
 
                 if( $statusz['statusz_id'] == MUNKALAP_STAT_FOLYAMATBAN && $statusz['szemelyzet_id']!=MOBILCSOPORT ) {
                     echo json_encode(array(
-                        'hiba' => 'Ha a munkalap státusza folyamatban státuszú, akkor csak mobilcsoporthoz rendelt munkalap jelölhető meg!'
+                        'hiba' => 'Ha a munkalap státusza folyamatban státuszú, akkor csak mobilcsoporthoz rendelt munkalap jelölhető meg!',
+                        'gomb' => '<input class="link gomb" value="Ok" onclick="csoportMuvelet(\'munkalap_mobil\', \'státus hibafigyelés nélkül\'); alert2();" type="button">'
                     ));
 
                     $weblap->leallit();
                     exit();
                 }
                 
-            } else {
-                echo json_encode(array(
-                    'hiba' => tranzakcioHiba()
-                ));
-
-                $weblap->leallit();
-                exit();
             }
         }
 
@@ -1698,7 +1694,7 @@ if($gyorskereso_text){
 
         $json_sor = array();
         foreach($sor as $kulcs => $elem){
-            $json_sor[$kulcs] = str_replace("\r\n", "#UJSOR#", $elem);
+            $json_sor[$kulcs] = nl2(str_replace("\n", "#UJSOR#", $elem));
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
 
