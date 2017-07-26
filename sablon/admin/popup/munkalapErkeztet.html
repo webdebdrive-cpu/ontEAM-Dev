@@ -1,0 +1,54 @@
+<h2>Hibajelentéshez beérkezett anyagok rögzítése</h2>
+
+<div class="dt">
+    <div class="dtr">
+        <div class="dtc form_bal">Iktatószám:</div>
+        <div class="dtc form_jobb">
+            <input type="text" name="pop_ikt_szam" id="pop_ikt_szam" disabled>
+            <input type="hidden" name="pop_recid" id="pop_recid" disabled>
+        </div>
+    </div>
+    <div class="dtr">
+        <div class="dtc form_bal">Szálloda:</div>
+        <div class="dtc form_jobb">
+            <input type="text" name="pop_telephely" id="pop_telephely" disabled>
+        </div>
+    </div>
+</div>
+
+<div id="pop_tablazat"></div>
+
+<div class="kuldes">
+    <input type="button" name="elkuld" value="Mentés" class="gomb" onclick="munkalapErkeztetMent()">
+</div>
+<script>
+	function munkalapErkeztetMent(){
+        
+        idk = {};
+        
+        i = 0;
+        $('.pop_cbok').each(function() {
+            if($(this).prop('checked')){
+                idk[i] = $(this).attr('data-recid');
+                i++;
+            }
+        });
+
+        
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                idk                  : JSON.stringify(idk),
+                munkalapErkeztetMent : new Date().getTime()
+            },
+            success: function(response){
+                if( response.hiba ) {
+                    alert2(response.hiba, '', 'Hiba');
+                    return false;
+                }
+                popupZar();
+            }
+        });
+    }
+</script>

@@ -1288,6 +1288,140 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
     exit();
 }
 
+/* Munkalap érkeztetése */
+if( isset($_POST['munkalapErkeztet']) ) {
+
+
+    $munkalap = $adatbazis_kapcsolat->s('statusz_id ikt_szam telephely_id', 'munkalap', "`recid` = '{$_POST['recid']}'");
+    $munkalap = $munkalap[0];
+
+    if( !in_array($munkalap['statusz_id'], array(MUNKALAP_STAT_ANYAGRAVAR)) ) {
+        echo json_encode(array(
+            'hiba' => $munkalap['ikt_szam'].'<br>Ez a munkalap nem anyagra vár státuszban van. Nem lehet hozzá anyagot érkeztetni!',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+
+    $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$munkalap['telephely_id']}'");
+    $telephely = $telephely[0];
+    
+    $tablazat = nl2('
+        Felhasznált és hiányzó anyagok:
+        <table class="csikos">
+        <tr>
+            <th>Cikk</th>
+            <th>Név</th>
+            <th>Felhasznált mennyiség</th>
+            <th>Szükséges mennyiség</th>
+            <th>Mee</th>
+            <th>Anyag státusz</th>
+            <th>Anyag beérkezett</th>
+        </tr>
+        ');
+    
+    require 'selectek.php';
+    $anyagok = $adatbazis_kapcsolat->s('recid cikk_id cikk_nev cikk_men szuk_men cikk_mee stat_id', 'munkalap_anyag', "`munkalap_id`='{$_POST['recid']}'");
+    foreach($anyagok as $anyag){
+        
+        foreach($munkAnyag_statusz as $kulcs => $stat){
+            if($kulcs == $anyag['stat_id']){
+                $statusz = $stat;
+            }
+        }
+        
+        //ha anyagstátusz= igénylésre vár vagy igényelve, anyag beérkezett oszlopban pipáló
+        //ha anyagstátusz=rendelkezésre áll vagy üres (ez elvileg nem lehet), szürkén mutatjuk sort és nem tud pipálni
+        $disabled = '';
+        $szurkit  = '';
+        if($anyag['stat_id']==DISZPNAG_STAT_VAN_ANYAG || $anyag['stat_id']==''){
+            $disabled = ' disabled';
+            $szurkit  = ' class="erkeztet_szurkit"';
+        }
+        $tablazat .= nl2('
+                    <tr'.$szurkit.'>
+                        <td>'.$anyag['cikk_id'].'</td>
+                        <td>'.$anyag['cikk_nev'].'</td>
+                        <td class="r">'.$anyag['cikk_men'].'</td>
+                        <td class="r">'.$anyag['szuk_men'].'</td>
+                        <td>'.$anyag['cikk_mee'].'</td>
+                        <td>'.$statusz.'</td>
+                        <td>
+                            <div class="cb">
+                                <input type="checkbox" id="pop_cb_'.$anyag['recid'].'"'.$disabled.' class="pop_cbok" data-recid="'.$anyag['recid'].'">
+                                <label for="pop_cb_'.$anyag['recid'].'"></label>
+                            </div>
+                        </td>
+                    </tr>
+                    ');
+    }
+    $tablazat .= nl2('</table>');
+    
+
+    echo json_encode(array(
+        'statusz'   => 'siker',
+        'ikt_szam'  => $munkalap['ikt_szam'],
+        'telephely' => $telephely['nev'],
+        'tablazat'  => $tablazat,
+    ));
+
+    
+    $weblap->leallit();
+    exit();
+}
+/* Munkalap érkeztetésének mentése */
+if( isset($_POST['munkalapErkeztetMent']) ) {
+    
+    $idk = json_decode($_POST['idk'], true);
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( is_array($idk) && $idk ) {
+        $sql = $adatbazis_kapcsolat->u('munkalap_anyag',    array('szuk_men', 'stat_id',               'update_usr'  ),
+                                                            array('0',        DISZPNAG_STAT_VAN_ANYAG, $_SESSION[get_db_tabla().'teljes_nev']  ),
+                                        "`recid` IN (".implode(',', $idk).")");
+        if( $sql === false ) {
+            $db_error = true;
+        }
+        
+        //ellenőrizzük, hogy van-e még olyan sor, ahol statid=DISZPNAG_STAT_VAN_ANYAG, ha nincs, a munkalap státuszt átállítjuk: Nyitott és viszaadva=1
+        $munkalap_id = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_anyag', "`recid`='{$idk[0]}'");
+        if( $munkalap_id === false ) {
+            $db_error = true;
+        }
+        $munkalap_id = $munkalap_id[0];
+        $mind_kesz = $adatbazis_kapcsolat->s('recid', 'munkalap_anyag', "`munkalap_id`='{$munkalap_id['munkalap_id']}' AND `stat_id`!='".DISZPNAG_STAT_VAN_ANYAG."'");
+        if( $mind_kesz === false ) {
+            $db_error = true;
+        }
+        if(count($mind_kesz)==0){
+            if( !addStatusz( 'munkalap_statusz', $munkalap_id['munkalap_id'], MUNKALAP_STAT_NYITOTT ) ) {
+                $db_error = true;
+            }
+            $sql = $adatbazis_kapcsolat->u('munkalap', array('visszaadva'), array(1), "`recid`='{$munkalap_id['munkalap_id']}'");
+            if( $sql === false ) {
+                $db_error = true;
+            }
+        }
+    }
+    
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba().$db_error
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
+
 if( isset($_POST['jogokhozzaad']) ) {
     $id = $_POST['id'];
 
@@ -1509,6 +1643,7 @@ if($gyorskereso_text){
                 </div>
             ');
 
+            
         } else if( _jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_DISZP_KP_VEZ) ) {
 
             $gombok .= nl2('
@@ -1581,6 +1716,10 @@ if($gyorskereso_text){
                 </script>
                 <input type="button" class="gomb foGomb" value="Munka felvétele" title="Munka felvétele" onclick="'.$onclick.'">
             ');
+        }
+        
+        if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) ){
+            $gombok .= '<input type="button" class="gomb foGomb" value="Érkeztet" title="Feladat érkeztetése" onclick="csoportMuvelet(\'munkalapErkeztet\')">';
         }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';

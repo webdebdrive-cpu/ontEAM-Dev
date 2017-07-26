@@ -517,6 +517,12 @@ $(function() {
         $('.foglalt').removeClass('kijelol');
         $('#mehet_gomb_kivesz').attr('disabled', 'disabled');
     });
+    /* Megnyomva az Esc-et, a popup bezáródik */
+    $(document).on('keyup', function(e) {
+        if (e.which == 27) {
+            popupZar();
+        }
+    });
     /* Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk
      
      *2do: Checkbox-ra hogyna lehetne léptetni?
@@ -1476,7 +1482,7 @@ function tobbBejegyzesTorol() {
 
 
             } else {
-                alert2('Nincsenek kijelölt sorok!');
+                alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
             }
         }
     }
@@ -1684,7 +1690,7 @@ function varolistabolKivetel(csak_kerdezunk) {
                     }
                 });
             } else {
-                alert2('Nincsenek kijelölt sorok!');
+                alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
             }
         }
     }
@@ -1740,7 +1746,7 @@ function varolistahozAdas(csak_kerdezunk) {
                     }
                 });
             } else {
-                alert2('Nincsenek kijelölt sorok!');
+                alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
             }
         }
     }
@@ -1793,7 +1799,7 @@ function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
                     }
                 });
             } else {
-                alert2('Nincsenek kijelölt sorok!');
+                alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
             }
         }
     }
@@ -1851,7 +1857,7 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
                     }
                 });
             } else {
-                alert2('Nincsenek kijelölt sorok!');
+                alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
             }
         }
     }
@@ -1912,7 +1918,7 @@ function anyagigenyles_jovahagy(csak_kerdezunk) {
                     }
                 });
             } else {
-                alert2('Nincsenek kijelölt sorok!');
+                alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
             }
         }
     }
@@ -1984,7 +1990,7 @@ function anyagigenyles_elutasitas(csak_kerdezunk) {
                     }
                 });
             } else {
-                alert2('Nincsenek kijelölt sorok!');
+                alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
             }
         }
     }
@@ -2044,7 +2050,7 @@ function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
                     }
                 });
             } else {
-                alert2('Nincsenek kijelölt sorok!');
+                alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
             }
         }
     }
@@ -2138,7 +2144,7 @@ function munkalaphozAdas(csak_kerdezunk) {
                     }
                 });
             } else {
-                alert2('Nincsenek kijelölt sorok!');
+                alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
             }
         } else {
             alert2('Kérem válasszon egy munkalapot!');
@@ -2728,8 +2734,8 @@ function munkalapFelvesz( recid ) {
                 url : 'esemenyek.php',
                 type: 'POST',
                 data: {
-                    recid: recid,
-                    munkalapFelvesz: new Date().getTime()
+                    recid           : recid,
+                    munkalapFelvesz : new Date().getTime()
                 },
                 success: function(response) {
                     if(response) {
@@ -2762,7 +2768,6 @@ function munkalapKeszit(csak_kerdezunk) {
         idk = {};
 
         szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
-
         if( szamlaSorok.length ) {
             var i = 1;
             szamlaSorok.each(function() {
@@ -2810,7 +2815,7 @@ function munkalapKeszit(csak_kerdezunk) {
                 }
             });
         } else {
-            alert2('Nincsenek kijelölt sorok!');
+            alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
         }
     }
     return false;
@@ -2867,7 +2872,7 @@ function bejegyzesElutasitas( that ) {
                 });
             }
         } else {
-            alert2('Nincsenek kijelölt sorok!');
+            alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
         }
     } else {
         alert2('Kérem adja meg az elutasítás okát!');
@@ -2925,7 +2930,7 @@ function csoportbolTorol( oszlop ) {
                 });
             }
         } else {
-            alert2('Nincsenek kijelölt sorok!');
+            alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
         }
     }
 
@@ -3009,7 +3014,7 @@ function csoportbaRendez( that ) {
                     });
                 }
             } else {
-                alert2('Nincsenek kijelölt sorok!');
+                alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
             }
         } else {
             alert2('Kérem válasszon egy csoport');
@@ -3244,7 +3249,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                             }
                         });
                     } else {
-                        alert2('Nincsenek kijelölt sorok!');
+                        alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
                     }
                 break;
 
@@ -3485,9 +3490,54 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                     });
                 break;
 
+                case 'munkalapErkeztet':
+                    $('#popupTart').html(data);
+
+                    if(balnav_kijelol_ell()){
+
+                        var recid = $('#szamlaList li.szamla_sor.kijelolve').attr('data-recid');
+                        if( recid ) {
+
+                            $.ajax({
+                                url : 'munkalap.php',
+                                type: 'POST',
+                                data: {
+                                    recid           : recid,
+                                    munkalapErkeztet: new Date().getTime()
+                                },
+                                success: function(response) {
+                                    if(response) {
+                                        response = JSON.parse(response);
+
+                                        if( response.hiba ) {
+                                            if( response.gomb ) {
+                                                alert2(response.hiba, response.gomb);
+                                            } else {
+                                                alert2(response.hiba, '', 'Hiba');
+                                            }
+                                            popupZar();
+                                            return false;
+                                        }
+
+                                        $('#pop_ikt_szam').val(response.ikt_szam);
+                                        $('#pop_telephely').val(response.telephely);
+                                        $('#pop_tablazat').html(response.tablazat);
+
+                                        popupNyit();
+                                    }
+                                }
+                            });
+                        } else {
+                            alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
+                        }
+
+                    }
+                break;
+
                 default:
                     $('#popupTart').html(data);
                     popupNyit();
+                    return true;
                 break;
             }
 
@@ -3546,7 +3596,7 @@ function arazas() {
                 }
             });
         } else {
-            alert2('Nincsenek kijelölt sorok!');
+            alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
         }
     }
     return false;
