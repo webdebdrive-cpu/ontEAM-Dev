@@ -1507,21 +1507,21 @@ function szamla_lista( $where, $tabla ) {
             $where = "`".get_db_tabla()."munkalap`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
 
             //Ha nincs a megtekintéshez engedélye, vagy bejelentést láthat akkor nem is lát semmit
-            if(!_jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_BEJELENTES_MEGTEKINT) ){
+            if( !_jog(JOG_MUNKALAP_MEGTEKINT) ){
                 $where .= ' FALSE';
             }else{
                 
                 //Belépve mint telepített
-                if( _jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_TELEPITETT) ) {
+                if( _jog(JOG_MUNKALAP_TELEPITETT) ) {
                     $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".TELEPITETT_SZEMELYZET."' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.") AND ";
                 //Belépve mint mobil
-                } else if( _jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_MOBIL) ) {
-                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".MOBILCSOPORT."' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.") AND ";
+                } else if( _jog(JOG_MUNKALAP_MOBIL) ) {
+                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".MOBILCSOPORT."' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.") AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}')";
                 //Belépve mint műszaki vezető
-                } else if( _jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_MUSZAKI_VEZ) ) {
+                } else if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) ) {
                     $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".MUSZAKI_VEZETO." AND `".get_db_tabla()."munkalap`.`statusz_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.") AND ";
                 //Belépve mint diszp. kp. vezető
-                } else if( _jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_DISZP_KP_VEZ) ) {
+                } else if( _jog(JOG_MUNKALAP_DISZP_KP_VEZ) || _jog(MUSZAKI_VEZETO) || _jog(JOG_DISZPECSER) ) {
                     $where .= '';
                 }
                 

@@ -8,15 +8,10 @@
                 <td class="r p">Rendelés szám:</td>
                 <td class="l p"><input type="text" id="rsz"></td>
             </tr>
-            <tr>
+            <tr id="szallito_sor" class="dn">
                 <td class="r p">Szállító:</td>
                 <td class="l p">
-                    <input type="text" id="pop_szallito" disabled>
-                    <script>
-                        $(document).ready(function(){
-                            $('#pop_szallito').val($('#szallito_autocomp').val());
-                        });
-                    </script>
+                    <input type="text" id="pop_szallito">
                 </td>
             </tr>
         </table>

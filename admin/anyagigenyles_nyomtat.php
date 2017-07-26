@@ -25,7 +25,7 @@ if (isset($_GET['szall'])) {
     if($idk_impl){
         
         //Cikkenkénti összesítés
-        $tetelek_html = nl2('
+        $tetelek_html = '
                             <table class="border full" style="font-size: 1.2rem ;margin: auto; margin-top: 1rem; margin-bottom: 1rem">
                             <tr>
                                 <th>Név</th>
@@ -34,7 +34,7 @@ if (isset($_GET['szall'])) {
                                 <th>Nettó rendelési egységár</th>
                                 <th>Nettó összesen ('.$penznem['info'].')</th>
                             </tr>
-                        ');
+                        ';
     
         //Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
         $ossz     = 0;
@@ -47,7 +47,7 @@ if (isset($_GET['szall'])) {
                 $rndmen += $a_lek['rndmen'];
             }
 
-            $tetelek_html .= nl2('
+            $tetelek_html .= '
                             <tr>
                                 <td>'.$a_lek['nev'].'</td>
                                 <td class="c">'.$a_lek['cikkmee'].'</td>
@@ -55,10 +55,10 @@ if (isset($_GET['szall'])) {
                                 <td class="r">'.number_format($a_lek['rndear'], 4, ',', ' ').'</td>
                                 <td class="r">'.number_format($rndmen*$a_lek['rndear'], 4, ',', ' ').'</td>
                             </tr>
-                            ');
+                            ';
             $ossz += $rndmen*$a_lek['rndear'];
         }
-        $tetelek_html .= nl2('
+        $tetelek_html .= '
                         <tr>
                             <td style="border: 0"></td>
                             <td style="border: 0"></td>
@@ -67,13 +67,13 @@ if (isset($_GET['szall'])) {
                             <td style="border: 0" class="r b">'.number_format($ossz, 4, ',', ' ').'</td>
                         </tr>
                         </table>
-                        ');
+                        ';
 
     }
     
     
     //Lényegi tartalom
-    $tartalom = nl2('        
+    $tartalom = '        
         '.get_fejlec_top($sorszam, 'lapszámmal').'
         <div class="padd minh">
             
@@ -102,10 +102,23 @@ if (isset($_GET['szall'])) {
                 '.get_alairasok().'
             </div>
         </div>
-            ');
+            ';
     
     $keret = get_keret();
-    echo str_replace('{TARTALOM}', $tartalom, $keret);
+    $html = str_replace('{TARTALOM}', $tartalom, $keret);
+    echo nl2($html);
+    
+    error_reporting(0); //Így tudod kikapcsolni a warningokat és hibaüzeneteket
+    include('../html2pdf/mpdf.php');
+    
+    $mit = array('<script src="../js/jquery.js"></script>', '<link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">');
+    $html = str_replace($mit, '', $html);
+    
+    $mpdf = new mPDF('utf-8');
+    $mpdf -> WriteHTML( $html );
+
+    //Így tudod egy PDF fájlba elmenteni a generált taratlmat
+    $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '!x.pdf'), 'F');
     
     $weblap -> leallit();
     exit;
@@ -124,7 +137,7 @@ if (isset($_GET['cim'])) {
         if($idk_impl){
 
             //Cikkenkénti összesítés
-            $tetelek_html = nl2('
+            $tetelek_html = '
                                 <table class="border full" style="font-size: 1.2rem ;margin: auto; margin-top: 1rem; margin-bottom: 1rem">
                                 <tr>
                                     <th>Cikk</th>
@@ -135,7 +148,7 @@ if (isset($_GET['cim'])) {
                                     <th>Nettó összesen ('.$penznem['info'].')</th>
                                     <th style="width: 20rem">Megjegyzés</th>
                                 </tr>
-                            ');
+                            ';
 
             //Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
             $ossz = 0;
@@ -147,7 +160,7 @@ if (isset($_GET['cim'])) {
                 foreach($anyag_lek as $a_lek){
                     $rndmen += $a_lek['rndmen'];
                 }
-                $tetelek_html .= nl2('
+                $tetelek_html .= '
                                 <tr>
                                     <td>'.$a_lek['cikktorzs_id'].'</td>
                                     <td>'.$a_lek['nev'].'</td>
@@ -157,10 +170,10 @@ if (isset($_GET['cim'])) {
                                     <td class="r">'.number_format($rndmen*$a_lek['rndear'], 4, ',', ' ').'</td>
                                     <td></td>
                                 </tr>
-                                ');
+                                ';
                 $ossz += $rndmen*$a_lek['rndear'];
             }
-            $tetelek_html .= nl2('
+            $tetelek_html .= '
                             <tr>
                                 <td></td>
                                 <td class="b">Mindösszesen:</td>
@@ -171,11 +184,11 @@ if (isset($_GET['cim'])) {
                                 <td></td>
                             </tr>
                             </table>
-                            ');
+                            ';
             
             
             //Lényegi tartalom
-            $tartalom = nl2('        
+            $tartalom = '        
                 '.get_fejlec_top($sorszam).'
                 <div class="padd minh">
 
@@ -189,7 +202,7 @@ if (isset($_GET['cim'])) {
                         <div class="lap_alja">Budapest,  '.date_formaz(date('Y-m-d')).'</div>
                     </div>
                 </div>
-                    ');
+                    ';
 
             echo str_replace('{TARTALOM}', $tartalom, $keret);
         }
@@ -212,13 +225,13 @@ if (isset($_GET['oracle'])) {
         if($idk_impl){
 
             //Cikkenkénti összesítés
-            $tetelek_html = nl2('
+            $tetelek_html = '
                                 <table class="border full" style="font-size: 1.2rem ;margin: auto; margin-top: 1rem; margin-bottom: 1rem">
                                 <tr>
                                     <th>Oracle cikkszám</th>
                                     <th>Nettó összesen ('.$penznem['info'].')</th>
                                 </tr>
-                            ');
+                            ';
 
             //Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
             $ossz = 0;
@@ -230,25 +243,25 @@ if (isset($_GET['oracle'])) {
                 foreach($anyag_lek as $a_lek){
                     $rndmen += $a_lek['rndmen'];
                 }
-                $tetelek_html .= nl2('
+                $tetelek_html .= '
                                 <tr>
                                     <td>'.$anyag['oracikkid'].'</td>
                                     <td class="r">'.number_format($rndmen*$a_lek['rndear'], 4, ',', ' ').'</td>
                                 </tr>
-                                ');
+                                ';
                 $ossz += $rndmen*$a_lek['rndear'];
             }
-            $tetelek_html .= nl2('
+            $tetelek_html .= '
                             <tr>
                                 <td class="b">Mindösszesen:</td>
                                 <td class="r b">'.number_format($ossz, 4, ',', ' ').'</td>
                             </tr>
                             </table>
-                            ');
+                            ';
             
             
             //Lényegi tartalom
-            $tartalom = nl2('        
+            $tartalom = '        
                 '.get_fejlec_top($sorszam).'
                 <div class="padd minh">
 
@@ -263,7 +276,7 @@ if (isset($_GET['oracle'])) {
                         <div class="lap_alja">Budapest,  '.date_formaz(date('Y-m-d')).'</div>
                     </div>
                 </div>
-                    ');
+                    ';
 
             echo str_replace('{TARTALOM}', $tartalom, $keret);
         }
@@ -282,7 +295,7 @@ function get_fejlec_top($sorszam, $lapszammal){
         $lapszammal = '<span class="szamlalo"></span>/';
     }
     
-    return nl2('
+    return '
         <div class="fejlec">
             <table class="full">
             <tr>
@@ -309,7 +322,7 @@ function get_fejlec_top($sorszam, $lapszammal){
             </tr>
             </table>
         </div>
-        ');
+        ';
 }
 
 function get_fejlec($szallito){
@@ -323,7 +336,7 @@ function get_fejlec($szallito){
         $tel_kieg = '<br>Tel.: '.$login['usertel'];
     }
     
-    return nl2('
+    return '
             <div style="padding: 0 1.5rem 0 1.5rem">
                 <table style="margin: auto; margin-top: 2rem; width: 95%">
                 <tr>
@@ -352,7 +365,7 @@ function get_fejlec($szallito){
                     </td>
                 </tr>
                 </table>
-        ');
+        ';
 }
 
 function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
@@ -365,9 +378,9 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
     }
     
     //Szállítási címenkénti összesítés
-    $szallcim_html = nl2('
+    $szallcim_html = '
                         <table class="border full" style="font-size: 1.2rem ;margin: auto; margin-top: 1rem; margin-bottom: 1rem">
-                    ');
+                    ';
     
     //Van egy fix cím
     $telephely = $adatbazis_kapcsolat->s('nev props', 'telephely', "`id`='".NYOMTATAS_FIX_CIM."'");
@@ -407,7 +420,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                     $szall_cim .= 'Danubius fuvar';
                 break;
             }
-            $szallcim_html .= nl2('
+            $szallcim_html .= '
                             <tr>
                                 <td class="b">
                                     Szállítási cím:
@@ -422,7 +435,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                                     <br>'.$fix_cim.'
                                 </td>
                             </tr>
-                            ');
+                            ';
             
             
             //Szedjük össze az azonos cikkeket, ami adott telephelyhez tartozik, majd számoljuk ki, hány darab kell belőle
@@ -435,31 +448,31 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                     $rndmen += $a_lek_db['rndmen'];
                 }
                 
-                $szallcim_html .= nl2('
+                $szallcim_html .= '
                                 <tr>
                                     <td class="vat c">'.number_format($rndmen, 2, ',', '.').' '.$a_lek_db['cikkmee'].'</td>
                                     <td class="vat">'.$a_lek_db['nev'].'</td>
                                 </tr>
-                                ');
+                                ';
             }
             
             //Telephelyek után egy kis elválasztó
-            $szallcim_html .= nl2('
+            $szallcim_html .= '
                             <tr>
                                 <td colspan="2" style="padding: 0.7rem; border-left: 0; border-right: 0; border-bottom: 0"></td>
                             </tr>
-                            ');
+                            ';
         }
     }
-    $szallcim_html .= nl2('
+    $szallcim_html .= '
                         </table>
-                    ');
+                    ';
     
     return $szallcim_html;
 }
 
 function get_alairasok(){
-    return nl2('
+    return '
                 <table class="full" style="font-size: 1.2rem; margin-top: 8rem">
                 <tr>
                     <td class="c">
@@ -474,11 +487,11 @@ function get_alairasok(){
                     </td>
                 </tr>
                 </table>
-        ');
+        ';
 }
 
 function get_keret(){
-    return nl2('
+    return '
 <head>
     <title></title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -501,6 +514,6 @@ function get_keret(){
         </div>
     </div>
 <body>
-        ');
+        ';
 }
 ?>

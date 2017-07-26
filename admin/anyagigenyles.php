@@ -1151,6 +1151,8 @@ if( isset($_POST['rendeles_keszit']) ) {
             mysqli_query($db_kapcs, 'UPDATE `'.get_db_tabla().'iktszam_seq` SET `sorszam`=\''.$sorszam.'\' WHERE `tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\'');
             $sorszam = 'R'.date('y').'/'.sprintf('%04d', $sorszam).'|'.$_POST['idk'];
             $sorszam_kodolva = trim(base64_encode($sorszam), '=');
+            
+            $html = URL_letolt(self().'?nyomtat='.$sorszam_kodolva.'&amp;szall');
 
             echo json_encode(array(
                 'hiba'      => nl2('
@@ -1302,7 +1304,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
         $szallodak = get_akt_login_szallodai();
         if($szallodak){
             
-            $igenylesek = $adatbazis_kapcsolat->s('recid telephely_id cikktorzs_id nev igmen rndmen erkmen cikkmee', 'anyagigenyles', "`aparecid`='{$recid['recid']}' AND `telephely_id` IN (".implode(',', $szallodak).")");
+            $igenylesek = $adatbazis_kapcsolat->s('recid telephely_id cikktorzs_id nev igmen rndmen erkmen cikkmee szallito', 'anyagigenyles', "`aparecid`='{$recid['recid']}' AND `telephely_id` IN (".implode(',', $szallodak).")");
             foreach($igenylesek as $igeny){
 
                 $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$igeny['telephely_id']}'");
@@ -1339,8 +1341,14 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
             }
             $html .= '</table>';
         }
+        
+
+        $szallito = $adatbazis_kapcsolat->s('nev', 'szallito', "`recid`='{$igeny['szallito']}'");
+        $szallito = $szallito[0];
+        
         echo json_encode(array(
-            'html' =>  $html
+            'html'      =>  $html,
+            'szallito'  =>  $szallito['nev'],
         ));
         
     }

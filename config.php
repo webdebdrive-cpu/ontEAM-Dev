@@ -82,9 +82,11 @@ define('NYOMTATAS_KIVETELES_CIM',   2032     );
 //JOGOK
 define('JOG_BEJELENTES_MEGTEKINT',  0 );
 define('JOG_BEJELENTES_KEZEL',      1 );
+define('JOG_DISZPECSER',            2 );
 define('JOG_MUNKALAP_MEGTEKINT',    3 );
 define('JOG_MUNKALAP_TELEPITETT',   5 );
 define('JOG_MUNKALAP_MUSZAKI_VEZ',  21 );
+define('JOG_MUNKALAP_ADMIN',        24 );
 define('JOG_MUNKALAP_DISZP_KP_VEZ', 23 );
 define('JOG_MUNKALAP_MOBIL',        31);
 

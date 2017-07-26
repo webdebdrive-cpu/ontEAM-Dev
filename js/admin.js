@@ -500,7 +500,7 @@ $(function() {
     /*Gyorskereső*/
     $(document).on('keyup', '#rendezesKeres', function(e) {
         $.ajax({
-            url: $(this).attr('data-tabla'),
+            url : $(this).attr('data-tabla'),
             type: 'GET',
             data: esamp2es('ksz=' + $(this).val() + '&amp;gyorskereso_ajax=' + new Date().getTime()),
             success: function (response) {
@@ -2152,7 +2152,7 @@ function munkAnyagIgenyles( that, csak_kerdezunk ) {
                     }
 
                     if( response.refresh ) {
-                        location.href = 'munkalap.php';
+                        location.href = get_get();
                         return false;
                     }
 
@@ -2529,7 +2529,7 @@ function munkalapMobil( that ) {
                             return false;
                         }
 
-                        location.href = 'munkalap.php';
+                        location.href = get_get();
                     }
                 }
             });
@@ -2603,7 +2603,7 @@ function munkalapKeszre(csak_kerdezunk) {
                         return false;
                     }
 
-                    location.href = 'munkalap.php';
+                    location.href = get_get();
                 }
             }
         });
@@ -2957,7 +2957,7 @@ function csoportMuvelet( oldal ) {
 
 
     /* Csak akkor hajtjuk végre, ha a bal oldali kijelölések is rendben vannak */
-    if(balnav_kijelol_ell()){
+    if( oldal=='anyagigenyles_erkeztet' || balnav_kijelol_ell() ){
         $('#kmCont div.kijeloltek_muv').removeClass('active');
 
         $.get('../sablon/admin/popup/' + oldal + '.html?cache=' + new Date().getTime(), function( data ) {
@@ -3650,6 +3650,10 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                         alert2(response.hiba, '', 'Hiba');
                         return false;
                     }else{
+                        $('#szallito_sor').show();
+                        $('#rsz').attr('disabled', true);
+                        $('#pop_szallito').val(response.szallito);
+                        $('#pop_szallito').attr('disabled', true);
                         $('#rendeles_tetelek').html(response.html);
                     }
 
