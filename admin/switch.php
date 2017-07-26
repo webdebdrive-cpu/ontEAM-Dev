@@ -1308,7 +1308,7 @@ foreach($akt_tomb as $ertek){
                 if($ertek['szam']) {
                     $input -> value   = number_format($sor[ $ertek['name'] ], '', '', '.');
                 }else{
-                    
+
                     //Date
                     if( strstr($ertek['class'], 'datepicker') ) {
                         if( $sor[ $ertek['name'] ] != '0000-00-00' ) {

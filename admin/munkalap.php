@@ -74,6 +74,133 @@ if($tobb_kep){
 
 }
 
+/* Munkalap lezárás */
+if( isset($_POST['munkalapLezaras']) ) {
+    $recid = $_POST['recid'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+        $sql = $munkalap = $adatbazis_kapcsolat->s('statusz_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $munkalap ) {
+            $munkalap = $munkalap[0];
+
+            if( $munkalap['statusz_id'] != MUNKALAP_STAT_KESZ_IG ) {
+                echo json_encode(array(
+                    'hiba' => 'Csak Kész státuszú munkalapot lehet lezárni!',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+            echo json_encode(array(
+                'hiba' => 'Biztos lezárja a munkalapot?',
+                'gomb' => '<input class="gomb piros" value="Igen" onclick="munkalapLezaras();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        if( $recid ) {
+            $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '1');
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( $munk_kapcsok ) {
+                $munk_kapcsok = $munk_kapcsok[0];
+
+                $sql = $tobb_munk = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id` != '{$recid}'", '', '');
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+
+                /* Megnézzük, hogy szerepl e máshol a bejelentés */
+                $sql = $bejelentesek_kapcs = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '');
+
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+
+                if( $bejelentesek_kapcs ) {
+                    $bej_db = count($bejelentesek_kapcs);
+                    $bej_lezart_db = 0;
+
+                    foreach($bejelentesek_kapcs as $bej_kapcs) {
+                        /* Bejelentés lekérdezése */
+                        $sql = $bejelentes = $adatbazis_kapcsolat->s('statusz_id', 'bejelentes', "`recid` = '".$bej_kapcs['bejelentes_id']."'", '', '');
+
+                        if( $sql === false ) {
+                            $db_error = true;
+                        }
+
+                        if( $bejelentes ) {
+                            $bejelentes = $bejelentes[0];
+
+                            if( $bejelentes['statusz_id'] == BEJELENTES_STAT_LEZART ) {
+                                $bej_lezart_db++;
+                            }
+                        }
+                    }
+
+                    /* Minden bejelentése lezárt státusz alatt van, ezért zárható a munkalap */
+                    if( $bej_db == $bej_lezart_db ) {
+                        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_LEZART ) ) {
+                            $db_error = true;
+                        }
+                    } else {
+                        echo json_encode(array(
+                            'hiba' => 'A munkalap igazolásra vár vagy vizsgálat alatt van. Nem lehet lezárni!',
+                        ));
+
+                        $weblap->leallit();
+                        exit();
+                    }
+
+                    /* Lezárjuk az összes többi munkáját */
+                    if( $tobb_munk && $bej_db == $bej_lezart_db ) {
+                        foreach($tobb_munk as $tmunk) {
+                            if( !addStatusz( 'munkalap_statusz', $tmunk['munkalap_id'], MUNKALAP_STAT_LEZART ) ) {
+                                $db_error = true;
+                            }
+                        }
+                    }
+
+                    if( !$db_error ) {
+                        mysqli_commit($db_kapcs);
+
+                        echo json_encode(array(
+                            'statusz' => 'siker'
+                        ));
+                    } else {
+                        mysqli_rollback($db_kapcs);
+
+                        echo json_encode(array(
+                            'hiba' => tranzakcioHiba()
+                        ));
+                    }
+                }
+            }
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 /* Diszpécser központ vezető átadás */
 if( isset($_POST['diszKozpVezAtadas']) ) {
     $recid  = $_POST['recid'];
@@ -129,7 +256,11 @@ if( isset($_POST['diszKozpVezAtadas']) ) {
                             exit();
                         }
 
-                        $tobb_munk = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id` = '".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id` != '{$recid}'", '', '');
+                        $sql = $tobb_munk = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id` = '".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id` != '{$recid}'", '', '');
+
+                        if( $sql === false ) {
+                            $db_error = true;
+                        }
 
                         /* Több munkalaphoz kapcsolódik a bejelentés */
                         if( $tobb_munk ) {
@@ -262,7 +393,11 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                     if( $bejelentes ) {
                         $bejelentes = $bejelentes[0];
 
-                        $tobb_munk = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id` != '{$recid}'", '', '');
+                        $sql = $tobb_munk = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id` != '{$recid}'", '', '');
+
+                        if( $sql === false ) {
+                            $db_error = true;
+                        }
 
                         /* Több munkalaphoz kapcsolódik a bejelentés */
                         if( $tobb_munk ) {
@@ -1382,7 +1517,14 @@ if($gyorskereso_text){
 
             $gombok .= nl2('
                 <div id="kmCont">
-                    <input type="button" class="gombb foGomb" value="Átadás" title="Átadás" onclick="csoportMuvelet( \'diszKozpVezAtadas\' );">
+                    <div class="kijeloltek_muv">
+                        <input type="button" class="gombb foGomb" value="Munka átadása..." title="Munka átadása...">
+                        <div class="muv">
+                            <ul>
+                                <li><a onclick="csoportMuvelet( \'diszKozpVezAtadas\' );">Diszpécser</a></li>
+                            </ul>
+                        </div>
+                    </div>
                     <input type="button" class="gomb_alert piros foGomb" value="Lezárás" title="Lezárás" onclick="csoportMuvelet( \'diszKozpVezLezaras\' );">
                 </div>
             ');
@@ -1416,6 +1558,7 @@ if($gyorskereso_text){
                 '.$atadas_gomb.'
                 <input type="button" class="gomb foGomb" value="Anyagigénylés szükséges" title="Anyagigénylés szükséges" onclick="csoportMuvelet(\'munkalapAnyagigenyles\');">
                 <input type="button" class="gomb foGomb" value="Anyag vételezés" title="Anyag vételezés" onclick="csoportMuvelet(\'munkalapAnyagvetelezes\');">
+                <input type="button" class="gomb_alert piros foGomb" value="Lezárás" title="Lezárás" onclick="munkalapLezaras(\'csak kérdezünk még\');">
             ');
 
         } else if( (_jog(JOG_MUNKALAP_MEGTEKINT) && (_jog(JOG_MUNKALAP_TELEPITETT) || _jog(JOG_MUNKALAP_MOBIL)) ) || (_jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_MOBIL)) || (_jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_MUSZAKI_VEZ)) ) {
