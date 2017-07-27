@@ -141,7 +141,7 @@
                 recid  = $('#autocomplete ul li.aktiv').attr('data-recid'),
                 cikkid = $('#autocomplete ul li.aktiv').attr('data-cikkid');
 
-            if( baseName(location.href) == 'login' && recid == 9 ) {
+            if( baseName(location.href) == 'login' && recid == 12 ) {
                 $('#szallitoid_autocomp').attr('disabled', false);
             } else {
                 $('#szallitoid_autocomp').attr('disabled', true).val('');
@@ -274,6 +274,13 @@
 
                     var link = $('#autocomplete ul li.aktiv').attr('data-href'),
                         recid = $('#autocomplete ul li.aktiv').attr('data-recid');
+
+                    if( baseName(location.href) == 'login' && recid == 12 ) {
+                        $('#szallitoid_autocomp').attr('disabled', false);
+                    } else {
+                        $('#szallitoid_autocomp').attr('disabled', true).val('');
+                        $('#szallitoid').val('');
+                    }
 
                     var mee = $('#autocomplete ul li.aktiv').attr('data-mee');
                     if( mee !== undefined ) {
