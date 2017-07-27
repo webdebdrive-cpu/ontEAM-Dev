@@ -541,6 +541,12 @@ if($gyorskereso_text){
                             $kikapcs .= '$(\'#jog-'.$pipa_ki.'\').prop(\'checked\', false).removeClass(\'mod\');';
                         }
                     }
+                    $kikapcskor_kikapcs = '';
+                    if($jogSor['kikapcskor_kikapcs']){
+                        foreach(explode(',', $jogSor['kikapcskor_kikapcs']) as $pipa_ki){
+                            $kikapcskor_kikapcs .= '$(\'#jog-'.$pipa_ki.'\').prop(\'checked\', false).addClass(\'mod\');';
+                        }
+                    }
                     $bekapcs = '';
                     if($jogSor['bekapcs']!=''){
                         foreach(explode(',', $jogSor['bekapcs']) as $pipa_be){
@@ -550,15 +556,18 @@ if($gyorskereso_text){
                     
                     //Ha épp most kap bekapcsolást, csak akkor futtatjuk le
                     if($bekapcs){
-                        $bekapcs = 'if( $(this).prop(\'checked\')==false ){'.$bekapcs.'}';
+                        $bekapcs = 'if( $(this).prop(\'checked\') ){'.$bekapcs.'}';
                     }
                     //Ha épp most kapcsoltuk ki
-                    if($bekapcs){
-                        $kikapcs = 'if( $(this).prop(\'checked\') ){'.$kikapcs.'}';
+                    if($kikapcs){
+                        $kikapcs = 'if( $(this).prop(\'checked\') == false ){'.$kikapcs.'}';
+                    }
+                    if($kikapcskor_kikapcs){
+                        $kikapcskor_kikapcs = 'if( $(this).prop(\'checked\') == false ){'.$kikapcskor_kikapcs.'}';
                     }
                     
-                    if($kikapcs || $bekapcs){
-                        $onclick = ' onclick="'.$kikapcs.$bekapcs.'"';
+                    if($kikapcs || $bekapcs || $kikapcskor_kikapcs){
+                        $onclick = ' onclick="'.$kikapcs.$bekapcs.$kikapcskor_kikapcs.'"';
                     }
                     
                     $dn = '';

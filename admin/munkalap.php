@@ -1765,7 +1765,7 @@ if($gyorskereso_text){
         }
 
         if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) ){
-            $gombok .= '<input type="button" class="gomb foGomb" value="Érkeztet" title="Feladat érkeztetése" onclick="csoportMuvelet(\'munkalapErkeztet\')">';
+            $gombok .= '<input type="button" class="gomb foGomb" value="Anyag érkeztetés" title="Anyag érkeztetés" onclick="csoportMuvelet(\'munkalapErkeztet\')">';
         }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
