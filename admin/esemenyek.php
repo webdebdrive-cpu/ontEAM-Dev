@@ -1571,8 +1571,8 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
 
                     /* Munkalapon töröljük a személyzetet és a mobil loginnevet */
                     $sql = $adatbazis_kapcsolat -> u('munkalap',
-                        array('szemelyzet_id', 'mobil_loginnev', 'update_usr'                           ),
-                        array( 0,              '',               $_SESSION[get_db_tabla().'teljes_nev'] ),
+                        array('szemelyzet_id', 'mobil_loginnev', 'szallitoid', 'update_usr'                           ),
+                        array( 0,              '',                0,           $_SESSION[get_db_tabla().'teljes_nev'] ),
                         "`recid` = '{$recid}'"
                     );
 
@@ -1792,8 +1792,8 @@ if( isset($_POST['munkalapKeszre']) ) {
 
             /* Munkalapon töröljük a személyzetet és a mobil loginnevet */
             $sql = $adatbazis_kapcsolat -> u('munkalap',
-                array(/*'szemelyzet_id', 'mobil_loginnev',*/ 'update_usr'                           ),
-                array(/* 0,              '',              */ $_SESSION[get_db_tabla().'teljes_nev'] ),
+                array('szemelyzet_id', 'mobil_loginnev', 'szallitoid', 'update_usr'                           ),
+                array( 0,              '',                0,           $_SESSION[get_db_tabla().'teljes_nev'] ),
                 "`recid` = '{$recid}'"
             );
 
@@ -1919,8 +1919,8 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
 
             /* Frissítjuk a munkalap visszaadva sorát */
             $sql = $adatbazis_kapcsolat -> u('munkalap',
-                array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'update_usr'                           ),
-                array( 1,            0,              '',               $_SESSION[get_db_tabla().'teljes_nev'] ),
+                array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'szallitoid', 'update_usr'                           ),
+                array( 1,            0,              '',                0,           $_SESSION[get_db_tabla().'teljes_nev'] ),
                 "`recid` = '{$recid}'"
             );
 

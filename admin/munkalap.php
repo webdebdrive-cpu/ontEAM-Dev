@@ -1955,7 +1955,7 @@ if($gyorskereso_text){
         if( $sorok ) {
             foreach($sorok as $sor) {
                 $szamla_html .= nl2('
-                    <table class="csikos full">
+                    <table class="csikos tetel_csikos full">
                         <tr>
                             <th class="nev">Személyzet</th>
                             <th>Felvette</th>

@@ -2227,6 +2227,7 @@ function munkAnyagVetelezes( that ) {
                             alert2(response.hiba, response.gomb);
                         } else {
                             alert2(response.hiba, '', 'Hiba');
+                            document.getElementById('cikk_id_autocomp').focus();
                         }
 
                         return false;
@@ -2239,6 +2240,7 @@ function munkAnyagVetelezes( that ) {
         });
     } else {
         alert2('Kérem válasszon felhasznált mennyiséget!');
+        document.getElementById('cikk_id_autocomp').focus();
     }
 
     return false;
@@ -2300,6 +2302,7 @@ function atadasDiszpecsernek( that ) {
                                 alert2(response.hiba, response.gomb);
                             } else {
                                 alert2(response.hiba, '', 'Hiba');
+                                document.getElementById('erteklista_id_autocomp').focus();
                             }
 
                             return false;
@@ -2311,6 +2314,7 @@ function atadasDiszpecsernek( that ) {
             });
         } else {
             alert2('Adja meg az átadás okát!');
+            document.getElementById('erteklista_id_autocomp').focus();
         }
     }
 
@@ -2343,6 +2347,7 @@ function feladatHozzaadas( that ) {
                                 alert2(response.hiba, response.gomb);
                             } else {
                                 alert2(response.hiba, '', 'Hiba');
+                                document.getElementById('erteklista_id_autocomp').focus();
                             }
 
                             return false;
@@ -2355,6 +2360,7 @@ function feladatHozzaadas( that ) {
             });
         } else {
             alert2('Adja meg az elvégzett munkát!');
+            document.getElementById('erteklista_id_autocomp').focus();
         }
     }
     return false;
