@@ -547,6 +547,16 @@ if($gyorskereso_text){
                             $bekapcs .= '$(\'#jog-'.$pipa_be.'\').prop(\'checked\', true).addClass(\'mod\');';
                         }
                     }
+                    
+                    //Ha épp most kap bekapcsolást, csak akkor futtatjuk le
+                    if($bekapcs){
+                        $bekapcs = 'if( $(this).prop(\'checked\')==false ){'.$bekapcs.'}';
+                    }
+                    //Ha épp most kapcsoltuk ki
+                    if($bekapcs){
+                        $kikapcs = 'if( $(this).prop(\'checked\') ){'.$kikapcs.'}';
+                    }
+                    
                     if($kikapcs || $bekapcs){
                         $onclick = ' onclick="'.$kikapcs.$bekapcs.'"';
                     }
