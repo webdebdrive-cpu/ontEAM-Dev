@@ -734,7 +734,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
             if(basename(self())=='cikktorzs.php' && $rend_mezo=='id'){
                 $rend_mezo_txt = 'Cikkszám';
             }
-            
+
             $rendezes .= '<option value="'.$rend_mezo.'"'.$selected.'>'.$rend_mezo_txt.'</option>';
 
             $i++;
@@ -808,7 +808,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     //Diszpécser nem hozhat létre új bejegyzést
     if( !isset($_GET['megjegyzesek']) && basename(self()) == 'bejelentes.php' && _jog(2)  ) {
-        $uj_link = 'javascript: alert2(\'Diszpécserként nem hozhat létre új bejelentést!\'); void(0);';
+        //$uj_link = 'javascript: alert2(\'Diszpécserként nem hozhat létre új bejelentést!\'); void(0);';
     }
 
 }

@@ -2060,15 +2060,15 @@ if( isset($_GET['folyamatban_munkak']) ) {
 
     if( $bejelentesek ) {
         $html = nl2('
-            <div class="dt alert_dt">
-                <div class="dtr adt_fejlec">
-                    <div class="dtc">Iktató szám</div>
-                    <div class="dtc">Szálloda</div>
-                    <div class="dtc">Hely leírása</div>
-                    <div class="dtc">Bejelentett hiba</div>
-                    <div class="dtc">Hiba leírása</div>
-                    <div class="dtc">Sürgős</div>
-                </div>
+            <table class="csikos">
+                <tr>
+                    <th>Iktató szám</th>
+                    <th>Szálloda</th>
+                    <th>Hely leírása</th>
+                    <th>Bejelentett hiba</th>
+                    <th>Hiba leírása</th>
+                    <th>Sürgős</th>
+                </tr>
         ');
 
         foreach($bejelentesek as $bejelentes) {
@@ -2094,18 +2094,84 @@ if( isset($_GET['folyamatban_munkak']) ) {
             }
 
             $html .= nl2('
-                <div class="dtr adt_sor">
-                    <div class="dtc">'.$bejelentes['ikt_szam'].'</div>
-                    <div class="dtc">'.$telephely.'</div>
-                    <div class="dtc">'.$helyseg.'</div>
-                    <div class="dtc">'.$hiba['info'].'</div>
-                    <div class="dtc">'.$bejelentes['hiba_text'].'</div>
-                    <div class="dtc">'.$surgos.'</div>
-                </div>
+                <tr>
+                    <td>'.$bejelentes['ikt_szam'].'</td>
+                    <td>'.$telephely.'</td>
+                    <td>'.$helyseg.'</td>
+                    <td>'.$hiba['info'].'</td>
+                    <td>'.$bejelentes['hiba_text'].'</td>
+                    <td>'.$surgos.'</td>
+                </tr>
             ');
         }
 
-        $html .= '</div>';
+        $html .= '</table>';
+
+        echo json_encode(array(
+            'hiba' => 'Folyamatban lévő munkák listája'.$html.'Folytatja a hibabejelentést?',
+            'gomb' => '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="bejelentes_mehet = true; $(\'#szerk_form\').submit();"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    echo json_encode(array('siker' => 1));
+
+    $weblap->leallit();
+    exit();
+}
+
+/* Munkalaphoz adás */
+if( isset($_GET['getBejBejelentok']) ) {
+    $telephely_id = $_GET['telephely_id'];
+    $obj_id       = $_GET['obj_id'];
+
+    $bejelentesek = $adatbazis_kapcsolat->s('ikt_szam surgos telephely_id obj_id hiba_id hiba_text', 'bejelentes', "`telephely_id` = '{$telephely_id}' AND `obj_id` = '{$obj_id}'");
+
+    if( $bejelentesek ) {
+        $html = nl2('
+            <table class="csikos">
+                <tr>
+                    <th>Név</th>
+                    <th>Részleg</th>
+                    <th>Beosztás</th>
+                    <th>Szerepkör</th>
+                </tr>
+        ');
+
+        foreach($bejelentesek as $bejelentes) {
+            /* Telephely */
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bejelentes['telephely_id'], '', '1');
+            $telephely = $telephely[0]['nev'];
+
+            /* Helység */
+            $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bejelentes['obj_id'], '', '1');
+            $helyseg = $helyseg[0]['nev'];
+
+            /* Hiba */
+            $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$bejelentes['hiba_id']}'");
+            $hiba = $hiba[0];
+
+            $surgos = '';
+            if( $bejelentes['surgos'] ) {
+                $surgos = nl2('
+                    <span class="icon piros">
+                        <i class="material-icons">error</i>
+                    </span>
+                ');
+            }
+
+            $html .= nl2('
+                <tr>
+                    <td>'.$bejelentes['ikt_szam'].'</td>
+                    <td>'.$telephely.'</td>
+                    <td>'.$helyseg.'</td>
+                    <td>'.$hiba['info'].'</td>
+                </tr>
+            ');
+        }
+
+        $html .= '</table>';
 
         echo json_encode(array(
             'hiba' => 'Folyamatban lévő munkák listája'.$html.'Folytatja a hibabejelentést?',

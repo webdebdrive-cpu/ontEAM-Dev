@@ -325,7 +325,6 @@ if (isset($_GET['csv'])) {
     exit();
 }
 
-
 /** Tartalom */
 if( !$_GET['ajax'] ) {
     require_once('header.php');
@@ -557,7 +556,7 @@ if($gyorskereso_text){
     }
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && _jog(JOG_BEJELENTES_KEZEL) && !_jog(JOG_DISZPECSER) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) /*&& _jog(JOG_BEJELENTES_KEZEL) && !_jog(JOG_DISZPECSER) */&& !$csak_szerkesztheto){
 
         //NAVIGÁCIÓ
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
@@ -693,7 +692,7 @@ if($gyorskereso_text){
             array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok   ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
-        
+
         //Diszpécser a sürgős pipát mégis eléri
         if(_jog(JOG_DISZPECSER) || _jog(JOG_MUNKALAP_DISZP_KP_VEZ)){
             $szamla_html .= nl2('
@@ -730,7 +729,7 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html.$gombok;
         }
-        
+
 	//Munkalapok
 	}elseif(isset($_GET['munkalapok'])){
 
@@ -759,7 +758,7 @@ if($gyorskereso_text){
                     /* Helység */
                     $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
                     $helyseg = $helyseg[0]['nev'];
-                    
+
                     /* Státusz */
                     $statusz = $adatbazis_kapcsolat->s('nev', 'bejelentes_statusz_text', "`recid`='{$sor['statusz_id']}'");
                     $statusz = $statusz[0];

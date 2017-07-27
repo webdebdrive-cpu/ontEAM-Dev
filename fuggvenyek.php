@@ -816,6 +816,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     var riasztas_mehet     = false;
                     var utemezes_mehet     = false;
                     var bejelentes_mehet   = false;
+                    var bejelentes_mehet2  = false;
                     function '.$fg.'{
             ');
 
@@ -968,6 +969,40 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 }
             }
         ');
+
+        if( _jog(JOG_DISZPECSER) ) {
+            $ret .= nl2('
+                if( !bejelentes_mehet2 ) {
+                    var bejBejelentok_hiba = false;
+
+                    $.ajax({
+                        url : \'esemenyek.php\',
+                        type: \'GET\',
+                        async: false,
+                        data: esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;obj_id=\' + $(\'#obj_id\').val() + \'&amp;getBejBejelentok=\' + new Date().getTime()),
+                        success: function(response) {
+
+                            response = JSON.parse(response);
+
+                            if( response.hiba ) {
+                                if( response.gomb ) {
+                                    alert2(response.hiba, response.gomb);
+                                } else {
+                                    alert2(response.hiba, \'\', \''.$hiba_txt.'\');
+                                }
+
+                                bejBejelentok_hiba = true;
+                            }
+
+                        }
+                    });
+
+                    if( bejBejelentok_hiba ) {
+                        return false;
+                    }
+                }
+            ');
+        }
     }
 
     //Személyzet -> Beosztás -> Naptár fül alatt nem a hagyományos form feldogozás törétnik majd, hanem egy beosztas_naptarba_teszt() FGV-t hívunk meg

@@ -4532,7 +4532,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     }
 
                     if( !_get('megjegyzesek') && baseName(location.href) == 'bejelentes' && $('#diszpecser').length){
-                        $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Diszpécserként nem hozhat létre új bejelentést!\'); void(0);');
+                        /*$('#navGombok a.uj').attr('href', 'javascript: alert2(\'Diszpécserként nem hozhat létre új bejelentést!\'); void(0);');*/
                     }
 
                     /* Ha épp egy csoporton állunk, akkor elrejtük a jobb oldali tartalmakat */
