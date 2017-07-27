@@ -140,6 +140,14 @@
             var link   = $('#autocomplete ul li.aktiv').attr('data-href'),
                 recid  = $('#autocomplete ul li.aktiv').attr('data-recid'),
                 cikkid = $('#autocomplete ul li.aktiv').attr('data-cikkid');
+
+            if( baseName(location.href) == 'login' && recid == 9 ) {
+                $('#szallitoid_autocomp').attr('disabled', false);
+            } else {
+                $('#szallitoid_autocomp').attr('disabled', true).val('');
+                $('#szallitoid').val('');
+            }
+
             var mee = $('#autocomplete ul li.aktiv').attr('data-mee');
             if( mee !== undefined ) {
                 $('.insertMee').text(mee);
