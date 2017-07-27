@@ -202,7 +202,7 @@ function i_u($type, $tabla, $tomb) {
             $ikt_szam = date('y').'/'.sprintf('%04d', $sorszam);
 
             //Miután a $_POST['nev']-et felvettük cikkid-nak, csak utána írjuk felül
-            $cikktorzs = $adatbazis_kapcsolat->s('id nev cikkmee', 'cikktorzs', "`recid`='{$_POST['nev']}'");
+            $cikktorzs = $adatbazis_kapcsolat->s('id nev cikkmee oracikkid', 'cikktorzs', "`recid`='{$_POST['nev']}'");
             if( $cikktorzs === false ) {
                 $db_error = true;
             }
@@ -231,6 +231,9 @@ function i_u($type, $tabla, $tomb) {
             array_push($ertekek,   $ikt_szam );
 
             //Mennyisgéi egységet pedig az anyag mennyiségi egységéből
+            array_push($oszlopok,  'oracikkid');
+            array_push($ertekek,   $cikktorzs['oracikkid'] );
+            
             array_push($oszlopok,  'cikkmee');
             array_push($ertekek,   $cikktorzs['cikkmee'] );
 
@@ -1021,6 +1024,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
     if( basename(self())=='utemezett_feladatok.php' ){
 
+        $param .= 'hetkoz_kent=\'+$(\'#hetkoz_kent\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
         $param .= 'aktkezd_d=\'+$(\'#aktkezd_d\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
         $param .= 'aktvege_d=\'+$(\'#aktvege_d\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
         $param .= 'ism_het=\'+$(\'#ism_het\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
@@ -1104,7 +1108,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         ciklnap_val = $(\'#honapjan\').val();
                     }
 
-                    /* Ha van heti rendszrességű ismétlés, akkor a cikl_nap-ot be kell állítani */
+                    /* Ha van heti rendszerességű ismétlés, akkor a cikl_nap-ot be kell állítani */
                     if( $(\'#ism_het\').val()>0 ){
                         ciklnap_val = \'\';
                         if($(\'#h\').prop(\'checked\')) { ciklnap_val += \'1\'; }

@@ -1353,8 +1353,8 @@ if( isset($_POST['munkalapErkeztet']) ) {
     $telephely = $telephely[0];
 
     $tablazat = nl2('
-        Felhasznált és hiányzó anyagok:
-        <table class="csikos">
+        <div style="margin: 1rem 0 0.3rem 0;">Felhasznált és hiányzó anyagok:</div>
+        <table class="csikos" style="margin-top: 0">
         <tr>
             <th>Cikk</th>
             <th>Név</th>

@@ -360,7 +360,16 @@ if($gyorskereso_text){
 	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
 		$sor = $sor[0];
         
-        $sor['ciklnap'] = $sor['ciklszorz'];
+        //Régi adatbázisól jövő adatok miatt szükséges:
+        if($sor['cikltip']=='d'){
+            $sor['ciklnap'] = $sor['ciklszorz'];
+        }
+        if($sor['cikltip']=='m' && $sor['ciklaltip']=='1'){
+            $sor['ciklho'] = $sor['ciklszorz'];
+        }
+        if($sor['cikltip']=='m' && $sor['ciklaltip']=='2'){
+            $sor['ciklho2'] = $sor['ciklszorz'];
+        }
 //echo $adatbazis_kapcsolat->gp() . '<br>';
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
