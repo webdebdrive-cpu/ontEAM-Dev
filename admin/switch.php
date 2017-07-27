@@ -27,6 +27,11 @@ foreach($akt_tomb as $ertek){
                 $ertek['class'] .= ' csillag';
             }
 
+            /* Login fülön és külső kivitelezőt válaszva nem kell a disabled */
+            if( basename(self()) == 'login.php' && $sor['szerepkor_id'] == 9 ) {
+                $ertek['disabled'] = false;
+            }
+
             //Onblurra a hidden mező is nullázódjon, ha üres volna a mező
             $ertek['onblur'] .= 'if(!$(this).val()){ $(\'#'.$ertek['name'].'\').val(\'\'); }';
 

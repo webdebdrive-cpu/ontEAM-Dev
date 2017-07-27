@@ -63,8 +63,8 @@ function i_u($type, $tabla, $tomb) {
             }
 
     		//Ha nem gomb, nem fájl és nem disabled és az oszlopnév sem üres és maga a POST egyáltalán létezik is (ne nullázzunk felül el nem küldött POST miatt)
-    		if($ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && !($ertek['disabled'] && $type == 'update'/*Tiltott mezőket beszúrni lehet csak moddolni nem*/) && $ertek['name'] && isset($_POST[$ertek['name']]) ) {
-    			array_push($oszlopok, $ertek['name']);
+    		if($ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && !($ertek['disabled'] && $ertek['name'] != 'szallitoid' && $type == 'update'/*Tiltott mezőket beszúrni lehet csak moddolni nem*/) && $ertek['name'] && isset($_POST[$ertek['name']]) ) {
+                array_push($oszlopok, $ertek['name']);
     			array_push($ertekek, trim($_POST[$ertek['name']]));
     		}
 
@@ -722,7 +722,6 @@ function i_u($type, $tabla, $tomb) {
             }
         }
 
-
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
 //echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
         if( $id === false ) {
@@ -1069,13 +1068,13 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     if( $(\'#ciklho\').val()>0 ) { ciklszorz_val = $(\'#ciklho\').val();  }
                     if( $(\'#ciklho2\').val()>0 ){ ciklszorz_val = $(\'#ciklho2\').val(); }
                     if( $(\'#ism_het\').val()>0 ){ ciklszorz_val = $(\'#ism_het\').val(); }
-                    
+
                     /* Időszakos pipa lekezelése */
                     idoszakos_val = 0;
                     if($(\'#idoszakos\').prop(\'checked\')){
                         idoszakos_val = 1;
                     }
-                    
+
                     /* Ciklustítpus beállítása */
                     ciklaltip_val = \'\';
                     if($(\'#ciklnap\').val()>0){
@@ -1090,7 +1089,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     if( $(\'#ciklho2\').val()>0 ){
                         ciklaltip_val = 2;
                     }
-                    
+
                     /* Alapból a mező értéke, de a későbbi feltételeknél ez felülíródhat még */
                     ciklnap_val = $(\'#ciklnap\').val();
                     ciklho_val  = $(\'#ciklho\').val();
@@ -1098,7 +1097,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         ciklho_val  = $(\'#ciklho2\').val();
                         ciklnap_val = $(\'#ho_rendsz_het\').val();
                     }
-                    
+
                     /* Havi ciklus esetén */
                     if( $(\'#ciklho\').val()>0 ){
                         ciklnap_val = $(\'#honapjan\').val();
@@ -1115,8 +1114,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         if($(\'#sz\').prop(\'checked\')){ ciklnap_val += \'6\'; }
                         if($(\'#v\').prop(\'checked\')) { ciklnap_val += \'7\'; }
                     }
-                    
-                    
+
+
                     $.ajax({
                         url : \'utemezett_feladatok.php\',
                         type: \'GET\',
@@ -1510,7 +1509,7 @@ function szamla_lista( $where, $tabla ) {
             if( !_jog(JOG_MUNKALAP_MEGTEKINT) ){
                 $where .= ' FALSE';
             }else{
-                
+
                 //Belépve mint telepített
                 if( _jog(JOG_MUNKALAP_TELEPITETT) ) {
                     $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".TELEPITETT_SZEMELYZET."' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.", ".MUNKALAP_STAT_LEZART.") AND ";
@@ -1520,10 +1519,13 @@ function szamla_lista( $where, $tabla ) {
                 //Belépve mint diszp. kp. vezető
                 } else if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) || _jog(JOG_MUNKALAP_DISZP_KP_VEZ) || _jog(JOG_DISZPECSER) ||  _jog(JOG_MUNKALAP_TER_FELELOS) ) {
                     $where .= '';
+                //Külső kivitelező
+                } else if( _jog(JOG_MUNKALAP_KULSO) ) {
+                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".KULSO_KIVITELEZO."' AND `".get_db_tabla()."munkalap`.`statusz_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.", ".MUNKALAP_STAT_LEZART.") AND `".get_db_tabla()."munkalap`.`szallitoid` = '".$_SESSION[get_db_tabla().'szallitoid']."'";
                 }
-                
+
             }
-            
+
         }
 
         //Keresés
@@ -1667,7 +1669,7 @@ function szamla_lista( $where, $tabla ) {
             if($_GET['rend']=='telephely_id'){
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'bejelentes`.`ikt_szam`';
             }
-            
+
             $order = trim($order, ',');
         }
 
@@ -1696,7 +1698,7 @@ function szamla_lista( $where, $tabla ) {
             if($_GET['rend']=='statusz_id'){
                 $order .= '`'.get_db_tabla().'munkalap`.`statusz_id` '.$_GET['irany'];
             }
-            
+
             $order = trim($order, ', ');
 
         }
@@ -2249,9 +2251,9 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit ) {
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$aktiv.' '.$bsz['id'].'</span> 
+                            <span>'.$aktiv.' '.$bsz['id'].'</span>
                             <span>'.$telephely.' - '.$helyseg.'</span>
-                            <span>'.$bsz['uf_nev'].'</span> 
+                            <span>'.$bsz['uf_nev'].'</span>
                         </a>';
 
             if( !$frissit ) {
@@ -2262,7 +2264,7 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit ) {
 
             $i++;
         }
-        
+
         if( !$frissit ) {
             $html .= nl2('
                 </ul>
@@ -4131,9 +4133,9 @@ function get_props($props, $mezo){
 
 /* Tröténet fül tartalma */
 function get_tortenet($megnevezes){
-    
+
     global $adatbazis_kapcsolat;
-    
+
     $szamla_html = nl2('
         <div class="dt naplo">
             <div class="dtr nFejlec">
