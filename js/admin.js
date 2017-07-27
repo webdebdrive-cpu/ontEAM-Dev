@@ -3508,6 +3508,50 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         }
                     });
                 break;
+                
+                case 'munkalapErkeztet':
+                    $('#popupTart').html(data);
+
+                    if(balnav_kijelol_ell()){
+
+                        var recid = $('#szamlaList li.szamla_sor.kijelolve').attr('data-recid');
+                        if( recid ) {
+
+                            $.ajax({
+                                url : 'munkalap.php',
+                                type: 'POST',
+                                data: {
+                                    recid           : recid,
+                                    munkalapErkeztet: new Date().getTime()
+                                },
+                                success: function(response) {
+                                    if(response) {
+                                        response = JSON.parse(response);
+
+                                        if( response.hiba ) {
+                                            if( response.gomb ) {
+                                                alert2(response.hiba, response.gomb);
+                                            } else {
+                                                alert2(response.hiba, '', 'Hiba');
+                                            }
+                                            popupZar();
+                                            return false;
+                                        }
+
+                                        $('#pop_ikt_szam').val(response.ikt_szam);
+                                        $('#pop_telephely').val(response.telephely);
+                                        $('#pop_tablazat').html(response.tablazat);
+
+                                        popupNyit();
+                                    }
+                                }
+                            });
+                        } else {
+                            alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
+                        }
+
+                    }
+                break;
 
                 case 'munkalap_kulso':
                     $('#popupTart').html(data);
