@@ -694,8 +694,8 @@ if($gyorskereso_text){
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
         
-        //Diszpécser a sürgős pipát mégis eléri
-        if(_jog(JOG_DISZPECSER) || _jog(JOG_MUNKALAP_DISZP_KP_VEZ)){
+        //Diszpécser a sürgős pipát mégis eléri, ha nyitott a bejelentés
+        if( $sor['statusz_id']==BEJELENTES_STAT_NYITOTT && (_jog(JOG_DISZPECSER) || _jog(JOG_MUNKALAP_DISZP_KP_VEZ) ) ){
             $szamla_html .= nl2('
                 <script>
                 $(document).ready(function () {

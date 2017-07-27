@@ -86,6 +86,9 @@ define('JOG_BEJELENTES_KEZEL',      1 );
 define('JOG_DISZPECSER',            2 );
 define('JOG_MUNKALAP_MEGTEKINT',    3 );
 define('JOG_MUNKALAP_TELEPITETT',   5 );
+define('JOG_ANYAIGENLES_MEGTEKINT', 12);
+define('JOG_ANYAIGENLES_KEZEL',     13);
+define('JOG_ANYAIGENLES_JOVAHAGY',  14);
 define('JOG_ANYAGREND_MEGTEKINT',   16);
 define('JOG_MUNKALAP_MUSZAKI_VEZ',  21);
 define('JOG_MUNKALAP_TER_FELELOS',  22);
@@ -95,6 +98,8 @@ define('JOG_MUNKALAP_MOBIL',        31);
 define('JOG_MUNKALAP_KULSO',        34);
 define('JOG_UTFEL_MEGTEKINT',       32);
 define('JOG_UTFEL_KEZEL',           33);
+define('JOG_RENDSZ_KARB_MEGTEKINT', 35);
+define('JOG_RENDSZ_KARB_KEZEL',     36);
 
 //Adatbázis
 function get_db_tabla()   { return 'hotel_';                                                                            } //Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály

@@ -43,7 +43,7 @@
                     if( response.hiba ) {
                         gomb = '';
                         if(response.focus){
-                            gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').select()">';
+                            gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').focus()">';
                         }
                         alert2(response.hiba, gomb, 'Hiba');
                         return false;

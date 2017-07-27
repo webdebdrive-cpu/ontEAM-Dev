@@ -25,7 +25,7 @@ if (isset($_GET['adat_javit_tmp'])) {
     exit;
 }
 
-if( !_jog(12) ) {
+if( !_jog(JOG_ANYAIGENLES_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -1570,7 +1570,7 @@ if($gyorskereso_text){
     if( isset($_GET['uj']) ) {
         
         //Újat csak "Anyagigénylés kezelése" joggal lehet
-        if(_jog(13)){
+        if(_jog(JOG_ANYAIGENLES_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
@@ -1602,7 +1602,7 @@ if($gyorskereso_text){
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         /* Anyagigénylés jóváhagyása */
-        if( _jog(14) ) {
+        if( _jog(JOG_ANYAIGENLES_JOVAHAGY) ) {
             $gombok .= nl2('
                 <div id="kmCont">
                     <input type="button" class="gombb foGomb" value="Jóváhagyás" onclick="anyagigenyles_jovahagy(\'csak kérdezünk még\')">

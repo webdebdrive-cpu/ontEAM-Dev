@@ -1,15 +1,16 @@
 <?php
 /*                                                  *\
- * FONTOS: 34-es ID-nál járunk
+ * FONTOS: 36-es ID-nál járunk
 \*                                                  */
 
 $jogosultsagKatok = array(
-    0 => array('nev' => 'Bejelentések',         'sor' => 0),
-    1 => array('nev' => 'Munkalapok',           'sor' => 1),
-    2 => array('nev' => 'Rendszer',             'sor' => 2),
-    3 => array('nev' => 'Anyagok',              'sor' => 3),
-    5 => array('nev' => 'Ütemezett feladatok',  'sor' => 4),
-    4 => array('nev' => 'Személyzet',           'sor' => 5),
+    0 => array('nev' => 'Bejelentések',             'sor' => 0),
+    1 => array('nev' => 'Munkalapok',               'sor' => 1),
+    2 => array('nev' => 'Rendszer',                 'sor' => 2),
+    3 => array('nev' => 'Anyagok',                  'sor' => 3),
+    5 => array('nev' => 'Ütemezett feladatok',      'sor' => 4),
+    6 => array('nev' => 'Rendszeres karbantartás',  'sor' => 5),
+    4 => array('nev' => 'Személyzet',               'sor' => 6),
 );
 
 $jogosultsagok = array(
@@ -47,6 +48,9 @@ $jogosultsagok = array(
     
     32 => array('nev' => 'Feladatok megtekintése',      'kat' => 5, 'sor' => 1, 'kikapcs' => '33'),
     33 => array('nev' => 'Feladatok kezelése',          'kat' => 5, 'sor' => 2, 'bekapcs' => '32'),
+    
+    35 => array('nev' => 'Karbantartások megtekintése', 'kat' => 6, 'sor' => 1, 'kikapcs' => '36'),
+    36 => array('nev' => 'Karbantartások kezelése',     'kat' => 6, 'sor' => 2, 'bekapcs' => '35'),
     
     25 => array('nev' => 'Törzsadatok olvasása',        'kat' => 4, 'sor' => 1, 'kikapcs' => '26'),
     26 => array('nev' => 'Törzsadatok kezelése',        'kat' => 4, 'sor' => 2, 'bekapcs' => '25'),

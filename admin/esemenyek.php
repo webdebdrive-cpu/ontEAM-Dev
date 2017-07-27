@@ -3704,7 +3704,7 @@ if (isset($_POST['surgosseg_allit'])) {
     mysqli_autocommit($db_kapcs, false);
 
     //Ha se nem diszpécser se nem disp.kp vez, akkor nincs joga sürgősséget állítani
-    if(!_jog(JOG_DISZPECSER) && !_jog(JOG_MUNKALAP_DISZP_KP_VEZ)){
+    if( (!_jog(JOG_DISZPECSER) && !_jog(JOG_MUNKALAP_DISZP_KP_VEZ) && !_jog(JOG_MUNKALAP_MUSZAKI_VEZ)) || (_jog(JOG_MUNKALAP_MUSZAKI_VEZ) && $_POST['page']=='bejelentes') ){
 
         echo json_encode(array(
             'hiba' => 'Önnek nincs joga sürgősséget állítani'
@@ -3714,8 +3714,43 @@ if (isset($_POST['surgosseg_allit'])) {
         exit();
 
     }
+    
+    //Csak nyitott/folyamatban bejelentés sürgőssége állítható!
+    $statusz = $adatbazis_kapcsolat->s('statusz_id', $_POST['page'], "`recid`='{$_POST['recid']}'");
+    $statusz = $statusz[0];
+    if($_POST['page']=='bejelentes'){
+        if($statusz['statusz_id']!=BEJELENTES_STAT_NYITOTT){
+            echo json_encode(array(
+                'hiba'  => 'Csak nyitott bejelentés sürgőssége állítható!',
+            ));
 
-    if(!$_POST['indoklas']){
+            $weblap->leallit();
+            exit();
+        }
+    }
+    if($_POST['page']=='munkalap'){
+        
+        if( (_jog(JOG_DISZPECSER || _jog(JOG_MUNKALAP_DISZP_KP_VEZ))) && $statusz['statusz_id']!=MUNKALAP_STAT_NYITOTT && $statusz['statusz_id']!=MUNKALAP_STAT_FOLYAMATBAN ){
+            echo json_encode(array(
+                'hiba'  => 'Csak nyitott vagy folyamatban levő munkalap sürgőssége állítható!',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+        
+        if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) && $statusz['statusz_id']!=MUNKALAP_STAT_FELVEVE ){
+            echo json_encode(array(
+                'hiba'  => 'Csak felvett munkalap sürgőssége állítható!',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+        
+    }
+
+    if(!trim($_POST['indoklas'])){
         echo json_encode(array(
             'hiba'  => 'Az indoklás kitöltése kötelező!',
             'focus' => 'indoklas',
