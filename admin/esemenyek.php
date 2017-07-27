@@ -840,6 +840,11 @@ if (isset($_GET['modosit'])) {
     }else{
         $surgos_allit = 'csoportMuvelet(\'surgosseg_indoklas\')';
     }
+    
+    //Műszaki vezető esetén is legyen indoklós sürgős gomb
+    if(_jog(JOG_MUNKALAP_MUSZAKI_VEZ)){
+        $surgos_allit = 'csoportMuvelet(\'surgosseg_indoklas\')';
+    }
 }
 
 //Bejelentések

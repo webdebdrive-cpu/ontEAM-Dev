@@ -433,6 +433,10 @@ textarea.mod {
     background: #ffdcdd;
 }
 
+select.alert{
+    border: 0.1rem solid #f00;
+}
+
 input[type="text"]:focus{
     border: 0.1rem solid #52a3f5;
 }
@@ -2494,7 +2498,7 @@ table.csikos tr.link:hover{
     transition: all ease-in-out 0.2s;
 }
 
-table.csikos td input.alert{
+input.alert, table.csikos td input.alert{
     border: 0.1rem solid #f00;
 }
 

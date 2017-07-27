@@ -1707,7 +1707,7 @@ if($gyorskereso_text){
             $gombok .= '</div>';
 
         //Ha láthatja a munkalapokat és mobil vagy telepített vagy műszaki vezető és a munkalap státusza felvéve vagy kész
-        } else if( (((_jog(JOG_MUNKALAP_MEGTEKINT) && (_jog(JOG_MUNKALAP_TELEPITETT) || _jog(JOG_MUNKALAP_MOBIL)) ) || (_jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_MOBIL)) || (_jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_MUSZAKI_VEZ))) && in_array($sor['statusz_id'], array(MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_KESZ_IG))) ) {
+        } else if( (((_jog(JOG_MUNKALAP_MEGTEKINT) && (_jog(JOG_MUNKALAP_TELEPITETT) || _jog(JOG_MUNKALAP_MOBIL)) ) || (_jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_MOBIL)) || (_jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_MUSZAKI_VEZ))) ) ) {
 
             $telephely = $adatbazis_kapcsolat->s('modell', 'telephely', 'id='.$sor['telephely_id'], '', '1');
 
@@ -1933,6 +1933,16 @@ if($gyorskereso_text){
             array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style  ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
+        //Diszpécser a sürgős pipát mégis eléri
+        if(_jog(JOG_MUNKALAP_MUSZAKI_VEZ) && $sor['statusz_id']==MUNKALAP_STAT_FELVEVE ){
+            $szamla_html .= nl2('
+                <script>
+                $(document).ready(function () {
+                    $(\'#surgos\').removeAttr(\'disabled\');
+                });
+                </script>
+                ');
+        }
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

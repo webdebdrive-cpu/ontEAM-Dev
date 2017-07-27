@@ -1040,6 +1040,55 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         $param .= 'v=\'+$(\'#v\') .is(\':checked\')+\'&amp;';
         $ret .= nl2('
 
+                /* Kötelező mezők  hibaüzenetei */
+                if($(\'#cikltip\').val()==\'d\'){
+                    if( !$(\'#ciklnap\').val() && $(\'#hetkoz_kent\').prop(\'checked\')==false ){
+                        alert2(\'Kérjük állítsa be a kívánt ütemezést!\', \'\', \'Hiba\');
+                        return false;
+                    }
+                }
+                if($(\'#cikltip\').val()==\'w\'){
+                    if( !$(\'#ism_het\').val() || (!$(\'#h\').prop(\'checked\') && !$(\'#k\').prop(\'checked\') && !$(\'#s\').prop(\'checked\') && !$(\'#cs\').prop(\'checked\') && !$(\'#p\').prop(\'checked\') && !$(\'#sz\').prop(\'checked\') && !$(\'#v\').prop(\'checked\')) ){
+                        alert2(\'Kérjük állítsa be a kívánt ütemezést!\', \'\', \'Hiba\');
+                        return false;
+                    }
+                }
+                if($(\'#cikltip\').val()==\'m\'){
+                    if( !$(\'#ciklho\').val() && !$(\'#ciklho2\').val() ){
+                        alert2(\'Kérjük állítsa be a kívánt ütemezést!\', \'\', \'Hiba\');
+                        return false;
+                    }
+                }
+
+                /* Havi ismétlődések esetei */
+                if( $(\'#ciklho\').val()>0 && !$(\'#honapjan\').val() ){
+                    alert2(\'Kérjük adja meg a hónap napját!\', \'\', \'Hiba\');
+                    $(\'#honapjan\').addClass(\'alert\');
+                    return false;
+                }
+                if( $(\'#honapjan\').val() && !$(\'#ciklho\').val() ){
+                    alert2(\'Kérjük adja meg a havi ismétlődés gyakoriságát!\', \'\', \'Hiba\');
+                    $(\'#ciklho\').addClass(\'alert\');
+                    return false;
+                }
+                
+                if( $(\'#ciklho2\').val()>0 && !$(\'#ciklhet\').val() ){
+                    alert2(\'Kérjük adja meg a rendszerességet!\', \'\', \'Hiba\');
+                    $(\'#ciklhet\').addClass(\'alert\');
+                    return false;
+                }
+                if( $(\'#ciklho2\').val()>0 && !$(\'#ho_rendsz_het\').val() ){
+                    alert2(\'Kérjük adja meg a rendszerességet!\', \'\', \'Hiba\');
+                    $(\'#ho_rendsz_het\').addClass(\'alert\');
+                    return false;
+                }
+                if( ( $(\'#ciklhet\').val()>0 || $(\'#ho_rendsz_het\').val() ) && !$(\'#ciklho2\').val() ){
+                    alert2(\'Kérjük adja meg az ismétlődés gyakoriságát!\', \'\', \'Hiba\');
+                    $(\'#ciklho2\').addClass(\'alert\');
+                    return false;
+                }
+
+
                 /* gép és helyiség is üresen maradt figylemeztetés */
                 if(!$(\'#gep_id\').val() && !$(\'#obj_id\').val() && !helyiseg_gep_mehet){
                     uf_gomb = \'<div class="c"><input type="button" class="gomb piros" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()"></div>\';
