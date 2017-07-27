@@ -355,11 +355,11 @@ div.kijeloltek_muv div.muv li a:hover {
     background: #76B958;
 }
 
-.form_jobb.statusz div.statuszGombok input[disabled="disabled"]:hover {
+.form_jobb.statusz div.statuszGombok input[disabled]:hover {
     background: #edeaea;
 }
 
-.form_jobb.statusz div.statuszGombok input[disabled="disabled"] {
+.form_jobb.statusz div.statuszGombok input[disabled] {
     background: #edeaea;
     color: #0d0d0d;
     cursor: default;
@@ -408,16 +408,16 @@ input.gombm {
     padding: 0.7rem 0.8rem 0.6rem 0.9rem;
 }
 
-input[disabled="disabled"],
-select[disabled="disabled"],
-textarea[disabled="disabled"] {
+input[disabled],
+select[disabled],
+textarea[disabled] {
     background: #f3f3f3;
     border: 0.1rem solid #cecfd1!important;
     color: #0d0d0d;
     cursor: default;
 }
 
-input[type="button"][disabled="disabled"] {
+input[type="button"][disabled] {
     background: #cecdcd!important;
     color: #a4a4a4!important;
     cursor: default!important;
@@ -540,8 +540,8 @@ input.gombb:hover {
     background: #76B958;
 }
 
-input.gombb[disabled="disabled"],
-input.gombb[disabled="disabled"].gombb_alert {
+input.gombb[disabled],
+input.gombb[disabled].gombb_alert {
     background: #cecdcd;
     color: #a4a4a4;
     cursor: default;
@@ -1074,7 +1074,7 @@ input.webdeb{
     border: 0.1rem solid #226294;
 }
 
-.cb input[type=checkbox][disabled="disabled"] + label {
+.cb input[type=checkbox][disabled] + label {
     background: #edeaea;
     color: #0d0d0d;
     cursor: default;
