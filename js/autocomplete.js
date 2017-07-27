@@ -173,7 +173,7 @@
 
                         if( stop ) {
                             if($('#'+name).length){
-                                document.getElementById(name).focus(function() { this.select(); });
+                                document.getElementById(name).select();
                             }
                             return false;
                         }
@@ -292,7 +292,7 @@
 
                                 if( stop ) {
                                     if($('#'+name).length){
-                                        document.getElementById(name).focus();
+                                        document.getElementById(name).select();
                                         return false;
                                     }
                                 }
