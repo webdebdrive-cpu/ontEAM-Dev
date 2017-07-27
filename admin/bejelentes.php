@@ -693,11 +693,22 @@ if($gyorskereso_text){
             array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok   ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
+        
+        //Diszpécser a sürgős pipát mégis eléri
+        if(_jog(JOG_DISZPECSER) || _jog(JOG_MUNKALAP_DISZP_KP_VEZ)){
+            $szamla_html .= nl2('
+                <script>
+                $(document).ready(function () {
+                    $(\'#surgos\').removeAttr(\'disabled\');
+                });
+                </script>
+                ');
+        }
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'tartalom'  => $szamla_html,
+                'link'      => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html;

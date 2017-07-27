@@ -1061,7 +1061,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
 
                 /* Dátumra ütemezés közlése mentés előtt. */
-                if( !utemezes_mehet ){
+                if( /*!utemezes_mehet Ez egyelőre ne fusson le, de majd vissza kell kapcsolni*/ false ){
 
                     /* Ciklus szorzó kiszámítása */
                     ciklszorz_val = 0;
@@ -2249,7 +2249,8 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit ) {
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$aktiv.' '.$telephely.' - '.$helyseg.'</span>
+                            <span>'.$aktiv.' '.$bsz['id'].'</span> 
+                            <span>'.$telephely.' - '.$helyseg.'</span>
                             <span>'.$bsz['uf_nev'].'</span> 
                         </a>';
 
@@ -3603,8 +3604,12 @@ function getOszlopNev( $oszlop ) {
         'torolve'       => 'Törölve',
     );
 
+    //Néhol át kell írni az általános mezőneveket (pl. loginnál a nev nem Név, hanem Login név)
     if( basename(self()) == 'login.php' ) {
         $oszlopNevek['nev'] = 'Login név';
+    }
+    if( basename(self()) == 'utemezett_feladatok.php' ) {
+        $oszlopNevek['id'] = 'Feladatszám';
     }
 
     if( $oszlopNevek[$oszlop] ) {
@@ -4094,6 +4099,10 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         return '`'.get_db_tabla().'anyagigenyles`.`nev` LIKE \'%'.$felt.'%\'';
     }elseif($tabla=='login' && $mezo=='szalloda'){
         return '`'.get_db_tabla().'telephely_kapcs`.`telephely_id`=\''.$felt.'\'';
+    }elseif($tabla=='utemezett_feladatok' && $mezo=='telephely_id'){
+        return '`'.get_db_tabla().'utemezett_feladatok`.`telephely_id`=\''.$felt.'\'';
+    }elseif($tabla=='utemezett_feladatok' && $mezo=='id'){
+        return '`'.get_db_tabla().'utemezett_feladatok`.`id`=\''.$felt.'\'';
     }elseif($tabla=='login' && $mezo=='jogosultsag'){
         return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
     }else{

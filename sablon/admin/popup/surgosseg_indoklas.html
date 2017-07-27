@@ -1,0 +1,57 @@
+<h2><span id="pop_ikt_szam"></span> sürgősség beállítása</h2>
+    
+<div>
+    Ez a <span class="f_pop_megnevezes"></span> <span class="f_nem"></span> sürgős.
+    <br>Biztos, hogy módosítja a <span class="f_pop_megnevezes"></span> sürgősségi státuszát?
+    <br>
+    <br>Indoklás:
+    <br><textarea id="indoklas" style="width: 100%"></textarea>
+</div>
+
+
+<div class="kuldes">
+    <input name="elkuld" class="gombb" value="Ok" type="button" onclick="surgosseg_allit()">
+    <input name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();" type="button">
+</div>
+    
+<script>
+	$(document).ready(function(){
+        $('.f_pop_megnevezes').html( $('#rekord_neve_egyes').html() );
+        $('#pop_ikt_szam').html( $('#ikt_szam').val() );
+        if($('#surgos').prop('checked')){
+            $('.f_nem').html( 'nem' );
+            $('#surgos').prop('checked', false);
+        }else{
+            $('#surgos').prop('checked', true);
+        }
+    });
+    
+    function surgosseg_allit(){
+        
+        $.ajax({
+            url : 'esemenyek.php',
+            type: 'POST',
+            data: {
+                page            : baseName(location.href),
+                recid           : _get('id'),
+                indoklas        : $('#indoklas').val(),
+                surgosseg_allit : new Date().getTime()
+            },
+            success: function(response){
+                if(response){
+                    response = JSON.parse(response);
+                    if( response.hiba ) {
+                        gomb = '';
+                        if(response.focus){
+                            gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#'+response.focus+'\').select()">';
+                        }
+                        alert2(response.hiba, gomb, 'Hiba');
+                        return false;
+                    }
+                }
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                popupZar();
+            }
+        });
+    }
+</script>

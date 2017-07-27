@@ -43,9 +43,12 @@
                 munkalapErkeztetMent : new Date().getTime()
             },
             success: function(response){
-                if( response.hiba ) {
-                    alert2(response.hiba, '', 'Hiba');
-                    return false;
+                if(response)
+                    response = JSON.parse(response);
+                    if( response.hiba ) {
+                        alert2(response.hiba, '', 'Hiba');
+                        return false;
+                    }
                 }
                 popupZar();
             }

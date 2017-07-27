@@ -272,7 +272,7 @@ switch($tabla) {
 
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('aktiv', 'telephely_id', 'esnap_d');
+        $_OPTS['rendezes']  = array('id', 'aktiv', 'telephely_id', 'esnap_d');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
@@ -830,9 +830,16 @@ if( $user ) {
     $user = $user[0];
 }
 
+//Sűrgősség csak módosításkor jön fel: Munkalapoknál is, de ugyanaz a függvény, ezért elég itt beállítani
+$surgos_allit = '';
+if (isset($_GET['modosit'])) {
+    $surgos_allit = 'csoportMuvelet(\'surgosseg_indoklas\')';
+}
+
 //Bejelentések
 $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'statusz',         'megn' => 'Státusz:',            'name' => 'statusz_id', 'szuro' => 1,  'oldal' => $megnevezes),
+    array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',     'szuro' => 1,  'class' => 'check', 'onclick' => $surgos_allit),
 	array('type' => 'text',            'megn' => 'Iktató szám:',        'name' => 'ikt_szam',   'szuro' => 1,  'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'info',            'megn' => 'Név:',                'name' => 'felh_nev',   'value' => $user['teljes_nev']),
     array('type' => 'info',            'megn' => 'Beosztás:',           'value' => erteklista(18, $user['beosztas_id'])),
@@ -850,7 +857,6 @@ $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'textarea',        'megn' => 'Hely leírása:',       'name' => 'helyiseg_text','szuro' => 1,  'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
     array('type' => 'autocomplete',    'megn' => 'Gépnév:',             'name' => 'gep_id',       'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
 
-    array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',       'szuro' => 1,  'class' => 'check'),
     array('type' => 'checkbox',        'megn' => '',                    'name' => 'telefon',        'class' => 'check', 'post' => ' közvetlenül telepített karbantartónak telefonon bejelentve'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -875,9 +881,9 @@ $megnevezes = 'munkalap';
 $munkalap_tomb = $akt_tomb = array(
     array('type' => 'statusz',                  'megn' => 'Státusz:',                   'name' => 'statusz_id',         'szuro' => 1,           'oldal' => $megnevezes),
     array('type' => 'text',                     'megn' => 'Iktató szám:',               'name' => 'ikt_szam',           'szuro' => 1, 'disabled' => 1,        'maxlength' => 250, 'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
-    array('type' => 'checkbox',                 'megn' => 'Sürgős:',                    'name' => 'surgos',             'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
-    array('type' => 'checkbox',                 'megn' => 'Visszaadva:',                'name' => 'visszaadva',         'szuro' => 1, 'disabled' => 1,        'class' => 'check'),
-    array('type' => 'textarea',                 'megn' => 'Leírása:',                   'name' => 'text',               'szuro' => 1, 'disabled' => 0,        'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
+    array('type' => 'checkbox',                 'megn' => 'Sürgős:',                    'name' => 'surgos',             'szuro' => 1,                           'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>', 'onclick' => $surgos_allit),
+    array('type' => 'checkbox',                 'megn' => 'Visszaadva:',                'name' => 'visszaadva',         'szuro' => 1, 'disabled' => 1,          'class' => 'check'),
+    array('type' => 'textarea',                 'megn' => 'Leírása:',                   'name' => 'text',               'szuro' => 1, 'disabled' => 0,          'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id',       'szuro' => 1, 'disabled' => $csakUjkent,        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'style' => '', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'onclick' => '', 'post' => ''),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
@@ -898,10 +904,12 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $nap_rejt = 'dn ';
 $het_rejt = 'dn ';
 $ho_rejt  = 'dn ';
+$utolso_vegrehajtas = '';
 if(basename(self())=='utemezett_feladatok.php' && isset($_GET['id'])){
-    $uf = $adatbazis_kapcsolat->s('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap', 'utemezett_feladatok', "`recid`='{$_GET['id']}'");
+    $uf = $adatbazis_kapcsolat->s('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d', 'utemezett_feladatok', "`recid`='{$_GET['id']}'");
     $uf = $uf[0];
 
+    $utolso_vegrehajtas = $uf['esem_d'];
     $uf['aktkezd_d'] = str_replace('-', '.', $uf['aktkezd_d']);
     $uf['aktvege_d'] = str_replace('-', '.', $uf['aktvege_d']);
 
@@ -978,7 +986,7 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
 	array('type' => 'text',                     'megn' => 'Utolsó esedékesség:','name' => 'utesnap_d',      'szuro' => 1,  'class' => 'datepicker'),
 	array('type' => 'text',                     'megn' => 'Riasztás:',          'name' => 'riaszt',         'szuro' => 1,  'maxlength' => 250, 'style' => 'width: 3.5rem', 'post' => ' nappal az esedékesség előtt'),
     array('type' => 'textarea',                 'megn' => 'Leírás:',            'name' => 'leiras',         'szuro' => 1,  'disabled' => $disabled,    'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
-	array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',  'name' => 'szemelyzet_id', 'szuro' => 1  ),
+	array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',  'name' => 'szemelyzet_id', 'szuro' => 1, 'post' => ' Utoljára végrehajtva: <b>'.$utolso_vegrehajtas.'</b>'  ),
 
 	array('type' => 'html',                     'megn' => '<div class="dtc" style="padding: 1rem 0 1rem 0">'),
         array('type' => 'select_cikltip',           'megn' => 'Ütemezés típus:',    'name' => 'cikltip', 'class' => 'f_cikltip', 'szuro' => 1  ),
@@ -3495,7 +3503,6 @@ if( isset($_POST['mellekTorol']) ) {
             }
         } else {
             $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
-
             if( $sql === false ) {
                 $db_error = true;
             }
@@ -3612,6 +3619,151 @@ if( isset($_GET['addSzakterulet']) ) {
         }
     }
 
+    $weblap->leallit();
+    exit();
+}
+
+//Sűrgősség pipa lekezelése
+if (isset($_POST['surgosseg_allit'])) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    //Ha se nem diszpécser se nem disp.kp vez, akkor nincs joga sürgősséget állítani
+    if(!_jog(JOG_DISZPECSER) && !_jog(JOG_MUNKALAP_DISZP_KP_VEZ)){
+        
+        echo json_encode(array(
+            'hiba' => 'Önnek nincs joga sürgősséget állítani'
+        ));
+        
+        $weblap->leallit();
+        exit();
+        
+    }
+    
+    if(!$_POST['indoklas']){
+        echo json_encode(array(
+            'hiba'  => 'Az indoklás kitöltése kötelező!',
+            'focus' => 'indoklas',
+        ));
+        
+        $weblap->leallit();
+        exit();
+    }
+    
+    //Jelenleg sürgős-e vagy sem
+    $surgos = $adatbazis_kapcsolat->s('surgos', $_POST['page'], "`recid`='{$_POST['recid']}'");
+    if( $surgos === false ) {
+        $db_error = true;
+    }
+    $surgos = $surgos[0];
+    if($surgos['surgos']){
+        $surgos_allit = 0;
+    }else{
+        $surgos_allit = 1;
+    }
+    
+    //Adott rekordon cseréjük a sürgősséget és beszúrjuk a megjegyzést
+    $sql = $adatbazis_kapcsolat->u($_POST['page'], array('surgos'), array($surgos_allit), "`recid`='{$_POST['recid']}'");
+    if( $sql === false ) {
+        $db_error = true;
+    }
+    if( addMegj($_POST['page'], $_POST['recid'], $_POST['indoklas']) === false ) {
+        $db_error = true;
+    }
+    
+    //Ha bejelentésen változtat, munkalapjait is megváltoztatjuk és beírjuk munkalapjai megjegyzésébe is.
+    if($_POST['page']=='bejelentes'){
+        $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_POST['recid']}'");
+        if( $munkalapok === false ) {
+            $db_error = true;
+        }
+        foreach($munkalapok as $munkalap){
+            //Munkalaponként megnézzük, hogy mi az aktuális sürgősségi állapota, és ha a hozzá tartozó bejelentések nem fedik, akkor állítjuk
+            $akt_munkalap = $adatbazis_kapcsolat->s('surgos', 'munkalap', "`recid`='{$munkalap['munkalap_id']}'");
+            if( $akt_munkalap === false ) {
+                $db_error = true;
+            }
+            $akt_munkalap = $akt_munkalap[0];
+            
+            $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['munkalap_id']}'");
+            if( $bejelentesek === false ) {
+                $db_error = true;
+            }
+            $bejelentes_idk = adatbazis2tomb($bejelentesek, 'bejelentes_id');
+            $bejelentes_idk = implode(',', $bejelentes_idk);
+            
+            //Ha a munkalap státusza jelenleg sürgős
+            if($akt_munkalap['surgos']){
+
+                $van_surgos = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`recid`='".$bejelentes_idk."' AND `surgos`=1");
+                if( $van_surgos === false ) {
+                    $db_error = true;
+                }
+                //Ha nincs egyetlen sürgős bejelentése sem, akkor a munkalap se legyen már sürgős
+                if(count($van_surgos)==0){
+                    $sql = $adatbazis_kapcsolat->u('munkalap', array('surgos'), array(0), "`recid`='{$munkalap['munkalap_id']}'");
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+                    if( addMegj('munkalap', $munkalap['munkalap_id'], $_POST['indoklas']) === false ) {
+                        $db_error = true;
+                    }
+                }
+                
+            //Ha a munkalap státusza jelenleg nem sürős
+            }else{
+                
+                //Ha csak egy sürgős bejelentése van, akkor a munkalap is sürgős lesz
+                $van_surgos = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`recid`='".$bejelentes_idk."' AND `surgos`=1", '', '1');
+                if( $van_surgos === false ) {
+                    $db_error = true;
+                }
+                if(count($van_surgos)>0){
+                    $sql = $adatbazis_kapcsolat->u('munkalap', array('surgos'), array(1), "`recid`='{$munkalap['munkalap_id']}'");
+                    if( $sql === false ) {
+                        $db_error = true;
+                    }
+                    if( addMegj('munkalap', $munkalap['munkalap_id'], $_POST['indoklas']) === false ) {
+                        $db_error = true;
+                    }
+                }
+                
+            }
+        }
+    }
+    
+    //Ha munkalapon változtat, bejelentéseit is megváltoztatjuk és beírjuk belejentések megjegyzésébe is.
+    if($_POST['page']=='munkalap'){
+        $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$_POST['recid']}'");
+        if( $bejelentesek === false ) {
+            $db_error = true;
+        }
+        foreach($bejelentesek as $bejelentes){
+            $sql = $adatbazis_kapcsolat->u('bejelentes', array('surgos'), array($surgos_allit), "`recid`='{$bejelentes['bejelentes_id']}'");
+            if( $sql === false ) {
+                $db_error = true;
+            }
+            if( addMegj('bejelentes', $bejelentes['bejelentes_id'], $_POST['indoklas']) === false ) {
+                $db_error = true;
+            }
+        }
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
+    }
+    
     $weblap->leallit();
     exit();
 }
@@ -3734,8 +3886,8 @@ if(isset($_GET['unset'])){
 	if($_SESSION['desc']){ $_GET['desc']='desc'; }
 
 }
-if( !$_GET['epo'] ){   $_GET['epo'] = 50;       }
-if( !isset($_GET['oldal'])){ $_GET['oldal']=0;  }
+if( !$_GET['epo'] )         { $_GET['epo'] = 50;    }
+if( !isset($_GET['oldal'])) { $_GET['oldal']=0;     }
 
 
 //ESEMÉNYEK

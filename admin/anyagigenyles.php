@@ -543,7 +543,7 @@ if ($_POST['arazas_ment']) {
     if($_POST['ig_menny'] > $_POST['rndmen'] && !$_POST['indok']){
         echo json_encode(
                     array(
-                        'hiba' => 'Kérjük adja meg a rendelési mennyiség<br>megváltoztatásának indoklását!',
+                        'hiba' => 'Kérjük adja meg a rendelési mennyiség megváltoztatásának indoklását!',
                         'focus' => 'pop_indoklas'
                     )
             );

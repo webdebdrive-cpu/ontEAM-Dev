@@ -3291,14 +3291,14 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                 case 'elutasitas':
                     szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
                     if( szamlaSorok.length>1 ) {
-                        alert2('Egyszerre csak egy '+$('#rekord_neve_tobb').html()+' utasítható el!', '', 'Hiba');
+                        alert2('Egyszerre csak egy '+$('#rekord_neve_egyes').html()+' utasítható el!', '', 'Hiba');
                     }else if( !$('#szamlaList li.szamla_sor.kijelolve').hasClass('nyitott_statuszu') ){
-                        alert2('Csak nyitott státuszú '+$('#rekord_neve_tobb').html()+' utasítható el!', '', 'Hiba');
+                        alert2('Csak nyitott státuszú '+$('#rekord_neve_egyes').html()+' utasítható el!', '', 'Hiba');
                     }else{
 
                         /* Az előző feltétel miatt itt biztosan csak egy sor van megjelölve */
                         if($('#szamlaList li.szamla_sor.kijelolve').hasClass('behuz')){
-                            alert2('Csoportosított '+$('#rekord_neve_tobb').html()+' nem utasítható el.<br>Előbb vegye ki a csoportból!', '', 'Hiba');
+                            alert2('Csoportosított '+$('#rekord_neve_egyes').html()+' nem utasítható el.<br>Előbb vegye ki a csoportból!', '', 'Hiba');
 
                         /* Egybként jöhet az elutasítás panel */
                         }else{
@@ -3376,14 +3376,14 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                 case 'elutasitas':
                     szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
                     if( szamlaSorok.length>1 ) {
-                        alert2('Egyszerre csak egy '+$('#rekord_neve_tobb').html()+' utasítható el!', '', 'Hiba');
+                        alert2('Egyszerre csak egy '+$('#rekord_neve_egyes').html()+' utasítható el!', '', 'Hiba');
                     }else if( !$('#szamlaList li.szamla_sor.kijelolve').hasClass('nyitott_statuszu') ){
-                        alert2('Csak nyitott státuszú '+$('#rekord_neve_tobb').html()+' utasítható el!', '', 'Hiba');
+                        alert2('Csak nyitott státuszú '+$('#rekord_neve_egyes').html()+' utasítható el!', '', 'Hiba');
                     }else{
 
                         /* Az előző feltétel miatt itt biztosan csak egy sor van megjelölve */
                         if($('#szamlaList li.szamla_sor.kijelolve').hasClass('behuz')){
-                            alert2('Csoportosított '+$('#rekord_neve_tobb').html()+' nem utasítható el.<br>Előbb vegye ki a csoportból!', '', 'Hiba');
+                            alert2('Csoportosított '+$('#rekord_neve_egyes').html()+' nem utasítható el.<br>Előbb vegye ki a csoportból!', '', 'Hiba');
 
                         /* Egybként jöhet az elutasítás panel */
                         }else{
