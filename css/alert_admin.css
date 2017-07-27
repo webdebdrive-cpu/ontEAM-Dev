@@ -96,6 +96,11 @@ div.alert2 input {
     padding: 0.8rem 0.8rem 0.9rem 0.9rem;
 }
 
+#alert2 input:disabled,
+div.alert2 input:disabled {
+    display: inline-block;
+}
+
 #alert2 input.gombb,
 div.alert2 input.gombb {
     padding: 0.8rem 1.4rem;

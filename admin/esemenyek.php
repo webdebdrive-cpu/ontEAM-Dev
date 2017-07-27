@@ -2065,15 +2065,16 @@ if( isset($_GET['folyamatban_munkak']) ) {
 
     if( $bejelentesek ) {
         $html = nl2('
-            <div class="dt alert_dt">
-                <div class="dtr adt_fejlec">
-                    <div class="dtc">Iktató szám</div>
-                    <div class="dtc">Szálloda</div>
-                    <div class="dtc">Hely leírása</div>
-                    <div class="dtc">Bejelentett hiba</div>
-                    <div class="dtc">Hiba leírása</div>
-                    <div class="dtc">Sürgős</div>
-                </div>
+            <div class="mobilkeret">
+                <table class="csikos">
+                    <tr>
+                        <th>Iktató szám</th>
+                        <th>Szálloda</th>
+                        <th>Hely leírása</th>
+                        <th>Bejelentett hiba</th>
+                        <th>Hiba leírása</th>
+                        <th>Sürgős</th>
+                    </tr>
         ');
 
         foreach($bejelentesek as $bejelentes) {
@@ -2099,18 +2100,18 @@ if( isset($_GET['folyamatban_munkak']) ) {
             }
 
             $html .= nl2('
-                <div class="dtr adt_sor">
-                    <div class="dtc">'.$bejelentes['ikt_szam'].'</div>
-                    <div class="dtc">'.$telephely.'</div>
-                    <div class="dtc">'.$helyseg.'</div>
-                    <div class="dtc">'.$hiba['info'].'</div>
-                    <div class="dtc">'.$bejelentes['hiba_text'].'</div>
-                    <div class="dtc">'.$surgos.'</div>
-                </div>
+                <tr>
+                    <td>'.$bejelentes['ikt_szam'].'</td>
+                    <td>'.$telephely.'</td>
+                    <td>'.$helyseg.'</td>
+                    <td>'.$hiba['info'].'</td>
+                    <td>'.$bejelentes['hiba_text'].'</td>
+                    <td>'.$surgos.'</td>
+                </tr>
             ');
         }
 
-        $html .= '</div>';
+        $html .= '</table></div>';
 
         echo json_encode(array(
             'hiba' => 'Folyamatban lévő munkák listája'.$html.'Folytatja a hibabejelentést?',
@@ -2121,6 +2122,83 @@ if( isset($_GET['folyamatban_munkak']) ) {
         exit();
     }
     echo json_encode(array('siker' => 1));
+
+    $weblap->leallit();
+    exit();
+}
+
+/* Munkalaphoz adás */
+if( isset($_GET['getBejBejelentok']) ) {
+    $telephely_id = $_GET['telephely_id'];
+    $obj_id       = $_GET['obj_id'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    $sql = $telep_kapcsok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id` = '{$telephely_id}'", '', '');
+
+    if( $sql === false ) {
+        $db_error = true;
+    }
+
+    if( $telep_kapcsok ) {
+        $telep_kapcsok = adatbazis2tomb($telep_kapcsok, 'nev');
+
+        /* Felhasználók lekérdezése */
+        $sql = $loginok = $adatbazis_kapcsolat->s('nev teljes_nev reszleg_id beosztas_id szerepkor_id', 'login', "`nev` IN ('".implode('\' , \'', $telep_kapcsok)."') AND `szerepkor_id` = '6' AND `aktiv` > '0'", '', '');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $loginok ) {
+            $html = nl2('
+                <div class="mobilkeret">
+                    <table class="csikos egyErtek sorLink">
+                        <tr>
+                            <th>Név</th>
+                            <th>Részleg</th>
+                            <th>Beosztás</th>
+                            <th>Szerepkör</th>
+                        </tr>
+            ');
+
+            foreach($loginok as $login) {
+                $html .= nl2('
+                    <tr class="kijSor">
+                        <td>'.$login['teljes_nev'].'</td>
+                        <td>'.erteklista(17, $login['reszleg_id']).'</td>
+                        <td>'.erteklista(18, $login['beosztas_id']).'</td>
+                        <td>'.getErtek('nev', 'szerepkor', 'recid', $login['szerepkor_id']).'</td>
+                    </tr>
+                ');
+            }
+
+            $html .= '</table></div>';
+
+            echo json_encode(array(
+                'hiba' => 'Válasszon hibabejelentőt a(z) '.getErtek('nev', 'telephely', 'id', $telephely_id).' szállodából!'.$html,
+                'gomb' => '<p class="c"><input id="diszpFeltolt" class="gomb piros" disabled type="button" value="Mentés" onclick="bejelentes_mehet = true; $(\'#szerk_form\').submit();"><input class="gomb zold" type="button" value="Mégsem" onclick="alert2()"></p>'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+    }
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
+    }
 
     $weblap->leallit();
     exit();

@@ -2207,6 +2207,7 @@ div.navGombok a.disabled .material-icons {
     width: 40%;
 }
 
+#alert2 div.tart div.mobilkeret,
 #popup div.popup_tart div.mobilkeret {
     border: 0.1rem solid #242424;
     max-height: 20rem;
@@ -2479,6 +2480,11 @@ table.csikos td{
     font-size: 1.4rem;
     font-weight: 400;
     padding: 1rem 1rem 1rem 1rem;
+    text-align: left;
+}
+
+table.csikos.sorLink tr.kijSor {
+    cursor: pointer;
 }
 
 table.csikos.kicsi td {
@@ -2541,12 +2547,12 @@ div.szamlaLapozas div.lapoz.pontok {
     user-select: none;
 }
 
-.kijCont .kijSor.kijelolve {
+.kijSor.kijelolve {
     background: #55A2FA!important;
     color: #fff;
 }
 
-.kijCont .kijSor.kijelolve a {
+.kijSor.kijelolve a {
     color: #fff;
 }
 
