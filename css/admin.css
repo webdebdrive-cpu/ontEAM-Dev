@@ -2418,6 +2418,9 @@ table.csikos th{
     font-size: 1.4rem;
     padding: 1rem 1rem;
     text-align: left;
+}
+
+table.csikos.tetel_csikos th {
     width: 20%;
 }
 

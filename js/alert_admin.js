@@ -1,4 +1,13 @@
+focused = false;
 function alert2(uzi, ok_gomb, cim) {
+
+    if( !uzi && focused ) {
+        focused.focus();
+    } else {
+        setTimeout(function() {
+            focused = document.activeElement;
+        }, 10);
+    }
 
     if( !ok_gomb ){
         ok_gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2()">';
@@ -81,11 +90,11 @@ function alert_kiir(uzi, ok_gomb, cim){
     });
 */
 
-    
+
     $('#szurkit, .szurkit').fadeIn(200);
     $('#alert2').fadeIn(200);
     $('#alert2 input:text, #alert2 textarea').first().focus();
-    
+
 
     return true;
 }
