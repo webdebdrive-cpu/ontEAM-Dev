@@ -2754,13 +2754,56 @@ if( isset($_POST['munkalapAdminisztrator']) ) {
 /* Munkalap átadása külső csoportnak */
 if( isset($_POST['munkalapKulso']) ) {
     $recid = $_POST['recid'];
+    $szallito_id = $_POST['szallito_id'];
+    $szemelyzet_id = $_POST['szemelyzet_id'];
 
-    if( $recid ) {
-        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(3), "`recid` = '{$recid}'");
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
 
-        echo json_encode(array(
-            'statusz' => 'siker'
-        ));
+    if( $recid && ($szallito_id || $szemelyzet_id) ) {
+        if( $szallito_id ) {
+            $sql = $adatbazis_kapcsolat -> u('munkalap',
+                array('szemelyzet_id',   'szallitoid',   'update_usr'                           ),
+                array( KULSO_KIVITELEZO, $szallito_id,    $_SESSION[get_db_tabla().'teljes_nev'] ),
+                "`recid` = '{$recid}'"
+            );
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) ) {
+                $db_error = true;
+            }
+        } else if( $szemelyzet_id ) {
+            $sql = $adatbazis_kapcsolat -> u('munkalap',
+                array('szemelyzet_id',   'update_usr'                           ),
+                array( $szemelyzet_id,   $_SESSION[get_db_tabla().'teljes_nev'] ),
+                "`recid` = '{$recid}'"
+            );
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZREND_ELOKESZ ) ) {
+                $db_error = true;
+            }
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
     }
 }
 
@@ -3251,7 +3294,7 @@ if( isset($_POST['csoportbaRendez']) ) {
     $csoportID = $_POST['csoportID'];
     $idk       = json_decode($_POST['idk'], true);
     $page      = $_POST['page'];
-    
+
     switch($page){
         case 'bejelentes': $hibauzi_param = 'bejelentést'; break;
         case 'mukalap'   : $hibauzi_param = 'munkalapot'; break;
@@ -3265,7 +3308,7 @@ if( isset($_POST['csoportbaRendez']) ) {
         if( $is_csoport === false ) {
             $db_error = true;
         }
-        
+
         //Ellenőrizzük, hogy azonos szállodához tartoznak-e a bejeletések. Ha nem: hiba
         $szallodak = $adatbazis_kapcsolat->s('distinct telephely_id', $page, "`recid` IN (".implode(',', $idk).")");
         if(count($szallodak)>1){
@@ -3275,7 +3318,7 @@ if( isset($_POST['csoportbaRendez']) ) {
             $weblap->leallit();
             exit();
         }
-        
+
         //Csoportban milyen szállodájú bejegyzések vannak? Csak ilyet adható hozzá.
         $egy_csoport_elem = $adatbazis_kapcsolat -> s('recid', $page, "`csoport_id`='$csoportID'", '', '1');
         $egy_csoport_elem = $egy_csoport_elem[0];

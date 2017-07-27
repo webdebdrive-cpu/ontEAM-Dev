@@ -524,13 +524,13 @@ $(function() {
         }
     });
     /* Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk
-     
+
      *2do: Checkbox-ra hogyna lehetne léptetni?
      *     elsubmitolja az űrlapot, ezért a submit gombot sima gombra kell cserélni ami a form-ot submitolja, de akkor a form_modosit.html-ben nem fog működni a if(!$('#szerk_form input[type="submit"]').length) feltétle, tehát azt is át kell írni.
  */
     $(document).on('keyup', 'input', function(e) {
         if (e.which == 13) {
-            
+
             mezo_nev = $(this).attr('name');
             stop = false;
             $('form').find('input, select, textarea').each(function() {
@@ -548,11 +548,11 @@ $(function() {
                     stop = true;
                 }
             });
-            
+
             e.preventDefault();
         }
     });
-    
+
     /* Beosztás naptár bejegyzés törlésre kijelölés */
     $(document).on('click', '.foglalt', function(e) {
         naptar_id = $(this).attr('data-recid');
@@ -2574,15 +2574,34 @@ function munkalapMobil( that ) {
     return false;
 }
 
-function munkalapKulso() {
+function munkalapKulso( that ) {
 
     if(balnav_kijelol_ell()){
+
+        var szallito_id = $(that).find('input[name="szallito_id"]'),
+        szemelyzet_id = $(that).find('select[name="p_szemelyzet_id"]');
+
+        if( szallito_id.val() && szemelyzet_id.val() ) {
+            alert2('Külső kivitelezőt és hozzárendelt személyzetet egyszerre nem lehet megadni!');
+            document.getElementById('szallito_id_autocomp').focus();
+            szemelyzet_id.val('');
+            szallito_id.val('');
+            return false;
+        }
+
+        if( !szallito_id.val() && !szemelyzet_id.val() ) {
+            alert2('Válasszon külső kivitelezőt!');
+            document.getElementById('szallito_id_autocomp').focus();
+            return false;
+        }
 
         $.ajax({
             url : 'esemenyek.php',
             type: 'POST',
             data: {
                 recid: _get('id'),
+                szallito_id: szallito_id.val(),
+                szemelyzet_id: szemelyzet_id.val(),
                 munkalapKulso: new Date().getTime()
             },
             success: function(response) {
@@ -3050,7 +3069,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         if(!$(this).hasClass('nyitott_statuszu')){
                             nem_nyitott_statuszuak += $(this).find('span:first-of-type').html()+'<br>';
                         }
-                        
+
                         /* Ha nem azonosak a szállodák */
                         if(elozo_telephely_id && $(this).attr('data-telephely_id')!=elozo_telephely_id){
                             nem_azonos_szalloda = true;
@@ -3490,48 +3509,34 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                     });
                 break;
 
-                case 'munkalapErkeztet':
+                case 'munkalap_kulso':
                     $('#popupTart').html(data);
 
-                    if(balnav_kijelol_ell()){
+                    $.ajax({
+                        url : 'munkalap.php',
+                        type: 'POST',
+                        data: {
+                            munkalap_kulsoSelect: new Date().getTime()
+                        },
+                        success: function(response) {
+                            if(response) {
+                                response = JSON.parse(response);
 
-                        var recid = $('#szamlaList li.szamla_sor.kijelolve').attr('data-recid');
-                        if( recid ) {
-
-                            $.ajax({
-                                url : 'munkalap.php',
-                                type: 'POST',
-                                data: {
-                                    recid           : recid,
-                                    munkalapErkeztet: new Date().getTime()
-                                },
-                                success: function(response) {
-                                    if(response) {
-                                        response = JSON.parse(response);
-
-                                        if( response.hiba ) {
-                                            if( response.gomb ) {
-                                                alert2(response.hiba, response.gomb);
-                                            } else {
-                                                alert2(response.hiba, '', 'Hiba');
-                                            }
-                                            popupZar();
-                                            return false;
-                                        }
-
-                                        $('#pop_ikt_szam').val(response.ikt_szam);
-                                        $('#pop_telephely').val(response.telephely);
-                                        $('#pop_tablazat').html(response.tablazat);
-
-                                        popupNyit();
+                                if( response.hiba ) {
+                                    if( response.gomb ) {
+                                        alert2(response.hiba, response.gomb);
+                                    } else {
+                                        alert2(response.hiba, '', 'Hiba');
                                     }
-                                }
-                            });
-                        } else {
-                            alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
-                        }
 
-                    }
+                                    return false;
+                                }
+
+                                $('#hozzRendSelect').html(response.select);
+                                popupNyit();
+                            }
+                        }
+                    });
                 break;
 
                 default:
@@ -3785,7 +3790,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                         $('#pop_szallito').val(response.szallito);
                         $('#pop_szallito').attr('disabled', true);
                         $('#rendeles_tetelek').html(response.html);
-                        
+
                         /* Ráfókuszálás, kijelölés az első sor inputjára*/
                         $('#rendeles_tetelek input:text').first().select();
                     }

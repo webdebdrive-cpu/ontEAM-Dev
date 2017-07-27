@@ -40,6 +40,7 @@ define('MUNKALAP_STAT_ANYAGRAVAR',      '09');
 define('MUNKALAP_STAT_KESZ_IG',         '10');
 define('MUNKALAP_STAT_LEZART',          '11');
 define('MUNKALAP_STAT_IGAZOLT',         '12');
+define('MUNKALAP_STAT_HOZREND_ELOKESZ', '13');
 
 //Munkalap Anyagigénylés státuszok
 define('DISZPNAG_STAT_VAN_ANYAG',       '00');
