@@ -1154,6 +1154,17 @@ $(function() {
             }
         }
     });
+
+    $(document).on('click', 'table.egyErtek tr.kijSor', function() {
+        $(this).parents('table.egyErtek').find('tr.kijSor').removeClass('kijelolve');
+        $(this).addClass('kijelolve');
+
+        if( $(this).hasClass('kijelolve') ) {
+            $('#diszpFeltolt').attr('disabled', false);
+        } else {
+            $('#diszpFeltolt').attr('disabled', true);
+        }
+    });
 });
 
 function munkFeladatTorol( recid, that ) {

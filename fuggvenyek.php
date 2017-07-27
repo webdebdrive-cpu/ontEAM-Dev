@@ -3670,6 +3670,20 @@ function erteklista($csoport, $id) {
     }
 }
 
+function getErtek($mit, $tabla, $keres, $val) {
+    global $adatbazis_kapcsolat;
+
+    $sor = $adatbazis_kapcsolat->s($mit, $tabla, "`{$keres}` = '{$val}'", '', '1');
+    
+    if( $sor ) {
+        $sor = $sor[0];
+
+        return $sor[$mit];
+    } else {
+        return false;
+    }
+}
+
 function jogosultsagKatok( $tomb ) {
     require('jogosultsag.php');
 
