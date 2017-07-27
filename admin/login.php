@@ -560,14 +560,14 @@ if($gyorskereso_text){
                     }
                     //Ha épp most kapcsoltuk ki
                     if($kikapcs){
-                        $kikapcs = 'if( $(this).prop(\'checked\') == false ){'.$kikapcs.'}';
+                        $kikapcs = 'if( $(this).prop(\'checked\') ){'.$kikapcs.'}';
                     }
                     if($kikapcskor_kikapcs){
                         $kikapcskor_kikapcs = 'if( $(this).prop(\'checked\') == false ){'.$kikapcskor_kikapcs.'}';
                     }
                     
-                    if($kikapcs || $bekapcs || $kikapcskor_kikapcs){
-                        $onclick = ' onclick="'.$kikapcs.$bekapcs.$kikapcskor_kikapcs.'"';
+                    if($kikapcs || $kikapcskor_kikapcs || $bekapcs){
+                        $onclick = ' onclick="'.$kikapcs.$kikapcskor_kikapcs.$bekapcs.'"';
                     }
                     
                     $dn = '';

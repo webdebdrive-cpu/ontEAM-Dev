@@ -92,6 +92,7 @@ define('JOG_MUNKALAP_TER_FELELOS',  22);
 define('JOG_MUNKALAP_ADMIN',        24);
 define('JOG_MUNKALAP_DISZP_KP_VEZ', 23);
 define('JOG_MUNKALAP_MOBIL',        31);
+define('JOG_MUNKALAP_KULSO',        34);
 define('JOG_UTFEL_MEGTEKINT',       32);
 define('JOG_UTFEL_KEZEL',           33);
 
