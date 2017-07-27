@@ -786,7 +786,7 @@ $login_tomb = $akt_tomb = array(
     array('type' => 'text',             'megn' => 'E-mail:',                    'name' => 'usermail',       'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250),
     array('type' => 'text',             'megn' => 'Telefon:',                   'name' => 'usertel',        'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250),
     array('type' => 'autocomplete',     'megn' => 'Szerepkör:',                 'name' => 'szerepkor_id',   'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'szerepkor', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'alert' => 'Kérem adja meg a szerepkört!'),
-    array('type' => 'checkbox',         'megn' => '',                           'name' => 'fer',            'class' => 'check',             'szuro' => 0, 'post' => ' ontEAM emlékeztessen a feladataimra'),
+    array('type' => 'autocomplete',     'megn' => 'Szállító:',                  'name' => 'szallito',       'szuro' => 1,   'disabled' => 0,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -836,7 +836,7 @@ $surgos_allit = '';
 if (isset($_GET['modosit'])) {
     //Módosításkor is csak akkor jön fel, ha az illető nem diszpécser (hanem bejelentő... neki nem kell indokolni, amúgy is csak saját bejelentésekhez fér hozzá)
     if(_jog(JOG_BEJELENTES_KEZEL) && !_jog(JOG_DISZPECSER)){
-        
+
     }else{
         $surgos_allit = 'csoportMuvelet(\'surgosseg_indoklas\')';
     }
