@@ -358,15 +358,14 @@ if($gyorskereso_text){
 	//Történet
 	}elseif(isset($_GET['tortenet'])){
 
-        $szamla_html .= 'Történet felülete';
-        
+        $szamla_html .= get_tortenet($megnevezes);
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'tartalom' => $szamla_html.$gombok
             ));
         } else {
-            echo $szamla_html;
+            echo $szamla_html.$gombok;
         }
 
 	//Dokumentumok

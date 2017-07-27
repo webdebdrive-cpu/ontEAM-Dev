@@ -19,7 +19,7 @@ $jogosultsagok = array(
     31 => array('nev' => 'Munkalapok kezelése mint mobil',                  'kat' => 1, 'sor' => 6,  'bekapcs' => '3', 'kikapcs' => '5,21,22,23,24'),
     21 => array('nev' => 'Munkalapok kezelése mint műszaki vezető',         'kat' => 1, 'sor' => 8,  'bekapcs' => '3', 'kikapcs' => '5,22,23,24,31'),
     22 => array('nev' => 'Munkalapok kezelése mint területi felelős',       'kat' => 1, 'sor' => 9,  'bekapcs' => '3', 'kikapcs' => '5,21,23,24,31'),
-    23 => array('nev' => 'Munkalapok kezelése mint Diszp.központ vezető',   'kat' => 1, 'sor' => 10, 'bekapcs' => '3', 'kikapcs' => '5,21,22,24,31'),
+    23 => array('nev' => 'Munkalapok kezelése mint Diszp.központ vezető',   'kat' => 1, 'sor' => 10, 'bekapcs' => '3,2', 'kikapcs' => '5,21,22,24,31'),
     24 => array('nev' => 'Munkalapok kezelése mint adminisztrátor',         'kat' => 1, 'sor' => 11, 'bekapcs' => '3', 'kikapcs' => '5,21,22,23,31'),
 
     6  => array('nev' => 'Felhasználók megtekintése',   'kat' => 2, 'sor' => 6,  'kikapcs' => '7'),

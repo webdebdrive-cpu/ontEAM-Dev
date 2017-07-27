@@ -4128,3 +4128,60 @@ function get_props($props, $mezo){
         }
     }
 }
+
+/* Tröténet fül tartalma */
+function get_tortenet($megnevezes){
+    
+    global $adatbazis_kapcsolat;
+    
+    $szamla_html = nl2('
+        <div class="dt naplo">
+            <div class="dtr nFejlec">
+                <div class="dtc">Státusz</div>
+                <div class="dtc">Kelte</div>
+                <div class="dtc">Felhasználó</div>
+                <div class="dtc">Státuszidő</div>
+                <div class="dtc">Göngyölt státuszidő</div>
+                <div class="dtc">Megjegyzés</div>
+                <!--<div class="dtc">Összesített státuszidő</div>-->
+            </div>
+    ');
+
+    $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido text', $megnevezes.'_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc');
+    if( $sorok ) {
+        foreach($sorok as $sor) {
+            $statusz = $adatbazis_kapcsolat->s('nev szinkod', $megnevezes.'_statusz_text', 'recid='.$sor['stat_id'], '', '1');
+
+            $szinkod = '';
+            if( $statusz ) {
+                $statusz = $statusz[0];
+
+                $sor['statusz'] = $statusz['nev'];
+
+                if( $statusz['szinkod'] ) {
+                    $szinkod = ' style="background: '.$statusz['szinkod'].';"';
+                }
+            }
+
+            //Adatbázisba eleinte szóköz nélkül került be a nap, ezért biztonság kedvéért egy szóközt még beszúrunk, illetve a 0nap-ot is kiszűrjük (bár ez egy adatbázis frissítés után már felesleges)
+            $sor['statido']          = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['statido']);
+            $sor['gongyolt_statido'] = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['gongyolt_statido']);
+            $sor['ossz_statido']     = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['ossz_statido']);
+            $szamla_html .= nl2('
+                <div class="dtr nSor"'.$szinkod.'>
+                    <div class="dtc">'.$sor['statusz'].'</div>
+                    <div class="dtc">'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</div>
+                    <div class="dtc">'.$sor['insert_usr'].'</div>
+                    <div class="dtc">'.$sor['statido'].'</div>
+                    <div class="dtc">'.$sor['gongyolt_statido'].'</div>
+                    <div class="dtc">'.nl2br2($sor['text']).'</div>
+                    <!--<div class="dtc">'.$sor['ossz_statido'].'</div>-->
+                </div>
+            ');
+        }
+    }
+
+    $szamla_html .= '</div>';
+
+    return $szamla_html;
+}

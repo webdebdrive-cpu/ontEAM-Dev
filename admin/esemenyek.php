@@ -822,7 +822,7 @@ if( isset($_GET['modosit']) && $_GET['id'] ) {
 
 //Diszpécser számára nem elérhető
 $helyseg_valaszto = '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">reorder</i></a>';
-if(_jog(2)){
+if(_jog(JOG_DISZPECSER)){
     $helyseg_valaszto = '';
 }
 
@@ -830,10 +830,16 @@ if( $user ) {
     $user = $user[0];
 }
 
-//Sűrgősség csak módosításkor jön fel: Munkalapoknál is, de ugyanaz a függvény, ezért elég itt beállítani
+//Sűrgősség csak módosításkor jön fel: Munkalapoknál is, de ugyanaz a függvény, ezért elég itt beállítani, de
+//FONTOS hogy a munkalap tömb akkor ez után legyen!
 $surgos_allit = '';
 if (isset($_GET['modosit'])) {
-    $surgos_allit = 'csoportMuvelet(\'surgosseg_indoklas\')';
+    //Módosításkor is csak akkor jön fel, ha az illető nem diszpécser (hanem bejelentő... neki nem kell indokolni, amúgy is csak saját bejelentésekhez fér hozzá)
+    if(_jog(JOG_BEJELENTES_KEZEL) && !_jog(JOG_DISZPECSER)){
+        
+    }else{
+        $surgos_allit = 'csoportMuvelet(\'surgosseg_indoklas\')';
+    }
 }
 
 //Bejelentések
