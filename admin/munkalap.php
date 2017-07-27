@@ -1693,6 +1693,28 @@ if($gyorskereso_text){
 
             $gombok .= nl2('
                 <div id="kmCont">
+                    <script>
+                        csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                    </script>
+                    <div class="kijeloltek_muv">
+                        <input type="button" class="gomb foGomb" value="Csoportosítás..." title="Csoportosítás...">
+                        <div class="muv">
+                            <ul>
+                                <li><a onclick="csoportMuvelet(\'csoporthoz_adas\');">Csoporthoz adás</a></li>
+                                <li><a onclick="if(balnav_kijelol_ell(\'egy csoportot szabad megbontani\')){ alert2(\'Biztos kiveszi a kijelölt sorokat a megadott csoportokból?\', csoportKiveszGomb); }">Csoportból kivétel</a></li>
+                                <li><a onclick="csa_alert();">Csoport átnevezése</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="kijeloltek_muv">
+                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
+                        <div class="muv">
+                            <ul>
+                                <li><a onclick="varolistahozAdas(\'csak kérdezünk még\');">Várólistához adás</a></li>
+                                <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\');">Várólistból kivétel</a></li>
+                            </ul>
+                        </div>
+                    </div>
                     <div class="kijeloltek_muv">
                         <input type="button" class="gombb foGomb" value="Munka átadása..." title="Munka átadása...">
                         <div class="muv">
