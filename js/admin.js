@@ -2579,13 +2579,15 @@ function munkalapKulso( that ) {
     if(balnav_kijelol_ell()){
 
         var szallito_id = $(that).find('input[name="szallito_id"]'),
+        szallito_id_autocomp = $(that).find('input[name="szallito_id_autocomp"]'),
         szemelyzet_id = $(that).find('select[name="p_szemelyzet_id"]');
 
         if( szallito_id.val() && szemelyzet_id.val() ) {
             alert2('Külső kivitelezőt és hozzárendelt személyzetet egyszerre nem lehet megadni!');
-            document.getElementById('szallito_id_autocomp').focus();
             szemelyzet_id.val('');
+            szallito_id_autocomp.val('');
             szallito_id.val('');
+            document.getElementById('szallito_id_autocomp').focus();
             return false;
         }
 
@@ -3508,7 +3510,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         }
                     });
                 break;
-                
+
                 case 'munkalapErkeztet':
                     $('#popupTart').html(data);
 
@@ -3560,6 +3562,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         url : 'munkalap.php',
                         type: 'POST',
                         data: {
+                            recid: _get('id'),
                             munkalap_kulsoSelect: new Date().getTime()
                         },
                         success: function(response) {

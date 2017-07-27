@@ -78,7 +78,29 @@ if($tobb_kep){
 if( isset($_POST['munkalap_kulsoSelect']) ) {
     require_once('selectek.php');
 
+    $recid = $_POST['recid'];
+
     if( $select_szemelyzet ) {
+        /* Ellenőrizzük, hogy felvéve státuszban van e */
+        $sql = $munkalap = $adatbazis_kapcsolat->s('statusz_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $munkalap ) {
+            $munkalap = $munkalap[0];
+
+            if( $munkalap['statusz_id'] != MUNKALAP_STAT_NYITOTT && $munkalap['statusz_id'] != MUNKALAP_STAT_FOLYAMATBAN ) {
+                echo json_encode(array(
+                    'hiba' => 'Csak nyitott, vagy folyamatban lévő munkalapokat lehet kiadni külsősnek!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
         $select = '<select id="p_szemelyzet_id" name="p_szemelyzet_id">';
 
         foreach($select_szemelyzet as $value) {
@@ -1329,7 +1351,7 @@ if( isset($_POST['munkalapErkeztet']) ) {
 
     $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$munkalap['telephely_id']}'");
     $telephely = $telephely[0];
-    
+
     $tablazat = nl2('
         Felhasznált és hiányzó anyagok:
         <table class="csikos">
@@ -1343,17 +1365,17 @@ if( isset($_POST['munkalapErkeztet']) ) {
             <th>Anyag beérkezett</th>
         </tr>
         ');
-    
+
     require 'selectek.php';
     $anyagok = $adatbazis_kapcsolat->s('recid cikk_id cikk_nev cikk_men szuk_men cikk_mee stat_id', 'munkalap_anyag', "`munkalap_id`='{$_POST['recid']}'");
     foreach($anyagok as $anyag){
-        
+
         foreach($munkAnyag_statusz as $kulcs => $stat){
             if($kulcs == $anyag['stat_id']){
                 $statusz = $stat;
             }
         }
-        
+
         //ha anyagstátusz= igénylésre vár vagy igényelve, anyag beérkezett oszlopban pipáló
         //ha anyagstátusz=rendelkezésre áll vagy üres (ez elvileg nem lehet), szürkén mutatjuk sort és nem tud pipálni
         $disabled = '';
@@ -1380,7 +1402,7 @@ if( isset($_POST['munkalapErkeztet']) ) {
                     ');
     }
     $tablazat .= nl2('</table>');
-    
+
 
     echo json_encode(array(
         'statusz'   => 'siker',
@@ -1389,13 +1411,13 @@ if( isset($_POST['munkalapErkeztet']) ) {
         'tablazat'  => $tablazat,
     ));
 
-    
+
     $weblap->leallit();
     exit();
 }
 /* Munkalap érkeztetésének mentése */
 if( isset($_POST['munkalapErkeztetMent']) ) {
-    
+
     $idk = json_decode($_POST['idk'], true);
 
     $db_error = false;
@@ -1408,7 +1430,7 @@ if( isset($_POST['munkalapErkeztetMent']) ) {
         if( $sql === false ) {
             $db_error = true;
         }
-        
+
         //ellenőrizzük, hogy van-e még olyan sor, ahol statid=DISZPNAG_STAT_VAN_ANYAG, ha nincs, a munkalap státuszt átállítjuk: Nyitott és viszaadva=1
         $munkalap_id = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_anyag', "`recid`='{$idk[0]}'");
         if( $munkalap_id === false ) {
@@ -1429,8 +1451,8 @@ if( isset($_POST['munkalapErkeztetMent']) ) {
             }
         }
     }
-    
-    
+
+
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
     } else {
@@ -1439,7 +1461,7 @@ if( isset($_POST['munkalapErkeztetMent']) ) {
             'hiba' => tranzakcioHiba().$db_error
         ));
     }
-    
+
     $weblap->leallit();
     exit();
 }
@@ -1666,7 +1688,7 @@ if($gyorskereso_text){
                 </div>
             ');
 
-            
+
         } else if( _jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_DISZP_KP_VEZ) ) {
 
             $gombok .= nl2('
@@ -1740,7 +1762,7 @@ if($gyorskereso_text){
                 <input type="button" class="gomb foGomb" value="Munka felvétele" title="Munka felvétele" onclick="'.$onclick.'">
             ');
         }
-        
+
         if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) ){
             $gombok .= '<input type="button" class="gomb foGomb" value="Érkeztet" title="Feladat érkeztetése" onclick="csoportMuvelet(\'munkalapErkeztet\')">';
         }

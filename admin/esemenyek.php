@@ -2761,6 +2761,26 @@ if( isset($_POST['munkalapKulso']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid && ($szallito_id || $szemelyzet_id) ) {
+        /* Ellenőrizzük, hogy felvéve státuszban van e */
+        $sql = $munkalap = $adatbazis_kapcsolat->s('statusz_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $munkalap ) {
+            $munkalap = $munkalap[0];
+
+            if( $munkalap['statusz_id'] != MUNKALAP_STAT_NYITOTT && $munkalap['statusz_id'] != MUNKALAP_STAT_FOLYAMATBAN ) {
+                echo json_encode(array(
+                    'hiba' => 'Csak nyitott, vagy folyamatban lévő munkalapokat lehet kiadni külsősnek!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
+
         if( $szallito_id ) {
             $sql = $adatbazis_kapcsolat -> u('munkalap',
                 array('szemelyzet_id',   'szallitoid',   'update_usr'                           ),
@@ -3668,32 +3688,32 @@ if( isset($_GET['addSzakterulet']) ) {
 
 //Sűrgősség pipa lekezelése
 if (isset($_POST['surgosseg_allit'])) {
-    
+
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-    
+
     //Ha se nem diszpécser se nem disp.kp vez, akkor nincs joga sürgősséget állítani
     if(!_jog(JOG_DISZPECSER) && !_jog(JOG_MUNKALAP_DISZP_KP_VEZ)){
-        
+
         echo json_encode(array(
             'hiba' => 'Önnek nincs joga sürgősséget állítani'
         ));
-        
+
         $weblap->leallit();
         exit();
-        
+
     }
-    
+
     if(!$_POST['indoklas']){
         echo json_encode(array(
             'hiba'  => 'Az indoklás kitöltése kötelező!',
             'focus' => 'indoklas',
         ));
-        
+
         $weblap->leallit();
         exit();
     }
-    
+
     //Jelenleg sürgős-e vagy sem
     $surgos = $adatbazis_kapcsolat->s('surgos', $_POST['page'], "`recid`='{$_POST['recid']}'");
     if( $surgos === false ) {
@@ -3705,7 +3725,7 @@ if (isset($_POST['surgosseg_allit'])) {
     }else{
         $surgos_allit = 1;
     }
-    
+
     //Adott rekordon cseréjük a sürgősséget és beszúrjuk a megjegyzést
     $sql = $adatbazis_kapcsolat->u($_POST['page'], array('surgos'), array($surgos_allit), "`recid`='{$_POST['recid']}'");
     if( $sql === false ) {
@@ -3714,7 +3734,7 @@ if (isset($_POST['surgosseg_allit'])) {
     if( addMegj($_POST['page'], $_POST['recid'], $_POST['indoklas']) === false ) {
         $db_error = true;
     }
-    
+
     //Ha bejelentésen változtat, munkalapjait is megváltoztatjuk és beírjuk munkalapjai megjegyzésébe is.
     if($_POST['page']=='bejelentes'){
         $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_POST['recid']}'");
@@ -3728,14 +3748,14 @@ if (isset($_POST['surgosseg_allit'])) {
                 $db_error = true;
             }
             $akt_munkalap = $akt_munkalap[0];
-            
+
             $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['munkalap_id']}'");
             if( $bejelentesek === false ) {
                 $db_error = true;
             }
             $bejelentes_idk = adatbazis2tomb($bejelentesek, 'bejelentes_id');
             $bejelentes_idk = implode(',', $bejelentes_idk);
-            
+
             //Ha a munkalap státusza jelenleg sürgős
             if($akt_munkalap['surgos']){
 
@@ -3753,10 +3773,10 @@ if (isset($_POST['surgosseg_allit'])) {
                         $db_error = true;
                     }
                 }
-                
+
             //Ha a munkalap státusza jelenleg nem sürős
             }else{
-                
+
                 //Ha csak egy sürgős bejelentése van, akkor a munkalap is sürgős lesz
                 $van_surgos = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`recid`='".$bejelentes_idk."' AND `surgos`=1", '', '1');
                 if( $van_surgos === false ) {
@@ -3771,11 +3791,11 @@ if (isset($_POST['surgosseg_allit'])) {
                         $db_error = true;
                     }
                 }
-                
+
             }
         }
     }
-    
+
     //Ha munkalapon változtat, bejelentéseit is megváltoztatjuk és beírjuk belejentések megjegyzésébe is.
     if($_POST['page']=='munkalap'){
         $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$_POST['recid']}'");
@@ -3792,7 +3812,7 @@ if (isset($_POST['surgosseg_allit'])) {
             }
         }
     }
-    
+
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
 
@@ -3806,7 +3826,7 @@ if (isset($_POST['surgosseg_allit'])) {
             'hiba' => tranzakcioHiba()
         ));
     }
-    
+
     $weblap->leallit();
     exit();
 }
