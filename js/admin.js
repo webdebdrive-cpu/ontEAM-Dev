@@ -517,9 +517,9 @@ $(function() {
         $('.foglalt').removeClass('kijelol');
         $('#mehet_gomb_kivesz').attr('disabled', 'disabled');
     });
-    /* Megnyomva az Esc-et, a popup bezáródik */
+    /* Megnyomva az Esc-et, a popup bezáródik, de csak akkor, ha az alert nincs nyitva */
     $(document).on('keyup', function(e) {
-        if (e.which == 27) {
+        if (e.which == 27 && !$('#alert2').is(':visible')) {
             popupZar();
         }
     });
@@ -977,11 +977,10 @@ $(function() {
         }
     });
 
+    /* Alert-en az Ok gomb Enterre is működjön */
     $(document).on('keydown', function(e) {
         if( e.keyCode == 13 && $('#alert2').length && !$('#alert2').hasClass('rFalse') ) {
             $('#alert2 input[value="Ok"]').click();
-            /*alert2();
-            e.preventDefault();*/
         }
     });
 
@@ -991,8 +990,9 @@ $(function() {
         }
     });
 
+    /* Ha egy ajax hívás lefutott, akkor az ajaxfedo-t elrejtjük, illetve az input.focus-t kijelöljük */
     $(document).ajaxComplete(function (event, xhr, settings) {
-        $('form.popupForm input.focus').select();
+        /* Felhasználóknál szálloda hozzáadása popup miatt ezt mégis kivettük, mert nem működött az autocomplete popupban: $('form.popupForm input.focus').select();*/
         $('#ajaxfedo').addClass('dn');
     });
 
