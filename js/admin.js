@@ -1382,6 +1382,7 @@ function munkAnyagTorol( recid, that ) {
     }
 }
 
+/* Anyagigénylés táblázat sor hozzáadás */
 function munkAnyagHozzaad( formID, igenyles ) {
     var form = $(formID);
 
@@ -1397,7 +1398,7 @@ function munkAnyagHozzaad( formID, igenyles ) {
     if( addCikkID.length ) {
         for(key in addCikkID) {
             if( addCikkID[key] == cikkID.val() ) {
-                alert2('Ez az anyag már hozzá van adva a munkalaptételhez!');
+                alert2('Ez az anyag már hozzá van adva a munkalaptételhez!', '', 'Hiba');
 
                 cikkID.val('');
                 cikknev.val('');

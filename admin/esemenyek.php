@@ -4043,6 +4043,21 @@ if( isset($_GET['szamlaLista']) ) {
     exit();
 }
 
+/* Select generálása ajaxxal adott login szállodáiról */
+if (isset($_POST['get_szalloda_select_options'])) {
+    
+    $szallodak = get_akt_login_szallodai();
+    $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $szallodak).")", 'nev');
+    
+    echo json_encode(array(
+        'html' => tomb2option($szallodak, 'id', 'nev')
+    ));
+    
+    $weblap->leallit();
+    exit();
+}
+
+
 //Kell-e kétszintű kategóriát kezelni vagy sem
 $ketszintu_kat = false;
 

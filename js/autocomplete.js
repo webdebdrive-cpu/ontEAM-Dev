@@ -196,6 +196,11 @@
                 if(options.arazas_beallit){
                     rend_ossz_beallit();
                 }
+                
+                /* KP-s anyagbeszerzéshez popuphoz */
+                if($('#pop_afa').length && $('#pop_afa').val()){
+                    osszegek_kiszamol();
+                }
 
                 if( setting.tabla == 'obj' ) {
                     gepVane();
@@ -321,6 +326,11 @@
                         /* Árazás popuphoz */
                         if(options.arazas_beallit){
                             rend_ossz_beallit();
+                        }
+                        
+                        /* KP-s anyagbeszerzéshez popuphoz */
+                        if($('#pop_afa').length && $('#pop_afa').val()){
+                            osszegek_kiszamol();
                         }
 
                         e.stopPropagation();

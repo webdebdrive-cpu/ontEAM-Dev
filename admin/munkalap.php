@@ -1706,8 +1706,8 @@ if($gyorskereso_text){
 
             $gombok .= '</div>';
 
-        //Ha láthatja a munkalapokat és mobil vagy telepített vagy műszaki vezető és a munkalap státusza felvéve vagy kész
-        } else if( (((_jog(JOG_MUNKALAP_MEGTEKINT) && (_jog(JOG_MUNKALAP_TELEPITETT) || _jog(JOG_MUNKALAP_MOBIL)) ) || (_jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_MOBIL)) || (_jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_MUSZAKI_VEZ))) ) ) {
+        //Ha a munkalapot megtekintheti, és Telepített, mobil vagy műszaki vezető, és a munkalap státusza felvéve vagy kész, akkor jelennek meg további gombok a munka felvétel gomb helyett (ez a következő ág)
+        } else if( _jog(JOG_MUNKALAP_MEGTEKINT) && ( (_jog(JOG_MUNKALAP_TELEPITETT) || _jog(JOG_MUNKALAP_MOBIL)) || _jog(JOG_MUNKALAP_MUSZAKI_VEZ)) && in_array($sor['statusz_id'], array(MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_KESZ_IG)) ) {
 
             $telephely = $adatbazis_kapcsolat->s('modell', 'telephely', 'id='.$sor['telephely_id'], '', '1');
 
@@ -1738,7 +1738,8 @@ if($gyorskereso_text){
                 <input type="button" class="gomb_alert piros foGomb" value="Lezárás" title="Lezárás" onclick="munkalapLezaras(\'csak kérdezünk még\');">
             ');
 
-        } else if( (_jog(JOG_MUNKALAP_MEGTEKINT) && (_jog(JOG_MUNKALAP_TELEPITETT) || _jog(JOG_MUNKALAP_MOBIL)) ) || (_jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_MOBIL)) || (_jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_MUSZAKI_VEZ)) ) {
+        //Ha a munkalapot megtekintheti, és Telepített, mobil vagy műszaki vezető, akkor felveheti a munkát
+        } else if( _jog(JOG_MUNKALAP_MEGTEKINT) && ( (_jog(JOG_MUNKALAP_TELEPITETT) || _jog(JOG_MUNKALAP_MOBIL)) || _jog(JOG_MUNKALAP_MUSZAKI_VEZ)) ) {
 
             $telephely = $adatbazis_kapcsolat -> select('nev', 'telephely', "`id`='{$sor['telephely_id']}'");
             $telephely = $telephely[0];

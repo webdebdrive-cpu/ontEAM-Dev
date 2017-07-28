@@ -224,6 +224,10 @@ class Adatbazis{
     public function s($oszlopok, $tabla, $where = null, $order = null, $limit = null, $group_by = false, $num_rows = false, $join = false){
         return $this -> select($oszlopok, $tabla, $where, $order, $limit, $group_by, $num_rows, $join);
     }
+    public function s2($oszlopok, $tabla, $where = null, $order = null, $limit = null, $group_by = false, $num_rows = false, $join = false){
+        $elso_sor = $this -> select($oszlopok, $tabla, $where, $order, $limit, $group_by, $num_rows, $join);
+        return $elso_sor[0];
+    }
 
     /**
     * @desc Információ beszúrása az adatbázisba

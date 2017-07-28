@@ -1506,6 +1506,95 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
 }
 
 
+/* KP-s anyagbeszerzés feldolgozása */
+if (isset($_POST['anyagigenylesKPBeszerez'])) {
+    
+    //Tranzakció indul
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    //Szekvencia táblából kiszámoljuk a rendelés következő sorszámát
+    $sorszam = get_iktatoszam_sorszam('cikkrendfej');
+    if($sorszam===false){ $db_error = true; }
+
+    /* Rendelés ID formázása */
+    $rndid = 'R'.date('y').'/'.sprintf('%04d', $sorszam);
+    //Létrehozunk egy új rendelésfej bejegyzést
+    $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('keszpenz', 'statusz_id',            'rndid', 'rnd_dt',  'kepfajl',   'szallitoid',       'insert_dt',    'insert_usr',                           'update_usr'                            ),
+                                                                array(1,          CIKKIGN_STAT_BEERKEZETT, $rndid,  'NOW()',   '',          $_POST['szallito'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                );
+    if( $cikkrendfej_id === false ) { $db_error = true; }
+
+    /* Felvesszük az első státuszt */
+    $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
+        array('id',             'stat_id',                 'insert_dt',    'insert_usr',                              'update_usr'                             ),
+        array($cikkrendfej_id,  CIKKIGN_STAT_BEERKEZETT,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+    );
+    if( $sql === false ) { $db_error = true; }
+    
+    //Anyagigénylés sorok
+    $anyagok = json_decode( $_POST['anyagok'], 1 );
+    foreach($anyagok as $anyag){
+        
+        if($anyag['cikkszam']){
+            
+            $anyag['menny'] = str_replace(array(',', ' '), array('.', ''), $anyag['menny']);
+            $anyag['ear']   = str_replace(array(',', ' '), array('.', ''), $anyag['ear']);
+        
+            $ciktorzs = $adatbazis_kapcsolat->s2('id oracikkid nev cikkmee', 'cikktorzs', "`id`='{$anyag['cikkszam']}'");
+            $oracikkid = $ciktorzs['oracikkid'];
+            $kulsosnek = 0;
+            if($anyag['rb']){
+                $kulsosnek = 1;
+                $oracikkid = 'MÜRBA0002';
+            }
+            
+            
+            /* Anyagigénylés beszúrása (itt nem kell iktatószámot generáni, mert egyből archiválni fogjuk) */
+            $anyagigenyles = $adatbazis_kapcsolat->i('anyagigenyles', array('rndid',  'szallito',         'telephely_id',         'cikktorzs_id',     'nev',            'cikkmee',            'statusz_id',         'rndmen',         'igmen',         'jhmen',         'erkmen',        'erkear',      'rndear',      'kulsosnek', 'keszpenz', 'erkcimid', 'rnd_dt', 'kcs_21', 'oracikkid', 'aparecid',      'insert_dt',  'insert_usr',                              'update_usr'                             ),
+                                                                      array($rndid,   $_POST['szallito'], $_POST['telephely_id'], $anyag['cikkszam'], $ciktorzs['nev'], $ciktorzs['cikkmee'],  CIKKIGN_STAT_NYITOTT, $anyag['menny'], $anyag['menny'], $anyag['menny'], $anyag['menny'], $anyag['ear'], $anyag['ear'], $kulsosnek,  1,          1,          'NOW()',  5,        $oracikkid,  $cikkrendfej_id, 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+                                                    );
+            if( $anyagigenyles === false ) { $db_error = true; }
+
+            $sql = $adatbazis_kapcsolat -> i('anyagigenyles_statusz',
+                array('id',            'stat_id',              'insert_dt',    'insert_usr',                              'update_usr'                             ),
+                array($anyagigenyles,  CIKKIGN_STAT_NYITOTT,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+            );
+            if( $sql === false ) { $db_error = true; }
+
+            if(addStatusz('anyagigenyles_statusz', $anyagigenyles, CIKKIGN_STAT_ARAZVA      )===false){ $db_error = true; }
+            if(addStatusz('anyagigenyles_statusz', $anyagigenyles, CIKKIGN_STAT_JOVAHAGYVA  )===false){ $db_error = true; }
+            if(addStatusz('anyagigenyles_statusz', $anyagigenyles, CIKKIGN_STAT_MEGRENDELVE )===false){ $db_error = true; }
+            if(addStatusz('anyagigenyles_statusz', $anyagigenyles, CIKKIGN_STAT_BEERKEZETT  )===false){ $db_error = true; }
+
+            $sql = $adatbazis_kapcsolat -> i('mozgas',
+                array('telepid',                'szallitoid',       'cikkid',           'cikkmen',       'mozgid',         'mozgir', 'rendtetid',     'insert_dt',  'insert_usr',                              'update_usr'                             ),
+                array($_POST['telephely_id'],   $_POST['szallito'], $anyag['cikkszam'], $anyag['menny'], MOZGID_RAKTAR_BE, 1,        $anyagigenyles,  'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+            );
+            if( $sql === false ) { $db_error = true; }
+        }
+        
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+
 
 /** Tartalom */
 if( !$_GET['ajax'] ) {
@@ -1632,7 +1721,7 @@ if($gyorskereso_text){
             }
         }
         /* Anyagigénylés árazása */
-        if( _jog(15) ) {
+        if( _jog(JOG_ANYAGREND_KESZIT) ) {
             $gombok .= nl2('
                 <div id="kmCont">
                     <div class="kijeloltek_muv">
@@ -1651,26 +1740,24 @@ if($gyorskereso_text){
             ');
         }
         /* Anyagigénylés érkeztetése */
-        if( _jog(13) ) {
+        if( _jog(JOG_ANYAIGENLES_KEZEL) ) {
             
-            $onclick = 'csoportMuvelet(\'anyagigenyles_erkeztet\')';
             $gombok .= nl2('
                 <div id="kmCont">
-                    <input type="button" class="gombb foGomb" value="Anyagok érkeztetése" onclick="'.$onclick.'">
+                    <input type="button" class="gombb foGomb" value="Anyagok érkeztetése" onclick="csoportMuvelet(\'anyagigenyles_erkeztet\')">
+                    <input type="button" class="gombb foGomb" value="Készpénzes anyagbeszerzés" onclick="csoportMuvelet(\'anyagigenylesKpBeszerez\');">
                 </div>
             ');
         }
 
-        if( !$csak_szerkesztheto ) {
-            //Jogosutságkezelés: csak az törölheti, aki létrehozta
-            if($sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-            } else {
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
-            }
+        //Jogosutságkezelés: csak az törölheti, aki létrehozta
+        if($sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejegyzés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        } else {
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
 
-        if( _jog(13) ){
+        if( _jog(JOG_ANYAIGENLES_KEZEL) ){
 
             //Csak saját bejelentéseit szerkesztheti
             $nem_szerkesztheti = false;
@@ -1703,7 +1790,7 @@ if($gyorskereso_text){
     }
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && _jog(13) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && _jog(JOG_ANYAIGENLES_KEZEL)){
 
         $akt_tomb = $anyagigenyles_tomb_feltolt;
         

@@ -3723,6 +3723,7 @@ function erteklista($csoport, $id) {
     }
 }
 
+/* Adatbázisból egy érték gyors kinyerése */
 function getErtek($mit, $tabla, $keres, $val) {
     global $adatbazis_kapcsolat;
 
@@ -4288,4 +4289,47 @@ function get_tortenet($megnevezes){
     $szamla_html .= '</div>';
 
     return $szamla_html;
+}
+
+/* Adott tábla iktatószámának következő sorszámának lekérése */
+function get_iktatoszam_sorszam($tabla){
+    
+    global $adatbazis_kapcsolat;
+    
+    $db_error = false;
+    
+    $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla`='$tabla' AND `ev`='".date('y')."'");
+    if( $ikt_seq === false ) {
+        $db_error = true;
+    }
+    if( $ikt_seq ) {
+        $ikt_seq = $ikt_seq[0];
+
+        /* Sorszám */
+        $sorszam = $ikt_seq['sorszam'];
+
+        /* Sorszám növelés */
+        $sorszam++;
+
+        /* Letároljuk az új sorszámot */
+        $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla`='$tabla' AND `ev`='".date('y')."'");
+        if( $sql === false ) {
+            $db_error = true;
+        }
+    } else {
+        /* Sorszám */
+        $sorszam = 1;
+
+        $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
+        if( $sql === false ) {
+            $db_error = true;
+        }
+    }
+    
+    if($db_error){
+        return false;
+    }else{
+        return $sorszam;
+    }
+    
 }
