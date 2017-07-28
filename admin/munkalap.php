@@ -2173,7 +2173,44 @@ if($gyorskereso_text){
 	//Anyagigénylés
 	}elseif(isset($_GET['anyagigenyles'])){
 
-        $szamla_html .= 'Anyagigénylés felülete';
+        $sorok = $adatbazis_kapcsolat->s('recid cikk_id szuk_men', 'munkalap_anyag', "`munkalap_id` = '".$_GET['id']."' AND `stat_id` IN (".DISZPNAG_STAT_ANYAGRA_VAR.", ".DISZPNAG_STAT_ANYAG_IGENYELVE.")", 'insert_dt desc', '');
+
+        if( $sorok ) {
+            $szamla_html .= nl2('
+                <table class="csikos full">
+                    <tr>
+                        <th>Ikt szám</th>
+                        <th>Cikkszám</th>
+                        <th>Név</th>
+                        <th>Igényelt men.</th>
+                        <th>Rendelt men.</th>
+                        <th>Státusz</th>
+                    </tr>
+            ');
+
+            $i = 1;
+            foreach($sorok as $sor) {
+                $anyag_sor = $adatbazis_kapcsolat->s('ikt_szam cikktorzs_id nev igmen rndmen cikkmee statusz_id', 'anyagigenyles', "`cikktorzs_id` = '".$sor['cikk_id']."'", '', '1');
+
+                if( $anyag_sor ) {
+                    $anyag_sor = $anyag_sor[0];
+
+                    $szamla_html .= nl2('
+                        <tr>
+                            <td>'.$anyag_sor['ikt_szam'].'</td>
+                            <td>'.$anyag_sor['cikktorzs_id'].'</td>
+                            <td>'.$anyag_sor['nev'].'</td>
+                            <td>'.$anyag_sor['igmen'].' '.$anyag_sor['cikkmee'].'</td>
+                            <td>'.$anyag_sor['rndmen'].' '.$anyag_sor['cikkmee'].'</td>
+                            <td>'.getErtek('nev', 'anyagigenyles_statusz_text', 'recid', $anyag_sor['statusz_id']).'</td>
+                        </tr>
+                    ');
+                }
+                $i++;
+            }
+
+            $szamla_html .= '</table>';
+        }
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

@@ -80,12 +80,12 @@
                 }
 
                 telephely_id = '';
-                if( baseName(location.href) == 'bejelentes' || baseName(location.href) == 'utemezett_feladatok' || baseName(location.href) == 'munkalap' ) {
+                if( baseName(location.href) == 'bejelentes' || baseName(location.href) == 'utemezett_feladatok' || baseName(location.href) == 'rendszeres_karbantartas' || baseName(location.href) == 'munkalap' ) {
                     telephely_id = $('#telephely_id').val();
                 }
 
                 obj_id = '';
-                if( baseName(location.href) == 'bejelentes' || baseName(location.href) == 'utemezett_feladatok' || baseName(location.href) == 'munkalap' ) {
+                if( baseName(location.href) == 'bejelentes' || baseName(location.href) == 'utemezett_feladatok' || baseName(location.href) == 'rendszeres_karbantartas' || baseName(location.href) == 'munkalap' ) {
                     obj_id = $('#obj_id').val();
                 }
 

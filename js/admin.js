@@ -1159,10 +1159,14 @@ $(function() {
         $(this).parents('table.egyErtek').find('tr.kijSor').removeClass('kijelolve');
         $(this).addClass('kijelolve');
 
+        var nev = $(this).attr('data-nev');
+
         if( $(this).hasClass('kijelolve') ) {
             $('#diszpFeltolt').attr('disabled', false);
+            $('#masnevebenFeltolt').val(nev);
         } else {
             $('#diszpFeltolt').attr('disabled', true);
+            $('#masnevebenFeltolt').val('');
         }
     });
 });
