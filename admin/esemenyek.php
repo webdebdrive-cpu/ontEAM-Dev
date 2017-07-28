@@ -2994,6 +2994,20 @@ if( isset($_POST['munkalapFelvesz']) ) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
+    
+    //Műszaki vezető csak olyan munkalapot vehet, fel, ahol a hozzárendelt személy a műszaki vezető
+    if(_jog(JOG_MUNKALAP_MUSZAKI_VEZ)){
+        $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id', 'munkalap', "`recid`='{$recid}'");
+        if( $munkalap === false ) { $db_error = true; }
+        if($munkalap['szemelyzet_id']!=MUSZAKI_VEZETO){
+            echo json_encode(array(
+                'hiba' => 'Műszaki vezetőként csak olyan munkalapot vehet fel, amely Műszaki vezetőhöz lett rendelve!'
+            ));
+            $weblap->leallit();
+            exit();
+        }
+    }
+    
 
     if( $recid ) {
         if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FELVEVE ) ) {
@@ -3001,13 +3015,10 @@ if( isset($_POST['munkalapFelvesz']) ) {
         }
 
         $sql = $adatbazis_kapcsolat -> i('munkalap_tetel',
-            array('munkalap_id', 'insert_dt',          'insert_usr',                              'update_usr'                           ),
-            array($recid,         date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+            array('munkalap_id', 'insert_dt', 'insert_usr',                              'update_usr'                           ),
+            array($recid,         'NOW()',    $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
         );
-
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        if( $sql === false ) { $db_error = true; }
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
