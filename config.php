@@ -108,6 +108,7 @@ function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'loc
 function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu1'    : 'wdbhu' );   } //Adatbázis neve
 function get_db_user()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu'     : 'wdbtdb' );    } //Felhasználói név
 function get_db_pass()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'vikike'            : 'h3rbdzto' );           } //Jelszó
+
 //function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'localhost'         : 'localhost' );        } //Host
 //function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu1'    : 'szinvatrendhu1' );   } //Adatbázis neve
 //function get_db_user()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu'     : 'szinvatrendhu' );    } //Felhasználói név

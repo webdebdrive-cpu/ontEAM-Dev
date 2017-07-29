@@ -221,7 +221,12 @@ function i_u($type, $tabla, $tomb) {
                 }
                 $i++;
             }
-
+            
+            ////Ha be volt pipálva, hogy külsősnek, akkor oracikkid-t felülírjuk, és kulsősnek pipát beállítjuk
+            if($_POST['kulsosnek']){
+                $cikktorzs['oracikkid'] = 'MÜRBA0002';
+            }
+            
             //CikkID-t
             array_push($oszlopok,  'cikktorzs_id'   );
             array_push($ertekek,   $cikktorzs['id'] );

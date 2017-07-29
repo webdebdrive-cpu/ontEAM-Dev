@@ -1619,7 +1619,7 @@ if($gyorskereso_text){
         if($sorrendezes){
             $gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().'?sorrend\'" value="Sorrend" title="Sorrendezés">';
         }
-
+        
         //Csak diszpécser vagy diszpkp vezető törölhet
         if(!_jog(JOG_DISZPECSER) && !_jog(JOG_MUNKALAP_DISZP_KP_VEZ)){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága munkalap törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
