@@ -294,12 +294,17 @@ if(_jog(12) || _jog(16) || _jog(17) || _jog(19)){
     $menu_nev_kis    = 'anyagok';
     $menu_nev_tobbes = 'Anyagok';
     $megn            = 'anyagok';
-    $aloldalak       = array('cikktorzs.php', 'anyagigenyles.php', 'anyagrendeles.php', 'raktar.php');
+    $aloldalak       = array('cikktorzs.php', 'anyagigenyles.php', 'anyagigenyles.php?anyagrend', 'raktar.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-    if(basename(self())=='cikktorzs.php')       { $oldalNev = 'Anyagok / Cikktörzs';        }
-    if(basename(self())=='anyagigenyles.php')   { $oldalNev = 'Anyagok / Anyagigénylések';  }
-    if(basename(self())=='anyagrendeles.php')   { $oldalNev = 'Anyagok / Anyagrendelések';  }
-    if(basename(self())=='raktar.php')          { $oldalNev = 'Anyagok / Raktár';           }
+    if(basename(self())=='cikktorzs.php')           { $oldalNev = 'Anyagok / Cikktörzs';        }
+    if(basename(self())=='anyagigenyles.php')       {
+                                                        if(isset($_GET['anyagrend'])){
+                                                            $oldalNev = 'Anyagok / Anyagrendelések';
+                                                        }else{
+                                                            $oldalNev = 'Anyagok / Anyagigénylések';
+                                                        }
+                                                    }
+    if(basename(self())=='raktar.php')              { $oldalNev = 'Anyagok / Raktár';           }
 
     $aktmenuk  = '';
 if(_jog(12)){

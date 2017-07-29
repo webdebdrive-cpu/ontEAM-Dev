@@ -1557,6 +1557,7 @@ function szamla_lista( $where, $tabla ) {
     if(!$tabla){
         $tabla  = str_replace('.php', '', basename(self()));
     }
+    
     $select = $_OPTS['select'];
     if($_GET['rend']){
         $order = $_GET['rend'];
@@ -1594,7 +1595,7 @@ function szamla_lista( $where, $tabla ) {
         if($tabla == 'bejelentes'){
             $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
-        if($tabla == 'anyagigenyles'){
+        if($tabla == 'anyagigenyles' || $tabla == 'anyagrendeles'){
             $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
         if($tabla == 'utemezett_feladatok'){
@@ -1673,6 +1674,16 @@ function szamla_lista( $where, $tabla ) {
         //ha van $_GET['idk'] változónk, akkor azokra az ID-kra még pluszban szűrünk
         if ($_GET['recidk']) {
             $where .= '`'.get_db_tabla().$tabla.'`.`recid` IN ('.$_GET['recidk'].') AND ';
+        }
+        
+        //Anyagigénylés/anyagrendelés lekezelése
+        if($tabla=='anyagigenyles'){
+            //Jóváhagyva státuszig anagigénylés, afelett rendelés
+            if (isset($_GET['anyagrend'])) {
+                $where .= "`statusz_id`>25";
+            }else{
+                $where .= "`statusz_id`<=25";
+            }
         }
 
         //Where feltétel lezárása

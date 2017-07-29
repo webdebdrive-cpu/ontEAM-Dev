@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(JOG_UTFEL_MEGTEKINT) ) {
+if( !_jog(JOG_RENDSZ_KARB_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -226,7 +226,7 @@ if($gyorskereso_text){
     if( isset($_GET['uj']) ) {
 
         //Újat csak "Ütemezett feladatok kezelése" joggal lehet
-        if(_jog(JOG_UTFEL_KEZEL) ){
+        if(_jog(JOG_RENDSZ_KARB_KEZEL) ){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
@@ -257,7 +257,7 @@ if($gyorskereso_text){
         //Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
-        if( _jog(JOG_UTFEL_KEZEL) ){
+        if( _jog(JOG_RENDSZ_KARB_KEZEL) ){
 
             $gombok = nl2('
                 <div class="form_kuldes">
@@ -282,7 +282,7 @@ if($gyorskereso_text){
     }
 
 	//Új termék felvitele
-	if( isset($_GET['uj']) && _jog(JOG_UTFEL_KEZEL) ){
+	if( isset($_GET['uj']) && _jog(JOG_RENDSZ_KARB_KEZEL) ){
 
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');

@@ -369,6 +369,30 @@ switch($tabla) {
             $_GET['irany'] = 'desc';
         }
     break;
+    case 'anyagrendeles.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = nl2('
+                                    `'.get_db_tabla().'anyagigenyles`.`recid`,
+                                    `'.get_db_tabla().'anyagigenyles`.`statusz_id`,
+                                    `'.get_db_tabla().'anyagigenyles`.`ikt_szam`,
+                                    `'.get_db_tabla().'anyagigenyles`.`cikktorzs_id`,
+                                    `'.get_db_tabla().'anyagigenyles`.`nev` as `anyagigenyles_nev`,
+                                    `'.get_db_tabla().'anyagigenyles`.`telephely_id`
+                                ');
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'ikt_szam';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
     case 'energia.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
         $_OPTS['select']    = 'recid';
@@ -396,23 +420,6 @@ switch($tabla) {
         /* Default rendezés */
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'nev';
-        }
-    break;
-    case 'anyagrendeles.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid';
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('recid');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'recid';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
         }
     break;
     case 'raktar.php':
@@ -1352,7 +1359,7 @@ $anyagigenyles_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',             'megn' => 'Pénznem:',                       'name' => 'kcs_21',         'szuro' => 1,   'disabled' => 1,   'class' => 'disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 21, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a pénznemet!', 'style' => 'width: 5rem'),
     array('type' => 'text',                     'megn' => 'Deviza rend. egységár:',         'name' => 'vrndear',        'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="4"',   'osszevon' => 1),
     array('type' => 'text',                     'megn' => $tav_26.'Deviza beérk. egységár:','name' => 'verkear',        'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="4"'),
-    array('type' => 'autocomplete',             'megn' => 'Szállító:',                      'name' => 'szallito',       'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
+    array('type' => 'autocomplete',             'megn' => 'Szállító:',                      'name' => 'szallito',       'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));

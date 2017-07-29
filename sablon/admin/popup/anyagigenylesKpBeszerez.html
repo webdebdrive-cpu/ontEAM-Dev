@@ -149,8 +149,8 @@
     });
 
 	function osszegek_kiszamol(){
-        menny  = $('#pop_menny').val().replace(',', '.');
-        egyseg = $('#pop_net_ear').val().replace(',', '.');
+        menny  = $('#pop_menny').val().replace(',', '.').replace(' ', '');
+        egyseg = $('#pop_net_ear').val().replace(',', '.').replace(' ', '');
         afa    = $('#pop_afa_autocomp').val().replace('%', '').trim();
         if(afa){
             afa = (afa/100)+1;
@@ -189,10 +189,10 @@
 
                             '<td class="r pop_menny">' + $('#pop_menny').val() + '</td>' +
                             '<td>' + form.find('.insertMee').text() + '</td>' +
-                            '<td class="r pop_net_ear" data-afa="'+afa+'">' + $('#pop_net_ear').val() + '</td>' +
-                            '<td class="r pop_net_ar">' + $('#pop_net_ar').val() + '</td>' +
-                            '<td class="r">' + $('#pop_br_ear').val() + '</td>' +
-                            '<td class="r">' + $('#pop_br_ar').val() + '</td>' +
+                            '<td class="r pop_net_ear nowrap" data-afa="'+afa+'">' + $('#pop_net_ear').val() + '</td>' +
+                            '<td class="r pop_net_ar nowrap">' + $('#pop_net_ar').val() + '</td>' +
+                            '<td class="r nowrap">' + $('#pop_br_ear').val() + '</td>' +
+                            '<td class="r nowrap">' + $('#pop_br_ar').val() + '</td>' +
 
                             '<td><a onclick="munkAnyagKPTorol( this );"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
                         '</tr>';
@@ -206,10 +206,10 @@
 
                             '<td class="r"></td>' +
                             '<td></td>' +
+                            '<td class="r" style="font-weight: bold">Összesen</td>' +
+                            '<td class="r ossz_net nowrap" style="font-weight: bold"></td>' +
                             '<td class="r"></td>' +
-                            '<td class="r ossz_net" style="font-weight: bold"></td>' +
-                            '<td class="r"></td>' +
-                            '<td class="r ossz_br" style="font-weight: bold"></td>' +
+                            '<td class="r ossz_br nowrap" style="font-weight: bold"></td>' +
 
                             '<td></td>' +
                         '</tr>';
@@ -222,7 +222,7 @@
         
         var ossznett = 0;
         $('.pop_net_ar').each(function() {
-            ossznett += Number($(this).html().replace(',', '.'));
+            ossznett += Number($(this).html().replace(',', '.').replace(' ', ''));
         });
     
         $('.ossz_net').html( ezresek(ossznett, 0, ',', ' ') );
@@ -251,9 +251,6 @@
         $('#pop_net_ar').val('0');
         $('#pop_br_ear').val('0,00');
         $('#pop_br_ar').val('0');
-
-        $('#pop_afa_autocomp').val('');
-        $('#pop_afa').val('');
 
         form.find('.insertMee').text('');
     }
@@ -323,13 +320,12 @@
     
     function anyagigenylesKPBeszerez(csak_kerdezünk){
         
-        if( !adatellenorzes() ){
-            return false;
-        }
-        
         if(csak_kerdezünk){
             tetelek = $('input[name="addCikkID[]"]').length;
             if(!tetelek){
+                if( !adatellenorzes() ){
+                    return false;
+                }
                 tetelek = 1;
             }
             alert2('A számlán '+tetelek+' db tétel szerepel. Biztosan rögzíti a számlát?', '<input type="button" value="Igen" class="gomb" onclick="anyagigenylesKPBeszerez(); alert2();"> <input type="button" value="Nem" class="gomb" onclick="alert2();">');

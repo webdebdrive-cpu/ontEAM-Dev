@@ -560,7 +560,7 @@ if($gyorskereso_text){
                     }
                     //Ha épp most kapcsoltuk ki
                     if($kikapcs){
-                        $kikapcs = 'if( $(this).prop(\'checked\') ){'.$kikapcs.'}';
+                        $kikapcs = 'if( $(this).prop(\'checked\')==false ){'.$kikapcs.'}';
                     }
                     if($kikapcskor_kikapcs){
                         $kikapcskor_kikapcs = 'if( $(this).prop(\'checked\') == false ){'.$kikapcskor_kikapcs.'}';
