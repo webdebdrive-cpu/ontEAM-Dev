@@ -605,6 +605,8 @@ if($gyorskereso_text){
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
+        $mezok .= '<input type="hidden" id="masnevebenFeltolt" name="masnevebenFeltolt" value="">';
+
 	    $form_mivel   = array($js, self(), $mezok, $megnevezes, $ckeditor, $gombok);
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
 

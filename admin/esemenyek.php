@@ -286,14 +286,24 @@ switch($tabla) {
     break;
     case 'rendszeres_karbantartas.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid';
+        $_OPTS['select']    = nl2('
+                                    `'.get_db_tabla().'rendszeres_karbantartas`.`recid`,
+                                    `'.get_db_tabla().'rendszeres_karbantartas`.`id`,
+                                    `'.get_db_tabla().'rendszeres_karbantartas`.`nev` as `uf_nev`,
+                                    `'.get_db_tabla().'rendszeres_karbantartas`.`telephely_id`,
+                                    `'.get_db_tabla().'rendszeres_karbantartas`.`obj_id`,
+                                    `'.get_db_tabla().'rendszeres_karbantartas`.`aktiv`,
+                                    `'.get_db_tabla().'telephely`.`nev`,
+                                    `'.get_db_tabla().'obj`.`nev`
+                                ');
+
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('recid');
+        $_OPTS['rendezes']  = array('id', 'aktiv', 'telephely_id', 'esnap_d');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'recid';
+            $_GET['rend'] = 'aktiv';
         }
 
         /* Default rendezési irány */
@@ -840,7 +850,7 @@ if (isset($_GET['modosit'])) {
     }else{
         $surgos_allit = 'csoportMuvelet(\'surgosseg_indoklas\')';
     }
-    
+
     //Műszaki vezető esetén is legyen indoklós sürgős gomb
     if(_jog(JOG_MUNKALAP_MUSZAKI_VEZ)){
         $surgos_allit = 'csoportMuvelet(\'surgosseg_indoklas\')';
@@ -869,6 +879,7 @@ $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',    'megn' => 'Gépnév:',             'name' => 'gep_id',       'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
 
     array('type' => 'checkbox',        'megn' => '',                    'name' => 'telefon',        'class' => 'check', 'post' => ' közvetlenül telepített karbantartónak telefonon bejelentve'),
+    array('type' => 'nosql',           'name' => 'masnevebenFeltolt'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -903,7 +914,6 @@ $munkalap_tomb = $akt_tomb = array(
     array('type' => 'text',                     'megn' => 'Kezdés/befejezési idő:',     'name' => 'elv_ido_tol',        'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'ora_perc', 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
 	array('type' => 'text',                     'megn' => '',                           'name' => 'elv_ido_ig',                       'disabled' => $csakUjkent,        'class' => 'ora_perc'),
 	array('type' => 'nosql',                    'name' => 'ujkentSzerkID'),
-
 
     //array('type' => 'statusz',         'megn' => 'Státusz:',            'oldal' => 'bejelentes'),
 );
@@ -988,7 +998,7 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
     array('type' => 'checkbox',                 'megn' => 'Aktív',              'name' => 'aktiv',          'szuro' => 1,  'class' => 'check'),
 	array('type' => 'text',                     'megn' => 'Feladatszám:',       'name' => 'id',             'szuro' => 1,  'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',          'name' => 'telephely_id',   'szuro' => 1,  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this ); $(\'#obj_id_autocomp\').val(\'\'); $(\'#obj_id\').val(\'\'); $(\'#gep_id_autocomp\').val(\'\'); $(\'#gep_id\').val(\'\');'),
-    array('type' => 'autocomplete',             'megn' => 'Helyiség:',          'name' => 'obj_id',         'szuro' => 1,  'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid'/*, 'alert' => 'Kérem adja meg a Helyiséget!'*/, 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/><path d="M0 0h24v24H0V0z" fill="none"/></svg></a>', 'oninput' => '$(\'#gep_id_autocomp\').val(\'\'); $(\'#gep_id\').val(\'\');'),
+    array('type' => 'autocomplete',             'megn' => 'Helyiség:',          'name' => 'obj_id',         'szuro' => 1,  'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid'/*, 'alert' => 'Kérem adja meg a Helyiséget!'*/, 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">format_list_bulleted</i></a>', 'oninput' => '$(\'#gep_id_autocomp\').val(\'\'); $(\'#gep_id\').val(\'\');'),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',            'name' => 'gep_id',         'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
 	array('type' => 'text',                     'megn' => 'Feladat:',           'name' => 'nev',            'szuro' => 1,  'maxlength' => 250, 'class' => 'oriasi'),
 	array('type' => 'checkbox',                 'megn' => 'Hatósági:',          'name' => 'hatosagi',       'szuro' => 1,  'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
@@ -1109,15 +1119,203 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
+//Ütemezett feladatok
+$nap_rejt = 'dn ';
+$het_rejt = 'dn ';
+$ho_rejt  = 'dn ';
+$utolso_vegrehajtas = '';
+if(basename(self())=='rendszeres_karbantartas.php' && isset($_GET['id'])){
+    $uf = $adatbazis_kapcsolat->s('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d', 'rendszeres_karbantartas', "`recid`='{$_GET['id']}'");
+    $uf = $uf[0];
 
+    $utolso_vegrehajtas = $uf['esem_d'];
+    $uf['aktkezd_d'] = str_replace('-', '.', $uf['aktkezd_d']);
+    $uf['aktvege_d'] = str_replace('-', '.', $uf['aktvege_d']);
 
-//Rendszeres karbantartás
+    switch($uf['cikltip']){
+        case 'd':
+            $nap_rejt = '';
+            if($uf['ciklaltip']==1){
+                $ciklnap = $uf['ciklszorz'];
+            }
+            if($uf['ciklaltip']==2){
+                $hetkoznapokent = ' checked';
+            }
+        break;
+        case 'm':
+            $ho_rejt  = '';
+            if($uf['ciklaltip']==1){
+                $ciklnap_honap = $uf['ciklszorz'];
+            }
+        break;
+        case 'w':
+            $het_rejt = '';
+
+            $ciklszorz_w = $uf['ciklszorz'];
+            //Kipiált hetek beállítása
+            for($i=0; $i<strlen($uf['ciklnap']); $i++){
+                switch($uf['ciklnap'][$i]){
+                    case 1: $h_checked  = ' checked'; break;
+                    case 2: $k_checked  = ' checked'; break;
+                    case 3: $s_checked  = ' checked'; break;
+                    case 4: $cs_checked = ' checked'; break;
+                    case 5: $p_checked  = ' checked'; break;
+                    case 6: $sz_checked = ' checked'; break;
+                    case 7: $v_checked  = ' checked'; break;
+                }
+            }
+        break;
+    }
+
+    //Időszakos ütemezés
+    require_once 'selectek.php';
+    require_once('../class/html/class.Input.php');
+    require_once('../class/html/class.Select.php');
+
+    $kezd_ho = new Select($select_honapok, $uf['kezdho']);
+    $kezd_ho -> id      = 'kezdho';
+    $kezd_ho -> name    = 'kezdho';
+    $kezd_ho -> onchange = '$(\'#mehet_gomb\').attr(\'disabled\', false); egyszeri_nullaz();';
+    $kezd_ho = $kezd_ho -> getHtml();
+
+    $vege_ho = new Select($select_honapok, $uf['vegeho']);
+    $vege_ho -> id      = 'vegeho';
+    $vege_ho -> name    = 'vegeho';
+    $kezd_ho -> onchange = '$(\'#mehet_gomb\').attr(\'disabled\', false); egyszeri_nullaz();';
+    $vege_ho = $vege_ho -> getHtml();
+
+    $idoszakos_dn = ' class="dn"';
+    if($uf['idoszakos']){
+        $idoszakos_dn = '';
+    }
+
+}
+
 $megnevezes = 'rendszeres_karbantartas';
 $rendszeres_karbantartas_tomb = $akt_tomb = array(
+    array('type' => 'checkbox',                 'megn' => 'Aktív',              'name' => 'aktiv',          'szuro' => 1,  'class' => 'check'),
+	array('type' => 'text',                     'megn' => 'Feladatszám:',       'name' => 'id',             'szuro' => 1,  'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi'),
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',          'name' => 'telephely_id',   'szuro' => 1,  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this ); $(\'#obj_id_autocomp\').val(\'\'); $(\'#obj_id\').val(\'\'); $(\'#gep_id_autocomp\').val(\'\'); $(\'#gep_id\').val(\'\');'),
+    array('type' => 'autocomplete',             'megn' => 'Helyiség:',          'name' => 'obj_id',         'szuro' => 1,  'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid'/*, 'alert' => 'Kérem adja meg a Helyiséget!'*/, 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">format_list_bulleted</i></a>', 'oninput' => '$(\'#gep_id_autocomp\').val(\'\'); $(\'#gep_id\').val(\'\');'),
+    array('type' => 'autocomplete',             'megn' => 'Gépnév:',            'name' => 'gep_id',         'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
+	array('type' => 'text',                     'megn' => 'Feladat:',           'name' => 'nev',            'szuro' => 1,  'maxlength' => 250, 'class' => 'oriasi'),
+	array('type' => 'checkbox',                 'megn' => 'Hatósági:',          'name' => 'hatosagi',       'szuro' => 1,  'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+	array('type' => 'text',                     'megn' => 'Utoljára ütemezve:', 'name' => 'utnap_d',        'szuro' => 1,  'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+	array('type' => 'text',                     'megn' => 'Hatályos:',          'name' => 'hataly_d',       'szuro' => 1,  'class' => 'datepicker'),
+	array('type' => 'text',                     'megn' => 'Utolsó esedékesség:','name' => 'utesnap_d',      'szuro' => 1,  'class' => 'datepicker'),
+	array('type' => 'text',                     'megn' => 'Riasztás:',          'name' => 'riaszt',         'szuro' => 1,  'maxlength' => 250, 'style' => 'width: 3.5rem', 'post' => ' nappal az esedékesség előtt'),
+    array('type' => 'textarea',                 'megn' => 'Leírás:',            'name' => 'leiras',         'szuro' => 1,  'disabled' => $disabled,    'class' => 'oriasiTargy'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
+	array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',  'name' => 'szemelyzet_id', 'szuro' => 1, 'post' => ' Utoljára végrehajtva: <b>'.$utolso_vegrehajtas.'</b>'  ),
 
+	array('type' => 'html',                     'megn' => '<div class="dtc" style="padding: 1rem 0 1rem 0">'),
+        array('type' => 'select_cikltip',           'megn' => 'Ütemezés típus:',    'name' => 'cikltip', 'class' => 'f_cikltip', 'szuro' => 1  ),
+	array('type' => 'html',                     'megn' => '</div>'),
+	array('type' => 'html',                     'megn' => '<div class="dtc" style="padding: 1rem 0 1rem 1rem"><fieldset style="width: auto; margin-top: 1rem">'),
+        array('type' => 'text',                     'megn' => '<span style="margin-left: 0.7rem"></span>Esedékes:',         'name' => 'esnap_d', 'szuro' => 1,     'class' => 'datepicker'),
+
+        //Naponta
+        array('type' => 'html',                     'megn' => nl2('<div id="tipus_d" style="padding: 0" class="'.$nap_rejt.'cikltip">')),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklnap',       'pre' => 'Ismétlődik ', 'post' => ' naponta', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'onlyNumbers( $(this) ); $(\'#hetkoz_kent\').prop(\'checked\', false)', 'value' => $ciklnap),
+        array('type' => 'html',                     'megn' => nl2('
+                                                                    <div class="cb">
+                                                                        <input'.$hetkoznapokent.' name="hetkoz_kent" id="hetkoz_kent" onclick="$(\'#ciklnap\').val(\'\')" type="checkbox">
+                                                                        <label for="hetkoz_kent" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                                    </div> Ismétlődik minden hétköznap
+                                                                ')),
+        array('type' => 'html',                     'megn' => nl2('</div>')),
+
+        //Hetente
+        array('type' => 'html',                     'megn' => nl2('<div id="tipus_w" style="padding: 0" class="'.$het_rejt.'cikltip">')),
+        array('type' => 'html',                     'megn' => nl2('
+                                                            <div class="dtc form_jobb">
+                                                                Ismétlődik <input maxlength="2" name="ism_het" id="ism_het" onkeyup="onlyNumbers( $(this) ); $(\'#mehet_gomb\').attr(\'disabled\', false);" style="width: 4rem" type="text" value="'.$ciklszorz_w.'">
+                                                                hetente a következő napokon:
+                                                            </div>
+                                                            <div class="cb">
+                                                                <input name="h" id="h" type="checkbox"'.$h_checked.'>
+                                                                <label for="h" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                            </div>
+                                                            <label for="h" class="link"> hétfő</label>
+
+                                                            <span class="formText"></span>
+                                                            <div class="cb">
+                                                                <input name="k" id="k" type="checkbox"'.$k_checked.'>
+                                                                <label for="k" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                            </div>
+                                                            <label for="k" class="link"> kedd</label>
+
+                                                            <span class="formText"></span>
+                                                            <div class="cb">
+                                                                <input name="s" id="s" type="checkbox"'.$s_checked.'>
+                                                                <label for="s" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                            </div>
+                                                            <label for="s" class="link"> szerda</label>
+
+                                                            <span class="formText"></span>
+                                                            <div class="cb">
+                                                                <input name="cs" id="cs" type="checkbox"'.$cs_checked.'>
+                                                                <label for="cs" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                            </div>
+                                                            <label for="cs" class="link"> csütörtök</label>
+
+                                                            <span class="formText"></span>
+                                                            <div class="cb">
+                                                                <input name="p" id="p" type="checkbox"'.$p_checked.'>
+                                                                <label for="p" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                            </div>
+                                                            <label for="p" class="link"> péntek</label>
+
+                                                            <span class="formText"></span>
+                                                            <div class="cb">
+                                                                <input name="sz" id="sz" type="checkbox"'.$sz_checked.'>
+                                                                <label for="sz" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                            </div>
+                                                            <label for="sz" class="link"> szombat</label>
+
+                                                            <span class="formText"></span>
+                                                            <div class="cb">
+                                                                <input name="v" id="v" type="checkbox"'.$v_checked.'>
+                                                                <label for="v" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                            </div>
+                                                            <label for="v" class="link"> vasárnap</label>
+                                            ')),
+        array('type' => 'html',                     'megn' => nl2('</div>')),
+
+        //Havonta
+        array('type' => 'html',                     'megn' => nl2('<div id="tipus_m" style="padding: 0" class="'.$ho_rejt.'cikltip">')),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklho',     'pre' => 'Ismétlődik ', 'post' => ' havonta a hónap ', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'onlyNumbers( $(this) ); $(\'#ciklho2\').val(\'\'); $(\'#ciklhet\').val(\'\'); $(\'#ho_rendsz_het\').val(\'\');', 'osszevon' => 1, 'value' => $ciklnap_honap),
+        array('type' => 'select_honapjan',          'megn' => '',                   'name' => 'honapjan',                               'post' => ' napján'),
+        array('type' => 'text',                     'megn' => '',                   'name' => 'ciklho2',    'pre' => 'Ismétlődik ', 'post' => ' havonta a ', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'onlyNumbers( $(this) ); $(\'#ciklho\').val(\'\'); $(\'#honapjan\').val(\'\')', 'osszevon' => 1),
+        array('type' => 'select_ho_ism',            'megn' => '',                   'name' => 'ciklhet',        'osszevon' => 1),
+        array('type' => 'select_ho_soran',          'megn' => '',                   'name' => 'ho_rendsz_het',  'post' => ' során'),
+        array('type' => 'html',                     'megn' => nl2('</div>')),
+
+	array('type' => 'html',                     'megn' => '</fieldset></div>'),
+
+    array('type' => 'checkbox',                 'megn' => 'Időszakos ütemezés:','name' => 'idoszakos', 'szuro' => 1,   'class' => 'check', 'onclick' => '$(\'#idoszakos_utem\').toggle()', 'pre' => nl2('<div class="dtc vam">'), 'post' => nl2('
+                                                                        </div>
+                                                                        <div class="dtc vam">
+                                                                            <fieldset'.$idoszakos_dn.' id="idoszakos_utem">
+                                                                                Szokásos ütemezés '.$kezd_ho.'
+                                                                                <input type="text" id="kezdnap" name="kezdnap" value="'.$uf['kezdnap'].'" style="width: 3.5rem" maxlength="2" onfocus="egyszeri_nullaz()"> . napjától - '.$vege_ho.'
+                                                                                <input type="text" id="vegenap" name="vegenap" value="'.$uf['vegenap'].'" style="width: 3.5rem" maxlength="2" onfocus="egyszeri_nullaz()"> . napjáig
+                                                                                <div style="margin-top: 0.5rem">
+                                                                                    Egyszeri ütemezés
+                                                                                    <input class="datepicker" id="aktkezd_d" name="aktkezd_d" value="'.$uf['aktkezd_d'].'" type="text" onblur="szokasos_nullaz()">
+                                                                                    <span class="formText"> - </span>
+                                                                                    <input class="datepicker" id="aktvege_d" name="aktvege_d" value="'.$uf['aktvege_d'].'" type="text" onblur="szokasos_nullaz()">
+                                                                                </div>
+                                                                            </fieldset>
+                                                                        </div>
+        ')),
+
+	array('type' => 'text',                     'megn' => 'Elvégzési idő:',     'name' => 'elv_ido_tol', 'class' => 'ora_perc', 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
+	array('type' => 'text',                     'megn' => '',                   'name' => 'elv_ido_ig',  'class' => 'ora_perc'),
+
+
+	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
-
 
 
 //Anyagigénylés
@@ -2165,7 +2363,7 @@ if( isset($_GET['getBejBejelentok']) ) {
 
             foreach($loginok as $login) {
                 $html .= nl2('
-                    <tr class="kijSor">
+                    <tr class="kijSor" data-nev="'.$login['nev'].'">
                         <td>'.$login['teljes_nev'].'</td>
                         <td>'.erteklista(17, $login['reszleg_id']).'</td>
                         <td>'.erteklista(18, $login['beosztas_id']).'</td>
@@ -2178,7 +2376,7 @@ if( isset($_GET['getBejBejelentok']) ) {
 
             echo json_encode(array(
                 'hiba' => 'Válasszon hibabejelentőt a(z) '.getErtek('nev', 'telephely', 'id', $telephely_id).' szállodából!'.$html,
-                'gomb' => '<p class="c"><input id="diszpFeltolt" class="gomb piros" disabled type="button" value="Mentés" onclick="bejelentes_mehet = true; $(\'#szerk_form\').submit();"><input class="gomb zold" type="button" value="Mégsem" onclick="alert2()"></p>'
+                'gomb' => '<p class="c"><input id="diszpFeltolt" class="gomb piros" disabled type="button" value="Mentés" onclick="bejelentes_mehet2 = true; $(\'#szerk_form\').submit();"><input class="gomb zold" type="button" value="Mégsem" onclick="alert2()"></p>'
             ));
 
             $weblap->leallit();
@@ -3803,7 +4001,7 @@ if (isset($_POST['surgosseg_allit'])) {
         exit();
 
     }
-    
+
     //Csak nyitott/folyamatban bejelentés sürgőssége állítható!
     $statusz = $adatbazis_kapcsolat->s('statusz_id', $_POST['page'], "`recid`='{$_POST['recid']}'");
     $statusz = $statusz[0];
@@ -3818,7 +4016,7 @@ if (isset($_POST['surgosseg_allit'])) {
         }
     }
     if($_POST['page']=='munkalap'){
-        
+
         if( (_jog(JOG_DISZPECSER || _jog(JOG_MUNKALAP_DISZP_KP_VEZ))) && $statusz['statusz_id']!=MUNKALAP_STAT_NYITOTT && $statusz['statusz_id']!=MUNKALAP_STAT_FOLYAMATBAN ){
             echo json_encode(array(
                 'hiba'  => 'Csak nyitott vagy folyamatban levő munkalap sürgőssége állítható!',
@@ -3827,7 +4025,7 @@ if (isset($_POST['surgosseg_allit'])) {
             $weblap->leallit();
             exit();
         }
-        
+
         if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) && $statusz['statusz_id']!=MUNKALAP_STAT_FELVEVE ){
             echo json_encode(array(
                 'hiba'  => 'Csak felvett munkalap sürgőssége állítható!',
@@ -3836,7 +4034,7 @@ if (isset($_POST['surgosseg_allit'])) {
             $weblap->leallit();
             exit();
         }
-        
+
     }
 
     if(!trim($_POST['indoklas'])){
@@ -4415,7 +4613,7 @@ foreach($postok as $ertek){
         mysqli_autocommit($db_kapcs, false);
 
         //Csak az törölheti, aki létrehozta
-        $csak_aki_letrehozta_torolheti = array('bejelentes', 'utemezett_feladatok');
+        $csak_aki_letrehozta_torolheti = array('bejelentes', 'utemezett_feladatok', 'rendszeres_karbantartas');
         if( in_array($ertek['tabla'], $csak_aki_letrehozta_torolheti) ){
             $loginnev = $adatbazis_kapcsolat->s('loginnev', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
             if( $loginnev === false ) {

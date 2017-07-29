@@ -35,7 +35,7 @@ function i_u($type, $tabla, $tomb) {
 
 	$i = 0;
 	foreach($tomb as $ertek) { //értékek párosítása
-        if( $ertek['name'] != 'ujkentSzerkID' ) {
+        if( $ertek['type'] != 'nosql' ) {
     		//Ha alert-es egy mező, és a post-ja üres, akkor hiba! (nem adott meg egy kötelező mezőt)
             if($ertek['alert'] != '' && $_POST[$ertek['name']] == '' && !$ertek['disabled']) {
     			return array($i, '');
@@ -238,7 +238,7 @@ function i_u($type, $tabla, $tomb) {
             //Mennyisgéi egységet pedig az anyag mennyiségi egységéből
             array_push($oszlopok,  'oracikkid');
             array_push($ertekek,   $cikktorzs['oracikkid'] );
-            
+
             array_push($oszlopok,  'cikkmee');
             array_push($ertekek,   $cikktorzs['cikkmee'] );
 
@@ -285,8 +285,13 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok,  'statusz_id'             );
             array_push($ertekek,    BEJELENTES_STAT_NYITOTT );
 
-            array_push($oszlopok, 'loginnev'                        );
-            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
+            if( $_POST['masnevebenFeltolt'] ) {
+                array_push($oszlopok, 'loginnev'                   );
+                array_push($ertekek,   $_POST['masnevebenFeltolt'] );
+            } else {
+                array_push($oszlopok, 'loginnev'                        );
+                array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
+            }
 
         } else if( $tabla == 'munkalap' ) {
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
@@ -1111,7 +1116,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     $(\'#ciklho\').addClass(\'alert\');
                     return false;
                 }
-                
+
                 if( $(\'#ciklho2\').val()>0 && !$(\'#ciklhet\').val() ){
                     alert2(\'Kérjük adja meg a rendszerességet!\', \'\', \'Hiba\');
                     $(\'#ciklhet\').addClass(\'alert\');
@@ -1595,6 +1600,9 @@ function szamla_lista( $where, $tabla ) {
         if($tabla == 'utemezett_feladatok'){
             $where = "`".get_db_tabla()."utemezett_feladatok`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
+        if($tabla == 'rendszeres_karbantartas'){
+            $where = "`".get_db_tabla()."rendszeres_karbantartas`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
         if($tabla == 'munkalap'){
             $where = "`".get_db_tabla()."munkalap`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
 
@@ -1620,7 +1628,7 @@ function szamla_lista( $where, $tabla ) {
             }
 
         }
-
+        
         //Keresés
         if( $_GET['ksz'] ) {
 
@@ -2401,8 +2409,31 @@ function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit ) {
                 $active = ' kijelolve';
             }
 
+            /* Telephely */
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
+            $telephely = $telephely[0]['nev'];
+
+            /* Helység */
+            $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
+            $helyseg = $helyseg[0]['nev'];
+
+            $aktiv = nl2('
+                <span class="icon piros">
+                    <i class="material-icons">clear</i>
+                </span>
+            ');
+            if( $bsz['aktiv'] ) {
+                $aktiv = nl2('
+                    <span class="icon zold">
+                        <i class="material-icons">done</i>
+                    </span>
+                ');
+            }
+
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['recid'].'</span>
+                            <span>'.$aktiv.' '.$bsz['id'].'</span>
+                            <span>'.$telephely.' - '.$helyseg.'</span>
+                            <span>'.$bsz['uf_nev'].'</span>
                         </a>';
 
             if( !$frissit ) {
@@ -2417,6 +2448,9 @@ function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit ) {
         if( !$frissit ) {
             $html .= nl2('
                 </ul>
+                <div id="naptar" class="'.$naptar_dn.'">
+                    <div class="naptar"></div>
+                </div>
             ');
         }
 
@@ -3733,7 +3767,7 @@ function getErtek($mit, $tabla, $keres, $val) {
     global $adatbazis_kapcsolat;
 
     $sor = $adatbazis_kapcsolat->s($mit, $tabla, "`{$keres}` = '{$val}'", '', '1');
-    
+
     if( $sor ) {
         $sor = $sor[0];
 
