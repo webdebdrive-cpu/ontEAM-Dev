@@ -221,12 +221,12 @@ function i_u($type, $tabla, $tomb) {
                 }
                 $i++;
             }
-            
+
             ////Ha be volt pipálva, hogy külsősnek, akkor oracikkid-t felülírjuk, és kulsősnek pipát beállítjuk
             if($_POST['kulsosnek']){
                 $cikktorzs['oracikkid'] = 'MÜRBA0002';
             }
-            
+
             //CikkID-t
             array_push($oszlopok,  'cikktorzs_id'   );
             array_push($ertekek,   $cikktorzs['id'] );
@@ -1557,7 +1557,7 @@ function szamla_lista( $where, $tabla ) {
     if(!$tabla){
         $tabla  = str_replace('.php', '', basename(self()));
     }
-    
+
     $select = $_OPTS['select'];
     if($_GET['rend']){
         $order = $_GET['rend'];
@@ -1629,7 +1629,7 @@ function szamla_lista( $where, $tabla ) {
             }
 
         }
-        
+
         //Keresés
         if( $_GET['ksz'] ) {
 
@@ -1675,7 +1675,7 @@ function szamla_lista( $where, $tabla ) {
         if ($_GET['recidk']) {
             $where .= '`'.get_db_tabla().$tabla.'`.`recid` IN ('.$_GET['recidk'].') AND ';
         }
-        
+
         //Anyagigénylés/anyagrendelés lekezelése
         if($tabla=='anyagigenyles'){
             //Jóváhagyva státuszig anagigénylés, afelett rendelés
@@ -2166,6 +2166,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
 }
 function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
+    global $_stat_text;
 
     if( $bejegyzesek ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
@@ -2246,13 +2247,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
 
             $statusz = '';
             if( $bsz['statusz_id'] ) {
-                $statusz_sor = $adatbazis_kapcsolat->s('recid nev szinkod', 'munkalap_statusz_text', 'recid='.$bsz['statusz_id']);
-
-                if( $statusz_sor ) {
-                    $statusz_sor = $statusz_sor[0];
-
-                    $statusz = $statusz_sor['nev'];
-                }
+                $statusz = $_stat_text['munkalap'][$bsz['statusz_id']]['nev'];
             }
 
             $active = '';
@@ -4343,11 +4338,11 @@ function get_tortenet($megnevezes){
 
 /* Adott tábla iktatószámának következő sorszámának lekérése */
 function get_iktatoszam_sorszam($tabla){
-    
+
     global $adatbazis_kapcsolat;
-    
+
     $db_error = false;
-    
+
     $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla`='$tabla' AND `ev`='".date('y')."'");
     if( $ikt_seq === false ) {
         $db_error = true;
@@ -4375,11 +4370,11 @@ function get_iktatoszam_sorszam($tabla){
             $db_error = true;
         }
     }
-    
+
     if($db_error){
         return false;
     }else{
         return $sorszam;
     }
-    
+
 }
