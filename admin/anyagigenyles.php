@@ -1742,9 +1742,14 @@ if($gyorskereso_text){
         /* Anyagigénylés érkeztetése */
         if( _jog(JOG_ANYAIGENLES_KEZEL) ) {
             
+            $erkeztet = '';
+            if(isset($_GET['anyagrend'])){
+                $erkeztet = '<input type="button" class="gombb foGomb" value="Anyagok érkeztetése" onclick="csoportMuvelet(\'anyagigenyles_erkeztet\')">';
+            }
+            
             $gombok .= nl2('
                 <div id="kmCont">
-                    <input type="button" class="gombb foGomb" value="Anyagok érkeztetése" onclick="csoportMuvelet(\'anyagigenyles_erkeztet\')">
+                    '.$erkeztet.'
                     <input type="button" class="gombb foGomb" value="Készpénzes anyagbeszerzés" onclick="csoportMuvelet(\'anyagigenylesKpBeszerez\');">
                 </div>
             ');

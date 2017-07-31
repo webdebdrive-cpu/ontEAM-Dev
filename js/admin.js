@@ -4531,6 +4531,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'anyagigenyles' && !_get('megjegyzesek') && _jogok[13]==0 ) {
                         $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Önnen nincs jogosultsága új anyagigénylés feltöltéséhez!\', \'\', \'Hiba\'); void(0);');
+                    } else if( baseName(location.href) == 'anyagigenyles' && _get('anyagrend') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Új anyagigénylés csak az anyagigénylés menüpont alatt tölthető fel!\', \'\', \'Hiba\'); void(0);');
                     } else if( baseName(location.href) == 'beosztas' && _get('naptar') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: $(\'#szerk_form div.dt\').show(); void(0);');
                     } else if( baseName(location.href) == 'bejelentes' && _get('megjegyzesek') ) {
