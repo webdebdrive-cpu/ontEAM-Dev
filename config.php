@@ -103,7 +103,7 @@ define('JOG_RENDSZ_KARB_MEGTEKINT', 35);
 define('JOG_RENDSZ_KARB_KEZEL',     36);
 
 //Adatbázis
-function get_db_tabla()   { return 'hotel_';                                                                            } //Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
+function get_db_tabla()   { return 'onteam_';                                                                            } //Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
 function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'localhost'         : 'localhost' );        } //Host
 function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu1'    : 'wdbhu' );   } //Adatbázis neve
 function get_db_user()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu'     : 'wdbtdb' );    } //Felhasználói név

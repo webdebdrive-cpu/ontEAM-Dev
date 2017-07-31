@@ -1,13 +1,13 @@
 <?php
 /*        ADMINISZTRÁCIÓS FELÜLET                                                                                                          *\
-  
+
   Admin mappa elérési útvonala a szerveren (jelsszóhoz): $_SERVER['DOCUMENT_ROOT']
-  
+
   Telepítés: A teljes admin mappát át kell másolni (class, css, js mappákat is használja, de ezek már elvileg jelen vannak).
-	 admin/index.php-t megnyitva telepítsd az admint. 
-  
-  Súgó és dokumentáció: index.php?sugo     
-  
+	 admin/index.php-t megnyitva telepítsd az admint.
+
+  Súgó és dokumentáció: index.php?sugo
+
 \*                                                                                                                                         */
 
 if(isset($_GET['info'])){
@@ -20,18 +20,18 @@ if(isset($_GET['info'])){
 require_once('../weblap.php');
 
 if (isset($_GET['trans'])) {
-    
-    
+
+
         $eredmen = mysqli_query($db_kapcs, 'SET AUTOCOMMIT=0');
         $eredmen = mysqli_query($db_kapcs, 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
         $eredmen = mysqli_query($db_kapcs, 'START TRANSACTION');
-        $eredmen = mysqli_query($db_kapcs, 'SELECT `sorszam`+1 FROM `hotel_iktszam_seq` WHERE `tabla`=\'anyagigenyles\' AND `ev`=\'17\' FOR UPDATE;');
+        $eredmen = mysqli_query($db_kapcs, 'SELECT `sorszam`+1 FROM `onteam_iktszam_seq` WHERE `tabla`=\'anyagigenyles\' AND `ev`=\'17\' FOR UPDATE;');
         $eredmen = mysqli_fetch_assoc($eredmen);
         var_dump($eredmen);
-    
+
     if(isset($_GET['irok'])){
-        mysqli_query($db_kapcs, 'UPDATE `hotel_iktszam_seq` SET `sorszam`=`sorszam`+1 WHERE `tabla`=\'anyagigenyles\' AND `ev`=\'17\';');
-        $eredmen = mysqli_query($db_kapcs, 'SELECT `sorszam` FROM `hotel_iktszam_seq` WHERE `tabla`=\'anyagigenyles\' AND `ev`=\'17\' FOR UPDATE;');
+        mysqli_query($db_kapcs, 'UPDATE `onteam_iktszam_seq` SET `sorszam`=`sorszam`+1 WHERE `tabla`=\'anyagigenyles\' AND `ev`=\'17\';');
+        $eredmen = mysqli_query($db_kapcs, 'SELECT `sorszam` FROM `onteam_iktszam_seq` WHERE `tabla`=\'anyagigenyles\' AND `ev`=\'17\' FOR UPDATE;');
         $eredmen = mysqli_fetch_assoc($eredmen);
         var_dump($eredmen);
     }
@@ -42,35 +42,35 @@ if (isset($_GET['trans'])) {
 
 //Ha egy tálbának utólag adsz egy loginnev nevű oszlopnevet
 if (isset($_GET['loginnev_gyart'])) {
-    
+
     $tabla = 'munkalap';
-    
+
     $sorok = $adatbazis_kapcsolat->s('recid insert_usr', $tabla);
     foreach($sorok as $sor){
         $loginnev = $adatbazis_kapcsolat->s('nev', 'login', "`teljes_nev`='{$sor['insert_usr']}'");
         $loginnev = $loginnev[0]['nev'];
-        
+
         $adatbazis_kapcsolat->u($tabla, array('loginnev'), array($loginnev), "`recid`='{$sor['recid']}'");
 echo $adatbazis_kapcsolat->gp() . '<br>';
     }
-    
+
     exit;
 }
 
 //Anyagigénylés speciálisabb volt
 if (isset($_GET['loginnev_gyart_anyagigenyles'])) {
-    
+
     $tabla = 'anyagigenyles';
-    
+
     $sorok = $adatbazis_kapcsolat->s('recid loginnev', $tabla);
     foreach($sorok as $sor){
         $teljes_nev = $adatbazis_kapcsolat->s('teljes_nev', 'login', "`nev`='{$sor['loginnev']}'");
         $teljes_nev = $teljes_nev[0]['teljes_nev'];
-        
+
         $adatbazis_kapcsolat->u($tabla, array('insert_usr'), array($teljes_nev), "`recid`='{$sor['recid']}'");
 echo $adatbazis_kapcsolat->gp() . '<br>';
     }
-    
+
     exit;
 }
 
@@ -85,7 +85,7 @@ if (isset($_GET['statusz_fetlolt'])) {
                                 );
 echo $adatbazis_kapcsolat->gp() . '<br>';
     }
-    
+
     exit;
 }
 
@@ -94,7 +94,7 @@ if (isset($_GET['felh2torzs'])) {
     $felhok = $adatbazis_kapcsolat->s('*', 'login');
 echo $adatbazis_kapcsolat->gp() . '<br>';
     foreach($felhok as $felh){
-        
+
         $beosztas = '';
         if($felh['beosztas_id']=='94'){
             $beosztas = '1';
