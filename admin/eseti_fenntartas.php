@@ -151,14 +151,14 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || isset($_GET['utemezes']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzes']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || isset($_GET['utemezes']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'naptar'        => 'Naptár',
             'modosit'       => 'Adatlap',
             'utemezes'      => 'Ütemezések',
             'dokumentumok'  => 'Dokumentumok',
-            'megjegyzes'    => 'Megjegyzések',
+            'megjegyzesek'  => 'Megjegyzések',
         );
 
         $fulek = '';
@@ -353,15 +353,15 @@ if($gyorskereso_text){
 		require('switch.php');
 
         include('datumra_utemezes.php');
-        
+
         $jobb_oldal = '';
-        
+
         //Az esnap_d értékét a getnextvaliddate() függvény adná vissza.
         $getnextvaliddate = getnextvaliddate(false, $sor["dvarhato"], $sor["cikltip"], $sor["ciklaltip"], $sor["ciklszorz"], $sor["ciklho"], $sor["ciklhet"], $sor["ciklnap"], $sor["idoszakos"], $sor["kezdho"], $sor["kezdnap"], $sor["vegeho"], $sor["vegenap"], $sor["aktkezd_d"], $sor["aktvege_d"]);
         $jobb_oldal .= 'utolso vegrehajtas: ' . $sor["esnap_d"];
         $jobb_oldal .= '<br>kovetkezo: ' . $getnextvaliddate;
         $jobb_oldal .= '<br>szabaly: ' ;//. getcimke( $sor["cikltip"], $sor["ciklaltip"], $sor["ciklszorz"], $sor["ciklho"], $sor["ciklhet"], $sor["ciklnap"], $sor["esnap_d"]);
-        
+
         //getnextvaliddate() amit visszaad értéket, azt add meg $sor["esnap_d"]-ként
 //        $jobb_oldal = 'utolso vegrehajtas: ' . $sor["esnap_d"] . '
 //            <BR>kovetkezo: ' . getnextvaliddate(false, $sor["dvarhato"], $sor["cikltip"], $sor["ciklaltip"], $sor["ciklszorz"], $sor["ciklho"], $sor["ciklhet"], $sor["ciklnap"], $sor["idoszakos"], $sor["kezdho"], $sor["kezdnap"], $sor["vegeho"], $sor["vegenap"], $sor["aktkezd_d"], $sor["aktvege_d"]) . '
@@ -457,13 +457,13 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html;
         }
-        
+
 	//Ütemezés
     }elseif(isset($_GET['utemezes'])) {
 
         $szamla_html .= 'Ide jön felsorolás szerűen, hogy a jövőben mely időpontokban fut majd le az ütemezés.';
-        
-        
+
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html
@@ -471,7 +471,7 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html;
         }
-        
+
     /* Dokumentumok */
     }elseif(isset($_GET['dokumentumok'])) {
 
@@ -488,10 +488,10 @@ if($gyorskereso_text){
         }
 
     /* Megjegyzés */
-    }elseif(isset($_GET['megjegyzes'])) {
+}elseif(isset($_GET['megjegyzesek'])) {
 
         $szamla_html .= nl2('
-            <div class="dt naplo kijCont" data-tabla="megjegyzes">
+            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzesek">
                 <div class="dtr nFejlec">
                     <div class="dtc">Megjegyzés</div>
                     <div class="dtc">Hozzáadta</div>
