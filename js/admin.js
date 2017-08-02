@@ -4394,19 +4394,19 @@ function _get( ertek ) {
         link = link.split('?');
 
         /* Paraméterek szétbontása */
-        param = link[1].split('&');
+        akt_param = link[1].split('&');
 
-        for( key in param ) {
-            var p = param[key];
+        for( key in akt_param ) {
+            var p = akt_param[key];
 
-            if( param[key].indexOf('=') != -1 ) {
-                var get = param[key].split('=');
+            if( akt_param[key].indexOf('=') != -1 ) {
+                var get = akt_param[key].split('=');
 
                 if( get[0] == ertek ) {
                     return get[1];
                 }
             } else {
-                if( param[key] == ertek ) {
+                if( akt_param[key] == ertek ) {
                     return true;
                 }
             }
@@ -4451,10 +4451,16 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
     }
 
     if( recid && page ) {
+        
+        anyagrend = '';
+        if(_get('anyagrend')){
+            anyagrend = 'anyagrend&amp;';
+        }
+        
         var szamla = $.ajax({
          	url : page,
          	type: 'GET',
-         	data: esamp2es('id=' + recid + '&amp;ajax=1&amp;' + szerk + muvelet + '=' + new Date().getTime()),
+         	data: esamp2es('id=' + recid + '&amp;ajax=1&amp;' + szerk + anyagrend + muvelet + '=' + new Date().getTime()),
          	success: function(html) {
          		if(html) {
 
@@ -4500,8 +4506,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         'tetel',
                         'ujkent'
                     ], true);
-
                     if( muvelet != 'uj' ) {
+                        
                         if( param.indexOf('?') !== -1 ) {
                             param += '&id=' + recid + '&' + esamp2es(muvelet);
                         } else {
@@ -4514,6 +4520,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     } else {
                         param += '?uj';
                     }
+                    
 
                     /* Bal oldali navpanel sorát is frissítjük */
                     if(page.replace('.php', '')!='erteklista'){
@@ -4522,7 +4529,6 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
 
                     /* URL mod */
                     window.history.pushState("", "", getHost() + param );
-
 
                     /* Új ikonra kattintva mi történik */
                     if( _get('szakterulet') ) {
@@ -4605,6 +4611,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
 
 function szamlaSorFrissit( tabla, recid ) {
     if( tabla && recid ) {
+        
+        var anyagrend = '';
+        
         $.ajax({
          	url : 'esemenyek.php',
          	type: 'GET',

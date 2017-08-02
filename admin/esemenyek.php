@@ -1435,8 +1435,8 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 $megnevezes = 'beosztas_naptar';
 $beosztas_naptar_tomb = $akt_tomb = array(
-	array('type' => 'text',                     'megn' => 'Időszak:',           'name' => 'tol',            'class' => 'kicsi datetimepicker', 'megn_szurobe' => 'Időszak tól', 'maxlength' => 16, 'alert' => 'Kérjük adja meg az időszak kezdetét!', 'osszevon' => 1   ),
-	array('type' => 'text',                     'megn' => ' - ',                'name' => 'ig',             'class' => 'kicsi datetimepicker', 'megn_szurobe' => 'Időszak ig',  'maxlength' => 16, 'alert' => 'Kérjük adja meg az időszak végét!'                       ),
+	array('type' => 'text',                     'megn' => 'Időszak:',           'name' => 'tol',            'class' => 'datetimepicker', 'megn_szurobe' => 'Időszak tól', 'maxlength' => 16, 'alert' => 'Kérjük adja meg az időszak kezdetét!', 'osszevon' => 1   ),
+	array('type' => 'text',                     'megn' => ' - ',                'name' => 'ig',             'class' => 'datetimepicker', 'megn_szurobe' => 'Időszak ig',  'maxlength' => 16, 'alert' => 'Kérjük adja meg az időszak végét!'                       ),
     array('type' => 'select_beosztas',          'megn' => 'Beosztás tipus:',    'name' => 'beosztas',       'onchange' => 'if($(this).val()==1){ $(\'.beosztas_rejt\').removeClass(\'dn\'); }else{ $(\'.beosztas_rejt\').addClass(\'dn\'); }',          'alert' => 'Kérjük adja meg a beosztás típusát!'),
     array('type' => 'select_szemelyzet',        'megn' => 'Szerepkör:',         'name' => 'szerepkor',      'dtr_class' => ' dn beosztas_rejt'),
     array('type' => 'autocomplete',             'megn' => 'Név:',               'name' => 'felh_loginnev',  'class' => 'disableNav',   'tabla' => 'torzsadat',  'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a személy nevét!'),
@@ -1731,14 +1731,10 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
                 foreach($addCikkID as $key => $value) {
 
                     $sql = $is_anyag = $adatbazis_kapcsolat->s('recid', 'munkalap_anyag', "`munkalap_id` = '{$recid}' AND `tetel_id` = '".$akt_tetel['recid']."' AND `cikk_id` = '{$value}'", '', '1');
-                    if( $sql === false ) {
-                        $db_error = true;
-                    }
+                    if( $sql === false ) { $db_error = true; }
 
                     $cikk_sor = $adatbazis_kapcsolat->s('id nev cikkmee oracikkid', 'cikktorzs', "`id` = '{$value}'");
-                    if( $cikk_sor === false ) {
-                        $db_error = true;
-                    }
+                    if( $cikk_sor === false ) { $db_error = true; }
 
                     if( $cikk_sor ) {
                         $cikk_sor = $cikk_sor[0];
@@ -1760,12 +1756,10 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
                                 $stat_id = DISZPNAG_STAT_ANYAGRA_VAR;
                             }
 
-                            $sql = $mlap = $adatbazis_kapcsolat->s('telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+                            $mlap = $adatbazis_kapcsolat->s('telephely_id', 'munkalap', "`recid` = '{$recid}'");
+                            if( $mlap === false ) { $db_error = true; }
                             $mlap = $mlap[0];
 
-                            if( $sql === false ) {
-                                $db_error = true;
-                            }
 
                             $sql = $adatbazis_kapcsolat -> i('munkalap_anyag',
                                 array('munkalap_id', 'telephely_id',        'tetel_id',          'cikk_id',       'oracikkid',            'cikk_nev',                                'cikk_mee',             'cikk_men',              'szuk_men',                'stat_id', 'insert_dt',          'insert_usr',                              'update_usr'                          ),
@@ -1858,26 +1852,17 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
 
         if( count($addCikkID) && count($addCikkID) == count($addCikkFelhMenny) ) {
             $sql = $akt_tetel = $adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
-
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            if( $sql === false ) { $db_error = true; }
 
             if( $akt_tetel ) {
                 $akt_tetel = $akt_tetel[0];
 
                 foreach($addCikkID as $key => $value) {
-                    $sql = $is_anyag = $adatbazis_kapcsolat->s('recid', 'munkalap_anyag', "`munkalap_id` = '{$recid}' AND `tetel_id` = '".$akt_tetel['recid']."' AND `cikk_id` = '{$value}'", '', '1');
+                    $is_anyag = $adatbazis_kapcsolat->s('recid', 'munkalap_anyag', "`munkalap_id` = '{$recid}' AND `tetel_id` = '".$akt_tetel['recid']."' AND `cikk_id` = '{$value}'", '', '1');
+                    if( $is_anyag === false ) { $db_error = true; }
 
-                    if( $sql === false ) {
-                        $db_error = true;
-                    }
-
-                    $sql = $cikk_sor = $adatbazis_kapcsolat->s('recid nev cikkmee', 'cikktorzs', "`recid` = '{$value}'", '', '1');
-
-                    if( $sql === false ) {
-                        $db_error = true;
-                    }
+                    $cikk_sor = $adatbazis_kapcsolat->s('id recid nev cikkmee oracikkid', 'cikktorzs', "`id` = '{$value}'");
+                    if( $cikk_sor === false ) { $db_error = true; }
 
                     if( $cikk_sor ) {
                         $cikk_sor = $cikk_sor[0];
@@ -1894,14 +1879,17 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
 
                     if( $addCikkUj[$key] ) {
                         if( $cikk_sor ) {
+                            
+                            $mlap = $adatbazis_kapcsolat->s('telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+                            if( $mlap === false ) { $db_error = true; }
+                            $mlap = $mlap[0];
+                            
                             $sql = $adatbazis_kapcsolat -> i('munkalap_anyag',
-                                array('munkalap_id', 'tetel_id',            'stat_id',                  'cikk_id',            'cikk_nev',         'cikk_mee',             'cikk_men',              'insert_dt',          'insert_usr',                              'update_usr'                          ),
-                                array($recid,        $akt_tetel['recid'],    DISZPNAG_STAT_VAN_ANYAG,   $cikk_sor['recid'],   $cikk_sor['nev'],   $cikk_sor['cikkmee'],   $addCikkFelhMenny[$key],  date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
+                                array('munkalap_id', 'telephely_id',        'tetel_id',            'stat_id',                  'cikk_id',       'oracikkid',               'cikk_nev',                                 'cikk_mee',             'cikk_men',              'insert_dt',          'insert_usr',                              'update_usr'                          ),
+                                array($recid,        $mlap['telephely_id'], $akt_tetel['recid'],    DISZPNAG_STAT_VAN_ANYAG,   $cikk_sor['id'], $cikk_sor['oracikkid'],    htmlspecialchars_decode($cikk_sor['nev']),   $cikk_sor['cikkmee'],   $addCikkFelhMenny[$key],  date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
                             );
 
-                            if( $sql === false ) {
-                                $db_error = true;
-                            }
+                            if( $sql === false ) { $db_error = true; }
                         }
                     }
                 }

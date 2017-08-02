@@ -916,7 +916,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 $ret .= '}';
             }
 
-            if($ajax && !strstr($ertek['type'], 'file')/* tehát nem jsfile vagy sima file... */ ){
+            if($ajax && !strstr($ertek['type'], 'file')/* tehát nem jsfile vagy sima file... */ && $ertek['type']!='nosql' ){
                 if($ertek['name']){//Ha van neve, nem HTML pl.
                     if($ertek['type']=='checkbox'){
                         $param .= $ertek['name'].'=\'+$(\'#'.$ertek['name'].'\').is(\':checked\')+\'&amp;';
@@ -951,7 +951,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     }
 
     if( basename(self())=='bejelentes.php' ) {
-        $ret .= nl2('
+        $ret .= nl2(' 
             if( !bejelentes_mehet ) {
                 var folyamatban_hiba = false;
 
