@@ -1595,8 +1595,11 @@ function szamla_lista( $where, $tabla ) {
         if($tabla == 'bejelentes'){
             $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
-        if($tabla == 'anyagigenyles' || $tabla == 'anyagrendeles'){
+        if($tabla == 'anyagigenyles'){
             $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
+        if($tabla == 'eszkozkezeles'){
+            $where = "`".get_db_tabla()."eszkozkezeles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
         if($tabla == 'utemezett_feladatok'){
             $where = "`".get_db_tabla()."utemezett_feladatok`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
