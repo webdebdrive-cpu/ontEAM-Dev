@@ -595,11 +595,8 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                         $bejelentes = $bejelentes[0];
 
                         if( $bejelentes['statusz_id'] != BEJELENTES_STAT_VIZSG_ALATT ) {
-                            $stat_text = $adatbazis_kapcsolat->s('nev', 'munkalap_statusz_text', "`recid` = '".$bejelentes['statusz_id']."'", '', '1');
-                            $stat_text = $stat_text[0];
-
                             echo json_encode(array(
-                                'hiba' => 'A munkalap bejelentése '.$stat_text['nev'].' státuszban van. A munkalapot nem lehet lezárni!',
+                                'hiba' => 'A munkalap bejelentése '.$_stat_text['munkalap'][$bejelentes['statusz_id']]['nev'].' státuszban van. A munkalapot nem lehet lezárni!',
                             ));
 
                             $weblap->leallit();
@@ -1209,20 +1206,10 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
                     $surgos = 'igen';
                 }
 
-                /* Státusz */
-                $statusz = '';
-                if( $munkalap['statusz_id'] ) {
-                    $statusz = $adatbazis_kapcsolat->s('recid nev', 'munkalap_statusz_text', "`recid` = '".$munkalap['statusz_id']."'", '', '1');
-
-                    if( $statusz ) {
-                        $statusz = $statusz[0];
-                    }
-                }
-
                 $sorok .= nl2('
                     <tr class="kijSor" data-recid="'.$munkalap['recid'].'" data-i="'.$i.'">
                         <td class="nev"></td>
-                        <td>'.$statusz['nev'].'</td>
+                        <td>'.$_stat_text['munkalap'][$munkalap['statusz_id']]['nev'].'</td>
                         <td>'.$munkalap['ikt_szam'].'</td>
                         <td>'.$telephely.'</td>
                         <td>'.$surgos.'</td>
@@ -1268,19 +1255,10 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
                     $surgos = 'igen';
                 }
 
-                /* Státusz */
-                $statusz = '';
-                if( $munkalap['statusz_id'] ) {
-                    $statusz = $adatbazis_kapcsolat->s('recid nev', 'munkalap_statusz_text', "`recid` = '".$munkalap['statusz_id']."'", '', '1');
-                    if( $statusz ) {
-                        $statusz = $statusz[0];
-                    }
-                }
-
                 $sorok .= nl2('
                     <tr class="kijSor" data-recid="'.$munkalap['recid'].'" data-statid="'.$munkalap['statusz_id'].'" data-i="'.$i.'">
                         <td class="nev">'.$munkalap['mobil_loginnev'].'</td>
-                        <td>'.$statusz['nev'].'</td>
+                        <td>'.$_stat_text['munkalap'][$munkalap['statusz_id']]['nev'].'</td>
                         <td>'.$munkalap['ikt_szam'].'</td>
                         <td>'.$telephely.'</td>
                         <td>'.$surgos.'</td>
@@ -1619,7 +1597,7 @@ if($gyorskereso_text){
         if($sorrendezes){
             $gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().'?sorrend\'" value="Sorrend" title="Sorrendezés">';
         }
-        
+
         //Csak diszpécser vagy diszpkp vezető törölhet
         if(!_jog(JOG_DISZPECSER) && !_jog(JOG_MUNKALAP_DISZP_KP_VEZ)){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága munkalap törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';

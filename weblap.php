@@ -7,6 +7,7 @@ require_once('class/class.Adatbazis.php');
 require_once('class/class.Head.php');
 require_once('class/html/class.Img.php');
 
+require_once('statusz_text.php');
 
 //Css-ben lévő képelemeket DATA-URI-ra cseréljük
 if (isset($_GET['css_img_uri'])) {

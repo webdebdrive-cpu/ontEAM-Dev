@@ -87,7 +87,7 @@ if( isset($_POST['jogokhozzaad']) ) {
     /* Kitöröljük a nem kívánatos POST elemeket */
     unset($_POST['id']);
     unset($_POST['jogokhozzaad']);
-    
+
     /* Tömb sorrendezése */
     $jogok = array();
     foreach($_POST as $key => $value) {
@@ -261,7 +261,7 @@ if($gyorskereso_text){
             fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
         );
     }
-    
+
     if(_jog(7)){
         $gombok = nl2('
             <div class="form_kuldes">
@@ -285,7 +285,7 @@ if($gyorskereso_text){
 
 	//Új termék felvitele
 	if(isset($_GET['uj']) && _jog(7) && !$csak_szerkesztheto){
-        
+
         if (isset($_GET['foglalt_nev'])) {
             $navi = '<span class="piros">Ez a loginnév már foglalt!</span>';
         }
@@ -517,7 +517,7 @@ if($gyorskereso_text){
                 usort($jogSorok, 'sortByOrder');
 
                 foreach($jogSorok as $jogSor) {
-                    
+
                     $checked = '';
                     if( $jogSor['value'] ) {
                         $checked = ' checked="checked"';
@@ -528,7 +528,7 @@ if($gyorskereso_text){
 //                    if($jogSor['i']){
 //                        $info = '<div class="tooltip di" style="margin-left: 5rem"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$jogSor['i'].'</div></div>';
 //                    }
-                    
+
                     $jogSor['nev'] .= ':';
                     if($jogSor['i']){
                         $jogSor['nev'] .= '<br><i>('.$jogSor['i'].')</i><br><br>';
@@ -553,7 +553,7 @@ if($gyorskereso_text){
                             $bekapcs .= '$(\'#jog-'.$pipa_be.'\').prop(\'checked\', true).addClass(\'mod\');';
                         }
                     }
-                    
+
                     //Ha épp most kap bekapcsolást, csak akkor futtatjuk le
                     if($bekapcs){
                         $bekapcs = 'if( $(this).prop(\'checked\') ){'.$bekapcs.'}';
@@ -565,11 +565,11 @@ if($gyorskereso_text){
                     if($kikapcskor_kikapcs){
                         $kikapcskor_kikapcs = 'if( $(this).prop(\'checked\') == false ){'.$kikapcskor_kikapcs.'}';
                     }
-                    
+
                     if($kikapcs || $kikapcskor_kikapcs || $bekapcs){
                         $onclick = ' onclick="'.$kikapcs.$kikapcskor_kikapcs.$bekapcs.'"';
                     }
-                    
+
                     $dn = '';
                     if($jogSor['torolve']){
                         $dn = ' dn';
@@ -608,7 +608,7 @@ if($gyorskereso_text){
                 </div>
                 </div></form>
             ');
-            
+
         }
 
         if( $_GET['ajax'] ) {
@@ -640,7 +640,7 @@ if($gyorskereso_text){
                 $telephelyek = adatbazis2tomb($sorok, 'telephely_id');
                 $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $telephelyek).")", 'nev');
                 foreach($telephelyek as $telephely) {
-                    
+
                     $kapcs_id = $adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`telephely_id`='{$telephely['id']}' AND `nev`='{$felh['nev']}'");
                     $kapcs_id = $kapcs_id[0];
 
@@ -685,7 +685,33 @@ if($gyorskereso_text){
 	//Megjegyzések
 	}elseif(isset($_GET['megjegyzesek'])){
 
-        $szamla_html .= 'Megjegyzések felülete';
+        $szamla_html .= nl2('
+            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzesek">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Megjegyzés</div>
+                    <div class="dtc">Hozzáadta</div>
+                    <div class="dtc">Hozzáadva</div>
+                </div>
+        ');
+
+        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
+
+        if( $sorok ) {
+            $i = 1;
+            foreach($sorok as $sor) {
+                $szamla_html .= nl2('
+                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                        <div class="dtc">'.nl2br($sor['megj']).'</div>
+                        <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.$sor['insert_dt'].'</div>
+                    </div>
+                ');
+
+                $i++;
+            }
+        }
+
+        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

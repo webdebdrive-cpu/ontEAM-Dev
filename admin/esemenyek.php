@@ -838,9 +838,9 @@ if( isset($_GET['modosit']) && $_GET['id'] ) {
 }
 
 //Diszpécser számára nem elérhető
-$helyseg_valaszto = '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">reorder</i></a>';
-if(_jog(JOG_DISZPECSER)){
-    $helyseg_valaszto = '';
+$helyseg_valaszto = '';
+if(_jog(JOG_BEJELENTES_MEGTEKINT) && _jog(JOG_BEJELENTES_KEZEL) || _jog(JOG_DISZPECSER)) {
+    $helyseg_valaszto = '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">reorder</i></a>';
 }
 
 if( $user ) {
@@ -3199,7 +3199,7 @@ if( isset($_POST['munkalapFelvesz']) ) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-    
+
     //Műszaki vezető csak olyan munkalapot vehet, fel, ahol a hozzárendelt személy a műszaki vezető
     if(_jog(JOG_MUNKALAP_MUSZAKI_VEZ)){
         $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id', 'munkalap', "`recid`='{$recid}'");
@@ -3212,7 +3212,7 @@ if( isset($_POST['munkalapFelvesz']) ) {
             exit();
         }
     }
-    
+
 
     if( $recid ) {
         if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FELVEVE ) ) {
@@ -4261,14 +4261,14 @@ if( isset($_GET['szamlaLista']) ) {
 
 /* Select generálása ajaxxal adott login szállodáiról */
 if (isset($_POST['get_szalloda_select_options'])) {
-    
+
     $szallodak = get_akt_login_szallodai();
     $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $szallodak).")", 'nev');
-    
+
     echo json_encode(array(
         'html' => tomb2option($szallodak, 'id', 'nev')
     ));
-    
+
     $weblap->leallit();
     exit();
 }
