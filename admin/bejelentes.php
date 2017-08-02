@@ -92,7 +92,7 @@ if( isset($_POST['bejelentesElutasit']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
-        $sql = $bejelentes = $adatbazis_kapcsolat->s('statusz_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
+        $sql = $bejelentes = $adatbazis_kapcsolat->s('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
 
         if( $sql === false ) {
             $db_error = true;
@@ -101,7 +101,7 @@ if( isset($_POST['bejelentesElutasit']) ) {
         if( $bejelentes ) {
             $bejelentes = $bejelentes[0];
 
-            if( $bejelentes['statusz_id'] != BEJELENTES_STAT_KESZ_IG ) {
+            if( $bejelentes['stat_id'] != BEJELENTES_STAT_KESZ_IG ) {
                 echo json_encode(array(
                     'hiba' => 'Csak Kész, igazolásra váró bejelentések utasíthatók el!',
                 ));
@@ -190,7 +190,7 @@ if( isset($_POST['bejelentesIgazolas']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
-        $sql = $bejelentes = $adatbazis_kapcsolat->s('statusz_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
+        $sql = $bejelentes = $adatbazis_kapcsolat->s('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
 
         if( $sql === false ) {
             $db_error = true;
@@ -199,7 +199,7 @@ if( isset($_POST['bejelentesIgazolas']) ) {
         if( $bejelentes ) {
             $bejelentes = $bejelentes[0];
 
-            if( $bejelentes['statusz_id'] != BEJELENTES_STAT_KESZ_IG ) {
+            if( $bejelentes['stat_id'] != BEJELENTES_STAT_KESZ_IG ) {
                 echo json_encode(array(
                     'hiba' => 'Csak Kész, igazolásra váró bejelentések igazolhatóak!',
                 ));
@@ -277,7 +277,7 @@ if (isset($_GET['csv'])) {
                                                     `obj_id` as \'Helyiség\',
                                                     `helyiseg_text` as \'Hely leírása\',
                                                     `gep_id` as \'Gépnév\',
-                                                    `statusz_id` as \'Státusz\'
+                                                    `stat_id` as \'Státusz\'
                                                     '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);
@@ -523,7 +523,7 @@ if($gyorskereso_text){
                 ').$gombok;
             }
 
-            if( $sor['statusz_id'] == BEJELENTES_STAT_KESZ_IG ) {
+            if( $sor['stat_id'] == BEJELENTES_STAT_KESZ_IG ) {
                 $gombok .= nl2('
                     <div id="kmCont">
                         <input type="button" class="gombb foGomb" value="Igazolás" title="Igazolás" onclick="bejelentesIgazolas( \''.$sor['recid'].'\', \'Csak kérdezünk még\' );">
@@ -696,7 +696,7 @@ if($gyorskereso_text){
         );
 
         //Diszpécser a sürgős pipát mégis eléri, ha a státusza nyitott
-        if( $sor['statusz_id']==BEJELENTES_STAT_NYITOTT && (_jog(JOG_DISZPECSER) || _jog(JOG_MUNKALAP_DISZP_KP_VEZ) ) ){
+        if( $sor['stat_id']==BEJELENTES_STAT_NYITOTT && (_jog(JOG_DISZPECSER) || _jog(JOG_MUNKALAP_DISZP_KP_VEZ) ) ){
             $szamla_html .= nl2('
                 <script>
                 $(document).ready(function () {
@@ -749,7 +749,7 @@ if($gyorskereso_text){
         if( $munkalap_kapcsok ) {
             $i = 1;
             foreach($munkalap_kapcsok as $munkalap_kapcs) {
-                $sor = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id obj_id insert_dt statusz_id', 'munkalap', "`recid` = '".$munkalap_kapcs['munkalap_id']."'", '', '1');
+                $sor = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap', "`recid` = '".$munkalap_kapcs['munkalap_id']."'", '', '1');
                 if( $sor ) {
                     $sor = $sor[0];
 
@@ -762,7 +762,7 @@ if($gyorskereso_text){
                     $helyseg = $helyseg[0]['nev'];
 
                     /* Státusz */
-                    $statusz = $adatbazis_kapcsolat->s('nev', 'bejelentes_statusz_text', "`recid`='{$sor['statusz_id']}'");
+                    $statusz = $adatbazis_kapcsolat->s('nev', 'bejelentes_statusz_text', "`recid`='{$sor['stat_id']}'");
                     $statusz = $statusz[0];
 
                     $szamla_html .= nl2('

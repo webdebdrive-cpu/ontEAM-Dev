@@ -154,7 +154,7 @@ switch($tabla) {
         $_OPTS['select']    = nl2('
                                 `'.get_db_tabla().'bejelentes`.`recid`,
                                 `'.get_db_tabla().'bejelentes`.`ikt_szam`,
-                                `'.get_db_tabla().'bejelentes`.`statusz_id`,
+                                `'.get_db_tabla().'bejelentes`.`stat_id`,
                                 `'.get_db_tabla().'bejelentes`.`surgos`,
                                 `'.get_db_tabla().'bejelentes`.`telephely_id`,
                                 `'.get_db_tabla().'bejelentes`.`csoport_id`,
@@ -184,7 +184,7 @@ switch($tabla) {
         $_OPTS['select']    = nl2('
             `'.get_db_tabla().'munkalap`.`recid`,
             `'.get_db_tabla().'munkalap`.`ikt_szam`,
-            `'.get_db_tabla().'munkalap`.`statusz_id`,
+            `'.get_db_tabla().'munkalap`.`stat_id`,
             `'.get_db_tabla().'munkalap`.`telephely_id`,
             `'.get_db_tabla().'munkalap`.`csoport_id`,
             `'.get_db_tabla().'munkalap`.`surgos`,
@@ -192,7 +192,7 @@ switch($tabla) {
         ');
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id', 'statusz_id');
+        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id', 'stat_id');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
@@ -349,7 +349,7 @@ switch($tabla) {
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
         $_OPTS['select']    = nl2('
                                     `'.get_db_tabla().'anyagigenyles`.`recid`,
-                                    `'.get_db_tabla().'anyagigenyles`.`statusz_id`,
+                                    `'.get_db_tabla().'anyagigenyles`.`stat_id`,
                                     `'.get_db_tabla().'anyagigenyles`.`ikt_szam`,
                                     `'.get_db_tabla().'anyagigenyles`.`cikktorzs_id`,
                                     `'.get_db_tabla().'anyagigenyles`.`nev` as `anyagigenyles_nev`,
@@ -373,7 +373,7 @@ switch($tabla) {
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
         $_OPTS['select']    = nl2('
                                     `'.get_db_tabla().'anyagigenyles`.`recid`,
-                                    `'.get_db_tabla().'anyagigenyles`.`statusz_id`,
+                                    `'.get_db_tabla().'anyagigenyles`.`stat_id`,
                                     `'.get_db_tabla().'anyagigenyles`.`ikt_szam`,
                                     `'.get_db_tabla().'anyagigenyles`.`cikktorzs_id`,
                                     `'.get_db_tabla().'anyagigenyles`.`nev` as `anyagigenyles_nev`,
@@ -866,7 +866,7 @@ if (isset($_GET['modosit'])) {
 
 //Bejelentések
 $bejelentes_tomb = $akt_tomb = array(
-    array('type' => 'statusz',         'megn' => 'Státusz:',            'name' => 'statusz_id', 'szuro' => 1,  'oldal' => $megnevezes),
+    array('type' => 'statusz',         'megn' => 'Státusz:',            'name' => 'stat_id',    'szuro' => 1,  'oldal' => $megnevezes),
     array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',     'szuro' => 1,  'class' => 'check', 'onclick' => $surgos_allit),
 	array('type' => 'text',            'megn' => 'Iktató szám:',        'name' => 'ikt_szam',   'szuro' => 1,  'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'info',            'megn' => 'Név:',                'name' => 'felh_nev',   'value' => $user['teljes_nev']),
@@ -908,7 +908,7 @@ if(isset($_GET['modosit'])){
 }
 $megnevezes = 'munkalap';
 $munkalap_tomb = $akt_tomb = array(
-    array('type' => 'statusz',                  'megn' => 'Státusz:',                   'name' => 'statusz_id',         'szuro' => 1,           'oldal' => $megnevezes),
+    array('type' => 'statusz',                  'megn' => 'Státusz:',                   'name' => 'stat_id',            'szuro' => 1,           'oldal' => $megnevezes),
     array('type' => 'text',                     'megn' => 'Iktató szám:',               'name' => 'ikt_szam',           'szuro' => 1, 'disabled' => 1,        'maxlength' => 250, 'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
     array('type' => 'checkbox',                 'megn' => 'Sürgős:',                    'name' => 'surgos',             'szuro' => 1,                           'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>', 'onclick' => $surgos_allit),
     array('type' => 'checkbox',                 'megn' => 'Visszaadva:',                'name' => 'visszaadva',         'szuro' => 1, 'disabled' => 1,          'class' => 'check'),
@@ -1342,7 +1342,7 @@ $tav_12 = '<span style="margin-left: 1.2rem"></span>';
 $tav_26 = '<span style="margin-left: 2.6rem"></span>';
 $tav_4  = '<span style="margin-left: 4rem"></span>';
 $anyagigenyles_tomb = $akt_tomb = array(
-    array('type' => 'statusz',                  'megn' => 'Státusz:',                       'name' => 'statusz_id',     'szuro' => 1,   'oldal' => $megnevezes),
+    array('type' => 'statusz',                  'megn' => 'Státusz:',                       'name' => 'stat_id',        'szuro' => 1,   'oldal' => $megnevezes),
     array('type' => 'text',                     'megn' => 'Iktató szám:',                   'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 8rem'),
     array('type' => 'checkbox',                 'megn' => 'Készpénzes:',                    'name' => 'keszpenz',       'szuro' => 1,   'disabled' => 1,   'post' => '<span style="margin-left: 2rem"></span><input type="button" value="rendelés kép" class="gomb f_nem_rejt">'),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                      'name' => 'telephely_id',   'szuro' => 1,   'disabled' => 1,   'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
@@ -1950,7 +1950,7 @@ if( isset($_POST['munkalapKeszre']) ) {
         }
 
         /* Ellenőrizzük, hogy felvéve státuszban van e */
-        $sql = $munkalap = $adatbazis_kapcsolat->s('statusz_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $sql = $munkalap = $adatbazis_kapcsolat->s('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
 
         if( $sql === false ) {
             $db_error = true;
@@ -1959,7 +1959,7 @@ if( isset($_POST['munkalapKeszre']) ) {
         if( $munkalap ) {
             $munkalap = $munkalap[0];
 
-            if( $munkalap['statusz_id'] != MUNKALAP_STAT_FELVEVE ) {
+            if( $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE ) {
                 echo json_encode(array(
                     'hiba' => 'Csak felvéve státuszú bejelentést lehet készre jelenteni!'
                 ));
@@ -2039,12 +2039,12 @@ if( isset($_POST['munkalapKeszre']) ) {
 
                 /* Megnézzük az összes munkalap státuszát */
                 foreach($mashol_bej as $mbej) {
-                    $munkalap = $adatbazis_kapcsolat->s('statusz_id', 'munkalap', "`recid` = '".$mbej['munkalap_id']."'", '', '1');
+                    $munkalap = $adatbazis_kapcsolat->s('stat_id', 'munkalap', "`recid` = '".$mbej['munkalap_id']."'", '', '1');
 
                     if( $munkalap ) {
                         $munkalap = $munkalap[0];
 
-                        if( $munkalap['statusz_id'] == MUNKALAP_STAT_KESZ_IG ) {
+                        if( $munkalap['stat_id'] == MUNKALAP_STAT_KESZ_IG ) {
                             $elkeszult_munkalapok++;
                         }
                     }
@@ -3044,7 +3044,7 @@ if( isset($_POST['munkalapKulso']) ) {
 
     if( $recid && ($szallito_id || $szemelyzet_id) ) {
         /* Ellenőrizzük, hogy felvéve státuszban van e */
-        $sql = $munkalap = $adatbazis_kapcsolat->s('statusz_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $sql = $munkalap = $adatbazis_kapcsolat->s('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
 
         if( $sql === false ) {
             $db_error = true;
@@ -3053,7 +3053,7 @@ if( isset($_POST['munkalapKulso']) ) {
         if( $munkalap ) {
             $munkalap = $munkalap[0];
 
-            if( $munkalap['statusz_id'] != MUNKALAP_STAT_NYITOTT && $munkalap['statusz_id'] != MUNKALAP_STAT_FOLYAMATBAN ) {
+            if( $munkalap['stat_id'] != MUNKALAP_STAT_NYITOTT && $munkalap['stat_id'] != MUNKALAP_STAT_FOLYAMATBAN ) {
                 echo json_encode(array(
                     'hiba' => 'Csak nyitott, vagy folyamatban lévő munkalapokat lehet kiadni külsősnek!'
                 ));
@@ -3117,7 +3117,7 @@ if( isset($_POST['munkalapTelepitett']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
-        $sql = $akt_statusz = $adatbazis_kapcsolat->s('statusz_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $sql = $akt_statusz = $adatbazis_kapcsolat->s('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
 
         if( $sql === false ) {
             $db_error = true;
@@ -3126,7 +3126,7 @@ if( isset($_POST['munkalapTelepitett']) ) {
         if( $akt_statusz ) {
             $akt_statusz = $akt_statusz[0];
 
-            if( $akt_statusz['statusz_id'] != 1 ) {
+            if( $akt_statusz['stat_id'] != MUNKALAP_STAT_NYITOTT ) {
                 echo json_encode(array(
                     'hiba' => 'Munkalap kiadása csak nyitott státusz esetén lehetséges!'
                 ));
@@ -3419,8 +3419,8 @@ if( isset($_POST['munkalapKeszit']) ) {
 
             /* Munkalap beszúrása */
             $recid = $adatbazis_kapcsolat -> i('munkalap',
-                array('ikt_szam',   'statusz_id',  'tipus_id',  'telephely_id', 'loginnev',                         'update_usr',                          'insert_dt',          'insert_usr'                              ),
-                array($ikt_szam,     1,             1,          $telephely_id,  $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']   )
+                array('ikt_szam',   'stat_id',              'tipus_id',  'telephely_id', 'loginnev',                         'update_usr',                          'insert_dt',          'insert_usr'                              ),
+                array($ikt_szam,     MUNKALAP_STAT_NYITOTT, 1,           $telephely_id,  $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']   )
             );
 
             if( $recid === false ) {
@@ -3430,8 +3430,8 @@ if( isset($_POST['munkalapKeszit']) ) {
             /* Hozzákapcsoljuk a bejelentéseket */
             foreach($idk as $id) {
                 $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
-                    array('munkalap_id', 'bejelentes_id',  'update_usr',                          'insert_dt',          'insert_usr',                            ),
-                    array($recid,        $id,              $_SESSION[get_db_tabla().'teljes_nev'], date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev']  )
+                    array('munkalap_id', 'bejelentes_id',  'update_usr',                            'insert_dt',    'insert_usr',                           ),
+                    array($recid,        $id,              $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
                 );
 
                 if( $sql === false ) {
@@ -3441,8 +3441,8 @@ if( isset($_POST['munkalapKeszit']) ) {
 
             /* Felvesszük az első státuszt */
             $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
-                array('id',     'stat_id', 'insert_dt',          'insert_usr',                              'update_usr'                           ),
-                array($recid,   1,         date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+                array('id',     'stat_id',              'insert_dt',    'insert_usr',                              'update_usr'                           ),
+                array($recid,   MUNKALAP_STAT_NYITOTT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
             );
 
             if( $sql === false ) {
@@ -3799,21 +3799,15 @@ if( isset($_POST['mellekTorol']) ) {
                 }
             }
         } else if( strstr($tabla, '_dok') ) {
-            $sql = $sor = $adatbazis_kapcsolat->s('statusz_id', str_replace('_dok', '', $tabla), "`recid` = '{$recid}'", '', '');
-
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            $sor = $adatbazis_kapcsolat->s('stat_id', str_replace('_dok', '', $tabla), "`recid` = '{$recid}'");
+            if( $sor === false ) { $db_error = true; }
 
             if( $sor ) {
                 $sor = $sor[0];
 
-                if( $sor['statusz_id'] == 1 ) {
-                    $sql = $fajlok = $adatbazis_kapcsolat->s('recid kepnev megj', $tabla, "`recid` IN (".implode(',', $idk).")", '', '');
-
-                    if( $sql === false ) {
-                        $db_error = true;
-                    }
+                if( $sor['stat_id'] == '01' ) {
+                    $fajlok = $adatbazis_kapcsolat->s('recid kepnev megj', $tabla, "`recid` IN (".implode(',', $idk).")");
+                    if( $fajlok === false ) { $db_error = true; }
 
                     if( $fajlok ) {
                         $mit = 'A(z) '.str_replace('_dok', '', $tabla).' '.$recid.'. recordját módosította.';
@@ -3998,10 +3992,10 @@ if (isset($_POST['surgosseg_allit'])) {
     }
 
     //Csak nyitott/folyamatban bejelentés sürgőssége állítható!
-    $statusz = $adatbazis_kapcsolat->s('statusz_id', $_POST['page'], "`recid`='{$_POST['recid']}'");
+    $statusz = $adatbazis_kapcsolat->s('stat_id', $_POST['page'], "`recid`='{$_POST['recid']}'");
     $statusz = $statusz[0];
     if($_POST['page']=='bejelentes'){
-        if($statusz['statusz_id']!=BEJELENTES_STAT_NYITOTT){
+        if($statusz['stat_id']!=BEJELENTES_STAT_NYITOTT){
             echo json_encode(array(
                 'hiba'  => 'Csak nyitott bejelentés sürgőssége állítható!',
             ));
@@ -4012,7 +4006,7 @@ if (isset($_POST['surgosseg_allit'])) {
     }
     if($_POST['page']=='munkalap'){
 
-        if( (_jog(JOG_DISZPECSER || _jog(JOG_MUNKALAP_DISZP_KP_VEZ))) && $statusz['statusz_id']!=MUNKALAP_STAT_NYITOTT && $statusz['statusz_id']!=MUNKALAP_STAT_FOLYAMATBAN ){
+        if( (_jog(JOG_DISZPECSER || _jog(JOG_MUNKALAP_DISZP_KP_VEZ))) && $statusz['stat_id']!=MUNKALAP_STAT_NYITOTT && $statusz['stat_id']!=MUNKALAP_STAT_FOLYAMATBAN ){
             echo json_encode(array(
                 'hiba'  => 'Csak nyitott vagy folyamatban levő munkalap sürgőssége állítható!',
             ));
@@ -4021,7 +4015,7 @@ if (isset($_POST['surgosseg_allit'])) {
             exit();
         }
 
-        if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) && $statusz['statusz_id']!=MUNKALAP_STAT_FELVEVE ){
+        if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) && $statusz['stat_id']!=MUNKALAP_STAT_FELVEVE ){
             echo json_encode(array(
                 'hiba'  => 'Csak felvett munkalap sürgőssége állítható!',
             ));

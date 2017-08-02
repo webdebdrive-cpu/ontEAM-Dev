@@ -1692,7 +1692,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                 case 'erkcimid'         : $erkcimid     = trim($akt_tomb[$key]);  break;
                                 case 'szlacimid'        : $szlacimid    = trim($akt_tomb[$key]);  break;
                                 case 'elutleir'         : $elutleir     = trim($akt_tomb[$key]);  break;
-                                case 'statid'           : $statusz_id   = trim($akt_tomb[$key]);  break;
+                                case 'statid'           : $stat_id      = trim($akt_tomb[$key]);  break;
                                 case 'keszpenz'         : $keszpenz     = trim($akt_tomb[$key]);  break;
                                 case 'uileir'           : $uileir       = nl2(trim($akt_tomb[$key]));  break;
                                 case 'szallitoid'       : $szallito     = trim($akt_tomb[$key]);  break;
@@ -1739,8 +1739,8 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                         if($recid){
                             
                             $adatbazis_kapcsolat->i('anyagigenyles',
-                                array('recid', 'ikt_szam', 'telephely_id', 'cikktorzs_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'statusz_id', 'keszpenz', 'uileir', 'szallito', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear',  'loginnev', 'update_usr', 'insert_dt'  ),
-                                array($recid,  $ikt_szam,  $telephely_id,  $cikktorzs_id,  $nev,  $cikkmee,  $igmen,  $igleir,  $jhmen,  $rndmen,  $rndear,  $rndid,  $erkmen,  $erkear,  $erkcimid,  $szlacimid,  $elutleir,  $statusz_id,  $keszpenz,  $uileir,  $szallito,  $oracikkid,  $aparecid,  $kepfajl,  $rnd_dt,  $kulsosnek,  $szlaid,  $rndmenleir,  $vbrutert,  $vnetert,  $kcs_21,  $arfolyam,  $atvaltva_d,  $vrndear,  $verkear,   $loginnev,  $update_usr,  $insert_dt   )
+                                array('recid', 'ikt_szam', 'telephely_id', 'cikktorzs_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'stat_id', 'keszpenz', 'uileir', 'szallito', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear',  'loginnev', 'update_usr', 'insert_dt'  ),
+                                array($recid,  $ikt_szam,  $telephely_id,  $cikktorzs_id,  $nev,  $cikkmee,  $igmen,  $igleir,  $jhmen,  $rndmen,  $rndear,  $rndid,  $erkmen,  $erkear,  $erkcimid,  $szlacimid,  $elutleir,  $stat_id,  $keszpenz,  $uileir,  $szallito,  $oracikkid,  $aparecid,  $kepfajl,  $rnd_dt,  $kulsosnek,  $szlaid,  $rndmenleir,  $vbrutert,  $vnetert,  $kcs_21,  $arfolyam,  $atvaltva_d,  $vrndear,  $verkear,   $loginnev,  $update_usr,  $insert_dt   )
                             );
 echo $adatbazis_kapcsolat->gp() . '<br>';
                         }

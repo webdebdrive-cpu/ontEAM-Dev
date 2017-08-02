@@ -79,7 +79,7 @@ if (isset($_POST['f_szuro_mezo'])) {
     }
     
     //Jogosultságnál és Státusznál csak =
-    if($_POST['mezo']=='jogosultsag' || $_POST['mezo']=='statusz_id'){
+    if($_POST['mezo']=='jogosultsag' || $_POST['mezo']=='stat_id'){
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
     }
     
@@ -316,7 +316,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
         }
         
         //Státusz esetén
-        if($_POST['mezo']=='statusz_id'){
+        if($_POST['mezo']=='stat_id'){
             
             $feltetel = '<select class="f_felt">';
             $feltetel .= '<option value="">-Válasszon státuszt-</option>';
