@@ -342,11 +342,8 @@ if( isset($_POST['diszKozpVezAtadas']) ) {
                 }
             }
 
-            $sql = $munk_bejek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '');
-
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            $sql = $munk_bejek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'");
+            if( $sql === false ) { $db_error = true; }
 
             if( $munk_bejek ) {
                 foreach($munk_bejek as $munk_bej) {
@@ -474,11 +471,8 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                     /* Ha egy munkalapja van a bejelentéseknek */
                     if( !$is_tobbmunk ) {
                         /* Lezárjuk a bejelentéseket is */
-                        $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '');
-
-                        if( $sql === false ) {
-                            $db_error = true;
-                        }
+                        $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'");
+                        if( $sql === false ) { $db_error = true; }
 
                         if( $munk_kapcsok ) {
                             foreach($munk_kapcsok as $munk_kapcs) {
@@ -515,11 +509,8 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                             /* Összes munkalap le van zárva, tehát a bejelentések is zárhatóak */
                             if( $tm_db == $tm_lezart_db ) {
                                 /* Lezárjuk a bejelentéseket is */
-                                $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '');
-
-                                if( $sql === false ) {
-                                    $db_error = true;
-                                }
+                                $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'");
+                                if( $sql === false ) { $db_error = true; }
 
                                 if( $munk_kapcsok ) {
                                     foreach($munk_kapcsok as $munk_kapcs) {
@@ -626,11 +617,8 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                     /* Ha egy munkalapja van a bejelentéseknek */
                     if( !$is_tobbmunk ) {
                         /* Lezárjuk a bejelentéseket is */
-                        $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '');
-
-                        if( $sql === false ) {
-                            $db_error = true;
-                        }
+                        $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'");
+                        if( $sql === false ) { $db_error = true; }
 
                         if( $munk_kapcsok ) {
                             foreach($munk_kapcsok as $munk_kapcs) {
@@ -667,11 +655,8 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                             /* Összes munkalap le van zárva, tehát a bejelentések is zárhatóak */
                             if( $tm_db == $tm_lezart_db ) {
                                 /* Lezárjuk a bejelentéseket is */
-                                $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '');
-
-                                if( $sql === false ) {
-                                    $db_error = true;
-                                }
+                                $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'");
+                                if( $sql === false ) { $db_error = true; }
 
                                 if( $munk_kapcsok ) {
                                     foreach($munk_kapcsok as $munk_kapcs) {
@@ -724,11 +709,8 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                 }
             }
 
-            $sql = $munk_bejek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'", '', '');
-
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            $sql = $munk_bejek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'");
+            if( $sql === false ) { $db_error = true; }
 
             if( $munk_bejek ) {
                 foreach($munk_bejek as $munk_bej) {

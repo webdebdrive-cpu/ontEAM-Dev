@@ -168,10 +168,8 @@ if( isset($_POST['arazas']) ) {
     if( is_array($idk) ) {
 
         /* Ellenőrizzük a csoportokat */
-        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'anyagigenyles', "`recid` IN (".implode(',', $idk).")", '', '');
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'anyagigenyles', "`recid` IN (".implode(',', $idk).")");
+        if( $csoportok === false ) { $db_error = true; }
 
         $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
         $csoportok_unique = array_unique($csoportok);
@@ -180,11 +178,8 @@ if( isset($_POST['arazas']) ) {
 
         foreach( $csoportok_unique as $csu ) {
             if( $csu > 0 ) {
-                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', 'anyagigenyles', "`csoport_id` = '{$csu}'", '', '');
-
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                $csoport_db = $adatbazis_kapcsolat->s('csoport_id', 'anyagigenyles', "`csoport_id` = '{$csu}'");
+                if( $csoport_db === false ) { $db_error = true; }
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
@@ -204,10 +199,8 @@ if( isset($_POST['arazas']) ) {
         foreach($idk as $id) {
 
             $idk_inputba .= $id.',';
-            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'anyagigenyles_statusz', 'id='.$id, 'recid desc', '1');
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'anyagigenyles_statusz', "`anyagig_recid`='$id'", 'recid desc', '1');
+            if( $statusz === false ) { $db_error = true; }
 
             if( $statusz ) {
                 $statusz = $statusz[0];
@@ -220,10 +213,8 @@ if( isset($_POST['arazas']) ) {
                         $db_error = true;
                     }
 
-                    $sql = $bejelentes = $adatbazis_kapcsolat->s('ikt_szam', 'anyagigenyles', "`recid` = '{$id}'", '', '');
-                    if( $sql === false ) {
-                        $db_error = true;
-                    }
+                    $bejelentes = $adatbazis_kapcsolat->s('ikt_szam', 'anyagigenyles', "`recid` = '{$id}'", '', '');
+                    if( $bejelentes === false ) { $db_error = true; }
 
                     $hiba_kieg = '';
                     if( $bejelentes ) {
@@ -1224,17 +1215,15 @@ if( isset($_POST['rendeles_keszit']) ) {
         $pdf_utvonal = 'doc/rendeles/'.date('y').'/'.$elozo_szallito.'/'.str_replace('/', '_', $rndid).'.pdf';
         
         //Létrehozunk egy új rendelésfej bejegyzést
-        $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('stat_id',                'rndid', 'rnd_dt',  'kepfajl',     'szallitoid',    'insert_dt',          'insert_usr',                           'update_usr'                            ),
-                                                                    array(CIKKIGN_STAT_MEGRENDELVE, $rndid,  $rnd_dt,   $pdf_utvonal,  $elozo_szallito, date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
+        $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('stat_id',                'rndid', 'rnd_dt',  'kepfajl',     'szallitoid',    'insert_dt',    'insert_usr',                           'update_usr'                            ),
+                                                                    array(CIKKIGN_STAT_MEGRENDELVE, $rndid,  $rnd_dt,   $pdf_utvonal,  $elozo_szallito, 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
                                                     );
-        if( $cikkrendfej_id === false ) {
-            $db_error = true;
-        }
+        if( $cikkrendfej_id === false ) { $db_error = true; }
         
         /* Felvesszük az első státuszt */
         $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
-            array('id',             'stat_id',                  'insert_dt',          'insert_usr',                              'update_usr'                          ),
-            array($cikkrendfej_id,  CIKKIGN_STAT_MEGRENDELVE,   date('Y-m-d H:i:s'),  $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+            array('cikkrendfej_recid',  'stat_id',                  'insert_dt',    'insert_usr',                              'update_usr'                          ),
+            array($cikkrendfej_id,      CIKKIGN_STAT_MEGRENDELVE,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
         );
         if( $sql === false ) {
             $db_error = true;
@@ -1242,8 +1231,7 @@ if( isset($_POST['rendeles_keszit']) ) {
 
         //Anyagigénylés sorok updatelése (státuszt is, illetve egyéb mezőket is)
         foreach($idk as $id) {
-            $statusz = addStatusz( $page.'_statusz', $id, CIKKIGN_STAT_MEGRENDELVE );
-            if( $statusz === false ) {
+            if( addStatusz( $page.'_statusz', $id, CIKKIGN_STAT_MEGRENDELVE ) === false ) {
                 $db_error = true;
             }
             
@@ -1479,7 +1467,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
 //            }
 //
 //            $torles  = $adatbazis_kapcsolat->d('anyagigenyles',         "`recid`='$id'");
-//            $torles2 = $adatbazis_kapcsolat->d('anyagigenyles_statusz', "`id`='$id'");
+//            $torles2 = $adatbazis_kapcsolat->d('anyagigenyles_statusz', "`anyagigenyles_recid`='$id'");
 //            if($torles===false || $torles2===false){
 //                $db_error = true;
 //            }
@@ -1527,8 +1515,8 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
 
     /* Felvesszük az első státuszt */
     $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
-        array('id',             'stat_id',                 'insert_dt',    'insert_usr',                              'update_usr'                             ),
-        array($cikkrendfej_id,  CIKKIGN_STAT_BEERKEZETT,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+        array('cikkrendfej_recid',  'stat_id',                 'insert_dt',    'insert_usr',                              'update_usr'                             ),
+        array($cikkrendfej_id,      CIKKIGN_STAT_BEERKEZETT,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
     );
     if( $sql === false ) { $db_error = true; }
     
@@ -1557,8 +1545,8 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
             if( $anyagigenyles === false ) { $db_error = true; }
 
             $sql = $adatbazis_kapcsolat -> i('anyagigenyles_statusz',
-                array('id',            'stat_id',              'insert_dt',    'insert_usr',                              'update_usr'                             ),
-                array($anyagigenyles,  CIKKIGN_STAT_NYITOTT,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+                array('anyagigenyles_recid',    'stat_id',              'insert_dt',    'insert_usr',                              'update_usr'                             ),
+                array($anyagigenyles,           CIKKIGN_STAT_NYITOTT,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
             );
             if( $sql === false ) { $db_error = true; }
 

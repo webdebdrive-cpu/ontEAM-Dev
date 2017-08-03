@@ -132,21 +132,15 @@ if( isset($_POST['bejelentesElutasit']) ) {
             }
 
             /* Megnézzük a munkalapjait */
-            $sql = $munkalap_kapcs = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$recid}'", '', '1');
-
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            $munkalap_kapcs = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$recid}'", '', '1');
+            if( $munkalap_kapcs === false ) { $db_error = true; }
 
             if( $munkalap_kapcs ) {
                 $munkalap_kapcs = $munkalap_kapcs[0];
 
                 /* Lekérdezzük a további bejelentéseit kivéve a mostanit */
-                $sql = $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '".$munkalap_kapcs['munkalap_id']."' AND `bejelentes_id` != '{$recid}'", '', '');
-
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '".$munkalap_kapcs['munkalap_id']."' AND `bejelentes_id` != '{$recid}'", '', '');
+                if( $munk_kapcsok === false ) { $db_error = true; }
 
                 if( $munk_kapcsok ) {
                     foreach($munk_kapcsok as $munk_kapcs) {
@@ -456,12 +450,11 @@ if($gyorskereso_text){
         //Ha nem diszpécser
         } else {
 
-
-            $statusz = $adatbazis_kapcsolat->s('stat_id', 'bejelentes_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc', '1');
+            $statusz = $adatbazis_kapcsolat->s('stat_id', 'bejelentes_statusz', "`bejelentes_recid`='".$_GET['id']."'", 'insert_dt desc', '1');
             $statusz = $statusz[0];
 
             //Csak nyitott státuszú törölhető
-            if($statusz['stat_id'] != 1) {
+            if($statusz['stat_id'] != BEJELENTES_STAT_NYITOTT) {
 
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
 
