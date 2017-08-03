@@ -162,8 +162,8 @@ function i_u($type, $tabla, $tomb) {
 
         /* Datetime-ot is frissítjük */
         if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
-            array_push($oszlopok, 'insert_dt',          'insert_usr'                          );
-            array_push($ertekek,   date('Y-m-d H:i:s'), $_SESSION[get_db_tabla().'teljes_nev']);
+            array_push($oszlopok, 'insert_dt',  'insert_usr'                          );
+            array_push($ertekek,   'NOW()',     $_SESSION[get_db_tabla().'teljes_nev']);
         }
 
         //Anyagigénylés
@@ -228,7 +228,7 @@ function i_u($type, $tabla, $tomb) {
             }
 
             //CikkID-t
-            array_push($oszlopok,  'cikktorzs_id'   );
+            array_push($oszlopok,  'cikk_id'        );
             array_push($ertekek,   $cikktorzs['id'] );
 
             //Beállítjuk az iktatószámot
@@ -2619,7 +2619,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span>'.$bsz['ikt_szam'].' '.$telephely['nev'].'</span>
-                            <span>'.$bsz['cikktorzs_id'].' '.$bsz['anyagigenyles_nev'].'</span>
+                            <span>'.$bsz['cikk_id'].' '.$bsz['anyagigenyles_nev'].'</span>
                             <span>'.$statusz['nev'].'</span>
                         </a>';
 
@@ -3983,9 +3983,8 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 /* Megjegyzés beszúrása */
 function addMegj( $tabla, $id, $megj ) {
     global $adatbazis_kapcsolat;
-    $datum = date('Y-m-d H:i:s');
     $ins   = $adatbazis_kapcsolat->i('megjegyzes',  array('tabla', 'id', 'megj', 'loginnev',                       'update_usr',                           'insert_dt', 'insert_usr'                           ),
-                                                    array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], $datum,      $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                    array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'] )
                                     );
     if(!$ins){
         return false;

@@ -1678,7 +1678,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                 case 'recid'            : $recid        = trim($akt_tomb[$key]);  break;
                                 case 'iktszam'          : $ikt_szam     = trim($akt_tomb[$key]);  break;
 								case 'telepid'          : $telephely_id = trim($akt_tomb[$key]);  break;
-                                case 'cikkid'           : $cikktorzs_id = trim($akt_tomb[$key]);  break;
+                                case 'cikkid'           : $cikk_id      = trim($akt_tomb[$key]);  break;
                                 case 'nev'              : $nev          = trim($akt_tomb[$key]);  break;
                                 case 'cikkmee'          : $cikkmee      = trim($akt_tomb[$key]);  break;
                                 case 'igmen'            : $igmen        = trim($akt_tomb[$key]);  break;
@@ -1716,7 +1716,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                 $statid = 5;
                             }
                             
-                            $cikktorzs_id = sprintf('%07d', $cikktorzs_id);
+                            $cikk_id = sprintf('%07d', $cikk_id);
 
                             $atvaltva_d = str_replace('.', '-', $atvaltva_d);
                             $rnd_dt     = str_replace('.', '-', $rnd_dt);
@@ -1739,8 +1739,8 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                         if($recid){
                             
                             $adatbazis_kapcsolat->i('anyagigenyles',
-                                array('recid', 'ikt_szam', 'telephely_id', 'cikktorzs_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'stat_id', 'keszpenz', 'uileir', 'szallito', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear',  'loginnev', 'update_usr', 'insert_dt'  ),
-                                array($recid,  $ikt_szam,  $telephely_id,  $cikktorzs_id,  $nev,  $cikkmee,  $igmen,  $igleir,  $jhmen,  $rndmen,  $rndear,  $rndid,  $erkmen,  $erkear,  $erkcimid,  $szlacimid,  $elutleir,  $stat_id,  $keszpenz,  $uileir,  $szallito,  $oracikkid,  $aparecid,  $kepfajl,  $rnd_dt,  $kulsosnek,  $szlaid,  $rndmenleir,  $vbrutert,  $vnetert,  $kcs_21,  $arfolyam,  $atvaltva_d,  $vrndear,  $verkear,   $loginnev,  $update_usr,  $insert_dt   )
+                                array('recid', 'ikt_szam', 'telephely_id', 'cikk_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'stat_id', 'keszpenz', 'uileir', 'szallito', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear',  'loginnev', 'update_usr', 'insert_dt'  ),
+                                array($recid,  $ikt_szam,  $telephely_id,  $cikk_id,  $nev,  $cikkmee,  $igmen,  $igleir,  $jhmen,  $rndmen,  $rndear,  $rndid,  $erkmen,  $erkear,  $erkcimid,  $szlacimid,  $elutleir,  $stat_id,  $keszpenz,  $uileir,  $szallito,  $oracikkid,  $aparecid,  $kepfajl,  $rnd_dt,  $kulsosnek,  $szlaid,  $rndmenleir,  $vbrutert,  $vnetert,  $kcs_21,  $arfolyam,  $atvaltva_d,  $vrndear,  $verkear,   $loginnev,  $update_usr,  $insert_dt   )
                             );
 echo $adatbazis_kapcsolat->gp() . '<br>';
                         }

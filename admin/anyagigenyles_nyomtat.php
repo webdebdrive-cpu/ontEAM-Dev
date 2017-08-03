@@ -38,11 +38,11 @@ if (isset($_GET['szall'])) {
     
         //Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
         $ossz     = 0;
-        $anyagok = $adatbazis_kapcsolat->s('distinct cikktorzs_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
+        $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
         foreach($anyagok as $anyag){
 
             $rndmen = 0;
-            $anyag_lek = $adatbazis_kapcsolat->s('nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `cikktorzs_id`='{$anyag['cikktorzs_id']}'");
+            $anyag_lek = $adatbazis_kapcsolat->s('nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `cikk_id`='{$anyag['cikk_id']}'");
             foreach($anyag_lek as $a_lek){
                 $rndmen += $a_lek['rndmen'];
             }
@@ -152,17 +152,17 @@ if (isset($_GET['cim'])) {
 
             //Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
             $ossz = 0;
-            $anyagok = $adatbazis_kapcsolat->s('distinct cikktorzs_id', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$telephely['id']}'");
+            $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$telephely['id']}'");
             foreach($anyagok as $anyag){
 
                 $rndmen = 0;
-                $anyag_lek = $adatbazis_kapcsolat->s('cikktorzs_id nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `cikktorzs_id`='{$anyag['cikktorzs_id']}' AND `telephely_id`='{$telephely['id']}'");
+                $anyag_lek = $adatbazis_kapcsolat->s('cikk_id nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `cikk_id`='{$anyag['cikk_id']}' AND `telephely_id`='{$telephely['id']}'");
                 foreach($anyag_lek as $a_lek){
                     $rndmen += $a_lek['rndmen'];
                 }
                 $tetelek_html .= '
                                 <tr>
-                                    <td>'.$a_lek['cikktorzs_id'].'</td>
+                                    <td>'.$a_lek['cikk_id'].'</td>
                                     <td>'.$a_lek['nev'].'</td>
                                     <td class="c">'.$a_lek['cikkmee'].'</td>
                                     <td class="r">'.number_format($rndmen, 2, ',', ' ').'</td>
@@ -239,7 +239,7 @@ if (isset($_GET['oracle'])) {
             foreach($anyagok as $anyag){
 
                 $rndmen = 0;
-                $anyag_lek = $adatbazis_kapcsolat->s('cikktorzs_id nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `oracikkid`='{$anyag['oracikkid']}' AND `telephely_id`='{$telephely['id']}'");
+                $anyag_lek = $adatbazis_kapcsolat->s('cikk_id nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `oracikkid`='{$anyag['oracikkid']}' AND `telephely_id`='{$telephely['id']}'");
                 foreach($anyag_lek as $a_lek){
                     $rndmen += $a_lek['rndmen'];
                 }
@@ -439,11 +439,11 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
             
             
             //Szedjük össze az azonos cikkeket, ami adott telephelyhez tartozik, majd számoljuk ki, hány darab kell belőle
-            $anyag_lek = $adatbazis_kapcsolat->s('distinct cikktorzs_id', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$anyag['telephely_id']}'");
+            $anyag_lek = $adatbazis_kapcsolat->s('distinct cikk_id', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$anyag['telephely_id']}'");
             foreach($anyag_lek as $a_lek){
                 
                 $rndmen = 0;
-                $anyag_lek_db = $adatbazis_kapcsolat->s('nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$anyag['telephely_id']}' AND `cikktorzs_id`='{$a_lek['cikktorzs_id']}'");
+                $anyag_lek_db = $adatbazis_kapcsolat->s('nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$anyag['telephely_id']}' AND `cikk_id`='{$a_lek['cikk_id']}'");
                 foreach($anyag_lek_db as $a_lek_db){
                     $rndmen += $a_lek_db['rndmen'];
                 }
