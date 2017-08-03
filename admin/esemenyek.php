@@ -2356,7 +2356,7 @@ if( isset($_POST['munkalaphozAdas']) ) {
     $idk = json_decode($_POST['idk'], true);
     $munkalapID = $_POST['munkalapID'];
 
-    if( !_jog(2) ) {
+    if( !_jog(JOG_DISZPECSER) ) {
         echo json_encode(array(
             'hiba' => 'Nincs megfelelő jogosultság a művelet végrehajtásához!'
         ));
@@ -4455,11 +4455,11 @@ foreach($postok as $ertek){
 	if(isset($_GET[$ertek['torid']])){
 
         //Jogosultságkezelés
-        if($ertek['tabla']=='bejelentes' && !_jog(1)){
+        if($ertek['tabla']=='bejelentes' && !_jog(JOG_BEJELENTES_KEZEL)){
             $weblap -> leallit(); exit;
         }
         //Diszpécsser nem törölhet bejegyzést
-        if($ertek['tabla']=='bejelentes' && _jog(2)){
+        if($ertek['tabla']=='bejelentes' && _jog(JOG_DISZPECSER)){
             $weblap -> leallit(); exit;
         }
         if($ertek['tabla']=='utemezett_feladatok' && !_jog(4)){
@@ -4474,7 +4474,7 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='erteklista' && !_jog(11)){
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='anyagigenyles' && !_jog(13)){
+        if($ertek['tabla']=='anyagigenyles' && !_jog(JOG_ANYAGIGENYLES_KEZEL)){
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla']=='raktar' && !_jog(18)){

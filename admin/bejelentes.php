@@ -408,7 +408,7 @@ if($gyorskereso_text){
 	    $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         /* Kijelöltekkel való művelet gombok */
-        if( _jog(2) ) {
+        if( _jog(JOG_DISZPECSER) ) {
 
             $gombok .= nl2('
                 <div id="kmCont">

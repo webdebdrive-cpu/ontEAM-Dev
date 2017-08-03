@@ -153,7 +153,7 @@ if( isset($_POST['arazas']) ) {
     $idk = json_decode($_POST['idk'], true);
     $munkalapID = $_POST['munkalapID'];
 
-    if( !_jog(15) ) {
+    if( !_jog(JOG_ANYAGREND_KESZIT) ) {
         echo json_encode(array(
             'hiba' => 'Nincs megfelelő jogosultság a művelet végrehajtásához!'
         ));
@@ -2059,7 +2059,7 @@ if($gyorskereso_text){
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
         
-        if( _jog(14) ) {
+        if( _jog(JOG_ANYAGIGENYLES_JOVAHAGY) ) {
             $szamla_html .= nl2('
                                 <div id="jovahagy_ertek" class="b"></div>
                                 ');
