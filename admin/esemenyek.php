@@ -1865,11 +1865,11 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
 
                     if( $addCikkUj[$key] ) {
                         if( $cikk_sor ) {
-                            
+
                             $mlap = $adatbazis_kapcsolat->s('telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
                             if( $mlap === false ) { $db_error = true; }
                             $mlap = $mlap[0];
-                            
+
                             $sql = $adatbazis_kapcsolat -> i('munkalap_anyag',
                                 array('munkalap_id', 'telephely_id',        'tetel_id',            'stat_id',                  'cikk_id',       'oracikkid',               'cikk_nev',                                 'cikk_mee',             'cikk_men',              'insert_dt',    'insert_usr',                              'update_usr'                             ),
                                 array($recid,        $mlap['telephely_id'], $akt_tetel['recid'],    DISZPNAG_STAT_VAN_ANYAG,   $cikk_sor['id'], $cikk_sor['oracikkid'],    htmlspecialchars_decode($cikk_sor['nev']),  $cikk_sor['cikkmee'],   $addCikkFelhMenny[$key], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
@@ -2475,13 +2475,6 @@ if( isset($_POST['munkalaphozAdas']) ) {
                 $statusz = $statusz[0];
 
                 if( $statusz['stat_id'] != BEJELENTES_STAT_NYITOTT && $statusz['stat_id'] != BEJELENTES_STAT_FOLYAMATBAN ) {
-                    $sql = $statusz_text = $adatbazis_kapcsolat->s('nev', 'bejelentes_statusz_text', "`recid` = '{$statusz['stat_id']}'", '', '1');
-                    $statusz_text = $statusz_text[0];
-
-                    if( $sql === false ) {
-                        $db_error = true;
-                    }
-
                     $bejelentes = $adatbazis_kapcsolat->s('ikt_szam', 'bejelentes', "`recid`='{$id}'");
                     if( $sql === false ) { $db_error = true; }
 
@@ -2489,7 +2482,7 @@ if( isset($_POST['munkalaphozAdas']) ) {
                     if( $bejelentes ) {
                         $bejelentes = $bejelentes[0];
 
-                        $hiba_kieg = '<br>A "'.$bejelentes['ikt_szam'].'" bejelentés státusza: '.$statusz_text['nev'];
+                        $hiba_kieg = '<br>A "'.$bejelentes['ikt_szam'].'" bejelentés státusza: '.getStatText('bejelentes', $statusz['stat_id']);
                     }
 
                     echo json_encode(array(
@@ -2557,7 +2550,7 @@ if( isset($_POST['munkalaphozAdas']) ) {
         if( !$db_error ) {
             $munkalap_statusz = $adatbazis_kapcsolat->s('stat_id', 'munkalap_statusz', "`munkalap_recid`='{$munkalapID}'", 'recid desc', '1');
             if( $munkalap_statusz === false ) { $db_error = true; }
-            
+
             if( $munkalap_statusz ) {
                 $munkalap_statusz = $munkalap_statusz[0];
 
@@ -3700,7 +3693,7 @@ if( isset($_POST['mellekTorol']) ) {
                 $sql = $adatbazis_kapcsolat -> d($tabla, "`munkalap_id` = '{$recid}' AND `bejelentes_id` = '{$id}'");
                 if( $sql === false ) { $db_error = true; }
             }
-        
+
         //Dokumentumok
         } else if( strstr($tabla, '_dok') ) {
             $sor = $adatbazis_kapcsolat->s('stat_id', str_replace('_dok', '', $tabla), "`recid` = '{$recid}'");

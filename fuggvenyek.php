@@ -909,7 +909,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     }
 
     if( basename(self())=='bejelentes.php' ) {
-        $ret .= nl2(' 
+        $ret .= nl2('
             if( !bejelentes_mehet ) {
                 var folyamatban_hiba = false;
 
@@ -2127,7 +2127,6 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
 }
 function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
-    global $_stat_text;
 
     if( $bejegyzesek ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
@@ -2208,7 +2207,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
 
             $statusz = '';
             if( $bsz['stat_id'] ) {
-                $statusz = $_stat_text['munkalap'][$bsz['stat_id']]['nev'];
+                $statusz = getStatText('munkalap', $bsz['stat_id']);
             }
 
             $active = '';
@@ -2612,15 +2611,11 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
             /* Telephely */
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
             $telephely = $telephely[0];
-
-            /* Státusz */
-            $statusz = $adatbazis_kapcsolat->s('nev', 'anyagigenyles_statusz_text', "`recid`='{$bsz['stat_id']}'");
-            $statusz = $statusz[0];
-
+            
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span>'.$bsz['ikt_szam'].' '.$telephely['nev'].'</span>
                             <span>'.$bsz['cikk_id'].' '.$bsz['anyagigenyles_nev'].'</span>
-                            <span>'.$statusz['nev'].'</span>
+                            <span>'.getStatText('anyagigenyles', $bsz['stat_id']).'</span>
                         </a>';
 
             if( !$frissit ) {
@@ -4316,4 +4311,18 @@ function get_iktatoszam_sorszam($tabla){
         return $sorszam;
     }
 
+}
+
+function getStatText($tabla, $id, $szinkod = false) {
+    global $_stat_text;
+
+    if( $_stat_text[$tabla][$id] ) {
+        if( $szinkod ) {
+            return $_stat_text[$tabla][$id]['szinkod'];
+        } else {
+            return $_stat_text[$tabla][$id]['nev'];
+        }
+    }
+
+    return '';
 }

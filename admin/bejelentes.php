@@ -754,16 +754,12 @@ if($gyorskereso_text){
                     $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
                     $helyseg = $helyseg[0]['nev'];
 
-                    /* Státusz */
-                    $statusz = $adatbazis_kapcsolat->s('nev', 'bejelentes_statusz_text', "`recid`='{$sor['stat_id']}'");
-                    $statusz = $statusz[0];
-
                     $szamla_html .= nl2('
                         <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                             <div class="dtc"><a href="munkalap.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a></div>
                             <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
                             <div class="dtc">'.$sor['insert_dt'].'</div>
-                            <div class="dtc">'.$statusz['nev'].'</div>
+                            <div class="dtc">'.getStatText('bejelentes', $sor['stat_id']).'</div>
                         </div>
                     ');
                 }

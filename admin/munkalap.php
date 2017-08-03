@@ -567,7 +567,7 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
 
                         if( $bejelentes['stat_id'] != BEJELENTES_STAT_VIZSG_ALATT ) {
                             echo json_encode(array(
-                                'hiba' => 'A munkalap bejelentése '.$_stat_text['munkalap'][$bejelentes['stat_id']]['nev'].' státuszban van. A munkalapot nem lehet lezárni!',
+                                'hiba' => 'A munkalap bejelentése '.getStatText('munkalap', $bejelentes['stat_id']).' státuszban van. A munkalapot nem lehet lezárni!',
                             ));
 
                             $weblap->leallit();
@@ -1154,7 +1154,7 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
                 $sorok .= nl2('
                     <tr class="kijSor" data-recid="'.$munkalap['recid'].'" data-i="'.$i.'">
                         <td class="nev"></td>
-                        <td>'.$_stat_text['munkalap'][$munkalap['stat_id']]['nev'].'</td>
+                        <td>'.getStatText('munkalap', $munkalap['stat_id']).'</td>
                         <td>'.$munkalap['ikt_szam'].'</td>
                         <td>'.$telephely.'</td>
                         <td>'.$surgos.'</td>
@@ -1201,7 +1201,7 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
                 $sorok .= nl2('
                     <tr class="kijSor" data-recid="'.$munkalap['recid'].'" data-statid="'.$munkalap['stat_id'].'" data-i="'.$i.'">
                         <td class="nev">'.$munkalap['mobil_loginnev'].'</td>
-                        <td>'.$_stat_text['munkalap'][$munkalap['stat_id']]['nev'].'</td>
+                        <td>'.getStatText('munkalap', $munkalap['stat_id']).'</td>
                         <td>'.$munkalap['ikt_szam'].'</td>
                         <td>'.$telephely.'</td>
                         <td>'.$surgos.'</td>
@@ -2049,17 +2049,13 @@ if($gyorskereso_text){
                     $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$sor['hiba_id']}'");
                     $hiba = $hiba[0];
 
-                    /* Státusz */
-                    $statusz = $adatbazis_kapcsolat->s('nev', 'bejelentes_statusz_text', "`recid`='{$sor['stat_id']}'");
-                    $statusz = $statusz[0];
-
                     $szamla_html .= nl2('
                         <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                             <div class="dtc"><a href="bejelentes.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a></div>
                             <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
                             <div class="dtc">'.$hiba['info'].'</div>
                             <div class="dtc">'.$sor['insert_dt'].'</div>
-                            <div class="dtc">'.$statusz['nev'].'</div>
+                            <div class="dtc">'.getStatText('bejelentes', $sor['stat_id']).'</div>
                         </div>
                     ');
                 }
@@ -2124,7 +2120,7 @@ if($gyorskereso_text){
                             <td>'.$anyag_sor['nev'].'</td>
                             <td>'.$anyag_sor['igmen'].' '.$anyag_sor['cikkmee'].'</td>
                             <td>'.$anyag_sor['rndmen'].' '.$anyag_sor['cikkmee'].'</td>
-                            <td>'.getErtek('nev', 'anyagigenyles_statusz_text', 'recid', $anyag_sor['stat_id']).'</td>
+                            <td>'.getStatText('anyagigenyles', $anyag_sor['stat_id']).'</td>
                         </tr>
                     ');
                 }

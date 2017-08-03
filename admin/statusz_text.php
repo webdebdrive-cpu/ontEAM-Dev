@@ -23,7 +23,7 @@
             BEJELENTES_STAT_VIZSG_ALATT => array('nev' => 'Vizsgálat alatt',        'szinkod' => '#b3e5ab'),
             BEJELENTES_STAT_LEZART      => array('nev' => 'Lezárt',                 'szinkod' => '#fff'),
         ),
-        'cikkrendfej' => array(
+        'anyagigenyles' => array(
             CIKKIGN_STAT_NYITOTT        => array('nev' => 'Nyitott',                'szinkod' => ''),
             CIKKIGN_STAT_MEGR_OSSZEALL  => array('nev' => 'Megrendelés összeállt',  'szinkod' => ''),
             CIKKIGN_STAT_ARAZVA         => array('nev' => 'Árazva',                 'szinkod' => ''),
