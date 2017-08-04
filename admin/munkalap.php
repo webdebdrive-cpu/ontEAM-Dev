@@ -1499,7 +1499,7 @@ if($gyorskereso_text){
         /* Gombok */
         $gombok = nl2('
             <div class="form_kuldes">
-                <input type="submit" class="gombb'.$class.'" name="mehet_gomb" id="mehet_gomb"'.$disabled.' value="Mentés">
+                <input type="button" class="gombb'.$class.' mentes_gomb" name="mehet_gomb" id="mehet_gomb"'.$disabled.' value="Mentés" onclick="$(\'#szerk_form\').submit()">
             </div>
         ');
 
@@ -1549,7 +1549,7 @@ if($gyorskereso_text){
             if( isset($_GET['modosit']) && in_array($sor['stat_id'], array(MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_FOLYAMATBAN)) ) {
                 $gombok = nl2('
                     <div class="form_kuldes">
-                        <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                     </div>
                 ').$gombok;
             }

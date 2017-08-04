@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(19) ) {
+if( !_jog(JOG_CIKKTORZS_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -155,10 +155,10 @@ if($gyorskereso_text){
     if( isset($_GET['uj']) ) {
         
         //Újat csak "Anyagigénylés kezelése" joggal lehet
-        if(_jog(20)){
+        if(_jog(JOG_CIKKTORZS_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                    <input type="gombb" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                 </div>
             ');
 
@@ -186,11 +186,11 @@ if($gyorskereso_text){
         //Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
-        if( _jog(20) ){
+        if( _jog(JOG_CIKKTORZS_KEZEL) ){
 
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                 </div>
             ').$gombok;
             
@@ -212,7 +212,7 @@ if($gyorskereso_text){
     }
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && _jog(20) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && _jog(JOG_CIKKTORZS_KEZEL) && !$csak_szerkesztheto){
 
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');

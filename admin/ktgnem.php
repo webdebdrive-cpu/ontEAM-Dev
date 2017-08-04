@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(8) ) {
+if( !_jog(JOG_ERTEKLISTAK_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -208,7 +208,7 @@ if($gyorskereso_text){
 		require('switch.php');
 
         $gombok = nl2('<div class="form_kuldes">
-                          <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                          <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                       </div>').$gombok;
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
@@ -328,10 +328,10 @@ if($gyorskereso_text){
 
         $jobb_oldal = '';
 
-        if(_jog(9)){
+        if(_jog(JOG_ERTEKLISTAK_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                 </div>
             ').$gombok;
         }

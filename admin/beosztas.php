@@ -328,7 +328,7 @@ if($gyorskereso_text){
         /* Gombok */
         $gombok = nl2('
             <div class="form_kuldes">
-                <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
             </div>
         ');
 
@@ -389,10 +389,10 @@ if($gyorskereso_text){
             }
         }
 
-        if(_jog(30)){
+        if(_jog(JOG_BEOSZTASOK_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                 </div>
             ').$gombok;
         }
@@ -413,7 +413,7 @@ if($gyorskereso_text){
     }
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && _jog(30) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && _jog(JOG_BEOSZTASOK_KEZEL) && !$csak_szerkesztheto){
 
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');

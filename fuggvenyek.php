@@ -599,7 +599,7 @@ function i_u($type, $tabla, $tomb) {
                 exit;
             }
 
-            $akt_statusz = $adatbazis_kapcsolat->s('stat_id', $tabla.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
+            $akt_statusz = $adatbazis_kapcsolat->s('stat_id', $tabla.'_statusz', "`{$tabla}_recid`='{$_GET['id']}'", 'recid desc', '1');
             if( $akt_statusz === false ) { $db_error = true; }
 
             if( $akt_statusz ) {

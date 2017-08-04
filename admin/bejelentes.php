@@ -383,7 +383,7 @@ if($gyorskereso_text){
         /* Gombok */
         $gombok .= nl2('
             <div class="form_kuldes">
-                <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
             </div>
         ');
 
@@ -511,7 +511,7 @@ if($gyorskereso_text){
             if(!$nem_szerkesztheti && isset($_GET['modosit'])) {
                 $gombok = nl2('
                     <div class="form_kuldes">
-                        <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                     </div>
                 ').$gombok;
             }

@@ -209,7 +209,7 @@ if($gyorskereso_text){
 		require('switch.php');
 
         $gombok = nl2('<div class="form_kuldes">
-                          <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                          <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                       </div>').$gombok;
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
@@ -331,7 +331,7 @@ if($gyorskereso_text){
 
         if( isset($_GET['szerkeszt']) ) {
             $gombok = nl2('<div class="form_kuldes">
-                              <input type="submit" class="gombb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                              <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                            </div>').$gombok;
         } else {
             $gombok = '<input type="button" id="recordSzerk" class="gombb dn" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\', true)" value="Szerkeszés" title="Record szerkesztése">';
