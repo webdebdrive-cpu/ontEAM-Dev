@@ -421,7 +421,7 @@ if($gyorskereso_text){
                         <div class="muv">
                             <ul>
                                 <li><a onclick="csoportMuvelet(\'csoporthoz_adas\');">Csoporthoz adás</a></li>
-                                <li><a onclick="if(balnav_kijelol_ell(\'egy csoportot szabad megbontani\')){ alert2(\'Biztos kiveszi a kijelölt sorokat a megadott csoportokból?\', csoportKiveszGomb); }">Csoportból kivétel</a></li>
+                                <li><a onclick="if(balnav_kijelol_ell(\'egy csoportot szabad megbontani\')){ alert2(\'Biztos kiveszi a kijelölt bejelentéseket a megadott csoportokból?\', csoportKiveszGomb); }">Csoportból kivétel</a></li>
                                 <li><a onclick="csa_alert();">Csoport átnevezése</a></li>
                             </ul>
                         </div>

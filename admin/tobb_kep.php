@@ -13,37 +13,11 @@
 
 require_once('../class/html/class.Img.php');
 
+$tobbkep_tablanev = str_replace('.php', '', basename($_SERVER['PHP_SELF'])).'_dok';
 if( $_POST['tabla'] ) {
-    switch($_POST['tabla']) {
-        case 'anyagigenyles':
-            $tobbkep_tablanev = 'anyagigenyles_dok';
-        break;
-        case 'bejelentes':
-            $tobbkep_tablanev = 'bejelentes_dok';
-        break;
-        case 'utemezett_feladatok':
-            $tobbkep_tablanev = 'utemezett_feladatok';
-        break;
-        case 'munkalap':
-            $tobbkep_tablanev = 'munkalap_dok';
-        break;
-    }
+    $tobbkep_tablanev = $_POST['tabla'].'_dok';
 }
-
-switch(basename($_SERVER['PHP_SELF'])) {
-    case 'anyagigenyles.php':
-        $tobbkep_tablanev = 'anyagigenyles_dok';
-    break;
-    case 'bejelentes.php':
-        $tobbkep_tablanev = 'bejelentes_dok';
-    break;
-    case 'utemezett_feladatok.php':
-        $tobbkep_tablanev = 'utemezett_feladatok_dok';
-    break;
-    case 'munkalap.php':
-        $tobbkep_tablanev = 'munkalap_dok';
-    break;
-}
+//echo $tobbkep_tablanev; exit;
 
 //Képfeltöltés
 if(isset($_POST['session_name'])){
@@ -104,7 +78,6 @@ if(isset($_POST['session_name'])){
         case 0:
             //Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
             $kepnev = $utvonal.'/'.time().'_'.rand(1, 10000).'.'.kit($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
-
             //Fájlfeltöltés
             if(move_uploaded_file($_FILES[ $_SESSION['fajl']['megnevezes'] ]['tmp_name'], $kepnev)){
 

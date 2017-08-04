@@ -16,7 +16,6 @@ if(isset($_GET['info'])){
 }
 
 
-
 require_once('../weblap.php');
 
 if (isset($_GET['trans'])) {
@@ -80,10 +79,9 @@ if (isset($_GET['statusz_fetlolt'])) {
     $tabla = 'anyagigenyles';
     $anyagok = $adatbazis_kapcsolat->s('recid statid', $tabla);
     foreach($anyagok as $anyag){
-        $adatbazis_kapcsolat->i($tabla.'_statusz',  array('stat_id',        'id'            ),
-                                                    array($anyag['statid'], $anyag['recid'] )
+        $adatbazis_kapcsolat->i($tabla.'_statusz',  array('stat_id',        $tabla.'_recid'     ),
+                                                    array($anyag['statid'], $anyag['recid']     )
                                 );
-echo $adatbazis_kapcsolat->gp() . '<br>';
     }
 
     exit;

@@ -37,7 +37,7 @@ if($tobb_kep){
         global $megnevezes;
         return $megnevezes.'_id';
     }
-    function get_tobbkep_tabla(){ return 'kepek';       } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
+    function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 
     //Kép törlésének lekezelése
     if (isset($_GET[$torles.'tobbkep_torol'])){

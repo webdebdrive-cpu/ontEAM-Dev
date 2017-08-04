@@ -446,9 +446,9 @@ function i_u($type, $tabla, $tomb) {
         //Bejelentések iktatószám képzése
         if( $tabla == 'bejelentes' ) {
             $sql = $adatbazis_kapcsolat -> i('bejelentes_statusz',
-                array('bejelentes_recid',   'stat_id',                  'insert_dt', 'insert_usr',                              'update_usr'                          ),
-                array($id,                  BEJELENTES_STAT_NYITOTT,    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
-            );
+                                            array('bejelentes_recid',   'stat_id',                  'insert_dt', 'insert_usr',                              'update_usr'                          ),
+                                            array($id,                  BEJELENTES_STAT_NYITOTT,    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        );
             if( $sql === false ) { $db_error = true; }
 
             /* Megvizsgáljuk, hogy egy/több szállodás modell */
@@ -599,7 +599,7 @@ function i_u($type, $tabla, $tomb) {
                 exit;
             }
 
-            $akt_statusz = $adatbazis_kapcsolat->s('stat_id', $tabla.'_statusz', 'id='.$_GET['id'], 'recid desc', '1');
+            $akt_statusz = $adatbazis_kapcsolat->s('stat_id', $tabla.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
             if( $akt_statusz === false ) { $db_error = true; }
 
             if( $akt_statusz ) {
@@ -3895,16 +3895,17 @@ function getStatuszIdo( $time ) {
 }
 
 /* Státusz hozzáadása */
-function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklista_id = 0, $memo = '' ) {
+function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklista_recid = 0, $memo = '' ) {
     global $adatbazis_kapcsolat;
 
     $db_error = false;
-
+    $kulso_kulcs = str_replace('_statusz', '', $tabla);
+    
     if( $tabla && $recid && $stat_id ) {
         /* Lekérjük az az éppen aktuális státusz */
-        $akt_statusz = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, "`{$tabla}_recid`='{$recid}'", 'recid desc', '1');
+        $akt_statusz = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid desc', '1');
         if( $sql === false ) { $db_error = true; }
-
+ 
         if( $akt_statusz ) {
             $akt_statusz = $akt_statusz[0];
 
@@ -3913,7 +3914,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
             $statusz_ido = getStatuszIdo( $statusz_ido );
 
             /* Göngyölt státuszidő */
-            $elso_statusz = $adatbazis_kapcsolat->s('insert_dt', $tabla, "`{$tabla}_recid`='{$recid}'", 'recid asc', '1');
+            $elso_statusz = $adatbazis_kapcsolat->s('insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid asc', '1');
             if( $elso_statusz === false ) { $db_error = true; }
 
             if( $elso_statusz ) {
@@ -3924,7 +3925,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
             }
 
             /* Összesített státuszidő */
-            $elso_akt_stat = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, "`{$tabla}_recid`='{$recid}' AND `stat_id`='$stat_id'", 'recid asc', '1');
+            $elso_akt_stat = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}' AND `stat_id`='$stat_id'", 'recid asc', '1');
             if( $elso_akt_stat === false ) { $db_error = true; }
 
             $ossz_statido = '';
@@ -3938,10 +3939,9 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
                 $sql = $adatbazis_kapcsolat -> u($tabla,
                                                     array('ossz_statido'),
                                                     array($ossz_statido ),
-                                                    "`{$tabla}_recid`='{$recid}' AND `stat_id`='$stat_id'"
+                                                    "`{$kulso_kulcs}_recid`='{$recid}' AND `stat_id`='$stat_id'"
                                             );
                 if( $sql === false ) { $db_error = true; }
-
             }
 
             /* Frissítjük a sort */
@@ -3954,8 +3954,8 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 
             /* Beszúrjuk az újat */
             $sql = $adatbazis_kapcsolat -> i($tabla,
-                                                array($tabla.'_id', 'stat_id', 'erteklista_id',  'insert_dt',   'insert_usr',                              'update_usr',                           'text' ),
-                                                array($recid,       $stat_id,  $erteklista_id,   'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'], $memo  )
+                                                array($kulso_kulcs.'_recid', 'stat_id', 'erteklista_recid',  'insert_dt',   'insert_usr',                              'update_usr',                          'text' ),
+                                                array($recid,                $stat_id,  $erteklista_recid,   'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'], $memo  )
                                             );
             if( $sql === false ) { $db_error = true; }
 
@@ -4231,20 +4231,17 @@ function get_tortenet($megnevezes){
             </div>
     ');
 
-    $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido text', $megnevezes.'_statusz', "`id` = '".$_GET['id']."'", 'insert_dt desc');
+    $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido text', $megnevezes.'_statusz', "`{$megnevezes}_recid` = '".$_GET['id']."'", 'insert_dt desc');
     if( $sorok ) {
         foreach($sorok as $sor) {
-            $statusz = $adatbazis_kapcsolat->s('nev szinkod', $megnevezes.'_statusz_text', 'recid='.$sor['stat_id'], '', '1');
+            
+            $statusz['nev']     = getStatText($megnevezes, $sor['stat_id']);
+            $statusz['szinkod'] = getStatText($megnevezes, $sor['stat_id'], 'színkód');
 
             $szinkod = '';
-            if( $statusz ) {
-                $statusz = $statusz[0];
-
-                $sor['statusz'] = $statusz['nev'];
-
-                if( $statusz['szinkod'] ) {
-                    $szinkod = ' style="background: '.$statusz['szinkod'].';"';
-                }
+            $sor['statusz'] = $statusz['nev'];
+            if( $statusz['szinkod'] ) {
+                $szinkod = ' style="background: '.$statusz['szinkod'].';"';
             }
 
             //Adatbázisba eleinte szóköz nélkül került be a nap, ezért biztonság kedvéért egy szóközt még beszúrunk, illetve a 0nap-ot is kiszűrjük (bár ez egy adatbázis frissítés után már felesleges)
@@ -4313,6 +4310,7 @@ function get_iktatoszam_sorszam($tabla){
 
 }
 
+/* Státusz címkék és színeket visszaadó függvény ($_stat_text változó pedig a statusz_text.php -ben kerül előállításra) */
 function getStatText($tabla, $id, $szinkod = false) {
     global $_stat_text;
 

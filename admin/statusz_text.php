@@ -1,5 +1,14 @@
 <?php
     $_stat_text = array(
+        'bejelentes' => array(
+            BEJELENTES_STAT_NYITOTT     => array('nev' => 'Nyitott',                'szinkod' => '#fff'),
+            BEJELENTES_STAT_FOLYAMATBAN => array('nev' => 'Folyamatban',            'szinkod' => '#f5a56c'),
+            BEJELENTES_STAT_ELUTASITVA  => array('nev' => 'Elutasítva',             'szinkod' => '#C44B4B'),
+            BEJELENTES_STAT_VARAKOZO    => array('nev' => 'Várakozó',               'szinkod' => '#c4e63b'),
+            BEJELENTES_STAT_KESZ_IG     => array('nev' => 'Kész, igazolásra vár',   'szinkod' => '#b3e5ab'),
+            BEJELENTES_STAT_VIZSG_ALATT => array('nev' => 'Vizsgálat alatt',        'szinkod' => '#b3e5ab'),
+            BEJELENTES_STAT_LEZART      => array('nev' => 'Lezárt',                 'szinkod' => '#fff'),
+        ),
         'munkalap' => array(
             MUNKALAP_STAT_NYITOTT           => array('nev' => 'Nyitott',                            'szinkod' => '#fff'),
             MUNKALAP_STAT_FOLYAMATBAN       => array('nev' => 'Folyamatban',                        'szinkod' => '#f5a56c'),
@@ -13,15 +22,6 @@
             MUNKALAP_STAT_LEZART            => array('nev' => 'Lezárt',                             'szinkod' => '#fff'),
             MUNKALAP_STAT_IGAZOLT           => array('nev' => 'Igazolt, lezárható',                 'szinkod' => '#61616c'),
             MUNKALAP_STAT_HOZREND_ELOKESZ   => array('nev' => 'Hozzárendelés előkészítés alatt',    'szinkod' => '#f5a56c'),
-        ),
-        'bejelentes' => array(
-            BEJELENTES_STAT_NYITOTT     => array('nev' => 'Nyitott',                'szinkod' => '#fff'),
-            BEJELENTES_STAT_FOLYAMATBAN => array('nev' => 'Folyamatban',            'szinkod' => '#f5a56c'),
-            BEJELENTES_STAT_ELUTASITVA  => array('nev' => 'Elutasítva',             'szinkod' => '#C44B4B'),
-            BEJELENTES_STAT_VARAKOZO    => array('nev' => 'Várakozó',               'szinkod' => '#c4e63b'),
-            BEJELENTES_STAT_KESZ_IG     => array('nev' => 'Kész, igazolásra vár',   'szinkod' => '#b3e5ab'),
-            BEJELENTES_STAT_VIZSG_ALATT => array('nev' => 'Vizsgálat alatt',        'szinkod' => '#b3e5ab'),
-            BEJELENTES_STAT_LEZART      => array('nev' => 'Lezárt',                 'szinkod' => '#fff'),
         ),
         'anyagigenyles' => array(
             CIKKIGN_STAT_NYITOTT        => array('nev' => 'Nyitott',                'szinkod' => ''),
@@ -37,5 +37,16 @@
             CIKKIGN_STAT_VARAKOZO       => array('nev' => 'Várakozó',               'szinkod' => ''),
             CIKKIGN_STAT_NEM_ERKEZETT   => array('nev' => 'Anyag nem érkezett be',  'szinkod' => ''),
             CIKKIGN_STAT_ELUTASITVA     => array('nev' => 'Elutasítva',             'szinkod' => ''),
+        ),
+        'cikkrendfej' => array(
+            CIKKRNDFEJ_STAT_MEGRENDELVE     => array('nev' => 'Megrendelve',            'szinkod' => ''),
+            CIKKRNDFEJ_STAT_RESZBEN_BEERK   => array('nev' => 'Részben beérkezett',     'szinkod' => ''),
+            CIKKRNDFEJ_STAT_BEERKEZETT      => array('nev' => 'Beérkezett',             'szinkod' => ''),
+            CIKKRNDFEJ_STAT_SLA_BEERK       => array('nev' => 'Számla beérkezett',      'szinkod' => ''),
+            CIKKRNDFEJ_STAT_LEZART          => array('nev' => 'Lezárt',                 'szinkod' => ''),
+            CIKKRNDFEJ_STAT_TOROLT          => array('nev' => 'Törölt',                 'szinkod' => ''),
+            CIKKRNDFEJ_STAT_VARAKOZO        => array('nev' => 'Várakozó',               'szinkod' => ''),
+            CIKKRNDFEJ_STAT_ANYAG_NEM       => array('nev' => 'Anyag nem érkezett be',  'szinkod' => ''),
+            CIKKRNDFEJ_STAT_ELUTASITVA      => array('nev' => 'Elutasítva',             'szinkod' => ''),
         )
     );

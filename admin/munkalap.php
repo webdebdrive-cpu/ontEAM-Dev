@@ -39,11 +39,7 @@ if($tobb_kep){
         global $megnevezes;
         return $megnevezes.'_id';
     }
-    function get_tobbkep_tabla(){                           // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
-        global $megnevezes;
-        return $megnevezes.'_dok';
-
-    }
+    function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 
     //Kép törlésének lekezelése
     if (isset($_GET[$torles.'tobbkep_torol'])){
@@ -567,14 +563,14 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
 
                         if( $bejelentes['stat_id'] != BEJELENTES_STAT_VIZSG_ALATT ) {
                             echo json_encode(array(
-                                'hiba' => 'A munkalap bejelentése '.getStatText('munkalap', $bejelentes['stat_id']).' státuszban van. A munkalapot nem lehet lezárni!',
+                                'hiba' => 'A munkalap bejelentése '.getStatText('bejelentes', $bejelentes['stat_id']).' státuszban van. A munkalapot nem lehet lezárni!',
                             ));
 
                             $weblap->leallit();
                             exit();
                         }
 
-                        $tobb_munk = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id` != '{$recid}'", '', '');
+                        $tobb_munk = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='".$munk_kapcsok['bejelentes_id']."' AND `munkalap_id`!='{$recid}'");
 
                         /* Több munkalaphoz kapcsolódik a bejelentés */
                         if( $tobb_munk ) {
@@ -822,19 +818,13 @@ if( isset($_POST['getMunkalapFeladatok']) ) {
 
     if( $recid ) {
         $sql = $akt_tetel = $adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
-
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        if( $sql === false ) { $db_error = true; }
 
         if( $akt_tetel ) {
             $akt_tetel = $akt_tetel[0];
 
             $sql = $munkalapok = $adatbazis_kapcsolat->s('recid erteklista_id memo', 'munkalap_feladat', "`munkalap_id` = '{$recid}' AND `tetel_id` = '".$akt_tetel['recid']."'", '', '');
-
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            if( $sql === false ) { $db_error = true; }
 
             if( $munkalapok ) {
                 $sorok = '';
@@ -1578,7 +1568,7 @@ if($gyorskereso_text){
                         <div class="muv">
                             <ul>
                                 <li><a onclick="csoportMuvelet(\'csoporthoz_adas\');">Csoporthoz adás</a></li>
-                                <li><a onclick="if(balnav_kijelol_ell(\'egy csoportot szabad megbontani\')){ alert2(\'Biztos kiveszi a kijelölt sorokat a megadott csoportokból?\', csoportKiveszGomb); }">Csoportból kivétel</a></li>
+                                <li><a onclick="if(balnav_kijelol_ell(\'egy csoportot szabad megbontani\')){ alert2(\'Biztos kiveszi a kijelölt munkalapokat a megadott csoportokból?\', csoportKiveszGomb); }">Csoportból kivétel</a></li>
                                 <li><a onclick="csa_alert();">Csoport átnevezése</a></li>
                             </ul>
                         </div>

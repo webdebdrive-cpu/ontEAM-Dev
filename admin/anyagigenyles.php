@@ -676,10 +676,8 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
         // Ellenőrizzük a státuszokat és hogy mind árazva van-e?
         foreach($idk as $id) {
 
-            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'recid desc', '1');
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
+            if( $statusz === false ) { $db_error = true; }
 
             if( $statusz ) {
 
@@ -766,7 +764,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
         // Ellenőrizzük a státuszokat, és feltételeket
         foreach($idk as $id) {
 
-            $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'recid desc', '1');
+            $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
             if( $statusz === false ) {
                 $db_error = true;
             }
@@ -880,7 +878,7 @@ if( isset($_POST['anyagigenyles_elutasitas']) ) {
         // Ellenőrizzük a státuszokat, és feltételeket
         foreach($idk as $id) {
 
-            $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'recid desc', '1');
+            $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
             if( $statusz === false ) {
                 $db_error = true;
             }
@@ -1072,10 +1070,8 @@ if( isset($_POST['rendeles_keszit']) ) {
         // Ellenőrizzük a státuszokat és hogy mind jóváhagyva van-e?
         foreach($idk as $id) {
 
-            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'recid desc', '1');
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
+            if( $statusz === false ) { $db_error = true; }
 
             if( $statusz ) {
 
@@ -1215,9 +1211,9 @@ if( isset($_POST['rendeles_keszit']) ) {
 
         /* Felvesszük az első státuszt */
         $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
-            array('cikkrendfej_recid',  'stat_id',                  'insert_dt',    'insert_usr',                              'update_usr'                          ),
-            array($cikkrendfej_id,      CIKKIGN_STAT_MEGRENDELVE,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
-        );
+                                            array('cikkrendfej_recid',  'stat_id',                  'insert_dt',    'insert_usr',                              'update_usr'                          ),
+                                            array($cikkrendfej_id,      CIKKIGN_STAT_MEGRENDELVE,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        );
         if( $sql === false ) { $db_error = true; }
 
         //Anyagigénylés sorok updatelése (státuszt is, illetve egyéb mezőket is)
@@ -1385,16 +1381,12 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                 //HA marerkmen+erkmen>=rndmen VAGY (marerkmen+erkmen>0 ÉS nemfogerk=1), AKKOR statid=CIKKIGN_STAT_BEERKEZETT
                 }else if( $marerkmen+$erkmen>=$rndmen || ($marerkmen+$erkmen>0  && $nemfogerk) ){
                     $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_BEERKEZETT );
-                    if( $statusz === false ) {
-                        $db_error = true;
-                    }
+                    if( $statusz === false ) { $db_error = true; }
 
                 //HA marerkmen+erkmen>0 ÉS marerkmen+erkmen<rndmen ÉS nemfogerk=0 AKKOR statid=CIKKIGN_STAT_RESZBENBEERK
                 }elseif( $marerkmen+$erkmen>0 && $marerkmen+$erkmen<$rndmen && !$nemfogerk){
                     $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_RESZBENBEERK  );
-                    if( $statusz === false ) {
-                        $db_error = true;
-                    }
+                    if( $statusz === false ) { $db_error = true; }
                 }
 
                 //Végül UPDATE cikkign SET erkmen=marerkmen+erkmen, update_usr= WHERE recid=
@@ -1502,9 +1494,9 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
 
     /* Felvesszük az első státuszt */
     $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
-        array('cikkrendfej_recid',  'stat_id',                 'insert_dt',    'insert_usr',                              'update_usr'                             ),
-        array($cikkrendfej_id,      CIKKIGN_STAT_BEERKEZETT,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
-    );
+                                        array('cikkrendfej_recid',  'stat_id',                 'insert_dt',    'insert_usr',                              'update_usr'                             ),
+                                        array($cikkrendfej_id,      CIKKIGN_STAT_BEERKEZETT,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+                                    );
     if( $sql === false ) { $db_error = true; }
 
     //Anyagigénylés sorok
@@ -1990,7 +1982,7 @@ if($gyorskereso_text){
         if( !$csak_szerkesztheto ) {
             //Törölhet, ha van hozzá joga és a bejegzés folyamabtan van (tehát nem törölt, sem lezárt)
             if(_jog(JOG_ANYAGIGENYLES_KEZEL)){
-                $nincs_folyamatban_statuszok = array(5, 20);
+                $nincs_folyamatban_statuszok = array(CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_VARAKOZO);
                 if(!in_array($sor['stat_id'], $nincs_folyamatban_statuszok)){
                     $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Az anyagigénylés nem törölhető, mert a státusza nem NYITOTT, ÁRAZVA vagy VÁRAKOZÓ!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
                 }else{

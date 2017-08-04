@@ -320,13 +320,12 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
             
             $feltetel = '<select class="f_felt">';
             $feltetel .= '<option value="">-Válasszon státuszt-</option>';
-            $stauszok = $adatbazis_kapcsolat->s('recid nev', $_POST['tabla'].'_statusz_text');
-            foreach($stauszok as $statusz){
+            foreach($_stat_text[$_POST['tabla']] as $kulcs => $statusz){
                 $selected = '';
-                if($_POST['felt']==$statusz['recid']){
+                if($_POST['felt']==$kulcs){
                     $selected = ' selected';
                 }
-                $feltetel .= '<option value="'.$statusz['recid'].'"'.$selected.'>'.$statusz['nev'].'</option>';
+                $feltetel .= '<option value="'.$kulcs.'"'.$selected.'>'.$statusz['nev'].'</option>';
             }
             $feltetel .= '</select>';
 

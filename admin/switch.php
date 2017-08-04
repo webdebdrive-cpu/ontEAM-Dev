@@ -264,36 +264,28 @@ foreach($akt_tomb as $ertek){
                 $ertek['megn'] = $ertek['value'];
             }
 
-            $statusz_sor = $adatbazis_kapcsolat->s('recid stat_id erteklista_id', $ertek['oldal'].'_statusz', "`id` = '".$_GET['id']."'", 'recid desc', '1');
+            $statusz_sor = $adatbazis_kapcsolat->s('recid stat_id erteklista_recid', $ertek['oldal'].'_statusz', "`{$ertek['oldal']}_recid` = '".$_GET['id']."'", 'recid desc', '1');
             $statusz = '';
             if( $statusz_sor ) {
                 $statusz_sor = $statusz_sor[0];
 
                 /* Státusz kiegészítés */
                 $statusz_text = '';
-
-                if( $statusz_sor['erteklista_id'] ) {
-                    $erteklista = $adatbazis_kapcsolat->s('info', 'erteklista', 'recid='.$statusz_sor['erteklista_id'], '', '1');
+                if( $statusz_sor['erteklista_recid'] ) {
+                    $erteklista = $adatbazis_kapcsolat->s('info', 'erteklista', 'recid='.$statusz_sor['erteklista_recid'], '', '1');
 
                     if( $ertek ) {
                         $erteklista = $erteklista[0];
-
                         $statusz_text = '<p>'.$erteklista['info'].'</p>';
                     }
                 }
 
                 /* Státusz neve */
-                $stat_text = $adatbazis_kapcsolat->s('nev szinkod', $ertek['oldal'].'_statusz_text', 'recid='.$statusz_sor['stat_id'], '', '1');
-
-                if( $stat_text ) {
-                    $stat_text = $stat_text[0];
-
-                    $statusz = $stat_text['nev'];
-
-                    $text_color = '';
-                    if( $stat_text['szinkod'] && !strstr($stat_text['szinkod'], 'fff') ) {
-                        $text_color = ' style="color: '.$stat_text['szinkod'].';"';
-                    }
+                $statusz = getStatText($ertek['oldal'], $statusz_sor['stat_id']);
+                $szinkod = getStatText($ertek['oldal'], $statusz_sor['stat_id'], 'színkód');
+                $text_color = '';
+                if( $szinkod && !strstr($szinkod, 'fff') ) {
+                    $text_color = ' style="color: '.$szinkod.';"';
                 }
             }
 

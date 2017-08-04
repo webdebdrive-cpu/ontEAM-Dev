@@ -2077,23 +2077,21 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
 
             /* Frissítjük a munkalap tételt */
             $sql = $adatbazis_kapcsolat -> u('munkalap_tetel',
-                array('atadta_dt',  'visszaadva', 'erteklista_id', 'update_usr'                           ),
-                array('NOW()',      1,            $erteklista_id,  $_SESSION[get_db_tabla().'teljes_nev'] ),
-                "`recid` = '".$akt_tetel['recid']."'"
-            );
+                                                array('atadta_dt',  'visszaadva', 'erteklista_id', 'update_usr'                           ),
+                                                array('NOW()',      1,            $erteklista_id,  $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                "`recid` = '".$akt_tetel['recid']."'"
+                                            );
 
             if( $sql === false ) { $db_error = true; }
 
             /* Frissítjuk a munkalap visszaadva sorát */
             $sql = $adatbazis_kapcsolat -> u('munkalap',
-                array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'szallitoid', 'update_usr'                           ),
-                array( 1,            0,              '',                0,           $_SESSION[get_db_tabla().'teljes_nev'] ),
-                "`recid` = '{$recid}'"
-            );
+                                                array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'szallitoid', 'update_usr'                           ),
+                                                array( 1,            0,              '',                0,           $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                "`recid` = '{$recid}'"
+                                            );
 
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            if( $sql === false ) { $db_error = true; }
 
             /* Nyitott státuszra állítjuk a munkalapot */
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT, $erteklista_id, $memo ) ) {
@@ -2370,11 +2368,8 @@ if( isset($_POST['munkalaphozAdas']) ) {
 
     if( is_array($idk) && $munkalapID ) {
         /* Ellenőrizzük a csoportokat */
-        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
-
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+        if( $csoportok === false ) { $db_error = true; }
 
         $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
         $csoportok_unique = array_unique($csoportok);
@@ -2387,16 +2382,12 @@ if( isset($_POST['munkalaphozAdas']) ) {
             $weblap->leallit();
             exit();
         }
-
         $kijelolt_db = array_count_values($csoportok);
 
         foreach( $csoportok_unique as $csu ) {
             if( $csu > 0 ) {
-                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`csoport_id` = '{$csu}'", '', '');
-
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                $csoport_db = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`csoport_id` = '{$csu}'");
+                if( $csoport_db === false ) { $db_error = true; }
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
@@ -2410,11 +2401,8 @@ if( isset($_POST['munkalaphozAdas']) ) {
         }
 
         /* Ellenőrizzük a szállodákat is */
-        $sql = $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
-
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")");
+        if( $szallodak === false ) { $db_error = true; }
 
         $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
         $szallodak_unique = array_unique($szallodak);
@@ -2428,31 +2416,22 @@ if( isset($_POST['munkalaphozAdas']) ) {
             exit();
         }
 
-        $sql = $mlap = $adatbazis_kapcsolat->s('telephely_id', 'munkalap', "`recid` = '{$munkalapID}'", '', '1');
-
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        $mlap = $adatbazis_kapcsolat->s('telephely_id', 'munkalap', "`recid` = '{$munkalapID}'", '', '1');
+        if( $mlap === false ) { $db_error = true; }
 
         if( $mlap ) {
             $mlap = $mlap[0];
 
             $elsoID = array_shift(array_values($idk));
-            $sql = $bej_telep = $adatbazis_kapcsolat->s('telephely_id', 'bejelentes', "`recid` = '".$elsoID."'", '', '1');
-
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            $bej_telep = $adatbazis_kapcsolat->s('telephely_id', 'bejelentes', "`recid` = '".$elsoID."'", '', '1');
+            if( $bej_telep === false ) { $db_error = true; }
 
             if( $bej_telep ) {
                 $bej_telep = $bej_telep[0];
 
                 if( $mlap['telephely_id'] != $bej_telep['telephely_id'] ) {
-                    $sql = $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$mlap['telephely_id'], '', '1');
-
-                    if( $sql === false ) {
-                        $db_error = true;
-                    }
+                    $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$mlap['telephely_id'], '', '1');
+                    if( $telephely === false ) { $db_error = true; }
 
                     $telephely = $telephely[0]['nev'];
 
@@ -2520,11 +2499,8 @@ if( isset($_POST['munkalaphozAdas']) ) {
                 $mKapcs = $mKapcs[0];
 
                 /* Megnézzük, hogy ez a bejelentés szerepel e máshol */
-                $sql = $isMKapcsok = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '".$mKapcs['bejelentes_id']."' AND `munkalap_id` != '{$munkalapID}'", '', '');
-
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                $isMKapcsok = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '".$mKapcs['bejelentes_id']."' AND `munkalap_id` != '{$munkalapID}'", '', '');
+                if( $isMKapcsok === false ) { $db_error = true; }
 
                 if( $isMKapcsok ) {
                     foreach($isMKapcsok as $isMKapcs) {
@@ -2539,7 +2515,6 @@ if( isset($_POST['munkalaphozAdas']) ) {
                 }
             }
         }
-
         /* Státuszt folyamatban-ra állítjuk */
         foreach($idk as $id) {
             if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
@@ -2693,7 +2668,7 @@ $varakozo_statid        = BEJELENTES_STAT_VARAKOZO;
 if($page=='anyagigenyles'){
     $hibauzi_szoveg         = 'anyagigénylés';
     $hibauzi_szoveg_targy   = 'anyagigénylést';
-    $nyitott_statid         = array(CIKKIGN_STAT_NYITOTT,CIKKIGN_STAT_ARAZVA);
+    $nyitott_statid         = array(CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA);
     $varakozo_statid        = CIKKIGN_STAT_VARAKOZO;
 }
 if($page=='munkalap'){
@@ -2708,10 +2683,8 @@ if( isset($_POST['varolistahozAdas']) ) {
 
     if( is_array($idk) ) {
         /* Ellenőrizzük a csoportokat */
-        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")", '', '');
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")");
+        if( $csoportok === false ) { $db_error = true; }
 
         $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
         $csoportok_unique = array_unique($csoportok);
@@ -2720,11 +2693,8 @@ if( isset($_POST['varolistahozAdas']) ) {
 
         foreach( $csoportok_unique as $csu ) {
             if( $csu > 0 ) {
-                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', $page, "`csoport_id` = '{$csu}'", '', '');
-
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                $csoport_db = $adatbazis_kapcsolat->s('csoport_id', $page, "`csoport_id` = '{$csu}'");
+                if( $csoport_db === false ) { $db_error = true; }
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
@@ -2739,15 +2709,11 @@ if( isset($_POST['varolistahozAdas']) ) {
 
         /* Ellenőrizzük a státuszokat is */
         foreach($idk as $id) {
-            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'recid desc', '1');
-
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
+            if( $statusz === false ) { $db_error = true; }
 
             if( $statusz ) {
                 $statusz = $statusz[0];
-
                 if(  !in_array($statusz['stat_id'], $nyitott_statid) ) {
                     echo json_encode(array(
                         'hiba' => 'Csak nyitott státuszú '.$hibauzi_szoveg_targy.' lehet várólistához adni!'
@@ -2780,10 +2746,7 @@ if( isset($_POST['varolistahozAdas']) ) {
 
         foreach($idk as $id) {
             $statusz = addStatusz( $page.'_statusz', $id, $varakozo_statid );
-
-            if( $statusz === false ) {
-                $db_error = true;
-            }
+            if( $statusz === false ) { $db_error = true; }
         }
 
         if( !$db_error ) {
@@ -2834,7 +2797,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
-                        'hiba' => 'Csoportosított munkalap önmagában nem vehető le várólistáról. Előbb vegye ki a csoportból!'
+                        'hiba' => 'Csoportosított '.$hibauzi_szoveg.' önmagában nem vehető le várólistáról. Előbb vegye ki a csoportból!'
                     ));
 
                     $weblap->leallit();
@@ -2845,18 +2808,15 @@ if( isset($_POST['varolistabolKivetel']) ) {
 
         /* Ellenőrizzük a státuszokat is */
         foreach($idk as $id) {
-            $sql = $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', 'id='.$id, 'recid desc', '1');
-
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
+            if( $statusz === false ) { $db_error = true; }
 
             if( $statusz ) {
                 $statusz = $statusz[0];
 
                 if( $statusz['stat_id'] != $varakozo_statid ) {
                     echo json_encode(array(
-                        'hiba' => 'Csak várakozó státuszú munkalapról lehet levenni a várakoztatást!'
+                        'hiba' => 'Csak várakozó státuszú '.$hibauzi_szoveg_targy.' lehet levenni a várakoztatásról!'
                     ));
 
                     $weblap->leallit();
@@ -2876,7 +2836,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
-                'hiba' => 'Biztos kiveszi a várólistából a kijelölt munkalapot?',
+                'hiba' => 'Biztos kiveszi a várólistából a kijelölt '.$hibauzi_szoveg_targy.'?',
                 'gomb' => '<input class="gomb piros" value="Igen" onclick="varolistabolKivetel();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
             ));
 
@@ -3014,7 +2974,6 @@ if( isset($_POST['munkalapKulso']) ) {
                 array( $szemelyzet_id,   $_SESSION[get_db_tabla().'teljes_nev'] ),
                 "`recid` = '{$recid}'"
             );
-
             if( $sql === false ) { $db_error = true; }
 
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZREND_ELOKESZ ) ) {
@@ -3046,11 +3005,8 @@ if( isset($_POST['munkalapTelepitett']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
-        $sql = $akt_statusz = $adatbazis_kapcsolat->s('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
-
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        $akt_statusz = $adatbazis_kapcsolat->s('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        if( $akt_statusz === false ) { $db_error = true; }
 
         if( $akt_statusz ) {
             $akt_statusz = $akt_statusz[0];
@@ -3672,10 +3628,7 @@ if( isset($_POST['mellekTorol']) ) {
             exit();
         }
     }
-
-    if( $sql === false ) {
-        $db_error = true;
-    }
+    if( $sql === false ) { $db_error = true; }
 
     if( $tabla && is_array($idk) ) {
         if( $tabla == 'munkalap_kapcs' ) {
@@ -3694,15 +3647,23 @@ if( isset($_POST['mellekTorol']) ) {
                 if( $sql === false ) { $db_error = true; }
             }
 
-        //Dokumentumok
+        //Dokumentumok törlése
         } else if( strstr($tabla, '_dok') ) {
-            $sor = $adatbazis_kapcsolat->s('stat_id', str_replace('_dok', '', $tabla), "`recid` = '{$recid}'");
-            if( $sor === false ) { $db_error = true; }
+            
+            $statuszt_nem_kell_figyelni = array('rendszeres_karbantartas', 'utemezett_feladatok'); //Ezeknél a dokumentumainál nem figyeljük, hogy az apa tábla státusza nyitott-e
+            $apa_tabla = str_replace('_dok', '', $tabla);
+            if(!in_array($apa_tabla, $statuszt_nem_kell_figyelni)){
+                $sor = $adatbazis_kapcsolat->s('stat_id', $apa_tabla, "`recid` = '{$recid}'");
+                if( $sor === false ) { $db_error = true; }
+                $statuszt_nem_kell_figyelni = false;
+            }else{
+                $statuszt_nem_kell_figyelni = true;
+            }
 
-            if( $sor ) {
+            if( $sor || $statuszt_nem_kell_figyelni ) {
                 $sor = $sor[0];
 
-                if( $sor['stat_id'] == '01' ) {
+                if( $sor['stat_id'] == '01' || $statuszt_nem_kell_figyelni ) {
                     $fajlok = $adatbazis_kapcsolat->s('recid kepnev megj', $tabla, "`recid` IN (".implode(',', $idk).")");
                     if( $fajlok === false ) { $db_error = true; }
 
@@ -3731,10 +3692,7 @@ if( isset($_POST['mellekTorol']) ) {
                             array('felh_id',                            'nev', 'valtozas'),
                             array($_SESSION[get_db_tabla().'user_id'],  $mit,  $valtozas )
                         );
-
-                        if( $sql === false ) {
-                            $db_error = true;
-                        }
+                        if( $sql === false ) { $db_error = true; }
                     }
                 } else {
                     echo json_encode(array(
@@ -4519,17 +4477,22 @@ foreach($postok as $ertek){
         $sql = $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='{$ertek['tabla']}' AND `id`='{$sor['recid']}'");
         if( $sql === false ) { $db_error = true; }
 
-        if($ertek['tabla']=='bejelentes'){
-            $sql = $adatbazis_kapcsolat->d('bejelentes_statusz', "`id`='{$sor['recid']}'");
-            if( $sql === false ) { $db_error = true; }
-            $fajlok = $adatbazis_kapcsolat->s('*', 'bejelentes_dok', "`bejelentes_id`='{$sor['recid']}'");
+        //Státusz tábla törlése
+        $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$sor['recid']}'");
+        if( $sql === false ) { $db_error = true; }
+        
+        //Dokumentumok törlése
+        $dokos_oldalak = array('anyagigenyles', 'bejelentes', 'munkalap', 'utemezett_feladatok');
+            if( in_array($ertek['tabla'], $dokos_oldalak) ){
+            $fajlok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$sor['recid']}'");
             foreach($fajlok as $fajl){
                 unlink('../'.get_utvonal().$fajl['kepnev']);
             }
 
-            $sql = $adatbazis_kapcsolat->d('bejelentes_dok', "`bejelentes_id`='{$sor['recid']}'");
+            $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'dok', "`{$ertek['tabla']}_id`='{$sor['recid']}'");
             if( $sql === false ) { $db_error = true; }
         }
+        
 
         //Login táblából csak logikailag törlünk. Többi helyről fizikailag.
         if($ertek['tabla']=='login'){

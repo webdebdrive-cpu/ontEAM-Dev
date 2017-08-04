@@ -45,6 +45,17 @@ define('CIKKIGN_STAT_VARAKOZO',          '52');
 define('CIKKIGN_STAT_NEM_ERKEZETT',      '90');
 define('CIKKIGN_STAT_ELUTASITVA',        '91');
 
+//Cikkrendfej státuszok
+define('CIKKRNDFEJ_STAT_MEGRENDELVE',    '30');
+define('CIKKRNDFEJ_STAT_RESZBEN_BEERK',  '35');
+define('CIKKRNDFEJ_STAT_BEERKEZETT',     '40');
+define('CIKKRNDFEJ_STAT_SLA_BEERK',      '45');
+define('CIKKRNDFEJ_STAT_LEZART',         '50');
+define('CIKKRNDFEJ_STAT_TOROLT',         '51');
+define('CIKKRNDFEJ_STAT_VARAKOZO',       '52');
+define('CIKKRNDFEJ_STAT_ANYAG_NEM',      '90');
+define('CIKKRNDFEJ_STAT_ELUTASITVA',     '91');
+
 //személyzettípusok
 define('TELEPITETT_SZEMELYZET',         '1' );
 define('MOBILCSOPORT',                  '2' );
