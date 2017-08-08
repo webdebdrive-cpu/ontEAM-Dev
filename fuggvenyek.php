@@ -2020,7 +2020,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                         $bejelentes = $bejelentes[0];
                         //Ha van legalább egy nyitott eleme, akkor biztosan nyitott a csoport is (elvégre a csoport státusza csak eygszerre mozoghat)
                         if($bejelentes){
-                            $bold = ' class="b"';
+                            $bold = ' b';
                         }
                         //Egy csoporton belül biztosan csak olyan bejelentések lesznek, amiknek azonos a telephelye
                         $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$bejelentes['telephely_id']}'");
@@ -2030,7 +2030,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                                     <li class="szamla_datum csoport'.$csoport_active.'" data-id="'.$aktCsoport.'">
                                         <span class="icon"></span>
                                         <span class="csoportNev" data-id="'.$aktCsoport.'">
-                                            '.$surgos_icon.'<span'.$bold.'>'.$csoportSor['nev'].'
+                                            '.$surgos_icon.'<span class="icsopnev '.$bold.'">'.$csoportSor['nev'].'
                                         </span>
                                         <br>'.$telephely['nev'].'
                                     </li>
@@ -2178,7 +2178,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
                                         <span class="icon"></span>
                                         <span class="csoportNev" data-id="'.$aktCsoport.'">
                                         '.$surgos_icon.'
-                                        <strong>'.$csoportSor['nev'].'</strong>
+                                        <strong class="icsopnev">'.$csoportSor['nev'].'</strong>
                                     </li>
                                     ');
                     }
@@ -2611,7 +2611,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
             /* Telephely */
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
             $telephely = $telephely[0];
-            
+
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span>'.$bsz['ikt_szam'].' '.$telephely['nev'].'</span>
                             <span>'.$bsz['cikk_id'].' '.$bsz['anyagigenyles_nev'].'</span>
@@ -3900,12 +3900,12 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 
     $db_error = false;
     $kulso_kulcs = str_replace('_statusz', '', $tabla);
-    
+
     if( $tabla && $recid && $stat_id ) {
         /* Lekérjük az az éppen aktuális státusz */
         $akt_statusz = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid desc', '1');
         if( $sql === false ) { $db_error = true; }
- 
+
         if( $akt_statusz ) {
             $akt_statusz = $akt_statusz[0];
 
@@ -4236,7 +4236,7 @@ function get_tortenet($megnevezes){
     $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido text', $megnevezes.'_statusz', "`{$megnevezes}_recid` = '".$_GET['id']."'", 'insert_dt desc');
     if( $sorok ) {
         foreach($sorok as $sor) {
-            
+
             $statusz['nev']     = getStatText($megnevezes, $sor['stat_id']);
             $statusz['szinkod'] = getStatText($megnevezes, $sor['stat_id'], 'színkód');
 
