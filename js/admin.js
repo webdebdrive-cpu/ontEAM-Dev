@@ -1516,7 +1516,7 @@ function csa_alert() {
             if( csoportok.length == 1 ) {
                 kijelolve_li = $('ul.szamla_cont li.kijelolve:not(.csoport)');
 
-                var text = $(csoportok).find('strong').text(),
+                var text = $(csoportok).find('.icsopnev').text(),
                     id   = $(csoportok).attr('data-id');
 
                 /* Összes csoport elem száma */
@@ -2090,7 +2090,7 @@ function csoportAtnevezes( csoportID ) {
                         return false;
                     }
 
-                    $('li.csoport[data-id="' + csoportID + '"] span.csoportNev strong').text(response.value);
+                    $('li.csoport[data-id="' + csoportID + '"] span.csoportNev .icsopnev').text(response.value);
          		}
          	}
         });
@@ -4451,12 +4451,12 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
     }
 
     if( recid && page ) {
-        
+
         anyagrend = '';
         if(_get('anyagrend')){
             anyagrend = 'anyagrend&amp;';
         }
-        
+
         var szamla = $.ajax({
          	url : page,
          	type: 'GET',
@@ -4507,7 +4507,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         'ujkent'
                     ], true);
                     if( muvelet != 'uj' ) {
-                        
+
                         if( param.indexOf('?') !== -1 ) {
                             param += '&id=' + recid + '&' + esamp2es(muvelet);
                         } else {
@@ -4520,7 +4520,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     } else {
                         param += '?uj';
                     }
-                    
+
 
                     /* Bal oldali navpanel sorát is frissítjük */
                     if(page.replace('.php', '')!='erteklista'){
@@ -4611,9 +4611,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
 
 function szamlaSorFrissit( tabla, recid ) {
     if( tabla && recid ) {
-        
+
         var anyagrend = '';
-        
+
         $.ajax({
          	url : 'esemenyek.php',
          	type: 'GET',
