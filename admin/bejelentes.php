@@ -650,6 +650,13 @@ if($gyorskereso_text){
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
+        
+        //Duplákáláskor feltett kérdés
+//        $szamla_html .= nl2('
+//            <script>
+//                duplikaKerdes = \'Iktatószám: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Ez a munkalap '.count($munkalap_kapcs).' db bejelentésből készült. <br>Ezek a bejelentések az új munkalaphoz is hozzá lesznek rendelve. <br>Biztos, hogy duplikálja?\';
+//            </script>
+//        ');
 
         //NAVIGÁCIÓ
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);

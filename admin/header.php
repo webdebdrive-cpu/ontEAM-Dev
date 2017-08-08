@@ -217,7 +217,7 @@ if( _jog(0) ) {
     $aloldalak       = array($megn.'.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
     //if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = 'Új bejelentés feltöltése'; }
-    if(basename(self())==$megn.'.php'){ $oldalNev = '<span id="rekord_neve">'.$menu_nev.'</span><span class="dn" id="rekord_neve_egyes">bejelentés</span>'; }
+    if(basename(self())==$megn.'.php'){ $oldalNev = '<span id="rekord_neve">'.$menu_nev.'</span><span class="dn" id="rekord_neve_egyes">bejelentés</span><span class="dn" id="rekord_neve_targy">bejelentést</span>'; }
 
     $aktmenuk  = '';
     $style = '';
@@ -254,7 +254,7 @@ if( _jog(3) ) {
                 'uzemeltetesi_naplo.php',
     );
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-    if(basename(self())=='munkalap.php')                { $oldalNev = 'Munkák / <span id="rekord_neve">Munkalapok</span><span class="dn" id="rekord_neve_egyes">munkalap</span>';  }
+    if(basename(self())=='munkalap.php')                { $oldalNev = 'Munkák / <span id="rekord_neve">Munkalapok</span><span class="dn" id="rekord_neve_egyes">munkalap</span><span class="dn" id="rekord_neve_targy">munkalapot</span>';  }
     if(basename(self())=='utemezett_feladatok.php')     { $oldalNev = 'Munkák / Ütemzett feladatok';                        }
     if(basename(self())=='rendszeres_karbantartas.php') { $oldalNev = 'Munkák / Rendszeres karbantartás';                   }
     if(basename(self())=='eseti_fenntartas.php')        { $oldalNev = 'Munkák / Eseti fenntartás';                          }
@@ -289,7 +289,7 @@ if( _jog(3) ) {
 
 
 /* Anyagok */
-if(_jog(12) || _jog(16) || _jog(17) || _jog(19)){
+if(_jog(JOG_ANYAIGENLES_MEGTEKINT) || _jog(JOG_ANYAGREND_MEGTEKINT) || _jog(JOG_RAKTAR_MEGTEKINT) || _jog(JOG_CIKKTORZS_MEGTEKINT)){
     $menu_nev        = 'Anyagok';
     $menu_nev_kis    = 'anyagok';
     $menu_nev_tobbes = 'Anyagok';

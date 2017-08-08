@@ -1557,7 +1557,7 @@ function munkHozzMegszuntet() {
             szamlaSorok.each(function() {
                 var statid = $(this).attr('data-statid');
 
-                if( statid == 8 ) {
+                if( statid == '08' ) {
                     alert2('Kérem csak folyamatban státuszú sorokat jelöljön meg!');
 
                     hiba = true;
@@ -1596,7 +1596,7 @@ function munkHozzSzemely() {
 
         if( szamlaSorok.length ) {
             var torzsNev = $('#munkalapMobil input[name="torzsadat_id_autocomp"]'),
-                torzsID = $('#munkalapMobil input[name="torzsadat_id"]');
+                torzsID  = $('#munkalapMobil input[name="torzsadat_id"]');
 
             if( torzsID.val() ) {
                 idk = {};
@@ -3699,7 +3699,7 @@ function arazas_ment(){
         type: 'POST',
         data: {
             idk         : $('#idk').val(),
-            szallito    : $('#pop_szallito').val(),
+            szallito_id : $('#pop_szallito').val(),
             kcs_21      : $('#pop_kcs_21').val(),
             rndear      : $('#pop_rndear').val(),
             rndmen      : $('#pop_rndmen').val(),
@@ -4947,13 +4947,18 @@ function jobb_tartalom_rejt() {
     $('div.statusz div.text, div.naplo, div.jsff, #sorrendezes_tobbkep, #szerk_form div.dt').hide();
 }
 
+/* Duplikálás gombra kattintva feljövő kérdés */
 function bejegyzesDuplikal() {
-    if( !_get('modosit') ) {
-        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit').done(function() {
+    if( _get('uj') ){
+        alert2('Új feltöltés alatt nem értelmezett a duplikálás, előbb válasszon ki egy '+$('#rekord_neve_targy').html()+'!', '', 'Hiba');
+    }else{
+        if( !_get('modosit') ) {
+            szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit').done(function() {
+                alert2(duplikaKerdes, duplikalGomb);
+            });
+        } else {
             alert2(duplikaKerdes, duplikalGomb);
-        });
-    } else {
-        alert2(duplikaKerdes, duplikalGomb);
+        }
     }
 }
 

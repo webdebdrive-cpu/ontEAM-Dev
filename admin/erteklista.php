@@ -454,7 +454,7 @@ if($gyorskereso_text){
 
         if( $sorok ) {
             foreach($sorok as $sor) {
-                $szallito = $adatbazis_kapcsolat->s('nev', 'szallito', 'recid='.$sor['szallito'], '', '1');
+                $szallito = $adatbazis_kapcsolat->s('nev', 'szallito', "`id`='{$sor['szallito_id']}'", '', '1');
 
                 if( $szallito ) {
                     $szallito = $szallito[0];

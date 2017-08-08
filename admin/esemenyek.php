@@ -661,7 +661,7 @@ $bejovo_szamlak_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Számla szám:',        'name' => 'szaml_szam',     'disabled' => $disabled,    'maxlength' => 250, 'class' => 'nagy', 'alert' => 'Kérem töltse ki a számlaszámot!', 'osszevon' => true),
     array('type' => 'checkbox',             'megn' => 'E-számla:',           'name' => 'e-szamla',       'disabled' => $disabled,    'class' => 'check', 'osszevon' => true),
     array('type' => 'checkbox',             'megn' => 'Törölve:',            'name' => 'torolve',        'disabled' => $disabled,    'class' => 'check'),
-    array('type' => 'autocomplete',         'megn' => 'Szállító:',           'name' => 'szallito',       'disabled' => $disabled,    'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'nev', 'listaz' => 'nev'),
+    array('type' => 'autocomplete',         'megn' => 'Szállító:',           'name' => 'szallito_id',    'disabled' => $disabled,    'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'nev', 'listaz' => 'nev'),
     array('type' => 'text',                 'megn' => 'Szállító szabadon:',  'name' => 'szallito_szab',  'disabled' => $disabled,    'maxlength' => 250,  'class' => 'oriasi'),
     array('type' => 'text',                 'megn' => 'Teljesítés:',         'name' => 'teljesites',     'disabled' => $disabled,    'class' => 'kicsi datepicker', 'value' => $datum, 'alert' => 'Kérem töltse ki a teljesítési dátumot!', 'osszevon' => true),
     array('type' => 'text',                 'megn' => 'Fiz. hat.:',          'name' => 'fiz_hat',        'disabled' => $disabled,    'class' => 'kicsi datepicker', 'value' => $datum, 'osszevon' => true),
@@ -803,7 +803,7 @@ $login_tomb = $akt_tomb = array(
     array('type' => 'text',             'megn' => 'E-mail:',                    'name' => 'usermail',       'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250),
     array('type' => 'text',             'megn' => 'Telefon:',                   'name' => 'usertel',        'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250),
     array('type' => 'autocomplete',     'megn' => 'Szerepkör:',                 'name' => 'szerepkor_id',   'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'szerepkor', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'alert' => 'Kérem adja meg a szerepkört!'),
-    array('type' => 'autocomplete',     'megn' => 'Partner cég:',               'name' => 'szallitoid',     'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
+    array('type' => 'autocomplete',     'megn' => 'Partner cég:',               'name' => 'szallito_id',    'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -917,7 +917,7 @@ $munkalap_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'style' => '', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'onclick' => '', 'post' => ''),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id'),
-    array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallitoid',         'szuro' => 1, 'disabled' => true,               'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
+    array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => true,               'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'szuro' => 1, 'disabled' => $csakUjkent,        'post'  => ' '.$hozrend_mobilnev),
     array('type' => 'text',                     'megn' => 'Kezdés/befejezési idő:',     'name' => 'elv_ido_tol',        'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'ora_perc', 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
 	array('type' => 'text',                     'megn' => '',                           'name' => 'elv_ido_ig',                       'disabled' => $csakUjkent,        'class' => 'ora_perc'),
@@ -1360,7 +1360,7 @@ $anyagigenyles_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',             'megn' => 'Pénznem:',                       'name' => 'kcs_21',         'szuro' => 1,   'disabled' => 1,   'class' => 'disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 21, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a pénznemet!', 'style' => 'width: 5rem'),
     array('type' => 'text',                     'megn' => 'Deviza rend. egységár:',         'name' => 'vrndear',        'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="4"',   'osszevon' => 1),
     array('type' => 'text',                     'megn' => $tav_26.'Deviza beérk. egységár:','name' => 'verkear',        'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="4"'),
-    array('type' => 'autocomplete',             'megn' => 'Szállító:',                      'name' => 'szallito',       'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
+    array('type' => 'autocomplete',             'megn' => 'Szállító:',                      'name' => 'szallito_id',    'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'id_kiir' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -1773,8 +1773,8 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
 
                     /* Munkalapon töröljük a személyzetet és a mobil loginnevet */
                     $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                                        array('szemelyzet_id', 'mobil_loginnev', 'szallitoid', 'update_usr'                           ),
-                                                        array( 0,              '',                0,           $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                        array('szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'update_usr'                           ),
+                                                        array( 0,              '',                0,            $_SESSION[get_db_tabla().'teljes_nev'] ),
                                                         "`recid` = '{$recid}'"
                                                     );
                     if( $sql === false ) { $db_error = true; }
@@ -1973,8 +1973,8 @@ if( isset($_POST['munkalapKeszre']) ) {
 
             /* Munkalapon töröljük a személyzetet és a mobil loginnevet */
             $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                                array('szemelyzet_id', 'mobil_loginnev', 'szallitoid', 'update_usr'                           ),
-                                                array( 0,              '',                0,           $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                array('szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'update_usr'                           ),
+                                                array( 0,              '',                0,            $_SESSION[get_db_tabla().'teljes_nev'] ),
                                                 "`recid` = '{$recid}'"
                                             );
             if( $sql === false ) { $db_error = true; }
@@ -2086,8 +2086,8 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
 
             /* Frissítjuk a munkalap visszaadva sorát */
             $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                                array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'szallitoid', 'update_usr'                           ),
-                                                array( 1,            0,              '',                0,           $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'update_usr'                           ),
+                                                array( 1,            0,              '',                0,            $_SESSION[get_db_tabla().'teljes_nev'] ),
                                                 "`recid` = '{$recid}'"
                                             );
 
@@ -2956,24 +2956,22 @@ if( isset($_POST['munkalapKulso']) ) {
 
         if( $szallito_id ) {
             $sql = $adatbazis_kapcsolat -> u('munkalap',
-                array('szemelyzet_id',   'szallitoid',   'update_usr'                           ),
-                array( KULSO_KIVITELEZO, $szallito_id,    $_SESSION[get_db_tabla().'teljes_nev'] ),
-                "`recid` = '{$recid}'"
-            );
+                                                array('szemelyzet_id',   'szallito_id',   'update_usr'                           ),
+                                                array( KULSO_KIVITELEZO, $szallito_id,    $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                "`recid` = '{$recid}'"
+                                            );
 
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            if( $sql === false ) { $db_error = true; }
 
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) ) {
                 $db_error = true;
             }
         } else if( $szemelyzet_id ) {
             $sql = $adatbazis_kapcsolat -> u('munkalap',
-                array('szemelyzet_id',   'update_usr'                           ),
-                array( $szemelyzet_id,   $_SESSION[get_db_tabla().'teljes_nev'] ),
-                "`recid` = '{$recid}'"
-            );
+                                                array('szemelyzet_id',   'update_usr'                           ),
+                                                array( $szemelyzet_id,   $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                "`recid` = '{$recid}'"
+                                            );
             if( $sql === false ) { $db_error = true; }
 
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZREND_ELOKESZ ) ) {

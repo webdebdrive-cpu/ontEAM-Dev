@@ -77,10 +77,10 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 //Státusz feltöltés, ha csak az adott bejegyzés státusza volna kitöltve és tröténet tábla még nem
 if (isset($_GET['statusz_fetlolt'])) {
     $tabla = 'anyagigenyles';
-    $anyagok = $adatbazis_kapcsolat->s('recid statid', $tabla);
+    $anyagok = $adatbazis_kapcsolat->s('recid stat_id', $tabla);
     foreach($anyagok as $anyag){
         $adatbazis_kapcsolat->i($tabla.'_statusz',  array('stat_id',        $tabla.'_recid'     ),
-                                                    array($anyag['statid'], $anyag['recid']     )
+                                                    array($anyag['stat_id'], $anyag['recid']     )
                                 );
     }
 

@@ -199,9 +199,9 @@ if( isset($_POST['arazas']) ) {
         foreach($idk as $id) {
 
             $idk_inputba .= $id.',';
-            $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'anyagigenyles_statusz', "`anyagig_recid`='$id'", 'recid desc', '1');
+            $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'anyagigenyles_statusz', "`anyagigenyles_recid`='$id'", 'recid desc', '1');
             if( $statusz === false ) { $db_error = true; }
-
+ 
             if( $statusz ) {
                 $statusz = $statusz[0];
 
@@ -225,11 +225,11 @@ if( isset($_POST['arazas']) ) {
                 }else{
 
                     //Ha van eltérés az előző bejegyzéshez képest (üres mező megengedett) akkor hibaüzenet:
-                    $igenyles = $adatbazis_kapcsolat->s('cikk_id szallito kcs_21 rndear igmen rndmen', 'anyagigenyles', "`recid`='{$id}'");
+                    $igenyles = $adatbazis_kapcsolat->s('cikk_id szallito_id kcs_21 rndear igmen rndmen', 'anyagigenyles', "`recid`='{$id}'");
                     $igenyles = $igenyles[0];
                     if(
                             ($elozo_cikk_id      && $igenyles['cikk_id']      && $elozo_cikk_id      != $igenyles['cikk_id']     ) ||
-                            ($elozo_szallito     && $igenyles['szallito']     && $elozo_szallito     != $igenyles['szallito']    ) ||
+                            ($elozo_szallito     && $igenyles['szallito_id']  && $elozo_szallito     != $igenyles['szallito_id'] ) ||
                             ($elozo_kcs_21       && $igenyles['kcs_21']       && $elozo_kcs_21       != $igenyles['kcs_21']      ) ||
                             ($elozo_rndear       && $igenyles['rndear']       && $elozo_rndear       != $igenyles['rndear']      )
                         ){
@@ -240,12 +240,12 @@ if( isset($_POST['arazas']) ) {
                         exit();
                     }
                     $elozo_cikk_id      = $igenyles['cikk_id'];
-                    $elozo_szallito     = $igenyles['szallito'];
+                    $elozo_szallito     = $igenyles['szallito_id'];
                     $elozo_kcs_21       = $igenyles['kcs_21'];
                     $elozo_rndear       = $igenyles['rndear'];
 
                     //Ha ki van töltve a szállító (mivel kötelező mezők, ekkor ki lesz töltve a pénznem és rend. egységár is, akkor azt az ID-t töltjük be a popupba
-                    if($igenyles['szallito']){
+                    if($igenyles['szallito_id']){
                         $betoltid = $id;
                     }
 
@@ -301,7 +301,7 @@ if( isset($_POST['arazas']) ) {
         $penznem_txt = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`='21' AND `id`='{$igenyles['kcs_21']}'");
         $penznem_txt = $penznem_txt[0];
 
-        $szallito_txt = $adatbazis_kapcsolat->s('nev', 'szallito', "`recid`='{$igenyles['szallito']}'");
+        $szallito_txt = $adatbazis_kapcsolat->s('nev', 'szallito', "`id`='{$igenyles['szallito_id']}'");
         $szallito_txt = $szallito_txt[0];
         $popup = nl2('
                 <p class="piros b" id="popup_hiba"></p>
@@ -324,7 +324,7 @@ if( isset($_POST['arazas']) ) {
                         <td class="p r">Szállító:</td>
                         <td class="p" colspan="3">
                             <input type="text" autocomplete="off" class="oriasi csillag" name="pop_szallito_autocomp" id="pop_szallito_autocomp" onblur="if(!$(this).val()){ $(\'#pop_szallito\').val(\'\'); }" value="'.$szallito_txt['nev'].'">
-                            <input type="hidden" name="pop_szallito" id="pop_szallito" value="'.$igenyles['szallito'].'">
+                            <input type="hidden" name="pop_szallito" id="pop_szallito" value="'.$igenyles['szallito_id'].'">
                             <script>
                             $(document).ready(function() {
                                 $(\'#pop_szallito_autocomp\').autocomplete({
@@ -332,7 +332,7 @@ if( isset($_POST['arazas']) ) {
                                     \'tabla\'           : \'szallito\',
                                     \'oszlop_keres\'    : \'nev\',
                                     \'oszlop_listaz\'   : \'nev\',
-                                    \'id_kiir\'         : \'recid\',
+                                    \'id_kiir\'         : \'id\',
                                     \'popupba\'         : true
                                 });
                             });
@@ -504,10 +504,10 @@ if ($_POST['arazas_ment']) {
     $idk = explode(',', $_POST['idk']);
 
     //Hibakezelés
-    if(!$_POST['szallito']){
+    if(!$_POST['szallito_id']){
         echo json_encode(
                     array(
-                        'hiba' => 'Kérjük adja meg a szállítót!',
+                        'hiba'  => 'Kérjük adja meg a szállítót!',
                         'focus' => 'pop_szallito'
                     )
             );
@@ -517,7 +517,7 @@ if ($_POST['arazas_ment']) {
     if($_POST['ig_menny'] < $_POST['rndmen']){
         echo json_encode(
                     array(
-                        'hiba' => 'A rendelt mennyiség nem lehet több az igényelt mennyiségtől!',
+                        'hiba'  => 'A rendelt mennyiség nem lehet több az igényelt mennyiségtől!',
                         'focus' => 'pop_rndmen'
                     )
             );
@@ -527,7 +527,7 @@ if ($_POST['arazas_ment']) {
     if($_POST['ig_menny'] > $_POST['rndmen'] && !$_POST['indok']){
         echo json_encode(
                     array(
-                        'hiba' => 'Kérjük adja meg a rendelési mennyiség megváltoztatásának indoklását!',
+                        'hiba'  => 'Kérjük adja meg a rendelési mennyiség megváltoztatásának indoklását!',
                         'focus' => 'pop_indoklas'
                     )
             );
@@ -599,14 +599,14 @@ if ($_POST['arazas_ment']) {
 
     //Több sor esetén a rendelt mennyiséget nem írjuk felül
     if(count($idk)>1){
-        $sql = $adatbazis_kapcsolat->u('anyagigenyles',     array('szallito',         'kcs_21',         'rndear',           'vrndear',          'arfolyam',          'atvaltva_d',           'erkcimid'        ),
-                                                            array($_POST['szallito'], $_POST['kcs_21'], $_POST['rndear'],   $_POST['vrndear'],   $_POST['arfolyam'], $_POST['atvaltva_d'],   $_POST['erkcimid']),
+        $sql = $adatbazis_kapcsolat->u('anyagigenyles',     array('szallito_id',         'kcs_21',         'rndear',           'vrndear',          'arfolyam',          'atvaltva_d',           'erkcimid'        ),
+                                                            array($_POST['szallito_id'], $_POST['kcs_21'], $_POST['rndear'],   $_POST['vrndear'],   $_POST['arfolyam'], $_POST['atvaltva_d'],   $_POST['erkcimid']),
                                         "`recid` IN (".$_POST['idk'].")");
 
     //Egy sor esetén a rendelt mennyiséget is felülírjuk
     }else{
-        $sql = $adatbazis_kapcsolat->u('anyagigenyles',     array('szallito',         'kcs_21',         'rndear',           'rndmen',           'vrndear',          'arfolyam',          'atvaltva_d',         'erkcimid'        ),
-                                                            array($_POST['szallito'], $_POST['kcs_21'], $_POST['rndear'],   $_POST['rndmen'],   $_POST['vrndear'],   $_POST['arfolyam'], $_POST['atvaltva_d'], $_POST['erkcimid']),
+        $sql = $adatbazis_kapcsolat->u('anyagigenyles',     array('szallito_id',         'kcs_21',         'rndear',           'rndmen',           'vrndear',          'arfolyam',          'atvaltva_d',         'erkcimid'        ),
+                                                            array($_POST['szallito_id'], $_POST['kcs_21'], $_POST['rndear'],   $_POST['rndmen'],   $_POST['vrndear'],   $_POST['arfolyam'], $_POST['atvaltva_d'], $_POST['erkcimid']),
                                         "`recid` IN (".$_POST['idk'].")");
     }
     if( $sql === false ) {
@@ -692,9 +692,9 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
                 }
 
                 //Valóban árazva van-e? Szállító és egységár megadva
-                $igenyles = $adatbazis_kapcsolat->s('szallito rndear kcs_21', 'anyagigenyles', "`recid`='$id'");
+                $igenyles = $adatbazis_kapcsolat->s('szallito_id rndear kcs_21', 'anyagigenyles', "`recid`='$id'");
                 $igenyles = $igenyles[0];
-                if(!$igenyles['szallito'] || !$igenyles['rndear'] || !$igenyles['kcs_21']){
+                if(!$igenyles['szallito_id'] || !$igenyles['rndear'] || !$igenyles['kcs_21']){
                     echo json_encode(array(
                         'hiba' => 'Csak árazott anyagigényléseket lehet jóváhagyásra küldeni!'
                     ));
@@ -1087,11 +1087,11 @@ if( isset($_POST['rendeles_keszit']) ) {
                 }else{
 
                     //Ha van eltérés az előző bejegyzéshez képest (üres mező megengedett) akkor hibaüzenet:
-                    $igenyles = $adatbazis_kapcsolat->s('cikk_id szallito kcs_21 rndear igmen rndmen', 'anyagigenyles', "`recid`='{$id}'");
+                    $igenyles = $adatbazis_kapcsolat->s('cikk_id szallito_id kcs_21 rndear igmen rndmen', 'anyagigenyles', "`recid`='{$id}'");
                     $igenyles = $igenyles[0];
                     if(
-                            ($elozo_szallito     && $igenyles['szallito']     && $elozo_szallito     != $igenyles['szallito']    ) ||
-                            ($elozo_kcs_21       && $igenyles['kcs_21']       && $elozo_kcs_21       != $igenyles['kcs_21']      )
+                            ($elozo_szallito     && $igenyles['szallito_id']   && $elozo_szallito     != $igenyles['szallito_id'] ) ||
+                            ($elozo_kcs_21       && $igenyles['kcs_21']        && $elozo_kcs_21       != $igenyles['kcs_21']      )
                         ){
                         echo json_encode(array(
                             'hiba' => 'Csak azonos szállítóval és pénznemmel rendelkező anyagigénylésekből lehet rendelést készíteni!'
@@ -1099,11 +1099,11 @@ if( isset($_POST['rendeles_keszit']) ) {
                         $weblap->leallit();
                         exit();
                     }
-                    $elozo_szallito     = $igenyles['szallito'];
+                    $elozo_szallito     = $igenyles['szallito_id'];
                     $elozo_kcs_21       = $igenyles['kcs_21'];
 
                     //Ha ki van töltve a szállító (mivel kötelező mezők, ekkor ki lesz töltve a pénznem és rend. egységár is, akkor azt az ID-t töltjük be a popupba
-                    if($igenyles['szallito']){
+                    if($igenyles['szallito_id']){
                         $betoltid = $id;
                     }
 
@@ -1204,8 +1204,8 @@ if( isset($_POST['rendeles_keszit']) ) {
         $pdf_utvonal = 'doc/rendeles/'.date('y').'/'.$elozo_szallito.'/'.str_replace('/', '_', $rndid).'.pdf';
 
         //Létrehozunk egy új rendelésfej bejegyzést
-        $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('stat_id',                'rndid', 'rnd_dt',  'kepfajl',     'szallitoid',    'insert_dt',    'insert_usr',                           'update_usr'                            ),
-                                                                    array(CIKKIGN_STAT_MEGRENDELVE, $rndid,  $rnd_dt,   $pdf_utvonal,  $elozo_szallito, 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
+        $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('stat_id',                'rndid', 'rnd_dt',  'kepfajl',     'szallito_id',    'insert_dt',    'insert_usr',                           'update_usr'                            ),
+                                                                    array(CIKKIGN_STAT_MEGRENDELVE, $rndid,  $rnd_dt,   $pdf_utvonal,  $elozo_szallito,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
                                                     );
         if( $cikkrendfej_id === false ) { $db_error = true; }
 
@@ -1290,7 +1290,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
         $szallodak = get_akt_login_szallodai();
         if($szallodak){
 
-            $igenylesek = $adatbazis_kapcsolat->s('recid telephely_id cikk_id nev igmen rndmen erkmen cikkmee szallito stat_id', 'anyagigenyles', "`aparecid`='{$recid['recid']}' AND `telephely_id` IN (".implode(',', $szallodak).")");
+            $igenylesek = $adatbazis_kapcsolat->s('recid telephely_id cikk_id nev igmen rndmen erkmen cikkmee szallito_id stat_id', 'anyagigenyles', "`aparecid`='{$recid['recid']}' AND `telephely_id` IN (".implode(',', $szallodak).")");
             foreach($igenylesek as $igeny){
 
                 $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$igeny['telephely_id']}'");
@@ -1337,7 +1337,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
         }
 
 
-        $szallito = $adatbazis_kapcsolat->s('nev', 'szallito', "`recid`='{$igeny['szallito']}'");
+        $szallito = $adatbazis_kapcsolat->s('nev', 'szallito', "`id`='{$igeny['szallito_id']}'");
         $szallito = $szallito[0];
 
         echo json_encode(array(
@@ -1398,10 +1398,10 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                     $db_error = true;
                 }
 
-                //Ha erkmen>0 INSERT mozgas                    SET telepid=,                           szallitoid=,                cikkid=,                        cikkmen=erkmen, mozgid=MOZGID_RAKTAR_BE, mozgir=1, rendtetid=recid, update_usr=, insert_usr=, insert_dt=NOW()
+                //Ha erkmen>0 INSERT mozgas                    SET telephely_id=,                           szallito_id=,                cikk_id=,                        cikkmen=erkmen, mozgid=MOZGID_RAKTAR_BE, mozgir=1, rendtetid=recid, update_usr=, insert_usr=, insert_dt=NOW()
                 if($erkmen>0){
-                    $sql = $adatbazis_kapcsolat->i('mozgas',    array('telepid',                      'szallitoid',               'cikkid',                  'cikkmen', 'mozgid',          'mozgir', 'rendtetid', 'update_usr',                           'insert_usr',                            'insert_dt' ),
-                                                                array($anyagigenyles['telephely_id'], $anyagigenyles['szallito'], $anyagigenyles['cikk_id'], $erkmen,    MOZGID_RAKTAR_BE,  1,        $id,         $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()'     )
+                    $sql = $adatbazis_kapcsolat->i('mozgas',    array('telephely_id',                 'szallito_id',                 'cikk_id',                  'cikkmen', 'mozgid',          'mozgir', 'rendtetid', 'update_usr',                           'insert_usr',                            'insert_dt' ),
+                                                                array($anyagigenyles['telephely_id'], $anyagigenyles['szallito_id'], $anyagigenyles['cikk_id'],  $erkmen,    MOZGID_RAKTAR_BE,  1,        $id,         $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()'     )
                                                     );
                     if( $sql === false ) { $db_error = true; }
                 }
@@ -1430,15 +1430,15 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
 //            }
 //
 //            //Oszlopok társítása
-//            $oszlopok        = array('recid', 'iktszam',  'telepid',      'cikkid',       'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallitoid', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
-//            $anyagig_oszlop  = array('recid', 'ikt_szam', 'telephely_id', 'cikk_id',      'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallito',   'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
+//            $oszlopok        = array('recid', 'ikt_szam', 'telephely_id',  'cikk_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallito_id', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
+//            $anyagig_oszlop  = array('recid', 'ikt_szam', 'telephely_id',  'cikk_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallito_id', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
 //
 //            $ertekek  = array();
 //            foreach($anyagig_oszlop as $oszlop){
 //                array_push($ertekek, $anyagigenyles[$oszlop]);
 //            }
 //
-//            array_push($oszlopok, 'statid', 'update_usr',                             'insert_usr',                           'insert_dt' );
+//            array_push($oszlopok, 'stat_id','update_usr',                             'insert_usr',                           'insert_dt' );
 //            array_push($ertekek,  $statid,  $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()'     );
 //            $cikkrnd = $adatbazis_kapcsolat->i('cikkrnd', $oszlopok, $ertekek);
 //            if($cikkrnd===false){
@@ -1487,8 +1487,8 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
     /* Rendelés ID formázása */
     $rndid = 'R'.date('y').'/'.sprintf('%04d', $sorszam);
     //Létrehozunk egy új rendelésfej bejegyzést
-    $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('keszpenz', 'stat_id',               'rndid', 'rnd_dt',  'kepfajl',   'szallitoid',       'insert_dt',    'insert_usr',                           'update_usr'                            ),
-                                                                array(1,          CIKKIGN_STAT_BEERKEZETT, $rndid,  'NOW()',   '',          $_POST['szallito'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
+    $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('keszpenz', 'stat_id',               'rndid', 'rnd_dt',  'kepfajl',   'szallito_id',         'insert_dt',    'insert_usr',                           'update_usr'                            ),
+                                                                array(1,          CIKKIGN_STAT_BEERKEZETT, $rndid,  'NOW()',   '',          $_POST['szallito_id'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
                                                 );
     if( $cikkrendfej_id === false ) { $db_error = true; }
 
@@ -1518,8 +1518,8 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
 
 
             /* Anyagigénylés beszúrása (itt nem kell iktatószámot generáni, mert egyből archiválni fogjuk) */
-            $anyagigenyles = $adatbazis_kapcsolat->i('anyagigenyles', array('rndid',  'szallito',         'telephely_id',         'cikk_id',            'nev',            'cikkmee',            'stat_id',             'rndmen',         'igmen',         'jhmen',         'erkmen',        'erkear',      'rndear',      'kulsosnek', 'keszpenz', 'erkcimid', 'rnd_dt', 'kcs_21', 'oracikkid', 'aparecid',      'insert_dt',  'insert_usr',                              'update_usr'                             ),
-                                                                      array($rndid,   $_POST['szallito'], $_POST['telephely_id'], $anyag['cikkszam'],   $ciktorzs['nev'], $ciktorzs['cikkmee'],  CIKKIGN_STAT_NYITOTT, $anyag['menny'],  $anyag['menny'], $anyag['menny'], $anyag['menny'], $anyag['ear'], $anyag['ear'], $kulsosnek,  1,          1,          'NOW()',   5,       $oracikkid,  $cikkrendfej_id, 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+            $anyagigenyles = $adatbazis_kapcsolat->i('anyagigenyles', array('rndid',  'szallito_id',         'telephely_id',         'cikk_id',            'nev',            'cikkmee',            'stat_id',             'rndmen',         'igmen',         'jhmen',         'erkmen',        'erkear',      'rndear',      'kulsosnek', 'keszpenz', 'erkcimid', 'rnd_dt', 'kcs_21', 'oracikkid', 'aparecid',      'insert_dt',  'insert_usr',                              'update_usr'                             ),
+                                                                      array($rndid,   $_POST['szallito_id'], $_POST['telephely_id'], $anyag['cikkszam'],   $ciktorzs['nev'], $ciktorzs['cikkmee'],  CIKKIGN_STAT_NYITOTT, $anyag['menny'],  $anyag['menny'], $anyag['menny'], $anyag['menny'], $anyag['ear'], $anyag['ear'], $kulsosnek,  1,          1,          'NOW()',   5,       $oracikkid,  $cikkrendfej_id, 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
                                                     );
             if( $anyagigenyles === false ) { $db_error = true; }
 
@@ -1535,8 +1535,8 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
             if(addStatusz('anyagigenyles_statusz', $anyagigenyles, CIKKIGN_STAT_BEERKEZETT  )===false){ $db_error = true; }
 
             $sql = $adatbazis_kapcsolat -> i('mozgas',
-                                                array('telepid',                'szallitoid',       'cikkid',           'cikkmen',       'mozgid',         'mozgir', 'rendtetid',     'insert_dt',  'insert_usr',                              'update_usr'                             ),
-                                                array($_POST['telephely_id'],   $_POST['szallito'], $anyag['cikkszam'], $anyag['menny'], MOZGID_RAKTAR_BE, 1,        $anyagigenyles,  'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+                                                array('telephely_id',           'szallito_id',        'cikk_id',            'cikkmen',       'mozgid',         'mozgir', 'rendtetid',     'insert_dt',  'insert_usr',                              'update_usr'                             ),
+                                                array($_POST['telephely_id'],   $_POST['szallito_id'], $anyag['cikkszam'],  $anyag['menny'], MOZGID_RAKTAR_BE, 1,        $anyagigenyles,  'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
                                             );
             if( $sql === false ) { $db_error = true; }
         }

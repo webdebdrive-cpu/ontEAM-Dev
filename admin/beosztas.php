@@ -355,7 +355,7 @@ if($gyorskereso_text){
             $gombok = nl2('
                 <div class="muveletek" style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);">
                     <div class="form_kuldes">
-                        <input type="submit" class="gombb gombb_alert" id="mehet_gomb" disabled value="Naptárba tesz">
+                        <input type="button" class="gombb mentes_gomb" id="mehet_gomb" disabled value="Naptárba tesz" onclick="$(\'#szerk_form\').submit()">
                         <input type="button" class="gombb gombb_alert" id="mehet_gomb_kivesz" disabled value="Naptárból kivesz" onclick="naptar_torol_kerdez()">
                         <input type="hidden" name="naptar_torol_id" id="naptar_torol_id" value="">
                         <input type="hidden" name="get_id" id="get_id" value="'.$_GET['id'].'">
@@ -604,7 +604,7 @@ if($gyorskereso_text){
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html;

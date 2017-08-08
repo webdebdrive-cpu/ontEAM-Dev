@@ -250,9 +250,9 @@ require_once('header.php');
                         }
 
                         $adatbazis_kapcsolat->i('szallito',
-                            array('id', 'nev', 'aktiv'),
-                            array($id,  $nev,  $aktiv )
-                        );
+                                                    array('id', 'nev', 'aktiv'),
+                                                    array($id,  $nev,  $aktiv )
+                                                );
 
 						echo $adatbazis_kapcsolat->gp() . '<br>';
 
@@ -770,9 +770,9 @@ require_once('header.php');
 
 
                         $adatbazis_kapcsolat->i('obj',
-                            array('recid', 'telephely_id', 'szulo',   'nev', 'update_usr', 'insert_dt', 'insert_usr'  ),
-                            array($recid,   $telepid,      $parentid, $nev,  $update_usr,  $insert_dt,  $insert_usr   )
-                        );
+                                                    array('recid', 'telephely_id', 'szulo',   'nev', 'update_usr', 'insert_dt', 'insert_usr'  ),
+                                                    array($recid,   $telepid,      $parentid, $nev,  $update_usr,  $insert_dt,  $insert_usr   )
+                                                );
 
 						echo $adatbazis_kapcsolat->gp() . '<br>';
 
@@ -1264,9 +1264,9 @@ require_once('header.php');
                         }
 
                         $adatbazis_kapcsolat->i('bejovo_szamlak',
-                            array('ikt_szam', 'erkezett', 'visszaadva', 'szaml_szam', 'teljesites', 'fiz_hat',   'targy', 'netto', 'brutto', 'fiz_mod', 'valuta_netto', 'valuta_brutto', 'arfolyam', 'atvaltva',  'rend_szam', 'bev_szam', 'megj',      'szallito_szab', 'afa_tipus', 'torolve', 'eszkoz_csop', 'eszkoz_ert', 'e-szamla', 'iktatva', 'iktatta', 'igazolva',  'igazolta', 'elkuldve',  'elkuldte', 'szkp_atvette', 'szkp_feldolg', 'sablon', 'datetime',            'statusz', 'szallito'  ),
-                            array($iktszam,   $erk_dat,   $vissza_dat,  $szlaszam,    $telj_dat,    $fizhat_dat, $targy,  $netert, $brutert, $kifmod,   $valnetert,     $valbrutert,     $valarf,    $valarf_dat, $rendszam,   $bevszam,   $megjegyzes, $szabadszal,     $afatipus,   $torolt,   $eszkozcsop,   $eszkozert,   $eszla,     $ikt_dat,  $iktatta,  $igazol_dat, $igazolta,  $elkuld_dat, $elkuldte,  $szkp_dat,      $szkpfeldol,    $sablon,  $erk_dat.' 00-00-00',  $statusz,  $szallkod   )
-                        );
+                                                    array('ikt_szam', 'erkezett', 'visszaadva', 'szaml_szam', 'teljesites', 'fiz_hat',   'targy', 'netto', 'brutto', 'fiz_mod', 'valuta_netto', 'valuta_brutto', 'arfolyam', 'atvaltva',  'rend_szam', 'bev_szam', 'megj',      'szallito_szab', 'afa_tipus', 'torolve', 'eszkoz_csop', 'eszkoz_ert', 'e-szamla', 'iktatva', 'iktatta', 'igazolva',  'igazolta', 'elkuldve',  'elkuldte', 'szkp_atvette', 'szkp_feldolg', 'sablon', 'datetime',            'statusz', 'szallito_id'  ),
+                                                    array($iktszam,   $erk_dat,   $vissza_dat,  $szlaszam,    $telj_dat,    $fizhat_dat, $targy,  $netert, $brutert, $kifmod,   $valnetert,     $valbrutert,     $valarf,    $valarf_dat, $rendszam,   $bevszam,   $megjegyzes, $szabadszal,     $afatipus,   $torolt,   $eszkozcsop,   $eszkozert,   $eszla,     $ikt_dat,  $iktatta,  $igazol_dat, $igazolta,  $elkuld_dat, $elkuldte,  $szkp_dat,      $szkpfeldol,    $sablon,  $erk_dat.' 00-00-00',  $statusz,  $szallkod      )
+                                                );
 
 						echo $adatbazis_kapcsolat->gp() . '<br>';
 //if($k==100) {exit();}
@@ -1712,8 +1712,8 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                 case 'verkear'          : $verkear      = trim($akt_tomb[$key]);  break;
 							}
                             
-                            if($statid==10){
-                                $statid = 5;
+                            if($statid=='10'){
+                                $statid = '05';
                             }
                             
                             $cikk_id = sprintf('%07d', $cikk_id);

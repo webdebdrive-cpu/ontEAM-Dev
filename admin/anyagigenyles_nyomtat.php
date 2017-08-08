@@ -8,13 +8,13 @@ if (isset($_GET['nyomtat'])) {
     $idk_impl            = implode(',', $idk);
 
     //Szállító kiszámítása
-    $szallito = $adatbazis_kapcsolat->s('szallito kcs_21', 'anyagigenyles', "`recid`='{$idk[1]}'");
+    $szallito = $adatbazis_kapcsolat->s('szallito_id kcs_21', 'anyagigenyles', "`recid`='{$idk[1]}'");
     $szallito = $szallito[0];
     
     $penznem = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=21 AND `id`='{$szallito['kcs_21']}'");
     $penznem = $penznem[0];
 
-    $szallito = $adatbazis_kapcsolat->s('nev knev tel tel2 isz varos utca', 'szallito', "`recid`='{$szallito['szallito']}'");
+    $szallito = $adatbazis_kapcsolat->s('nev knev tel tel2 isz varos utca', 'szallito', "`id`='{$szallito['szallito_id']}'");
     $szallito = $szallito[0];
     
 }

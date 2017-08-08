@@ -63,7 +63,7 @@ function i_u($type, $tabla, $tomb) {
             }
 
     		//Ha nem gomb, nem fájl és nem disabled és az oszlopnév sem üres és maga a POST egyáltalán létezik is (ne nullázzunk felül el nem küldött POST miatt)
-    		if($ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && !($ertek['disabled'] && $ertek['name'] != 'szallitoid' && $type == 'update'/*Tiltott mezőket beszúrni lehet csak moddolni nem*/) && $ertek['name'] && isset($_POST[$ertek['name']]) ) {
+    		if($ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && !($ertek['disabled'] && $ertek['name'] != 'szallito_id' && $type == 'update'/*Tiltott mezőket beszúrni lehet csak moddolni nem*/) && $ertek['name'] && isset($_POST[$ertek['name']]) ) {
                 array_push($oszlopok, $ertek['name']);
     			array_push($ertekek, trim($_POST[$ertek['name']]));
     		}
@@ -1214,6 +1214,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
     //Ajaxos form módosítás
     $ajax_kod = nl2('
+        
         utemezes_mehet = false;
         $.ajax({
             url : \''.self().'?id='.$_GET['id'].'\',
@@ -1584,7 +1585,7 @@ function szamla_lista( $where, $tabla ) {
                     $where .= '';
                 //Külső kivitelező
                 } else if( _jog(JOG_MUNKALAP_KULSO) ) {
-                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".KULSO_KIVITELEZO."' AND `".get_db_tabla()."munkalap`.`stat_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.", ".MUNKALAP_STAT_LEZART.") AND `".get_db_tabla()."munkalap`.`szallitoid` = '".$_SESSION[get_db_tabla().'szallitoid']."'";
+                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".KULSO_KIVITELEZO."' AND `".get_db_tabla()."munkalap`.`stat_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.", ".MUNKALAP_STAT_LEZART.") AND `".get_db_tabla()."munkalap`.`szallito_id` = '".$_SESSION[get_db_tabla().'szallito_id']."'";
                 }
 
             }
@@ -3638,7 +3639,7 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit ) {
                 }
             }
 
-            $szallito_sor = $adatbazis_kapcsolat->s('recid nev', 'szallito', 'recid='.$bsz['szallito'], '', '1');
+            $szallito_sor = $adatbazis_kapcsolat->s('recid nev', 'szallito', 'recid='.$bsz['szallito_id'], '', '1');
 
             $szallito = '';
             if( $szallito_sor ) {
@@ -4157,6 +4158,7 @@ function beosztas_naptar($beosztas_id){
 //A kapott mező, operátor és feltétel alapján előállítja a where feltétel kiegészítését
 function get_szures_where_kieg($mezo, $op, $felt, $tabla){
 
+    $op_origi = $op;
     switch ($op){
         case 'equal'    : $op = '=';    break;
         case 'not_eq'   : $op = '!=';   break;
@@ -4171,15 +4173,16 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
             }else{
                 $op = '!=';
             }
-            $felt = '\'\'';
+            $felt = '';
         break;
     }
 
+//echo $mezo.' - '.$op.' - '.$felt;exit;
     //Külső táblák kapcsolása
     //A szamla_lista() függvényben is állítsd be a JOIN-okat
     if($mezo=='megjegyzes'){
         return '`'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().'megjegyzes`.`megj` LIKE \''.$felt.'\'';
-    }elseif($tabla=='anyagigenyles' && $mezo=='nev'){
+    }elseif( $op_origi != 'empty' && ($tabla=='anyagigenyles' && $mezo=='nev') ){
         return '`'.get_db_tabla().'anyagigenyles`.`nev` LIKE \'%'.$felt.'%\'';
     }elseif($tabla=='bejelentes' && $mezo=='telephely_id'){
         return '`'.get_db_tabla().'bejelentes`.`telephely_id`=\''.$felt.'\'';
@@ -4192,6 +4195,11 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     }elseif($tabla=='login' && $mezo=='jogosultsag'){
         return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
     }else{
+        
+        //Mezőnevek pontosítása
+        if( $tabla=='anyagigenyles' && $mezo=='nev' ){
+            $mezo = get_db_tabla().'anyagigenyles`.`'.$mezo;
+        }
         return '`'.$mezo.'`'.$op.'\''.$felt.'\'';
     }
 
