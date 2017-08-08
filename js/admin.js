@@ -4952,13 +4952,7 @@ function bejegyzesDuplikal() {
     if( _get('uj') ){
         alert2('Új feltöltés alatt nem értelmezett a duplikálás, előbb válasszon ki egy '+$('#rekord_neve_targy').html()+'!', '', 'Hiba');
     }else{
-        if( !_get('modosit') ) {
-            szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit').done(function() {
-                alert2(duplikaKerdes, duplikalGomb);
-            });
-        } else {
-            alert2(duplikaKerdes, duplikalGomb);
-        }
+        alert2(duplikaKerdes, duplikalGomb);
     }
 }
 
