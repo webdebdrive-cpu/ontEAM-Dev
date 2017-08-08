@@ -1773,18 +1773,18 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
 
                     /* Munkalapon töröljük a személyzetet és a mobil loginnevet */
                     $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                                        array('szemelyzet_id', 'mobil_loginnev', 'szallitoid', 'update_usr'                           ),
-                                                        array( 0,              '',                0,           $_SESSION[get_db_tabla().'teljes_nev'] ),
-                                                        "`recid` = '{$recid}'"
-                                                    );
+                        array('szemelyzet_id', 'mobil_loginnev', 'szallitoid', 'update_usr'                           ),
+                        array( 0,              '',                0,           $_SESSION[get_db_tabla().'teljes_nev'] ),
+                        "`recid` = '{$recid}'"
+                    );
                     if( $sql === false ) { $db_error = true; }
 
                     /* Utolsó tételnél átállítjuk az átadta mező értékét */
                     $sql = $adatbazis_kapcsolat -> u('munkalap_tetel',
-                                                        array('atadta_dt',  'visszaadva', 'update_usr'                           ),
-                                                        array('NOW()',      1,            $_SESSION[get_db_tabla().'teljes_nev'] ),
-                                                        "`recid` = '".$akt_tetel['recid']."'"
-                                                    );
+                        array('atadta_dt',  /*'visszaadva',*/ 'update_usr'                           ),
+                        array('NOW()',      /*1,*/            $_SESSION[get_db_tabla().'teljes_nev'] ),
+                        "`recid` = '".$akt_tetel['recid']."'"
+                    );
                     if( $sql === false ) { $db_error = true; }
                 }
             }
@@ -3649,7 +3649,7 @@ if( isset($_POST['mellekTorol']) ) {
 
         //Dokumentumok törlése
         } else if( strstr($tabla, '_dok') ) {
-            
+
             $statuszt_nem_kell_figyelni = array('rendszeres_karbantartas', 'utemezett_feladatok'); //Ezeknél a dokumentumainál nem figyeljük, hogy az apa tábla státusza nyitott-e
             $apa_tabla = str_replace('_dok', '', $tabla);
             if(!in_array($apa_tabla, $statuszt_nem_kell_figyelni)){
@@ -4480,7 +4480,7 @@ foreach($postok as $ertek){
         //Státusz tábla törlése
         $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$sor['recid']}'");
         if( $sql === false ) { $db_error = true; }
-        
+
         //Dokumentumok törlése
         $dokos_oldalak = array('anyagigenyles', 'bejelentes', 'munkalap', 'utemezett_feladatok');
             if( in_array($ertek['tabla'], $dokos_oldalak) ){
@@ -4492,7 +4492,7 @@ foreach($postok as $ertek){
             $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'dok', "`{$ertek['tabla']}_id`='{$sor['recid']}'");
             if( $sql === false ) { $db_error = true; }
         }
-        
+
 
         //Login táblából csak logikailag törlünk. Többi helyről fizikailag.
         if($ertek['tabla']=='login'){

@@ -4948,13 +4948,7 @@ function jobb_tartalom_rejt() {
 }
 
 function bejegyzesDuplikal() {
-    if( !_get('modosit') ) {
-        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit').done(function() {
-            alert2(duplikaKerdes, duplikalGomb);
-        });
-    } else {
-        alert2(duplikaKerdes, duplikalGomb);
-    }
+    alert2(duplikaKerdes, duplikalGomb);
 }
 
 /* A bal oldali navpanel kijelölésének ellenőrzése */

@@ -1709,6 +1709,20 @@ if($gyorskereso_text){
 
 	    //FORM
 		if(isset($_GET['ujkent'])) {
+            $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['ujkent']);
+
+            if( $sor ) {
+                $sor = $sor[0];
+
+                foreach($akt_tomb as $ertek) {
+                    if( $ertek['name'] != 'ikt_szam' ) {
+                        $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
+                    } else {
+                        $_SESSION[$ertek['name']] = '';
+                    }
+    			}
+            }
+
             foreach($akt_tomb as $ertek) {
 				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
@@ -1802,6 +1816,7 @@ if($gyorskereso_text){
 
         $szamla_html .= nl2('
             <script>
+                duplikalGomb  = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                 duplikaKerdes = \'Iktatószám: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Ez a munkalap '.count($munkalap_kapcs).' db bejelentésből készült. <br>Ezek a bejelentések az új munkalaphoz is hozzá lesznek rendelve. <br>Biztos, hogy duplikálja?\';
             </script>
         ');
