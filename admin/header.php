@@ -983,11 +983,10 @@ if( basename(self())=='beosztas.php' && !_jog(30)){
     $uj             = '';
 }
 
-
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CSS}', '{CEGNEV}', '{MENUK}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}', '{CSUSZKADN}'  ),
-    array( $css,    get_nev(),  $menuk,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    get_get(),   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,    $csuszkadn    ),
+    array('{CSS}', '{CEGNEV}', '{MENUK}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}', '{CSUSZKADN}' ),
+    array( $css,    get_nev(),  $menuk,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    get_get(),   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,    $csuszkadn   ),
     $header_sablon
 );
 
