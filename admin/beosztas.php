@@ -351,7 +351,7 @@ if($gyorskereso_text){
         $beosztas = $adatbazis_kapcsolat->s('tol ig', 'beosztas', "`recid`='{$_GET['id']}'");
         $beosztas = $beosztas[0];
 
-        if(_jog(30)){
+        if(_jog(JOG_BEOSZTASOK_KEZEL)){
             $gombok = nl2('
                 <div class="muveletek" style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);">
                     <div class="form_kuldes">
@@ -511,7 +511,7 @@ if($gyorskereso_text){
 
         $json_sor = array();
         foreach($sor as $kulcs => $elem){
-            $json_sor[$kulcs] = nl2(str_replace("\n", "#UJSOR#", $elem));
+            $json_sor[$kulcs] = nl2(str_replace(array("\n", "'"), array("#UJSOR#", "#APOSZTROF#"), $elem));
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
 

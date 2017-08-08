@@ -899,7 +899,7 @@ $(function() {
 
             //Újsort le kell csérélni. Checkboxok miatt kell ez az if elé
             if(val && val!=true){
-                val = val.replace(/(\r|\n)/g, '#UJSOR#');
+                val = val.replace(/(\r|\n)/g, '#UJSOR#').replace(/'/g, '#APOSZTROF#');
             }
             if( taroltVal != val ) {
                 $(this).addClass('mod');

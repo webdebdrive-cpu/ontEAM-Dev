@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(6) ) {
+if( !_jog(JOG_FELHASZNALOK_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -262,7 +262,7 @@ if($gyorskereso_text){
         );
     }
 
-    if(_jog(7)){
+    if(_jog(JOG_FELHASZNALOK_KEZEL)){
         $gombok = nl2('
             <div class="form_kuldes">
                 <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
@@ -284,7 +284,7 @@ if($gyorskereso_text){
     ');
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && _jog(7) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && _jog(JOG_FELHASZNALOK_KEZEL) && !$csak_szerkesztheto){
 
         if (isset($_GET['foglalt_nev'])) {
             $navi = '<span class="piros">Ez a loginnév már foglalt!</span>';
@@ -392,7 +392,7 @@ if($gyorskereso_text){
 
         $json_sor = array();
         foreach($sor as $kulcs => $elem){
-            $json_sor[$kulcs] = nl2(str_replace("\n", "#UJSOR#", $elem));
+            $json_sor[$kulcs] = nl2(str_replace(array("\n", "'"), array("#UJSOR#", "#APOSZTROF#"), $elem));
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
@@ -603,7 +603,7 @@ if($gyorskereso_text){
                 <div class="muveletek"'.$muv_style.'>
                     <div class="form_kuldes">
                         <input type="hidden" name="id" value="'.$_GET['id'].'">
-                        <input type="button" class="gombb mentes_gomb" name="jogokhozzaad" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                        <input type="submit" class="gombb mentes_gomb" name="jogokhozzaad" id="mehet_gomb" disabled value="Mentés">
                     </div>
                 </div>
                 </div></form>

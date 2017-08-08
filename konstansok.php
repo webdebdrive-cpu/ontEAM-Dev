@@ -80,6 +80,8 @@ define('JOG_BEJELENTES_KEZEL',      1 );
 define('JOG_DISZPECSER',            2 );
 define('JOG_MUNKALAP_MEGTEKINT',    3 );
 define('JOG_MUNKALAP_TELEPITETT',   5 );
+define('JOG_FELHASZNALOK_MEGTEKINT',6 );
+define('JOG_FELHASZNALOK_KEZEL',    7 );
 define('JOG_ERTEKLISTAK_MEGTEKINT', 8 );
 define('JOG_ERTEKLISTAK_KEZEL',     9 );
 define('JOG_ANYAIGENLES_MEGTEKINT', 12);

@@ -4181,6 +4181,8 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         return '`'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().'megjegyzes`.`megj` LIKE \''.$felt.'\'';
     }elseif($tabla=='anyagigenyles' && $mezo=='nev'){
         return '`'.get_db_tabla().'anyagigenyles`.`nev` LIKE \'%'.$felt.'%\'';
+    }elseif($tabla=='bejelentes' && $mezo=='telephely_id'){
+        return '`'.get_db_tabla().'bejelentes`.`telephely_id`=\''.$felt.'\'';
     }elseif($tabla=='login' && $mezo=='szalloda'){
         return '`'.get_db_tabla().'telephely_kapcs`.`telephely_id`=\''.$felt.'\'';
     }elseif($tabla=='utemezett_feladatok' && $mezo=='telephely_id'){

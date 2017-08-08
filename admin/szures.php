@@ -66,7 +66,7 @@ if (isset($_POST['f_szuro_mezo'])) {
     }
     
     //Kapcsolódó szállodák felsorolása
-    if( ($_POST['tabla'] == 'login' && $_POST['mezo']=='szalloda') || ($_POST['tabla'] == 'anyagigenyles' && $_POST['mezo']=='telephely_id') ){
+    if( $_POST['mezo']=='telephely_id' || ($_POST['tabla'] == 'login' && $_POST['mezo']=='szalloda') ){
         
         //Ilyenkor felülírva az operátorokat, csak egyenlőségjel van
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
@@ -207,7 +207,8 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                                     \'oszlop_listaz\'   : \''.$ertek['listaz'].'\',
                                     \'rkat\'            : '.$rkat.',
                                     \'csoport\'         : '.$csoport.',
-                                    \'id_kiir\'         : \''.$id_kiir.'\'
+                                    \'id_kiir\'         : \''.$id_kiir.'\',
+                                    \'szuros\'          : \'Szűrőben hívtuk meg\'
                                 });
                             });
                         </script>
