@@ -1265,7 +1265,7 @@ foreach($akt_tomb as $ertek){
                 $ertek['onkeyup'] .= '; onlyNumbers($(this)); this.value=ezresek(this.value,\'.\')';
                 $sor[$ertek['name']] = number_format($sor[$ertek['name']], 0, '', '.');
             }
-            
+
             if($ertek['alert']){
                 $ertek['class'] .= ' csillag';
             }

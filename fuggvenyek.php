@@ -909,6 +909,11 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     }
 
     if( basename(self())=='bejelentes.php' ) {
+        $mod = 'false';
+        if( isset($_GET['modosit']) ) {
+            $mod = 'true';
+        }
+
         $ret .= nl2('
             if( !bejelentes_mehet ) {
                 var folyamatban_hiba = false;
@@ -917,7 +922,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     url : \'esemenyek.php\',
                     type: \'GET\',
                     async: false,
-                    data: esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;obj_id=\' + $(\'#obj_id\').val() + \'&amp;folyamatban_munkak=\' + new Date().getTime()),
+                    data: esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;obj_id=\' + $(\'#obj_id\').val() + \'&amp;mod=\' + '.$mod.' + \'&amp;folyamatban_munkak=\' + new Date().getTime()),
                     success: function(response) {
 
                         response = JSON.parse(response);
@@ -1214,7 +1219,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
     //Ajaxos form módosítás
     $ajax_kod = nl2('
-        
+
         utemezes_mehet = false;
         $.ajax({
             url : \''.self().'?id='.$_GET['id'].'\',
@@ -4195,7 +4200,7 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     }elseif($tabla=='login' && $mezo=='jogosultsag'){
         return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
     }else{
-        
+
         //Mezőnevek pontosítása
         if( $tabla=='anyagigenyles' && $mezo=='nev' ){
             $mezo = get_db_tabla().'anyagigenyles`.`'.$mezo;
