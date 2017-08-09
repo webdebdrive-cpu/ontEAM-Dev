@@ -1754,9 +1754,9 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
 
 
                             $sql = $adatbazis_kapcsolat -> i('munkalap_anyag',
-                                array('munkalap_id', 'telephely_id',        'tetel_id',          'cikk_id',       'oracikkid',            'cikk_nev',                                'cikk_mee',             'cikk_men',              'szuk_men',                'stat_id', 'insert_dt',    'insert_usr',                             'update_usr'                          ),
-                                array($recid,        $mlap['telephely_id'], $akt_tetel['recid'], $cikk_sor['id'], $cikk_sor['oracikkid'], htmlspecialchars_decode($cikk_sor['nev']), $cikk_sor['cikkmee'],   $addCikkFelhMenny[$key], $addCikkSzukMenny[$key],   $stat_id,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
-                            );
+                                                                array('munkalap_id', 'telephely_id',        'tetel_id',          'cikk_id',       'oracikkid',            'cikk_nev',                                'cikk_mee',             'cikk_men',              'szuk_men',                'stat_id', 'insert_dt',    'insert_usr',                             'update_usr'                          ),
+                                                                array($recid,        $mlap['telephely_id'], $akt_tetel['recid'], $cikk_sor['id'], $cikk_sor['oracikkid'], htmlspecialchars_decode($cikk_sor['nev']), $cikk_sor['cikkmee'],   $addCikkFelhMenny[$key], $addCikkSzukMenny[$key],   $stat_id,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
+                                                            );
 
                             if( $sql === false ) {
                                 $db_error = true;
@@ -1773,18 +1773,18 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
 
                     /* Munkalapon töröljük a személyzetet és a mobil loginnevet */
                     $sql = $adatbazis_kapcsolat -> u('munkalap',
-                        array('szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'update_usr'                           ),
-                        array( 0,              '',                0,            $_SESSION[get_db_tabla().'teljes_nev'] ),
-                        "`recid` = '{$recid}'"
-                    );
+                                                        array('szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'update_usr'                           ),
+                                                        array( 0,              '',                0,            $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                        "`recid` = '{$recid}'"
+                                                    );
                     if( $sql === false ) { $db_error = true; }
 
                     /* Utolsó tételnél átállítjuk az átadta mező értékét */
                     $sql = $adatbazis_kapcsolat -> u('munkalap_tetel',
-                        array('atadta_dt',  /*'visszaadva',*/ 'update_usr'                           ),
-                        array('NOW()',      /*1,*/            $_SESSION[get_db_tabla().'teljes_nev'] ),
-                        "`recid` = '".$akt_tetel['recid']."'"
-                    );
+                                                        array('atadta_dt',  /*'visszaadva',*/ 'update_usr'                           ),
+                                                        array('NOW()',      /*1,*/            $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                        "`recid` = '".$akt_tetel['recid']."'"
+                                                    );
                     if( $sql === false ) { $db_error = true; }
                 }
             }

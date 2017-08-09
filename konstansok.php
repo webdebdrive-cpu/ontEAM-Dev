@@ -106,4 +106,5 @@ define('JOG_UTFEL_MEGTEKINT',       32);
 define('JOG_UTFEL_KEZEL',           33);
 define('JOG_RENDSZ_KARB_MEGTEKINT', 35);
 define('JOG_RENDSZ_KARB_KEZEL',     36);
+define('JOG_MUNKALAP_MUSZAK_ADMIN', 37);
 ?>
