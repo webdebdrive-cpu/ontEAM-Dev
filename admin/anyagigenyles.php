@@ -1342,7 +1342,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
 
         echo json_encode(array(
             'html'      =>  $html,
-            'szallito'  =>  $szallito['nev'],
+            'szallito'  => htmlspecialchars_decode($szallito['nev']),
         ));
 
     }
