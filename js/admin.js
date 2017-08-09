@@ -528,19 +528,39 @@ $(function() {
      *2do: Checkbox-ra hogyna lehetne léptetni?
      *     elsubmitolja az űrlapot, ezért a submit gombot sima gombra kell cserélni ami a form-ot submitolja, de akkor a form_modosit.html-ben nem fog működni a if(!$('#szerk_form input[type="submit"]').length) feltétle, tehát azt is át kell írni.
  */
+    $(":input").each(function (i) { $(this).attr('tabindex', i + 1); });
+
+    $(document).on('keyup', 'input[type="checkbox"]', function(e) {
+        if( e.keyCode == 32 ) {
+            var val = $(this).prop('checked');
+
+            if( val ) {
+                $(this).prop('checked', false).removeClass('mod');
+            } else {
+                $(this).prop('checked', true).addClass('mod');
+            }
+        }
+    });
+
     $(document).on('keyup', 'input', function(e) {
         if (e.which == 13) {
 
             mezo_nev = $(this).attr('name');
             stop = false;
             $('form').find('input, select, textarea').each(function() {
-                var name = $(this).attr('name');
+                var name = $(this).attr('name'),
+                    type = $(this).attr('type');
 
                 /* Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is */
-                if( stop && $(this).is(':visible') ) {
-                    if($('#'+name).length){
-                        document.getElementById(name).select();
+                if( (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
+                    if( type == 'checkbox' ) {
+                        document.getElementById(name).focus();
+                    } else {
+                        if($('#'+name).length){
+                            document.getElementById(name).select();
+                        }
                     }
+
                     return false;
                 }
 
@@ -2203,7 +2223,7 @@ function munkAnyagIgenyles( that, csak_kerdezunk ) {
                     }
 
                     if( response.refresh ) {
-                        location.href = get_get();
+                        location.href = baseName(location.href) + '.php';
                         return false;
                     }
 
@@ -2681,7 +2701,7 @@ function munkalapKeszre(csak_kerdezunk) {
                         return false;
                     }
 
-                    location.href = get_get();
+                    location.href = baseName(location.href) + '.php';
                 }
             }
         });
@@ -2718,7 +2738,7 @@ function munkalapLezaras(csak_kerdezunk) {
                         return false;
                     }
 
-                    location.href = get_get();
+                    location.href = baseName(location.href) + '.php';
                 }
             }
         });

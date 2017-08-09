@@ -1050,7 +1050,11 @@ input.webdeb{
 
 /* Checkbox */
 .cb input[type=checkbox] {
-	display: none;
+	/*display: none;*/
+}
+
+.cb input[type=checkbox]:focus + label {
+    border: 0.1rem solid #226294;
 }
 
 .cb {
@@ -1070,6 +1074,7 @@ input.webdeb{
     cursor: pointer;
     height: 2.2rem;
     position: absolute;
+    left: 0;
     top: 0;
     width: 2.2rem;
 }
