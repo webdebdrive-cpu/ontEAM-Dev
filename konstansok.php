@@ -64,6 +64,7 @@ define('DISZPECSER_KOZP_VEZETO',        '4' );
 define('MUSZAKI_VEZETO',                '5' );
 define('MUSZAKI_VEZETO_HELYETTES',      '6' );
 define('TERULETI_FELELOS',              '7' );
+define('MUSZAKI_ADMINISZTRATOR',        '8' );
 
 //MozgásID-k
 define('MOZGID_RAKTAR_BE',              '01' );
