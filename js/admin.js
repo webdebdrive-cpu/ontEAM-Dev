@@ -3628,6 +3628,37 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                     });
                 break;
 
+                case 'kulsokivHozzarend':
+                    $('#popupTart').html(data);
+
+                    $.ajax({
+                        url : 'munkalap.php',
+                        type: 'POST',
+                        data: {
+                            recid: _get('id'),
+                            validate: 'true',
+                            kulsokivHozzarend: new Date().getTime()
+                        },
+                        success: function(response) {
+                            if(response) {
+                                response = JSON.parse(response);
+
+                                if( response.hiba ) {
+                                    if( response.gomb ) {
+                                        alert2(response.hiba, response.gomb);
+                                    } else {
+                                        alert2(response.hiba, '', 'Hiba');
+                                    }
+
+                                    return false;
+                                }
+
+                                popupNyit();
+                            }
+                        }
+                    });
+                break;
+
                 default:
                     $('#popupTart').html(data);
                     popupNyit();

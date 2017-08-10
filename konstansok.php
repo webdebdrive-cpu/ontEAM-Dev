@@ -12,18 +12,20 @@ define('BEJELENTES_STAT_VIZSG_ALATT',   '06');
 define('BEJELENTES_STAT_LEZART',        '07');
 
 //Munkalap státuszok
-define('MUNKALAP_STAT_NYITOTT',         '01');
-define('MUNKALAP_STAT_FOLYAMATBAN',     '02');
-define('MUNKALAP_STAT_ELUTASITVA',      '03');
-define('MUNKALAP_STAT_HOZZARENDELT',    '05');
-define('MUNKALAP_STAT_TOROLT',          '06');
-define('MUNKALAP_STAT_VARAKOZO',        '07');
-define('MUNKALAP_STAT_FELVEVE',         '08');
-define('MUNKALAP_STAT_ANYAGRAVAR',      '09');
-define('MUNKALAP_STAT_KESZ_IG',         '10');
-define('MUNKALAP_STAT_LEZART',          '11');
-define('MUNKALAP_STAT_IGAZOLT',         '12');
-define('MUNKALAP_STAT_HOZREND_ELOKESZ', '13');
+define('MUNKALAP_STAT_NYITOTT',             '01');
+define('MUNKALAP_STAT_FOLYAMATBAN',         '02');
+define('MUNKALAP_STAT_ELUTASITVA',          '03');
+define('MUNKALAP_STAT_HOZZARENDELT',        '05');
+define('MUNKALAP_STAT_TOROLT',              '06');
+define('MUNKALAP_STAT_VARAKOZO',            '07');
+define('MUNKALAP_STAT_FELVEVE',             '08');
+define('MUNKALAP_STAT_ANYAGRAVAR',          '09');
+define('MUNKALAP_STAT_KESZ_IG',             '10');
+define('MUNKALAP_STAT_LEZART',              '11');
+define('MUNKALAP_STAT_IGAZOLT',             '12');
+define('MUNKALAP_STAT_HOZREND_ELOKESZ',     '13');
+define('MUNKALAP_STAT_HOZREND_JOVAHAGY',    '14');
+define('MUNKALAP_STAT_HOZREND_MEGREND_VAR', '15');
 
 //Munkalap Anyagigénylés státuszok
 define('DISZPNAG_STAT_VAN_ANYAG',       '00');

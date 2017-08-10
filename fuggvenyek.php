@@ -1593,7 +1593,7 @@ function szamla_lista( $where, $tabla ) {
                     $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".KULSO_KIVITELEZO."' AND `".get_db_tabla()."munkalap`.`stat_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.", ".MUNKALAP_STAT_LEZART.") AND `".get_db_tabla()."munkalap`.`szallito_id` = '".$_SESSION[get_db_tabla().'szallito_id']."'";
                 //Műszaki adminisztrátor
                 } else if( _jog(JOG_MUNKALAP_MUSZAK_ADMIN) ) {
-                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".MUSZAKI_ADMINISZTRATOR."' AND `".get_db_tabla()."munkalap`.`stat_id` IN (".MUNKALAP_STAT_HOZREND_ELOKESZ.")";
+                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".MUSZAKI_ADMINISZTRATOR."' AND `".get_db_tabla()."munkalap`.`stat_id` IN (".MUNKALAP_STAT_HOZREND_ELOKESZ.", ".MUNKALAP_STAT_HOZREND_JOVAHAGY.", ".MUNKALAP_STAT_HOZREND_MEGREND_VAR.")";
                 }
 
             }
