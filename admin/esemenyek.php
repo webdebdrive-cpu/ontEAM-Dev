@@ -12,7 +12,6 @@ if (isset($_GET['modosit'])) {
 
 $_SESSION['ketHasabos'] = array(
     'anyagigenyles.php',
-    'anyagrendeles.php',
     'bejelentes.php',
     'bejovo_szamlak.php',
     'beosztas.php',
@@ -351,6 +350,7 @@ switch($tabla) {
                                     `'.get_db_tabla().'anyagigenyles`.`recid`,
                                     `'.get_db_tabla().'anyagigenyles`.`stat_id`,
                                     `'.get_db_tabla().'anyagigenyles`.`ikt_szam`,
+                                    `'.get_db_tabla().'anyagigenyles`.`rndid`,
                                     `'.get_db_tabla().'anyagigenyles`.`cikk_id`,
                                     `'.get_db_tabla().'anyagigenyles`.`nev` as `anyagigenyles_nev`,
                                     `'.get_db_tabla().'anyagigenyles`.`telephely_id`

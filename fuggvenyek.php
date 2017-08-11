@@ -1877,9 +1877,6 @@ if(isset($_GET['debug'])) {
             case 'anyagigenyles':
                 $html = anyagigenylesLista( $bejegyzesek, $tabla, $frissit );
             break;
-            case 'anyagrendeles':
-                $html = anyagrendelesLista( $bejegyzesek, $tabla, $frissit );
-            break;
             case 'bejelentes':
                 $html = bejelentesLista( $bejegyzesek, $tabla, $frissit );
             break;
@@ -2621,8 +2618,13 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
             $telephely = $telephely[0];
 
+            $azon = $bsz['ikt_szam'];
+            if (isset($_GET['anyagrend'])) {
+                $azon = $bsz['rndid'];
+            }
+            
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['ikt_szam'].' '.$telephely['nev'].'</span>
+                            <span>'.$azon.' '.$telephely['nev'].'</span>
                             <span>'.$bsz['cikk_id'].' '.$bsz['anyagigenyles_nev'].'</span>
                             <span>'.getStatText('anyagigenyles', $bsz['stat_id']).'</span>
                         </a>';
@@ -2833,52 +2835,6 @@ function beosztasLista( $bejegyzesek, $tabla, $frissit ) {
 }
 
 function projektigenylesLista( $bejegyzesek, $tabla, $frissit ) {
-    global $adatbazis_kapcsolat;
-
-    if( $bejegyzesek ) {
-
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
-        if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lsita_dn.$jClass.'">';
-        }
-
-        $i = 1;
-        foreach($bejegyzesek as $bsz) {
-            $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' kijelolve';
-            }
-
-            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['recid'].'</span>
-                        </a>';
-
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
-            }
-
-            $i++;
-        }
-
-        if( !$frissit ) {
-            $html .= nl2('
-                </ul>
-            ');
-        }
-
-        return $html;
-    }
-
-    return false;
-}
-
-function anyagrendelesLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
