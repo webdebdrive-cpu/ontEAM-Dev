@@ -3738,7 +3738,7 @@ function getErtek($mit, $tabla, $keres, $val) {
     global $adatbazis_kapcsolat;
 
     $sor = $adatbazis_kapcsolat->s($mit, $tabla, "`{$keres}` = '{$val}'", '', '1');
-
+    
     if( $sor ) {
         $sor = $sor[0];
 

@@ -71,8 +71,167 @@ if($tobb_kep){
 }
 
 /* Munkalap lezárás */
+if( isset($_POST['munkalapMegrendelve']) ) {
+    $recid = $_POST['recid'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+        /* Ellenőrizzük, hogy hozzárendelés előkészítés alatt van e */
+        $sql = $munkalap = $adatbazis_kapcsolat->s('stat_id szallito_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $munkalap ) {
+            $munkalap = $munkalap[0];
+
+            if( $munkalap['stat_id'] != MUNKALAP_STAT_HOZREND_MEGREND_VAR ) {
+                echo json_encode(array(
+                    'hiba' => 'Csak Megrendelésre vár státuszban lehet a megrendelést véglegesíteni!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+
+            if( !$munkalap['szallito_id'] ) {
+                echo json_encode(array(
+                    'hiba' => 'Előbb rendeljen hozzá külső kivitelezőt!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+
+            //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+            if( $_POST['csak_kerdezunk'] ) {
+                echo json_encode(array(
+                    'hiba' => 'Biztos, hogy megrendelte '.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).' partnertől a munka elvégzését?',
+                    'gomb' => '<input class="gomb piros" value="Igen" onclick="munkalapMegrendelve( '.$recid.' );" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+
+            /* Átállítjuk a státuszt */
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) ) {
+                $db_error = true;
+            }
+
+            /* Átállítjuk a személyzet típust */
+            $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(KULSO_KIVITELEZO), "`recid` = '{$recid}'");
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( !$db_error ) {
+                mysqli_commit($db_kapcs);
+
+                echo json_encode(array(
+                    'statusz' => 'siker'
+                ));
+            } else {
+                mysqli_rollback($db_kapcs);
+
+                echo json_encode(array(
+                    'hiba' => tranzakcioHiba()
+                ));
+            }
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+/* Munkalap lezárás */
+if( isset($_POST['kuldesJovahagyasra']) ) {
+    $recid = $_POST['recid'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+        /* Ellenőrizzük, hogy hozzárendelés előkészítés alatt van e */
+        $sql = $munkalap = $adatbazis_kapcsolat->s('stat_id szallito_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+
+        if( $sql === false ) {
+            $db_error = true;
+        }
+
+        if( $munkalap ) {
+            $munkalap = $munkalap[0];
+
+            if( $munkalap['stat_id'] != MUNKALAP_STAT_HOZREND_ELOKESZ ) {
+                echo json_encode(array(
+                    'hiba' => 'Csak Hozzárendelés előkészítés alatt státuszban lehet külső kivitelezőt megadni!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+
+            if( !$munkalap['szallito_id'] ) {
+                echo json_encode(array(
+                    'hiba' => 'Előbb rendeljen hozzá külső kivitelezőt!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+
+            //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+            if( $_POST['csak_kerdezunk'] ) {
+                echo json_encode(array(
+                    'hiba' => 'Biztos elküldi jóváhagyásra a munkalapot?',
+                    'gomb' => '<input class="gomb piros" value="Igen" onclick="kuldesJovahagyasra( '.$recid.' );" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+
+            /* Átállítjuk a státuszt */
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZREND_JOVAHAGY ) ) {
+                $db_error = true;
+            }
+
+            /* Átállítjuk a személyzet típust */
+            $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(DISZPECSER_KOZP_VEZETO), "`recid` = '{$recid}'");
+
+            if( $sql === false ) {
+                $db_error = true;
+            }
+
+            if( !$db_error ) {
+                mysqli_commit($db_kapcs);
+
+                echo json_encode(array(
+                    'statusz' => 'siker'
+                ));
+            } else {
+                mysqli_rollback($db_kapcs);
+
+                echo json_encode(array(
+                    'hiba' => tranzakcioHiba()
+                ));
+            }
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+/* Munkalap lezárás */
 if( isset($_POST['kulsokivHozzarend']) ) {
     $recid = $_POST['recid'];
+    $szallitoid = $_POST['szallitoid'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -104,6 +263,12 @@ if( isset($_POST['kulsokivHozzarend']) ) {
 
                 $weblap->leallit();
                 exit();
+            }
+
+            $sql = $adatbazis_kapcsolat -> u('munkalap', array('szallito_id'), array($szallitoid), "`recid` = '{$recid}'");
+
+            if( $sql === false ) {
+                $db_error = true;
             }
 
             if( !$db_error ) {
@@ -1733,8 +1898,8 @@ if($gyorskereso_text){
         } else if( _jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_MUSZAK_ADMIN) ) {
             $gombok .= nl2('
                 <input type="button" class="gomb foGomb" value="Külső kivitelező hozzárendelése" title="Külső kivitelező hozzárendelése" onclick="csoportMuvelet(\'kulsokivHozzarend\');">
-                <input type="button" class="gomb foGomb" value="Küldés jóváhagyásra" title="Küldés jóváhagyásra" onclick="">
-                <input type="button" class="gomb foGomb" value="Megrendelve" title="Megrendelve" onclick="">
+                <input type="button" class="gomb foGomb" value="Küldés jóváhagyásra" title="Küldés jóváhagyásra" onclick="kuldesJovahagyasra(\''.$_GET['id'].'\', \'csak kérdezünk még\');">
+                <input type="button" class="gomb foGomb" value="Megrendelve" title="Megrendelve" onclick="munkalapMegrendelve(\''.$_GET['id'].'\', \'csak kérdezünk még\');">
             ');
         }
 
