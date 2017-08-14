@@ -107,7 +107,7 @@
 
         <td>Bruttó egységár:</td>
         <td>
-            <input type="text" id="pop_br_ear" name="pop_br_ear" class="f_num" data-tort="2" value="0,00" placeholder="" autocomplete="off" style="min-width: 10rem; width: 10rem;" disabled> Ft
+            <input type="text" id="pop_br_ear" name="pop_br_ear" class="f_num" data-tort="2" value="0,00" placeholder="" autocomplete="off" style="min-width: 10rem; width: 10rem;"> Ft
         </td>
 
         <td>Bruttó érték:</td>
@@ -142,27 +142,44 @@
 <script>
     
     $(document).on('keyup', '.f_num', function(e) {
-        osszegek_kiszamol();
+        osszegek_kiszamol($(this));
     });
     $(document).on('blur', '#pop_afa_autocomp', function(e) {
-        osszegek_kiszamol();
+        osszegek_kiszamol($(this));
     });
 
-	function osszegek_kiszamol(){
+	function osszegek_kiszamol(that){
+        
+        /* Ha épp a bruttót szerkesztjük akkor másképp számolunk lent */
+        var brutto = false;
+        if(that.attr('id')=='pop_br_ear'){
+            brutto = true;
+        }
+        
         menny  = $('#pop_menny').val().replace(',', '.').replace(' ', '');
         egyseg = $('#pop_net_ear').val().replace(',', '.').replace(' ', '');
         afa    = $('#pop_afa_autocomp').val().replace('%', '').trim();
         if(afa){
             afa = (afa/100)+1;
         }
+        
+        /* Ha a bruttó mezőben írjuk át az értéket, akkor a nettó egységárat kell meghatározni */
+        if(brutto){
+            egyseg = $('#pop_br_ear').val().replace(',', '.').replace(' ', '')/afa;
+            if(menny>0 && egyseg>0 && afa){
+                $('#pop_net_ear').val( ezresek(egyseg, 2, ',', ' '));
+            }
+        }else{
+            if(menny>0 && egyseg>0 && afa){
+                $('#pop_br_ear').val( ezresek(egyseg*afa, 2, ',', ' '));
+            }
+        }
+        
+        $('#pop_br_ar').val( ezresek(menny*egyseg*afa, 0, ',', ' '));
         if(menny>0 && egyseg>0){
             $('#pop_net_ar').val( ezresek(menny*egyseg, 0, ',', ' '));
         }else{
             $('#pop_net_ar').val('0');
-        }
-        if(menny>0 && egyseg>0 && afa){
-            $('#pop_br_ear').val( ezresek(egyseg*afa, 2, ',', ' '));
-            $('#pop_br_ar').val( ezresek(menny*egyseg*afa, 0, ',', ' '));
         }
     }
     

@@ -133,6 +133,27 @@ array_push($select_szemelyzet, array('name' => 'Műszaki vezető helyettes',  'v
 array_push($select_szemelyzet, array('name' => 'Területi felelős',          'value' => TERULETI_FELELOS,        'szin' => '#E0CBFF' ));
 array_push($select_szemelyzet, array('name' => 'Műszaki adminisztrátor',    'value' => MUSZAKI_ADMINISZTRATOR,  'szin' => '#E0CBFF' ));
 
+//Projektigénylés tipus
+$select_pri_tipus = array();
+array_push($select_pri_tipus, array('name' => '- Válasszon -',  'value' => '' ));
+array_push($select_pri_tipus, array('name' => 'Beruházás',      'value' => PRIGENY_TIPUS_BERUH  ));
+array_push($select_pri_tipus, array('name' => 'Fenntartás',     'value' => PRIGENY_TIPUS_FENNT  ));
+array_push($select_pri_tipus, array('name' => 'Tárgyi eszköz',  'value' => PRIGENY_TIPUS_TARGY  ));
+
+//Projektigénylés besorolás
+$select_pri_besorol = array();
+array_push($select_pri_besorol, array('name' => '- Válasszon -',    'value' => '' ));
+array_push($select_pri_besorol, array('name' => 'Fejlesztés',       'value' => PRIGENY_BESOROL_FEJL  ));
+array_push($select_pri_besorol, array('name' => 'Felújítás',        'value' => PRIGENY_BESOROL_FELU  ));
+array_push($select_pri_besorol, array('name' => 'Rekonstrukció ',   'value' => PRIGENY_BESOROL_REKO  ));
+
+//Projektigénylés cél
+$select_pri_cel = array();
+array_push($select_pri_cel, array('name' => '- Válasszon -',    'value' => '' ));
+array_push($select_pri_cel, array('name' => 'Költségcsökkenés', 'value' => PRIGENY_CEL_CSO  ));
+array_push($select_pri_cel, array('name' => 'Bevételnövekedés', 'value' => PRIGENY_CEL_NOV  ));
+
+
 //Beosztás tipus
 $select_beosztas = array();
 array_push($select_beosztas, array('name' => '- Válasszon -', 'value' => '' ));

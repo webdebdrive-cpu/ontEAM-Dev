@@ -4059,7 +4059,15 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     if( !sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
         $('#navGombok a.torles').addClass('disabled').attr('onclick', '');
     } else if( sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
-        gomb_uzi = 'Biztosan törli a kijelölt sorokat?';
+        
+        szoveg = 'sorokat';
+        if(_get('velemenyezok')){
+            szoveg = 'véleményezőket';
+        }
+        if(_get('szallodak')){
+            szoveg = 'szállodákat';
+        }
+        gomb_uzi = 'Biztosan törli a kijelölt '+szoveg+'?';
         gomb_muv = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\');"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>';
 
         $('#navGombok a.torles').removeClass('disabled').attr('onclick', 'alert2(\'' + gomb_uzi + '\', gomb_muv);');
@@ -4195,14 +4203,17 @@ function kapcsolodoSzerkeszt( oldal ) {
         $('#popupTart').html(data);
 
         switch( oldal ) {
+            case 'megjegyzes':
+                $('#addMegjegyzes').attr('onsubmit', 'return addMegjegyzes(\'' + _get('id') + '\', this);');
+            break;
             case 'szakterulet':
                 $('#addSzakterForm').attr('onsubmit', 'return addSzakterulet(\'' + _get('id') + '\', this);');
             break;
             case 'szallodak':
                 $('#addSzallodaForm').attr('onsubmit', 'return addSzalloda(\'' + _get('id') + '\', this);');
             break;
-            case 'megjegyzes':
-                $('#addMegjegyzes').attr('onsubmit', 'return addMegjegyzes(\'' + _get('id') + '\', this);');
+            case 'velemenyezok':
+                $('#addVelemenyezokForm').attr('onsubmit', 'return addVelemenyezoFg(\'' + _get('id') + '\', this);');
             break;
         }
 
@@ -4476,6 +4487,7 @@ function addMegjegyzes( pageID, that ) {
     return false;
 }
 
+/* Szálloda hozzárendelése felhasználóhoz */
 function addSzalloda( loginID, that ) {
     var szallID = $(that).find('input[name="addSzall"]').val();
 
@@ -4505,6 +4517,43 @@ function addSzalloda( loginID, that ) {
         $.when( ajax ).then(function() {
             $(that).find('input[name="addSzalloda"]').val('');
             $(that).find('input[name="addSzalloda_autocomp"]').val('');
+        });
+    }
+
+    return false;
+}
+
+/* Véleményező hozzáadása projektigényléshez */
+function addVelemenyezoFg( pr_igeny_recid, that ) { 
+
+    var login_recid = $(that).find('input[name="addVelemenyezo"]').val();
+
+    if( login_recid && pr_igeny_recid ) {
+        var ajax = $.ajax({
+         	url : 'projektigenyles.php',
+         	type: 'GET',
+         	data: esamp2es('login_recid=' + login_recid + '&amp;pr_igeny_recid=' + pr_igeny_recid + '&amp;addVelemenyezo=' + new Date().getTime()),
+         	success: function(html) {
+         		if(html) {
+                    html = JSON.parse(html);
+
+                    if( html.statusz == 'hiba' ) {
+                        alert2(html.uzi, '', 'Hiba');
+                        return false;
+                    }
+
+         			szamlaBetolt(pr_igeny_recid, baseName(location.href) + '.php', 'velemenyezok').done(function() {
+                        $('#naploSor-' + html.kapcsID).addClass('uj');
+                    });
+
+                    popupZar();
+         		}
+         	}
+        });
+
+        $.when( ajax ).then(function() {
+            $(that).find('input[name="addVelemenyezo"]').val('');
+            $(that).find('input[name="addVelemenyezo_autocomp"]').val('');
         });
     }
 
@@ -4664,7 +4713,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         'terkep',
                         'tortenet',
                         'tetel',
-                        'ujkent'
+                        'ujkent',
+                        'velemenyezok'
                     ], true);
                     if( muvelet != 'uj' ) {
 
@@ -4701,44 +4751,46 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Új anyagigénylés csak az anyagigénylés menüpont alatt tölthető fel!\', \'\', \'Hiba\'); void(0);');
                     } else if( baseName(location.href) == 'beosztas' && _get('naptar') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: $(\'#szerk_form div.dt\').show(); void(0);');
+                    } else if( baseName(location.href) == 'beosztas' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'bejelentes' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'cikktorzs' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                    } else if( baseName(location.href) == 'utemezett_feladatok' && _get('megjegyzesek') ) {
+                    } else if( baseName(location.href) == 'energia' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                    } else if( baseName(location.href) == 'eseti_fenntartas' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                    } else if( baseName(location.href) == 'eszkozkezeles' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                    } else if( baseName(location.href) == 'fenntartasi_szerzodes' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                    } else if( baseName(location.href) == 'login' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'munkalap' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'rendszeres_karbantartas' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                    } else if( baseName(location.href) == 'eseti_fenntartas' && _get('megjegyzesek') ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'raktar' && _get('megjegyzesek') ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                    } else if( baseName(location.href) == 'eszkozkezeles' && _get('megjegyzesek') ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                    } else if( baseName(location.href) == 'tervezes' && _get('megjegyzesek') ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                    } else if( baseName(location.href) == 'energia' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'projektigenyles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'projektkezeles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                    } else if( baseName(location.href) == 'fenntartasi_szerzodes' && _get('megjegyzesek') ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'szamla' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'szallito' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                    } else if( baseName(location.href) == 'tervezes' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( baseName(location.href) == 'torzsadat' && _get('megjegyzesek') ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                    } else if( baseName(location.href) == 'beosztas' && _get('megjegyzesek') ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                    } else if( baseName(location.href) == 'login' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( _get('szallodak') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);');
+                    } else if( baseName(location.href) == 'utemezett_feladatok' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+                    } else if( _get('velemenyezok') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'velemenyezok\'); void(0);');
                     } else {
                         $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?uj');
                     }

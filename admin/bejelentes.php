@@ -450,8 +450,7 @@ if($gyorskereso_text){
         //Ha nem diszpécser
         } else {
 
-            $statusz = $adatbazis_kapcsolat->s('stat_id', 'bejelentes_statusz', "`bejelentes_recid`='".$_GET['id']."'", 'insert_dt desc', '1');
-            $statusz = $statusz[0];
+            $statusz = $adatbazis_kapcsolat->s2('stat_id', $megnevezes.'_statusz', "`{$megnevezes}_recid`='".$_GET['id']."'", 'insert_dt desc', '1');
 
             //Csak nyitott státuszú törölhető
             if($statusz['stat_id'] != BEJELENTES_STAT_NYITOTT) {
