@@ -1547,7 +1547,9 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
         mysqli_commit($db_kapcs);
 
         echo json_encode(array(
-            'statusz' => 'siker'
+            'statusz' => 'siker',
+            'alert'   => 'A készpénzes anyagbeszerzéshez készült rendelésszám:<br>'.$rndid.'<br>Kérem, írja rá a számlára!',
+            'gomb'    => '<input type="button" class="gomb" value="Ok" onclick="location.href=\'anyagigenyles.php?anyagrend&amp;id='.$anyagigenyles.'&amp;modosit\'">',
         ));
     } else {
         mysqli_rollback($db_kapcs);

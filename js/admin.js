@@ -4096,19 +4096,25 @@ function mellekTorol( tabla, mellek ) {
                 idk         : JSON.stringify(idk),
                 mellekTorol : new Date().getTime()
             },
-         	success: function(html) {
-         		if(html) {
-         			html = JSON.parse(html);
+         	success: function(response) {
+         		if(response) {
+         			response = JSON.parse(response);
 
-                    if( html.hiba ) {
-                        alert2(html.hiba, '', 'Hiba');
+                    if( response.hiba ) {
+                        alert2(response.hiba, '', 'Hiba');
                         return false;
                     }
 
-                    if( html.statusz == 'siker' ) {
+                    if( response.statusz == 'siker' ) {
                         szamlaBetolt(_get('id'), baseName(location.href) + '.php', mellek);
-                        alert2();
+                        if( response.alert ) {
+                            alert2(response.alert, response.gomb);
+                        }else{
+                            alert2();
+                        }
                     }
+                    
+                    
          		}
          	}
         });
@@ -5214,4 +5220,30 @@ function balnav_kijelol_ell(egy_csoport_reszben_szabad){
     }
 
     return true;
+}
+
+/* Projekt igényléssnél ha az összes véleményező törölve van, rákérdezünk, hogy létetjük-e a státuszt nyitotba.
+ * De akkor már általánosan lett megírva a függvény. */
+function pri_statusz_leptet(recid, statusz){
+    $.ajax({
+        url : 'projektigenyles.php',
+        type: 'POST',
+        data: {
+            recid             : recid,
+            statusz           : statusz,
+            pri_statusz_leptet: new Date().getTime()
+        },
+        success: function (response) {
+            
+            response = JSON.parse(response);
+            if(response.siker){
+                szamlaSorFrissit('projektigenyles', recid);
+                alert2();
+            }
+            
+            if(response.hiba){
+                alert2(response.hiba, '', 'Hiba');
+            }
+        }
+    });
 }

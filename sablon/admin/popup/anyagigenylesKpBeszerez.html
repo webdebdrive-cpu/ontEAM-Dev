@@ -405,6 +405,10 @@
                         return false;
                     }
                     
+                    if( response.alert ) {
+                        alert2(response.alert, response.gomb);
+                    }
+                    
                     popupZar();
                 }
             }

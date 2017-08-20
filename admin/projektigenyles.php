@@ -28,11 +28,6 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
-if( $_POST ) {
-    echo '<pre style="font-size: 1.4rem">', print_r($_POST), '</pre>';
-    exit();
-}
-
 //Több kép menedzseléséhez
 $tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
@@ -144,6 +139,34 @@ if( isset($_GET['addVelemenyezo']) ) {
         }
     }
 
+    $weblap->leallit();
+    exit();
+}
+
+//Státusz léptetés
+if (isset($_POST['pri_statusz_leptet'])) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    if(addStatusz('projektigenyles_statusz', $_POST['recid'], $_POST['statusz'])===false){
+        $db_error = true;
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }else{
+        mysqli_rollback($db_kapcs);
+
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
+    }
+    
     $weblap->leallit();
     exit();
 }

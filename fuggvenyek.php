@@ -3952,7 +3952,6 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
                                                 "`recid`='{$akt_statusz['recid']}'"
                                             );
             if( $sql === false ) { $db_error = true; }
-
             /* Beszúrjuk az újat */
             $sql = $adatbazis_kapcsolat -> i($tabla,
                                                 array($kulso_kulcs.'_recid', 'stat_id', 'erteklista_recid',  'insert_dt',   'insert_usr',                              'update_usr',                          'text' ),

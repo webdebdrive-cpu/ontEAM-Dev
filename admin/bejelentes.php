@@ -492,7 +492,7 @@ if($gyorskereso_text){
                             '.$sor['hiba_text'].'
                             '.$gep_nev.'
                         </div>
-                        <br>Biztosan törlöd ezt a '.$szoveg.'?
+                        <br>Biztosan törli ezt a '.$szoveg.'?
                     \';</script><input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(torol_kerdes, gomb'.$_GET['id'].')" value="Töröl" title="Töröl">
                 ');
             }

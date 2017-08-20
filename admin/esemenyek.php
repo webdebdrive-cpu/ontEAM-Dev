@@ -1361,6 +1361,7 @@ $anyagigenyles_tomb = $akt_tomb = array(
     array('type' => 'text',                     'megn' => 'Deviza rend. egységár:',         'name' => 'vrndear',        'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="4"',   'osszevon' => 1),
     array('type' => 'text',                     'megn' => $tav_26.'Deviza beérk. egységár:','name' => 'verkear',        'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="4"'),
     array('type' => 'autocomplete',             'megn' => 'Szállító:',                      'name' => 'szallito_id',    'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'id_kiir' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
+    
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -1456,13 +1457,15 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 //Projektigénylés
-$megnevezes = 'projektigenyles';
-$megter_cel_rejt = ' class="dn"';
+$megnevezes       = 'projektigenyles';
+$megter_cel_rejt  = ' class="dn"';
+$letrehozta_mikor = '';
 if (isset($_GET['modosit'])) {
-    $pi = $adatbazis_kapcsolat->s2('megter', $megnevezes, "`recid`='{$_GET['id']}'");
+    $pi = $adatbazis_kapcsolat->s2('megter insert_dt insert_usr', $megnevezes, "`recid`='{$_GET['id']}'");
     if($pi['megter']){
         $megter_cel_rejt = '';
     }
+    $letrehozta_mikor = 'Létrehozta: <b>'.$pi['insert_usr'].' '.  str_replace('-', '.', substr($pi['insert_dt'], 0, 16)).'</b>-kor';
 }
 
 $projektigenyles_tomb = $akt_tomb = array(
@@ -1496,6 +1499,15 @@ array('type' => 'html',                     'megn' => nl2('
     array('type' => 'textarea',             'megn' => 'Leírása:',               'name' => 'text',       'szuro' => 1,      'class' => 'oriasiTargy disableNav'),
     array('type' => 'text',                 'megn' => 'Becsült költsége:',      'name' => 'bkolt',      'szuro' => 1,      'class' => 'oriasi f_num', 'data' => 'data-tort="4"', 'post' => ' '.get_penznem()),
     array('type' => 'text',                 'megn' => 'Tervezett cash-flow:',   'name' => 'cashf',      'szuro' => 1,      'class' => 'oriasi'),
+array('type' => 'html',                     'megn' => nl2('
+                                                        <div class="dtr">
+                                                            <div class="dtc form_bal">
+                                                            </div>
+                                                            <div class="dtc form_jobb">
+                                                                '.$letrehozta_mikor.'
+                                                            </div>
+                                                        </div>
+                                                                ')),
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -3750,19 +3762,36 @@ if( isset($_POST['mellekTorol']) ) {
             $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
             if( $sql === false ) { $db_error = true; }
         }
+        
+        //Projektigényléseknél véleményezők törlésekor lehet vissza is kell állítani a projektigénylés státuszát
+        $pri_statusz_kerdez = false;
+        if($tabla=='projektigenyles_kapcs'){
+            //Ha nem maradt véleményező, akkor rákérdezünk, hogy menjen-e vissza nyitottba
+            if(!$adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$recid}'", '', '0,1')){
+                $pri_statusz_kerdez = true;
+            }
+        }
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
 
-            echo json_encode(array(
-                'statusz' => 'siker'
-            ));
+            if($pri_statusz_kerdez){
+                echo json_encode(array(
+                                    'statusz' => 'siker',
+                                    'alert'   => 'Ehhez a projektigényléshez nem tartozik több véleményező.<br>Állítsuk át a státuszát nyitottra?',
+                                    'gomb'    => '<input class="gomb zold" type="button" value="Igen" onclick="pri_statusz_leptet(\''.$recid.'\', \''.PRIGENY_STAT_NYITOTT.'\')"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">',
+                                ));
+            }else{
+                echo json_encode(array(
+                                    'statusz' => 'siker'
+                                ));
+            }
         } else {
             mysqli_rollback($db_kapcs);
 
             echo json_encode(array(
-                'hiba' => tranzakcioHiba()
-            ));
+                                'hiba' => tranzakcioHiba()
+                            ));
         }
     }
 
@@ -4510,13 +4539,16 @@ foreach($postok as $ertek){
         $sql = $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='{$ertek['tabla']}' AND `id`='{$_GET[$ertek['torid']]}'");
         if( $sql === false ) { $db_error = true; }
 
-        //Státusz tábla törlése
-        $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
-        if( $sql === false ) { $db_error = true; }
+        //Státusz tábla törlése, hacsak nem kivételes
+        $kivetelek = array('utemezett_feladatok');
+        if( !in_array($ertek['tabla'], $kivetelek) ){
+            $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sql === false ) { $db_error = true; }
+        }
 
         //Dokumentumok törlése
         $dokos_oldalak = array('anyagigenyles', 'bejelentes', 'munkalap', 'utemezett_feladatok', 'projektigenyles');
-            if( in_array($ertek['tabla'], $dokos_oldalak) ){
+        if( in_array($ertek['tabla'], $dokos_oldalak) ){
             $fajlok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$_GET[$ertek['torid']]}'");
             foreach($fajlok as $fajl){
                 unlink('../'.get_utvonal().$fajl['kepnev']);
