@@ -2134,7 +2134,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
             //Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
             $bold = '';
             if( $bsz['stat_id'] == BEJELENTES_STAT_NYITOTT ){
-                $bold = ' class="b"';
+                $bold    = ' class="b"';
                 $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
 
@@ -2274,7 +2274,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
             //Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
             $bold = '';
             if( $bsz['stat_id'] == MUNKALAP_STAT_NYITOTT ){
-                $bold = ' class="b"';
+                $bold    = ' class="b"';
                 $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
 
@@ -2902,7 +2902,8 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit ) {
             //Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
             $bold = '';
             if( $bsz['stat_id'] == PRIGENY_STAT_NYITOTT ){
-                $bold = ' class="b"';
+                $bold    = ' class="b"';
+                //$active .= ' nyitott_statuszu'; //Erre itt nincs szükség, de meghagytam, ha később mégis kellene valamire
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">

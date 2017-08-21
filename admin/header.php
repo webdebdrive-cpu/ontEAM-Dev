@@ -446,9 +446,9 @@ $menu_nev_tobbes = 'Projektek';
 $megn            = 'projektigenyles';
 $aloldalak       = array($megn.'.php', 'projektkezeles.php', 'cash_flow.php');
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-if(basename(self())=='projektigenyles.php') { $oldalNev = 'Projektek / Projektigénylések';  }
-if(basename(self())=='projektkezeles.php')  { $oldalNev = 'Projektek / Projektkezelés';     }
-if(basename(self())=='cash_flow.php')       { $oldalNev = 'Projektek / Cash Flow';          }
+if(basename(self())=='projektigenyles.php') { $oldalNev = 'Projektek / <span id="rekord_neve">Projektigénylések</span><span class="dn" id="rekord_neve_egyes">projektigénylés</span><span class="dn" id="rekord_neve_targy">projektigénylést</span>';  }
+if(basename(self())=='projektkezeles.php')  { $oldalNev = 'Projektek / <span id="rekord_neve">Projektkezelés</span><span class="dn" id="rekord_neve_egyes">projektkezelés</span><span class="dn" id="rekord_neve_targy">projektkezelést</span>';     }
+if(basename(self())=='cash_flow.php')       { $oldalNev = 'Projektek / <span id="rekord_neve">Cash Flow</span><span class="dn" id="rekord_neve_egyes">Cash Flow</span><span class="dn" id="rekord_neve_targy">Cash Flow-t</span>';          }
 
 $aktmenuk  = '';
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Projektigénylések'  ), $almenu_sablon );

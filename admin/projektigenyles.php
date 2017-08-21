@@ -290,7 +290,27 @@ if($gyorskereso_text){
             if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
                 $nem_szerkesztheti = true;
             }
-
+            
+            //Elutasítás
+            if($statusz['stat_id'] != PRIGENY_STAT_ELUTASITVA) {
+                $gombok .= ' <input type="button" class="gomb_alert foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas\');">';
+            }
+            if($statusz['stat_id'] != PRIGENY_STAT_HIANYPOTLAS) {
+                $gombok .= ' <input type="button" class="gomb_alert foGomb" value="Hiánypótlás" title="Hiánypótlás" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_HIANYPOTLAS.'\');">';
+            }
+            if($statusz['stat_id'] != PRIGENY_STAT_FB_TERJESZT) {
+                $gombok .= ' <input type="button" class="gomb foGomb" value="FB elé terjeszt" title="FB elé terjeszt" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_FB_TERJESZT.'\');">';
+            }
+            if($statusz['stat_id'] != PRIGENY_STAT_BOD_TERJESZT) {
+                $gombok .= ' <input type="button" class="gomb foGomb" value="BoD elé terjeszt" title="BoD elé terjeszt" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_BOD_TERJESZT.'\');">';
+            }
+            if($statusz['stat_id'] != PRIGENY_STAT_VARAKOZO) {
+                $gombok .= ' <input type="button" class="gomb foGomb" value="Várakozó" title="Várakozó" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_VARAKOZO.'\');">';
+            }
+            if($statusz['stat_id'] != PRIGENY_STAT_JOVAHAGYVA) {
+                $gombok .= ' <input type="button" class="gomb zold foGomb" value="Jóváhagy" title="Jóváhagy" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_VARAKOZO.'\');">';
+            }
+            
             if(!$nem_szerkesztheti && isset($_GET['modosit'])){
                 $gombok = nl2('
                     <div class="form_kuldes">
@@ -377,7 +397,7 @@ if($gyorskereso_text){
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html;
@@ -482,7 +502,6 @@ if($gyorskereso_text){
     //Véleményezők fül
     }elseif(isset($_GET['velemenyezok'])) {
 
-
         /* Fejlécek */
         $szamla_html .= '<div id="tablazatBeszur">';
         $szamla_html .= nl2('
@@ -516,10 +535,10 @@ if($gyorskereso_text){
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html
+                'tartalom' => $szamla_html.$gombok
             ));
         } else {
-            echo $szamla_html;
+            echo $szamla_html.$gombok;
         }
 
 	//Történet

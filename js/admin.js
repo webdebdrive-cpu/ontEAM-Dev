@@ -3464,8 +3464,12 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                     szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
                     if( szamlaSorok.length>1 ) {
                         alert2('Egyszerre csak egy '+$('#rekord_neve_egyes').html()+' utasítható el!', '', 'Hiba');
-                    }else if( !$('#szamlaList li.szamla_sor.kijelolve').hasClass('nyitott_statuszu') ){
+                        
+                    /* Bejelentés, csak akkor utsasítható el, ha nyitott */
+                    }else if( oldal=='bejelentes' && !$('#szamlaList li.szamla_sor.kijelolve').hasClass('nyitott_statuszu') ){
+                        
                         alert2('Csak nyitott státuszú '+$('#rekord_neve_egyes').html()+' utasítható el!', '', 'Hiba');
+                        
                     }else{
 
                         /* Az előző feltétel miatt itt biztosan csak egy sor van megjelölve */
@@ -5236,8 +5240,11 @@ function pri_statusz_leptet(recid, statusz){
         success: function (response) {
             
             response = JSON.parse(response);
-            if(response.siker){
+            if(response.statusz=='siker'){
                 szamlaSorFrissit('projektigenyles', recid);
+                if(_get('modosit')){
+                    szamlaBetolt(recid, 'projektigenyles.php', 'modosit');
+                }
                 alert2();
             }
             

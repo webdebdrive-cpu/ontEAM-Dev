@@ -523,7 +523,7 @@ input.gomb_alert:hover, input.gomb_alert:focus, input.gomb_alert:active{
     background: #D35454;
 }
 
-input.gombb{
+input.gomb.zold, input.gombb{
     background: #69A64E;
     border: 0;
     border-radius: 0.2rem;

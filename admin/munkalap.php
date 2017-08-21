@@ -1737,7 +1737,8 @@ if($gyorskereso_text){
                 '.$gombok.'
             </div>
         ');
-
+    
+    /* Módosítás */
     } else {
 
         $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);

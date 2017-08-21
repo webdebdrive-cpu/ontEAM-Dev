@@ -3396,18 +3396,23 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
     $elutasitas_id  = $_POST['elutasitas_id'];
     $idk            = json_decode($_POST['idk'], true);
 
+    switch($tabla){
+        case 'bejelentes':      $statusz = BEJELENTES_STAT_ELUTASITVA; break;
+        case 'projektigenyles': $statusz = PRIGENY_STAT_ELUTASITVA;    break;
+    }
+    
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
     if( $elutasitas_id && is_array($idk) ) {
         foreach($idk as $id) {
-            if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_ELUTASITVA, $elutasitas_id, $memo ) === false ) {
+            
+            if( addStatusz( $tabla.'_statusz', $id, $statusz, $elutasitas_id, $memo ) === false ) {
                 $db_error = true;
             }
 
             /* Hozzáadjuk a megjegyzést is ha van */
             if( $memo ) {
-
                 $megj_felvesz = addMegj($tabla, $id, $memo);
                 if( $megj_felvesz === false ) {
                     $db_error = true;
