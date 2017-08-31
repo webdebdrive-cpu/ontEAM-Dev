@@ -1737,7 +1737,7 @@ if($gyorskereso_text){
                 '.$gombok.'
             </div>
         ');
-    
+
     /* Módosítás */
     } else {
 
@@ -1936,7 +1936,7 @@ if($gyorskereso_text){
 	    require_once('info.php');
 
 	    //FORM
-		if(isset($_GET['ujkent'])) {
+		if($_GET['ujkent']) {
             $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['ujkent']);
 
             if( $sor ) {
