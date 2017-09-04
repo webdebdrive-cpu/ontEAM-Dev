@@ -708,7 +708,6 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     $csuszkadn  = '';
 }
 
-
 $self = basename(self());
 $megn = str_replace('.php', '', basename(self()) );
 
@@ -734,8 +733,17 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
                 $selected = ' selected="selected"';
             }
 
+            $kieg_text = '';
+            if( basename(self()) == 'bejelentes.php' ) {
+                $kieg_text = 'Bejelentés';
+            } else if( basename(self()) == 'munkalap.php' ) {
+                $kieg_text = 'Munkalap';
+            } else if( basename(self()) == 'anyagigenyles.php' ) {
+                $kieg_text = 'Anyagigénylés';
+            }
+
             //Cikktorzsnél az ID legyen cikkszám
-            $rend_mezo_txt = getOszlopNev($rend_mezo);
+            $rend_mezo_txt = getOszlopNev($rend_mezo, $kieg_text);
             if(basename(self())=='cikktorzs.php' && $rend_mezo=='id'){
                 $rend_mezo_txt = 'Cikkszám';
             }
@@ -839,6 +847,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } elseif( isset($_GET['velemenyezok']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'velemenyezok\'); void(0);';
+    } elseif( basename(self()) == 'bejelentes.php' && _jog(JOG_DISZPECSER) ) {
+        $uj_link = 'javascript: bejSzallodaValaszt(); void(0);';
     } else {
         $uj_link = self().'?uj';
     }
@@ -876,10 +886,6 @@ if( !in_array($megn, $nem_kell_szuro)){
 
 /* NYOMTATÁS */
 require_once 'nyomtatas.php';
-
-
-
-
 
 $torol_dis = '';
 if( !isset($_GET['modosit']) ) {

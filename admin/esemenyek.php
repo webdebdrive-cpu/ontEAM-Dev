@@ -823,7 +823,10 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 /* Bejelentés */
 $megnevezes = 'bejelentes';
 
-if( isset($_GET['modosit']) && $_GET['id'] ) {
+if( isset($_GET['uj']) && $_GET['bejelento'] ) {
+    /* Felhasználó lekérdezése a bejelentés táblához */
+    $user = $adatbazis_kapcsolat->s('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', 'nev='.$_GET['bejelento'], '', '1');
+} else if( isset($_GET['modosit']) && $_GET['id'] ) {
     $loginNev = $adatbazis_kapcsolat->s('loginnev', $megnevezes, 'recid='.$_GET['id'], '', '1');
 
     if( $loginNev ) {
@@ -868,7 +871,7 @@ if (isset($_GET['modosit'])) {
 $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'statusz',         'megn' => 'Státusz:',            'name' => 'stat_id',    'szuro' => 1,  'oldal' => $megnevezes),
     array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',     'szuro' => 1,  'class' => 'check', 'onclick' => $surgos_allit),
-	array('type' => 'text',            'megn' => 'Iktató szám:',        'name' => 'ikt_szam',   'szuro' => 1,  'disabled' => true,       'maxlength' => 250, 'class' => 'oriasi'),
+	array('type' => 'text',            'megn' => 'Bejelentés szám:',    'name' => 'ikt_szam',   'szuro' => 1,  'disabled' => true,       'maxlength' => 250, 'class' => 'kozepes'),
     array('type' => 'info',            'megn' => 'Név:',                'name' => 'felh_nev',   'value' => $user['teljes_nev']),
     array('type' => 'info',            'megn' => 'Beosztás:',           'value' => erteklista(18, $user['beosztas_id'])),
     array('type' => 'info',            'megn' => 'Részleg:',            'value' => erteklista(17, $user['reszleg_id'])),
@@ -909,7 +912,7 @@ if(isset($_GET['modosit'])){
 $megnevezes = 'munkalap';
 $munkalap_tomb = $akt_tomb = array(
     array('type' => 'statusz',                  'megn' => 'Státusz:',                   'name' => 'stat_id',            'szuro' => 1,           'oldal' => $megnevezes),
-    array('type' => 'text',                     'megn' => 'Iktató szám:',               'name' => 'ikt_szam',           'szuro' => 1, 'disabled' => 1,        'maxlength' => 250, 'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
+    array('type' => 'text',                     'megn' => 'Munkalap szám:',             'name' => 'ikt_szam',           'szuro' => 1, 'disabled' => 1,        'maxlength' => 250, 'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
     array('type' => 'checkbox',                 'megn' => 'Sürgős:',                    'name' => 'surgos',             'szuro' => 1,                           'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>', 'onclick' => $surgos_allit),
     array('type' => 'checkbox',                 'megn' => 'Visszaadva:',                'name' => 'visszaadva',         'szuro' => 1, 'disabled' => 1,          'class' => 'check'),
     array('type' => 'textarea',                 'megn' => 'Leírása:',                   'name' => 'text',               'szuro' => 1, 'disabled' => 0,          'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
@@ -1344,7 +1347,7 @@ $tav_26 = '<span style="margin-left: 2.6rem"></span>';
 $tav_4  = '<span style="margin-left: 4rem"></span>';
 $anyagigenyles_tomb = $akt_tomb = array(
     array('type' => 'statusz',                  'megn' => 'Státusz:',                       'name' => 'stat_id',        'szuro' => 1,   'oldal' => $megnevezes),
-    array('type' => 'text',                     'megn' => 'Iktató szám:',                   'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 8rem'),
+    array('type' => 'text',                     'megn' => 'Anyagigénylés szám:',            'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 8rem'),
     array('type' => 'checkbox',                 'megn' => 'Készpénzes:',                    'name' => 'keszpenz',       'szuro' => 1,   'disabled' => 1,   'post' => '<span style="margin-left: 2rem"></span><input type="button" value="rendelés kép" class="gomb f_nem_rejt">'),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                      'name' => 'telephely_id',   'szuro' => 1,   'disabled' => 1,   'class' => 'disableNav',   'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'text',                     'megn' => 'Cikkszám:',                      'name' => 'cikk_id',        'szuro' => 1,   'disabled' => 1),
@@ -2269,7 +2272,7 @@ if( isset($_GET['folyamatban_munkak']) ) {
             <div class="mobilkeret">
                 <table class="csikos">
                     <tr>
-                        <th>Iktató szám</th>
+                        <th>Munkalap szám</th>
                         <th>Szálloda</th>
                         <th>Hely leírása</th>
                         <th>Bejelentett hiba</th>
@@ -2331,7 +2334,6 @@ if( isset($_GET['folyamatban_munkak']) ) {
 /* Munkalaphoz adás */
 if( isset($_GET['getBejBejelentok']) ) {
     $telephely_id = $_GET['telephely_id'];
-    $obj_id       = $_GET['obj_id'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -2354,7 +2356,7 @@ if( isset($_GET['getBejBejelentok']) ) {
 
         if( $loginok ) {
             $html = nl2('
-                <div class="mobilkeret">
+                <div id="bejbejelentok" class="mobilkeret">
                     <table class="csikos egyErtek sorLink">
                         <tr>
                             <th>Név</th>
@@ -2379,7 +2381,7 @@ if( isset($_GET['getBejBejelentok']) ) {
 
             echo json_encode(array(
                 'hiba' => 'Válasszon hibabejelentőt a(z) '.getErtek('nev', 'telephely', 'id', $telephely_id).' szállodából!'.$html,
-                'gomb' => '<p class="c"><input id="diszpFeltolt" class="gomb zold" disabled type="button" value="Mentés" onclick="bejelentes_mehet2 = true; $(\'#szerk_form\').submit();"><input class="gomb piros" type="button" value="Mégsem" onclick="alert2()"></p>'
+                'gomb' => '<p class="c"><input id="diszpFeltolt" class="gomb zold" disabled type="button" value="Tovább" onclick="bejBejValaszt( '.$telephely_id.' );"><input class="gomb piros" type="button" value="Mégsem" onclick="alert2()"></p>'
             ));
 
             $weblap->leallit();

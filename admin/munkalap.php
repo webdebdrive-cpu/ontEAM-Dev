@@ -2254,7 +2254,7 @@ if($gyorskereso_text){
         $szamla_html .= nl2('
             <div class="dt naplo kijCont" data-tabla="munkalap_kapcs" data-mellek="bejelentesek">
                 <div class="dtr nFejlec">
-                    <div class="dtc">Iktató szám</div>
+                    <div class="dtc">Bejelentés szám</div>
                     <div class="dtc">Szálloda</div>
                     <div class="dtc">Hiba</div>
                     <div class="dtc">Bejelentve</div>
