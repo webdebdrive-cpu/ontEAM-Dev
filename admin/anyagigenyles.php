@@ -1517,7 +1517,7 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
             }
 
 
-            /* Anyagigénylés beszúrása (itt nem kell iktatószámot generáni, mert egyből archiválni fogjuk) */
+            /* Anyagigénylés beszúrása (itt nem kell iktatószámot generálni, mert egyből archiválni fogjuk) */
             $anyagigenyles = $adatbazis_kapcsolat->i('anyagigenyles', array('rndid',  'szallito_id',         'telephely_id',         'cikk_id',            'nev',            'cikkmee',            'stat_id',             'rndmen',         'igmen',         'jhmen',         'erkmen',        'erkear',      'rndear',      'kulsosnek', 'keszpenz', 'erkcimid', 'rnd_dt', 'kcs_21', 'oracikkid', 'aparecid',      'insert_dt',  'insert_usr',                              'update_usr'                             ),
                                                                       array($rndid,   $_POST['szallito_id'], $_POST['telephely_id'], $anyag['cikkszam'],   $ciktorzs['nev'], $ciktorzs['cikkmee'],  CIKKIGN_STAT_NYITOTT, $anyag['menny'],  $anyag['menny'], $anyag['menny'], $anyag['menny'], $anyag['ear'], $anyag['ear'], $kulsosnek,  1,          1,          'NOW()',   5,       $oracikkid,  $cikkrendfej_id, 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
                                                     );
