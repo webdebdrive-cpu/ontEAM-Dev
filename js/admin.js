@@ -528,7 +528,9 @@ $(function() {
      *2do: Checkbox-ra hogyna lehetne léptetni?
      *     elsubmitolja az űrlapot, ezért a submit gombot sima gombra kell cserélni ami a form-ot submitolja, de akkor a form_modosit.html-ben nem fog működni a if(!$('#szerk_form input[type="submit"]').length) feltétle, tehát azt is át kell írni.
  */
-    $(":input").each(function (i) { $(this).attr('tabindex', i + 1); });
+    $(':input[type!="hidden"]').each(function (i) {
+        $(this).attr('tabindex', i + 1);
+    });
 
     $(document).on('keyup', 'input[type="checkbox"]', function(e) {
         if( e.keyCode == 32 ) {
@@ -1199,6 +1201,10 @@ function bejBejValaszt( telephely ) {
 
         location.href = 'bejelentes.php?uj&bejelento=' + nev + '&telphely=' + telephely;
     }
+}
+
+function bejBejManualis( value ) {
+    location.href = 'bejelentes.php?uj&manualisan&telphely=' + value;
 }
 
 function bejBejelentok( value ) {
@@ -4858,7 +4864,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( _get('velemenyezok') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'velemenyezok\'); void(0);');
-                    } else if( baseName(location.href) == 'bejelentes' ) {
+                    } else if( baseName(location.href) == 'bejelentes' && _jogok[2] == 1 ) {
                         $('#navGombok a.uj').attr('href', 'javascript: bejSzallodaValaszt(); void(0);');
                     } else {
                         $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?uj');

@@ -670,6 +670,8 @@ $header_html .= '<body'.$body_class;
     if( isset($_GET['uj']) ) {
         if( basename(self()) == 'ktghely.php' || basename(self()) == 'ktgnem.php' ) {
             $header_html .=' onload="if(document.getElementById(\'id\')){document.getElementById(\'id\').focus();}"';
+        } else if( basename(self()) == 'bejelentes.php' && isset($_GET['manualisan']) ) {
+            $header_html .=' onload="if(document.getElementById(\'usr_nev\')){document.getElementById(\'usr_nev\').focus();}"';
         } else {
             $header_html .=' onload="if(document.getElementById(\'nev\')){document.getElementById(\'nev\').focus();}"';
         }

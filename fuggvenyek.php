@@ -1862,6 +1862,11 @@ function szamla_lista( $where, $tabla ) {
         $mivel = 'JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`'.$sql_kieg.' WHERE';
         $sql = $adatbazis_kapcsolat->gp();
 
+        /* Anyagrendelések miatt */
+        if( basename(self()) == 'anyagigenyles.php' && isset($_GET['anyagrend']) ) {
+            $sql = str_replace('ORDER BY', ' GROUP BY `'.get_db_tabla().'anyagigenyles`.`rndid` ORDER BY', $sql);
+        }
+
         //Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elá kell beszúrni a JOIN-t
         if(strpos($sql, 'WHERE')===false){
             $mit = 'ORDER BY';
@@ -2673,8 +2678,8 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span'.$bold.'>'.$azon.' '.$telephely['nev'].'</span>
-                            <span'.$bold.'>'.$bsz['cikk_id'].' '.$bsz['anyagigenyles_nev'].'</span>
+                            <!--<span'.$bold.'>'.$azon.' '.$telephely['nev'].'</span>-->
+                            <span'.$bold.'>'.$azon.' '.$bsz['cikk_id'].' '.$bsz['anyagigenyles_nev'].'</span>
                             <span'.$bold.'>'.getStatText('anyagigenyles', $bsz['stat_id']).'</span>
                         </a>';
 

@@ -1480,7 +1480,12 @@ foreach($akt_tomb as $ertek){
                 $input -> value   = $ertek['value_felulir'];
             }
 
-            $html = $input -> getHtml();
+            $hidden = '';
+            if( $ertek['letarol'] && !isset($_GET['manualisan']) ) {
+                $hidden = '<input type="hidden" name="'.$ertek['name'].'" value="'.$input -> value.'">';
+            }
+
+            $html = $input -> getHtml().$hidden;
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){

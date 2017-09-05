@@ -840,6 +840,10 @@ if( isset($_GET['uj']) && $_GET['bejelento'] ) {
     $user = $adatbazis_kapcsolat->s('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', 'recid='.$_SESSION[get_db_tabla().'user_id'], '', '1');
 }
 
+if( isset($_GET['manualisan']) ) {
+    $user = '';
+}
+
 //Diszpécser számára nem elérhető
 $helyseg_valaszto = '';
 if(_jog(JOG_BEJELENTES_MEGTEKINT) && _jog(JOG_BEJELENTES_KEZEL) || _jog(JOG_DISZPECSER)) {
@@ -867,16 +871,51 @@ if (isset($_GET['modosit'])) {
     }
 }
 
+$usr_nev        = '';
+$usr_beosztas   = '';
+$usr_reszleg    = '';
+$usr_telefon    = '';
+$usr_email      = '';
+if( isset($_GET['uj']) ) {
+    $usr_nev        = $user['teljes_nev'];
+    $usr_beosztas   = $user['beosztas_id']; //erteklista(18, $user['beosztas_id']);
+    $usr_reszleg    = $user['reszleg_id']; //erteklista(17, $user['reszleg_id']);
+    $usr_telefon    = $user['usertel'];
+    $usr_email      = $user['usermail'];
+}
+
+$usr_man_dis = true;
+if( _jog(JOG_DISZPECSER) ) {
+    $usr_man_dis = false;
+}
+
+$usr_dis = true;
+if( isset($_GET['manualisan']) ) {
+    $usr_dis = false;
+}
+
 //Bejelentések
 $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'statusz',         'megn' => 'Státusz:',            'name' => 'stat_id',    'szuro' => 1,  'oldal' => $megnevezes),
     array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',     'szuro' => 1,  'class' => 'check', 'onclick' => $surgos_allit),
 	array('type' => 'text',            'megn' => 'Bejelentés szám:',    'name' => 'ikt_szam',   'szuro' => 1,  'disabled' => true,       'maxlength' => 250, 'class' => 'kozepes'),
-    array('type' => 'info',            'megn' => 'Név:',                'name' => 'felh_nev',   'value' => $user['teljes_nev']),
-    array('type' => 'info',            'megn' => 'Beosztás:',           'value' => erteklista(18, $user['beosztas_id'])),
-    array('type' => 'info',            'megn' => 'Részleg:',            'value' => erteklista(17, $user['reszleg_id'])),
-    array('type' => 'info',            'megn' => 'Telefon:',            'value' => $user['usertel']),
-    array('type' => 'info',            'megn' => 'E-mail:',             'value' => $user['usermail']),
+
+    array('type' => 'text',            'megn' => 'Név:',        'name' => 'usr_man_nev',            'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true),
+    array('type' => 'text',            'megn' => '',            'name' => 'usr_nev',                'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'letarol' => true, 'value' => $usr_nev),
+    array('type' => 'autocomplete',    'megn' => 'Beosztás:',   'name' => 'usr_man_beosztas_id',    'disabled' => $usr_man_dis,         'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'osszevon' => true),
+    array('type' => 'autocomplete',    'megn' => '',            'name' => 'usr_beosztas_id',        'disabled' => $usr_dis,             'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'value' => $usr_beosztas),
+    array('type' => 'autocomplete',    'megn' => 'Részleg:',    'name' => 'usr_man_reszleg_id',     'disabled' => $usr_man_dis,         'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'osszevon' => true),
+    array('type' => 'autocomplete',    'megn' => '',            'name' => 'usr_reszleg_id',         'disabled' => $usr_dis,             'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'value' => $usr_reszleg),
+    array('type' => 'text',            'megn' => 'Telefon:',    'name' => 'usr_man_telefon',        'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true),
+    array('type' => 'text',            'megn' => '',            'name' => 'usr_telefon',            'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'letarol' => true, 'value' => $usr_telefon),
+    array('type' => 'text',            'megn' => 'E-mail:',     'name' => 'usr_man_email',          'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true),
+    array('type' => 'text',            'megn' => '',            'name' => 'usr_email',              'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'letarol' => true, 'value' => $usr_email),
+
+    //array('type' => 'info',            'megn' => 'Név:',                'name' => 'felh_nev',   'value' => $user['teljes_nev']),
+    //array('type' => 'info',            'megn' => 'Beosztás:',           'value' => erteklista(18, $user['beosztas_id'])),
+    //array('type' => 'info',            'megn' => 'Részleg:',            'value' => erteklista(17, $user['reszleg_id'])),
+    //array('type' => 'info',            'megn' => 'Telefon:',            'value' => $user['usertel']),
+    //array('type' => 'info',            'megn' => 'E-mail:',             'value' => $user['usermail']),
 
     array('type' => 'select_felh_telephely',   'megn' => 'Szálloda:',   'name' => 'telephely_id', 'szuro' => 1,  'class' => 'disableNav', 'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
 
@@ -2381,7 +2420,7 @@ if( isset($_GET['getBejBejelentok']) ) {
 
             echo json_encode(array(
                 'hiba' => 'Válasszon hibabejelentőt a(z) '.getErtek('nev', 'telephely', 'id', $telephely_id).' szállodából!'.$html,
-                'gomb' => '<p class="c"><input id="diszpFeltolt" class="gomb zold" disabled type="button" value="Tovább" onclick="bejBejValaszt( '.$telephely_id.' );"><input class="gomb piros" type="button" value="Mégsem" onclick="alert2()"></p>'
+                'gomb' => '<p class="c"><input id="diszpFeltolt" class="gomb zold" disabled type="button" value="Tovább" onclick="bejBejValaszt( '.$telephely_id.' );"><input class="gomb zold" type="button" value="Manuálisan" onclick="bejBejManualis( '.$telephely_id.' );"><input class="gomb piros" type="button" value="Mégsem" onclick="alert2()"></p>'
             ));
 
             $weblap->leallit();

@@ -201,7 +201,7 @@ if( isset($_POST['arazas']) ) {
             $idk_inputba .= $id.',';
             $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', 'anyagigenyles_statusz', "`anyagigenyles_recid`='$id'", 'recid desc', '1');
             if( $statusz === false ) { $db_error = true; }
- 
+
             if( $statusz ) {
                 $statusz = $statusz[0];
 
@@ -1597,7 +1597,7 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['tetel']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
@@ -1941,7 +1941,7 @@ if($gyorskereso_text){
         }
 
 	//Termék módosítása
-	}elseif(isset($_GET['modosit'])) {
+    }elseif(isset($_GET['modosit_old'])) {
 
         //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
@@ -2064,6 +2064,50 @@ if($gyorskereso_text){
         if($tobb_kep){
 			require_once('tobb_kep.php');
 		}
+
+    } elseif(isset($_GET['modosit'])) {
+
+        $rndid = $adatbazis_kapcsolat->s('recid rndid', 'anyagigenyles', "`recid` = '".$_GET['id']."'", '', '1');
+
+        if( $rndid ) {
+            $rndid = $rndid[0];
+
+            /* Tétel sorok */
+            $sorok = $adatbazis_kapcsolat->s('cikk_id rndmen cikkmee', 'anyagigenyles', "`rndid` = '".$rndid['rndid']."'", 'insert_dt desc', '');
+
+            if( $sorok ) {
+                $szamla_html .= nl2('
+                    <table class="csikos tetel_csikos full">
+                        <tr>
+                            <th class="nev">Cikkszám</th>
+                            <th>Rendelt mennyiség</th>
+                            <th>Mennyiségi egység</th>
+                        </tr>
+                ');
+
+                foreach($sorok as $sor) {
+                    $szamla_html .= nl2('
+                        <tr >
+                            <td>'.$sor['cikk_id'].'</td>
+                            <td>'.$sor['rndmen'].'</td>
+                            <td>'.$sor['cikkmee'].'</td>
+                        </tr>
+                    ');
+                }
+
+                $szamla_html .= '</table>';
+            }
+        }
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok,
+                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
+
 
 	/* Történet */
     }elseif(isset($_GET['tortenet'])) {
