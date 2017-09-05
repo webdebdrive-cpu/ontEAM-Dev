@@ -81,6 +81,47 @@ if($tobb_kep){
 
 }
 
+if( isset($_POST['bejSzallodaValaszt']) ) {
+    $szall_idk = get_akt_login_szallodai();
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $szall_idk ) {
+        $sql = $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN ('".implode("', '", $szall_idk)."')", 'nev', '');
+        if( $sql === false ) { $db_error = true; }
+
+        $html = '';
+        if( $szallodak ) {
+            $html .= '<select onchange="bejBejelentok( this.value );" style="width: 40rem;"><option value="">- Válassz -</option>';
+
+            foreach($szallodak as $szalloda) {
+                $html .= '<option value="'.$szalloda['id'].'">'.$szalloda['nev'].'</option>';
+            }
+
+            $html .= '</select>';
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker',
+                'html' => $html
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba' => tranzakcioHiba()
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 /* Bejelentés elutasítása */
 if( isset($_POST['bejelentesElutasit']) ) {
     $recid = $_POST['recid'];
@@ -264,7 +305,7 @@ if (isset($_GET['csv'])) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
         $sql = 'SELECT
-                                                    `ikt_szam` as \'Iktatószám\',
+                                                    `ikt_szam` as \'Bejelentés szám\',
                                                     `'.get_db_tabla().'bejelentes`.`telephely_id` as \'Szálloda\',
                                                     `hiba_id` as \'Bejelentett hiba\',
                                                     `hiba_text` as \'Hiba leírása\',
@@ -416,7 +457,7 @@ if($gyorskereso_text){
                         csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                     </script>
                     <input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas\');">
-                    <div class="kijeloltek_muv">
+                    <!--<div class="kijeloltek_muv">
                         <input type="button" class="gomb foGomb" value="Csoportosítás..." title="Csoportosítás...">
                         <div class="muv">
                             <ul>
@@ -434,7 +475,7 @@ if($gyorskereso_text){
                                 <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\');">Várólistból kivétel</a></li>
                             </ul>
                         </div>
-                    </div>
+                    </div>-->
                 </div>
             ');
         }
@@ -486,7 +527,7 @@ if($gyorskereso_text){
                 $gombok .= nl2('
                     <script>var torol_kerdes = \'
                         <div class="l">
-                            Iktatószám: '.$sor['ikt_szam'].'
+                            Bejelentés szám: '.$sor['ikt_szam'].'
                             <br>Szálloda: '.addslashes($szalloda['nev']).'
                             <br>Helyiség: '.addslashes($obj['nev']).'
                             '.$sor['hiba_text'].'
@@ -560,7 +601,21 @@ if($gyorskereso_text){
 	    require_once('info.php');
 
 	    //FORM
-		if(isset($_GET['ujkent'])){
+		if($_GET['ujkent']){
+            $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['ujkent']);
+
+            if( $sor ) {
+                $sor = $sor[0];
+
+                foreach($akt_tomb as $ertek) {
+                    if( $ertek['name'] != 'ikt_szam' ) {
+                        $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
+                    } else {
+                        $_SESSION[$ertek['name']] = '';
+                    }
+    			}
+            }
+
 			foreach($akt_tomb as $ertek){
 				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
 			}
@@ -597,7 +652,12 @@ if($gyorskereso_text){
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
-        $mezok .= '<input type="hidden" id="masnevebenFeltolt" name="masnevebenFeltolt" value="">';
+        $bejbejnev = '';
+        if( $_GET['bejelento'] ) {
+            $bejbejnev = $_GET['bejelento'];
+        }
+
+        $mezok .= '<input type="hidden" id="masnevebenFeltolt" name="masnevebenFeltolt" value="'.$bejbejnev.'">';
 
 	    $form_mivel   = array($js, self(), $mezok, $megnevezes, $ckeditor, $gombok);
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
@@ -649,13 +709,14 @@ if($gyorskereso_text){
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
-        
+
         //Duplákáláskor feltett kérdés
-//        $szamla_html .= nl2('
-//            <script>
-//                duplikaKerdes = \'Iktatószám: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Ez a munkalap '.count($munkalap_kapcs).' db bejelentésből készült. <br>Ezek a bejelentések az új munkalaphoz is hozzá lesznek rendelve. <br>Biztos, hogy duplikálja?\';
-//            </script>
-//        ');
+        $szamla_html .= nl2('
+            <script>
+                duplikalGomb  = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                duplikaKerdes = \'Bejelentés szám: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Ez a munkalap '.count($munkalap_kapcs).' db bejelentésből készült. <br>Ezek a bejelentések az új munkalaphoz is hozzá lesznek rendelve. <br>Biztos, hogy duplikálja?\';
+            </script>
+        ');
 
         //NAVIGÁCIÓ
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
@@ -737,7 +798,7 @@ if($gyorskereso_text){
         $szamla_html .= nl2('
             <div class="dt naplo kijCont" data-tabla="munkalap_kapcs" data-mellek="munkalapok">
                 <div class="dtr nFejlec">
-                    <div class="dtc">Iktató szám</div>
+                    <div class="dtc">Bejelentés szám</div>
                     <div class="dtc">Szálloda</div>
                     <div class="dtc">Létrehozva</div>
                     <div class="dtc">Státusz</div>

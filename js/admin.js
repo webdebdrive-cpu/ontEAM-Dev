@@ -528,7 +528,9 @@ $(function() {
      *2do: Checkbox-ra hogyna lehetne léptetni?
      *     elsubmitolja az űrlapot, ezért a submit gombot sima gombra kell cserélni ami a form-ot submitolja, de akkor a form_modosit.html-ben nem fog működni a if(!$('#szerk_form input[type="submit"]').length) feltétle, tehát azt is át kell írni.
  */
-    $(":input").each(function (i) { $(this).attr('tabindex', i + 1); });
+    $(':input[type!="hidden"]').each(function (i) {
+        $(this).attr('tabindex', i + 1);
+    });
 
     $(document).on('keyup', 'input[type="checkbox"]', function(e) {
         if( e.keyCode == 32 ) {
@@ -1190,6 +1192,67 @@ $(function() {
         }
     });
 });
+
+function bejBejValaszt( telephely ) {
+    var sor = $('#bejbejelentok tr.kijSor.kijelolve');
+
+    if( sor.length ) {
+        var nev = sor.attr('data-nev');
+
+        location.href = 'bejelentes.php?uj&bejelento=' + nev + '&telphely=' + telephely;
+    }
+}
+
+function bejBejManualis( value ) {
+    location.href = 'bejelentes.php?uj&manualisan&telphely=' + value;
+}
+
+function bejBejelentok( value ) {
+    if( value ) {
+        $.ajax({
+            url : 'esemenyek.php',
+            type: 'GET',
+            async: false,
+            data: esamp2es('telephely_id=' + value + '&amp;getBejBejelentok=' + new Date().getTime()),
+            success: function(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    if( response.gomb ) {
+                        alert2(response.hiba, response.gomb);
+                    } else {
+                        alert2(response.hiba, '', 'Hiba');
+                    }
+                }
+            }
+        });
+    }
+}
+
+function bejSzallodaValaszt() {
+    $.ajax({
+     	url : 'bejelentes.php',
+        type: 'POST',
+     	data: esamp2es('bejSzallodaValaszt=' + new Date().getTime()),
+     	success: function(response) {
+     		if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    if( response.gomb ) {
+                        alert2(response.hiba, response.gomb);
+                    } else {
+                        alert2(response.hiba, '', 'Hiba');
+                    }
+
+                    return false;
+                }
+
+                alert2('Kérem válasszon telephelyet: <br>' + response.html, '&nbsp;');
+     		}
+     	}
+     });
+}
 
 function munkalapMegrendelve( recid, csak_kerdezunk ) {
     if( recid ) {
@@ -3464,12 +3527,12 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                     szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
                     if( szamlaSorok.length>1 ) {
                         alert2('Egyszerre csak egy '+$('#rekord_neve_egyes').html()+' utasítható el!', '', 'Hiba');
-                        
+
                     /* Bejelentés, csak akkor utsasítható el, ha nyitott */
                     }else if( oldal=='bejelentes' && !$('#szamlaList li.szamla_sor.kijelolve').hasClass('nyitott_statuszu') ){
-                        
+
                         alert2('Csak nyitott státuszú '+$('#rekord_neve_egyes').html()+' utasítható el!', '', 'Hiba');
-                        
+
                     }else{
 
                         /* Az előző feltétel miatt itt biztosan csak egy sor van megjelölve */
@@ -4063,7 +4126,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     if( !sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
         $('#navGombok a.torles').addClass('disabled').attr('onclick', '');
     } else if( sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
-        
+
         szoveg = 'sorokat';
         if(_get('velemenyezok')){
             szoveg = 'véleményezőket';
@@ -4117,8 +4180,8 @@ function mellekTorol( tabla, mellek ) {
                             alert2();
                         }
                     }
-                    
-                    
+
+
          		}
          	}
         });
@@ -4534,7 +4597,7 @@ function addSzalloda( loginID, that ) {
 }
 
 /* Véleményező hozzáadása projektigényléshez */
-function addVelemenyezoFg( pr_igeny_recid, that ) { 
+function addVelemenyezoFg( pr_igeny_recid, that ) {
 
     var login_recid = $(that).find('input[name="addVelemenyezo"]').val();
 
@@ -4801,6 +4864,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
                     } else if( _get('velemenyezok') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'velemenyezok\'); void(0);');
+                    } else if( baseName(location.href) == 'bejelentes' && _jogok[2] == 1 ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: bejSzallodaValaszt(); void(0);');
                     } else {
                         $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?uj');
                     }
@@ -5238,7 +5303,7 @@ function pri_statusz_leptet(recid, statusz){
             pri_statusz_leptet: new Date().getTime()
         },
         success: function (response) {
-            
+
             response = JSON.parse(response);
             if(response.statusz=='siker'){
                 szamlaSorFrissit('projektigenyles', recid);
@@ -5247,7 +5312,7 @@ function pri_statusz_leptet(recid, statusz){
                 }
                 alert2();
             }
-            
+
             if(response.hiba){
                 alert2(response.hiba, '', 'Hiba');
             }

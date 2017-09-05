@@ -182,6 +182,8 @@ if(isset($_POST['login'])) {
 //                        $_SESSION['kert_url'] = get_domain().'/'.get_admin();
 //                    }
 
+                    $adatbazis_kapcsolat -> u('login', array('login_dt'), array(date('Y-m-d H:i:s')), '`recid` = \''.$felhasznalo['recid'].'\'');
+
                     if( $_POST['ajax'] ) {
                         echo json_encode(array(
                             'statusz' => 'siker'
@@ -229,6 +231,8 @@ if(isset($_POST['login'])) {
 
 //Kiléptetés
 if(isset($_GET['kilep'])){
+    $adatbazis_kapcsolat -> u('login', array('logout_dt'), array(date('Y-m-d H:i:s')), '`recid` = \''.$_SESSION[get_db_tabla().'user_id'].'\'');
+
     unset($_SESSION[get_db_tabla().'user']);
     unset($_SESSION[get_db_tabla().'user_id']);
     unset($_SESSION[get_db_tabla().'szallito_id']);

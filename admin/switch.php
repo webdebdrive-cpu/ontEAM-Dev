@@ -415,7 +415,7 @@ foreach($akt_tomb as $ertek){
 		case 'info':
             $mezok .= nl2('<div class="dtr">
                               <div class="dtc form_bal"><span>'.$ertek['megn'].'</span></div>
-                              <div class="dtc form_jobb"><input type="text" name="'.$ertek['name'].'" class="oriasi" value="'.$ertek['value'].'" disabled></div>
+                              <div class="dtc form_jobb"><input type="text" name="'.$ertek['name'].'" class="kozepes" value="'.$ertek['value'].'" disabled></div>
                           </div>');
         break;
 
@@ -646,6 +646,8 @@ foreach($akt_tomb as $ertek){
                 $loginNev = $_SESSION[get_db_tabla().'user'];
 //            }
 
+
+
             /* Kapcsolódó tábla adatai */
             $telephely_kapcs = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', '`nev`=\''.$loginNev.'\'');
             if( $telephely_kapcs ) {
@@ -667,7 +669,12 @@ foreach($akt_tomb as $ertek){
                 $ertek['class'] .= ' csillag';
             }
 
-            $input = new Select($select_felh_telephely, $sor['telephely_id']);
+            $selected = $sor['telephely_id'];
+            if( isset($_GET['uj']) && $_GET['telphely'] ) {
+                $selected = $_GET['telphely'];
+            }
+
+            $input = new Select($select_felh_telephely, $selected);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];
@@ -1269,7 +1276,7 @@ foreach($akt_tomb as $ertek){
                 $mezok .= "</div></div>";
             }
         break;
-        
+
 		case 'select_pri_besorol':
             $input = new Select($select_pri_besorol, $sor['besorol']);
             $input -> cssClass = $ertek['class'];
@@ -1314,7 +1321,7 @@ foreach($akt_tomb as $ertek){
                 $mezok .= "</div></div>";
             }
         break;
-        
+
 		case 'select_pri_cel':
             $input = new Select($select_pri_cel, $sor['megt_cel']);
             $input -> cssClass = $ertek['class'];
@@ -1473,7 +1480,12 @@ foreach($akt_tomb as $ertek){
                 $input -> value   = $ertek['value_felulir'];
             }
 
-            $html = $input -> getHtml();
+            $hidden = '';
+            if( $ertek['letarol'] && !isset($_GET['manualisan']) ) {
+                $hidden = '<input type="hidden" name="'.$ertek['name'].'" value="'.$input -> value.'">';
+            }
+
+            $html = $input -> getHtml().$hidden;
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
