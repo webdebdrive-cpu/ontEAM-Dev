@@ -10,7 +10,7 @@ foreach($akt_tomb as $ertek){
     if(isset($_GET['ujkent']) && !$sor[$ertek['name']] && $_SESSION[$ertek['name']]){
         $sor[$ertek['name']] = $_SESSION[$ertek['name']];
     }
-
+    
 	switch($ertek['type']){
 
 
@@ -115,8 +115,9 @@ foreach($akt_tomb as $ertek){
                 $id_kiir = $ertek['id_kiir'];
             }
 
-            $html .= nl2('
-                <script>
+            $html .= nl2(
+                    //lényeges, hogy ne legyen a string elején szóköz
+                    '<script>
                     $(document).ready(function() {
                         $(\'#'.$ertek['name'].'_autocomp\').autocomplete({
                             \'php_fajl\'        : \'../autocomplete.php\',
@@ -132,8 +133,9 @@ foreach($akt_tomb as $ertek){
                             \'id_kiir\'         : \''.$id_kiir.'\'
                         });
                     });
-                </script>
-            ');
+                </script>'
+                //lényeges, hogy ne legyen a string végén szóköz
+              );
 
             //Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){

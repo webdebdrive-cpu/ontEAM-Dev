@@ -160,7 +160,6 @@ function i_u($type, $tabla, $tomb) {
 
     //Új bejegyzés esetén több mindent is le kell kezelni (iktatószám kizsámolás, plusz oszlopok beállítása
 	if($type == 'insert') {
-
         /* Insert DT és USR lekezelése általánosan */
         if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
             array_push($oszlopok, 'insert_dt',  'insert_usr'                          );
@@ -248,6 +247,7 @@ function i_u($type, $tabla, $tomb) {
 
         //Bejelentések  új bejegyzés esetén
         } else if( $tabla == 'bejelentes' ) {
+
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
             $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.date('y'), '', '');
             if( $ikt_seq === false ) {
@@ -1697,7 +1697,7 @@ function szamla_lista( $where, $tabla ) {
 
         //Anyagigénylés/anyagrendelés lekezelése
         if($tabla=='anyagigenyles'){
-            //Jóváhagyva státuszig anagigénylés, afelett rendelés
+            //Jóváhagyva státuszig anyagigénylés, afelett rendelés
             if (isset($_GET['anyagrend'])) {
                 $where .= "`stat_id`>25";
             }else{

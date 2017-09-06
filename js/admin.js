@@ -2059,7 +2059,13 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
 
                                 return false;
                             }
+                            
+                            /* Adatlap frissítése */
                             szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                            /* navpanel frissítése (minden kijelölt sort) */
+                            szamlaSorok.each(function() {
+                                szamlaSorFrissit('anyagigenyles', $(this).attr('data-recid'));
+                            });
                             alert2();
                         }
                     }
@@ -4900,11 +4906,17 @@ function szamlaSorFrissit( tabla, recid ) {
     if( tabla && recid ) {
 
         var anyagrend = '';
+        
+        /* Anyagrendelés miatt figyelni kell, hogy van-e $_GET['anyagrend'] */
+        param_kieg = '';
+        if(_get('anyagrend')){
+            param_kieg = '&amp;anyagrend';
+        }
 
         $.ajax({
          	url : 'esemenyek.php',
          	type: 'GET',
-         	data: esamp2es('tabla=' + tabla + '&amp;recid=' + recid + '&amp;szamlaSorFrissit=' + new Date().getTime()),
+         	data: esamp2es('tabla=' + tabla + '&amp;recid=' + recid + param_kieg + '&amp;szamlaSorFrissit=' + new Date().getTime()),
          	success: function(html) {
          		if(html) {
          			$('#szamla-' + recid).html(html);

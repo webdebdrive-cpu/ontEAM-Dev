@@ -884,14 +884,39 @@ if( isset($_GET['uj']) ) {
     $usr_email      = $user['usermail'];
 }
 
-$usr_man_dis = true;
+$usr_man_dis  = true;
+$nev_man      = array();
+$beosztas_man = array();
+$reszleg_man  = array();
+$tel_man      = array();
+$nev_txt      = 'Név:';
+$beosztas_txt = 'Beosztás:';
+$reszleg_txt  = 'Részleg:';
+$tel_txt      = 'Telefon:';
+$email_txt    = 'E-mail:';
 if( _jog(JOG_DISZPECSER) ) {
     $usr_man_dis = false;
+    $nev_man      = array('type' => 'text',            'megn' => 'Név:',        'name' => 'usr_man_nev',            'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true);
+    $beosztas_man = array('type' => 'autocomplete',    'megn' => 'Beosztás:',   'name' => 'usr_man_beosztas_id',    'disabled' => $usr_man_dis,         'class' => 'kozepes disableNav csillag', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'osszevon' => true);
+    $reszleg_man  = array('type' => 'autocomplete',    'megn' => 'Részleg:',    'name' => 'usr_man_reszleg_id',     'disabled' => $usr_man_dis,         'class' => 'kozepes disableNav csillag', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'osszevon' => true);
+    $tel_man      = array('type' => 'text',            'megn' => 'Telefon:',    'name' => 'usr_man_telefon',        'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true);
+    $email_man    = array('type' => 'text',            'megn' => 'E-mail:',     'name' => 'usr_man_email',          'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true);
+    $nev_txt      = '';
+    $beosztas_txt = '';
+    $reszleg_txt  = '';
+    $tel_txt      = '';
+    $email_txt    = '';
 }
 
 $usr_dis = true;
 if( isset($_GET['manualisan']) ) {
     $usr_dis = false;
+}
+$szalloda_dis  = false;
+$szalloda_post = '';
+if( isset($_GET['bejelento']) ) {
+    $szalloda_dis  = true;
+    $szalloda_post = '<input type="hidden" name="telephely_id" value="'.$_GET['telphely'].'">';
 }
 
 //Bejelentések
@@ -900,16 +925,16 @@ $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',     'szuro' => 1,  'class' => 'check', 'onclick' => $surgos_allit),
 	array('type' => 'text',            'megn' => 'Bejelentés szám:',    'name' => 'ikt_szam',   'szuro' => 1,  'disabled' => true,       'maxlength' => 250, 'class' => 'kozepes'),
 
-    array('type' => 'text',            'megn' => 'Név:',        'name' => 'usr_man_nev',            'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true),
-    array('type' => 'text',            'megn' => '',            'name' => 'usr_nev',                'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'letarol' => true, 'value' => $usr_nev),
-    array('type' => 'autocomplete',    'megn' => 'Beosztás:',   'name' => 'usr_man_beosztas_id',    'disabled' => $usr_man_dis,         'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'osszevon' => true),
-    array('type' => 'autocomplete',    'megn' => '',            'name' => 'usr_beosztas_id',        'disabled' => $usr_dis,             'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'value' => $usr_beosztas),
-    array('type' => 'autocomplete',    'megn' => 'Részleg:',    'name' => 'usr_man_reszleg_id',     'disabled' => $usr_man_dis,         'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'osszevon' => true),
-    array('type' => 'autocomplete',    'megn' => '',            'name' => 'usr_reszleg_id',         'disabled' => $usr_dis,             'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'value' => $usr_reszleg),
-    array('type' => 'text',            'megn' => 'Telefon:',    'name' => 'usr_man_telefon',        'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true),
-    array('type' => 'text',            'megn' => '',            'name' => 'usr_telefon',            'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'letarol' => true, 'value' => $usr_telefon),
-    array('type' => 'text',            'megn' => 'E-mail:',     'name' => 'usr_man_email',          'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true),
-    array('type' => 'text',            'megn' => '',            'name' => 'usr_email',              'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'letarol' => true, 'value' => $usr_email),
+    $nev_man,
+    array('type' => 'text',            'megn' => $nev_txt,      'name' => 'usr_nev',                'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'letarol' => true, 'value' => $usr_nev),
+    $beosztas_man,
+    array('type' => 'autocomplete',    'megn' => $beosztas_txt, 'name' => 'usr_beosztas_id',        'disabled' => $usr_dis,             'class' => 'kozepes disableNav csillag', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'value' => $usr_beosztas),
+    $reszleg_man,
+    array('type' => 'autocomplete',    'megn' => $reszleg_txt,  'name' => 'usr_reszleg_id',         'disabled' => $usr_dis,             'class' => 'kozepes disableNav csillag', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'value' => $usr_reszleg),
+    $tel_man,
+    array('type' => 'text',            'megn' => $tel_txt,       'name' => 'usr_telefon',           'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'letarol' => true, 'value' => $usr_telefon),
+    $email_man,
+    array('type' => 'text',            'megn' => $email_txt,     'name' => 'usr_email',             'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'letarol' => true, 'value' => $usr_email),
 
     //array('type' => 'info',            'megn' => 'Név:',                'name' => 'felh_nev',   'value' => $user['teljes_nev']),
     //array('type' => 'info',            'megn' => 'Beosztás:',           'value' => erteklista(18, $user['beosztas_id'])),
@@ -917,7 +942,7 @@ $bejelentes_tomb = $akt_tomb = array(
     //array('type' => 'info',            'megn' => 'Telefon:',            'value' => $user['usertel']),
     //array('type' => 'info',            'megn' => 'E-mail:',             'value' => $user['usermail']),
 
-    array('type' => 'select_felh_telephely',   'megn' => 'Szálloda:',   'name' => 'telephely_id', 'szuro' => 1,  'class' => 'disableNav', 'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+    array('type' => 'select_felh_telephely',   'megn' => 'Szálloda:',   'name' => 'telephely_id', 'szuro' => 1,  'class' => 'disableNav', 'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );', 'disabled' => $szalloda_dis, 'post' => $szalloda_post),
 
     array('type' => 'autocomplete',    'megn' => 'Bejelentett hiba:',   'name' => 'hiba_id',      'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 4, 'alert' => 'Kérem adja meg a bejelentett hibát!'),
     array('type' => 'textarea',        'megn' => 'Hiba leírása:',       'name' => 'hiba_text',    'szuro' => 1,  'disabled' => $disabled,    'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images'/*Files Flash*//*, 'autogrow' => false*/, 'width' => '100%', 'height' => '150'/*<=WYSIWYG esetére*/),
