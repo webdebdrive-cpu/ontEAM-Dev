@@ -1653,6 +1653,98 @@ Vízjelezéshez vissza kell kommentezni a +tobb_kep.php-ban a Képfeltöltésné
 if(isset($_GET['siker']) && isset($_GET['modosit'])){
 
 }
+/* CSV generálása */
+if (isset($_GET['csv'])) {
+
+    $mibol   = get_web_charset();
+    $mibe    = 'windows-1250';
+
+    if( !is_dir('export') ) {
+        mkdir('export');
+    }
+
+    if( !is_dir('export/csv') ) {
+        mkdir('export/csv');
+    }
+
+    //Régi fájlok törlése
+    $utvonal = 'export/csv/';
+    $fajlok = konyvtar_bejar($utvonal);
+    foreach($fajlok as $fajl){
+        if(filemtime($fajl)<(time()-60*60)){
+            unlink($fajl);
+        }
+    }
+
+    $fajlnev = $utvonal.'csv'.time().'.csv';
+    $open = fopen($fajlnev,'a');
+    if($open){
+
+        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+
+        $sql = 'SELECT
+                                                    `ikt_szam` as \'Munkalap szám\',
+                                                    `'.get_db_tabla().'munkalap`.`telephely_id` as \'Szálloda\',
+                                                    `obj_id` as \'Helyiség\',
+                                                    `gep_id` as \'Gépnév\',
+                                                    `szemelyzet_id` as \'Hozzárendelt személyzet\',
+                                                    `tipus_id` as \'Típus\',
+                                                    `stat_id` as \'Státusz\',
+                                                    `surgos` as \'Sürgős\',
+                                                    `visszaadva` as \'Visszaadva\'
+                                                    '.$lekerdezes_fromtol;
+
+        $query      = mysqli_query($db_kapcs, $sql);
+
+        $csvhead    = array();
+        while($fejlec_nevek = mysqli_fetch_field($query)){
+            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+        }
+        fputcsv($open, $csvhead, ';');
+
+        while( $sorok = mysqli_fetch_assoc($query) ){
+            $csvcont = array();
+            foreach( $sorok as $kulcs => $sor ) {
+                if($kulcs=='Szálloda'){
+                    $sor = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$sor}'");
+                    $sor = $sor[0]['nev'];
+                }
+                if($kulcs=='Bejelentett hiba'){
+                    $sor = $adatbazis_kapcsolat->s('info', 'erteklista', "`recid`='{$sor}'");
+                    $sor = $sor[0]['info'];
+                }
+                if($kulcs=='Helyiség'){
+                    $sor = $adatbazis_kapcsolat->s('nev', 'obj', "`recid`='{$sor}'");
+                    $sor = $sor[0]['nev'];
+                }
+                if($kulcs=='Gépnév'){
+                    $sor = $adatbazis_kapcsolat->s('nev', 'eszkozkezeles', "`recid`='{$sor}'");
+                    $sor = $sor[0]['nev'];
+                }
+                if($kulcs=='Típus'){
+                    $sor = erteklista(6, $sor);
+                }
+                if($kulcs=='Státusz'){
+                    $sor = getStatText('munkalap', $sor);
+                }
+
+                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+            }
+            fputcsv($open, $csvcont, ';');
+        }
+    }
+    fclose($open);
+
+    header("Content-type: text/csv");
+    header("Content-Disposition: attachment; filename=$megnevezes.csv");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    echo fajlbol_olvas($fajlnev);
+
+    $weblap->leallit();
+    exit();
+}
 
 /** Tartalom */
 if( !$_GET['ajax'] ) {
