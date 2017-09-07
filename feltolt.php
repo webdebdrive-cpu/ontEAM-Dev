@@ -83,6 +83,8 @@ if($_POST['megnevezes']=='velemeny'){
                     $id = $adatbazis_kapcsolat -> i( 'projektigenyles_velemeny', array('projektigenyles_recid',         'login_recid',                            'utvonal',                               'fajlnev'                            ),
                                                                                  array($_POST['projektigenyles_recid'], $_SESSION[get_db_tabla().'login_recid'],   str_replace(get_utvonal(), '', $kepnev), $_FILES[$_POST['megnevezes']]['name'])
                                                     );
+                    //Ha ellenőrizzük, hogy a megmaradtaknak mindnek van-e már vélemények. Státuszt kell léptetni ha igen.
+                    prigeny_mindenki_velemenyezett_e($_POST['projektigenyles_recid']);
 
                 }
             break;

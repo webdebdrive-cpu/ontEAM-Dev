@@ -4547,9 +4547,9 @@ function addVelemenyezoFg( pr_igeny_recid, that ) {
          	url : 'projektigenyles.php',
          	type: 'GET',
          	data: esamp2es('login_recid=' + login_recid + '&amp;pr_igeny_recid=' + pr_igeny_recid + '&amp;addVelemenyezo=' + new Date().getTime()),
-         	success: function(html) {
-         		if(html) {
-                    html = JSON.parse(html);
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
 
                     if( response.hiba ) {
                         if( response.gomb ) {
@@ -4561,7 +4561,7 @@ function addVelemenyezoFg( pr_igeny_recid, that ) {
                     }
 
          			szamlaBetolt(pr_igeny_recid, baseName(location.href) + '.php', 'velemenyezok').done(function() {
-                        $('#naploSor-' + html.kapcsID).addClass('uj');
+                        $('#naploSor-' + response.kapcsID).addClass('uj');
                     });
 
                     popupZar();
@@ -4933,6 +4933,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
 
 }
 
+/* Bal oldlai navpanel egy sorának frissítése */
 function szamlaSorFrissit( tabla, recid ) {
     if( tabla && recid ) {
 
@@ -4952,7 +4953,6 @@ function szamlaSorFrissit( tabla, recid ) {
          		if(response) {
                     /* A frissítendő sor data-i értéke maradjon változatlan. Amit akpnk abban 1 lesz az értéke */
                     response = response.replace('data-i="1"', 'data-i="' + $('#szamla-' + recid).attr('data-i') + '"');
-console.log(response);
          			$('#szamla-' + recid).replaceWith(response);
          		}
          	}

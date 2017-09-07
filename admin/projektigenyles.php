@@ -100,7 +100,7 @@ if( isset($_POST['jogokhozzaad']) ) {
     exit();
 }
 
-/* Véleményező hozzáadása ajaxosan */
+// Véleményező hozzáadása ajaxosan
 if( isset($_GET['addVelemenyezo']) ) {
     
     //Jogosultságkezelés
@@ -167,7 +167,7 @@ if( isset($_GET['addVelemenyezo']) ) {
     exit();
 }
 
-//Vélemény törlése
+// Vélemény törlése
 if (isset($_POST['velemeny_torol'])) {
 
     $db_error = false;
@@ -261,7 +261,7 @@ if (isset($_POST['get_session_id'])) {
     exit();
 }
 
-//Státusz léptetés
+// Státusz léptetés
 if (isset($_POST['pri_statusz_leptet'])) {
     
     $db_error = false;
@@ -437,7 +437,8 @@ if($gyorskereso_text){
                 $gombok .= ' <input type="button" class="gomb zold foGomb" value="Jóváhagy" title="Jóváhagy" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_VARAKOZO.'\');">';
             }
             
-            if(!$nem_szerkesztheti && isset($_GET['modosit'])){
+            
+            if(!$nem_szerkesztheti && isset($_GET['modosit']) && $sor['stat_id']==PRIGENY_STAT_LETRE_ALATT){
                 $gombok = nl2('
                     <div class="form_kuldes">
                         <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
@@ -660,7 +661,7 @@ if($gyorskereso_text){
                     $felirat = $velemeny['fajlnev'];
                     $kep     = new Img($fajl, $felirat, 150, 150);
                     $kep     = $kep -> getHtml();
-                    $velemeny_html .= '<div class="dtc" style="border-bottom: 0; padding: 0">'.$kep.'</div><div class="dtc" style="border-bottom: 0; padding: 0">'.$felirat.'</div>';
+                    $velemeny_html .= '<div class="dtc" style="border-bottom: 0; padding: 0 1rem 0 0">'.$kep.'</div><div class="dtc" style="border-bottom: 0; padding: 0">'.$felirat.'</div>';
                     
                     $letoltes_html = nl2('
                                     <a href="'.$fajl.'" target="_blank" title="Letöltés">

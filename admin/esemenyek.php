@@ -1509,11 +1509,12 @@ $megnevezes       = 'projektigenyles';
 $megter_cel_rejt  = ' class="dn"';
 $letrehozta_mikor = '';
 if (isset($_GET['modosit'])) {
-    $pi = $adatbazis_kapcsolat->s2('megter insert_dt insert_usr', $megnevezes, "`recid`='{$_GET['id']}'");
+    $pi = $adatbazis_kapcsolat->s2('megter stat_id insert_dt insert_usr', $megnevezes, "`recid`='{$_GET['id']}'");
     if($pi['megter']){
         $megter_cel_rejt = '';
     }
     $letrehozta_mikor = 'Létrehozta: <b>'.$pi['insert_usr'].' '.  str_replace('-', '.', substr($pi['insert_dt'], 0, 16)).'</b>-kor';
+    
 }
 
 $projektigenyles_tomb = $akt_tomb = array(
@@ -3871,6 +3872,9 @@ if( isset($_POST['mellekTorol']) ) {
             
             $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
             if( $sql === false ) { $db_error = true; }
+            
+            //Ha ellenőrizzük, hogy a megmaradtaknak mindnek van-e már vélemények. Státuszt kell léptetni ha igen.
+            prigeny_mindenki_velemenyezett_e($velemenyezo['projektigenyles_recid']);
             
         //Általános eset
         } else {
