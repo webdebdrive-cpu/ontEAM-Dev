@@ -150,4 +150,5 @@ define('JOG_RENDSZ_KARB_KEZEL',     36);
 define('JOG_MUNKALAP_MUSZAK_ADMIN', 37);
 define('JOG_PRIGENY_MEGTEKINT',     38);
 define('JOG_PRIGENY_KEZEL',         39);
+define('JOG_VELEMENYEZO_HOZZAAD',   40);
 ?>

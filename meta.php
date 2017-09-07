@@ -10,7 +10,7 @@ function get_title(){
 	switch(basename(self())){
 
         case 'index.php': 
-            if(!$_SESSION[get_db_tabla().'user_id']){
+            if(!$_SESSION[get_db_tabla().'login_recid']){
                 $title .= 'Bejelentkezés';
             }else{
                 $title = trim($title, ' - ');

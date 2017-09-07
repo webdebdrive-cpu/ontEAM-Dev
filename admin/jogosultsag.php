@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 39-es ID-nál járunk
+ * 40-es ID-nál járunk
  *  7-es kategória ID-nál járunk
 \*                                                  */
 
@@ -64,6 +64,7 @@ $jogosultsagok = array(
     30 => array('nev' => 'Beosztások kezelése',         'kat' => 4, 'sor' => 6, 'bekapcs' => '29'),
     
     38 => array('nev' => 'Projekt igénylések megtekintése',  'kat' => 7, 'sor' => 1, 'kikapcs' => '39'),
-    39 => array('nev' => 'Projekt igénylések kezelése',      'kat' => 7, 'sor' => 1, 'bekapcs' => '38'),
+    39 => array('nev' => 'Projekt igénylések kezelése',      'kat' => 7, 'sor' => 2, 'bekapcs' => '38'),
+    40 => array('nev' => 'Véleményező hozzáadása',           'kat' => 7, 'sor' => 3),
 
 );

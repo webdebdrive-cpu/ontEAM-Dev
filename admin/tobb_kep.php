@@ -84,7 +84,7 @@ if(isset($_POST['session_name'])){
                 /* Vízjelezés */
                 //imagejpeg(logot_pecsetel($kepnev, '../elemek/vizjel.png', 50, 50, 100), $kepnev);
 
-                //Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy aoutputot a flashfile-nak
+                //Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
                 $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'], array($_SESSION['fajl']['oszlop'], 'kepnev', 'megj'), array($_SESSION['fajl']['termek_id'], str_replace('../'.get_utvonal(), '', $kepnev), basename($kepnev) ) );
                 $sor_kepek = $adatbazis_kapcsolat->s('*', $_SESSION['fajl']['tabla'], 'recid='.$id);
                 $sor_kepek = $sor_kepek[0];
@@ -241,14 +241,14 @@ function get_tobbkep_thumb($sor_kepek, $i) {
             <li id="'.$azon.'" class="kijSor" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'">
                 <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
                 <!--<div class="torol" onclick="tobbkep_torol(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \''.$azon.'\');">
-                    <img alt="x" class="dn" src="../elemek/admin/torol_hover.png" />
+                    <img alt="x" class="dn" src="../elemek/admin/torol_hover.png">
                 </div>-->
                 <div class="kep">
                     <div>'.$kep -> getHtml().'</div>
                 </div>
                 <div id="megj_'.$azon.'_felirat" class="felirat f12 link c"'.$megj_szerkesztes_onclick.'>'.$felirat.'</div>
                 <div class="nagyit">
-                    <a href="'.$kep_utvonal.'" class="light" rel="album[]" target="_blank" title="Letöltés">
+                    <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
                         <i class="material-icons">file_download</i>
                     </a>
                 </div>

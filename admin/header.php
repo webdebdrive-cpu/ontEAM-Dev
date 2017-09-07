@@ -32,8 +32,8 @@ if( isset($_GET['szerkeszt']) && $_GET['id'] ) {
 
         $adatbazis_kapcsolat -> i(
             'log',
-            array( 'felh_id',                          'nev',       'valtozas'),
-            array( $_SESSION[get_db_tabla().'user_id'], $muvelet,   $valtozas )
+            array( 'felh_id',                               'nev',       'valtozas'),
+            array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $valtozas )
         );
     }
 }
@@ -43,7 +43,7 @@ $menu_sablon     = fajlbol_olvas('../sablon/admin/menu.html',   true);
 $almenu_sablon   = fajlbol_olvas('../sablon/admin/almenu.html', true);
 
 //Home ikon, csak ha már beléptünk
-if($_SESSION[get_db_tabla().'user_id']){
+if($_SESSION[get_db_tabla().'login_recid']){
     $menuk .=
             nl2('
                 <li class="link home">
@@ -847,7 +847,9 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
     } elseif( basename(self()) == 'login.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-    } elseif( isset($_GET['velemenyezok']) ) {
+    } elseif( isset($_GET['velemenyezok']) && !_jog(40) ) {
+        $uj_link = 'javascript: alert2(\'Önnek nincs joga véleményezőt hozzáadni!\', \'\', \'Hiba\'); void(0);';
+    } elseif( isset($_GET['velemenyezok']) && _jog(40) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'velemenyezok\'); void(0);';
     } elseif( basename(self()) == 'bejelentes.php' && _jog(JOG_DISZPECSER) ) {
         $uj_link = 'javascript: bejSzallodaValaszt(); void(0);';
@@ -918,7 +920,7 @@ if( $_SESSION['nincs_jelsz'] ) {
     $menuk    = '';
     $oldalNev = 'Jelszó csere';
     $belepve  = '';
-} elseif( !$_SESSION[get_db_tabla().'user_id'] ) {
+} elseif( !$_SESSION[get_db_tabla().'login_recid'] ) {
     $menuk    = '';
     $oldalNev = 'Bejelentkezés';
     $belepve  = '';
@@ -1026,7 +1028,7 @@ $header_html .= nl2('
 
 echo $header_html.fajlbol_olvas('../sablon/admin/js_beagyazasok.html', true);
 
-if( $_SESSION[get_db_tabla().'user_id'] ) {
+if( $_SESSION[get_db_tabla().'login_recid'] ) {
     $felirat = '<h1>Bejelentkezés</h1>';
 
     echo str_replace(
@@ -1066,7 +1068,7 @@ if( $_SESSION[get_db_tabla().'user_id'] ) {
     echo str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/beleptetes.html'));
 }
 
-if( !$_SESSION[get_db_tabla().'user_id'] ) {
+if( !$_SESSION[get_db_tabla().'login_recid'] ) {
     require_once('footer.php');
     exit();
 }

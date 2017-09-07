@@ -887,11 +887,16 @@ div.jsff_thumb div.torol:hover{
     width: 10rem;
 }
 
+.material-icons.kek,
 #sorrendezes li div.nagyit a .material-icons,
 #sorrendezes_album li div.nagyit a .material-icons,
 #sorrendezes_tobbkep li div.nagyit a .material-icons,
 #sorrendezes_bejegyzes li div.nagyit a .material-icons {
     color: #004990;
+}
+
+.material-icons.piros{
+    color: #92000E;
 }
 
 #sorrendezes li div.torol,

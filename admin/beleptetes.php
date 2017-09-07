@@ -121,7 +121,7 @@ if(isset($_POST['jelszo_csere'])) {
 
                 $_SESSION[get_db_tabla().'user']        = $felhasznalo['nev'];
                 $_SESSION[get_db_tabla().'teljes_nev']  = $felhasznalo['teljes_nev'];
-                $_SESSION[get_db_tabla().'user_id']     = $felhasznalo['recid'];
+                $_SESSION[get_db_tabla().'login_recid'] = $felhasznalo['recid'];
                 $_SESSION[get_db_tabla().'rights']      = str_split($felhasznalo['flags']);
 
                 /* Nincs jelszó változók törlése */
@@ -174,7 +174,7 @@ if(isset($_POST['login'])) {
                 if( $felhasznalo['jelszo'] == $_POST['jelszo'] && $felhasznalo['helyesseg'] == $helyesseg ) {
                     $_SESSION[get_db_tabla().'user']        = $felhasznalo['nev'];
                     $_SESSION[get_db_tabla().'teljes_nev']  = $felhasznalo['teljes_nev'];
-                    $_SESSION[get_db_tabla().'user_id']     = $felhasznalo['recid'];
+                    $_SESSION[get_db_tabla().'login_recid'] = $felhasznalo['recid'];
                     $_SESSION[get_db_tabla().'szallito_id'] = $felhasznalo['szallito_id'];
                     $_SESSION[get_db_tabla().'rights']      = str_split($felhasznalo['flags']);
 
@@ -231,10 +231,10 @@ if(isset($_POST['login'])) {
 
 //Kiléptetés
 if(isset($_GET['kilep'])){
-    $adatbazis_kapcsolat -> u('login', array('logout_dt'), array(date('Y-m-d H:i:s')), '`recid` = \''.$_SESSION[get_db_tabla().'user_id'].'\'');
+    $adatbazis_kapcsolat -> u('login', array('logout_dt'), array(date('Y-m-d H:i:s')), '`recid` = \''.$_SESSION[get_db_tabla().'login_recid'].'\'');
 
     unset($_SESSION[get_db_tabla().'user']);
-    unset($_SESSION[get_db_tabla().'user_id']);
+    unset($_SESSION[get_db_tabla().'login_recid']);
     unset($_SESSION[get_db_tabla().'szallito_id']);
     unset($_SESSION['user_adatok']);
     unset($_SESSION[get_db_tabla().'rights']);

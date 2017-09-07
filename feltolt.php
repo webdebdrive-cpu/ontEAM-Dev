@@ -9,14 +9,93 @@ if($_FILES['file']){
 //Tiltott fájlformátumok kiszűrése, szitnén nincs feltöltés
 $tiltott_fajlok = array('text/x-js', 'text/css', 'text/html', 'application/xhtml+xml', 'text/xml');
 if( in_array( $_FILES[$_POST['megnevezes']]['type'], $tiltott_fajlok ) ){
+    $weblap -> leallit();
     exit;
 }
 
 if(kit($_FILES[$_POST['megnevezes']]['name'])=='php'){
     echo 'nice try :)';
+    $weblap -> leallit();
     exit;
 }
 
+/* Vélemény feltöltése */
+if($_POST['megnevezes']=='velemeny'){
+    
+    if($adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'", '', '1')){
+        
+        $utvonal = get_utvonal().'doc';
+
+        if(!is_dir($utvonal)){
+            mkdir($utvonal, 0777);
+        }
+
+        $utvonal = $utvonal.'/'.date('ym');
+
+        if(!is_dir($utvonal)){
+            mkdir($utvonal, 0777);
+        }
+
+        switch($_FILES[$_POST['megnevezes']]['error']){
+
+            case 1:
+                echo 'Hiba! Túl nagy méretű fájl! Maximum '.ini_get('upload_max_filesize').' engedélyezett!';
+            break;
+
+            case 2:
+                echo 'Hiba! Túl nagy méretű fájl!'; /* A HTML form-ban is megadható volna egy méretkorlát? */
+            break;
+
+            case 3:
+                echo 'Hiba! A fájl feltöltése idő közben megszakadt!';
+            break;
+
+            case 4:
+                echo 'Hiba! A fájl feltöltése ismeretlen okokból sikertelen volt!';
+            break;
+
+            case 6:
+                echo 'Hiba! A fájl feltöltése sikertelen volt! (Hiányzik a szerveren a TMP mappa.)';
+            break;
+
+            case 7:
+                echo 'Hiba! A fájl feltöltése sikertelen volt! (Nem támogatott kiterjesztés.)';
+            break;
+
+            case 0:
+                //Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
+                $kepnev = $utvonal.'/'.time().'_'.rand(1, 10000).'.'.kit($_FILES[$_POST['megnevezes']]['name']);
+
+                //Ha az illetőnek már volt feltöltve véleménye, akkor ezzel az újjal felülírjuk, azaz a korábbit töröljük
+                $korabbi_velemeny = $adatbazis_kapcsolat->s2('utvonal', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+                if($korabbi_velemeny){
+                    $fajl = get_utvonal().$korabbi_velemeny['utvonal'];
+                    if(is_file($fajl)){
+                        unlink($fajl);
+                    }
+                    $adatbazis_kapcsolat->d('projektigenyles_velemeny', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+                }
+                
+                //Fájlfeltöltés
+                if(move_uploaded_file($_FILES[$_POST['megnevezes']]['tmp_name'], $kepnev)){
+
+                    //Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
+                    $id = $adatbazis_kapcsolat -> i( 'projektigenyles_velemeny', array('projektigenyles_recid',         'login_recid',                            'utvonal',                               'fajlnev'                            ),
+                                                                                 array($_POST['projektigenyles_recid'], $_SESSION[get_db_tabla().'login_recid'],   str_replace(get_utvonal(), '', $kepnev), $_FILES[$_POST['megnevezes']]['name'])
+                                                    );
+
+                }
+            break;
+        }
+        
+    }
+    
+    $weblap -> leallit();
+    exit;
+}
+
+
+/* Általános eset */
 $tomb = array(
                 'algoritmus' => $_POST['algoritmus'],
                 'oszlop'     => $_POST['oszlop'],

@@ -330,7 +330,7 @@ function get_fejlec($szallito){
     global $adatbazis_kapcsolat;
     
     $tel_kieg = '';
-    $login = $adatbazis_kapcsolat->s('usertel', 'login', "`recid`='{$_SESSION[get_db_tabla().'user_id']}'");
+    $login = $adatbazis_kapcsolat->s('usertel', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
     $login = $login[0];
     if($login['usertel']){
         $tel_kieg = '<br>Tel.: '.$login['usertel'];

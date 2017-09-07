@@ -629,8 +629,8 @@ function i_u($type, $tabla, $tomb) {
 
         $sql = $adatbazis_kapcsolat -> i(
                                             'log',
-                                            array( 'felh_id',                          'nev',       'valtozas'),
-                                            array( $_SESSION[get_db_tabla().'user_id'], $muvelet,   $valtozas )
+                                            array( 'felh_id',                               'nev',       'valtozas'),
+                                            array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $valtozas )
                                         );
         if( $sql === false ) { $db_error = true; }
 
@@ -709,10 +709,9 @@ function i_u($type, $tabla, $tomb) {
 
             $sql = $adatbazis_kapcsolat -> i(
                 'log',
-                array( 'felh_id',                          'nev',       'valtozas'),
-                array( $_SESSION[get_db_tabla().'user_id'], $muvelet,   $valtozas )
+                array( 'felh_id',                               'nev',       'valtozas'),
+                array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $valtozas )
             );
-
             if( $sql === false ) { $db_error = true; }
         }
 
@@ -2168,11 +2167,11 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                 $csoport_data = ' data-csoportID="'.$bsz['csoport_id'].'"';
             }
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
 
             $i++;
         }
@@ -2186,6 +2185,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
 
     return false;
 }
+
 function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
@@ -2228,10 +2228,6 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
                         $csoport_active = '';
                         if( $csoport_bej ) {
                             $csoport_bej = adatbazis2tomb($csoport_bej, 'recid');
-
-                            if( in_array($_GET['id'], $csoport_bej) ) {
-                                //$csoport_active = ' kijelolve';
-                            }
                         }
 
                         $html .= nl2('
@@ -2295,7 +2291,10 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
             $csoport_class = '';
             $csoport_data = '';
             if( $bsz['csoport_id'] && _jog(JOG_DISZPECSER) ) {
-                $csoport_class = ' behuz dn';
+                $csoport_class = ' behuz';
+                if(!$frissit){
+                    $csoport_class .= ' dn';
+                }
 
                 $akt_csoport = $adatbazis_kapcsolat->s('csoport_id', 'munkalap', "`recid` = '{$_GET['id']}'", '', '1');
 
@@ -2310,11 +2309,11 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
                 $csoport_data = ' data-csoportID="'.$bsz['csoport_id'].'"';
             }
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
 
             $i++;
         }
@@ -2384,11 +2383,11 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['uf_nev'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -2463,11 +2462,12 @@ function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['uf_nev'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -2519,11 +2519,11 @@ function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -2570,11 +2570,11 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -2621,11 +2621,11 @@ function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -2683,11 +2683,12 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
                             <span'.$bold.'>'.getStatText('anyagigenyles', $bsz['stat_id']).'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
 
             $i++;
         }
@@ -2727,11 +2728,11 @@ function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -2771,11 +2772,11 @@ function torzsadatLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['nev'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -2815,11 +2816,11 @@ function szabadsagigenyLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -2859,11 +2860,11 @@ function beosztasLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$telephely.' '.str_replace('-', '.', $bsz['tol']).' - '.str_replace('-', '.', $bsz['ig']).'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -2917,11 +2918,11 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit ) {
                             <span'.$bold.'>'.$statusz.'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -2961,11 +2962,11 @@ function uzemeltetesi_naploLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -3005,11 +3006,11 @@ function energiaLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -3049,11 +3050,11 @@ function tervezesLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -3093,11 +3094,11 @@ function cash_flowLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -3137,11 +3138,11 @@ function raktarLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -3188,11 +3189,11 @@ function szamlaLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -3231,11 +3232,12 @@ function cikktorzsLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['id'].' '.$bsz['nev'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
 
             $i++;
         }
@@ -3282,11 +3284,11 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['nev'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -3320,6 +3322,11 @@ function szerepkorLista( $bejegyzesek, $tabla, $frissit ) {
             if( $bsz['recid'] == $_GET['id'] ) {
                 $active = ' kijelolve';
             }
+            
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
+            }
 
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
                             <a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -3327,10 +3334,6 @@ function szerepkorLista( $bejegyzesek, $tabla, $frissit ) {
                             </a>
                         </li>';
 
-            if( !$frissit ) {
-            } else {
-                $html .= $li_tart;
-            }
 
             $i++;
         }
@@ -3382,11 +3385,11 @@ function loginLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$aktiv.' '.$bsz['teljes_nev'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -3438,11 +3441,11 @@ function erteklistaLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['info'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -3494,11 +3497,11 @@ function szallitoLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$aktiv.' '.$bsz['nev'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -3537,11 +3540,11 @@ function ktghelyLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['id'].' - '.$bsz['nev'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -3580,11 +3583,11 @@ function ktgnemLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['id'].' - '.$bsz['nev'].'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }
@@ -3662,11 +3665,11 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit ) {
                             <span class="statusz"><span class="szso">Státusz:</span> '.$statusz.'</span>
                         </a>';
 
-            if( !$frissit ) {
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-            } else {
-                $html .= $li_tart;
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
             }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
 
             $i++;
         }

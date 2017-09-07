@@ -1,4 +1,4 @@
-var naptar_latszik_nincs_leptetes = false; /* Ha a bal oldali navpanelben naptár jelenik meg, a léptetetést kikapcsolju */
+var naptar_latszik_nincs_leptetes = false; /* Ha a bal oldali navpanelben naptár jelenik meg, a léptetetést kikapcsoljuk */
 
 function lap_tetejere(){
     if(getKepernyoMagas()<getOldalMagas()){
@@ -42,54 +42,6 @@ function inline_szerk_ment(tabla, oszlop, sorid) {
     onclick_disabled = false;
 }
 
-/**
-*	Insert Text - textarea tartalmába írás (tipikusan BB kódhoz).
-*
-*	@param string txtId: textarea id-je
-*	@param string oTag: nyitó tag
-*	@param string cTag: záró tag
-*	@param string defText: alapértelmezett szöveg
-*/
-function insert_text (txtId, oTag, cTag, defText){
-	var txt = document.getElementById(txtId);
-	txt.focus();
-
-	if (txt.selectionStart != undefined){
-
-		var sel_start = txt.selectionStart;
-		var sel_end   = txt.selectionEnd;
-
-		if (!cTag){
-			txt.value = txt.value.substr(0, sel_start) + oTag + txt.value.substr(sel_end);
-			txt.selectionStart = sel_start + oTag.length;
-			txt.selectionEnd   = sel_start + oTag.length;
-		}else{
-			var selText = txt.value.substr(sel_start, sel_end - sel_start);
-			if (!selText && defText) selText = defText;
-
-			txt.value = txt.value.substr(0, sel_start) + oTag + selText + cTag + txt.value.substr(sel_end);
-			txt.selectionStart = sel_start + oTag.length;
-			txt.selectionEnd   = sel_start + oTag.length + selText.length;
-		}
-	}else if (document.selection){
-
-		var sel = document.selection.createRange();
-
-		if (sel) {
-			if (!cTag) sel.text = oTag;
-			else{
-				var selText = sel.text;
-				if (!selText && defText) selText = defText;
-				var selLength = selText.replace(/\r\n/g, "\n").length;
-
-				sel.text = oTag + selText + cTag;
-				sel.moveStart ("character", -cTag.length - selLength);
-				sel.moveEnd   ("character", -cTag.length);
-			}
-			sel.select();
-		}
-	}
-}
 
 /**
 *	Töröl
@@ -292,56 +244,7 @@ function get_admin_file_thumb(tabla, oszlop, id, jquery_string){
 }
 
 
-/**
-* @desc Kép elforgatása megadott százalékkal
-*
-* @param utvonal        string A kép elérési útvonala
-* @param szazalek       int    Az elforgatás mértéke %-ban
-* @param jquery_String string  Jqery-s string, amivel a megfelelő képelemet elérem
-*
-* @return string Az elforgatott kép útvonala
-*/
-function kep_forgat(utvonal, szazalek, kep_object){
-    alert2('Forgatás...');
-    $.ajax({
-        url : 'esemenyek.php',
-        type: 'GET',
-        data: esamp2es('utvonal='+utvonal+'&amp;szazalek='+szazalek+'&amp;kep_forgat=' + new Date().getTime()),
-        success: function(html) {
-            alert2();
-            if($(kep_object).attr('src')){
-                $(kep_object).attr('src', html);
-            }else{
-                $(kep_object).find('img').attr('src', html);
-            }
-        }
-    });
-}
-
-
-/**
-* @desc Fordítás felülethez kell, ez menti el az inputok értékeit a szotar.csv-be
-*/
-function szotar_csv_ment(){
-
-    alert2('Mentés...');
-
-    var ertekek = '';
-    $('input.szotarba').each(function () {
-        ertekek += $(this).attr('name') + '===' + $(this).val() + '|||';
-    });
-
-    $.ajax({
-        url: 'forditas.php',
-        type: 'POST',
-        data: esamp2es('ertekek='+ertekek+'&amp;szotar_csv_ment=' + new Date().getTime()),
-        success: function (html) {
-            alert2();
-        }
-    });
-
-}
-
+/* Felhasználó váltás */
 function felh_valt( valt ) {
     if( valt === undefined ) {
         valt = '';
@@ -523,11 +426,7 @@ $(function() {
             popupZar();
         }
     });
-    /* Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk
-
-     *2do: Checkbox-ra hogyna lehetne léptetni?
-     *     elsubmitolja az űrlapot, ezért a submit gombot sima gombra kell cserélni ami a form-ot submitolja, de akkor a form_modosit.html-ben nem fog működni a if(!$('#szerk_form input[type="submit"]').length) feltétle, tehát azt is át kell írni.
- */
+    /* Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk */
     $(':input[type!="hidden"]').each(function (i) {
         $(this).attr('tabindex', i + 1);
     });
@@ -639,10 +538,6 @@ $(function() {
             if( !sorok.hasClass('kijelolve') ) {
                 $(this).addClass('kijelolve');
 
-                /* Tömeges kijelöléshez */
-                /*sorok.removeClass('akt');
-                $(this).addClass('akt');*/
-
                 kijeloltSzamlal( sorok, 'mellek', tabla, mellek );
             } else {
 
@@ -650,9 +545,6 @@ $(function() {
                 if(!akt_id){
                     akt_id = parseInt( $(this).nextAll('.kijelolve').attr('data-i') );
                 }
-                /* Tömeges kijelöléshez */
-                /*sorok.removeClass('akt');
-                $(this).addClass('akt');*/
 
                 var uj_akt_id = parseInt( $(this).attr('data-i') );
 
@@ -780,27 +672,19 @@ $(function() {
         /* CTRL és SHIFT lekezelése */
         } else {
 
-            /* Bal oldali navpanel shift gomb használata */
+            /* Bal oldali navpanel SHIFT gomb használata */
             if( e.shiftKey && kijelolheto ) {
-                /*sorok.removeClass('active');*/
 
                 if( !sorok.hasClass('kijelolve') ) {
                     $(this).addClass('kijelolve');
 
-                    /* Tömeges kijelöléshez */
-                    /*sorok.removeClass('akt');
-                    $(this).addClass('akt');*/
-
                 } else {
 
-                    /*var akt_id = parseInt( $('#szamlaList.kijelolheto li.szamla_sor.kijelolve').attr('data-i') );*/
+                    /* A shifthez legközelebb eső felső kijelölt sor megkeresése, ha az nincs, akkor meg az alsó */
                     var akt_id = parseInt( $(this).prevAll('.kijelolve').attr('data-i') );
                     if(!akt_id){
                         akt_id = parseInt( $(this).nextAll('.kijelolve').attr('data-i') );
                     }
-                    /* Tömeges kijelöléshez */
-                    /*sorok.removeClass('akt');
-                    $(this).addClass('akt');*/
 
                     var uj_akt_id = parseInt( $(this).attr('data-i') );
 
@@ -821,13 +705,12 @@ $(function() {
                 }
                 kijeloltSzamlal( sorok, 'fo' );
 
-            /* Bal oldali navőanel CTRL gombbal való kijelölgetése */
+            /* Bal oldali navpanel CTRL gombbal való kijelölgetése */
             } else if( e.ctrlKey && kijelolheto ) {
                 /*sorok.removeClass('active');*/
 
                 /* Tömeges kijelöléshez */
-                /*sorok.removeClass('akt');*/
-                $(this).parent().find('.kijelolve')/*.addClass('akt')*/;
+                $(this).parent().find('.kijelolve');
 
                 if( $(this).hasClass('kijelolve') ) {
                     $(this).removeClass('kijelolve');
@@ -1893,6 +1776,10 @@ function varolistabolKivetel(csak_kerdezunk) {
 
                             kijelolesEltavolit();
                             szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                            /* navpanel frissítése (minden kijelölt sort) */
+                            szamlaSorok.each(function() {
+                                szamlaSorFrissit(page, $(this).attr('data-recid'));
+                            });
                             alert2();
                         }
                     }
@@ -1949,6 +1836,10 @@ function varolistahozAdas(csak_kerdezunk) {
 
                             kijelolesEltavolit();
                             szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                            /* navpanel frissítése (minden kijelölt sort) */
+                            szamlaSorok.each(function() {
+                                szamlaSorFrissit(page, $(this).attr('data-recid'));
+                            });
                             alert2();
                         }
                     }
@@ -2002,6 +1893,10 @@ function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
                                 return false;
                             }
                             szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                            /* navpanel frissítése (minden kijelölt sort) */
+                            szamlaSorok.each(function() {
+                                szamlaSorFrissit(page, $(this).attr('data-recid'));
+                            });
                             alert2();
                         }
                     }
@@ -2127,6 +2022,10 @@ function anyagigenyles_jovahagy(csak_kerdezunk) {
                                 return false;
                             }
                             szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                            /* navpanel frissítése (minden kijelölt sort) */
+                            szamlaSorok.each(function() {
+                                szamlaSorFrissit(page, $(this).attr('data-recid'));
+                            });
                             alert2();
                         }
                     }
@@ -2199,6 +2098,10 @@ function anyagigenyles_elutasitas(csak_kerdezunk) {
                                 return false;
                             }
                             szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                            /* navpanel frissítése (minden kijelölt sort) */
+                            szamlaSorok.each(function() {
+                                szamlaSorFrissit(page, $(this).attr('data-recid'));
+                            });
                             alert2();
                         }
                     }
@@ -2259,6 +2162,10 @@ function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
                                 return false;
                             }
                             szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                            /* navpanel frissítése (minden kijelölt sort) */
+                            szamlaSorok.each(function() {
+                                szamlaSorFrissit(page, $(this).attr('data-recid'));
+                            });
                             alert2();
                         }
                     }
@@ -2297,6 +2204,8 @@ function csoportAtnevezes( csoportID ) {
     }
 }
 
+/* Munkalaphoz adás - Megszűnt 2017.09.06 */
+/*
 function munkalaphozAdas(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -2366,7 +2275,7 @@ function munkalaphozAdas(csak_kerdezunk) {
     }
     return false;
 }
-
+*/
 function munkAnyagIgenyles( that, csak_kerdezunk ) {
     var addCikkUj = $(that).find('input[name="addCikkUj[]"]'),
         addCikkID = $(that).find('input[name="addCikkID[]"]'),
@@ -3287,7 +3196,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         if($(this).hasClass('behuz')){
                             mar_csoportosak += $(this).find('span:first-of-type').html()+'<br>';
                         }
-                        /* Ha nem nyitott astátuszas */
+                        /* Ha nem nyitott a státusz */
                         if(!$(this).hasClass('nyitott_statuszu')){
                             nem_nyitott_statuszuak += $(this).find('span:first-of-type').html()+'<br>';
                         }
@@ -4147,9 +4056,10 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     }
 }
 
+/* Kapcsolód táblák - fülek alatti rekordok - törlése általános függvénye */
 function mellekTorol( tabla, mellek ) {
     var kijelolve = $('.kijCont .kijSor.kijelolve'),
-        idk = {};
+        idk       = {};
 
     var i = 1;
     kijelolve.each(function() {
@@ -4277,7 +4187,9 @@ function addObj( that ) {
     popupZar();
 }
 
+/* Kapcsolódó táblák, azaz fülek alatti tartalom szerkesztéséhez kapcsolódó popupok, amiket sablonból olvasunk be */
 function kapcsolodoSzerkeszt( oldal ) {
+    
     $.get('../sablon/admin/popup/' + oldal + '.html?cache=' + new Date().getTime(), function( data ) {
         $('#popupTart').html(data);
 
@@ -4294,12 +4206,30 @@ function kapcsolodoSzerkeszt( oldal ) {
             case 'velemenyezok':
                 $('#addVelemenyezokForm').attr('onsubmit', 'return addVelemenyezoFg(\'' + _get('id') + '\', this);');
             break;
+            /* Véleménye feltötléskor pár adatra szükségünk van PHP-ból */
+            case 'velemeny_feltolt':
+                
+                $.ajax({
+                    url : 'projektigenyles.php',
+                    type: 'POST',
+                    data: {
+                        get_session_id: new Date().getTime()
+                    },
+                    success: function (response) {
+                        $('#popupTart').html(
+                                            $('#popupTart').html().replace(/{GET_ID}/g, _get('id')).
+                                            replace(/{SESSION_ID}/g, response)
+                                        );
+                    }
+                });
+            break;
         }
 
         popupNyit();
     });
 }
 
+/* Popup bezárása */
 function popupZar() {
     $('#popup').css('display', 'none');
     $('#popupTart').html('');
@@ -4351,6 +4281,7 @@ function naviTorles() {
     }
 }
 
+/* Bal oldali navpanelben kijelölt sor magasságában legyen a scroll */
 function scrollLeptet() {
     var active_top      = $('.szamla_sor.kijelolve').position().top,
         activeHeight    = $('.szamla_sor.kijelolve').outerHeight(),
@@ -4460,6 +4391,7 @@ function gombokNullaz() {
     $('#kilepes_gomb').val('Kilépés');
 }
 
+/* Felhasználó váltás */
 function felhValt( that ) {
     var felh_nev  = $( that ).find('input[name="login_nev"]').val(),
         felh_jlsz = $( that ).find('input[name="login_jelszo"]').val();
@@ -4492,6 +4424,7 @@ function felhValt( that ) {
     return false;
 }
 
+/* Szakterület hozzáadása */
 function addSzakterulet( szallitoID, that ) {
     var szakterID = $(that).find('input[name="addSzakter"]').val();
 
@@ -4527,6 +4460,8 @@ function addSzakterulet( szallitoID, that ) {
     return false;
 }
 
+
+//Megjegyzés hozzáadása
 function addMegjegyzes( pageID, that ) {
     var megj = $(that).find('textarea[name="megjegyzes"]').val();
 
@@ -4616,8 +4551,12 @@ function addVelemenyezoFg( pr_igeny_recid, that ) {
          		if(html) {
                     html = JSON.parse(html);
 
-                    if( html.statusz == 'hiba' ) {
-                        alert2(html.uzi, '', 'Hiba');
+                    if( response.hiba ) {
+                        if( response.gomb ) {
+                            alert2(response.hiba, response.gomb);
+                        } else {
+                            alert2(response.hiba, '', 'Hiba');
+                        }
                         return false;
                     }
 
@@ -4637,6 +4576,69 @@ function addVelemenyezoFg( pr_igeny_recid, that ) {
     }
 
     return false;
+}
+
+/* Vélemény hozzáadása */
+function velemeny_hozzaad(mehet){
+    
+    /* Ha mehet, akkor nem vizsgáunk semmit, mehet a vélemény feltöltés */
+    if(mehet){
+        alert2();
+        kapcsolodoSzerkeszt('velemeny_feltolt');
+    }
+    
+    /* Lássuk, van-e már vélemény feltöltve, ha igen, akkor rákérdezünk, hogy biztosan? */
+    $.ajax({
+        url: 'projektigenyles.php',
+        type: 'POST',
+        data: {
+            recid         : _get('id'),
+            van_e_velemeny: new Date().getTime()
+        },
+        success: function (response) {
+            response = JSON.parse(response);
+            /* Ha még nincs véleménye, akkor nincs kérdés, mehet egyből */
+            if (response.mehet) {
+                kapcsolodoSzerkeszt('velemeny_feltolt');
+            }
+            if (response.kerdes) {
+                alert2(response.kerdes, '<input type="button" class="gomb zold" value="Igen" onclick="velemeny_hozzaad(\'mehet\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+            }
+        }
+    });
+    
+}
+
+/* Vélemény törlése */
+function velemeny_torol( velemeny_recid, mehet ) {
+    if(!mehet){
+        alert2('Biztosan törli a véleményét?', '<input type="button" class="gomb zold" value="Igen" onclick="velemeny_torol(\''+velemeny_recid+'\', \'mehet\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+    }else{
+        $.ajax({
+            url : 'projektigenyles.php',
+            type: 'POST',
+            data: {
+                velemeny_recid: velemeny_recid,
+                velemeny_torol: new Date().getTime()
+            },
+            success: function (response) {
+
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    if( response.gomb ) {
+                        alert2(response.hiba, response.gomb);
+                    } else {
+                        alert2(response.hiba, '', 'Hiba');
+                    }
+                }else{
+                    szamlaBetolt(_get('id'), 'projektigenyles.php', 'velemenyezok');
+                    alert2();
+                }
+
+            }
+        });
+    }
 }
 
 function naploTorol( tabla, sorID ) {
@@ -4868,7 +4870,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);');
                     } else if( baseName(location.href) == 'utemezett_feladatok' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
-                    } else if( _get('velemenyezok') ) {
+                    } else if( _get('velemenyezok') && _jogok[40] == 0 ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Önnek nincs joga véleményezőt hozzáadni!\', \'\', \'Hiba\'); void(0);');
+                    } else if( _get('velemenyezok') && _jogok[40] == 1 ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'velemenyezok\'); void(0);');
                     } else if( baseName(location.href) == 'bejelentes' && _jogok[2] == 1 ) {
                         $('#navGombok a.uj').attr('href', 'javascript: bejSzallodaValaszt(); void(0);');
@@ -4917,9 +4921,12 @@ function szamlaSorFrissit( tabla, recid ) {
          	url : 'esemenyek.php',
          	type: 'GET',
          	data: esamp2es('tabla=' + tabla + '&amp;recid=' + recid + param_kieg + '&amp;szamlaSorFrissit=' + new Date().getTime()),
-         	success: function(html) {
-         		if(html) {
-         			$('#szamla-' + recid).html(html);
+         	success: function(response) {
+         		if(response) {
+                    /* A frissítendő sor data-i értéke maradjon változatlan. Amit akpnk abban 1 lesz az értéke */
+                    response = response.replace('data-i="1"', 'data-i="' + $('#szamla-' + recid).attr('data-i') + '"');
+console.log(response);
+         			$('#szamla-' + recid).replaceWith(response);
          		}
          	}
         });
@@ -5094,6 +5101,9 @@ $(document).ready(function () {
             szamlaBetolt('1', 'utemezett_feladatok.php', 'naptar=1&amp;akt_nap='+val);
         },
     });
+    
+    /* Bal oldali nav panelben a kijelölt sorhoz scrollozunk */
+    scrollLeptet();
 });
 
 /* Időszakos ütemezésnél az egyeszeri időszak kimullázása */
