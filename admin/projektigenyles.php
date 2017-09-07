@@ -1,5 +1,17 @@
 <?php
 require_once('../weblap.php');
+
+if( !_jog(JOG_PRIGENY_MEGTEKINT) ) {
+    if(!$_SESSION[get_db_tabla().'user']){
+        $weblap -> leallit();
+        header('Location: index.php');
+        exit;
+    }
+    header('Content-Type: text/html; charset=utf-8');
+    $weblap -> leallit();
+    exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
+}
+
 //Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
@@ -383,7 +395,7 @@ if($gyorskereso_text){
         if($statusz['stat_id'] != PRIGENY_STAT_NYITOTT) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú projektigénylés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         //Jogosutságkezelés: csak az törölheti, akinek van hozzá joga
-        } elseif( _jog(JOG_PRIGENY_KEZEL) ){
+        } elseif( !_jog(JOG_PRIGENY_KEZEL) ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga projektigénylést törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         //Jogosutságkezelés: csak az törölheti, aki létrehozta
         }elseif($sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
@@ -449,8 +461,8 @@ if($gyorskereso_text){
         ');
     }
 
-	//Új termék felvitele
-	if(isset($_GET['uj'])){
+	//Új projektigénylés felvitele
+	if(isset($_GET['uj']) && _jog(JOG_PRIGENY_KEZEL)){
 
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
@@ -517,7 +529,7 @@ if($gyorskereso_text){
             echo $szamla_html;
         }
 
-	//Termék módosítása
+	//Projektigénylés módosítása
 	}elseif(isset($_GET['modosit'])) {
 
         //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd

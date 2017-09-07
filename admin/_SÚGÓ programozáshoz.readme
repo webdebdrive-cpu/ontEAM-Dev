@@ -58,6 +58,7 @@ NYOMATÁSI NÉZETEK KIGENEÁRLÁSA:
 
 STÁTUSZOK KARBANTARTÁSA
 - addStatusz() függvénnyel írj be értéket és akkor rendben lesz. Ennek előfeltétele, hogy már egy státusza legyen (pl. egy alap NYITOTT).
+- statusz_text.php-ben taláhatóak a megnevezések
 
 KIJELÖLÉSEK MŰKÖDÉSE (SOROK MEGJELÖLÉSE BAL NAVPANELEN ÉS FÜLEK ALATTI SOROKNÁL)
 - admin.js-ben erre keress rá: Aloldalon/fülek alatti felsorolás kijelölések lekezelése. Pl. felhasználók szállodái.

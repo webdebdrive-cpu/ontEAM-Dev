@@ -908,10 +908,10 @@ $bejelentes_tomb = $akt_tomb = array(
 
     array('type' => 'text',            'megn' => 'Név:',        'name' => 'usr_man_nev',            'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true),
     array('type' => 'text',            'megn' => '',            'name' => 'usr_nev',                'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'letarol' => true, 'value' => $usr_nev),
-    array('type' => 'autocomplete',    'megn' => 'Beosztás:',   'name' => 'usr_man_beosztas_id',    'disabled' => $usr_man_dis,         'class' => 'kozepes disableNav csillag', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'osszevon' => true),
-    array('type' => 'autocomplete',    'megn' => '',            'name' => 'usr_beosztas_id',        'disabled' => $usr_dis,             'class' => 'kozepes disableNav csillag', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'value' => $usr_beosztas),
-    array('type' => 'autocomplete',    'megn' => 'Részleg:',    'name' => 'usr_man_reszleg_id',     'disabled' => $usr_man_dis,         'class' => 'kozepes disableNav csillag', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'osszevon' => true),
-    array('type' => 'autocomplete',    'megn' => '',            'name' => 'usr_reszleg_id',         'disabled' => $usr_dis,             'class' => 'kozepes disableNav csillag', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'value' => $usr_reszleg),
+    array('type' => 'autocomplete',    'megn' => 'Beosztás:',   'name' => 'usr_man_beosztas_id',    'disabled' => $usr_man_dis,         'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'osszevon' => true),
+    array('type' => 'autocomplete',    'megn' => '',            'name' => 'usr_beosztas_id',        'disabled' => $usr_dis,             'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'value' => $usr_beosztas),
+    array('type' => 'autocomplete',    'megn' => 'Részleg:',    'name' => 'usr_man_reszleg_id',     'disabled' => $usr_man_dis,         'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'osszevon' => true),
+    array('type' => 'autocomplete',    'megn' => '',            'name' => 'usr_reszleg_id',         'disabled' => $usr_dis,             'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'value' => $usr_reszleg),
     array('type' => 'text',            'megn' => 'Telefon:',    'name' => 'usr_man_telefon',        'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true),
     array('type' => 'text',            'megn' => '',            'name' => 'usr_telefon',            'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'letarol' => true, 'value' => $usr_telefon),
     array('type' => 'text',            'megn' => 'E-mail:',     'name' => 'usr_man_email',          'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true),
@@ -1519,7 +1519,7 @@ if (isset($_GET['modosit'])) {
 $projektigenyles_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',    'szuro' => 1,  'oldal' => $megnevezes),
     array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',   'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'style' => 'width: 9rem'),
-    array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',        'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!'),
+    array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',        'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'select_pri_tipus',     'megn' => 'Tipus:',                 'name' => 'tipus',      'szuro' => 1,       'class' => 'disableNav'),
     array('type' => 'text',                 'megn' => 'Aktiválási adatok:',     'name' => 'akt_adat',   'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'text',                 'megn' => 'Prioritás:',             'name' => 'prior',      'szuro' => 1,       'class' => 'oriasi'),
@@ -1750,7 +1750,7 @@ if( isset($_POST['getMunkalapAnyagok']) ) {
 
                     echo json_encode(array(
                         'statusz' => 'siker',
-                        'html' => $html
+                        'html'    => $html
                     ));
                 } else {
                     mysqli_rollback($db_kapcs);
@@ -3916,7 +3916,7 @@ if( isset($_POST['mellekTorol']) ) {
     exit();
 }
 
-/* Objektumok generálása */
+// Objektumok generálása
 if( isset($_GET['gepVane']) ) {
     $telephely_id = $_GET['telephely_id'];
     $obj_id = $_GET['obj_id'];
@@ -3937,7 +3937,7 @@ if( isset($_GET['gepVane']) ) {
     exit();
 }
 
-/* Objektumok generálása */
+// Objektumok generálása
 if( isset($_GET['obj_general']) ) {
     $telephely_id = $_GET['telephely_id'];
 
@@ -3947,7 +3947,7 @@ if( isset($_GET['obj_general']) ) {
     exit();
 }
 
-/** További beállítások */
+// További beállítások
 if( isset($_GET['naploTorol']) ) {
     $tabla = $_GET['tabla'];
     $sorID = $_GET['sorID'];
@@ -3960,6 +3960,7 @@ if( isset($_GET['naploTorol']) ) {
     exit();
 }
 
+// Megjegyzés hozzáadása
 if( isset($_POST['addMegjegyzes']) ) {
     $pageID = $_POST['pageID'];
     $megj   = $_POST['megj'];
@@ -3980,6 +3981,7 @@ if( isset($_POST['addMegjegyzes']) ) {
     exit();
 }
 
+//Szakterület hozzáadása
 if( isset($_GET['addSzakterulet']) ) {
     $szallitoID = $_GET['szallitoID'];
     $szakterID  = $_GET['szakterID'];

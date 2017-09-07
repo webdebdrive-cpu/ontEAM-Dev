@@ -30,6 +30,7 @@ function i_u($type, $tabla, $tomb) {
 
     $nevid   = '';
 
+    $prigeny_kot_mezok = array('nev', 'bkolt'); //Projektigénylésnek vannak elméleti kötelező mezői, ahhoz kell
     $oszlopok = array();
     $ertekek  = array();
 
@@ -607,8 +608,26 @@ function i_u($type, $tabla, $tomb) {
                                                 array($id,             PRIGENY_STAT_NYITOTT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
+            
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRIGENY_STAT_NYITOTT), "`recid`='$id'");
             if( $sql === false ) { $db_error = true; }
+            //Van pár elméletileg kötelező mező. Ha ezek csak részen vannak kitöltve, akkor még tovább léptetjük a státuszt: Létrehozás alatt
+            foreach ($prigeny_kot_mezok as $mezo){
+                if(!$_POST[$mezo] || str_replace(',', '.', $_POST[$mezo])==0){
+
+                    $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
+                                                        array($tabla.'_recid', 'stat_id',                 'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                        array($id,             PRIGENY_STAT_LETRE_ALATT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                    );
+                    if( $sql === false ) { $db_error = true; }
+
+                    $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRIGENY_STAT_LETRE_ALATT), "`recid`='$id'");
+                    if( $sql === false ) { $db_error = true; }
+                    
+                    break;
+                }
+            }
+
         }
 
         //Naplózás
@@ -721,6 +740,7 @@ function i_u($type, $tabla, $tomb) {
             array_push($ertekek,  $_SESSION[get_db_tabla().'teljes_nev']);
         }
 
+        //Loginnál szerepkörök lekezelése
         if( $tabla == 'login' ) {
             if( $_POST['szerepkor_id'] && !$record[0]['flags'] ) {
                 $szerepkor = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
@@ -750,13 +770,41 @@ function i_u($type, $tabla, $tomb) {
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
 //echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
         if( $id === false ) { $db_error = true; }
+        
+        //Projektigénylésnél van pár elméleteileg kötelező mező, ami státuszléptetéssel jár, ezt le kell kezelni
+        if( $tabla == 'projektigenyles' ){
+            $prigeny = $adatbazis_kapcsolat->s2(implode(', ', $prigeny_kot_mezok).' stat_id', $tabla, "`recid`='{$_GET['id']}'");
+            if( $prigeny === false ) { $db_error = true; }
+
+            $mind_megvan = true;
+            foreach($prigeny_kot_mezok as $mezo){
+                if(!$prigeny[$mezo] || str_replace(',', '.', $prigeny[$mezo])==0){
+                    $mind_megvan = false;
+                }
+            }
+            
+            if($mind_megvan){
+                $uj_statusz = PRIGENY_STAT_NYITOTT;
+            }else{
+                $uj_statusz = PRIGENY_STAT_LETRE_ALATT;
+            }
+            
+            //Ha van új státusz, akkor váéltunk. Kivéve ha már véleményezés alatt van a rekord, akkor nem bántjuk.
+            if($prigeny['stat_id']!=$uj_statusz && $prigeny['stat_id']!=PRIGENY_STAT_VEL_ALATT){
+                if( !addStatusz( $tabla.'_statusz', $_GET['id'], $uj_statusz ) ) {
+                    $db_error = true;
+                }
+            }
+            
+        }
+        
         if( $id ) {
             $sor = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
             if( $sor === false ) { $db_error = true; }
             if( $sor ) {
                 $_SESSION['formMod'] = array(
                     'datetime' => $sor[0]['update_dt'],
-                    'oldal' => basename(self())
+                    'oldal'    => basename(self())
                 );
 
                 foreach($tomb as $value) {

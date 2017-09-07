@@ -53,6 +53,7 @@
         ),
         'projektigenyles' => array(
             PRIGENY_STAT_NYITOTT                => array('nev' => 'Nyitott',                            'szinkod' => ''),
+            PRIGENY_STAT_LETRE_ALATT            => array('nev' => 'Létrehozás alatt',                   'szinkod' => ''),
             PRIGENY_STAT_VEL_ALATT              => array('nev' => 'Véleményezés alatt',                 'szinkod' => ''),
             PRIGENY_STAT_ELUTASITVA             => array('nev' => 'Elutasítva',                         'szinkod' => ''),
             PRIGENY_STAT_HIANYPOTLAS            => array('nev' => 'Hiánypótlás',                        'szinkod' => ''),

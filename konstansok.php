@@ -66,13 +66,14 @@ define('MUNKALAP_STAT_HOZREND_MEGREND_VAR', '15');
 
 //Projektigénylés státuszok
 define('PRIGENY_STAT_NYITOTT',              '01' );
-define('PRIGENY_STAT_VEL_ALATT',            '02' );
-define('PRIGENY_STAT_ELUTASITVA',           '03' );
-define('PRIGENY_STAT_HIANYPOTLAS',          '04' );
-define('PRIGENY_STAT_FB_TERJESZT',          '05' );
-define('PRIGENY_STAT_BOD_TERJESZT',         '06' );
-define('PRIGENY_STAT_VARAKOZO',             '07' );
-define('PRIGENY_STAT_JOVAHAGYVA',           '08' );
+define('PRIGENY_STAT_LETRE_ALATT',          '02' );
+define('PRIGENY_STAT_VEL_ALATT',            '03' );
+define('PRIGENY_STAT_ELUTASITVA',           '04' );
+define('PRIGENY_STAT_HIANYPOTLAS',          '05' );
+define('PRIGENY_STAT_FB_TERJESZT',          '06' );
+define('PRIGENY_STAT_BOD_TERJESZT',         '07' );
+define('PRIGENY_STAT_VARAKOZO',             '08' );
+define('PRIGENY_STAT_JOVAHAGYVA',           '09' );
 
 
 

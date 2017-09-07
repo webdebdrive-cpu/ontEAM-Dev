@@ -2,6 +2,17 @@
 require_once('../weblap.php');
 //Config
 
+if( !_jog(JOG_MUNKALAP_MEGTEKINT) ) {
+    if(!$_SESSION[get_db_tabla().'user']){
+        $weblap -> leallit();
+        header('Location: index.php');
+        exit;
+    }
+    header('Content-Type: text/html; charset=utf-8');
+    $weblap -> leallit();
+    exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
+}
+
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $munkalap_tomb;
@@ -1923,8 +1934,8 @@ if($gyorskereso_text){
         ');
     }
 
-	//Új termék felvitele
-	if(isset($_GET['uj']) && !$csak_szerkesztheto) {
+	//Új munkalap felvitele
+	if( isset($_GET['uj']) && (jog(JOG_MUNKALAP_TELEPITETT) || jog(JOG_MUNKALAP_MOBIL) || jog(JOG_MUNKALAP_MUSZAKI_VEZ) || jog(JOG_MUNKALAP_TER_FELELOS) || jog(JOG_MUNKALAP_DISZP_KP_VEZ) || jog(JOG_MUNKALAP_MUSZAK_ADMIN) || jog(JOG_MUNKALAP_ADMIN) || jog(JOG_MUNKALAP_KULSO)) ) {
 
         //NAVIGÁCIÓ
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
