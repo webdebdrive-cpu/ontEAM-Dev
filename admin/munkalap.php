@@ -1683,19 +1683,21 @@ if (isset($_GET['csv'])) {
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
         $sql = 'SELECT
-                                                    `ikt_szam` as \'Munkalap szám\',
-                                                    `'.get_db_tabla().'munkalap`.`telephely_id` as \'Szálloda\',
-                                                    `obj_id` as \'Helyiség\',
-                                                    `gep_id` as \'Gépnév\',
-                                                    `szemelyzet_id` as \'Hozzárendelt személyzet\',
-                                                    `tipus_id` as \'Típus\',
-                                                    `stat_id` as \'Státusz\',
-                                                    `surgos` as \'Sürgős\',
-                                                    `visszaadva` as \'Visszaadva\'
-                                                    '.$lekerdezes_fromtol;
+                `stat_id` as \'Státusz\',
+                `ikt_szam` as \'Munkalap szám\',
+                `surgos` as \'Sürgős\',
+                `visszaadva` as \'Visszaadva\',
+                `text` as \'Leírás\',
+                `'.get_db_tabla().'munkalap`.`telephely_id` as \'Szálloda\',
+                `obj_id` as \'Helyiség\',
+                `gep_id` as \'Gépnév\',
+                `tipus_id` as \'Típus\',
+                `szallito_id` as \'Külső kivitelező\',
+                `szemelyzet_id` as \'Hozzárendelt személyzet\'
+                '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);
-
+        
         $csvhead    = array();
         while($fejlec_nevek = mysqli_fetch_field($query)){
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
@@ -1706,20 +1708,16 @@ if (isset($_GET['csv'])) {
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
                 if($kulcs=='Szálloda'){
-                    $sor = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$sor}'");
-                    $sor = $sor[0]['nev'];
+                    $sor = getErtek('nev', 'telephely', 'id', $sor);
                 }
                 if($kulcs=='Bejelentett hiba'){
-                    $sor = $adatbazis_kapcsolat->s('info', 'erteklista', "`recid`='{$sor}'");
-                    $sor = $sor[0]['info'];
+                    $sor = getErtek('info', 'erteklista', 'recid', $sor);
                 }
                 if($kulcs=='Helyiség'){
-                    $sor = $adatbazis_kapcsolat->s('nev', 'obj', "`recid`='{$sor}'");
-                    $sor = $sor[0]['nev'];
+                    $sor = getErtek('nev', 'obj', 'recid', $sor);
                 }
                 if($kulcs=='Gépnév'){
-                    $sor = $adatbazis_kapcsolat->s('nev', 'eszkozkezeles', "`recid`='{$sor}'");
-                    $sor = $sor[0]['nev'];
+                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
                 }
                 if($kulcs=='Típus'){
                     $sor = erteklista(6, $sor);
@@ -2027,7 +2025,7 @@ if($gyorskereso_text){
     }
 
 	//Új munkalap felvitele
-	if( isset($_GET['uj']) && (jog(JOG_MUNKALAP_TELEPITETT) || jog(JOG_MUNKALAP_MOBIL) || jog(JOG_MUNKALAP_MUSZAKI_VEZ) || jog(JOG_MUNKALAP_TER_FELELOS) || jog(JOG_MUNKALAP_DISZP_KP_VEZ) || jog(JOG_MUNKALAP_MUSZAK_ADMIN) || jog(JOG_MUNKALAP_ADMIN) || jog(JOG_MUNKALAP_KULSO)) ) {
+	if( isset($_GET['uj']) && (_jog(JOG_MUNKALAP_TELEPITETT) || _jog(JOG_MUNKALAP_MOBIL) || _jog(JOG_MUNKALAP_MUSZAKI_VEZ) || _jog(JOG_MUNKALAP_TER_FELELOS) || _jog(JOG_MUNKALAP_DISZP_KP_VEZ) || _jog(JOG_MUNKALAP_MUSZAK_ADMIN) || _jog(JOG_MUNKALAP_ADMIN) || _jog(JOG_MUNKALAP_KULSO)) ) {
 
         //NAVIGÁCIÓ
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
