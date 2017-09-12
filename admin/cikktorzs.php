@@ -91,6 +91,88 @@ if(isset($_GET['siker']) && isset($_GET['modosit'])){
 
 }
 
+/* CSV generálása */
+if (isset($_GET['csv'])) {
+
+    $mibol   = get_web_charset();
+    $mibe    = 'windows-1250';
+
+    if( !is_dir('export') ) {
+        mkdir('export');
+    }
+
+    if( !is_dir('export/csv') ) {
+        mkdir('export/csv');
+    }
+
+    //Régi fájlok törlése
+    $utvonal = 'export/csv/';
+    $fajlok = konyvtar_bejar($utvonal);
+    foreach($fajlok as $fajl){
+        if(filemtime($fajl)<(time()-60*60)){
+            unlink($fajl);
+        }
+    }
+
+    $fajlnev = $utvonal.'csv'.time().'.csv';
+    $open = fopen($fajlnev,'a');
+    if($open){
+
+        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+
+        $sql = 'SELECT
+            `'.get_db_tabla().'cikktorzs`.`id` as \'Cikkszám\',
+            `'.get_db_tabla().'cikktorzs`.`nev` as \'Név\'
+            '.$lekerdezes_fromtol;
+
+
+        $query      = mysqli_query($db_kapcs, $sql);
+
+        $csvhead    = array();
+        while($fejlec_nevek = mysqli_fetch_field($query)){
+            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+        }
+        fputcsv($open, $csvhead, ';');
+
+        while( $sorok = mysqli_fetch_assoc($query) ){
+            $csvcont = array();
+            foreach( $sorok as $kulcs => $sor ) {
+                if($kulcs=='Szálloda'){
+                    $sor = getErtek('nev', 'telephely', 'id', $sor);
+                }
+                if($kulcs=='Bejelentett hiba'){
+                    $sor = getErtek('info', 'erteklista', 'recid', $sor);
+                }
+                if($kulcs=='Helyiség'){
+                    $sor = getErtek('nev', 'obj', 'recid', $sor);
+                }
+                if($kulcs=='Gépnév'){
+                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
+                }
+                if($kulcs=='Típus'){
+                    $sor = erteklista(6, $sor);
+                }
+                if($kulcs=='Státusz'){
+                    $sor = getStatText('munkalap', $sor);
+                }
+
+                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+            }
+            fputcsv($open, $csvcont, ';');
+        }
+    }
+    fclose($open);
+
+    header("Content-type: text/csv");
+    header("Content-Disposition: attachment; filename=$megnevezes.csv");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    echo fajlbol_olvas($fajlnev);
+
+    $weblap->leallit();
+    exit();
+}
 
 /** Tartalom */
 if( !$_GET['ajax'] ) {
@@ -125,7 +207,7 @@ if($gyorskereso_text){
     }
 
     if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
-        /* Számla fülek */ 
+        /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tortenet'      => 'Történet',
@@ -149,11 +231,11 @@ if($gyorskereso_text){
             fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
         );
     }
-    
+
     /* Gombok kirajzolása minden oldalra */
     $gombok = '';
     if( isset($_GET['uj']) ) {
-        
+
         //Újat csak "Anyagigénylés kezelése" joggal lehet
         if(_jog(JOG_CIKKTORZS_KEZEL)){
             $gombok = nl2('
@@ -176,10 +258,10 @@ if($gyorskereso_text){
                 </div>
             ');
         }
-    
+
     //Módosítás gombok
     } else {
-        
+
         $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
 		$sor = $sor[0];
 
@@ -193,7 +275,7 @@ if($gyorskereso_text){
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                 </div>
             ').$gombok;
-            
+
         }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
@@ -398,7 +480,7 @@ if($gyorskereso_text){
 	}elseif(isset($_GET['dokumentumok'])){
 
         $szamla_html .= 'Dokumentumok felülete';
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html.$gombok,

@@ -102,24 +102,24 @@ if( isset($_POST['jogokhozzaad']) ) {
 
 // Véleményező hozzáadása ajaxosan
 if( isset($_GET['addVelemenyezo']) ) {
-    
+
     //Jogosultságkezelés
     if(!JOG_VELEMENYEZO_HOZZAAD){
-        
+
         echo json_encode(array(
             'hiba' => 'Önnek nincs joga véleményezőt hozzáadni!'
         ));
-        
+
         $weblap->leallit();
         exit();
     }
-    
+
     $login_recid    = $_GET['login_recid'];
     $pr_igeny_recid = $_GET['pr_igeny_recid'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-    
+
     if( $login_recid && $pr_igeny_recid ) {
 
         $felh = $adatbazis_kapcsolat->s2('nev', 'login', "`recid`='{$login_recid}'", '', '1');
@@ -132,11 +132,11 @@ if( isset($_GET['addVelemenyezo']) ) {
                                                                             array($pr_igeny_recid,          $login_recid,  $_SESSION[get_db_tabla().'user'],    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev']  )
                                                 );
             if($kapcsID===false){ $db_error = true; }
-            
+
             if(addStatusz('projektigenyles_statusz', $pr_igeny_recid, PRIGENY_STAT_VEL_ALATT)===false){
                 $db_error = true;
             }
-            
+
             if( !$db_error ) {
                 mysqli_commit($db_kapcs);
 
@@ -145,18 +145,18 @@ if( isset($_GET['addVelemenyezo']) ) {
                     'kapcsID' => $kapcsID,
                     'uzi'     => ''
                 ));
-                
+
             } else {
-                
+
                 mysqli_rollback($db_kapcs);
 
                 echo json_encode(array(
                     'hiba' => tranzakcioHiba()
                 ));
             }
-            
+
         } else {
-            
+
             echo json_encode(array(
                 'hiba' => 'Az illető már hozzáadásra került, mint véleményező!'
             ));
@@ -172,18 +172,18 @@ if (isset($_POST['velemeny_torol'])) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-    
+
     $velemeny = $adatbazis_kapcsolat->s2('login_recid utvonal', 'projektigenyles_velemeny', "`recid`='{$_POST['velemeny_recid']}'");
     if($velemeny===false){ $db_error = true; }
     if($velemeny['login_recid']!=$_SESSION[get_db_tabla().'login_recid']){
         echo json_encode(array(
             'hiba' => 'Csak saját vélemény törölhető!'
         ));
-    
+
         $weblap->leallit();
         exit();
     }
-    
+
         //Vélemény törlése
     $fajl = '../'.get_utvonal().$velemeny['utvonal'];
     if(is_file($fajl)){
@@ -191,7 +191,7 @@ if (isset($_POST['velemeny_torol'])) {
     }
     $sql = $adatbazis_kapcsolat->d('projektigenyles_velemeny', "`recid`='{$_POST['velemeny_recid']}'");
     if($sql===false){ $db_error = true; }
-    
+
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
 
@@ -209,21 +209,21 @@ if (isset($_POST['velemeny_torol'])) {
             'hiba' => tranzakcioHiba()
         ));
     }
-    
-    
+
+
     $weblap->leallit();
     exit();
 }
 
 //Új vélemény feltöltésekor ellenőrizzük, hogy van-e már feltöltött vélemény?
 if (isset($_POST['van_e_velemeny'])) {
-    
+
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-    
+
     $van_velemeny = $adatbazis_kapcsolat->s2('recid', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_POST['recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
     if($van_velemeny===false){ $db_error = true; }
-    
+
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
 
@@ -247,30 +247,30 @@ if (isset($_POST['van_e_velemeny'])) {
             'hiba' => tranzakcioHiba()
         ));
     }
-    
+
     $weblap->leallit();
     exit();
 }
 
 // Session id lekérdezése vélemény feltöltéshez
 if (isset($_POST['get_session_id'])) {
-    
+
     echo session_id();
-    
+
     $weblap->leallit();
     exit();
 }
 
 // Státusz léptetés
 if (isset($_POST['pri_statusz_leptet'])) {
-    
+
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-    
+
     if(addStatusz('projektigenyles_statusz', $_POST['recid'], $_POST['statusz'])===false){
         $db_error = true;
     }
-    
+
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
 
@@ -284,7 +284,7 @@ if (isset($_POST['pri_statusz_leptet'])) {
             'hiba' => tranzakcioHiba()
         ));
     }
-    
+
     $weblap->leallit();
     exit();
 }
@@ -292,6 +292,89 @@ if (isset($_POST['pri_statusz_leptet'])) {
 /** Események */
 if(isset($_GET['siker']) && isset($_GET['modosit'])){
 
+}
+
+/* CSV generálása */
+if (isset($_GET['csv'])) {
+
+    $mibol   = get_web_charset();
+    $mibe    = 'windows-1250';
+
+    if( !is_dir('export') ) {
+        mkdir('export');
+    }
+
+    if( !is_dir('export/csv') ) {
+        mkdir('export/csv');
+    }
+
+    //Régi fájlok törlése
+    $utvonal = 'export/csv/';
+    $fajlok = konyvtar_bejar($utvonal);
+    foreach($fajlok as $fajl){
+        if(filemtime($fajl)<(time()-60*60)){
+            unlink($fajl);
+        }
+    }
+
+    $fajlnev = $utvonal.'csv'.time().'.csv';
+    $open = fopen($fajlnev,'a');
+    if($open){
+
+        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+
+        $sql = 'SELECT
+                `ikt_szam` as \'Azonosító\',
+                `'.get_db_tabla().'projektigenyles`.`nev` as \'Név\',
+                `stat_id` as \'Státusz\'
+                '.$lekerdezes_fromtol;
+
+        $query      = mysqli_query($db_kapcs, $sql);
+
+        $csvhead    = array();
+        while($fejlec_nevek = mysqli_fetch_field($query)){
+            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+        }
+        fputcsv($open, $csvhead, ';');
+
+        while( $sorok = mysqli_fetch_assoc($query) ){
+            $csvcont = array();
+            foreach( $sorok as $kulcs => $sor ) {
+                if($kulcs=='Szálloda'){
+                    $sor = getErtek('nev', 'telephely', 'id', $sor);
+                }
+                if($kulcs=='Bejelentett hiba'){
+                    $sor = getErtek('info', 'erteklista', 'recid', $sor);
+                }
+                if($kulcs=='Helyiség'){
+                    $sor = getErtek('nev', 'obj', 'recid', $sor);
+                }
+                if($kulcs=='Gépnév'){
+                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
+                }
+                if($kulcs=='Típus'){
+                    $sor = erteklista(6, $sor);
+                }
+                if($kulcs=='Státusz'){
+                    $sor = getStatText('munkalap', $sor);
+                }
+
+                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+            }
+            fputcsv($open, $csvcont, ';');
+        }
+    }
+    fclose($open);
+
+    header("Content-type: text/csv");
+    header("Content-Disposition: attachment; filename=$megnevezes.csv");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    echo fajlbol_olvas($fajlnev);
+
+    $weblap->leallit();
+    exit();
 }
 
 
@@ -353,7 +436,7 @@ if($gyorskereso_text){
             fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
         );
     }
-    
+
     /* Gombok kirajzolása minden oldalra */
     $gombok = '';
     if( isset($_GET['uj']) ) {
@@ -403,7 +486,7 @@ if($gyorskereso_text){
         } else {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
-        
+
         //Ha véleményező vagyok, akkor tudok véleményt feltölteni
         if($adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET['id']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'", '', '1')){
             $gombok .= ' <input type="button" class="gomb foGomb" value="Vélemény hozzáadása" title="Vélemény hozzáadása" onclick="velemeny_hozzaad();">';
@@ -416,7 +499,7 @@ if($gyorskereso_text){
             if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
                 $nem_szerkesztheti = true;
             }
-            
+
             //Elutasítás
             if($statusz['stat_id'] != PRIGENY_STAT_ELUTASITVA) {
                 $gombok .= ' <input type="button" class="gomb_alert foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas\');">';
@@ -436,8 +519,7 @@ if($gyorskereso_text){
             if($statusz['stat_id'] != PRIGENY_STAT_JOVAHAGYVA) {
                 $gombok .= ' <input type="button" class="gomb zold foGomb" value="Jóváhagy" title="Jóváhagy" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_VARAKOZO.'\');">';
             }
-            
-            
+
             if(!$nem_szerkesztheti && isset($_GET['modosit']) && $sor['stat_id']==PRIGENY_STAT_LETRE_ALATT){
                 $gombok = nl2('
                     <div class="form_kuldes">
@@ -625,7 +707,7 @@ if($gyorskereso_text){
         if($tobb_kep){
 			require_once('tobb_kep.php');
 		}
-        
+
     //Véleményezők fül
     }elseif(isset($_GET['velemenyezok'])) {
 
@@ -661,14 +743,15 @@ if($gyorskereso_text){
                     $felirat = $velemeny['fajlnev'];
                     $kep     = new Img($fajl, $felirat, 150, 150);
                     $kep     = $kep -> getHtml();
+
                     $velemeny_html .= '<div class="dtc" style="border-bottom: 0; padding: 0 1rem 0 0">'.$kep.'</div><div class="dtc" style="border-bottom: 0; padding: 0">'.$felirat.'</div>';
-                    
+
                     $letoltes_html = nl2('
                                     <a href="'.$fajl.'" target="_blank" title="Letöltés">
                                         <i class="material-icons kek">file_download</i>
                                     </a>
                                     ');
-                    
+
                     //Törölni csak saját fájlt lehet
                     if($velemenyezo['recid']==$_SESSION[get_db_tabla().'login_recid']){
                         $torles_html = nl2('
@@ -678,7 +761,7 @@ if($gyorskereso_text){
                                         ');
                     }
                 }
-                
+
                 $szamla_html .= nl2('
                     <div id="naploSor-'.$kapcs_id['recid'].'" class="dtr nSor kijSor" data-id="'.$kapcs_id['recid'].'" data-i="'.$i.'">
                         <div class="dtc">'.$velemenyezo['teljes_nev'].'</div>
