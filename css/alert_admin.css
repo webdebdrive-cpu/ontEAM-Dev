@@ -39,23 +39,23 @@
 
 #alert2 .gomb{
     background-image: none;
-	background: #69A64E;
+	background: #75b54b;
     border: 0.0rem;
-	border-radius: 0.2rem;
+	border-radius: 0.3rem;
     color: #FFFFFF;
     cursor: pointer;
-    font-family: Arial, sans-serif;
     font-size: 1.4rem;
+    font-weight: 700;
     height: auto;
     margin: 0rem 0.5rem 0rem 0rem;
-    padding: 0.7rem 1.2rem;
+    padding: 1.2rem 1.7rem 1.2rem 1.7rem;
     text-align: center;
     width: auto;
 }
 
 #alert2 .gombb{
     background-image: none;
-	background: #69A64E;
+	background: #75b54b;
     border: 0.0rem;
 	border-radius: 0.2rem;
     color: #FFFFFF;
@@ -71,15 +71,15 @@
 
 #alert2 .gomb:hover,  #alert2 .gomb:active,  #alert2 .gomb:focus,
 #alert2 .gombb:hover, #alert2 .gombb:active, #alert2 .gombb:focus{
-	background: #76B958;
+	background: #64a739;
 }
 
 #alert2 .gombb.piros, #alert2 .gomb.piros{
-    background: #C44B4B;
+    background: #c54a4c;
 }
 
 #alert2 .gombb.piros:hover, #alert2 .gomb.piros:hover{
-    background: #D35454;
+    background: #c14042;
 }
 
 #alert2 .gombb.zold, #alert2 .gomb.zold{
@@ -112,18 +112,17 @@ div.alert2 input.gombb {
 }
 
 div.figy {
-    border: 0.1rem solid #004990;
-    border-radius: 0.2rem;
+    border-radius: 0.6rem;
 }
 
 div.figy div.header{
-    background: #004990;
-    border-top-left-radius: 0.2rem;
-    border-top-right-radius: 0.2rem;
+    background: #54a2f9;
+    border-top-left-radius: 0.6rem;
+    border-top-right-radius: 0.6rem;
     color: #fff;
-    font-size: 1.6rem;
-    height: 3.5rem;
-    padding: 1.1rem 0rem 0rem 2rem;
+    font-size: 2rem;
+    height: 6.3rem;
+    padding: 2.1rem 0rem 0rem 2.5rem;
 }
 
 div.figy div.header h1{
@@ -141,19 +140,20 @@ div.figy div.header td.cim {
 div.figy div.tart {
     background: #fff;
     color: #39424F;
-    font-size: 1.3em;
+    font-size: 1.6rem;
     font-weight: bold;
     min-width: 30rem;
-    padding: 3rem 3rem 3rem 3rem;
-    text-align: center;
+    line-height: 2.4rem;
+    padding: 3rem 2.5rem 3rem 2.5rem;
+    text-align: left;
 }
 
 div.figy div.f_footer {
-    background: #F6F4EE;
-    border-bottom-left-radius: 0.2rem;
-    border-bottom-right-radius: 0.2rem;
+    background: #f0f0f0;
+    border-bottom-left-radius: 0.6rem;
+    border-bottom-right-radius: 0.6rem;
     margin: 0rem 0rem 0rem 0rem;
-    padding: 0.5rem 0rem 0.5rem 0rem;
+    padding: 1.8rem 0rem 1.7rem 0rem;
 }
 
 div.noFooter div.figy div.f_footer {

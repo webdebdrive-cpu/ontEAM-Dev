@@ -608,7 +608,7 @@ function i_u($type, $tabla, $tomb) {
                                                 array($id,             PRIGENY_STAT_NYITOTT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
-            
+
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRIGENY_STAT_NYITOTT), "`recid`='$id'");
             if( $sql === false ) { $db_error = true; }
             //Van pár elméletileg kötelező mező. Ha ezek csak részen vannak kitöltve, akkor még tovább léptetjük a státuszt: Létrehozás alatt
@@ -623,7 +623,7 @@ function i_u($type, $tabla, $tomb) {
 
                     $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRIGENY_STAT_LETRE_ALATT), "`recid`='$id'");
                     if( $sql === false ) { $db_error = true; }
-                    
+
                     break;
                 }
             }
@@ -770,7 +770,7 @@ function i_u($type, $tabla, $tomb) {
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
 //echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
         if( $id === false ) { $db_error = true; }
-        
+
         //Projektigénylésnél van pár elméleteileg kötelező mező, ami státuszléptetéssel jár, ezt le kell kezelni
         if( $tabla == 'projektigenyles' ){
             $prigeny = $adatbazis_kapcsolat->s2(implode(', ', $prigeny_kot_mezok).' stat_id', $tabla, "`recid`='{$_GET['id']}'");
@@ -782,22 +782,22 @@ function i_u($type, $tabla, $tomb) {
                     $mind_megvan = false;
                 }
             }
-            
+
             if($mind_megvan){
                 $uj_statusz = PRIGENY_STAT_NYITOTT;
             }else{
                 $uj_statusz = PRIGENY_STAT_LETRE_ALATT;
             }
-            
+
             //Ha van új státusz, akkor váéltunk. Kivéve ha már véleményezés alatt van a rekord, akkor nem bántjuk.
             if($prigeny['stat_id']!=$uj_statusz && $prigeny['stat_id']!=PRIGENY_STAT_VEL_ALATT){
                 if( !addStatusz( $tabla.'_statusz', $_GET['id'], $uj_statusz ) ) {
                     $db_error = true;
                 }
             }
-            
+
         }
-        
+
         if( $id ) {
             $sor = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
             if( $sor === false ) { $db_error = true; }
@@ -2510,7 +2510,7 @@ function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit ) {
                             <span>'.$bsz['uf_nev'].'</span>
                         </a>';
 
-            
+
             //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
@@ -3370,7 +3370,7 @@ function szerepkorLista( $bejegyzesek, $tabla, $frissit ) {
             if( $bsz['recid'] == $_GET['id'] ) {
                 $active = ' kijelolve';
             }
-            
+
             //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';

@@ -801,85 +801,85 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     $keresodn = '';
     if( isset($_GET['szakterulet']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);';
-        
+
     } elseif( basename(self()) == 'anyagigenyles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'anyagigenyles.php' && !isset($_GET['megjegyzesek']) && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
         $uj_link = 'javascript: alert2(\'Önnen nincs jogosultsága új anyagigénylés feltöltéséhez!\', \'\', \'Hiba\'); void(0);';
-        
+
     } elseif( basename(self()) == 'anyagigenyles.php' && isset($_GET['anyagrend']) ) {
         $uj_link = 'javascript: alert2(\'Új anyagigénylés csak az anyagigénylés menüpont alatt tölthető fel!\', \'\', \'Hiba\'); void(0);';
-        
+
     } elseif( basename(self()) == 'bejelentes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'beosztas.php' && isset($_GET['naptar']) ) {
         $uj_link = 'javascript: $(\'#szerk_form div.dt\').show(); void(0)';
-        
+
     } elseif( basename(self()) == 'cikktorzs.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( isset($_GET['szallodak']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);';
-        
+
     } elseif( basename(self()) == 'utemezett_feladatok.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'munkalap.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'rendszeres_karbantartas.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'eseti_fenntartas.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'raktar.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'eszkozkezeles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'tervezes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'energia.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'projektigenyles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'projektkezeles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'fenntartasi_szerzodes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'szamla.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'szallito.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'torzsadat.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'beosztas.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'login.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( isset($_GET['velemenyezok']) && !_jog(40) ) {
         $uj_link = 'javascript: alert2(\'Önnek nincs joga véleményezőt hozzáadni!\', \'\', \'Hiba\'); void(0);';
-        
+
     } elseif( isset($_GET['velemenyezok']) && _jog(40) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'velemenyezok\'); void(0);';
-        
+
     } elseif( basename(self()) == 'bejelentes.php' && _jog(JOG_DISZPECSER) ) {
         $uj_link = 'javascript: bejSzallodaValaszt(); void(0);';
-        
+
     } else {
         $uj_link = self().'?uj';
     }
@@ -1027,10 +1027,12 @@ if( basename(self())=='torzsadat.php' && !_jog(26)){
     $uj             = '';
 }
 
+$csv_get = get_get(array('id'));
+
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CSS}', '{CEGNEV}', '{MENUK}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}', '{CSUSZKADN}' ),
-    array( $css,    get_nev(),  $menuk,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    get_get(),   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,    $csuszkadn   ),
+    array('{CSS}', '{CEGNEV}', '{MENUK}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}', '{CSUSZKADN}' ),
+    array( $css,    get_nev(),  $menuk,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    get_get(),   $csv_get,   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,    $csuszkadn   ),
     $header_sablon
 );
 

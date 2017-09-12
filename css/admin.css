@@ -212,7 +212,7 @@ input.gomb.border{
 /* Módosít mehet gombja */
 .form_kuldes {
     display: inline-block;
-    margin: 0rem 0rem 0rem 0rem;
+    margin: 0rem 0.1rem 0rem 0rem;
 }
 
 .muveletek {
@@ -220,7 +220,7 @@ input.gomb.border{
     border-radius: 0rem;
     margin: 1rem 0rem 0rem 0rem;
     min-height: 5rem;
-    padding: 1rem 1rem 1rem 1rem;
+    padding: 1.5rem 1rem 1.3rem 1rem;
     position: fixed;
     bottom: 0rem;
     right: 0rem;
@@ -238,13 +238,13 @@ input.gomb.border{
 
 .form_kuldes input.gombb_alert,
 .form_kuldes input.gombb_alert:hover {
-    background: #69A64E;
+    background: #75b54b;
     color: #fff;
     cursor: pointer;
 }
 
 .form_kuldes input.gombb_alert:hover {
-    background: #76B958;
+    background: #64a739;
 }
 
 .gomb:disabled, .gombb:disabled, .foGomb:disabled {
@@ -253,6 +253,7 @@ input.gomb.border{
 
 div.kijeloltek_muv {
     display: inline-block;
+    margin: 0rem 0.1rem 0rem 0rem;
     position: relative;
 }
 
@@ -260,10 +261,10 @@ div.kijeloltek_muv div.muv {
     display: none;
     background: #efefef;
     border: 0.1rem solid #CECECE;
-    border-radius: 0.2rem;
+    border-radius: 0.3rem;
     padding: 0rem 0rem 0rem 0rem;
     position: absolute;
-    bottom: 3.1rem;
+    bottom: 4.3rem;
     left: 0;
 }
 
@@ -483,19 +484,20 @@ input:focus{
 }
 
 input.gomb{
-    background: #4E77A6;
+    background: #54a2f9;
     border: 0;
-    border-radius: 0.2rem;
+    border-radius: 0.3rem;
     color: #fff;
     cursor: pointer;
     font-size: 1.4rem;
-    padding: 0.6rem 1.2rem;
+    font-weight: 700;
+    padding: 1.2rem 1.7rem 1.2rem 1.7rem;
     position: relative;
     transition: all ease-in-out 0.2s;
 }
 
 input.gomb:hover, input.gomb:focus, input.gomb:active{
-    background: #6F98C7;
+    background: #5192da;
     transition: all ease-in-out 0.2s;
 }
 
@@ -524,7 +526,7 @@ input.gomb_alert:hover, input.gomb_alert:focus, input.gomb_alert:active{
 }
 
 input.gomb.zold, input.gombb{
-    background: #69A64E;
+    background: #75b54b;
     border: 0;
     border-radius: 0.2rem;
     color: #fff;
@@ -556,11 +558,12 @@ input.gombb[disabled].gombb_alert {
 input.gombb_alert{
     background: #C44B4B;
     border: 0;
-    border-radius: 0.2rem;
+    border-radius: 0.3rem;
     color: #fff;
     cursor: pointer;
     font-size: 1.4rem;
-    padding: 0.6rem 1rem;
+    font-weight: 700;
+    padding: 1.2rem 1.7rem 1.2rem 1.7rem;
     position: relative;
 }
 
@@ -2187,19 +2190,20 @@ div.navGombok a.disabled .material-icons {
 
 #popup div.popup_tart button,
 #popup div.popup_tart input[type="submit"] {
-    background: #69A64E;
+    background: #75b54b;
     border: 0;
-    border-radius: 0.2rem;
+    border-radius: 0.3rem;
     color: #fff;
     cursor: pointer;
     font-size: 1.4rem;
-    padding: 0.6rem 1rem;
+    font-weight: 700;
+    padding: 1.2rem 1.7rem 1.2rem 1.7rem;
     position: relative;
 }
 
 #popup div.popup_tart button:hover,
 #popup div.popup_tart input[type="submit"]:hover {
-    background: #76B958;
+    background: #64a739;
 }
 
 #popup div.popup_tart table {

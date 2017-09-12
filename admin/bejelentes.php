@@ -290,6 +290,14 @@ if (isset($_GET['csv'])) {
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
 
+    if( !is_dir('export') ) {
+        mkdir('export');
+    }
+
+    if( !is_dir('export/csv') ) {
+        mkdir('export/csv');
+    }
+
     //Régi fájlok törlése
     $utvonal = 'export/csv/';
     $fajlok = konyvtar_bejar($utvonal);
@@ -304,6 +312,7 @@ if (isset($_GET['csv'])) {
     if($open){
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+        
         $sql = 'SELECT
                                                     `ikt_szam` as \'Bejelentés szám\',
                                                     `'.get_db_tabla().'bejelentes`.`telephely_id` as \'Szálloda\',
