@@ -548,6 +548,11 @@ input.gomb.zold:hover, input.gombb:hover {
     background: #76B958;
 }
 
+input.kis_gomb{
+    font-size: 1.4rem;
+    padding: 0.6rem 1rem;
+}
+
 input.gombb[disabled],
 input.gombb[disabled].gombb_alert {
     background: #cecdcd;
@@ -2730,3 +2735,8 @@ tr.erkeztet_szurkit{
     background: #CD5757;
     transition: all ease-in-out 0.2s;
 }
+
+svg.piros path{
+    fill: #f00;
+}
+

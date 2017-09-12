@@ -970,6 +970,12 @@ $(function() {
         var feltetel_nev   = $('#o_feltetel option:selected').text();
         if(!feltetel_ertek){
             feltetel_ertek = feltetel_nev = $('#o_feltetel input').val();
+            /* Ha autocompletes mező, akkor a rejtett input értékétvel kell dlgozni */
+            if($('#o_feltetel input').attr('data-auto')){
+                id = $('#o_feltetel input').attr('id');
+                id = id.replace('autocomp_', '');
+                feltetel_ertek = $('#'+id).val();
+            }
         }
         
         if(!feltetel_ertek){
@@ -993,7 +999,7 @@ $(function() {
                                             '<b class="zaro zar">)</b>'+
                                         '</div>'+
                                         '<div class="dtc">'+
-                                            '<select style="width: 7rem"><option value="AND">ÉS</option><option value="OR">VAGY</option></select>'+
+                                            '<select style="width: 7rem" class="es_vagy"><option value="es|">ÉS</option><option value="va|">VAGY</option></select>'+
                                         '</div>'+
                                         '<div class="dtc">'+
                                             '<b class="torol">×</b>'+
@@ -1002,7 +1008,7 @@ $(function() {
                                     );
 
             /* Szűrés gomb mehet a végére */
-            $('#o_sures').html('<div class="r"><input type="button" class="gomb f_o_szures_submit" value="Szűrés"></div>');
+            o_szures_gomb_mutat();
 
             /*Szűrő inputok nullázása*/
             $('#o_szuro_mezo').val('');
@@ -1026,17 +1032,73 @@ $(function() {
         
         /* Szűrés gomb kell-e még */
         if( $('#o_feltetel_halmaz div.dtc').length>0 ){
-            $('#o_sures').html('<div class="r"><input type="button" class="gomb f_o_szures_submit" value="Szűrés"></div>');
+            o_szures_gomb_mutat();
         }else{
             $('#o_sures').html('');
         }
     });
-    /* Összetett szűrés kiértékelése */
+    
+    /* Összetett szűrés kiértékelése: az elő 3 karakter egy kód, hogy ne a konkrét értékeket küldjük át, így biztonságosabb lefuttatni az SQL-t is */
     $(document).on('click', '.f_o_szures_submit', function() {
-        $('#o_feltetel_halmaz div.dtc').each(function () {
+        var feltetel = '';
+        $('#o_feltetel_halmaz div.dtr').each(function () {
+            
+            if( $(this).find('.zaro.nyit.aktiv').length ){
+                feltetel += 'ny|#';
+            }
+            feltetel += 'me|'+$(this).find('.mezo').val()+'#';
+            feltetel += 'op|'+$(this).find('.op').val()+'#';
+            feltetel += 'fe|'+$(this).find('.felt').val()+'#';
+            if( $(this).find('.zaro.zar.aktiv').length ){
+                feltetel += 'za|#';
+            }
+            feltetel += $(this).find('.es_vagy').val()+'#';
             
         });
+        
+        $.ajax({
+            url: 'esemenyek.php',
+            type: 'POST',
+            data: {
+                tabla            : $('#o_szuro_mezo').attr('data-tabla'),
+                feltetel         : feltetel,
+                html             : $('#o_feltetel_halmaz').html(),
+                f_o_szures_submit: new Date().getTime()
+            },
+            success: function (response) {
+                response = JSON.parse(response);
 
+                if( response.hiba ) {
+                    if( response.gomb ) {
+                        alert2(response.hiba, response.gomb);
+                    } else {
+                        alert2(response.hiba, '', 'Hiba');
+                    }
+                }
+                if( response.mehet ) {
+                    location.reload(); 
+                }
+            }
+        });
+
+    });
+    /* Összetett szűrők törlése */
+    $(document).on('click', '.f_o_szures_torol', function(e) {
+        $.ajax({
+            url : 'esemenyek.php',
+            type: 'POST',
+            data: {
+                f_o_szures_torol: new Date().getTime()
+            },
+            success: function (response) {
+                location.reload(); 
+            }
+        });
+    });
+    
+    /* És vagy értékének letárolása */
+    $(document).on('change', '.es_vagy', function(e) {
+        $(this).find('option:selected').attr('selected', 'selected');
     });
     
 
@@ -3274,7 +3336,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                     var elozo_telephely_id      = '';
                     var nem_azonos_szalloda     = '';
                     $('.kijelolve').each(function () {
-                        /* Ha már van csopotja */
+                        /* Ha már van csoportja */
                         if($(this).hasClass('behuz')){
                             mar_csoportosak += $(this).find('span:first-of-type').html()+'<br>';
                         }
@@ -5473,4 +5535,9 @@ function pri_statusz_leptet(recid, statusz){
             }
         }
     });
+}
+ 
+/* Összetett szűrésnél gomb mutatása */
+function o_szures_gomb_mutat(){
+    $('#o_sures').html('<input type="button" class="gomb zold f_o_szures_submit" value="Szűrés">');
 }

@@ -1653,14 +1653,52 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 
-//Összetett szűrés
+//Összetett szűrés törlése, ha menüpontot váltunk
+if($_SESSION['o_szuro_feltetel'] && $_SESSION['elozo_oldal']!=self()){
+    unset($_SESSION['o_szuro_feltetel']);
+    unset($_SESSION['o_szuro_html']);
+}
+//Összetett szűrés inicializálása
+$_SESSION['elozo_oldal'] = self();
 if (isset($_POST['o_szures'])) {
     require_once 'szures.php';
-    echo $szures;
+    
+    echo json_encode(array(
+        'inputok' => $szures,
+        'html'    => $_SESSION['o_szuro_html'],
+    ));
     
     $weblap->leallit();
     exit();
 }
+//Összetett szűrés SQL-é alaktíása
+if (isset($_POST['f_o_szures_submit'])) {
+    
+    $sql = 'SELECT * FROM `'.get_db_tabla().$_POST['tabla'].'` WHERE '.get_o_szures_where_kieg($_POST['feltetel'], $_POST['tabla']);
+    if(mysqli_query($db_kapcs, $sql)){
+        $_SESSION['o_szuro_feltetel'] = $_POST['feltetel'];
+        $_SESSION['o_szuro_html']     = $_POST['html'];
+        echo json_encode(array(
+            'mehet' => '1'
+        ));
+    }else{
+        echo json_encode(array(
+            'hiba' => 'A megfogalmazott feltétel hibás, nem futtatható le!'
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+//Összetett szűrés törlése
+if (isset($_POST['f_o_szures_torol'])) {
+    unset($_SESSION['o_szuro_feltetel']);
+    unset($_SESSION['o_szuro_html']);
+    $weblap->leallit();
+    exit();
+}
+
+
 
 /* Munkalap feladat */
 if( isset($_POST['munkFeladatTorol']) ) {

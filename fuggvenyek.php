@@ -1736,6 +1736,11 @@ function szamla_lista( $where, $tabla ) {
         if ($_GET['mezo'] && $_GET['op']) {
             $where .= get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla).' AND ';
         }
+        
+        //Ha van öszetettt szűrés feltétel
+        if($_SESSION['o_szuro_feltetel']){
+            $where .= get_o_szures_where_kieg($_SESSION['o_szuro_feltetel'], $tabla);
+        }
 
         //ha van $_GET['idk'] változónk, akkor azokra az ID-kra még pluszban szűrünk
         if ($_GET['recidk']) {
@@ -4214,6 +4219,10 @@ function beosztas_naptar($beosztas_id){
 //A kapott mező, operátor és feltétel alapján előállítja a where feltétel kiegészítését
 function get_szures_where_kieg($mezo, $op, $felt, $tabla){
 
+    $mezo = sql_ertek($mezo);
+    $op   = sql_ertek($op);
+    $felt = sql_ertek($felt);
+    
     $op_origi = $op;
     switch ($op){
         case 'equal'    : $op = '=';    break;
@@ -4260,8 +4269,53 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     }
 
 }
+//Összetett szűrés SQL-jét állítja elő egy stingből. 
+function get_o_szures_where_kieg($feltetel, $tabla){
+    
+    $sql = '';
+    $elemek = explode('#', $feltetel);
+    foreach($elemek as $elem){
+        
+        switch(substr($elem, 0, 3)){
+            case 'ny|':
+                $sql .= '(';
+            break;
+            
+            case 'me|':
+                $mezo = substr($elem, 3);
+            break;
+        
+            case 'op|':
+                $op = substr($elem, 3);
+            break;
+            
+            case 'fe|':
+                $feltetel = substr($elem, 3);
+                
+                $sql .= get_szures_where_kieg($mezo, $op, $feltetel, $tabla);
+                $mezo     = '';
+                $op       = '';
+                $feltetel = '';
+            break;
+            
+            case 'za|':
+                $sql .= ')';
+            break;
+            
+            case 'es|':
+                $sql .= ' AND ';
+            break;
+            
+            case 'va|':
+                $sql .= ' OR  ';
+            break;
+            
+        }
+    }
+    return csonkit( $sql, 5 );
+}
 
-/* Az adatbázisba letárolt pros stringből visszaadja azt a mezőértéket, amire szükségünk van */
+/* Az adatbázisba letárolt props stringből visszaadja azt a mezőértéket, amire szükségünk van */
 function get_props($props, $mezo){
     $props = htmlspecialchars_decode($props);
     $props = explode("\n", $props);

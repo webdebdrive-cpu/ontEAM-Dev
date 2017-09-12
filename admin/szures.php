@@ -152,6 +152,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     }
                     
                     $input -> cssClass      = $ertek['class'].' f_felt';
+                    $input -> data          = 'data-auto="1"';
                     $input -> id            = $ertek['name'].'_autocomp_szurobe';
                     $input -> name          = $ertek['name'].'_autocomp_szurobe';
                     $input -> placeholder   = $ertek['placeholder'];
@@ -386,7 +387,11 @@ if($tabla == 'login'){
 
 // HTML előlállítása
 $prefix         = '';
-$osszetett_link = '<img class="link" src="../elemek/filter.svg" onclick="csoportMuvelet(\'osszetett_szuro\')">';
+$szurve         = '';
+if($_SESSION['o_szuro_feltetel']){
+    $szurve     = ' piros';
+}
+$osszetett_link = '<span onclick="csoportMuvelet(\'osszetett_szuro\')"><img class="link'.$szurve.' f_svg" src="../elemek/filter.svg"></span>';
 if(isset($_POST['o_szures'])){
     $prefix         = 'o_';
     $osszetett_link = '';
