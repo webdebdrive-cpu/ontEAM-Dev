@@ -1563,7 +1563,89 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
     exit();
 }
 
+/* CSV generálása */
+if (isset($_GET['csv'])) {
 
+    $mibol   = get_web_charset();
+    $mibe    = 'windows-1250';
+
+    if( !is_dir('export') ) {
+        mkdir('export');
+    }
+
+    if( !is_dir('export/csv') ) {
+        mkdir('export/csv');
+    }
+
+    //Régi fájlok törlése
+    $utvonal = 'export/csv/';
+    $fajlok = konyvtar_bejar($utvonal);
+    foreach($fajlok as $fajl){
+        if(filemtime($fajl)<(time()-60*60)){
+            unlink($fajl);
+        }
+    }
+
+    $fajlnev = $utvonal.'csv'.time().'.csv';
+    $open = fopen($fajlnev,'a');
+    if($open){
+
+        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+
+        $sql = 'SELECT
+                `'.get_db_tabla().'anyagigenyles`.`ikt_szam` as \'Anyagigénylés szám\',
+                `'.get_db_tabla().'anyagigenyles`.`cikk_id` as \'Cikk szám\',
+                `'.get_db_tabla().'anyagigenyles`.`nev` as \'Cikk név\',
+                `'.get_db_tabla().'anyagigenyles`.`stat_id` as \'Státusz\'
+                '.$lekerdezes_fromtol;
+
+        $query      = mysqli_query($db_kapcs, $sql);
+
+        $csvhead    = array();
+        while($fejlec_nevek = mysqli_fetch_field($query)){
+            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+        }
+        fputcsv($open, $csvhead, ';');
+
+        while( $sorok = mysqli_fetch_assoc($query) ){
+            $csvcont = array();
+            foreach( $sorok as $kulcs => $sor ) {
+                if($kulcs=='Szálloda'){
+                    $sor = getErtek('nev', 'telephely', 'id', $sor);
+                }
+                if($kulcs=='Bejelentett hiba'){
+                    $sor = getErtek('info', 'erteklista', 'recid', $sor);
+                }
+                if($kulcs=='Helyiség'){
+                    $sor = getErtek('nev', 'obj', 'recid', $sor);
+                }
+                if($kulcs=='Gépnév'){
+                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
+                }
+                if($kulcs=='Típus'){
+                    $sor = erteklista(6, $sor);
+                }
+                if($kulcs=='Státusz'){
+                    $sor = getStatText('anyagigenyles', $sor);
+                }
+
+                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+            }
+            fputcsv($open, $csvcont, ';');
+        }
+    }
+    fclose($open);
+
+    header("Content-type: text/csv");
+    header("Content-Disposition: attachment; filename=$megnevezes.csv");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    echo fajlbol_olvas($fajlnev);
+
+    $weblap->leallit();
+    exit();
+}
 
 /** Tartalom */
 if( !$_GET['ajax'] ) {
@@ -1945,9 +2027,9 @@ if($gyorskereso_text){
 
         //Anyagrendelés adatlapja
         if (isset($_GET['anyagrend'])) {
-            
+
             $rndid = $adatbazis_kapcsolat->s('recid rndid', 'anyagigenyles', "`recid` = '".$_GET['id']."'", '', '1');
-            
+
             if( $rndid ) {
                 $rndid = $rndid[0];
 
@@ -1986,10 +2068,10 @@ if($gyorskereso_text){
             } else {
                 echo $szamla_html.$gombok;
             }
-            
+
         //Anyagigénylés adatlapja
         }else{
-            
+
             //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
             if(isset($_GET['id_hidden'])){
                 $_GET['id'] = $_GET['id_hidden'];

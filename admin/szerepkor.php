@@ -111,6 +111,86 @@ if(isset($_GET['siker']) && isset($_GET['modosit'])){
 
 }
 
+/* CSV generálása */
+if (isset($_GET['csv'])) {
+
+    $mibol   = get_web_charset();
+    $mibe    = 'windows-1250';
+
+    if( !is_dir('export') ) {
+        mkdir('export');
+    }
+
+    if( !is_dir('export/csv') ) {
+        mkdir('export/csv');
+    }
+
+    //Régi fájlok törlése
+    $utvonal = 'export/csv/';
+    $fajlok = konyvtar_bejar($utvonal);
+    foreach($fajlok as $fajl){
+        if(filemtime($fajl)<(time()-60*60)){
+            unlink($fajl);
+        }
+    }
+
+    $fajlnev = $utvonal.'csv'.time().'.csv';
+    $open = fopen($fajlnev,'a');
+    if($open){
+
+        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+
+        $sql = 'SELECT
+                `'.get_db_tabla().'szerepkor`.`nev` as \'Név\'
+                '.$lekerdezes_fromtol;
+
+        $query      = mysqli_query($db_kapcs, $sql);
+
+        $csvhead    = array();
+        while($fejlec_nevek = mysqli_fetch_field($query)){
+            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+        }
+        fputcsv($open, $csvhead, ';');
+
+        while( $sorok = mysqli_fetch_assoc($query) ){
+            $csvcont = array();
+            foreach( $sorok as $kulcs => $sor ) {
+                if($kulcs=='Szálloda'){
+                    $sor = getErtek('nev', 'telephely', 'id', $sor);
+                }
+                if($kulcs=='Bejelentett hiba'){
+                    $sor = getErtek('info', 'erteklista', 'recid', $sor);
+                }
+                if($kulcs=='Helyiség'){
+                    $sor = getErtek('nev', 'obj', 'recid', $sor);
+                }
+                if($kulcs=='Gépnév'){
+                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
+                }
+                if($kulcs=='Típus'){
+                    $sor = erteklista(6, $sor);
+                }
+                if($kulcs=='Státusz'){
+                    $sor = getStatText('munkalap', $sor);
+                }
+
+                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+            }
+            fputcsv($open, $csvcont, ';');
+        }
+    }
+    fclose($open);
+
+    header("Content-type: text/csv");
+    header("Content-Disposition: attachment; filename=$megnevezes.csv");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    echo fajlbol_olvas($fajlnev);
+
+    $weblap->leallit();
+    exit();
+}
 
 /** Tartalom */
 if( !$_GET['ajax'] ) {
@@ -434,7 +514,7 @@ if($gyorskereso_text){
                 usort($jogSorok, 'sortByOrder');
 
                 foreach($jogSorok as $jogSor) {
-                    
+
                     $checked = '';
                     if( $jogSor['value'] ) {
                         $checked = ' checked="checked"';
@@ -445,7 +525,7 @@ if($gyorskereso_text){
 //                    if($jogSor['i']){
 //                        $info = '<div class="tooltip di" style="margin-left: 5rem"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$jogSor['i'].'</div></div>';
 //                    }
-                    
+
                     $jogSor['nev'] .= ':';
                     if($jogSor['i']){
                         $jogSor['nev'] .= '<br><i>('.$jogSor['i'].')</i><br><br>';
@@ -470,7 +550,7 @@ if($gyorskereso_text){
                             $bekapcs .= '$(\'#jog-'.$pipa_be.'\').prop(\'checked\', true).addClass(\'mod\');';
                         }
                     }
-                    
+
                     //Ha épp most kap bekapcsolást, csak akkor futtatjuk le
                     if($bekapcs){
                         $bekapcs = 'if( $(this).prop(\'checked\') ){'.$bekapcs.'}';
@@ -479,11 +559,11 @@ if($gyorskereso_text){
                     if($kikapcskor_kikapcs){
                         $kikapcskor_kikapcs = 'if( $(this).prop(\'checked\') == false ){'.$kikapcskor_kikapcs.'}';
                     }
-                    
+
                     if($kikapcs || $bekapcs || $kikapcskor_kikapcs){
                         $onclick = ' onclick="'.$kikapcs.$bekapcs.$kikapcskor_kikapcs.'"';
                     }
-                    
+
                     $dn = '';
                     if($jogSor['torolve']){
                         $dn = ' dn';

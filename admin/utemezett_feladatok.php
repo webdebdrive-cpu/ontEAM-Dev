@@ -89,7 +89,7 @@ if($tobb_kep){
 
 if (isset($_GET['datumra_utemezes'])) {
     include('datumra_utemezes.php');
-    
+
     $sor = $adatbazis_kapcsolat->s('*', $megnevezes, "`recid`='{$_GET['id']}'");
     $sor = $sor[0];
 
@@ -109,12 +109,12 @@ if (isset($_GET['datumra_utemezes'])) {
     if( mb_substr($getnextvaliddate, 0, 10)=='Hibaüzenet' ){
         $getnextvaliddate = '    .  .  ';
     }
-    
+
     echo json_encode( array('uzenet' => 'Ön a következő ütemezést választotta:<br><div class="l">'.$szamla_html.'</div><br>Folytatja?', 'esedekes' => $getnextvaliddate) );
 
     $weblap -> leallit();
     exit();
-        
+
 }
 
 if( isset($_POST['jogokhozzaad']) ) {
@@ -161,6 +161,76 @@ if(isset($_GET['siker']) && isset($_GET['modosit'])){
 
 }
 
+/* CSV generálása */
+if (isset($_GET['csv'])) {
+
+    $mibol   = get_web_charset();
+    $mibe    = 'windows-1250';
+
+    if( !is_dir('export') ) {
+        mkdir('export');
+    }
+
+    if( !is_dir('export/csv') ) {
+        mkdir('export/csv');
+    }
+
+    //Régi fájlok törlése
+    $utvonal = 'export/csv/';
+    $fajlok = konyvtar_bejar($utvonal);
+    foreach($fajlok as $fajl){
+        if(filemtime($fajl)<(time()-60*60)){
+            unlink($fajl);
+        }
+    }
+
+    $fajlnev = $utvonal.'csv'.time().'.csv';
+    $open = fopen($fajlnev,'a');
+    if($open){
+
+        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+
+        $sql = 'SELECT
+                `'.get_db_tabla().'utemezett_feladatok`.`id` as \'Feladatszám\',
+                `'.get_db_tabla().'utemezett_feladatok`.`telephely_id` as \'Szálloda\',
+                `'.get_db_tabla().'utemezett_feladatok`.`obj_id` as \'Helyiség\',
+                `'.get_db_tabla().'utemezett_feladatok`.`nev` as \'Feladat\'
+                '.$lekerdezes_fromtol;
+                
+        $query      = mysqli_query($db_kapcs, $sql);
+
+        $csvhead    = array();
+        while($fejlec_nevek = mysqli_fetch_field($query)){
+            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+        }
+        fputcsv($open, $csvhead, ';');
+
+        while( $sorok = mysqli_fetch_assoc($query) ){
+            $csvcont = array();
+            foreach( $sorok as $kulcs => $sor ) {
+                if($kulcs=='Szálloda'){
+                    $sor = getErtek('nev', 'telephely', 'id', $sor);
+                }
+                if($kulcs=='Helyiség'){
+                    $sor = getErtek('nev', 'obj', 'recid', $sor);
+                }
+                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+            }
+            fputcsv($open, $csvcont, ';');
+        }
+    }
+    fclose($open);
+
+    header("Content-type: text/csv");
+    header("Content-Disposition: attachment; filename=$megnevezes.csv");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    echo fajlbol_olvas($fajlnev);
+
+    $weblap->leallit();
+    exit();
+}
 
 /** Tartalom */
 if( !$_GET['ajax'] ) {
@@ -220,11 +290,11 @@ if($gyorskereso_text){
             fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
         );
     }
-    
+
     /* Gombok kirajzolása minden oldalra */
     $gombok = '';
     if( isset($_GET['uj']) ) {
-        
+
         //Újat csak "Ütemezett feladatok kezelése" joggal lehet
         if(_jog(JOG_UTFEL_KEZEL) ){
             $gombok = nl2('
@@ -247,10 +317,10 @@ if($gyorskereso_text){
                 </div>
             ');
         }
-    
+
     //Módosítás gombok
     } else {
-        
+
         $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
 		$sor = $sor[0];
 
@@ -267,7 +337,7 @@ if($gyorskereso_text){
         }else{
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga ütemezett feladatot törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }
-        
+
         if( _jog(JOG_UTFEL_KEZEL) ){
 
             $gombok = nl2('
@@ -294,7 +364,7 @@ if($gyorskereso_text){
 
 	//Új termék felvitele
 	if( isset($_GET['uj']) && _jog(JOG_UTFEL_KEZEL) ){
-        
+
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
@@ -337,7 +407,7 @@ if($gyorskereso_text){
         }
 
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
-        
+
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
@@ -370,7 +440,7 @@ if($gyorskereso_text){
 
 	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
 		$sor = $sor[0];
-        
+
         //Régi adatbázisól jövő adatok miatt szükséges:
         if($sor['cikltip']=='d'){
             $sor['ciklnap'] = $sor['ciklszorz'];
@@ -399,7 +469,7 @@ if($gyorskereso_text){
                 }
             }
         }
-   
+
         $json_sor = array();
         foreach($sor as $kulcs => $elem){
             $json_sor[$kulcs] = nl2(str_replace(array("\n", "'"), array("#UJSOR#", "#APOSZTROF#"), $elem));
@@ -438,7 +508,7 @@ if($gyorskereso_text){
 
 		// Ez elkészíti a $mezok változót
         require('switch.php');
-        
+
         $jobb_oldal = '';
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
@@ -526,13 +596,13 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html.$gombok;
         }
-        
+
 	//Ütemezés
     }elseif(isset($_GET['utemezes'])) {
 
         include('datumra_utemezes.php');
         $szamla_html .= 'Ön a következő ütemezést választotta:<br>';
-        
+
         $sor = $adatbazis_kapcsolat->s('*', $megnevezes, "`recid`='{$_GET['id']}'");
         $sor = $sor[0];
 
@@ -564,7 +634,7 @@ if($gyorskereso_text){
                 $utemezes = $kezdho.' '.$sor['kezdnap'].'. - '.$vegeho.' '.$sor['vegenap'].'.';
             }
         }
-        
+
         if(!$sor['esem_d']){
             $sor['esem_d'] = date('Y-m-d');
         }
@@ -582,12 +652,12 @@ if($gyorskereso_text){
         $szamla_html .= '<br>Következő: ' . $getnextvaliddate;
         $szamla_html .= '<br>';
         $szamla_html .= '<br>Következő 10 iteráció:<br>';
-        
+
         for($i=0; $i<10; $i++){
             $getnextvaliddate = getnextvaliddate(false, $getnextvaliddate, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
             $szamla_html .= $getnextvaliddate . '<br>';
         }
-        
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html.$gombok
@@ -595,7 +665,7 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html.$gombok;
         }
-        
+
     /* Dokumentumok */
     }elseif(isset($_GET['dokumentumok'])) {
 
