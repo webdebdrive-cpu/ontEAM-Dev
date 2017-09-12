@@ -519,7 +519,7 @@ if($gyorskereso_text){
             if($statusz['stat_id'] != PRIGENY_STAT_JOVAHAGYVA) {
                 $gombok .= ' <input type="button" class="gomb zold foGomb" value="Jóváhagy" title="Jóváhagy" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_VARAKOZO.'\');">';
             }
-            
+
             if(!$nem_szerkesztheti && isset($_GET['modosit']) && $sor['stat_id']==PRIGENY_STAT_LETRE_ALATT){
                 $gombok = nl2('
                     <div class="form_kuldes">
@@ -743,13 +743,9 @@ if($gyorskereso_text){
                     $felirat = $velemeny['fajlnev'];
                     $kep     = new Img($fajl, $felirat, 150, 150);
                     $kep     = $kep -> getHtml();
-<<<<<<< HEAD
-                    $velemeny_html .= '<div class="dtc" style="border-bottom: 0; padding: 0">'.$kep.'</div><div class="dtc" style="border-bottom: 0; padding: 0">'.$felirat.'</div>';
 
-=======
                     $velemeny_html .= '<div class="dtc" style="border-bottom: 0; padding: 0 1rem 0 0">'.$kep.'</div><div class="dtc" style="border-bottom: 0; padding: 0">'.$felirat.'</div>';
 
->>>>>>> 576e1843648ecab22a4bb9b990820d4672820995
                     $letoltes_html = nl2('
                                     <a href="'.$fajl.'" target="_blank" title="Letöltés">
                                         <i class="material-icons kek">file_download</i>
