@@ -752,7 +752,7 @@ if($gyorskereso_text){
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
-
+        
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 

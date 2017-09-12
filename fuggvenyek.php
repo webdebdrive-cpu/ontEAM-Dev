@@ -4333,7 +4333,7 @@ function get_tortenet($megnevezes){
     return $szamla_html;
 }
 
-/* Adott tábla iktatószámának következő sorszámának lekérése */
+// Adott tábla iktatószámának következő sorszámának lekérése 
 function get_iktatoszam_sorszam($tabla){
 
     global $adatbazis_kapcsolat;
@@ -4341,9 +4341,7 @@ function get_iktatoszam_sorszam($tabla){
     $db_error = false;
 
     $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla`='$tabla' AND `ev`='".date('y')."'");
-    if( $ikt_seq === false ) {
-        $db_error = true;
-    }
+    if( $ikt_seq === false ) { $db_error = true; }
     if( $ikt_seq ) {
         $ikt_seq = $ikt_seq[0];
 
@@ -4355,17 +4353,13 @@ function get_iktatoszam_sorszam($tabla){
 
         /* Letároljuk az új sorszámot */
         $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla`='$tabla' AND `ev`='".date('y')."'");
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        if( $sql === false ) { $db_error = true; }
     } else {
         /* Sorszám */
         $sorszam = 1;
 
         $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        if( $sql === false ) { $db_error = true; }
     }
 
     if($db_error){
@@ -4376,7 +4370,7 @@ function get_iktatoszam_sorszam($tabla){
 
 }
 
-/* Státusz címkék és színeket visszaadó függvény ($_stat_text változó pedig a statusz_text.php -ben kerül előállításra) */
+// Státusz címkék és színeket visszaadó függvény ($_stat_text változó pedig a statusz_text.php -ben kerül előállításra)
 function getStatText($tabla, $id, $szinkod = false) {
     global $_stat_text;
 
@@ -4389,4 +4383,41 @@ function getStatText($tabla, $id, $szinkod = false) {
     }
 
     return '';
+}
+
+// Minden véleményező ha töltött már véleményt, akkor nyitottra léptetjük a státuszt (hacsak nem abban van már eleve)
+function prigeny_mindenki_velemenyezett_e($prigen_recid){
+    
+    global $adatbazis_kapcsolat;
+    
+    $db_error = false;
+    
+    $velemenyezok = $adatbazis_kapcsolat->s('login_recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='$prigen_recid'");
+    if( $velemenyezok === false ) { $db_error = true; }
+    $minden_velemeny_van = true;
+    foreach($velemenyezok as $velemenyezo){
+        $van_velemeny = $adatbazis_kapcsolat->s('recid', 'projektigenyles_velemeny', "`projektigenyles_recid`='$prigen_recid' AND `login_recid`='{$velemenyezo['login_recid']}'");
+        if( $van_velemeny === false ) { $db_error = true; }
+        if(!$van_velemeny){
+            $minden_velemeny_van = false;
+        }
+    }
+
+    //Ha mindenkinek van véleménye, és nem nyitott a státusz eleve, akkor nyitottra állítjuk
+    if($minden_velemeny_van){
+        $statusz = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='$prigen_recid'");
+        if( $statusz === false ) { $db_error = true; }
+        
+        if($statusz['stat_id']!=PRIGENY_STAT_NYITOTT){
+            if( !addStatusz( 'projektigenyles_statusz', $prigen_recid, PRIGENY_STAT_NYITOTT ) ) {
+                $db_error = true;
+            }
+        }
+    }
+    
+    if($db_error){
+        return false;
+    }else{
+        return true;
+    }
 }

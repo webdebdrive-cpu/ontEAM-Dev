@@ -534,6 +534,7 @@ input.gomb.zold, input.gombb{
     font-size: 1.4rem;
     padding: 0.6rem 1rem;
     position: relative;
+    transition: all ease-in-out 0.2s;
 }
 
 input.gombb.input {
@@ -542,7 +543,8 @@ input.gombb.input {
     vertical-align: top;
 }
 
-input.gombb:hover {
+input.gomb.zold:hover, input.gombb:hover {
+    transition: all ease-in-out 0.2s;
     background: #76B958;
 }
 
@@ -2686,4 +2688,45 @@ div.szamlaLapozas div.lapoz.pontok {
 
 tr.erkeztet_szurkit{
     opacity: 0.6;
+}
+
+#o_feltetel_halmaz b.zaro {
+    color: #ccc;
+    cursor: pointer;
+    border-radius: 0.2rem;
+    border: 0.1rem solid #ccc;
+    display: inline-block;
+    margin-right: 0.6rem;
+    text-align: center;
+    padding: 0.2rem;
+    width: 2.2rem;
+}
+
+#o_feltetel_halmaz b.zaro.aktiv {
+    background: #F1F7FD;
+    border: 0.1rem solid #004990;
+    color: #004990;
+}
+
+#o_feltetel_halmaz b.zaro:hover {
+    background: #F8FAFC;
+    transition: all ease-in-out 0.2s;
+}
+
+#o_feltetel_halmaz b.torol {
+    border-radius: 0.2rem;
+    color: #fff;
+    cursor: pointer;
+    background: #C62E2E;
+    display: inline-block;
+    margin-right: 0.6rem;
+    text-align: center;
+    padding: 0.2rem;
+    transition: all ease-in-out 0.2s;
+    width: 2.2rem;
+}
+
+#o_feltetel_halmaz b.torol:hover {
+    background: #CD5757;
+    transition: all ease-in-out 0.2s;
 }
