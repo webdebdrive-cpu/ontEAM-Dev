@@ -259,8 +259,8 @@ div.kijeloltek_muv {
 
 div.kijeloltek_muv div.muv {
     display: none;
-    background: #efefef;
-    border: 0.1rem solid #CECECE;
+    background: #f0f0f0;
+    border: 0.1rem solid #989898;
     border-radius: 0.3rem;
     padding: 0rem 0rem 0rem 0rem;
     position: absolute;
@@ -281,7 +281,9 @@ div.kijeloltek_muv div.muv li a {
     cursor: pointer;
     border-bottom: 0.1rem solid #CECECE;
     display: block;
-    padding: 0.8rem 1rem 0.8rem 1rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+    padding: 1.2rem 1rem 1.2rem 1rem;
     text-align: left;
     white-space: nowrap;
 }
@@ -511,28 +513,30 @@ input.gomb.piros:hover, input.gomb.piros:focus, input.gomb.piros:active{
 }
 
 input.gomb_alert{
-    background: #C44B4B;
+    background: #c54a4c;
     border: 0;
-    border-radius: 0.2rem;
+    border-radius: 0.3rem;
     color: #fff;
     cursor: pointer;
     font-size: 1.4rem;
-    padding: 0.6rem 1.2rem;
+    font-weight: 700;
+    padding: 1.2rem 1.7rem 1.2rem 1.7rem;
     position: relative;
 }
 
 input.gomb_alert:hover, input.gomb_alert:focus, input.gomb_alert:active{
-    background: #D35454;
+    background: #c14042;
 }
 
 input.gomb.zold, input.gombb{
     background: #75b54b;
     border: 0;
-    border-radius: 0.2rem;
+    border-radius: 0.3rem;
     color: #fff;
     cursor: pointer;
     font-size: 1.4rem;
-    padding: 0.6rem 1rem;
+    font-weight: 700;
+    padding: 1.2rem 1.7rem 1.2rem 1.7rem;
     position: relative;
     transition: all ease-in-out 0.2s;
 }
@@ -545,7 +549,7 @@ input.gombb.input {
 
 input.gomb.zold:hover, input.gombb:hover {
     transition: all ease-in-out 0.2s;
-    background: #76B958;
+    background: #64a739;
 }
 
 input.gombb[disabled],
@@ -2066,28 +2070,26 @@ div.navGombok a.disabled .material-icons {
 }
 
 #popup div.popup_kont div.bezar {
-    background: #fff;
-    border: 0.2rem solid #004990;
-    box-shadow: 0rem 0rem 0rem 0.4rem #fff;
-    border-radius: 100%;
+    background: #5192da;
+    border-radius: 0rem 0.6rem 0rem 0rem;
     cursor: pointer;
-    height: 2.5rem;
+    height: 6rem;
     position: absolute;
-    top: -0.5rem;
-    right: -0.5rem;
-    width: 2.5rem;
+    top: 0rem;
+    right: 0rem;
+    width: 6rem;
 }
 
 #popup div.popup_kont div.bezar:before,
 #popup div.popup_kont div.bezar:after {
-    background: #004990;
+    background: #fff;
     content: '';
     height: 0.2rem;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translateX(-50%) translateY(-50%) rotate(-45deg);
-    width: 1rem;
+    width: 1.5rem;
 }
 
 #popup div.popup_kont div.bezar:after {
@@ -2096,21 +2098,26 @@ div.navGombok a.disabled .material-icons {
 
 #popup div.popup_tart {
     background: #fff;
-    border-radius: 0.2rem;
+    border-radius: 0.6rem;
     min-height: 15rem;
     min-width: 40rem;
     max-height: 80rem;
     max-width: 100rem;
     overflow-y: auto;
-    padding: 2rem 2rem 2rem 2rem;
+    padding: 0rem 0rem 0rem 0rem;
+}
+
+#popup div.popup_tart div.kozep {
+    padding: 1.5rem 2.5rem 1.5rem 2.5rem;
 }
 
 #popup div.popup_tart h2 {
-    border-bottom: 0.1rem solid #d0d0d0;
-    font-size: 2.4rem;
+    background: #54a2f9;
+    color: #fff;
+    font-size: 2rem;
     font-weight: 400;
-    margin: 0rem 0rem 1rem 0rem;
-    padding: 0rem 0rem 0.5rem 0rem;
+    height: 6rem;
+    padding: 1.8rem 0rem 0.5rem 2.5rem;
 }
 
 #popup div.popup_tart p {
@@ -2184,7 +2191,8 @@ div.navGombok a.disabled .material-icons {
 }
 
 #popup div.popup_tart div.kuldes {
-    padding: 1rem 0rem 0rem 0rem;
+    background: #f0f0f0;
+    padding: 1.8rem 0rem 1.7rem 0rem;
     text-align: center;
 }
 

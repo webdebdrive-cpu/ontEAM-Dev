@@ -1,20 +1,22 @@
 <div style="width: 60rem">
     <h2>Összetett szűrés</h2>
-    <div id="o_szures"></div>
-    <div id="o_feltetel_halmaz" class="dt"></div>
-    <div id="o_sures"></div>
-    <script>
-        $(document).ready(function(){
-            $.ajax({
-                url : baseName(location.href)+'.php',
-                type: 'POST',
-                data: {
-                    o_szures: new Date().getTime()
-                },
-                success: function (response) {
-                    $('#o_szures').html(response);
-                }
+    <div class="kozep">
+        <div id="o_szures"></div>
+        <div id="o_feltetel_halmaz" class="dt"></div>
+        <div id="o_sures"></div>
+        <script>
+            $(document).ready(function(){
+                $.ajax({
+                    url : baseName(location.href)+'.php',
+                    type: 'POST',
+                    data: {
+                        o_szures: new Date().getTime()
+                    },
+                    success: function (response) {
+                        $('#o_szures').html(response);
+                    }
+                });
             });
-        });
-    </script>
+        </script>
+    </div>
 </div>

@@ -1,31 +1,33 @@
 <h2>Hibajelentéshez beérkezett anyagok rögzítése</h2>
 
-<div class="dt">
-    <div class="dtr">
-        <div class="dtc form_bal">Iktatószám:</div>
-        <div class="dtc form_jobb">
-            <input type="text" name="pop_ikt_szam" id="pop_ikt_szam" disabled>
-            <input type="hidden" name="pop_recid" id="pop_recid" disabled>
+<div class="kozep">
+    <div class="dt">
+        <div class="dtr">
+            <div class="dtc form_bal">Iktatószám:</div>
+            <div class="dtc form_jobb">
+                <input type="text" name="pop_ikt_szam" id="pop_ikt_szam" disabled>
+                <input type="hidden" name="pop_recid" id="pop_recid" disabled>
+            </div>
+        </div>
+        <div class="dtr">
+            <div class="dtc form_bal">Szálloda:</div>
+            <div class="dtc form_jobb">
+                <input type="text" name="pop_telephely" id="pop_telephely" disabled>
+            </div>
         </div>
     </div>
-    <div class="dtr">
-        <div class="dtc form_bal">Szálloda:</div>
-        <div class="dtc form_jobb">
-            <input type="text" name="pop_telephely" id="pop_telephely" disabled>
-        </div>
-    </div>
-</div>
 
-<div id="pop_tablazat"></div>
+    <div id="pop_tablazat"></div>
+</div>
 
 <div class="kuldes">
     <input type="button" name="elkuld" value="Mentés" class="gomb" onclick="munkalapErkeztetMent()">
 </div>
 <script>
 	function munkalapErkeztetMent(){
-        
+
         idk = {};
-        
+
         i = 0;
         $('.pop_cbok').each(function() {
             if($(this).prop('checked')){
@@ -34,7 +36,7 @@
             }
         });
 
-        
+
         $.ajax({
             url : 'munkalap.php',
             type: 'POST',

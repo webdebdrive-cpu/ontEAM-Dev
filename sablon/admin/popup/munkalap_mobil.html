@@ -1,45 +1,47 @@
 <h2>Munkalapok hozzárendelése mobil személyzethez</h2>
 <form action="" id="munkalapMobil" class="popupForm" method="post" onsubmit="return munkalapMobil( this );">
-    <table class="mobilTable">
-        <tr>
-            <td class="mtb">
-                <p>Hozzárendelt munkalapok beosztás nélkül</p>
-                <div id="hozzBeosztasNelkul" class="mobilkeret"></div>
-                <div class="clearFix">
+    <div class="kozep">
+        <table class="mobilTable">
+            <tr>
+                <td class="mtb">
+                    <p>Hozzárendelt munkalapok beosztás nélkül</p>
+                    <div id="hozzBeosztasNelkul" class="mobilkeret"></div>
+                    <div class="clearFix">
+                        <script>
+                            munkBejelKozeGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkBejelKoze();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                        </script>
+                        <button type="button" name="button" class="flr" style="margin-top: 1rem;" onclick="alert2('Biztos, hogy kiveszi a munkalapot a mobil beosztásból?', munkBejelKozeGomb);">Vissza a munkalapok közé</button>
+                    </div>
+                    <p>Személyzethez rendelt munkalapok</p>
+                    <div id="szemRendelt" class="mobilkeret"></div>
+                    <div class="clearFix">
+                        <script>
+                            munkHozzMegszuntetGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkHozzMegszuntet();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                        </script>
+                        <button type="button" name="button" class="flr" style="margin-top: 1rem;" onclick="alert2('Biztosan megszüneteti a hozzárendelést?', munkHozzMegszuntetGomb);">Hozzárendelés megszüntetése</button>
+                    </div>
+                </td>
+                <td class="mtj">
+                    <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="torzsadat_id_autocomp" id="torzsadat_id_autocomp" onblur="if(!$(this).val()){ $('#torzsadat_id').val(''); }" value="">
+                    <input type="hidden" name="torzsadat_id" id="torzsadat_id" value="">
                     <script>
-                        munkBejelKozeGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkBejelKoze();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                    </script>
-                    <button type="button" name="button" class="flr" style="margin-top: 1rem;" onclick="alert2('Biztos, hogy kiveszi a munkalapot a mobil beosztásból?', munkBejelKozeGomb);">Vissza a munkalapok közé</button>
-                </div>
-                <p>Személyzethez rendelt munkalapok</p>
-                <div id="szemRendelt" class="mobilkeret"></div>
-                <div class="clearFix">
-                    <script>
-                        munkHozzMegszuntetGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkHozzMegszuntet();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                    </script>
-                    <button type="button" name="button" class="flr" style="margin-top: 1rem;" onclick="alert2('Biztosan megszüneteti a hozzárendelést?', munkHozzMegszuntetGomb);">Hozzárendelés megszüntetése</button>
-                </div>
-            </td>
-            <td class="mtj">
-                <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="torzsadat_id_autocomp" id="torzsadat_id_autocomp" onblur="if(!$(this).val()){ $('#torzsadat_id').val(''); }" value="">
-                <input type="hidden" name="torzsadat_id" id="torzsadat_id" value="">
-                <script>
-                    $(document).ready(function() {
-                        $('#torzsadat_id_autocomp').autocomplete({
-                            'php_fajl'      : '../autocomplete.php',
-                            'tabla'         : 'torzsadat',
-                            'oszlop_keres'  : 'nev',
-                            'oszlop_listaz' : 'nev',
-                            'rkat'          : 0,
-                            'csoport'       : 0,
-                            'id_kiir'       : 'recid'
+                        $(document).ready(function() {
+                            $('#torzsadat_id_autocomp').autocomplete({
+                                'php_fajl'      : '../autocomplete.php',
+                                'tabla'         : 'torzsadat',
+                                'oszlop_keres'  : 'nev',
+                                'oszlop_listaz' : 'nev',
+                                'rkat'          : 0,
+                                'csoport'       : 0,
+                                'id_kiir'       : 'recid'
+                            });
                         });
-                    });
-                </script>
-                <button type="button" name="button" style="margin-top: 1rem;" onclick="munkHozzSzemely();">Hozzárendelés személyzethez</button>
-            </td>
-        </tr>
-    </table>
+                    </script>
+                    <button type="button" name="button" style="margin-top: 1rem;" onclick="munkHozzSzemely();">Hozzárendelés személyzethez</button>
+                </td>
+            </tr>
+        </table>
+    </div>
     <div class="kuldes">
         <input type="submit" name="elkuld" value="Mentés">
         <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">

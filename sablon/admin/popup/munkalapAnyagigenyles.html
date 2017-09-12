@@ -1,52 +1,54 @@
 <h2>Anyagigénylés munkalaphoz</h2>
 <form action="" id="munkAnyagAnyagigenyles" class="popupForm" method="post" onsubmit="return munkAnyagIgenyles( this, 'csak kérdezünk még' );">
-    <div class="dt">
-        <div class="dtr">
-            <div class="dtc form_bal">Cikk:</div>
-            <div class="dtc form_jobb">
-                <input type="text" autocomplete="off" class="oriasi disableNav csillag focus" name="cikk_id_autocomp" id="cikk_id_autocomp" onblur="if(!$(this).val()){ $('#cikk_id').val(''); }" value="">
-                <input type="hidden" name="cikk_id" id="cikk_id" value="">
-                <input type="hidden" name="cikkid_origi" id="cikkid_origi" value="">
-                <script>
-                    $(document).ready(function() {
-                        $('#cikk_id_autocomp').autocomplete({
-                            'php_fajl'      : '../autocomplete.php',
-                            'tabla'         : 'cikktorzs',
-                            'oszlop_keres'  : 'nev',
-                            'oszlop_listaz' : 'nev',
-                            'id_kiir'       : 'recid'
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Cikk:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" autocomplete="off" class="oriasi disableNav csillag focus" name="cikk_id_autocomp" id="cikk_id_autocomp" onblur="if(!$(this).val()){ $('#cikk_id').val(''); }" value="">
+                    <input type="hidden" name="cikk_id" id="cikk_id" value="">
+                    <input type="hidden" name="cikkid_origi" id="cikkid_origi" value="">
+                    <script>
+                        $(document).ready(function() {
+                            $('#cikk_id_autocomp').autocomplete({
+                                'php_fajl'      : '../autocomplete.php',
+                                'tabla'         : 'cikktorzs',
+                                'oszlop_keres'  : 'nev',
+                                'oszlop_listaz' : 'nev',
+                                'id_kiir'       : 'recid'
+                            });
                         });
-                    });
-                </script>
+                    </script>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Felh. menny.:</div>
+                <div class="dtc form_jobb wsn">
+                    <input type="text" id="felh_menny" class="f_num" name="felh_menny" value="" placeholder="" autocomplete="off" style="min-width: 5rem; width: 5rem;">
+                    <span class="insertMee"></span>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Szük. menny.:</div>
+                <div class="dtc form_jobb wsn">
+                    <input type="text" id="szuk_menny" class="f_num" name="szuk_menny" value="" placeholder="" autocomplete="off" style="min-width: 5rem; width: 5rem;">
+                    <span class="insertMee"></span>
+                </div>
             </div>
         </div>
-        <div class="dtr">
-            <div class="dtc form_bal">Felh. menny.:</div>
-            <div class="dtc form_jobb wsn">
-                <input type="text" id="felh_menny" class="f_num" name="felh_menny" value="" placeholder="" autocomplete="off" style="min-width: 5rem; width: 5rem;">
-                <span class="insertMee"></span>
-            </div>
+        <div id="insertTable">
+            <table class="csikos">
+                <tr>
+                    <th>Cikk</th>
+                    <th>Név</th>
+                    <th class="r">Felhasznált mennyiség</th>
+                    <th class="r">Szükséges mennyiség</th>
+                    <th>Mee</th>
+                    <th>Anyag státusz</th>
+                    <th class="torles"></th>
+                </tr>
+            </table>
         </div>
-        <div class="dtr">
-            <div class="dtc form_bal">Szük. menny.:</div>
-            <div class="dtc form_jobb wsn">
-                <input type="text" id="szuk_menny" class="f_num" name="szuk_menny" value="" placeholder="" autocomplete="off" style="min-width: 5rem; width: 5rem;">
-                <span class="insertMee"></span>
-            </div>
-        </div>
-    </div>
-    <div id="insertTable">
-        <table class="csikos">
-            <tr>
-                <th>Cikk</th>
-                <th>Név</th>
-                <th class="r">Felhasznált mennyiség</th>
-                <th class="r">Szükséges mennyiség</th>
-                <th>Mee</th>
-                <th>Anyag státusz</th>
-                <th class="torles"></th>
-            </tr>
-        </table>
     </div>
     <div class="kuldes">
         <button type="button" name="button" onclick="munkAnyagHozzaad( '#munkAnyagAnyagigenyles', true );">Hozzáad</button>

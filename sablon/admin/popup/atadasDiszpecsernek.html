@@ -1,34 +1,36 @@
 <h2>Átadás diszpécsernek</h2>
 <form action="" id="atadasDiszpecsernekForm" class="popupForm" method="post" onsubmit="return atadasDiszpecsernek( this );">
-    <div class="dt">
-        <div class="dtr">
-            <div class="dtc form_bal">Átadás oka:</div>
-            <div class="dtc form_jobb">
-                <input type="text" autocomplete="off" class="oriasi disableNav csillag focus" name="erteklista_id_autocomp" id="erteklista_id_autocomp" onblur="if(!$(this).val()){ $('#erteklista_id').val(''); }" value="">
-                <input type="hidden" name="erteklista_id" id="erteklista_id" value="">
-                <script>
-                    $(document).ready(function() {
-                        $('#erteklista_id_autocomp').autocomplete({
-                            'php_fajl'      : '../autocomplete.php',
-                            'tabla'         : 'erteklista',
-                            'oszlop_keres'  : 'info',
-                            'oszlop_listaz' : 'info',
-                            'rkat'          : 0,
-                            'csoport'       : 7,
-                            'id_kiir'       : 'id'
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Átadás oka:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" autocomplete="off" class="oriasi disableNav csillag focus" name="erteklista_id_autocomp" id="erteklista_id_autocomp" onblur="if(!$(this).val()){ $('#erteklista_id').val(''); }" value="">
+                    <input type="hidden" name="erteklista_id" id="erteklista_id" value="">
+                    <script>
+                        $(document).ready(function() {
+                            $('#erteklista_id_autocomp').autocomplete({
+                                'php_fajl'      : '../autocomplete.php',
+                                'tabla'         : 'erteklista',
+                                'oszlop_keres'  : 'info',
+                                'oszlop_listaz' : 'info',
+                                'rkat'          : 0,
+                                'csoport'       : 7,
+                                'id_kiir'       : 'id'
+                            });
                         });
-                    });
-                </script>
+                    </script>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Átadás leírása:</div>
+                <div class="dtc form_jobb">
+                    <textarea name="atadas_memo"></textarea>
+                </div>
             </div>
         </div>
-        <div class="dtr">
-            <div class="dtc form_bal">Átadás leírása:</div>
-            <div class="dtc form_jobb">
-                <textarea name="atadas_memo"></textarea>
-            </div>
-        </div>
+        <p>Ha folytatja, a munkalap visszakerül a diszpécserhez. Folytatja?</p>
     </div>
-    <p>Ha folytatja, a munkalap visszakerül a diszpécserhez. Folytatja?</p>
     <div class="kuldes">
         <input type="submit" name="elkuld" value="Igen">
         <input type="button" name="megsem" class="gombb_alert" value="Nem" onclick="popupZar();">

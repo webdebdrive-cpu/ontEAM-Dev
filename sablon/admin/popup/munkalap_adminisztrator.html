@@ -1,24 +1,26 @@
 <h2>Adminisztrátornak</h2>
 <form action="" id="munkalapTelepitett" class="popupForm" method="post" onsubmit="return munkalapAdminisztrator();">
-    <div class="dt">
-        <div class="dtr">
-            <div class="dtc form_bal">Törzsadat:</div>
-            <div class="dtc form_jobb">
-                <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="torzsadat_id_autocomp" id="torzsadat_id_autocomp" onblur="if(!$(this).val()){ $('#torzsadat_id').val(''); }" value="">
-                <input type="hidden" name="torzsadat_id" id="torzsadat_id" value="">
-                <script>
-                    $(document).ready(function() {
-                        $('#torzsadat_id_autocomp').autocomplete({
-                            'php_fajl'      : '../autocomplete.php',
-                            'tabla'         : 'torzsadat',
-                            'oszlop_keres'  : 'nev',
-                            'oszlop_listaz' : 'nev',
-                            'rkat'          : 0,
-                            'csoport'       : 0,
-                            'id_kiir'       : 'recid'
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Törzsadat:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="torzsadat_id_autocomp" id="torzsadat_id_autocomp" onblur="if(!$(this).val()){ $('#torzsadat_id').val(''); }" value="">
+                    <input type="hidden" name="torzsadat_id" id="torzsadat_id" value="">
+                    <script>
+                        $(document).ready(function() {
+                            $('#torzsadat_id_autocomp').autocomplete({
+                                'php_fajl'      : '../autocomplete.php',
+                                'tabla'         : 'torzsadat',
+                                'oszlop_keres'  : 'nev',
+                                'oszlop_listaz' : 'nev',
+                                'rkat'          : 0,
+                                'csoport'       : 0,
+                                'id_kiir'       : 'recid'
+                            });
                         });
-                    });
-                </script>
+                    </script>
+                </div>
             </div>
         </div>
     </div>

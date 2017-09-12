@@ -1,19 +1,20 @@
 <h2><span id="pop_ikt_szam"></span> sürgősség beállítása</h2>
-    
-<div>
-    Ez a <span class="f_pop_megnevezes"></span> <span class="f_nem"></span> sürgős.
-    <br>Biztos, hogy módosítja a <span class="f_pop_megnevezes"></span> sürgősségi státuszát?
-    <br>
-    <br>Indoklás:
-    <br><textarea id="indoklas" style="width: 100%"></textarea>
-</div>
 
+<div class="kozep">
+    <div>
+        Ez a <span class="f_pop_megnevezes"></span> <span class="f_nem"></span> sürgős.
+        <br>Biztos, hogy módosítja a <span class="f_pop_megnevezes"></span> sürgősségi státuszát?
+        <br>
+        <br>Indoklás:
+        <br><textarea id="indoklas" style="width: 100%"></textarea>
+    </div>
+</div>
 
 <div class="kuldes">
     <input name="elkuld" class="gombb" value="Ok" type="button" onclick="surgosseg_allit()">
     <input name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();" type="button">
 </div>
-    
+
 <script>
 	$(document).ready(function(){
         $('.f_pop_megnevezes').html( $('#rekord_neve_egyes').html() );
@@ -25,9 +26,9 @@
             $('#surgos').prop('checked', true);
         }
     });
-    
+
     function surgosseg_allit(){
-        
+
         $.ajax({
             url : 'esemenyek.php',
             type: 'POST',

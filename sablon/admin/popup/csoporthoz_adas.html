@@ -1,16 +1,18 @@
 <h2>Csoporthoz adás</h2>
 <form action="" id="addCsoportForm" class="popupForm" method="post" onsubmit="return csoportbaRendez( this );">
-    <div class="dt">
-        <div class="dtr">
-            <div class="dtc">Csoportok</div>
-            <div id="insertCsop" class="dtc form_jobb"></div>
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc">Csoportok</div>
+                <div id="insertCsop" class="dtc form_jobb"></div>
+            </div>
         </div>
-    </div>
-    <div class="addCsoport">
-        <a onclick="$('#csopCont').slideToggle(200);"><i class="material-icons">add</i>Új csoport hozzáadása</a>
-        <div id="csopCont" style="display: none;">
-            <input type="text" name="ujcsoportnev" value="" placeholder="Csoport neve...">
-            <input type="button" name="" class="gombb input" value="Hozzáad" onclick="addCsoport();">
+        <div class="addCsoport">
+            <a onclick="$('#csopCont').slideToggle(200);"><i class="material-icons">add</i>Új csoport hozzáadása</a>
+            <div id="csopCont" style="display: none;">
+                <input type="text" name="ujcsoportnev" value="" placeholder="Csoport neve...">
+                <input type="button" name="" class="gombb input" value="Hozzáad" onclick="addCsoport();">
+            </div>
         </div>
     </div>
     <div class="kuldes">
