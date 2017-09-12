@@ -979,7 +979,7 @@ $(function() {
             $('#o_feltetel_halmaz').append(
                                     '<div class="dtr">'+
                                         '<div class="dtc">'+
-                                            '<b class="zaro">(</b>'+
+                                            '<b class="zaro nyit">(</b>'+
                                         '</div>'+
                                         '<div class="dtc">'+
                                             '<input type="hidden" class="mezo" value="'+$('#o_szuro_mezo').val()+'">'+
@@ -990,7 +990,7 @@ $(function() {
                                             feltetel_nev + ' ' +
                                         '</div>'+
                                         '<div class="dtc">'+
-                                            '<b class="zaro">)</b>'+
+                                            '<b class="zaro zar">)</b>'+
                                         '</div>'+
                                         '<div class="dtc">'+
                                             '<select style="width: 7rem"><option value="AND">ÉS</option><option value="OR">VAGY</option></select>'+
