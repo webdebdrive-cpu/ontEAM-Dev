@@ -340,8 +340,10 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
     exit;
 }
 
-//echo $megn . '<br>';
-$akt_tomb_szures = get_akt_tomb($megn);
+
+//Melyik oldalon vagyunk: annak megfelelő tömbbel dolgozunk
+$tabla = str_replace('.php', '', basename(self()));
+$akt_tomb_szures = get_akt_tomb($tabla);
 $sz_mezo = '';
 foreach($akt_tomb_szures as $ertek){
     if($ertek['szuro']){
@@ -357,14 +359,14 @@ foreach($akt_tomb_szures as $ertek){
 }
 
 //Extra szűrő mezők
-if($megn == 'anyagigenyles'){
+if($tabla == 'anyagigenyles'){
     $selected_megj  = '';
     if($_GET['mezo']=='megjegyzes'){
         $selected_megj = ' selected';
     }
     $sz_mezo .= '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>Megjegyzés</option>';
 }
-if($megn == 'login'){
+if($tabla == 'login'){
     $selected_jog   = '';
     $selected_szall = '';
     $selected_megj  = '';
@@ -381,14 +383,23 @@ if($megn == 'login'){
     $sz_mezo .= '<option value="szalloda" data-tabla="telephely"'.$selected_szall.'>Szálloda</option>';
     $sz_mezo .= '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>Megjegyzés</option>';
 }
+
+// HTML előlállítása
+$prefix         = '';
+$osszetett_link = '<img class="link" src="../elemek/filter.svg" onclick="csoportMuvelet(\'osszetett_szuro\')">';
+if(isset($_POST['o_szures'])){
+    $prefix         = 'o_';
+    $osszetett_link = '';
+}
 $szures = nl2('
-        <select class="f_szuro_mezo" data-tabla="'.$megn.'">
+        '.$osszetett_link.'
+        <select id="'.$prefix.'szuro_mezo" class="f_szuro_mezo" data-tabla="'.$tabla.'">
             <option value="">- Szűrési mező -</option>
            '.$sz_mezo.'
         </select>
-        <div id="operator" class="dib"></div>
-        <div id="feltetel" class="dib"></div>
-        <div id="szures_submit" class="dib"></div>
+        <div id="'.$prefix.'operator" class="dib"></div>
+        <div id="'.$prefix.'feltetel" class="dib"></div>
+        <div id="'.$prefix.'szures_submit" class="dib"></div>
     ');
 
 if (isset($_GET['mezo'])) {

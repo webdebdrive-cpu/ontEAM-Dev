@@ -906,16 +906,16 @@ $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',     'szuro' => 1,  'class' => 'check', 'onclick' => $surgos_allit),
 	array('type' => 'text',            'megn' => 'Bejelentés szám:',    'name' => 'ikt_szam',   'szuro' => 1,  'disabled' => true,       'maxlength' => 250, 'class' => 'kozepes'),
 
-    array('type' => 'text',            'megn' => 'Név:',        'name' => 'usr_man_nev',            'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true),
-    array('type' => 'text',            'megn' => '',            'name' => 'usr_nev',                'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'letarol' => true, 'value' => $usr_nev),
-    array('type' => 'autocomplete',    'megn' => 'Beosztás:',   'name' => 'usr_man_beosztas_id',    'disabled' => $usr_man_dis,         'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'osszevon' => true),
-    array('type' => 'autocomplete',    'megn' => '',            'name' => 'usr_beosztas_id',        'disabled' => $usr_dis,             'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'value' => $usr_beosztas),
-    array('type' => 'autocomplete',    'megn' => 'Részleg:',    'name' => 'usr_man_reszleg_id',     'disabled' => $usr_man_dis,         'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'osszevon' => true),
-    array('type' => 'autocomplete',    'megn' => '',            'name' => 'usr_reszleg_id',         'disabled' => $usr_dis,             'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'value' => $usr_reszleg),
-    array('type' => 'text',            'megn' => 'Telefon:',    'name' => 'usr_man_telefon',        'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true),
-    array('type' => 'text',            'megn' => '',            'name' => 'usr_telefon',            'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'letarol' => true, 'value' => $usr_telefon),
-    array('type' => 'text',            'megn' => 'E-mail:',     'name' => 'usr_man_email',          'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => true),
-    array('type' => 'text',            'megn' => '',            'name' => 'usr_email',              'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'letarol' => true, 'value' => $usr_email),
+    array('type' => 'text',            'megn' => 'Név:',        'megn_szurobe' => 'Diszpécser név:',        'name' => 'usr_man_nev',            'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'szuro' => 1, 'osszevon' => true),
+    array('type' => 'text',            'megn' => '',            'megn_szurobe' => 'Név:',                   'name' => 'usr_nev',                'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'szuro' => 1, 'letarol' => true, 'value' => $usr_nev),
+    array('type' => 'autocomplete',    'megn' => 'Beosztás:',   'megn_szurobe' => 'Beosztás:',              'name' => 'usr_man_beosztas_id',    'disabled' => $usr_man_dis,         'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'osszevon' => true),
+    array('type' => 'autocomplete',    'megn' => '',            'megn_szurobe' => 'Diszpécser beosztás:',   'name' => 'usr_beosztas_id',        'disabled' => $usr_dis,             'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'value' => $usr_beosztas),
+    array('type' => 'autocomplete',    'megn' => 'Részleg:',    'megn_szurobe' => 'Részleg:',               'name' => 'usr_man_reszleg_id',     'disabled' => $usr_man_dis,         'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'osszevon' => true),
+    array('type' => 'autocomplete',    'megn' => '',            'megn_szurobe' => 'Diszpécser részleg:',    'name' => 'usr_reszleg_id',         'disabled' => $usr_dis,             'class' => 'kozepes disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'value' => $usr_reszleg),
+    array('type' => 'text',            'megn' => 'Telefon:',    'megn_szurobe' => 'Telefon:',               'name' => 'usr_man_telefon',        'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'szuro' => 1, 'osszevon' => true),
+    array('type' => 'text',            'megn' => '',            'megn_szurobe' => 'Diszpécser telefon:',    'name' => 'usr_telefon',            'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'szuro' => 1, 'letarol' => true, 'value' => $usr_telefon),
+    array('type' => 'text',            'megn' => 'E-mail:',     'megn_szurobe' => 'E-mail:',                'name' => 'usr_man_email',          'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'szuro' => 1, 'osszevon' => true),
+    array('type' => 'text',            'megn' => '',            'megn_szurobe' => 'Diszpécser e-mail:',     'name' => 'usr_email',              'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'szuro' => 1, 'letarol' => true, 'value' => $usr_email),
 
     //array('type' => 'info',            'megn' => 'Név:',                'name' => 'felh_nev',   'value' => $user['teljes_nev']),
     //array('type' => 'info',            'megn' => 'Beosztás:',           'value' => erteklista(18, $user['beosztas_id'])),
@@ -1651,6 +1651,16 @@ $eszkozkezeles_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 //{KOVETKEZO_TOMB}
 
+
+
+//Összetett szűrés
+if (isset($_POST['o_szures'])) {
+    require_once 'szures.php';
+    echo $szures;
+    
+    $weblap->leallit();
+    exit();
+}
 
 /* Munkalap feladat */
 if( isset($_POST['munkFeladatTorol']) ) {

@@ -92,8 +92,10 @@ foreach($akt_tomb as $ertek){
             }
 
             /* Lekérdezzük a külső tábla értékét */
-            $kulso_ertek = $adatbazis_kapcsolat->s($ertek['listaz'], $ertek['tabla'], $ertek['oszlop_keres'].'='.$kulso_val.$csoport_where, '', '1');
-//echo $adatbazis_kapcsolat->gp() . '<br>';
+            $kulso_ertek = $adatbazis_kapcsolat->s($ertek['listaz'], $ertek['tabla'], '`'.$ertek['oszlop_keres'].'`=\''.$kulso_val.$csoport_where.'\'', '', '1');
+if (isset($_GET['teszt'])) {
+    //echo $adatbazis_kapcsolat->gp() . '<br>';
+}
             if( $kulso_ertek ) {
                 $input -> value = $kulso_ertek[0][$ertek['listaz']];
             }
