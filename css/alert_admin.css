@@ -76,6 +76,7 @@
 
 #alert2 .gombb.piros, #alert2 .gomb.piros{
     background: #c54a4c;
+    margin: 0rem 0rem 0rem 4rem;
 }
 
 #alert2 .gombb.piros:hover, #alert2 .gomb.piros:hover{

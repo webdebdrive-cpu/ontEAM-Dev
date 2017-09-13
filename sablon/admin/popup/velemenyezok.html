@@ -1,23 +1,25 @@
 <h2>Új véleményező hozzáadása</h2>
 <form action="" id="addVelemenyezokForm" class="popupForm" method="post">
-    <div class="dt">
-        <div class="dtr">
-            <div class="dtc">Véleményező:</div>
-            <div class="dtc form_jobb">
-                <input type="text" name="addVelemenyezo_autocomp" id="velemenyezoKeres" class="gombm disableNav focus" value="" placeholder="Véleményező keresése..." autocomplete="off">
-                <input type="hidden" name="addVelemenyezo" value="">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc">Véleményező:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" name="addVelemenyezo_autocomp" id="velemenyezoKeres" class="gombm disableNav focus" value="" placeholder="Véleményező keresése..." autocomplete="off">
+                    <input type="hidden" name="addVelemenyezo" value="">
 
-                <script>
-                    $(document).ready(function() {
-                        $('#velemenyezoKeres').autocomplete({
-                            'php_fajl'        : '../velemeny_autocomplete.php',
-                            'tabla'           : 'login',
-                            'oszlop_keres'    : 'nev',
-                            'oszlop_listaz'   : 'teljes_nev',
-                            'id_kiir'         : 'recid'
+                    <script>
+                        $(document).ready(function() {
+                            $('#velemenyezoKeres').autocomplete({
+                                'php_fajl'        : '../velemeny_autocomplete.php',
+                                'tabla'           : 'login',
+                                'oszlop_keres'    : 'nev',
+                                'oszlop_listaz'   : 'teljes_nev',
+                                'id_kiir'         : 'recid'
+                            });
                         });
-                    });
-                </script>
+                    </script>
+                </div>
             </div>
         </div>
     </div>

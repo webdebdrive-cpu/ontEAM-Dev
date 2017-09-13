@@ -1,23 +1,25 @@
 <h2>Új Szálloda hozzáadása</h2>
 <form action="" id="addSzallodaForm" class="popupForm" method="post">
-    <div class="dt">
-        <div class="dtr">
-            <div class="dtc">Szálloda:</div>
-            <div class="dtc form_jobb">
-                <input type="text" name="addSzall_autocomp" id="szallodaKeres" class="gombm disableNav focus" value="" placeholder="Szálloda keresése..." autocomplete="off">
-                <input type="hidden" name="addSzall" value="">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc">Szálloda:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" name="addSzall_autocomp" id="szallodaKeres" class="gombm disableNav focus" value="" placeholder="Szálloda keresése..." autocomplete="off">
+                    <input type="hidden" name="addSzall" value="">
 
-                <script>
-                    $(document).ready(function() {
-                        $('#szallodaKeres').autocomplete({
-                            'php_fajl'        : '../kapcs_autocomplete.php',
-                            'tabla'           : 'telephely',
-                            'oszlop_keres'    : 'nev',
-                            'oszlop_listaz'   : 'nev',
-                            'id_kiir'         : 'id'
+                    <script>
+                        $(document).ready(function() {
+                            $('#szallodaKeres').autocomplete({
+                                'php_fajl'        : '../kapcs_autocomplete.php',
+                                'tabla'           : 'telephely',
+                                'oszlop_keres'    : 'nev',
+                                'oszlop_listaz'   : 'nev',
+                                'id_kiir'         : 'id'
+                            });
                         });
-                    });
-                </script>
+                    </script>
+                </div>
             </div>
         </div>
     </div>

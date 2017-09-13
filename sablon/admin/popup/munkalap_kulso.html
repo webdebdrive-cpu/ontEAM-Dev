@@ -1,31 +1,33 @@
 <h2>Munkalap átadása</h2>
 <form action="" id="munkalapKulso" class="popupForm" method="post" onsubmit="return munkalapKulso( this );">
-    <p>Válasszon külső kivitelezőt:</p>
-    <div class="dt">
-        <div class="dtr">
-            <div class="dtc form_jobb plr0">
-                <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="szallito_id_autocomp" id="szallito_id_autocomp" onblur="if(!$(this).val()){ $('#szallito_id').val(''); }" value="">
-                <input type="hidden" name="szallito_id" id="szallito_id" value="">
-                <script>
-                     $(document).ready(function() {
-                         $('#szallito_id_autocomp').autocomplete({
-                             'php_fajl'         : '../autocomplete.php',
-                             'tabla'            : 'szallito',
-                             'oszlop_keres'     : 'nev',
-                             'oszlop_listaz'    : 'nev',
-                             'rkat'             : 0,
-                             'csoport'          : 0,
-                             'id_kiir'          : 'id'
-                         });
-                    });
-                </script>
+    <div class="kozep">
+        <p>Válasszon külső kivitelezőt:</p>
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_jobb plr0">
+                    <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="szallito_id_autocomp" id="szallito_id_autocomp" onblur="if(!$(this).val()){ $('#szallito_id').val(''); }" value="">
+                    <input type="hidden" name="szallito_id" id="szallito_id" value="">
+                    <script>
+                         $(document).ready(function() {
+                             $('#szallito_id_autocomp').autocomplete({
+                                 'php_fajl'         : '../autocomplete.php',
+                                 'tabla'            : 'szallito',
+                                 'oszlop_keres'     : 'nev',
+                                 'oszlop_listaz'    : 'nev',
+                                 'rkat'             : 0,
+                                 'csoport'          : 0,
+                                 'id_kiir'          : 'id'
+                             });
+                        });
+                    </script>
+                </div>
             </div>
         </div>
-    </div>
-    <p>vagy átadás hozzárendelt személyzetnek:</p>
-    <div class="dt">
-        <div class="dtr">
-            <div id="hozzRendSelect" class="dtc form_jobb plr0"></div>
+        <p>vagy átadás hozzárendelt személyzetnek:</p>
+        <div class="dt">
+            <div class="dtr">
+                <div id="hozzRendSelect" class="dtc form_jobb plr0"></div>
+            </div>
         </div>
     </div>
     <div class="kuldes">
