@@ -1,31 +1,33 @@
 <div style="width: 60rem">
-    <h2>Összetett szűrés</h2>
-    <div id="o_szures"></div>
-    <div id="o_feltetel_halmaz" class="dt" class="dt" style="margin-top: 1rem"></div>
-    
-    <div class="dt" style="margin-top: 1rem">
-        <div id="o_sures_t" class="dtc"></div>
-        <div id="o_sures" class="dtc r"></div>
-    </div>
-    <script>
-        $(document).ready(function(){
-            $.ajax({
-                url : baseName(location.href)+'.php',
-                type: 'POST',
-                data: {
-                    o_szures: new Date().getTime()
-                },
-                success: function (response) {
-                    response = JSON.parse(response);
-                    $('#o_szures').html(response.inputok);
-                    $('#o_feltetel_halmaz').html(response.html);
-                    
-                    if($('#o_feltetel_halmaz').html()){
-                        $('#o_sures_t').html('<input type="button" class="gomb kis_gomb piros f_o_szures_torol" value="Szűrők törlése">');
-                        o_szures_gomb_mutat();
+    <div class="kozep">
+        <h2>Összetett szűrés</h2>
+        <div id="o_szures"></div>
+        <div id="o_feltetel_halmaz" class="dt" class="dt" style="margin-top: 1rem"></div>
+
+        <div class="dt" style="margin-top: 1rem">
+            <div id="o_sures_t" class="dtc"></div>
+            <div id="o_sures" class="dtc r"></div>
+        </div>
+        <script>
+            $(document).ready(function(){
+                $.ajax({
+                    url : baseName(location.href)+'.php',
+                    type: 'POST',
+                    data: {
+                        o_szures: new Date().getTime()
+                    },
+                    success: function (response) {
+                        response = JSON.parse(response);
+                        $('#o_szures').html(response.inputok);
+                        $('#o_feltetel_halmaz').html(response.html);
+
+                        if($('#o_feltetel_halmaz').html()){
+                            $('#o_sures_t').html('<input type="button" class="gomb kis_gomb piros f_o_szures_torol" value="Szűrők törlése">');
+                            o_szures_gomb_mutat();
+                        }
+
                     }
-                    
-                }
+                });
             });
         </script>
     </div>
