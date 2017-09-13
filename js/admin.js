@@ -1076,7 +1076,7 @@ $(function() {
                     }
                 }
                 if( response.mehet ) {
-                    location.reload(); 
+                    location.reload();
                 }
             }
         });

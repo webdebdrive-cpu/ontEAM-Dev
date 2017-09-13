@@ -1652,14 +1652,16 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //{KOVETKEZO_TOMB}
 
 
-
 //Összetett szűrés törlése, ha menüpontot váltunk
-if($_SESSION['o_szuro_feltetel'] && $_SESSION['elozo_oldal']!=self()){
-    unset($_SESSION['o_szuro_feltetel']);
-    unset($_SESSION['o_szuro_html']);
+$kivetelek = array('header.php', 'esemenyek.php');
+if( !in_array(basename(self()), $kivetelek) ){
+    if($_SESSION['o_szuro_feltetel'] && $_SESSION['elozo_oldal']!=self()){
+        unset($_SESSION['o_szuro_feltetel']);
+        unset($_SESSION['o_szuro_html']);
+    }
+    $_SESSION['elozo_oldal'] = self();
 }
 //Összetett szűrés inicializálása
-$_SESSION['elozo_oldal'] = self();
 if (isset($_POST['o_szures'])) {
     require_once 'szures.php';
     
