@@ -3582,11 +3582,11 @@ if( isset($_POST['csoportbolTorol']) ) {
                 $statusz = addStatusz( $page.'_statusz', $id, MUNKALAP_STAT_NYITOTT);
                 if( $statusz === false ) { $db_error = true; }
 
-                //Munkalaphoz tartozó Bejelentések státuszát is várakozóra léptetjük
+                //Munkalaphoz tartozó Bejelentések státuszát pedig folyamatbanra léptetjük
                 if($page=='munkalap'){
                     $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$id}'");
                     foreach($bejelentesek as $bej){
-                        $statusz = addStatusz( 'bejelentes_statusz', $bej['bejelentes_id'], BEJELENTES_STAT_NYITOTT );
+                        $statusz = addStatusz( 'bejelentes_statusz', $bej['bejelentes_id'], BEJELENTES_STAT_FOLYAMATBAN );
                         if( $statusz === false ) { $db_error = true; }
                     }
                 }

@@ -1776,13 +1776,13 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || isset($_GET['bejelentesek']) || isset($_GET['tortenet']) || isset($_GET['anyagigenyles']) || isset($_GET['elszamolas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['tetel']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || /*isset($_GET['bejelentesek']) ||*/ isset($_GET['tortenet']) || isset($_GET['anyagigenyles']) || isset($_GET['elszamolas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['tetel']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tetel'         => 'Tételek',
             'tortenet'      => 'Történet',
-            'bejelentesek'  => 'Bejelentések',
+            //'bejelentesek'  => 'Bejelentések',
             'elszamolas'    => 'Elszámolás',
             'anyagigenyles' => 'Anyagigénylések',
             'dokumentumok'  => 'Dokumentumok',
@@ -2190,7 +2190,57 @@ if($gyorskereso_text){
             array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style  ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
-        //Diszpécser a sürgős pipát mégis eléri
+        
+        //Bejelentés táblázata
+        $munkalap_kapcsok = $adatbazis_kapcsolat->s('recid bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$_GET['id']}'");
+        if( $munkalap_kapcsok ) {
+            $szamla_html .= nl2('
+                <div class="dt naplo kijCont" data-tabla="munkalap_kapcs" data-mellek="bejelentesek" style="margin-top: 3rem">
+                    <div class="dtr nFejlec">
+                        <div class="dtc">Bejelentés szám</div>
+                        <div class="dtc">Szálloda</div>
+                        <div class="dtc">Hiba</div>
+                        <div class="dtc">Bejelentve</div>
+                        <div class="dtc">Státusz</div>
+                    </div>
+            ');
+            $i = 1;
+            foreach($munkalap_kapcsok as $munkalap_kapcs) {
+
+                $sor = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id obj_id hiba_id insert_dt stat_id', 'bejelentes', "`recid` = '".$munkalap_kapcs['bejelentes_id']."'", '', '1');
+                if( $sor ) {
+                    $sor = $sor[0];
+
+                    /* Telephely */
+                    $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
+                    $telephely = $telephely[0]['nev'];
+
+                    /* Helység */
+                    $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
+                    $helyseg = $helyseg[0]['nev'];
+
+                    /* Hiba */
+                    $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$sor['hiba_id']}'");
+                    $hiba = $hiba[0];
+
+                    $szamla_html .= nl2('
+                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                            <div class="dtc"><a href="bejelentes.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a></div>
+                            <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
+                            <div class="dtc">'.$hiba['info'].'</div>
+                            <div class="dtc">'.$sor['insert_dt'].'</div>
+                            <div class="dtc">'.getStatText('bejelentes', $sor['stat_id']).'</div>
+                        </div>
+                    ');
+                }
+
+                $i++;
+            }
+        }
+
+        $szamla_html .= '</div>';
+        
+        // Diszpécser a sürgős pipát mégis eléri
         if(_jog(JOG_MUNKALAP_MUSZAKI_VEZ) && $sor['stat_id']==MUNKALAP_STAT_FELVEVE ){
             $szamla_html .= nl2('
                 <script>
@@ -2349,7 +2399,7 @@ if($gyorskereso_text){
             echo $szamla_html.$gombok;
         }
 
-	//Bejelentések
+/*	//Bejelentések
 	}elseif(isset($_GET['bejelentesek'])){
 
         $szamla_html .= nl2('
@@ -2372,15 +2422,15 @@ if($gyorskereso_text){
                 if( $sor ) {
                     $sor = $sor[0];
 
-                    /* Telephely */
+                    // Telephely 
                     $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
                     $telephely = $telephely[0]['nev'];
 
-                    /* Helység */
+                    // Helység
                     $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
                     $helyseg = $helyseg[0]['nev'];
 
-                    /* Hiba */
+                    // Hiba 
                     $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$sor['hiba_id']}'");
                     $hiba = $hiba[0];
 
@@ -2409,7 +2459,7 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html.$gombok;
         }
-
+*/
 	//Történet
 	}elseif(isset($_GET['tortenet'])){
 
