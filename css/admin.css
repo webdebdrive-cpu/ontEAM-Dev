@@ -2452,7 +2452,7 @@ table.csikos th{
     font-weight: 600;
     font-size: 1.4rem;
     padding: 0.3rem 1rem;
-    text-align: left;
+    text-align: center;
 }
 
 table.csikos.tetel_csikos th {
@@ -2480,12 +2480,10 @@ table.csikos th.anyag_th2 {
 }
 
 table.csikos th.anyag_th3 {
-    text-align: right;
     width: 20%;
 }
 
 table.csikos th.anyag_th4 {
-    text-align: right;
     width: 20%;
 }
 
@@ -2509,7 +2507,7 @@ table.csikos td{
     font-size: 1.4rem;
     font-weight: 400;
     padding: 0.3rem 1rem 0.3rem 1rem;
-    text-align: left;
+    text-align: center;
 }
 
 table.csikos.sorLink tr.kijSor {
@@ -2518,7 +2516,7 @@ table.csikos.sorLink tr.kijSor {
 
 table.csikos.kicsi td {
     font-size: 1.2rem;
-    padding: 0.5rem 1rem 0.5rem 1rem;
+    padding: 0.3rem 1rem 0.4rem 1rem;
 }
 
 table.csikos td:first-of-type{
@@ -2747,4 +2745,3 @@ tr.erkeztet_szurkit{
 svg.piros path{
     fill: #f00;
 }
-
