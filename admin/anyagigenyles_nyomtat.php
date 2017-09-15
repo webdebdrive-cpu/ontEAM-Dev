@@ -10,20 +10,20 @@ if (isset($_GET['nyomtat'])) {
     //Szállító kiszámítása
     $szallito = $adatbazis_kapcsolat->s('szallito_id kcs_21', 'anyagigenyles', "`recid`='{$idk[1]}'");
     $szallito = $szallito[0];
-    
+
     $penznem = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=21 AND `id`='{$szallito['kcs_21']}'");
     $penznem = $penznem[0];
 
     $szallito = $adatbazis_kapcsolat->s('nev knev tel tel2 isz varos utca', 'szallito', "`id`='{$szallito['szallito_id']}'");
     $szallito = $szallito[0];
-    
+
 }
 
 //Szállítói nyomtatási kép
 if (isset($_GET['szall'])) {
-    
+
     if($idk_impl){
-        
+
         //Cikkenkénti összesítés
         $tetelek_html = '
                             <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px">
@@ -35,10 +35,10 @@ if (isset($_GET['szall'])) {
                                 <th>Nettó összesen ('.$penznem['info'].')</th>
                             </tr>
                         ';
-    
+
         //Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
         $ossz     = 0;
-        $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
+        $anyagok = $adatbazis_kapcsolat->s('recid distinct cikk_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
         foreach($anyagok as $anyag){
 
             $rndmen = 0;
@@ -70,20 +70,20 @@ if (isset($_GET['szall'])) {
                         ';
 
     }
-    
-    
+
+
     //Lényegi tartalom
-    $tartalom = '        
+    $tartalom = '
         '.get_fejlec_top($sorszam, 'lapszámmal').'
         <div class="padd minh">
-            
+
                 '.get_fejlec($szallito).'
 
                 <div style="font-size: 14px; margin: 20px 0 3px 0;">
                     Tisztelt szállító!
                 </div>
                 <div style="font-size: 13px; margin: 0 0 3px 0;">
-                    <b>A szállító levelet vagy a számla másolatát minden esetben hagyja az árú átvevőjénél és a számlán tüntesse fel megrendelőnk számát, ellenkező esetben a számlát nem áll módunkban befogadni!</b> 
+                    <b>A szállító levelet vagy a számla másolatát minden esetben hagyja az árú átvevőjénél és a számlán tüntesse fel megrendelőnk számát, ellenkező esetben a számlát nem áll módunkban befogadni!</b>
                 </div>
                 <div style="font-size: 14px; margin: 0 0 5px 0;">
                     Megrendeljük Önöktől az alábbi anyagokat.
@@ -93,47 +93,51 @@ if (isset($_GET['szall'])) {
                 '.$tetelek_html.'
                 <div class="i" style="font-size: 14px">II. Szállítási címenkénti összesítés:</div>
                 '.szallitasi_cimenkenti_lista($idk_impl).'
-                
+
                 <div style="font-size: 13px; margin: 30px 0 3px 0;">
                     Üdvözlettel,
                     <br>Budapest, '.date_formaz(date('Y-m-d')).'
                 </div>
-                
+
                 '.get_alairasok().'
             </div>
         </div>
             ';
-    
+
     $keret = get_keret();
     $html = str_replace('{TARTALOM}', $tartalom, $keret);
     echo nl2($html);
-    
+
     error_reporting(0); //Így tudod kikapcsolni a warningokat és hibaüzeneteket
     include('../html2pdf/mpdf.php');
-    
+
     $mit = array('<script src="../js/jquery.js"></script>', '<link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">');
     $html = str_replace($mit, '', $html);
-    
+
     $mpdf = new mPDF('utf-8');
+
     $mpdf -> WriteHTML( $html );
 
+    $anyag = $adatbazis_kapcsolat->s('kepfajl', 'anyagigenyles', "`rndid`='{$sorszam}'");
+    $anyag = $anyag[0];
+
     //Így tudod egy PDF fájlba elmenteni a generált taratlmat
-    $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '!x.pdf'), 'F');
-    
+    $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../'.get_utvonal().$anyag['kepfajl'].'.pdf'), 'F');
+
     $weblap -> leallit();
     exit;
 }
 
 //Címenkénti nyomtatási kép
 if (isset($_GET['cim'])) {
-    
+
     $keret = get_keret();
     $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
     foreach($telephelyek as $telephely){
-        
+
         $telephely = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id`='{$telephely['telephely_id']}'");
         $telephely = $telephely[0];
-        
+
         if($idk_impl){
 
             //Cikkenkénti összesítés
@@ -185,10 +189,10 @@ if (isset($_GET['cim'])) {
                             </tr>
                             </table>
                             ';
-            
-            
+
+
             //Lényegi tartalom
-            $tartalom = '        
+            $tartalom = '
                 '.get_fejlec_top($sorszam).'
                 <div class="padd minh">
 
@@ -198,7 +202,7 @@ if (isset($_GET['cim'])) {
                         '.get_fejlec($szallito).'
 
                         '.$tetelek_html.'
-                            
+
                         <div class="lap_alja">Budapest,  '.date_formaz(date('Y-m-d')).'</div>
                     </div>
                 </div>
@@ -206,22 +210,22 @@ if (isset($_GET['cim'])) {
 
             echo str_replace('{TARTALOM}', $tartalom, $keret);
         }
-        
+
     }
-    
+
     $weblap -> leallit();
     exit;
 }
 
 //Oracle cikkszám nyomtatási kép
-if (isset($_GET['oracle'])) {    
+if (isset($_GET['oracle'])) {
     $keret = get_keret();
     $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
     foreach($telephelyek as $telephely){
-        
+
         $telephely = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id`='{$telephely['telephely_id']}'");
         $telephely = $telephely[0];
-        
+
         if($idk_impl){
 
             //Cikkenkénti összesítés
@@ -258,10 +262,10 @@ if (isset($_GET['oracle'])) {
                             </tr>
                             </table>
                             ';
-            
-            
+
+
             //Lényegi tartalom
-            $tartalom = '        
+            $tartalom = '
                 '.get_fejlec_top($sorszam).'
                 <div class="padd minh">
 
@@ -272,7 +276,7 @@ if (isset($_GET['oracle'])) {
                         '.get_fejlec($szallito).'
 
                         '.$tetelek_html.'
-                            
+
                         <div class="lap_alja">Budapest,  '.date_formaz(date('Y-m-d')).'</div>
                     </div>
                 </div>
@@ -280,9 +284,9 @@ if (isset($_GET['oracle'])) {
 
             echo str_replace('{TARTALOM}', $tartalom, $keret);
         }
-        
+
     }
-    
+
     $weblap -> leallit();
     exit;
 }
@@ -290,11 +294,11 @@ if (isset($_GET['oracle'])) {
 
 
 function get_fejlec_top($sorszam, $lapszammal){
-    
+
     if($lapszammal){
         $lapszammal = '<span class="szamlalo"></span>/';
     }
-    
+
     return '
         <div class="fejlec">
             <table class="full">
@@ -326,16 +330,16 @@ function get_fejlec_top($sorszam, $lapszammal){
 }
 
 function get_fejlec($szallito){
-    
+
     global $adatbazis_kapcsolat;
-    
+
     $tel_kieg = '';
     $login = $adatbazis_kapcsolat->s('usertel', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
     $login = $login[0];
     if($login['usertel']){
         $tel_kieg = '<br>Tel.: '.$login['usertel'];
     }
-    
+
     return '
             <div style="padding: 0 15px 0 15px">
                 <table style="margin: auto; margin-top: 20px; width: 95%">
@@ -369,40 +373,40 @@ function get_fejlec($szallito){
 }
 
 function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
-    
+
     global $adatbazis_kapcsolat;
-    
+
     $sql_kieg = '';
     if($szalloda){
         $sql_kieg = ' AND `telephely_id`=\''.$szalloda.'\'';
     }
-    
+
     //Szállítási címenkénti összesítés
     $szallcim_html = '
                         <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px">
                     ';
-    
+
     //Van egy fix cím
     $telephely = $adatbazis_kapcsolat->s('nev props', 'telephely', "`id`='".NYOMTATAS_FIX_CIM."'");
     $telephely = $telephely[0];
     $szn = get_props($telephely['props'], 'SZN');
     $cim = get_props($telephely['props'], 'cim');
     $fix_cim  = $szn.' '.$cim;
-    
+
     if($idk_impl){
         $anyagok = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")$sql_kieg");
         foreach($anyagok as $anyag){
-            
+
             $igenyles = $adatbazis_kapcsolat->s('erkcimid', 'anyagigenyles', "`recid` IN (".$idk_impl.")$sql_kieg AND `telephely_id`='{$anyag['telephely_id']}'");
             $igenyles = $igenyles[0];
 
             $telephely = $adatbazis_kapcsolat->s('nev props', 'telephely', "`id`='{$anyag['telephely_id']}'");
             $telephely = $telephely[0];
-            
+
             $szn = get_props($telephely['props'], 'SZN');
             $szl = get_props($telephely['props'], 'SZLACIM');
             $cim = get_props($telephely['props'], 'cim');
-            
+
             //erkcimid mező értéke alapján változik a szállítási cím
             $szall_cim = '';
             switch($igenyles['erkcimid']){
@@ -436,18 +440,18 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                                 </td>
                             </tr>
                             ';
-            
-            
+
+
             //Szedjük össze az azonos cikkeket, ami adott telephelyhez tartozik, majd számoljuk ki, hány darab kell belőle
             $anyag_lek = $adatbazis_kapcsolat->s('distinct cikk_id', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$anyag['telephely_id']}'");
             foreach($anyag_lek as $a_lek){
-                
+
                 $rndmen = 0;
                 $anyag_lek_db = $adatbazis_kapcsolat->s('nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$anyag['telephely_id']}' AND `cikk_id`='{$a_lek['cikk_id']}'");
                 foreach($anyag_lek_db as $a_lek_db){
                     $rndmen += $a_lek_db['rndmen'];
                 }
-                
+
                 $szallcim_html .= '
                                 <tr>
                                     <td class="vat c" style="border: 1px solid #ddd;">'.number_format($rndmen, 2, ',', '.').' '.$a_lek_db['cikkmee'].'</td>
@@ -455,7 +459,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                                 </tr>
                                 ';
             }
-            
+
             //Telephelyek után egy kis elválasztó
             $szallcim_html .= '
                             <tr>
@@ -467,7 +471,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
     $szallcim_html .= '
                         </table>
                     ';
-    
+
     return $szallcim_html;
 }
 
@@ -502,7 +506,7 @@ function get_keret(){
     <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
 </head>
 <body>
-    <div class="a4_allo"> 
+    <div class="a4_allo">
         {TARTALOM}
         <div class="footer">
             <div class="dtc padd">

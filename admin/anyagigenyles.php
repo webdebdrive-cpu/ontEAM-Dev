@@ -1124,7 +1124,7 @@ if( isset($_POST['rendeles_keszit']) ) {
 
             echo json_encode(array(
                 'hiba' => count($idk).' db anyagigénylés van kijelölve.<br>Biztos, hogy elkészíti a megrendelést?',
-                'gomb' => '<input class="gomb piros" value="Igen" onclick="anyagigenyles_rendeles_keszit();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="anyagigenyles_rendeles_keszit();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
             $weblap->leallit();
@@ -1156,7 +1156,7 @@ if( isset($_POST['rendeles_keszit']) ) {
                                         <br>Sikerült a nyomtatás?
                                     </div>
                                     '),
-                'gomb'      => '<input class="gomb piros" value="Igen" onclick="anyagigenyles_rendeles_keszit(\'mehet\');" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">',
+                'gomb'      => '<input class="gomb zold" value="Igen" onclick="anyagigenyles_rendeles_keszit(\'mehet\');" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">',
                 'felirat'   => 'Nyomtatás'
             ));
 
@@ -1198,6 +1198,18 @@ if( isset($_POST['rendeles_keszit']) ) {
         mysqli_query($db_kapcs, 'COMMIT');
 
         //Tesztelés idejére kommentezve
+        if( !is_dir('../'.get_utvonal().'rendeles') ) {
+            mkdir('../'.get_utvonal().'rendeles');
+        }
+
+        if( !is_dir('../'.get_utvonal().'rendeles/'.date('y')) ) {
+            mkdir('../'.get_utvonal().'rendeles/'.date('y'));
+        }
+
+        if( !is_dir('../'.get_utvonal().'rendeles/'.date('y').'/'.$elozo_szallito) ) {
+            mkdir('../'.get_utvonal().'rendeles/'.date('y').'/'.$elozo_szallito);
+        }
+
         /* Rendelés ID formázása */
         $rndid = 'R'.date('y').'/'.sprintf('%04d', $sorszam);
         $rnd_dt = date('Y-m-d H:i:s');
