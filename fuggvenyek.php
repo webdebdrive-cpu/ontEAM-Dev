@@ -63,6 +63,11 @@ function i_u($type, $tabla, $tomb) {
                 $_POST[$ertek['name']] = str_replace('.', '-', $_POST[$ertek['name']]);
             }
 
+            //Szám tiupusból ki kell szűrni a szóközt (ezresítés), és a vesszőt pontra cserélni
+            if(strpos($ertek['class'], 'f_num')!==false){
+                $_POST[$ertek['name']] = str_replace(array(' ', ','), array('', '.'), $_POST[$ertek['name']]);
+            }
+
     		//Ha nem gomb, nem fájl és nem disabled és az oszlopnév sem üres és maga a POST egyáltalán létezik is (ne nullázzunk felül el nem küldött POST miatt)
     		if($ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && !($ertek['disabled'] && $ertek['name'] != 'szallito_id' && $type == 'update'/*Tiltott mezőket beszúrni lehet csak moddolni nem*/) && $ertek['name'] && isset($_POST[$ertek['name']]) ) {
                 array_push($oszlopok, $ertek['name']);
@@ -431,7 +436,9 @@ function i_u($type, $tabla, $tomb) {
 
         //Projektigénylés új bejegyzés esetén
         } else if( $tabla == 'projektigenyles' ) {
-
+            
+            $_POST['mertek'] = str_replace(' ', '', $_POST['mertek']);
+            
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
             $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = '{$tabla}' AND `ev` = '".date('y')."'");
             if( $ikt_seq === false ) { $db_error = true; }
@@ -1315,7 +1322,6 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
     //Ajaxos form módosítás
     $ajax_kod = nl2('
-
         utemezes_mehet = false;
         $.ajax({
             url : \''.self().'?id='.$_GET['id'].'\',

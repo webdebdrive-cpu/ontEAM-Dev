@@ -1320,7 +1320,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                 //Ha a státusz nagyobb mit a beérkezett, akkor azokat már csak szürkén jelenítjük meg disabledezve
                 $szurkit  = '';
                 $disabled = '';
-                if($igeny>CIKKIGN_STAT_RESZBENBEERK){
+                if($igeny['stat_id']>CIKKIGN_STAT_RESZBENBEERK){
                     $szurkit  = ' class="erkeztet_szurkit"';
                     $disabled = ' disabled';
                 }
@@ -1560,7 +1560,7 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
 
         echo json_encode(array(
             'statusz' => 'siker',
-            'alert'   => 'A készpénzes anyagbeszerzéshez készült rendelésszám:<br>'.$rndid.'<br>Kérem, írja rá a számlára!',
+            'alert'   => 'Az Ön által feldolgozott számla rendelésszáma:<br>'.$rndid.'<br>Kérem, írja rá a számlára!',
             'gomb'    => '<input type="button" class="gomb" value="Ok" onclick="location.href=\'anyagigenyles.php?anyagrend&amp;id='.$anyagigenyles.'&amp;modosit\'">',
         ));
     } else {
@@ -2046,24 +2046,30 @@ if($gyorskereso_text){
                 $rndid = $rndid[0];
 
                 /* Tétel sorok */
-                $sorok = $adatbazis_kapcsolat->s('cikk_id rndmen cikkmee', 'anyagigenyles', "`rndid` = '".$rndid['rndid']."'", 'insert_dt desc', '');
+                $sorok = $adatbazis_kapcsolat->s('cikk_id nev rndmen rndear cikkmee erkmen', 'anyagigenyles', "`rndid` = '".$rndid['rndid']."'", 'insert_dt desc', '');
 
                 if( $sorok ) {
                     $szamla_html .= nl2('
                         <table class="csikos tetel_csikos full">
                             <tr>
-                                <th class="nev">Cikkszám</th>
-                                <th>Rendelt mennyiség</th>
+                                <th class="l">Cikkszám</th>
+                                <th class="l">Cikk neve</th>
+                                <th class="r">Rendelési egységár ('.get_penznem().')</th>
+                                <th class="r">Rendelt mennyiség</th>
                                 <th>Mennyiségi egység</th>
+                                <th class="r">Beérkezett mennyiség</th>
                             </tr>
                     ');
 
                     foreach($sorok as $sor) {
                         $szamla_html .= nl2('
                             <tr >
-                                <td>'.$sor['cikk_id'].'</td>
-                                <td>'.$sor['rndmen'].'</td>
+                                <td class="l">'.$sor['cikk_id'].'</td>
+                                <td class="l">'.$sor['nev'].'</td>
+                                <td class="r">'.number_format($sor['rndear'], 4, ',', ' ').'</td>
+                                <td class="r">'.$sor['rndmen'].'</td>
                                 <td>'.$sor['cikkmee'].'</td>
+                                <td class="r">'.number_format($sor['erkmen'], 2, ',', ' ').'</td>
                             </tr>
                         ');
                     }

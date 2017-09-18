@@ -1526,13 +1526,13 @@ $projektigenyles_tomb = $akt_tomb = array(
     array('type' => 'text',                 'megn' => 'Prioritás:',             'name' => 'prior',      'szuro' => 1,       'class' => 'oriasi'),
     array('type' => 'select_pri_besorol',   'megn' => 'Besorolás:',             'name' => 'besorol',    'szuro' => 1,       'class' => 'disableNav'),
     array('type' => 'checkbox',             'megn' => 'Rendkívüli:',            'name' => 'rendk',      'szuro' => 1,       'class' => 'check'),
-    array('type' => 'checkbox',             'megn' => 'Megtérülő:',             'name' => 'megter',     'szuro' => 1,       'class' => 'check', 'onclick' => 'if($(this).prop(\'checked\')){ $(\'#megter_cel\').show(); }else{ $(\'#megter_cel\').hide(); }'),
+    array('type' => 'checkbox',             'megn' => 'Megtérülő:',             'name' => 'megter',     'szuro' => 1,       'class' => 'check', 'onclick' => 'if($(this).prop(\'checked\')){ $(\'#megter_cel_div\').show(); }else{ $(\'#megter_cel_div\').hide(); }'),
 array('type' => 'html',                     'megn' => nl2('
                                                         <div class="dtr">
                                                             <div class="dtc form_bal">
                                                             </div>
                                                             <div class="dtc form_jobb">
-                                                                <div'.$megter_cel_rejt.' id="megter_cel">
+                                                                <div'.$megter_cel_rejt.' id="megter_cel_div">
                                                                         <fieldset style="margin: 0">
                                                                             <legend>Megtérülési cél:</legend>
                                                                 ')),
@@ -1546,7 +1546,7 @@ array('type' => 'html',                     'megn' => nl2('
                                                         </div>
                                                                 ')),
     array('type' => 'textarea',             'megn' => 'Leírása:',               'name' => 'text',       'szuro' => 1,      'class' => 'oriasiTargy disableNav'),
-    array('type' => 'text',                 'megn' => 'Becsült költsége:',      'name' => 'bkolt',      'szuro' => 1,      'class' => 'oriasi f_num', 'data' => 'data-tort="4"', 'post' => ' '.get_penznem()),
+    array('type' => 'text',                 'megn' => 'Becsült költsége:',      'name' => 'bkolt',      'szuro' => 1,      'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'style' => 'width: 11.5rem', 'post' => ' '.get_penznem()),
     array('type' => 'text',                 'megn' => 'Tervezett cash-flow:',   'name' => 'cashf',      'szuro' => 1,      'class' => 'oriasi'),
 array('type' => 'html',                     'megn' => nl2('
                                                         <div class="dtr">
@@ -3798,6 +3798,43 @@ if( isset($_GET['addCsoport']) ) {
         ));
     }
 
+    $weblap->leallit();
+    exit();
+}
+
+// Csoport nevére kattintva a jobb oldali rész tartalmának kiszámítása
+if (isset($_POST['csoport_tartalom'])) {
+    
+    switch($_POST['tabla']){
+        case 'bejelentes': $megnevezes = 'bejelentések'; break;
+        case 'munkalap'  : $megnevezes = 'munkalapok';   break;
+    }
+    
+    $html = nl2('
+        <b>Csoportba tartozó '.$megnevezes.':</b>
+        <table class="csikos" style="margin-top: 1rem">
+            <tr>
+                <th>Iktatószám</th>
+                <th>Telephely</th>
+                <th>Státusz</th>
+            </tr>
+        ');
+    $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id stat_id', $_POST['tabla'], "`csoport_id`='{$_POST['csoport_id']}'");
+    foreach($munkalapok as $munkalap){
+        
+        $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$munkalap['telephely_id']}'");
+        $html .= nl2('
+            <tr>
+                <td style="text-align: left">'.$munkalap['ikt_szam'].'</td>
+                <td style="text-align: left">'.$telephely['nev'].'</td>
+                <td style="text-align: left">'.$_stat_text[$_POST['tabla']][$munkalap['stat_id']]['nev'].'</td>
+            </tr>
+            ');
+    }
+    $html .= '</table>';
+    
+    echo $html;
+    
     $weblap->leallit();
     exit();
 }

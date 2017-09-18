@@ -85,7 +85,7 @@
 
             <td>Nettó érték:</td>
             <td>
-                <input type="text" id="pop_net_ar" name="pop_net_ar" class="f_num" data-tort="0" value="0" placeholder="" autocomplete="off" style="min-width: 10rem; width: 10rem;" disabled> Ft
+                <input type="text" id="pop_net_ar" name="pop_net_ar" class="f_num" data-tort="0" value="0" placeholder="" autocomplete="off" style="min-width: 10rem; width: 10rem;"> Ft
             </td>
         </tr>
         <tr>
@@ -114,7 +114,7 @@
 
             <td>Bruttó érték:</td>
             <td>
-                <input type="text" id="pop_br_ar" name="pop_br_ar" class="f_num" data-tort="0" value="0" placeholder="" autocomplete="off" style="min-width: 10rem; width: 10rem;" disabled> Ft
+                <input type="text" id="pop_br_ar" name="pop_br_ar" class="f_num" data-tort="0" value="0" placeholder="" autocomplete="off" style="min-width: 10rem; width: 10rem;"> Ft
             </td>
         </tr>
     </table>
@@ -124,7 +124,7 @@
             <tr>
                 <th>Szálloda</th>
                 <th>Cikk</th>
-                <th>Név</th>
+                <th>Név</th> 
                 <th>RB-s anyag</th>
                 <th class="r">Rendelt mennyiség</th>
                 <th>Mee</th>
@@ -153,36 +153,65 @@
 
 	function osszegek_kiszamol(that){
 
-        /* Ha épp a bruttót szerkesztjük akkor másképp számolunk lent */
-        var brutto = false;
-        if(that.attr('id')=='pop_br_ear'){
-            brutto = true;
-        }
-
+        /* Kitöltött értékek */
         menny  = $('#pop_menny').val().replace(',', '.').replace(' ', '');
         egyseg = $('#pop_net_ear').val().replace(',', '.').replace(' ', '');
         afa    = $('#pop_afa_autocomp').val().replace('%', '').trim();
         if(afa){
             afa = (afa/100)+1;
         }
+        
+        /* Melyik mezőt szerkesztjük */
+        id = that.attr('id');
 
         /* Ha a bruttó mezőben írjuk át az értéket, akkor a nettó egységárat kell meghatározni */
-        if(brutto){
+        if(id=='pop_br_ear'){
             egyseg = $('#pop_br_ear').val().replace(',', '.').replace(' ', '')/afa;
             if(menny>0 && egyseg>0 && afa){
                 $('#pop_net_ear').val( ezresek(egyseg, 2, ',', ' '));
             }
-        }else{
+            
+            $('#pop_br_ar').val( ezresek(menny*egyseg*afa, 0, ',', ' '));
+            if(menny>0 && egyseg>0){
+                $('#pop_net_ar').val( ezresek(menny*egyseg, 0, ',', ' '));
+            }else{
+                $('#pop_net_ar').val('0');
+            }
+        }else if(id=='pop_net_ear'){
             if(menny>0 && egyseg>0 && afa){
                 $('#pop_br_ear').val( ezresek(egyseg*afa, 2, ',', ' '));
             }
-        }
+            
+            $('#pop_br_ar').val( ezresek(menny*egyseg*afa, 0, ',', ' '));
+            if(menny>0 && egyseg>0){
+                $('#pop_net_ar').val( ezresek(menny*egyseg, 0, ',', ' '));
+            }else{
+                $('#pop_net_ar').val('0');
+            }
+        }else if(id=='pop_net_ar'){
+            netto_ar = that.val().replace(',', '.').replace(' ', '');
+            if(menny>0 && afa){
+                $('#pop_net_ear').val( ezresek(netto_ar/menny, 2, ',', ' ') );
+                $('#pop_br_ear').val( ezresek(netto_ar/menny*afa, 2, ',', ' ') );
+                $('#pop_br_ar').val( ezresek(netto_ar*afa, 0, ',', ' ') );
+            }
+        }else if(id=='pop_br_ar'){
+            pop_br_ar = that.val().replace(',', '.').replace(' ', '');
+            if(menny>0 && afa){
+                $('#pop_net_ear').val( ezresek(pop_br_ar/menny/afa, 2, ',', ' ') );
+                $('#pop_br_ear').val( ezresek(pop_br_ar/menny, 2, ',', ' ') );
+                $('#pop_net_ar').val( ezresek(pop_br_ar/afa, 0, ',', ' ') );
+            }
+        }else if(id=='pop_afa_autocomp'){
+            setTimeout(function() {
+                afa = $('#pop_afa_autocomp').val().replace('%', '').trim();
+                afa = (afa/100)+1;
 
-        $('#pop_br_ar').val( ezresek(menny*egyseg*afa, 0, ',', ' '));
-        if(menny>0 && egyseg>0){
-            $('#pop_net_ar').val( ezresek(menny*egyseg, 0, ',', ' '));
-        }else{
-            $('#pop_net_ar').val('0');
+                if(menny>0 && egyseg>0 && afa){
+                    $('#pop_br_ear').val( ezresek(egyseg*afa, 2, ',', ' ') );
+                    $('#pop_br_ar').val( ezresek(menny*egyseg*afa, 2, ',', ' ') );
+                }
+            }, 1000);
         }
     }
 

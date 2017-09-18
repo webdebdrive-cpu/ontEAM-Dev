@@ -202,7 +202,7 @@
                 
                 /* KP-s anyagbeszerzéshez popuphoz */
                 if($('#pop_afa').length && $('#pop_afa').val()){
-                    osszegek_kiszamol();
+                    osszegek_kiszamol($('#pop_afa'));
                 }
 
                 if( setting.tabla == 'obj' ) {

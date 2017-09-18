@@ -259,10 +259,14 @@ function felh_valt( valt ) {
 }
 
 $(function() {
+    
+    /* Ha nincs kjelölve a bal navpanelben egy sor sem, akkor az első kijelöltjük */
     setTimeout(function() {
+        
         if( !$('#szamlaList li.szamla_sor').hasClass('kijelolve') && !_get('uj') ) {
             $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
         }
+        
     }, 1);
 
     $('#ajaxfedo').addClass('dn');
@@ -586,7 +590,8 @@ $(function() {
         }
     });
 
-    /* Csoportra kattintás */
+
+    /* Csoportra kattintás lekezelése */
     $(document).on('click', 'ul.szamla_cont li.csoport', function(e) {
         var sorok       = $('#szamlaList li.szamla_sor'),
             id          = $(this).attr('data-id'),
@@ -617,8 +622,8 @@ $(function() {
                 $(this).addClass('kijelolve');
                 $('ul.szamla_cont li[data-csoportid="' + id + '"]').addClass('kijelolve');
 
-                /* Ha csoportra kattintottunk, akkor a jobb oldali tartlamakat rejtünk */
-                jobb_tartalom_rejt();
+                /* Ha csoportra kattintottunk, akkor a jobb oldali tartlom is megválétozik */
+                csoport_tartalom();
             }
 
         }
@@ -970,7 +975,7 @@ $(function() {
         var feltetel_nev   = $('#o_feltetel option:selected').text();
         if(!feltetel_ertek){
             feltetel_ertek = feltetel_nev = $('#o_feltetel input').val();
-            /* Ha autocompletes mező, akkor a rejtett input értékétvel kell dlgozni */
+            /* Ha autocompletes mező, akkor a rejtett input értékétvel kell dolgozni */
             if($('#o_feltetel input').attr('data-auto')){
                 id = $('#o_feltetel input').attr('id');
                 id = id.replace('autocomp_', '');
@@ -978,10 +983,18 @@ $(function() {
             }
         }
         
+        /* Hibaellenőrzés, majd mehet */
         if(!feltetel_ertek){
             alert2('Kérjük állítsa be a szűrési feltételt!');
         }else{
+            
+            /* Feltételek törlése gomb megjelenítése */
+            $('#o_sures_ft input').show();
+            if(!$('#o_sures_ft').html()){
+                $('#o_sures_ft').html('<input type="button" class="gomb kis_gomb piros f_o_szures_ftorol" value="Feltételek törlése">');
+            }
         
+            var mondat = '';
             $('#o_feltetel_halmaz').append(
                                     '<div class="dtr">'+
                                         '<div class="dtc">'+
@@ -990,16 +1003,16 @@ $(function() {
                                         '<div class="dtc">'+
                                             '<input type="hidden" class="mezo" value="'+$('#o_szuro_mezo').val()+'">'+
                                             '<input type="hidden" class="op" value="'+$('#o_operator select').val()+'">'+
-                                            '<input type="hidden" class="felt" value="'+feltetel_ertek+'">'+
-                                            $('#o_szuro_mezo option:selected').text() + ' ' +
-                                            $('#o_operator option:selected').text() + ' ' +
-                                            feltetel_nev + ' ' +
+                                            '<input type="hidden" class="felt" value="'+feltetel_ertek+'">' +
+                                            '<span class="m_mezo">' + $('#o_szuro_mezo option:selected').text() + '</span> ' +
+                                            '<span class="m_op">' + $('#o_operator option:selected').text() + '</span> ' +
+                                            '<span class="m_felt">' + feltetel_nev + '</span> ' +
                                         '</div>'+
                                         '<div class="dtc">'+
                                             '<b class="zaro zar">)</b>'+
                                         '</div>'+
                                         '<div class="dtc">'+
-                                            '<select style="width: 7rem" class="es_vagy"><option value="es|">ÉS</option><option value="va|">VAGY</option></select>'+
+                                            '<select style="width: 7rem" class="es_vagy" onchange="osszetett_szuro_mondat()"><option value="es|">ÉS</option><option value="va|">VAGY</option></select>'+
                                         '</div>'+
                                         '<div class="dtc">'+
                                             '<b class="torol">×</b>'+
@@ -1020,11 +1033,14 @@ $(function() {
             $('#o_feltetel select').hide();
             $('#o_feltetel input').hide();
             $('#o_szures_submit').hide();
+            
+            osszetett_szuro_mondat();
         }
     });
     /* Zárójelek aktiválása */
     $(document).on('click', '#o_feltetel_halmaz b.zaro', function() {
         $(this).toggleClass('aktiv');
+        osszetett_szuro_mondat();
     });
     /* Feltétel sor törlése */
     $(document).on('click', '#o_feltetel_halmaz b.torol', function() {
@@ -1036,6 +1052,7 @@ $(function() {
         }else{
             $('#o_sures').html('');
         }
+        osszetett_szuro_mondat();
     });
     
     /* Összetett szűrés kiértékelése: az elő 3 karakter egy kód, hogy ne a konkrét értékeket küldjük át, így biztonságosabb lefuttatni az SQL-t is */
@@ -1094,6 +1111,11 @@ $(function() {
                 location.reload(); 
             }
         });
+    });
+    /* Összetett szűrők felételének törlése */
+    $(document).on('click', '.f_o_szures_ftorol', function(e) {
+        $('#o_feltetel_halmaz').html('');
+        $(this).hide();
     });
     
     /* És vagy értékének letárolása */
@@ -1723,6 +1745,7 @@ function tobbBejegyzesTorol() {
     }
 }
 
+/* Csoport átnevezés figyelmeztetések */
 function csa_alert() {
 
     if( balnav_kijelol_ell() ){
@@ -2321,6 +2344,7 @@ function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
     }
 }
 
+/* Csoport átnevezése */
 function csoportAtnevezes( csoportID ) {
     var val = $('#csoport_nev_szerk').val(),
         page = $('#szamlaBetolt').attr('data-page');
@@ -3175,6 +3199,7 @@ function bejegyzesElutasitas( that ) {
     return false;
 }
 
+/* Törlés csoportból */
 function csoportbolTorol( oszlop ) {
     if( oszlop ) {
 
@@ -3230,6 +3255,7 @@ function csoportbolTorol( oszlop ) {
 
 }
 
+/* Csoporthoz adás */
 function addCsoport() {
     var ujcsoport = $('input[name="ujcsoportnev"]');
 
@@ -3260,6 +3286,7 @@ function addCsoport() {
     }
 }
 
+/* Csoportba rendezés */
 function csoportbaRendez( that ) {
 
     if(balnav_kijelol_ell()){
@@ -5060,7 +5087,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     /* Ha épp egy csoporton állunk, akkor elrejtük a jobb oldali tartalmakat */
                     $('#szamlaList li.csoport').each(function () {
                         if($(this).hasClass('kijelolve')){
-                            jobb_tartalom_rejt();
+                            csoport_tartalom();
                         }
                     });
 
@@ -5364,7 +5391,7 @@ function szuro_ertek_mezo_gen(that, felt){
             if (response) {
                 $('#'+prefix+'feltetel').html(response.feltetel);
                 if(prefix){
-                    $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb zold f_o_szuro_hozzaad" value="+">');
+                    $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb zold f_o_szuro_hozzaad" value="+" style="padding: 0.3rem 0.7rem">');
                 }else{
                     $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb f_szures_submit" value="Szűrés">'+
                                                         '<input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl" onclick="location.href=\''+tabla+'.php\'">'
@@ -5445,10 +5472,23 @@ function naptar_torol(){
     });
 }
 
-/* Ha egy csoport ki van jelölve, akkor a jobb oldali tartalmazat rejtjük */
-function jobb_tartalom_rejt() {
+/* Ha egy csoport ki van jelölve, akkor a jobb oldali tartalmat beállítjuk */
+function csoport_tartalom() {
     $('#szerk_form input:not(\'.foGomb\'), #szerk_form select, #szerk_form textarea').val('').prop('checked', false);
     $('div.statusz div.text, div.naplo, div.jsff, #sorrendezes_tobbkep, #szerk_form div.dt').hide();
+    
+    $.ajax({
+        url: 'esemenyek.php',
+        type: 'POST',
+        data: {
+            tabla           : baseName(location.href),
+            csoport_id      : $('li.csoport').attr('data-id'),
+            csoport_tartalom: new Date().getTime()
+        },
+        success: function (response) {
+            $('#szerk_form').html(response);
+        }
+    });
 }
 
 /* Duplikálás gombra kattintva feljövő kérdés */
@@ -5540,4 +5580,32 @@ function pri_statusz_leptet(recid, statusz){
 /* Összetett szűrésnél gomb mutatása */
 function o_szures_gomb_mutat(){
     $('#o_sures').html('<input type="button" class="gomb zold f_o_szures_submit" value="Szűrés">');
+    osszetett_szuro_mondat();
+}
+
+/* Összetett szűrés mondat előállítása */
+function osszetett_szuro_mondat(){
+    
+    var mondat = '';
+    $('#o_feltetel_halmaz div.dtr').each(function () {
+        
+        if($(this).find('.zaro.nyit.aktiv').length){
+            mondat += '(&nbsp;';
+        }
+        mondat += $(this).find('.m_mezo').html()+' ';
+        mondat += $(this).find('.m_op').html()+' ';
+        mondat += $(this).find('.m_felt').html()+' ';
+        
+        if($(this).find('.zaro.zar.aktiv').length){
+            mondat += ')&nbsp;';
+        }
+        
+        mondat += $(this).find('.es_vagy option:selected').text()+' ';
+        
+    });
+    
+    /* Utolsó ÉS/VAGY levágása */
+    mondat = mondat.replace(/ ÉS +$/, '').replace(/ VAGY +$/, '');
+    
+    $('#o_szures_mondat').html('<b>Megfogalmazott feltétel:</b><br>'+mondat);
 }

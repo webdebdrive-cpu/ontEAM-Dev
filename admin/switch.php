@@ -1327,7 +1327,7 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_pri_cel':
-            $input = new Select($select_pri_cel, $sor['megt_cel']);
+            $input = new Select($select_pri_cel, $sor['megter_cel']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
             $input -> id       = $ertek['name'];

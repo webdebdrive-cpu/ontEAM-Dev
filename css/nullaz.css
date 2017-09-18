@@ -113,6 +113,7 @@ td.bottom {
 .dtc    { display: table-cell;          }
 .dtr    { display: table-row;           }
 .dtr.dn { display: none;                }
+.w33    { width: 33%;                   }
 
 .f1,  .f1:hover  { font-size: 0.1rem;   }
 .f2,  .f2:hover  { font-size: 0.2rem;   }

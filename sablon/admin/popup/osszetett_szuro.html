@@ -1,12 +1,14 @@
-<div style="width: 60rem">
+<div style="width: 70rem">
+    <h2>Összetett szűrés</h2>
     <div class="kozep">
-        <h2>Összetett szűrés</h2>
         <div id="o_szures"></div>
         <div id="o_feltetel_halmaz" class="dt" class="dt" style="margin-top: 1rem"></div>
 
+        <div id="o_szures_mondat" style="margin-top: 2rem"></div>
         <div class="dt" style="margin-top: 1rem">
-            <div id="o_sures_t" class="dtc"></div>
-            <div id="o_sures" class="dtc r"></div>
+            <div id="o_sures_t" class="dtc w33"></div>
+            <div id="o_sures_ft" class="dtc c w33"></div>
+            <div id="o_sures" class="dtc r w33"></div>
         </div>
         <script>
             $(document).ready(function(){
@@ -22,7 +24,8 @@
                         $('#o_feltetel_halmaz').html(response.html);
 
                         if($('#o_feltetel_halmaz').html()){
-                            $('#o_sures_t').html('<input type="button" class="gomb kis_gomb piros f_o_szures_torol" value="Szűrők törlése">');
+                            $('#o_sures_t').html('<input type="button" class="gomb kis_gomb piros f_o_szures_torol" value="Szűrés vége">');
+                            $('#o_sures_ft').html('<input type="button" class="gomb kis_gomb piros f_o_szures_ftorol" value="Feltételek törlése">');
                             o_szures_gomb_mutat();
                         }
 

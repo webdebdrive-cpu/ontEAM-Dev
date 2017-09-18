@@ -554,7 +554,8 @@ input.gomb.zold:hover, input.gombb:hover {
 
 input.kis_gomb{
     font-size: 1.4rem;
-    padding: 0.6rem 1rem;
+    padding: 1.2rem 1.7rem;
+    margin-right: 1rem;
 }
 
 input.gombb[disabled],
@@ -2137,7 +2138,6 @@ div.navGombok a.disabled .material-icons {
 
 #popup div.popup_tart div.dt div.dtc {
     vertical-align: middle;
-    width: auto;
 }
 
 #popup div.popup_tart div.dt div.dtc.form_jobb {
@@ -2502,12 +2502,26 @@ table.csikos.al th{
     color: #242424;
 }
 
+table.csikos th.l {
+    text-align: left;
+}
+table.csikos th.r {
+    text-align: right;
+}
+
 table.csikos td{
     padding: 0.2rem 1.5rem;
     font-size: 1.4rem;
     font-weight: 400;
     padding: 0.3rem 1rem 0.3rem 1rem;
     text-align: center;
+}
+
+table.csikos td.l{
+    text-align: left;
+}
+table.csikos td.r{
+    text-align: right;
 }
 
 table.csikos.sorLink tr.kijSor {
