@@ -17,6 +17,7 @@ $_SESSION['ketHasabos'] = array(
     'beosztas.php',
     'cash_flow.php',
     'cikktorzs.php',
+    'dokumentumtar.php',
     'energia.php',
     'erteklista.php',
     'eseti_fenntartas.php',
@@ -49,301 +50,6 @@ if( isset($_GET['szamlaLista']) || isset($_GET['szamlaSorFrissit']) ) {
 
 $_OPTS = array();
 switch($tabla) {
-    case 'bejovo_szamlak.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid ikt_szam szallito targy netto statusz erkezett';
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('erkezett', 'e-szamla', 'torolve', 'ikt_szam', 'statusz');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'erkezett';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
-        }
-    break;
-    case 'rendszer.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid nev rkat aktiv';
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('nev');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'nev';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'asc';
-        }
-    break;
-    case 'szallito.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid nev aktiv';
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('nev', 'id');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'nev';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'asc';
-        }
-    break;
-    case 'erteklista.php':
-        $_OPTS['select'] = 'info'; //Függvényeknél, szamla_lista()-nál is van vele varia beállítva
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('csoport');
-
-        /* Default rendezés */ //Függvényeknél, szamla_lista()-nál beállítva
-
-    break;
-    case 'login.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = nl2('
-                                    `'.get_db_tabla().'login`.`recid`,
-                                    `'.get_db_tabla().'login`.`nev`,
-                                    `'.get_db_tabla().'login`.`teljes_nev`,
-                                    `'.get_db_tabla().'login`.`aktiv`
-                                ');
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('teljes_nev', 'aktiv', 'szerepkor_id');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'teljes_nev';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'asc';
-        }
-    break;
-    case 'szerepkor.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid nev';
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('nev');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'nev';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
-        }
-    break;
-    case 'bejelentes.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = nl2('
-                                `'.get_db_tabla().'bejelentes`.`recid`,
-                                `'.get_db_tabla().'bejelentes`.`ikt_szam`,
-                                `'.get_db_tabla().'bejelentes`.`stat_id`,
-                                `'.get_db_tabla().'bejelentes`.`surgos`,
-                                `'.get_db_tabla().'bejelentes`.`telephely_id`,
-                                `'.get_db_tabla().'bejelentes`.`csoport_id`,
-                                `'.get_db_tabla().'bejelentes`.`obj_id`,
-                                `'.get_db_tabla().'bejelentes`.`hiba_id`,
-                                `'.get_db_tabla().'bejelentes_csoport`.`nev`,
-                                `'.get_db_tabla().'telephely`.`nev`,
-                                `'.get_db_tabla().'obj`.`nev`,
-                                `'.get_db_tabla().'erteklista`.`info`
-                                ');
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'ikt_szam';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
-        }
-    break;
-    case 'munkalap.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = nl2('
-            `'.get_db_tabla().'munkalap`.`recid`,
-            `'.get_db_tabla().'munkalap`.`ikt_szam`,
-            `'.get_db_tabla().'munkalap`.`stat_id`,
-            `'.get_db_tabla().'munkalap`.`telephely_id`,
-            `'.get_db_tabla().'munkalap`.`csoport_id`,
-            `'.get_db_tabla().'munkalap`.`surgos`,
-            `'.get_db_tabla().'munkalap_csoport`.`nev`
-        ');
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id', 'stat_id');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'ikt_szam';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
-        }
-    break;
-    case 'uzemeltetesi_naplo.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid ';
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('recid');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'recid';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
-        }
-    break;
-    case 'szabadsagigeny.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid ';
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('recid');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'recid';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
-        }
-    break;
-    case 'beosztas.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = nl2('
-                                `'.get_db_tabla().'beosztas`.`recid`,
-                                `'.get_db_tabla().'beosztas`.`cim`,
-                                `'.get_db_tabla().'beosztas`.`telephely_id`,
-                                `'.get_db_tabla().'beosztas`.`tol`,
-                                `'.get_db_tabla().'beosztas`.`ig`,
-                                `'.get_db_tabla().'telephely`.`nev`
-                            ');
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('telephely_id');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'telephely_id';
-        }
-    break;
-    case 'utemezett_feladatok.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = nl2('
-                                    `'.get_db_tabla().'utemezett_feladatok`.`recid`,
-                                    `'.get_db_tabla().'utemezett_feladatok`.`id`,
-                                    `'.get_db_tabla().'utemezett_feladatok`.`nev` as `uf_nev`,
-                                    `'.get_db_tabla().'utemezett_feladatok`.`telephely_id`,
-                                    `'.get_db_tabla().'utemezett_feladatok`.`obj_id`,
-                                    `'.get_db_tabla().'utemezett_feladatok`.`aktiv`,
-                                    `'.get_db_tabla().'telephely`.`nev`,
-                                    `'.get_db_tabla().'obj`.`nev`
-                                ');
-
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('id', 'aktiv', 'telephely_id', 'esnap_d');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'aktiv';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
-        }
-    break;
-    case 'rendszeres_karbantartas.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = nl2('
-                                    `'.get_db_tabla().'rendszeres_karbantartas`.`recid`,
-                                    `'.get_db_tabla().'rendszeres_karbantartas`.`id`,
-                                    `'.get_db_tabla().'rendszeres_karbantartas`.`nev` as `uf_nev`,
-                                    `'.get_db_tabla().'rendszeres_karbantartas`.`telephely_id`,
-                                    `'.get_db_tabla().'rendszeres_karbantartas`.`obj_id`,
-                                    `'.get_db_tabla().'rendszeres_karbantartas`.`aktiv`,
-                                    `'.get_db_tabla().'telephely`.`nev`,
-                                    `'.get_db_tabla().'obj`.`nev`
-                                ');
-
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('id', 'aktiv', 'telephely_id', 'esnap_d');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'aktiv';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
-        }
-    break;
-    case 'projektigenyles.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid ikt_szam nev stat_id';
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('recid');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'recid';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
-        }
-    break;
-    case 'cash_flow.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid';
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('recid');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'recid';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
-        }
-    break;
     case 'anyagigenyles.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
         $_OPTS['select']    = nl2('
@@ -393,9 +99,313 @@ switch($tabla) {
             $_GET['irany'] = 'desc';
         }
     break;
+    case 'bejelentes.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = nl2('
+                                `'.get_db_tabla().'bejelentes`.`recid`,
+                                `'.get_db_tabla().'bejelentes`.`ikt_szam`,
+                                `'.get_db_tabla().'bejelentes`.`stat_id`,
+                                `'.get_db_tabla().'bejelentes`.`surgos`,
+                                `'.get_db_tabla().'bejelentes`.`telephely_id`,
+                                `'.get_db_tabla().'bejelentes`.`csoport_id`,
+                                `'.get_db_tabla().'bejelentes`.`obj_id`,
+                                `'.get_db_tabla().'bejelentes`.`hiba_id`,
+                                `'.get_db_tabla().'bejelentes_csoport`.`nev`,
+                                `'.get_db_tabla().'telephely`.`nev`,
+                                `'.get_db_tabla().'obj`.`nev`,
+                                `'.get_db_tabla().'erteklista`.`info`
+                                ');
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'ikt_szam';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'bejovo_szamlak.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid ikt_szam szallito targy netto statusz erkezett';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('erkezett', 'e-szamla', 'torolve', 'ikt_szam', 'statusz');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'erkezett';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'beosztas.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = nl2('
+                                `'.get_db_tabla().'beosztas`.`recid`,
+                                `'.get_db_tabla().'beosztas`.`cim`,
+                                `'.get_db_tabla().'beosztas`.`telephely_id`,
+                                `'.get_db_tabla().'beosztas`.`tol`,
+                                `'.get_db_tabla().'beosztas`.`ig`,
+                                `'.get_db_tabla().'telephely`.`nev`
+                            ');
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('telephely_id');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'telephely_id';
+        }
+    break;
+    case 'cash_flow.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'cikktorzs.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'nev recid id';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('id', 'nev');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'id';
+        }
+    break;
+    case 'dokumentumtar.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = '';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('id', 'nev');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'id';
+        }
+    break;
     case 'energia.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
         $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'erteklista.php':
+        $_OPTS['select'] = 'info'; //Függvényeknél, szamla_lista()-nál is van vele varia beállítva
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('csoport');
+
+        /* Default rendezés */ //Függvényeknél, szamla_lista()-nál beállítva
+
+    break;
+    case 'eseti_fenntartas.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'eszkozkezeles.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid nev';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('nev');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'nev';
+        }
+    break;
+    case 'felmeresi_terv.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'fenntartasi_szerzodes.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'ktghely.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid id nev';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('id', 'nev');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'id';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'asc';
+        }
+    break;
+    case 'ktgnem.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid id nev';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('id', 'nev');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'id';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'asc';
+        }
+    break;
+    case 'login.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = nl2('
+                                    `'.get_db_tabla().'login`.`recid`,
+                                    `'.get_db_tabla().'login`.`nev`,
+                                    `'.get_db_tabla().'login`.`teljes_nev`,
+                                    `'.get_db_tabla().'login`.`aktiv`
+                                ');
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('teljes_nev', 'aktiv', 'szerepkor_id');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'teljes_nev';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'asc';
+        }
+    break;
+    case 'munkalap.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = nl2('
+            `'.get_db_tabla().'munkalap`.`recid`,
+            `'.get_db_tabla().'munkalap`.`ikt_szam`,
+            `'.get_db_tabla().'munkalap`.`stat_id`,
+            `'.get_db_tabla().'munkalap`.`telephely_id`,
+            `'.get_db_tabla().'munkalap`.`csoport_id`,
+            `'.get_db_tabla().'munkalap`.`surgos`,
+            `'.get_db_tabla().'munkalap_csoport`.`nev`
+        ');
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id', 'stat_id');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'ikt_szam';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'utemezett_feladatok.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = nl2('
+                                    `'.get_db_tabla().'utemezett_feladatok`.`recid`,
+                                    `'.get_db_tabla().'utemezett_feladatok`.`id`,
+                                    `'.get_db_tabla().'utemezett_feladatok`.`nev` as `uf_nev`,
+                                    `'.get_db_tabla().'utemezett_feladatok`.`telephely_id`,
+                                    `'.get_db_tabla().'utemezett_feladatok`.`obj_id`,
+                                    `'.get_db_tabla().'utemezett_feladatok`.`aktiv`,
+                                    `'.get_db_tabla().'telephely`.`nev`,
+                                    `'.get_db_tabla().'obj`.`nev`
+                                ');
+
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('id', 'aktiv', 'telephely_id', 'esnap_d');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'aktiv';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'uzemeltetesi_naplo.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid ';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('recid');
@@ -439,41 +449,34 @@ switch($tabla) {
             $_GET['irany'] = 'desc';
         }
     break;
+    case 'rendszeres_karbantartas.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = nl2('
+                                    `'.get_db_tabla().'rendszeres_karbantartas`.`recid`,
+                                    `'.get_db_tabla().'rendszeres_karbantartas`.`id`,
+                                    `'.get_db_tabla().'rendszeres_karbantartas`.`nev` as `uf_nev`,
+                                    `'.get_db_tabla().'rendszeres_karbantartas`.`telephely_id`,
+                                    `'.get_db_tabla().'rendszeres_karbantartas`.`obj_id`,
+                                    `'.get_db_tabla().'rendszeres_karbantartas`.`aktiv`,
+                                    `'.get_db_tabla().'telephely`.`nev`,
+                                    `'.get_db_tabla().'obj`.`nev`
+                                ');
+
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('id', 'aktiv', 'telephely_id', 'esnap_d');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'aktiv';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
     case 'tervezes.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid';
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('recid');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'recid';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
-        }
-    break;
-    case 'felmeresi_terv.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid';
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('recid');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'recid';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
-        }
-    break;
-    case 'eseti_fenntartas.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
         $_OPTS['select']    = 'recid';
 
@@ -507,9 +510,9 @@ switch($tabla) {
             $_GET['irany'] = 'desc';
         }
     break;
-    case 'fenntartasi_szerzodes.php':
+    case 'projektigenyles.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid';
+        $_OPTS['select']    = 'recid ikt_szam nev stat_id';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
         $_OPTS['rendezes']  = array('recid');
@@ -522,6 +525,57 @@ switch($tabla) {
         /* Default rendezési irány */
         if( !$_GET['irany'] ) {
             $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'rendszer.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid nev rkat aktiv';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('nev');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'nev';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'asc';
+        }
+    break;
+    case 'szabadsagigeny.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid ';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'szallito.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid nev aktiv';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('nev', 'id');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'nev';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'asc';
         }
     break;
     case 'szamla.php':
@@ -541,53 +595,7 @@ switch($tabla) {
             $_GET['irany'] = 'desc';
         }
     break;
-    case 'cikktorzs.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'nev recid id';
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('id', 'nev');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'id';
-        }
-    break;
-    case 'ktghely.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid id nev';
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('id', 'nev');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'id';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'asc';
-        }
-    break;
-    case 'ktgnem.php':
-        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
-        $_OPTS['select']    = 'recid id nev';
-
-        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('id', 'nev');
-
-        /* Default rendezés */
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'id';
-        }
-
-        /* Default rendezési irány */
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'asc';
-        }
-    break;
-    case 'eszkozkezeles.php':
+    case 'szerepkor.php':
         /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
         $_OPTS['select']    = 'recid nev';
 
@@ -597,6 +605,11 @@ switch($tabla) {
         /* Default rendezés */
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'nev';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
         }
     break;
 }

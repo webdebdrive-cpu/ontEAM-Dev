@@ -481,16 +481,18 @@ $menu_nev        = 'Dokumentumok';
 $menu_nev_kis    = 'dokumentumok';
 $menu_nev_tobbes = 'Dokumentumok';
 $megn            = 'fenntartasi_szerzodes';
-$aloldalak       = array($megn.'.php', 'szamla.php', 'szallito.php');
+$aloldalak       = array($megn.'.php', 'szamla.php', 'szallito.php', 'dokumentumtar.php');
 if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
 if(basename(self())=='fenntartasi_szerzodes.php')   { $oldalNev = 'Dokumentumok / Fenntartási szerződések'; }
 if(basename(self())=='szamla.php')                  { $oldalNev = 'Dokumentumok / Számlák';                 }
 if(basename(self())=='szallito.php')                { $oldalNev = 'Dokumentumok / Partnertörzs';            }
+if(basename(self())=='dokumentumtar.php')           { $oldalNev = 'Dokumentumok / Dokumentumtár';           }
 
 $aktmenuk  = '';
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Fenntartási szerződések'), $almenu_sablon );
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Számlák'                ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Partnertörzs' ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Partnertörzs'           ), $almenu_sablon );
+$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Dokumentumtár'          ), $almenu_sablon );
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){

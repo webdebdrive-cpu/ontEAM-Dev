@@ -330,6 +330,7 @@ $(function() {
                 'beosztas',
                 'cash_flow',
                 'cikktorzs',
+                'dokumentumtar',
                 'energia',
                 'erteklista',
                 'eseti_fenntartas',

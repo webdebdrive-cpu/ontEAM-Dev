@@ -1623,6 +1623,11 @@ function szamla_lista( $where, $tabla ) {
     if(!$tabla){
         $tabla  = str_replace('.php', '', basename(self()));
     }
+    
+    //Dokumentumtárnál egyszerű a helyzet, nem kell számolni SQL-t
+    if($tabla=='dokumentumtar'){
+        return dokumentumtarLista();
+    }
 
     $select = $_OPTS['select'];
     if($_GET['rend']){
@@ -3311,6 +3316,38 @@ function cikktorzsLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
+// Dokuemntumtár nav panel része
+function dokumentumtarLista() {
+    global $adatbazis_kapcsolat;
+    
+    $html = '
+            <link rel="stylesheet" type="text/css" href="../css/konyvtarszerkezet.css">
+            <ol class="konyvtar_szerk">
+            ';
+    
+    //Ezen menüpontok dokumentumait járjuk be
+    $menupontok = array(
+                        array('tabla' => 'bejelentes',          'nev' => 'Bejelentés'           ),
+                        array('tabla' => 'munkalap',            'nev' => 'Munkalap'             ),
+                        array('tabla' => 'utemezett_feladatok', 'nev' => 'Ütemezett feladatok'  ),
+                    );
+    foreach($menupontok as $menu){
+        $html .= '
+                <li>
+                    <label for="konyvtar_'.$menu['tabla'].'">'.$menu['nev'].'</label>
+                    <input type="checkbox" id="konyvtar_'.$menu['tabla'].'"> 
+                    <ol>
+                        <li class="fajl"><a href="">Fájl 1</a></li>
+                    </ol>
+                </li>
+                ';
+    }
+    $html .= '</ol>';
+
+    return nl2($html);
+}
+
+// Eszközkezelés lista
 function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
