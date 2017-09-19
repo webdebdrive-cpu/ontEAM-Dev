@@ -436,9 +436,9 @@ function i_u($type, $tabla, $tomb) {
 
         //Projektigénylés új bejegyzés esetén
         } else if( $tabla == 'projektigenyles' ) {
-            
+
             $_POST['mertek'] = str_replace(' ', '', $_POST['mertek']);
-            
+
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
             $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = '{$tabla}' AND `ev` = '".date('y')."'");
             if( $ikt_seq === false ) { $db_error = true; }
@@ -1623,7 +1623,7 @@ function szamla_lista( $where, $tabla ) {
     if(!$tabla){
         $tabla  = str_replace('.php', '', basename(self()));
     }
-    
+
     //Dokumentumtárnál egyszerű a helyzet, nem kell számolni SQL-t
     if($tabla=='dokumentumtar'){
         return dokumentumtarLista();
@@ -1747,7 +1747,7 @@ function szamla_lista( $where, $tabla ) {
         if ($_GET['mezo'] && $_GET['op']) {
             $where .= get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla).' AND ';
         }
-        
+
         //Ha van öszetettt szűrés feltétel
         if($_SESSION['o_szuro_feltetel']){
             $where .= get_o_szures_where_kieg($_SESSION['o_szuro_feltetel'], $tabla);
@@ -3319,17 +3319,34 @@ function cikktorzsLista( $bejegyzesek, $tabla, $frissit ) {
 // Dokuemntumtár nav panel része
 function dokumentumtarLista() {
     global $adatbazis_kapcsolat;
-    
+
     $html = '
             <link rel="stylesheet" type="text/css" href="../css/konyvtarszerkezet.css">
             <ol class="konyvtar_szerk">
             ';
-    
+
     //Ezen menüpontok dokumentumait járjuk be
     $menupontok = array(
-                        array('tabla' => 'bejelentes',          'nev' => 'Bejelentés'           ),
-                        array('tabla' => 'munkalap',            'nev' => 'Munkalap'             ),
-                        array('tabla' => 'utemezett_feladatok', 'nev' => 'Ütemezett feladatok'  ),
+                        array('tabla' => 'bejelentes',              'nev' => 'Bejelentés'               ),
+                        array('tabla' => 'munkalap',                'nev' => 'Munkalap'                 ),
+                        array('tabla' => 'utemezett_feladatok',     'nev' => 'Ütemezett feladatok'      ),
+                        array('tabla' => 'rendszeres_karbantartas', 'nev' => 'Rendszeres karbantartás'  ),
+                        array('tabla' => 'eseti_fenntartas',        'nev' => 'Eseti fenntartás'         ),
+                        array('tabla' => 'uzemeltetesi_naplo',      'nev' => 'Üzemeltetési napló'       ),
+                        array('tabla' => 'anyagigenyles',           'nev' => 'Anyagigénylések'          ),
+                        array('tabla' => 'raktar',                  'nev' => 'Raktár'                   ),
+                        array('tabla' => 'cikktorzs',               'nev' => 'Cikktörzs'                ),
+                        array('tabla' => 'eszkozkezeles',           'nev' => 'Eszközkezelés'            ),
+                        array('tabla' => 'tervezes',                'nev' => 'Tervezés'                 ),
+                        array('tabla' => 'energia',                 'nev' => 'Energia'                  ),
+                        array('tabla' => 'projektigenyles',         'nev' => 'Projektigénylések'        ),
+                        array('tabla' => 'projektkezeles',          'nev' => 'Projektkezelés'           ),
+                        array('tabla' => 'fenntartasi_szerzodes',   'nev' => 'Fenntartási szerződések'  ),
+                        array('tabla' => 'szamla',                  'nev' => 'Számlák'                  ),
+                        array('tabla' => 'szallito',                'nev' => 'Partnertörzs'             ),
+                        array('tabla' => 'torzsadat',               'nev' => 'Törzsadatok'              ),
+                        array('tabla' => 'beosztas',                'nev' => 'Beosztások'               ),
+                        array('tabla' => 'login',                   'nev' => ' Felhasználók'            )
                     );
     foreach($menupontok as $menu){
         $html .= '
@@ -4283,7 +4300,7 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     $mezo = sql_ertek($mezo);
     $op   = sql_ertek($op);
     $felt = sql_ertek($felt);
-    
+
     $op_origi = $op;
     switch ($op){
         case 'equal'    : $op = '=';    break;
@@ -4330,47 +4347,47 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     }
 
 }
-//Összetett szűrés SQL-jét állítja elő egy stingből. 
+//Összetett szűrés SQL-jét állítja elő egy stingből.
 function get_o_szures_where_kieg($feltetel, $tabla){
-    
+
     $sql = '';
     $elemek = explode('#', $feltetel);
     foreach($elemek as $elem){
-        
+
         switch(substr($elem, 0, 3)){
             case 'ny|':
                 $sql .= '(';
             break;
-            
+
             case 'me|':
                 $mezo = substr($elem, 3);
             break;
-        
+
             case 'op|':
                 $op = substr($elem, 3);
             break;
-            
+
             case 'fe|':
                 $feltetel = substr($elem, 3);
-                
+
                 $sql .= get_szures_where_kieg($mezo, $op, $feltetel, $tabla);
                 $mezo     = '';
                 $op       = '';
                 $feltetel = '';
             break;
-            
+
             case 'za|':
                 $sql .= ')';
             break;
-            
+
             case 'es|':
                 $sql .= ' AND ';
             break;
-            
+
             case 'va|':
                 $sql .= ' OR  ';
             break;
-            
+
         }
     }
     return csonkit( $sql, 5 );
@@ -4448,7 +4465,7 @@ function get_tortenet($megnevezes){
     return $szamla_html;
 }
 
-// Adott tábla iktatószámának következő sorszámának lekérése 
+// Adott tábla iktatószámának következő sorszámának lekérése
 function get_iktatoszam_sorszam($tabla){
 
     global $adatbazis_kapcsolat;
@@ -4502,11 +4519,11 @@ function getStatText($tabla, $id, $szinkod = false) {
 
 // Minden véleményező ha töltött már véleményt, akkor nyitottra léptetjük a státuszt (hacsak nem abban van már eleve)
 function prigeny_mindenki_velemenyezett_e($prigen_recid){
-    
+
     global $adatbazis_kapcsolat;
-    
+
     $db_error = false;
-    
+
     $velemenyezok = $adatbazis_kapcsolat->s('login_recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='$prigen_recid'");
     if( $velemenyezok === false ) { $db_error = true; }
     $minden_velemeny_van = true;
@@ -4522,14 +4539,14 @@ function prigeny_mindenki_velemenyezett_e($prigen_recid){
     if($minden_velemeny_van){
         $statusz = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='$prigen_recid'");
         if( $statusz === false ) { $db_error = true; }
-        
+
         if($statusz['stat_id']!=PRIGENY_STAT_NYITOTT){
             if( !addStatusz( 'projektigenyles_statusz', $prigen_recid, PRIGENY_STAT_NYITOTT ) ) {
                 $db_error = true;
             }
         }
     }
-    
+
     if($db_error){
         return false;
     }else{
