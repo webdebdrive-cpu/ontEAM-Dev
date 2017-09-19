@@ -3335,12 +3335,30 @@ function dokumentumtarLista() {
         $html .= '
                 <li>
                     <label for="konyvtar_'.$menu['tabla'].'">'.$menu['nev'].'</label>
-                    <input type="checkbox" id="konyvtar_'.$menu['tabla'].'"> 
-                    <ol>
-                        <li class="fajl"><a href="">Fájl 1</a></li>
-                    </ol>
-                </li>
-                ';
+                    <input type="checkbox" id="konyvtar_'.$menu['tabla'].'">';
+            
+            $alkonyvtarak = array();
+            $alkak = $adatbazis_kapcsolat->s('kepnev', $menu['tabla'].'_dok');
+            foreach($alkak as $alk){
+                $konyvtar = substr($alk['kepnev'], 0, strpos($alk['kepnev'], '/'));
+                array_push($alkonyvtarak, $konyvtar);
+            }
+            if($alkonyvtarak){
+                $html .= '<ol>';
+                
+                $alkonyvtarak = array_unique($alkonyvtarak);
+                sort($alkonyvtarak);
+                foreach($alkonyvtarak as $alk){
+                    $html .= '
+                            <li>
+                                <label><a href="#">'.$alk.'</a></label>
+                            </li>';
+                }
+                $html .= '</ol>';
+            }
+            
+        $html .= '</li>';
+                
     }
     $html .= '</ol>';
 
