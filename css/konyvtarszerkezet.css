@@ -2,6 +2,10 @@ ol.konyvtar_szerk {
     padding: 0 0 0 3rem;
 }
 
+ol a:hover{
+    text-decoration: none;
+}
+
 li {
     position: relative;
     margin-left: -1.5rem;
@@ -35,7 +39,7 @@ li input {
 
 li input + ol {
     background: url('../elemek/nyit.png') 3.4rem 0 no-repeat;
-    margin: -1.7rem 0 0.5rem -4rem;
+    margin: -1.9rem 0 0.5rem -4rem;
     height: 1.5rem;
 }
 
@@ -50,11 +54,12 @@ li label {
     display: inline-block;
     line-height: 1.3;
     padding-left: 3rem;
+    margin-bottom: 0.3rem;
 }
 
 li input:checked + ol {
-    background: url('../elemek/zar.png') 3.4rem 0.5rem no-repeat;
-    margin: -2.2rem 0 0.5rem -4rem;
+    background: url('../elemek/zar.png') 3.4rem 0.1rem no-repeat;
+    margin: -2rem 0 0.5rem -4rem;
     padding: 2rem 0 0 7rem;
     height: auto;
 }

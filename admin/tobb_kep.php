@@ -24,9 +24,10 @@ if(isset($_POST['session_name'])){
 
     session_id($_POST['session_name']);
     session_start();
-
     require_once('../weblap.php');
-    $utvonal = '../'.get_utvonal().'doc';
+    
+    $konyvtar_db_nev = csonkit($_SESSION['fajl']['tabla'], 4);
+    $utvonal = '../'.get_utvonal().$konyvtar_db_nev; //utolsó 4 karakter a "_dok", ezt levesszük
 
     if(!is_dir($utvonal)){
         mkdir($utvonal, 0777);
@@ -78,6 +79,7 @@ if(isset($_POST['session_name'])){
         case 0:
             //Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
             $kepnev = $utvonal.'/'.time().'_'.rand(1, 10000).'.'.kit($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
+
             //Fájlfeltöltés
             if(move_uploaded_file($_FILES[ $_SESSION['fajl']['megnevezes'] ]['tmp_name'], $kepnev)){
 
@@ -85,7 +87,7 @@ if(isset($_POST['session_name'])){
                 //imagejpeg(logot_pecsetel($kepnev, '../elemek/vizjel.png', 50, 50, 100), $kepnev);
 
                 //Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
-                $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'], array($_SESSION['fajl']['oszlop'], 'kepnev', 'megj'), array($_SESSION['fajl']['termek_id'], str_replace('../'.get_utvonal(), '', $kepnev), basename($kepnev) ) );
+                $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'], array($_SESSION['fajl']['oszlop'], 'kepnev', 'megj'), array($_SESSION['fajl']['termek_id'], str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev), basename($kepnev) ) );
                 $sor_kepek = $adatbazis_kapcsolat->s('*', $_SESSION['fajl']['tabla'], 'recid='.$id);
                 $sor_kepek = $sor_kepek[0];
 
@@ -223,7 +225,7 @@ function get_tobbkep_thumb($sor_kepek, $i) {
     require_once('../weblap.php');
 
     $tobbkep_html = '';
-    $kep_utvonal = '../'.get_utvonal().$sor_kepek['kepnev'];
+    $kep_utvonal = '../'.get_utvonal().csonkit($_SESSION['fajl']['tabla'], 4).'/'.$sor_kepek['kepnev'];
     if(is_file($kep_utvonal)){
 
         $felirat = utf8($sor_kepek['megj']);
@@ -252,8 +254,8 @@ function get_tobbkep_thumb($sor_kepek, $i) {
                         <i class="material-icons">file_download</i>
                     </a>
                 </div>
+            </li>
         ');
-        $tobbkep_html .= '</li>';
 
     }
     return $tobbkep_html;

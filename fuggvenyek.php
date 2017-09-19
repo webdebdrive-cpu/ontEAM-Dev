@@ -3321,6 +3321,7 @@ function dokumentumtarLista() {
     global $adatbazis_kapcsolat;
 
     $html = '
+            <div class="padd b">Dokumentumok:</div>
             <link rel="stylesheet" type="text/css" href="../css/konyvtarszerkezet.css">
             <ol class="konyvtar_szerk">
             ';
@@ -3346,14 +3347,46 @@ function dokumentumtarLista() {
                         array('tabla' => 'szallito',                'nev' => 'Partnertörzs'             ),
                         array('tabla' => 'torzsadat',               'nev' => 'Törzsadatok'              ),
                         array('tabla' => 'beosztas',                'nev' => 'Beosztások'               ),
-                        array('tabla' => 'login',                   'nev' => ' Felhasználók'            )
+                        array('tabla' => 'login',                   'nev' => 'Felhasználók'             )
                     );
+    
+    
+//    if (isset($_GET['fajlok_karbantart'])) {
+//
+//        foreach($menupontok as $menu){
+//            if(!is_dir('../'.get_utvonal().$menu['tabla'])){
+//                mkdir('../'.get_utvonal().$menu['tabla']);
+//            }
+//            $fajlok = $adatbazis_kapcsolat->s('recid kepnev', $menu['tabla'].'_dok');
+//            foreach($fajlok as $fajl){
+//                $konyvt = dirname($fajl['kepnev']);
+//                $konyvt = trim(substr($konyvt, strrpos($konyvt, '/')), '/');
+//                if(!is_dir('../'.get_utvonal().$menu['tabla'].'/'.$konyvt)){
+////echo '../'.get_utvonal().$menu['tabla'].'/'.$konyvt . '<br>';
+//                    mkdir('../'.get_utvonal().$menu['tabla'].'/'.$konyvt);
+//                }
+////echo '../'.get_utvonal().$menu['tabla'].'/'.$konyvt.'/'.basename($fajl['kepnev']) . '<br>';
+//                copy('../'.get_utvonal().$fajl['kepnev'], '../'.get_utvonal().$menu['tabla'].'/'.$konyvt.'/'.basename($fajl['kepnev']));
+//                $adatbazis_kapcsolat->u($menu['tabla'].'_dok', array('kepnev'), array($konyvt.'/'.basename($fajl['kepnev'])), "`recid`='{$fajl['recid']}'");
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//            }
+//        }
+//    }
+    
     foreach($menupontok as $menu){
+        $checked = '';
+        if($_GET['konyvtar']){
+            $kapott_konyvtar = substr($_GET['konyvtar'], 0, strpos($_GET['konyvtar'], '/'));
+            if($kapott_konyvtar == $menu['tabla']){
+                $checked = ' checked';
+            }
+        }
         $html .= '
                 <li>
                     <label for="konyvtar_'.$menu['tabla'].'">'.$menu['nev'].'</label>
-                    <input type="checkbox" id="konyvtar_'.$menu['tabla'].'">';
+                    <input type="checkbox"'.$checked.' id="konyvtar_'.$menu['tabla'].'">';
             
+            //Alkönyvtárak kiszámítása
             $alkonyvtarak = array();
             $alkak = $adatbazis_kapcsolat->s('kepnev', $menu['tabla'].'_dok');
             foreach($alkak as $alk){
@@ -3368,7 +3401,7 @@ function dokumentumtarLista() {
                 foreach($alkonyvtarak as $alk){
                     $html .= '
                             <li>
-                                <label><a href="#">'.$alk.'</a></label>
+                                <label><a href="'.self().'?konyvtar='.$menu['tabla'].'/'.$alk.'">'.$alk.'</a></label>
                             </li>';
                 }
                 $html .= '</ol>';
