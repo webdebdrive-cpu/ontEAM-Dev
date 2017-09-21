@@ -252,10 +252,6 @@ if( isset($_POST['bejelentesIgazolas']) ) {
     exit();
 }
 
-/** Események */
-if(isset($_GET['siker']) && isset($_GET['modosit'])){
-
-}
 /* CSV generálása */
 if (isset($_GET['csv'])) {
 
@@ -284,7 +280,7 @@ if (isset($_GET['csv'])) {
     if($open){
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
-        
+
         $sql = 'SELECT
                                                     `ikt_szam` as \'Bejelentés szám\',
                                                     `'.get_db_tabla().'bejelentes`.`telephely_id` as \'Szálloda\',
@@ -724,7 +720,7 @@ if($gyorskereso_text){
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
-        
+
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 

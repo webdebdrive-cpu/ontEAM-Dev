@@ -115,11 +115,6 @@ if($tobb_kep){
     }
 }
 
-/** Események */
-if(isset($_GET['siker']) && isset($_GET['modosit'])){
-
-}
-
 /* Árazás */
 if( isset($_POST['arazas']) ) {
     $idk = json_decode($_POST['idk'], true);

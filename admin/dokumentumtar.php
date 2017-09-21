@@ -40,33 +40,6 @@ if($tobb_kep){
     }
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 
-    //Kép törlésének lekezelése
-    if (isset($_GET[$torles.'tobbkep_torol'])){
-
-        $tobbkep = $adatbazis_kapcsolat -> s('kepnev', get_tobbkep_tabla(), get_tobbkep_oszlopnev().'='.$_GET[$torles.'tobbkep_torol']);
-        foreach($tobbkep as $sor_tobbkep){
-
-            //eredeti fájl törlése
-            if(is_file('../'.get_utvonal().$sor_tobbkep['kepnev'])){
-                unlink('../'.get_utvonal().$sor_tobbkep['kepnev']);
-            }
-
-            //ha van kiterjesztése
-            if(strrpos($sor_tobbkep['kepnev'], '.')>0){
-                remover('../'.get_utvonal().substr($sor_tobbkep['kepnev'],0,strrpos($sor_tobbkep['kepnev'],'.')).'_*');
-            }else{
-                remover('../'.get_utvonal().$sor_tobbkep['kepnev'].'_*');
-            }
-        }
-
-        $adatbazis_kapcsolat -> delete(get_tobbkep_tabla(), get_tobbkep_oszlopnev().'='.$_GET[$torles.'tobbkep_torol']);
-
-        if(isset($_GET['noload'])){
-            $weblap -> leallit();
-            exit();
-        }
-    }
-
 }
 
 if( isset($_POST['jogokhozzaad']) ) {
@@ -86,32 +59,6 @@ if( isset($_POST['jogokhozzaad']) ) {
 
     exit();
 }
-/*
-Ha true a config.php-ban:
-js/+jquery-ui.js aktiválni a config.php-ban az ADMIN JS és CSS RÉSZBEN!!!
-js/+admin_sorrendez.js aktiválni
-
-Hozzá kell adni ezt a fájlt:
-admin/+tobb_kep.php aktiválni
-
-Minta SQL
-CREATE TABLE IF NOT EXISTS `TABLA_kepek`(
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `"TERMEK"ID` int(10) unsigned default NULL,
-  `kepnev` varchar(100) NOT NULL default '',
-  `megj` varchar(200) NOT NULL default '',
-  `sor` int(11) NOT NULL default '0',
-  `datetime` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`id`)
-)
-
-Vízjelezéshez vissza kell kommentezni a +tobb_kep.php-ban a Képfeltöltésnél egy részt!
-*/
-/** Események */
-if(isset($_GET['siker']) && isset($_GET['modosit'])){
-
-}
-
 
 /** Tartalom */
 if( !$_GET['ajax'] ) {
@@ -173,7 +120,7 @@ if($gyorskereso_text){
 
 	//Új termék felvitele
 	if(isset($_GET['konyvtar'])){
-        
+
         $fajlok_html = '';
         list($tabla, $konyvtar) = explode('/', $_GET['konyvtar']);
         $post   = '_dok';
@@ -185,7 +132,7 @@ if($gyorskereso_text){
         }
         $fajlok = $adatbazis_kapcsolat->s('recid '.$apa_id.' utvonal fajlnev', $tabla.$post, "`utvonal` LIKE '$konyvtar%'", 'fajlnev');
         foreach($fajlok as $fajl){
-            
+
             $kep_utvonal = '../'.get_utvonal().$tabla.'/'.$fajl['utvonal'];
             if(is_file($kep_utvonal)){
 
@@ -220,13 +167,13 @@ if($gyorskereso_text){
                     </li>
                 ');
 
-            }            
+            }
 
         }
         if($fajlok_html){
             $fajlok_html = '<ul id="sorrendezes_tobbkep">'.$fajlok_html.'</ul>';
         }
-        
+
         echo $fajlok_html;
     }
 
