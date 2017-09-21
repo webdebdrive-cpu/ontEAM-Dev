@@ -24,11 +24,11 @@ if($_POST['megnevezes']=='velemeny'){
     
     if($adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'", '', '1')){
         
-        $utvonal = get_utvonal().'doc';
-
+        $utvonal = get_utvonal().'projektigenyles_velemeny';
         if(!is_dir($utvonal)){
             mkdir($utvonal, 0777);
         }
+
 
         $utvonal = $utvonal.'/'.date('ym');
 
@@ -80,8 +80,8 @@ if($_POST['megnevezes']=='velemeny'){
                 if(move_uploaded_file($_FILES[$_POST['megnevezes']]['tmp_name'], $kepnev)){
 
                     //Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
-                    $id = $adatbazis_kapcsolat -> i( 'projektigenyles_velemeny', array('projektigenyles_recid',         'login_recid',                            'utvonal',                               'fajlnev'                            ),
-                                                                                 array($_POST['projektigenyles_recid'], $_SESSION[get_db_tabla().'login_recid'],   str_replace(get_utvonal(), '', $kepnev), $_FILES[$_POST['megnevezes']]['name'])
+                    $id = $adatbazis_kapcsolat -> i( 'projektigenyles_velemeny', array('projektigenyles_recid',         'login_recid',                            'utvonal',                                                            'fajlnev'                            ),
+                                                                                 array($_POST['projektigenyles_recid'], $_SESSION[get_db_tabla().'login_recid'],   str_replace(get_utvonal().'projektigenyles_velemeny/', '', $kepnev), $_FILES[$_POST['megnevezes']]['name'])
                                                     );
                     //Ha ellenőrizzük, hogy a megmaradtaknak mindnek van-e már vélemények. Státuszt kell léptetni ha igen.
                     prigeny_mindenki_velemenyezett_e($_POST['projektigenyles_recid']);

@@ -3911,7 +3911,7 @@ if( isset($_POST['mellekTorol']) ) {
                 $sor = $sor[0];
 
                 if( $sor['stat_id'] == '01' || $statuszt_nem_kell_figyelni ) {
-                    $fajlok = $adatbazis_kapcsolat->s('recid kepnev megj', $tabla, "`recid` IN (".implode(',', $idk).")");
+                    $fajlok = $adatbazis_kapcsolat->s('recid utvonal', $tabla, "`recid` IN (".implode(',', $idk).")");
                     if( $fajlok === false ) { $db_error = true; }
 
                     if( $fajlok ) {
@@ -3919,11 +3919,12 @@ if( isset($_POST['mellekTorol']) ) {
                         $valtozas = 'A következő fájlokat törölte: <br>';
 
                         foreach($fajlok as $fajl) {
-                            $utvonal = '../'.get_utvonal().$fajl['kepnev'];
+                            $utvonal = '../'.get_utvonal().csonkit($tabla, 4).'/'.$fajl['utvonal'];
 
                             if( is_file($utvonal) ) {
                                 /* Töröljük a fájlt */
                                 unlink($utvonal);
+                                remover('../'.get_utvonal().csonkit($tabla, 4).'/'.substr($fajl['utvonal'], 0, strrpos($fajl['utvonal'], '.')).'_*');
 
                                 /* Töröljük a sort is */
                                 $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` = '".$fajl['recid']."'");
@@ -4775,8 +4776,8 @@ foreach($postok as $ertek){
         if( in_array($ertek['tabla'], $dokos_oldalak) ){
             $fajlok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$_GET[$ertek['torid']]}'");
             foreach($fajlok as $fajl){
-                $torolt_fajlok .= '../'.get_utvonal().$fajl['kepnev'].'<br>';
-                unlink('../'.get_utvonal().$fajl['kepnev']);
+                $torolt_fajlok .= '../'.get_utvonal().$ertek['tabla'].'/'.$fajl['utvonal'].'<br>';
+                unlink('../'.get_utvonal().$ertek['tabla'].'/'.$fajl['utvonal']);
             }
 
             $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$_GET[$ertek['torid']]}'");

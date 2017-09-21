@@ -131,6 +131,7 @@ if( isset($_GET['addVelemenyezo']) ) {
                                                                             array('projektigenyles_recid',  'login_recid', 'loginnev',                          'insert_dt', 'insert_usr'                            ),
                                                                             array($pr_igeny_recid,          $login_recid,  $_SESSION[get_db_tabla().'user'],    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev']  )
                                                 );
+//echo $adatbazis_kapcsolat->gp() . '<br>';
             if($kapcsID===false){ $db_error = true; }
 
             if(addStatusz('projektigenyles_statusz', $pr_igeny_recid, PRIGENY_STAT_VEL_ALATT)===false){
@@ -184,8 +185,8 @@ if (isset($_POST['velemeny_torol'])) {
         exit();
     }
 
-        //Vélemény törlése
-    $fajl = '../'.get_utvonal().$velemeny['utvonal'];
+    //Vélemény törlése
+    $fajl = '../'.get_utvonal().'projektigenyles_velemeny/'.$velemeny['utvonal'];
     if(is_file($fajl)){
         unlink($fajl);
     }
@@ -739,7 +740,7 @@ if($gyorskereso_text){
                 $torles_html   = '';
                 $velemeny = $adatbazis_kapcsolat->s2('recid utvonal fajlnev insert_dt', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_GET['id']}' AND `login_recid`='{$velemenyezo['recid']}'");
                 if($velemeny){
-                    $fajl = '../'.get_utvonal().$velemeny['utvonal'];
+                    $fajl = '../'.get_utvonal().'projektigenyles_velemeny/'.$velemeny['utvonal'];
                     $felirat = $velemeny['fajlnev'];
                     $kep     = new Img($fajl, $felirat, 150, 150);
                     $kep     = $kep -> getHtml();

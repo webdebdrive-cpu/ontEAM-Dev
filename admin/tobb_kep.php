@@ -87,7 +87,9 @@ if(isset($_POST['session_name'])){
                 //imagejpeg(logot_pecsetel($kepnev, '../elemek/vizjel.png', 50, 50, 100), $kepnev);
 
                 //Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
-                $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'], array($_SESSION['fajl']['oszlop'], 'kepnev', 'megj'), array($_SESSION['fajl']['termek_id'], str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev), basename($kepnev) ) );
+                $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'], array($_SESSION['fajl']['oszlop'],   'utvonal',                                                           'fajlnev'                                                    ),
+                                                                             array($_SESSION['fajl']['termek_id'], str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev), basename($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name'] ))
+                                                );
                 $sor_kepek = $adatbazis_kapcsolat->s('*', $_SESSION['fajl']['tabla'], 'recid='.$id);
                 $sor_kepek = $sor_kepek[0];
 
@@ -113,7 +115,7 @@ if(isset($_POST['kepek_sorrend'])){
     $sorrend_tomb = explode(';', $_POST['kepek_sorrend']);
     $i = 0;
     foreach($sorrend_tomb as $kepnev){
-        $parancs = 'UPDATE `'.get_db_tabla().$tobbkep_tablanev.'` SET `sor`=\''.$i.'\' WHERE `kepnev`=\''.$kepnev.'\' AND `'.$_POST['azonosit_oszlop'].'`=\''.$_SESSION['fajl']['termek_id'].'\'';
+        $parancs = 'UPDATE `'.get_db_tabla().$tobbkep_tablanev.'` SET `sor`=\''.$i.'\' WHERE `utvonal`=\''.$kepnev.'\' AND `'.$_POST['azonosit_oszlop'].'`=\''.$_SESSION['fajl']['termek_id'].'\'';
         mysqli_query($db_kapcs, $parancs);
         $i++;
     }
@@ -124,9 +126,9 @@ if(isset($_POST['kepek_sorrend'])){
 
 //Képfelírat lekérdezése
 if($_POST['get_kepfelirat']){
-    $felirat = mysqli_query($db_kapcs, 'SELECT `megj` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['get_kepfelirat'].'\'');
+    $felirat = mysqli_query($db_kapcs, 'SELECT `fajlnev` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['get_kepfelirat'].'\'');
     $felirat = mysqli_fetch_assoc($felirat);
-    echo $felirat['megj'];
+    echo $felirat['fajlnev'];
 
     $weblap -> leallit();
     exit;
@@ -135,14 +137,14 @@ if($_POST['get_kepfelirat']){
 //Megjegyzés átírása
 if(isset($_POST['megj_atir'])){
 
-    $parancs = 'UPDATE `'.get_db_tabla().$tobbkep_tablanev.'` SET `megj`=\''.$_POST['szoveg'].'\' WHERE `recid`=\''.$_POST['id'].'\'';
+    $parancs = 'UPDATE `'.get_db_tabla().$tobbkep_tablanev.'` SET `fajlnev`=\''.$_POST['szoveg'].'\' WHERE `recid`=\''.$_POST['id'].'\'';
     mysqli_query($db_kapcs, $parancs);
 //echo $adatbazis_kapcsolat->gp() . '<br>';
-    $felirat = mysqli_query($db_kapcs, 'SELECT `megj` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['id'].'\'');
+    $felirat = mysqli_query($db_kapcs, 'SELECT `fajlnev` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['id'].'\'');
     $felirat = mysqli_fetch_assoc($felirat);
-    echo $felirat['megj'];
+    echo $felirat['fajlnev'];
 
-    if(!$felirat['megj']){
+    if(!$felirat['fajlnev']){
         echo '<span class="i link">- Nincs leírás -</spam>';
     }
 
@@ -153,13 +155,13 @@ if(isset($_POST['megj_atir'])){
 //Kép törlése
 if(isset($_POST['tobbkep_torol'])){
 
-    $kepnev = mysqli_query($db_kapcs, 'SELECT `kepnev` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['tobbkep_torol'].'\'');
+    $kepnev = mysqli_query($db_kapcs, 'SELECT `utvonal` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['tobbkep_torol'].'\'');
     $kepnev = mysqli_fetch_assoc($kepnev);
 
     $parancs = 'DELETE FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['tobbkep_torol'].'\'';
     mysqli_query($db_kapcs, $parancs);
 
-    kep_torol('../'.get_utvonal().$kepnev['kepnev']);
+    kep_torol('../'.get_utvonal().$kepnev['utvonal']);
 
     $weblap -> leallit();
     exit;
@@ -225,10 +227,10 @@ function get_tobbkep_thumb($sor_kepek, $i) {
     require_once('../weblap.php');
 
     $tobbkep_html = '';
-    $kep_utvonal = '../'.get_utvonal().csonkit($_SESSION['fajl']['tabla'], 4).'/'.$sor_kepek['kepnev'];
+    $kep_utvonal = '../'.get_utvonal().csonkit($_SESSION['fajl']['tabla'], 4).'/'.$sor_kepek['utvonal'];
     if(is_file($kep_utvonal)){
 
-        $felirat = utf8($sor_kepek['megj']);
+        $felirat = utf8($sor_kepek['fajlnev']);
         $kep     = new Img($kep_utvonal, $felirat, 200, 200);
 
         if( !$felirat ) {
@@ -236,9 +238,6 @@ function get_tobbkep_thumb($sor_kepek, $i) {
         }
 
         $azon    = 'kep'.$sor_kepek['recid'];
-        //2017.07.18 - nem nevezhetőek át, helyette töltsük le $megj_szerkesztes_onclick = ' onclick="get_tobbkep_megj(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \'megj_atir'.$azon.'\'); alert2(\'Dokumentum átnevezése:\', gomb'.$azon.');"';
-        /* title="'.$sor_kepek['kepnev'].'" */
-        //$megj_szerkesztes_onclick = ' onclick="window.open(\''.$kep_utvonal.'\')"';
         $tobbkep_html .= nl2('
             <li id="'.$azon.'" class="kijSor" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'">
                 <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
@@ -260,27 +259,5 @@ function get_tobbkep_thumb($sor_kepek, $i) {
     }
     return $tobbkep_html;
 
-}
-
-
-//Beragadt képek törlése (mivel egy bejegyzés törlésekor még magát a további fotókat nem töröljük, így ezt utólag számítjuk ki, lefuttatva egy ilyen karbantartást)
-$tobbkep = $adatbazis_kapcsolat -> select(get_tobbkep_oszlopnev().' kepnev', get_tobbkep_tabla());
-foreach($tobbkep as $sor_tobbkep){
-
-    $van_bejegyzses = $adatbazis_kapcsolat->s('recid', $megnevezes, 'recid='.$sor_tobbkep[get_tobbkep_oszlopnev()]);
-    if(!$van_bejegyzses){
-
-        //eredeti fájl törlése
-        if(is_file('../'.get_utvonal().$sor_tobbkep['kepnev'])){
-            unlink('../'.get_utvonal().$sor_tobbkep['kepnev']);
-        }
-
-        //ha van kiterjesztése
-        if(strrpos($sor_tobbkep['kepnev'], '.')>0){
-            remover('../'.get_utvonal().substr($sor_tobbkep['kepnev'],0,strrpos($sor_tobbkep['kepnev'],'.')).'_*');
-        }else{
-            remover('../'.get_utvonal().$sor_tobbkep['kepnev'].'_*');
-        }
-    }
 }
 ?>

@@ -3341,6 +3341,7 @@ function dokumentumtarLista() {
                         array('tabla' => 'tervezes',                'nev' => 'Tervezés'                 ),
                         array('tabla' => 'energia',                 'nev' => 'Energia'                  ),
                         array('tabla' => 'projektigenyles',         'nev' => 'Projektigénylések'        ),
+                        array('tabla' => 'projektigenyles_velemeny','nev' => 'Projektigénylés vélemények'),
                         array('tabla' => 'projektkezeles',          'nev' => 'Projektkezelés'           ),
                         array('tabla' => 'fenntartasi_szerzodes',   'nev' => 'Fenntartási szerződések'  ),
                         array('tabla' => 'szamla',                  'nev' => 'Számlák'                  ),
@@ -3388,9 +3389,14 @@ function dokumentumtarLista() {
             
             //Alkönyvtárak kiszámítása
             $alkonyvtarak = array();
-            $alkak = $adatbazis_kapcsolat->s('kepnev', $menu['tabla'].'_dok');
+            $post = '_dok';
+            //Projektigénylés véleményél nincs _dok postfix
+            if($menu['tabla']=='projektigenyles_velemeny'){
+                $post = '';
+            }
+            $alkak = $adatbazis_kapcsolat->s('utvonal', $menu['tabla'].$post);
             foreach($alkak as $alk){
-                $konyvtar = substr($alk['kepnev'], 0, strpos($alk['kepnev'], '/'));
+                $konyvtar = substr($alk['utvonal'], 0, strpos($alk['utvonal'], '/'));
                 array_push($alkonyvtarak, $konyvtar);
             }
             if($alkonyvtarak){

@@ -28,11 +28,6 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
-if( $_POST ) {
-    echo '<pre style="font-size: 1.4rem">', print_r($_POST), '</pre>';
-    exit();
-}
-
 //Több kép menedzseléséhez
 $tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
@@ -181,13 +176,20 @@ if($gyorskereso_text){
         
         $fajlok_html = '';
         list($tabla, $konyvtar) = explode('/', $_GET['konyvtar']);
-        $fajlok = $adatbazis_kapcsolat->s('recid kepnev megj', $tabla.'_dok', "`kepnev` LIKE '$konyvtar%'", 'kepnev');
+        $post   = '_dok';
+        $apa_id = $tabla.'_id';
+        //Projektigénylés véleményél nincs _dok postfix
+        if($tabla=='projektigenyles_velemeny'){
+            $post   = '';
+            $apa_id = 'projektigenyles_recid';
+        }
+        $fajlok = $adatbazis_kapcsolat->s('recid '.$apa_id.' utvonal fajlnev', $tabla.$post, "`utvonal` LIKE '$konyvtar%'", 'fajlnev');
         foreach($fajlok as $fajl){
             
-            $kep_utvonal = '../'.get_utvonal().$tabla.'/'.$fajl['kepnev'];
+            $kep_utvonal = '../'.get_utvonal().$tabla.'/'.$fajl['utvonal'];
             if(is_file($kep_utvonal)){
 
-                $felirat = utf8($fajl['megj']);
+                $felirat = utf8($fajl['fajlnev']);
                 $kep     = new Img($kep_utvonal, $felirat, 200, 200);
 
                 if( !$felirat ) {
@@ -196,6 +198,10 @@ if($gyorskereso_text){
 
                 $azon    = 'kep'.$fajl['recid'];
                 //$megj_szerkesztes_onclick = ' onclick="window.open(\''.$kep_utvonal.'\')"';
+                $link = $tabla.'.php?id='.$fajl[$apa_id].'&amp;dokumentumok';
+                if($tabla=='projektigenyles_velemeny'){
+                    $link = 'projektigenyles.php?id='.$fajl[$apa_id].'&amp;velemenyezok';
+                }
                 $fajlok_html .= nl2('
                     <li id="'.$azon.'" class="kijSor" title="'.$fajl['megj'].'" data-id="'.$fajl['recid'].'" data-i="'.$i.'">
                         <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$fajl['recid'].'\');</script>
@@ -204,7 +210,7 @@ if($gyorskereso_text){
                         </div>
                         <div id="megj_'.$azon.'_felirat" class="felirat f12 link c"'.$megj_szerkesztes_onclick.'>'.$felirat.'</div>
                         <div class="nagyit">
-                            <a href="'.$tabla.'.php?dokumentumok" target="_blank" title="Ugrás menüpontra">
+                            <a href="'.$link.'" target="_blank" title="Ugrás menüpontra">
                                 <i class="material-icons">list</i>
                             </a>
                             <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
