@@ -40,32 +40,6 @@ if($tobb_kep){
     }
     function get_tobbkep_tabla(){ return 'kepek';       } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 }
-/*
-Ha true a config.php-ban:
-js/+jquery-ui.js aktiválni a config.php-ban az ADMIN JS és CSS RÉSZBEN!!!
-js/+admin_sorrendez.js aktiválni
-
-Hozzá kell adni ezt a fájlt:
-admin/+tobb_kep.php aktiválni
-
-Minta SQL
-CREATE TABLE IF NOT EXISTS `TABLA_kepek`(
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `"TERMEK"ID` int(10) unsigned default NULL,
-  `kepnev` varchar(100) NOT NULL default '',
-  `megj` varchar(200) NOT NULL default '',
-  `sor` int(11) NOT NULL default '0',
-  `datetime` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  PRIMARY KEY  (`id`)
-)
-
-Vízjelezéshez vissza kell kommentezni a +tobb_kep.php-ban a Képfeltöltésnél egy részt!
-*/
-
-/** Események */
-if(isset($_GET['siker']) && isset($_GET['modosit'])){
-
-}
 
 
 /** Tartalom */

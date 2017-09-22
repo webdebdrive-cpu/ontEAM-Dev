@@ -52,33 +52,6 @@ if($tobb_kep){
     }
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 
-    //Kép törlésének lekezelése
-    if (isset($_GET[$torles.'tobbkep_torol'])){
-
-        $tobbkep = $adatbazis_kapcsolat -> s('kepnev', get_tobbkep_tabla(), get_tobbkep_oszlopnev().'='.$_GET[$torles.'tobbkep_torol']);
-        foreach($tobbkep as $sor_tobbkep){
-
-            //eredeti fájl törlése
-            if(is_file('../'.get_utvonal().$sor_tobbkep['kepnev'])){
-                unlink('../'.get_utvonal().$sor_tobbkep['kepnev']);
-            }
-
-            //ha van kiterjesztése
-            if(strrpos($sor_tobbkep['kepnev'], '.')>0){
-                remover('../'.get_utvonal().substr($sor_tobbkep['kepnev'],0,strrpos($sor_tobbkep['kepnev'],'.')).'_*');
-            }else{
-                remover('../'.get_utvonal().$sor_tobbkep['kepnev'].'_*');
-            }
-        }
-
-        $adatbazis_kapcsolat -> delete(get_tobbkep_tabla(), get_tobbkep_oszlopnev().'='.$_GET[$torles.'tobbkep_torol']);
-
-        if(isset($_GET['noload'])){
-            $weblap -> leallit();
-            exit();
-        }
-    }
-
 }
 
 //Jogosultság hozzáadása
@@ -291,10 +264,6 @@ if (isset($_POST['pri_statusz_leptet'])) {
     exit();
 }
 
-/** Események */
-if(isset($_GET['siker']) && isset($_GET['modosit'])){
-
-}
 
 /* CSV generálása */
 if (isset($_GET['csv'])) {
