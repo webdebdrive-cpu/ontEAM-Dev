@@ -189,6 +189,7 @@ if (isset($_POST['velemeny_torol'])) {
     $fajl = '../'.get_utvonal().'projektigenyles_velemeny/'.$velemeny['utvonal'];
     if(is_file($fajl)){
         unlink($fajl);
+        remover('../'.get_utvonal().'projektigenyles_velemeny/'.$velemeny['utvonal'].'_*');
     }
     $sql = $adatbazis_kapcsolat->d('projektigenyles_velemeny', "`recid`='{$_POST['velemeny_recid']}'");
     if($sql===false){ $db_error = true; }
@@ -475,9 +476,9 @@ if($gyorskereso_text){
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         $statusz = $adatbazis_kapcsolat->s2('stat_id', $megnevezes.'_statusz', "`{$megnevezes}_recid`='".$_GET['id']."'", 'insert_dt desc', '1');
-        //Csak nyitott státuszú törölhető
-        if($statusz['stat_id'] != PRIGENY_STAT_NYITOTT) {
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú projektigénylés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        //Csak nyitott vagy véleményezés alatt státuszú törölhető
+        if( $statusz['stat_id']!=PRIGENY_STAT_LETRE_ALATT && $statusz['stat_id']!=PRIGENY_STAT_VEL_ALATT && $statusz['stat_id']!=PRIGENY_STAT_VEL_ALATT ) {
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak ltrehozás alatt, nyitott vagy véleményezés alatt státuszú projektigénylés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         //Jogosutságkezelés: csak az törölheti, akinek van hozzá joga
         } elseif( !_jog(JOG_PRIGENY_KEZEL) ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga projektigénylést törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';

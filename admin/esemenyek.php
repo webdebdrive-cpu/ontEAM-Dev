@@ -4778,10 +4778,24 @@ foreach($postok as $ertek){
             foreach($fajlok as $fajl){
                 $torolt_fajlok .= '../'.get_utvonal().$ertek['tabla'].'/'.$fajl['utvonal'].'<br>';
                 unlink('../'.get_utvonal().$ertek['tabla'].'/'.$fajl['utvonal']);
+                remover('../'.get_utvonal().$ertek['tabla'].'/'.substr($fajl['utvonal'], 0, strrpos($fajl['utvonal'],'.')).'_*');
             }
 
             $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
+        }
+        
+        //Projektigénylésnél a véleményezők és azok dokumentumai
+        if($ertek['tabla']=='projektigenyles'){
+            $adatbazis_kapcsolat->d('projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
+            $velemenyek = $adatbazis_kapcsolat->s('utvonal', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
+            foreach($velemenyek as $velemeny){
+                $utvonal = '../'.get_utvonal().'projektigenyles_velemeny/'.$velemeny['utvonal'];
+                if(is_file($utvonal)){
+                    unlink($utvonal);
+                    remover('../'.get_utvonal().'projektigenyles_velemeny/'.substr($velemeny['utvonal'], 0, strrpos($velemeny['utvonal'],'.')).'_*');
+                }
+            }
         }
 
         //Login táblából csak logikailag törlünk. Többi helyről fizikailag.

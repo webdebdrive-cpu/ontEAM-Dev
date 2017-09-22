@@ -1663,11 +1663,11 @@ function szamla_lista( $where, $tabla ) {
         //Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
         //Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
         $szallodak = get_akt_login_szallodai();
-        if($tabla == 'bejelentes'){
-            $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
-        }
         if($tabla == 'anyagigenyles'){
             $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
+        if($tabla == 'bejelentes'){
+            $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
         if($tabla == 'eszkozkezeles'){
             $where = "`".get_db_tabla()."eszkozkezeles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
@@ -1678,6 +1678,7 @@ function szamla_lista( $where, $tabla ) {
         if($tabla == 'rendszeres_karbantartas'){
             $where = "`".get_db_tabla()."rendszeres_karbantartas`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
+
         if($tabla == 'munkalap'){
             $where = "`".get_db_tabla()."munkalap`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
 
