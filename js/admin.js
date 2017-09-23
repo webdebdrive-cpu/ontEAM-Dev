@@ -3147,7 +3147,6 @@ function bejegyzesElutasitas( that ) {
 
     if( elutasitas_id .val() ) {
         szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
-
         if( szamlaSorok.length ) {
             idk = {};
 
@@ -3191,7 +3190,7 @@ function bejegyzesElutasitas( that ) {
                 });
             }
         } else {
-            alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
+            alert2('Kérem jelölje ki az elutasítani kívánt '+$('#rekord_neve_targy').html()+'!', '', 'Hiba');
         }
     } else {
         alert2('Kérem adja meg az elutasítás okát!');
@@ -4759,27 +4758,29 @@ function velemeny_hozzaad(mehet){
     if(mehet){
         alert2();
         kapcsolodoSzerkeszt('velemeny_feltolt');
-    }
+    }else{
 
-    /* Lássuk, van-e már vélemény feltöltve, ha igen, akkor rákérdezünk, hogy biztosan? */
-    $.ajax({
-        url: 'projektigenyles.php',
-        type: 'POST',
-        data: {
-            recid         : _get('id'),
-            van_e_velemeny: new Date().getTime()
-        },
-        success: function (response) {
-            response = JSON.parse(response);
-            /* Ha még nincs véleménye, akkor nincs kérdés, mehet egyből */
-            if (response.mehet) {
-                kapcsolodoSzerkeszt('velemeny_feltolt');
+        /* Lássuk, van-e már vélemény feltöltve, ha igen, akkor rákérdezünk, hogy biztosan? */
+        $.ajax({
+            url: 'projektigenyles.php',
+            type: 'POST',
+            data: {
+                recid         : _get('id'),
+                van_e_velemeny: new Date().getTime()
+            },
+            success: function (response) {
+                response = JSON.parse(response);
+                /* Ha még nincs véleménye, akkor nincs kérdés, mehet egyből */
+                if (response.mehet) {
+                    kapcsolodoSzerkeszt('velemeny_feltolt');
+                }
+                if (response.kerdes) {
+                    alert2(response.kerdes, '<input type="button" class="gomb zold" value="Igen" onclick="velemeny_hozzaad(\'mehet\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+                }
             }
-            if (response.kerdes) {
-                alert2(response.kerdes, '<input type="button" class="gomb zold" value="Igen" onclick="velemeny_hozzaad(\'mehet\')"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
-            }
-        }
-    });
+        });
+        
+    }
 
 }
 
@@ -4951,6 +4952,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                         'megjegyzes',
                         'megjegyzesek',
                         'modosit',
+                        'munkalapok',
                         'naplo',
                         'naptar',
                         'uj',

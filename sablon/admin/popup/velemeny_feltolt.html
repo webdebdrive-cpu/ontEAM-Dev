@@ -1,6 +1,6 @@
 <h2>Vélemény feltöltése</h2>
 
-<div class="kozep">
+<div class="kozep"> 
     <div id="jsff_velemeny" class="jsff">
         <span class="uzenet">
             <span class="f15">Kérjük tallózza be a fájlt:</span>
@@ -118,7 +118,6 @@
     /* Ha minden fájl feltöltése kész, akkor itt adhat meg további utasítás */
     function minden_fajl_kesz_velemeny(){
         popupZar();
-        alert2('Véleményét sikeresen rögzítettük!');
         szamlaBetolt({GET_ID}, 'projektigenyles.php', 'velemenyezok');
         $('#jsff_velemeny').find('progress').fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
     }

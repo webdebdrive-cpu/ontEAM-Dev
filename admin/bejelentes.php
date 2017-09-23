@@ -1,4 +1,15 @@
 <?php
+/*
+Játékszabályok:
+
+- Két eset van: Egy bejelentés egy munkalap illetve egy bejelentés több munkalap
+- Ha egy munkalapot csoportosítunk, akkor a benne levő munkalapok automatikusan várakozóra is kerülnek 
+  (és áttételesen a hozzá tartozó bejelentés is).
+- Ha kiveszünk belőle egy elemet, akkor annak státusza nyitottra vált (és áttételesen a hozzá tartozó bejelentés is).
+- Csoportot lehessen egyben visszatenni nyitottnak, de ekkor nem bomlik fel a csoport.
+
+*/
+
 require_once('../weblap.php');
 
 if( !_jog(JOG_BEJELENTES_MEGTEKINT) ) {
@@ -433,7 +444,6 @@ if($gyorskereso_text){
                     <script>
                         csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                     </script>
-                    <input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas\');">
                     <!--<div class="kijeloltek_muv">
                         <input type="button" class="gomb foGomb" value="Csoportosítás..." title="Csoportosítás...">
                         <div class="muv">
@@ -455,6 +465,12 @@ if($gyorskereso_text){
                     </div>-->
                 </div>
             ');
+        }
+        
+        // Akinek van joga hozzá, csak az tud elutasítani, és csak akkor, ha még nem készült belőle munkalap
+        $van_munkalapja = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
+        if( $sor['stat_id']!=BEJELENTES_STAT_ELUTASITVA && _jog(JOG_BEJELENTES_ELUTASIT) && !$van_munkalapja ) {
+            $gombok .= '<input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas\');">';
         }
 
         /* Törlés gomb hibaüzenetei */

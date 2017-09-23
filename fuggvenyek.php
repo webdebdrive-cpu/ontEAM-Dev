@@ -2207,11 +2207,12 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                 $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
 
-            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$bsz['hiba_text'].'">
                             <span'.$bold.'>'.$kesz.$surgos.' '.$bsz['ikt_szam'].'</span>
                             <span'.$bold.'>'.$telephely.' - '.$helyseg.'</span>
                             <span'.$bold.'>'.$hiba['info'].'</span>
                             <span'.$bold.'>'.getStatText($tabla, $bsz['stat_id']).'</span>
+                            <span'.$bold.'>'.substr($bsz['insert_dt'], 0, 16).'</span>
                          </a>';
 
             $csoport_class = '';

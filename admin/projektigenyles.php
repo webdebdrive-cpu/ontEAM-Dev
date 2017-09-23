@@ -438,15 +438,12 @@ if($gyorskereso_text){
     //Módosítás gombok
     } else {
 
-        $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, "`recid`='{$_GET['id']}'");
-		$sor = $sor[0];
-
+        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
         //Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
-        $statusz = $adatbazis_kapcsolat->s2('stat_id', $megnevezes.'_statusz', "`{$megnevezes}_recid`='".$_GET['id']."'", 'insert_dt desc', '1');
         //Csak nyitott vagy véleményezés alatt státuszú törölhető
-        if( $statusz['stat_id']!=PRIGENY_STAT_LETRE_ALATT && $statusz['stat_id']!=PRIGENY_STAT_VEL_ALATT && $statusz['stat_id']!=PRIGENY_STAT_VEL_ALATT ) {
+        if( $sor['stat_id']!=PRIGENY_STAT_LETRE_ALATT && $sor['stat_id']!=PRIGENY_STAT_NYITOTT && $sor['stat_id']!=PRIGENY_STAT_VEL_ALATT ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak létrehozás alatt, nyitott vagy véleményezés alatt státuszú projektigénylés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         //Jogosutságkezelés: csak az törölheti, akinek van hozzá joga
         } elseif( !_jog(JOG_PRIGENY_KEZEL) ){
@@ -472,22 +469,22 @@ if($gyorskereso_text){
             }
 
             //Elutasítás
-            if($statusz['stat_id'] != PRIGENY_STAT_ELUTASITVA) {
+            if($sor['stat_id'] != PRIGENY_STAT_ELUTASITVA) {
                 $gombok .= ' <input type="button" class="gomb_alert foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas\');">';
             }
-            if($statusz['stat_id'] != PRIGENY_STAT_HIANYPOTLAS) {
+            if($sor['stat_id'] != PRIGENY_STAT_HIANYPOTLAS) {
                 $gombok .= ' <input type="button" class="gomb_alert foGomb" value="Hiánypótlásra vár" title="Hiánypótlásra vár" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_HIANYPOTLAS.'\');">';
             }
-            if($statusz['stat_id'] != PRIGENY_STAT_FB_TERJESZT) {
+            if($sor['stat_id'] != PRIGENY_STAT_FB_TERJESZT) {
                 $gombok .= ' <input type="button" class="gomb foGomb" value="FB elé terjeszt" title="FB elé terjeszt" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_FB_TERJESZT.'\');">';
             }
-            if($statusz['stat_id'] != PRIGENY_STAT_BOD_TERJESZT) {
+            if($sor['stat_id'] != PRIGENY_STAT_BOD_TERJESZT) {
                 $gombok .= ' <input type="button" class="gomb foGomb" value="BoD elé terjeszt" title="BoD elé terjeszt" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_BOD_TERJESZT.'\');">';
             }
-            if($statusz['stat_id'] != PRIGENY_STAT_VARAKOZO) {
+            if($sor['stat_id'] != PRIGENY_STAT_VARAKOZO) {
                 $gombok .= ' <input type="button" class="gomb foGomb" value="Várakozó" title="Várakozó" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_VARAKOZO.'\');">';
             }
-            if($statusz['stat_id'] != PRIGENY_STAT_JOVAHAGYVA) {
+            if($sor['stat_id'] != PRIGENY_STAT_JOVAHAGYVA) {
                 $gombok .= ' <input type="button" class="gomb zold foGomb" value="Jóváhagy" title="Jóváhagy" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_VARAKOZO.'\');">';
             }
 

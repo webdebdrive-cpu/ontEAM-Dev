@@ -461,7 +461,7 @@ if( isset($_POST['arazas']) ) {
     exit();
 }
 
-//Áazás mentése
+//Árazás mentése
 if ($_POST['arazas_ment']) {
     $_POST['ig_menny']  = str_replace(array(' ', ','), array('', '.'), $_POST['ig_menny']);
     $_POST['rndear']    = str_replace(array(' ', ','), array('', '.'), $_POST['rndear']);
@@ -1692,7 +1692,7 @@ if($gyorskereso_text){
         if(_jog(JOG_ANYAGIGENYLES_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="$(\'#szerk_form\').submit()">
                 </div>
             ');
 
@@ -1803,7 +1803,7 @@ if($gyorskereso_text){
             if(!$nem_szerkesztheti && isset($_GET['modosit'])){
                 $gombok = nl2('
                     <div class="form_kuldes">
-                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="$(\'#szerk_form\').submit()">
                     </div>
                 ').$gombok;
             }

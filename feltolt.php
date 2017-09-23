@@ -22,6 +22,7 @@ if(kit($_FILES[$_POST['megnevezes']]['name'])=='php'){
 /* Vélemény feltöltése */
 if($_POST['megnevezes']=='velemeny'){
     
+    //Adott illető egyáltalán véleményező-e
     if($adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'", '', '1')){
         
         $utvonal = get_utvonal().'projektigenyles_velemeny';
@@ -69,10 +70,7 @@ if($_POST['megnevezes']=='velemeny'){
                 //Ha az illetőnek már volt feltöltve véleménye, akkor ezzel az újjal felülírjuk, azaz a korábbit töröljük
                 $korabbi_velemeny = $adatbazis_kapcsolat->s2('utvonal', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
                 if($korabbi_velemeny){
-                    $fajl = get_utvonal().$korabbi_velemeny['utvonal'];
-                    if(is_file($fajl)){
-                        unlink($fajl);
-                    }
+                    kep_torol(get_utvonal().'projektigenyles_velemeny/'.$korabbi_velemeny['utvonal']);
                     $adatbazis_kapcsolat->d('projektigenyles_velemeny', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
                 }
                 
