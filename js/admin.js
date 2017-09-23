@@ -259,14 +259,14 @@ function felh_valt( valt ) {
 }
 
 $(function() {
-    
+
     /* Ha nincs kjelölve a bal navpanelben egy sor sem, akkor az első kijelöltjük */
     setTimeout(function() {
-        
+
         if( !$('#szamlaList li.szamla_sor').hasClass('kijelolve') && !_get('uj') ) {
             $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
         }
-        
+
     }, 1);
 
     $('#ajaxfedo').addClass('dn');
@@ -405,16 +405,28 @@ $(function() {
         }
     });
 
+    var delay = (function() {
+        var timer = 0;
+        return function(callback, ms) {
+            clearTimeout(timer);
+            timer = setTimeout(callback, ms);
+        };
+    })();
+
     /*Gyorskereső*/
     $(document).on('keyup', '#rendezesKeres', function(e) {
-        $.ajax({
-            url : $(this).attr('data-tabla'),
-            type: 'GET',
-            data: esamp2es('ksz=' + $(this).val() + '&amp;gyorskereso_ajax=' + new Date().getTime()),
-            success: function (response) {
-                $('#tartalomBal').html(response);
-            }
-        });
+        var that = $(this);
+
+        delay(function() {
+            $.ajax({
+                url : that.attr('data-tabla'),
+                type: 'GET',
+                data: esamp2es('ksz=' + that.val() + '&amp;gyorskereso_ajax=' + new Date().getTime()),
+                success: function (response) {
+                    $('#tartalomBal').html(response);
+                }
+            });
+        }, 650);
     });
 
     /* Általánosan kattintva a dokumentumban */
@@ -745,7 +757,11 @@ $(function() {
 
     });
 
-
+    $(window).bind('beforeunload', function(e) {
+        if( formModositva ) {
+            return 'Biztos elhagyja az oldalt mentés nélkül?';
+        }
+    });
 
     formModositva = false;
     $('#tartalomJobb').on('keyup change paste', '#szerk_form input, #szerk_form select, #szerk_form textarea', function(e) {
@@ -968,10 +984,10 @@ $(function() {
             location.href=get_get(['mezo', 'op', 'felt'])+'&mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt;
         }
     });
-    
+
     /* Összetett szűrő feltétel összeállítása */
     $(document).on('click', '.f_o_szuro_hozzaad', function() {
-        
+
         var feltetel_ertek = $('#o_feltetel select').val();
         var feltetel_nev   = $('#o_feltetel option:selected').text();
         if(!feltetel_ertek){
@@ -983,18 +999,18 @@ $(function() {
                 feltetel_ertek = $('#'+id).val();
             }
         }
-        
+
         /* Hibaellenőrzés, majd mehet */
         if(!feltetel_ertek){
             alert2('Kérjük állítsa be a szűrési feltételt!');
         }else{
-            
+
             /* Feltételek törlése gomb megjelenítése */
             $('#o_sures_ft input').show();
             if(!$('#o_sures_ft').html()){
                 $('#o_sures_ft').html('<input type="button" class="gomb kis_gomb piros f_o_szures_ftorol" value="Feltételek törlése">');
             }
-        
+
             var mondat = '';
             $('#o_feltetel_halmaz').append(
                                     '<div class="dtr">'+
@@ -1034,7 +1050,7 @@ $(function() {
             $('#o_feltetel select').hide();
             $('#o_feltetel input').hide();
             $('#o_szures_submit').hide();
-            
+
             osszetett_szuro_mondat();
         }
     });
@@ -1046,7 +1062,7 @@ $(function() {
     /* Feltétel sor törlése */
     $(document).on('click', '#o_feltetel_halmaz b.torol', function() {
         $(this).closest('.dtr').remove();
-        
+
         /* Szűrés gomb kell-e még */
         if( $('#o_feltetel_halmaz div.dtc').length>0 ){
             o_szures_gomb_mutat();
@@ -1055,12 +1071,12 @@ $(function() {
         }
         osszetett_szuro_mondat();
     });
-    
+
     /* Összetett szűrés kiértékelése: az elő 3 karakter egy kód, hogy ne a konkrét értékeket küldjük át, így biztonságosabb lefuttatni az SQL-t is */
     $(document).on('click', '.f_o_szures_submit', function() {
         var feltetel = '';
         $('#o_feltetel_halmaz div.dtr').each(function () {
-            
+
             if( $(this).find('.zaro.nyit.aktiv').length ){
                 feltetel += 'ny|#';
             }
@@ -1071,9 +1087,9 @@ $(function() {
                 feltetel += 'za|#';
             }
             feltetel += $(this).find('.es_vagy').val()+'#';
-            
+
         });
-        
+
         $.ajax({
             url: 'esemenyek.php',
             type: 'POST',
@@ -1109,7 +1125,7 @@ $(function() {
                 f_o_szures_torol: new Date().getTime()
             },
             success: function (response) {
-                location.reload(); 
+                location.reload();
             }
         });
     });
@@ -1118,12 +1134,12 @@ $(function() {
         $('#o_feltetel_halmaz').html('');
         $(this).hide();
     });
-    
+
     /* És vagy értékének letárolása */
     $(document).on('change', '.es_vagy', function(e) {
         $(this).find('option:selected').attr('selected', 'selected');
     });
-    
+
 
     /* Szám mezők formázása */
     $(document).on('keyup', '.f_num', function(e) {
@@ -4779,7 +4795,7 @@ function velemeny_hozzaad(mehet){
                 }
             }
         });
-        
+
     }
 
 }
@@ -4884,7 +4900,6 @@ function _get( ertek ) {
 }
 
 function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
-
     if( szerkeszt === undefined ) {
         szerkeszt = false;
     }
@@ -5368,7 +5383,7 @@ function operator_beallit(that, selected, felt){
                     $('#operator').html(response.operator);
                 }
                 szuro_ertek_mezo_gen($('.f_szuro_mezo_operator'), felt);
-                
+
                 $('#o_szures_submit').show();
             }
         }
@@ -5379,12 +5394,12 @@ function operator_beallit(that, selected, felt){
 function szuro_ertek_mezo_gen(that, felt){
     var tabla    = that.attr('data-tabla');
     var selected = that.find('option:selected');
-    
+
     var prefix = '';
     if($('#o_operator').length){
         prefix = 'o_';
     }
-    
+
     $.ajax({
         url: 'header.php',
         type: 'POST',
@@ -5400,7 +5415,7 @@ function szuro_ertek_mezo_gen(that, felt){
                                                         '<input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl" onclick="location.href=\''+tabla+'.php\'">'
                                                     );
                 }
-                
+
             }
         }
    });
@@ -5479,7 +5494,7 @@ function naptar_torol(){
 function csoport_tartalom() {
     $('#szerk_form input:not(\'.foGomb\'), #szerk_form select, #szerk_form textarea').val('').prop('checked', false);
     $('div.statusz div.text, div.naplo, div.jsff, #sorrendezes_tobbkep, #szerk_form div.dt').hide();
-    
+
     $.ajax({
         url: 'esemenyek.php',
         type: 'POST',
@@ -5579,7 +5594,7 @@ function pri_statusz_leptet(recid, statusz){
         }
     });
 }
- 
+
 /* Összetett szűrésnél gomb mutatása */
 function o_szures_gomb_mutat(){
     $('#o_sures').html('<input type="button" class="gomb zold f_o_szures_submit" value="Szűrés">');
@@ -5588,27 +5603,27 @@ function o_szures_gomb_mutat(){
 
 /* Összetett szűrés mondat előállítása */
 function osszetett_szuro_mondat(){
-    
+
     var mondat = '';
     $('#o_feltetel_halmaz div.dtr').each(function () {
-        
+
         if($(this).find('.zaro.nyit.aktiv').length){
             mondat += '(&nbsp;';
         }
         mondat += $(this).find('.m_mezo').html()+' ';
         mondat += $(this).find('.m_op').html()+' ';
         mondat += $(this).find('.m_felt').html()+' ';
-        
+
         if($(this).find('.zaro.zar.aktiv').length){
             mondat += ')&nbsp;';
         }
-        
+
         mondat += $(this).find('.es_vagy option:selected').text()+' ';
-        
+
     });
-    
+
     /* Utolsó ÉS/VAGY levágása */
     mondat = mondat.replace(/ ÉS +$/, '').replace(/ VAGY +$/, '');
-    
+
     $('#o_szures_mondat').html('<b>Megfogalmazott feltétel:</b><br>'+mondat);
 }

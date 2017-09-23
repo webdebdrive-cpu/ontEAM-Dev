@@ -10,7 +10,7 @@ foreach($akt_tomb as $ertek){
     if(isset($_GET['ujkent']) && !$sor[$ertek['name']] && $_SESSION[$ertek['name']]){
         $sor[$ertek['name']] = $_SESSION[$ertek['name']];
     }
-    
+
 	switch($ertek['type']){
 
 
@@ -88,11 +88,11 @@ foreach($akt_tomb as $ertek){
 
             $csoport_where = '';
             if( $ertek['csoport'] ) {
-                $csoport_where = ' and csoport='.$ertek['csoport'];
+                $csoport_where = " and `csoport` = '".$ertek['csoport']."'";
             }
 
             /* Lekérdezzük a külső tábla értékét */
-            $kulso_ertek = $adatbazis_kapcsolat->s($ertek['listaz'], $ertek['tabla'], '`'.$ertek['oszlop_keres'].'`=\''.$kulso_val.$csoport_where.'\'', '', '1');
+            $kulso_ertek = $adatbazis_kapcsolat->s($ertek['listaz'], $ertek['tabla'], '`'.$ertek['oszlop_keres'].'`=\''.$kulso_val.'\''.$csoport_where, '', '1');
 if (isset($_GET['teszt'])) {
     //echo $adatbazis_kapcsolat->gp() . '<br>';
 }
