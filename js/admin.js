@@ -1978,7 +1978,6 @@ function varolistabolKivetel(csak_kerdezunk) {
 function varolistahozAdas(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
-
         szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
 
         if( szamlaSorok.length ) {
@@ -1995,12 +1994,20 @@ function varolistahozAdas(csak_kerdezunk) {
             if( objLength(idk) ) {
                 var page = $('#szamlaBetolt').attr('data-page');
 
+                var indok = $('input[name="varolista_indok"]').val();
+                if( indok == '' && csak_kerdezunk === undefined ) {
+                    alert_raz();
+                    document.getElementById('varolista_indok').focus();
+                    return false;
+                }
+
                 $.ajax({
                     url : 'esemenyek.php',
                     type: 'POST',
                     data: {
                         idk             : JSON.stringify(idk),
                         page            : page,
+                        indok           : indok,
                         csak_kerdezunk  : csak_kerdezunk,
                         varolistahozAdas: new Date().getTime()
                     },
@@ -5514,7 +5521,9 @@ function bejegyzesDuplikal() {
     if( _get('uj') ){
         alert2('Új feltöltés alatt nem értelmezett a duplikálás, előbb válasszon ki egy '+$('#rekord_neve_targy').html()+'!', '', 'Hiba');
     }else{
-        alert2(duplikaKerdes, duplikalGomb);
+        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit').done(function() {
+            alert2(duplikaKerdes, duplikalGomb);
+        });
     }
 }
 

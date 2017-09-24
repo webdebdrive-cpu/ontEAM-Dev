@@ -926,7 +926,7 @@ $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'html',            'megn' => nl2('
                                                         <div class="dtr">
                                                             <div class="dtc">
-                                                                
+
                                                             </div>
                                                             <div class="dtc">
                                                                 <div class="dib c" style="width: 26%; padding-top: 1rem">Bejelentést rögzítő</div>
@@ -1542,7 +1542,7 @@ if (isset($_GET['modosit'])) {
         $megter_cel_rejt = '';
     }
     $letrehozta_mikor = 'Létrehozta: <b>'.$pi['insert_usr'].' '.  str_replace('-', '.', substr($pi['insert_dt'], 0, 16)).'</b>-kor';
-    
+
 }
 
 $projektigenyles_tomb = $akt_tomb = array(
@@ -1692,18 +1692,18 @@ if( !in_array(basename(self()), $kivetelek) ){
 //Összetett szűrés inicializálása
 if (isset($_POST['o_szures'])) {
     require_once 'szures.php';
-    
+
     echo json_encode(array(
         'inputok' => $szures,
         'html'    => $_SESSION['o_szuro_html'],
     ));
-    
+
     $weblap->leallit();
     exit();
 }
 //Összetett szűrés SQL-é alaktíása
 if (isset($_POST['f_o_szures_submit'])) {
-    
+
     $sql = 'SELECT * FROM `'.get_db_tabla().$_POST['tabla'].'` WHERE '.get_o_szures_where_kieg($_POST['feltetel'], $_POST['tabla']);
     if(mysqli_query($db_kapcs, $sql)){
         $_SESSION['o_szuro_feltetel'] = $_POST['feltetel'];
@@ -1716,7 +1716,7 @@ if (isset($_POST['f_o_szures_submit'])) {
             'hiba' => 'A megfogalmazott feltétel hibás, nem futtatható le!'
         ));
     }
-    
+
     $weblap->leallit();
     exit();
 }
@@ -2918,7 +2918,7 @@ if( isset($_POST['varolistahozAdas']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
-                'hiba' => 'Biztos várólistához adja a kijelölt '.$hibauzi_szoveg_targy.'?',
+                'hiba' => 'Biztos várólistához adja a kijelölt '.$hibauzi_szoveg_targy.'? <br><br>Indoklás: <br><input type="text" name="varolista_indok" id="varolista_indok" value="" class="oriasi">',
                 'gomb' => '<input class="gomb zold" value="Igen" onclick="varolistahozAdas();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
@@ -2930,7 +2930,7 @@ if( isset($_POST['varolistahozAdas']) ) {
         foreach($idk as $id) {
             $statusz = addStatusz( $page.'_statusz', $id, $varakozo_statid );
             if( $statusz === false ) { $db_error = true; }
-            
+
             //Munkalaphoz tartozó Bejelentések státuszát is várakozóra léptetjük
             if($page=='munkalap'){
                 $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$id}'");
@@ -2939,8 +2939,10 @@ if( isset($_POST['varolistahozAdas']) ) {
                     if( $statusz === false ) { $db_error = true; }
                 }
             }
+
+            /* Beírjuk az indoklást */
+            addMegj('munkalap', $id, $_POST['indok']);
         }
-        
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -3041,7 +3043,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
         foreach($idk as $id) {
             $statusz = addStatusz( $page.'_statusz', $id, $nyitott_statid[0] );
             if( $statusz === false ) { $db_error = true; }
-            
+
             //Munkalaphoz tartozó Bejelentések státuszát is várakozóra léptetjük
             if($page=='munkalap'){
                 $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$id}'");
@@ -3050,7 +3052,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
                     if( $statusz === false ) { $db_error = true; }
                 }
             }
-            
+
         }
 
         if( !$db_error ) {
@@ -3534,7 +3536,7 @@ if( isset($_POST['munkalapKeszit']) ) {
 
 /* Bejegyzések elutasítása */
 if( isset($_POST['bejegyzesElutasitas']) ) {
-    
+
     $tabla          = $_POST['tabla'];
     $memo           = $_POST['memo'];
     $elutasitas_id  = $_POST['elutasitas_id'];
@@ -3542,10 +3544,10 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
 
     switch($tabla){
         case 'bejelentes':
-            
-            
+
+
             //Jogosultság és hiba kezelés
-            
+
             if(!$memo){
                 echo json_encode(array(
                     'hiba' => 'Kérjük indokolja az elutasítást!'
@@ -3553,7 +3555,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
                 $weblap->leallit();
                 exit();
             }
-            
+
             if( !_jog(JOG_BEJELENTES_ELUTASIT) ){
                 echo json_encode(array(
                     'hiba' => 'Önnek nincs joga bejelentést elutasítani!'
@@ -3577,7 +3579,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
                 $weblap->leallit();
                 exit();
             }
-            
+
             $statusz = BEJELENTES_STAT_ELUTASITVA;
         break;
         case 'projektigenyles': $statusz = PRIGENY_STAT_ELUTASITVA;    break;
@@ -3642,7 +3644,7 @@ if( isset($_POST['csoportbolTorol']) ) {
         /* Frissítjük a megfelelő sorokat */
         $sql = $adatbazis_kapcsolat -> u($page, array($oszlop), array(0), "`recid` IN (".implode(',', $idk).")");
         if( $sql === false ) { $db_error = true; }
-        
+
         //Munkalapok csoportból törlésekor a státusza automatikusan nyitottra vált
         if($page=='munkalap'){
 
@@ -3870,12 +3872,12 @@ if( isset($_GET['addCsoport']) ) {
 
 // Csoport nevére kattintva a jobb oldali rész tartalmának kiszámítása
 if (isset($_POST['csoport_tartalom'])) {
-    
+
     switch($_POST['tabla']){
         case 'bejelentes': $megnevezes = 'bejelentések'; break;
         case 'munkalap'  : $megnevezes = 'munkalapok';   break;
     }
-    
+
     $html = nl2('
         <b>Csoportba tartozó '.$megnevezes.':</b>
         <table class="csikos" style="margin-top: 1rem">
@@ -3887,7 +3889,7 @@ if (isset($_POST['csoport_tartalom'])) {
         ');
     $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id stat_id', $_POST['tabla'], "`csoport_id`='{$_POST['csoport_id']}'");
     foreach($munkalapok as $munkalap){
-        
+
         $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$munkalap['telephely_id']}'");
         $html .= nl2('
             <tr>
@@ -3898,9 +3900,9 @@ if (isset($_POST['csoport_tartalom'])) {
             ');
     }
     $html .= '</table>';
-    
+
     echo $html;
-    
+
     $weblap->leallit();
     exit();
 }
@@ -3929,7 +3931,7 @@ if( isset($_POST['mellekTorol']) ) {
 
     //Törlés tényleges lekezelése
     if( $tabla && is_array($idk) ) {
-        
+
         //Munkalapok-bejelentések kapcsolata
         if( $tabla == 'munkalap_kapcs' ) {
             /* Újra nyitott státuszú lesz a bejegyzés */
@@ -4004,17 +4006,17 @@ if( isset($_POST['mellekTorol']) ) {
                     exit();
                 }
             }
-            
+
         //Projektigénylés véleményező törlés esetén töröljük a véleményt (fájlt) is ha volt
         } else if($tabla=='projektigenyles_kapcs'){
-            
+
             $velemenyezok = $adatbazis_kapcsolat->s('projektigenyles_recid, login_recid', $tabla, "`recid` IN (".implode(',', $idk).")");
             if( $velemenyezok === false ) { $db_error = true; }
 
             foreach($velemenyezok as $velemenyezo){
                 $velemeny = $adatbazis_kapcsolat->s2('utvonal', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$velemenyezo['projektigenyles_recid']}' AND `login_recid`='{$velemenyezo['login_recid']}'");
                 if( $velemenyezok === false ) { $db_error = true; }
-                
+
                 if($velemeny){
                     $file = '../'.get_utvonal().$velemeny['utvonal'];
                     if(is_file($file)){
@@ -4023,13 +4025,13 @@ if( isset($_POST['mellekTorol']) ) {
                     $adatbazis_kapcsolat->d('projektigenyles_velemeny', "`projektigenyles_recid`='{$velemenyezo['projektigenyles_recid']}' AND `login_recid`='{$velemenyezo['login_recid']}'");
                 }
             }
-            
+
             $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
             if( $sql === false ) { $db_error = true; }
-            
+
             //Ha ellenőrizzük, hogy a megmaradtaknak mindnek van-e már vélemények. Státuszt kell léptetni ha igen.
             prigeny_mindenki_velemenyezett_e($velemenyezo['projektigenyles_recid']);
-            
+
         //Általános eset
         } else {
             $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
@@ -4836,7 +4838,7 @@ foreach($postok as $ertek){
             $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
         }
-        
+
         //Projektigénylésnél a véleményezők és azok dokumentumai
         if($ertek['tabla']=='projektigenyles'){
             $adatbazis_kapcsolat->d('projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");

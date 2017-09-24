@@ -3,7 +3,7 @@
 Játékszabályok:
 
 - Két eset van: Egy bejelentés egy munkalap illetve egy bejelentés több munkalap
-- Ha egy munkalapot csoportosítunk, akkor a benne levő munkalapok automatikusan várakozóra is kerülnek 
+- Ha egy munkalapot csoportosítunk, akkor a benne levő munkalapok automatikusan várakozóra is kerülnek
   (és áttételesen a hozzá tartozó bejelentés is).
 - Ha kiveszünk belőle egy elemet, akkor annak státusza nyitottra vált (és áttételesen a hozzá tartozó bejelentés is).
 - Csoportot lehessen egyben visszatenni nyitottnak, de ekkor nem bomlik fel a csoport.
@@ -466,7 +466,7 @@ if($gyorskereso_text){
                 </div>
             ');
         }
-        
+
         // Akinek van joga hozzá, csak az tud elutasítani, és csak akkor, ha még nem készült belőle munkalap
         $van_munkalapja = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
         if( $sor['stat_id']!=BEJELENTES_STAT_ELUTASITVA && _jog(JOG_BEJELENTES_ELUTASIT) && !$van_munkalapja ) {
@@ -610,7 +610,7 @@ if($gyorskereso_text){
             }
 
 			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
+				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
@@ -703,11 +703,14 @@ if($gyorskereso_text){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
 
+        $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
+        $telephely = $telephely[0]['nev'];
+
         //Duplákáláskor feltett kérdés
         $szamla_html .= nl2('
             <script>
-                duplikalGomb  = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                duplikaKerdes = \'Bejelentés szám: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Ez a munkalap '.count($munkalap_kapcs).' db bejelentésből készült. <br>Ezek a bejelentések az új munkalaphoz is hozzá lesznek rendelve. <br>Biztos, hogy duplikálja?\';
+                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                duplikaKerdes = \'Bejelentés szám: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Biztos, hogy duplikálja?\';
             </script>
         ');
 
