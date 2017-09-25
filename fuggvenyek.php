@@ -1920,7 +1920,7 @@ function szamla_lista( $where, $tabla ) {
         if ($_GET['mezo']=='megjegyzes') {
             $sql_kieg .= ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
-        if(strpos($select, 'obj_id')!==false){
+        if($tabla!='munkalap' && strpos($select, 'obj_id')!==false){
             $sql_kieg .= ' JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid` ';
         }
         $mivel = 'JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`'.$sql_kieg.' WHERE';
@@ -2365,13 +2365,22 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
                 $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
 
-            /* Telephely */
-            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
-            $telephely = $telephely[0]['nev'];
-
+            /* Külső adatok */
+            $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'recid='.$bsz['telephely_id'], '', '1');
+            $hely      = $adatbazis_kapcsolat->s2('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
+            $gep       = $adatbazis_kapcsolat->s2('nev', 'eszkozkezeles', 'recid='.$bsz['gep_id'], '', '1');
+            
+            require_once 'selectek.php';
+            $szemelyzet = '';
+            foreach($select_szemelyzet as $szemely){
+                if($szemely['value']==$bsz['szemelyzet_id']){
+                    $szemelyzet = $szemely['name'];
+                }
+            }
+            
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span'.$bold.'>'.$kesz.$surgos.$bsz['ikt_szam'].' - '.$telephely.'</span>
-                            <span'.$bold.'>'.$statusz.'</span>
+                            <span'.$bold.'>'.$kesz.$surgos.$bsz['ikt_szam'].' - '.$statusz.' - '.$telephely['nev'].' - '.$hely['nev'].' - '.$gep['nev'].'</span>
+                            <span'.$bold.'>'.erteklista(6, $bsz['tipus_id']).' '.$szemelyzet.'</span>
                          </a>';
 
             $csoport_class = '';
@@ -3913,6 +3922,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     }
 }
 
+/* Értéklistából infó kinyerése */
 function erteklista($csoport, $id) {
     global $adatbazis_kapcsolat;
 
@@ -3931,11 +3941,8 @@ function erteklista($csoport, $id) {
 function getErtek($mit, $tabla, $keres, $val) {
     global $adatbazis_kapcsolat;
 
-    $sor = $adatbazis_kapcsolat->s($mit, $tabla, "`{$keres}` = '{$val}'", '', '1');
-
+    $sor = $adatbazis_kapcsolat->s2($mit, $tabla, "`{$keres}` = '{$val}'", '', '1');
     if( $sor ) {
-        $sor = $sor[0];
-
         return $sor[$mit];
     } else {
         return false;

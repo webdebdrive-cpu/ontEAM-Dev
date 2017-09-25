@@ -367,6 +367,10 @@ switch($tabla) {
             `'.get_db_tabla().'munkalap`.`telephely_id`,
             `'.get_db_tabla().'munkalap`.`csoport_id`,
             `'.get_db_tabla().'munkalap`.`surgos`,
+            `'.get_db_tabla().'munkalap`.`tipus_id`,
+            `'.get_db_tabla().'munkalap`.`obj_id`,
+            `'.get_db_tabla().'munkalap`.`gep_id`,
+            `'.get_db_tabla().'munkalap`.`szemelyzet_id`,
             `'.get_db_tabla().'munkalap_csoport`.`nev`
         ');
 
@@ -997,11 +1001,11 @@ $munkalap_tomb = $akt_tomb = array(
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id',       'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'style' => '', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'onclick' => '', 'post' => ''),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
-    array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id'),
+    array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id', 'alert' => 'Kérjük adja meg a tipust!'),
     array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => 1,                  'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'disableNav',        'post'  => ' '.$hozrend_mobilnev),
-    array('type' => 'text',                     'megn' => 'Kezdés/befejezési idő:',     'name' => 'elv_ido_tol',        'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'ora_perc', 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
-	array('type' => 'text',                     'megn' => '',                           'name' => 'elv_ido_ig',                       'disabled' => $csakUjkent,        'class' => 'ora_perc'),
+    array('type' => 'text',                     'megn' => 'Igényelt elvégzési időszak:','name' => 'ig_el_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker'),
+	//array('type' => 'text',                     'megn' => '',                           'name' => 'elv_ido_ig',                       'disabled' => $csakUjkent,        'class' => 'ora_perc'),
 	array('type' => 'nosql',                    'name' => 'ujkentSzerkID'),
 
     //array('type' => 'statusz',         'megn' => 'Státusz:',            'oldal' => 'bejelentes'),

@@ -2159,6 +2159,8 @@ if($gyorskereso_text){
                         <div class="dtc">Bejelentés szám</div>
                         <div class="dtc">Szálloda</div>
                         <div class="dtc">Hiba</div>
+                        <div class="dtc">Hiba leírása</div>
+                        <div class="dtc">Bejelentő</div>
                         <div class="dtc">Bejelentve</div>
                         <div class="dtc">Státusz</div>
                     </div>
@@ -2166,9 +2168,8 @@ if($gyorskereso_text){
             $i = 1;
             foreach($munkalap_kapcsok as $munkalap_kapcs) {
 
-                $sor = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id obj_id hiba_id insert_dt stat_id', 'bejelentes', "`recid` = '".$munkalap_kapcs['bejelentes_id']."'", '', '1');
+                $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id hiba_id insert_dt stat_id hiba_text usr_nev usr_telefon usr_email usr_beosztas_id usr_reszleg_id', 'bejelentes', "`recid` = '".$munkalap_kapcs['bejelentes_id']."'", '', '1');
                 if( $sor ) {
-                    $sor = $sor[0];
 
                     /* Telephely */
                     $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
@@ -2187,6 +2188,14 @@ if($gyorskereso_text){
                             <div class="dtc"><a href="bejelentes.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a></div>
                             <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
                             <div class="dtc">'.$hiba['info'].'</div>
+                            <div class="dtc">'.nl2br2($sor['hiba_text']).'</div>
+                            <div class="dtc">
+                                '.$sor['usr_nev'].'
+                                <br>'.erteklista(18, $sor['usr_beosztas_id']).'
+                                <br>'.$sor['usr_telefon'].'
+                                <br>'.erteklista(17, $sor['usr_reszleg_id']).'
+                                <br>'.$sor['usr_email'].'
+                            </div>
                             <div class="dtc">'.$sor['insert_dt'].'</div>
                             <div class="dtc">'.getStatText('bejelentes', $sor['stat_id']).'</div>
                         </div>
