@@ -54,7 +54,7 @@ if($tobb_kep){
 
 }
 
-/* Munkalap lezárás */
+/* Munkalap megrendelése */
 if( isset($_POST['munkalapMegrendelve']) ) {
     $recid = $_POST['recid'];
 
@@ -133,7 +133,7 @@ if( isset($_POST['munkalapMegrendelve']) ) {
     exit();
 }
 
-/* Munkalap lezárás */
+/* Munkalap küldés jóváhagyásra */
 if( isset($_POST['kuldesJovahagyasra']) ) {
     $recid = $_POST['recid'];
 
@@ -212,7 +212,7 @@ if( isset($_POST['kuldesJovahagyasra']) ) {
     exit();
 }
 
-/* Munkalap lezárás */
+/* Munkalap külső kivitelező hozzárendelése */
 if( isset($_POST['kulsokivHozzarend']) ) {
     $recid = $_POST['recid'];
     $szallitoid = $_POST['szallitoid'];
@@ -275,7 +275,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
     exit();
 }
 
-/* Munkalap lezárás */
+/* Munkalap külső kivitelező select előállít */
 if( isset($_POST['munkalap_kulsoSelect']) ) {
     require_once('selectek.php');
 
@@ -1973,7 +1973,18 @@ if($gyorskereso_text){
     }
 
 	//Új munkalap felvitele
-	if( isset($_GET['uj']) && (_jog(JOG_MUNKALAP_TELEPITETT) || _jog(JOG_MUNKALAP_MOBIL) || _jog(JOG_MUNKALAP_MUSZAKI_VEZ) || _jog(JOG_MUNKALAP_TER_FELELOS) || _jog(JOG_MUNKALAP_DISZP_KP_VEZ) || _jog(JOG_MUNKALAP_MUSZAK_ADMIN) || _jog(JOG_MUNKALAP_ADMIN) || _jog(JOG_MUNKALAP_KULSO)) ) {
+	if(     isset($_GET['uj']) &&
+            (
+                _jog(JOG_MUNKALAP_TELEPITETT)   ||
+                _jog(JOG_MUNKALAP_MOBIL)        ||
+                _jog(JOG_MUNKALAP_MUSZAKI_VEZ)  ||
+                _jog(JOG_MUNKALAP_TER_FELELOS)  ||
+                _jog(JOG_MUNKALAP_DISZP_KP_VEZ) ||
+                _jog(JOG_MUNKALAP_MUSZAK_ADMIN) ||
+                _jog(JOG_MUNKALAP_ADMIN)        ||
+                _jog(JOG_MUNKALAP_KULSO)
+            ) 
+        ) {
 
         //NAVIGÁCIÓ
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);

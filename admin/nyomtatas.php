@@ -1,4 +1,6 @@
 <?php
+require_once '../weblap.php';
+
 if ($_GET['print']=='lista') {
     
     if ($_GET['mezo']) {
@@ -35,6 +37,13 @@ if ($_GET['print']=='lista') {
         $feltetel = 'Szűrő feltételek: <b>'.$feltetel.'</b>';
     }
     
+    
+    $sorok = array();
+    $query = mysqli_query($db_kapcs, $_SESSION['akt_sql']);    
+    while($sor = mysqli_fetch_assoc($query)){
+        array_push($sorok, $sor);
+    }
+    
     echo nl2('
 <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
 <link href="../css/admin.css" rel="stylesheet" type="text/css">
@@ -42,10 +51,13 @@ if ($_GET['print']=='lista') {
 <script src="../js/jquery.js"></script>
 <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
 <title>Listanézet '.date('Y.m.d H:i:s').'</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <div class="a4_allo"> 
-    <div class="padd">
+    <div class="padd" style="padding-bottom: 5rem">
         '.$feltetel.'
+        '.bejelentesLista( $sorok ).'
+        
     </div>
     <div class="footer">
         <div class="dtc padd">

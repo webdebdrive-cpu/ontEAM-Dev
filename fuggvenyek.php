@@ -533,18 +533,14 @@ function i_u($type, $tabla, $tomb) {
 
                         /* Letároljuk az új sorszámot */
                         $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
-
-                        if( $sql === false ) {
-                            $db_error = true;
-                        }
+                        if( $sql === false ) { $db_error = true; }
+                        
                     } else {
                         /* Sorszám */
                         $sorszam = 1;
 
                         $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), 'munkalap'));
-                        if( $sql === false ) {
-                            $db_error = true;
-                        }
+                        if( $sql === false ) { $db_error = true; }
                     }
 
                     /* Iktatószám formázása */
@@ -1848,24 +1844,28 @@ function szamla_lista( $where, $tabla ) {
 
             $order = '';
             //Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
-            if(_jog(JOG_DISZPECSER)){
-                $order .= '`'.get_db_tabla().'bejelentes_csoport`.`nev`, ';
-            }
-            //A sürgős mindig elől lesz, bármi is a rendezettség
-            $order .= '`'.get_db_tabla().'bejelentes`.`surgos` DESC, ';
+            //Csoportosítás már nincs
+//            if(_jog(JOG_DISZPECSER)){
+//                $order .= '`'.get_db_tabla().'bejelentes_csoport`.`nev`, ';
+//            }
 
             $irany_ikt_szam  = '';
             $irany_telephely = '';
+            
             //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
-            if($_GET['rend']=='ikt_szam'){
+            if($_GET['rend']=='surgos'){
+                $order .= '`'.get_db_tabla().'bejelentes`.`surgos` DESC, `'.get_db_tabla().'bejelentes`.`stat_id`';
+                
+            //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
+            }elseif($_GET['rend']=='telephely_id'){
+                $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'bejelentes`.`ikt_szam`';
+                
+            //Alapértelmezett rendezettség a sürgős, azon belül státusz
+            }elseif($_GET['rend']=='ikt_szam'){
                 $order .= '`'.get_db_tabla().'bejelentes`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
             }
-            //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
-            if($_GET['rend']=='telephely_id'){
-                $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'bejelentes`.`ikt_szam`';
-            }
 
-            $order = trim($order, ',');
+
         }
 
         //Rendezés munkalap esetén
@@ -1984,7 +1984,9 @@ function szamla_lista( $where, $tabla ) {
     }
 
     //Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
-    $_SESSION['akt_sql'] = $sql;
+    if(!isset($_GET['szamlaSorFrissit'])){
+        $_SESSION['akt_sql'] = $sql;
+    }
 
 if(isset($_GET['debug'])) {
     echo $_SESSION['akt_sql'] . '<br>';
@@ -2105,6 +2107,12 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
         if( !$frissit ) {
             $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
         }
+        
+        //Ha nem adunk meg $tabla-t, akkor nyomtatási nézetben vagyunk
+        $nohover = '';
+        if(!$tabla){
+            $nohover = ' nohover';
+        }
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
@@ -2151,7 +2159,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                         $telephely = $telephely[0];
 
                         $html .= nl2('
-                                    <li class="szamla_datum csoport'.$csoport_active.'" data-id="'.$aktCsoport.'">
+                                    <li class="szamla_datum csoport'.$csoport_active.$nohover.'" data-id="'.$aktCsoport.'">
                                         <span class="icon"></span>
                                         <span class="csoportNev" data-id="'.$aktCsoport.'">
                                             '.$surgos_icon.'<span class="icsopnev '.$bold.'">'.$csoportSor['nev'].'
@@ -2207,11 +2215,23 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                 $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
 
-            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$bsz['hiba_text'].'">
-                            <span'.$bold.'>'.$kesz.$surgos.' '.$bsz['ikt_szam'].'</span>
+            $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$bsz['hiba_text'].'">
+                            <span'.$bold.'>'.$kesz.$surgos.' '.$bsz['ikt_szam'].' - '.getStatText($tabla, $bsz['stat_id']).'</span>
+                            <div class="dt" style="margin: 1rem 0">
+                                <div class="dtc" style="padding-right: 1rem;">
+                                    '.$bsz['usr_nev'].'
+                                    <br>'.$bsz['usr_telefon'].'
+                                    <br>'.$bsz['usr_email'].'
+                                </div>
+                                <div class="dtc">
+                                    '.$bsz['usr_man_nev'].'
+                                    <br>'.$bsz['usr_man_telefon'].'
+                                    <br>'.$bsz['usr_man_email'].'
+                                </div>
+                            </div>
+                                
                             <span'.$bold.'>'.$telephely.' - '.$helyseg.'</span>
                             <span'.$bold.'>'.$hiba['info'].'</span>
-                            <span'.$bold.'>'.getStatText($tabla, $bsz['stat_id']).'</span>
                             <span'.$bold.'>'.substr($bsz['insert_dt'], 0, 16).'</span>
                          </a>';
 
@@ -3868,6 +3888,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'ikt_szam'      => $kieg_nev.' szám',
         'nev'           => 'Név',
         'recid'         => 'Rendszer ID',
+        'surgos'        => 'Sürgős',
         'rkat'          => 'Érték',
         'statusz'       => 'Státusz',
         'stat_id'       => 'Státusz',

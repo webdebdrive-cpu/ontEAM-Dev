@@ -1571,6 +1571,10 @@ ul.szamla_cont li a:hover {
     color: #242424;
     text-decoration: none;
 }
+ul.szamla_cont li a.nohover:hover {
+    background: #fff;
+    cursor: default;
+}
 
 ul.szamla_cont li.szamla_datum {
     border-bottom: 0.2rem solid #024c95;
@@ -1656,7 +1660,7 @@ ul.szamla_cont li:not(.csoport).active + li a {
     border-top: 0.1rem solid #55a2fa;
 }
 
-ul.szamla_cont li.kijelolve a {
+ul.szamla_cont li.kijelolve a:not(.nohover) {
     background: #55A2FA;
     color: #fff;
 }

@@ -266,6 +266,12 @@ if( isset($_POST['bejelentesIgazolas']) ) {
 /* CSV generálása */
 if (isset($_GET['csv'])) {
 
+
+    header("Content-type: text/csv");
+    header("Content-Disposition: attachment; filename=$megnevezes.csv");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+    
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
 
@@ -277,17 +283,10 @@ if (isset($_GET['csv'])) {
         mkdir('export/csv');
     }
 
-    //Régi fájlok törlése
-    $utvonal = 'export/csv/';
-    $fajlok = konyvtar_bejar($utvonal);
-    foreach($fajlok as $fajl){
-        if(filemtime($fajl)<(time()-60*60)){
-            unlink($fajl);
-        }
-    }
+    // Open the output stream
+    $open = fopen('php://output', 'w');
+    ob_start();
 
-    $fajlnev = $utvonal.'csv'.time().'.csv';
-    $open = fopen($fajlnev,'a');
     if($open){
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
@@ -311,7 +310,9 @@ if (isset($_GET['csv'])) {
         }
         fputcsv($open, $csvhead, ';');
 
+        $i = 0;
         while( $sorok = mysqli_fetch_assoc($query) ){
+
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
                 if($kulcs=='Szálloda'){
@@ -332,17 +333,24 @@ if (isset($_GET['csv'])) {
                 }
                 $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
             }
+            
             fputcsv($open, $csvcont, ';');
+            
+            //100 soronként kiírtatunk
+            if ($i % 100 == 0) {
+                flush();
+            }
+
+            $i++;
         }
     }
-    fclose($open);
-
-    header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=$megnevezes.csv");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-
-    echo fajlbol_olvas($fajlnev);
+    
+    // Get the contents of the output buffer
+    $string = ob_get_clean();
+    fclose($fh);
+    
+    // Stream the CSV data
+    exit($string);
 
     $weblap->leallit();
     exit();
@@ -437,6 +445,8 @@ if($gyorskereso_text){
 	    $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         /* Kijelöltekkel való művelet gombok */
+        /*
+        Bejelentéseknél nem lesznek csoportos műveletű gombok. Ezek a funkciók megszűntek 2017.09.06
         if( _jog(JOG_DISZPECSER) ) {
 
             $gombok .= nl2('
@@ -444,7 +454,7 @@ if($gyorskereso_text){
                     <script>
                         csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                     </script>
-                    <!--<div class="kijeloltek_muv">
+                    <div class="kijeloltek_muv">
                         <input type="button" class="gomb foGomb" value="Csoportosítás..." title="Csoportosítás...">
                         <div class="muv">
                             <ul>
@@ -462,11 +472,11 @@ if($gyorskereso_text){
                                 <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\');">Várólistból kivétel</a></li>
                             </ul>
                         </div>
-                    </div>-->
+                    </div>
                 </div>
             ');
-        }
-
+        }*/
+        
         // Akinek van joga hozzá, csak az tud elutasítani, és csak akkor, ha még nem készült belőle munkalap
         $van_munkalapja = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
         if( $sor['stat_id']!=BEJELENTES_STAT_ELUTASITVA && _jog(JOG_BEJELENTES_ELUTASIT) && !$van_munkalapja ) {
@@ -536,8 +546,12 @@ if($gyorskereso_text){
         //Ha valaki bejelentő, és nem diszpécser, akkor csak saját bejelentéseit szerkesztheti
         if(_jog(JOG_BEJELENTES_KEZEL) && !_jog(JOG_DISZPECSER)){
 
+            //Szerkeszthető egy bejelentés, ha nem vagyunk diszpécserek illetve ha mi magunk hoztuk létre a bejelentést.
             $nem_szerkesztheti = false;
             if(!_jog(JOG_DISZPECSER) && $sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
+                $nem_szerkesztheti = true;
+            }
+            if($sor['stat_id']!=BEJELENTES_STAT_NYITOTT){
                 $nem_szerkesztheti = true;
             }
 
@@ -549,6 +563,7 @@ if($gyorskereso_text){
                 ').$gombok;
             }
 
+            //Igazolás és Elutasítás gombok
             if( $sor['stat_id'] == BEJELENTES_STAT_KESZ_IG ) {
                 $gombok .= nl2('
                     <div id="kmCont">
@@ -559,6 +574,7 @@ if($gyorskereso_text){
             }
         }
 
+        //Csak diszpécser készíthet munkalapot
         if( _jog(JOG_DISZPECSER) ) {
             $gombok .= nl2('
                 <input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="munkalapKeszit(\'csak kérdezünk még\')" title="Munkalap készítése">
@@ -594,12 +610,10 @@ if($gyorskereso_text){
 	    require_once('info.php');
 
 	    //FORM
+        //Újként szerkesztéskor feltöltjük a mezők tartalmát
 		if($_GET['ujkent']){
-            $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['ujkent']);
-
+            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
             if( $sor ) {
-                $sor = $sor[0];
-
                 foreach($akt_tomb as $ertek) {
                     if( $ertek['name'] != 'ikt_szam' ) {
                         $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
@@ -612,6 +626,14 @@ if($gyorskereso_text){
 			foreach($akt_tomb as $ertek){
 				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
+            
+            //A Bejelentést rögzítő adatai mindenképpen a beloginolt felhasználó lesz
+            $login = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+            $_SESSION['usr_man_nev']         = $login['teljes_nev'];
+            $_SESSION['usr_man_beosztas_id'] = $login['beosztas_id'];
+            $_SESSION['usr_man_reszleg_id']  = $login['reszleg_id'];
+            $_SESSION['usr_man_telefon']     = $login['usertel'];
+            $_SESSION['usr_man_email']       = $login['usermail'];
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
