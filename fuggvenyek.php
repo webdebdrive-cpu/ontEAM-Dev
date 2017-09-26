@@ -2099,10 +2099,11 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
 
         //Csak diszpécser tud sorokat kijelölni
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
+//Már ő sem
+//        $jClass = '';
+//        if( _jog(JOG_DISZPECSER) ) {
+//            $jClass = ' kijelolheto';
+//        }
 
         if( !$frissit ) {
             $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
