@@ -660,6 +660,9 @@ $(function() {
         var sorok       = $('#szamlaList li.szamla_sor'),
             csoportok   = $('#szamlaList li.csoport'),
             kijelolheto = $('#szamlaList').hasClass('kijelolheto');
+            
+        /* Ha egy konkrét sorra kattintottunk, akkor minden egyéb kijelölést vegyünk le. */
+        $('#szamlaList li.kijelolve').removeClass('kijelolve');
 
         /* Ha nem használtunk sem CTRL-t, sem SHIFT gombot, vagy ha a több sor kijelölése nem engedélyezett */
         if( (!e.ctrlKey && !e.shiftKey) || !kijelolheto ) {
