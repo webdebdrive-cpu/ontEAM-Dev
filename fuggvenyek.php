@@ -2282,6 +2282,12 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
         if( _jog(JOG_DISZPECSER) ) {
             $jClass = ' kijelolheto';
         }
+        
+        //Ha nem adunk meg $tabla-t, akkor nyomtatási nézetben vagyunk
+        $nohover = '';
+        if(!$tabla){
+            $nohover = ' nohover';
+        }
 
         if( !$frissit ) {
             $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
@@ -2364,6 +2370,10 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
                 $bold    = ' class="b"';
                 $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
+            //Illetve telepítettnél/mobilnál/külsősnél, a fel nem vett munkalapok is
+            if( (_jog(JOG_MUNKALAP_TELEPITETT) || _jog(JOG_MUNKALAP_MOBIL) || _jog(JOG_MUNKALAP_KULSO)) && $bsz['stat_id'] != MUNKALAP_STAT_FELVEVE ){
+                $bold    = ' class="b"';
+            }
 
             /* Külső adatok */
             $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'recid='.$bsz['telephely_id'], '', '1');
@@ -2378,7 +2388,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
                 }
             }
             
-            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+            $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span'.$bold.'>'.$kesz.$surgos.$bsz['ikt_szam'].' - '.$statusz.' - '.$telephely['nev'].' - '.$hely['nev'].' - '.$gep['nev'].'</span>
                             <span'.$bold.'>'.erteklista(6, $bsz['tipus_id']).' '.$szemelyzet.'</span>
                          </a>';

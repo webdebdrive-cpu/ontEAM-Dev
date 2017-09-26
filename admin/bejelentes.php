@@ -107,10 +107,10 @@ if( isset($_POST['bejSzallodaValaszt']) ) {
 
 /* Bejelentés elutasítása */
 if( isset($_POST['bejelentesElutasit']) ) {
-    $recid = $_POST['recid'];
-    $validate = $_POST['validate'];
-    $elutasitas_id = $_POST['elutasitas_id'];
-    $memo = $_POST['memo'];
+    $recid          = $_POST['recid'];
+    $validate       = $_POST['validate'];
+    $elutasitas_id  = $_POST['elutasitas_id'];
+    $memo           = $_POST['memo'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -480,7 +480,7 @@ if($gyorskereso_text){
         // Akinek van joga hozzá, csak az tud elutasítani, és csak akkor, ha még nem készült belőle munkalap
         $van_munkalapja = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
         if( $sor['stat_id']!=BEJELENTES_STAT_ELUTASITVA && _jog(JOG_BEJELENTES_ELUTASIT) && !$van_munkalapja ) {
-            $gombok .= '<input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas\');">';
+            $gombok .= '<input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'bejelentesElutasit\');">';
         }
 
         /* Törlés gomb hibaüzenetei */

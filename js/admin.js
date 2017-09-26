@@ -1390,6 +1390,7 @@ function kuldesJovahagyasra( recid, csak_kerdezunk ) {
     }
 }
 
+/* Külső kivitelező hozzárendelése */
 function kulsokivHozzarend( that ) {
     var szallitoid = $(that).find('input[name="szallito_id"]');
 
@@ -1398,9 +1399,9 @@ function kulsokivHozzarend( that ) {
          	url : 'munkalap.php',
          	type: 'POST',
          	data: {
-                recid: _get('id'),
-                validate: 'false',
-                szallitoid: szallitoid.val(),
+                recid            : _get('id'),
+                validate         : 'false',
+                szallitoid       : szallitoid.val(),
                 kulsokivHozzarend: new Date().getTime()
             },
          	success: function(response) {
@@ -1453,6 +1454,7 @@ function munkFeladatTorol( recid, that ) {
     }
 }
 
+/* Átadás diszpécser központi vezetőnek */
 function diszKozpVezAtadas( that ) {
     var memo = $(that).find('textarea[name="reklamacio_memo"]');
 
@@ -1461,9 +1463,9 @@ function diszKozpVezAtadas( that ) {
          	url : 'munkalap.php',
          	type: 'POST',
          	data: {
-                recid: _get('id'),
-                validate: 'false',
-                memo: memo.val(),
+                recid            : _get('id'),
+                validate         : 'false',
+                memo             : memo.val(),
                 diszKozpVezAtadas: new Date().getTime()
             },
          	success: function(response) {
@@ -1499,9 +1501,9 @@ function diszKozpVezLezaras( that ) {
          	url : 'munkalap.php',
          	type: 'POST',
          	data: {
-                recid: _get('id'),
+                recid   : _get('id'),
                 validate: 'false',
-                memo: memo.val(),
+                memo    : memo.val(),
                 diszKozpVezLezaras: new Date().getTime()
             },
          	success: function(response) {
@@ -1552,9 +1554,9 @@ function bejelentesElutasit( that ) {
          	type: 'POST',
          	data: {
                 recid: _get('id'),
-                elutasitas_id: elutasitas_id.val(),
-                memo: memo.val(),
-                validate: 'false',
+                elutasitas_id     : elutasitas_id.val(),
+                memo              : memo.val(),
+                validate          : 'false',
                 bejelentesElutasit: new Date().getTime()
             },
          	success: function(response) {
@@ -2895,6 +2897,8 @@ function munkalapMobil( that ) {
     return false;
 }
 
+
+/* Munkalap átadása külső csoportnak */
 function munkalapKulso( that ) {
 
     if(balnav_kijelol_ell()){
@@ -2919,11 +2923,11 @@ function munkalapKulso( that ) {
         }
 
         $.ajax({
-            url : 'esemenyek.php',
+            url : 'munkalap.php',
             type: 'POST',
             data: {
-                recid: _get('id'),
-                szallito_id: szallito_id.val(),
+                recid        : _get('id'),
+                szallito_id  : szallito_id.val(),
                 szemelyzet_id: szemelyzet_id.val(),
                 munkalapKulso: new Date().getTime()
             },
@@ -2952,6 +2956,7 @@ function munkalapKulso( that ) {
     return false;
 }
 
+/* Munkalap készre jelentés */
 function munkalapKeszre(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -2959,10 +2964,10 @@ function munkalapKeszre(csak_kerdezunk) {
         alert2();
 
         $.ajax({
-            url : 'esemenyek.php',
+            url : 'munkalap.php',
             type: 'POST',
             data: {
-                recid: _get('id'),
+                recid         : _get('id'),
                 csak_kerdezunk: csak_kerdezunk,
                 munkalapKeszre: new Date().getTime()
             },
@@ -2989,6 +2994,7 @@ function munkalapKeszre(csak_kerdezunk) {
     return false;
 }
 
+/* Munkalap lezárása */
 function munkalapLezaras(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -3026,6 +3032,7 @@ function munkalapLezaras(csak_kerdezunk) {
     return false;
 }
 
+/* Munkalap átadása telepített csoportnak */
 function munkalapTelepitett(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -3033,11 +3040,11 @@ function munkalapTelepitett(csak_kerdezunk) {
         alert2();
 
         $.ajax({
-            url : 'esemenyek.php',
+            url : 'munkalap.php',
             type: 'POST',
             data: {
-                recid: _get('id'),
-                csak_kerdezunk: csak_kerdezunk,
+                recid             : _get('id'),
+                csak_kerdezunk    : csak_kerdezunk,
                 munkalapTelepitett: new Date().getTime()
             },
             success: function(response) {
@@ -3065,6 +3072,7 @@ function munkalapTelepitett(csak_kerdezunk) {
     return false;
 }
 
+/* Munkalap felvétele */
 function munkalapFelvesz( recid ) {
 
     if(balnav_kijelol_ell()){
@@ -3073,7 +3081,7 @@ function munkalapFelvesz( recid ) {
 
         if( recid ) {
             $.ajax({
-                url : 'esemenyek.php',
+                url : 'munkalap.php',
                 type: 'POST',
                 data: {
                     recid           : recid,
@@ -3103,6 +3111,7 @@ function munkalapFelvesz( recid ) {
     }
 }
 
+/* Munkalap készítése */
 function munkalapKeszit(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -3128,7 +3137,7 @@ function munkalapKeszit(csak_kerdezunk) {
 
         if( objLength(idk) ) {
             $.ajax({
-                url  : 'esemenyek.php',
+                url  : 'munkalap.php',
                 type : 'POST',
                 data : {
                     idk             : JSON.stringify(idk),
@@ -3664,8 +3673,8 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         url : 'bejelentes.php',
                         type: 'POST',
                         data: {
-                            recid: _get('id'),
-                            validate: 'true',
+                            recid             : _get('id'),
+                            validate          : 'true',
                             bejelentesElutasit: new Date().getTime()
                         },
                         success: function(response) {
@@ -3695,8 +3704,8 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         url : 'munkalap.php',
                         type: 'POST',
                         data: {
-                            recid: _get('id'),
-                            validate: 'true',
+                            recid            : _get('id'),
+                            validate         : 'true',
                             diszKozpVezAtadas: new Date().getTime()
                         },
                         success: function(response) {
@@ -3749,8 +3758,8 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         url : 'bejelentes.php',
                         type: 'POST',
                         data: {
-                            recid: _get('id'),
-                            validate: 'true',
+                            recid             : _get('id'),
+                            validate          : 'true',
                             bejelentesElutasit: new Date().getTime()
                         },
                         success: function(response) {
@@ -3780,8 +3789,8 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         url : 'munkalap.php',
                         type: 'POST',
                         data: {
-                            recid: _get('id'),
-                            validate: 'true',
+                            recid            : _get('id'),
+                            validate         : 'true',
                             diszKozpVezAtadas: new Date().getTime()
                         },
                         success: function(response) {
@@ -3812,8 +3821,8 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         url : 'munkalap.php',
                         type: 'POST',
                         data: {
-                            recid: _get('id'),
-                            validate: 'true',
+                            recid             : _get('id'),
+                            validate          : 'true',
                             diszKozpVezLezaras: new Date().getTime()
                         },
                         success: function(response) {
@@ -5149,7 +5158,7 @@ function szamlaSorFrissit( tabla, recid ) {
          	data: esamp2es('tabla=' + tabla + '&amp;recid=' + recid + param_kieg + '&amp;szamlaSorFrissit=' + new Date().getTime()),
          	success: function(response) {
          		if(response) {
-                    /* A frissítendő sor data-i értéke maradjon változatlan. Amit akpnk abban 1 lesz az értéke */
+                    /* A frissítendő sor data-i értéke maradjon változatlan. Amit kapunk abban lesz az értéke */
                     response = response.replace('data-i="1"', 'data-i="' + $('#szamla-' + recid).attr('data-i') + '"');
          			$('#szamla-' + recid).replaceWith(response);
          		}

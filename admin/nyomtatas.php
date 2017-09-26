@@ -5,7 +5,7 @@ if ($_GET['print']=='lista') {
     
     if ($_GET['mezo']) {
         $feltetel = '';
-        $akt_tomb_szures = get_akt_tomb(trim(basename(self()), '.php'));
+        $akt_tomb_szures = get_akt_tomb(str_replace('.php', '', basename(self())));
         foreach ($akt_tomb_szures as $ertek){
             if($ertek['name']==$_GET['mezo']){
                 $feltetel .= trim($ertek['megn'], ':');
@@ -44,6 +44,19 @@ if ($_GET['print']=='lista') {
         array_push($sorok, $sor);
     }
     
+    //Bal oldali navpanel kiíratása
+    switch(str_replace('.php', '', basename(self()))){
+//        case 'anyagigenyles'        : $akt_tomb = $anyagigenyles_tomb;          break;
+        case 'bejelentes'           : $sorok_html = bejelentesLista( $sorok );  break;
+//        case 'beosztas'             : $akt_tomb = $beosztas_tomb;               break;
+//        case 'cikktorzs'            : $akt_tomb = $cikktorzs_tomb;              break;
+//        case 'eszkozkezeles'        : $akt_tomb = $eszkozkezeles_tomb;          break;
+//        case 'login'                : $akt_tomb = $login_tomb;                  break;
+        case 'munkalap'             : $sorok_html = munkalapLista( $sorok );    break;
+//        case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
+//        case 'torzsadat'            : $akt_tomb = $torzsadat_tomb;              break;
+    }
+    
     echo nl2('
 <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
 <link href="../css/admin.css" rel="stylesheet" type="text/css">
@@ -56,7 +69,7 @@ if ($_GET['print']=='lista') {
 <div class="a4_allo"> 
     <div class="padd" style="padding-bottom: 5rem">
         '.$feltetel.'
-        '.bejelentesLista( $sorok ).'
+        '.$sorok_html.'
         
     </div>
     <div class="footer">
