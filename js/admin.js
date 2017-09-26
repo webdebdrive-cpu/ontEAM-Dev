@@ -1996,7 +1996,7 @@ function varolistahozAdas(csak_kerdezunk) {
             if( objLength(idk) ) {
                 var page = $('#szamlaBetolt').attr('data-page');
 
-                var indok = $('input[name="varolista_indok"]').val();
+                var indok = $('textarea[name="varolista_indok"]').val();
                 if( indok == '' && csak_kerdezunk === undefined ) {
                     alert_raz();
                     document.getElementById('varolista_indok').focus();

@@ -534,7 +534,7 @@ function i_u($type, $tabla, $tomb) {
                         /* Letároljuk az új sorszámot */
                         $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
                         if( $sql === false ) { $db_error = true; }
-                        
+
                     } else {
                         /* Sorszám */
                         $sorszam = 1;
@@ -1851,15 +1851,15 @@ function szamla_lista( $where, $tabla ) {
 
             $irany_ikt_szam  = '';
             $irany_telephely = '';
-            
+
             //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             if($_GET['rend']=='surgos'){
                 $order .= '`'.get_db_tabla().'bejelentes`.`surgos` DESC, `'.get_db_tabla().'bejelentes`.`stat_id`';
-                
+
             //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             }elseif($_GET['rend']=='telephely_id'){
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'bejelentes`.`ikt_szam`';
-                
+
             //Alapértelmezett rendezettség a sürgős, azon belül státusz
             }elseif($_GET['rend']=='ikt_szam'){
                 $order .= '`'.get_db_tabla().'bejelentes`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
@@ -2108,7 +2108,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
         if( !$frissit ) {
             $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
         }
-        
+
         //Ha nem adunk meg $tabla-t, akkor nyomtatási nézetben vagyunk
         $nohover = '';
         if(!$tabla){
@@ -2216,8 +2216,20 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                 $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
 
+            $dok_icon = '';
+            $is_dok   = $adatbazis_kapcsolat->s2('recid utvonal', $tabla.'_dok', "`{$tabla}_id` = '".$bsz['recid']."'", '', '1');
+            if( $is_dok ) {
+                if( is_file('../'.get_utvonal().$tabla.'/'.$is_dok['utvonal']) ) {
+                    $dok_icon = nl2('
+                        <span class="icon">
+                            <i class="material-icons">attach_file</i>
+                        </span>
+                    ');
+                }
+            }
+
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$bsz['hiba_text'].'">
-                            <span'.$bold.'>'.$kesz.$surgos.' '.$bsz['ikt_szam'].' - '.getStatText($tabla, $bsz['stat_id']).'</span>
+                            <span'.$bold.'>'.$kesz.$dok_icon.$surgos.' '.$bsz['ikt_szam'].' - '.getStatText($tabla, $bsz['stat_id']).'</span>
                             <div class="dt" style="margin: 1rem 0">
                                 <div class="dtc" style="padding-right: 1rem;">
                                     '.$bsz['usr_nev'].'
@@ -2230,7 +2242,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
                                     <br>'.$bsz['usr_man_email'].'
                                 </div>
                             </div>
-                                
+
                             <span'.$bold.'>'.$telephely.' - '.$helyseg.'</span>
                             <span'.$bold.'>'.$hiba['info'].'</span>
                             <span'.$bold.'>'.substr($bsz['insert_dt'], 0, 16).'</span>
@@ -2258,7 +2270,15 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
             if($frissit){
                 $active .= ' kijelolve';
             }
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
+
+            $style = '';
+            if( $bsz['stat_id'] == BEJELENTES_STAT_VARAKOZO ) {
+                if( $szinkod = getStatText('bejelentes', BEJELENTES_STAT_VARAKOZO, true) ) {
+                    $style = ' style="background: '.$szinkod.';"';
+                }
+            }
+
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.$style.'>'.$li_tart.'</li>';
 
             $i++;
         }
@@ -2283,7 +2303,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
         if( _jog(JOG_DISZPECSER) ) {
             $jClass = ' kijelolheto';
         }
-        
+
         //Ha nem adunk meg $tabla-t, akkor nyomtatási nézetben vagyunk
         $nohover = '';
         if(!$tabla){
@@ -2380,7 +2400,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
             $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'recid='.$bsz['telephely_id'], '', '1');
             $hely      = $adatbazis_kapcsolat->s2('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
             $gep       = $adatbazis_kapcsolat->s2('nev', 'eszkozkezeles', 'recid='.$bsz['gep_id'], '', '1');
-            
+
             require_once 'selectek.php';
             $szemelyzet = '';
             foreach($select_szemelyzet as $szemely){
@@ -2388,7 +2408,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
                     $szemelyzet = $szemely['name'];
                 }
             }
-            
+
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span'.$bold.'>'.$kesz.$surgos.$bsz['ikt_szam'].' - '.$statusz.' - '.$telephely['nev'].' - '.$hely['nev'].' - '.$gep['nev'].'</span>
                             <span'.$bold.'>'.erteklista(6, $bsz['tipus_id']).' '.$szemelyzet.'</span>
@@ -3392,8 +3412,8 @@ function dokumentumtarLista() {
                         array('tabla' => 'beosztas',                'nev' => 'Beosztások'               ),
                         array('tabla' => 'login',                   'nev' => 'Felhasználók'             )
                     );
-    
-    
+
+
 //    if (isset($_GET['fajlok_karbantart'])) {
 //
 //        foreach($menupontok as $menu){
@@ -3415,7 +3435,7 @@ function dokumentumtarLista() {
 //            }
 //        }
 //    }
-    
+
     foreach($menupontok as $menu){
         $checked = '';
         if($_GET['konyvtar']){
@@ -3428,7 +3448,7 @@ function dokumentumtarLista() {
                 <li>
                     <label for="konyvtar_'.$menu['tabla'].'">'.$menu['nev'].'</label>
                     <input type="checkbox"'.$checked.' id="konyvtar_'.$menu['tabla'].'">';
-            
+
             //Alkönyvtárak kiszámítása
             $alkonyvtarak = array();
             $post = '_dok';
@@ -3443,7 +3463,7 @@ function dokumentumtarLista() {
             }
             if($alkonyvtarak){
                 $html .= '<ol>';
-                
+
                 $alkonyvtarak = array_unique($alkonyvtarak);
                 sort($alkonyvtarak);
                 foreach($alkonyvtarak as $alk){
@@ -3454,9 +3474,9 @@ function dokumentumtarLista() {
                 }
                 $html .= '</ol>';
             }
-            
+
         $html .= '</li>';
-                
+
     }
     $html .= '</ol>';
 

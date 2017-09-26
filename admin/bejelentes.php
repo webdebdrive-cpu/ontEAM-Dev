@@ -271,7 +271,7 @@ if (isset($_GET['csv'])) {
     header("Content-Disposition: attachment; filename=$megnevezes.csv");
     header("Pragma: no-cache");
     header("Expires: 0");
-    
+
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
 
@@ -333,9 +333,9 @@ if (isset($_GET['csv'])) {
                 }
                 $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
             }
-            
+
             fputcsv($open, $csvcont, ';');
-            
+
             //100 soronként kiírtatunk
             if ($i % 100 == 0) {
                 flush();
@@ -344,11 +344,11 @@ if (isset($_GET['csv'])) {
             $i++;
         }
     }
-    
+
     // Get the contents of the output buffer
     $string = ob_get_clean();
     fclose($fh);
-    
+
     // Stream the CSV data
     exit($string);
 
@@ -387,14 +387,36 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
+    /* Megjegyzések darabszáma */
+    $megj_db = '';
+    $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
+    if( $megj_sorok ) {
+        $megj_db = ' ('.count($megj_sorok).')';
+    }
+
+    /* Dokumentumok darabszáma */
+    $dok_db = '';
+    $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
+    if( $dok_sorok ) {
+        $dok_db = 0;
+
+        foreach($dok_sorok as $dok_sor) {
+            if( is_file('../'.get_utvonal().$megnevezes.'/'.$dok_sor['utvonal']) ) {
+                $dok_db += 1;
+            }
+        }
+
+        $dok_db = ' ('.$dok_db.')';
+    }
+
     if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['munkalapok']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tortenet'      => 'Történet',
             'munkalapok'    => 'Munkalapok',
-            'dokumentumok'  => 'Dokumentumok',
-            'megjegyzesek'  => 'Megjegyzések'
+            'dokumentumok'  => 'Dokumentumok'.$dok_db,
+            'megjegyzesek'  => 'Megjegyzések'.$megj_db
         );
 
         $fulek = '';
@@ -476,7 +498,7 @@ if($gyorskereso_text){
                 </div>
             ');
         }*/
-        
+
         // Akinek van joga hozzá, csak az tud elutasítani, és csak akkor, ha még nem készült belőle munkalap
         $van_munkalapja = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
         if( $sor['stat_id']!=BEJELENTES_STAT_ELUTASITVA && _jog(JOG_BEJELENTES_ELUTASIT) && !$van_munkalapja ) {
@@ -626,7 +648,7 @@ if($gyorskereso_text){
 			foreach($akt_tomb as $ertek){
 				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
-            
+
             //A Bejelentést rögzítő adatai mindenképpen a beloginolt felhasználó lesz
             $login = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
             $_SESSION['usr_man_nev']         = $login['teljes_nev'];

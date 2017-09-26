@@ -224,14 +224,28 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
+    /* Megjegyzések darabszáma */
+    $megj_db = '';
+    $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
+    if( $megj_sorok ) {
+        $megj_db = ' ('.count($megj_sorok).')';
+    }
+
+    /* Dokumentumok darabszáma */
+    $dok_db = '';
+    $dok_sorok = $adatbazis_kapcsolat->s('recid', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
+    if( $dok_sorok ) {
+        $dok_db = ' ('.count($dok_sorok).')';
+    }
+
     if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || isset($_GET['utemezes']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'naptar'        => 'Naptár',
             'modosit'       => 'Adatlap',
             'utemezes'      => 'Ütemezések',
-            'dokumentumok'  => 'Dokumentumok',
-            'megjegyzesek'  => 'Megjegyzések',
+            'dokumentumok'  => 'Dokumentumok'.$dok_db,
+            'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
 
         $fulek = '';

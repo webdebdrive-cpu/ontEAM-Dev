@@ -556,7 +556,7 @@ if( isset($_POST['munkalapKeszre']) ) {
         if( $bejelentesek === false ) { $db_error = true; }
 
         if( $bejelentesek ) {
-            
+
             /* Megnézzük, hogy van-e olyan munkalap, ahol ez a bejelentés szerepel */
             $mashol_bej = $adatbazis_kapcsolat->s('munkalap_id bejelentes_id', 'munkalap_kapcs', "`bejelentes_id` = '".$bejelentesek[0]['bejelentes_id']."' AND `munkalap_id` != '{$recid}'");
             if( $mashol_bej === false ) { $db_error = true; }
@@ -568,7 +568,7 @@ if( isset($_POST['munkalapKeszre']) ) {
 
                 /* Megnézzük az összes munkalap státuszát */
                 foreach($mashol_bej as $mbej) {
-                    
+
                     $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '".$mbej['munkalap_id']."'");
                     if( $munkalap ) {
 
@@ -588,7 +588,7 @@ if( isset($_POST['munkalapKeszre']) ) {
                         }
                     }
                 }
-                
+
             /* Ha nem szerepel akkor */
             } else {
                 /* Lekérdezzük a bejelentéseit */
@@ -1098,7 +1098,7 @@ if( isset($_POST['diszKozpVezAtadas']) ) {
             exit();
         }
 
-        
+
         if( $munkalap ) {
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT, '', $memo ) ) {
                 $db_error = true;
@@ -2290,6 +2290,28 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
+    /* Megjegyzések darabszáma */
+    $megj_db = '';
+    $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
+    if( $megj_sorok ) {
+        $megj_db = ' ('.count($megj_sorok).')';
+    }
+
+    /* Dokumentumok darabszáma */
+    $dok_db = '';
+    $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
+    if( $dok_sorok ) {
+        $dok_db = 0;
+
+        foreach($dok_sorok as $dok_sor) {
+            if( is_file('../'.get_utvonal().$megnevezes.'/'.$dok_sor['utvonal']) ) {
+                $dok_db += 1;
+            }
+        }
+
+        $dok_db = ' ('.$dok_db.')';
+    }
+
     if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || /*isset($_GET['bejelentesek']) ||*/ isset($_GET['tortenet']) || isset($_GET['anyagigenyles']) || isset($_GET['elszamolas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['tetel']) ) {
         /* Számla fülek */
         $ful_tomb = array(
@@ -2299,8 +2321,8 @@ if($gyorskereso_text){
             //'bejelentesek'  => 'Bejelentések',
             'elszamolas'    => 'Elszámolás',
             'anyagigenyles' => 'Anyagigénylések',
-            'dokumentumok'  => 'Dokumentumok',
-            'megjegyzesek'  => 'Megjegyzések',
+            'dokumentumok'  => 'Dokumentumok'.$dok_db,
+            'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
 
         $fulek = '';
@@ -2549,7 +2571,7 @@ if($gyorskereso_text){
                 _jog(JOG_MUNKALAP_MUSZAK_ADMIN) ||
                 _jog(JOG_MUNKALAP_ADMIN)        ||
                 _jog(JOG_MUNKALAP_KULSO)
-            ) 
+            )
         ) {
 
         //NAVIGÁCIÓ

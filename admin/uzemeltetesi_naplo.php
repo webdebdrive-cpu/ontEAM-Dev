@@ -97,11 +97,33 @@ if($gyorskereso_text){
         echo '<div id="szamlaBetolt">';
     }
 
+    /* Megjegyzések darabszáma */
+    $megj_db = '';
+    $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
+    if( $megj_sorok ) {
+        $megj_db = ' ('.count($megj_sorok).')';
+    }
+
+    /* Dokumentumok darabszáma */
+    $dok_db = '';
+    $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
+    if( $dok_sorok ) {
+        $dok_db = 0;
+
+        foreach($dok_sorok as $dok_sor) {
+            if( is_file('../'.get_utvonal().$megnevezes.'/'.$dok_sor['utvonal']) ) {
+                $dok_db += 1;
+            }
+        }
+
+        $dok_db = ' ('.$dok_db.')';
+    }
+
     if( isset($_GET['modosit']) || isset($_GET['dokumentumok']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            'dokumentumok'  => 'Dokumentumok',
+            'dokumentumok'  => 'Dokumentumok'.$dok_db,
         );
 
         $fulek = '';

@@ -2775,7 +2775,7 @@ if( isset($_POST['varolistahozAdas']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
-                'hiba' => 'Biztos várólistához adja a kijelölt '.$hibauzi_szoveg_targy.'? <br><br>Indoklás: <br><input type="text" name="varolista_indok" id="varolista_indok" value="" class="oriasi">',
+                'hiba' => 'Biztos várólistához adja a kijelölt '.$hibauzi_szoveg_targy.'? <br><br>Indoklás: <br><textarea name="varolista_indok" id="varolista_indok" class="oriasi"></textarea>',
                 'gomb' => '<input class="gomb zold" value="Igen" onclick="varolistahozAdas();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
