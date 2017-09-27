@@ -90,24 +90,6 @@ if (isset($_GET['datumra_utemezes'])) {
 
 }
 
-if( isset($_POST['jogokhozzaad']) ) {
-    $id = $_POST['id'];
-
-    /* Kitöröljük a nem kívánatos POST elemeket */
-    unset($_POST['id']);
-    unset($_POST['jogokhozzaad']);
-
-    /* Rendezzük a tömböt */
-    ksort($_POST);
-
-    $adatbazis_kapcsolat -> u('login', array('flags'), array(implode('', $_POST)), 'recid='.$id);
-
-    $weblap->leallit();
-    hd($_SERVER['REQUEST_URI']);
-
-    exit();
-}
-
 /* CSV generálása */
 if (isset($_GET['csv'])) {
 

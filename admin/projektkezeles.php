@@ -5,9 +5,9 @@ $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $projektkezeles_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'bejegyzést';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'projekt kezelést';   //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-$gyorskereso_text       = '';       //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
+$gyorskereso_text       = '';                   //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
 $oszlop_keres           = 'nev';                //Oszlopnevek, melyben keresünk (több oszlop is felsorolható vesszőkkel)
 $oszlop_listaz          = 'nev';                //Oszlopnevek, melyeket kilizátunk (több oszlop is felsorolható vesszőkkel)
 $gyorskereso_id         = 'ksz';                //Gyorskereső input neve és ID-ja
@@ -45,24 +45,6 @@ if($tobb_kep){
     }
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 
-}
-
-if( isset($_POST['jogokhozzaad']) ) {
-    $id = $_POST['id'];
-
-    /* Kitöröljük a nem kívánatos POST elemeket */
-    unset($_POST['id']);
-    unset($_POST['jogokhozzaad']);
-
-    /* Rendezzük a tömböt */
-    ksort($_POST);
-
-    $adatbazis_kapcsolat -> u('login', array('flags'), array(implode('', $_POST)), 'recid='.$id);
-
-    $weblap->leallit();
-    hd($_SERVER['REQUEST_URI']);
-
-    exit();
 }
 
 /** Tartalom */

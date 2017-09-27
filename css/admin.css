@@ -737,10 +737,10 @@ div.jsff .hiba{
 
 div.jsff div.talloz{
     cursor: pointer;
+    display: inline-block;
     margin: auto;
     margin-top: 1.0rem;
     text-align: center;
-    width: 7.5rem;
 }
 
 div.jsff div.talloz div{

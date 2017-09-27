@@ -654,6 +654,12 @@ $(function() {
         e.preventDefault();
         e.stopPropagation();
     });
+    
+    /* Könyvtárszerkezetnél egy sor kijelölése */
+    $(document).on('click', 'ol.konyvtar_szerk li.sor', function(e) {
+        $('ol.konyvtar_szerk li.sor').removeClass('aktiv');
+        $(this).addClass('aktiv');
+    });
 
    /* Bal oldali nav panelen kattintunk egy bejegyzésre. Ekkor lekezeljük mi történik a kijelöésekkel */
     $('#tartalomBal').on('click', '#szamlaList li.szamla_sor', function(e) {
@@ -1532,6 +1538,7 @@ function diszKozpVezLezaras( that ) {
     return false;
 }
 
+/* Bejelentés elutasítása */
 function bejelentesElutasit( that ) {
     var elutasitas_id = $(that).find('input[name="elutasitas_id"]'),
                  memo = $(that).find('textarea[name="elutasitas_memo"]');
@@ -4252,6 +4259,9 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
         if(_get('szallodak')){
             szoveg = 'szállodákat';
         }
+        if(_get('engedelyek')){
+            szoveg = 'engedélyeket';
+        }
         gomb_uzi = 'Biztosan törli a kijelölt '+szoveg+'?';
         gomb_muv = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\');"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>';
 
@@ -4259,7 +4269,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     }
 }
 
-/* Kapcsolód táblák - fülek alatti rekordok - törlése általános függvénye */
+/* Kapcsoló táblák - fülek alatti rekordok - törlése általános függvénye */
 function mellekTorol( tabla, mellek ) {
     var kijelolve = $('.kijCont .kijSor.kijelolve'),
         idk       = {};
@@ -4397,6 +4407,9 @@ function kapcsolodoSzerkeszt( oldal ) {
         $('#popupTart').html(data);
 
         switch( oldal ) {
+            case 'cash_flow':
+                $('#addCashFlow').attr('onsubmit', 'return addCashFlow(\'' + _get('id') + '\', this);');
+            break;
             case 'megjegyzes':
                 $('#addMegjegyzes').attr('onsubmit', 'return addMegjegyzes(\'' + _get('id') + '\', this);');
             break;
@@ -4675,9 +4688,9 @@ function addMegjegyzes( pageID, that ) {
          	url : 'esemenyek.php',
          	type: 'POST',
          	data: {
-                pageID: pageID,
-                megj: megj,
-                tabla: baseName(location.href),
+                pageID       : pageID,
+                megj         : megj,
+                tabla        : baseName(location.href),
                 addMegjegyzes: new Date().getTime()
             },
          	success: function(html) {
@@ -4700,6 +4713,43 @@ function addMegjegyzes( pageID, that ) {
 
         $.when( ajax ).then(function() {
             $(that).find('input[name="megjegyzes"]').val('');
+        });
+    }
+
+    return false;
+}
+
+//Cash-flow hozzáadása
+function addCashFlow( pageID, that ) {
+    var datum  = $('#cf_datum').val();
+    var osszeg = $('#cf_osszeg').val();
+
+    if( pageID ) {
+        var ajax = $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'POST',
+         	data: {
+                pageID       : pageID,
+                datum        : datum,
+                osszeg       : osszeg,
+                addCashFlow  : new Date().getTime()
+            },
+         	success: function(html) {
+         		if(html) {
+                    html = JSON.parse(html);
+
+                    if( html.statusz == 'hiba' ) {
+                        alert2(html.uzi, '', 'Hiba');
+                        return false;
+                    }
+
+         			szamlaBetolt(pageID, baseName(location.href) + '.php', 'cash_flow').done(function() {
+                        $('#naploSor-' + html.kapcsID).addClass('uj');
+                    });
+
+                    popupZar();
+         		}
+         	}
         });
     }
 
@@ -5080,6 +5130,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     } else if( baseName(location.href) == 'projektigenyles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
+                    } else if( baseName(location.href) == 'projektigenyles' && _get('cash_flow') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'cash_flow\'); void(0);');
+
                     } else if( baseName(location.href) == 'projektkezeles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
@@ -5245,6 +5298,7 @@ function moveCaretToEnd(el) {
     }
 }
 
+/* Annak ellenőrzése, hogy a szálloda ki van-e már választva */
 function szallodaVane( that ) {
     var telephely_id = $('#telephely_id').val();
 
@@ -5278,6 +5332,7 @@ function szallodaVane( that ) {
     }
 }
 
+/* Annak ellenőrzése, hogy a helyiség ki van-e már választva */
 function helyisegVane( that ) {
     var telephely_id = $('#telephely_id').val();
     var helyiseg = $('#obj_id_autocomp').val();
@@ -5299,6 +5354,7 @@ function helyisegVane( that ) {
     }
 }
 
+/* Annak ellenőrzése, hogy a gép ki van-e már választva */
 function gepVane() {
     var telephely_id = $('#telephely_id').val(),
         obj_id = $('#obj_id').val();
@@ -5584,7 +5640,7 @@ function balnav_kijelol_ell(egy_csoport_reszben_szabad){
     return true;
 }
 
-/* Projekt igényléssnél ha az összes véleményező törölve van, rákérdezünk, hogy létetjük-e a státuszt nyitotba.
+/* Projekt igényléssnél ha az összes véleményező törölve van, rákérdezünk, hogy léptetjük-e a státuszt nyitottba.
  * De akkor már általánosan lett megírva a függvény. */
 function pri_statusz_leptet(recid, statusz){
     $.ajax({
@@ -5644,4 +5700,24 @@ function osszetett_szuro_mondat(){
     mondat = mondat.replace(/ ÉS +$/, '').replace(/ VAGY +$/, '');
 
     $('#o_szures_mondat').html('<b>Megfogalmazott feltétel:</b><br>'+mondat);
+}
+
+/* Eszközkezelésnél az azonosítómezőt elhegyva ellenőrizzük, hogy nem foglalt-e még az azonosító */
+function eszkozkezeles_azon_ell(azon, recid){
+    $.ajax({
+        url : 'eszkozkezeles.php',
+        type: 'POST',
+        data: {
+            azon                  : azon,
+            recid                 : recid,
+            eszkozkezeles_azon_ell: new Date().getTime()
+        },
+        success: function (response) {
+            response = JSON.parse(response);
+
+            if(response.hiba){
+                alert2(response.hiba, '', 'Hiba');
+            }
+        }
+    });
 }

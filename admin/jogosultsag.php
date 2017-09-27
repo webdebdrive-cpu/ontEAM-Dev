@@ -1,8 +1,8 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 41-es ID-nál járunk
- *  7-es kategória ID-nál járunk
+ * 43-es ID-nál járunk
+ *  8-es kategória ID-nál járunk
 \*                                                  */
 
 $jogosultsagKatok = array(
@@ -14,6 +14,7 @@ $jogosultsagKatok = array(
     6 => array('nev' => 'Rendszeres karbantartás',  'sor' => 5),
     4 => array('nev' => 'Személyzet',               'sor' => 6),
     7 => array('nev' => 'Projektek',                'sor' => 7),
+    8 => array('nev' => 'Eszközkezelés',            'sor' => 8),
 );
 
 $jogosultsagok = array(
@@ -68,4 +69,6 @@ $jogosultsagok = array(
     39 => array('nev' => 'Projekt igénylések kezelése',      'kat' => 7, 'sor' => 2, 'bekapcs' => '38'),
     40 => array('nev' => 'Véleményező hozzáadása',           'kat' => 7, 'sor' => 3),
 
+    42 => array('nev' => 'Eszközkezelés olvasása',           'kat' => 8, 'sor' => 1, 'kikapcs' => '43'),
+    43 => array('nev' => 'Eszközkezelés kezelése',           'kat' => 8, 'sor' => 2, 'bekapcs' => '42'),
 );

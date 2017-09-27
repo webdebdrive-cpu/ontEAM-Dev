@@ -1,0 +1,35 @@
+<h2>Új cash-flow hozzáadása</h2>
+<form action="" id="addCashFlow" class="popupForm" method="post">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr"> 
+                <div class="dtc form_bal">Dátum:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="cf_datum" class="datepicker" style="min-width: 9rem; width: 9rem">
+                </div>
+            </div>
+            <div class="dtr"> 
+                <div class="dtc form_bal">Összeg:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" id="cf_osszeg" class="f_num" data-tort="0" style="min-width: 9rem; width: 9rem"> Ft
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        $('.datepicker').datetimepicker({
+            closeOnDateSelect   : true,
+            format              :'Y.m.d',
+            mask                : /*'____.__.__'*/'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+            timepicker          : false,
+            validateOnBlur      : false,
+            onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
+        });
+    });
+</script>

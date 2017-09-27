@@ -1,0 +1,74 @@
+<h2>Dátumok megadása</h2>
+<form action="" id="eszkoz_eng_datum" class="popupForm" method="post" onsubmit="return engedelyDatum();">
+    <div class="kozep">
+        Kérjük adja meg a kezdeti és végdátumot:
+        <table>
+            <tr>
+                <td class="padd2">Kezdet:</td>
+                <td class="padd2"><input type="text" id="esz_eng_kezdet" class="datepicker"></td>
+            </tr>
+            <tr>
+                <td class="padd2">Vég:</td>
+                <td class="padd2"><input type="text" id="esz_eng_veg" class="datepicker"></td>
+            </tr>
+        </table>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        
+        $('#popup .bezar').hide();
+        
+        $('.datepicker').datetimepicker({
+            closeOnDateSelect   : true,
+            format              :'Y.m.d',
+            mask                : /*'____.__.__'*/'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+            timepicker          : false,
+            validateOnBlur      : false,
+            onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
+        });
+    });
+    
+    
+
+    /* Eszközkezelő engedély dátum megadása */
+    function engedelyDatum() {
+        
+        id = $('#sorrendezes_tobbkep li:last-of-type').attr('id');
+        id = id.replace('kep', '');
+        
+        $.ajax({
+            url : 'eszkozkezeles.php',
+            type: 'POST',
+            data: {
+                recid        : id,
+                kezdet       : $('#esz_eng_kezdet').val(),
+                veg          : $('#esz_eng_veg').val(),
+                engedelyDatum: new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        if( response.gomb ) {
+                            alert2(response.hiba, response.gomb);
+                        } else {
+                            alert2(response.hiba, '', 'Hiba');
+                        }
+
+                        return false;
+                    }
+
+                }
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'engedelyek');
+                popupZar(); 
+            }
+        });
+
+        return false;
+    }
+</script>

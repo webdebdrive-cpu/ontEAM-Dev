@@ -56,10 +56,14 @@
             PRIGENY_STAT_LETRE_ALATT            => array('nev' => 'Létrehozás alatt',                   'szinkod' => ''),
             PRIGENY_STAT_VEL_ALATT              => array('nev' => 'Véleményezés alatt',                 'szinkod' => ''),
             PRIGENY_STAT_ELUTASITVA             => array('nev' => 'Elutasítva',                         'szinkod' => ''),
-            PRIGENY_STAT_HIANYPOTLAS            => array('nev' => 'Hiánypótlás',                        'szinkod' => ''),
+            PRIGENY_STAT_HIANYPOTLAS            => array('nev' => 'Hiánypótlás alatt',                  'szinkod' => ''),
+            PRIGENY_STAT_HIANYPOTOLT            => array('nev' => 'Hiánypótolt',                        'szinkod' => ''),
             PRIGENY_STAT_FB_TERJESZT            => array('nev' => 'FB elé terjesztve',                  'szinkod' => ''),
             PRIGENY_STAT_BOD_TERJESZT           => array('nev' => 'BoD elé terjesztve',                 'szinkod' => ''),
             PRIGENY_STAT_VARAKOZO               => array('nev' => 'Várakozó',                           'szinkod' => ''),
             PRIGENY_STAT_JOVAHAGYVA             => array('nev' => 'Jóváhagyva',                         'szinkod' => ''),
+        ),
+        'projektkezeles' => array(
+            PRKEZEL_STAT_NYITOTT                => array('nev' => 'Nyitott',                            'szinkod' => ''),
         ),
     );

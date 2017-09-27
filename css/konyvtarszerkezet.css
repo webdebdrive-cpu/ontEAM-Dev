@@ -68,3 +68,19 @@ li input:checked + ol > li {
     display: block;
     margin: 0 0 0;
 }
+
+li.sor{
+    border-top: 0.1rem solid #d6d6d6;
+    color: #242424;
+    cursor: pointer;
+    font-size: 1.3rem;
+    padding: 0.4rem 0.2rem;
+}
+
+li.sor:hover{
+    background: #F1F8FF;
+}
+
+li.sor.aktiv{
+    background: #55A2FA;
+}

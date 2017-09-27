@@ -33,7 +33,8 @@ FONTOS: ilyenkor  a fuggvenyek.php-ban az i_u()-nél fel kell venned a 'loginnev
 JOGOSOLTSÁGKEZELÉSKOR, HA EGY ŰRLAP NEM SZERKESZTHETŐ:
 - menüből vedd ki
 - php fájlnál a $_GET['uj'] részhez is tedd be feltételnek, ne lehessen megkerülni a rendszer link ismeretében
-- header.php-ben az új felvitel és törlés ikonokat zárd ki (nem elég disabled, meg dispaly none, mert kijátszhatják a rendszert).
+- php fájlnál a módosítás Mentés gomb megjelenését is ehhez a joghoz kötni
+- header.php-ben az új felvitel és törlés ikonokat zárd ki (nem elég disabled, meg dispaly none, mert kijátszhatják a rendszert). Erre keress rá: "Törlés és új gombok ne is látsszon, ha nincs hozzá joga".
 - esemenyek.php-ban az if(isset($_GET[$ertek['torid']])) résznél szintén blokkold a tölést
 - törlés ikonra kattintva hibaüzenet (pl. státusz miatt nem szerkeszthető): addott php fájl: <input type="button" id="recordTorol">-t keresd
 

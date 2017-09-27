@@ -17,6 +17,11 @@ $tobbkep_tablanev = str_replace('.php', '', basename($_SERVER['PHP_SELF'])).'_do
 if( $_POST['tabla'] ) {
     $tobbkep_tablanev = $_POST['tabla'].'_dok';
 }
+
+//Eszközkezelésnél az engedélyeknek van egy külön tálbája
+if(basename($_SERVER['PHP_SELF']) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
+    $tobbkep_tablanev = 'eszkozkezeles_eng_dok';
+}
 //echo $tobbkep_tablanev; exit;
 
 //Képfeltöltés
@@ -32,7 +37,6 @@ if(isset($_POST['session_name'])){
     if(!is_dir($utvonal)){
         mkdir($utvonal, 0777);
     }
-
     $utvonal = $utvonal.'/'.date('ym');
 
     if(!is_dir($utvonal)){
@@ -107,50 +111,50 @@ if(isset($_POST['session_name'])){
 require_once('../weblap.php');
 
 //Sorrendezés
-if(isset($_POST['kepek_sorrend'])){
-
-    //Mindig egy undefined-el kezdődik ezt le kell venni
-    $_POST['kepek_sorrend'] = substr($_POST['kepek_sorrend'], 9, strlen($_POST['kepek_sorrend']));
-
-    $sorrend_tomb = explode(';', $_POST['kepek_sorrend']);
-    $i = 0;
-    foreach($sorrend_tomb as $kepnev){
-        $parancs = 'UPDATE `'.get_db_tabla().$tobbkep_tablanev.'` SET `sor`=\''.$i.'\' WHERE `utvonal`=\''.$kepnev.'\' AND `'.$_POST['azonosit_oszlop'].'`=\''.$_SESSION['fajl']['termek_id'].'\'';
-        mysqli_query($db_kapcs, $parancs);
-        $i++;
-    }
-
-    $weblap -> leallit();
-    exit;
-}
+//if(isset($_POST['kepek_sorrend'])){
+//
+//    //Mindig egy undefined-el kezdődik ezt le kell venni
+//    $_POST['kepek_sorrend'] = substr($_POST['kepek_sorrend'], 9, strlen($_POST['kepek_sorrend']));
+//
+//    $sorrend_tomb = explode(';', $_POST['kepek_sorrend']);
+//    $i = 0;
+//    foreach($sorrend_tomb as $kepnev){
+//        $parancs = 'UPDATE `'.get_db_tabla().$tobbkep_tablanev.'` SET `sor`=\''.$i.'\' WHERE `utvonal`=\''.$kepnev.'\' AND `'.$_POST['azonosit_oszlop'].'`=\''.$_SESSION['fajl']['termek_id'].'\'';
+//        mysqli_query($db_kapcs, $parancs);
+//        $i++;
+//    }
+//
+//    $weblap -> leallit();
+//    exit;
+//}
 
 //Képfelírat lekérdezése
-if($_POST['get_kepfelirat']){
-    $felirat = mysqli_query($db_kapcs, 'SELECT `fajlnev` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['get_kepfelirat'].'\'');
-    $felirat = mysqli_fetch_assoc($felirat);
-    echo $felirat['fajlnev'];
-
-    $weblap -> leallit();
-    exit;
-}
+//if($_POST['get_kepfelirat']){
+//    $felirat = mysqli_query($db_kapcs, 'SELECT `fajlnev` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['get_kepfelirat'].'\'');
+//    $felirat = mysqli_fetch_assoc($felirat);
+//    echo $felirat['fajlnev'];
+//
+//    $weblap -> leallit();
+//    exit;
+//}
 
 //Megjegyzés átírása
-if(isset($_POST['megj_atir'])){
-
-    $parancs = 'UPDATE `'.get_db_tabla().$tobbkep_tablanev.'` SET `fajlnev`=\''.$_POST['szoveg'].'\' WHERE `recid`=\''.$_POST['id'].'\'';
-    mysqli_query($db_kapcs, $parancs);
-//echo $adatbazis_kapcsolat->gp() . '<br>';
-    $felirat = mysqli_query($db_kapcs, 'SELECT `fajlnev` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['id'].'\'');
-    $felirat = mysqli_fetch_assoc($felirat);
-    echo $felirat['fajlnev'];
-
-    if(!$felirat['fajlnev']){
-        echo '<span class="i link">- Nincs leírás -</spam>';
-    }
-
-    $weblap -> leallit();
-    exit;
-}
+//if(isset($_POST['megj_atir'])){
+//
+//    $parancs = 'UPDATE `'.get_db_tabla().$tobbkep_tablanev.'` SET `fajlnev`=\''.$_POST['szoveg'].'\' WHERE `recid`=\''.$_POST['id'].'\'';
+//    mysqli_query($db_kapcs, $parancs);
+////echo $adatbazis_kapcsolat->gp() . '<br>';
+//    $felirat = mysqli_query($db_kapcs, 'SELECT `fajlnev` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['id'].'\'');
+//    $felirat = mysqli_fetch_assoc($felirat);
+//    echo $felirat['fajlnev'];
+//
+//    if(!$felirat['fajlnev']){
+//        echo '<span class="i link">- Nincs leírás -</spam>';
+//    }
+//
+//    $weblap -> leallit();
+//    exit;
+//}
 
 //Kép törlése
 if(isset($_POST['tobbkep_torol'])){
@@ -178,7 +182,7 @@ $megn = 'tobbkep'.$_GET['id'];
 $_SESSION['fajl']['megnevezes'] = $megn;                    //A $FILE változó neve, egyedi legyen
 $_SESSION['fajl']['nev']        = $sor['nev'];              //Fájlnév, a terméknévből származtatva (kiterjesztés nem kell, fajlnev_keszit is lesz később így ez sem kell)
 $_SESSION['fajl']['konyvtar']   = $megnevezes;              //Könyvtár, ahol a képeket gyűjtjük (eredeti termék könyvtára)
-$_SESSION['fajl']['tabla']      = get_tobbkep_tabla();      //Képek tábla, amellyel összekapcsoljuk a termékkel
+$_SESSION['fajl']['tabla']      = $tobbkep_tablanev;        //Képek tábla, amellyel összekapcsoljuk a termékkel
 $_SESSION['fajl']['oszlop']     = get_tobbkep_oszlopnev();  //Képek tábla oszopa, amellyel összekapcsoljuk a termékkel
 $_SESSION['fajl']['termek_id']  = $_GET['id'];              //A termék azonosítója, amivel összekapcsoljuk
 
@@ -192,14 +196,16 @@ if(get_tobbkep_csakkep() == 'true'){
 $parameterek = "'session_name':'".session_id()."', 'megnevezes':'".$megn."', 'sorid':'".$_GET['id']."'";
 
 //Ha minden fájl feltöltése kész, mi történjen (ide kéne egy jó ajax hívás)
+$gomb_neve   = 'Tallózás';
 $minden_kesz = '';
-if(isset($_GET['modosit'])){
-    //$minden_kesz = 'document.location.reload(true);';
+if($tobbkep_tablanev=='eszkozkezeles_eng_dok'){
+    $minden_kesz = 'kapcsolodoSzerkeszt(\'eszkozkezel_engedely\');';
+    $gomb_neve   = 'Új engedély feltöltése';
 }
 
 $sorrend_ujkep       = fajlbol_olvas('../sablon/admin/tobbkep_ujkep.html', true);
-$sorrend_ujkep_mit   = array('{MEGN}',  '{PHP_FAJL}',                     '{CSAK_KEP}', '{CSAK_KEP2}',  '{PARAMETEREK}', '{MINDEN_KESZ}'    );
-$sorrend_ujkep_mivel = array($megn,     'tobb_kep.php'/*self() nem jó!*/, $csakkep,     $csakkep2,      $parameterek,    $minden_kesz       );
+$sorrend_ujkep_mit   = array('{GOMB_NEVE}', '{MEGN}',  '{PHP_FAJL}',                     '{CSAK_KEP}', '{CSAK_KEP2}',  '{PARAMETEREK}', '{MINDEN_KESZ}'    );
+$sorrend_ujkep_mivel = array($gomb_neve,    $megn,     'tobb_kep.php'/*self() nem jó!*/, $csakkep,     $csakkep2,      $parameterek,    $minden_kesz       );
 
 $tobbkep_html  = '';
 $tobbkep_html .= str_replace($sorrend_ujkep_mit, $sorrend_ujkep_mivel, $sorrend_ujkep);
@@ -207,7 +213,13 @@ $tobbkep_html .= str_replace($sorrend_ujkep_mit, $sorrend_ujkep_mivel, $sorrend_
 $i     = 0;
 $kepek = $adatbazis_kapcsolat -> select('*', $tobbkep_tablanev, get_tobbkep_oszlopnev().'='.$_GET['id'], 'sor');
 
-$tobbkep_html .= '<div><ul id="sorrendezes_tobbkep" class="kijCont" data-tabla="'.$tobbkep_tablanev.'" data-mellek="dokumentumok">';
+//Eszközkezelés engedélyeknél dátumot is kiírunk
+$mellek = 'dokumentumok';
+if(basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
+    $mellek = 'engedelyek';
+}
+
+$tobbkep_html .= '<div><ul id="sorrendezes_tobbkep" class="kijCont" data-tabla="'.$tobbkep_tablanev.'" data-mellek="'.$mellek.'">';
 $i = 1;
 foreach($kepek as $sor_kepek) {
     $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i);
@@ -236,6 +248,12 @@ function get_tobbkep_thumb($sor_kepek, $i) {
         if( !$felirat ) {
             $felirat = '<span class="i link">- Nincs leírás -</span>';
         }
+        
+        //Eszközkezelés engedélyeknél dátumot is kiírunk
+        $datum = '';
+        if(basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
+            $datum = str_replace('-', '.', $sor_kepek['kezdet']).' - '.str_replace('-', '.', $sor_kepek['veg']);
+        }
 
         $azon    = 'kep'.$sor_kepek['recid'];
         $tobbkep_html .= nl2('
@@ -248,6 +266,7 @@ function get_tobbkep_thumb($sor_kepek, $i) {
                     <div>'.$kep -> getHtml().'</div>
                 </div>
                 <div id="megj_'.$azon.'_felirat" class="felirat f12 link c"'.$megj_szerkesztes_onclick.'>'.$felirat.'</div>
+                <div class="felirat f12">'.$datum.'</div>
                 <div class="nagyit">
                     <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
                         <i class="material-icons">file_download</i>

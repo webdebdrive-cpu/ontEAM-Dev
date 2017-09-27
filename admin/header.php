@@ -351,7 +351,9 @@ if(basename(self())=='eszkozkezeles.php')   { $oldalNev = 'Eszközök / Eszközk
 if(basename(self())=='felmeresi_terv.php')  { $oldalNev = 'Eszközök / Felmérési tervek';    }
 
 $aktmenuk  = '';
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Eszközkezelés'      ), $almenu_sablon );
+if(_jog(JOG_ESZKOZ_MEGTEKINT)){
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Eszközkezelés'      ), $almenu_sablon );
+}
 $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Felmérési tervek'   ), $almenu_sablon );
 
 $style = '';
@@ -852,6 +854,9 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'projektigenyles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
+    } elseif( basename(self()) == 'projektigenyles.php' && isset($_GET['cash_flow']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'cash_flow\'); void(0);';
+
     } elseif( basename(self()) == 'projektkezeles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
@@ -917,8 +922,9 @@ if( !in_array($megn, $nem_kell_szuro)){
     require_once 'szures.php';
 }
 
-/* NYOMTATÁS */
+/* NYOMTATÁS itt lesz lekezelve, itt hívjuk meg */
 require_once 'nyomtatas.php';
+
 
 $torol_dis = '';
 if( !isset($_GET['modosit']) ) {
@@ -973,33 +979,38 @@ if( basename(self())=='anyagigenyles.php' && !_jog(13)){
     //$uj             = '';
 }
 
-if(basename(self())=='bejelentes.php' && !_jog(1)){
+if(basename(self())=='bejelentes.php' && !_jog(JOG_BEJELENTES_KEZEL)){
     $torles_icon    = '';
     $uj             = '';
 
 }
 
-if( basename(self())=='beosztas.php' && !_jog(30)){
+if( basename(self())=='beosztas.php' && !_jog(JOG_BEOSZTASOK_KEZEL)){
     $torles_icon    = '';
     $uj             = '';
 }
 
-if( basename(self())=='cikktorzs.php' && !_jog(20)){
+if( basename(self())=='cikktorzs.php' && !_jog(JOG_CIKKTORZS_KEZEL)){
     $torles_icon    = '';
     $uj             = '';
 }
 
-if(basename(self())=='erteklista.php' && !_jog(9)){
+if(basename(self())=='erteklista.php' && !_jog(JOG_ERTEKLISTAK_KEZEL)){
     $torles_icon    = '';
     $uj             = '';
 }
 
-if(basename(self())=='erteklista.php' && !_jog(11)){
+if(basename(self())=='erteklista.php' && !_jog(JOG_SZEREPKOR_KEZEL)){
     $torles_icon    = '';
     $uj             = '';
 }
 
-if(basename(self())=='login.php' && !_jog(7)){
+if(basename(self())=='eszkozkezeles.php' && !_jog(JOG_ESZKOZ_KEZEL)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+if(basename(self())=='login.php' && !_jog(JOG_FELHASZNALOK_KEZEL)){
     $torles_icon    = '';
     $uj             = '';
 }
@@ -1014,17 +1025,17 @@ if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_KEZEL)){
     $uj             = '';
 }
 
-if( basename(self())=='raktar.php' && !_jog(18)){
+if( basename(self())=='raktar.php' && !_jog(JOG_RAKTAR_KEZEL)){
     $torles_icon    = '';
     $uj             = '';
 }
 
-if( basename(self())=='szabadsagigeny.php' && !_jog(28)){
+if( basename(self())=='szabadsagigeny.php' && !_jog(JOG_SZABADSAGIG_KEZEL)){
     $torles_icon    = '';
     $uj             = '';
 }
 
-if( basename(self())=='torzsadat.php' && !_jog(26)){
+if( basename(self())=='torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL)){
     $torles_icon    = '';
     $uj             = '';
 }

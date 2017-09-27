@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(29) ) {
+if( !_jog(JOG_BEOSZTASOK_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -190,24 +190,6 @@ if($tobb_kep){
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni! 'kepek';       } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 
 
-}
-
-if( isset($_POST['jogokhozzaad']) ) {
-    $id = $_POST['id'];
-
-    /* Kitöröljük a nem kívánatos POST elemeket */
-    unset($_POST['id']);
-    unset($_POST['jogokhozzaad']);
-
-    /* Rendezzük a tömböt */
-    ksort($_POST);
-
-    $adatbazis_kapcsolat -> u('login', array('flags'), array(implode('', $_POST)), 'recid='.$id);
-
-    $weblap->leallit();
-    hd($_SERVER['REQUEST_URI']);
-
-    exit();
 }
 
 /* CSV generálása */
