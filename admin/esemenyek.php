@@ -3318,7 +3318,7 @@ if( isset($_POST['csoportbaRendez']) ) {
 
 /* Új csoport/várólista hozzáadása */
 if( isset($_GET['addCsoport']) ) {
-    
+
     $nev  = $_GET['csoportnev'];
     $page = $_GET['page'];
 
@@ -3412,7 +3412,7 @@ if (isset($_POST['csoport_tartalom'])) {
 
 // Kapcsolódó táblák - fülek alatti rekordok - törlése
 if( isset($_POST['mellekTorol']) ) {
-    
+
     $tabla  = $_POST['tabla'];
     $recid  = $_POST['recid'];
     $idk    = json_decode($_POST['idk'], true);
@@ -3663,7 +3663,7 @@ if( isset($_POST['addCashFlow']) ) {
     $osszeg = trim(str_replace(' ', '', $_POST['osszeg']));
 
     if( $pageID ) {
-        
+
         if(!$datum){
             echo json_encode(array(
                 'statusz' => 'hiba',
@@ -3672,7 +3672,7 @@ if( isset($_POST['addCashFlow']) ) {
             $weblap -> leallit();
             exit;
         }
-        
+
         if(!$osszeg){
             echo json_encode(array(
                 'statusz' => 'hiba',
@@ -3987,7 +3987,7 @@ if( isset($_GET['szamlaSorFrissit']) ) {
 
 if( isset($_GET['szamlaLista']) ) {
 
-    $szamla_lista = szamla_lista('', $_GET['tabla']);
+    $szamla_lista = szamla_lista('', $_GET['tabla'], $_GET['kijeloltek']);
 
     if( $szamla_lista ) {
         echo '<div class="szamlaLapozas fent clearFix">'.$lapozas.'</div>'.$szamla_lista.'<div class="szamlaLapozas clearFix">'.$lapozas.'</div>';
@@ -4401,7 +4401,7 @@ foreach($postok as $ertek){
             $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
         }
-        
+
         //Felmérési tervnél a Tervlap is tartalmaz egy dokumentumot
         $fajl = $adatbazis_kapcsolat->s2('felm_terv', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
         kep_torol('../'.get_utvonal().$fajl['felm_terv']);

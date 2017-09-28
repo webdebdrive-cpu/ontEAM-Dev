@@ -178,7 +178,13 @@
             if(link){
                 location.href = link;
             }else{
-                mezo.val( $('#autocomplete ul li.aktiv').html() ).change();
+                var li_val = $('#autocomplete ul li.aktiv').html();
+
+                if( li_val.indexOf('&') !== -1 ) {
+                    li_val = li_val.replace('&amp;', '&');
+                }
+
+                mezo.val( li_val ).change();
                 van_uj_erteke = true;
 
                 mezo.attr('data-origin-val', mezo.val());
@@ -215,7 +221,7 @@
                 if(options.arazas_beallit){
                     rend_ossz_beallit();
                 }
-                
+
                 /* KP-s anyagbeszerzéshez popuphoz */
                 if($('#pop_afa').length && $('#pop_afa').val()){
                     osszegek_kiszamol($('#pop_afa'));
@@ -314,7 +320,13 @@
                     if(link){
                         location.href = link;
                     }else{
-                        mezo.val( $('#autocomplete ul li.aktiv').html() ).change();
+                        var li_val = $('#autocomplete ul li.aktiv').html();
+
+                        if( li_val.indexOf('&') !== -1 ) {
+                            li_val = li_val.replace('&amp;', '&');
+                        }
+
+                        mezo.val( li_val ).change();
                         van_uj_erteke = true;
 
                         mezo.attr('data-origin-val', mezo.val());
@@ -346,7 +358,7 @@
                         if(options.arazas_beallit){
                             rend_ossz_beallit();
                         }
-                        
+
                         /* KP-s anyagbeszerzéshez popuphoz */
                         if($('#pop_afa').length && $('#pop_afa').val()){
                             osszegek_kiszamol();

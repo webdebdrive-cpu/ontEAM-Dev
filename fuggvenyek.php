@@ -313,7 +313,7 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok,  'id'       );
             array_push($ertekek,   $ertek_id  );
 
-        
+
         //Eszközkezelésnél nem engedünk meg két egyforma azonosítót
         } else if( $tabla == 'eszkozkezeles' ) {
             if($adatbazis_kapcsolat->s2('recid', $tabla, "`azon`='{$_POST['azon']}'")){
@@ -321,7 +321,7 @@ function i_u($type, $tabla, $tomb) {
                 $weblap -> leallit();
                 exit;
             }
-            
+
         //Gégpek új bejegyzés esetén
         } else if( $tabla == 'gep' ) {
             array_push($oszlopok, 'loginnev'                        );
@@ -779,7 +779,7 @@ function i_u($type, $tabla, $tomb) {
                 if( $sql === false ) { $db_error = true; }
             }
         }
-        
+
         //Eszközkezelésnél nem engedünk meg két egyforma azonosítót
         if( $tabla == 'eszkozkezeles' ) {
             if($adatbazis_kapcsolat->s2('recid', $tabla, "`azon`='{$_POST['azon']}' AND `recid`!='{$_GET['id']}'")){
@@ -1361,6 +1361,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     formAdatok = response.adatok;
 
                     gombokNullaz();
+                    formModositva = false;
 
                     $(\'#mehet_gomb\').removeClass(\'gombb_alert\').attr(\'disabled\', true);
                 }
@@ -1373,7 +1374,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             ; return false; }
             ');
     } else {
-        $ret .= '; return true;	}';
+        $ret .= '; formModositva = false; return true;	}';
     }
 
     $ret .= nl2('
@@ -1627,11 +1628,15 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 }
 
 /* Központi SQL előállítása a bal oldali navpanel elemeinek kiszámításához (where feltétel, rendezés) */
-function szamla_lista( $where, $tabla ) {
+function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
     global $adatbazis_kapcsolat;
     global $db_kapcs;
     global $_OPTS;
+
+    if( $kijeloltek !== false ) {
+        $kijeloltek = json_decode($kijeloltek, true);
+    }
 
     //Config
     if(!$tabla){
@@ -2013,91 +2018,91 @@ if(isset($_GET['debug'])) {
     if( $bejegyzesek ) {
         switch($tabla) {
             case 'anyagigenyles':
-                $html = anyagigenylesLista( $bejegyzesek, $tabla, $frissit );
+                $html = anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'bejelentes':
-                $html = bejelentesLista( $bejegyzesek, $tabla, $frissit );
+                $html = bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'bejovo_szamlak':
-                $html = bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit );
+                $html = bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'beosztas':
-                $html = beosztasLista( $bejegyzesek, $tabla, $frissit );
+                $html = beosztasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'cash_flow':
-                $html = cash_flowLista( $bejegyzesek, $tabla, $frissit );
+                $html = cash_flowLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'cikktorzs':
-                $html = cikktorzsLista( $bejegyzesek, $tabla, $frissit );
+                $html = cikktorzsLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'energia':
-                $html = energiaLista( $bejegyzesek, $tabla, $frissit );
+                $html = energiaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'erteklista':
-                $html = erteklistaLista( $bejegyzesek, $tabla, $frissit );
+                $html = erteklistaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'eseti_fenntartas':
-                $html = eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit );
+                $html = eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'eszkozkezeles':
-                $html = eszkozkezelesLista( $bejegyzesek, $tabla, $frissit );
+                $html = eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'felmeresi_terv':
-                $html = felmeresi_tervLista( $bejegyzesek, $tabla, $frissit );
+                $html = felmeresi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'fenntartasi_szerzodes':
-                $html = fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit );
+                $html = fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'ktghely':
-                $html = ktghelyLista( $bejegyzesek, $tabla, $frissit );
+                $html = ktghelyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'ktgnem':
-                $html = ktghelyLista( $bejegyzesek, $tabla, $frissit );
+                $html = ktghelyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'login':
-                $html = loginLista( $bejegyzesek, $tabla, $frissit );
+                $html = loginLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'munkalap':
-                $html = munkalapLista( $bejegyzesek, $tabla, $frissit );
+                $html = munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'rendszeres_karbantartas':
-                $html = rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit );
+                $html = rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'projektkezeles':
-                $html = projektkezelesLista( $bejegyzesek, $tabla, $frissit );
+                $html = projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'projektigenyles':
-                $html = projektigenylesLista( $bejegyzesek, $tabla, $frissit );
+                $html = projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'raktar':
-                $html = raktarLista( $bejegyzesek, $tabla, $frissit );
+                $html = raktarLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'rendszer':
-                $html = rendszerLista( $bejegyzesek, $tabla, $frissit );
+                $html = rendszerLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'szamla':
-                $html = szamlaLista( $bejegyzesek, $tabla, $frissit );
+                $html = szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'szallito':
-                $html = szallitoLista( $bejegyzesek, $tabla, $frissit );
+                $html = szallitoLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'szabadsagigeny':
-                $html = szabadsagigenyLista( $bejegyzesek, $tabla, $frissit );
+                $html = szabadsagigenyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'szerepkor':
-                $html = szerepkorLista( $bejegyzesek, $tabla, $frissit );
+                $html = szerepkorLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'tervezes':
-                $html = tervezesLista( $bejegyzesek, $tabla, $frissit );
+                $html = tervezesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'torzsadat':
-                $html = torzsadatLista( $bejegyzesek, $tabla, $frissit );
+                $html = torzsadatLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'utemezett_feladatok':
-                $html = utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit );
+                $html = utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'uzemeltetesi_naplo':
-                $html = uzemeltetesi_naploLista( $bejegyzesek, $tabla, $frissit );
+                $html = uzemeltetesi_naploLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
         }
     }
@@ -2110,7 +2115,7 @@ if(isset($_GET['debug'])) {
 
 }
 
-function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
+function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -2311,7 +2316,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
+function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -2401,6 +2406,8 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
                 $active = ' kijelolve';
+            } else if( is_array($kijeloltek) && in_array($bsz['recid'], $kijeloltek) ) {
+                $active = ' kijelolve';
             }
 
             //Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
@@ -2467,7 +2474,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit ) {
+function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -2546,7 +2553,7 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit ) {
+function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -2626,7 +2633,7 @@ function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit ) {
+function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -2677,7 +2684,7 @@ function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit ) {
+function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -2728,7 +2735,7 @@ function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
+function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -2791,7 +2798,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function torzsadatLista( $bejegyzesek, $tabla, $frissit ) {
+function torzsadatLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -2835,7 +2842,7 @@ function torzsadatLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function szabadsagigenyLista( $bejegyzesek, $tabla, $frissit ) {
+function szabadsagigenyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -2879,7 +2886,7 @@ function szabadsagigenyLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function beosztasLista( $bejegyzesek, $tabla, $frissit ) {
+function beosztasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -2923,18 +2930,18 @@ function beosztasLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function projektigenylesLista( $bejegyzesek, $tabla, $frissit ) {
+function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
-        
+
         $csoport = $bejegyzesek[0]['csoport_id'];
 
         $jClass = '';
         if( _jog(JOG_DISZPECSER) ) {
             $jClass = ' kijelolheto';
         }
-        
+
         //Ha nem adunk meg $tabla-t, akkor nyomtatási nézetben vagyunk
         $nohover = '';
         if(!$tabla){
@@ -2947,7 +2954,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit ) {
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
-            
+
             if( !$frissit && $tabla ) {
                 $aktCsoport = $bsz['csoport_id'];
 
@@ -2973,7 +2980,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit ) {
                     $csoport = $aktCsoport;
                 }
             }
-            
+
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {
                 $active = ' kijelolve';
@@ -2996,7 +3003,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit ) {
                             <span'.$bold.'>'.$bsz['nev'].'</span>
                             <span'.$bold.'>'.$statusz.'</span>
                         </a>';
-            
+
             $csoport_class = '';
             $csoport_data = '';
             if( $bsz['csoport_id'] ) {
@@ -3032,7 +3039,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function projektkezelesLista( $bejegyzesek, $tabla, $frissit ) {
+function projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -3090,7 +3097,7 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function uzemeltetesi_naploLista( $bejegyzesek, $tabla, $frissit ) {
+function uzemeltetesi_naploLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -3134,7 +3141,7 @@ function uzemeltetesi_naploLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function energiaLista( $bejegyzesek, $tabla, $frissit ) {
+function energiaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -3178,7 +3185,7 @@ function energiaLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function tervezesLista( $bejegyzesek, $tabla, $frissit ) {
+function tervezesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -3222,7 +3229,7 @@ function tervezesLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function cash_flowLista( $bejegyzesek, $tabla, $frissit ) {
+function cash_flowLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -3266,7 +3273,7 @@ function cash_flowLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function raktarLista( $bejegyzesek, $tabla, $frissit ) {
+function raktarLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -3310,7 +3317,7 @@ function raktarLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function szamlaLista( $bejegyzesek, $tabla, $frissit ) {
+function szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -3361,7 +3368,7 @@ function szamlaLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function cikktorzsLista( $bejegyzesek, $tabla, $frissit ) {
+function cikktorzsLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -3510,19 +3517,19 @@ function dokumentumtarLista() {
     return nl2($html);
 }
 
-function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit ) {
-    
+function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
+
     global $adatbazis_kapcsolat;
-    
+
     $login_szallodai = get_akt_login_szallodai();
     if($login_szallodai){
-        
+
         $html = '
                 <div class="padd b">Eszközök:</div>
                 <link rel="stylesheet" type="text/css" href="../css/konyvtarszerkezet.css">
                 <ol class="konyvtar_szerk">
                 ';
-        
+
         if($_GET['id']){
             $akt_eszkoz = $adatbazis_kapcsolat->s2('recid telephely_id obj_id', $tabla, "`recid`='{$_GET['id']}'");
             $akt_obj    = $akt_eszkoz['obj_id'];
@@ -3551,7 +3558,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit ) {
                                 if($akt_szint==$szint['recid']){
                                     $checked = ' checked';
                                 }
-                                
+
                                 $html .= '
                                         <li>
                                             <label for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label>
@@ -3562,12 +3569,12 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit ) {
                                 if($objektumok){
                                     $html .= '<ol>';
                                     foreach($objektumok as $obj) {
-                                        
+
                                         $checked = '';
                                         if($akt_obj==$obj['recid']){
                                             $checked = ' checked';
                                         }
-                                        
+
                                         $html .= '<li>
                                                     <label for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label>
                                                     <input type="checkbox"'.$checked.' id="obj_'.$obj['recid'].'">';
@@ -3605,18 +3612,18 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit ) {
     return nl2($html);
 }
 
-function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit ) {
+function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
-    
+
     $login_szallodai = get_akt_login_szallodai();
     if($login_szallodai){
-        
+
         $html = '
                 <div class="padd b">Felmérési tervek:</div>
                 <link rel="stylesheet" type="text/css" href="../css/konyvtarszerkezet.css">
                 <ol class="konyvtar_szerk">
                 ';
-        
+
         if($_GET['id']){
             $akt_ft     = $adatbazis_kapcsolat->s2('recid telephely_id obj_id', $tabla, "`recid`='{$_GET['id']}'");
             $akt_szint  = $akt_ft['obj_id'];
@@ -3643,7 +3650,7 @@ function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit ) {
                                 if($akt_szint==$szint['recid']){
                                     $checked = ' checked';
                                 }
-                                
+
                                 $html .= '
                                         <li>
                                             <label for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label>
@@ -3679,7 +3686,7 @@ function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit ) {
     return nl2($html);
 }
 
-function szerepkorLista( $bejegyzesek, $tabla, $frissit ) {
+function szerepkorLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -3724,7 +3731,7 @@ function szerepkorLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function loginLista( $bejegyzesek, $tabla, $frissit ) {
+function loginLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -3780,7 +3787,7 @@ function loginLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function erteklistaLista( $bejegyzesek, $tabla, $frissit ) {
+function erteklistaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     global $adatbazis_kapcsolat;
 
@@ -3836,7 +3843,7 @@ function erteklistaLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function szallitoLista( $bejegyzesek, $tabla, $frissit ) {
+function szallitoLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -3892,7 +3899,7 @@ function szallitoLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function ktghelyLista( $bejegyzesek, $tabla, $frissit ) {
+function ktghelyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -3935,7 +3942,7 @@ function ktghelyLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function ktgnemLista( $bejegyzesek, $tabla, $frissit ) {
+function ktgnemLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -3978,7 +3985,7 @@ function ktgnemLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit ) {
+function bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -4194,11 +4201,11 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
                 $fokat_html .= '<ul class="alkatok'.$active.$egy_szalloda_nyitva.'">';
 
                 foreach($fokatok as $fokat) {
-                    
+
                     //Ha csak szint mélységig szeretnénk lemenni
                     if($csak_szintig){
                         $fokat_html .= '<li class="alkat"><a onclick="popupZar(); addObj( this );" class="link" data-recid="'.$fokat['recid'].'">'.$fokat['nev'].'</a></li>';
-                    }else{                        
+                    }else{
                         $katok = $adatbazis_kapcsolat->s('recid telephely_id nev szulo', 'obj', 'szulo='.$fokat['recid'], '', '');
 
                         $kat_html = '';
@@ -4225,7 +4232,7 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
 
                         $fokat_html .= '<li class="kat'.$alkatok.'"><a onclick="'.$onclick.'"'.$nyit.' data-recid="'.$fokat['recid'].'">'.$icon.$fokat['nev'].'</a>'.$kat_html.'</li>';
                     }
-                    
+
                 }
 
                 $fokat_html .= '</ul>';

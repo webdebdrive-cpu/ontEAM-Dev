@@ -654,7 +654,7 @@ $(function() {
         e.preventDefault();
         e.stopPropagation();
     });
-    
+
     /* Könyvtárszerkezetnél egy sor kijelölése */
     $(document).on('click', 'ol.konyvtar_szerk li.sor', function(e) {
         $('ol.konyvtar_szerk li.sor').removeClass('aktiv');
@@ -764,7 +764,7 @@ $(function() {
     });
 
     $(window).bind('beforeunload', function(e) {
-        if( formModositva ) {
+        if( formModositva && !_get('jogosultsag') ) {
             return 'Biztos elhagyja az oldalt mentés nélkül?';
         }
     });
@@ -4370,9 +4370,9 @@ function kijelolesEltavolit() {
 
 /* Helyiség választó popup tartalmának előállítása */
 function obj_gen(szintig) {
-    
+
     var telephely_id = $('#telephely_id').val();
-    
+
     if(szintig){
         szintig = '1';
     }else{
@@ -4578,10 +4578,24 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
     }
 
     if( tabla ) {
+        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+
+        if( szamlaSorok.length ) {
+            idk = {};
+
+            var i = 1;
+            szamlaSorok.each(function() {
+                var id = $(this).attr('data-recid');
+
+                idk[i] = id;
+                i++;
+            });
+        }
+        
         var lista = $.ajax({
             url : 'esemenyek.php',
             type: 'GET',
-            data: esamp2es('id=' + recid + '&amp;ksz=' + ksz + '&amp;rkat=' + rkat + '&amp;rend=' + rend + '&amp;irany=' + irany + '&amp;tabla=' + tabla + '&amp;szamlaLista=' + new Date().getTime()),
+            data: esamp2es('id=' + recid + '&amp;kijeloltek=' + JSON.stringify(idk) + '&amp;ksz=' + ksz + '&amp;rkat=' + rkat + '&amp;rend=' + rend + '&amp;irany=' + irany + '&amp;tabla=' + tabla + '&amp;szamlaLista=' + new Date().getTime()),
             success: function(html) {
                 if(html) {
                     $('#tartalomBal').html(html).scrollTop(0);
@@ -5001,6 +5015,12 @@ function _get( ertek ) {
 }
 
 function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
+    alert2('');
+    if( formModositva ) {
+        alert2('Biztosan elhagyja ezt a bejegyzést mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; szamlaBetolt( \'' + recid + '\', \'' + page + '\', \'' + muvelet + '\', \'' + szerkeszt + '\' )" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
+        return false;
+    }
+
     if( szerkeszt === undefined ) {
         szerkeszt = false;
     }
