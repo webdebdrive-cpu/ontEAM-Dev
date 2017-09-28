@@ -354,7 +354,9 @@ $aktmenuk  = '';
 if(_jog(JOG_ESZKOZ_MEGTEKINT)){
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Eszközkezelés'      ), $almenu_sablon );
 }
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Felmérési tervek'   ), $almenu_sablon );
+if(_jog(JOG_FT_MEGTEKINT)){
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Felmérési tervek'   ), $almenu_sablon );
+}
 
 $style = '';
 if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
@@ -818,6 +820,12 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'bejelentes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
+    } elseif( basename(self()) == 'bejelentes.php' && _jog(JOG_DISZPECSER) ) {
+        $uj_link = 'javascript: bejSzallodaValaszt(); void(0);';
+        
+    } elseif( basename(self()) == 'beosztas.php' && isset($_GET['megjegyzesek']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+        
     } elseif( basename(self()) == 'beosztas.php' && isset($_GET['naptar']) ) {
         $uj_link = 'javascript: $(\'#szerk_form div.dt\').show(); void(0)';
 
@@ -827,30 +835,33 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( isset($_GET['szallodak']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);';
 
-    } elseif( basename(self()) == 'utemezett_feladatok.php' && isset($_GET['megjegyzesek']) ) {
-        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-
     } elseif( basename(self()) == 'munkalap.php' && isset($_GET['megjegyzesek']) ) {
-        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-
-    } elseif( basename(self()) == 'rendszeres_karbantartas.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
     } elseif( basename(self()) == 'eseti_fenntartas.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
-    } elseif( basename(self()) == 'raktar.php' && isset($_GET['megjegyzesek']) ) {
+    } elseif( basename(self()) == 'energia.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
     } elseif( basename(self()) == 'eszkozkezeles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
+    } elseif( basename(self()) == 'fenntartasi_szerzodes.php' && isset($_GET['megjegyzesek']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+        
+    } elseif( basename(self()) == 'felmeresi_terv.php' && isset($_GET['megjegyzesek']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+
+    } elseif( basename(self()) == 'login.php' && isset($_GET['megjegyzesek']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+        
     } elseif( basename(self()) == 'tervezes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
-    } elseif( basename(self()) == 'energia.php' && isset($_GET['megjegyzesek']) ) {
+    } elseif( basename(self()) == 'utemezett_feladatok.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-
+        
     } elseif( basename(self()) == 'projektigenyles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
@@ -860,9 +871,12 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'projektkezeles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
-    } elseif( basename(self()) == 'fenntartasi_szerzodes.php' && isset($_GET['megjegyzesek']) ) {
+    } elseif( basename(self()) == 'raktar.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
+    } elseif( basename(self()) == 'rendszeres_karbantartas.php' && isset($_GET['megjegyzesek']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+        
     } elseif( basename(self()) == 'szamla.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
@@ -872,20 +886,11 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'torzsadat.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
-    } elseif( basename(self()) == 'beosztas.php' && isset($_GET['megjegyzesek']) ) {
-        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-
-    } elseif( basename(self()) == 'login.php' && isset($_GET['megjegyzesek']) ) {
-        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-
     } elseif( isset($_GET['velemenyezok']) && !_jog(40) ) {
         $uj_link = 'javascript: alert2(\'Önnek nincs joga véleményezőt hozzáadni!\', \'\', \'Hiba\'); void(0);';
 
     } elseif( isset($_GET['velemenyezok']) && _jog(40) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'velemenyezok\'); void(0);';
-
-    } elseif( basename(self()) == 'bejelentes.php' && _jog(JOG_DISZPECSER) ) {
-        $uj_link = 'javascript: bejSzallodaValaszt(); void(0);';
 
     } else {
         $uj_link = self().'?uj';
@@ -1006,6 +1011,11 @@ if(basename(self())=='erteklista.php' && !_jog(JOG_SZEREPKOR_KEZEL)){
 }
 
 if(basename(self())=='eszkozkezeles.php' && !_jog(JOG_ESZKOZ_KEZEL)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+if(basename(self())=='felmeresi_terv.php' && !_jog(JOG_FT_KEZEL)){
     $torles_icon    = '';
     $uj             = '';
 }

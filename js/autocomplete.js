@@ -83,12 +83,28 @@
                 /* Ha nem a szűrőben van az autocomplete, akkor csak azokat a helyiségeket listázza ki,
                  *  ami adott szállodához tartozik, ezért átküldünk egy telephely_id értékete is */
                 telephely_id = '';
-                if( !options.szuros && (baseName(location.href) == 'bejelentes' || baseName(location.href) == 'utemezett_feladatok' || baseName(location.href) == 'rendszeres_karbantartas' || baseName(location.href) == 'munkalap' ) ) {
+                if( !options.szuros && (
+                                        baseName(location.href) == 'bejelentes' ||
+                                        baseName(location.href) == 'utemezett_feladatok' ||
+                                        baseName(location.href) == 'rendszeres_karbantartas' ||
+                                        baseName(location.href) == 'munkalap' ||
+                                        baseName(location.href) == 'eszkozkezeles' ||
+                                        baseName(location.href) == 'felmeresi_terv'
+                                        )
+                ) {
                     telephely_id = $('#telephely_id').val();
                 }
 
                 obj_id = '';
-                if( !options.szuros && ( baseName(location.href) == 'bejelentes' || baseName(location.href) == 'utemezett_feladatok' || baseName(location.href) == 'rendszeres_karbantartas' || baseName(location.href) == 'munkalap' ) ) {
+                if( !options.szuros && (
+                                        baseName(location.href) == 'bejelentes' ||
+                                        baseName(location.href) == 'utemezett_feladatok' ||
+                                        baseName(location.href) == 'rendszeres_karbantartas' ||
+                                        baseName(location.href) == 'munkalap' ||
+                                        baseName(location.href) == 'eszkozkezeles' ||
+                                        baseName(location.href) == 'felmeresi_terv'
+                                        )
+                ) {
                     obj_id = $('#obj_id').val();
                 }
 

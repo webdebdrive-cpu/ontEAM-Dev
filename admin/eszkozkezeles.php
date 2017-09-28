@@ -57,13 +57,20 @@ if($tobb_kep){
 /* Foglalt azonosító ellenőrzése */
 if ($_POST['eszkozkezeles_azon_ell']) {
     
-    if($adatbazis_kapcsolat->s('recid', $megnevezes, "`azon`='{$_POST['azon']}' AND `recid`!='{$_POST['recid']}'")){
-        echo json_encode(array(
-            'hiba' => 'Ez az azonosító már foglalt, válasszon másikat!'
-        ));
+    $_POST['azon'] = trim($_POST['azon']);
+    if($_POST['azon']){
+        if($adatbazis_kapcsolat->s('recid', $megnevezes, "`azon`='{$_POST['azon']}' AND `recid`!='{$_POST['recid']}'")){
+            echo json_encode(array(
+                'hiba' => 'Ez az azonosító már foglalt, válasszon másikat!'
+            ));
+        }else{
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        }
     }else{
         echo json_encode(array(
-            'statusz' => 'siker'
+            'hiba' => 'Kérem töltse ki az azonosítót!'
         ));
     }
     
@@ -274,8 +281,7 @@ if($gyorskereso_text){
     /* Gombok kirajzolása minden oldalra */
     $gombok = '';
     if( isset($_GET['uj']) ) {
-        
-        if(_jog(JOG_PRIGENY_KEZEL)){
+        if(_jog(JOG_ESZKOZ_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
@@ -326,10 +332,11 @@ if($gyorskereso_text){
             </div>
         ');
     }
+    
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && !$csak_szerkesztheto && jog(JOG_ESZKOZ_KEZEL)){
 
+	if(isset($_GET['uj']) && _jog(JOG_ESZKOZ_KEZEL)){
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );

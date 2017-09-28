@@ -2,17 +2,17 @@ ol.konyvtar_szerk {
     padding: 0 0 0 3rem;
 }
 
-ol a:hover{
+ol.konyvtar_szerk a:hover{
     text-decoration: none;
 }
 
-li {
+ol.konyvtar_szerk li {
     position: relative;
     margin-left: -1.5rem;
     list-style: none;
 }
 
-li.fajl {
+ol.konyvtar_szerk li.fajl {
     margin-left: -0.1rem;
 }
 
@@ -25,7 +25,7 @@ li.fajl a {
     display: block;
 }
 
-li input {
+ol.konyvtar_szerk li input {
     position: absolute;
     left: 0;
     margin-left: 0;
@@ -37,18 +37,18 @@ li input {
     top: 0;
 }
 
-li input + ol {
+ol.konyvtar_szerk li input + ol {
     background: url('../elemek/nyit.png') 3.4rem 0 no-repeat;
     margin: -1.9rem 0 0.5rem -4rem;
     height: 1.5rem;
 }
 
-li input + ol > li {
+ol.konyvtar_szerk li input + ol > li {
     display: none;
     padding-left: 0.1rem;
 }
 
-li label {
+ol.konyvtar_szerk li label {
     background: url('../elemek/mappa.png') 1rem 0.1rem no-repeat;
     cursor: pointer;
     display: inline-block;
@@ -57,19 +57,19 @@ li label {
     margin-bottom: 0.3rem;
 }
 
-li input:checked + ol {
+ol.konyvtar_szerk li input:checked + ol {
     background: url('../elemek/zar.png') 3.4rem 0.1rem no-repeat;
     margin: -2rem 0 0.5rem -4rem;
     padding: 2rem 0 0 7rem;
     height: auto;
 }
 
-li input:checked + ol > li {
+ol.konyvtar_szerk li input:checked + ol > li {
     display: block;
     margin: 0 0 0;
 }
 
-li.sor{
+ol.konyvtar_szerk li.sor{
     border-top: 0.1rem solid #d6d6d6;
     color: #242424;
     cursor: pointer;
@@ -77,10 +77,10 @@ li.sor{
     padding: 0.4rem 0.2rem;
 }
 
-li.sor:hover{
+ol.konyvtar_szerk li.sor:hover{
     background: #F1F8FF;
 }
 
-li.sor.aktiv{
+ol.konyvtar_szerk li.sor.aktiv{
     background: #55A2FA;
 }

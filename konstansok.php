@@ -160,4 +160,6 @@ define('JOG_PRIGENY_KEZEL',         39);
 define('JOG_VELEMENYEZO_HOZZAAD',   40);
 define('JOG_ESZKOZ_MEGTEKINT',      42);
 define('JOG_ESZKOZ_KEZEL',          43);
+define('JOG_FT_MEGTEKINT',          44);
+define('JOG_FT_KEZEL',              45);
 ?>

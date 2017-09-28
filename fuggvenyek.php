@@ -313,6 +313,15 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok,  'id'       );
             array_push($ertekek,   $ertek_id  );
 
+        
+        //Eszközkezelésnél nem engedünk meg két egyforma azonosítót
+        } else if( $tabla == 'eszkozkezeles' ) {
+            if($adatbazis_kapcsolat->s2('recid', $tabla, "`azon`='{$_POST['azon']}'")){
+                header('Location: eszkozkezeles.php?uj');
+                $weblap -> leallit();
+                exit;
+            }
+            
         //Gégpek új bejegyzés esetén
         } else if( $tabla == 'gep' ) {
             array_push($oszlopok, 'loginnev'                        );
@@ -576,15 +585,6 @@ function i_u($type, $tabla, $tomb) {
                 }
             }
 
-        }
-        
-        //Eszközkezelésnél nem engedünk meg két egyforma azonosítót
-        if( $tabla == 'eszkozkezeles' ) {
-            if($adatbazis_kapcsolat->s2('recid', $tabla, "`azon`='{$_POST['azon']}'")){
-                header('Location: eszkozkezeles.php?uj');
-                $weblap -> leallit();
-                exit;
-            }
         }
 
         //Munkalap
@@ -2791,50 +2791,6 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit ) {
     return false;
 }
 
-function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit ) {
-    global $adatbazis_kapcsolat;
-
-    if( $bejegyzesek ) {
-
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
-        if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lista_dn.$jClass.'">';
-        }
-
-        $i = 1;
-        foreach($bejegyzesek as $bsz) {
-            $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
-                $active = ' kijelolve';
-            }
-
-            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['recid'].'</span>
-                        </a>';
-
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
-            if($frissit){
-                $active .= ' kijelolve';
-            }
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-
-            $i++;
-        }
-
-        if( !$frissit ) {
-            $html .= '</ul>';
-        }
-
-        return nl2($html);
-    }
-
-    return false;
-}
-
 function torzsadatLista( $bejegyzesek, $tabla, $frissit ) {
     global $adatbazis_kapcsolat;
 
@@ -3554,7 +3510,6 @@ function dokumentumtarLista() {
     return nl2($html);
 }
 
-// Eszközkezelés lista
 function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit ) {
     
     global $adatbazis_kapcsolat;
@@ -3567,9 +3522,21 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit ) {
                 <link rel="stylesheet" type="text/css" href="../css/konyvtarszerkezet.css">
                 <ol class="konyvtar_szerk">
                 ';
+        
+        if($_GET['id']){
+            $akt_eszkoz = $adatbazis_kapcsolat->s2('recid telephely_id obj_id', $tabla, "`recid`='{$_GET['id']}'");
+            $akt_obj    = $akt_eszkoz['obj_id'];
+            $akt_szint  = $adatbazis_kapcsolat->s2('szulo', 'obj', "`recid`='$akt_obj'");
+            $akt_szint  = $akt_szint['szulo'];
+        }
+
         $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $login_szallodai).")", 'nev');
         foreach($szallodak as $szalloda){
+
             $checked = '';
+            if($akt_eszkoz['telephely_id']==$szalloda['id']){
+                $checked = ' checked';
+            }
             $html .= '
                     <li>
                         <label for="telephely_'.$szalloda['id'].'">'.$szalloda['nev'].'</label>
@@ -3580,6 +3547,11 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit ) {
                             $html .= '<ol>';
                             foreach($szintek as $szint) {
 
+                                $checked = '';
+                                if($akt_szint==$szint['recid']){
+                                    $checked = ' checked';
+                                }
+                                
                                 $html .= '
                                         <li>
                                             <label for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label>
@@ -3590,6 +3562,12 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit ) {
                                 if($objektumok){
                                     $html .= '<ol>';
                                     foreach($objektumok as $obj) {
+                                        
+                                        $checked = '';
+                                        if($akt_obj==$obj['recid']){
+                                            $checked = ' checked';
+                                        }
+                                        
                                         $html .= '<li>
                                                     <label for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label>
                                                     <input type="checkbox"'.$checked.' id="obj_'.$obj['recid'].'">';
@@ -3598,12 +3576,90 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit ) {
                                             if($eszkozok){
                                                 $html .= '<ol>';
                                                 foreach($eszkozok as $eszkoz){
-                                                    $html .= '<li class="sor" onclick="szamlaBetolt('.$eszkoz['recid'].', \'eszkozkezeles.php\', \'modosit\')">'.$eszkoz['nev'].'<li>';
+                                                    $aktiv = '';
+                                                    if($akt_eszkoz['recid']==$eszkoz['recid']){
+                                                        $aktiv = ' aktiv';
+                                                    }
+                                                    $html .= '<li class="sor'.$aktiv.'" onclick="szamlaBetolt('.$eszkoz['recid'].', \'eszkozkezeles.php\', \'modosit\')">'.$eszkoz['nev'].'<li>';
                                                 }
                                                 $html .= '</ol>';
                                             }
 
                                         $html .= '</li>';
+                                    }
+                                    $html .= '</ol>';
+                                }
+
+                                $html .= '</li>';
+
+                            }
+                            $html .= '</ol>';
+                        }
+
+            $html .= '</li>';
+
+        }
+        $html .= '</ol>';
+    }
+
+    return nl2($html);
+}
+
+function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit ) {
+    global $adatbazis_kapcsolat;
+    
+    $login_szallodai = get_akt_login_szallodai();
+    if($login_szallodai){
+        
+        $html = '
+                <div class="padd b">Felmérési tervek:</div>
+                <link rel="stylesheet" type="text/css" href="../css/konyvtarszerkezet.css">
+                <ol class="konyvtar_szerk">
+                ';
+        
+        if($_GET['id']){
+            $akt_ft     = $adatbazis_kapcsolat->s2('recid telephely_id obj_id', $tabla, "`recid`='{$_GET['id']}'");
+            $akt_szint  = $akt_ft['obj_id'];
+        }
+
+        $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $login_szallodai).")", 'nev');
+        foreach($szallodak as $szalloda){
+
+            $checked = '';
+            if($akt_ft['telephely_id']==$szalloda['id']){
+                $checked = ' checked';
+            }
+            $html .= '
+                    <li>
+                        <label for="telephely_'.$szalloda['id'].'">'.$szalloda['nev'].'</label>
+                        <input type="checkbox"'.$checked.' id="telephely_'.$szalloda['id'].'">';
+
+                        $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'");
+                        if($szintek){
+                            $html .= '<ol>';
+                            foreach($szintek as $szint) {
+
+                                $checked = '';
+                                if($akt_szint==$szint['recid']){
+                                    $checked = ' checked';
+                                }
+                                
+                                $html .= '
+                                        <li>
+                                            <label for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label>
+                                            <input type="checkbox"'.$checked.' id="szint_'.$szint['recid'].'">
+                                        ';
+
+
+                                $ftek = $adatbazis_kapcsolat->s('recid nev', 'felmeresi_terv', "`telephely_id`='{$szalloda['id']}' AND `obj_id`='{$szint['recid']}'", 'nev');
+                                if($ftek){
+                                    $html .= '<ol>';
+                                    foreach($ftek as $ft){
+                                        $aktiv = '';
+                                        if($akt_ft['recid']==$ft['recid']){
+                                            $aktiv = ' aktiv';
+                                        }
+                                        $html .= '<li class="sor'.$aktiv.'" onclick="szamlaBetolt('.$ft['recid'].', \'felmeresi_terv.php\', \'modosit\')">'.$ft['nev'].'<li>';
                                     }
                                     $html .= '</ol>';
                                 }
@@ -4107,7 +4163,7 @@ function getJogSorRendez( $katID, $tomb ) {
 }
 
 /* Objektumhierarchia kirajzolása */
-function obj_gen( $telephelyID = false ) {
+function obj_gen( $telephelyID = false, $csak_szintig ) {
     global $adatbazis_kapcsolat;
 
     $where = '';
@@ -4138,31 +4194,38 @@ function obj_gen( $telephelyID = false ) {
                 $fokat_html .= '<ul class="alkatok'.$active.$egy_szalloda_nyitva.'">';
 
                 foreach($fokatok as $fokat) {
-                    $katok = $adatbazis_kapcsolat->s('recid telephely_id nev szulo', 'obj', 'szulo='.$fokat['recid'], '', '');
+                    
+                    //Ha csak szint mélységig szeretnénk lemenni
+                    if($csak_szintig){
+                        $fokat_html .= '<li class="alkat"><a onclick="popupZar(); addObj( this );" class="link" data-recid="'.$fokat['recid'].'">'.$fokat['nev'].'</a></li>';
+                    }else{                        
+                        $katok = $adatbazis_kapcsolat->s('recid telephely_id nev szulo', 'obj', 'szulo='.$fokat['recid'], '', '');
 
-                    $kat_html = '';
-                    if( $katok ) {
-                        $kat_html .= '<ul class="alkatok">';
+                        $kat_html = '';
+                        if( $katok ) {
+                            $kat_html .= '<ul class="alkatok">';
 
-                        foreach($katok as $kat) {
-                            $kat_html .= '<li class="alkat"><a onclick="addObj( this );" class="link" data-recid="'.$kat['recid'].'">'.$kat['nev'].'</a></li>';
+                            foreach($katok as $kat) {
+                                $kat_html .= '<li class="alkat"><a onclick="addObj( this );" class="link" data-recid="'.$kat['recid'].'">'.$kat['nev'].'</a></li>';
+                            }
+
+                            $kat_html .= '</ul>';
                         }
 
-                        $kat_html .= '</ul>';
-                    }
+                        $alkatok = '';
+                        $icon    = '';
+                        $nyit    = ' class="link"';
+                        $onclick = 'addObj( this );';
+                        if( $kat_html ) {
+                            $alkatok = ' alkatos';
+                            $icon    = '<span class="icon"></span>';
+                            $nyit    = ' class="nyit link"';
+                            $onclick = '';
+                        }
 
-                    $alkatok = '';
-                    $icon    = '';
-                    $nyit    = ' class="link"';
-                    $onclick = 'addObj( this );';
-                    if( $kat_html ) {
-                        $alkatok = ' alkatos';
-                        $icon    = '<span class="icon"></span>';
-                        $nyit    = ' class="nyit link"';
-                        $onclick = '';
+                        $fokat_html .= '<li class="kat'.$alkatok.'"><a onclick="'.$onclick.'"'.$nyit.' data-recid="'.$fokat['recid'].'">'.$icon.$fokat['nev'].'</a>'.$kat_html.'</li>';
                     }
-
-                    $fokat_html .= '<li class="kat'.$alkatok.'"><a onclick="'.$onclick.'"'.$nyit.' data-recid="'.$fokat['recid'].'">'.$icon.$fokat['nev'].'</a>'.$kat_html.'</li>';
+                    
                 }
 
                 $fokat_html .= '</ul>';

@@ -68,6 +68,11 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         }
 
         /* Telephely id */
+        $obj_csak_szint = false;
+        if($_GET['tabla']=='obj_csakszint'){
+            $_GET['tabla'] = 'obj';
+            $obj_csak_szint = true;
+        }
         if( $_GET['telephely_id'] && ($_GET['tabla'] == 'obj' || $_GET['tabla'] == 'eszkozkezeles') ) {
             if( $where_sql ) {
                 $where_sql .= " AND `telephely_id` = '".$_GET['telephely_id']."'";
@@ -91,6 +96,15 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
                 $where_sql .= " AND `aktiv` = '1'";
             } else {
                 $where_sql .= " WHERE `aktiv` = '1'";
+            }
+        }
+        
+        //Objektumonnkál van, hogy csak a szinteket szeretnénk lekérdezni
+        if($obj_csak_szint){
+            if( $where_sql ) {
+                $where_sql .= " AND `szulo`=0";
+            } else {
+                $where_sql .= " WHERE `szulo`=0";
             }
         }
 
@@ -125,10 +139,10 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             //$loginnevek = $adatbazis_kapcsolat->s('recid nev', 'torzsadat', "`felh_loginnev` IN ('".implode('\', \'', $felhok)."')");
 
         }
+        
 
 //echo 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`'; exit;
         $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
-        //echo 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`';
         while( $sor = mysqli_fetch_array($lekerdez) ) {
 
             $cikkmee_attr = '';

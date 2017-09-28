@@ -4340,14 +4340,22 @@ function kijelolesEltavolit() {
     }
 }
 
-function obj_gen() {
+/* Helyiség választó popup tartalmának előállítása */
+function obj_gen(szintig) {
+    
     var telephely_id = $('#telephely_id').val();
+    
+    if(szintig){
+        szintig = '1';
+    }else{
+        szintig = '';
+    }
 
     if( telephely_id ) {
         $.ajax({
          	url : 'esemenyek.php',
          	type: 'GET',
-         	data: esamp2es('telephely_id=' + telephely_id + '&amp;obj_general=' + new Date().getTime()),
+         	data: esamp2es('telephely_id=' + telephely_id + '&amp;szintig=' + szintig + '&amp;obj_general=' + new Date().getTime()),
          	success: function(html) {
          		if(html) {
                     $('#popupTart').html(html);
@@ -4356,18 +4364,17 @@ function obj_gen() {
          	}
         });
     } else {
-        alert2('Kérem előbb válasszon szállodát!');
+        alert2('Kérjük előbb válasszon szállodát!');
         return false;
     }
 }
-
+/* Helyiség hozzáadása */
 function addObj( that ) {
     var text  = $(that).text(),
         recid = $(that).attr('data-recid');
 
     $('input[name="obj_id"]').val(recid).change();
     $('input[name="obj_id_autocomp"]').val(text).change();
-
     /* Az autocomplete-t újra rá kell tenni, hogy az alapértelmezett értéke az üresség lehessen */
     $('#obj_id_autocomp').autocomplete({
         'php_fajl'      : '../autocomplete.php',
@@ -5112,6 +5119,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
                     } else if( baseName(location.href) == 'eszkozkezeles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
+                    } else if( baseName(location.href) == 'felmeresi_terv' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+
                     } else if( baseName(location.href) == 'fenntartasi_szerzodes' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
@@ -5356,6 +5366,7 @@ function helyisegVane( that ) {
 
 /* Annak ellenőrzése, hogy a gép ki van-e már választva */
 function gepVane() {
+
     var telephely_id = $('#telephely_id').val(),
         obj_id = $('#obj_id').val();
 
@@ -5702,7 +5713,7 @@ function osszetett_szuro_mondat(){
     $('#o_szures_mondat').html('<b>Megfogalmazott feltétel:</b><br>'+mondat);
 }
 
-/* Eszközkezelésnél az azonosítómezőt elhegyva ellenőrizzük, hogy nem foglalt-e még az azonosító */
+/* Eszközkezelésnél az azonosítómezőt elhagyva ellenőrizzük, hogy nem foglalt-e még az azonosító */
 function eszkozkezeles_azon_ell(azon, recid){
     $.ajax({
         url : 'eszkozkezeles.php',
@@ -5711,6 +5722,26 @@ function eszkozkezeles_azon_ell(azon, recid){
             azon                  : azon,
             recid                 : recid,
             eszkozkezeles_azon_ell: new Date().getTime()
+        },
+        success: function (response) {
+            response = JSON.parse(response);
+
+            if(response.hiba){
+                alert2(response.hiba, '', 'Hiba');
+            }
+        }
+    });
+}
+
+/* Felmérési terveknél az azonosítómezőt elhagyva ellenőrizzük, hogy nem foglalt-e még az azonosító */
+function ft_azon_ell(azon, recid){
+    $.ajax({
+        url : 'felmeresi_terv.php',
+        type: 'POST',
+        data: {
+            azon       : azon,
+            recid      : recid,
+            ft_azon_ell: new Date().getTime()
         },
         success: function (response) {
             response = JSON.parse(response);
