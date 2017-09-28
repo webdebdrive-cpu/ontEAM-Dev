@@ -444,39 +444,45 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $
 
 
 /* Projektek */
-$menu_nev        = 'Projektek';
-$menu_nev_kis    = 'rojektek';
-$menu_nev_tobbes = 'Projektek';
-$megn            = 'projektigenyles';
-$aloldalak       = array($megn.'.php', 'projektkezeles.php', 'cash_flow.php');
-if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-if(basename(self())=='projektigenyles.php') { $oldalNev = 'Projektek / <span id="rekord_neve">Projektigénylések</span><span class="dn" id="rekord_neve_egyes">projektigénylés</span><span class="dn" id="rekord_neve_targy">projektigénylést</span>';  }
-if(basename(self())=='projektkezeles.php')  { $oldalNev = 'Projektek / <span id="rekord_neve">Projektkezelés</span><span class="dn" id="rekord_neve_egyes">projektkezelés</span><span class="dn" id="rekord_neve_targy">projektkezelést</span>';     }
-if(basename(self())=='cash_flow.php')       { $oldalNev = 'Projektek / <span id="rekord_neve">Cash Flow</span><span class="dn" id="rekord_neve_egyes">Cash Flow</span><span class="dn" id="rekord_neve_targy">Cash Flow-t</span>';          }
+if(_jog(JOG_PRIGENY_S_MEGTEKINT) || _jog(JOG_PRIGENY_M_MEGTEKINT) || _jog(JOG_PRKEZEL_MEGTEKINT)){
+    $menu_nev        = 'Projektek';
+    $menu_nev_kis    = 'rojektek';
+    $menu_nev_tobbes = 'Projektek';
+    $megn            = 'projektigenyles';
+    $aloldalak       = array($megn.'.php', 'projektkezeles.php', 'cash_flow.php');
+    if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
+    if(basename(self())=='projektigenyles.php') { $oldalNev = 'Projektek / <span id="rekord_neve">Projektigénylések</span><span class="dn" id="rekord_neve_egyes">projektigénylés</span><span class="dn" id="rekord_neve_targy">projektigénylést</span>';  }
+    if(basename(self())=='projektkezeles.php')  { $oldalNev = 'Projektek / <span id="rekord_neve">Projektkezelés</span><span class="dn" id="rekord_neve_egyes">projektkezelés</span><span class="dn" id="rekord_neve_targy">projektkezelést</span>';     }
+    if(basename(self())=='cash_flow.php')       { $oldalNev = 'Projektek / <span id="rekord_neve">Cash Flow</span><span class="dn" id="rekord_neve_egyes">Cash Flow</span><span class="dn" id="rekord_neve_targy">Cash Flow-t</span>';          }
 
-$aktmenuk  = '';
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Projektigénylések'  ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Projektkezelés'     ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Cash-flow'          ), $almenu_sablon );
+    $aktmenuk  = '';
+    if(_jog(JOG_PRIGENY_S_MEGTEKINT) || _jog(JOG_PRIGENY_M_MEGTEKINT)){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Projektigénylések'  ), $almenu_sablon );
+    }
+    if(_jog(JOG_PRKEZEL_MEGTEKINT)){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Projektkezelés'     ), $almenu_sablon );
+    }
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Cash-flow'          ), $almenu_sablon );
 
-$style = '';
-if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover{STYLE_KIEG}"';
-}
+    $style = '';
+    if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
+        $style = ' class="hover{STYLE_KIEG}"';
+    }
 
-if( $aktmenuk ) {
-    if( $style ) {
-        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+    if( $aktmenuk ) {
+        if( $style ) {
+            $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
+        } else {
+            $style = ' class="almenus"';
+        }
     } else {
-        $style = ' class="almenus"';
+        if( $style ) {
+            $style = str_replace('{STYLE_KIEG}', '', $style);
+        }
     }
-} else {
-    if( $style ) {
-        $style = str_replace('{STYLE_KIEG}', '', $style);
-    }
-}
 
-$menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+}
 
 
 
@@ -979,7 +985,7 @@ $uj  = nl2('
         </a>
     ');
 
-if( basename(self())=='anyagigenyles.php' && !_jog(13)){
+if( basename(self())=='anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL)){
     $torles_icon    = '';
     //$uj             = '';
 }
@@ -1030,7 +1036,12 @@ if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_MUNKALAP_TELEPITETT)
     $uj             = '';
 }
 
-if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_KEZEL)){
+if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+if( basename(self())=='projektkezeles.php' && !_jog(JOG_PRKEZEL_KEZEL) ){
     $torles_icon    = '';
     $uj             = '';
 }

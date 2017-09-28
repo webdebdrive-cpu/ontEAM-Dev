@@ -274,6 +274,7 @@ if (isset($_GET['teszt'])) {
 
             $statusz_sor = $adatbazis_kapcsolat->s2('recid stat_id erteklista_recid', $ertek['oldal'].'_statusz', "`{$ertek['oldal']}_recid` = '".$_GET['id']."'", 'recid desc', '1');
             $statusz = '';
+
             if( $statusz_sor ) {
 
                 /* Státusz kiegészítés */

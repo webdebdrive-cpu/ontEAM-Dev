@@ -475,7 +475,7 @@ function i_u($type, $tabla, $tomb) {
             }
 
             /* Iktatószám formázása */
-            $ikt_szam = date('y').'/'.sprintf('%07d', $sorszam);
+            $ikt_szam = 'PI'.date('y').'/'.sprintf('%07d', $sorszam);
 
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );

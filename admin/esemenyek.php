@@ -1548,7 +1548,7 @@ if (isset($_GET['modosit'])) {
 
 $projektigenyles_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
-    array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'style' => 'width: 9rem'),
+    array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,       'disabled' => 1,   'class' => 'normal', 'style' => 'width: 10rem'),
     array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'select_felh_telephely','megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,       'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'select_pri_tipus',     'megn' => 'Tipus:',                 'name' => 'tipus',          'szuro' => 1,       'class' => 'disableNav'),
@@ -1591,10 +1591,10 @@ array('type' => 'html',                     'megn' => nl2('
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
-
+$megnevezes          = 'projektkezeles';
 $projektkezeles_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
-    array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'style' => 'width: 9rem'),
+    array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'style' => 'width: 10rem'),
     array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'select_felh_telephely','megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,       'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'select_pri_tipus',     'megn' => 'Tipus:',                 'name' => 'tipus',          'szuro' => 1,       'class' => 'disableNav'),
@@ -3038,6 +3038,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
     $tabla          = $_POST['tabla'];
     $memo           = $_POST['memo'];
     $elutasitas_id  = $_POST['elutasitas_id'];
+    $csak_memo      = $_POST['csak_memo'];
     $idk            = json_decode($_POST['idk'], true);
 
     switch($tabla){
@@ -3080,13 +3081,22 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
 
             $statusz = BEJELENTES_STAT_ELUTASITVA;
         break;
-        case 'projektigenyles': $statusz = PRIGENY_STAT_ELUTASITVA;    break;
+        case 'projektigenyles':
+            $statusz = PRIGENY_STAT_ELUTASITVA;
+            if(!_jog(JOG_PRIGENY_ELUTASIT)){
+                echo json_encode(array(
+                    'hiba' => 'Nincs joga az elutasításhoz!'
+                ));
+                $weblap->leallit();
+                exit();
+            }
+        break;
     }
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    if( $elutasitas_id && is_array($idk) ) {
+    if( ($elutasitas_id || $csak_memo) && is_array($idk) ) {
         foreach($idk as $id) {
 
             if( addStatusz( $tabla.'_statusz', $id, $statusz, $elutasitas_id, $memo ) === false ) {
@@ -4335,7 +4345,10 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='login'){
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='projektigenyles' && !_jog(JOG_PRIGENY_KEZEL)){
+        if( $ertek['tabla']=='projektigenyles' && (!_jog(JOG_PRIGENY_S_KEZEL) || !_jog(JOG_PRIGENY_M_KEZEL)) ){
+            $weblap -> leallit(); exit;
+        }
+        if( $ertek['tabla']=='projektkezeles' && !_jog(JOG_PRKEZEL_KEZEL) ){
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla']=='raktar' && !_jog(JOG_RAKTAR_KEZEL)){

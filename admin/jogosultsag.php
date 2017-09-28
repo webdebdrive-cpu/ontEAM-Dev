@@ -1,8 +1,8 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 45-es ID-nál járunk
- *  8-es kategória ID-nál járunk
+ * 53-es ID-nál járunk
+ * 8 -es kategória ID-nál járunk
 \*                                                  */
 
 $jogosultsagKatok = array(
@@ -65,9 +65,17 @@ $jogosultsagok = array(
     29 => array('nev' => 'Beosztások olvasása',         'kat' => 4, 'sor' => 5, 'kikapcs' => '30'),
     30 => array('nev' => 'Beosztások kezelése',         'kat' => 4, 'sor' => 6, 'bekapcs' => '29'),
     
-    38 => array('nev' => 'Projekt igénylések megtekintése',  'kat' => 7, 'sor' => 1, 'kikapcs' => '39'),
-    39 => array('nev' => 'Projekt igénylések kezelése',      'kat' => 7, 'sor' => 2, 'bekapcs' => '38'),
-    40 => array('nev' => 'Véleményező hozzáadása',           'kat' => 7, 'sor' => 3),
+    38 => array('nev' => 'Saját igénylések megtekintése',  'kat' => 7, 'sor' => 1, 'kikapcs' => '39'),
+    39 => array('nev' => 'Saját igénylések kezelése',      'kat' => 7, 'sor' => 2, 'bekapcs' => '38'),
+    46 => array('nev' => 'Minden igénylések megtekintése', 'kat' => 7, 'sor' => 3, 'kikapcs' => '47'),
+    47 => array('nev' => 'Minden igénylések kezelése',     'kat' => 7, 'sor' => 4, 'bekapcs' => '46'),
+    48 => array('nev' => 'Tárgyi igénylések megtekintése', 'kat' => 7, 'sor' => 5, 'kikapcs' => '49'),
+    49 => array('nev' => 'Tárgyi igénylések kezelése',     'kat' => 7, 'sor' => 6, 'bekapcs' => '48'),
+    50 => array('nev' => 'Projekt igénylések elutasítása', 'kat' => 7, 'sor' => 7, 'bekapcs' => '46,47'),
+    51 => array('nev' => 'Projekt igénylések jóváhagyása', 'kat' => 7, 'sor' => 8, 'bekapcs' => '46,47'),
+    52 => array('nev' => 'Projektkezelés megtekintése',    'kat' => 7, 'sor' => 9, 'kikapcs' => '53'),
+    53 => array('nev' => 'Projektkezelés kezelése',        'kat' => 7, 'sor' => 10,'bekapcs' => '52'),
+    40 => array('nev' => 'Véleményező hozzáadása',         'kat' => 7, 'sor' => 11),
 
     42 => array('nev' => 'Eszközkezelés olvasása',           'kat' => 8, 'sor' => 1, 'kikapcs' => '43'),
     43 => array('nev' => 'Eszközkezelés kezelése',           'kat' => 8, 'sor' => 2, 'bekapcs' => '42'),
