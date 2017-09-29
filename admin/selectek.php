@@ -136,8 +136,11 @@ array_push($select_szemelyzet, array('name' => 'Műszaki adminisztrátor',    'v
 //Projektigénylés tipus
 $select_pri_tipus = array();
 array_push($select_pri_tipus, array('name' => '- Válasszon -',  'value' => '' ));
-array_push($select_pri_tipus, array('name' => 'Beruházás',      'value' => PRIGENY_TIPUS_BERUH  ));
-array_push($select_pri_tipus, array('name' => 'Fenntartás',     'value' => PRIGENY_TIPUS_FENNT  ));
+//Ha mindent vagy saját prigényt kezelhetek, akkor látszik ez a kettő. Ha csak Tárgyi bejelentést tudok kezelni, akkor csak a Tárgyi eszköz marad
+if(_jog(JOG_PRIGENY_M_KEZEL) || _jog(JOG_PRIGENY_S_KEZEL)){
+    array_push($select_pri_tipus, array('name' => 'Beruházás',      'value' => PRIGENY_TIPUS_BERUH  ));
+    array_push($select_pri_tipus, array('name' => 'Fenntartás',     'value' => PRIGENY_TIPUS_FENNT  ));
+}
 array_push($select_pri_tipus, array('name' => 'Tárgyi eszköz',  'value' => PRIGENY_TIPUS_TARGY  ));
 
 //Projektigénylés besorolás

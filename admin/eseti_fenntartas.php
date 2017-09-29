@@ -288,12 +288,6 @@ if($gyorskereso_text){
 		//Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
 
-        if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
-			}
-		}
-
         //Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';

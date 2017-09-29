@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(JOG_PRIGENY_S_MEGTEKINT) && !_jog(JOG_PRIGENY_M_MEGTEKINT) ) {
+if( !_jog(JOG_PRIGENY_S_MEGTEKINT) && !_jog(JOG_PRIGENY_M_MEGTEKINT) && !_jog(JOG_PRIGENY_T_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -224,6 +224,9 @@ if (isset($_POST['pri_statusz_leptet'])) {
     mysqli_autocommit($db_kapcs, false);
     
     
+    //Jóváhagyáskor átmásoljuk a Projektkezelés menüpont alá
+    $igenyles = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$_POST['recid']}'");
+    if( $igenyles === false ) { $db_error = true; }
     
     //Jóváhagyáskor több mindenre figyelni kell
     if($_POST['statusz']==PRIGENY_STAT_JOVAHAGYVA){
@@ -238,14 +241,10 @@ if (isset($_POST['pri_statusz_leptet'])) {
             exit;
         }
         
-        
-        //Jóváhagyáskor átmásoljuk a Projektkezelés menüpont alá
-        $igenyles = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$_POST['recid']}'");
-        if( $igenyles === false ) { $db_error = true; }
-        
-        if( $igenyles['stat_id']!=PRIGENY_STAT_FB_TERJESZT && $igenyles['stat_id']!=PRIGENY_STAT_BOD_TERJESZT ){
+        //Státusz ellenőrzés
+        if( !in_array($igenyles['stat_id'], prigeny_jovahagyhato_statuszok()) ){
             echo json_encode(array(
-                'hiba' => 'Csak FB és BoD elé terjesztett igénylés hagyható jóvá!'
+                'hiba' => 'A projektigénylés ebben a státuszban nem hagyható jóvá!'
             ));
             
             $weblap -> leallit();
@@ -273,7 +272,17 @@ if (isset($_POST['pri_statusz_leptet'])) {
         if( $sql === false ) { $db_error = true; }
     }
     
-    //BoD elé csak Elutasítás vagy Jóváhagyás joggal lehet csak
+    //FB elé terjeszteni az alábbi státuszokkal nem lehet
+    if( in_array($igenyles['stat_id'], prigeny_fb_ele_kizart_statuszok()) ){
+            echo json_encode(array(
+                'hiba' => 'Ebből a státuszból nem lehet FB elé terszeteni a projektigénylést!'
+            ));
+            
+            $weblap -> leallit();
+            exit;
+    }
+    
+    //BoD elé csak Elutasítás vagy Jóváhagyás joggal lehet
     if($_POST['statusz']==PRIGENY_STAT_BOD_TERJESZT){
         if(!_jog(JOG_PRIGENY_ELUTASIT) && !_jog(JOG_PRIGENY_JOVAHAGY)){
             echo json_encode(array(
@@ -283,6 +292,16 @@ if (isset($_POST['pri_statusz_leptet'])) {
             $weblap -> leallit();
             exit;
         }
+    }
+    
+    //BoD elé terjeszteni az alábbi státuszokkal nem lehet
+    if( in_array($igenyles['stat_id'], prigeny_bod_ele_kizart_statuszok()) ){
+            echo json_encode(array(
+                'hiba' => 'Ebből a státuszból nem lehet FB elé terszeteni a projektigénylést!'
+            ));
+            
+            $weblap -> leallit();
+            exit;
     }
     
     //Státusz tényleges léptetése
@@ -480,7 +499,7 @@ if($gyorskereso_text){
     if( isset($_GET['uj']) ) {
 
         //Újat csak "Projektigénylés kezelése" joggal lehet
-        if(_jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_M_KEZEL) ){
+        if(_jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_M_KEZEL) || _jog(JOG_PRIGENY_T_KEZEL) ){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
@@ -506,21 +525,24 @@ if($gyorskereso_text){
     } else {
 
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+        
         //Ha a státusz elutasítva vagy jóváhagyva, akkor semmilyen gomb nem érhető el
+        if($sor['stat_id'] == PRIGENY_STAT_ELUTASITVA || $sor['stat_id'] == PRIGENY_STAT_JOVAHAGYVA ){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak létrehozás alatt, nyitott vagy véleményezés alatt státuszú projektigénylés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        }
         if($sor['stat_id'] != PRIGENY_STAT_ELUTASITVA && $sor['stat_id'] != PRIGENY_STAT_JOVAHAGYVA){
             //Js, a törlés gombhoz
             $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
-
+            
             //Csak nyitott vagy véleményezés alatt státuszú törölhető
             if( $sor['stat_id']!=PRIGENY_STAT_LETRE_ALATT && $sor['stat_id']!=PRIGENY_STAT_NYITOTT && $sor['stat_id']!=PRIGENY_STAT_VEL_ALATT ) {
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak létrehozás alatt, nyitott vagy véleményezés alatt státuszú projektigénylés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
             //Jogosutságkezelés: csak az törölheti, akinek van hozzá joga
-            } elseif( !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) ){
+            } elseif( !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) ){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga projektigénylést törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-            //Jogosutságkezelés: ha csak sajátot tud kezelni de mindent nem, akkor csak az törölheti, aki létrehozta
-            }elseif(_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) && $sor['loginnev']!=$_SESSION[get_db_tabla().'user']) {
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját anyagigénylés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-                $gombok .= ' <input type="hidden" name="JS_munkodesehez_innen_tudja_hogy_nem_sajat" id="nem_sajat" value="1">';
+            //Jogosultságkezelés: ha csak sajátot tud kezelni de mindent nem, akkor csak nyitott státuszig tud törölni
+            }elseif(_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) && $sor['stat_id']!=PRIGENY_STAT_NYITOTT && $sor['stat_id']!=PRIGENY_STAT_LETRE_ALATT ) {
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs joga ebben a státuszban projektigénylést törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
             } else {
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
             }
@@ -529,9 +551,9 @@ if($gyorskereso_text){
             if($adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET['id']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'", '', '1')){
                 $gombok .= ' <input type="button" class="gomb foGomb" value="Vélemény csatolása" title="Vélemény csatolása" onclick="velemeny_hozzaad();">';
             }
-
+            
             // Ha van egyálátalán kezelésre joga
-            if( (_jog(JOG_PRIGENY_S_KEZEL) && $sor['loginnev']==$_SESSION[get_db_tabla().'user']) || _jog(JOG_PRIGENY_M_KEZEL) ){
+            if( _jog(JOG_PRIGENY_M_KEZEL) ){
                 
                 $gombok .= nl2('
                         <div id="kmCont">
@@ -551,12 +573,6 @@ if($gyorskereso_text){
                         </div>
                 ');
 
-                //Csak saját bejelentéseit szerkesztheti
-                $nem_szerkesztheti = false;
-                if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
-                    $nem_szerkesztheti = true;
-                }
-
                 //Gombok:
                 if($sor['stat_id'] != PRIGENY_STAT_VARAKOZO && $sor['stat_id'] != PRIGENY_STAT_HIANYPOTLAS) {
                     $gombok .= ' <input type="button" class="gomb foGomb" value="Várakoztatás" title="Várakoztatás" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_VARAKOZO.'\');">';
@@ -571,46 +587,52 @@ if($gyorskereso_text){
                 if($sor['stat_id'] == PRIGENY_STAT_HIANYPOTLAS) {
                     $gombok .= ' <input type="button" class="gomb foGomb" value="Hiánypótolt" title="Hiánypótolt" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_HIANYPOTOLT.'\');">';
                 }
-                if($sor['stat_id'] != PRIGENY_STAT_FB_TERJESZT && $sor['stat_id'] != PRIGENY_STAT_BOD_TERJESZT && $sor['stat_id'] != PRIGENY_STAT_HIANYPOTLAS && $sor['stat_id'] != PRIGENY_STAT_VARAKOZO) {
+                if( _jog(JOG_PRIGENY_M_KEZEL) && !in_array($sor['stat_id'], prigeny_fb_ele_kizart_statuszok()) ) {
                     $gombok .= ' <input type="button" class="gomb foGomb" value="FB elé terjesztés" title="FB elé terjesztés" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_FB_TERJESZT.'\');">';
                 }
-                if($sor['stat_id'] != PRIGENY_STAT_BOD_TERJESZT && $sor['stat_id'] == PRIGENY_STAT_FB_TERJESZT && (_jog(JOG_PRIGENY_ELUTASIT) || _jog(JOG_PRIGENY_JOVAHAGY)) ) {
+                if( _jog(JOG_PRIGENY_M_KEZEL) && !in_array($sor['stat_id'], prigeny_bod_ele_kizart_statuszok()) ) {
                     $gombok .= ' <input type="button" class="gomb foGomb" value="BoD elé terjesztés" title="BoD elé terjesztés" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_BOD_TERJESZT.'\');">';
                 }
                 if( _jog(JOG_PRIGENY_ELUTASIT) && $sor['stat_id'] != PRIGENY_STAT_ELUTASITVA /*Ez a felétel felesleges, csak az egységesség miatt van itt*/) {
                     $gombok .= ' <input type="button" class="gomb piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas_csak_memo\');">';
                 }
-                if( _jog(JOG_PRIGENY_JOVAHAGY) && ($sor['stat_id'] == PRIGENY_STAT_FB_TERJESZT || $sor['stat_id'] == PRIGENY_STAT_BOD_TERJESZT) ) {
+                
+                if( _jog(JOG_PRIGENY_JOVAHAGY) && in_array($sor['stat_id'], prigeny_jovahagyhato_statuszok()) ) {
                     $gombok .= ' <input type="button" class="gomb zold foGomb" value="Jóváhagy" title="Jóváhagy" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_JOVAHAGYVA.'\');">';
                 }
-
-                if(!$nem_szerkesztheti && isset($_GET['modosit']) /*&& $sor['stat_id']==PRIGENY_STAT_LETRE_ALATT Átmenetileg végig szerkeszthető */){
-                    $gombok = nl2('
-                        <div class="form_kuldes">
-                            <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
-                        </div>
-                    ').$gombok;
-                }
+            }
+            
+            //Ha csak saját projektigénylést kezelhet, akkor csak nyitott státuszig tud menteni
+            if(
+                    (_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) && ($sor['stat_id']==PRIGENY_STAT_NYITOTT || $sor['stat_id']==PRIGENY_STAT_LETRE_ALATT) ) ||
+                    (_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) && $sor['tipus']==PRIGENY_TIPUS_TARGY)
+            ){
+                $gombok = nl2('
+                    <div class="form_kuldes">
+                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    </div>
+                ').$gombok;
             }
 
-            $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-            if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-                if( $_COOKIE['csuszkaSzelesseg'] ) {
-                    $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
-                }
-            }
-
-            /* Műveletek box */
-            $gombok = nl2('
-                <div class="muveletek"'.$muv_style.'>
-                    '.$gombok.'
-                </div>
-            ');
         }
+        
+        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
+        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+            if( $_COOKIE['csuszkaSzelesseg'] ) {
+                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
+            }
+        }
+
+        /* Műveletek box */
+        $gombok = nl2('
+            <div class="muveletek"'.$muv_style.'>
+                '.$gombok.'
+            </div>
+        ');
     }
 
 	//Új projektigénylés felvitele
-	if( isset($_GET['uj']) && (_jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_M_KEZEL)) ){
+	if( isset($_GET['uj']) && (_jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_M_KEZEL) || _jog(JOG_PRIGENY_T_KEZEL)) ){
 
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
@@ -626,6 +648,7 @@ if($gyorskereso_text){
 				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
 			}
 		}
+        
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
         //Ckeditort csak akkor húzzuk be, ha kell
@@ -715,6 +738,14 @@ if($gyorskereso_text){
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
+        
+        //Duplákáláskor feltett kérdés
+        $szamla_html .= nl2('
+            <script>
+                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                duplikaKerdes = \'Bejelentés szám: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Biztos, hogy duplikálja?\';
+            </script>
+        ');
 
         //NAVIGÁCIÓ
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
@@ -730,12 +761,6 @@ if($gyorskereso_text){
 
 		//Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
-
-        if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
-			}
-		}
 
         //Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){

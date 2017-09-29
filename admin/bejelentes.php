@@ -753,8 +753,8 @@ if($gyorskereso_text){
         //Duplákáláskor feltett kérdés
         $szamla_html .= nl2('
             <script>
-                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                duplikaKerdes = \'Bejelentés szám: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Biztos, hogy duplikálja?\';
+                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                duplikaKerdes = \'Azonosító: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Biztos, hogy duplikálja?\';
             </script>
         ');
 
@@ -772,12 +772,6 @@ if($gyorskereso_text){
 
 		//Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
-
-        if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
-			}
-		}
 
         //Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){

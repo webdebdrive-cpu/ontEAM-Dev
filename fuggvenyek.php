@@ -626,7 +626,7 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
             //Van pár elméletileg kötelező mező. Ha ezek csak részen vannak kitöltve, akkor még tovább léptetjük a státuszt: Létrehozás alatt
             foreach ($prigeny_kot_mezok as $mezo){
-                if(!$_POST[$mezo] || str_replace(',', '.', $_POST[$mezo])==0){
+                if(!$_POST[$mezo] || str_replace(',', '.', $_POST[$mezo])=='0'){
 
                     $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
                                                         array($tabla.'_recid', 'stat_id',                 'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -791,7 +791,6 @@ function i_u($type, $tabla, $tomb) {
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
 //echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
         if( $id === false ) { $db_error = true; }
-
         //Projektigénylésnél van pár elméleteileg kötelező mező, ami státuszléptetéssel jár, ezt le kell kezelni
         if( $tabla == 'projektigenyles' ){
             $prigeny = $adatbazis_kapcsolat->s2(implode(', ', $prigeny_kot_mezok).' stat_id', $tabla, "`recid`='{$_GET['id']}'");
@@ -799,7 +798,7 @@ function i_u($type, $tabla, $tomb) {
 
             $mind_megvan = true;
             foreach($prigeny_kot_mezok as $mezo){
-                if(!$prigeny[$mezo] || str_replace(',', '.', $prigeny[$mezo])==0){
+                if(!$prigeny[$mezo] || str_replace(',', '.', $prigeny[$mezo])=='0'){
                     $mind_megvan = false;
                 }
             }
@@ -810,7 +809,7 @@ function i_u($type, $tabla, $tomb) {
                 $uj_statusz = PRIGENY_STAT_LETRE_ALATT;
             }
 
-            //Ha van új státusz, akkor váéltunk. Kivéve ha már véleményezés alatt van a rekord, akkor nem bántjuk.
+            //Ha van új státusz, akkor váltunk. Kivéve ha már véleményezés alatt van a rekord, akkor nem bántjuk.
             if($prigeny['stat_id']!=$uj_statusz && $prigeny['stat_id']!=PRIGENY_STAT_VEL_ALATT){
                 if( !addStatusz( $tabla.'_statusz', $_GET['id'], $uj_statusz ) ) {
                     $db_error = true;
@@ -1357,6 +1356,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     }
 
                     szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
+                    szamlaBetolt( \''.$_GET['id'].'\', \''.basename(self()).'\', \'modosit\', \'\', \'Elhagy kérdés nélkül\' );
 
                     formAdatok = response.adatok;
 
@@ -1532,13 +1532,13 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
                 if(!$van_mashol_kep){
                     //ha van kiterjesztése (általában van)
                     if( strrpos($sor[$oszlop], '.') > 0 ){
-                        remover($utvonal.substr($sor[$oszlop], 0, strrpos($sor[$oszlop], '.')).'_*');
+                        remover($utvonal.$tabla.'/'.substr($sor[$oszlop], 0, strrpos($sor[$oszlop], '.')).'_*');
                     }else{
-                        remover($utvonal.$sor[$oszlop].'_*');
+                        remover($utvonal.$tabla.'/'.$sor[$oszlop].'_*');
                     }
                     //Végül magát a fájlt is töröljük
-                    if(is_file($utvonal.$sor[$oszlop])){
-                        unlink($utvonal.$sor[$oszlop]);
+                    if(is_file($utvonal.$tabla.'/'.$sor[$oszlop])){
+                        unlink($utvonal.$tabla.'/'.$sor[$oszlop]);
                     }
                 }
 			}
@@ -1592,6 +1592,10 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 
 	if(move_uploaded_file($_FILES[$valtozo]['tmp_name'], $utvonal.$kepnev)){
 		if($sor_id) {
+            
+            //Még a tálba levét se tároljuk le, azt is felesleges.
+            $kepnev = str_replace($tabla.'/', '', $kepnev);
+            
 			if(!$adatbazis_kapcsolat -> u($tabla, array($oszlop), array($kepnev), 'recid='.$sor_id)){
 				return(array($kepnev,'k5'));//Sikertelen táblamod => hiba5
 			}
@@ -1679,12 +1683,12 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             }
         }
 
-        //Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
-        //Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
         $szallodak = get_akt_login_szallodai();
         if($tabla == 'anyagigenyles'){
             $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
+        //Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
+        //Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
         if($tabla == 'bejelentes'){
             $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
@@ -1693,6 +1697,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         }
         if($tabla == 'utemezett_feladatok'){
             $where = "`".get_db_tabla()."utemezett_feladatok`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
+        //A projektigénylés tárgyi lát joggal csak a tárgyi eszközös igényléskete lsitázzuk
+        if($tabla=='projektigenyles' && _jog(JOG_PRIGENY_T_MEGTEKINT) && !_jog(JOG_PRIGENY_S_MEGTEKINT) && !_jog(JOG_PRIGENY_M_MEGTEKINT)){
+            $where = "`tipus`='".PRIGENY_TIPUS_TARGY."'";
         }
         if($tabla == 'rendszeres_karbantartas'){
             $where = "`".get_db_tabla()."rendszeres_karbantartas`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
@@ -1923,7 +1931,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
         //Select-et is kiegészítjük a rendezni kívánt oszloppal
         $select .= ', `'.get_db_tabla().'telephely`.`nev`';
-        $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit);
+        $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit); //Ez minek van itt?
         $mit   = 'WHERE';
 
         //Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
@@ -3530,14 +3538,21 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 <ol class="konyvtar_szerk">
                 ';
 
+        //Ha már nyitva van egy bejegyzés, akkor a könyvtárszerkezetet is kinyitogatjuk
         if($_GET['id']){
             $akt_eszkoz = $adatbazis_kapcsolat->s2('recid telephely_id obj_id', $tabla, "`recid`='{$_GET['id']}'");
             $akt_obj    = $akt_eszkoz['obj_id'];
             $akt_szint  = $adatbazis_kapcsolat->s2('szulo', 'obj', "`recid`='$akt_obj'");
             $akt_szint  = $akt_szint['szulo'];
         }
+        
+        //Ha van szűrés (az csak szállodára lehet)
+        $sql_kieg = '';
+        if ($_GET['mezo']) {
+            $sql_kieg .= ' AND `id`=\''.$_GET['felt'].'\'';
+        }
 
-        $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $login_szallodai).")", 'nev');
+        $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $login_szallodai).")$sql_kieg", 'nev');
         foreach($szallodak as $szalloda){
 
             $checked = '';
@@ -3624,12 +3639,19 @@ function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 <ol class="konyvtar_szerk">
                 ';
 
+        //Ha már nyitva van egy bejegyzés, akkor a könyvtárszerkezetet is kinyitogatjuk
         if($_GET['id']){
             $akt_ft     = $adatbazis_kapcsolat->s2('recid telephely_id obj_id', $tabla, "`recid`='{$_GET['id']}'");
             $akt_szint  = $akt_ft['obj_id'];
         }
 
-        $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $login_szallodai).")", 'nev');
+        //Ha van szűrés (az csak szállodára lehet)
+        $sql_kieg = '';
+        if ($_GET['mezo']) {
+            $sql_kieg .= ' AND `id`=\''.$_GET['felt'].'\'';
+        }
+
+        $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $login_szallodai).")$sql_kieg", 'nev');
         foreach($szallodak as $szalloda){
 
             $checked = '';
@@ -4390,6 +4412,7 @@ function get_akt_tomb($megn){
     global $beosztas_tomb;
     global $cikktorzs_tomb;
     global $eszkozkezeles_tomb;
+    global $felmeresi_terv_tomb;
     global $login_tomb;
     global $munkalap_tomb;
     global $utemezett_feladatok_tomb;
@@ -4401,6 +4424,7 @@ function get_akt_tomb($megn){
         case 'beosztas'             : $akt_tomb = $beosztas_tomb;               break;
         case 'cikktorzs'            : $akt_tomb = $cikktorzs_tomb;              break;
         case 'eszkozkezeles'        : $akt_tomb = $eszkozkezeles_tomb;          break;
+        case 'felmeresi_terv'       : $akt_tomb = $felmeresi_terv_tomb;         break;
         case 'login'                : $akt_tomb = $login_tomb;                  break;
         case 'munkalap'             : $akt_tomb = $munkalap_tomb;               break;
         case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;

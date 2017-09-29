@@ -1717,11 +1717,11 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //Gépek
 $megnevezes = 'eszkozkezeles';
 $eszkozkezeles_tomb = $akt_tomb = array(
-	array('type' => 'text',                     'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a nevet!'),
+	array('type' => 'text',                     'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class'  => 'oriasi', 'alert' => 'Kérem töltse ki a nevet!'),
 	array('type' => 'text',                     'megn' => 'Azonosító:',             'name' => 'azon',           'maxlength' => 20,  'onblur' => 'eszkozkezeles_azon_ell(this.value, \''.$_GET['id'].'\')', 'alert' => 'Kérem töltse ki az azonosítót!'),
-    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,       'class' => 'disableNav',  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
-    array('type' => 'autocomplete',             'megn' => 'Helyiség:',              'name' => 'obj_id',                             'class' => 'disableNav',  'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/><path d="M0 0h24v24H0V0z" fill="none"></svg></a>'),
-    array('type' => 'textarea',                 'megn' => 'Megjegyzés:',            'name' => 'megj',                               'class' => 'oriasiTargy disableNav', 'feltoltes' => 'Images', 'width' => '100%', 'height' => '150'),
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,       'class'  => 'disableNav',  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+    array('type' => 'autocomplete',             'megn' => 'Helyiség:',              'name' => 'obj_id',                             'class'  => 'disableNav',  'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/><path d="M0 0h24v24H0V0z" fill="none"></svg></a>'),
+    array('type' => 'textarea',                 'megn' => 'Megjegyzés:',            'name' => 'megj',                               'class'  => 'oriasiTargy disableNav', 'feltoltes' => 'Images', 'width' => '100%', 'height' => '150'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -1729,10 +1729,10 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //Felmérési terv
 $megnevezes = 'felmeresi_terv';
 $felmeresi_terv_tomb = $akt_tomb = array(
-	array('type' => 'text',                     'megn' => 'Név:',                   'name' => 'nev',            'szuro' => 1,  'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a nevet!'),
-	array('type' => 'text',                     'megn' => 'Azonosító:',             'name' => 'azon',           'szuro' => 1,  'maxlength' => 20, 'onblur' => 'ft_azon_ell(this.value, \''.$_GET['id'].'\')', 'alert' => 'Kérem töltse ki az azonosítót!'),
-    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,  'class' => 'disableNav',  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
-    array('type' => 'autocomplete',             'megn' => 'Helyiség:',              'name' => 'obj_id',         'szuro' => 1,  'class' => 'disableNav',  'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj_csakszint', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(\'csak szintig\'); void(0);" class="obj_gen"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/><path d="M0 0h24v24H0V0z" fill="none"></svg></a>'),
+	array('type' => 'text',                     'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class'  => 'oriasi', 'alert' => 'Kérem töltse ki a nevet!'),
+	array('type' => 'text',                     'megn' => 'Azonosító:',             'name' => 'azon',           'maxlength' => 20,  'onblur' => 'ft_azon_ell(this.value, \''.$_GET['id'].'\')', 'alert' => 'Kérem töltse ki az azonosítót!'),
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,       'class'  => 'disableNav',  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+    array('type' => 'autocomplete',             'megn' => 'Helyiség:',              'name' => 'obj_id',                             'class'  => 'disableNav',  'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj_csakszint', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(\'csak szintig\'); void(0);" class="obj_gen"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/><path d="M0 0h24v24H0V0z" fill="none"></svg></a>'),
     array('type' => 'jsfile',                   'megn' => 'Felmérési terv:',        'name' => 'felm_terv',      'tabla' => $megnevezes,  'oszlop' => 'felm_terv',   'algoritmus' => 'fajlnev',   'meret' => 31457280, 'csakkep'  => false, 'fajlok_szama'  => 1),
 
 );
@@ -3036,7 +3036,7 @@ if( isset($_POST['munkalapAdminisztrator']) ) {
 if( isset($_POST['bejegyzesElutasitas']) ) {
 
     $tabla          = $_POST['tabla'];
-    $memo           = $_POST['memo'];
+    $memo           = trim($_POST['memo']);
     $elutasitas_id  = $_POST['elutasitas_id'];
     $csak_memo      = $_POST['csak_memo'];
     $idk            = json_decode($_POST['idk'], true);
@@ -3090,6 +3090,15 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
                 $weblap->leallit();
                 exit();
             }
+            
+            if(!$memo){
+                echo json_encode(array(
+                    'hiba' => 'Kérjük adja meg az elutasítás okát!'
+                ));
+                $weblap->leallit();
+                exit();
+            }
+            
         break;
     }
 
@@ -4051,8 +4060,8 @@ if( !isset($_GET['oldal'])) { $_GET['oldal']=0;     }
 //ESEMÉNYEK
 //Flashfáljok törlése
 if(isset($_POST['fajl_torol'])){
-    $elem = $adatbazis_kapcsolat -> s($_POST['oszlop'], $_POST['tabla'], 'recid='.$_POST['id']);
-    kep_torol('../'.get_utvonal().$elem[0][$_POST['oszlop']]);
+    $elem = $adatbazis_kapcsolat -> s2($_POST['oszlop'], $_POST['tabla'], 'recid='.$_POST['id']);
+    kep_torol('../'.get_utvonal().$_POST['tabla'].'/'.$elem[$_POST['oszlop']]);
     $adatbazis_kapcsolat -> u($_POST['tabla'], $_POST['oszlop'], '', 'recid='.$_POST['id']);
 
     $weblap -> leallit();
@@ -4068,8 +4077,8 @@ if (isset($_GET['get_admin_file_thumb'])) {
 function get_admin_file_thumb($tabla, $oszlop, $id){
 
     global $adatbazis_kapcsolat;
-    $utvonal = $adatbazis_kapcsolat->s($oszlop, $tabla, 'recid='.$id);
-    $utvonal = '../'.get_utvonal().$utvonal[0][$oszlop];
+    $utvonal = $adatbazis_kapcsolat->s2($oszlop, $tabla, 'recid='.$id);
+    $utvonal = '../'.get_utvonal().$tabla.'/'.$utvonal[$oszlop];
     if(is_file($utvonal)){
 
         $neve = basename($utvonal);
@@ -4345,7 +4354,7 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='login'){
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='projektigenyles' && (!_jog(JOG_PRIGENY_S_KEZEL) || !_jog(JOG_PRIGENY_M_KEZEL)) ){
+        if( $ertek['tabla']=='projektigenyles' && (!_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL)) ){
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla']=='projektkezeles' && !_jog(JOG_PRKEZEL_KEZEL) ){

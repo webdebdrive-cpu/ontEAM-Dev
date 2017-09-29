@@ -4289,14 +4289,9 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     /* ... ha van kijelölve sor */
     } else if( sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
 
-        csak_sajat_torolheto = false;
         szoveg = 'sorokat';
         if(_get('cash_flow')){
             szoveg = 'cash-flow-kat';
-            /* Ha van olyan rejtett input, hogy nem_sajat, akkor az illető csak sját pr.igénylés kezelés joggal lépett be, és adott bejegyzés nem a sajátja! */
-            if($('#nem_sajat').length){
-                csak_sajat_torolheto = true;
-            }
         }
         if(_get('engedelyek')){
             szoveg = 'engedélyeket';
@@ -4308,13 +4303,8 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
             szoveg = 'véleményezőket';
         }
         
-        if(csak_sajat_torolheto){
-            gomb_uzi = 'Csak saját projektigényléshez tartozó cash-flow törölhető!';
-            gomb_muv = '';
-        }else{
-            gomb_uzi = 'Biztosan törli a kijelölt '+szoveg+'?';
-            gomb_muv = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\');"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>';
-        }
+        gomb_uzi = 'Biztosan törli a kijelölt '+szoveg+'?';
+        gomb_muv = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\');"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>';
 
         $('#navGombok a.torles').removeClass('disabled').attr('onclick', 'alert2(\'' + gomb_uzi + '\', gomb_muv);');
     }
@@ -5037,9 +5027,10 @@ function _get( ertek ) {
     return false;
 }
 
-function szamlaBetolt( recid, page, muvelet, szerkeszt ) {
+/* Adatlap betöltése */
+function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
     alert2('');
-    if( formModositva ) {
+    if( formModositva && !kerdes_nelkul ) {
         alert2('Biztosan elhagyja ezt a bejegyzést mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; szamlaBetolt( \'' + recid + '\', \'' + page + '\', \'' + muvelet + '\', \'' + szerkeszt + '\' )" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
         return false;
     }

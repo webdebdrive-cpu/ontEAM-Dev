@@ -1036,17 +1036,21 @@ if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_MUNKALAP_TELEPITETT)
     $uj             = '';
 }
 
-if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL)){
+if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL)){
     $torles_icon    = '';
     $uj             = '';
 }
-//Projektigénylés ha el van utasítva, jóvá van hagyva, akkor sem törölhető
-if ( basename(self())=='projektigenyles.php' && $_GET['id'] ) {
-    $igenyles = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$_GET['id']}'");
-    if($igenyles['stat_id']==PRIGENY_STAT_ELUTASITVA || $igenyles['stat_id']==PRIGENY_STAT_JOVAHAGYVA){
-        $torles_icon    = '';
-    }
-}
+////Ha csak saját igénylést tudok kezelni, és már nem nyitott/létrehozás alatt a státusza, akkor sem tudja már törölni
+//$igenyles = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$_GET['id']}'");
+//if( _jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) && $igenyles['stat_id']!=PRIGENY_STAT_NYITOTT && $igenyles['stat_id']!=PRIGENY_STAT_LETRE_ALATT ) {
+//    $torles_icon    = '';
+//}
+////Projektigénylés ha el van utasítva, jóvá van hagyva, akkor sem törölhető
+//if( basename(self())=='projektigenyles.php' && $_GET['id'] ) {
+//    if($igenyles['stat_id']==PRIGENY_STAT_ELUTASITVA || $igenyles['stat_id']==PRIGENY_STAT_JOVAHAGYVA){
+//        $torles_icon = '';
+//    }
+//}
 
 if( basename(self())=='projektkezeles.php' && !_jog(JOG_PRKEZEL_KEZEL) ){
     $torles_icon    = '';

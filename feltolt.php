@@ -184,34 +184,50 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
             $mivel = array('ő',             'Ő',            'ű',            'Ű'         );
             $_FILES[$megnevezes]['name'] = str_replace($mit, $mivel, $_FILES[$megnevezes]['name']);
 
-            $sor = $adatbazis_kapcsolat -> select($fajl_oszlop, $tabla, 'recid='.$sor_id);
-            $sor = $sor[0];
+            $sor = $adatbazis_kapcsolat -> s2($fajl_oszlop, $tabla, 'recid='.$sor_id);
 
             //ha a fájlt felülírjuk (tehát már el volt tárolva a neve a táblában), akkor levesszük a tábla nevét
             if( $sor[$fajl_oszlop] ){
 
-				$mit      = array($tabla.'/');
-				$mivel    = array('');
 				$pathinfo = pathinfo($sor[$fajl_oszlop]);
-
 				$kepnev    = str_replace($mit, $mivel, $pathinfo['filename']).'.'.kit($kepnev);
 				$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
+                
+                $alkonyvtar = '';
+                if($tabla=='felmeresi_terv'){
+                    $telepehely = $adatbazis_kapcsolat->s2('telephely_id', $tabla, "`recid`='{$sor_id}'");
+                    $alkonyvtar .= 'telep_'.$telepehely['telephely_id'];
+                }
 
+                if(!is_dir($utvonal.$tabla.'/'.$alkonyvtar)){
+                    mkdir($utvonal.$tabla.'/'.$alkonyvtar, 0777);
+                }
+
+                
 			//Ha nincs a táblában a neve (új felöltés vagy módosítás, és sose volt kép, vagy törölve lett)
             }else{
 
 				$pathinfo = pathinfo($kepnev);
 				$kit      = $pathinfo['extension'];
 				$kepnev   = $pathinfo['filename'];
+                
+                $alkonyvtar = '';
+                if($tabla=='felmeresi_terv'){
+                    $telepehely = $adatbazis_kapcsolat->s2('telephely_id', $tabla, "`recid`='{$sor_id}'");
+                    $alkonyvtar .= 'telep_'.$telepehely['telephely_id'];
+                }
 
+                if(!is_dir($utvonal.$tabla.'/'.$alkonyvtar)){
+                    mkdir($utvonal.$tabla.'/'.$alkonyvtar, 0777);
+                }
+                
 				$i     = 1;
 				$ujnev = $kepnev.'_1';
 				//DE! megnézzük, hogy ez a '_1' nem foglalt-e. Ha az, keresünk szabad számot
-                while( glob($utvonal.$tabla.'/'.$ujnev.'*') ){
+                while( glob($utvonal.$tabla.'/'.$alkonyvtar.'/'.$ujnev.'*') ){
 					$i++;
 					$ujnev = $kepnev.'_'.$i;
 				}
-
 				$kepnev = fajlnev_keszit($ujnev).'.'.$kit;
 
                 //Ez most azért false, mert a JSFF-nél ha egy forban több fjál input is szerepelt, akkor felülírták egymást
@@ -271,7 +287,7 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
 		break;
 	}
 
-    return web_ftp($megnevezes, $tabla.'/'.$kepnev, $meret, $overwrite, $csakkep, $tabla, $fajl_oszlop, $sor_id, true);
+    return web_ftp($megnevezes, $tabla.'/'.$alkonyvtar.'/'.$kepnev, $meret, $overwrite, $csakkep, $tabla, $fajl_oszlop, $sor_id, true);
 
 }
 ?>
