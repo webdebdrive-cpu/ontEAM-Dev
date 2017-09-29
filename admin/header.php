@@ -1040,6 +1040,13 @@ if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_j
     $torles_icon    = '';
     $uj             = '';
 }
+//Projektigénylés ha el van utasítva, jóvá van hagyva, akkor sem törölhető
+if ( basename(self())=='projektigenyles.php' && $_GET['id'] ) {
+    $igenyles = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$_GET['id']}'");
+    if($igenyles['stat_id']==PRIGENY_STAT_ELUTASITVA || $igenyles['stat_id']==PRIGENY_STAT_JOVAHAGYVA){
+        $torles_icon    = '';
+    }
+}
 
 if( basename(self())=='projektkezeles.php' && !_jog(JOG_PRKEZEL_KEZEL) ){
     $torles_icon    = '';
@@ -1063,10 +1070,15 @@ if( basename(self())=='torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL)){
 
 $csv_get = get_get(array('id'));
 
+$rendez_rejt_oldalak = array('dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
+if(in_array(basename(self()), $rendez_rejt_oldalak)){
+    $rendezes_rejt = ' dn';
+}
+
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CSS}', '{CEGNEV}', '{MENUK}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}', '{CSUSZKADN}' ),
-    array( $css,    get_nev(),  $menuk,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    get_get(),   $csv_get,   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,    $csuszkadn   ),
+    array('{CSS}', '{CEGNEV}', '{MENUK}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}', '{CSUSZKADN}', '{RENDEZES_REJT}' ),
+    array( $css,    get_nev(),  $menuk,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    get_get(),   $csv_get,   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,    $csuszkadn,    $rendezes_rejt    ),
     $header_sablon
 );
 

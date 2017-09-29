@@ -518,19 +518,20 @@ if($gyorskereso_text){
             } elseif( !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) ){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga projektigénylést törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
             //Jogosutságkezelés: ha csak sajátot tud kezelni de mindent nem, akkor csak az törölheti, aki létrehozta
-            }elseif(_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) && $sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
+            }elseif(_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) && $sor['loginnev']!=$_SESSION[get_db_tabla().'user']) {
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját anyagigénylés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+                $gombok .= ' <input type="hidden" name="JS_munkodesehez_innen_tudja_hogy_nem_sajat" id="nem_sajat" value="1">';
             } else {
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
             }
 
             //Ha véleményező vagyok, akkor tudok véleményt feltölteni
             if($adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET['id']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'", '', '1')){
-                $gombok .= ' <input type="button" class="gomb foGomb" value="Vélemény hozzáadása" title="Vélemény hozzáadása" onclick="velemeny_hozzaad();">';
+                $gombok .= ' <input type="button" class="gomb foGomb" value="Vélemény csatolása" title="Vélemény csatolása" onclick="velemeny_hozzaad();">';
             }
 
             // Ha van egyálátalán kezelésre joga
-            if( _jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_M_KEZEL) ){
+            if( (_jog(JOG_PRIGENY_S_KEZEL) && $sor['loginnev']==$_SESSION[get_db_tabla().'user']) || _jog(JOG_PRIGENY_M_KEZEL) ){
                 
                 $gombok .= nl2('
                         <div id="kmCont">

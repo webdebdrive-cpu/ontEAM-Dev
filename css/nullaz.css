@@ -111,6 +111,7 @@ td.bottom {
 .dn     { display: none;                }
 .dt     { display: table;               }
 .dtc    { display: table-cell;          }
+.dtc.dn { display: none;                }
 .dtr    { display: table-row;           }
 .dtr.dn { display: none;                }
 .w33    { width: 33%;                   }

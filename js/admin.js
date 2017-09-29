@@ -976,6 +976,7 @@ $(function() {
 
     /* Szűrés érvényesítése */
     $(document).on('click', '.f_szures_submit', function(e) {
+
         felt = $('.f_felt').val();
         if(!felt){
             alert2('Kérjük állítsa be a szűrési feltételt!');
@@ -987,7 +988,12 @@ $(function() {
                     felt = $('#'+felt_id).val();
                 }
             }
-            location.href=get_get(['mezo', 'op', 'felt'])+'&mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt;
+            
+            kerdo_es = '&';
+            if(get_get(['mezo', 'op', 'felt']).indexOf('?')<0){
+                kerdo_es = '?';
+            }
+            location.href=get_get(['mezo', 'op', 'felt'])+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt;
         }
     });
 
@@ -4276,22 +4282,39 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
         $('#navGombok a.torles').attr('onclick', 'tbt_alert();');
     }
 
+    /* Ha egy kapcsolódó tábláas alodal fülön vagyunk, és nincs kijelölve egy sor sem */
     if( !sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
+        
         $('#navGombok a.torles').addClass('disabled').attr('onclick', '');
+    /* ... ha van kijelölve sor */
     } else if( sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
 
+        csak_sajat_torolheto = false;
         szoveg = 'sorokat';
-        if(_get('velemenyezok')){
-            szoveg = 'véleményezőket';
-        }
-        if(_get('szallodak')){
-            szoveg = 'szállodákat';
+        if(_get('cash_flow')){
+            szoveg = 'cash-flow-kat';
+            /* Ha van olyan rejtett input, hogy nem_sajat, akkor az illető csak sját pr.igénylés kezelés joggal lépett be, és adott bejegyzés nem a sajátja! */
+            if($('#nem_sajat').length){
+                csak_sajat_torolheto = true;
+            }
         }
         if(_get('engedelyek')){
             szoveg = 'engedélyeket';
         }
-        gomb_uzi = 'Biztosan törli a kijelölt '+szoveg+'?';
-        gomb_muv = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\');"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>';
+        if(_get('szallodak')){
+            szoveg = 'szállodákat';
+        }
+        if(_get('velemenyezok')){
+            szoveg = 'véleményezőket';
+        }
+        
+        if(csak_sajat_torolheto){
+            gomb_uzi = 'Csak saját projektigényléshez tartozó cash-flow törölhető!';
+            gomb_muv = '';
+        }else{
+            gomb_uzi = 'Biztosan törli a kijelölt '+szoveg+'?';
+            gomb_muv = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\');"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>';
+        }
 
         $('#navGombok a.torles').removeClass('disabled').attr('onclick', 'alert2(\'' + gomb_uzi + '\', gomb_muv);');
     }
