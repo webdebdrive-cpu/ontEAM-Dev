@@ -3,11 +3,13 @@
 	background-color: #ECF0F6;
     box-shadow: 0.1rem 0.1rem 0.4rem -0.1rem #aba398;
     overflow-y: auto;
-    max-height: 40rem;
+    max-height: 30rem;
 	position: absolute;
+    top: 0rem;
+    left: 0rem;
 	margin-top: 0.3rem;
 	display: none;
-    z-index: 51;
+    z-index: 200;
 }
 #autocomplete.popupba{
     z-index: 10001;
@@ -39,4 +41,8 @@
     border-top: 0.1rem solid #004990;
     border-bottom: 0.1rem solid #004990;
     margin: -0.1rem 0 0 0;
+}
+
+div.autocomp_cont {
+    position: relative;
 }

@@ -218,7 +218,7 @@ input.gomb.border{
 .muveletek {
     background: transparent;
     border-radius: 0rem;
-    margin: 1rem 0rem 0rem 0rem;
+    /*margin: 1rem 0rem 0rem 0rem;*/
     min-height: 5rem;
     padding: 1.5rem 1rem 1.3rem 1rem;
     position: fixed;

@@ -41,12 +41,12 @@
 
         $(this).attr('data-origin-val', $(this).val());
 
-        if( !$('#autocomplete').length ) {
+        /*if( !$('#autocomplete').length ) {
             $('body').append('<div id="autocomplete"></div>');
         }
         if(options.popupba){
             $('#autocomplete').addClass('popupba');
-        }
+        }*/
 
         $(this).keyup(function(e) {
 
@@ -61,8 +61,61 @@
             setting     = options;
 
             if(length >= options.karaktertol) {
-                if(options.szel == 'auto') {
+                var cont_id = $(this).attr('id') + '_cont',
+                    current_cont_id = $('#autocomplete').attr('data-cont');
 
+                if( !$('#' + cont_id).length ) {
+                    $(this).before('<div id="' + cont_id + '" class="autocomp_cont"></div>');
+                }
+
+                if( current_cont_id === undefined ) {
+                    $('#' + cont_id).html('<div id="autocomplete" data-cont="' + cont_id + '"></div>');
+                } else if( cont_id != current_cont_id ) {
+                    $('#autocomplete').remove();
+                    $('#' + cont_id).html('<div id="autocomplete" data-cont="' + cont_id + '"></div>');
+                }
+
+                if(options.popupba){
+                    $('#autocomplete').addClass('popupba');
+                } else {
+                    $('#autocomplete').removeClass('popupba');
+                }
+
+                /* Ha kilógna a képernyőről */
+                var offsetTop = $(this).offset().top,
+                    documentHeight = $(document).outerHeight(),
+                    documentHalf = documentHeight / 2;
+
+                var autocompHeight = $('#autocomplete').outerHeight();
+
+                /* Ha az input elhagyta a documentum felét */
+                if( offsetTop > documentHalf ) {
+                    var maradekHely = documentHeight - (offsetTop + height);
+
+                    console.log(maradekHely);
+                } else {
+console.log('fent');
+                }
+
+                if(options.szel == 'auto') {
+                    $('#' + cont_id).css({ 'width': width });
+                    $('#autocomplete').css({
+                        'width'     : width,
+                        /*'left'      : left,*/
+                        'top'       : height,
+                        'display'   : 'block'
+                    });
+                } else {
+                    $('#' + cont_id).css({ 'width': options.szel });
+                    $('#autocomplete').css({
+                        'width'     : options.szel,
+                        /*'left'      : left,*/
+                        'top'       : height,
+                        'display'   : 'block'
+                    });
+                }
+
+                /*if(options.szel == 'auto') {
                     $('#autocomplete').css({
                         'width'     : width,
                         'left'      : left,
@@ -78,19 +131,19 @@
                         'top'       : top+height,
                         'display'   : 'block'
                     });
-                }
+                }*/
 
                 /* Ha nem a szűrőben van az autocomplete, akkor csak azokat a helyiségeket listázza ki,
                  *  ami adott szállodához tartozik, ezért átküldünk egy telephely_id értékete is */
                 telephely_id = '';
                 if( !options.szuros && (
-                                        baseName(location.href) == 'bejelentes' ||
-                                        baseName(location.href) == 'utemezett_feladatok' ||
-                                        baseName(location.href) == 'rendszeres_karbantartas' ||
-                                        baseName(location.href) == 'munkalap' ||
-                                        baseName(location.href) == 'eszkozkezeles' ||
-                                        baseName(location.href) == 'felmeresi_terv'
-                                        )
+                    baseName(location.href) == 'bejelentes' ||
+                    baseName(location.href) == 'utemezett_feladatok' ||
+                    baseName(location.href) == 'rendszeres_karbantartas' ||
+                    baseName(location.href) == 'munkalap' ||
+                    baseName(location.href) == 'eszkozkezeles' ||
+                    baseName(location.href) == 'felmeresi_terv'
+                    )
                 ) {
                     telephely_id = $('#telephely_id').val();
                 }
@@ -141,20 +194,20 @@
             }
         });
 
-        $('#autocomplete').on('mouseover', 'ul li', function() {
+        $(document).on('mouseover', '#autocomplete ul li', function() {
             $('#autocomplete ul li').removeClass('aktiv');
             $(this).addClass('aktiv');
         });
 
-        $('#autocomplete').on('mouseleave', 'ul li', function() {
+        $(document).on('mouseleave', '#autocomplete ul li', function() {
             $(this).removeClass('aktiv');
         });
 
-        $('#autocomplete').on('mouseleave', function() {
+        $(document).on('mouseleave', '#autocomplete', function() {
             $(this).removeClass('aktiv');
         });
 
-        $('#autocomplete').on('click', 'ul li', function(e) {
+        $(document).on('click', '#autocomplete ul li', function(e) {
 
             var link   = $('#autocomplete ul li.aktiv').attr('data-href'),
                 recid  = $('#autocomplete ul li.aktiv').attr('data-recid'),
