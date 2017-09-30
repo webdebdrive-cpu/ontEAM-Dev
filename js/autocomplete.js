@@ -50,8 +50,10 @@
 
         $(this).keyup(function(e) {
 
-            var width   = $(this).innerWidth();
-            var height  = $(this).innerHeight();
+            var that    = $(this);
+
+            var width   = $(this).outerWidth();
+            var height  = $(this).outerHeight();
             var left    = $(this).offset().left;
             var top     = $(this).offset().top;
 
@@ -81,37 +83,19 @@
                     $('#autocomplete').removeClass('popupba');
                 }
 
-                /* Ha kilógna a képernyőről */
-                var offsetTop = $(this).offset().top,
-                    documentHeight = $(document).outerHeight(),
-                    documentHalf = documentHeight / 2;
-
-                var autocompHeight = $('#autocomplete').outerHeight();
-
-                /* Ha az input elhagyta a documentum felét */
-                if( offsetTop > documentHalf ) {
-                    var maradekHely = documentHeight - (offsetTop + height);
-
-                    console.log(maradekHely);
-                } else {
-console.log('fent');
-                }
-
                 if(options.szel == 'auto') {
                     $('#' + cont_id).css({ 'width': width });
                     $('#autocomplete').css({
-                        'width'     : width,
-                        /*'left'      : left,*/
-                        'top'       : height,
-                        'display'   : 'block'
+                        'display'   : 'block',
+                        'max-height': '30rem',
+                        'width'     : width
                     });
                 } else {
                     $('#' + cont_id).css({ 'width': options.szel });
                     $('#autocomplete').css({
-                        'width'     : options.szel,
-                        /*'left'      : left,*/
-                        'top'       : height,
-                        'display'   : 'block'
+                        'display'   : 'block',
+                        'max-height': '30rem',
+                        'width'     : options.szel
                     });
                 }
 
@@ -184,6 +168,37 @@ console.log('fent');
                         },
                         success: function(msg) {
                             $('div#autocomplete').html(msg);
+
+                            /* Ha kilógna a képernyőről */
+                            var offsetTop       = $(that).offset().top,
+                                documentHeight  = $(document).outerHeight(),
+                                documentHalf    = documentHeight / 2;
+
+                            var autocompHeight  = $('#autocomplete').outerHeight(),
+                                autocompleteTop = height;
+console.log(offsetTop + ' - ' + documentHalf);
+                            /* Ha az input elhagyta a documentum felét */
+                            if( offsetTop > documentHalf ) {
+                                var maradekHely = documentHeight - (offsetTop + height);
+
+                                autocompleteTop = -Math.abs(autocompHeight);
+                                var posTop = $(that).position().top;
+console.log(posTop);
+                                if( autocompHeight > posTop ) {
+                                    autocompleteTop = -Math.abs(posTop);
+                                    autocompHeight  = posTop;
+                                }
+
+                                $('#autocomplete').css({
+                                    'top': autocompleteTop,
+                                    'max-height': autocompHeight
+                                });
+                            } else {
+                                $('#autocomplete').css({
+                                    'top': height,
+                                    /*'max-height': autocompHeight*/
+                                });
+                            }
                         }
                     });
 
