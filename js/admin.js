@@ -949,6 +949,7 @@ $(function() {
 
         $('#ciklhet').val('');
         $('#ism_het').val('');
+        $('#ho_rendsz_het').val('');
         $('#h') .prop('checked', false);
         $('#k') .prop('checked', false);
         $('#s') .prop('checked', false);
@@ -958,6 +959,7 @@ $(function() {
         $('#v') .prop('checked', false);
 
         $('#ciklho').val('');
+        $('#honapjan').val('');
         $('#honapjan') .prop('checked', false);
         $('#ciklho2').val('');
         $('#ho_rendsz') .prop('checked', false);

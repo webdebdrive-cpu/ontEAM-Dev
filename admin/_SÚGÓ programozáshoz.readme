@@ -75,3 +75,4 @@ GOMBOK KISZERVEZÉSE ÁLTALÁNOSAN
 - Új feltöltés űrlap feltétele elé összegyűjteni a jogosultásgokat és kialakítani a nyomógombokat (pl. projektigenyles.php mintájára) Erre keress rá: "Gombok kirajzolása minden oldalra"
 - Új és modosít részen belül törölni minden $gomb változót, de csak miután beállítottad a gombokat, kialakítottad a jogokat.
 - Ha van extra fül, akkor ott a $szamla_html-t meg kell toldani a $gombok-al is
+- $muv_style változó se maradjon feleslegesen a uj/modosit ágban

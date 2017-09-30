@@ -163,6 +163,8 @@ define('JOG_UTFEL_MEGTEKINT',       32);
 define('JOG_UTFEL_KEZEL',           33);
 define('JOG_RENDSZ_KARB_MEGTEKINT', 35);
 define('JOG_RENDSZ_KARB_KEZEL',     36);
+define('JOG_ESETI_FENN_MEGTEKINT',  54);
+define('JOG_ESETI_FENN_KEZEL',      55);
 define('JOG_MUNKALAP_MUSZAK_ADMIN', 37);
 define('JOG_PRIGENY_S_MEGTEKINT',   38);
 define('JOG_PRIGENY_S_KEZEL',       39);

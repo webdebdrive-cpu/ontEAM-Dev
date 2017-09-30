@@ -305,13 +305,6 @@ if($gyorskereso_text){
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
-        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-            if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
-            }
-        }
-
 	    $form_mivel   = array($js, self(), $mezok, $megnevezes, $ckeditor, $gombok, $muv_style);
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
 
@@ -393,13 +386,6 @@ if($gyorskereso_text){
 		require('switch.php');
 
         $jobb_oldal = '';
-
-        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-            if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
-            }
-        }
 
 	    $szamla_html .= str_replace(
             array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'),

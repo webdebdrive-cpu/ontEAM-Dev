@@ -120,10 +120,10 @@ if (isset($_GET['csv'])) {
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
         $sql = 'SELECT
-                `'.get_db_tabla().'utemezett_feladatok`.`id` as \'Feladatszám\',
-                `'.get_db_tabla().'utemezett_feladatok`.`telephely_id` as \'Szálloda\',
-                `'.get_db_tabla().'utemezett_feladatok`.`obj_id` as \'Helyiség\',
-                `'.get_db_tabla().'utemezett_feladatok`.`nev` as \'Feladat\'
+                `'.get_db_tabla().$megnevezes.'`.`id` as \'Feladatszám\',
+                `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
+                `'.get_db_tabla().$megnevezes.'`.`obj_id` as \'Helyiség\',
+                `'.get_db_tabla().$megnevezes.'`.`nev` as \'Feladat\'
                 '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);
@@ -362,13 +362,6 @@ if($gyorskereso_text){
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
-        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-            if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
-            }
-        }
-
 	    $form_mivel   = array($js, self(), $mezok, $megnevezes, $ckeditor, $gombok, $muv_style);
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
 
@@ -456,13 +449,6 @@ if($gyorskereso_text){
 
         $jobb_oldal = '';
 
-        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-            if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
-            }
-        }
-
 	    $szamla_html .= str_replace(
             array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'),
             array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style  ),
@@ -509,7 +495,7 @@ if($gyorskereso_text){
             $napok = '';
             for($j=0; $j<6; $j++){
 
-                $db = count($adatbazis_kapcsolat->s('id', 'utemezett_feladatok', "`esnap_d`='".date('Y-m-d', strtotime('+'.$j.' days'))."' AND `elv_ido_tol`='$ora:00'"));
+                $db = count($adatbazis_kapcsolat->s('id', $megnevezes, "`esnap_d`='".date('Y-m-d', strtotime('+'.$j.' days'))."' AND `elv_ido_tol`='$ora:00'"));
 //echo $adatbazis_kapcsolat->gp() . '<br>';
                 if(!$db){
                     $db = '';
@@ -592,9 +578,9 @@ if($gyorskereso_text){
         $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
         $szamla_html .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
         $szamla_html .= '<hr>Ütemezés: ' . $utemezes;
-        $szamla_html .= '<hr>Esedékes: ' . $sor['esnap_d'];
-        $szamla_html .= '<hr>Utolsó végrehajtás: ' . $esnap_d;
-        $szamla_html .= '<br>Következő: ' . $getnextvaliddate;
+        $szamla_html .= '<hr>Esedékes: ' . $sor['esnap_d'].' '.het_napja_txt($sor['esnap_d']);
+        $szamla_html .= '<hr>Utolsó végrehajtás: ' . $esnap_d .' '.het_napja_txt($esnap_d);
+        $szamla_html .= '<br>Következő: ' . $getnextvaliddate.' '.het_napja_txt($getnextvaliddate);
         $szamla_html .= '<br>';
         $szamla_html .= '<br>Következő 10 iteráció:<br>';
 

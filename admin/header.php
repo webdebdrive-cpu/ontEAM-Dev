@@ -241,7 +241,7 @@ if( _jog(0) ) {
 }
 
 /* Munkák */
-if( _jog(3) ) {
+if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_UTFEL_MEGTEKINT) || _jog(JOG_RENDSZ_KARB_MEGTEKINT) || _jog(JOG_ESETI_FENN_MEGTEKINT) ) {
     $menu_nev        = 'Munkák';
     $menu_nev_kis    = 'munkák';
     $menu_nev_tobbes = 'Munkák';
@@ -261,10 +261,18 @@ if( _jog(3) ) {
     if(basename(self())=='uzemeltetesi_naplo.php')      { $oldalNev = 'Munkák / Üzemeltetési napló';                        }
 
     $aktmenuk  = '';
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Munkalapok'                 ), $almenu_sablon );
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Ütemezett feladatok'        ), $almenu_sablon );
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Rendszeres karbantartás'    ), $almenu_sablon );
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Eseti fenntartás'           ), $almenu_sablon );
+    if(_jog(JOG_MUNKALAP_MEGTEKINT)){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Munkalapok'                 ), $almenu_sablon );
+    }
+    if(_jog(JOG_UTFEL_MEGTEKINT)){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Ütemezett feladatok'        ), $almenu_sablon );
+    }
+    if(_jog(JOG_RENDSZ_KARB_MEGTEKINT)){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Rendszeres karbantartás'    ), $almenu_sablon );
+    }
+    if(_jog(JOG_ESETI_FENN_MEGTEKINT)){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Eseti fenntartás'           ), $almenu_sablon );
+    }
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'Üzemeltetési napló'         ), $almenu_sablon );
 
     $style = '';

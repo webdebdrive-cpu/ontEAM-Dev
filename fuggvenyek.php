@@ -80,7 +80,7 @@ function i_u($type, $tabla, $tomb) {
 	}
 
     //Dátumra ütmezés, ha az ütemezett feldaatokat módosítjuk/töltjük fel
-    if( $tabla == 'utemezett_feladatok' ) {
+    if( $tabla == 'utemezett_feladatok' || $tabla == 'rendszeres_karbantartas' || $tabla == 'eseti_fenntartas' ) {
 
         if($_POST['cikltip']=='l'){
             array_push($oszlopok, 'ciklaltip'       );
@@ -97,8 +97,18 @@ function i_u($type, $tabla, $tomb) {
             array_push($ertekek,  $_POST['ciklnap'] );
 
         }
-        //Napi ciklus, hétköznaponként isméltődik
-        if($_POST['hetkoz_kent']){
+        //Napi ciklus, hétköznaponként ismétlődik
+        $hetkoz_kent = '';
+        if($type == 'insert') {
+            if($_POST['hetkoz_kent']){
+                $hetkoz_kent = '1';
+            }
+        }else{
+            if($_POST['hetkoz_kent']=='true'){
+                $hetkoz_kent = '1';
+            }
+        }
+        if($hetkoz_kent){
             array_push($oszlopok, 'ciklaltip'   );
             array_push($ertekek,  '2'           );
 
@@ -1145,9 +1155,9 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         ');
     }
 
-    if( basename(self())=='utemezett_feladatok.php' ){
+    if( basename(self())=='utemezett_feladatok.php' || basename(self())=='rendszeres_karbantartas.php' || basename(self())=='eseti_fenntartas.php' ){
 
-        $param .= 'hetkoz_kent=\'+$(\'#hetkoz_kent\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
+        $param .= 'hetkoz_kent=\'+$(\'#hetkoz_kent\').is(\':checked\')+\'&amp;';
         $param .= 'aktkezd_d=\'+$(\'#aktkezd_d\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
         $param .= 'aktvege_d=\'+$(\'#aktvege_d\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
         $param .= 'ism_het=\'+$(\'#ism_het\').val().replace(/&/gi, \'|ES|\')+\'&amp;';
@@ -1207,7 +1217,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     return false;
                 }
                 if( ( $(\'#ciklhet\').val()>0 || $(\'#ho_rendsz_het\').val() ) && !$(\'#ciklho2\').val() ){
-                    alert2(\'Kérjük adja meg az ismétlődés gyakoriságát!\', \'\', \'Hiba\');
+                    alert2(\'Kérjük adja meg az ismétlődés gyakoriságát!\'+$(\'#ho_rendsz_het\').val(), \'\', \'Hiba\');
                     $(\'#ciklho2\').addClass(\'alert\');
                     return false;
                 }
@@ -2669,9 +2679,33 @@ function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $active = ' kijelolve';
             }
 
+            /* Telephely */
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
+            $telephely = $telephely[0]['nev'];
+
+            /* Helység */
+            $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
+            $helyseg = $helyseg[0]['nev'];
+
+            $aktiv = nl2('
+                <span class="icon piros">
+                    <i class="material-icons">clear</i>
+                </span>
+            ');
+            if( $bsz['aktiv'] ) {
+                $aktiv = nl2('
+                    <span class="icon zold">
+                        <i class="material-icons">done</i>
+                    </span>
+                ');
+            }
+
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['recid'].'</span>
+                            <span>'.$aktiv.' '.$bsz['id'].'</span>
+                            <span>'.$telephely.' - '.$helyseg.'</span>
+                            <span>'.$bsz['uf_nev'].'</span>
                         </a>';
+
 
             //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
@@ -2683,7 +2717,12 @@ function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         }
 
         if( !$frissit ) {
-            $html .= '</ul>';
+            $html .= nl2('
+                </ul>
+                <div id="naptar" class="'.$naptar_dn.'">
+                    <div class="naptar"></div>
+                </div>
+            ');
         }
 
         return nl2($html);
@@ -4204,7 +4243,7 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
 
     $html = '';
     if( $telephelyek ) {
-        $html .= '<h2>Objektumok hierarchiája</h2><ul class="telephelyek">';
+        $html .= '<h2>Objektumok hierarchiája</h2><div class="kozep"><ul class="telephelyek">';
 
         $egy_szalloda_nyitva = '';
         if( count($telephelyek)==1 ){
@@ -4272,7 +4311,7 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
             $html .= '<li class="fokat'.$alkatok.'"><a href=""'.$nyit.'>'.$icon.$telephely['nev'].'</a>'.$fokat_html.'</li>';
         }
 
-        $html .= '</ul>';
+        $html .= '</ul></div>';
     }
 
     return $html;
@@ -4832,4 +4871,20 @@ function prigeny_mindenki_velemenyezett_e($prigen_recid){
     }else{
         return true;
     }
+}
+
+// Egy dátumról megmondja, hogy a hét melyik napjára esik és szövegesen visszaadja
+function het_napja_txt($datum){
+    $datum = str_replace('.', '-', $datum);
+    $het_napjai = array(
+                    1 => 'Hétfő',
+                    2 => 'Kedd',
+                    3 => 'Szerda',
+                    4 => 'Csütörtök',
+                    5 => 'Péntek',
+                    6 => 'Szombat',
+                    0 => 'Vasárnap',
+                );
+    
+    return $het_napjai[date('w', strtotime($datum))];
 }
