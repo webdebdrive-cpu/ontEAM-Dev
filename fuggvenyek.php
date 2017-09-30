@@ -3045,7 +3045,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $active .= ' nyitott_statuszu';
             }
 
-            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+            $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span'.$bold.'>'.$bsz['ikt_szam'].'</span>
                             <span'.$bold.'>'.$bsz['nev'].'</span>
                             <span'.$bold.'>'.$statusz.'</span>

@@ -4717,7 +4717,19 @@ if(isset($_GET['modosit'])){
             $fajlnev = fajlnev_keszit($fajlnev[0]['nev']);
         }
 
+        $alkonyvtar  = '';
         $akt_utvonal = '../'.get_utvonal().$tabla.'/';
+        if(!is_dir($akt_utvonal)){
+            mkdir($akt_utvonal, 0777);
+        }
+        if($tabla=='felmeresi_terv'){
+            $telephely = $adatbazis_kapcsolat->s2('telephely_id', $tabla, "`recid`='{$_GET['id']}'");
+            $alkonyvtar = 'telep_'.$telephely['telephely_id'].'/';
+            $akt_utvonal .= $alkonyvtar;
+            if(!is_dir($akt_utvonal)){
+                mkdir($akt_utvonal, 0777);
+            }
+        }
         $kepnev      = $fajlnev;
         $ujnev       = $kepnev.'_1';
 
@@ -4735,7 +4747,7 @@ if(isset($_GET['modosit'])){
         unlink($akt_fajl);
 
         //Végül letároljuk az adatbázisba is
-        $adatbazis_kapcsolat->u($tabla, array($oszlop), array($tabla.'/'.$kepnev), 'recid='.$_GET['id']);
+        $adatbazis_kapcsolat->u($tabla, array($oszlop), array($alkonyvtar.$kepnev), 'recid='.$_GET['id']);
 
     }
 }

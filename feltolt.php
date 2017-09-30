@@ -24,7 +24,7 @@ if($_POST['megnevezes']=='velemeny'){
     
     //Adott illető egyáltalán véleményező-e
     $prigeny = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$_POST['projektigenyles_recid']}'");
-echo $adatbazis_kapcsolat->gp() . '<br>';
+
     if($prigeny['stat_id']!=PRIGENY_STAT_VEL_ALATT){
         echo 'Hiba! A projektigénylés nincs véleményezés alatt státuszban!';
         $weblap -> leallit();

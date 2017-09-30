@@ -38,6 +38,12 @@ if ($_GET['print']=='lista') {
     }
     
     
+    //FB elétrejestzett lista nyomtatásakor a lekérdezésen még állítotunk
+    if(isset($_GET['fb_elo'])){
+        $_SESSION['akt_sql'] = str_replace('ORDER', ' WHERE `stat_id`=\''.PRIGENY_STAT_FB_TERJESZT.'\' ORDER', $_SESSION['akt_sql']);
+        $feltetel .= '<h1>FB elé terjesztve:</h1>';
+    }
+
     $sorok = array();
     $query = mysqli_query($db_kapcs, $_SESSION['akt_sql']);    
     while($sor = mysqli_fetch_assoc($query)){
@@ -47,14 +53,15 @@ if ($_GET['print']=='lista') {
     //Bal oldali navpanel kiíratása
     switch(str_replace('.php', '', basename(self()))){
 //        case 'anyagigenyles'        : $akt_tomb = $anyagigenyles_tomb;          break;
-        case 'bejelentes'           : $sorok_html = bejelentesLista( $sorok );  break;
+        case 'bejelentes'           : $sorok_html = bejelentesLista( $sorok );      break;
 //        case 'beosztas'             : $akt_tomb = $beosztas_tomb;               break;
 //        case 'cikktorzs'            : $akt_tomb = $cikktorzs_tomb;              break;
 //        case 'eszkozkezeles'        : $akt_tomb = $eszkozkezeles_tomb;          break;
 //        case 'login'                : $akt_tomb = $login_tomb;                  break;
-        case 'munkalap'             : $sorok_html = munkalapLista( $sorok );    break;
+        case 'munkalap'             : $sorok_html = munkalapLista( $sorok );        break;
 //        case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
 //        case 'torzsadat'            : $akt_tomb = $torzsadat_tomb;              break;
+        case 'projektigenyles'      : $sorok_html = projektigenylesLista( $sorok ); break;
     }
     
     echo nl2('
