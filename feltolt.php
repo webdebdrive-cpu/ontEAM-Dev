@@ -23,6 +23,13 @@ if(kit($_FILES[$_POST['megnevezes']]['name'])=='php'){
 if($_POST['megnevezes']=='velemeny'){
     
     //Adott illető egyáltalán véleményező-e
+    $prigeny = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$_POST['projektigenyles_recid']}'");
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    if($prigeny['stat_id']!=PRIGENY_STAT_VEL_ALATT){
+        echo 'Hiba! A projektigénylés nincs véleményezés alatt státuszban!';
+        $weblap -> leallit();
+        exit;
+    }
     if($adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'", '', '1')){
         
         $utvonal = get_utvonal().'projektigenyles_velemeny';

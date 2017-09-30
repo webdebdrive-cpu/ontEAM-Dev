@@ -4290,8 +4290,13 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
     } else if( sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
 
         szoveg = 'sorokat';
+        torolhet = true;
         if(_get('cash_flow')){
             szoveg = 'cash-flow-kat';
+            /* Ha nincs minden kezelés joga, akkor nem törölheti */
+            if(_jogok[47]=='0'){
+                torolhet = false;
+            }
         }
         if(_get('engedelyek')){
             szoveg = 'engedélyeket';
@@ -4302,11 +4307,19 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
         if(_get('velemenyezok')){
             szoveg = 'véleményezőket';
         }
-        
-        gomb_uzi = 'Biztosan törli a kijelölt '+szoveg+'?';
-        gomb_muv = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\');"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>';
 
-        $('#navGombok a.torles').removeClass('disabled').attr('onclick', 'alert2(\'' + gomb_uzi + '\', gomb_muv);');
+        if(torolhet){
+            gomb_uzi   = 'Biztosan törli a kijelölt '+szoveg+'?';
+            gomb_muv   = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\');"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>';
+            ablak_cime = '';
+        }else{
+            gomb_uzi   = 'Önnek nincs joga '+szoveg+' törölni!';
+            gomb_muv   = '';
+            ablak_cime = 'Hiba';
+            
+        }
+
+        $('#navGombok a.torles').removeClass('disabled').attr('onclick', 'alert2(\'' + gomb_uzi + '\', gomb_muv, ablak_cime);');
     }
 }
 
@@ -4456,7 +4469,12 @@ function kapcsolodoSzerkeszt( oldal ) {
 
         switch( oldal ) {
             case 'cash_flow':
-                $('#addCashFlow').attr('onsubmit', 'return addCashFlow(\'' + _get('id') + '\', this);');
+                if(_jogok[47]==1){
+                    $('#addCashFlow').attr('onsubmit', 'return addCashFlow(\'' + _get('id') + '\', this);');
+                }else{
+                    alert2('Önnek nincs joga Cash-flowt feltölteni!', '', 'Hiba');
+                    return false;
+                }
             break;
             case 'megjegyzes':
                 $('#addMegjegyzes').attr('onsubmit', 'return addMegjegyzes(\'' + _get('id') + '\', this);');

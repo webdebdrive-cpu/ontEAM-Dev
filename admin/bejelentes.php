@@ -619,8 +619,8 @@ if($gyorskereso_text){
         ');
     }
 
-	//Új termék felvitele
-	if(isset($_GET['uj']) /*&& _jog(JOG_BEJELENTES_KEZEL) && !_jog(JOG_DISZPECSER) */&& !$csak_szerkesztheto){
+	//Új bejelentés felvitele
+	if(isset($_GET['uj'])){
 
         //NAVIGÁCIÓ
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
@@ -747,10 +747,10 @@ if($gyorskereso_text){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
 
-        $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
-        $telephely = $telephely[0]['nev'];
 
         //Duplákáláskor feltett kérdés
+        $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
+        $telephely = $telephely[0]['nev'];
         $szamla_html .= nl2('
             <script>
                 duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
@@ -777,7 +777,7 @@ if($gyorskereso_text){
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
-
+        
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
@@ -808,10 +808,6 @@ if($gyorskereso_text){
         } else {
             echo $szamla_html;
         }
-
-        if($tobb_kep){
-			//require_once('tobb_kep.php');
-		}
 
 	/* Történet */
     }elseif(isset($_GET['tortenet'])) {

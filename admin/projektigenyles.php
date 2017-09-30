@@ -547,8 +547,8 @@ if($gyorskereso_text){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
             }
 
-            //Ha véleményező vagyok, akkor tudok véleményt feltölteni
-            if($adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET['id']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'", '', '1')){
+            //Ha a prigény véleményezés alatt van, és véleményező vagyok, akkor tudok véleményt feltölteni
+            if($sor['stat_id']==PRIGENY_STAT_VEL_ALATT && $adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET['id']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'", '', '1')){
                 $gombok .= ' <input type="button" class="gomb foGomb" value="Vélemény csatolása" title="Vélemény csatolása" onclick="velemeny_hozzaad();">';
             }
             
@@ -644,6 +644,18 @@ if($gyorskereso_text){
 
 	    //FORM
 		if(isset($_GET['ujkent'])){
+            
+            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
+            if( $sor ) {
+                foreach($akt_tomb as $ertek) {
+                    if( $ertek['name'] != 'ikt_szam' ) {
+                        $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
+                    } else {
+                        $_SESSION[$ertek['name']] = '';
+                    }
+    			}
+            }
+            
 			foreach($akt_tomb as $ertek){
 				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
 			}
@@ -740,6 +752,8 @@ if($gyorskereso_text){
         }
         
         //Duplákáláskor feltett kérdés
+        $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
+        $telephely = $telephely[0]['nev'];
         $szamla_html .= nl2('
             <script>
                 duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
@@ -866,7 +880,7 @@ if($gyorskereso_text){
             }
         }
 
-        $szamla_html .= '</div></div>';
+        $szamla_html .= '</div></div><input type="hidden" id="priRecid" value="'.$_GET['id'].'">';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

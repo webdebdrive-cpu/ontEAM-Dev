@@ -21,7 +21,17 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             $where_sql .= '`'.$oszlop_keres[$i].'` LIKE \'%'.$_GET['value'].'%\' OR ';
             $oszlopok  .= '`'.$oszlop_keres[$i].'`, ';
         }
+        
+        //Azokat a felhasználókat válogassuk le, akik adott projektigénylés szállodájának látokörében vannak
+        $prigeny = $adatbazis_kapcsolat->s2('telephely_id', 'projektigenyles', "`recid`='{$_GET['recid']}'");
+        $felhasznalok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$prigeny['telephely_id']}'");
+        $felhasznalok = adatbazis2tomb($felhasznalok, 'nev');
 
+        if($felhasznalok){
+            $where_sql = csonkit($where_sql, 4).' AND ';
+            $where_sql .= '`nev` IN (\''.implode('\', \'', $felhasznalok).'\') AND ';
+        }
+        
         //Utolsó 4 karater levágása
         $where_sql =  substr($where_sql, 0, strlen($where_sql) - 4);
         $oszlopok  =  substr($oszlopok, 0,  strlen($oszlopok)  - 2);
@@ -36,7 +46,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
 
         //DL lista elemeinek előállítása
         $return = '<ul>';
-
+//echo 'SELECT `recid`, `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`';
         $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`, `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
         while( $sor = mysqli_fetch_array($lekerdez) ) {
             $return .= '<li data-recid="'.$sor[$_GET['id_kiir']].'">';
