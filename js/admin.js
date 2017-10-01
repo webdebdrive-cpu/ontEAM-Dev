@@ -770,7 +770,7 @@ $(function() {
     });
 
     formModositva = false;
-    $('#tartalomJobb').on('keyup change paste', '#szerk_form input, #szerk_form select, #szerk_form textarea', function(e) {
+    $('#tartalomJobb').on('keyup change paste blur focus', '#szerk_form input, #szerk_form select, #szerk_form textarea', function(e) {
 
         var name = $(this).attr('name'),
             type = $(this).attr('type'),
@@ -1165,6 +1165,7 @@ $(function() {
             tort = $(this).attr('data-tort');
         }
         $(this).val( ezresek($(this).val().replace(/ /g, '').replace('.', '').replace(',', '.'), tort, ',', ' ') );
+        $(this).focus().blur(); /* Ez azért kell, hogy ha 0 volt az értéke, kitörlöm üresnek, akkor az ezresek 0-át vissza teszi bele, tehát a mezőről le kellene venni a 'mod' classzt, és ezt egy focus-blur-al oldom meg */
     });
 
     /* Anyagigénylésnél a mennyiség mező kitöltése szálloda + anyag ismerete alapján */
@@ -5704,7 +5705,8 @@ function bejegyzesDuplikal() {
 }
 
 /* A bal oldali navpanel kijelölésének ellenőrzése */
-function balnav_kijelol_ell(egy_csoport_reszben_szabad){
+function balnav_kijelol_ell(egy_csoport_reszben_szabad, kivetel_ell){
+    console.log($('li.szamla_sor.kijelolve:not(\'.behuz\')').length);
     /* Ha van csoport elem megjelölve, akkor azt vizsgáljuk meg, hogy a csoport összes eleme meg van-e jelölve */
     var van_resz_csoport  = false;
     var tobb_resz_csoport = false;
@@ -5746,6 +5748,12 @@ function balnav_kijelol_ell(egy_csoport_reszben_szabad){
             }
 
         }
+    }
+    
+    /* Ha ki szeretnénk épp venni egy elemet a csoportból, de van olyan kijelölt, ami nincs is csoportban akkor hibaüzenet */
+    if(kivetel_ell && $('li.szamla_sor.kijelolve:not(\'.behuz\')').length){
+        alert2('Van olyan kijelölt '+$('#rekord_neve_egyes').html()+', mely nincs csoportosítva. A művelet így nem hajtható létre!', '', 'Hiba');
+        return false;
     }
 
     return true;

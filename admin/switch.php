@@ -663,7 +663,9 @@ if (isset($_GET['teszt'])) {
 
                 $telephelyek = $adatbazis_kapcsolat -> select('id recid nev', 'telephely', "`id` IN (".implode(',', $telephely_kapcs).")", 'nev');
                 foreach($telephelyek as $telephely) {
-                    if( count($telephelyek) == 1 ) {
+                    //Ha csak egy szálloda van, akkor a seletből csak az az egy értékváélasztható ki, ezt meg is tesszük, selectet így disabled-re téve.
+                    //Mindezet csak akkor, ha új feltöltés üzemmódban vagyunk
+                    if( count($telephelyek) == 1 && isset($_GET['uj']) ) {
                         $sor['telephely_id'] = $telephely['id'];
                         $ertek['disabled'] = true;
                         $ertek['post'] .= '<input type="hidden" name="telephely_id" id="telephely_id" value="'.$sor['telephely_id'].'">';

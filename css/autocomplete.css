@@ -36,9 +36,6 @@
 
 #autocomplete ul li.aktiv {
 	background-color: #CDDFED;
-    border-top: 0.1rem solid #004990;
-    border-bottom: 0.1rem solid #004990;
-    margin: -0.1rem 0 0 0;
 }
 
 div.autocomp_cont {

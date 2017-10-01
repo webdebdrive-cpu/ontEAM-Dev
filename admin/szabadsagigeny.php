@@ -216,7 +216,7 @@ if($gyorskereso_text){
         foreach($sor as $kulcs => $elem){
             $json_sor[$kulcs] = str_replace("\r\n", "#UJSOR#", $elem);
         }
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
+        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
 	    //Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';

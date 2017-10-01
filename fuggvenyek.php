@@ -617,30 +617,21 @@ function i_u($type, $tabla, $tomb) {
 
         // Projektigénylés státusz beszúrása
         if( $tabla == 'projektigenyles' ) {
-            $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',             'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                array($id,             PRIGENY_STAT_NYITOTT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
-                                            );
-            if( $sql === false ) { $db_error = true; }
-
-            $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRIGENY_STAT_NYITOTT), "`recid`='$id'");
-            if( $sql === false ) { $db_error = true; }
-            //Van pár elméletileg kötelező mező. Ha ezek csak részen vannak kitöltve, akkor még tovább léptetjük a státuszt: Létrehozás alatt
+            
+            //Ez nyitott, hacsak nem hiányzik kötelező mező kitöltése
+            $statusz = PRIGENY_STAT_NYITOTT;
             foreach ($prigeny_kot_mezok as $mezo){
                 if(!$_POST[$mezo] || str_replace(',', '.', $_POST[$mezo])=='0'){
-
-                    $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                        array($tabla.'_recid', 'stat_id',                 'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                        array($id,             PRIGENY_STAT_LETRE_ALATT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
-                                                    );
-                    if( $sql === false ) { $db_error = true; }
-
-                    $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRIGENY_STAT_LETRE_ALATT), "`recid`='$id'");
-                    if( $sql === false ) { $db_error = true; }
-
+                    $statusz = PRIGENY_STAT_LETRE_ALATT;
                     break;
                 }
             }
+            
+            $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
+                                                array($tabla.'_recid', 'stat_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                array($id,             $statusz,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            );
+            if( $sql === false ) { $db_error = true; }
 
         }
 
@@ -786,6 +777,7 @@ function i_u($type, $tabla, $tomb) {
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
 //echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
         if( $id === false ) { $db_error = true; }
+
         //Projektigénylésnél van pár elméleteileg kötelező mező, ami státuszléptetéssel jár, ezt le kell kezelni
         if( $tabla == 'projektigenyles' ){
             $prigeny = $adatbazis_kapcsolat->s2(implode(', ', $prigeny_kot_mezok).' stat_id', $tabla, "`recid`='{$_GET['id']}'");
@@ -812,7 +804,6 @@ function i_u($type, $tabla, $tomb) {
             }
 
         }
-
         if( $id ) {
             $sor = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
             if( $sor === false ) { $db_error = true; }
@@ -824,6 +815,7 @@ function i_u($type, $tabla, $tomb) {
 
                 foreach($tomb as $value) {
                     if( $value['type'] == 'autocomplete' ) {
+                        $value['tabla'] = str_replace('_csakszint', '', $value['tabla']);
                         $kulso_ertek = $adatbazis_kapcsolat->s('recid nev', $value['tabla'], 'recid='.$sor[0][$value['name']], '', '1');
                         if( $kulso_ertek === false ) { $db_error = true; }
                         $sor[0][$value['name'].'_autocomp'] = '';
@@ -835,7 +827,7 @@ function i_u($type, $tabla, $tomb) {
 
                 echo json_encode(array(
                     'statusz' => 'siker',
-                    'adatok' => $sor[0]
+                    'adatok'  => $sor[0]
                 ));
             }
         }
@@ -1331,7 +1323,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         alert2();
                     }
 
-                    /*szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
+                    
+                    szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
                     szamlaBetolt( \''.$_GET['id'].'\', \''.basename(self()).'\', \'modosit\', \'\', \'Elhagy kérdés nélkül\' );
 
                     formAdatok = response.adatok;
@@ -1339,7 +1332,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     gombokNullaz();
                     formModositva = false;
 
-                    $(\'#mehet_gomb\').removeClass(\'gombb_alert\').attr(\'disabled\', true);*/
+                    $(\'#mehet_gomb\').removeClass(\'gombb_alert\').attr(\'disabled\', true);
                 }
             }
         });
