@@ -41,11 +41,16 @@ if ($_GET['print']=='lista') {
     //FB elétrejestzett lista nyomtatásakor a lekérdezésen még állítotunk
     if(isset($_GET['fb_elo'])){
         $_SESSION['akt_sql'] = str_replace('ORDER', ' WHERE `stat_id`=\''.PRIGENY_STAT_FB_TERJESZT.'\' ORDER', $_SESSION['akt_sql']);
-        $feltetel .= '<h1>FB elé terjesztve:</h1>';
+        $query = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
+        if(mysqli_num_rows($query)){
+            $feltetel .= '<h1>FB elé terjesztve:</h1>';
+        }else{
+            $feltetel .= '<h1>Nem található FB elé terjesztett projektigénylés.</h1>';
+        }
     }
 
     $sorok = array();
-    $query = mysqli_query($db_kapcs, $_SESSION['akt_sql']);    
+    $query = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
     while($sor = mysqli_fetch_assoc($query)){
         array_push($sorok, $sor);
     }

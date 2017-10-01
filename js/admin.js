@@ -86,32 +86,32 @@ function pipa_kapcsolo(id, valtozonev, lista_neve, sorid){
 
 /* Felsorolásnál törlésgomhoz HTML. Hogy valid legyen kiveszem JS-be. */
 function get_torles_gomb_e(self, torles){
-    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb piros" type="button" value="Igen" onclick="torol(\'' + self + '&amp;' + torles + '=';
+    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="torol(\'' + self + '&amp;' + torles + '=';
 }
 
 /* Felsorolásnál törlésgomhoz HTML. Hogy valid legyen kiveszem JS-be. */
 function get_torles_gomb_v(){
-    return ')"> <input class="gomb zold" type="button" value="Nem" onclick="alert2()">';
+    return ')"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';
 }
 
 /* Minden töröl gomb HTML-je. Hogy valid legyen kiveszem JS-be. */
 function get_gomb_mindent(){
-    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb piros" type="button" value="Igen" onclick="document.getElementById(\'kij_torl\').submit()">  <input class="gomb zold" type="button" value="Nem" onclick="alert2()">';
+    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="document.getElementById(\'kij_torl\').submit()">  <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';
 }
 
 /* Kibontásnál a töröl gomb HTML-je. Hogy valid legyen kiveszem JS-be. */
 function get_kibont_torol(self, torles, get_id){
-    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb piros" type="button" value="Igen" onclick="location.href=\'' + self + '?lista&amp;' + torles + '=' + get_id + '\'">  <input class="gomb zold" type="button" value="Nem" onclick="alert2()">';
+    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="location.href=\'' + self + '?lista&amp;' + torles + '=' + get_id + '\'">  <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';
 }
 
 /* Kibontásnál címlap kép törlés HTML-je. Hogy valid legyen kiveszem JS-be. */
 function get_fokep_torol(self, get_id, keptorol){
-    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb piros" type="button" value="Igen" onclick="$.ajax({ url : \'' + self + '\', type: \'GET\', data: \'id=' + get_id + '&amp;modosit&amp;keptorol=' + keptorol + '&amp;becsapas=' + new Date().getTime() + '\', success: function(html){ $(\'#fokep\').fadeOut(\'fast\'); alert2(); } });"> <input class="gomb zold" type="button" value="Nem" onclick="alert2()">';
+    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="$.ajax({ url : \'' + self + '\', type: \'GET\', data: \'id=' + get_id + '&amp;modosit&amp;keptorol=' + keptorol + '&amp;becsapas=' + new Date().getTime() + '\', success: function(html){ $(\'#fokep\').fadeOut(\'fast\'); alert2(); } });"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';
 }
 
 /* Kibontásnál egy flashfájllal felvitt fájl törlése */
 function get_fajl_torol_gomb(id, tabla, oszlop){
-    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb piros" type="button" value="Igen" onclick="$.ajax({type: \'POST\',url : \'esemenyek.php\',data: \'fajl_torol=1&tabla=' + tabla + '&oszlop=' + oszlop + '&id=' + id + '\', success: function(html){}}); alert2(); $(\'#fajl_' + tabla + '_' + oszlop + '_' + id + '\').fadeOut();"> <input class="gomb zold" type="button" value="Nem" onclick="alert2()">';
+    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="$.ajax({type: \'POST\',url : \'esemenyek.php\',data: \'fajl_torol=1&tabla=' + tabla + '&oszlop=' + oszlop + '&id=' + id + '\', success: function(html){}}); alert2(); $(\'#fajl_' + tabla + '_' + oszlop + '_' + id + '\').fadeOut();"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';
 }
 
 
@@ -3223,12 +3223,12 @@ function bejegyzesElutasitas( that, csak_memo ) {
                             response = JSON.parse(response);
 
                             if( response.hiba ) {
-                                alert2(response.hiba, '', 'Hiba');
+                                alert2(response.hiba, response.gomb, 'Hiba');
                                 return false;
                             }
 
                             if( response.kieg ) {
-                                alert2(response.kieg, '', 'Hiba');
+                                alert2(response.kieg, response.gomb, 'Hiba');
                             }
 
                             kijelolesEltavolit();
@@ -4489,6 +4489,24 @@ function kapcsolodoSzerkeszt( oldal ) {
             break;
             case 'velemenyezok':
                 $('#addVelemenyezokForm').attr('onsubmit', 'return addVelemenyezoFg(\'' + _get('id') + '\', this);');
+                $.ajax({
+                    url  : 'projektigenyles.php',
+                    type : 'POST',
+                    data: {
+                        recid                   : _get('id'),
+                        velemenyezok_status_ell : new Date().getTime()
+                    },
+                    success: function (response) {
+                        if (response) {
+                            response = JSON.parse(response);
+                            if( response.hiba ) {
+                                alert2(response.hiba, '', 'Hiba');
+                                popupZar();
+                                return false;
+                            }
+                        }
+                    }
+                });
             break;
             /* Véleménye feltötléskor pár adatra szükségünk van PHP-ból */
             case 'velemeny_feltolt':
@@ -4821,7 +4839,7 @@ function addCashFlow( pageID, that ) {
                     html = JSON.parse(html);
 
                     if( html.statusz == 'hiba' ) {
-                        alert2(html.uzi, '', 'Hiba');
+                        alert2(html.uzi, html.gomb, 'Hiba');
                         return false;
                     }
 
@@ -5796,7 +5814,8 @@ function osszetett_szuro_mondat(){
 }
 
 /* Eszközkezelésnél az azonosítómezőt elhagyva ellenőrizzük, hogy nem foglalt-e még az azonosító */
-function eszkozkezeles_azon_ell(azon, recid){
+function eszkozkezeles_azon_ell(callback, azon, recid){
+
     $.ajax({
         url : 'eszkozkezeles.php',
         type: 'POST',
@@ -5807,9 +5826,11 @@ function eszkozkezeles_azon_ell(azon, recid){
         },
         success: function (response) {
             response = JSON.parse(response);
-
             if(response.hiba){
                 alert2(response.hiba, '', 'Hiba');
+                return false;
+            }else{
+                return true;
             }
         }
     });

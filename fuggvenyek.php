@@ -323,15 +323,6 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok,  'id'       );
             array_push($ertekek,   $ertek_id  );
 
-
-        //Eszközkezelésnél nem engedünk meg két egyforma azonosítót
-        } else if( $tabla == 'eszkozkezeles' ) {
-            if($adatbazis_kapcsolat->s2('recid', $tabla, "`azon`='{$_POST['azon']}'")){
-                header('Location: eszkozkezeles.php?uj');
-                $weblap -> leallit();
-                exit;
-            }
-
         //Gégpek új bejegyzés esetén
         } else if( $tabla == 'gep' ) {
             array_push($oszlopok, 'loginnev'                        );
@@ -712,6 +703,7 @@ function i_u($type, $tabla, $tomb) {
             }
         }
 
+
         /* Ha volt változás, akkor logoljuk */
         $record = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
         if( $record === false ) { $db_error = true; }
@@ -722,7 +714,8 @@ function i_u($type, $tabla, $tomb) {
                         echo json_encode(array(
                             'hiba' => 'Ezt a bejegyzést valaki más már módosította, <br>kérlek kezd előről a szerkesztést!'
                         ));
-
+                        
+                        $weblap -> leallit();
                         exit();
                     }
                 }
@@ -787,14 +780,6 @@ function i_u($type, $tabla, $tomb) {
             if($login_nev){
                 $sql = $adatbazis_kapcsolat->u('login', array('aktiv'), array($_POST['aktiv']), "`nev`='{$login_nev['felh_loginnev']}'");
                 if( $sql === false ) { $db_error = true; }
-            }
-        }
-
-        //Eszközkezelésnél nem engedünk meg két egyforma azonosítót
-        if( $tabla == 'eszkozkezeles' ) {
-            if($adatbazis_kapcsolat->s2('recid', $tabla, "`azon`='{$_POST['azon']}' AND `recid`!='{$_GET['id']}'")){
-                $weblap -> leallit();
-                exit;
             }
         }
 
@@ -1071,40 +1056,6 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 }
             }
         ');
-
-        /*if( _jog(JOG_DISZPECSER) ) {
-            $ret .= nl2('
-                if( !bejelentes_mehet2 ) {
-                    var bejBejelentok_hiba = false;
-
-                    $.ajax({
-                        url : \'esemenyek.php\',
-                        type: \'GET\',
-                        async: false,
-                        data: esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;obj_id=\' + $(\'#obj_id\').val() + \'&amp;getBejBejelentok=\' + new Date().getTime()),
-                        success: function(response) {
-
-                            response = JSON.parse(response);
-
-                            if( response.hiba ) {
-                                if( response.gomb ) {
-                                    alert2(response.hiba, response.gomb);
-                                } else {
-                                    alert2(response.hiba, \'\', \''.$hiba_txt.'\');
-                                }
-
-                                bejBejelentok_hiba = true;
-                            }
-
-                        }
-                    });
-
-                    if( bejBejelentok_hiba ) {
-                        return false;
-                    }
-                }
-            ');
-        }*/
     }
 
     //Személyzet -> Beosztás -> Naptár fül alatt nem a hagyományos form feldogozás törétnik majd, hanem egy beosztas_naptarba_teszt() FGV-t hívunk meg
@@ -1144,6 +1095,20 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             return false;
         ');
     }
+    
+    if( basename(self())=='eszkozkezeles.php' ){
+        $ret .= '
+            eszkozkezeles_azon_ell(
+                function(result){
+                    if (result == true )
+                       alert(\'success\');
+                    else
+                       alert(\'failed\');
+                  },
+                  $(\'#azon\').val(), \''.$_GET['id'].'\');
+            
+            ';
+    }
 
     if( basename(self())=='ktghely.php' || basename(self())=='ktgnem.php' ){
 
@@ -1154,6 +1119,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             }
         ');
     }
+    
 
     if( basename(self())=='utemezett_feladatok.php' || basename(self())=='rendszeres_karbantartas.php' || basename(self())=='eseti_fenntartas.php' ){
 
@@ -1365,7 +1331,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         alert2();
                     }
 
-                    szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
+                    /*szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
                     szamlaBetolt( \''.$_GET['id'].'\', \''.basename(self()).'\', \'modosit\', \'\', \'Elhagy kérdés nélkül\' );
 
                     formAdatok = response.adatok;
@@ -1373,7 +1339,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     gombokNullaz();
                     formModositva = false;
 
-                    $(\'#mehet_gomb\').removeClass(\'gombb_alert\').attr(\'disabled\', true);
+                    $(\'#mehet_gomb\').removeClass(\'gombb_alert\').attr(\'disabled\', true);*/
                 }
             }
         });
@@ -4887,4 +4853,11 @@ function het_napja_txt($datum){
                 );
     
     return $het_napjai[date('w', strtotime($datum))];
+}
+
+//Valós dátum-e
+function valos_datum_e($datum){
+    $datum = substr(str_replace('.', '-', $datum), 0, 10);
+    list($ev, $ho, $nap) = explode('-', $datum);
+    return checkdate($ho, $nap, $ev);
 }

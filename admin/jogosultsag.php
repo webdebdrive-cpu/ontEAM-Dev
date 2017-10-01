@@ -2,7 +2,7 @@
 /*                                                  *\
  * FONTOS:
  * 55-es ID-nál járunk
- * 9 -es kategória ID-nál járunk
+ * 11 -es kategória ID-nál járunk
 \*                                                  */
 
 $jogosultsagKatok = array(
@@ -14,8 +14,10 @@ $jogosultsagKatok = array(
     6 => array('nev' => 'Rendszeres karbantartás',  'sor' => 5),
     9 => array('nev' => 'Eseti fenntartás',         'sor' => 6),
     4 => array('nev' => 'Személyzet',               'sor' => 7),
-    7 => array('nev' => 'Projektek',                'sor' => 8),
-    8 => array('nev' => 'Eszközök',                 'sor' => 9),
+    7 => array('nev' => 'Projekt igények',          'sor' => 8),
+   10 => array('nev' => 'Projektek',                'sor' => 9),
+   11 => array('nev' => 'Felmérési tervek',         'sor' => 10),
+    8 => array('nev' => 'Eszközök',                 'sor' => 11),
 );
 
 $jogosultsagok = array(
@@ -69,20 +71,23 @@ $jogosultsagok = array(
     29 => array('nev' => 'Beosztások olvasása',         'kat' => 4, 'sor' => 5, 'kikapcs' => '30'),
     30 => array('nev' => 'Beosztások kezelése',         'kat' => 4, 'sor' => 6, 'bekapcs' => '29'),
     
-    38 => array('nev' => 'Saját igénylések megtekintése',  'kat' => 7, 'sor' => 1, 'kikapcs' => '39'),
-    39 => array('nev' => 'Saját igénylések kezelése',      'kat' => 7, 'sor' => 2, 'bekapcs' => '38'),
-    46 => array('nev' => 'Minden igénylések megtekintése', 'kat' => 7, 'sor' => 3, 'kikapcs' => '47'),
-    47 => array('nev' => 'Minden igénylések kezelése',     'kat' => 7, 'sor' => 4, 'bekapcs' => '46'),
-    48 => array('nev' => 'Tárgyi igénylések megtekintése', 'kat' => 7, 'sor' => 5, 'kikapcs' => '49'),
-    49 => array('nev' => 'Tárgyi igénylések kezelése',     'kat' => 7, 'sor' => 6, 'bekapcs' => '48'),
-    50 => array('nev' => 'Projekt igénylések elutasítása', 'kat' => 7, 'sor' => 7, 'bekapcs' => '46,47'),
-    51 => array('nev' => 'Projekt igénylések jóváhagyása', 'kat' => 7, 'sor' => 8, 'bekapcs' => '46,47'),
-    52 => array('nev' => 'Projektkezelés megtekintése',    'kat' => 7, 'sor' => 9, 'kikapcs' => '53'),
-    53 => array('nev' => 'Projektkezelés kezelése',        'kat' => 7, 'sor' => 10,'bekapcs' => '52'),
-    40 => array('nev' => 'Véleményező hozzáadása',         'kat' => 7, 'sor' => 11),
+    38 => array('nev' => 'Saját igénylések megtekintése',           'kat' => 7, 'sor' => 1, 'kikapcs' => '39'),
+    39 => array('nev' => 'Saját igénylések kezelése',               'kat' => 7, 'sor' => 2, 'bekapcs' => '38'),
+    46 => array('nev' => 'Minden igénylések megtekintése',          'kat' => 7, 'sor' => 3, 'kikapcs' => '47'),
+    47 => array('nev' => 'Minden igénylések kezelése',              'kat' => 7, 'sor' => 4, 'bekapcs' => '46'),
+    48 => array('nev' => 'Tárgyi eszköz igénylések megtekintése',   'kat' => 7, 'sor' => 5, 'kikapcs' => '49'),
+    49 => array('nev' => 'Tárgyi eszköz igénylések kezelése',       'kat' => 7, 'sor' => 6, 'bekapcs' => '48'),
+    50 => array('nev' => 'Projekt igénylések elutasítása',          'kat' => 7, 'sor' => 7, 'bekapcs' => '46,47'),
+    51 => array('nev' => 'Projekt igénylések jóváhagyása',          'kat' => 7, 'sor' => 8, 'bekapcs' => '46,47'),
+    40 => array('nev' => 'Véleményező hozzáadása',                  'kat' => 7, 'sor' => 11),
+    
+    52 => array('nev' => 'Projektek megtekintése',                  'kat' => 10, 'sor' => 9, 'kikapcs' => '53'),
+    53 => array('nev' => 'Projektek kezelése',                      'kat' => 10, 'sor' => 10,'bekapcs' => '52'),
 
-    42 => array('nev' => 'Eszközkezelés olvasása',           'kat' => 8, 'sor' => 1, 'kikapcs' => '43'),
-    43 => array('nev' => 'Eszközkezelés kezelése',           'kat' => 8, 'sor' => 2, 'bekapcs' => '42'),
-    44 => array('nev' => 'Felmérési terv olvasása',          'kat' => 8, 'sor' => 3, 'kikapcs' => '45'),
-    45 => array('nev' => 'Felmérési terv kezelése',          'kat' => 8, 'sor' => 4, 'bekapcs' => '44'),
+    42 => array('nev' => 'Eszközök olvasása',               'kat' => 8, 'sor' => 1, 'kikapcs' => '43'),
+    43 => array('nev' => 'Eszközök kezelése',               'kat' => 8, 'sor' => 2, 'bekapcs' => '42'),
+    
+    
+    44 => array('nev' => 'Felmérési tervek olvasása',         'kat' => 11, 'sor' => 3, 'kikapcs' => '45'),
+    45 => array('nev' => 'Felmérési tervek kezelése',         'kat' => 11, 'sor' => 4, 'bekapcs' => '44'),
 );

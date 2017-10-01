@@ -1,13 +1,12 @@
 #autocomplete {
 	height: auto;
-	background-color: #ECF0F6;
+	background: #fff;
     box-shadow: 0.1rem 0.1rem 0.4rem -0.1rem #aba398;
     overflow-y: auto;
     max-height: 30rem;
 	position: absolute;
     top: 0rem;
     left: 0rem;
-	/*margin-top: 0.3rem;*/
 	display: none;
     z-index: 200;
 }
@@ -20,7 +19,6 @@
 }
 
 #autocomplete ul li {
-    background: #fff;
 	border-bottom: 0.1rem solid #004990;
 	cursor: pointer;
 	list-style-type: none;

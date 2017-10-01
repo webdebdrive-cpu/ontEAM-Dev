@@ -1,6 +1,6 @@
 <h2>Új véleményező hozzáadása</h2>
 <form action="" id="addVelemenyezokForm" class="popupForm" method="post">
-    <div class="kozep">
+    <div class="kozep" style="min-height: 26rem">
         <div class="dt"> 
             <div class="dtr">
                 <div class="dtc">Véleményező:</div>
@@ -13,7 +13,7 @@
                             $('#velemenyezoKeres').autocomplete({
                                 'php_fajl'        : '../velemeny_autocomplete.php',
                                 'tabla'           : 'login',
-                                'oszlop_keres'    : 'nev',
+                                'oszlop_keres'    : 'teljes_nev',
                                 'oszlop_listaz'   : 'teljes_nev',
                                 'id_kiir'         : 'recid',
                                 'recid'           : $('#priRecid').val()

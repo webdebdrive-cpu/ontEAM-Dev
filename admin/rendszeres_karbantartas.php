@@ -572,9 +572,9 @@ if($gyorskereso_text){
         $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
         $szamla_html .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
         $szamla_html .= '<hr>Ütemezés: ' . $utemezes;
-        $szamla_html .= '<hr>Esedékes: ' . $sor['esnap_d'];
-        $szamla_html .= '<hr>Utolsó végrehajtás: ' . $esnap_d;
-        $szamla_html .= '<br>Következő: ' . $getnextvaliddate;
+        $szamla_html .= '<hr>Esedékes: ' . $sor['esnap_d'].' '.het_napja_txt($sor['esnap_d']);
+        $szamla_html .= '<hr>Utolsó végrehajtás: ' . $esnap_d.' '.het_napja_txt($esnap_d);
+        $szamla_html .= '<br>Következő: ' . $getnextvaliddate.' '.het_napja_txt($getnextvaliddate);
         $szamla_html .= '<br>';
         $szamla_html .= '<br>Következő 10 iteráció:<br>';
 

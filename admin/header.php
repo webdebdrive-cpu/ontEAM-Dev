@@ -900,10 +900,10 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'torzsadat.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
-    } elseif( isset($_GET['velemenyezok']) && !_jog(40) ) {
+    } elseif( isset($_GET['velemenyezok']) && !_jog(JOG_VELEMENYEZO_HOZZAAD) ) {
         $uj_link = 'javascript: alert2(\'Önnek nincs joga véleményezőt hozzáadni!\', \'\', \'Hiba\'); void(0);';
 
-    } elseif( isset($_GET['velemenyezok']) && _jog(40) ) {
+    } elseif( isset($_GET['velemenyezok']) && _jog(JOG_VELEMENYEZO_HOZZAAD) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'velemenyezok\'); void(0);';
 
     } else {

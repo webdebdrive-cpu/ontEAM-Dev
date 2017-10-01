@@ -265,7 +265,7 @@ function get_tobbkep_thumb($sor_kepek, $i) {
                 <div class="kep">
                     <div>'.$kep -> getHtml().'</div>
                 </div>
-                <div id="megj_'.$azon.'_felirat" class="felirat f12 link c"'.$megj_szerkesztes_onclick.'>'.$felirat.'</div>
+                <div id="megj_'.$azon.'_felirat" class="felirat f12 c"'.$megj_szerkesztes_onclick.' style="width: 30rem">'.$felirat.'</div>
                 <div class="felirat f12">'.$datum.'</div>
                 <div class="nagyit">
                     <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">

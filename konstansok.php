@@ -75,14 +75,18 @@ define('PRIGENY_STAT_FB_TERJESZT',          '07' );
 define('PRIGENY_STAT_BOD_TERJESZT',         '08' );
 define('PRIGENY_STAT_VARAKOZO',             '09' );
 define('PRIGENY_STAT_JOVAHAGYVA',           '10' );
+function prigeny_hianypotlasba_statuszok(){
+    return array(PRIGENY_STAT_NYITOTT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_FB_TERJESZT);
+}
+
 function prigeny_jovahagyhato_statuszok(){
     return array(PRIGENY_STAT_FB_TERJESZT, PRIGENY_STAT_NYITOTT, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_FB_TERJESZT, PRIGENY_STAT_BOD_TERJESZT);
 }
-function prigeny_fb_ele_kizart_statuszok(){
-    return array(PRIGENY_STAT_LETRE_ALATT, PRIGENY_STAT_VARAKOZO, PRIGENY_STAT_ELUTASITVA, PRIGENY_STAT_JOVAHAGYVA);
+function prigeny_fb_ele_statuszok(){
+    return array(PRIGENY_STAT_NYITOTT, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_BOD_TERJESZT);
 }
-function prigeny_bod_ele_kizart_statuszok(){
-    return array(PRIGENY_STAT_BOD_TERJESZT, PRIGENY_STAT_LETRE_ALATT, PRIGENY_STAT_VARAKOZO, PRIGENY_STAT_ELUTASITVA, PRIGENY_STAT_JOVAHAGYVA);
+function prigeny_bod_ele_statuszok(){
+    return array(PRIGENY_STAT_NYITOTT, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_FB_TERJESZT);
 }
 
 //Projektkezeles státuszok

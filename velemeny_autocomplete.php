@@ -23,7 +23,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         }
         
         //Azokat a felhasználókat válogassuk le, akik adott projektigénylés szállodájának látokörében vannak
-        $prigeny = $adatbazis_kapcsolat->s2('telephely_id', 'projektigenyles', "`recid`='{$_GET['recid']}'");
+        $prigeny      = $adatbazis_kapcsolat->s2('telephely_id', 'projektigenyles', "`recid`='{$_GET['recid']}'");
         $felhasznalok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$prigeny['telephely_id']}'");
         $felhasznalok = adatbazis2tomb($felhasznalok, 'nev');
 

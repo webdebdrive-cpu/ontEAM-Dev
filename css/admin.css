@@ -229,15 +229,13 @@ input.gomb.border{
     z-index: 21;
 }
 
-.form_kuldes input.gombb,
-.form_kuldes input.gombb:hover {
+.form_kuldes input.gombb, .form_kuldes input.gombb:hover {
     background: #cecdcd;
     color: #a4a4a4;
     cursor: default;
 }
 
-.form_kuldes input.gombb_alert,
-.form_kuldes input.gombb_alert:hover {
+.form_kuldes input.gombb_alert, .form_kuldes input.gombb_alert:focus, .form_kuldes input.gombb_alert:active, .form_kuldes input.gombb_alert:hover {
     background: #75b54b;
     color: #fff;
     cursor: pointer;
@@ -2079,7 +2077,7 @@ div.navGombok a.disabled .material-icons {
     transform: translateX(-50%) translateY(-50%);
 }
 
-#popup div.popup_kont div.bezar {
+#popup div.popup_kont div.bezar, #alert2 div.bezar {
     background: #5192da;
     border-radius: 0rem 0.6rem 0rem 0rem;
     cursor: pointer;
@@ -2090,8 +2088,8 @@ div.navGombok a.disabled .material-icons {
     width: 6rem;
 }
 
-#popup div.popup_kont div.bezar:before,
-#popup div.popup_kont div.bezar:after {
+#popup div.popup_kont div.bezar:before, #alert2 div.bezar:before,
+#popup div.popup_kont div.bezar:after, #alert2 div.bezar:after {
     background: #fff;
     content: '';
     height: 0.2rem;
@@ -2102,7 +2100,7 @@ div.navGombok a.disabled .material-icons {
     width: 1.5rem;
 }
 
-#popup div.popup_kont div.bezar:after {
+#popup div.popup_kont div.bezar:after, #alert2 div.bezar:after {
     transform: translateX(-50%) translateY(-50%) rotate(45deg);
 }
 

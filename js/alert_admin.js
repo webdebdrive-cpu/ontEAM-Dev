@@ -65,7 +65,7 @@ function alert_kiir(uzi, ok_gomb, cim){
     }
 
     var alert2_html = '';
-    alert2_html    += '<div id="alert2"><div class="figy"><div class="header">'+cim+'</div><div class="tart">'+uzi+'</div><div class="f_footer c">'+ ok_gomb +'</div></div></div>';
+    alert2_html    += '<div id="alert2"><div class="figy"><div class="header">'+cim+'<div class="bezar" onclick="alert2()"></div></div><div class="tart">'+uzi+'</div><div class="f_footer c">'+ ok_gomb +'</div></div></div>';
 
     $('body').append('<div id="szurkit" class="dn"></div>');
     $('body').append(alert2_html);

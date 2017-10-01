@@ -243,7 +243,11 @@ function alert2(uzi, ok_gomb){
 function alert_kiir(uzi, ok_gomb){
     
     var alert2_html = '';/*<img src="elemek/admin/alert_x.png" alt="X" class="bezar link" onclick="alert2()">*/
-    alert2_html    += '<div id="alert2"><div class="alert_figy"><div class="alert_header">Üzenet</div><div class="alert_tart">'+uzi+'</div><div class="f_footer">'+ ok_gomb +'</div></div></div>';
+    alert2_html    +=   '<div id="alert2">'                         +
+                        '<div class="alert_figy">'                  +
+                        '<div class="alert_header">Üzenet</div>'    + 
+                        '<div class="alert_tart">'+uzi+'</div>'     + 
+                        '<div class="f_footer">'+ ok_gomb +'</div></div></div>';
     
     $('body').append('<div id="szurkit" onclick="alert2()"></div>');
     $('body').append(alert2_html);

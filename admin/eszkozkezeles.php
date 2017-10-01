@@ -54,30 +54,6 @@ if($tobb_kep){
 
 }
 
-/* Foglalt azonosító ellenőrzése */
-if ($_POST['eszkozkezeles_azon_ell']) {
-    
-    $_POST['azon'] = trim($_POST['azon']);
-    if($_POST['azon']){
-        if($adatbazis_kapcsolat->s('recid', $megnevezes, "`azon`='{$_POST['azon']}' AND `recid`!='{$_POST['recid']}'")){
-            echo json_encode(array(
-                'hiba' => 'Ez az azonosító már foglalt, válasszon másikat!'
-            ));
-        }else{
-            echo json_encode(array(
-                'statusz' => 'siker'
-            ));
-        }
-    }else{
-        echo json_encode(array(
-            'hiba' => 'Kérem töltse ki az azonosítót!'
-        ));
-    }
-    
-    $weblap->leallit();
-    exit();
-}
-
 //Engedély dátum megadása
 if ($_POST['engedelyDatum']) {
     

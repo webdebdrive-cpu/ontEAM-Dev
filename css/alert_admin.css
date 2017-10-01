@@ -76,7 +76,6 @@
 
 #alert2 .gombb.piros, #alert2 .gomb.piros{
     background: #c54a4c;
-    margin: 0rem 0rem 0rem 4rem;
 }
 
 #alert2 .gombb.piros:hover, #alert2 .gomb.piros:hover{
@@ -91,19 +90,16 @@
     background: #76B958;
 }
 
-#alert2 input,
-div.alert2 input {
+#alert2 input, div.alert2 input {
     font-size: 1.6rem;
     padding: 0.8rem 0.8rem 0.9rem 0.9rem;
 }
 
-#alert2 input:disabled,
-div.alert2 input:disabled {
+#alert2 input:disabled, div.alert2 input:disabled {
     display: inline-block;
 }
 
-#alert2 input.gombb,
-div.alert2 input.gombb {
+#alert2 input.gombb, div.alert2 input.gombb {
     padding: 0.8rem 1.4rem;
 }
 
