@@ -67,6 +67,8 @@ if($gyorskereso_text){
     $gyk2 = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon2);
 }
 
+    $js_submit_elott = 'return form_ell_admin();';
+
 	//Új termék felvitele
 	if(isset($_GET['uj']) && !$csak_szerkesztheto){
 
@@ -106,8 +108,6 @@ if($gyorskereso_text){
         $gombok = nl2('<div class="form_kuldes">
                           <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                       </div>').$gombok;
-
-                      $js_submit_elott = 'return form_ell_admin();';
 
         $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
         $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
@@ -183,8 +183,8 @@ if($gyorskereso_text){
                       </div>').*/$gombok;
 
 	    echo str_replace(
-            array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',       '{CK_EDITOR}', '{GOMBOK}'),
-            array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal,   $ckeditor,     $gombok  ),
+            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}'    ),
+            array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok       ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
 

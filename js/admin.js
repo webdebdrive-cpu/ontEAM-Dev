@@ -4360,12 +4360,8 @@ function mellekTorol( tabla, mellek ) {
                     }
 
                     if( response.statusz == 'siker' ) {
+                        alert2();
                         szamlaBetolt(_get('id'), baseName(location.href) + '.php', mellek);
-                        if( response.alert ) {
-                            alert2(response.alert, response.gomb);
-                        }else{
-                            alert2();
-                        }
                     }
 
 
@@ -5307,6 +5303,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
 
 /* Bal oldali navpanel egy sorának frissítése */
 function szamlaSorFrissit( tabla, recid ) {
+
     if( tabla && recid ) {
 
         var anyagrend = '';

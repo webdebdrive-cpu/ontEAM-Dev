@@ -122,7 +122,8 @@ if ($_POST['eszkozkezeles_azon_ell']) {
     if($_POST['azon']){
         if($adatbazis_kapcsolat->s('recid', $megnevezes, "`azon`='{$_POST['azon']}' AND `recid`!='{$_POST['recid']}'")){
             echo json_encode(array(
-                'hiba' => 'Ez az azonosító már foglalt, válasszon másikat!'
+                'hiba' => 'Ez az azonosító már foglalt, válasszon másikat!',
+                'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#azon\').focus();" type="button">'
             ));
         }else{
             echo json_encode(array(
@@ -384,8 +385,43 @@ if($gyorskereso_text){
     }
 
 
-	//Új termék felvitele
+    //Eszközkezelésnél, az űrlap elpostolása előtt még ellenőrizzük, hogy az azonosító nem foglalt-e.
+    //Egy ajax hívástbevárva tudjuk meg, hogy fogalalt-e vagy sem, és ha nem az, akkor újra elpostoljuk a formot de már egy az eredeti JS fügvny ellenőrzéssel.
+    $js_submit_elott = '
+                        mehet_e = false;
+                        uj_form_ajax = $.ajax({
+                            url : \'eszkozkezeles.php\',
+                            type: \'POST\',
+                            data: {
+                                azon                  : $(\'#azon\').val(),
+                                recid                 : \''.$_GET['id'].'\',
+                                eszkozkezeles_azon_ell: new Date().getTime()
+                            },
+                            success: function (response) {
+                                response = JSON.parse(response);
+                                if(response.hiba){
+                                    alert2(response.hiba, response.gomb, \'Hiba\');
+                                    mehet_e = false;
+                                }else{
+                                    mehet_e = true;
+                                }
+                            }
+                        });
 
+                        $.when(
+                            uj_form_ajax
+                        ).then(function() {
+                            if(mehet_e){
+                                $(\'#szerk_form\').attr(\'onsubmit\', \'return form_ell_admin()\');
+                                $(\'#szerk_form\').submit();
+                            }else{
+                                return false;
+                            }
+                        } );
+
+                        return false;
+                        ';
+	//Új termék felvitele
 	if(isset($_GET['uj']) && _jog(JOG_ESZKOZ_KEZEL)){
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
@@ -431,46 +467,6 @@ if($gyorskereso_text){
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
-
-        //Eszközkezelésnél, az űrlap elpostolása előtt még ellenőrizzük, hogy az azonosító nem foglalt-e.
-        //Egy ajax hívástbevárva tudjuk meg, hogy fogalalt-e vagy sem, és ha nem az, akkor újra elpostoljuk a formot de már egy az eredeti JS fügvny ellenőrzéssel.
-        $js_submit_elott = '
-                            mehet_e = false;
-                            uj_form_ajax = $.ajax({
-                                url : \'eszkozkezeles.php\',
-                                type: \'POST\',
-                                data: {
-                                    azon                  : $(\'#azon\').val(),
-                                    recid                 : \''.$_GET['id'].'\',
-                                    eszkozkezeles_azon_ell: new Date().getTime()
-                                },
-                                success: function (response) {
-                                    response = JSON.parse(response);
-                                    if(response.hiba){
-                                        alert2(response.hiba, \'\', \'Hiba\');
-                                        mehet_e = false;
-                                    }else{
-                                        mehet_e = true;
-                                    }
-                                }
-                            });
-
-                            $.when(
-                                uj_form_ajax
-                            ).then(function() {
-                                console.log(mehet_e);
-                                if(mehet_e){
-                                    $(\'#szerk_form\').attr(\'onsubmit\', \'return form_ell_admin()\');
-                                    $(\'#szerk_form\').submit();
-                                }else{
-                                    return false;
-                                }
-                            } );
-
-                            return false;
-                            ';
-
-        $js_submit_elott = 'return form_ell_admin();';
 
 	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
 	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
@@ -548,8 +544,8 @@ if($gyorskereso_text){
 		require('switch.php');
 
 	    $szamla_html .= str_replace(
-            array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'),
-            array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style  ),
+            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}'    ),
+            array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok       ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
 

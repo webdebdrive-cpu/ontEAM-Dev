@@ -20,11 +20,11 @@ require_once 'konstansok.php';
 
 //Adatbázis
 function get_db_tabla()   { return 'onteam_';                                                                               } //Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
-//
-function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'localhost'         : 'localhost' );            } //Host
-function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu1'    : 'wdbhu' );                } //Adatbázis neve
-function get_db_user()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu'     : 'wdbtdb' );               } //Felhasználói név
-function get_db_pass()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'vikike'            : 'h3rbdzto' );             } //Jelszó
+
+function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ? 'localhost'    : 'localhost'       );  } //Host
+function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ? 'wdbhu'        : 'szinvatrendhu1'  );  } //Adatbázis neve
+function get_db_user()    { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ? 'wdbtdb'       : 'szinvatrendhu'   );  } //Felhasználói név
+function get_db_pass()    { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ? 'h3rbdzto'     : 'vikike'          );  } //Jelszó
 
 //function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'localhost'         : 'localhost' );        } //Host
 //function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu1'    : 'szinvatrendhu1' );   } //Adatbázis neve
