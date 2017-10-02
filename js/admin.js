@@ -4328,6 +4328,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
 
 /* Kapcsoló táblák - fülek alatti rekordok - törlése általános függvénye */
 function mellekTorol( tabla, mellek ) {
+    
     var kijelolve = $('.kijCont .kijSor.kijelolve'),
         idk       = {};
 

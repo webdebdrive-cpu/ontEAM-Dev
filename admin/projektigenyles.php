@@ -82,7 +82,7 @@ if( isset($_GET['addVelemenyezo']) ) {
         exit();
     }
     
-    $stat = $adatbazis_kapcsolat->s('stat_id', $megnevezes, "`recid`='{$_POST['recid']}'");
+    $stat = $adatbazis_kapcsolat->s2('stat_id', $megnevezes, "`recid`='{$_POST['recid']}'");
     if($stat['stat_id']!=PRIGENY_STAT_NYITOTT && $stat['stat_id']!=PRIGENY_STAT_VEL_ALATT){
         echo json_encode(array(
             'hiba' => 'Véleményezőt hozzáadni csak nyitott vagy véleményezés alatt státuszokban lehet!'
