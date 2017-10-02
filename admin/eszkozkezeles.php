@@ -460,7 +460,7 @@ if($gyorskereso_text){
                             ).then(function() {
                                 console.log(mehet_e);
                                 if(mehet_e){
-                                    $(\'#szerk_form\').attr(\'onsubmit\', \'form_ell_admin()\');
+                                    $(\'#szerk_form\').attr(\'onsubmit\', \'return form_ell_admin()\');
                                     $(\'#szerk_form\').submit();
                                 }else{
                                     return false;
