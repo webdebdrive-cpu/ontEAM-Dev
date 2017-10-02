@@ -775,16 +775,11 @@ div.jsff progress{
 }
 
 div.file_thumb{
-    background: #F0F4FE;
-    border: 0.1rem solid #CECECE;
-    border-radius: 0.3rem;
+    border: 0.1rem solid #DADBDE;
+    border-right: 0;
+    border-left: 0;
     color: #4C4C4C;
     margin: 0.3rem 0.0rem 0.0rem 0.0rem;
-}
-
-div.file_thumb:hover{
-    background: #E6EDFE;
-    border: 0.1rem solid #226294;
 }
 
 div.file_thumb div.dtc{
@@ -792,16 +787,15 @@ div.file_thumb div.dtc{
 }
 
 div.file_thumb div.dtc:last-of-type{
-    color: #4E77A6;
-    font-family: 'Comic Sans Ms';
-    font-size: 1.8rem;
+    color: #eb453b;
+    font-size: 1.4rem;
     font-weight: bold;
     padding: 0.8rem;
 }
 
 div.file_thumb div.dtc:last-of-type:hover{
     color: #fff;
-    background: #C44B4B;
+    background: #8BC264;
 }
 
 div.file_thumb img{
@@ -965,9 +959,9 @@ div.jsff_thumb div.torol:hover{
     display: table-cell;
     height: 3rem;
     overflow: hidden;
-    padding: 0rem 0rem 0rem 2rem;
+    padding: 0rem 0rem 0rem 0.5rem;
     vertical-align: middle;
-    width: 6.5rem;
+    width: 2.5rem;
 }
 
 
@@ -1013,13 +1007,27 @@ div.jsff_thumb div.torol:hover{
     color: #414141;
     display: table-cell;
     font-size: 1.3rem;
-    height: 1.8rem;
     overflow: hidden;
-    padding: 0.2rem 0rem 0rem 2rem;
+    padding: 0.2rem 0rem 0rem 1rem;
     text-align: left;
     text-overflow: ellipsis;
     vertical-align: middle;
-    white-space: nowrap;
+    width: 15rem;
+}
+
+#sorrendezes li div.maradek,
+#sorrendezes_album li div.maradek,
+#sorrendezes_tobbkep li div.maradek,
+#sorrendezes_bejegyzes li div.maradek {
+    border-bottom: 0.1rem solid #dadbde;
+    border-left: none;
+    border-right: none;
+    color: #414141;
+    display: table-cell;
+    font-size: 1.3rem;
+    padding: 0.2rem 0rem 0rem 1rem;
+    text-align: left;
+    vertical-align: middle;
 }
 
 #sorrendezes li:not(.kijelolve):hover,
@@ -2204,8 +2212,7 @@ div.navGombok a.disabled .material-icons {
     text-align: center;
 }
 
-#popup div.popup_tart button,
-#popup div.popup_tart input[type="submit"] {
+#popup div.popup_tart button, #popup div.popup_tart input[type="submit"] {
     background: #75b54b;
     border: 0;
     border-radius: 0.3rem;
@@ -2213,12 +2220,11 @@ div.navGombok a.disabled .material-icons {
     cursor: pointer;
     font-size: 1.4rem;
     font-weight: 700;
-    padding: 1.2rem 1.7rem 1.2rem 1.7rem;
+    padding: 0.7rem;
     position: relative;
 }
 
-#popup div.popup_tart button:hover,
-#popup div.popup_tart input[type="submit"]:hover {
+#popup div.popup_tart button:hover, #popup div.popup_tart input[type="submit"]:hover {
     background: #64a739;
 }
 

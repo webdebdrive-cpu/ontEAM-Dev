@@ -80,7 +80,7 @@ function beolvasas_{MEGN}(fajlok){
                     $('#' + progress_id).fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
 
                     if(this.responseText.substring(0,5)=='Hiba!'){
-                        alert2(this.responseText);
+                        alert2(this.responseText.substring(5), '', 'Hiba');
                     }else{
                         $('#sorrendezes_tobbkep').append(this.responseText);
                         if (fajlok_kesz == fajlok.length-hibas_fajlok){

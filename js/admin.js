@@ -5304,7 +5304,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
 
 }
 
-/* Bal oldlai navpanel egy sorának frissítése */
+/* Bal oldali navpanel egy sorának frissítése */
 function szamlaSorFrissit( tabla, recid ) {
     if( tabla && recid ) {
 
@@ -5331,18 +5331,35 @@ function szamlaSorFrissit( tabla, recid ) {
     }
 }
 
+/* Könyvtárszerkezetek esetén a komplett bal oldalt újra kell számolni */
+function bal_panel_frissit( php, recid ) {
+    $.ajax({
+        url : php+'?id='+recid,
+        type: 'POST',
+        data: {
+            bal_panel_frissit: new Date().getTime()
+        },
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+                $('#tartalomBal').html(response.html);
+            }
+        }
+    });
+}
+
 function ertekFoglalt(originVal, value, tabla, mezo) {
     if( originVal != value && value && tabla && mezo ) {
         $.ajax({
          	url : 'esemenyek.php',
          	type: 'GET',
          	data: esamp2es('value=' + value + '&amp;tabla=' + tabla + '&amp;mezo=' + mezo + '&amp;ertekFoglalt=' + new Date().getTime()),
-         	success: function(html) {
-         		if(html) {
-         			html = JSON.parse(html);
+         	success: function(response) {
+         		if(response) {
+         			response = JSON.parse(response);
 
-                    if( html.uzi ) {
-                        alert2(html.uzi);
+                    if( response.uzi ) {
+                        alert2(response.uzi);
                     }
          		}
          	}

@@ -73,7 +73,7 @@ $jogosultsagok = array(
     
     38 => array('nev' => 'Saját igénylések megtekintése',           'kat' => 7, 'sor' => 1, 'kikapcs' => '39'),
     39 => array('nev' => 'Saját igénylések kezelése',               'kat' => 7, 'sor' => 2, 'bekapcs' => '38'),
-    46 => array('nev' => 'Minden igénylések megtekintése',          'kat' => 7, 'sor' => 3, 'kikapcs' => '47'),
+    //46 => array('nev' => 'Minden igénylések megtekintése',          'kat' => 7, 'sor' => 3, 'kikapcs' => '47'),
     47 => array('nev' => 'Minden igénylések kezelése',              'kat' => 7, 'sor' => 4, 'bekapcs' => '46'),
     48 => array('nev' => 'Tárgyi eszköz igénylések megtekintése',   'kat' => 7, 'sor' => 5, 'kikapcs' => '49'),
     49 => array('nev' => 'Tárgyi eszköz igénylések kezelése',       'kat' => 7, 'sor' => 6, 'bekapcs' => '48'),

@@ -2,11 +2,16 @@
     <div class="dtc">
         {JS}
         {CK_EDITOR}
-        <form id="szerk_form" action="{ACTION}?modosit" enctype="multipart/form-data" method="post" onsubmit="javascript:return form_ell_admin()">
+        <form id="szerk_form" action="{ACTION}?modosit" enctype="multipart/form-data" method="post" onsubmit="return form_ell_admin_elott()">
             <div class="dt full">
                 {MEZOK}
             </div>
             <script>
+                
+                function form_ell_admin_elott(){
+                    {JS_SUBMIT_ELOTT}
+                }
+                
                 $(document).ready(function () {
                     $('.datepicker').datetimepicker({
                         closeOnDateSelect   : true,

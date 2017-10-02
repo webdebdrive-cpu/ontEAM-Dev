@@ -57,9 +57,83 @@ if($tobb_kep){
 //Engedély dátum megadása
 if ($_POST['engedelyDatum']) {
     
+    //Dátumok ellenőrzése
+    if($_POST['kezdet']!='0000-00-00'){
+        if(!valos_datum_e($_POST['kezdet'])){
+            echo json_encode(array(
+                'hiba' => 'Érvénytelen hatályba lépés dátumot adott meg!'
+            ));
+            
+            $weblap->leallit();
+            exit();
+        }
+    }
+    if($_POST['veg']!='0000-00-00'){
+        if(!valos_datum_e($_POST['veg'])){
+            echo json_encode(array(
+                'hiba' => 'Érvénytelen hatályosság lejártát dátumot adott meg!'
+            ));
+            
+            $weblap->leallit();
+            exit();
+        }
+    }
+    
+    if($_POST['kezdet']!='0000-00-00' && $_POST['veg']!='0000-00-00'){
+        if($_POST['kezdet']>$_POST['veg']){
+            echo json_encode(array(
+                'hiba' => 'A kezdődátum nem lehet későbbi a végdátumtól!'
+            ));
+            
+            $weblap->leallit();
+            exit();
+        }
+    }
+    
     $_POST['kezdet'] = str_replace('.', '-', $_POST['kezdet']);
     $_POST['veg']    = str_replace('.', '-', $_POST['veg']);
     $adatbazis_kapcsolat->u($megnevezes.'_eng_dok', array('kezdet', 'veg'), array($_POST['kezdet'], $_POST['veg']), "`recid`='{$_POST['recid']}'");
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Bal oldali navpanel frissítése, könyvtárszerkezet újra rajzolása
+if (isset($_POST['bal_panel_frissit'])) {
+    
+    $bejegyzesek = array();
+    $sorok = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
+    while($sor = mysqli_fetch_assoc($sorok)){
+        array_push($bejegyzesek, $sor);
+    }
+    
+    echo json_encode(array(
+        'html' => '<div class="szamlaLapozas fent clearFix"></div>'.eszkozkezelesLista( $bejegyzesek, $megnevezes ).'<div class="szamlaLapozas clearFix"></div>'
+    ));
+    
+    $weblap->leallit();
+    exit();
+}
+
+/* Foglalt azonosító ellenőrzése */
+if ($_POST['eszkozkezeles_azon_ell']) {
+    
+    $_POST['azon'] = trim($_POST['azon']);
+    if($_POST['azon']){
+        if($adatbazis_kapcsolat->s('recid', $megnevezes, "`azon`='{$_POST['azon']}' AND `recid`!='{$_POST['recid']}'")){
+            echo json_encode(array(
+                'hiba' => 'Ez az azonosító már foglalt, válasszon másikat!'
+            ));
+        }else{
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        }
+    }else{
+        echo json_encode(array(
+            'hiba' => 'Kérem töltse ki az azonosítót!'
+        ));
+    }
     
     $weblap->leallit();
     exit();
@@ -335,7 +409,6 @@ if($gyorskereso_text){
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
-	    $form_mit    = array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}');
 
         /* Javascipt-es ellenőrzéshez */
         $tabla = str_replace('.php', '', basename(self()));
@@ -358,8 +431,47 @@ if($gyorskereso_text){
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
+        
+        //Eszközkezelésnél, az űrlap elpostolása előtt még ellenőrizzük, hogy az azonosító nem foglalt-e. 
+        //Egy ajax hívástbevárva tudjuk meg, hogy fogalalt-e vagy sem, és ha nem az, akkor újra elpostoljuk a formot de már egy az eredeti JS fügvny ellenőrzéssel.
+        $js_submit_elott = '
+                            mehet_e = false;
+                            uj_form_ajax = $.ajax({
+                                url : \'eszkozkezeles.php\',
+                                type: \'POST\',
+                                data: {
+                                    azon                  : $(\'#azon\').val(),
+                                    recid                 : \''.$_GET['id'].'\',
+                                    eszkozkezeles_azon_ell: new Date().getTime()
+                                },
+                                success: function (response) {
+                                    response = JSON.parse(response);
+                                    if(response.hiba){
+                                        alert2(response.hiba, \'\', \'Hiba\');
+                                        mehet_e = false;
+                                    }else{
+                                        mehet_e = true;
+                                    }
+                                }
+                            });
 
-	    $form_mivel   = array($js, self(), $mezok, $megnevezes, $ckeditor, $gombok, $muv_style);
+                            $.when(
+                                uj_form_ajax
+                            ).then(function() {
+                                console.log(mehet_e);
+                                if(mehet_e){
+                                    $(\'#szerk_form\').attr(\'onsubmit\', \'form_ell_admin()\');
+                                    $(\'#szerk_form\').submit();
+                                }else{
+                                    return false;
+                                }
+                            } );
+
+                            return false;
+                            ';
+
+	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
+	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
 
         if( $_GET['ajax'] ) {

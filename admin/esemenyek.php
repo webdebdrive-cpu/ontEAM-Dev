@@ -4300,7 +4300,9 @@ function get_admin_file_thumb($tabla, $oszlop, $id){
 
         $neve = basename($utvonal);
         $kit = kit($neve);
-        if($kit!='jpg' && $kit!='png' && $kit!='gif'){
+        //if($kit!='jpg' && $kit!='png' && $kit!='gif'){
+        //A képet nem jelenitjük meg
+        if(true){
             if(is_file('../elemek/ikonok/'.$kit.'.png')){
                 $akt_fajl = '../elemek/ikonok/'.$kit.'.png';
             }else{
@@ -4310,25 +4312,21 @@ function get_admin_file_thumb($tabla, $oszlop, $id){
             return nl2('
                     <div id="fajl_'.$tabla.'_'.$oszlop.'_'.$id.'">
                         <script>var gombfajl_'.$oszlop.'_'.$id.'=get_fajl_torol_gomb(\''.$id.'\', \''.$tabla.'\', \''.$oszlop.'\');</script>
-                        <div class="kep_torol link">
-                            <span>
-
-                            </span>
-
-                        </div>
                         <div id="fajl_'.$oszlop.'_'.$id.'">
 
                             <div class="file_thumb">
                                 <div class="dtc vam" title="Fájl letöltése">
                                     <a href="'.$utvonal.'" target="_blank">
-                                        <img alt="'.htmlspecialchars($sor['nev']).'" src="'.$akt_fajl.'" />
+                                        <img alt="'.htmlspecialchars($sor['nev']).'" src="'.$akt_fajl.'" width="25" height="25">
                                     </a>
                                 </div>
-                                <div class="dtc vam f16 link full" onclick="window.open(\''.$utvonal.'\')" title="Fájl letöltése">
-                                    '.basename($utvonal).'
+                                <div class="dtc vam f13 full">
+                                    <a href="'.$utvonal.'" target="_blank">
+                                        '.basename($utvonal).'
+                                    </a>
                                 </div>
-                                <div class="dtc vam link" onclick="alert2(\'Biztosan törli a fájlt?\', gombfajl_'.$oszlop.'_'.$id.')" title="Fájl törlése">
-                                    x
+                                <div class="dtc vam link" onclick="alert2(\'Biztosan folytatja a csatolt fájl törlését?\', gombfajl_'.$oszlop.'_'.$id.')" title="Fájl törlése">
+                                    <i class="material-icons">delete</i>
                                 </div>
                             </div>
 

@@ -54,7 +54,7 @@ if($tobb_kep){
 
 }
 
-/* Foglalt azonosító ellenőrzése */
+// Foglalt azonosító ellenőrzése
 if ($_POST['ft_azon_ell']) {
     
     $_POST['azon'] = trim($_POST['azon']);
@@ -73,6 +73,23 @@ if ($_POST['ft_azon_ell']) {
             'hiba' => 'Kérem töltse ki az azonosítót!'
         ));
     }
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Bal oldali navpanel frissítése, könyvtárszerkezet újra rajzolása
+if (isset($_POST['bal_panel_frissit'])) {
+    
+    $bejegyzesek = array();
+    $sorok = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
+    while($sor = mysqli_fetch_assoc($sorok)){
+        array_push($bejegyzesek, $sor);
+    }
+    
+    echo json_encode(array(
+        'html' => '<div class="szamlaLapozas fent clearFix"></div>'.felmeresi_tervLista( $bejegyzesek, $megnevezes ).'<div class="szamlaLapozas clearFix"></div>'
+    ));
     
     $weblap->leallit();
     exit();
@@ -272,6 +289,7 @@ if($gyorskereso_text){
     if( isset($_GET['uj']) ) {
         if(_jog(JOG_FT_KEZEL)){
             $gombok = nl2('
+                <input type="button" class="gombb zold" value="Felmérési terv csatolása" onclick="$(\'#jsff_felmeresi_terv_felm_terv input\').click()">
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                 </div>
@@ -301,6 +319,7 @@ if($gyorskereso_text){
         
         if(!$nem_szerkesztheti && isset($_GET['modosit']) && _jog(JOG_FT_KEZEL)){
             $gombok = nl2('
+                <input type="button" class="gombb zold" value="Felmérési terv csatolása" onclick="$(\'#jsff_felmeresi_terv_felm_terv input\').click()">
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                 </div>

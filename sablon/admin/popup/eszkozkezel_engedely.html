@@ -14,14 +14,12 @@
         </table>
     </div>
     <div class="kuldes">
-        <input type="submit" name="elkuld" value="Ok">
+        <input type="submit" name="elkuld" style="padding: 0.7rem" value="Ok">
+        <input type="button" name="elkuld" value="Mégsem" class="gomb piros" onclick="popupZar()">
     </div>
 </form>
 <script>
     $(document).ready(function () {
-        
-        $('#popup .bezar').hide();
-        
         $('.datepicker').datetimepicker({
             closeOnDateSelect   : true,
             format              :'Y.m.d',

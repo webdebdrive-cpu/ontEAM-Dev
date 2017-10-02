@@ -50,7 +50,7 @@ ol.konyvtar_szerk li input + ol > li {
 
 ol.konyvtar_szerk li label {
     background: url('../elemek/mappa.png') 1rem 0.1rem no-repeat;
-    cursor: pointer;
+    /*cursor: pointer;*/
     display: inline-block;
     line-height: 1.3;
     padding-left: 3rem;

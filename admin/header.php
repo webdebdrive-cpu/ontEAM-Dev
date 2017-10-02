@@ -452,7 +452,7 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $
 
 
 /* Projektek */
-if(_jog(JOG_PRIGENY_S_MEGTEKINT) || _jog(JOG_PRIGENY_M_MEGTEKINT) || _jog(JOG_PRKEZEL_MEGTEKINT)){
+if(_jog(JOG_PRIGENY_S_MEGTEKINT) || _jog(JOG_PRKEZEL_MEGTEKINT)){
     $menu_nev        = 'Projektek';
     $menu_nev_kis    = 'rojektek';
     $menu_nev_tobbes = 'Projektek';
@@ -464,7 +464,7 @@ if(_jog(JOG_PRIGENY_S_MEGTEKINT) || _jog(JOG_PRIGENY_M_MEGTEKINT) || _jog(JOG_PR
     if(basename(self())=='cash_flow.php')       { $oldalNev = 'Projektek / <span id="rekord_neve">Cash Flow</span><span class="dn" id="rekord_neve_egyes">Cash Flow</span><span class="dn" id="rekord_neve_targy">Cash Flow-t</span>';          }
 
     $aktmenuk  = '';
-    if(_jog(JOG_PRIGENY_S_MEGTEKINT) || _jog(JOG_PRIGENY_M_MEGTEKINT)){
+    if(_jog(JOG_PRIGENY_S_MEGTEKINT)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Projektigénylések'  ), $almenu_sablon );
     }
     if(_jog(JOG_PRKEZEL_MEGTEKINT)){

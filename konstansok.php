@@ -172,7 +172,7 @@ define('JOG_ESETI_FENN_KEZEL',      55);
 define('JOG_MUNKALAP_MUSZAK_ADMIN', 37);
 define('JOG_PRIGENY_S_MEGTEKINT',   38);
 define('JOG_PRIGENY_S_KEZEL',       39);
-define('JOG_PRIGENY_M_MEGTEKINT',   46);
+//define('JOG_PRIGENY_M_MEGTEKINT',   46);
 define('JOG_PRIGENY_M_KEZEL',       47);
 define('JOG_PRIGENY_T_MEGTEKINT',   48);
 define('JOG_PRIGENY_T_KEZEL',       49);

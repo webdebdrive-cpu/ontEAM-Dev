@@ -51,8 +51,14 @@ if(isset($_POST['session_name'])){
 	//Tiltott fájlformátumok kiszűrése, szitnén nincs feltöltés
 	$tiltott_fajlok = array('text/x-js', 'text/css', 'text/html', 'application/xhtml+xml', 'text/xml');
     if( in_array( $_FILES[ $_SESSION['fajl']['megnevezes'] ]['type'], $tiltott_fajlok ) ){
+        echo 'Hiba!Ilyen formátumú fájl feltöltése tiltott, a fájlfeltöltés nem jött létre!';
+        $weblap -> leallit();
 		exit;
 	}
+    
+    setlocale(LC_CTYPE, 'hu_HU.utf8');
+    $fajlnev = pathinfo($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
+    $fajlnev = $fajlnev['filename'];
 
     switch($_FILES[ $_SESSION['fajl']['megnevezes'] ]['error']){
 
@@ -91,8 +97,8 @@ if(isset($_POST['session_name'])){
                 //imagejpeg(logot_pecsetel($kepnev, '../elemek/vizjel.png', 50, 50, 100), $kepnev);
 
                 //Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
-                $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'], array($_SESSION['fajl']['oszlop'],   'utvonal',                                                           'fajlnev'                                                    ),
-                                                                             array($_SESSION['fajl']['termek_id'], str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev), basename($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name'] ))
+                $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'], array($_SESSION['fajl']['oszlop'],   'utvonal',                                                           'fajlnev'    ),
+                                                                             array($_SESSION['fajl']['termek_id'], str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev), $fajlnev     )
                                                 );
                 $sor_kepek = $adatbazis_kapcsolat->s('*', $_SESSION['fajl']['tabla'], 'recid='.$id);
                 $sor_kepek = $sor_kepek[0];
@@ -252,26 +258,33 @@ function get_tobbkep_thumb($sor_kepek, $i) {
         //Eszközkezelés engedélyeknél dátumot is kiírunk
         $datum = '';
         if(basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
-            $datum = str_replace('-', '.', $sor_kepek['kezdet']).' - '.str_replace('-', '.', $sor_kepek['veg']);
+            $datum = '';
+            if($sor_kepek['kezdet']!='0000-00-00'){
+                $datum .= str_replace('-', '.', $sor_kepek['kezdet']);
+            }
+            $datum .= ' - ';
+            if($sor_kepek['veg']!='0000-00-00'){
+                $datum .= str_replace('-', '.', $sor_kepek['veg']);
+            }
         }
 
         $azon    = 'kep'.$sor_kepek['recid'];
         $tobbkep_html .= nl2('
             <li id="'.$azon.'" class="kijSor" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'">
                 <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
-                <!--<div class="torol" onclick="tobbkep_torol(\''.basename(__FILE__).'\', \''.$sor_kepek['recid'].'\', \''.$azon.'\');">
-                    <img alt="x" class="dn" src="../elemek/admin/torol_hover.png">
-                </div>-->
                 <div class="kep">
-                    <div>'.$kep -> getHtml().'</div>
+                    <div>
+                        <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
+                            '.$kep -> getHtml().'
+                        </a>
+                    </div>
                 </div>
-                <div id="megj_'.$azon.'_felirat" class="felirat f12 c"'.$megj_szerkesztes_onclick.' style="width: 30rem">'.$felirat.'</div>
-                <div class="felirat f12">'.$datum.'</div>
-                <div class="nagyit">
+                <div id="megj_'.$azon.'_felirat" class="felirat f12 c" style="width: 15rem">
                     <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
-                        <i class="material-icons">file_download</i>
+                        '.wordwrap($felirat, 20, '<br>', 1).'
                     </a>
                 </div>
+                <div class="maradek f12">'.$datum.'</div>
             </li>
         ');
 

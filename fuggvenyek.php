@@ -1302,6 +1302,14 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     }
 
     //Ajaxos form módosítás
+    $js_kieg = '';
+    
+    //Felmérési terv esetén meg kell hívni még egy JS függvényt, ami a bal oldali navpanelt frissíti
+    $konyvtarszerkezetesek = array('eszkozkezeles.php', 'felmeresi_terv.php');
+    $akt_php = basename(self());
+    if( in_array($akt_php, $konyvtarszerkezetesek) ){
+        $js_kieg = 'bal_panel_frissit(\''.$akt_php.'\', \''.$_GET['id'].'\');';
+    }
     $ajax_kod = nl2('
         utemezes_mehet = false;
         $.ajax({
@@ -1323,7 +1331,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         alert2();
                     }
 
-                    
+                    '.$js_kieg.'
                     szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
                     szamlaBetolt( \''.$_GET['id'].'\', \''.basename(self()).'\', \'modosit\', \'\', \'Elhagy kérdés nélkül\' );
 
@@ -1668,7 +1676,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             $where = "`".get_db_tabla()."utemezett_feladatok`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
         //A projektigénylés tárgyi lát joggal csak a tárgyi eszközös igényléskete lsitázzuk
-        if($tabla=='projektigenyles' && _jog(JOG_PRIGENY_T_MEGTEKINT) && !_jog(JOG_PRIGENY_S_MEGTEKINT) && !_jog(JOG_PRIGENY_M_MEGTEKINT)){
+        if($tabla=='projektigenyles' && _jog(JOG_PRIGENY_T_MEGTEKINT) && !_jog(JOG_PRIGENY_S_MEGTEKINT)){
             $where = "`tipus`='".PRIGENY_TIPUS_TARGY."'";
         }
         if($tabla == 'rendszeres_karbantartas'){
@@ -3656,12 +3664,17 @@ function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if($akt_ft['telephely_id']==$szalloda['id']){
                 $checked = ' checked';
             }
+            
+            $link = '';
+            $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'");
+            if($szintek){
+                $link = ' class="link"';
+            }
             $html .= '
                     <li>
-                        <label for="telephely_'.$szalloda['id'].'">'.$szalloda['nev'].'</label>
+                        <label'.$link.' for="telephely_'.$szalloda['id'].'">'.$szalloda['nev'].'</label>
                         <input type="checkbox"'.$checked.' id="telephely_'.$szalloda['id'].'">';
 
-                        $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'");
                         if($szintek){
                             $html .= '<ol>';
                             foreach($szintek as $szint) {
@@ -3671,14 +3684,18 @@ function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                     $checked = ' checked';
                                 }
 
+                                $ftek = $adatbazis_kapcsolat->s('recid nev', 'felmeresi_terv', "`telephely_id`='{$szalloda['id']}' AND `obj_id`='{$szint['recid']}'", 'nev');
+                                $link = '';
+                                if($ftek){
+                                    $link = ' class="link"';
+                                }
                                 $html .= '
                                         <li>
-                                            <label for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label>
+                                            <label'.$link.' for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label>
                                             <input type="checkbox"'.$checked.' id="szint_'.$szint['recid'].'">
                                         ';
 
 
-                                $ftek = $adatbazis_kapcsolat->s('recid nev', 'felmeresi_terv', "`telephely_id`='{$szalloda['id']}' AND `obj_id`='{$szint['recid']}'", 'nev');
                                 if($ftek){
                                     $html .= '<ol>';
                                     foreach($ftek as $ft){
