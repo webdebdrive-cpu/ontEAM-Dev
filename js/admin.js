@@ -770,7 +770,7 @@ $(function() {
     });
 
     formModositva = false;
-    $('#tartalomJobb').on('keyup change paste blur focus', '#szerk_form input, #szerk_form select, #szerk_form textarea', function(e) {
+    $('#tartalomJobb').on('keyup change blur', '#szerk_form input, #szerk_form select, #szerk_form textarea', function(e) {
 
         var name = $(this).attr('name'),
             type = $(this).attr('type'),
@@ -4360,8 +4360,12 @@ function mellekTorol( tabla, mellek ) {
                     }
 
                     if( response.statusz == 'siker' ) {
-                        alert2();
                         szamlaBetolt(_get('id'), baseName(location.href) + '.php', mellek);
+                        if( response.alert ) {
+                            alert2(response.alert, response.gomb);
+                        }else{
+                            alert2();
+                        }
                     }
 
 
@@ -5303,7 +5307,6 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
 
 /* Bal oldali navpanel egy sorának frissítése */
 function szamlaSorFrissit( tabla, recid ) {
-
     if( tabla && recid ) {
 
         var anyagrend = '';
@@ -5777,30 +5780,35 @@ function balnav_kijelol_ell(egy_csoport_reszben_szabad, kivetel_ell){
 /* Projekt igényléssnél ha az összes véleményező törölve van, rákérdezünk, hogy léptetjük-e a státuszt nyitottba.
  * De akkor már általánosan lett megírva a függvény. */
 function pri_statusz_leptet(recid, statusz){
-    $.ajax({
-        url : 'projektigenyles.php',
-        type: 'POST',
-        data: {
-            recid             : recid,
-            statusz           : statusz,
-            pri_statusz_leptet: new Date().getTime()
-        },
-        success: function (response) {
 
-            response = JSON.parse(response);
-            if(response.statusz=='siker'){
-                szamlaSorFrissit('projektigenyles', recid);
-                if(_get('modosit')){
-                    szamlaBetolt(recid, 'projektigenyles.php', 'modosit');
+    if(formModositva){
+        alert2('Kérjük előbb mentse el az űrlapot!');
+    }else{
+        $.ajax({
+            url : 'projektigenyles.php',
+            type: 'POST',
+            data: {
+                recid             : recid,
+                statusz           : statusz,
+                pri_statusz_leptet: new Date().getTime()
+            },
+            success: function (response) {
+
+                response = JSON.parse(response);
+                if(response.statusz=='siker'){
+                    szamlaSorFrissit('projektigenyles', recid);
+                    if(_get('modosit')){
+                        szamlaBetolt(recid, 'projektigenyles.php', 'modosit');
+                    }
+                    alert2();
                 }
-                alert2();
-            }
 
-            if(response.hiba){
-                alert2(response.hiba, '', 'Hiba');
+                if(response.hiba){
+                    alert2(response.hiba, '', 'Hiba');
+                }
             }
-        }
-    });
+        });
+    }
 }
 
 /* Összetett szűrésnél gomb mutatása */

@@ -890,9 +890,8 @@ div.jsff_thumb div.torol:hover{
     margin: 0.1rem 0rem 0rem 0.1rem;
     overflow: hidden;
     padding: 0.5rem 0rem 0rem 0rem;
-    text-align: center;
+    text-align: right;
     vertical-align: middle;
-    width: 10rem;
 }
 
 .material-icons.kek,
@@ -1035,6 +1034,13 @@ div.jsff_thumb div.torol:hover{
 #sorrendezes_tobbkep li:not(.kijelolve):hover,
 #sorrendezes_bejegyzes li:not(.kijelolve):hover {
     background: #E9F1FB!important;
+}
+
+#sorrendezes li.nohover:hover,
+#sorrendezes_album li.nohover:hover,
+#sorrendezes_tobbkep li.nohover:hover,
+#sorrendezes_bejegyzes li.nohover:hover {
+    background: #fff!important;
 }
 
 input.kep_megj{

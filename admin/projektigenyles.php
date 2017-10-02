@@ -774,6 +774,7 @@ if($gyorskereso_text){
         foreach($sor as $kulcs => $elem){
             $json_sor[$kulcs] = nl2(str_replace(array("\n", "'"), array("#UJSOR#", "#APOSZTROF#"), $elem));
         }
+        $json_sor['bkolt'] = number_format($json_sor['bkolt'], 0, '', ' ');
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
         if($id_latszik){

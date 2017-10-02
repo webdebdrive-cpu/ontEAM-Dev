@@ -132,18 +132,22 @@ if($gyorskereso_text){
                     $link = 'projektigenyles.php?id='.$fajl[$apa_id].'&amp;velemenyezok';
                 }
                 $fajlok_html .= nl2('
-                    <li id="'.$azon.'" class="kijSor" title="'.$fajl['megj'].'" data-id="'.$fajl['recid'].'" data-i="'.$i.'">
-                        <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$fajl['recid'].'\');</script>
+                    <li id="'.$azon.'" class="nohover" title="'.$fajl['megj'].'" data-id="'.$fajl['recid'].'" data-i="'.$i.'">
                         <div class="kep">
-                            <div>'.$kep -> getHtml().'</div>
+                            <div>
+                                <a href="'.$kep_utvonal.'" target="_blank">
+                                    '.$kep -> getHtml().'
+                                </a>
+                           </div>
                         </div>
-                        <div id="megj_'.$azon.'_felirat" class="felirat f12 link c"'.$megj_szerkesztes_onclick.'>'.$felirat.'</div>
+                        <div id="megj_'.$azon.'_felirat" class="felirat f12 c"'.$megj_szerkesztes_onclick.'>
+                            <a href="'.$kep_utvonal.'" target="_blank">
+                                '.$felirat.'
+                            </a>
+                        </div>
                         <div class="nagyit">
                             <a href="'.$link.'" target="_blank" title="Ugrás menüpontra">
                                 <i class="material-icons">list</i>
-                            </a>
-                            <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
-                                <i class="material-icons">file_download</i>
                             </a>
                         </div>
                     </li>

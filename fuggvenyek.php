@@ -323,6 +323,51 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok,  'id'       );
             array_push($ertekek,   $ertek_id  );
 
+
+        //Ütemezett feladatok új bejegyzés esetén
+        } else if( $tabla == 'eseti_fenntartas' ) {
+            /* ID formázása */
+
+            //Szálloda azonosító
+            $szalloda   = $adatbazis_kapcsolat->s('azon', 'telephely', "`id`='{$_POST['telephely_id']}'");
+            $szalloda   = $szalloda[0]['azon'];
+
+            /* Megnézzük, hogy az adott hotel nevével létezik e bejegyzés */
+            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.$szalloda);
+            if( $ikt_seq === false ) {
+                $db_error = true;
+            }
+            if( $ikt_seq ) {
+                $ikt_seq = $ikt_seq[0];
+
+                /* Sorszám */
+                $sorszam = $ikt_seq['sorszam'];
+
+                /* Sorszám növelés */
+                $sorszam++;
+
+                /* Letároljuk az új sorszámot */
+                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.$szalloda);
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+            } else {
+                /* Sorszám */
+                $sorszam = 1;
+
+                $id = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, $szalloda, $tabla));
+                if( $id === false ) {
+                    $db_error = true;
+                }
+            }
+            $id = $szalloda.sprintf('%04d', $sorszam);
+
+            array_push($oszlopok,  'id' );
+            array_push($ertekek,   $id  );
+
+            array_push($oszlopok, 'loginnev'                        );
+            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
+            
         //Gégpek új bejegyzés esetén
         } else if( $tabla == 'gep' ) {
             array_push($oszlopok, 'loginnev'                        );
@@ -483,6 +528,51 @@ function i_u($type, $tabla, $tomb) {
 
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
+            
+        //Rendszeres karbantarás új bejegyzés esetén
+        } else if( $tabla == 'rendszeres_karbantartas' ) {
+            /* ID formázása */
+
+            //Szálloda azonosító
+            $szalloda   = $adatbazis_kapcsolat->s('azon', 'telephely', "`id`='{$_POST['telephely_id']}'");
+            $szalloda   = $szalloda[0]['azon'];
+
+            /* Megnézzük, hogy az adott hotel nevével létezik e bejegyzés */
+            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.$szalloda);
+            if( $ikt_seq === false ) {
+                $db_error = true;
+            }
+            if( $ikt_seq ) {
+                $ikt_seq = $ikt_seq[0];
+
+                /* Sorszám */
+                $sorszam = $ikt_seq['sorszam'];
+
+                /* Sorszám növelés */
+                $sorszam++;
+
+                /* Letároljuk az új sorszámot */
+                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.$szalloda);
+                if( $sql === false ) {
+                    $db_error = true;
+                }
+            } else {
+                /* Sorszám */
+                $sorszam = 1;
+
+                $id = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, $szalloda, $tabla));
+                if( $id === false ) {
+                    $db_error = true;
+                }
+            }
+            $id = $szalloda.sprintf('%04d', $sorszam);
+
+            array_push($oszlopok,  'id' );
+            array_push($ertekek,   $id  );
+
+            array_push($oszlopok, 'loginnev'                        );
+            array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
+            
         }
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
@@ -631,6 +721,8 @@ function i_u($type, $tabla, $tomb) {
                                                 array($tabla.'_recid', 'stat_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
                                                 array($id,             $statusz,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
+            if( $sql === false ) { $db_error = true; }
+            $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array($statusz), "`recid`='$id'");
             if( $sql === false ) { $db_error = true; }
 
         }
@@ -1086,20 +1178,6 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             beosztas_naptarba_teszt(\''.$_GET['id'].'\');
             return false;
         ');
-    }
-    
-    if( basename(self())=='eszkozkezeles.php' ){
-        $ret .= '
-            eszkozkezeles_azon_ell(
-                function(result){
-                    if (result == true )
-                       alert(\'success\');
-                    else
-                       alert(\'failed\');
-                  },
-                  $(\'#azon\').val(), \''.$_GET['id'].'\');
-            
-            ';
     }
 
     if( basename(self())=='ktghely.php' || basename(self())=='ktgnem.php' ){
@@ -1676,6 +1754,9 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             $where = "`".get_db_tabla()."utemezett_feladatok`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
         //A projektigénylés tárgyi lát joggal csak a tárgyi eszközös igényléskete lsitázzuk
+        if($tabla=='projektigenyles'){
+            $where = "`".get_db_tabla()."projektigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
         if($tabla=='projektigenyles' && _jog(JOG_PRIGENY_T_MEGTEKINT) && !_jog(JOG_PRIGENY_S_MEGTEKINT)){
             $where = "`tipus`='".PRIGENY_TIPUS_TARGY."'";
         }
@@ -2981,7 +3062,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                         if( $csoport_bej ) {
                             $csoport_bej = adatbazis2tomb($csoport_bej, 'recid');
                         }
-
+                        
                         $html .= nl2('
                                     <li class="szamla_datum csoport'.$csoport_active.'" data-id="'.$aktCsoport.'">
                                         <span class="icon"></span>
@@ -3012,8 +3093,12 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $active .= ' nyitott_statuszu';
             }
 
+            //Egy csoporton belül biztosan csak olyan bejelentések lesznek, amiknek azonos a telephelye
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$bsz['telephely_id']}'");
+            $telephely = $telephely[0];
+            
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span'.$bold.'>'.$bsz['ikt_szam'].'</span>
+                            <span'.$bold.'>'.$bsz['ikt_szam'].' - '.$telephely['nev'].'</span>
                             <span'.$bold.'>'.$bsz['nev'].'</span>
                             <span'.$bold.'>'.$statusz.'</span>
                         </a>';

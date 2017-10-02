@@ -135,11 +135,12 @@
                 obj_id = '';
                 if( !options.szuros && (
                                         baseName(location.href) == 'bejelentes' ||
-                                        baseName(location.href) == 'utemezett_feladatok' ||
-                                        baseName(location.href) == 'rendszeres_karbantartas' ||
-                                        baseName(location.href) == 'munkalap' ||
                                         baseName(location.href) == 'eszkozkezeles' ||
-                                        baseName(location.href) == 'felmeresi_terv'
+                                        baseName(location.href) == 'eseti_fenntartas' ||
+                                        baseName(location.href) == 'felmeresi_terv' ||
+                                        baseName(location.href) == 'munkalap' ||
+                                        baseName(location.href) == 'utemezett_feladatok' ||
+                                        baseName(location.href) == 'rendszeres_karbantartas'
                                         )
                 ) {
                     obj_id = $('#obj_id').val();
