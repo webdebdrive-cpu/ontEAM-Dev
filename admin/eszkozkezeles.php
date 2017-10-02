@@ -56,14 +56,14 @@ if($tobb_kep){
 
 //Engedély dátum megadása
 if ($_POST['engedelyDatum']) {
-    
+
     //Dátumok ellenőrzése
     if($_POST['kezdet']!='0000-00-00'){
         if(!valos_datum_e($_POST['kezdet'])){
             echo json_encode(array(
                 'hiba' => 'Érvénytelen hatályba lépés dátumot adott meg!'
             ));
-            
+
             $weblap->leallit();
             exit();
         }
@@ -73,51 +73,51 @@ if ($_POST['engedelyDatum']) {
             echo json_encode(array(
                 'hiba' => 'Érvénytelen hatályosság lejártát dátumot adott meg!'
             ));
-            
+
             $weblap->leallit();
             exit();
         }
     }
-    
+
     if($_POST['kezdet']!='0000-00-00' && $_POST['veg']!='0000-00-00'){
         if($_POST['kezdet']>$_POST['veg']){
             echo json_encode(array(
                 'hiba' => 'A kezdődátum nem lehet későbbi a végdátumtól!'
             ));
-            
+
             $weblap->leallit();
             exit();
         }
     }
-    
+
     $_POST['kezdet'] = str_replace('.', '-', $_POST['kezdet']);
     $_POST['veg']    = str_replace('.', '-', $_POST['veg']);
     $adatbazis_kapcsolat->u($megnevezes.'_eng_dok', array('kezdet', 'veg'), array($_POST['kezdet'], $_POST['veg']), "`recid`='{$_POST['recid']}'");
-    
+
     $weblap->leallit();
     exit();
 }
 
 // Bal oldali navpanel frissítése, könyvtárszerkezet újra rajzolása
 if (isset($_POST['bal_panel_frissit'])) {
-    
+
     $bejegyzesek = array();
     $sorok = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
     while($sor = mysqli_fetch_assoc($sorok)){
         array_push($bejegyzesek, $sor);
     }
-    
+
     echo json_encode(array(
         'html' => '<div class="szamlaLapozas fent clearFix"></div>'.eszkozkezelesLista( $bejegyzesek, $megnevezes ).'<div class="szamlaLapozas clearFix"></div>'
     ));
-    
+
     $weblap->leallit();
     exit();
 }
 
 /* Foglalt azonosító ellenőrzése */
 if ($_POST['eszkozkezeles_azon_ell']) {
-    
+
     $_POST['azon'] = trim($_POST['azon']);
     if($_POST['azon']){
         if($adatbazis_kapcsolat->s('recid', $megnevezes, "`azon`='{$_POST['azon']}' AND `recid`!='{$_POST['recid']}'")){
@@ -134,7 +134,7 @@ if ($_POST['eszkozkezeles_azon_ell']) {
             'hiba' => 'Kérem töltse ki az azonosítót!'
         ));
     }
-    
+
     $weblap->leallit();
     exit();
 }
@@ -283,7 +283,7 @@ if($gyorskereso_text){
 
         $dok_db = ' ('.$dok_db.')';
     }
-    
+
     /* Engedélyek darabszáma */
     $eng_db = '';
     $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_eng_dok', "`{$megnevezes}_id` = '".$_GET['id']."'");
@@ -327,7 +327,7 @@ if($gyorskereso_text){
             fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
         );
     }
-    
+
     /* Gombok kirajzolása minden oldalra */
     $gombok = '';
     if( isset($_GET['uj']) ) {
@@ -352,14 +352,14 @@ if($gyorskereso_text){
                 </div>
             ');
         }
-        
+
     //Módosítás gombok
     } else {
-        
+
         //Js, a törlés gombhoz
         $gombok  = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
         $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
-        
+
         if(!$nem_szerkesztheti && isset($_GET['modosit']) && _jog(JOG_ESZKOZ_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
@@ -367,7 +367,7 @@ if($gyorskereso_text){
                 </div>
             ').$gombok;
         }
-        
+
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
@@ -382,7 +382,7 @@ if($gyorskereso_text){
             </div>
         ');
     }
-    
+
 
 	//Új termék felvitele
 
@@ -431,8 +431,8 @@ if($gyorskereso_text){
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
-        
-        //Eszközkezelésnél, az űrlap elpostolása előtt még ellenőrizzük, hogy az azonosító nem foglalt-e. 
+
+        //Eszközkezelésnél, az űrlap elpostolása előtt még ellenőrizzük, hogy az azonosító nem foglalt-e.
         //Egy ajax hívástbevárva tudjuk meg, hogy fogalalt-e vagy sem, és ha nem az, akkor újra elpostoljuk a formot de már egy az eredeti JS fügvny ellenőrzéssel.
         $js_submit_elott = '
                             mehet_e = false;
@@ -469,6 +469,8 @@ if($gyorskereso_text){
 
                             return false;
                             ';
+
+        $js_submit_elott = 'return form_ell_admin();';
 
 	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
 	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
@@ -627,7 +629,7 @@ if($gyorskereso_text){
         $bejelentes_html = '';
         $bejelentesek = $adatbazis_kapcsolat->s('recid ikt_szam hiba_id', 'bejelentes', "`gep_id`='{$_GET['id']}'", 'ikt_szam');
         foreach ($bejelentesek as $bejelentes){
-            
+
             $hiba = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$bejelentes['hiba_id']}'");
             $bejelentes_html .= '
                 <tr>
@@ -648,12 +650,12 @@ if($gyorskereso_text){
                 </table>
                 ';
         }
-        
+
         //Adott géphez tartozó munkalapok
         $munkalap_html = '';
         $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam text', 'munkalap', "`gep_id`='{$_GET['id']}'", 'ikt_szam');
         foreach ($munkalapok as $munkalap){
-            
+
             $munkalap_html .= '
                 <tr>
                     <td class="l"><a href="munkalap.php?id='.$munkalap['recid'].'&amp;modosit" target="_blank">'.$munkalap['ikt_szam'].'</a></td>
@@ -673,12 +675,12 @@ if($gyorskereso_text){
                 </table>
                 ';
         }
-        
+
         //Adott géphez tartozó ütemezett feladatok
         $uf_html = '';
         $ufk = $adatbazis_kapcsolat->s('recid id nev', 'utemezett_feladatok', "`gep_id`='{$_GET['id']}'", 'id');
         foreach ($ufk as $uf){
-            
+
             $uf_html .= '
                 <tr>
                     <td class="l"><a href="utemezett_feladatok.php?id='.$uf['recid'].'&amp;modosit" target="_blank">'.$uf['id'].'</a></td>
@@ -698,7 +700,7 @@ if($gyorskereso_text){
                 </table>
                 ';
         }
-        
+
         $szamla_html .= $bejelentes_html.$munkalap_html.$uf_html;
 
         if( $_GET['ajax'] ) {

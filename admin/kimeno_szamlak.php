@@ -99,7 +99,6 @@ if($gyorskereso_text){
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
-	    $form_mit    = array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}');
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
@@ -108,7 +107,10 @@ if($gyorskereso_text){
                           <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                       </div>').$gombok;
 
-	    $form_mivel  = array($js, self(), $mezok, $megnevezes, $ckeditor, $gombok);
+    $js_submit_elott = 'return form_ell_admin();';
+
+    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
+    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
 	    echo str_replace($form_mit, $form_mivel, $form_sablon);
 
 	//Termék módosítása

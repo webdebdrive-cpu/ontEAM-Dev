@@ -56,7 +56,7 @@ if($tobb_kep){
 
 // Foglalt azonosító ellenőrzése
 if ($_POST['ft_azon_ell']) {
-    
+
     $_POST['azon'] = trim($_POST['azon']);
     if($_POST['azon']){
         if($adatbazis_kapcsolat->s('recid', $megnevezes, "`azon`='{$_POST['azon']}' AND `recid`!='{$_POST['recid']}'")){
@@ -73,24 +73,24 @@ if ($_POST['ft_azon_ell']) {
             'hiba' => 'Kérem töltse ki az azonosítót!'
         ));
     }
-    
+
     $weblap->leallit();
     exit();
 }
 
 // Bal oldali navpanel frissítése, könyvtárszerkezet újra rajzolása
 if (isset($_POST['bal_panel_frissit'])) {
-    
+
     $bejegyzesek = array();
     $sorok = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
     while($sor = mysqli_fetch_assoc($sorok)){
         array_push($bejegyzesek, $sor);
     }
-    
+
     echo json_encode(array(
         'html' => '<div class="szamlaLapozas fent clearFix"></div>'.felmeresi_tervLista( $bejegyzesek, $megnevezes ).'<div class="szamlaLapozas clearFix"></div>'
     ));
-    
+
     $weblap->leallit();
     exit();
 }
@@ -239,7 +239,7 @@ if($gyorskereso_text){
 
         $dok_db = ' ('.$dok_db.')';
     }
-    
+
     /* Engedélyek darabszáma */
     $eng_db = '';
     $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_eng_dok', "`{$megnevezes}_id` = '".$_GET['id']."'");
@@ -283,7 +283,7 @@ if($gyorskereso_text){
             fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
         );
     }
-    
+
     /* Gombok kirajzolása minden oldalra */
     $gombok = '';
     if( isset($_GET['uj']) ) {
@@ -309,14 +309,14 @@ if($gyorskereso_text){
                 </div>
             ');
         }
-        
+
     //Módosítás gombok
     } else {
-        
+
         //Js, a törlés gombhoz
         $gombok  = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
         $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
-        
+
         if(!$nem_szerkesztheti && isset($_GET['modosit']) && _jog(JOG_FT_KEZEL)){
             $gombok = nl2('
                 <input type="button" class="gombb zold" value="Felmérési terv csatolása" onclick="$(\'#jsff_felmeresi_terv_felm_terv input\').click()">
@@ -325,7 +325,7 @@ if($gyorskereso_text){
                 </div>
             ').$gombok;
         }
-        
+
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
@@ -340,7 +340,7 @@ if($gyorskereso_text){
             </div>
         ');
     }
-    
+
 
 	//Új FT felvitele
 	if(isset($_GET['uj']) && _jog(JOG_FT_KEZEL)){
@@ -366,7 +366,6 @@ if($gyorskereso_text){
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
-	    $form_mit    = array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}');
 
         /* Javascipt-es ellenőrzéshez */
         $tabla = str_replace('.php', '', basename(self()));
@@ -390,7 +389,10 @@ if($gyorskereso_text){
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
-	    $form_mivel   = array($js, self(), $mezok, $megnevezes, $ckeditor, $gombok, $muv_style);
+        $js_submit_elott = 'return form_ell_admin();';
+
+	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
+	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
 
         if( $_GET['ajax'] ) {
