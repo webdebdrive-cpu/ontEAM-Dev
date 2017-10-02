@@ -1896,8 +1896,10 @@ if($gyorskereso_text){
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
-	    $form_mit     = array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
-	    $form_mivel   = array($js,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
+        $js_submit_elott = 'return form_ell_admin();';
+
+	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
+	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
 
         //Igénylésre váró anyagok a munkalapokon:
