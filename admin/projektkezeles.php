@@ -117,7 +117,7 @@ if($gyorskereso_text){
             'cash_flow'     => 'Cash-flow',
             'projektigeny'  => 'Projektigénylések',
             'rb_anyag'      => 'RB-anyagok',
-            'tortenet'      => 'Történet',
+            'tortenet'      => 'Projekt történet',
             'garancialis'   => 'Garanciális munkák',
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );

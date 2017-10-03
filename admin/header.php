@@ -834,7 +834,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'bejelentes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
-    } elseif( basename(self()) == 'bejelentes.php' && _jog(JOG_DISZPECSER) ) {
+    } elseif( basename(self()) == 'bejelentes.php' && _jog(JOG_BEJELENTES_MAS_NEVEBEN) ) {
         $uj_link = 'javascript: bejSzallodaValaszt(); void(0);';
         
     } elseif( basename(self()) == 'beosztas.php' && isset($_GET['megjegyzesek']) ) {
@@ -998,7 +998,7 @@ if( basename(self())=='anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL)){
     //$uj             = '';
 }
 
-if(basename(self())=='bejelentes.php' && !_jog(JOG_BEJELENTES_KEZEL)){
+if(basename(self())=='bejelentes.php' && (!_jog(JOG_BEJELENTES_KEZEL))&& !_jog(JOG_BEJELENTES_MAS_NEVEBEN)){
     $torles_icon    = '';
     $uj             = '';
 

@@ -231,7 +231,7 @@ if( isset($_POST['bejelentesIgazolas']) ) {
         if( isset($_POST['csak_kerdezunk']) && $_POST['csak_kerdezunk'] != 'false' ) {
             echo json_encode(array(
                 'hiba' => 'Ha folytatja, a bejelentés lezárt státuszra vált. Folytatja?',
-                'gomb' => '<input class="gomb piros" value="Igen" onclick="bejelentesIgazolas( \''.$recid.'\' );" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="bejelentesIgazolas( \''.$recid.'\' );" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
             $weblap->leallit();
@@ -499,9 +499,14 @@ if($gyorskereso_text){
             ');
         }*/
 
-        // Akinek van joga hozzá, csak az tud elutasítani, és csak akkor, ha még nem készült belőle munkalap
-        $van_munkalapja = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
-        if( $sor['stat_id']!=BEJELENTES_STAT_ELUTASITVA && _jog(JOG_BEJELENTES_ELUTASIT) && !$van_munkalapja ) {
+        //Ez törölhető
+//        // Akinek van joga hozzá, csak az tud elutasítani, és csak akkor, ha még nem készült belőle munkalap
+//        $van_munkalapja = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
+//        if( $sor['stat_id']==BEJELENTES_STAT_KESZ_IG && _jog(JOG_BEJELENTES_ELUTASIT) && !$van_munkalapja ) {
+//            $gombok .= '<input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'bejelentesElutasit\');">';
+//        }
+        // Csak ha nyitott és akinek van joga hozzá
+        if( $sor['stat_id']==BEJELENTES_STAT_NYITOTT && _jog(JOG_BEJELENTES_ELUTASIT) ) {
             $gombok .= '<input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'bejelentesElutasit\');">';
         }
 
@@ -566,7 +571,7 @@ if($gyorskereso_text){
         }
 
         //Ha valaki bejelentő, és nem diszpécser, akkor csak saját bejelentéseit szerkesztheti
-        if(_jog(JOG_BEJELENTES_KEZEL) && !_jog(JOG_DISZPECSER)){
+        if( (_jog(JOG_BEJELENTES_KEZEL) || _jog(JOG_BEJELENTES_MAS_NEVEBEN)) && !_jog(JOG_DISZPECSER)){
 
             //Szerkeszthető egy bejelentés, ha nem vagyunk diszpécserek illetve ha mi magunk hoztuk létre a bejelentést.
             $nem_szerkesztheti = false;

@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 55-es ID-nál járunk
+ * 57-es ID-nál járunk
  * 11 -es kategória ID-nál járunk
 \*                                                  */
 
@@ -22,12 +22,14 @@ $jogosultsagKatok = array(
 
 $jogosultsagok = array(
 //Ez a _jog() ID_ja, tehát a => előtti rész
-    0  => array('nev' => 'Bejelentések megtekintése',    'kat' => 0, 'sor' => 0, 'kikapcs' => '1,2'),
-    1  => array('nev' => 'Bejelentések kezelése',        'kat' => 0, 'sor' => 1, 'bekapcs' => '0'),
-    2  => array('nev' => 'Munkalapot készíthet',         'kat' => 0, 'sor' => 2, 'i' => 'diszpécserek', 'bekapcs' => '1,0', 'kikapcs' => '5,31,21,22,24,34'),
-    41 => array('nev' => 'Bejelentések elutasítása',     'kat' => 0, 'sor' => 3, 'bekapcs' => '1'),
+    0  => array('nev' => 'Saját részleg bejelentések megtekintése',         'kat' => 0, 'sor' => 0,                        'kikapcs' => '1,2'  ),
+    57 => array('nev' => 'Saját szállodák bejelentéseinek megtekintése',    'kat' => 0, 'sor' => 0,                        'kikapcs' => '1,2'  ),
+    1  => array('nev' => 'Bejelentés saját névben',                         'kat' => 0, 'sor' => 1, 'bekapcs' => '0',      'kikapcs' => '56'   ),
+    56 => array('nev' => 'Bejelentés más nevében',                          'kat' => 0, 'sor' => 2, 'bekapcs' => '57',     'kikapcs' => '1'    ),
+    41 => array('nev' => 'Bejelentések elutasítása',                        'kat' => 0, 'sor' => 3, 'bekapcs' => '1'   ),
 
-    3  => array('nev' => 'Munkalap megtekintése',                           'kat' => 1, 'sor' => 3, 'kikapcs' => '5,21,22,23,24'),
+    3  => array('nev' => 'Munkalap megtekintése',                           'kat' => 1, 'sor' => 1,                          'kikapcs' => '5,21,22,23,24'),
+    2  => array('nev' => 'Munkalapot készíthet',                            'kat' => 1, 'sor' => 2,  'bekapcs' => '56,57',   'kikapcs' => '1,5,31,21,22,24,34', 'i' => 'diszpécserek'),
     4  => array('torolve' => 'TÖRÖLVE',  'nev' => 'Munkalap kezelése',      'kat' => 1, 'sor' => 4),
     5  => array('nev' => 'Munkalapok kezelése mint telepített',             'kat' => 1, 'sor' => 5,  'bekapcs' => '3',       'kikapcs' => '2,21,22,23,24,31,34,37'),
     31 => array('nev' => 'Munkalapok kezelése mint mobil',                  'kat' => 1, 'sor' => 6,  'bekapcs' => '3',       'kikapcs' => '2,5,21,22,23,24,34,37'),
@@ -73,7 +75,7 @@ $jogosultsagok = array(
     
     38 => array('nev' => 'Saját igénylések megtekintése',           'kat' => 7, 'sor' => 1, 'kikapcs' => '39'),
     39 => array('nev' => 'Saját igénylések kezelése',               'kat' => 7, 'sor' => 2, 'bekapcs' => '38'),
-    //46 => array('nev' => 'Minden igénylések megtekintése',          'kat' => 7, 'sor' => 3, 'kikapcs' => '47'),
+    46 => array('torolve' => 'TÖRÖLVE Minden igénylések megtekintése',          'kat' => 7, 'sor' => 3, 'kikapcs' => '47'),
     47 => array('nev' => 'Minden igénylések kezelése',              'kat' => 7, 'sor' => 4, 'bekapcs' => '46'),
     48 => array('nev' => 'Tárgyi eszköz igénylések megtekintése',   'kat' => 7, 'sor' => 5, 'kikapcs' => '49'),
     49 => array('nev' => 'Tárgyi eszköz igénylések kezelése',       'kat' => 7, 'sor' => 6, 'bekapcs' => '48'),

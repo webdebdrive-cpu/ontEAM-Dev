@@ -1786,9 +1786,9 @@ array('type' => 'html',                     'megn' => nl2('
                                                             </div>
                                                         </div>
                                                                 ')),
-    array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi'),
+    array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi csillag'),
     array('type' => 'select_felh_telephely','megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,       'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
-    array('type' => 'text',                 'megn' => 'Becsült költsége:',      'name' => 'bkolt',          'szuro' => 1,       'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'style' => 'width: 11.5rem', 'post' => ' '.get_penznem(), 'osszevon' => 1, 'post' => ' '.get_penznem().'<span style="margin-right: 4rem"></span>'),
+    array('type' => 'text',                 'megn' => 'Becsült költsége:',      'name' => 'bkolt',          'szuro' => 1,       'class' => 'oriasi f_num csillag', 'data' => 'data-tort="0"', 'style' => 'width: 11.5rem', 'post' => ' '.get_penznem(), 'osszevon' => 1, 'post' => ' '.get_penznem().'<span style="margin-right: 4rem"></span>'),
     array('type' => 'select_pri_tipus',     'megn' => 'Tipus:',                 'name' => 'tipus',          'szuro' => 1,       'class' => 'disableNav', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
     array('type' => 'select_pri_besorol',   'megn' => 'Besorolás:',             'name' => 'besorol',        'szuro' => 1,       'class' => 'disableNav'),
     array('type' => 'text',                 'megn' => 'Aktiválási adatok:',     'name' => 'akt_adat',       'maxlength' => 250, 'class' => 'oriasi'),
@@ -3083,10 +3083,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
     if( is_array($idk) ) {
         /* Ellenőrizzük a csoportokat */
         $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")", '', '');
-
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        if( $sql === false ) { $db_error = true; }
 
         $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
         $csoportok_unique = array_unique($csoportok);
@@ -3096,10 +3093,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
         foreach( $csoportok_unique as $csu ) {
             if( $csu > 0 ) {
                 $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', $page, "`csoport_id` = '{$csu}'", '', '');
-
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                if( $sql === false ) { $db_error = true; }
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
@@ -3159,7 +3153,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
             if($page=='munkalap'){
                 $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$id}'");
                 foreach($bejelentesek as $bej){
-                    $statusz = addStatusz( 'bejelentes_statusz', $bej['bejelentes_id'], BEJELENTES_STAT_NYITOTT );
+                    $statusz = addStatusz( 'bejelentes_statusz', $bej['bejelentes_id'], BEJELENTES_STAT_FOLYAMATBAN );
                     if( $statusz === false ) { $db_error = true; }
                 }
             }

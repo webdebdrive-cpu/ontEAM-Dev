@@ -770,7 +770,7 @@ $(function() {
     });
 
     formModositva = false;
-    $('#tartalomJobb').on('keyup change blur', '#szerk_form input, #szerk_form select, #szerk_form textarea', function(e) {
+    $('#tartalomJobb').on('keyup change blur', '#szerk_form input:not([type=\'button\']), #szerk_form select, #szerk_form textarea', function(e) {
 
         var name = $(this).attr('name'),
             type = $(this).attr('type'),
@@ -1553,13 +1553,13 @@ function bejelentesElutasit( that ) {
                  memo = $(that).find('textarea[name="elutasitas_memo"]');
 
     if( elutasitas_id.val() == '' ) {
-        alert2('Kérem válassza ki az elutasítás okát.');
+        alert2('Kérem válassza ki az elutasítás okát!', '', 'Hiba');
         document.getElementById('elutasitas_id_autocomp').select();
         return false;
     }
 
     if( memo.val() == '' ) {
-        alert2('Kérem adja meg az elutasítás okát.');
+        alert2('Kérem adja meg az elutasítás okát!', '', 'Hiba');
         document.getElementById('elutasitas_memo').select();
         return false;
     }
@@ -3194,7 +3194,7 @@ function bejegyzesElutasitas( that, csak_memo ) {
                  memo = $(that).find('textarea[name="elutasitas_memo"]');
 
     /* Ha van elutasítás oka, vaaagy ha elég csak memót megadni */
-    if( elutasitas_id .val() || csak_memo ) {
+    if( elutasitas_id.val() || csak_memo ) {
         szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
         if( szamlaSorok.length ) {
             idk = {};
@@ -3662,6 +3662,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                 case 'elutasitas':
                     szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
                     if( szamlaSorok.length>1 ) {
+                        
                         alert2('Egyszerre csak egy '+$('#rekord_neve_egyes').html()+' utasítható el!', '', 'Hiba');
 
                     /* Bejelentés, csak akkor utsasítható el, ha nyitott */
@@ -3675,7 +3676,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         if($('#szamlaList li.szamla_sor.kijelolve').hasClass('behuz')){
                             alert2('Csoportosított '+$('#rekord_neve_egyes').html()+' nem utasítható el.<br>Előbb vegye ki a csoportból!', '', 'Hiba');
 
-                        /* Egybként jöhet az elutasítás panel */
+                        /* Egyébként jöhet az elutasítás panel */
                         }else{
                             $('#popupTart').html(data);
                             popupNyit();
