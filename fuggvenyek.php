@@ -3650,12 +3650,17 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if($akt_eszkoz['telephely_id']==$szalloda['id']){
                 $checked = ' checked';
             }
+            
+            $link = '';
+            $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'");
+            if($szintek){
+                $link = ' class="link"';
+            }
             $html .= '
                     <li>
-                        <label for="telephely_'.$szalloda['id'].'">'.$szalloda['nev'].'</label>
+                        <label'.$link.' for="telephely_'.$szalloda['id'].'">'.$szalloda['nev'].'</label>
                         <input type="checkbox"'.$checked.' id="telephely_'.$szalloda['id'].'">';
 
-                        $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'");
                         if($szintek){
                             $html .= '<ol>';
                             foreach($szintek as $szint) {
@@ -3665,13 +3670,17 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                     $checked = ' checked';
                                 }
 
+                                $link = '';
+                                $objektumok = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='{$szint['recid']}'");
+                                if($objektumok){
+                                    $link = ' class="link"';
+                                }
                                 $html .= '
                                         <li>
-                                            <label for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label>
+                                            <label'.$link.' for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label>
                                             <input type="checkbox"'.$checked.' id="szint_'.$szint['recid'].'">
                                         ';
 
-                                $objektumok = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='{$szint['recid']}'");
                                 if($objektumok){
                                     $html .= '<ol>';
                                     foreach($objektumok as $obj) {
@@ -3681,11 +3690,15 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                             $checked = ' checked';
                                         }
 
+                                        $link = '';
+                                        $eszkozok = $adatbazis_kapcsolat->s('recid nev', 'eszkozkezeles', "`telephely_id`='{$szalloda['id']}' AND `obj_id`='{$obj['recid']}'", 'nev');
+                                        if($eszkozok){
+                                            $link = ' class="link"';
+                                        }
                                         $html .= '<li>
-                                                    <label for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label>
+                                                    <label'.$link.' for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label>
                                                     <input type="checkbox"'.$checked.' id="obj_'.$obj['recid'].'">';
 
-                                            $eszkozok = $adatbazis_kapcsolat->s('recid nev', 'eszkozkezeles', "`telephely_id`='{$szalloda['id']}' AND `obj_id`='{$obj['recid']}'", 'nev');
                                             if($eszkozok){
                                                 $html .= '<ol>';
                                                 foreach($eszkozok as $eszkoz){

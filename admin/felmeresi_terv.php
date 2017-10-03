@@ -54,30 +54,6 @@ if($tobb_kep){
 
 }
 
-// Foglalt azonosító ellenőrzése
-if ($_POST['ft_azon_ell']) {
-
-    $_POST['azon'] = trim($_POST['azon']);
-    if($_POST['azon']){
-        if($adatbazis_kapcsolat->s('recid', $megnevezes, "`azon`='{$_POST['azon']}' AND `recid`!='{$_POST['recid']}'")){
-            echo json_encode(array(
-                'hiba' => 'Ez az azonosító már foglalt, válasszon másikat!'
-            ));
-        }else{
-            echo json_encode(array(
-                'statusz' => 'siker'
-            ));
-        }
-    }else{
-        echo json_encode(array(
-            'hiba' => 'Kérem töltse ki az azonosítót!'
-        ));
-    }
-
-    $weblap->leallit();
-    exit();
-}
-
 // Bal oldali navpanel frissítése, könyvtárszerkezet újra rajzolása
 if (isset($_POST['bal_panel_frissit'])) {
 
@@ -90,6 +66,31 @@ if (isset($_POST['bal_panel_frissit'])) {
     echo json_encode(array(
         'html' => '<div class="szamlaLapozas fent clearFix"></div>'.felmeresi_tervLista( $bejegyzesek, $megnevezes ).'<div class="szamlaLapozas clearFix"></div>'
     ));
+
+    $weblap->leallit();
+    exit();
+}
+
+/* Foglalt azonosító ellenőrzése */
+if ($_POST['azon_ell']) {
+
+    $_POST['azon'] = trim($_POST['azon']);
+    if($_POST['azon']){
+        if($adatbazis_kapcsolat->s('recid', $megnevezes, "`azon`='{$_POST['azon']}' AND `recid`!='{$_POST['recid']}'")){
+            echo json_encode(array(
+                'hiba' => 'Ez az azonosító már foglalt, válasszon másikat!',
+                'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#azon\').focus();" type="button">'
+            ));
+        }else{
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        }
+    }else{
+        echo json_encode(array(
+            'hiba' => 'Kérem töltse ki az azonosítót!'
+        ));
+    }
 
     $weblap->leallit();
     exit();
@@ -341,7 +342,42 @@ if($gyorskereso_text){
         ');
     }
 
-    $js_submit_elott = 'return form_ell_admin();';
+    //Felmérési terveknél, az űrlap elpostolása előtt még ellenőrizzük, hogy az azonosító nem foglalt-e.
+    //Egy ajax hívástbevárva tudjuk meg, hogy fogalalt-e vagy sem, és ha nem az, akkor újra elpostoljuk a formot de már egy az eredeti JS fügvny ellenőrzéssel.
+    $js_submit_elott = '
+                        mehet_e = false;
+                        uj_form_ajax = $.ajax({
+                            url : \''.basename(self()).'\',
+                            type: \'POST\',
+                            data: {
+                                azon    : $(\'#azon\').val(),
+                                recid   : \''.$_GET['id'].'\',
+                                azon_ell: new Date().getTime()
+                            },
+                            success: function (response) {
+                                response = JSON.parse(response);
+                                if(response.hiba){
+                                    alert2(response.hiba, response.gomb, \'Hiba\');
+                                    mehet_e = false;
+                                }else{
+                                    mehet_e = true;
+                                }
+                            }
+                        });
+
+                        $.when(
+                            uj_form_ajax
+                        ).then(function() {
+                            if(mehet_e){
+                                $(\'#szerk_form\').attr(\'onsubmit\', \'return form_ell_admin()\');
+                                $(\'#szerk_form\').submit();
+                            }else{
+                                return false;
+                            }
+                        } );
+
+                        return false;
+                        ';
 
 	//Új FT felvitele
 	if(isset($_GET['uj']) && _jog(JOG_FT_KEZEL)){

@@ -116,7 +116,7 @@ if (isset($_POST['bal_panel_frissit'])) {
 }
 
 /* Foglalt azonosító ellenőrzése */
-if ($_POST['eszkozkezeles_azon_ell']) {
+if ($_POST['azon_ell']) {
 
     $_POST['azon'] = trim($_POST['azon']);
     if($_POST['azon']){
@@ -390,12 +390,12 @@ if($gyorskereso_text){
     $js_submit_elott = '
                         mehet_e = false;
                         uj_form_ajax = $.ajax({
-                            url : \'eszkozkezeles.php\',
+                            url : \''.basename(self()).'\',
                             type: \'POST\',
                             data: {
-                                azon                  : $(\'#azon\').val(),
-                                recid                 : \''.$_GET['id'].'\',
-                                eszkozkezeles_azon_ell: new Date().getTime()
+                                azon    : $(\'#azon\').val(),
+                                recid   : \''.$_GET['id'].'\',
+                                azon_ell: new Date().getTime()
                             },
                             success: function (response) {
                                 response = JSON.parse(response);
