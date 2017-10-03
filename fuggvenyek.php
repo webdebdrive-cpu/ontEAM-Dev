@@ -2478,7 +2478,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             //Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
             $bold = '';
-            if( $bsz['stat_id'] == MUNKALAP_STAT_NYITOTT ){
+            if( $bsz['stat_id'] == MUNKALAP_STAT_NYITOTT || $bsz['stat_id'] == MUNKALAP_STAT_HOZREND_ELOKESZ ){
                 $bold    = ' class="b"';
                 $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
@@ -4434,12 +4434,11 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
     $kulso_kulcs = str_replace('_statusz', '', $tabla);
 
     if( $tabla && $recid && $stat_id ) {
-        /* Lekérjük az az éppen aktuális státusz */
-        $akt_statusz = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid desc', '1');
+        /* Lekérjük az az éppen aktuális státuszt */
+        $akt_statusz = $adatbazis_kapcsolat->s2('recid stat_id insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid desc', '1');
         if( $sql === false ) { $db_error = true; }
 
-        if( $akt_statusz ) {
-            $akt_statusz = $akt_statusz[0];
+        if( $akt_statusz && $akt_statusz['stat_id']!=$stat_id ) {
 
             /* Megállapítjuk a státusz idejét */
             $statusz_ido = round( time() - strtotime($akt_statusz['insert_dt']) );
@@ -4448,7 +4447,6 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
             /* Göngyölt státuszidő */
             $elso_statusz = $adatbazis_kapcsolat->s('insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid asc', '1');
             if( $elso_statusz === false ) { $db_error = true; }
-
             if( $elso_statusz ) {
                 $elso_statusz = $elso_statusz[0];
 

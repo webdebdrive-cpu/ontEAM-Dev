@@ -132,6 +132,7 @@ define('MOZGID_LELTAR',                 '03' );
 define('JOG_BEJELENTES_MEGTEKINT',  0 );
 define('JOG_BEJELENTES_KEZEL',      1 );
 define('JOG_BEJELENTES_MAS_NEVEBEN',56);
+define('JOG_BEJELENTES_SAJAT_RESZL',57);
 define('JOG_DISZPECSER',            2 );
 define('JOG_BEJELENTES_ELUTASIT',   41);
 define('JOG_MUNKALAP_MEGTEKINT',    3 );

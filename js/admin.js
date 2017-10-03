@@ -433,7 +433,7 @@ $(function() {
     $(document).on('click', function(e) {
         $('.kijeloltek_muv').removeClass('active');
 
-        /* Beoszutás naptár felületéhez */
+        /* Beosztás naptár felületéhez */
         $('.foglalt').removeClass('kijelol');
         $('#mehet_gomb_kivesz').attr('disabled', 'disabled');
     });
@@ -461,7 +461,7 @@ $(function() {
     });
 
     $(document).on('keyup', 'input', function(e) {
-        if (e.which == 13) {
+        if (e.which == 13 && !$('#alert2').is(':visible') ) {
 
             mezo_nev = $(this).attr('name');
             stop = false;
@@ -1553,14 +1553,12 @@ function bejelentesElutasit( that ) {
                  memo = $(that).find('textarea[name="elutasitas_memo"]');
 
     if( elutasitas_id.val() == '' ) {
-        alert2('Kérem válassza ki az elutasítás okát!', '', 'Hiba');
-        document.getElementById('elutasitas_id_autocomp').select();
+        alert2('Kérem válassza ki az elutasítás okát!', '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#elutasitas_id_autocomp\').focus();">', 'Hiba');
         return false;
     }
 
     if( memo.val() == '' ) {
-        alert2('Kérem adja meg az elutasítás okát!', '', 'Hiba');
-        document.getElementById('elutasitas_memo').select();
+        alert2('Kérem indokolja elutasítást!', '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#elutasitas_memo\').focus();">', 'Hiba');
         return false;
     }
 
@@ -3193,57 +3191,61 @@ function bejegyzesElutasitas( that, csak_memo ) {
     var elutasitas_id = $(that).find('input[name="elutasitas_id"]'),
                  memo = $(that).find('textarea[name="elutasitas_memo"]');
 
-    /* Ha van elutasítás oka, vaaagy ha elég csak memót megadni */
-    if( elutasitas_id.val() || csak_memo ) {
-        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
-        if( szamlaSorok.length ) {
-            idk = {};
+    if(!csak_memo && !elutasitas_id.val()){
+        alert2('Kérem válassza ki az elutasítás okát!', '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#elutasitas_id_autocomp\').focus();">', 'Hiba');
+        return false;
+    }
+    if(!memo.val()){
+        alert2('Kérjük indokolja az elutasítást!', '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#elutasitas_memo\').focus();">', 'Hiba');
+        return false;
+    }
 
-            var i = 1;
-            szamlaSorok.each(function() {
-                var id = $(this).attr('data-recid');
+    szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+    if( szamlaSorok.length ) {
+        idk = {};
 
-                idk[i] = id;
-                i++;
+        var i = 1;
+        szamlaSorok.each(function() {
+            var id = $(this).attr('data-recid');
+
+            idk[i] = id;
+            i++;
+        });
+
+        if( objLength( idk ) ) {
+            $.ajax({
+                url : 'esemenyek.php',
+                type: 'POST',
+                data: {
+                    idk                 : JSON.stringify(idk),
+                    memo                : memo.val(),
+                    csak_memo           : csak_memo,
+                    elutasitas_id       : elutasitas_id.val(),
+                    tabla               : baseName(location.href),
+                    bejegyzesElutasitas : new Date().getTime()
+                },
+                success: function(response) {
+                    if(response) {
+                        response = JSON.parse(response);
+
+                        if( response.hiba ) {
+                            alert2(response.hiba, response.gomb, 'Hiba');
+                            return false;
+                        }
+
+                        if( response.kieg ) {
+                            alert2(response.kieg, response.gomb, 'Hiba');
+                        }
+
+                        kijelolesEltavolit();
+                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                        popupZar();
+                    }
+                }
             });
-
-            if( objLength( idk ) ) {
-                $.ajax({
-                 	url : 'esemenyek.php',
-                 	type: 'POST',
-                 	data: {
-                        idk                 : JSON.stringify(idk),
-                        memo                : memo.val(),
-                        csak_memo           : csak_memo,
-                        elutasitas_id       : elutasitas_id.val(),
-                        tabla               : baseName(location.href),
-                        bejegyzesElutasitas : new Date().getTime()
-                    },
-                 	success: function(response) {
-                 		if(response) {
-                            response = JSON.parse(response);
-
-                            if( response.hiba ) {
-                                alert2(response.hiba, response.gomb, 'Hiba');
-                                return false;
-                            }
-
-                            if( response.kieg ) {
-                                alert2(response.kieg, response.gomb, 'Hiba');
-                            }
-
-                            kijelolesEltavolit();
-                            szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
-                            popupZar();
-                 		}
-                 	}
-                });
-            }
-        } else {
-            alert2('Kérem jelölje ki az elutasítani kívánt '+$('#rekord_neve_targy').html()+'!', '', 'Hiba');
         }
     } else {
-        alert2('Kérem adja meg az elutasítás okát!');
+        alert2('Kérem jelölje ki az elutasítani kívánt '+$('#rekord_neve_targy').html()+'!', '', 'Hiba');
     }
 
     return false;
@@ -3388,7 +3390,7 @@ function csoportbaRendez( that ) {
                 alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
             }
         } else {
-            alert2('Kérem válasszon egy csoport');
+            alert2('Kérem válasszon egy csoport', '', 'Hiba');
         }
     }
 

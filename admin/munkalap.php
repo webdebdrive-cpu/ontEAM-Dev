@@ -2413,16 +2413,17 @@ if($gyorskereso_text){
                             </ul>
                         </div>
                     </div>
-                    <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
-                        <div class="muv">
-                            <ul>
-                                <li><a onclick="varolistahozAdas(\'csak kérdezünk még\');">Várólistához adás</a></li>
-                                <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\');">Várólistból kivétel</a></li>
-                            </ul>
-                        </div>
-                    </div>
             ');
+            //A csoportotsítást nevezzük most már Várólistának
+//                    <div class="kijeloltek_muv">
+//                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
+//                        <div class="muv">
+//                            <ul>
+//                                <li><a onclick="varolistahozAdas(\'csak kérdezünk még\');">Várólistához adás</a></li>
+//                                <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\');">Várólistból kivétel</a></li>
+//                            </ul>
+//                        </div>
+//                    </div>
 
             if( _jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_DISZP_KP_VEZ) ) {
                 $gombok .= nl2('
@@ -2545,17 +2546,7 @@ if($gyorskereso_text){
     $js_submit_elott = 'return form_ell_admin();';
     
 	//Új munkalap felvitele
-	if(     isset($_GET['uj']) &&
-            (
-                _jog(JOG_MUNKALAP_TELEPITETT)   ||
-                _jog(JOG_MUNKALAP_MOBIL)        ||
-                _jog(JOG_MUNKALAP_MUSZAKI_VEZ)  ||
-                _jog(JOG_MUNKALAP_TER_FELELOS)  ||
-                _jog(JOG_MUNKALAP_DISZP_KP_VEZ) ||
-                _jog(JOG_MUNKALAP_MUSZAK_ADMIN) ||
-                _jog(JOG_MUNKALAP_ADMIN)        ||
-                _jog(JOG_MUNKALAP_KULSO)
-            )
+	if(     isset($_GET['uj']) && ( _jog(JOG_DISZPECSER) )
         ) {
 
         //NAVIGÁCIÓ
@@ -2675,12 +2666,21 @@ if($gyorskereso_text){
         $munkalap_kapcs = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id` = '".$sor['recid']."'", '', '');
 
         //Duplákáláskor feltett kérdés
-        $szamla_html .= nl2('
-            <script>
-                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                duplikaKerdes = \'Iktatószám: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Ez a munkalap '.count($munkalap_kapcs).' db bejelentésből készült. <br>Ezek a bejelentések az új munkalaphoz is hozzá lesznek rendelve. <br>Biztos, hogy duplikálja?\';
-            </script>
-        ');
+        if(!_jog(JOG_DISZPECSER)){
+            $szamla_html .= nl2('
+                <script>
+                    duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Ok\" onclick=\"alert2()\"></p>";
+                    duplikaKerdes = \'Önnek nincs joga új munkalapot létrehozni!\';
+                </script>
+            ');
+        }else{
+            $szamla_html .= nl2('
+                <script>
+                    duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                    duplikaKerdes = \'Iktatószám: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Ez a munkalap '.count($munkalap_kapcs).' db bejelentésből készült. <br>Ezek a bejelentések az új munkalaphoz is hozzá lesznek rendelve. <br>Biztos, hogy duplikálja?\';
+                </script>
+            ');
+        }
 
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;

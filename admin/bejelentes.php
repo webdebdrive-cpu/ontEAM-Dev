@@ -12,7 +12,7 @@ Játékszabályok:
 
 require_once('../weblap.php');
 
-if( !_jog(JOG_BEJELENTES_MEGTEKINT) ) {
+if( !_jog(JOG_BEJELENTES_MEGTEKINT) && !_jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -459,7 +459,10 @@ if($gyorskereso_text){
                 '.$gombok.'
             </div>
         ');
+        
+    // nem új feltöltés (de minden más fül...)
     } else {
+        
         $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
 		$sor = $sor[0];
 
@@ -499,40 +502,26 @@ if($gyorskereso_text){
             ');
         }*/
 
-        //Ez törölhető
-//        // Akinek van joga hozzá, csak az tud elutasítani, és csak akkor, ha még nem készült belőle munkalap
-//        $van_munkalapja = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
-//        if( $sor['stat_id']==BEJELENTES_STAT_KESZ_IG && _jog(JOG_BEJELENTES_ELUTASIT) && !$van_munkalapja ) {
-//            $gombok .= '<input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'bejelentesElutasit\');">';
-//        }
-        // Csak ha nyitott és akinek van joga hozzá
+        // Nyitott státuszú bejelentés elutasítása
         if( $sor['stat_id']==BEJELENTES_STAT_NYITOTT && _jog(JOG_BEJELENTES_ELUTASIT) ) {
-            $gombok .= '<input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'bejelentesElutasit\');">';
+            $gombok .= '<input type="button" class="gomb_alert piros foGomb" value="Bejelentés elutasítása" title="Bejelentés elutasítása" onclick="csoportMuvelet(\'elutasitas\');">';
         }
 
-        /* Törlés gomb hibaüzenetei */
-        //Jogosutságkezelés: diszpécser nem törölhet
+        // Törlés gomb hibaüzenetei
+        // Diszpécser nem törölhet
         if(_jog(JOG_DISZPECSER)) {
             $gombok .= nl2('
                     <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nem törölhet bejelentést diszpécserként!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">
                     <div id="diszpecser" class="dn">Innen fogja tudni a JS, hogy diszpécser vagyunk</div>
                     ');
 
-        //Ha nem diszpécser
+        // Ha nem diszpécser
         } else {
-
-            $statusz = $adatbazis_kapcsolat->s2('stat_id', $megnevezes.'_statusz', "`{$megnevezes}_recid`='".$_GET['id']."'", 'insert_dt desc', '1');
-
             //Csak nyitott státuszú törölhető
-            if($statusz['stat_id'] != BEJELENTES_STAT_NYITOTT) {
-
+            if($sor['stat_id']!=BEJELENTES_STAT_NYITOTT) {
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-
-            //Csak saját bejelentés törölhető!
-            } elseif($sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
-
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-
+            } else if( !_jog(JOG_BEJELENTES_KEZEL) ) {
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga bejelentést törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
             } else {
 
                 $obj = $adatbazis_kapcsolat -> select('nev telephely_id', 'obj', "`recid`='{$sor['obj_id']}'");
@@ -570,39 +559,31 @@ if($gyorskereso_text){
 
         }
 
-        //Ha valaki bejelentő, és nem diszpécser, akkor csak saját bejelentéseit szerkesztheti
-        if( (_jog(JOG_BEJELENTES_KEZEL) || _jog(JOG_BEJELENTES_MAS_NEVEBEN)) && !_jog(JOG_DISZPECSER)){
-
-            //Szerkeszthető egy bejelentés, ha nem vagyunk diszpécserek illetve ha mi magunk hoztuk létre a bejelentést.
-            $nem_szerkesztheti = false;
-            if(!_jog(JOG_DISZPECSER) && $sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
-                $nem_szerkesztheti = true;
-            }
-            if($sor['stat_id']!=BEJELENTES_STAT_NYITOTT){
-                $nem_szerkesztheti = true;
-            }
-
-            if(!$nem_szerkesztheti && isset($_GET['modosit'])) {
+        // Szerkeszthető egy bejelentés, ha nyitott és van kezelés jogunk
+        if( isset($_GET['modosit'])                                         &&  //Más fülek alatt ne legyen mentés gomb
+            $sor['stat_id']==BEJELENTES_STAT_NYITOTT                        &&  //Nyitott
+            (_jog(JOG_BEJELENTES_KEZEL) || _jog(JOG_BEJELENTES_MAS_NEVEBEN))    //Ki-ki úgy is csak a saját listáját látja majd
+        ) {
                 $gombok = nl2('
                     <div class="form_kuldes">
                         <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                     </div>
                 ').$gombok;
-            }
-
-            //Igazolás és Elutasítás gombok
-            if( $sor['stat_id'] == BEJELENTES_STAT_KESZ_IG ) {
-                $gombok .= nl2('
-                    <div id="kmCont">
-                        <input type="button" class="gombb foGomb" value="Igazolás" title="Igazolás" onclick="bejelentesIgazolas( \''.$sor['recid'].'\', \'Csak kérdezünk még\' );">
-                        <input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'bejelentesElutasit\');">
-                    </div>
-                ');
-            }
         }
 
-        //Csak diszpécser készíthet munkalapot
-        if( _jog(JOG_DISZPECSER) ) {
+        // Igazolás és Elutasítás gombok
+        if( $sor['stat_id']==BEJELENTES_STAT_KESZ_IG && _jog(JOG_BEJELENTES_KEZEL) ) {
+            $gombok .= nl2('
+                <div id="kmCont">
+                    <input type="button" class="gombb foGomb" value="Jóváhagyás igazolása" title="Jóváhagyás igazolása" onclick="bejelentesIgazolas( \''.$sor['recid'].'\', \'Csak kérdezünk még\' );">
+                    <input type="button" class="gomb_alert piros foGomb" value="Jóváhagyás elutasítása" title="Jóváhagyás elutasítása" onclick="csoportMuvelet(\'bejelentesElutasit\');">
+
+                </div>
+            ');
+        }
+
+        // Munkalap készítse
+        if( $sor['stat_id']==BEJELENTES_STAT_NYITOTT && _jog(JOG_DISZPECSER) ) {
             $gombok .= nl2('
                 <input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="munkalapKeszit(\'csak kérdezünk még\')" title="Munkalap készítése">
             ');
@@ -616,7 +597,7 @@ if($gyorskereso_text){
             }
         }
 
-        /* Műveletek box */
+        // Műveletek box
         $gombok = nl2('
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'

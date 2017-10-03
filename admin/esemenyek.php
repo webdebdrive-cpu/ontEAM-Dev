@@ -3248,7 +3248,8 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
 
             if(!$memo){
                 echo json_encode(array(
-                    'hiba' => 'Kérjük indokolja az elutasítást!'
+                    'hiba' => 'Kérjük indokolja az elutasítást!',
+                    'gomb' => '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#elutasitas_memo\').focus();">',
                 ));
                 $weblap->leallit();
                 exit();
@@ -3501,7 +3502,6 @@ if( isset($_POST['csoportbaRendez']) ) {
                 foreach($idk as $id) {
                     $statusz = addStatusz( $page.'_statusz', $id, MUNKALAP_STAT_VARAKOZO );
                     if( $statusz === false ) { $db_error = true; }
-
                     //Munkalaphoz tartozó Bejelentések státuszát is várakozóra léptetjük
                     if($page=='munkalap'){
                         $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$id}'");

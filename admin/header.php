@@ -1039,6 +1039,11 @@ if(basename(self())=='login.php' && !_jog(JOG_FELHASZNALOK_KEZEL)){
     $uj             = '';
 }
 
+if(basename(self())=='munkalap.php' && !_jog(JOG_DISZPECSER)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
 if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_MUNKALAP_TELEPITETT) && !_jog(JOG_MUNKALAP_MOBIL) && !_jog(JOG_MUNKALAP_DISZP_KP_VEZ) && !_jog(JOG_MUNKALAP_MUSZAKI_VEZ) && !_jog(JOG_MUNKALAP_MUSZAK_ADMIN) && !_jog(JOG_MUNKALAP_ADMIN) && !_jog(JOG_MUNKALAP_KULSO) && !_jog(JOG_MUNKALAP_TER_FELELOS)){
     $torles_icon    = '';
     $uj             = '';
