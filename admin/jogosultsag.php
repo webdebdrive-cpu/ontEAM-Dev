@@ -23,10 +23,10 @@ $jogosultsagKatok = array(
 $jogosultsagok = array(
 //Ez a _jog() ID_ja, tehát a => előtti rész
     0  => array('nev' => 'Saját részleg bejelentések megtekintése',         'kat' => 0, 'sor' => 0,                        'kikapcs' => '1,2'  ),
-    57 => array('nev' => 'Saját szállodák bejelentéseinek megtekintése',    'kat' => 0, 'sor' => 0,                        'kikapcs' => '1,2'  ),
-    1  => array('nev' => 'Bejelentés saját névben',                         'kat' => 0, 'sor' => 1, 'bekapcs' => '0',      'kikapcs' => '56'   ),
-    56 => array('nev' => 'Bejelentés más nevében',                          'kat' => 0, 'sor' => 2, 'bekapcs' => '57',     'kikapcs' => '1'    ),
-    41 => array('nev' => 'Bejelentések elutasítása',                        'kat' => 0, 'sor' => 3, 'bekapcs' => '1'   ),
+    57 => array('nev' => 'Saját szállodák bejelentéseinek megtekintése',    'kat' => 0, 'sor' => 1,                        'kikapcs' => '1,2'  ),
+    1  => array('nev' => 'Bejelentés saját névben',                         'kat' => 0, 'sor' => 2, 'bekapcs' => '0',      'kikapcs' => '56'   ),
+    56 => array('nev' => 'Bejelentés más nevében',                          'kat' => 0, 'sor' => 3, 'bekapcs' => '57',     'kikapcs' => '1'    ),
+    41 => array('nev' => 'Bejelentések elutasítása',                        'kat' => 0, 'sor' => 4, 'bekapcs' => '1'   ),
 
     3  => array('nev' => 'Munkalap megtekintése',                           'kat' => 1, 'sor' => 1,                          'kikapcs' => '5,21,22,23,24'),
     2  => array('nev' => 'Munkalapot készíthet',                            'kat' => 1, 'sor' => 2,  'bekapcs' => '56,57',   'kikapcs' => '1,5,31,21,22,24,34', 'i' => 'diszpécserek'),

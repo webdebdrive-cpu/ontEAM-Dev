@@ -1742,10 +1742,16 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         if($tabla == 'anyagigenyles'){
             $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
+        
         //Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
         //Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
         if($tabla == 'bejelentes'){
             $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+            //Ha csak a saját részleget láthat, akkor tovább szűrünk részlegre is
+            $felh = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
+            if(_jog(JOG_BEJELENTES_SAJAT_RESZL)){
+                $where .= "`usr_reszleg_id`='{$felh['reszleg_id']}'";
+            }
         }
         if($tabla == 'eszkozkezeles'){
             $where = "`".get_db_tabla()."eszkozkezeles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
