@@ -66,11 +66,8 @@ if( isset($_POST['munkalapKeszit']) ) {
 
     if( is_array($idk) ) {
         /* Ellenőrizzük a csoportokat */
-        $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
-
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+        if( $csoportok === false ) { $db_error = true; }
 
         $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
         $csoportok_unique = array_unique($csoportok);
@@ -88,11 +85,8 @@ if( isset($_POST['munkalapKeszit']) ) {
 
         foreach( $csoportok_unique as $csu ) {
             if( $csu > 0 ) {
-                $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`csoport_id` = '{$csu}'", '', '');
-
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                $csoport_db = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`csoport_id` = '{$csu}'", '', '');
+                if( $csoport_db === false ) { $db_error = true; }
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
@@ -106,11 +100,8 @@ if( isset($_POST['munkalapKeszit']) ) {
         }
 
         /* Ellenőrizzük a szállodákat is */
-        $sql = $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
-
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
+        if( $szallodak === false ) { $db_error = true; }
 
         $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
         $szallodak_unique = array_unique($szallodak);
@@ -152,11 +143,8 @@ if( isset($_POST['munkalapKeszit']) ) {
 
         /* Ellenőrizzük, hogy van e már belőlük munkalap */
         foreach($idk as $id) {
-            $sql = $isMlap = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$id}'", '', '1');
-
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            $isMlap = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$id}'", '', '1');
+            if( $isMlap === false ) { $db_error = true; }
 
             if( $isMlap ) {
                 $isMlap = $isMlap[0];
@@ -206,10 +194,7 @@ if( isset($_POST['munkalapKeszit']) ) {
 
                 /* Letároljuk az új sorszámot */
                 $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
-
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                if( $sql === false ) { $db_error = true; }
             } else {
                 /* Sorszám */
                 $sorszam = 1;
@@ -843,7 +828,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
 
 /* Munkalap külső kivitelező select előállít */
 if( isset($_POST['munkalap_kulsoSelect']) ) {
-    require_once('selectek.php');
+    require('selectek.php');
 
     $recid = $_POST['recid'];
 
@@ -2243,7 +2228,7 @@ if (isset($_GET['csv'])) {
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
-require_once('selectek.php');
+require('selectek.php');
 
 if($gyorskereso_text){
     $dl = nl2('
@@ -2359,8 +2344,7 @@ if($gyorskereso_text){
     /* Módosítás */
     } else {
 
-        $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-        $sor = $sor[0];
+        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
         //Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
@@ -2546,8 +2530,7 @@ if($gyorskereso_text){
     $js_submit_elott = 'return form_ell_admin();';
     
 	//Új munkalap felvitele
-	if(     isset($_GET['uj']) && ( _jog(JOG_DISZPECSER) )
-        ) {
+	if( isset($_GET['uj']) && ( _jog(JOG_DISZPECSER) ) ) {
 
         //NAVIGÁCIÓ
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);

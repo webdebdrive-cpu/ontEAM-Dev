@@ -1154,6 +1154,7 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_szemelyzet':
+
             $input = new Select($select_szemelyzet, $sor['szemelyzet_id']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];

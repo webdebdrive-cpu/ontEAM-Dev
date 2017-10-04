@@ -114,12 +114,6 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`hiba_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`hiba_text`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`,
-                                `'.get_db_tabla().$tabla_nophp.'`.`usr_nev`,
-                                `'.get_db_tabla().$tabla_nophp.'`.`usr_telefon`,
-                                `'.get_db_tabla().$tabla_nophp.'`.`usr_email`,
-                                `'.get_db_tabla().$tabla_nophp.'`.`usr_man_nev`,
-                                `'.get_db_tabla().$tabla_nophp.'`.`usr_man_telefon`,
-                                `'.get_db_tabla().$tabla_nophp.'`.`usr_man_email`,
                                 `'.get_db_tabla().'telephely`.`nev`,
                                 `'.get_db_tabla().'obj`.`nev`,
                                 `'.get_db_tabla().'erteklista`.`info`
@@ -948,15 +942,15 @@ if( isset($_GET['bejelento']) ) {
 //Bejelentések
 $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'statusz',         'megn' => 'Státusz:',            'name' => 'stat_id',    'szuro' => 1,  'oldal' => $megnevezes),
+	array('type' => 'text',            'megn' => 'Bejelentés szám:',    'name' => 'ikt_szam',   'szuro' => 1,  'disabled' => true,       'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
     array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',     'szuro' => 1,  'class' => 'check', 'onclick' => $surgos_allit),
-	array('type' => 'text',            'megn' => 'Bejelentés szám:',    'name' => 'ikt_szam',   'szuro' => 1,  'disabled' => true,       'maxlength' => 250, 'class' => 'kozepes'),
 
     array('type' => 'html',            'megn' => nl2('
                                                         <div class="dtr">
                                                             <div class="dtc">
 
                                                             </div>
-                                                            <div class="dtc">
+                                                            <div class="dtc" style="padding-top: 2rem">
                                                                 <div class="dib c" style="width: 26%; padding-top: 1rem">Bejelentést rögzítő</div>
                                                                 <div class="dib c" style="width: 26%; padding-top: 1rem">Bejelentő</div>
                                                             </div>
@@ -973,11 +967,14 @@ $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'text',            'megn' => 'E-mail:',     'megn_szurobe' => 'E-mail:',                'name' => 'usr_man_email',          'disabled' => $usr_man_dis,         'maxlength' => 250, 'class' => 'kozepes', 'szuro' => 1, 'osszevon' => true, 'value' => $bejelentest_rogziti['usermail']),
     array('type' => 'text',            'megn' => '',            'megn_szurobe' => 'Diszpécser e-mail:',     'name' => 'usr_email',              'disabled' => $usr_dis,             'maxlength' => 250, 'class' => 'kozepes', 'szuro' => 1, 'letarol' => true, 'value' => $usr_email),
 
-    //array('type' => 'info',            'megn' => 'Név:',                'name' => 'felh_nev',   'value' => $user['teljes_nev']),
-    //array('type' => 'info',            'megn' => 'Beosztás:',           'value' => erteklista(18, $user['beosztas_id'])),
-    //array('type' => 'info',            'megn' => 'Részleg:',            'value' => erteklista(17, $user['reszleg_id'])),
-    //array('type' => 'info',            'megn' => 'Telefon:',            'value' => $user['usertel']),
-    //array('type' => 'info',            'megn' => 'E-mail:',             'value' => $user['usermail']),
+    array('type' => 'html',            'megn' => nl2('
+                                                        <div class="dtr">
+                                                            <div class="dtc">
+                                                            </div>
+                                                            <div class="dtc" style="padding-bottom: 2rem">
+                                                            </div>
+                                                        </div>
+                                                    ')),
 
     array('type' => 'select_felh_telephely',   'megn' => 'Szálloda:',   'name' => 'telephely_id', 'szuro' => 1,  'class' => 'disableNav', 'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );', 'disabled' => $szalloda_dis, 'post' => $szalloda_post),
 
@@ -1023,8 +1020,8 @@ $munkalap_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id', 'alert' => 'Kérjük adja meg a tipust!'),
     array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => 1,                  'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'disableNav',        'post'  => ' '.$hozrend_mobilnev),
-    array('type' => 'text',                     'megn' => 'Igényelt elvégzési időszak:','name' => 'ig_el_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker'),
-	//array('type' => 'text',                     'megn' => '',                           'name' => 'elv_ido_ig',                       'disabled' => $csakUjkent,        'class' => 'ora_perc'),
+    array('type' => 'text',                     'megn' => 'Igényelt elvégzés:',         'name' => 'ig_el_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker'),
+    array('type' => 'text',                     'megn' => 'Várható érkezés:',           'name' => 'varh_erk',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker'),
 	array('type' => 'nosql',                    'name' => 'ujkentSzerkID'),
 
     //array('type' => 'statusz',         'megn' => 'Státusz:',            'oldal' => 'bejelentes'),

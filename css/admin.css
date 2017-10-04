@@ -1669,6 +1669,15 @@ ul.szamla_cont li.active a {
     color: #fff;
 }
 
+ul.szamla_cont li a table {
+    width: 100%;
+}
+
+ul.szamla_cont li a td {
+    border: 0.1rem dotted #ccc;
+    padding: 0.1rem 0.4rem;
+}
+
 ul.szamla_cont li:not(.csoport).active + li a {
     border-top: 0.1rem solid #55a2fa;
 }

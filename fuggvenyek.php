@@ -1943,7 +1943,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
             //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             if($_GET['rend']=='surgos'){
-                $order .= '`'.get_db_tabla().'bejelentes`.`surgos` DESC, `'.get_db_tabla().'bejelentes`.`stat_id`';
+                $order .= '`'.get_db_tabla().'bejelentes`.`surgos` DESC, `'.get_db_tabla().'bejelentes`.`stat_id`, `'.get_db_tabla().'bejelentes`.`ikt_szam`';
 
             //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             }elseif($_GET['rend']=='telephely_id'){
@@ -2286,19 +2286,18 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $active = ' kijelolve';
             }
 
-            /* Telephely */
-            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
-            $telephely = $telephely[0]['nev'];
+            // Telephely
+            $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
+            $telephely = $telephely['nev'];
 
-            /* Helység */
-            $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
-            $helyseg = $helyseg[0]['nev'];
+            // Helység
+            $helyseg = $adatbazis_kapcsolat->s2('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
+            $helyseg = $helyseg['nev'];
 
-            /* Hiba */
-            $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$bsz['hiba_id']}'");
-            $hiba = $hiba[0];
+            // Hiba
+            $hiba = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=4 AND `recid`='{$bsz['hiba_id']}'");
 
-            //Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
+            // Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
             $bold = '';
             if( $bsz['stat_id'] == BEJELENTES_STAT_NYITOTT ){
                 $bold    = ' class="b"';
@@ -2318,23 +2317,18 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$bsz['hiba_text'].'">
-                            <span'.$bold.'>'.$kesz.$dok_icon.$surgos.' '.$bsz['ikt_szam'].' - '.getStatText($tabla, $bsz['stat_id']).'</span>
-                            <div class="dt" style="margin: 1rem 0">
-                                <div class="dtc" style="padding-right: 1rem;">
-                                    '.$bsz['usr_nev'].'
-                                    <br>'.$bsz['usr_telefon'].'
-                                    <br>'.$bsz['usr_email'].'
-                                </div>
-                                <div class="dtc">
-                                    '.$bsz['usr_man_nev'].'
-                                    <br>'.$bsz['usr_man_telefon'].'
-                                    <br>'.$bsz['usr_man_email'].'
-                                </div>
-                            </div>
-
-                            <span'.$bold.'>'.$telephely.' - '.$helyseg.'</span>
-                            <span'.$bold.'>'.$hiba['info'].'</span>
-                            <span'.$bold.'>'.substr($bsz['insert_dt'], 0, 16).'</span>
+                            <table'.$bold.'>
+                            <tr>
+                                <td rowspan="2" style="width: 5rem">'.$kesz.$dok_icon.$surgos.'</td>
+                                <td style="width: 9rem">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 9rem">'.getStatText($tabla, $bsz['stat_id']).'</td>
+                                <td style="width: 7rem">'.substr($bsz['insert_dt'], 0, 16).'</td>
+                                <td>'.$telephely.' - '.$helyseg.'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">'.$hiba['info'].'</td>
+                            </tr>
+                            </table>
                          </a>';
 
             $csoport_class = '';
@@ -2488,9 +2482,10 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             /* Külső adatok */
-            $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'recid='.$bsz['telephely_id'], '', '1');
+            $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
             $hely      = $adatbazis_kapcsolat->s2('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
             $gep       = $adatbazis_kapcsolat->s2('nev', 'eszkozkezeles', 'recid='.$bsz['gep_id'], '', '1');
+            $tipus     = erteklista(6, $bsz['tipus_id']);
 
             require_once 'selectek.php';
             $szemelyzet = '';
@@ -2499,10 +2494,33 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     $szemelyzet = $szemely['name'];
                 }
             }
+            
+            $dok_icon = '';
+            $is_dok   = $adatbazis_kapcsolat->s2('recid utvonal', $tabla.'_dok', "`{$tabla}_id` = '".$bsz['recid']."'", '', '1');
+            if( $is_dok ) {
+                if( is_file('../'.get_utvonal().$tabla.'/'.$is_dok['utvonal']) ) {
+                    $dok_icon = nl2('
+                        <span class="icon">
+                            <i class="material-icons">attach_file</i>
+                        </span>
+                    ');
+                }
+            }
 
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span'.$bold.'>'.$kesz.$surgos.$bsz['ikt_szam'].' - '.$statusz.' - '.$telephely['nev'].' - '.$hely['nev'].' - '.$gep['nev'].'</span>
-                            <span'.$bold.'>'.erteklista(6, $bsz['tipus_id']).' '.$szemelyzet.'</span>
+                            <table'.$bold.'>
+                            <tr>
+                                <td rowspan="2" style="width: 5rem">'.$kesz.$dok_icon.$surgos.'</td>
+                                <td style="width: 9rem">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 9rem">'.getStatText($tabla, $bsz['stat_id']).'</td>
+                                <td style="width: 7rem">'.$telephely['nev'].'</td>
+                                <td>'.$hely['nev'].' - '.$gep['nev'].'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">'.$tipus.'</td>
+                                <td>'.$szemelyzet.'</td>
+                            </tr>
+                            </table>
                          </a>';
 
             $csoport_class = '';
@@ -4225,6 +4243,9 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     );
 
     //Néhol át kell írni az általános mezőneveket (pl. loginnál a nev nem Név, hanem Login név)
+    if( basename(self()) == 'bejelentes.php' ) {
+        $oszlopNevek['surgos'] = 'Státusz';
+    }
     if( basename(self()) == 'login.php' ) {
         $oszlopNevek['nev'] = 'Login név';
     }
