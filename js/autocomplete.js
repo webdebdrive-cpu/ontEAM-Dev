@@ -193,7 +193,7 @@
                                 if($('#popup').css('display') == 'block') {
                                     var popupHeight = $('div.popup_kont').outerHeight();
 
-                                    console.log(popupHeight);
+                                    autocompHeight = popupHeight - posTop - 70;
                                 }
 
                                 $('#autocomplete').css({
@@ -206,7 +206,7 @@
                                 if($('#popup').css('display') == 'block') {
                                     var popupHeight = $('div.popup_kont').outerHeight();
 
-                                    autocompHeight = popupHeight - posTop - 70;
+                                    autocompHeight = popupHeight - height - posTop - parseInt($('#popup div.popup_tart div.kuldes').outerHeight());
                                 }
 
                                 $('#autocomplete').css({
