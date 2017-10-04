@@ -1749,7 +1749,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
             //Ha csak a saját részleget láthat, akkor tovább szűrünk részlegre is
             $felh = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
-            if(_jog(JOG_BEJELENTES_SAJAT_RESZL)){
+            if(_jog(JOG_BEJELENTES_SAJAT_RESZL) && !_jog(JOG_BEJELENTES_MEGTEKINT)){
                 $where .= "`usr_reszleg_id`='{$felh['reszleg_id']}'";
             }
         }
@@ -2516,15 +2516,15 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
                             <tr>
-                                <td rowspan="2" style="width: 5rem">'.$kesz.$dok_icon.$surgos.'</td>
-                                <td style="width: 9rem">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 9rem">'.getStatText($tabla, $bsz['stat_id']).'</td>
-                                <td style="width: 7rem">'.$telephely['nev'].'</td>
-                                <td>'.$hely['nev'].' - '.$gep['nev'].'</td>
+                                <td rowspan="2" style="width: 5rem; border: 0">'.$kesz.$dok_icon.$surgos.'</td>
+                                <td style="width: 9rem; border: 0">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 9rem; border: 0">'.getStatText($tabla, $bsz['stat_id']).'</td>
+                                <td style="width: 7rem; border: 0">'.$telephely['nev'].'</td>
+                                <td style="border: 0">'.$hely['nev'].' - '.$gep['nev'].'</td>
                             </tr>
                             <tr>
-                                <td colspan="3">'.$tipus.'</td>
-                                <td>'.$szemelyzet.'</td>
+                                <td style="border: 0" colspan="3">'.$tipus.'</td>
+                                <td style="border: 0">'.$szemelyzet.'</td>
                             </tr>
                             </table>
                          </a>';

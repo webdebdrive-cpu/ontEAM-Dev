@@ -75,18 +75,26 @@ define('PRIGENY_STAT_FB_TERJESZT',          '07' );
 define('PRIGENY_STAT_BOD_TERJESZT',         '08' );
 define('PRIGENY_STAT_VARAKOZO',             '09' );
 define('PRIGENY_STAT_JOVAHAGYVA',           '10' );
-function prigeny_hianypotlasba_statuszok(){
-    return array(PRIGENY_STAT_NYITOTT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_FB_TERJESZT);
-}
 
+//Hiánypótlásra ezekből a sátuszokból lehet léptetni
+function prigeny_hianypotlasba_statuszok(){
+    return array(PRIGENY_STAT_NYITOTT, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_FB_TERJESZT);
+}
+//Ezekben a státuszokban lehet jóváhagyni egy igénylést
 function prigeny_jovahagyhato_statuszok(){
     return array(PRIGENY_STAT_FB_TERJESZT, PRIGENY_STAT_NYITOTT, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_FB_TERJESZT, PRIGENY_STAT_BOD_TERJESZT);
 }
+//FB-be ezekből a státuszokból lehet lépteni
 function prigeny_fb_ele_statuszok(){
     return array(PRIGENY_STAT_NYITOTT, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_BOD_TERJESZT);
 }
+//BOD-ba ezekből a státuszokból lehet lépteni
 function prigeny_bod_ele_statuszok(){
-    return array(PRIGENY_STAT_NYITOTT, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_FB_TERJESZT);
+    return array(PRIGENY_STAT_FB_TERJESZT);
+}
+//Véleményezőt hozzáadni ezekben a státuszokban lehet
+function prigeny_velemenyezo_hozzaad_statuszok(){
+    return array(PRIGENY_STAT_NYITOTT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_HIANYPOTOLT);
 }
 
 //Projektkezeles státuszok

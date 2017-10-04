@@ -58,9 +58,9 @@ if($tobb_kep){
 if (isset($_POST['velemenyezok_status_ell'])) {
 
     $stat = $adatbazis_kapcsolat->s2('stat_id', $megnevezes, "`recid`='{$_POST['recid']}'");
-    if($stat['stat_id']!=PRIGENY_STAT_NYITOTT && $stat['stat_id']!=PRIGENY_STAT_VEL_ALATT){
+    if( !in_array($stat['stat_id'], prigeny_velemenyezo_hozzaad_statuszok()) ){
         echo json_encode(array(
-            'hiba' => 'Véleményezőt hozzáadni csak nyitott vagy véleményezés alatt státuszokban lehet!'
+            'hiba' => 'Véleményezőt hozzáadni csak nyitott, véleményezés alatt vagy hiánypótolt státuszokban lehet!'
         ));
     }
 
@@ -783,7 +783,8 @@ if($gyorskereso_text){
         foreach($sor as $kulcs => $elem){
             $json_sor[$kulcs] = nl2(str_replace(array("\n", "'"), array("#UJSOR#", "#APOSZTROF#"), $elem));
         }
-        $json_sor['bkolt'] = number_format($json_sor['bkolt'], 0, '', ' ');
+        $json_sor['mertek'] = number_format($json_sor['mertek'], 0, '', ' ');
+        $json_sor['bkolt']  = number_format($json_sor['bkolt'],  0, '', ' ');
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
         if($id_latszik){

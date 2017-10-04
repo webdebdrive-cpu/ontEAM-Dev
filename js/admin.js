@@ -5212,6 +5212,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
                     } else if( baseName(location.href) == 'bejelentes' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
+                    } else if( baseName(location.href) == 'bejelentes' && _jogok[56] == 1 ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: bejSzallodaValaszt(); void(0);');
+
                     } else if( baseName(location.href) == 'cikktorzs' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
@@ -5274,9 +5277,6 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
 
                     } else if( _get('velemenyezok') && _jogok[40] == 1 ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'velemenyezok\'); void(0);');
-
-                    } else if( baseName(location.href) == 'bejelentes' && _jogok[2] == 1 ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: bejSzallodaValaszt(); void(0);');
 
                     } else {
                         $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?uj');

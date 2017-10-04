@@ -209,7 +209,7 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $
 
 
 /* Bejelentések */
-if( _jog(0) ) {
+if( _jog(JOG_BEJELENTES_MEGTEKINT) || _jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     $menu_nev        = 'Bejelentések';
     $menu_nev_kis    = 'bejelentések';
     $menu_nev_tobbes = 'Bejelentések';
@@ -908,11 +908,6 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     } else {
         $uj_link = self().'?uj';
-    }
-
-    //Diszpécser nem hozhat létre új bejegyzést
-    if( !isset($_GET['megjegyzesek']) && basename(self()) == 'bejelentes.php' && _jog(JOG_DISZPECSER)  ) {
-        //$uj_link = 'javascript: alert2(\'Diszpécserként nem hozhat létre új bejelentést!\'); void(0);';
     }
 
 }
