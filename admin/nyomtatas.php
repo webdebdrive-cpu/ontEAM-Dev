@@ -40,7 +40,7 @@ if ($_GET['print']=='lista') {
     
     //FB elétrejestzett lista nyomtatásakor a lekérdezésen még állítotunk
     if(isset($_GET['fb_elo'])){
-        $_SESSION['akt_sql'] = str_replace('ORDER', ' WHERE `stat_id`=\''.PRIGENY_STAT_FB_TERJESZT.'\' ORDER', $_SESSION['akt_sql']);
+        $_SESSION['akt_sql'] = str_replace('ORDER', ' AND `stat_id`=\''.PRIGENY_STAT_FB_TERJESZT.'\' ORDER', $_SESSION['akt_sql']);
         $query = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
         if(mysqli_num_rows($query)){
             $feltetel .= '<h1>FB elé terjesztve:</h1>';
@@ -79,7 +79,7 @@ if ($_GET['print']=='lista') {
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 <div class="a4_allo"> 
-    <div class="padd" style="padding-bottom: 5rem">
+    <div class="padd" style="padding-bottom: 5rem; min-height: 60rem">
         '.$feltetel.'
         '.$sorok_html.'
         

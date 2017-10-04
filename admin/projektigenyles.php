@@ -112,6 +112,7 @@ if( isset($_GET['addVelemenyezo']) ) {
 //echo $adatbazis_kapcsolat->gp() . '<br>';
             if($kapcsID===false){ $db_error = true; }
 
+            //Ha hozzáadunk egy véleményezőt, akkor a státuszt biztosan léptethetjük véleményezés alattra
             $akt_stat = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$pr_igeny_recid}'");
             if($akt_stat['stat_id']!=PRIGENY_STAT_VEL_ALATT){
                 if(addStatusz('projektigenyles_statusz', $pr_igeny_recid, PRIGENY_STAT_VEL_ALATT)===false){
@@ -155,7 +156,7 @@ if (isset($_POST['velemeny_torol'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $velemeny = $adatbazis_kapcsolat->s2('login_recid utvonal', 'projektigenyles_velemeny', "`recid`='{$_POST['velemeny_recid']}'");
+    $velemeny = $adatbazis_kapcsolat->s2('login_recid utvonal projektigenyles_recid', 'projektigenyles_velemeny', "`recid`='{$_POST['velemeny_recid']}'");
     if($velemeny===false){ $db_error = true; }
     if($velemeny['login_recid']!=$_SESSION[get_db_tabla().'login_recid']){
         echo json_encode(array(
@@ -166,7 +167,7 @@ if (isset($_POST['velemeny_torol'])) {
         exit();
     }
 
-    //Vélemény törlése
+    // Vélemény törlése
     $fajl = '../'.get_utvonal().'projektigenyles_velemeny/'.$velemeny['utvonal'];
     if(is_file($fajl)){
         unlink($fajl);
@@ -175,6 +176,14 @@ if (isset($_POST['velemeny_torol'])) {
     $sql = $adatbazis_kapcsolat->d('projektigenyles_velemeny', "`recid`='{$_POST['velemeny_recid']}'");
     if($sql===false){ $db_error = true; }
 
+    // Ha egy fájlt törlünk, akkor véleményezés alatt lesz ismét az igénylés (hisz nincs mindenhol feltöltött vélemény, nem maradhat nyitott ha az lett volna)
+    $akt_stat = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$velemeny['projektigenyles_recid']}'");
+    if($akt_stat['stat_id']!=PRIGENY_STAT_VEL_ALATT){
+        if(addStatusz('projektigenyles_statusz', $velemeny['projektigenyles_recid'], PRIGENY_STAT_VEL_ALATT)===false){
+            $db_error = true;
+        }
+    }
+    
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
 
@@ -589,7 +598,7 @@ if($gyorskereso_text){
                 $gombok .= nl2('
                         <div id="kmCont">
                             <script>
-                                csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                                csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                             </script>
                             <div class="kijeloltek_muv">
                                 <input type="button" class="gomb foGomb" value="Csoportosítás..." title="Csoportosítás...">
@@ -787,7 +796,7 @@ if($gyorskereso_text){
         $szamla_html .= nl2('
             <script>
                 duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                duplikaKerdes = \'Bejelentés szám: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Biztos, hogy duplikálja?\';
+                duplikaKerdes = \'Azonosító: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Biztos, hogy duplikálja?\';
             </script>
         ');
 
@@ -871,13 +880,18 @@ if($gyorskereso_text){
                     $kep     = new Img($fajl, $felirat, 150, 150);
                     $kep     = $kep -> getHtml();
 
-                    $velemeny_html .= '<div class="dtc" style="border-bottom: 0; padding: 0 1rem 0 0">'.$kep.'</div><div class="dtc" style="border-bottom: 0; padding: 0">'.$felirat.'</div>';
-
-                    $letoltes_html = nl2('
-                                    <a href="'.$fajl.'" target="_blank" title="Letöltés">
-                                        <i class="material-icons kek">file_download</i>
-                                    </a>
-                                    ');
+                    $velemeny_html .= nl2('
+                                        <div class="dtc" style="border-bottom: 0; padding: 0 1rem 0 0">
+                                            <a href="'.$fajl.'" target="_blank">
+                                                '.$kep.'
+                                            </a>
+                                        </div>
+                                        <div class="dtc" style="border-bottom: 0; padding: 0">
+                                            <a href="'.$fajl.'" target="_blank">
+                                            '.$felirat.'
+                                            </a>
+                                        </div>
+                                            ');
 
                     //Törölni csak saját fájlt lehet
                     if($velemenyezo['recid']==$_SESSION[get_db_tabla().'login_recid']){

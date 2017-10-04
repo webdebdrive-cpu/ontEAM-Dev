@@ -110,6 +110,7 @@
 
 div.figy {
     border-radius: 0.6rem;
+    min-width: 40rem;
 }
 
 div.figy div.header{

@@ -130,13 +130,13 @@ define('MOZGID_LELTAR',                 '03' );
 
 //JOGOK
 define('JOG_BEJELENTES_MEGTEKINT',  57);
-define('JOG_BEJELENTES_SAJAT_RESZL',0);
+define('JOG_BEJELENTES_SAJAT_RESZL',0 );
 define('JOG_BEJELENTES_KEZEL',      1 );
 define('JOG_BEJELENTES_MAS_NEVEBEN',56);
 define('JOG_DISZPECSER',            2 );
 define('JOG_BEJELENTES_ELUTASIT',   41);
 define('JOG_MUNKALAP_MEGTEKINT',    3 );
-//define('JOG_MUNKALAP_KEZEL',    4 );
+//define('JOG_MUNKALAP_KEZEL',    4   );
 define('JOG_MUNKALAP_TELEPITETT',   5 );
 define('JOG_FELHASZNALOK_MEGTEKINT',6 );
 define('JOG_FELHASZNALOK_KEZEL',    7 );
