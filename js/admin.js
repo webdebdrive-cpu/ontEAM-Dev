@@ -667,12 +667,15 @@ $(function() {
             csoportok   = $('#szamlaList li.csoport'),
             kijelolheto = $('#szamlaList').hasClass('kijelolheto');
 
+
         /* Ha nem használtunk sem CTRL-t, sem SHIFT gombot, vagy ha a több sor kijelölése nem engedélyezett */
         if( (!e.ctrlKey && !e.shiftKey) || !kijelolheto ) {
 
-            sorok.removeClass('akt').removeClass('kijelolve');
-            csoportok.removeClass('akt').removeClass('kijelolve');
-            $(this).addClass('akt kijelolve');
+            if( !formModositva ) {
+                sorok.removeClass('akt').removeClass('kijelolve');
+                csoportok.removeClass('akt').removeClass('kijelolve');
+                $(this).addClass('akt kijelolve');
+            }
 
             /* Navigálás */
             var recid   = $(this).find('a.szamla').attr('data-recid'),
@@ -990,7 +993,7 @@ $(function() {
                     felt = $('#'+felt_id).val();
                 }
             }
-            
+
             kerdo_es = '&';
             if(get_get(['mezo', 'op', 'felt']).indexOf('?')<0){
                 kerdo_es = '?';
@@ -3664,7 +3667,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                 case 'elutasitas':
                     szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
                     if( szamlaSorok.length>1 ) {
-                        
+
                         alert2('Egyszerre csak egy '+$('#rekord_neve_egyes').html()+' utasítható el!', '', 'Hiba');
 
                     /* Bejelentés, csak akkor utsasítható el, ha nyitott */
@@ -4290,7 +4293,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
 
     /* Ha egy kapcsolódó tábláas alodal fülön vagyunk, és nincs kijelölve egy sor sem */
     if( !sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
-        
+
         $('#navGombok a.torles').addClass('disabled').attr('onclick', '');
     /* ... ha van kijelölve sor */
     } else if( sorok.hasClass('kijelolve') && reszleg == 'mellek' ) {
@@ -4322,7 +4325,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
             gomb_uzi   = 'Önnek nincs joga '+szoveg+' törölni!';
             gomb_muv   = '';
             ablak_cime = 'Hiba';
-            
+
         }
 
         $('#navGombok a.torles').removeClass('disabled').attr('onclick', 'alert2(\'' + gomb_uzi + '\', gomb_muv, ablak_cime);');
@@ -4331,7 +4334,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
 
 /* Kapcsoló táblák - fülek alatti rekordok - törlése általános függvénye */
 function mellekTorol( tabla, mellek ) {
-    
+
     var kijelolve = $('.kijCont .kijSor.kijelolve'),
         idk       = {};
 
@@ -4647,7 +4650,7 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
                 i++;
             });
         }
-        
+
         var lista = $.ajax({
             url : 'esemenyek.php',
             type: 'GET',
@@ -5074,7 +5077,7 @@ function _get( ertek ) {
 function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
     alert2('');
     if( formModositva && !kerdes_nelkul ) {
-        alert2('Biztosan elhagyja ezt a bejegyzést mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; szamlaBetolt( \'' + recid + '\', \'' + page + '\', \'' + muvelet + '\', \'' + szerkeszt + '\' )" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
+        alert2('Biztosan elhagyja ezt a bejegyzést mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; szamlaBetolt( \'' + recid + '\', \'' + page + '\', \'' + muvelet + '\', \'' + szerkeszt + '\' ); $(\'#szamlaList li.szamla_sor\').removeClass(\'kijelolve\');" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
         return false;
     }
 
@@ -5770,7 +5773,7 @@ function balnav_kijelol_ell(egy_csoport_reszben_szabad, kivetel_ell){
 
         }
     }
-    
+
     /* Ha ki szeretnénk épp venni egy elemet a csoportból, de van olyan kijelölt, ami nincs is csoportban akkor hibaüzenet */
     if(kivetel_ell && $('li.szamla_sor.kijelolve:not(\'.behuz\')').length){
         alert2('Van olyan kijelölt '+$('#rekord_neve_egyes').html()+', mely nincs csoportosítva. A művelet így nem hajtható létre!', '', 'Hiba');
