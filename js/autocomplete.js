@@ -77,7 +77,7 @@
                     $('#' + cont_id).html('<div id="autocomplete" data-cont="' + cont_id + '"></div>');
                 }
 
-                if(options.popupba){
+                if($('#popup').css('display') == 'block'){
                     $('#autocomplete').addClass('popupba');
                 } else {
                     $('#autocomplete').removeClass('popupba');
@@ -177,17 +177,23 @@
 
                             var autocompHeight  = $('#autocomplete').outerHeight(),
                                 autocompleteTop = height;
-console.log(offsetTop + ' - ' + documentHalf);
+
                             /* Ha az input elhagyta a documentum felét */
                             if( offsetTop > documentHalf ) {
                                 var maradekHely = documentHeight - (offsetTop + height);
 
                                 autocompleteTop = -Math.abs(autocompHeight);
                                 var posTop = $(that).position().top;
-console.log(posTop);
+
                                 if( autocompHeight > posTop ) {
                                     autocompleteTop = -Math.abs(posTop);
                                     autocompHeight  = posTop;
+                                }
+
+                                if($('#popup').css('display') == 'block') {
+                                    var popupHeight = $('div.popup_kont').outerHeight();
+
+                                    console.log(popupHeight);
                                 }
 
                                 $('#autocomplete').css({
@@ -195,9 +201,17 @@ console.log(posTop);
                                     'max-height': autocompHeight
                                 });
                             } else {
+                                var posTop = $(that).position().top;
+
+                                if($('#popup').css('display') == 'block') {
+                                    var popupHeight = $('div.popup_kont').outerHeight();
+
+                                    autocompHeight = popupHeight - posTop - 70;
+                                }
+
                                 $('#autocomplete').css({
                                     'top': height,
-                                    /*'max-height': autocompHeight*/
+                                    'max-height': autocompHeight
                                 });
                             }
                         }
