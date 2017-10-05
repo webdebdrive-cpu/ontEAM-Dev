@@ -26,7 +26,7 @@ function inline_szerk(oszlop, sorid){
     $('#inline_szerk_'+oszlop+'_'+sorid).focus();
 }
 
-/* Inline szerkesztés menttése */ 
+/* Inline szerkesztés menttése */
 function inline_szerk_ment(tabla, oszlop, sorid) {
 
     $.ajax({
@@ -4286,9 +4286,12 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
             $('#szamla-' + _get('id')).addClass('kijelolve');
         }
 
+        jobbOldalEltuntet( sorok );
     } else if( sorok.hasClass('kijelolve') && reszleg == 'fo' ) {
         /*$('#kmCont').find('input[type="button"]').attr('disabled', false);*/
         $('#navGombok a.torles').attr('onclick', 'tbt_alert();');
+
+        jobbOldalEltuntet( sorok );
     }
 
     /* Ha egy kapcsolódó tábláas alodal fülön vagyunk, és nincs kijelölve egy sor sem */
@@ -4329,6 +4332,28 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
         }
 
         $('#navGombok a.torles').removeClass('disabled').attr('onclick', 'alert2(\'' + gomb_uzi + '\', gomb_muv, ablak_cime);');
+    }
+}
+
+function jobbOldalEltuntet( sorok ) {
+    if( sorok.filter('.kijelolve').length == 1 ) {
+        $('#szamlaHidden').html('').addClass('dn');
+        $('#szamlaFulek, div.statusz div.text, div.naplo, div.jsff, #sorrendezes_tobbkep, #szerk_form div.dt').show();
+    } else if( sorok.filter('.kijelolve').length > 1 ) {
+        if( !$('#szamlaHidden').hasClass('csoport') ) {
+            $('#szamlaHidden').html('Tájékoztató szöveg...').removeClass('dn');
+        }
+        $('#szamlaFulek, div.statusz div.text, div.naplo, div.jsff, #sorrendezes_tobbkep, #szerk_form div.dt').hide();
+    }
+
+    if( $('#szamlaList li.csoport.kijelolve').length ) {
+        csoport_tartalom();
+    } else {
+        $('#szamlaHidden').removeClass('csoport');
+
+        if( sorok.filter('.kijelolve').length > 1 ) {
+            $('#szamlaHidden').html('Tájékoztató szöveg...');
+        }
     }
 }
 
@@ -4402,6 +4427,8 @@ function kijelolesEltavolit() {
         $('.kijCont .kijSor').removeClass('kijelolve');
         $('#navGombok a.torles').addClass('disabled').attr('onclick', '');
     }
+
+    jobbOldalEltuntet( $('#szamlaList li.szamla_sor') );
 }
 
 /* Helyiség választó popup tartalmának előállítása */
@@ -5296,6 +5323,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
                         }
                     });
 
+                    $('#szamlaHidden').html('').addClass('dn').removeClass('csoport');
+
          		} else {
                     alert2('Nem lehet betölteni a kért oldalt!');
                     dfrd1.resolve();
@@ -5703,18 +5732,20 @@ function csoport_tartalom() {
     $('#szerk_form input:not(\'.foGomb\'), #szerk_form select, #szerk_form textarea').val('').prop('checked', false);
     $('div.statusz div.text, div.naplo, div.jsff, #sorrendezes_tobbkep, #szerk_form div.dt').hide();
 
-    $.ajax({
-        url: 'esemenyek.php',
-        type: 'POST',
-        data: {
-            tabla           : baseName(location.href),
-            csoport_id      : $('li.csoport').attr('data-id'),
-            csoport_tartalom: new Date().getTime()
-        },
-        success: function (response) {
-            $('#szerk_form').html(response);
-        }
-    });
+    if( !$('#szamlaHidden').hasClass('csoport') ) {
+        $.ajax({
+            url: 'esemenyek.php',
+            type: 'POST',
+            data: {
+                tabla           : baseName(location.href),
+                csoport_id      : $('li.csoport.kijelolve').attr('data-id'),
+                csoport_tartalom: new Date().getTime()
+            },
+            success: function (response) {
+                $('#szamlaHidden').addClass('csoport').html(response);
+            }
+        });
+    }
 }
 
 /* Duplikálás gombra kattintva feljövő kérdés */

@@ -459,10 +459,10 @@ if($gyorskereso_text){
                 '.$gombok.'
             </div>
         ');
-        
+
     // nem új feltöltés (de minden más fül...)
     } else {
-        
+
         $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
 		$sor = $sor[0];
 
@@ -605,9 +605,9 @@ if($gyorskereso_text){
         ');
     }
 
-    
+
     $js_submit_elott = 'return form_ell_admin();';
-    
+
 	//Új bejelentés felvitele
 	if(isset($_GET['uj'])){
 
@@ -766,7 +766,7 @@ if($gyorskereso_text){
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
-        
+
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
