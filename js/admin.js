@@ -26,7 +26,7 @@ function inline_szerk(oszlop, sorid){
     $('#inline_szerk_'+oszlop+'_'+sorid).focus();
 }
 
-/* Inline szerkesztés menttése */
+/* Inline szerkesztés menttése */ 
 function inline_szerk_ment(tabla, oszlop, sorid) {
 
     $.ajax({
