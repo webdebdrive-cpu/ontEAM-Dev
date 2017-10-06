@@ -251,7 +251,7 @@ if($gyorskereso_text){
             '.$gombok.'
         </div>
     ');
-    
+
     $js_submit_elott = 'return form_ell_admin();';
 
 	//Új termék felvitele
@@ -456,8 +456,25 @@ if($gyorskereso_text){
 
             $szamla_html .= '<form id="szerk_form" action="" method="post"><div class="dt">';
 
+            $jogdb = count($jogKatok);
+            $jogdb_fel = ceil($jogdb / 2);
+
             /* Kiíratjuk az egészet */
+            $i = 1;
             foreach($jogKatok as $jogKat) {
+                if( $i == 1 ) {
+                    $szamla_html .= '
+                        <div class="dt jog_dt">
+                            <div class="dtr">
+                                <div class="dtc jog_dtc">
+                    ';
+                } else if( $i == $jogdb_fel ) {
+                    $szamla_html .= '
+                                </div>
+                                <div class="dtc jog_dtc">
+                    ';
+                }
+
                 $szamla_html .= '
                     <div class="dtr">
                         <div class="dtc form_bal jogKat"><span>'.$jogKat['nev'].':</span></div>
@@ -538,6 +555,14 @@ if($gyorskereso_text){
                     ');
                 }
 
+                if( $jogdb == $i ) {
+                    $szamla_html .= '
+                            </div>
+                        </div>
+                    ';
+                }
+
+                $i++;
             }
 
             $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
@@ -548,13 +573,14 @@ if($gyorskereso_text){
             }
 
             $szamla_html .= nl2('
-                <div class="muveletek"'.$muv_style.'>
-                    <div class="form_kuldes">
-                        <input type="hidden" name="id" value="'.$_GET['id'].'">
-                        <input type="submit" class="gombb mentes_gomb" name="jogokhozzaad" id="mehet_gomb" disabled value="Mentés">
+                        <div class="muveletek"'.$muv_style.'>
+                            <div class="form_kuldes">
+                                <input type="hidden" name="id" value="'.$_GET['id'].'">
+                                <input type="submit" class="gombb mentes_gomb" name="jogokhozzaad" id="mehet_gomb" disabled value="Mentés">
+                            </div>
+                        </div>
                     </div>
-                </div>
-                </div></form>
+                </form>
             ');
 
         }

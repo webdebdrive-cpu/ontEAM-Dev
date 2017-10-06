@@ -102,7 +102,7 @@ if($gyorskereso_text){
 
 	//Új termék felvitele
 	if(isset($_GET['konyvtar'])){
-
+        
         $fajlok_html = '';
         list($tabla, $konyvtar) = explode('/', $_GET['konyvtar']);
         $post   = '_dok';
