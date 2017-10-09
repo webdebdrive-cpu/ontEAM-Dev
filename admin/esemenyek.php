@@ -1771,11 +1771,31 @@ array('type' => 'html',                     'megn' => nl2('
                                                                 ')),
     array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi csillag'),
     array('type' => 'select_felh_telephely','megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,       'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
-    array('type' => 'text',                 'megn' => 'Becsült költsége:',      'name' => 'bkolt',          'szuro' => 1,       'class' => 'oriasi f_num csillag', 'data' => 'data-tort="0"', 'style' => 'width: 11.5rem', 'post' => ' '.get_penznem(), 'osszevon' => 1, 'post' => ' '.get_penznem().'<span style="margin-right: 4rem"></span>'),
-    array('type' => 'select_pri_tipus',     'megn' => 'Tipus:',                 'name' => 'tipus',          'szuro' => 1,       'class' => 'disableNav', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
-    array('type' => 'select_pri_besorol',   'megn' => 'Besorolás:',             'name' => 'besorol',        'szuro' => 1,       'class' => 'disableNav'),
-    array('type' => 'text',                 'megn' => 'Aktiválási adatok:',     'name' => 'akt_adat',       'maxlength' => 250, 'class' => 'oriasi'),
-    array('type' => 'text',                 'megn' => 'Prioritás:',             'name' => 'prior',          'szuro' => 1,       'class' => 'oriasi'),
+array('type' => 'html',                     'megn' => nl2('
+                                                        <div class="dtr">
+                                                            <div class="dtc form_bal">
+                                                                Becsült költsége:
+                                                            </div>
+                                                            <div class="dtc">
+                                                                <div class="dtc" style="padding-left: 0; padding-right: 4rem; ">
+                                                                ')),
+    array('type' => 'text',                 'megn' => '',               'name' => 'bkolt',          'szuro' => 1,       'class' => 'oriasi f_num csillag', 'data' => 'data-tort="0"', 'style' => 'width: 11.5rem; margin-left: -0.2rem;', 'post' => ' '.get_penznem()),
+array('type' => 'html',                     'megn' => nl2('
+                                                                </div>
+                                                                <div id="" class="dtc f_prigeny_tipus" style="padding-right: 4rem">
+                                                            ')),
+    array('type' => 'select_pri_tipus',     'megn' => 'Típus:',         'name' => 'tipus',          'szuro' => 1,       'class' => 'disableNav', 'onchange' => 'prigen_tipus_beallit()'),
+array('type' => 'html',                     'megn' => nl2('
+                                                                </div>
+                                                                <div id="besorolas_panel" class="dtc" style="padding-right: 4rem; display: none">
+                                                            ')),
+    array('type' => 'select_pri_besorol',   'megn' => 'Besorolás:',     'name' => 'besorol',        'szuro' => 1,       'class' => 'disableNav'),
+array('type' => 'html',                     'megn' => nl2('
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                                ')),
+    array('type' => 'autocomplete',         'megn' => 'Prioritás:',             'name' => 'prior',      'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 36, 'id_kiir' => 'id'),
     array('type' => 'textarea',             'megn' => 'Leírása:',               'name' => 'text',       'szuro' => 1,      'class' => 'oriasiTargy disableNav'),
 array('type' => 'html',                     'megn' => nl2('
                                                         <div class="dtr">

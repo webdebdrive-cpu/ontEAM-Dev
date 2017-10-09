@@ -529,6 +529,9 @@ if($gyorskereso_text){
             fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
         );
     }
+    
+    // A prigen_tipus_beallit() függvényt meghívjuk betöltéskor
+    $szamla_html .= '<script>$(document).ready(function () { prigen_tipus_beallit(); });</script>';
 
     /* Gombok kirajzolása minden oldalra */
     $gombok = '';

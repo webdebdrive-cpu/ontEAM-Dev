@@ -1275,7 +1275,18 @@ $(function() {
             $('#masnevebenFeltolt').val('');
         }
     });
+    
 });
+
+/* Projektigénylésnél ha a tipus nem Beruházás, akkor a Besorolás ne is jelenjen meg, értéke nullázódjon. */
+function prigen_tipus_beallit(){
+    if($('.f_prigeny_tipus #tipus').val()!='1'){
+        $('#besorolas_panel').hide();
+        $('#besorol').val('');
+    }else{
+        $('#besorolas_panel').show();
+    }
+}
 
 function bejBejValaszt( telephely ) {
     var sor = $('#bejbejelentok tr.kijSor.kijelolve');
