@@ -1738,11 +1738,16 @@ $megnevezes       = 'projektigenyles';
 $megter_cel_rejt  = ' class="dn"';
 $letrehozta_mikor = '';
 if (isset($_GET['modosit'])) {
-    $pi = $adatbazis_kapcsolat->s2('megter stat_id insert_dt insert_usr', $megnevezes, "`recid`='{$_GET['id']}'");
+    $pi = $adatbazis_kapcsolat->s2('megter stat_id egy_tobb insert_dt insert_usr', $megnevezes, "`recid`='{$_GET['id']}'");
     if($pi['megter']){
         $megter_cel_rejt = '';
     }
     $letrehozta_mikor = 'Létrehozta: <b>'.$pi['insert_usr'].' '.  str_replace('-', '.', substr($pi['insert_dt'], 0, 16)).'</b>-kor';
+    
+    $tobb_szalloda = '';
+    if($pi['egy_tobb']){
+        $tobb_szalloda = '1';
+    }
 
 }
 
@@ -1770,7 +1775,30 @@ array('type' => 'html',                     'megn' => nl2('
                                                         </div>
                                                                 ')),
     array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi csillag'),
-    array('type' => 'select_felh_telephely','megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,       'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+array('type' => 'hidden','megn' => '',      'name' => 'egy_tobb'),
+array('type' => 'html',                     'megn' => nl2('
+                                                <div class="dtr">
+                                                    <div class="dtc form_bal">
+                                                        <span></span>
+                                                    </div>
+                                                    <div class="dtc form_jobb">
+                                                        Egyszállodás
+                                                        <div class="cb">
+                                                            <input id="egy_tobb_egy" tabindex="15" type="checkbox" class="f_pri_egytobb" data-egytobb="egy">
+                                                            <label for="egy_tobb_egy" onclick="$(\'#mehet_gomb\').addClass(\'gombb_alert\');"></label>
+                                                        </div>
+                                                        <span class="formText" style="margin-left: 4rem"></span>
+
+                                                        Többszállodás
+                                                        <div class="cb">
+                                                            <input id="egy_tobb_tobb" tabindex="16" type="checkbox" class="f_pri_egytobb" data-egytobb="tobb">
+                                                            <label for="egy_tobb_tobb" onclick="$(\'#mehet_gomb\').addClass(\'gombb_alert\');"></label>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+    ')),
+    array('type' => 'select_felh_telephely','megn' => 'Szálloda:',    'tobb_szalloda' => $tobb_szalloda,           'name' => 'telephely_id',   'szuro' => 1,       'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
 array('type' => 'html',                     'megn' => nl2('
                                                         <div class="dtr">
                                                             <div class="dtc form_bal">
@@ -3887,11 +3915,25 @@ if( isset($_POST['addMegjegyzes']) ) {
 
 // Cash-flow hozzáadása
 if( isset($_POST['addCashFlow']) ) {
-    $pageID = $_POST['pageID'];
-    $datum  = trim($_POST['datum']);
-    $osszeg = trim(str_replace(' ', '', $_POST['osszeg']));
+    
+    $pageID     = $_POST['pageID'];
+    $datum      = trim($_POST['datum']);
+    $szalloda   = trim($_POST['telephely_id']);
+    $osszeg     = trim(str_replace(' ', '', $_POST['osszeg']));
 
     if( $pageID ) {
+        
+        //Ha többszállodás, akkor a szálloda meglétét is ellenőrizni kell
+        $pri = $adatbazis_kapcsolat->s2('egy_tobb', 'projektigenyles', "`recid`='{$pageID}'");
+        if($pri['egy_tobb']==1 && !$szalloda){
+            echo json_encode(array(
+                'statusz' => 'hiba',
+                'uzi'     => 'Kérjük válasszon szállodát!',
+                'gomb'    => '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#telephely_id\').focus();">'
+            ));
+            $weblap -> leallit();
+            exit;
+        }
 
         if(!valos_datum_e($datum)){
             echo json_encode(array(
@@ -4577,7 +4619,7 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='login'){
             $weblap -> leallit(); exit;
         }
-        if( $ertek['tabla']=='projektigenyles' && (!_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL)) ){
+        if( $ertek['tabla']=='projektigenyles' && (!_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL)) ){
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla']=='projektkezeles' && !_jog(JOG_PRKEZEL_KEZEL) ){

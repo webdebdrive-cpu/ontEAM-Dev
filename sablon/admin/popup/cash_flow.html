@@ -2,6 +2,8 @@
 <form action="" id="addCashFlow" class="popupForm" method="post">
     <div class="kozep">
         <div class="dt">
+            <div class="dtr" id="cf_szalloda">
+            </div>
             <div class="dtr"> 
                 <div class="dtc form_bal">Dátum:</div>
                 <div class="dtc form_jobb">
@@ -23,6 +25,7 @@
 </form>
 <script>
     $(document).ready(function () {
+        
         $('.datepicker').datetimepicker({
             closeOnDateSelect   : true,
             format              :'Y.m.d',
@@ -31,5 +34,23 @@
             validateOnBlur      : false,
             onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
         });
+        
+        $('#cf_szalloda').hide();
+        if( $('#egy_tobb_tobb').prop('checked') ){
+            
+            $.ajax({
+                url : 'projektigenyles.php',
+                type: 'POST',
+                data: {
+                    egy_tobb        : 'egy',
+                    f_pri_egytobb   : new Date().getTime()
+                },
+                success: function(response){
+                    $('#cf_szalloda').replaceWith(response);
+                    $('#telephely_id').focus();
+                    $('.xdsoft_datetimepicker').hide();
+                }
+            });
+        }
     });
 </script>

@@ -999,7 +999,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         $focus_autocomp = $ertek['name'].'_autocomp';
                     }
 
-                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); '.$focus_autocomp.'.focus();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
+                    $ret .= 'if($(\'#'.$ertek['name'].'\').val()==\'\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); '.$focus_autocomp.'.focus();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
                 }
                 //Ha numerikus a mező, akkor a 0,00 is üres értéknek számít
                 if(strpos($ertek['class'], 'f_num')!==false){
@@ -1759,12 +1759,39 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         if($tabla == 'utemezett_feladatok'){
             $where = "`".get_db_tabla()."utemezett_feladatok`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
-        //A projektigénylés tárgyi lát joggal csak a tárgyi eszközös igényléskete lsitázzuk
+        //A projektigénylés láthatóságának beálltásai
         if($tabla=='projektigenyles'){
-            $where = "`".get_db_tabla()."projektigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
-        }
-        if($tabla=='projektigenyles' && _jog(JOG_PRIGENY_T_MEGTEKINT) && !_jog(JOG_PRIGENY_S_MEGTEKINT)){
-            $where = "`tipus`='".PRIGENY_TIPUS_TARGY."'";
+            
+            $szallodak_kieg = '';
+            if(_jog(JOG_PRIGENY_TOBB_MEGTEKINT)){
+                $szallodak_kieg = ', 1011, 4301';
+            }
+            $where = "`".get_db_tabla()."projektigenyles`.`telephely_id` IN (".implode(',', $szallodak).$szallodak_kieg.") AND ";
+            
+            //Jogok szűrése
+            $where_jogok = '';
+            if(_jog(JOG_PRIGENY_B_MEGTEKINT)){
+                $where_jogok .= "`tipus`='".PRIGENY_TIPUS_BERUH."' OR ";
+            }
+            if(_jog(JOG_PRIGENY_F_MEGTEKINT)){
+                $where_jogok .= "`tipus`='".PRIGENY_TIPUS_FENNT."' OR ";
+            }
+            if(_jog(JOG_PRIGENY_T_MEGTEKINT)){
+                $where_jogok .= "`tipus`='".PRIGENY_TIPUS_TARGY."' OR ";
+            }
+            
+            //Egy-több szállodára szűrés
+            if(_jog(JOG_PRIGENY_EGY_MEGTEKINT)){
+                $where_jogok .= "`egy_tobb`='0' OR ";
+            }
+            if(_jog(JOG_PRIGENY_TOBB_MEGTEKINT)){
+                $where_jogok .= "`egy_tobb`='1' OR ";
+            }
+            if($where_jogok){
+                $where .= '('.csonkit($where_jogok, 4).') AND ';
+            }
+            
+            
         }
         if($tabla == 'rendszeres_karbantartas'){
             $where = "`".get_db_tabla()."rendszeres_karbantartas`.`telephely_id` IN (".implode(',', $szallodak).") AND ";

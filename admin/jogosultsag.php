@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 57-es ID-nál járunk
+ * 64-es ID-nál járunk
  * 11 -es kategória ID-nál járunk
 \*                                                  */
 
@@ -73,15 +73,22 @@ $jogosultsagok = array(
     29 => array('nev' => 'Beosztások olvasása',         'kat' => 4, 'sor' => 5, 'kikapcs' => '30'),
     30 => array('nev' => 'Beosztások kezelése',         'kat' => 4, 'sor' => 6, 'bekapcs' => '29'),
     
-    38 => array('nev' => 'Saját igénylések megtekintése',           'kat' => 7, 'sor' => 1, 'kikapcs' => '39'),
-    39 => array('nev' => 'Saját igénylések kezelése',               'kat' => 7, 'sor' => 2, 'bekapcs' => '38'),
-    46 => array('torolve' => 'TÖRÖLVE Minden igénylések megtekintése',          'kat' => 7, 'sor' => 3, 'kikapcs' => '47'),
-    47 => array('nev' => 'Minden igénylések kezelése',              'kat' => 7, 'sor' => 4, 'bekapcs' => '46'),
-    48 => array('nev' => 'Tárgyi eszköz igénylések megtekintése',   'kat' => 7, 'sor' => 5, 'kikapcs' => '49'),
-    49 => array('nev' => 'Tárgyi eszköz igénylések kezelése',       'kat' => 7, 'sor' => 6, 'bekapcs' => '48'),
-    50 => array('nev' => 'Projekt igénylések elutasítása',          'kat' => 7, 'sor' => 7, 'bekapcs' => '46,47'),
-    51 => array('nev' => 'Projekt igénylések jóváhagyása',          'kat' => 7, 'sor' => 8, 'bekapcs' => '46,47'),
-    40 => array('nev' => 'Véleményező hozzáadása',                  'kat' => 7, 'sor' => 11),
+    39 => array('nev' => 'Saját igénylések kezelése',               'kat' => 7, 'sor' => 1),
+    38 => array('nev' => 'Saját szállodák igényeinek megtekintése', 'kat' => 7, 'sor' => 2, 'kikapcs' => '60'),
+    60 => array('nev' => 'Saját szállodák kezelése',                'kat' => 7, 'sor' => 3, 'bekapcs' => '38'),
+    58 => array('nev' => 'Beruházási igények megtekintése',         'kat' => 7, 'sor' => 4, 'kikapcs' => '59'),
+    59 => array('nev' => 'Beruházási igények kezelése',             'kat' => 7, 'sor' => 5, 'bekapcs' => '58'),
+    61 => array('nev' => 'Fenntartási igények megtekintése',        'kat' => 7, 'sor' => 6, 'kikapcs' => '62'),
+    62 => array('nev' => 'Fenntartási igények kezelése',            'kat' => 7, 'sor' => 7, 'bekapcs' => '61'),
+    48 => array('nev' => 'Tárgyi eszköz igénylések megtekintése',   'kat' => 7, 'sor' => 8, 'kikapcs' => '49'),
+    49 => array('nev' => 'Tárgyi eszköz igénylések kezelése',       'kat' => 7, 'sor' => 9, 'bekapcs' => '48'),
+    46 => array('nev' => 'Egy szállodás igények megtekintése',      'kat' => 7, 'sor' => 10,'kikapcs' => '47'),
+    47 => array('nev' => 'Egy szállodás igények kezelése',          'kat' => 7, 'sor' => 11,'bekapcs' => '46'),
+    63 => array('nev' => 'Több szállodás igények megtekintése',     'kat' => 7, 'sor' => 12,'kikapcs' => '64'),
+    64 => array('nev' => 'Több szállodás igények kezelése',         'kat' => 7, 'sor' => 13,'bekapcs' => '63'),
+    50 => array('nev' => 'Projekt igénylések elutasítása',          'kat' => 7, 'sor' => 14,'bekapcs' => '46,47'),
+    51 => array('nev' => 'Projekt igénylések jóváhagyása',          'kat' => 7, 'sor' => 15,'bekapcs' => '46,47'),
+    40 => array('nev' => 'Véleményező hozzáadása',                  'kat' => 7, 'sor' => 16),
     
     52 => array('nev' => 'Projektek megtekintése',                  'kat' => 10, 'sor' => 9, 'kikapcs' => '53'),
     53 => array('nev' => 'Projektek kezelése',                      'kat' => 10, 'sor' => 10,'bekapcs' => '52'),

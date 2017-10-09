@@ -452,7 +452,7 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $
 
 
 /* Projektek */
-if(_jog(JOG_PRIGENY_S_MEGTEKINT) || _jog(JOG_PRKEZEL_MEGTEKINT)){
+if(_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_PRIGENY_EGY_MEGTEKINT) || _jog(JOG_PRIGENY_F_MEGTEKINT) || _jog(JOG_PRIGENY_TOBB_MEGTEKINT) || _jog(JOG_PRIGENY_T_MEGTEKINT) || _jog(JOG_PRKEZEL_MEGTEKINT)){
     $menu_nev        = 'Projektek';
     $menu_nev_kis    = 'rojektek';
     $menu_nev_tobbes = 'Projektek';
@@ -464,7 +464,7 @@ if(_jog(JOG_PRIGENY_S_MEGTEKINT) || _jog(JOG_PRKEZEL_MEGTEKINT)){
     if(basename(self())=='cash_flow.php')       { $oldalNev = 'Projektek / <span id="rekord_neve">Cash Flow</span><span class="dn" id="rekord_neve_egyes">Cash Flow</span><span class="dn" id="rekord_neve_targy">Cash Flow-t</span>';          }
 
     $aktmenuk  = '';
-    if(_jog(JOG_PRIGENY_S_MEGTEKINT)){
+    if(_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_PRIGENY_EGY_MEGTEKINT) || _jog(JOG_PRIGENY_F_MEGTEKINT) || _jog(JOG_PRIGENY_TOBB_MEGTEKINT) || _jog(JOG_PRIGENY_T_MEGTEKINT)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Projektigénylések'  ), $almenu_sablon );
     }
     if(_jog(JOG_PRKEZEL_MEGTEKINT)){
@@ -1044,21 +1044,10 @@ if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_MUNKALAP_TELEPITETT)
     $uj             = '';
 }
 
-if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL)){
+if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL)){
     $torles_icon    = '';
     $uj             = '';
 }
-////Ha csak saját igénylést tudok kezelni, és már nem nyitott/létrehozás alatt a státusza, akkor sem tudja már törölni
-//$igenyles = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$_GET['id']}'");
-//if( _jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_M_KEZEL) && $igenyles['stat_id']!=PRIGENY_STAT_NYITOTT && $igenyles['stat_id']!=PRIGENY_STAT_LETRE_ALATT ) {
-//    $torles_icon    = '';
-//}
-////Projektigénylés ha el van utasítva, jóvá van hagyva, akkor sem törölhető
-//if( basename(self())=='projektigenyles.php' && $_GET['id'] ) {
-//    if($igenyles['stat_id']==PRIGENY_STAT_ELUTASITVA || $igenyles['stat_id']==PRIGENY_STAT_JOVAHAGYVA){
-//        $torles_icon = '';
-//    }
-//}
 
 if( basename(self())=='projektkezeles.php' && !_jog(JOG_PRKEZEL_KEZEL) ){
     $torles_icon    = '';

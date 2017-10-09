@@ -388,8 +388,11 @@ if (isset($_GET['teszt'])) {
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
             $input -> style    = $ertek['style'];
-			$input -> value    = $ertek['value'];
-
+			$input -> value    = $sor[ $ertek['name'] ];
+            if($ertek['value']){
+                $input -> value    = $sor['value'];
+            }
+            
             $html = $input -> getHtml();
 
             //Összevonások lekezelése és tartalom összefűzése
@@ -657,11 +660,18 @@ if (isset($_GET['teszt'])) {
 
 
             /* Kapcsolódó tábla adatai */
-            $telephely_kapcs = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', '`nev`=\''.$loginNev.'\'');
-            if( $telephely_kapcs ) {
-                $telephely_kapcs = adatbazis2tomb($telephely_kapcs, 'telephely_id');
-
-                $telephelyek = $adatbazis_kapcsolat -> select('id recid nev', 'telephely', "`id` IN (".implode(',', $telephely_kapcs).")", 'nev');
+            if($ertek['tobb_szalloda']){
+                $where = '`azon` IN (\'DZ\', \'DH\')';
+            }else{
+                $telephely_kapcs = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', '`nev`=\''.$loginNev.'\'');
+                if( $telephely_kapcs ) {
+                    $telephely_kapcs = adatbazis2tomb($telephely_kapcs, 'telephely_id');
+                    $where = "`id` IN (".implode(',', $telephely_kapcs).")";
+                }
+            }
+            
+            if($where){
+                $telephelyek = $adatbazis_kapcsolat -> select('id recid nev', 'telephely', $where, 'nev');
                 foreach($telephelyek as $telephely) {
                     //Ha csak egy szálloda van, akkor a seletből csak az az egy értékváélasztható ki, ezt meg is tesszük, selectet így disabled-re téve.
                     //Mindezet csak akkor, ha új feltöltés üzemmódban vagyunk

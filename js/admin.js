@@ -1276,6 +1276,31 @@ $(function() {
         }
     });
     
+    /* Projektgénylésnél az egy és többszállodás modell kiválasztása */
+    $(document).on('click', '.f_pri_egytobb', function() {
+        egy_tobb = $(this).attr('data-egytobb');
+        if(egy_tobb=='egy'){
+            $('#egy_tobb_tobb').prop('checked', false);
+            $('#egy_tobb').val(0);
+        }else{
+            $('#egy_tobb_egy').prop('checked', false);
+            $('#egy_tobb').val(1);
+        }
+        
+        $.ajax({
+            url : 'projektigenyles.php',
+            type: 'POST',
+            data: {
+                egy_tobb     : egy_tobb,
+                f_pri_egytobb: new Date().getTime()
+            },
+            success: function (response) {
+                $('#telephely_id').parent().parent().replaceWith(response);
+            }
+        });
+        
+    });
+    
 });
 
 /* Projektigénylésnél ha a tipus nem Beruházás, akkor a Besorolás ne is jelenjen meg, értéke nullázódjon. */
@@ -4517,7 +4542,7 @@ function kapcsolodoSzerkeszt( oldal ) {
 
         switch( oldal ) {
             case 'cash_flow':
-                if(_jogok[47]==1){
+                if(_jogok[39]==1 || _jogok[60]==1 || _jogok[59]==1 || _jogok[62]==1 || _jogok[49]==1 || _jogok[47]==1 || _jogok[64]==1){
                     $('#addCashFlow').attr('onsubmit', 'return addCashFlow(\'' + _get('id') + '\', this);');
                 }else{
                     alert2('Önnek nincs joga Cash-flowt feltölteni!', '', 'Hiba');
@@ -4583,10 +4608,10 @@ function popupZar() {
     $('#popupTart').html('');
 }
 
-/* Popup megjelenítése és fókus az első inputra */
+/* Popup megjelenítése és fókusz az első inputra */
 function popupNyit() {
     $('#popup').css('display', 'block');
-    $('#popup input:text, #popup textarea').first().select();
+    $('#popup input:text, #popup textarea, #popup select').first().select();
 }
 
 function inArray( keresett, tomb ) {
@@ -4867,8 +4892,9 @@ function addMegjegyzes( pageID, that ) {
 
 //Cash-flow hozzáadása
 function addCashFlow( pageID, that ) {
-    var datum  = $('#cf_datum').val();
-    var osszeg = $('#cf_osszeg').val();
+    var telephely_id= $('#telephely_id').val();
+    var datum       = $('#cf_datum').val();
+    var osszeg      = $('#cf_osszeg').val();
 
     if( pageID ) {
         var ajax = $.ajax({
@@ -4876,6 +4902,7 @@ function addCashFlow( pageID, that ) {
          	type: 'POST',
          	data: {
                 pageID       : pageID,
+                telephely_id : telephely_id,
                 datum        : datum,
                 osszeg       : osszeg,
                 addCashFlow  : new Date().getTime()
@@ -4889,9 +4916,9 @@ function addCashFlow( pageID, that ) {
                         return false;
                     }
 
-         			szamlaBetolt(pageID, baseName(location.href) + '.php', 'cash_flow').done(function() {
+         			/*szamlaBetolt(pageID, baseName(location.href) + '.php', 'cash_flow').done(function() {
                         $('#naploSor-' + html.kapcsID).addClass('uj');
-                    });
+                    });*/
 
                     popupZar();
          		}
@@ -5890,4 +5917,23 @@ function osszetett_szuro_mondat(){
     mondat = mondat.replace(/ ÉS +$/, '').replace(/ VAGY +$/, '');
 
     $('#o_szures_mondat').html('<b>Megfogalmazott feltétel:</b><br>'+mondat);
+}
+
+/* Projektigénylés alatt az adatlap és cash flow fül közötti váltás */
+function prigeny_ful_valt(ful){
+    
+    if(ful=='cash_flow'){
+        $('#cash_flow_div').show();
+        $('#szerk_form').hide();
+        $('#ful_cash_flow').addClass('active');
+        $('#ful_modosit').removeClass('active');
+        $('#navGombok .uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'cash_flow\'); void(0);');
+    }
+    if(ful=='adatlap'){
+        $('#cash_flow_div').hide();
+        $('#szerk_form').show();
+        $('#ful_cash_flow').removeClass('active');
+        $('#ful_modosit').addClass('active');
+        $('#navGombok .uj').attr('href', 'projektigenyles.php?uj');
+    }
 }
