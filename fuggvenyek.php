@@ -367,7 +367,7 @@ function i_u($type, $tabla, $tomb) {
 
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
-            
+
         //Gégpek új bejegyzés esetén
         } else if( $tabla == 'gep' ) {
             array_push($oszlopok, 'loginnev'                        );
@@ -528,7 +528,7 @@ function i_u($type, $tabla, $tomb) {
 
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
-            
+
         //Rendszeres karbantarás új bejegyzés esetén
         } else if( $tabla == 'rendszeres_karbantartas' ) {
             /* ID formázása */
@@ -572,7 +572,7 @@ function i_u($type, $tabla, $tomb) {
 
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
-            
+
         }
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
@@ -707,7 +707,7 @@ function i_u($type, $tabla, $tomb) {
 
         // Projektigénylés státusz beszúrása
         if( $tabla == 'projektigenyles' ) {
-            
+
             //Ez nyitott, hacsak nem hiányzik kötelező mező kitöltése
             $statusz = PRIGENY_STAT_NYITOTT;
             foreach ($prigeny_kot_mezok as $mezo){
@@ -716,7 +716,7 @@ function i_u($type, $tabla, $tomb) {
                     break;
                 }
             }
-            
+
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
                                                 array($tabla.'_recid', 'stat_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
                                                 array($id,             $statusz,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
@@ -797,7 +797,7 @@ function i_u($type, $tabla, $tomb) {
                         echo json_encode(array(
                             'hiba' => 'Ezt a bejegyzést valaki más már módosította, <br>kérlek kezd előről a szerkesztést!'
                         ));
-                        
+
                         $weblap -> leallit();
                         exit();
                     }
@@ -1189,7 +1189,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             }
         ');
     }
-    
+
 
     if( basename(self())=='utemezett_feladatok.php' || basename(self())=='rendszeres_karbantartas.php' || basename(self())=='eseti_fenntartas.php' ){
 
@@ -1381,7 +1381,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
     //Ajaxos form módosítás
     $js_kieg = '';
-    
+
     //Felmérési terv esetén meg kell hívni még egy JS függvényt, ami a bal oldali navpanelt frissíti
     $konyvtarszerkezetesek = array('eszkozkezeles.php', 'felmeresi_terv.php');
     $akt_php = basename(self());
@@ -1647,10 +1647,10 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 
 	if(move_uploaded_file($_FILES[$valtozo]['tmp_name'], $utvonal.$kepnev)){
 		if($sor_id) {
-            
+
             //Még a tálba levét se tároljuk le, azt is felesleges.
             $kepnev = str_replace($tabla.'/', '', $kepnev);
-            
+
 			if(!$adatbazis_kapcsolat -> u($tabla, array($oszlop), array($kepnev), 'recid='.$sor_id)){
 				return(array($kepnev,'k5'));//Sikertelen táblamod => hiba5
 			}
@@ -1742,7 +1742,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         if($tabla == 'anyagigenyles'){
             $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
-        
+
         //Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
         //Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
         if($tabla == 'bejelentes'){
@@ -2500,7 +2500,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     $szemelyzet = $szemely['name'];
                 }
             }
-            
+
             $dok_icon = '';
             $is_dok   = $adatbazis_kapcsolat->s2('recid utvonal', $tabla.'_dok', "`{$tabla}_id` = '".$bsz['recid']."'", '', '1');
             if( $is_dok ) {
@@ -3086,7 +3086,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                         if( $csoport_bej ) {
                             $csoport_bej = adatbazis2tomb($csoport_bej, 'recid');
                         }
-                        
+
                         $html .= nl2('
                                     <li class="szamla_datum csoport'.$csoport_active.'" data-id="'.$aktCsoport.'">
                                         <span class="icon"></span>
@@ -3120,7 +3120,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             //Egy csoporton belül biztosan csak olyan bejelentések lesznek, amiknek azonos a telephelye
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$bsz['telephely_id']}'");
             $telephely = $telephely[0];
-            
+
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span'.$bold.'>'.$bsz['ikt_szam'].' - '.$telephely['nev'].'</span>
                             <span'.$bold.'>'.$bsz['nev'].'</span>
@@ -3626,7 +3626,7 @@ function dokumentumtarLista() {
                 foreach($alkonyvtarak as $alk){
                     $html .= '
                             <li>
-                                <label><a href="'.self().'?konyvtar='.$menu['tabla'].'/'.$alk.'">'.$alk.'</a></label>
+                                <label class="as"><a href="'.self().'?konyvtar='.$menu['tabla'].'/'.$alk.'">'.$alk.'</a></label>
                             </li>';
                 }
                 $html .= '</ol>';
@@ -3660,7 +3660,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $akt_szint  = $adatbazis_kapcsolat->s2('szulo', 'obj', "`recid`='$akt_obj'");
             $akt_szint  = $akt_szint['szulo'];
         }
-        
+
         //Ha van szűrés (az csak szállodára lehet)
         $sql_kieg = '';
         if ($_GET['mezo']) {
@@ -3674,7 +3674,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if($akt_eszkoz['telephely_id']==$szalloda['id']){
                 $checked = ' checked';
             }
-            
+
             $link = '';
             $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'");
             if($szintek){
@@ -3786,7 +3786,7 @@ function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if($akt_ft['telephely_id']==$szalloda['id']){
                 $checked = ' checked';
             }
-            
+
             $link = '';
             $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'");
             if($szintek){
@@ -4984,7 +4984,7 @@ function het_napja_txt($datum){
                     6 => 'Szombat',
                     0 => 'Vasárnap',
                 );
-    
+
     return $het_napjai[date('w', strtotime($datum))];
 }
 

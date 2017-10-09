@@ -2253,7 +2253,7 @@ if($gyorskereso_text){
 }
 
     if( !$_GET['ajax'] ) {
-        echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
+        echo '<div id="szamlaHidden" class="dn"></div><div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
     /* Megjegyzések darabszáma */
@@ -2526,9 +2526,9 @@ if($gyorskereso_text){
         ');
     }
 
-    
+
     $js_submit_elott = 'return form_ell_admin();';
-    
+
 	//Új munkalap felvitele
 	if( isset($_GET['uj']) && ( _jog(JOG_DISZPECSER) ) ) {
 

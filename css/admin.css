@@ -1880,6 +1880,10 @@ div.naplo div.nSor div.dtc {
     width: 100%;
 }
 
+#szamlaBetolt.dn {
+    display: none;
+}
+
 #ajaxfedo {
     /*background: rgba(255, 255, 255, 0.8);
     height: 100%;*/
@@ -2782,4 +2786,8 @@ tr.erkeztet_szurkit{
 
 svg.piros path{
     fill: #f00;
+}
+
+div.jog_dt div.dtc.jog_dtc {
+    padding: 0rem 5rem 0rem 0rem;
 }
