@@ -1812,7 +1812,7 @@ array('type' => 'html',                     'megn' => nl2('
                                                                 </div>
                                                                 <div id="" class="dtc f_prigeny_tipus" style="padding-right: 4rem">
                                                             ')),
-    array('type' => 'select_pri_tipus',     'megn' => 'Típus:',         'name' => 'tipus',          'szuro' => 1,       'class' => 'disableNav', 'onchange' => 'prigen_tipus_beallit()'),
+    array('type' => 'select_pri_tipus',     'megn' => 'Típus:',         'name' => 'tipus',          'szuro' => 1,       'class' => 'disableNav', 'onchange' => 'prigeny_tipus_beallit()'),
 array('type' => 'html',                     'megn' => nl2('
                                                                 </div>
                                                                 <div id="besorolas_panel" class="dtc" style="padding-right: 4rem; display: none">
@@ -3906,61 +3906,6 @@ if( isset($_POST['addMegjegyzes']) ) {
             'statusz' => 'siker',
             'kapcsID' => $kapcsID,
             'uzi'     => ''
-        ));
-    }
-
-    $weblap->leallit();
-    exit();
-}
-
-// Cash-flow hozzáadása
-if( isset($_POST['addCashFlow']) ) {
-    
-    $pageID     = $_POST['pageID'];
-    $datum      = trim($_POST['datum']);
-    $szalloda   = trim($_POST['telephely_id']);
-    $osszeg     = trim(str_replace(' ', '', $_POST['osszeg']));
-
-    if( $pageID ) {
-        
-        //Ha többszállodás, akkor a szálloda meglétét is ellenőrizni kell
-        $pri = $adatbazis_kapcsolat->s2('egy_tobb', 'projektigenyles', "`recid`='{$pageID}'");
-        if($pri['egy_tobb']==1 && !$szalloda){
-            echo json_encode(array(
-                'statusz' => 'hiba',
-                'uzi'     => 'Kérjük válasszon szállodát!',
-                'gomb'    => '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#telephely_id\').focus();">'
-            ));
-            $weblap -> leallit();
-            exit;
-        }
-
-        if(!valos_datum_e($datum)){
-            echo json_encode(array(
-                'statusz' => 'hiba',
-                'uzi'     => 'Kérjük adja meg a dátumot!',
-                'gomb'    => '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#cf_datum\').focus();">'
-            ));
-            $weblap -> leallit();
-            exit;
-        }
-
-        if(!$osszeg){
-            echo json_encode(array(
-                'statusz' => 'hiba',
-                'uzi'     => 'Kérjük adja meg az összeget!',
-                'gomb'    => '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#cf_osszeg\').focus();">'
-            ));
-            $weblap -> leallit();
-            exit;
-        }
-
-        $sql = $adatbazis_kapcsolat->i('cash_flow', array('apa_recid', 'datum', 'osszeg', 'loginnev',                       'update_usr',                           'insert_dt', 'insert_usr'                           ),
-                                                    array($pageID,     $datum,  $osszeg,  $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'])
-                                        );
-
-        echo json_encode(array(
-            'statusz' => 'siker'
         ));
     }
 
