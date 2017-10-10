@@ -4339,6 +4339,12 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
 
         szoveg = 'sorokat';
         torolhet = true;
+        
+        mellekre_valt = '';
+        if(mellek=='cash_flow'){
+            mellek        = 'modosit';
+            mellekre_valt = 'cash_flow';
+        }
         if(_get('cash_flow')){
             szoveg = 'cash-flow-kat';
             /* Ha nincs minden kezelés joga, akkor nem törölheti */
@@ -4358,7 +4364,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
 
         if(torolhet){
             gomb_uzi   = 'Biztosan törli a kijelölt '+szoveg+'?';
-            gomb_muv   = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\');"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>';
+            gomb_muv   = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\', \'' + mellekre_valt + '\');"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>';
             ablak_cime = '';
         }else{
             gomb_uzi   = 'Önnek nincs joga '+szoveg+' törölni!';
@@ -4394,7 +4400,7 @@ function jobbOldalEltuntet( sorok ) {
 }
 
 /* Kapcsoló táblák - fülek alatti rekordok - törlése általános függvénye */
-function mellekTorol( tabla, mellek ) {
+function mellekTorol( tabla, mellek, mellekre_valt ) {
 
     var kijelolve = $('.kijCont .kijSor.kijelolve'),
         idk       = {};
@@ -4402,24 +4408,32 @@ function mellekTorol( tabla, mellek ) {
     var i = 1;
     kijelolve.each(function() {
         var id = $(this).attr('data-id');
-
-        idk[i] = id;
+        
+        /* Az ideiglenes soroknak nincs ID-ja, pontosabban az értéke UJ. Ezeket nem adjuk át az ajax-nak */
+        if(id!='UJ'){
+            idk[i] = id;
+        }
         i++;
     });
+    
+    /* Ha vannak olyan ideiglenes soraink (aminek az Id-ja UJ), azoakt elég csak eltűnteni
+      Pl.: Projektigénylésnél a cash-flow */
+    $('.kijCont .kijSor.kijelolve[data-id="UJ"]').fadeOut();
+    alert2();
 
     if( objLength( idk ) ) {
         $.ajax({
-         	url : 'esemenyek.php',
-         	type: 'POST',
-         	data: {
+            url : 'esemenyek.php',
+            type: 'POST',
+            data: {
                 recid       : _get('id'),
                 tabla       : tabla,
                 idk         : JSON.stringify(idk),
                 mellekTorol : new Date().getTime()
             },
-         	success: function(response) {
-         		if(response) {
-         			response = JSON.parse(response);
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
 
                     if( response.hiba ) {
                         alert2(response.hiba, '', 'Hiba');
@@ -4433,11 +4447,19 @@ function mellekTorol( tabla, mellek ) {
                         }else{
                             alert2();
                         }
+
+                        /* Fül csere (feltéve ha egyben van a tartalom és csak Js-el cserélünk) */
+                        if(mellekre_valt){
+                            $('#ful_'+mellek).removeClass('active');
+                            $('#ful_'+mellekre_valt).addClass('active');
+                            $('#'+mellekre_valt+'_div').show();
+                            $('#szerk_form').hide();
+                        }
                     }
 
 
-         		}
-         	}
+                }
+            }
         });
     }
 
@@ -4896,7 +4918,14 @@ function addCashFlow( pageID, that ) {
     var datum       = $('#cf_datum').val();
     var osszeg      = $('#cf_osszeg').val();
 
-    if( pageID ) {
+    $('#cash_flow_div div.dt').append(
+                                    '<div id="naploSor-UJ" class="dtr nSor kijSor" data-id="UJ">'   +
+                                    '<div class="dtc" style="width: 15rem">'+datum+'</div>'         +
+                                    '<div class="dtc">'+osszeg+' Ft</div>'                          +
+                                    '</div>'
+                                );
+    popupZar();
+    /*if( pageID ) {
         var ajax = $.ajax({
          	url : 'esemenyek.php',
          	type: 'POST',
@@ -4916,15 +4945,15 @@ function addCashFlow( pageID, that ) {
                         return false;
                     }
 
-         			/*szamlaBetolt(pageID, baseName(location.href) + '.php', 'cash_flow').done(function() {
+         			szamlaBetolt(pageID, baseName(location.href) + '.php', 'cash_flow').done(function() {
                         $('#naploSor-' + html.kapcsID).addClass('uj');
-                    });*/
+                    });
 
                     popupZar();
          		}
          	}
         });
-    }
+    }*/
 
     return false;
 }
