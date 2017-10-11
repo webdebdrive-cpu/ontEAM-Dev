@@ -150,6 +150,43 @@ if( isset($_GET['addVelemenyezo']) ) {
     exit();
 }
 
+//Megtérülés hozzáadása
+if (isset($_POST['addMegterules'])) {
+
+    $terulet = $_POST['terulet'];
+    $osszeg  = str_replace(' ', '', $_POST['osszeg']);
+    
+    if(!$terulet){
+        echo json_encode(array(
+            'hiba' => 'Kérjük válasszon területet!',
+            'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#erteklista_id_autocomp\').focus();" type="button">'
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    if(!$osszeg){
+        echo json_encode(array(
+            'hiba' => 'Kérjük adja meg az összeget!',
+            'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#osszeg\').focus();" type="button">'
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    $kapcsID = $adatbazis_kapcsolat->i('projektigenyles_megter', array('projektigenyles_recid', 'terulet', 'osszeg', 'insert_dt',    'insert_usr',                             'update_usr'                          ),
+                                                                 array($_POST['pageID'],        $terulet,  $osszeg,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
+                            );
+    
+    echo json_encode(array(
+        'statusz' => 'siker',
+        'kapcsID' => $kapcsID
+    ));
+    
+    $weblap->leallit();
+    exit();
+}
+
 //Egy vagy többszállodás select
 if (isset($_POST['f_pri_egytobb'])) {
 
@@ -552,7 +589,7 @@ if($gyorskereso_text){
         $dok_db = ' ('.$dok_db.')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['velemenyezok']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['cash_flow']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['velemenyezok']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['megterules']) || isset($_GET['cash_flow']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
@@ -561,6 +598,7 @@ if($gyorskereso_text){
             'cash_flow'     => 'Cash-flow',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
+            'megterules'    => 'Megtérülés',
         );
 
         $fulek = '';
@@ -877,8 +915,17 @@ if($gyorskereso_text){
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+        
+        //Ha van feltöltve legalább egy megtérülés, akkor a megtérülés pipa bekapcsolva, egyébként ki
+        $van_megter = $adatbazis_kapcsolat->s('recid', $megnevezes.'_megter', "`projektigenyles_recid`='{$_GET['id']}'", '', '1');
+        if($van_megter){
+            $van_megter = 1;
+        }else{
+            $van_megter = 0;
+        }
+        $sor['megter'] = $van_megter;
+        $adatbazis_kapcsolat->u($megnevezes, array('megter'), array($van_megter), "`recid`='{$_GET['id']}'");
 
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
@@ -1166,6 +1213,43 @@ if($gyorskereso_text){
 
                 $i++;
             }
+        }
+
+        $szamla_html .= '</div>';
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok,
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
+
+	//Megtérülés
+	}elseif(isset($_GET['megterules'])){
+
+        $szamla_html .= nl2('
+            <div class="dt naplo kijCont" data-tabla="projektigenyles_megter" data-mellek="megterules">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Terület</div>
+                    <div class="dtc">Összeg</div>
+                </div>
+        ');
+
+        $sorok = $adatbazis_kapcsolat->s('recid terulet osszeg insert_usr insert_dt', 'projektigenyles_megter', "`projektigenyles_recid` = '".$_GET['id']."'", 'insert_dt desc');
+        $i = 1;
+
+        foreach($sorok as $sor) {
+            
+            $szamla_html .= nl2('
+                <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                    <div class="dtc" style="width: 30rem">'.erteklista(37, $sor['terulet']).'</div>
+                    <div class="dtc">'.number_format($sor['osszeg'], 0, '', ' ').' '.get_penznem().'/év</div>
+                </div>
+            ');
+
+            $i++;
         }
 
         $szamla_html .= '</div>';

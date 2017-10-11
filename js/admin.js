@@ -4356,6 +4356,9 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
         if(_get('engedelyek')){
             szoveg = 'engedélyeket';
         }
+        if(_get('megterules')){
+            szoveg = 'megtérüléseket';
+        }
         if(_get('szallodak')){
             szoveg = 'szállodákat';
         }
@@ -4586,6 +4589,13 @@ function kapcsolodoSzerkeszt( oldal ) {
             break;
             case 'megjegyzes':
                 $('#addMegjegyzes').attr('onsubmit', 'return addMegjegyzes(\'' + _get('id') + '\', this);');
+            break;
+            case 'megterules':
+                if(_jogok[39]==1 || _jogok[60]==1 || _jogok[59]==1 || _jogok[62]==1 || _jogok[49]==1 || _jogok[47]==1 || _jogok[64]==1){
+                    $('#addMegterules').attr('onsubmit', 'return addMegterules(\'' + _get('id') + '\', this);');
+                }else{
+                    alert2('Önnek nincs joga Megtérülést feltölteni!', '', 'Hiba');
+                }
             break;
             case 'szakterulet':
                 $('#addSzakterForm').attr('onsubmit', 'return addSzakterulet(\'' + _get('id') + '\', this);');
@@ -4885,7 +4895,7 @@ function addSzakterulet( szallitoID, that ) {
 }
 
 
-//Megjegyzés hozzáadása
+/* Megjegyzés hozzáadása */
 function addMegjegyzes( pageID, that ) {
     var megj = $(that).find('textarea[name="megjegyzes"]').val();
 
@@ -5136,6 +5146,7 @@ function _get( ertek ) {
 
 /* Adatlap betöltése */
 function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
+    
     alert2('');
     if( formModositva && !kerdes_nelkul ) {
         alert2('Biztosan elhagyja ezt a bejegyzést mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; szamlaBetolt( \'' + recid + '\', \'' + page + '\', \'' + muvelet + '\', \'' + szerkeszt + '\' ); $(\'#szamlaList li.szamla_sor\').removeClass(\'kijelolve\');" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
@@ -5208,6 +5219,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
                         'jogosultsag',
                         'megjegyzes',
                         'megjegyzesek',
+                        'megterules',
                         'modosit',
                         'munkalapok',
                         'naplo',
@@ -5312,11 +5324,11 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
                     } else if( baseName(location.href) == 'projektigenyles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
-                    } else if( baseName(location.href) == 'projektigenyles' && _get('cash_flow') ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'cash_flow\'); void(0);');
-
                     } else if( baseName(location.href) == 'projektkezeles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+
+                    } else if( baseName(location.href) == 'projektigenyles' && _get('megterules') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megterules\'); void(0);');
 
                     } else if( baseName(location.href) == 'szamla' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');

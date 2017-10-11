@@ -1753,27 +1753,9 @@ if (isset($_GET['modosit'])) {
 
 $projektigenyles_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
-    array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,       'disabled' => 1,   'class' => 'normal', 'style' => 'width: 10rem', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
-    array('type' => 'checkbox',             'megn' => 'Rendkívüli:',            'name' => 'rendk',          'szuro' => 1,       'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
-    array('type' => 'checkbox',             'megn' => 'Megtérülő:',             'name' => 'megter',         'szuro' => 1,       'class' => 'check', 'onclick' => 'if($(this).prop(\'checked\')){ $(\'#megter_cel_div\').show(); }else{ $(\'#megter_cel_div\').hide(); }'),
-array('type' => 'html',                     'megn' => nl2('
-                                                        <div class="dtr">
-                                                            <div class="dtc form_bal">
-                                                            </div>
-                                                            <div class="dtc form_jobb">
-                                                                <div'.$megter_cel_rejt.' id="megter_cel_div">
-                                                                        <fieldset style="margin: 0">
-                                                                            <legend>Megtérülési cél:</legend>
-                                                                ')),
-    array('type' => 'select_pri_cel',       'megn' => 'Cél:',               'name' => 'megter_cel',     'class' => 'disableNav',     'szuro' => 1, 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'text',                 'megn' => 'Mértéke:',           'name' => 'mertek',         'class' => 'oriasi f_num', 'data' => 'data-tort="0"', 'post' => ' '.get_penznem()),
-    array('type' => 'text',                 'megn' => 'Megtérülési adatok:','name' => 'megter_adat',   'maxlength' => 250, 'class' => 'oriasi'),
-array('type' => 'html',                     'megn' => nl2('
-                                                                    </fieldset>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                                ')),
+    array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,       'class' => 'normal', 'disabled' => 1,   'style' => 'width: 10rem', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
+    array('type' => 'checkbox',             'megn' => 'Rendkívüli:',            'name' => 'rendk',          'szuro' => 1,       'class' => 'check',  'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
+    array('type' => 'checkbox',             'megn' => 'Megtérülő:',             'name' => 'megter',         'szuro' => 1,       'class' => 'check',  'disabled' => 1),
     array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi csillag'),
 array('type' => 'hidden','megn' => '',      'name' => 'egy_tobb'),
 array('type' => 'html',                     'megn' => nl2('

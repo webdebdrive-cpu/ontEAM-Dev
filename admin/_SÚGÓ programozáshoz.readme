@@ -16,9 +16,9 @@
 - adott php fájl elején a $ful_tomb -öt egészítsd ki, illetve közvetelnül előtte a $_GET-ekve is vedd fel az új paramétereket
 - adott php fájlban az if(isset($_GET['modosit']))-hoz hasonlóan vedd fel a fül paraméterénke megfelelő feltételt
 - Előbbinél lényeges, hogy legyen kimenetel, ajax számára. Legalább egy mondatot írj ki.
-- admin.js-ben a "param = get_get([" -ra keress rá, és itt is vedd fel az új fülek paraméterét
+- admin.js-ben a "param = get_get([" -ra keress rá (többször), és itt is vedd fel az új fülek paraméterét
 
-LE-FEL LÉPTETEÉS LEKEZELÉSE
+LE-FEL LÉPTETETÉS LEKEZELÉSE
 - admin.js "Léptetés lefele nyíllal, lépkedve le fel"-re keress rá
 
 LOGINNEV nevű oszlop feltöltése utólag az insert_usr alapján
