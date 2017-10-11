@@ -61,7 +61,8 @@ if ($_POST['engedelyDatum']) {
     if($_POST['kezdet']!='0000-00-00'){
         if(!valos_datum_e($_POST['kezdet'])){
             echo json_encode(array(
-                'hiba' => 'Érvénytelen hatályba lépés dátumot adott meg!'
+                'hiba' => 'Érvénytelen hatályba lépés dátumot adott meg!',
+                'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#esz_eng_kezdet\').focus();" type="button">'
             ));
 
             $weblap->leallit();
@@ -71,7 +72,8 @@ if ($_POST['engedelyDatum']) {
     if($_POST['veg']!='0000-00-00'){
         if(!valos_datum_e($_POST['veg'])){
             echo json_encode(array(
-                'hiba' => 'Érvénytelen hatályosság lejártát dátumot adott meg!'
+                'hiba' => 'Érvénytelen hatályosság lejártát dátumot adott meg!',
+                'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#esz_eng_veg\').focus();" type="button">'
             ));
 
             $weblap->leallit();
@@ -82,7 +84,8 @@ if ($_POST['engedelyDatum']) {
     if($_POST['kezdet']!='0000-00-00' && $_POST['veg']!='0000-00-00'){
         if($_POST['kezdet']>$_POST['veg']){
             echo json_encode(array(
-                'hiba' => 'A kezdődátum nem lehet későbbi a végdátumtól!'
+                'hiba' => 'A kezdődátum nem lehet későbbi a végdátumtól!',
+                'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#esz_eng_kezdet\').focus();" type="button">'
             ));
 
             $weblap->leallit();

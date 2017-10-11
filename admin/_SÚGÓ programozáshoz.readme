@@ -68,7 +68,7 @@ KIJELÖLÉSEK MŰKÖDÉSE (SOROK MEGJELÖLÉSE BAL NAVPANELEN ÉS FÜLEK ALATTI 
 - admin.js-ben erre keress rá: Csoportra kattintás
 - admin.js-ben erre keress rá: Bal oldali nav panelen kattintunk egy bejegyzésre. Ekkor lekezeljük mi történik a kijelöésekkel
 
-CIKKTORZSBŐL LEKÉRT AUTOCOMPLETE ESETÉN A MENNYISÉGI EGYSÉG AUTOMATIKUSAN BEÍRÓDIK
+CIKKTÖRZSBŐL LEKÉRT AUTOCOMPLETE ESETÉN A MENNYISÉGI EGYSÉG AUTOMATIKUSAN BEÍRÓDIK
 Ha van egy autocompletes input, ami cikktörzsből dolgozik, akkor ebben az űrlapban elhelyezett <span class="insertMee"></span> span-ba be fog íródni a mennyiségi egység is
 
 GOMBOK KISZERVEZÉSE ÁLTALÁNOSAN

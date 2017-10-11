@@ -56,6 +56,7 @@ $(document).ready(function () {
 
 //Cash-flow hozzáadása
 function addCashFlow( pageID, that ) {
+
     var telephely_id= $('#telephely_id').val();
     var szalloda    = $('#telephely_id option:selected').html();
     var datum       = $('#cf_datum').val();
@@ -78,7 +79,7 @@ function addCashFlow( pageID, that ) {
 
     $('#cash_flow_div div.dt div.dtr:first').after(
                                     '<div id="naploSor-UJ" class="dtr nSor kijSor" data-id="UJ">'               +
-                                        '<div class="dtc" style="width: 15rem">'                                +
+                                        '<div class="dtc szalloda" style="width: 15rem">'                                +
                                             '<input type="hidden" name="telephely_id" value="'+telephely_id+'">'+
                                             szalloda                                                            +
                                         '</div>'                                                                +
@@ -88,9 +89,10 @@ function addCashFlow( pageID, that ) {
                                 );
     
     $('#cash_flow_mentese').remove();
-    $('#tartalomJobb').prepend('<div id="cash_flow_mentese" class="muveletek"><div class="form_kuldes"> <input class="gombb mentes_gomb gombb_alert" name="mehet_gomb" id="mehet_gomb" value="Mentés" onclick="$(\'#szerk_form\').submit()" tabindex="23" type="button"> </div></div>');
+    $('#tartalomJobb').prepend('<div id="cash_flow_mentese" class="muveletek"><div class="form_kuldes"> <input class="gombb mentes_gomb gombb_alert" name="mehet_gomb" id="mehet_gomb2" value="Mentés" onclick="$(\'#szerk_form\').submit()" tabindex="23" type="button"> </div></div>');
     popupZar();
     becsult_szetosztott_ujraszamol();
+    
     
     formModositva = true;
 

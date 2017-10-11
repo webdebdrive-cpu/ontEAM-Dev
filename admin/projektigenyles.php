@@ -645,8 +645,8 @@ if($gyorskereso_text){
     $gombok = '';
     if( isset($_GET['uj']) ) {
 
-        //Újat csak "Projektigénylés kezelése" joggal lehet
-        if(_jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_T_KEZEL) ){
+        //Újat csak kezelés joggal lehet
+        if(_jog(JOG_PRIGENY_B_KEZEL) || _jog(JOG_PRIGENY_EGY_KEZEL) || _jog(JOG_PRIGENY_F_KEZEL) || _jog(JOG_PRIGENY_SZ_KEZEL) || _jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_TOBB_KEZEL) || _jog(JOG_PRIGENY_T_KEZEL) ){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
@@ -699,6 +699,12 @@ if($gyorskereso_text){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Ön csak saját projektigénylést törölhet!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
             } else {
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            }
+
+            //Ha a prigény létrehozás alatt van, akkor érhető el csak az Igénylés rögzítése gomb
+            if($sor['stat_id']==PRIGENY_STAT_LETRE_ALATT){
+                $gombok .= ' <input type="button" class="gomb foGomb" value="Igénylés rögzítése" title="Igénylés rögzítése" onclick="$(\'#igeny_rogzit\').val(1); $(\'#szerk_form\').submit();">';
+                $gombok .= ' <input type="hidden" id="igeny_rogzit">';
             }
 
             //Ha a prigény véleményezés alatt van, és véleményező vagyok, akkor tudok véleményt feltölteni
@@ -773,9 +779,11 @@ if($gyorskereso_text){
     $js_submit_elott  = '';
     
     //Ha vannak cash-flow-jaim és többszállodás a modell, akkor mentés előtt azt is vizsgáljuk, hogy nem váltottunk-e egyszállodásra, vagy szállodát
+    $rogzites_figyeles_kieg     = '';
+    $egyszallodasok_leszunk_ell = '';
     if( isset($_GET['modosit']) ) {
         if($sor['egy_tobb']==1){
-            $js_submit_elott .= '
+            $egyszallodasok_leszunk_ell .= '
                                 if(!volt_figyelmeztetes){
                                     if($(\'#cash_flow_div div.kijSor\').length && $(\'#telephely_id\').val()!=\''.$sor['telephely_id'].'\'){
                                         alert2(\'Ha módosítja a vállalatot vagy egyszállodás modellre vált, a cash-flowban rögzített adatok törlődni fognak!<br>Biztosan folytatja a műveletet?\', \'<input type="button" class="gomb zold" onclick="volt_figyelmeztetes = true; $(\\\'#szerk_form\\\').submit();" value="Igen"> <input type="button" class="gomb piros" onclick="alert2()" value="Nem">\');
@@ -785,21 +793,79 @@ if($gyorskereso_text){
                                     volt_figyelmeztets = false;
                                 }
                                 ';
+            //Ha többszállodás, akkor a rögzítésnél még azt is figyeljük, hogy valóban több szálloda is tartozik-e hozzá.
+            $rogzites_figyeles_kieg .= '
+                                kulonbozo_telephelyek = false;
+                                if( telephely_nev = $(\'#cash_flow_div div.kijSor div.szalloda\').length ){
+                                    elozo_telephely = $(\'#cash_flow_div div.kijSor input[name="telephely_id"]\').first().val();
+                                    telephely_nev = $(\'#cash_flow_div div.kijSor div.szalloda\').first().html();
+                                    $(\'#cash_flow_div div.kijSor\').each(function() {
+                                        telephely_tmp = $(this).find(\'input[name="telephely_id"]\').val();
+                                        if(elozo_telephely!=telephely_tmp){
+                                            kulonbozo_telephelyek = true;
+                                        }
+                                    });
+                                /* Ha egy telephely sincs rögzítve, akkor is tovább mehetünk. */
+                                }else{
+                                    kulonbozo_telephelyek = true;
+                                }
+
+                                if(!kulonbozo_telephelyek && !kulonbozo_telephely_mehet){
+                                    alert2(\'Cashflow csak \'+telephely_nev+\' szállodára készült.<br>Ha folytatja, a projekt igénylés egy szállodásra változik!<br>Folytatja?\', \'<input type="button" class="gomb zold" value="Igen" onclick="kulonbozo_telephely_mehet = true; $(\\\'#igeny_rogzit\\\').val(1); $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">\');
+                                    return false;
+                                }
+                                ';
         }
     }
     
     $js_submit_elott .= '
+                        /* Cash flow menüpont alatti mentés gombot levesszük */
                         $(\'#cash_flow_mentese\').remove();
+                        
+                        /* 
+                        Igénylés rögzítése ugyanaz mint a Mentés gomb, csak itt vizsgáljuk azt is, hogy a becsült költség azonos-e a szétosztottal, illeve még jópár egyéb feltétlet.
+                        Kérdés, hogy ha nem, akkor az ideiglenes sorokat le se tároljuk? Egyelőre nem.
+                        */
+                        
+                        if($(\'#igeny_rogzit\').val()>0){
+                            
+                            /* Újból egy mentés gombra kattintva már nem akarunk igényt rögzíteni, ezt az ágat csak az igény rögzítése gombnyomásakor figyeljük */
+                            $(\'#igeny_rogzit\').val(0);
+                            /* Kötelező mezők ki vannak-e töltve */
+                            if( !$(\'#nev\').val().trim() ){
+                                alert2(\'Rögzítéshez töltse ki az igénylés nevét!\', \'<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\\\'#nev\\\').focus();">\', \'Hiba\');
+                                return false;
+                            }
+                            '.$rogzites_figyeles_kieg.'
+                            '.$egyszallodasok_leszunk_ell.'
+                                               
+                            osszeg = 0;
+                            $(\'#cash_flow_div div.kijSor\').each(function() {
+                                akt_osszeg = Number($(this).find(\'div.osszeg\').html().replace(\' '. get_penznem().'\', \'\').replace(/ /g, \'\'));
+                                osszeg    += akt_osszeg;
+                            });
 
-                        osszeg = 0;
+                            bkolt = $(\'#bkolt\').val().replace(/ /g, \'\');
+                            if(bkolt!=osszeg){ 
+                                alert2(\'A becsült költség nem egyenlő a szétosztott költségekkel!\', \'\', \'Hiba\');
+                                return false;
+                            }
+                            
+                            if( $(\'#megter\').prop(\'checked\')==false ){
+                                alert2(\'Az igénylés nem megtérülő, így nem rögzíthető!\', \'\', \'Hiba\');
+                                return false;
+                            }
+                            
+                        }
+
+                        /* Ideiglenes Cash-flow sorok eltárolása adatbázisba */
                         szallodak = [];
                         datumok   = [];
                         osszegek  = [];
                         $(\'#cash_flow_div div.kijSor\').each(function() {
 
-                            akt_osszeg = Number($(this).find(\'div.osszeg\').html().replace(\' '. get_penznem().'\', \'\').replace(/ /g, \'\'));
-                            osszeg    += akt_osszeg;
                             if( $(this).attr(\'data-id\')==\'UJ\' ){
+                                akt_osszeg = Number($(this).find(\'div.osszeg\').html().replace(\' '. get_penznem().'\', \'\').replace(/ /g, \'\'));
                                 osszegek.push(akt_osszeg);
 
                                 akt_telephely_id = $(this).find(\'input[name="telephely_id"]\').val();
@@ -809,13 +875,6 @@ if($gyorskereso_text){
                             }
                             
                         });
-
-                        bkolt = $(\'#bkolt\').val().replace(/ /g, \'\');
-                        
-                        if(bkolt!=osszeg){ 
-                            alert2(\'A becsült költség nem egyenlő a szétosztott költségekkel!\', \'\', \'Hiba\');
-                            return false;
-                        }
                         
                         var ajax = $.ajax({
                             url : \''.self().'\',
@@ -995,7 +1054,8 @@ if($gyorskereso_text){
         
         $tovabbi_tartalom .= nl2('
             <script>
-                volt_figyelmeztetes = false;
+                volt_figyelmeztetes       = false;
+                kulonbozo_telephely_mehet = false;
                 $(document).ready(function() {
                     becsult_szetosztott_ujraszamol();
                 });
@@ -1010,6 +1070,8 @@ if($gyorskereso_text){
                     $(\'#kulonbseg\')    .html( ezresek( $(\'#bkolt\').val().replace(/ /g, \'\') - szetosztott, 0, \'\', \' \')+\' '.get_penznem().'\' );
                     if( $(\'#becs_kolt\').html() != $(\'#szetoszt_kolt\').html() ){
                         $(\'#kulonbseg\').addClass(\'piros\');
+                    }else{
+                        $(\'#kulonbseg\').removeClass(\'piros\');
                     }
                 }
             </script>
@@ -1045,8 +1107,11 @@ if($gyorskereso_text){
 
             $tovabbi_tartalom .= nl2('
                 <div id="naploSor-'.$sor['recid'].'" data-id="'.$cf['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                    <div class="dtc" style="width: 15rem">'.$szalloda['nev'].'</div>
-                    <div class="dtc" style="width: 15rem">'.str_replace('-', '.', $cf['datum']).'</div>
+                    <div class="dtc szalloda" style="width: 15rem">
+                        '.$szalloda['nev'].'
+                        <input type="hidden" name="telephely_id" value="'.$cf['telephely_id'].'">
+                    </div>
+                    <div class="dtc datum" style="width: 15rem">'.str_replace('-', '.', $cf['datum']).'</div>
                     <div class="dtc osszeg">'.number_format($cf['osszeg'], 0, '', ' ').' '.get_penznem().'</div>
                 </div>
             ');
@@ -1065,7 +1130,7 @@ if($gyorskereso_text){
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html;

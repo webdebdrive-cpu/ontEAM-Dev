@@ -852,8 +852,8 @@ console.log(type);
                     mod++;
                 }
             });
-
             if( mod ) {
+
                 $('#kilepes_gomb').val('Kilépés mentés nélkül');
                 $('#mehet_gomb').attr('disabled', false).addClass('gombb_alert');
                 $('#visszavonas_gomb').attr('disabled', false);
@@ -5939,6 +5939,13 @@ function osszetett_szuro_mondat(){
 
 /* Projektigénylés alatt az adatlap és cash flow fül közötti váltás */
 function prigeny_ful_valt(ful){
+    
+    var vannak_ideiglenes_sorok = false;
+    $('#cash_flow_div div.kijSor').each(function() {
+        if( $(this).attr('data-id')=='UJ' ){
+            vannak_ideiglenes_sorok = true;
+        }
+    });
 
     if(ful=='cash_flow'){
         $('#cash_flow_div').show();
@@ -5946,6 +5953,9 @@ function prigeny_ful_valt(ful){
         $('#ful_cash_flow').addClass('active');
         $('#ful_modosit').removeClass('active');
         $('#navGombok .uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'cash_flow\'); void(0);');
+        if(vannak_ideiglenes_sorok){
+            $('#tartalomJobb').prepend('<div id="cash_flow_mentese" class="muveletek"><div class="form_kuldes"> <input class="gombb mentes_gomb gombb_alert" name="mehet_gomb" id="mehet_gomb2" value="Mentés" onclick="$(\'#szerk_form\').submit()" tabindex="23" type="button"> </div></div>');
+        }
     }
 
     if(ful=='adatlap'){
@@ -5954,6 +5964,9 @@ function prigeny_ful_valt(ful){
         $('#ful_cash_flow').removeClass('active');
         $('#ful_modosit').addClass('active');
         $('#navGombok .uj').attr('href', 'projektigenyles.php?uj');
+        if(vannak_ideiglenes_sorok){
+            $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
+        }
     }
 
     /* Ha nem az adatlapon vagyunk akkor szamlaBetolt */

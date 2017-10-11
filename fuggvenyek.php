@@ -30,7 +30,6 @@ function i_u($type, $tabla, $tomb) {
 
     $nevid   = '';
 
-    $prigeny_kot_mezok = array('nev', 'bkolt'); //Projektigénylésnek vannak elméleti kötelező mezői, ahhoz kell
     $oszlopok = array();
     $ertekek  = array();
 
@@ -493,39 +492,6 @@ function i_u($type, $tabla, $tomb) {
         //Projektigénylés új bejegyzés esetén
         } else if( $tabla == 'projektigenyles' ) {
 
-            $_POST['mertek'] = str_replace(' ', '', $_POST['mertek']);
-
-            /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
-            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = '{$tabla}' AND `ev` = '".date('y')."'");
-            if( $ikt_seq === false ) { $db_error = true; }
-
-            if( $ikt_seq ) {
-
-                /* Sorszám */
-                $sorszam = $ikt_seq['sorszam'];
-
-                /* Sorszám növelés */
-                $sorszam++;
-
-                /* Letároljuk az új sorszámot */
-                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = '{$tabla}' AND `ev` = '".date('y')."'");
-                if( $sql === false ) { $db_error = true; }
-
-            } else {
-                /* Sorszám */
-                $sorszam = 1;
-
-                $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam',    'ev',       'tabla'),
-                                                                array($sorszam,     date('y'), $tabla));
-                if( $sql === false ) { $db_error = true; }
-            }
-
-            /* Iktatószám formázása */
-            $ikt_szam = 'PI'.date('y').'/'.sprintf('%07d', $sorszam);
-
-            array_push($oszlopok,  'ikt_szam');
-            array_push($ertekek,   $ikt_szam );
-
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
@@ -708,21 +674,12 @@ function i_u($type, $tabla, $tomb) {
         // Projektigénylés státusz beszúrása
         if( $tabla == 'projektigenyles' ) {
 
-            //Ez nyitott, hacsak nem hiányzik kötelező mező kitöltése
-            $statusz = PRIGENY_STAT_NYITOTT;
-            foreach ($prigeny_kot_mezok as $mezo){
-                if(!$_POST[$mezo] || str_replace(',', '.', $_POST[$mezo])=='0'){
-                    $statusz = PRIGENY_STAT_LETRE_ALATT;
-                    break;
-                }
-            }
-
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                array($id,             $statusz,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',                   'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                array($id,             PRIGENY_STAT_LETRE_ALATT,    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
-            $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array($statusz), "`recid`='$id'");
+            $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRIGENY_STAT_LETRE_ALATT), "`recid`='$id'");
             if( $sql === false ) { $db_error = true; }
 
         }
@@ -880,32 +837,6 @@ function i_u($type, $tabla, $tomb) {
 //echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
         if( $id === false ) { $db_error = true; }
 
-        //Projektigénylésnél van pár elméleteileg kötelező mező, ami státuszléptetéssel jár, ezt le kell kezelni
-        if( $tabla == 'projektigenyles' ){
-            $prigeny = $adatbazis_kapcsolat->s2(implode(', ', $prigeny_kot_mezok).' stat_id', $tabla, "`recid`='{$_GET['id']}'");
-            if( $prigeny === false ) { $db_error = true; }
-
-            $mind_megvan = true;
-            foreach($prigeny_kot_mezok as $mezo){
-                if(!$prigeny[$mezo] || str_replace(',', '.', $prigeny[$mezo])=='0'){
-                    $mind_megvan = false;
-                }
-            }
-
-            if($mind_megvan){
-                $uj_statusz = PRIGENY_STAT_NYITOTT;
-            }else{
-                $uj_statusz = PRIGENY_STAT_LETRE_ALATT;
-            }
-
-            //Ha van új státusz, akkor váltunk. Kivéve ha már véleményezés alatt van a rekord, akkor nem bántjuk.
-            if($prigeny['stat_id']!=$uj_statusz && $prigeny['stat_id']!=PRIGENY_STAT_VEL_ALATT){
-                if( !addStatusz( $tabla.'_statusz', $_GET['id'], $uj_statusz ) ) {
-                    $db_error = true;
-                }
-            }
-
-        }
         if( $id ) {
             $sor = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
             if( $sor === false ) { $db_error = true; }
@@ -1787,12 +1718,15 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         if($tabla=='projektigenyles'){
 
             $szallodak_kieg = '';
+            //Többszállodás esetén a két tosszállodás telephely_id-t felvesszük még
             if(_jog(JOG_PRIGENY_TOBB_MEGTEKINT)){
                 $szallodak_kieg = ', 1011, 4301';
             }
+            
+            //Számít a saját szállodai látókör
             $where = "`".get_db_tabla()."projektigenyles`.`telephely_id` IN (".implode(',', $szallodak).$szallodak_kieg.") AND ";
 
-            //Jogok szűrése
+            //Szűrés jogokra (igénylés tipusra külön látási jogok vannak)
             $where_jogok = '';
             if(_jog(JOG_PRIGENY_B_MEGTEKINT)){
                 $where_jogok .= "`tipus`='".PRIGENY_TIPUS_BERUH."' OR ";
@@ -1804,7 +1738,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 $where_jogok .= "`tipus`='".PRIGENY_TIPUS_TARGY."' OR ";
             }
 
-            //Egy-több szállodára szűrés
+            //Az egy-több szállodára is külön jogok vannak
             if(_jog(JOG_PRIGENY_EGY_MEGTEKINT)){
                 $where_jogok .= "`egy_tobb`='0' OR ";
             }
@@ -1814,6 +1748,9 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             if($where_jogok){
                 $where .= '('.csonkit($where_jogok, 4).') AND ';
             }
+            
+            //Létrehozás alatti szállodát nem láthat senki, kivéve aki dolgozik rajta
+            $where .= " (`stat_id`!='".PRIGENY_STAT_LETRE_ALATT."' OR `loginnev`='{$_SESSION[get_db_tabla().'user']}')";
 
 
         }
