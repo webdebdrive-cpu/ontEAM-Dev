@@ -462,20 +462,21 @@ $(function() {
 
     $(document).on('keyup', 'input', function(e) {
         if (e.which == 13 && !$('#alert2').is(':visible') ) {
-
+            
             mezo_nev = $(this).attr('name');
             stop = false;
-            $(this).parents('form').find('input, select, textarea').each(function() {
+            $(this).parents('form').find('input, select, textarea').filter(':not(:disabled)').each(function() {
                 var name = $(this).attr('name'),
-                    type = $(this).attr('type');
+                    type = $(this).attr('type'),
+                    tag  = $(this).prop('tagName');
 
                 /* Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is */
                 if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
-console.log(type);
-                    if( type == 'checkbox' ) {
+
+                    if( type == 'checkbox' || tag == 'SELECT' ) {
                         document.getElementById(name).focus();
                     } else {
-                        if($('#'+name).length){
+                        if($('#' + name).length){
                             document.getElementById(name).select();
                         }
                     }
