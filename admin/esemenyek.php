@@ -1812,7 +1812,7 @@ array('type' => 'html',                     'megn' => nl2('
                                                                 </div>
                                                                 <div id="" class="dtc f_prigeny_tipus" style="padding-right: 4rem">
                                                             ')),
-    array('type' => 'select_pri_tipus',     'megn' => 'Típus:',         'name' => 'tipus',          'szuro' => 1,       'class' => 'disableNav', 'onchange' => 'prigen_tipus_beallit()'),
+    array('type' => 'select_pri_tipus',     'megn' => 'Típus:',         'name' => 'tipus',          'szuro' => 1,       'class' => 'disableNav', 'onchange' => 'prigeny_tipus_beallit()'),
 array('type' => 'html',                     'megn' => nl2('
                                                                 </div>
                                                                 <div id="besorolas_panel" class="dtc" style="padding-right: 4rem; display: none">

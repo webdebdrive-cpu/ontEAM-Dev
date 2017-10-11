@@ -382,6 +382,37 @@ if (isset($_POST['pri_statusz_leptet'])) {
     exit();
 }
 
+// Cash-flow hozzáadása
+if( isset($_POST['addCashFlow']) ) {
+    
+    $pageID     = $_POST['pageID'];
+    $datumok    = json_decode($_POST['datumok']);
+    $szallodak  = json_decode($_POST['szallodak']);
+    $osszegek   = json_decode($_POST['osszegek']);
+
+    if( $pageID ) {
+
+        $osszegek[$i] = trim(str_replace(' ', '',  $osszegek[$i]));
+        $datumok[$i]  = trim(str_replace('.', '-', $datumok[$i] ));
+        $i = 0;
+        foreach($datumok as $datum){
+            if($osszegek[$i]>0){
+                $sql = $adatbazis_kapcsolat->i('cash_flow', array('apa_recid', 'telephely_id',  'datum',       'osszeg',       'loginnev',                       'update_usr',                           'insert_dt', 'insert_usr'                           ),
+                                                            array($pageID,     $szallodak[$i],  $datumok[$i],  $osszegek[$i],  $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'])
+                                                );
+                $i++;
+            }
+        }
+
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
 
 /* CSV generálása */
 if (isset($_GET['csv'])) {
@@ -555,12 +586,12 @@ if($gyorskereso_text){
         );
     }
     
-    // A prigen_tipus_beallit() függvényt meghívjuk betöltéskor
+    // A prigeny_tipus_beallit() függvényt meghívjuk betöltéskor
     $szamla_html .= nl2('
                             <script>
                                 $(document).ready(function () {
                                 
-                                    prigen_tipus_beallit();
+                                    prigeny_tipus_beallit();
                                     if( $(\'#egy_tobb\').val()>0 ){
                                         $(\'#egy_tobb_tobb\').prop(\'checked\', true)
                                     }else{
@@ -700,7 +731,69 @@ if($gyorskereso_text){
         ');
     }
 
-    $js_submit_elott = 'return form_ell_admin();';
+    $js_submit_elott  = '';
+    
+    //Ha vannak cash-flow-jaim és többszállodás a modell, akkor mentés előtt azt is vizsgáljuk, hogy nem váltottunk-e egyszállodásra, vagy szállodát
+    if( isset($_GET['modosit']) ) {
+        if($sor['egy_tobb']==1){
+            $js_submit_elott .= '
+                                if(!volt_figyelmeztetes){
+                                    if($(\'#cash_flow_div div.kijSor\').length && $(\'#telephely_id\').val()!=\''.$sor['telephely_id'].'\'){
+                                        alert2(\'Ha módosítja a vállalatot vagy egyszállodás modellre vált, a cash-flowban rögzített adatok törlődni fognak!<br>Biztosan folytatja a műveletet?\', \'<input type="button" class="gomb zold" onclick="volt_figyelmeztetes = true; $(\\\'#szerk_form\\\').submit();" value="Igen"> <input type="button" class="gomb piros" onclick="alert2()" value="Nem">\');
+                                        return false;
+                                    }
+                                }else{
+                                    volt_figyelmeztets = false;
+                                }
+                                ';
+        }
+    }
+    
+    $js_submit_elott .= '
+                        $(\'#cash_flow_mentese\').remove();
+                        
+                        osszeg = 0;
+                        szallodak = [];
+                        datumok   = [];
+                        osszegek  = [];
+                        $(\'#cash_flow_div div.kijSor\').each(function() {
+
+                            akt_osszeg = Number($(this).find(\'div.osszeg\').html().replace(\' '. get_penznem().'\', \'\').replace(/ /g, \'\'));
+                            osszeg    += akt_osszeg;
+                            if( $(this).attr(\'data-id\')==\'UJ\' ){
+                                osszegek .push(akt_osszeg);
+                                
+                                akt_telephely_id = $(this).find(\'input[name="telephely_id"]\').val();
+                                akt_datum        = $(this).find(\'div.datum\').html();
+                                szallodak.push(akt_telephely_id);
+                                datumok  .push(akt_datum       );
+                            }
+                            
+                        });
+
+                        bkolt = $(\'#bkolt\').val().replace(/ /g, \'\');
+                        
+                        if(bkolt!=osszeg){ 
+                            alert2(\'A becsült költség nem egyenlő a szétosztott költségekkel!\', \'\', \'Hiba\');
+                            return false;
+                        }
+                        
+                        var ajax = $.ajax({
+                            url : \''.self().'\',
+                            type: \'POST\',
+                            data: {
+                                pageID       : \''.$_GET['id'].'\',
+                                szallodak    : JSON.stringify(szallodak),
+                                datumok      : JSON.stringify(datumok),
+                                osszegek     : JSON.stringify(osszegek),
+                                addCashFlow  : new Date().getTime()
+                            },
+                            success: function(response) {
+                            }
+                        });
+                        return form_ell_admin();
+                        ';
+    $js_submit_elott = nl2($js_submit_elott);
     
 	//Új projektigénylés felvitele
 	if( isset($_GET['uj']) && (_jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_T_KEZEL) || _jog(JOG_PRIGENY_B_KEZEL) || _jog(JOG_PRIGENY_F_KEZEL) || _jog(JOG_PRIGENY_SZ_KEZEL)) ){
@@ -853,27 +946,64 @@ if($gyorskereso_text){
         $tovabbi_tartalom = '';
         
         $tovabbi_tartalom .= nl2('
+            <script>
+                volt_figyelmeztetes = false;
+                $(document).ready(function() {
+                    becsult_szetosztott_ujraszamol();
+                });
+                
+                function becsult_szetosztott_ujraszamol(){
+                    szetosztott = 0;
+                    $(\'#cash_flow_div div.kijSor\').each(function() {
+                        akt_osszeg = Number($(this).find(\'div.osszeg\').html().replace(\' '. get_penznem().'\', \'\').replace(/ /g, \'\'));
+                        szetosztott += akt_osszeg;
+                    });
+                    $(\'#szetoszt_kolt\').html( ezresek(szetosztott)+\' '.get_penznem().'\', 0, \'\', \' \');
+                    $(\'#kulonbseg\')    .html( ezresek( $(\'#bkolt\').val().replace(/ /g, \'\') - szetosztott, 0, \'\', \' \')+\' '.get_penznem().'\' );
+                    if( $(\'#becs_kolt\').html() != $(\'#szetoszt_kolt\').html() ){
+                        $(\'#kulonbseg\').addClass(\'piros\');
+                    }
+                }
+            </script>
             <div id="cash_flow_div" class="dn">
+                <div class="dt full">
+                    <div class="dtc">
+                        Becsült költség: <b id="becs_kolt">'.number_format($sor['bkolt'], 0, '', ' ').' '.get_penznem().'</b>
+                    </div>
+                    <div class="dtc c">
+                        Szétosztott költség: <b id="szetoszt_kolt"></b>
+                    </div>
+                    <div class="dtc r">
+                        Különbség: <b id="kulonbseg"></b>
+                    </div>
+                </div>
                 <div class="dt naplo kijCont" data-tabla="cash_flow" data-mellek="cash_flow">
                     <div class="dtr nFejlec">
+                        <div class="dtc" style="width: 30rem">Szálloda</div>
                         <div class="dtc" style="width: 15rem">Dátum</div>
                         <div class="dtc">Összeg</div>
                     </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid datum osszeg', 'cash_flow', "`apa_recid`='".$_GET['id']."'", 'insert_dt desc');
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $tovabbi_tartalom .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc" style="width: 15rem">'.str_replace('-', '.', $sor['datum']).'</div>
-                        <div class="dtc">'.number_format($sor['osszeg'], 0, '', ' ').' '.get_penznem().'</div>
-                    </div>
-                ');
+        $cash_flowk = $adatbazis_kapcsolat->s('recid telephely_id datum osszeg', 'cash_flow', "`apa_recid`='".$_GET['id']."'", 'insert_dt desc');
+        $i = 1;
+        foreach($cash_flowk as $cf) {
 
-                $i++;
+            if($sor['egy_tobb']==0){
+                $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$sor['telephely_id']}'");
+            }else{
+                $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$cf['telephely_id']}'");
             }
+
+            $tovabbi_tartalom .= nl2('
+                <div id="naploSor-'.$sor['recid'].'" data-id="'.$cf['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
+                    <div class="dtc" style="width: 15rem">'.$szalloda['nev'].'</div>
+                    <div class="dtc" style="width: 15rem">'.str_replace('-', '.', $cf['datum']).'</div>
+                    <div class="dtc osszeg">'.number_format($cf['osszeg'], 0, '', ' ').' '.get_penznem().'</div>
+                </div>
+            ');
+
+            $i++;
         }
 
         $tovabbi_tartalom .= '</div></div>';

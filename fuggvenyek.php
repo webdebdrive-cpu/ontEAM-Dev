@@ -854,6 +854,16 @@ function i_u($type, $tabla, $tomb) {
                 }
             }
         }
+        
+        //Projektigényléseknél egy-több szállodás váltás lekezelése
+        if( $tabla == 'projektigenyles' ) {
+            $prigeny = $adatbazis_kapcsolat->s2('egy_tobb telephely_id', $tabla, "`recid`='{$_GET['id']}'");
+            //Ha többszállodás, és változott a telephely, akkor töröljük a Cash-flow adatokat
+            if($prigeny['egy_tobb']==1 && $prigeny['telephely_id']!=$_POST['telephely_id']){
+                $sql = $adatbazis_kapcsolat->d('cash_flow', "`apa_recid`='{$_GET['id']}'");
+                if( $sql === false ) { $db_error = true; }
+            }
+        }
 
         //Szeméyzet aktív/ianktív váltása a hozzá tartozó login-t is aktív/inaktiválja
         if( $tabla == 'torzsadat' ) {
@@ -1378,6 +1388,18 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
         ');
     }
+    
+    // Projektigénylésnél váltás cash-flow fülre, ha azon voltunk
+    $cash_flow_fulre_lepes = '';
+    if( basename(self())=='projektigenyles.php' ){
+        $cash_flow_fulre_lepes = nl2('        
+                    if($(\'#ful_cash_flow\').hasClass(\'active\')){
+                        $.when( betoltott ).done(function() {
+                            cash_flow_fulre_lep();
+                        });
+                    }
+                ');
+    }
 
     //Ajaxos form módosítás
     $js_kieg = '';
@@ -1411,8 +1433,10 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
                     '.$js_kieg.'
                     szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
-                    szamlaBetolt( \''.$_GET['id'].'\', \''.basename(self()).'\', \'modosit\', \'\', \'Elhagy kérdés nélkül\' );
-
+                    betoltott = szamlaBetolt( \''.$_GET['id'].'\', \''.basename(self()).'\', \'modosit\', \'\', \'Elhagy kérdés nélkül\' );
+                    
+                    '.$cash_flow_fulre_lepes.'
+                        
                     formAdatok = response.adatok;
 
                     gombokNullaz();
