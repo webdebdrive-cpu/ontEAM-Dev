@@ -471,7 +471,7 @@ $(function() {
 
                 /* Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is */
                 if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
-
+console.log(type);
                     if( type == 'checkbox' ) {
                         document.getElementById(name).focus();
                     } else {
@@ -5926,7 +5926,7 @@ function prigeny_ful_valt(ful){
         $('#ful_modosit').removeClass('active');
         $('#navGombok .uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'cash_flow\'); void(0);');
     }
-    
+
     if(ful=='adatlap'){
         $('#cash_flow_div').hide();
         $('#szerk_form').show();

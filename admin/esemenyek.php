@@ -1784,14 +1784,14 @@ array('type' => 'html',                     'megn' => nl2('
                                                     <div class="dtc form_jobb">
                                                         Egyszállodás
                                                         <div class="cb">
-                                                            <input id="egy_tobb_egy" tabindex="15" type="checkbox" class="f_pri_egytobb" data-egytobb="egy">
+                                                            <input id="egy_tobb_egy" name="egy_tobb_egy" tabindex="15" type="checkbox" class="f_pri_egytobb" data-egytobb="egy">
                                                             <label for="egy_tobb_egy" onclick="$(\'#mehet_gomb\').addClass(\'gombb_alert\');"></label>
                                                         </div>
                                                         <span class="formText" style="margin-left: 4rem"></span>
 
                                                         Többszállodás
                                                         <div class="cb">
-                                                            <input id="egy_tobb_tobb" tabindex="16" type="checkbox" class="f_pri_egytobb" data-egytobb="tobb">
+                                                            <input id="egy_tobb_tobb" name="egy_tobb_tobb" tabindex="16" type="checkbox" class="f_pri_egytobb" data-egytobb="tobb">
                                                             <label for="egy_tobb_tobb" onclick="$(\'#mehet_gomb\').addClass(\'gombb_alert\');"></label>
                                                         </div>
 
