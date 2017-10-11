@@ -437,6 +437,7 @@ if( isset($_POST['addCashFlow']) ) {
                 $sql = $adatbazis_kapcsolat->i('cash_flow', array('apa_recid', 'telephely_id',  'datum',       'osszeg',       'loginnev',                       'update_usr',                           'insert_dt', 'insert_usr'                           ),
                                                             array($pageID,     $szallodak[$i],  $datumok[$i],  $osszegek[$i],  $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'])
                                                 );
+echo $adatbazis_kapcsolat->gp() . '<br>';
                 $i++;
             }
         }
@@ -789,7 +790,7 @@ if($gyorskereso_text){
     
     $js_submit_elott .= '
                         $(\'#cash_flow_mentese\').remove();
-                        
+
                         osszeg = 0;
                         szallodak = [];
                         datumok   = [];
@@ -799,8 +800,8 @@ if($gyorskereso_text){
                             akt_osszeg = Number($(this).find(\'div.osszeg\').html().replace(\' '. get_penznem().'\', \'\').replace(/ /g, \'\'));
                             osszeg    += akt_osszeg;
                             if( $(this).attr(\'data-id\')==\'UJ\' ){
-                                osszegek .push(akt_osszeg);
-                                
+                                osszegek.push(akt_osszeg);
+
                                 akt_telephely_id = $(this).find(\'input[name="telephely_id"]\').val();
                                 akt_datum        = $(this).find(\'div.datum\').html();
                                 szallodak.push(akt_telephely_id);

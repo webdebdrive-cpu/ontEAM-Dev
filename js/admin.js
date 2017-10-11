@@ -4369,7 +4369,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
 
         if(torolhet){
             gomb_uzi   = 'Biztosan törli a kijelölt '+szoveg+'?';
-            gomb_muv   = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\', \'' + mellekre_valt + '\');"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>';
+            gomb_muv   = '<p class="c"><input class="gomb zold" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\', \'' + mellekre_valt + '\');"><input class="gomb piros" type="button" value="Nem" onclick="alert2()"></p>';
             ablak_cime = '';
         }else{
             gomb_uzi   = 'Önnek nincs joga '+szoveg+' törölni!';
@@ -4425,7 +4425,11 @@ function mellekTorol( tabla, mellek, mellekre_valt ) {
       Pl.: Projektigénylésnél a cash-flow */
 
     $('.kijCont .kijSor.kijelolve[data-id="UJ"]').fadeOut('', function(){
-        $('.kijCont .kijSor.kijelolve[data-id="UJ"]').remove();
+        $(this).remove();
+        /* Cash-flow-ban ha változás van, akkor újra kell számolni. Azért kell ide is, mert ajaxig nem biztos, hogy eljutunk. */
+        if(tabla=='cash_flow'){
+            becsult_szetosztott_ujraszamol();
+        }
     });
     alert2();
 
@@ -4469,9 +4473,14 @@ function mellekTorol( tabla, mellek, mellekre_valt ) {
                             });
                         }else{
                             $('.kijCont .kijSor.kijelolve').fadeOut('', function(){
-                                $('.kijCont .kijSor.kijelolve').remove();
+                                $(this).remove();
+                                /* Habár ez már fentebb szerepelt egyszer, azért kell ide, is, mert ha az ajax lefutott akkor tűnik el sor, akkor számoljuk újra */
+                                if(tabla=='cash_flow'){
+                                    becsult_szetosztott_ujraszamol();
+                                }
                             });
                         }
+                        
                     }
 
 
@@ -4900,7 +4909,7 @@ function addSzakterulet( szallitoID, that ) {
 function addMegjegyzes( pageID, that ) {
     var megj = $(that).find('textarea[name="megjegyzes"]').val();
 
-    if( pageID && megj ) {
+    if( pageID ) {
         var ajax = $.ajax({
          	url : 'esemenyek.php',
          	type: 'POST',
@@ -4910,17 +4919,17 @@ function addMegjegyzes( pageID, that ) {
                 tabla        : baseName(location.href),
                 addMegjegyzes: new Date().getTime()
             },
-         	success: function(html) {
-         		if(html) {
-                    html = JSON.parse(html);
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
 
-                    if( html.statusz == 'hiba' ) {
-                        alert2(html.uzi, '', 'Hiba');
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, 'Hiba');
                         return false;
                     }
 
          			szamlaBetolt(pageID, baseName(location.href) + '.php', 'megjegyzesek').done(function() {
-                        $('#naploSor-' + html.kapcsID).addClass('uj');
+                        $('#naploSor-' + response.kapcsID).addClass('uj');
                     });
 
                     popupZar();
@@ -5930,35 +5939,19 @@ function osszetett_szuro_mondat(){
 
 /* Projektigénylés alatt az adatlap és cash flow fül közötti váltás */
 function prigeny_ful_valt(ful){
-
-    if(ful=='cash_flow'){
-        $('#cash_flow_div').show();
-        $('#szerk_form').hide();
-        $('#ful_cash_flow').addClass('active');
-        $('#ful_modosit').removeClass('active');
-        $('#navGombok .uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'cash_flow\'); void(0);');
-    }
     
-    if(ful=='adatlap'){
-        $('#cash_flow_div').hide();
-        $('#szerk_form').show();
-        $('#ful_cash_flow').removeClass('active');
-        $('#ful_modosit').addClass('active');
-        $('#navGombok .uj').attr('href', 'projektigenyles.php?uj');
-    }
-
     /* Ha nem az adatlapon vagyunk akkor szamlaBetolt */
     if(!_get('modosit')){
-
+        
         betoltott = szamlaBetolt(_get('id'), 'projektigenyles.php', 'modosit');
-
+        
         $.when( betoltott ).done(function() {
             if(ful=='cash_flow'){
                 cash_flow_fulre_lep();
             }
         });
-
-
+        
+        
     /* Egyébként csak JS tartalom csere */
     }else{
         if(ful=='adatlap'){
@@ -5973,7 +5966,7 @@ function prigeny_ful_valt(ful){
             cash_flow_fulre_lep();
         }
     }
-
+    
 }
 function cash_flow_fulre_lep(){
     $('#cash_flow_div').show();
