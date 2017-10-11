@@ -102,7 +102,7 @@ if($gyorskereso_text){
 
 	//Új termék felvitele
 	if(isset($_GET['konyvtar'])){
-        
+
         $fajlok_html = '';
         list($tabla, $konyvtar) = explode('/', $_GET['konyvtar']);
         $post   = '_dok';
@@ -158,6 +158,8 @@ if($gyorskereso_text){
         }
         if($fajlok_html){
             $fajlok_html = '<ul id="sorrendezes_tobbkep">'.$fajlok_html.'</ul>';
+        } else {
+            $fajlok_html = 'üres mappa';
         }
 
         echo $fajlok_html;

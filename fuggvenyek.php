@@ -1761,13 +1761,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         }
         //A projektigénylés láthatóságának beálltásai
         if($tabla=='projektigenyles'){
-            
+
             $szallodak_kieg = '';
             if(_jog(JOG_PRIGENY_TOBB_MEGTEKINT)){
                 $szallodak_kieg = ', 1011, 4301';
             }
             $where = "`".get_db_tabla()."projektigenyles`.`telephely_id` IN (".implode(',', $szallodak).$szallodak_kieg.") AND ";
-            
+
             //Jogok szűrése
             $where_jogok = '';
             if(_jog(JOG_PRIGENY_B_MEGTEKINT)){
@@ -1779,7 +1779,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             if(_jog(JOG_PRIGENY_T_MEGTEKINT)){
                 $where_jogok .= "`tipus`='".PRIGENY_TIPUS_TARGY."' OR ";
             }
-            
+
             //Egy-több szállodára szűrés
             if(_jog(JOG_PRIGENY_EGY_MEGTEKINT)){
                 $where_jogok .= "`egy_tobb`='0' OR ";
@@ -1790,8 +1790,8 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             if($where_jogok){
                 $where .= '('.csonkit($where_jogok, 4).') AND ';
             }
-            
-            
+
+
         }
         if($tabla == 'rendszeres_karbantartas'){
             $where = "`".get_db_tabla()."rendszeres_karbantartas`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
@@ -3630,7 +3630,7 @@ function dokumentumtarLista() {
         }
         $html .= '
                 <li>
-                    <label for="konyvtar_'.$menu['tabla'].'">'.$menu['nev'].'</label>
+                    <label class="link" for="konyvtar_'.$menu['tabla'].'">'.$menu['nev'].'</label>
                     <input type="checkbox"'.$checked.' id="konyvtar_'.$menu['tabla'].'">';
 
             //Alkönyvtárak kiszámítása
@@ -3653,7 +3653,7 @@ function dokumentumtarLista() {
                 foreach($alkonyvtarak as $alk){
                     $html .= '
                             <li>
-                                <label class="as"><a href="'.self().'?konyvtar='.$menu['tabla'].'/'.$alk.'">'.$alk.'</a></label>
+                                <label class="as"><a href="javascript: getKonyvtar(\''.self().'?konyvtar='.$menu['tabla'].'/'.$alk.'\'); void(0);" class="link">'.$alk.'</a></label>
                             </li>';
                 }
                 $html .= '</ol>';
