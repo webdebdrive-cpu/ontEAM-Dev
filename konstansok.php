@@ -115,9 +115,8 @@ define('PRIGENY_BESOROL_FEJL',          '1' );
 define('PRIGENY_BESOROL_FELU',          '2' );
 define('PRIGENY_BESOROL_REKO',          '3' );
 
-//Projektigénylés cél
-define('PRIGENY_CEL_CSO',               '1' );
-define('PRIGENY_CEL_NOV',               '2' );
+//Projektigénylés megtérülési terület
+define('PRIGENY_TERULET_DOK',           '1' );
 
 //személyzettípusok
 define('TELEPITETT_SZEMELYZET',         '1' );

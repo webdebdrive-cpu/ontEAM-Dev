@@ -154,12 +154,6 @@ array_push($select_pri_besorol, array('name' => 'Fejlesztés',       'value' => 
 array_push($select_pri_besorol, array('name' => 'Felújítás',        'value' => PRIGENY_BESOROL_FELU  ));
 array_push($select_pri_besorol, array('name' => 'Rekonstrukció ',   'value' => PRIGENY_BESOROL_REKO  ));
 
-//Projektigénylés cél
-$select_pri_cel = array();
-array_push($select_pri_cel, array('name' => '- Válasszon -',    'value' => '' ));
-array_push($select_pri_cel, array('name' => 'Költségcsökkenés', 'value' => PRIGENY_CEL_CSO  ));
-array_push($select_pri_cel, array('name' => 'Bevételnövekedés', 'value' => PRIGENY_CEL_NOV  ));
-
 
 //Beosztás tipus
 $select_beosztas = array();

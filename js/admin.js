@@ -4357,6 +4357,9 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
         if(_get('engedelyek')){
             szoveg = 'engedélyeket';
         }
+        if(_get('megterules')){
+            szoveg = 'megtérüléseket';
+        }
         if(_get('szallodak')){
             szoveg = 'szállodákat';
         }
@@ -4366,7 +4369,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
 
         if(torolhet){
             gomb_uzi   = 'Biztosan törli a kijelölt '+szoveg+'?';
-            gomb_muv   = '<p class="c"><input class="gomb piros" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\', \'' + mellekre_valt + '\');"><input class="gomb zold" type="button" value="Nem" onclick="alert2()"></p>';
+            gomb_muv   = '<p class="c"><input class="gomb zold" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\', \'' + mellekre_valt + '\');"><input class="gomb piros" type="button" value="Nem" onclick="alert2()"></p>';
             ablak_cime = '';
         }else{
             gomb_uzi   = 'Önnek nincs joga '+szoveg+' törölni!';
@@ -4422,7 +4425,11 @@ function mellekTorol( tabla, mellek, mellekre_valt ) {
       Pl.: Projektigénylésnél a cash-flow */
 
     $('.kijCont .kijSor.kijelolve[data-id="UJ"]').fadeOut('', function(){
-        $('.kijCont .kijSor.kijelolve[data-id="UJ"]').remove();
+        $(this).remove();
+        /* Cash-flow-ban ha változás van, akkor újra kell számolni. Azért kell ide is, mert ajaxig nem biztos, hogy eljutunk. */
+        if(tabla=='cash_flow'){
+            becsult_szetosztott_ujraszamol();
+        }
     });
     alert2();
 
@@ -4466,9 +4473,14 @@ function mellekTorol( tabla, mellek, mellekre_valt ) {
                             });
                         }else{
                             $('.kijCont .kijSor.kijelolve').fadeOut('', function(){
-                                $('.kijCont .kijSor.kijelolve').remove();
+                                $(this).remove();
+                                /* Habár ez már fentebb szerepelt egyszer, azért kell ide, is, mert ha az ajax lefutott akkor tűnik el sor, akkor számoljuk újra */
+                                if(tabla=='cash_flow'){
+                                    becsult_szetosztott_ujraszamol();
+                                }
                             });
                         }
+
                     }
 
 
@@ -4587,6 +4599,13 @@ function kapcsolodoSzerkeszt( oldal ) {
             break;
             case 'megjegyzes':
                 $('#addMegjegyzes').attr('onsubmit', 'return addMegjegyzes(\'' + _get('id') + '\', this);');
+            break;
+            case 'megterules':
+                if(_jogok[39]==1 || _jogok[60]==1 || _jogok[59]==1 || _jogok[62]==1 || _jogok[49]==1 || _jogok[47]==1 || _jogok[64]==1){
+                    $('#addMegterules').attr('onsubmit', 'return addMegterules(\'' + _get('id') + '\', this);');
+                }else{
+                    alert2('Önnek nincs joga Megtérülést feltölteni!', '', 'Hiba');
+                }
             break;
             case 'szakterulet':
                 $('#addSzakterForm').attr('onsubmit', 'return addSzakterulet(\'' + _get('id') + '\', this);');
@@ -4886,11 +4905,11 @@ function addSzakterulet( szallitoID, that ) {
 }
 
 
-//Megjegyzés hozzáadása
+/* Megjegyzés hozzáadása */
 function addMegjegyzes( pageID, that ) {
     var megj = $(that).find('textarea[name="megjegyzes"]').val();
 
-    if( pageID && megj ) {
+    if( pageID ) {
         var ajax = $.ajax({
          	url : 'esemenyek.php',
          	type: 'POST',
@@ -4900,17 +4919,17 @@ function addMegjegyzes( pageID, that ) {
                 tabla        : baseName(location.href),
                 addMegjegyzes: new Date().getTime()
             },
-         	success: function(html) {
-         		if(html) {
-                    html = JSON.parse(html);
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
 
-                    if( html.statusz == 'hiba' ) {
-                        alert2(html.uzi, '', 'Hiba');
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, 'Hiba');
                         return false;
                     }
 
          			szamlaBetolt(pageID, baseName(location.href) + '.php', 'megjegyzesek').done(function() {
-                        $('#naploSor-' + html.kapcsID).addClass('uj');
+                        $('#naploSor-' + response.kapcsID).addClass('uj');
                     });
 
                     popupZar();
@@ -5137,6 +5156,7 @@ function _get( ertek ) {
 
 /* Adatlap betöltése */
 function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
+
     alert2('');
     if( formModositva && !kerdes_nelkul ) {
         alert2('Biztosan elhagyja ezt a bejegyzést mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; szamlaBetolt( \'' + recid + '\', \'' + page + '\', \'' + muvelet + '\', \'' + szerkeszt + '\' ); $(\'#szamlaList li.szamla_sor\').removeClass(\'kijelolve\');" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
@@ -5209,6 +5229,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
                         'jogosultsag',
                         'megjegyzes',
                         'megjegyzesek',
+                        'megterules',
                         'modosit',
                         'munkalapok',
                         'naplo',
@@ -5313,11 +5334,11 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
                     } else if( baseName(location.href) == 'projektigenyles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
-                    } else if( baseName(location.href) == 'projektigenyles' && _get('cash_flow') ) {
-                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'cash_flow\'); void(0);');
-
                     } else if( baseName(location.href) == 'projektkezeles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+
+                    } else if( baseName(location.href) == 'projektigenyles' && _get('megterules') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megterules\'); void(0);');
 
                     } else if( baseName(location.href) == 'szamla' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');

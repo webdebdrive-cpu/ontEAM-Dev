@@ -1,0 +1,76 @@
+<h2>Új megtérülés hozzáadása</h2>
+<form action="" id="addMegterules" class="popupForm" method="post">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr"> 
+                <div class="dtc form_bal">Terület:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" autocomplete="off" class="oriasi disableNav csillag focus" name="erteklista_id_autocomp" id="erteklista_id_autocomp" onblur="if(!$(this).val()){ $('#erteklista_id').val(''); }" value="">
+                    <input type="hidden" name="erteklista_id" id="erteklista_id" value="">
+                    <script>
+                        $(document).ready(function() {
+                            $('#erteklista_id_autocomp').autocomplete({
+                                'php_fajl'      : '../autocomplete.php',
+                                'tabla'         : 'erteklista',
+                                'oszlop_keres'  : 'info',
+                                'oszlop_listaz' : 'info',
+                                'rkat'          : 0,
+                                'csoport'       : 37,
+                                'id_kiir'       : 'id'
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+            <div class="dtr"> 
+                <div class="dtc form_bal">Összege:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" name="osszeg" id="osszeg" class="csillag r f_num" data-tort="0" style="min-width: 10rem; width: 10rem"> Ft/év
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+/* Megtérülés hozzáadása */
+function addMegterules( pageID, that ) {
+    var terulet = $('#erteklista_id').val();
+    var osszeg  = $('#osszeg').val();
+
+    if( pageID ) {
+        var ajax = $.ajax({
+         	url : 'projektigenyles.php',
+         	type: 'POST',
+         	data: {
+                pageID       : pageID,
+                terulet      : terulet,
+                osszeg       : osszeg,
+                addMegterules: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, 'Hiba');
+                        return false;
+                    }
+
+         			szamlaBetolt(pageID, baseName(location.href) + '.php', 'megterules').done(function() {
+                        $('#naploSor-' + response.kapcsID).addClass('uj');
+                    });
+
+                    popupZar();
+         		}
+         	}
+        });
+
+    }
+
+    return false;
+}
+</script>
