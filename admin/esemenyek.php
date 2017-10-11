@@ -1743,7 +1743,7 @@ if (isset($_GET['modosit'])) {
         $megter_cel_rejt = '';
     }
     $letrehozta_mikor = 'Létrehozta: <b>'.$pi['insert_usr'].' '.  str_replace('-', '.', substr($pi['insert_dt'], 0, 16)).'</b>-kor';
-    
+
     $tobb_szalloda = '';
     if($pi['egy_tobb']){
         $tobb_szalloda = '1';
@@ -3303,7 +3303,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
                 $weblap->leallit();
                 exit();
             }
-            
+
             if(!$memo){
                 echo json_encode(array(
                     'hiba' => 'Kérjük adja meg az elutasítás okát!',
@@ -3312,7 +3312,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
                 $weblap->leallit();
                 exit();
             }
-            
+
         break;
     }
 
@@ -3371,7 +3371,7 @@ if( isset($_POST['csoportbolTorol']) ) {
 
         /* Kiszedjük a duplikációkat */
         $csoportok = array_unique($csoportok);
-        
+
         //Ha legalább egy olyan elem van, aminek nincs is csoportja, akkor hibaüzenet
         foreach($csoportok as $csoport){
             if(!$csoport){
@@ -3800,7 +3800,7 @@ if( isset($_POST['mellekTorol']) ) {
                                     //Ezt egyelőre kivettük, egybúl nyitottra vált'alert'   => 'Ehhez a projektigényléshez nem tartozik több véleményező.<br>Állítsuk át a státuszát nyitottra?',
                                     //'gomb'    => '<input class="gomb zold" type="button" value="Igen" onclick="pri_statusz_leptet(\''.$recid.'\', \''.PRIGENY_STAT_NYITOTT.'\')"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">',
                                 ));
-                
+
             }else{
                 echo json_encode(array(
                                     'statusz' => 'siker'
@@ -3888,6 +3888,61 @@ if( isset($_POST['addMegjegyzes']) ) {
             'statusz' => 'siker',
             'kapcsID' => $kapcsID,
             'uzi'     => ''
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+// Cash-flow hozzáadása
+if( isset($_POST['addCashFlow']) ) {
+
+    $pageID     = $_POST['pageID'];
+    $datum      = trim($_POST['datum']);
+    $szalloda   = trim($_POST['telephely_id']);
+    $osszeg     = trim(str_replace(' ', '', $_POST['osszeg']));
+
+    if( $pageID ) {
+
+        //Ha többszállodás, akkor a szálloda meglétét is ellenőrizni kell
+        $pri = $adatbazis_kapcsolat->s2('egy_tobb', 'projektigenyles', "`recid`='{$pageID}'");
+        if($pri['egy_tobb']==1 && !$szalloda){
+            echo json_encode(array(
+                'statusz' => 'hiba',
+                'uzi'     => 'Kérjük válasszon szállodát!',
+                'gomb'    => '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#telephely_id\').focus();">'
+            ));
+            $weblap -> leallit();
+            exit;
+        }
+
+        if(!valos_datum_e($datum)){
+            echo json_encode(array(
+                'statusz' => 'hiba',
+                'uzi'     => 'Kérjük adja meg a dátumot!',
+                'gomb'    => '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#cf_datum\').focus();">'
+            ));
+            $weblap -> leallit();
+            exit;
+        }
+
+        if(!$osszeg){
+            echo json_encode(array(
+                'statusz' => 'hiba',
+                'uzi'     => 'Kérjük adja meg az összeget!',
+                'gomb'    => '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#cf_osszeg\').focus();">'
+            ));
+            $weblap -> leallit();
+            exit;
+        }
+
+        $sql = $adatbazis_kapcsolat->i('cash_flow', array('apa_recid', 'datum', 'osszeg', 'loginnev',                       'update_usr',                           'insert_dt', 'insert_usr'                           ),
+                                                    array($pageID,     $datum,  $osszeg,  $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'])
+                                        );
+
+        echo json_encode(array(
+            'statusz' => 'siker'
         ));
     }
 
