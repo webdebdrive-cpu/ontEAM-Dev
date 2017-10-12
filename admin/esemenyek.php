@@ -1789,7 +1789,7 @@ array('type' => 'html',                     'megn' => nl2('
                                                             <div class="dtc">
                                                                 <div class="dtc" style="padding-left: 0; padding-right: 4rem; ">
                                                                 ')),
-    array('type' => 'text',                 'megn' => '',               'name' => 'bkolt',          'szuro' => 1,       'class' => 'oriasi f_num csillag', 'data' => 'data-tort="0"', 'style' => 'width: 11.5rem; margin-left: -0.2rem;', 'post' => ' '.get_penznem()),
+    array('type' => 'text',                 'megn' => '',               'name' => 'bkolt',          'szuro' => 1,       'class' => 'oriasi f_num csillag', 'data' => 'data-tort="0"', 'style' => 'width: 11.5rem; margin-left: -0.2rem;', 'onblur' => 'becsult_szetosztott_ujraszamol();', 'post' => ' '.get_penznem()),
 array('type' => 'html',                     'megn' => nl2('
                                                                 </div>
                                                                 <div id="" class="dtc f_prigeny_tipus" style="padding-right: 4rem">

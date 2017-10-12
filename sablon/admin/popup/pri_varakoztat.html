@@ -1,0 +1,52 @@
+<h2>Várakoztatás indoklása</h2>
+<form action="" id="addVarakoztat" class="popupForm" method="post" onsubmit="return addVarakoztat()">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr"> 
+                <div class="dtc form_bal">Megjegyzés:</div>
+                <div class="dtc form_jobb">
+                    <textarea name="varakoztat_megj" id="varakoztat_megj" class="gombm disableNav focus csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+/* Hiánypótlás indokolása */
+function addVarakoztat() {
+    var megj = $('#varakoztat_megj').val();
+
+    recid = $('#szamlaList li.szamla_sor.kijelolve').attr('data-recid');
+    var ajax = $.ajax({
+        url : 'projektigenyles.php',
+        type: 'POST',
+        data: {
+            recid        : recid,
+            megj         : megj,
+            addVarakoztat: new Date().getTime()
+        },
+        success: function(response) {
+            if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, 'Hiba');
+                    return false;
+                }
+
+                szamlaBetolt(recid, baseName(location.href) + '.php', 'modosit').done(function() {
+                    $('#naploSor-' + response.kapcsID).addClass('uj');
+                });
+
+                popupZar();
+            }
+        }
+    });
+
+    return false;
+}
+</script>

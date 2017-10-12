@@ -76,3 +76,6 @@ GOMBOK KISZERVEZÉSE ÁLTALÁNOSAN
 - Új és modosít részen belül törölni minden $gomb változót, de csak miután beállítottad a gombokat, kialakítottad a jogokat.
 - Ha van extra fül, akkor ott a $szamla_html-t meg kell toldani a $gombok-al is
 - $muv_style változó se maradjon feleslegesen a uj/modosit ágban
+
+CSOPORTOSÍTÁS ENGEDLYEZÉSE
+- A bal oldali navpanel UL-jének ha van "kijelolheto" class-ja, akkor lehet több sort kijelölni

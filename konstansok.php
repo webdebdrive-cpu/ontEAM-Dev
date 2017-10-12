@@ -76,6 +76,11 @@ define('PRIGENY_STAT_BOD_TERJESZT',         '08' );
 define('PRIGENY_STAT_VARAKOZO',             '09' );
 define('PRIGENY_STAT_JOVAHAGYVA',           '10' );
 
+//Menteni, csak ezekben a státuszokban lehet
+function prigeny_mentheto_statuszok(){
+    return array(PRIGENY_STAT_LETRE_ALATT, PRIGENY_STAT_NYITOTT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_HIANYPOTLAS, PRIGENY_STAT_HIANYPOTOLT);
+}
+
 //Hiánypótlásra ezekből a sátuszokból lehet léptetni
 function prigeny_hianypotlasba_statuszok(){
     return array(PRIGENY_STAT_NYITOTT, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_FB_TERJESZT);
