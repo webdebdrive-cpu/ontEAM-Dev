@@ -173,7 +173,7 @@ function i_u($type, $tabla, $tomb) {
         array_push($oszlopok, 'kezdho',        'kezdnap',           'vegeho',           'vegenap',          'aktkezd_d',            'aktvege_d'           );
         array_push($ertekek, $_POST['kezdho'], $_POST['kezdnap'],   $_POST['vegeho'],   $_POST['vegenap'],  $_POST['aktkezd_d'],    $_POST['aktvege_d']   );
     }
-
+    
     //Új bejegyzés esetén több mindent is le kell kezelni (iktatószám kizsámolás, plusz oszlopok beállítása
 	if($type == 'insert') {
         /* Insert DT és USR lekezelése általánosan */
@@ -720,7 +720,6 @@ function i_u($type, $tabla, $tomb) {
                 $weblap -> leallit();
                 exit;
             }
-
             $akt_statusz = $adatbazis_kapcsolat->s('stat_id', $tabla.'_statusz', "`{$tabla}_recid`='{$_GET['id']}'", 'recid desc', '1');
             if( $akt_statusz === false ) { $db_error = true; }
 
@@ -974,12 +973,13 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
     $ret = nl2('
                 <'.str_replace('#', '', 's#cript').'>
-                    var helyiseg_gep_mehet = false;
-                    var riasztas_mehet     = false;
-                    var utemezes_mehet     = false;
-                    var bejelentes_mehet   = false;
-                    var bejelentes_mehet2  = false;
-                    var alert_vegen        = false; /* Van, hogy mentés után még láttani akarunk egy alertet */
+                    var helyiseg_gep_mehet      = false;
+                    var riasztas_mehet          = false;
+                    var utemezes_mehet          = false;
+                    var bejelentes_mehet        = false;
+                    var bejelentes_mehet2       = false;
+                    var alert_vegen             = false; /* Van, hogy mentés után még láttani akarunk egy alertet */
+                    var igeny_rogzites_uzemmod  = false; 
                     function '.$fg.'{
             ');
 

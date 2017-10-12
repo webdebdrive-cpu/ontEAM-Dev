@@ -795,6 +795,7 @@ $(function() {
             if(taroltVal===undefined){
                 taroltVal = '';
             }
+
             if( type == 'checkbox' ) {
                 val = $(this).prop('checked');
             }
