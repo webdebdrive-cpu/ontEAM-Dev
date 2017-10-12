@@ -69,8 +69,12 @@ if (isset($_POST['velemenyezok_status_ell'])) {
 }
 
 // Véleményező hozzáadása ajaxosan
-if( isset($_GET['addVelemenyezo']) ) {
+if( isset($_POST['addVelemenyezo']) ) {
 
+
+    $login_recid    = $_POST['login_recid'];
+    $pr_igeny_recid = $_POST['pr_igeny_recid'];
+    
     //Jogosultságkezelés
     if(!JOG_VELEMENYEZO_HOZZAAD){
 
@@ -82,7 +86,7 @@ if( isset($_GET['addVelemenyezo']) ) {
         exit();
     }
     
-    $stat = $adatbazis_kapcsolat->s2('stat_id', $megnevezes, "`recid`='{$_GET['pr_igeny_recid']}'");
+    $stat = $adatbazis_kapcsolat->s2('stat_id', $megnevezes, "`recid`='{$_POST['pr_igeny_recid']}'");
     if($stat['stat_id']!=PRIGENY_STAT_NYITOTT && $stat['stat_id']!=PRIGENY_STAT_VEL_ALATT){
         echo json_encode(array(
             'hiba' => 'Véleményezőt hozzáadni csak nyitott vagy véleményezés alatt státuszokban lehet!'
@@ -91,20 +95,40 @@ if( isset($_GET['addVelemenyezo']) ) {
         $weblap->leallit();
         exit();
     }
+    
+    if (!$login_recid) {
+        echo json_encode(array(
+            'hiba' => 'Kérem válassza ki a véleményezőt!',
+            'gomb' => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#velemenyezoKeres\').focus();" type="button">'
+        ));
 
-    $login_recid    = $_GET['login_recid'];
-    $pr_igeny_recid = $_GET['pr_igeny_recid'];
+        $weblap->leallit();
+        exit();
+    }
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    if( $login_recid && $pr_igeny_recid ) {
+    if( $pr_igeny_recid ) {
 
+        //Töröljük a korábbi véleményét ha van
+        if($_POST['korabbi_velemeny_torlesevel']){
+            $akt_velemeny = $adatbazis_kapcsolat->s2('recid utvonal', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$pr_igeny_recid}' AND `login_recid`='{$login_recid}'");
+            if($akt_velemeny===false){ $db_error = true; }
+            
+            $fajlnev = '../'.get_utvonal().'projektigenyles_velemeny/'.$akt_velemeny['utvonal'];
+            if(is_file($fajlnev)){
+                unlink($fajlnev);
+            }
+            $sql = $adatbazis_kapcsolat->d('projektigenyles_velemeny', "`recid`='{$akt_velemeny['recid']}'");
+            if($sql===false){ $db_error = true; }
+        }
+        
         $felh = $adatbazis_kapcsolat->s2('nev', 'login', "`recid`='{$login_recid}'", '', '1');
         if($felh===false){ $db_error = true; }
 
         $isKapcs = $adatbazis_kapcsolat->s2('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$pr_igeny_recid}' AND `login_recid`='{$login_recid}'", '', '1');
-        if( !$isKapcs ) {
+        if( !$isKapcs || $_POST['korabbi_velemeny_torlesevel'] ) {
             $kapcsID = $adatbazis_kapcsolat -> i('projektigenyles_kapcs',
                                                                             array('projektigenyles_recid',  'login_recid', 'loginnev',                          'insert_dt', 'insert_usr'                            ),
                                                                             array($pr_igeny_recid,          $login_recid,  $_SESSION[get_db_tabla().'user'],    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev']  )
@@ -141,7 +165,8 @@ if( isset($_GET['addVelemenyezo']) ) {
         } else {
 
             echo json_encode(array(
-                'hiba' => 'Az illető már hozzáadásra került, mint véleményező!'
+                'hiba' => 'Az illető már hozzáadásra került, mint véleményező!<br>Vélemény újboli bekérésével törlődik a korábbi véleménye. Folytatja?',
+                'gomb' => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#korabbi_velemeny_torlesevel\').val(1); $(\'#addVelemenyezokForm\').submit();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">',
             ));
         }
     }
@@ -155,6 +180,9 @@ if (isset($_POST['addMegterules'])) {
 
     $terulet = $_POST['terulet'];
     $osszeg  = str_replace(' ', '', $_POST['osszeg']);
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
     
     if(!$terulet){
         echo json_encode(array(
@@ -177,11 +205,28 @@ if (isset($_POST['addMegterules'])) {
     $kapcsID = $adatbazis_kapcsolat->i('projektigenyles_megter', array('projektigenyles_recid', 'terulet', 'osszeg', 'insert_dt',    'insert_usr',                             'update_usr'                          ),
                                                                  array($_POST['pageID'],        $terulet,  $osszeg,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
                             );
+    if($kapcsID===false){ $db_error = true; }
     
-    echo json_encode(array(
-        'statusz' => 'siker',
-        'kapcsID' => $kapcsID
-    ));
+    $sql = $adatbazis_kapcsolat->u('projektigenyles', array('megter'), array(1), "`recid`='{$_POST['pageID']}'");
+    if($sql===false){ $db_error = true; }
+    
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'kapcsID' => $kapcsID
+        ));
+
+    } else {
+
+        mysqli_rollback($db_kapcs);
+
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
+    }
     
     $weblap->leallit();
     exit();
@@ -619,7 +664,7 @@ if (isset($_GET['csv'])) {
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
-require_once('selectek.php');
+require('selectek.php');
 
 if($gyorskereso_text){
     $dl = nl2('
@@ -782,7 +827,11 @@ if($gyorskereso_text){
 
             //Ha a prigény létrehozás alatt van, akkor érhető el csak az Igénylés rögzítése gomb
             if($sor['stat_id']==PRIGENY_STAT_LETRE_ALATT){
-                $gombok .= ' <input type="button" class="gomb foGomb" value="Igénylés rögzítése" title="Igénylés rögzítése" onclick="$(\'#igeny_rogzit\').val(1); $(\'#szerk_form\').submit();">';
+                if (isset($_GET['modosit'])) {
+                    $gombok .= ' <input type="button" class="gomb foGomb" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="$(\'#igeny_rogzit\').val(1); $(\'#szerk_form\').submit();">';
+                }else{
+                    $gombok .= ' <input type="button" class="gomb foGomb" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="location.href=\''.self().'?id='.$_GET['id'].'&amp;modosit&amp;rogzit\'">';
+                }
             }
             //Rejtett, technikai input, viszont ez legyen mindig elérhető (pl. nyitott státuszkor mentésné is kell)
             $gombok .= ' <input type="hidden" id="igeny_rogzit">';
@@ -902,6 +951,7 @@ if($gyorskereso_text){
                                 }
                                 ';
         }
+        
     }
     
     $js_submit_elott .= '
@@ -913,7 +963,7 @@ if($gyorskereso_text){
                         Kérdés, hogy ha nem, akkor az ideiglenes sorokat le se tároljuk? Egyelőre nem.
                         */
                         
-                        igeny_rogzites_uzemmod = false; /* form_ell_admin-hoz kell */
+                        igeny_rogzites_uzemmod = false; /* form_ell_admin-hoz kell, átadjuk parméterként ezt az infót is: rögzítéskor státusz léptetés stb... */
                         if($(\'#igeny_rogzit\').val()>0){
 
                             igeny_rogzites_uzemmod = true;
@@ -925,6 +975,7 @@ if($gyorskereso_text){
                                 alert2(\'Rögzítéshez töltse ki az igénylés nevét!\', \'<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\\\'#nev\\\').focus();">\', \'Hiba\');
                                 return false;
                             }
+                            
                             '.$rogzites_figyeles_kieg.'
                             '.$egyszallodasok_leszunk_ell.'
                                                
@@ -941,8 +992,9 @@ if($gyorskereso_text){
                             }
                             
                             if( $(\'#megter\').prop(\'checked\')==false ){
-                                alert2(\'Az igénylés nem megtérülő, így nem rögzíthető!\', \'\', \'Hiba\');
-                                return false;
+                                /* FONTOS, hogy itt továbbengedjük menteni, csak nem rögzítjhük, de a cashflow fület és adatlapot elmentjük, hogy a megtérólés fülre tudjon lapozni */
+                                igeny_rogzites_uzemmod = false;
+                                alert_vegen            = \'Az igénylés nem megtérülő, így nem rögzíthető!\'; /* Ajax lefutás után megjelenő hibaüzenet. */
                             }
                             
                         }
@@ -1065,16 +1117,6 @@ if($gyorskereso_text){
         }
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
-        
-        //Ha van feltöltve legalább egy megtérülés, akkor a megtérülés pipa bekapcsolva, egyébként ki
-        $van_megter = $adatbazis_kapcsolat->s('recid', $megnevezes.'_megter', "`projektigenyles_recid`='{$_GET['id']}'", '', '1');
-        if($van_megter){
-            $van_megter = 1;
-        }else{
-            $van_megter = 0;
-        }
-        $sor['megter'] = $van_megter;
-        $adatbazis_kapcsolat->u($megnevezes, array('megter'), array($van_megter), "`recid`='{$_GET['id']}'");
 
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
@@ -1139,14 +1181,20 @@ if($gyorskereso_text){
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
-        $tovabbi_tartalom = '';
+        //Ha van get rögzít, akkor a rögzítés gombra kattintunk.
+        $js_kieg = '';
+        if(isset($_GET['rogzit'])){
+            $js_kieg = '$(\'#igenyles_rogzit_gomb\').click();';
+        }
         
+        $tovabbi_tartalom = '';
         $tovabbi_tartalom .= nl2('
             <script>
                 volt_figyelmeztetes       = false;
                 kulonbozo_telephely_mehet = false;
                 $(document).ready(function() {
                     becsult_szetosztott_ujraszamol();
+                    '.$js_kieg.'
                 });
                 
                 function becsult_szetosztott_ujraszamol(){
@@ -1155,9 +1203,9 @@ if($gyorskereso_text){
                         akt_osszeg = Number($(this).find(\'div.osszeg\').html().replace(\' '. get_penznem().'\', \'\').replace(/ /g, \'\'));
                         szetosztott += akt_osszeg;
                     });
-                    $(\'#szetoszt_kolt\').html( ezresek(szetosztott)+\' '.get_penznem().'\', 0, \'\', \' \');
+                    $(\'#szetoszt_kolt\').html( ezresek(szetosztott                                          , 0, \'\', \' \')+\' '.get_penznem().'\');
                     $(\'#becs_kolt\')    .html( ezresek($(\'#bkolt\').val().replace(/ /g, \'\')              , 0, \'\', \' \')+\' '.get_penznem().'\');
-                    $(\'#kulonbseg\')    .html( ezresek($(\'#bkolt\').val().replace(/ /g, \'\') - szetosztott, 0, \'\', \' \')+\' '.get_penznem().'\' );
+                    $(\'#kulonbseg\')    .html( ezresek($(\'#bkolt\').val().replace(/ /g, \'\') - szetosztott, 0, \'\', \' \')+\' '.get_penznem().'\');
                     if( $(\'#becs_kolt\').html() != $(\'#szetoszt_kolt\').html() ){
                         $(\'#kulonbseg\').addClass(\'piros\');
                     }else{
@@ -1240,6 +1288,7 @@ if($gyorskereso_text){
                 <div class="dtr nFejlec">
                     <div class="dtc">Név</div>
                     <div class="dtc">Vélemény</div>
+                    <div class="dtc">Megjegyzés</div>
                     <div class="dtc">Feltöltve</div>
                     <div class="dtc"></div>
                     <div class="dtc"></div>
@@ -1259,7 +1308,8 @@ if($gyorskereso_text){
                 $velemeny_html = '';
                 $letoltes_html = '';
                 $torles_html   = '';
-                $velemeny = $adatbazis_kapcsolat->s2('recid utvonal fajlnev insert_dt', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_GET['id']}' AND `login_recid`='{$velemenyezo['recid']}'");
+                $velemeny = $adatbazis_kapcsolat->s2('recid utvonal fajlnev megj insert_dt', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_GET['id']}' AND `login_recid`='{$velemenyezo['recid']}'");
+//echo $adatbazis_kapcsolat->gp() . '<br>';
                 if($velemeny){
                     $fajl = '../'.get_utvonal().'projektigenyles_velemeny/'.$velemeny['utvonal'];
                     $felirat = $velemeny['fajlnev'];
@@ -1293,6 +1343,7 @@ if($gyorskereso_text){
                     <div id="naploSor-'.$kapcs_id['recid'].'" class="dtr nSor kijSor" data-id="'.$kapcs_id['recid'].'" data-i="'.$i.'">
                         <div class="dtc">'.$velemenyezo['teljes_nev'].'</div>
                         <div class="dtc">'.$velemeny_html.'</div>
+                        <div class="dtc">'.nl2br2($velemeny['megj']).'</div>
                         <div class="dtc">'.substr( str_replace('-', '.', $velemeny['insert_dt']), 0, 16 ).'</div>
                         <div class="dtc">'.$letoltes_html.'</div>
                         <div class="dtc r">'.$torles_html.'</div>
@@ -1406,44 +1457,6 @@ if($gyorskereso_text){
             ');
 
             $i++;
-        }
-
-        $szamla_html .= '</div>';
-
-        if( $_GET['ajax'] ) {
-            echo json_encode(array(
-                'tartalom' => $szamla_html.$gombok,
-                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
-            ));
-        } else {
-            echo $szamla_html.$gombok;
-        }
-
-
-	//Cash-flow
-	}elseif(isset($_GET['cash_flow'])){
-
-        $szamla_html .= nl2('
-            <div class="dt naplo kijCont" data-tabla="cash_flow" data-mellek="cash_flow">
-                <div class="dtr nFejlec">
-                    <div class="dtc" style="width: 15rem">Dátum</div>
-                    <div class="dtc">Összeg</div>
-                </div>
-        ');
-
-        $sorok = $adatbazis_kapcsolat->s('recid datum osszeg', 'cash_flow', "`apa_recid`='".$_GET['id']."'", 'insert_dt desc');
-        if( $sorok ) {
-            $i = 1;
-            foreach($sorok as $sor) {
-                $szamla_html .= nl2('
-                    <div id="naploSor-'.$sor['recid'].'" data-id="'.$sor['recid'].'" data-i="'.$i.'" class="dtr nSor kijSor">
-                        <div class="dtc" style="width: 15rem">'.str_replace('-', '.', $sor['datum']).'</div>
-                        <div class="dtc">'.number_format($sor['osszeg'], 0, '', ' ').' '.get_penznem().'</div>
-                    </div>
-                ');
-
-                $i++;
-            }
         }
 
         $szamla_html .= '</div>';

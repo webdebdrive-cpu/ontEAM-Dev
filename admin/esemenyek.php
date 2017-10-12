@@ -515,6 +515,9 @@ switch($tabla) {
         $_OPTS['select']    = nl2('
                                     `'.get_db_tabla().$tabla_nophp.'`.`recid`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`nev`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`bkolt`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`tipus`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`rendk`,
                                     `telephely_id`,
                                     `csoport_id`,
                                     `ikt_szam`,
@@ -3788,6 +3791,15 @@ if( isset($_POST['mellekTorol']) ) {
             if( $maradt_velemenyezo === false ) { $db_error = true; }
             if(!$maradt_velemenyezo){
                 $pri_statusz_kerdez = true;
+            }
+        }
+        //Projektigényléseknél megtérülés törlésekor ellenőrizzük, hogy van-e még, mert ha nincs, az adatlapon ki kell venni a pipát
+        if($tabla=='projektigenyles_megter'){
+            $van_megter = $adatbazis_kapcsolat->s2('recid', $tabla, "`projektigenyles_recid`='{$_POST['recid']}'");
+            if( $van_megter === false ) { $db_error = true; }
+            if(!$van_megter){
+                $sql = $adatbazis_kapcsolat->u('projektigenyles', array('megter'), array(0), "`recid`='{$_POST['recid']}'");
+                if( $sql === false ) { $db_error = true; }
             }
         }
 

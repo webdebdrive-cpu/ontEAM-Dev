@@ -19,9 +19,9 @@ if(kit($_FILES[$_POST['megnevezes']]['name'])=='php'){
     exit;
 }
 
-/* Vélemény feltöltése */
+/* Vélemény feltöltésének lekezelése */
 if($_POST['megnevezes']=='velemeny'){
-    
+
     //Adott illető egyáltalán véleményező-e
     $prigeny = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$_POST['projektigenyles_recid']}'");
 
@@ -30,6 +30,17 @@ if($_POST['megnevezes']=='velemeny'){
         $weblap -> leallit();
         exit;
     }
+    
+    if(!trim($_POST['megj']) && !$_FILES[$_POST['megnevezes']]){
+        echo json_encode(array(
+            'hiba'  => 'Kérem csatoljon egy véleményt, vagy írjon megjegyzést!',
+            'gomb'  => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#velemeny_megj\').focus();" type="button">',
+        ));
+        
+        $weblap -> leallit();
+        exit;
+    }
+
     if($adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'", '', '1')){
         
         $utvonal = get_utvonal().'projektigenyles_velemeny';
@@ -85,15 +96,26 @@ if($_POST['megnevezes']=='velemeny'){
                 if(move_uploaded_file($_FILES[$_POST['megnevezes']]['tmp_name'], $kepnev)){
 
                     //Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
-                    $id = $adatbazis_kapcsolat -> i( 'projektigenyles_velemeny', array('projektigenyles_recid',         'login_recid',                            'utvonal',                                                            'fajlnev'                            ),
-                                                                                 array($_POST['projektigenyles_recid'], $_SESSION[get_db_tabla().'login_recid'],   str_replace(get_utvonal().'projektigenyles_velemeny/', '', $kepnev), $_FILES[$_POST['megnevezes']]['name'])
+                    $id = $adatbazis_kapcsolat -> i( 'projektigenyles_velemeny', array('projektigenyles_recid',         'login_recid',                            'utvonal',                                                            'fajlnev'                               ),
+                                                                                 array($_POST['projektigenyles_recid'], $_SESSION[get_db_tabla().'login_recid'],   str_replace(get_utvonal().'projektigenyles_velemeny/', '', $kepnev), $_FILES[$_POST['megnevezes']]['name']   )
                                                     );
-                    //Ha ellenőrizzük, hogy a megmaradtaknak mindnek van-e már vélemények. Státuszt kell léptetni ha igen.
-                    prigeny_mindenki_velemenyezett_e($_POST['projektigenyles_recid']);
 
                 }
             break;
         }
+        
+        //A megjegyzés azért van külön ágban, mert nem biztos, hogy van fájl is.
+        $van_velemeny = $adatbazis_kapcsolat->s2('recid', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+        if($van_velemeny){
+            $adatbazis_kapcsolat->u('projektigenyles_velemeny', array('megj'), array($_POST['megj']), "`recid`='{$van_velemeny['recid']}'");
+        }else{
+            $id = $adatbazis_kapcsolat -> i( 'projektigenyles_velemeny', array('projektigenyles_recid',         'login_recid',                            'megj'            ),
+                                                                         array($_POST['projektigenyles_recid'], $_SESSION[get_db_tabla().'login_recid'],  $_POST['megj']    )
+                                            );
+        }
+        
+        //Ellenőrizzük, hogy a megmaradtaknak mindnek van-e már vélemények. Státuszt kell léptetni ha igen.
+        prigeny_mindenki_velemenyezett_e($_POST['projektigenyles_recid']);
         
     }
     

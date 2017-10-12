@@ -49,7 +49,7 @@
                     });
                     
                     /* Ha az űrlapnak nincs submit-ja, akkor minden mezőjét tiltunk.  */
-                    if(!$('#szerk_form input.mentes_gomb').length){
+                    if(!$('#szerk_form').parent().find('input.mentes_gomb').length){
                         $('#szerk_form input, #szerk_form textarea, #szerk_form select').attr('disabled', true);
                         $('#szerk_form input.f_nem_rejt').attr('disabled', false);
                         $('#szerk_form input.foGomb').removeAttr('disabled');
@@ -63,8 +63,8 @@
                 <input type="hidden" name="{MEGNEVEZES}lista">
                 <input type="hidden" id="{MEGNEVEZES}ujkent_szerk" name="{MEGNEVEZES}ujkent_szerk" value="">
             </div>
-            {GOMBOK}
         </form>
+        {GOMBOK}
         {KEP}
     </div>
 </div>

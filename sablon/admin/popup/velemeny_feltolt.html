@@ -1,150 +1,203 @@
 <h2>Vélemény feltöltése</h2>
 
 <div class="kozep"> 
-    <div id="jsff_velemeny" class="jsff">
-        <span class="uzenet">
-            <span class="f15">Kérjük tallózza be a fájlt:</span>
-        </span>
-        <span class="hiba"></span>
-        <br><div class="talloz">
-            <div>
-                Tallózás <input type="file" name="files[]" onchange="beolvasas_velemeny(this.files);">
+    
+    <div class="dt">
+        <div class="dtr">
+            <div class="dtc">
+                Kérjük tallózza be a fájlt:
+            </div>
+            <div class="dtc" style="padding-bottom: 1rem; padding-top: 0">
+        
+                <div id="jsff_velemeny" class="jsff" style="padding: 0; background: none; border: 0; text-align: left">
+                    <span class="hiba"></span>
+                    <div class="talloz">
+                        <div>
+                            <span>Tallózás</span> <input type="file" name="files[]" ondblclick="beolvasas_velemeny(this.files)">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="jsff_velemeny_thumb"></div>
+                <script>
+                    
+                var jsff_velemeny = document.getElementById('jsff_velemeny'),
+                    tests_velemeny = {
+                        filereader  : typeof FileReader != 'undefined',
+                        dnd         : 'draggable' in document.createElement('span'),
+                        formdata    : !!window.FormData,
+                        progress    : 'upload' in new XMLHttpRequest
+                    },
+                    kepformatumok_velemeny = {
+                        'image/png' : true,
+                        'image/jpeg': true,
+                        'image/gif' : true
+                    };
+
+                /* Előnézet */
+                function elonezet_velemeny(file){
+
+                    /* Ha van filereader, és képelemről van szó, akkor készítünk egy thumbnailt */
+                    if (tests_velemeny.filereader === true && kepformatumok_velemeny[file.type] === true) {
+                        var reader = new FileReader();
+                        reader.onload = function (event) {
+                            var image   = new Image();
+                            image.src   = event.target.result;
+                            jsff_velemeny.appendChild(image);
+                        };
+                        reader.readAsDataURL(file);
+
+                    /* Egyébként csak egy sort írunk */
+                    }else{
+                        jsff_velemeny.innerHTML += 'Feltöltve ' + file.name + ' ' + (file.size ? (file.size/1024|0) + 'K' : '') + '<br>';
+                    }
+
+                }
+
+                /* Beolvasás */
+                function beolvasas_velemeny(fajlok){
+
+                    var formData        = tests_velemeny.formdata ? new FormData() : null;
+                    var fajlok_kesz     = 0;
+                    var hibas_fajlok    = 0;
+
+                    for (var i = 0; i < fajlok.length; i++){
+
+                        if(tests_velemeny.formdata){
+
+                            formData.append('file', fajlok[i]);
+                            /* Kép megjelenítése egyből: */
+                            /*elonezet_velemeny(fajlok[i]);*/
+
+                            var progress_id = 'jsff_velemeny_' + i;
+                            var pg = $('<progress id="'+progress_id+'" min="0" max="100" value="0">0</progress>');
+                            $('#jsff_velemeny').append(pg);
+
+                            var xhr = new XMLHttpRequest();
+                            xhr.open('POST', '../feltolt.php');
+
+                            (function(progress_id){
+                                xhr.upload.onprogress = function(e){
+                                    var percent = parseInt(e.loaded / e.total * 100);
+                                    $('#' + progress_id).val(percent);
+                                };
+                                xhr.onload = function(){
+                                    fajlok_kesz++;
+                                    $('#' + progress_id).val(100);
+                                    $('#' + progress_id).fadeOut(2000);
+
+                                    /*
+                                    // Ha a PHP-tól szöveget is vársz, azt így tudod lekérni:
+                                    var html = this.responseText;
+
+                                    // Tömbbé így tudod alakítani, ha json adatot vársz
+                                    var json_data = JSON.parse(html);
+                                    */
+
+                                    if(this.responseText.substring(0,5)=='Hiba!'){
+                                        alert2(this.responseText);
+                                    }else{
+                                        if (fajlok_kesz == fajlok.length-hibas_fajlok){
+                                            minden_fajl_kesz_velemeny();
+                                        }
+                                    }
+                                };
+                            }(progress_id));
+
+                            var parameterek = {'session_name':'{SESSION_ID}', 'megnevezes':'velemeny', 'megj':$('#velemeny_megj').val(), 'projektigenyles_recid':{GET_ID}};
+                            $.each(parameterek, function(kulcs, ertek){
+                                formData.append(kulcs, ertek);
+                            });
+
+                            xhr.send(formData);
+
+                        /* Hibás vagy nem támogatott fájlokról tájékoztatjuk a usert */
+                        }else{
+
+                            $('.uzenet').html('');
+                            $('.hiba').append('<b>' + fajlok[i].name + '</b> nem támogatott fájlformátum, feltöltés nem lehetséges!<br>');
+                            hibas_fajlok++;
+                        }
+
+                    }
+                    
+                    /* Ha nem volt fájl kiválsztva, akkor egy küön ajax-al feltöltjük csak a megjegyzést 
+                     * Itt fogjuk azt is ellenőrizni, hogy van-e egyáltalán valami kiválsztva (ha volt fájl kiválasztva, ide el sem jutnánk ugyebár)
+                     * */
+                    if(i==0){
+                        $.ajax({
+                            url : '../feltolt.php',
+                            type: 'POST',
+                            data: {
+                                megnevezes              : 'velemeny',
+                                megj                    : $('#velemeny_megj').val(),
+                                projektigenyles_recid   : '{GET_ID}',
+                                velemeny_megjegyzes     : new Date().getTime()
+                            },
+                            success: function(response){
+                                if(response){
+                                    response = JSON.parse(response);
+
+                                    if( response.hiba ) {
+                                        alert2(response.hiba, response.gomb, 'Hiba');
+                                        return false;
+                                    }
+                                }
+                                popupZar();
+                                szamlaBetolt({GET_ID}, 'projektigenyles.php', 'velemenyezok');
+                            }
+                        });
+                    }
+                }
+
+                /* Ha minden fájl feltöltése kész, akkor itt adhat meg további utasítás */
+                function minden_fajl_kesz_velemeny(){
+                    popupZar();
+                    szamlaBetolt({GET_ID}, 'projektigenyles.php', 'velemenyezok');
+                    $('#jsff_velemeny').find('progress').fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
+                }
+
+                /* Ha működik a drag&drop, akkor a CSS class-t megváltoztatjuk draghoverre */
+                if(tests_velemeny.dnd){
+
+                    jsff_velemeny.ondragover = function(){
+                        this.className = 'jsff hover';
+                        return false;
+                    };
+
+                    jsff_velemeny.ondragleave = function(){
+                        this.className = 'jsff';
+                        return false;
+                    };
+
+                    jsff_velemeny.ondrop = function(e){
+                        this.className = 'jsff';
+                        e.preventDefault();
+                        beolvasas_velemeny(e.dataTransfer.files);
+                    };
+
+                }
+                
+                $(document).ready(function(){
+                    $('#velemeny_megj').focus();
+                });
+                </script>
+
+            </div>
+        </div>
+        <div class="dtr">
+            <div class="dtc">
+                Megjegyzés:
+            </div>
+            <div class="dtc">
+                <textarea id="velemeny_megj" name="velemeny_megj" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
             </div>
         </div>
     </div>
-    <div id="jsff_velemeny_thumb"></div>
-    <script>
-    var jsff_velemeny = document.getElementById('jsff_velemeny'),
-        tests_velemeny = {
-            filereader  : typeof FileReader != 'undefined',
-            dnd         : 'draggable' in document.createElement('span'),
-            formdata    : !!window.FormData,
-            progress    : 'upload' in new XMLHttpRequest
-        },
-        kepformatumok_velemeny = {
-            'image/png' : true,
-            'image/jpeg': true,
-            'image/gif' : true
-        };
-
-    /* Előnézet */
-    function elonezet_velemeny(file){
-
-        /* Ha van filereader, és képelemről van szó, akkor készítünk egy thumbnailt */
-        if (tests_velemeny.filereader === true && kepformatumok_velemeny[file.type] === true) {
-            var reader = new FileReader();
-            reader.onload = function (event) {
-                var image   = new Image();
-                image.src   = event.target.result;
-                jsff_velemeny.appendChild(image);
-            };
-            reader.readAsDataURL(file);
-
-        /* Egyébként csak egy sort írunk */
-        }else{
-            jsff_velemeny.innerHTML += 'Feltöltve ' + file.name + ' ' + (file.size ? (file.size/1024|0) + 'K' : '') + '<br>';
-        }
-
-    }
-
-    /* Beolvasás */
-    function beolvasas_velemeny(fajlok){
-
-        var formData        = tests_velemeny.formdata ? new FormData() : null;
-        var fajlok_kesz     = 0;
-        var hibas_fajlok    = 0;
-
-        for (var i = 0; i < fajlok.length; i++){
-
-            if(tests_velemeny.formdata){
-
-                formData.append('file', fajlok[i]);
-                /* Kép megjelenítése egyből: */
-                /*elonezet_velemeny(fajlok[i]);*/
-
-                var progress_id = 'jsff_velemeny_' + i;
-                var pg = $('<progress id="'+progress_id+'" min="0" max="100" value="0">0</progress>');
-                $('#jsff_velemeny').append(pg);
-
-                var xhr = new XMLHttpRequest();
-                xhr.open('POST', '../feltolt.php');
-
-                (function(progress_id){
-                    xhr.upload.onprogress = function(e){
-                        var percent = parseInt(e.loaded / e.total * 100);
-                        $('#' + progress_id).val(percent);
-                    };
-                    xhr.onload = function(){
-                        fajlok_kesz++;
-                        $('#' + progress_id).val(100);
-                        $('#' + progress_id).fadeOut(2000);
-
-                        /*
-                        // Ha a PHP-tól szöveget is vársz, azt így tudod lekérni:
-                        var html = this.responseText;
-
-                        // Tömbbé így tudod alakítani, ha json adatot vársz
-                        var json_data = JSON.parse(html);
-                        */
-
-                        if(this.responseText.substring(0,5)=='Hiba!'){
-                            alert2(this.responseText);
-                        }else{
-                            if (fajlok_kesz == fajlok.length-hibas_fajlok){
-                                minden_fajl_kesz_velemeny();
-                            }
-                        }
-                    };
-                }(progress_id));
-
-                var parameterek = {'session_name':'{SESSION_ID}', 'megnevezes':'velemeny', 'projektigenyles_recid':{GET_ID}};
-                $.each(parameterek, function(kulcs, ertek){
-                    formData.append(kulcs, ertek);
-                });
-
-                xhr.send(formData);
-
-            /* Hibás vagy nem támogatott fájlokról tájékoztatjuk a usert */
-            }else{
-
-                $('.uzenet').html('');
-                $('.hiba').append('<b>' + fajlok[i].name + '</b> nem támogatott fájlformátum, feltöltés nem lehetséges!<br>');
-                hibas_fajlok++;
-            }
-
-        }
-    }
-
-    /* Ha minden fájl feltöltése kész, akkor itt adhat meg további utasítás */
-    function minden_fajl_kesz_velemeny(){
-        popupZar();
-        szamlaBetolt({GET_ID}, 'projektigenyles.php', 'velemenyezok');
-        $('#jsff_velemeny').find('progress').fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
-    }
-
-    /* Ha működik a drag&drop, akkor a CSS class-t megváltoztatjuk draghoverre */
-    if(tests_velemeny.dnd){
-
-        jsff_velemeny.ondragover = function(){
-            this.className = 'jsff hover';
-            return false;
-        };
-
-        jsff_velemeny.ondragleave = function(){
-            this.className = 'jsff';
-            return false;
-        };
-
-        jsff_velemeny.ondrop = function(e){
-            this.className = 'jsff';
-            e.preventDefault();
-            beolvasas_velemeny(e.dataTransfer.files);
-        };
-
-    }
-    </script>
+    
 </div>
 
 <div class="kuldes">
-    <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    <input type="button" name="megsem" class="gomb zold" value="Feltöltés" onclick="$('#jsff_velemeny input[type=file]').dblclick();">
+    <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
 </div>

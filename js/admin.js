@@ -397,6 +397,9 @@ $(function() {
                 }
 
                 var mellek = $('#szamlaFulek a.active').attr('data-oldal');
+                if(mellek=='cash_flow'){
+                    mellek='modosit';
+                }
                 szamlaBetolt( szamlaID, tabla + '.php', mellek );
 
                 scrollLeptet();
@@ -491,6 +494,11 @@ $(function() {
 
             e.preventDefault();
         }
+    });
+    
+    /* Tallózásnál jelezzük, hogy a fájl ki lett választva */
+    $(document).on('change', 'div.jsff input[type=file]', function(e) {
+        $(this).parent().find('span').html('Fájl kiválasztva');
     });
 
     /* Beosztás naptár bejegyzés törlésre kijelölés */
@@ -1122,11 +1130,7 @@ $(function() {
                 response = JSON.parse(response);
 
                 if( response.hiba ) {
-                    if( response.gomb ) {
-                        alert2(response.hiba, response.gomb);
-                    } else {
-                        alert2(response.hiba, '', 'Hiba');
-                    }
+                    alert2(response.hiba, response.gomb, 'Hiba');
                 }
                 if( response.mehet ) {
                     location.reload();
@@ -4982,47 +4986,6 @@ function addSzalloda( loginID, that ) {
     return false;
 }
 
-/* Véleményező hozzáadása projektigényléshez */
-function addVelemenyezoFg( pr_igeny_recid, that ) {
-
-    var login_recid = $(that).find('input[name="addVelemenyezo"]').val();
-
-    if( login_recid && pr_igeny_recid ) {
-        var ajax = $.ajax({
-         	url : 'projektigenyles.php',
-         	type: 'GET',
-         	data: esamp2es('login_recid=' + login_recid + '&amp;pr_igeny_recid=' + pr_igeny_recid + '&amp;addVelemenyezo=' + new Date().getTime()),
-         	success: function(response) {
-         		if(response) {
-                    response = JSON.parse(response);
-
-                    if( response.hiba ) {
-                        if( response.gomb ) {
-                            alert2(response.hiba, response.gomb);
-                        } else {
-                            alert2(response.hiba, '', 'Hiba');
-                        }
-                        return false;
-                    }
-
-         			szamlaBetolt(pr_igeny_recid, baseName(location.href) + '.php', 'velemenyezok').done(function() {
-                        $('#naploSor-' + response.kapcsID).addClass('uj');
-                    });
-
-                    popupZar();
-         		}
-         	}
-        });
-
-        $.when( ajax ).then(function() {
-            $(that).find('input[name="addVelemenyezo"]').val('');
-            $(that).find('input[name="addVelemenyezo_autocomp"]').val('');
-        });
-    }
-
-    return false;
-}
-
 /* Vélemény hozzáadása */
 function velemeny_hozzaad(mehet){
 
@@ -5175,7 +5138,6 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
 
     naptar_latszik_nincs_leptetes = false;
     var dfrd1 = $.Deferred();
-
     /* Naptár megjelenítése */
     if(page=='utemezett_feladatok.php'){
         if(muvelet.indexOf('naptar')>=0){
@@ -5207,7 +5169,6 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
          	data: esamp2es('id=' + recid + '&amp;ajax=1&amp;' + szerk + anyagrend + muvelet + '=' + new Date().getTime()),
          	success: function(html) {
          		if(html) {
-
                     html = JSON.parse(html);
 
          			$('#szamlaBetolt').attr('data-recid', recid).html(html.tartalom).promise().done(function() {
@@ -5240,6 +5201,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
                         'projekt_team',
                         'projektigeny',
                         'rb_anyag',
+                        'rogzit',
                         'siker',
                         'statusz',
                         'szamlak',
@@ -5267,7 +5229,6 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
                     } else {
                         param += '?uj';
                     }
-
 
                     /* Bal oldali navpanel sorát is frissítjük */
                     if(page.replace('.php', '')!='erteklista'){
@@ -5940,69 +5901,53 @@ function osszetett_szuro_mondat(){
 
 /* Projektigénylés alatt az adatlap és cash flow fül közötti váltás */
 function prigeny_ful_valt(ful){
-    
-    var vannak_ideiglenes_sorok = false;
-    $('#cash_flow_div div.kijSor').each(function() {
-        if( $(this).attr('data-id')=='UJ' ){
-            vannak_ideiglenes_sorok = true;
-        }
-    });
-
-    if(ful=='cash_flow'){
-        $('#cash_flow_div').show();
-        $('#szerk_form').hide();
-        $('#ful_cash_flow').addClass('active');
-        $('#ful_modosit').removeClass('active');
-        $('#navGombok .uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'cash_flow\'); void(0);');
-        if(vannak_ideiglenes_sorok){
-            $('#tartalomJobb').prepend('<div id="cash_flow_mentese" class="muveletek"><div class="form_kuldes"> <input class="gombb mentes_gomb gombb_alert" name="mehet_gomb" id="mehet_gomb2" value="Mentés" onclick="$(\'#szerk_form\').submit()" tabindex="23" type="button"> </div></div>');
-        }
-    }
-
-    if(ful=='adatlap'){
-        $('#cash_flow_div').hide();
-        $('#szerk_form').show();
-        $('#ful_cash_flow').removeClass('active');
-        $('#ful_modosit').addClass('active');
-        $('#navGombok .uj').attr('href', 'projektigenyles.php?uj');
-        if(vannak_ideiglenes_sorok){
-            $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
-        }
-    }
 
     /* Ha nem az adatlapon vagyunk akkor szamlaBetolt */
     if(!_get('modosit')){
-
         betoltott = szamlaBetolt(_get('id'), 'projektigenyles.php', 'modosit');
 
-        $.when( betoltott ).done(function() {
-            if(ful=='cash_flow'){
-                cash_flow_fulre_lep();
-            }
-        });
-
+        if(ful=='cash_flow'){
+            $.when( betoltott ).done(function() {
+                if(ful=='cash_flow'){
+                    cash_flow_fulre_lep();
+                }
+            });
+        }
 
     /* Egyébként csak JS tartalom csere */
     }else{
+        
         if(ful=='adatlap'){
-            $('#cash_flow_mentese').remove();
             $('#cash_flow_div').hide();
             $('#szerk_form').show();
-            $('#szamlaFulek a').removeClass('active');
+            $('#ful_cash_flow').removeClass('active');
             $('#ful_modosit').addClass('active');
             $('#navGombok .uj').attr('href', 'projektigenyles.php?uj');
         }
+        
         if(ful=='cash_flow'){
             cash_flow_fulre_lep();
         }
+        
+        var vannak_ideiglenes_sorok = false;
+        $('#cash_flow_div div.kijSor').each(function() {
+            if( $(this).attr('data-id')=='UJ' ){
+                vannak_ideiglenes_sorok = true;
+            }
+        });
+
+        if(vannak_ideiglenes_sorok){
+            $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
+        }
+        
     }
 
 }
-function cash_flow_fulre_lep(){
+function cash_flow_fulre_lep(){    
     $('#cash_flow_div').show();
     $('#szerk_form').hide();
-    $('#szamlaFulek a').removeClass('active');
     $('#ful_cash_flow').addClass('active');
+    $('#ful_modosit').removeClass('active');
     $('#navGombok .uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'cash_flow\'); void(0);');
 }
 

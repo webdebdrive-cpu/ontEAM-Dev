@@ -88,11 +88,10 @@ function addCashFlow( pageID, that ) {
                                     '</div>'
                                 );
     
-    $('#cash_flow_mentese').remove();
-    $('#tartalomJobb').prepend('<div id="cash_flow_mentese" class="muveletek"><div class="form_kuldes"> <input class="gombb mentes_gomb gombb_alert" name="mehet_gomb" id="mehet_gomb2" value="Mentés" onclick="$(\'#szerk_form\').submit()" tabindex="23" type="button"> </div></div>');
+
     popupZar();
     becsult_szetosztott_ujraszamol();
-    
+    $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
     
     formModositva = true;
 

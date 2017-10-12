@@ -1520,6 +1520,9 @@ ul.szamla_cont li a {
     padding: 0.2rem 1rem 0.2rem 3rem;
     width: 100%;
 }
+ul.szamla_cont.nobehuzas li a {
+    padding: 0.2rem 1rem 0.2rem 0rem;
+}
 
 ul.szamla_cont li:last-child a {
     border-bottom: 0.1rem solid #d6d6d6;

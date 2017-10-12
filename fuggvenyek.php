@@ -979,6 +979,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     var utemezes_mehet     = false;
                     var bejelentes_mehet   = false;
                     var bejelentes_mehet2  = false;
+                    var alert_vegen        = false; /* Van, hogy mentés után még láttani akarunk egy alertet */
                     function '.$fg.'{
             ');
 
@@ -1422,10 +1423,14 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     }
 
                     '.$js_kieg.'
+                        
                     szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
                     betoltott = szamlaBetolt( \''.$_GET['id'].'\', \''.basename(self()).'\', \'modosit\', \'\', \'Elhagy kérdés nélkül\' );
                     
                     '.$cash_flow_fulre_lepes.'
+                        
+                    /* Ha lefutott az ajax, akkor még lehet dubni szeretnénk egy hibaüzenetet, vagy tájékoztatást */
+                    alert2(alert_vegen);
                         
                     formAdatok = response.adatok;
 
@@ -2240,15 +2245,8 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     if( $bejegyzesek ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
 
-        //Csak diszpécser tud sorokat kijelölni
-//Már ő sem
-//        $jClass = '';
-//        if( _jog(JOG_DISZPECSER) ) {
-//            $jClass = ' kijelolheto';
-//        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer nobehuzas">';
         }
 
         //Ha nem adunk meg $tabla-t, akkor nyomtatási nézetben vagyunk
@@ -3110,7 +3108,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         }
 
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer nobehuzas">';
         }
 
         $i = 1;
@@ -3162,12 +3160,33 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             //Egy csoporton belül biztosan csak olyan bejelentések lesznek, amiknek azonos a telephelye
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$bsz['telephely_id']}'");
             $telephely = $telephely[0];
+            
+            require 'selectek.php';
+            foreach($select_pri_tipus as $tip){
+                if($bsz['tipus'] == $tip['value']){
+                    $tipus = substr($tip['name'], 0, 1);
+                }
+            }
+            
+            if($bsz['rendk']){
+                $tipus = '<span class="piros">'.$tipus.'</span>';
+            }
 
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span'.$bold.'>'.$bsz['ikt_szam'].' - '.$telephely['nev'].'</span>
-                            <span'.$bold.'>'.$bsz['nev'].'</span>
-                            <span'.$bold.'>'.$statusz.'</span>
-                        </a>';
+                            <table'.$bold.'>
+                            <tr>
+                                <td rowspan="2" style="width: 2rem; text-align: center">'.$tipus.'</td>
+                                <td style="width: 10rem">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 10rem">'.$telephely['nev'].'</td>
+                                <td>'.$statusz.'</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">'.$bsz['nev'].'</td>
+                                <td>'.$bsz['bkolt'].'</td>
+                            </tr>
+                            </table>
+                        </a>
+                        ';
 
             $csoport_class = '';
             $csoport_data = '';
