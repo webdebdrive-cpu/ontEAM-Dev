@@ -44,7 +44,7 @@ $szamla_html = '';
 $tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
-    function get_tobbkep_csakkep()  { return 'false';   } // Lényeges, hogy egy string legyen
+    function get_tobbkep_csakkep()  { return '';   } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
     function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
         global $megnevezes;
@@ -256,15 +256,11 @@ if($gyorskereso_text){
         $eng_db = ' ('.$eng_db.')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['megjegyzesek']) || isset($_GET['dokumentumok']) || isset($_GET['naptar']) || isset($_GET['esemenyek']) || isset($_GET['engedelyek']) || isset($_GET['felmeresi']) || isset($_GET['terkep']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['megjegyzesek']) || isset($_GET['dokumentumok'])  ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Tervlap',
-            'dokumentumok'  => 'Dokumentumok'.$dok_db,
-//            'esemenyek'     => 'Események',
-//            'engedelyek'    => 'Engedélyek'.$eng_db,
-//            'felmeresi'     => 'Felmérési terv',
-//            'terkep'        => 'Térkép',
+            //'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
 
@@ -562,7 +558,7 @@ if($gyorskereso_text){
 
 	//Dokumentumok
 	}elseif(isset($_GET['dokumentumok'])){
-
+        /* Egyelőre nem kell ilyen
         if( $tobb_kep ) {
             require_once('tobb_kep.php');
         }
@@ -570,12 +566,12 @@ if($gyorskereso_text){
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html.$gombok,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html.$gombok;
         }
-
+        */
     }
 
     if( !$_GET['ajax'] ) {

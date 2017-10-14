@@ -186,10 +186,8 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'anyagigenyles' ) {
 
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
-            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.date('y'), '', '');
-            if( $ikt_seq === false ) {
-                $db_error = true;
-            }
+            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
+            if( $ikt_seq === false ) { $db_error = true; }
             if( $ikt_seq ) {
                 $ikt_seq = $ikt_seq[0];
 
@@ -201,17 +199,13 @@ function i_u($type, $tabla, $tomb) {
 
                 /* Letároljuk az új sorszámot */
                 $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                if( $sql === false ) { $db_error = true; }
             } else {
                 /* Sorszám */
                 $sorszam = 1;
 
                 $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                if( $sql === false ) { $db_error = true; }
             }
 
             /* Iktatószám formázása */
@@ -219,15 +213,11 @@ function i_u($type, $tabla, $tomb) {
 
             //Miután a $_POST['nev']-et felvettük cikkid-nak, csak utána írjuk felül
             $cikktorzs = $adatbazis_kapcsolat->s('id nev cikkmee oracikkid', 'cikktorzs', "`recid`='{$_POST['nev']}'");
-            if( $cikktorzs === false ) {
-                $db_error = true;
-            }
+            if( $cikktorzs === false ) { $db_error = true; }
             $cikktorzs = $cikktorzs[0];
             /* Új anyagigényléskor a munkalaphoz tartozó anyagok státuszán állítani kell */
             $sql = $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array(MUNKALAP_STAT_FOLYAMATBAN), "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$cikktorzs['id']}'");
-            if( $sql === false ) {
-                $db_error = true;
-            }
+            if( $sql === false ) { $db_error = true; }
 
 
             $i = 0;
@@ -265,10 +255,8 @@ function i_u($type, $tabla, $tomb) {
         } else if( $tabla == 'bejelentes' ) {
 
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
-            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.date('y'), '', '');
-            if( $ikt_seq === false ) {
-                $db_error = true;
-            }
+            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
+            if( $ikt_seq === false ) { $db_error = true; }
             if( $ikt_seq ) {
                 $ikt_seq = $ikt_seq[0];
 
@@ -280,9 +268,7 @@ function i_u($type, $tabla, $tomb) {
 
                 /* Letároljuk az új sorszámot */
                 $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                if( $sql === false ) { $db_error = true; }
             } else {
                 /* Sorszám */
                 $sorszam = 1;
@@ -309,6 +295,70 @@ function i_u($type, $tabla, $tomb) {
             }
 
 
+        //FB Előterjesztés új bejegyzés esetén
+        } else if( $tabla == 'eloterj_fb' ) {
+            
+            /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
+            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
+            if( $ikt_seq === false ) { $db_error = true; }
+            if( $ikt_seq ) {
+                $ikt_seq = $ikt_seq[0];
+
+                /* Sorszám */
+                $sorszam = $ikt_seq['sorszam'];
+
+                /* Sorszám növelés */
+                $sorszam++;
+
+                /* Letároljuk az új sorszámot */
+                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
+                if( $sql === false ) { $db_error = true; }
+            } else {
+                /* Sorszám */
+                $sorszam = 1;
+
+                $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
+                if( $sql === false ) { $db_error = true; }
+            }
+
+            /* Iktatószám formázása */
+            $ikt_szam = 'ELFB'.date('y').'/'.sprintf('%07d', $sorszam);
+
+            array_push($oszlopok,  'ikt_szam');
+            array_push($ertekek,   $ikt_szam );
+
+        //BOD Előterjesztés új bejegyzés esetén
+        } else if( $tabla == 'eloterj_fb' ) {
+            
+            /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
+            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
+            if( $ikt_seq === false ) { $db_error = true; }
+            if( $ikt_seq ) {
+                $ikt_seq = $ikt_seq[0];
+
+                /* Sorszám */
+                $sorszam = $ikt_seq['sorszam'];
+
+                /* Sorszám növelés */
+                $sorszam++;
+
+                /* Letároljuk az új sorszámot */
+                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
+                if( $sql === false ) { $db_error = true; }
+            } else {
+                /* Sorszám */
+                $sorszam = 1;
+
+                $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
+                if( $sql === false ) { $db_error = true; }
+            }
+
+            /* Iktatószám formázása */
+            $ikt_szam = 'ELBO'.date('y').'/'.sprintf('%07d', $sorszam);
+
+            array_push($oszlopok,  'ikt_szam');
+            array_push($ertekek,   $ikt_szam );
+            
         //Értéklista új bejegyzés esetén
         } else if( $tabla == 'erteklista' ) {
             $ertek = $adatbazis_kapcsolat->s('id', 'erteklista', "`csoport` = '".$_POST['csoport']."'", '', '');
@@ -333,9 +383,7 @@ function i_u($type, $tabla, $tomb) {
 
             /* Megnézzük, hogy az adott hotel nevével létezik e bejegyzés */
             $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.$szalloda);
-            if( $ikt_seq === false ) {
-                $db_error = true;
-            }
+            if( $ikt_seq === false ) { $db_error = true; }
             if( $ikt_seq ) {
                 $ikt_seq = $ikt_seq[0];
 
@@ -347,17 +395,13 @@ function i_u($type, $tabla, $tomb) {
 
                 /* Letároljuk az új sorszámot */
                 $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.$szalloda);
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                if( $sql === false ) { $db_error = true; }
             } else {
                 /* Sorszám */
                 $sorszam = 1;
 
                 $id = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, $szalloda, $tabla));
-                if( $id === false ) {
-                    $db_error = true;
-                }
+                if( $id === false ) { $db_error = true; }
             }
             $id = $szalloda.sprintf('%04d', $sorszam);
 
@@ -394,9 +438,7 @@ function i_u($type, $tabla, $tomb) {
 
             if( $_POST['szerepkor_id'] ) {
                 $szerepkor = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
-                if( $szerepkor === false ) {
-                    $db_error = true;
-                }
+                if( $szerepkor === false ) { $db_error = true; }
                 if( $szerepkor ) {
                     $szerepkor = $szerepkor[0];
 
@@ -468,17 +510,13 @@ function i_u($type, $tabla, $tomb) {
 
                 /* Letároljuk az új sorszámot */
                 $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.$szalloda);
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                if( $sql === false ) { $db_error = true; }
             } else {
                 /* Sorszám */
                 $sorszam = 1;
 
                 $id = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, $szalloda, $tabla));
-                if( $id === false ) {
-                    $db_error = true;
-                }
+                if( $id === false ) { $db_error = true; }
             }
             $id = $szalloda.sprintf('%04d', $sorszam);
 
@@ -519,17 +557,13 @@ function i_u($type, $tabla, $tomb) {
 
                 /* Letároljuk az új sorszámot */
                 $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.$szalloda);
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                if( $sql === false ) { $db_error = true; }
             } else {
                 /* Sorszám */
                 $sorszam = 1;
 
                 $id = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, $szalloda, $tabla));
-                if( $id === false ) {
-                    $db_error = true;
-                }
+                if( $id === false ) { $db_error = true; }
             }
             $id = $szalloda.sprintf('%04d', $sorszam);
 
@@ -642,6 +676,28 @@ function i_u($type, $tabla, $tomb) {
                 }
             }
 
+        }
+        
+        /* Előterjesztés (FB) státusz beszúrása */
+        if( $tabla == 'eloterj_fb' ) {
+            $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
+                                                array($tabla.'_recid', 'stat_id',             'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                array($id,             ELOT_FB_STAT_NYITOTT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            );
+            if( $sql === false ) { $db_error = true; }
+            $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(ELOT_FB_STAT_NYITOTT), "`recid`='$id'");
+            if( $sql === false ) { $db_error = true; }
+        }
+        
+        /* Előterjesztés (BoD) státusz beszúrása */
+        if( $tabla == 'eloterj_bod' ) {
+            $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
+                                                array($tabla.'_recid', 'stat_id',              'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                array($id,             ELOT_BOD_STAT_NYITOTT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            );
+            if( $sql === false ) { $db_error = true; }
+            $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(ELOT_BOD_STAT_NYITOTT), "`recid`='$id'");
+            if( $sql === false ) { $db_error = true; }
         }
 
         //Munkalap
@@ -2159,6 +2215,12 @@ if(isset($_GET['debug'])) {
             case 'cikktorzs':
                 $html = cikktorzsLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
+            case 'eloterj_bod':
+                $html = eloterj_bodLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
+            break;
+            case 'eloterj_fb':
+                $html = eloterj_fbLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
+            break;
             case 'energia':
                 $html = energiaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
@@ -2621,13 +2683,8 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek )
             $lista_dn  = ' dn';
         }
 
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lista_dn.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lista_dn.'">';
         }
 
         $i = 1;
@@ -2700,13 +2757,8 @@ function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit, $kijelolt
             $lista_dn  = ' dn';
         }
 
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lista_dn.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lista_dn.'">';
         }
 
         $i = 1;
@@ -2780,13 +2832,8 @@ function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $lista_dn  = ' dn';
         }
 
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lista_dn.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lista_dn.'">';
         }
 
         $i = 1;
@@ -2853,20 +2900,8 @@ function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek
 
     if( $bejegyzesek ) {
 
-        $naptar_dn = 'dn';
-        $lista_dn  = '';
-        if (isset($_GET['naptar'])) {
-            $naptar_dn = '';
-            $lista_dn  = ' dn';
-        }
-
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lista_dn.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -2911,7 +2946,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         }
 
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lista_dn.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
         }
 
         $i = 1;
@@ -2967,13 +3002,8 @@ function torzsadatLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     if( $bejegyzesek ) {
 
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lista_dn.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -3011,13 +3041,8 @@ function szabadsagigenyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     if( $bejegyzesek ) {
 
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lista_dn.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -3228,13 +3253,8 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     if( $bejegyzesek ) {
 
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -3286,13 +3306,8 @@ function uzemeltetesi_naploLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) 
 
     if( $bejegyzesek ) {
 
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -3325,18 +3340,92 @@ function uzemeltetesi_naploLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) 
     return false;
 }
 
+function eloterj_bodLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' kijelolve';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
+            }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
+
+        return nl2($html);
+    }
+
+    return false;
+}
+
+function eloterj_fbLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] ) {
+                $active = ' kijelolve';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <span>'.$bsz['ikt_szam'].' '.getStatText($tabla, $bsz['stat_id']).'</span>
+                            <span>'.$bsz['nev'].'</span>
+                        </a>';
+
+            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                $active .= ' kijelolve';
+            }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
+
+        return nl2($html);
+    }
+
+    return false;
+}
+
 function energiaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
 
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -3374,13 +3463,8 @@ function tervezesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     if( $bejegyzesek ) {
 
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -3418,13 +3502,8 @@ function cash_flowLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     if( $bejegyzesek ) {
 
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -3462,13 +3541,8 @@ function raktarLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     if( $bejegyzesek ) {
 
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -3506,20 +3580,8 @@ function szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     if( $bejegyzesek ) {
 
-        $naptar_dn = 'dn';
-        $lista_dn  = '';
-        if (isset($_GET['naptar'])) {
-            $naptar_dn = '';
-            $lista_dn  = ' dn';
-        }
-
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lista_dn.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -3556,13 +3618,9 @@ function cikktorzsLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
 
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -3630,29 +3688,6 @@ function dokumentumtarLista() {
                         array('tabla' => 'beosztas',                'nev' => 'Beosztások'               ),
                         array('tabla' => 'login',                   'nev' => 'Felhasználók'             )
                     );
-
-
-//    if (isset($_GET['fajlok_karbantart'])) {
-//
-//        foreach($menupontok as $menu){
-//            if(!is_dir('../'.get_utvonal().$menu['tabla'])){
-//                mkdir('../'.get_utvonal().$menu['tabla']);
-//            }
-//            $fajlok = $adatbazis_kapcsolat->s('recid kepnev', $menu['tabla'].'_dok');
-//            foreach($fajlok as $fajl){
-//                $konyvt = dirname($fajl['kepnev']);
-//                $konyvt = trim(substr($konyvt, strrpos($konyvt, '/')), '/');
-//                if(!is_dir('../'.get_utvonal().$menu['tabla'].'/'.$konyvt)){
-////echo '../'.get_utvonal().$menu['tabla'].'/'.$konyvt . '<br>';
-//                    mkdir('../'.get_utvonal().$menu['tabla'].'/'.$konyvt);
-//                }
-////echo '../'.get_utvonal().$menu['tabla'].'/'.$konyvt.'/'.basename($fajl['kepnev']) . '<br>';
-//                copy('../'.get_utvonal().$fajl['kepnev'], '../'.get_utvonal().$menu['tabla'].'/'.$konyvt.'/'.basename($fajl['kepnev']));
-//                $adatbazis_kapcsolat->u($menu['tabla'].'_dok', array('kepnev'), array($konyvt.'/'.basename($fajl['kepnev'])), "`recid`='{$fajl['recid']}'");
-//echo $adatbazis_kapcsolat->gp() . '<br>';
-//            }
-//        }
-//    }
 
     foreach($menupontok as $menu){
         $checked = '';
@@ -3910,13 +3945,9 @@ function szerepkorLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
 
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -3955,13 +3986,9 @@ function loginLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
 
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -4067,13 +4094,9 @@ function szallitoLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
 
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -4123,13 +4146,9 @@ function ktghelyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
 
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -4166,13 +4185,9 @@ function ktgnemLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
 
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -4209,26 +4224,13 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
-        //$aktDatum = date_formaz($bejegyzesek[0]['erkezett']);
-
-        $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
-            $jClass = ' kijelolheto';
-        }
 
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont'.$jClass.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont">';
         }
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
-            /*$szamlaDatum = date_formaz($bsz['erkezett']);
-
-            if( $i == 1 || $aktDatum != $szamlaDatum ) {
-                $html .= '<li class="szamla_datum"><strong>'.$szamlaDatum.'</strong></li>';
-
-                $aktDatum = $szamlaDatum;
-            }*/
 
             $active = '';
             if( $bsz['recid'] == $_GET['id'] ) {

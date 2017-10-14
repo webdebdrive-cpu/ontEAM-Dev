@@ -193,9 +193,9 @@ $_SESSION['fajl']['oszlop']     = get_tobbkep_oszlopnev();  //Képek tábla oszo
 $_SESSION['fajl']['termek_id']  = $_GET['id'];              //A termék azonosítója, amivel összekapcsoljuk
 
 /* Korlátozás csak képre */
-if(get_tobbkep_csakkep() == 'true'){
-    $csakkep  = ' accept="image/*"';
-    $csakkep2 = ' && fajlok[i].type.match(/^image\//)';
+$eng_kit = '';
+if(get_tobbkep_csakkep()){
+    $eng_kit = ' accept="'.get_tobbkep_csakkep().'"';
 }
 
 //Fájlfeltöltéskor milyen paraméterek menjenek át
@@ -210,8 +210,8 @@ if($tobbkep_tablanev=='eszkozkezeles_eng_dok'){
 }
 
 $sorrend_ujkep       = fajlbol_olvas('../sablon/admin/tobbkep_ujkep.html', true);
-$sorrend_ujkep_mit   = array('{GOMB_NEVE}', '{MEGN}',  '{PHP_FAJL}',                     '{CSAK_KEP}', '{CSAK_KEP2}',  '{PARAMETEREK}', '{MINDEN_KESZ}'    );
-$sorrend_ujkep_mivel = array($gomb_neve,    $megn,     'tobb_kep.php'/*self() nem jó!*/, $csakkep,     $csakkep2,      $parameterek,    $minden_kesz       );
+$sorrend_ujkep_mit   = array('{GOMB_NEVE}', '{MEGN}',  '{PHP_FAJL}',                     '{ENG_KIT}', '{PARAMETEREK}', '{MINDEN_KESZ}'    );
+$sorrend_ujkep_mivel = array($gomb_neve,    $megn,     'tobb_kep.php'/*self() nem jó!*/, $eng_kit,     $parameterek,    $minden_kesz       );
 
 $tobbkep_html  = '';
 $tobbkep_html .= str_replace($sorrend_ujkep_mit, $sorrend_ujkep_mivel, $sorrend_ujkep);

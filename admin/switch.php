@@ -431,11 +431,10 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'jsfile':
-
-            //Csak kép
-            if($ertek['csakkep']){
-                $ertek['csakkep']  = ' accept="image/*"';
-                $ertek['csakkep2'] = ' && fajlok[i].type.match(/^image\//)';
+            
+            //Milyen kiterjesztéseket engedünk meg
+            if($ertek['eng_kit']){
+                $ertek['eng_kit'] = ' accept="'.$ertek['eng_kit'].'"';
             }
 
             //Fájlméret
@@ -462,7 +461,6 @@ if (isset($_GET['teszt'])) {
                                 'algoritmus'    :   '{$ertek['algoritmus']}',
                                 'tabla'         :   '{$ertek['tabla']}',
                                 'oszlop'        :   '{$ertek['oszlop']}',
-                                'csakkep'       :   '{$ertek['csakkep']}',
                                 'reload'        :   '{$ertek['reload']}',
                                 'uj_feltolt'    :   '{$uj_feltolt}'
                                  ");
@@ -479,15 +477,15 @@ if (isset($_GET['teszt'])) {
             //Ha minden fájl feltöltése kész, mi történjen
             $minden_kesz = '';
             if(isset($_GET['modosit']) || isset($_GET['dokumentumok'])) {
-                $minden_kesz = 'get_admin_file_thumb(\''.$ertek['tabla'].'\', \''.$ertek['oszlop'].'\', \''.$_GET['id'].'\', \'#jsff_'.$megn.'_thumb\'); $(\'\');';
+                $minden_kesz = 'get_admin_file_thumb(\''.$ertek['tabla'].'\', \''.$ertek['oszlop'].'\', \''.$_GET['id'].'\', \'#jsff_'.$megn.'_thumb\');';
             }else{
 
             }
 
             $fajl_thumb  = get_admin_file_thumb($ertek['tabla'], $ertek['oszlop'], $_GET['id']);
 
-            $mit   = array('{MEGN}', '{PHP_FAJL}',          '{CSAK_KEP}',       '{CSAK_KEP2}',      '{MERET}',  '{MINDEN_KESZ}',     '{PARAMETEREK}', '{FAJL}'  );
-            $mivel = array($megn,    $ertek['php_fajl'],    $ertek['csakkep'],  $ertek['csakkep2'], $meret,     $minden_kesz,        $parameterek,    $fajl_thumb     );
+            $mit   = array('{MEGN}', '{PHP_FAJL}',          '{ENG_KIT}',        '{MERET}',  '{MINDEN_KESZ}',     '{PARAMETEREK}', '{FAJL}'      );
+            $mivel = array($megn,    $ertek['php_fajl'],    $ertek['eng_kit'],  $meret,     $minden_kesz,        $parameterek,    $fajl_thumb   );
             $html  = str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/jsfile.html', true));
 
             //Összevonások lekezelése és tartalom összefűzése

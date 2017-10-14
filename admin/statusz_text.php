@@ -35,6 +35,12 @@
             CIKKRNDFEJ_STAT_ANYAG_NEM       => array('nev' => 'Anyag nem érkezett be',  'szinkod' => ''),
             CIKKRNDFEJ_STAT_ELUTASITVA      => array('nev' => 'Elutasítva',             'szinkod' => ''),
         ),
+        'eloterj_fb' => array(
+            ELOT_FB_STAT_NYITOTT                => array('nev' => 'Nyitott',                            'szinkod' => '#fff'),
+        ),
+        'eloterj_bod' => array(
+            ELOT_BOD_STAT_NYITOTT               => array('nev' => 'Nyitott',                            'szinkod' => '#fff'),
+        ),
         'munkalap' => array(
             MUNKALAP_STAT_NYITOTT               => array('nev' => 'Nyitott',                            'szinkod' => '#fff'),
             MUNKALAP_STAT_FOLYAMATBAN           => array('nev' => 'Folyamatban',                        'szinkod' => '#f5a56c'),
@@ -58,7 +64,9 @@
             PRIGENY_STAT_ELUTASITVA             => array('nev' => 'Elutasítva',                         'szinkod' => ''),
             PRIGENY_STAT_HIANYPOTLAS            => array('nev' => 'Hiánypótlás alatt',                  'szinkod' => ''),
             PRIGENY_STAT_HIANYPOTOLT            => array('nev' => 'Hiánypótolt',                        'szinkod' => ''),
+            PRIGENY_STAT_FB_TERJESZT_VAR        => array('nev' => 'FB előterjesztésre vár',             'szinkod' => ''),
             PRIGENY_STAT_FB_TERJESZT            => array('nev' => 'FB elé terjesztve',                  'szinkod' => ''),
+            PRIGENY_STAT_BOD_TERJESZT_VAR       => array('nev' => 'BoD előterjesztésre vát',            'szinkod' => ''),
             PRIGENY_STAT_BOD_TERJESZT           => array('nev' => 'BoD elé terjesztve',                 'szinkod' => ''),
             PRIGENY_STAT_VARAKOZO               => array('nev' => 'Várakozó',                           'szinkod' => ''),
             PRIGENY_STAT_JOVAHAGYVA             => array('nev' => 'Jóváhagyva',                         'szinkod' => ''),

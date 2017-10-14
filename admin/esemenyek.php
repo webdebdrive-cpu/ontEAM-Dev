@@ -18,6 +18,8 @@ $_SESSION['ketHasabos'] = array(
     'cash_flow.php',
     'cikktorzs.php',
     'dokumentumtar.php',
+    'eloterj_fb.php',
+    'eloterj_bod.php',
     'energia.php',
     'erteklista.php',
     'eseti_fenntartas.php',
@@ -207,6 +209,40 @@ switch($tabla) {
         /* Default rendezés */
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'id';
+        }
+    break;
+    case 'eloterj_fb.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid, ikt_szam, stat_id, nev';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
+        }
+    break;
+    case 'eloterj_bod.php':
+        /* Ezeket a tábla oszlopokat kérdezzük le baloldalra */
+        $_OPTS['select']    = 'recid, ikt_szam, stat_id, nev';
+
+        /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
+        $_OPTS['rendezes']  = array('recid');
+
+        /* Default rendezés */
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'recid';
+        }
+
+        /* Default rendezési irány */
+        if( !$_GET['irany'] ) {
+            $_GET['irany'] = 'desc';
         }
     break;
     case 'energia.php':
@@ -1878,6 +1914,29 @@ $cash_flow_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
+//FB előterjesztés
+$megnevezes = 'eloterj_fb';
+$eloterj_fb_tomb = $akt_tomb = array(
+    array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
+    array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1,   'class' => 'normal', 'style' => 'width: 11.5rem'),
+    array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi'),
+    array('type' => 'text',                 'megn' => 'Ülés dátuma:',           'name' => 'ules_datum',     'class' => 'kicsi datepicker'),
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+//BoD előterjesztés
+$megnevezes = 'eloterj_bod';
+$eloterj_bod_tomb = $akt_tomb = array(
+    array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
+    array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1,   'class' => 'normal', 'style' => 'width: 11.5rem'),
+    array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi'),
+    array('type' => 'text',                 'megn' => 'Ülés dátuma:',           'name' => 'ules_datum',     'class' => 'kicsi datepicker'),
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
 //Energia
 $megnevezes = 'energia';
 $energia_tomb = $akt_tomb = array(
@@ -1954,7 +2013,7 @@ $felmeresi_terv_tomb = $akt_tomb = array(
 	array('type' => 'text',                     'megn' => 'Azonosító:',             'name' => 'azon',           'maxlength' => 20,  'alert' => 'Kérem töltse ki az azonosítót!'),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',              'name' => 'telephely_id',   'szuro' => 1,       'class'  => 'disableNav',  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Emelet:',                'name' => 'obj_id',                             'class'  => 'disableNav',  'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj_csakszint', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(\'csak szintig\'); void(0);" class="obj_gen"><svg height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z"/><path d="M0 0h24v24H0V0z" fill="none"></svg></a>'),
-    array('type' => 'jsfile',                   'megn' => 'Felmérési terv:',        'name' => 'felm_terv',      'tabla' => $megnevezes,  'oszlop' => 'felm_terv',   'algoritmus' => 'fajlnev',   'meret' => 31457280, 'csakkep'  => false, 'fajlok_szama'  => 1),
+    array('type' => 'jsfile',                   'megn' => 'Felmérési terv:',        'name' => 'felm_terv',      'tabla' => $megnevezes,  'oszlop' => 'felm_terv',   'algoritmus' => 'fajlnev',   'meret' => 31457280, 'eng_kit' => '.pdf,.dwg'),
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));

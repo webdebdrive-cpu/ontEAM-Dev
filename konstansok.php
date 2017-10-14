@@ -48,6 +48,11 @@ define('DISZPNAG_STAT_VAN_ANYAG',       '00');
 define('DISZPNAG_STAT_ANYAGRA_VAR',     '01');
 define('DISZPNAG_STAT_ANYAG_IGENYELVE', '02');
 
+//Előterjesztés (FB) státuszok
+define('ELOT_FB_STAT_NYITOTT',              '01');
+//Előterjesztés (BoD) státuszok
+define('ELOT_BOD_STAT_NYITOTT',             '01');
+
 //Munkalap státuszok
 define('MUNKALAP_STAT_NYITOTT',             '01');
 define('MUNKALAP_STAT_FOLYAMATBAN',         '02');
@@ -72,13 +77,20 @@ define('PRIGENY_STAT_ELUTASITVA',           '04' );
 define('PRIGENY_STAT_HIANYPOTLAS',          '05' );
 define('PRIGENY_STAT_HIANYPOTOLT',          '06' );
 define('PRIGENY_STAT_FB_TERJESZT',          '07' );
-define('PRIGENY_STAT_BOD_TERJESZT',         '08' );
-define('PRIGENY_STAT_VARAKOZO',             '09' );
-define('PRIGENY_STAT_JOVAHAGYVA',           '10' );
+define('PRIGENY_STAT_FB_TERJESZT_VAR',      '08' );
+define('PRIGENY_STAT_BOD_TERJESZT',         '09' );
+define('PRIGENY_STAT_BOD_TERJESZT_VAR',     '10' );
+define('PRIGENY_STAT_VARAKOZO',             '11' );
+define('PRIGENY_STAT_JOVAHAGYVA',           '12' );
 
 //Menteni, csak ezekben a státuszokban lehet
 function prigeny_mentheto_statuszok(){
-    return array(PRIGENY_STAT_LETRE_ALATT, PRIGENY_STAT_NYITOTT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_HIANYPOTLAS, PRIGENY_STAT_HIANYPOTOLT);
+    return array(PRIGENY_STAT_LETRE_ALATT, PRIGENY_STAT_NYITOTT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_HIANYPOTLAS, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_FB_TERJESZT_VAR, PRIGENY_STAT_BOD_TERJESZT_VAR);
+}
+
+//Menteni, csak ezekben a státuszokban lehet
+function prigeny_fb_bod_var(){
+    return array(PRIGENY_STAT_FB_TERJESZT_VAR, PRIGENY_STAT_BOD_TERJESZT_VAR);
 }
 
 //Hiánypótlásra ezekből a sátuszokból lehet léptetni
