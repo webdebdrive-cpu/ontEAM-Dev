@@ -1781,7 +1781,29 @@ if (isset($_GET['modosit'])) {
     if($pi['megter']){
         $megter_cel_rejt = '';
     }
-    $letrehozta_mikor = 'Létrehozta: <b>'.$pi['insert_usr'].' '.  str_replace('-', '.', substr($pi['insert_dt'], 0, 16)).'</b>-kor';
+    $letrehozta_mikor .= 'Létrehozta: <b>'.$pi['insert_usr'].' '.  str_replace('-', '.', substr($pi['insert_dt'], 0, 16)).'</b>-kor<br>';
+    
+    //Projektigényhez kell a legutolsó döntés, a döntés dátuma és a jóváhagyó 
+    $dontes = $adatbazis_kapcsolat->s2('insert_usr insert_dt', $megnevezes.'_statusz', "`projektigenyles_recid`='{$_GET['id']}' AND `stat_id` IN ('".PRIGENY_STAT_VARAKOZO."', '".PRIGENY_STAT_JOVAHAGYVA."', '".PRIGENY_STAT_ELUTASITVA."')", 'insert_dt desc', '1');
+    if($dontes){
+        $letrehozta_mikor .= 'Legutolsó döntés: <b>'.$dontes['insert_usr'].' '.  str_replace('-', '.', substr($dontes['insert_dt'], 0, 16)).'</b>-kor<br>';
+    }
+    
+    $eltoterj_html = '';
+    $eloterj = $adatbazis_kapcsolat->s2('eloterj_recid ', 'eloterj_fb_kapcs', "`projektigenyles_recid`='{$_GET['id']}'");
+    if($eloterj){
+        $eloterj = $adatbazis_kapcsolat->s2('ikt_szam', 'eloterj_fb', "`recid`='{$eloterj['eloterj_recid']}'");
+        $eltoterj_html .= '<a href="eloterj_fb.php?id='.$eloterj['eloterj_recid'].'&amp;modosit" target="_blank"><b>'.$eloterj['ikt_szam'].'</b></a>';
+    }
+    $eloterj = $adatbazis_kapcsolat->s2('eloterj_recid ', 'eloterj_bod_kapcs', "`projektigenyles_recid`='{$_GET['id']}'");
+    if($eloterj){
+        $eloterj = $adatbazis_kapcsolat->s2('ikt_szam', 'eloterj_bod', "`recid`='{$eloterj['eloterj_recid']}'");
+        $eltoterj_html .= '<a href="eloterj_bod.php?id='.$eloterj['eloterj_recid'].'&amp;modosit" target="_blank"><b>'.$eloterj['ikt_szam'].'</b></a>';
+    }
+
+    if($eltoterj_html){
+        $letrehozta_mikor .= 'Előterjesztés: '.$eltoterj_html.'<br>';
+    }
 
     $tobb_szalloda = '';
     if($pi['egy_tobb']){
