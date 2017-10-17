@@ -1788,6 +1788,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
     }else{
         $order = $_OPTS['rend'];
     }
+    
+    //Előterjesztéseknél ha státusz szerint rendezünk, akkor azon belül iktatószám
+    if(basename(self())=='eloterj_fb.php' || basename(self())=='eloterj_bod.php'){
+        if($order=='stat_id'){
+            $order = '`stat_id`, `ikt_szam`';
+        }
+    }
 
     $irany = $_GET['irany'];
     //Aktív esetén a rendezés irányát meg kell fordítani (tehát az aktívak, egyesek legyenek elől)
@@ -3357,7 +3364,8 @@ function eloterj_bodLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['recid'].'</span>
+                            <span>'.$bsz['ikt_szam'].' '.getStatText($tabla, $bsz['stat_id']).'</span>
+                            <span>'.$bsz['nev'].'</span>
                         </a>';
 
             //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
@@ -4318,6 +4326,9 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     if( basename(self()) == 'login.php' ) {
         $oszlopNevek['nev'] = 'Login név';
     }
+    if( basename(self()) == 'eloterj_fb.php' || basename(self()) == 'eloterj_bod.php' ) {
+        $oszlopNevek['ikt_szam'] = 'Azonosító';
+    }
     if( basename(self()) == 'utemezett_feladatok.php' ) {
         $oszlopNevek['id'] = 'Feladatszám';
     }
@@ -4989,14 +5000,14 @@ function get_iktatoszam_sorszam($tabla){
 }
 
 // Státusz címkék és színeket visszaadó függvény ($_stat_text változó pedig a statusz_text.php -ben kerül előállításra)
-function getStatText($tabla, $id, $szinkod = false) {
+function getStatText($tabla, $statid, $szinkod = false) {
     global $_stat_text;
 
-    if( $_stat_text[$tabla][$id] ) {
+    if( $_stat_text[$tabla][$statid] ) {
         if( $szinkod ) {
-            return $_stat_text[$tabla][$id]['szinkod'];
+            return $_stat_text[$tabla][$statid]['szinkod'];
         } else {
-            return $_stat_text[$tabla][$id]['nev'];
+            return $_stat_text[$tabla][$statid]['nev'];
         }
     }
 

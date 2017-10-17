@@ -1746,9 +1746,9 @@ if($gyorskereso_text){
         if( _jog(JOG_ANYAGIGENYLES_JOVAHAGY) ) {
             $gombok .= nl2('
                 <div id="kmCont">
-                    <input type="button" class="gombb foGomb" value="Jóváhagyás" onclick="anyagigenyles_jovahagy(\'csak kérdezünk még\')">
-                    <input type="button" class="gombb foGomb" value="Elutasítás" onclick="anyagigenyles_elutasitas(\'csak kérdezünk még\')">
-                    <input type="button" class="gombb foGomb" value="Mind jóváhagyása" onclick="anyagigenyles_mind_jovahagy(\'csak kérdezünk még\')">
+                    <input type="button" class="gomb foGomb zold" value="Jóváhagyás" onclick="anyagigenyles_jovahagy(\'csak kérdezünk még\')">
+                    <input type="button" class="gomb foGomb piros" value="Elutasítás" onclick="anyagigenyles_elutasitas(\'csak kérdezünk még\')">
+                    <input type="button" class="gomb foGomb" value="Mind jóváhagyása" onclick="anyagigenyles_mind_jovahagy(\'csak kérdezünk még\')">
                 </div>
             ');
             //Ha jóváhagyás joga van, és a státusza árazva, akkor a jóváhagyott mennyiség enabled
@@ -1785,9 +1785,9 @@ if($gyorskereso_text){
                             </ul>
                         </div>
                     </div>
-                    <input type="button" class="gombb foGomb" value="Árazás" onclick="arazas()">
-                    <input type="button" class="gombb foGomb" value="Küldés jóváhagyásra" onclick="anyagigenyles_kuldes_jovahagyasra(\'csak kérdezünk még\')">
-                    <input type="button" class="gombb foGomb" value="Rendelés készítése" onclick="anyagigenyles_rendeles_keszit(\'csak kérdezünk még\')">
+                    <input type="button" class="gomb foGomb" value="Árazás" onclick="arazas()">
+                    <input type="button" class="gomb foGomb" value="Küldés jóváhagyásra" onclick="anyagigenyles_kuldes_jovahagyasra(\'csak kérdezünk még\')">
+                    <input type="button" class="gomb foGomb" value="Rendelés készítése" onclick="anyagigenyles_rendeles_keszit(\'csak kérdezünk még\')">
                 </div>
             ');
         }
@@ -1796,13 +1796,13 @@ if($gyorskereso_text){
 
             $erkeztet = '';
             if(isset($_GET['anyagrend'])){
-                $erkeztet = '<input type="button" class="gombb foGomb" value="Anyagok érkeztetése" onclick="csoportMuvelet(\'anyagigenyles_erkeztet\')">';
+                $erkeztet = '<input type="button" class="gomb foGomb" value="Anyagok érkeztetése" onclick="csoportMuvelet(\'anyagigenyles_erkeztet\')">';
             }
 
             $gombok .= nl2('
                 <div id="kmCont">
                     '.$erkeztet.'
-                    <input type="button" class="gombb foGomb" value="Készpénzes anyagbeszerzés" onclick="csoportMuvelet(\'anyagigenylesKpBeszerez\');">
+                    <input type="button" class="gomb foGomb" value="Készpénzes anyagbeszerzés" onclick="csoportMuvelet(\'anyagigenylesKpBeszerez\');">
                 </div>
             ');
         }

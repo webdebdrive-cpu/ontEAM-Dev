@@ -856,10 +856,22 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'munkalap.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
-    } elseif( basename(self()) == 'eseti_fenntartas.php' && isset($_GET['megjegyzesek']) ) {
+    } elseif( basename(self()) == 'eloterj_fb.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
+    } elseif( basename(self()) == 'eloterj_fb.php' && isset($_GET['projektigeny']) ) {
+        $uj_link = 'javascript: csoportMuvelet(\'eloterj_igneyles_csatol\'); void(0);';
+
+    } elseif( basename(self()) == 'eloterj_bod.php' && isset($_GET['megjegyzesek']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+
+    } elseif( basename(self()) == 'eloterj_bod.php' && isset($_GET['projektigeny']) ) {
+        $uj_link = 'javascript: csoportMuvelet(\'eloterj_igneyles_csatol\'); void(0);';
+
     } elseif( basename(self()) == 'energia.php' && isset($_GET['megjegyzesek']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+
+    } elseif( basename(self()) == 'eseti_fenntartas.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
     } elseif( basename(self()) == 'eszkozkezeles.php' && isset($_GET['megjegyzesek']) ) {

@@ -216,16 +216,16 @@ switch($tabla) {
         $_OPTS['select']    = 'recid, ikt_szam, stat_id, nev';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('recid');
+        $_OPTS['rendezes']  = array('ikt_szam', 'stat_id');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'recid';
+            $_GET['rend'] = 'ikt_szam';
         }
 
         /* Default rendezési irány */
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
+            $_GET['irany'] = '';
         }
     break;
     case 'eloterj_bod.php':
@@ -233,16 +233,16 @@ switch($tabla) {
         $_OPTS['select']    = 'recid, ikt_szam, stat_id, nev';
 
         /* Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani */
-        $_OPTS['rendezes']  = array('recid');
+        $_OPTS['rendezes']  = array('ikt_szam', 'stat_id');
 
         /* Default rendezés */
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'recid';
+            $_GET['rend'] = 'ikt_szam';
         }
 
         /* Default rendezési irány */
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
+            $_GET['irany'] = '';
         }
     break;
     case 'energia.php':
@@ -1915,23 +1915,70 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 //FB előterjesztés
+if (isset($_GET['modosit'])) {
+    $ossz_kolts = '';
+    $prik = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid`='{$_GET['id']}'");
+    if(!$prik){
+        $ossz_kolts = 'Még nincsenek csatolt projektigénylések.';
+    }else{
+        foreach($prik as $pri){
+            $pri = $adatbazis_kapcsolat->s2('bkolt', 'projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
+            $ossz_kolts += $pri['bkolt'];
+        }
+        $ossz_kolts = number_format($ossz_kolts, 0, '', ' ').' '.get_penznem();
+    }
+}
 $megnevezes = 'eloterj_fb';
 $eloterj_fb_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
     array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1,   'class' => 'normal', 'style' => 'width: 11.5rem'),
     array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'text',                 'megn' => 'Ülés dátuma:',           'name' => 'ules_datum',     'class' => 'kicsi datepicker'),
+    array('type' => 'html',                 'megn' => nl2('
+                                                        <div class="dtr">
+                                                            <div class="dtc">
+                                                                Összes költség:
+                                                            </div>
+                                                            <div class="dtc" style="padding-top: 2rem">
+                                                                '.$ossz_kolts.'
+                                                            </div>
+                                                        </div>
+                                                    ')),
+    
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
 //BoD előterjesztés
+if (isset($_GET['modosit'])) {
+    $ossz_kolts = '';
+    $prik = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_bod_kapcs', "`eloterj_recid`='{$_GET['id']}'");
+    if(!$prik){
+        $ossz_kolts = 'Még nincsenek csatolt projektigénylések.';
+    }else{
+        foreach($prik as $pri){
+            $pri = $adatbazis_kapcsolat->s2('bkolt', 'projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
+            $ossz_kolts += $pri['bkolt'];
+        }
+        $ossz_kolts = number_format($ossz_kolts, 0, '', ' ').' '.get_penznem();
+    }
+}
 $megnevezes = 'eloterj_bod';
 $eloterj_bod_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',               'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
     array('type' => 'text',                 'megn' => 'Azonosító:',             'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1,   'class' => 'normal', 'style' => 'width: 11.5rem'),
     array('type' => 'text',                 'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'text',                 'megn' => 'Ülés dátuma:',           'name' => 'ules_datum',     'class' => 'kicsi datepicker'),
+    array('type' => 'html',                 'megn' => nl2('
+                                                        <div class="dtr">
+                                                            <div class="dtc">
+                                                                Összes költség:
+                                                            </div>
+                                                            <div class="dtc" style="padding-top: 2rem">
+                                                                '.$ossz_kolts.'
+                                                            </div>
+                                                        </div>
+                                                    ')),
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -3345,6 +3392,8 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
                 $weblap->leallit();
                 exit();
             }
+            
+            //Úgy is csak egy sort ad vissza, mert nem lehet több sort megjelölni
             $statusz = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")");
             if($statusz['stat_id']==BEJELENTES_STAT_ELUTASITVA){
                 echo json_encode(array(
@@ -3361,6 +3410,16 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
             if(!_jog(JOG_PRIGENY_ELUTASIT)){
                 echo json_encode(array(
                     'hiba' => 'Nincs joga az elutasításhoz!'
+                ));
+                $weblap->leallit();
+                exit();
+            }
+            
+            //Úgy is csak egy sort ad vissza, mert nem lehet több sort megjelölni
+            $statusz = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid` IN (".implode(',', $idk).")");
+            if(in_array($statusz['stat_id'], prigeny_fb_bod_var())){
+                echo json_encode(array(
+                    'hiba' => 'Ebben a státuszban nem utasítható el a projektigénylés!'
                 ));
                 $weblap->leallit();
                 exit();
@@ -3756,7 +3815,7 @@ if( isset($_POST['mellekTorol']) ) {
         //Dokumentumok törlése
         } else if( strstr($tabla, '_dok') ) {
 
-            $statuszt_nem_kell_figyelni = array('eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'utemezett_feladatok', 'rendszeres_karbantartas'); //Ezeknél a dokumentumainál nem figyeljük, hogy az apa tábla státusza nyitott-e
+            $statuszt_nem_kell_figyelni = array('eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'utemezett_feladatok', 'rendszeres_karbantartas'); //Ezeknél a dokumentumainál nem figyeljük, hogy az apa tábla státusza nyitott-e
             $apa_tabla = str_replace('_dok', '', $tabla);
             if(!in_array($apa_tabla, $statuszt_nem_kell_figyelni)){
                 $sor = $adatbazis_kapcsolat->s('stat_id', $apa_tabla, "`recid` = '{$recid}'");
@@ -3809,6 +3868,42 @@ if( isset($_POST['mellekTorol']) ) {
                     $weblap->leallit();
                     exit();
                 }
+            }
+
+        //előterjesztésnél csak nyitott státuszban törölhető projektigénylés
+        } else if($tabla=='eloterj_fb_kapcs'){
+            
+            //Vegyük az első kijelölést, ebből már vissza tudjuk számolni, hogy melyik előterjesztésről van szó
+            $eloterj = $adatbazis_kapcsolat->s2('eloterj_recid', 'eloterj_fb_kapcs', "`recid`='{$idk[1]}'");
+            $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_fb', "`recid`='{$eloterj['eloterj_recid']}'");
+            if($statusz['stat_id']!=ELOT_FB_STAT_NYITOTT){
+                echo json_encode(array(
+                    'hiba' => 'Csak nyitott státuszban törölhetőek a csatolt projektigénylések!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }else{
+                $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
+                if( $sql === false ) { $db_error = true; }
+            }
+            
+        //előterjesztésnél csak nyitott státuszban törölhető projektigénylés
+        } else if($tabla=='eloterj_bod_kapcs'){
+            
+            //Vegyük az első kijelölést, ebből már vissza tudjuk számolni, hogy melyik előterjesztésről van szó
+            $eloterj = $adatbazis_kapcsolat->s2('eloterj_recid', 'eloterj_bod_kapcs', "`recid`='{$idk[1]}'");
+            $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_bod', "`recid`='{$eloterj['eloterj_recid']}'");
+            if($statusz['stat_id']!=ELOT_BOD_STAT_NYITOTT){
+                echo json_encode(array(
+                    'hiba' => 'Csak nyitott státuszban törölhetőek a csatolt projektigénylések!'
+                ));
+
+                $weblap->leallit();
+                exit();
+            }else{
+                $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
+                if( $sql === false ) { $db_error = true; }
             }
 
         //Projektigénylés véleményező törlés esetén töröljük a véleményt (fájlt) is ha volt
@@ -4213,13 +4308,13 @@ if( isset($_GET['addSzalloda']) ) {
                     echo json_encode(array(
                         'statusz' => 'siker',
                         'kapcsID' => $kapcsID,
-                        'uzi' => ''
+                        'uzi'     => ''
                     ));
                 }
             } else {
                 echo json_encode(array(
                     'statusz' => 'hiba',
-                    'uzi' => 'Ez a szálloda már hozzáadásra került!'
+                    'uzi'     => 'Ez a szálloda már hozzáadásra került!'
                 ));
             }
         }
@@ -4687,14 +4782,44 @@ foreach($postok as $ertek){
         $fajl = $adatbazis_kapcsolat->s2('felm_terv', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
         kep_torol('../'.get_utvonal().$fajl['felm_terv']);
 
+        //Előterjesztéskor a kapcsolódó táblák és projektigénylés előterjesztés tábla törlése
+        if($ertek['tabla']=='eloterj_fb'){
+            $elot = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_fb', "`recid`='{$_GET[$ertek['torid']]}'");
+            if($elot['stat_id']!=ELOT_FB_STAT_NYITOTT){
+                exit;//Megszakítjuk, ha nincs is nyitott státuszban
+            }
+            $prigenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
+            foreach($prigenyek as $pri){
+                $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
+                if( $sql === false ) { $db_error = true; }
+            }
+            $sql = $adatbazis_kapcsolat->d('eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sql === false ) { $db_error = true; }
+        }
+        if($ertek['tabla']=='eloterj_bod'){
+            $elot = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_bod', "`recid`='{$_GET[$ertek['torid']]}'");
+            if($elot['stat_id']!=ELOT_BOD_STAT_NYITOTT){
+                exit;//Megszakítjuk, ha nincs is nyitott státuszban
+            }
+            $prigenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_bod_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
+            foreach($prigenyek as $pri){
+                $sql = $adatbazis_kapcsolat->d('projektigenyles_eloterj', "`recid`='{$pri['projektigenyles_recid']}'");
+                if( $sql === false ) { $db_error = true; }
+            }
+            $sql = $adatbazis_kapcsolat->d('eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sql === false ) { $db_error = true; }
+        }
+        
         //Projektigénylésnél a véleményezők és azok dokumentumai
         if($ertek['tabla']=='projektigenyles'){
-            $adatbazis_kapcsolat->d('projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
+            $sql = $adatbazis_kapcsolat->d('projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sql === false ) { $db_error = true; }
             $velemenyek = $adatbazis_kapcsolat->s('utvonal', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
             foreach($velemenyek as $velemeny){
                 kep_torol('../'.get_utvonal().'projektigenyles_velemeny/'.$velemeny['utvonal']);
             }
-            $adatbazis_kapcsolat->d('projektigenyles_velemeny', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
+            $sql = $adatbazis_kapcsolat->d('projektigenyles_velemeny', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
+            if( $sql === false ) { $db_error = true; }
         }
 
         //Login táblából csak logikailag törlünk. Többi helyről fizikailag.

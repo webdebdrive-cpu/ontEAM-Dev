@@ -50,8 +50,13 @@ define('DISZPNAG_STAT_ANYAG_IGENYELVE', '02');
 
 //Előterjesztés (FB) státuszok
 define('ELOT_FB_STAT_NYITOTT',              '01');
+define('ELOT_FB_STAT_VEGLEGESITVE',         '02');
+define('ELOT_FB_STAT_DONT_ROG',             '03');
+
 //Előterjesztés (BoD) státuszok
 define('ELOT_BOD_STAT_NYITOTT',             '01');
+define('ELOT_BOD_STAT_VEGLEGESITVE',        '02');
+define('ELOT_BOD_STAT_DONT_ROG',            '03');
 
 //Munkalap státuszok
 define('MUNKALAP_STAT_NYITOTT',             '01');
@@ -90,7 +95,7 @@ function prigeny_mentheto_statuszok(){
 
 //Menteni, csak ezekben a státuszokban lehet
 function prigeny_fb_bod_var(){
-    return array(PRIGENY_STAT_FB_TERJESZT_VAR, PRIGENY_STAT_BOD_TERJESZT_VAR);
+    return array(PRIGENY_STAT_FB_TERJESZT, PRIGENY_STAT_FB_TERJESZT_VAR, PRIGENY_STAT_BOD_TERJESZT, PRIGENY_STAT_BOD_TERJESZT_VAR);
 }
 
 //Hiánypótlásra ezekből a sátuszokból lehet léptetni

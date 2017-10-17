@@ -1,0 +1,92 @@
+<h2 id="eloterj_igneyles_csatolCim">Igénylés csatolása</h2>
+<form action="" id="eloterj_igneyles_csatolForm" class="popupForm" method="post" onsubmit="return eloterj_igneyles_csatol();">
+    <div class="kozep">
+        <div id="igenyles_tablazat"></div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Csatolás előterjesztéshez">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+    $(document).ready(function(){
+        igenylesek_betolt();
+    });
+	function eloterj_igneyles_csatol(mehet){
+        
+        if(!$('#prigenylesek tr.kijelolve').length){
+            alert2('Válasszon legalább egy projekt igénylést!', '', 'Hiba');
+            return false;
+        }
+        
+        mod = _get('id');
+        if(baseName(location.href)=='eloterj_bod'){
+            mod = 'bod';
+        }
+        
+        var i = 1;
+        prigeny_recidk = {};
+        $('#prigenylesek tr.kijelolve').each(function() {
+            prigeny_recidk[i] = $(this).attr('data-recid');
+            i++;
+        });
+        $.ajax({
+            url : 'projektigenyles.php',
+            type: 'POST',
+            data: {
+                prigeny_recidk          : JSON.stringify(prigeny_recidk),
+                eloterj_recid           : _get('id'),
+                mod                     : mod,
+                mehet                   : mehet,
+                eloterj_igneyles_csatol : new Date().getTime()
+            },
+            success: function(response){
+                if(response){
+                    response = JSON.parse(response);
+                    if(response.hiba){
+                        alert2(response.hiba, response.gomb/*, 'Direkt nem Hiba'*/);
+                    }
+                }
+                if(mehet){
+                    szamlaBetolt(_get('id'), baseName(location.href)+'.php', 'projektigeny');
+                    popupZar();
+                }
+                return false;
+            }
+        });
+        
+        return false;
+    }
+    
+    function igenylesek_betolt(order){
+        
+        mod = _get('id');
+        if(baseName(location.href)=='eloterj_bod'){
+            mod = 'bod';
+        }
+        
+        $.ajax({
+            url : 'projektigenyles.php',
+            type: 'POST',
+            data: {
+                eloterj_recid       : _get('id'),
+                mod                 : mod,
+                order               : order,
+                igenylesek_betolt   : new Date().getTime()
+            },
+            success: function(response){
+                $('#igenyles_tablazat').html(response);
+            }
+        });
+    }
+    
+    function tabla_szur(tabla, kulcs, oszlop) {
+        var $rows = tabla.find('tr');
+        var val = $.trim(kulcs).replace(/ +/g, ' ').toLowerCase();
+
+        $rows.show().filter(function() {
+            var text = $(this).find('td:nth-of-type('+oszlop+')').text().replace(/\s+/g, ' ').toLowerCase();
+            return !~text.indexOf(val);
+        }).hide();
+    }
+</script>
