@@ -452,7 +452,7 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $
 
 
 /* Projektek */
-if(_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_PRIGENY_EGY_MEGTEKINT) || _jog(JOG_PRIGENY_F_MEGTEKINT) || _jog(JOG_PRIGENY_TOBB_MEGTEKINT) || _jog(JOG_PRIGENY_T_MEGTEKINT) || _jog(JOG_PRKEZEL_MEGTEKINT)){
+if(_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_PRIGENY_EGY_MEGTEKINT) || _jog(JOG_PRIGENY_F_MEGTEKINT) || _jog(JOG_PRIGENY_TOBB_MEGTEKINT) || _jog(JOG_PRIGENY_T_MEGTEKINT) || _jog(JOG_PRKEZEL_MEGTEKINT) || _jog(JOG_ELOTERJ_MEGTEKINT)){
     $menu_nev        = 'Projektek';
     $menu_nev_kis    = 'rojektek';
     $menu_nev_tobbes = 'Projektek';
@@ -473,8 +473,11 @@ if(_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_P
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Projektkezelés'     ), $almenu_sablon );
     }
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Cash-flow'          ), $almenu_sablon );
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'FB előterjesztés'   ), $almenu_sablon );
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'BoD előterjesztés'  ), $almenu_sablon );
+    
+    if(_jog(JOG_ELOTERJ_MEGTEKINT)){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'FB előterjesztés'   ), $almenu_sablon );
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'BoD előterjesztés'  ), $almenu_sablon );
+    }
 
     $style = '';
     if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
@@ -1021,6 +1024,16 @@ if( basename(self())=='beosztas.php' && !_jog(JOG_BEOSZTASOK_KEZEL)){
 }
 
 if( basename(self())=='cikktorzs.php' && !_jog(JOG_CIKKTORZS_KEZEL)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+if(basename(self())=='eloterj_bod.php' && !_jog(JOG_ELOTERJ_KEZEL)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+if(basename(self())=='eloterj_fb.php' && !_jog(JOG_ELOTERJ_KEZEL)){
     $torles_icon    = '';
     $uj             = '';
 }

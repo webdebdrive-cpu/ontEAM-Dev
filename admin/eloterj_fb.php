@@ -2,6 +2,17 @@
 require_once('../weblap.php');
 //Config
 
+if( !_jog(JOG_ELOTERJ_MEGTEKINT) ) {
+    if(!$_SESSION[get_db_tabla().'user']){
+        $weblap -> leallit();
+        header('Location: index.php');
+        exit;
+    }
+    header('Content-Type: text/html; charset=utf-8');
+    $weblap -> leallit();
+    exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
+}
+
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $eloterj_fb_tomb;
@@ -247,7 +258,7 @@ if($gyorskereso_text){
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            //'tortenet'      => 'Történet',
+            'tortenet'      => 'Történet',
             'projektigeny'  => 'Projektigények',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
@@ -302,8 +313,10 @@ if($gyorskereso_text){
         //Js, a törlés gombhoz
         $gombok  = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
         
-        if($sor['stat_id']!=ELOT_FB_STAT_NYITOTT){
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'FB előterjesztés csak nyitott státuszban törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        if(!_jog(JOG_ELOTERJ_KEZEL)){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga előterjesztsét törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        }elseif($sor['stat_id']!=ELOT_FB_STAT_NYITOTT){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'BoD előterjesztés csak nyitott státuszban törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }else{
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
@@ -360,7 +373,7 @@ if($gyorskereso_text){
             }
         }
 
-        if(isset($_GET['modosit'])){
+        if(isset($_GET['modosit'])&& _jog(JOG_ELOTERJ_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
@@ -386,7 +399,7 @@ if($gyorskereso_text){
     $js_submit_elott = 'return form_ell_admin();';
 
 	//Új FB előterjesztés felvitele
-	if(isset($_GET['uj'])){
+	if(isset($_GET['uj']) && _jog(JOG_ELOTERJ_KEZEL)){
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );

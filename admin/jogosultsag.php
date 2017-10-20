@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 64-es ID-nál járunk
+ * 66-es ID-nál járunk
  * 11 -es kategória ID-nál járunk
 \*                                                  */
 
@@ -89,6 +89,8 @@ $jogosultsagok = array(
     50 => array('nev' => 'Projekt igénylések elutasítása',          'kat' => 7, 'sor' => 14,'bekapcs' => '46,47'),
     51 => array('nev' => 'Projekt igénylések jóváhagyása',          'kat' => 7, 'sor' => 15,'bekapcs' => '46,47'),
     40 => array('nev' => 'Véleményező hozzáadása',                  'kat' => 7, 'sor' => 16),
+    65 => array('nev' => 'Előterjesztések megtekintése',            'kat' => 7, 'sor' => 17, 'kikapcs' => '66'),
+    66 => array('nev' => 'Előterjesztések kezelése',                'kat' => 7, 'sor' => 18, 'bekapcs' => '65'),
     
     52 => array('nev' => 'Projektek megtekintése',                  'kat' => 10, 'sor' => 9, 'kikapcs' => '53'),
     53 => array('nev' => 'Projektek kezelése',                      'kat' => 10, 'sor' => 10,'bekapcs' => '52'),

@@ -3286,10 +3286,15 @@ function bejegyzesElutasitas( that, csak_memo ) {
                         if( response.kieg ) {
                             alert2(response.kieg, response.gomb, 'Hiba');
                         }
-
-                        kijelolesEltavolit();
-                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
-                        popupZar();
+                        
+                        /* Projektigényléskor megszűnne bal oldali bejegyzés, ezért frissítjük az egész oldalt */
+                        if(baseName(location.href)=='projektigenyles'){
+                            location.reload();
+                        }else{
+                            kijelolesEltavolit();
+                            szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                            popupZar();
+                        }
                     }
                 }
             });
@@ -3756,11 +3761,14 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
                         /* Egybként jöhet az elutasítás panel */
                         }else{
+                            
                             $('#popupTart').html(data);
                             popupNyit();
                         }
 
                     }
+                    
+                    
                 break;
 
                 case 'bejelentesElutasit':
@@ -4615,11 +4623,7 @@ function kapcsolodoSzerkeszt( oldal ) {
                 $('#addMegjegyzes').attr('onsubmit', 'return addMegjegyzes(\'' + _get('id') + '\', this);');
             break;
             case 'megterules':
-                if(_jogok[39]==1 || _jogok[60]==1 || _jogok[59]==1 || _jogok[62]==1 || _jogok[49]==1 || _jogok[47]==1 || _jogok[64]==1){
-                    $('#addMegterules').attr('onsubmit', 'return addMegterules(\'' + _get('id') + '\', this);');
-                }else{
-                    alert2('Önnek nincs joga Megtérülést feltölteni!', '', 'Hiba');
-                }
+                $('#addMegterules').attr('onsubmit', 'return addMegterules(\'' + _get('id') + '\', this);');
             break;
             case 'szakterulet':
                 $('#addSzakterForm').attr('onsubmit', 'return addSzakterulet(\'' + _get('id') + '\', this);');

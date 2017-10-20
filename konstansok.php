@@ -216,6 +216,8 @@ define('JOG_PRIGENY_TOBB_MEGTEKINT',63);
 define('JOG_PRIGENY_TOBB_KEZEL',    64);
 define('JOG_PRIGENY_ELUTASIT',      50);
 define('JOG_PRIGENY_JOVAHAGY',      51);
+define('JOG_ELOTERJ_MEGTEKINT',     65);
+define('JOG_ELOTERJ_KEZEL',         66);
 define('JOG_VELEMENYEZO_HOZZAAD',   40);
 define('JOG_PRKEZEL_MEGTEKINT',     52);
 define('JOG_PRKEZEL_KEZEL',         53);

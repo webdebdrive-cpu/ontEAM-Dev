@@ -1845,7 +1845,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         if($tabla=='projektigenyles'){
 
             $szallodak_kieg = '';
-            //Többszállodás esetén a két tosszállodás telephely_id-t felvesszük még
+            //Többszállodás esetén a két tobbsszállodás telephely_id-t felvesszük még
             if(_jog(JOG_PRIGENY_TOBB_MEGTEKINT)){
                 $szallodak_kieg = ', 1011, 4301';
             }
@@ -1878,6 +1878,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             
             //Létrehozás alatti szállodát nem láthat senki, kivéve aki dolgozik rajta
             $where .= " (`stat_id`!='".PRIGENY_STAT_LETRE_ALATT."' OR `loginnev`='{$_SESSION[get_db_tabla().'user']}')";
+            
+            //Viszont ahol véleményező vagyok, azokat az igényléseket mindenképp lássam
+            $lathato_prigenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektigenyles_kapcs', "`login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+            $lathato_prigenyek = adatbazis2tomb($lathato_prigenyek, 'projektigenyles_recid');
+            if($lathato_prigenyek){
+                $where .= " OR `".  get_db_tabla()."projektigenyles`.`recid` IN (".implode(',', $lathato_prigenyek).") AND ";
+            }
 
 
         }
@@ -2024,7 +2031,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
     $limit = $lapozo ->getLimit();
 //echo 'sel:'.$select . ' ir:'.$irany.' or:'.$order.' lim:'.$limit.' where:'.$where.'<br>';
 
-    //Rendezés telephely táblával JOIN-olva, ha telephely_id alapján rendezünk vagy a selectben szerepel ez az oszlop
+    //Telephely táblával JOIN-olva, ha telephely_id alapján rendezünk vagy a selectben szerepel ez az oszlop
     $bejegyzesek = array();
     if(strpos($order, 'telephely_id')!==false  || strpos($select, 'telephely_id')!==false){
 
@@ -2078,7 +2085,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
         }
 
-        //Rendezés munkalap esetén
+        //Rendezés munkalap esetén külön problémakör:
         if($tabla=='munkalap'){
 
             $order = '';
@@ -2107,9 +2114,15 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             $order = trim($order, ', ');
 
         }
+        
+        //Projektigénylésnél a telephey nevét átnevezzük, ne ütközzön a sima névvel
+        $sql_as = '';
+        if($tabla=='projektigenyles'){
+            $sql_as = ' as `teleph_nev`';
+        }
 
         //Select-et is kiegészítjük a rendezni kívánt oszloppal
-        $select .= ', `'.get_db_tabla().'telephely`.`nev`';
+        $select .= ', `'.get_db_tabla().'telephely`.`nev`'.$sql_as;
         $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit); //Ez minek van itt?
         $mit   = 'WHERE';
 
@@ -3214,7 +3227,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             </tr>
                             <tr>
                                 <td colspan="2">'.$bsz['nev'].'</td>
-                                <td>'.$bsz['bkolt'].'</td>
+                                <td>'.number_format($bsz['bkolt'], 0, '', ' ').' '.get_penznem().'</td>
                             </tr>
                             </table>
                         </a>
@@ -4593,6 +4606,28 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
             $alap_tabla = str_replace('_statusz', '', $tabla);
             $sql = $adatbazis_kapcsolat->u($alap_tabla, array('stat_id'), array($stat_id), "`recid`='$recid'");
             if( $sql === false ) { $db_error = true; }
+            
+            
+            //Projektigénylés elutasításakor archiválunk
+            if($alap_tabla=='projektigenyles' && $stat_id==PRIGENY_STAT_ELUTASITVA){
+                $pri = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='$recid'");
+                if( $pri === false ) { $db_error = true; }
+                
+                //Mivel tranzakcióban vagyunk, ezért az új értéket itt felülírom
+                $pri['stat_id'] = $stat_id;
+                
+                $oszlopok = array();
+                foreach($pri as $kulcs => $mezok){
+                    array_push($oszlopok, $kulcs);
+                }
+
+                $sql = $adatbazis_kapcsolat->i('projektigenyles_arch', $oszlopok, $pri);
+
+                if( $sql === false ) { $db_error = true; }
+                
+                $sql = $adatbazis_kapcsolat->d('projektigenyles', "`recid`='$recid'");
+                if( $sql === false ) { $db_error = true; }
+            }
 
             if( !$db_error ) {
                 return true;

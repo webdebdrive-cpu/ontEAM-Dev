@@ -3438,8 +3438,8 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
             }
             
             //Úgy is csak egy sort ad vissza, mert nem lehet több sort megjelölni
-            $statusz = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid` IN (".implode(',', $idk).")");
-            if(in_array($statusz['stat_id'], prigeny_fb_bod_var())){
+            $stat_tmp = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid` IN (".implode(',', $idk).")");
+            if(in_array($stat_tmp['stat_id'], prigeny_fb_bod_var())){
                 echo json_encode(array(
                     'hiba' => 'Ebben a státuszban nem utasítható el a projektigénylés!'
                 ));
@@ -4722,6 +4722,12 @@ foreach($postok as $ertek){
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla']=='cikktorzs' && !_jog(JOG_CIKKTORZS_KEZEL)){
+            $weblap -> leallit(); exit;
+        }
+        if($ertek['tabla']=='eloterj_bod' && !_jog(JOG_ELOTERJ_KEZEL)){
+            $weblap -> leallit(); exit;
+        }
+        if($ertek['tabla']=='eloterj_fb' && !_jog(JOG_ELOTERJ_KEZEL)){
             $weblap -> leallit(); exit;
         }
         if($ertek['tabla']=='erteklista' && !_jog(JOG_ERTEKLISTAK_KEZEL)){

@@ -1816,9 +1816,9 @@ if( isset($_POST['munkalapMobil']) ) {
             mysqli_commit($db_kapcs);
 
             echo json_encode(array(
-                'statusz' => 'siker',
+                'statusz'        => 'siker',
                 'beosztasNelkul' => $beosztasNelkul,
-                'szemRendelt' => $szemRendelt
+                'szemRendelt'    => $szemRendelt
             ));
         } else {
             mysqli_rollback($db_kapcs);
@@ -2282,8 +2282,8 @@ if($gyorskereso_text){
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            'tetel'         => 'Tételek',
             'tortenet'      => 'Történet',
+            'tetel'         => 'Tételek',
             //'bejelentesek'  => 'Bejelentések',
             'elszamolas'    => 'Elszámolás',
             'anyagigenyles' => 'Anyagigénylések',

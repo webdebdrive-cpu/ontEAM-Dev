@@ -1,6 +1,11 @@
 <?php
 require_once('../weblap.php');
 
+if (isset($_GET['teszt'])) {
+    prigenyles_archival(9);
+    exit;
+}
+
 if( !_jog(JOG_PRIGENY_SZ_MEGTEKINT) && !_jog(JOG_PRIGENY_B_MEGTEKINT) && !_jog(JOG_PRIGENY_F_MEGTEKINT) && !_jog(JOG_PRIGENY_T_MEGTEKINT) && !_jog(JOG_PRIGENY_EGY_MEGTEKINT) && !_jog(JOG_PRIGENY_TOBB_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
@@ -601,12 +606,14 @@ if(isset($_POST['igenylesek_betolt'])){
     $html = '';
     
     $postfix         = '_fb';
-    $fb_bod_statusz  = PRIGENY_STAT_FB_TERJESZT;
+    $fb_bod_statusz  = PRIGENY_STAT_FB_TERJESZT_VAR;
     $nyitott_statusz = ELOT_FB_STAT_NYITOTT;
+    $nyitott_is_sql  = ', \''.PRIGENY_STAT_NYITOTT.'\''; //FB csatolásnál a nyitottakat is be lehet csatolni, de BoD-nálm már nem
     if($_POST['mod']=='bod'){
         $postfix         = '_bod';
-        $fb_bod_statusz  = PRIGENY_STAT_BOD_TERJESZT;
+        $fb_bod_statusz  = PRIGENY_STAT_BOD_TERJESZT_VAR;
         $nyitott_statusz = ELOT_BOD_STAT_NYITOTT;
+        $nyitott_is_sql  = '';
     }
     
     //Ha nem nyitott a státusza, akkor nincs is mit számolni
@@ -648,7 +655,7 @@ if(isset($_POST['igenylesek_betolt'])){
                                         `'.get_db_tabla().'projektigenyles`.`bkolt`,
                                         `'.get_db_tabla().'telephely`.`nev` as `t_nev`',
                                         'projektigenyles',
-                                        "`stat_id` IN ('".PRIGENY_STAT_NYITOTT."', '".$fb_bod_statusz."') AND `telephely_id` IN (".implode(',', $szallodak).")$where_kieg", $order, '', '', '', $join);
+                                        "`stat_id` IN ('".$fb_bod_statusz."'".$nyitott_is_sql.") AND `telephely_id` IN (".implode(',', $szallodak).")$where_kieg", $order, '', '', '', $join);
 
     $i = 1;
     foreach($priek as $pri){
@@ -1232,11 +1239,42 @@ if($gyorskereso_text){
                         /* Cash flow menüpont alatti mentés gombot levesszük */
                         $(\'#cash_flow_mentese\').remove();
                         
-                        /* 
-                        Igénylés rögzítése ugyanaz mint a Mentés gomb, csak itt vizsgáljuk azt is, hogy a becsült költség azonos-e a szétosztottal, illeve még jópár egyéb feltétlet.
-                        Kérdés, hogy ha nem, akkor az ideiglenes sorokat le se tároljuk? Egyelőre nem.
-                        */
+                        /* Első lépésként az ideiglenes Cash-flow sorok eltároljuk az adatbázisba */
+                        szallodak = [];
+                        datumok   = [];
+                        osszegek  = [];
+                        $(\'#cash_flow_div div.kijSor\').each(function() {
+
+                            if( $(this).attr(\'data-id\')==\'UJ\' ){
+                                akt_osszeg = Number($(this).find(\'div.osszeg\').html().replace(\' '. get_penznem().'\', \'\').replace(/ /g, \'\'));
+                                osszegek.push(akt_osszeg);
+
+                                akt_telephely_id = $(this).find(\'input[name="telephely_id"]\').val();
+                                akt_datum        = $(this).find(\'div.datum\').html();
+                                szallodak.push(akt_telephely_id);
+                                datumok  .push(akt_datum       );
+                            }
+                            
+                        });
                         
+                        var ajax = $.ajax({
+                            url : \''.self().'\',
+                            type: \'POST\',
+                            data: {
+                                pageID       : \''.$_GET['id'].'\',
+                                szallodak    : JSON.stringify(szallodak),
+                                datumok      : JSON.stringify(datumok),
+                                osszegek     : JSON.stringify(osszegek),
+                                addCashFlow  : new Date().getTime()
+                            },
+                            success: function(response) {
+                                $(\'#cash_flow_div div.kijSor\').each(function() {
+                                    $(this).attr(\'data-id\', \'UJ-FELDOLGOZVA\');
+                                });
+                            }
+                        });
+                        
+                        /* Igénylés rögzítése ugyanaz mint a Mentés gomb, csak itt vizsgáljuk azt is, hogy a becsült költség azonos-e a szétosztottal, illeve még jópár egyéb feltétlet. */
                         igeny_rogzites_uzemmod = false; /* form_ell_admin-hoz kell, átadjuk parméterként ezt az infót is: rögzítéskor státusz léptetés stb... */
                         if($(\'#igeny_rogzit\').val()>0){
 
@@ -1273,37 +1311,6 @@ if($gyorskereso_text){
                             
                         }
 
-                        /* Ideiglenes Cash-flow sorok eltárolása adatbázisba */
-                        szallodak = [];
-                        datumok   = [];
-                        osszegek  = [];
-                        $(\'#cash_flow_div div.kijSor\').each(function() {
-
-                            if( $(this).attr(\'data-id\')==\'UJ\' ){
-                                akt_osszeg = Number($(this).find(\'div.osszeg\').html().replace(\' '. get_penznem().'\', \'\').replace(/ /g, \'\'));
-                                osszegek.push(akt_osszeg);
-
-                                akt_telephely_id = $(this).find(\'input[name="telephely_id"]\').val();
-                                akt_datum        = $(this).find(\'div.datum\').html();
-                                szallodak.push(akt_telephely_id);
-                                datumok  .push(akt_datum       );
-                            }
-                            
-                        });
-                        
-                        var ajax = $.ajax({
-                            url : \''.self().'\',
-                            type: \'POST\',
-                            data: {
-                                pageID       : \''.$_GET['id'].'\',
-                                szallodak    : JSON.stringify(szallodak),
-                                datumok      : JSON.stringify(datumok),
-                                osszegek     : JSON.stringify(osszegek),
-                                addCashFlow  : new Date().getTime()
-                            },
-                            success: function(response) {
-                            }
-                        });
                         return form_ell_admin();
                         ';
     $js_submit_elott = nl2($js_submit_elott);
@@ -1757,6 +1764,7 @@ if($gyorskereso_text){
         echo '</div>';
     }
 
+    
 if( !$_GET['ajax'] ) {
     require_once('footer.php');
 }
