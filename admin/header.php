@@ -55,97 +55,6 @@ if($_SESSION[get_db_tabla().'login_recid']){
 $akt_almenu_mit  = array('{LINK}', '{NEV}');
 $akt_menu_mit    = array('{CLASS}', '{FOLINK}', '{MEGNEVEZES}', '{FONEV}', '{ALMENUK}');
 
-/*//Minta menü
-$menu_nev        = 'Hír';
-$menu_nev_kis    = 'hír';
-$menu_nev_tobbes = 'Hírek';
-$meg             = 'hir';
-$aloldalak=array($meg.'.php?uj&amp;unset', $meg.'.php?lista&amp;unset', $meg.'.php?modosit');
-if(basename(self())==$meg.'.php' && isset($_GET['uj'])){      $navi = 'Új '.$menu_nev_kis.' feltöltése'; }
-if(basename(self())==$meg.'.php' && isset($_GET['lista'])){   $navi = $menu_nev_tobbes; }
-if(basename(self())==$meg.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-if(basename(self())==$meg.'.php' && isset($_GET['sorrend'])){ $navi = 'Sorrendezés'; }
-
-$aktmenuk  = '';
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Új '.$menu_nev_kis.' feltöltése' ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], $menu_nev.' szerkesztése' ), $almenu_sablon );
-
-$style = '';
-if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover{STYLE_KIEG}"';
-}
-
-if( $aktmenuk ) {
-    if( $style ) {
-        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
-    } else {
-        $style = ' class="almenus"';
-    }
-} else {
-    if( $style ) {
-        $style = str_replace('{STYLE_KIEG}', '', $style);
-    }
-}
-$menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['1'], $meg, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
-
-//Ha nincs lenyíló menü, akkor az alábbi JS-el le kell venni a div borderjét, hogy ne legyen ott az 1x rolloverkor
-//$menuk   .= '<li><script>$(document).ready(function(){$("#'.$meg.'_menu").css(\'border\', \'0px\')});</script></li>'.str_replace( $akt_menu_mit, array( $style, $aloldalak['1'], $meg, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
-
-
-
-//Színezett menüre példa:
-//Kilépés
-$menu_nev        = '';
-$menu_nev_kis    = '';
-$menu_nev_tobbes = 'Kilépés';
-$megn            = '';
-$aloldalak=array('index.php?kilep', $megn.'.php?lista&amp;dj', $megn.'.php?modosit');
-
-$style = '';
-$aktmenuk  = '';
-$menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $meg, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
-
-//Pirosozzuk be:
-$menuk = str_replace('<a href="index.php?kilep" onmouseover="mopen(\'_menu\')" onmouseout="mclosetime()">', '<a href="index.php?kilep" onmouseover="mopen(\'_menu\')" onmouseout="mclosetime()" style="color: #FF8383">', $menuk);
-
-
-
-
-$menu_nev        = 'Teszt';
-$menu_nev_kis    = 'teszt';
-$menu_nev_tobbes = 'Tesztek - töröld!';
-$megn            = 'teszt';
-$aloldalak=array($megn.'.php?uj&amp;unset', $megn.'.php?lista&amp;unset', $megn.'.php?modosit');
-if(basename(self())==$megn.'.php' && isset($_GET['uj'])){      $navi = 'Új '.$menu_nev_kis.' feltöltése'; }
-if(basename(self())==$megn.'.php' && isset($_GET['lista'])){   $navi = $menu_nev_tobbes; }
-if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-if(basename(self())==$megn.'.php' && isset($_GET['sorrend'])){ $navi = 'Sorrendezés'; }
-
-$aktmenuk  = '';
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Új '.$menu_nev_kis.' feltöltése' ), $almenu_sablon );
-$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], $menu_nev.' szerkesztése' ), $almenu_sablon );
-
-$style = '';
-if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
-    $style = ' class="hover{STYLE_KIEG}"';
-}
-
-if( $aktmenuk ) {
-    if( $style ) {
-        $style = str_replace('{STYLE_KIEG}', ' almenus', $style);
-    } else {
-        $style = ' class="almenus"';
-    }
-} else {
-    if( $style ) {
-        $style = str_replace('{STYLE_KIEG}', '', $style);
-    }
-}
-$menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['1'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
-*/
-
-//{KOVETKEZO_MENU}
-
 /* Bejövő számlák */
 $menu_nev        = 'Bejövő számlák';
 $menu_nev_kis    = 'bejövő számlák';
@@ -315,16 +224,16 @@ if(_jog(JOG_ANYAIGENLES_MEGTEKINT) || _jog(JOG_ANYAGREND_MEGTEKINT) || _jog(JOG_
     if(basename(self())=='raktar.php')              { $oldalNev = 'Anyagok / Raktár';           }
 
     $aktmenuk  = '';
-if(_jog(12)){
+if(_jog(JOG_ANYAIGENLES_MEGTEKINT)){
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Anyagigénylések'), $almenu_sablon );
 }
-if(_jog(16)){
+if(_jog(JOG_ANYAGREND_MEGTEKINT)){
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Anyagrendelések'), $almenu_sablon );
 }
-if(_jog(17)){
+if(_jog(JOG_RAKTAR_MEGTEKINT)){
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Raktár'         ), $almenu_sablon );
 }
-if(_jog(19)){
+if(_jog(JOG_CIKKTORZS_MEGTEKINT)){
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Cikktörzs'      ), $almenu_sablon );
 }
 
@@ -599,7 +508,8 @@ $aloldalak = array(
     $megn.'.php?rkat=1,2',
     'erteklista.php',
     'login.php',
-    'szerepkor.php'
+    'szerepkor.php',
+    'szerepkor_jog.php?jogosultsag'
 );
 
 /* Rendszer katgória lekérdezése */
@@ -617,29 +527,31 @@ if( $_GET['rkat'] || $_SESSION['rendszerkat'] ) {
     }
 }
 
-if(basename(self())==$megn.'.php'   && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-if(basename(self())=='szallito.php' && isset($_GET['modosit'])){ $navi = 'Szállító szerkesztése'; }
-if(basename(self())=='rendszer.php'   && !$_GET['rkat'])    { $oldalNev = 'Rendszer';                   }
-if(basename(self())=='bejovo_szamlak.php')                  { $oldalNev = 'Rendszer / Bejövő számlák';  }
-if(basename(self())=='erteklista.php')                      { $oldalNev = 'Rendszer / Értéklisták';     }
-if(basename(self())=='login.php')                           { $oldalNev = 'Rendszer / Felhasználók';    }
-if(basename(self())=='szerepkor.php')                       { $oldalNev = 'Rendszer / Szerepkörök';     }
-if(basename(self())=='ktghely.php')                         { $oldalNev = 'Rendszer / Költséghelyek';   }
-if(basename(self())=='ktgnem.php')                          { $oldalNev = 'Rendszer / Költségnemek';    }
+if(basename(self())==$megn.'.php'   && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése';         }
+if(basename(self())=='szallito.php' && isset($_GET['modosit'])){ $navi = 'Szállító szerkesztése';           }
+if(basename(self())=='rendszer.php'   && !$_GET['rkat'])    { $oldalNev = 'Rendszer';                       }
+if(basename(self())=='bejovo_szamlak.php')                  { $oldalNev = 'Rendszer / Bejövő számlák';      }
+if(basename(self())=='erteklista.php')                      { $oldalNev = 'Rendszer / Értéklisták';         }
+if(basename(self())=='login.php')                           { $oldalNev = 'Rendszer / Felhasználók';        }
+if(basename(self())=='szerepkor.php')                       { $oldalNev = 'Rendszer / Szerepkörök';         }
+if(basename(self())=='szerepkor_jog.php')                   { $oldalNev = 'Rendszer / Szerepkörök jogai';   }
+if(basename(self())=='ktghely.php')                         { $oldalNev = 'Rendszer / Költséghelyek';       }
+if(basename(self())=='ktgnem.php')                          { $oldalNev = 'Rendszer / Költségnemek';        }
 
 $aktmenuk  = '';
 //$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Áfa' ), $almenu_sablon );
 //$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Beosztás' ), $almenu_sablon );
-if(_jog(8)){
+if(_jog(JOG_ERTEKLISTAK_MEGTEKINT)){
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Költséghelyek' ), $almenu_sablon );
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'Költségnemek' ), $almenu_sablon );
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['6'], 'Értéklisták' ), $almenu_sablon );
 }
-if(_jog(6)){
+if(_jog(JOG_FELHASZNALOK_MEGTEKINT)){
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['7'], 'Felhasználók' ), $almenu_sablon );
 }
-if(_jog(10)){
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['8'], 'Szerepkörök' ), $almenu_sablon );
+if(_jog(JOG_SZEREPKOR_MEGTEKINT)){
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['8'], 'Szerepkörök'        ), $almenu_sablon );
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['9'], 'Szerepkörök jogai'  ), $almenu_sablon );
 }
 $aktmenuk .= str_replace( $akt_almenu_mit, array( '../tervek/" target="_blank', 'Design' ), $almenu_sablon );
 
@@ -1084,6 +996,12 @@ if( basename(self())=='projektkezeles.php' && !_jog(JOG_PRKEZEL_KEZEL) ){
 }
 
 if( basename(self())=='raktar.php' && !_jog(JOG_RAKTAR_KEZEL)){
+    $torles_icon    = '';
+    $uj             = '';
+}
+
+//Szerepkör jogoknál semmi értelme az új és törlés ikonoknak
+if( basename(self())=='szerepkor_jog.php'){
     $torles_icon    = '';
     $uj             = '';
 }

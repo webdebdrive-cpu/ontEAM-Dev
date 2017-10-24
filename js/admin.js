@@ -352,6 +352,7 @@ $(function() {
                 'szallito',
                 'szamla',
                 'szerepkor',
+                'szerepkor_jog',
                 'tervezes',
                 'torzsadat',
                 'utemezett_feladatok',
@@ -778,6 +779,7 @@ $(function() {
 
     });
 
+    /* Oldal elhagyásakor rákrédezünk, hogy biztosan */
     $(window).bind('beforeunload', function(e) {
         if( formModositva && !_get('jogosultsag') ) {
             return 'Biztos elhagyja az oldalt mentés nélkül?';

@@ -85,7 +85,7 @@ $(function() {
         } else if( options.honnan === 'balLent' ) {
             $('#alert3').css({
                 'bottom': '1rem',
-                'left': '1rem'
+                'left'  : '1rem'
             });
             
             /* Alert3 pozíciója */
@@ -94,7 +94,7 @@ $(function() {
             
         } else if( options.honnan === 'jobbFent' ) {
             $('#alert3').css({
-                'top': '1rem',
+                'top'  : '1rem',
                 'right': '1rem'
             });
             
@@ -105,7 +105,7 @@ $(function() {
         } else if( options.honnan === 'jobbLent' ) {
             $('#alert3').css({
                 'bottom': '1rem',
-                'right': '1rem'
+                'right' : '1rem'
             });
             
             /* Alert3 pozíciója */
@@ -114,7 +114,7 @@ $(function() {
             
         } else if( options.honnan === 'fentKozep' ) {
             $('#alert3').css({
-                'top': '1rem',
+                'top' : '1rem',
                 'left': '50%'
             });
             
@@ -124,7 +124,7 @@ $(function() {
         } else if( options.honnan === 'lentKozep' ) {
             $('#alert3').css({
                 'bottom': '1rem',
-                'left': '50%'
+                'left'  : '50%'
             });
             
             /* Alert3 pozíciója */

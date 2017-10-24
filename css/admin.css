@@ -2596,6 +2596,24 @@ input.alert, table.csikos td input.alert{
     border: 0.1rem solid #f00;
 }
 
+div.fix_elso_oszl{
+    overflow-x: scroll;
+    margin-left: 38.5rem;
+}
+
+div.fix_elso_oszl td:first-of-type, div.fix_elso_oszl th:first-of-type{
+    left: 0;
+    position: absolute;
+    width: 40rem;
+}
+div.fix_elso_oszl td:first-of-type{
+    height: 2.7rem;
+}
+
+div.fix_elso_oszl tr:nth-of-type(2n+1) td{
+    background: #EEEEEE;
+}
+
 input.ora_perc{
     width: 5.2rem;
 }

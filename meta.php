@@ -43,6 +43,7 @@ function get_title(){
         case 'rendszeres_karbantartas.php'  : $title .= 'Munkák / Rendszeres karbantartás';             break;
         case 'szabadsagigeny.php'           : $title .= 'Személyzet / Szabadságigények';                break;
         case 'szerepkor.php'                : $title .= 'Rendszer / Szerepkörök';                       break;
+        case 'szerepkor_jog.php'            : $title .= 'Rendszer / Szerepkörök jogai';                 break;
         case 'szamla.php'                   : $title .= 'Dokumentumok / Számlák';                       break;
         case 'szallito.php'                 : $title .= 'Dokumentumok / Partnertörzs';                  break;
         case 'tervezes.php'                 : $title .= 'Tervezés';                                     break;

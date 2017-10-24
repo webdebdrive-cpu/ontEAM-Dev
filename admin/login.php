@@ -19,11 +19,6 @@ $akt_tomb               = $login_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'felhasználót';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-$gyorskereso_text       = '';       //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
-$oszlop_keres           = 'nev';                //Oszlopnevek, melyben keresünk (több oszlop is felsorolható vesszőkkel)
-$oszlop_listaz          = 'nev';                //Oszlopnevek, melyeket kilizátunk (több oszlop is felsorolható vesszőkkel)
-$gyorskereso_id         = 'ksz';                //Gyorskereső input neve és ID-ja
-
 //Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
@@ -43,10 +38,10 @@ $szamla_html = '';
 //Több kép menedzseléséhez
 $tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
-    function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
-    function get_tobbkep_csakkep()  { return '.jpg,.png';} // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
-    function get_tobbkep_kepmeret() { return 10;        } // MB-ban
-    function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
+    function get_tobbkep_darab()    { return 10;            } // Maximum hány kép tallózható be
+    function get_tobbkep_csakkep()  { return '.jpg,.png';   } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
+    function get_tobbkep_kepmeret() { return 10;            } // MB-ban
+    function get_tobbkep_oszlopnev(){                         // Melyik oszloppal kötjük össze a két táblát
         global $megnevezes;
         return $megnevezes.'_id';
     }
@@ -156,28 +151,6 @@ if( !$_GET['ajax'] ) {
 }
 require_once('selectek.php');
 
-if($gyorskereso_text){
-    $dl = nl2('
-                <input type="text" value="'.htmlspecialchars($_GET['ksz']).'" name="'.$gyorskereso_id.'" id="'.$gyorskereso_id.'" placeholder="'.$gyorskereso_text.'" autocomplete="off">
-                <script>
-                    $(document).ready(function() {
-                        $(\'#'.$gyorskereso_id.'\').autocomplete({
-                            \'php_fajl\'        : \'../autocomplete.php\',
-                            \'tabla\'           : \''.$megnevezes.'\',
-                            \'oszlop_keres\'    : \''.$oszlop_keres.'\',
-                            \'oszlop_listaz\'   : \''.$oszlop_listaz.'\'
-                        });
-                    });
-                </script>
-            ');
-    $gyk_sablon  = fajlbol_olvas('../sablon/admin/gyorskereso.html',  true);
-    $gyk_sablon2 = fajlbol_olvas('../sablon/admin/gyorskereso2.html', true);
-    $gyk_mit     = array('{ACTION}', '{FELIRAT}',       '{DL}', '{EGYEB_DE_FORM_NEM_LEHET}');
-    $gyk_mivel   = array(self(),     $gyorskereso_text, $dl);
-    $gyk  = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon);
-    $gyk2 = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon2);
-}
-
     if( !$_GET['ajax'] ) {
         echo '<div id="szamlaBetolt">';
     }
@@ -241,7 +214,7 @@ if($gyorskereso_text){
     $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
     if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
         if( $_COOKIE['csuszkaSzelesseg'] ) {
-            $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
+            $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
         }
     }
 
@@ -451,7 +424,6 @@ if($gyorskereso_text){
             function sortByOrder($a, $b) {
                 return $a['sor'] - $b['sor'];
             }
-
             usort($jogKatok, 'sortByOrder');
 
             $szamla_html .= '<form id="szerk_form" action="" method="post"><div class="dt">';
@@ -490,12 +462,6 @@ if($gyorskereso_text){
                     if( $jogSor['value'] ) {
                         $checked = ' checked="checked"';
                     }
-
-                    //Tooltipőes súgó leszavazva, de legyen meg a kódja:
-//                    $info = '';
-//                    if($jogSor['i']){
-//                        $info = '<div class="tooltip di" style="margin-left: 5rem"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$jogSor['i'].'</div></div>';
-//                    }
 
                     $jogSor['nev'] .= ':';
                     if($jogSor['i']){
@@ -568,7 +534,7 @@ if($gyorskereso_text){
             $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
             if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
                 if( $_COOKIE['csuszkaSzelesseg'] ) {
-                    $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
+                    $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
                 }
             }
 

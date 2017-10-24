@@ -24,11 +24,6 @@ $akt_tomb               = $projektigenyles_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'projekt igénylést';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-$gyorskereso_text       = '';       //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
-$oszlop_keres           = 'nev';                //Oszlopnevek, melyben keresünk (több oszlop is felsorolható vesszőkkel)
-$oszlop_listaz          = 'nev';                //Oszlopnevek, melyeket kilizátunk (több oszlop is felsorolható vesszőkkel)
-$gyorskereso_id         = 'ksz';                //Gyorskereső input neve és ID-ja
-
 //Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
@@ -953,28 +948,6 @@ if( !$_GET['ajax'] ) {
 }
 require('selectek.php');
 
-if($gyorskereso_text){
-    $dl = nl2('
-                <input type="text" value="'.htmlspecialchars($_GET['ksz']).'" name="'.$gyorskereso_id.'" id="'.$gyorskereso_id.'" placeholder="'.$gyorskereso_text.'" autocomplete="off">
-                <script>
-                    $(document).ready(function() {
-                        $(\'#'.$gyorskereso_id.'\').autocomplete({
-                            \'php_fajl\'        : \'../autocomplete.php\',
-                            \'tabla\'           : \''.$megnevezes.'\',
-                            \'oszlop_keres\'    : \''.$oszlop_keres.'\',
-                            \'oszlop_listaz\'   : \''.$oszlop_listaz.'\'
-                        });
-                    });
-                </script>
-            ');
-    $gyk_sablon  = fajlbol_olvas('../sablon/admin/gyorskereso.html',  true);
-    $gyk_sablon2 = fajlbol_olvas('../sablon/admin/gyorskereso2.html', true);
-    $gyk_mit     = array('{ACTION}', '{FELIRAT}',       '{DL}', '{EGYEB_DE_FORM_NEM_LEHET}');
-    $gyk_mivel   = array(self(),     $gyorskereso_text, $dl);
-    $gyk  = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon);
-    $gyk2 = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon2);
-}
-
     if( !$_GET['ajax'] ) {
         echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
@@ -1067,7 +1040,7 @@ if($gyorskereso_text){
             $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
             if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
                 if( $_COOKIE['csuszkaSzelesseg'] ) {
-                    $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
+                    $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
                 }
             }
 
@@ -1136,27 +1109,30 @@ if($gyorskereso_text){
             // Ha van egyálátalán kezelésre joga
             if(_jog(JOG_PRIGENY_B_KEZEL) || _jog(JOG_PRIGENY_EGY_KEZEL) || _jog(JOG_PRIGENY_F_KEZEL) || _jog(JOG_PRIGENY_SZ_KEZEL) || _jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_TOBB_KEZEL) || _jog(JOG_PRIGENY_T_KEZEL)){
 
-                if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && $sor['stat_id'] != PRIGENY_STAT_VARAKOZO && $sor['stat_id'] != PRIGENY_STAT_HIANYPOTLAS) {
-                    $gombok .= ' <input type="button" class="gomb foGomb" value="Várakoztatás" title="Várakoztatás" onclick="csoportMuvelet(\'pri_varakoztat\');">';
-                }
-                if($sor['stat_id'] == PRIGENY_STAT_VARAKOZO) {
-                    $gombok .= ' <input type="button" class="gomb foGomb" value="Várakoztatás vége" title="Várakoztatás vége" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_NYITOTT.'\');">';
-                }
-                if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && in_array($sor['stat_id'], prigeny_hianypotlasba_statuszok()) ) {
-                    $gombok .= ' <input type="button" class="gomb foGomb" value="Visszaadás hiánypótlásra" title="Visszaadás hiánypótlásra" onclick="csoportMuvelet(\'pri_hianypotlasra\');">';
-                }
+                //Létrehozás alatt semmilyen más gomb nem látszik, csak a Mentés vagy Igénylés rögzítése
+                if($sor['stat_id']!=PRIGENY_STAT_LETRE_ALATT){
+                    if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && $sor['stat_id'] != PRIGENY_STAT_VARAKOZO && $sor['stat_id'] != PRIGENY_STAT_HIANYPOTLAS) {
+                        $gombok .= ' <input type="button" class="gomb foGomb" value="Várakoztatás" title="Várakoztatás" onclick="csoportMuvelet(\'pri_varakoztat\');">';
+                    }
+                    if($sor['stat_id'] == PRIGENY_STAT_VARAKOZO) {
+                        $gombok .= ' <input type="button" class="gomb foGomb" value="Várakoztatás vége" title="Várakoztatás vége" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_NYITOTT.'\');">';
+                    }
+                    if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && in_array($sor['stat_id'], prigeny_hianypotlasba_statuszok()) ) {
+                        $gombok .= ' <input type="button" class="gomb foGomb" value="Visszaadás hiánypótlásra" title="Visszaadás hiánypótlásra" onclick="csoportMuvelet(\'pri_hianypotlasra\');">';
+                    }
 
-                $gombok .= ' <input type="button" class="gomb foGomb" value="FB előterjesztés nyomtatása" title="FB előterjesztés nyomtatása" onclick="window.open(\'projektigenyles.php?print=lista&amp;fb_elo\');">';
+                    $gombok .= ' <input type="button" class="gomb foGomb" value="FB előterjesztés nyomtatása" title="FB előterjesztés nyomtatása" onclick="window.open(\'projektigenyles.php?print=lista&amp;fb_elo\');">';
 
-                //Vannak gombok amik itt a helyük, de a fő feltételen kívül dől el, hogy látszik-e (nem csak az a feltétle, hogy van-e minden kezelés jog)
-                $gombok .= $gombok_meg;
+                    //Vannak gombok amik itt a helyük, de a fő feltételen kívül dől el, hogy látszik-e (nem csak az a feltétle, hogy van-e minden kezelés jog)
+                    $gombok .= $gombok_meg;
 
-                if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && _jog(JOG_PRIGENY_ELUTASIT) && $sor['stat_id'] != PRIGENY_STAT_ELUTASITVA /*Ez a felétel felesleges, csak az egységesség miatt van itt*/) {
-                    $gombok .= ' <input type="button" class="gomb piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas_csak_memo\');">';
-                }
+                    if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && _jog(JOG_PRIGENY_ELUTASIT) && $sor['stat_id'] != PRIGENY_STAT_ELUTASITVA /*Ez a felétel felesleges, csak az egységesség miatt van itt*/) {
+                        $gombok .= ' <input type="button" class="gomb piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'elutasitas_csak_memo\');">';
+                    }
 
-                if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && _jog(JOG_PRIGENY_JOVAHAGY) && in_array($sor['stat_id'], prigeny_jovahagyhato_statuszok()) ) {
-                    $gombok .= ' <input type="button" class="gomb zold foGomb" value="Jóváhagyás" title="Jóváhagyás" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_JOVAHAGYVA.'\');">';
+                    if(!in_array($sor['stat_id'], prigeny_fb_bod_var()) && _jog(JOG_PRIGENY_JOVAHAGY) && in_array($sor['stat_id'], prigeny_jovahagyhato_statuszok()) ) {
+                        $gombok .= ' <input type="button" class="gomb zold foGomb" value="Jóváhagyás" title="Jóváhagyás" onclick="pri_statusz_leptet(\''.$_GET['id'].'\', \''.PRIGENY_STAT_JOVAHAGYVA.'\');">';
+                    }
                 }
 
                 //Ha kezelheti, akkor van mentés gomb is
@@ -1180,7 +1156,7 @@ if($gyorskereso_text){
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
+                $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
             }
         }
 

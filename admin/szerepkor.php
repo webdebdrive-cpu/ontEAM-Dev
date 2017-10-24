@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(10) ) {
+if( !_jog(JOG_SZEREPKOR_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -18,11 +18,6 @@ $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $szerepkor_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'szerepkört';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
-
-$gyorskereso_text       = '';       //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
-$oszlop_keres           = 'nev';                //Oszlopnevek, melyben keresünk (több oszlop is felsorolható vesszőkkel)
-$oszlop_listaz          = 'nev';                //Oszlopnevek, melyeket kilizátunk (több oszlop is felsorolható vesszőkkel)
-$gyorskereso_id         = 'ksz';                //Gyorskereső input neve és ID-ja
 
 //Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
@@ -166,28 +161,6 @@ if( !$_GET['ajax'] ) {
 }
 require_once('selectek.php');
 
-if($gyorskereso_text){
-    $dl = nl2('
-                <input type="text" value="'.htmlspecialchars($_GET['ksz']).'" name="'.$gyorskereso_id.'" id="'.$gyorskereso_id.'" placeholder="'.$gyorskereso_text.'" autocomplete="off">
-                <script>
-                    $(document).ready(function() {
-                        $(\'#'.$gyorskereso_id.'\').autocomplete({
-                            \'php_fajl\'        : \'../autocomplete.php\',
-                            \'tabla\'           : \''.$megnevezes.'\',
-                            \'oszlop_keres\'    : \''.$oszlop_keres.'\',
-                            \'oszlop_listaz\'   : \''.$oszlop_listaz.'\'
-                        });
-                    });
-                </script>
-            ');
-    $gyk_sablon  = fajlbol_olvas('../sablon/admin/gyorskereso.html',  true);
-    $gyk_sablon2 = fajlbol_olvas('../sablon/admin/gyorskereso2.html', true);
-    $gyk_mit     = array('{ACTION}', '{FELIRAT}',       '{DL}', '{EGYEB_DE_FORM_NEM_LEHET}');
-    $gyk_mivel   = array(self(),     $gyorskereso_text, $dl);
-    $gyk  = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon);
-    $gyk2 = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon2);
-}
-
     if( !$_GET['ajax'] ) {
         echo '<div id="szamlaBetolt">';
     }
@@ -219,7 +192,7 @@ if($gyorskereso_text){
     $js_submit_elott = 'return form_ell_admin();';
 
 	//Új termék felvitele
-	if(isset($_GET['uj']) && _jog(11) && !$csak_szerkesztheto){
+	if(isset($_GET['uj']) && _jog(JOG_SZEREPKOR_KEZEL) && !$csak_szerkesztheto){
 
         //NAVIGÁCIÓ
         $gombok = '';
@@ -279,7 +252,7 @@ if($gyorskereso_text){
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
+                $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
             }
         }
 
@@ -384,7 +357,7 @@ if($gyorskereso_text){
 
         $jobb_oldal = '';
 
-        if(_jog(11)){
+        if(_jog(JOG_SZEREPKOR_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
@@ -395,7 +368,7 @@ if($gyorskereso_text){
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
+                $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
             }
         }
 
@@ -407,8 +380,8 @@ if($gyorskereso_text){
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'tartalom'  => $szamla_html,
+                'link'      => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html;
@@ -484,12 +457,6 @@ if($gyorskereso_text){
                         $checked = ' checked="checked"';
                     }
 
-                    //Tooltipőes súgó leszavazva, de legyen meg a kódja:
-//                    $info = '';
-//                    if($jogSor['i']){
-//                        $info = '<div class="tooltip di" style="margin-left: 5rem"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$jogSor['i'].'</div></div>';
-//                    }
-
                     $jogSor['nev'] .= ':';
                     if($jogSor['i']){
                         $jogSor['nev'] .= '<br><i>('.$jogSor['i'].')</i><br><br>';
@@ -554,7 +521,7 @@ if($gyorskereso_text){
                 <div class="muveletek">
                     <div class="form_kuldes">
                         <input type="hidden" name="id" value="'.$_GET['id'].'">
-                        <input type="button" class="gombb mentes_gomb" name="jogokhozzaad" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                        <input type="submit" class="gombb mentes_gomb" name="jogokhozzaad" id="mehet_gomb" disabled value="Mentés">
                     </div>
                 </div>
                 </div></form>

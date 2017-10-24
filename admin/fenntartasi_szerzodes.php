@@ -7,11 +7,6 @@ $akt_tomb               = $fenntartasi_szerzodes_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'szerződést';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-$gyorskereso_text       = '';       //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
-$oszlop_keres           = 'nev';                //Oszlopnevek, melyben keresünk (több oszlop is felsorolható vesszőkkel)
-$oszlop_listaz          = 'nev';                //Oszlopnevek, melyeket kilizátunk (több oszlop is felsorolható vesszőkkel)
-$gyorskereso_id         = 'ksz';                //Gyorskereső input neve és ID-ja
-
 //Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
@@ -52,28 +47,6 @@ if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
 require_once('selectek.php');
-
-if($gyorskereso_text){
-    $dl = nl2('
-                <input type="text" value="'.htmlspecialchars($_GET['ksz']).'" name="'.$gyorskereso_id.'" id="'.$gyorskereso_id.'" placeholder="'.$gyorskereso_text.'" autocomplete="off">
-                <script>
-                    $(document).ready(function() {
-                        $(\'#'.$gyorskereso_id.'\').autocomplete({
-                            \'php_fajl\'        : \'../autocomplete.php\',
-                            \'tabla\'           : \''.$megnevezes.'\',
-                            \'oszlop_keres\'    : \''.$oszlop_keres.'\',
-                            \'oszlop_listaz\'   : \''.$oszlop_listaz.'\'
-                        });
-                    });
-                </script>
-            ');
-    $gyk_sablon  = fajlbol_olvas('../sablon/admin/gyorskereso.html',  true);
-    $gyk_sablon2 = fajlbol_olvas('../sablon/admin/gyorskereso2.html', true);
-    $gyk_mit     = array('{ACTION}', '{FELIRAT}',       '{DL}', '{EGYEB_DE_FORM_NEM_LEHET}');
-    $gyk_mivel   = array(self(),     $gyorskereso_text, $dl);
-    $gyk  = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon);
-    $gyk2 = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon2);
-}
 
     if( !$_GET['ajax'] ) {
         echo '<div id="szamlaBetolt">';
@@ -192,7 +165,7 @@ if($gyorskereso_text){
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
+                $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
             }
         }
 
@@ -308,7 +281,7 @@ if($gyorskereso_text){
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
+                $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
             }
         }
 

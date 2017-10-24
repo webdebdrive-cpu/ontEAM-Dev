@@ -39,6 +39,7 @@ $_SESSION['ketHasabos'] = array(
     'szallito.php',
     'szamla.php',
     'szerepkor.php',
+    'szerepkor_jog.php',
     'tervezes.php',
     'torzsadat.php',
     'utemezett_feladatok.php',

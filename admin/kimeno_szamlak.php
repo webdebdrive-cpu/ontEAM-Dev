@@ -8,11 +8,6 @@ $akt_tomb               = $kimeno_szamlak_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'számla';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-$gyorskereso_text       = '';       //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
-$oszlop_keres           = 'nev';                //Oszlopnevek, melyben keresünk (több oszlop is felsorolható vesszőkkel)
-$oszlop_listaz          = 'nev';                //Oszlopnevek, melyeket kilizátunk (több oszlop is felsorolható vesszőkkel)
-$gyorskereso_id         = 'ksz';                //Gyorskereső input neve és ID-ja
-
 //Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
@@ -44,28 +39,6 @@ if($tobb_kep){
 /** Tartalom */
 require_once('header.php');
 require_once('selectek.php');
-
-if($gyorskereso_text){
-    $dl = nl2('
-                <input type="text" value="'.htmlspecialchars($_GET['ksz']).'" name="'.$gyorskereso_id.'" id="'.$gyorskereso_id.'" placeholder="'.$gyorskereso_text.'" autocomplete="off">
-                <script>
-                    $(document).ready(function() {
-                        $(\'#'.$gyorskereso_id.'\').autocomplete({
-                            \'php_fajl\'        : \'../autocomplete.php\',
-                            \'tabla\'           : \''.$megnevezes.'\',
-                            \'oszlop_keres\'    : \''.$oszlop_keres.'\',
-                            \'oszlop_listaz\'   : \''.$oszlop_listaz.'\'
-                        });
-                    });
-                </script>
-            ');
-    $gyk_sablon  = fajlbol_olvas('../sablon/admin/gyorskereso.html',  true);
-    $gyk_sablon2 = fajlbol_olvas('../sablon/admin/gyorskereso2.html', true);
-    $gyk_mit     = array('{ACTION}', '{FELIRAT}',       '{DL}', '{EGYEB_DE_FORM_NEM_LEHET}');
-    $gyk_mivel   = array(self(),     $gyorskereso_text, $dl);
-    $gyk  = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon);
-    $gyk2 = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon2);
-}
 
     $js_submit_elott = 'return form_ell_admin();';
     
