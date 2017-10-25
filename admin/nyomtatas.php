@@ -38,10 +38,14 @@ if ($_GET['print']=='lista') {
     }
     
     
-    //FB elétrejestzett lista nyomtatásakor a lekérdezésen még állítotunk
+    //FB elétrejestzett lista nyomtatásakor a lekérdezésen még állítottunk
     if(isset($_GET['fb_elo'])){
-        $_SESSION['akt_sql'] = str_replace('ORDER', ' AND `stat_id`=\''.PRIGENY_STAT_FB_TERJESZT.'\' ORDER', $_SESSION['akt_sql']);
+        
+        $mit   = array('WHERE',   'ORDER');
+        $mivel = array('WHERE (', ') AND `stat_id`=\''.PRIGENY_STAT_FB_TERJESZT.'\' ORDER');
+        $_SESSION['akt_sql'] = str_replace($mit, $mivel, $_SESSION['akt_sql']);
         $query = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
+
         if(mysqli_num_rows($query)){
             $feltetel .= '<h1>FB elé terjesztve:</h1>';
         }else{

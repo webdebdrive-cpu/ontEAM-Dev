@@ -4614,12 +4614,32 @@ function kapcsolodoSzerkeszt( oldal ) {
 
         switch( oldal ) {
             case 'cash_flow':
-                if(_jogok[39]==1 || _jogok[60]==1 || _jogok[59]==1 || _jogok[62]==1 || _jogok[49]==1 || _jogok[47]==1 || _jogok[64]==1){
-                    $('#addCashFlow').attr('onsubmit', 'return addCashFlow(\'' + _get('id') + '\', this);');
-                }else{
-                    alert2('Önnek nincs joga Cash-flowt feltölteni!', '', 'Hiba');
-                    return false;
-                }
+                
+                $.ajax({
+                    url : 'projektigenyles.php',
+                    type: 'POST',
+                    data: {
+                        recid              : _get('id'),
+                        cash_flow_ellenoriz: new Date().getTime()
+                    },
+                    success: function (response) {
+                        if (response) {
+                            response = JSON.parse(response);
+                            
+                            if( response.hiba ) {
+                                alert2(response.hiba, response.gomb, 'Hiba');
+                                return false;
+                            }else{
+                                $('#addCashFlow').attr('onsubmit', 'return addCashFlow(\'' + _get('id') + '\', this);');
+                                popupNyit();
+                                return false;
+                            }
+
+                        }
+                    }
+                });
+                return false;
+
             break;
             case 'megjegyzes':
                 $('#addMegjegyzes').attr('onsubmit', 'return addMegjegyzes(\'' + _get('id') + '\', this);');

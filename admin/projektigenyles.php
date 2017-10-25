@@ -1,11 +1,6 @@
 <?php
 require_once('../weblap.php');
 
-if (isset($_GET['teszt'])) {
-    prigenyles_archival(9);
-    exit;
-}
-
 if( !_jog(JOG_PRIGENY_SZ_MEGTEKINT) && !_jog(JOG_PRIGENY_B_MEGTEKINT) && !_jog(JOG_PRIGENY_F_MEGTEKINT) && !_jog(JOG_PRIGENY_T_MEGTEKINT) && !_jog(JOG_PRIGENY_EGY_MEGTEKINT) && !_jog(JOG_PRIGENY_TOBB_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
@@ -852,6 +847,35 @@ if (isset($_POST['pri_eloterj_statusz_mod'])) {
         ));
     }
 
+    
+    $weblap->leallit();
+    exit();
+}
+
+
+// Cashflow hozzáadása előtt ellenőrizzük, hogy jog és státusz engedi-e
+if (isset($_POST['cash_flow_ellenoriz'])) {
+    
+    if(!_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_EGY_KEZEL) && !_jog(JOG_PRIGENY_TOBB_KEZEL)){
+        echo json_encode(array(
+            'hiba' => 'Önnek nincs joga Cash-flowt feltölteni!'
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    $statusz = $adatbazis_kapcsolat->s2('stat_id', $megnevezes, "`recid`='{$_POST['recid']}'");
+    if($statusz['stat_id']!=PRIGENY_STAT_LETRE_ALATT){
+        echo json_encode(array(
+            'hiba' => 'Csak létrehozás alatt vihető fel új cash-flow bejegyzés!'
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    echo json_encode(array(
+        'ok' => '1' //Valami kimenet kell legyen.
+    ));
     
     $weblap->leallit();
     exit();
