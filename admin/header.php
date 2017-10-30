@@ -382,10 +382,17 @@ if(_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_P
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Projektkezelés'     ), $almenu_sablon );
     }
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Cash-flow'          ), $almenu_sablon );
-    
+
     if(_jog(JOG_ELOTERJ_MEGTEKINT)){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'FB előterjesztés'   ), $almenu_sablon );
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'BoD előterjesztés'  ), $almenu_sablon );
+        $aktmenuk .= nl2('
+            <ul class="alalmenu_cont">
+                <a class="nolink">Előterjesztések</a>
+                <ul class="alalmenu">
+                    <li><a href="'.$aloldalak['3'].'">FB előterjesztés</a></li>
+                    <li><a href="'.$aloldalak['4'].'">BoD előterjesztés</a></li>
+                </ul>
+            </li>
+        ');
     }
 
     $style = '';
@@ -755,10 +762,10 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     } elseif( basename(self()) == 'bejelentes.php' && _jog(JOG_BEJELENTES_MAS_NEVEBEN) ) {
         $uj_link = 'javascript: bejSzallodaValaszt(); void(0);';
-        
+
     } elseif( basename(self()) == 'beosztas.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'beosztas.php' && isset($_GET['naptar']) ) {
         $uj_link = 'javascript: $(\'#szerk_form div.dt\').show(); void(0)';
 
@@ -794,19 +801,19 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     } elseif( basename(self()) == 'fenntartasi_szerzodes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'felmeresi_terv.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
     } elseif( basename(self()) == 'login.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'tervezes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
     } elseif( basename(self()) == 'utemezett_feladatok.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'projektigenyles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
@@ -821,7 +828,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     } elseif( basename(self()) == 'rendszeres_karbantartas.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'szamla.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 

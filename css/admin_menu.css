@@ -109,3 +109,30 @@ div.menu{
     border-radius: 0rem;
     color: #3e484a;
 }
+
+#sddm ul.alalmenu_cont {
+    position: relative;
+}
+
+#sddm ul.alalmenu {
+    background: #fff;
+    border: 0.1rem solid #d1d6da;
+    display: none;
+    position: absolute;
+    top: -0.1rem;
+    left: 100%;
+}
+
+#sddm ul.alalmenu a.nolink {
+    pointer-events: none;
+}
+
+#sddm ul.alalmenu li {
+    border-bottom: 0.1rem solid #d1d6da;
+    display: block;
+    width: 100%;
+}
+
+#sddm ul.alalmenu li:last-child {
+    border-bottom: none;
+}
