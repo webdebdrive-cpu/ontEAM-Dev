@@ -1062,7 +1062,8 @@ $het_rejt = 'dn ';
 $ho_rejt  = 'dn ';
 $utolso_vegrehajtas = '';
 $idoszakos_dn       = ' class="dn"';
-if(basename(self())=='utemezett_feladatok.php' && isset($_GET['id'])){
+if(basename(self())=='utemezett_feladatok.php'){
+    
     $uf = $adatbazis_kapcsolat->s('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d', 'utemezett_feladatok', "`recid`='{$_GET['id']}'");
     $uf = $uf[0];
 
@@ -1259,7 +1260,7 @@ $nap_rejt = 'dn ';
 $het_rejt = 'dn ';
 $ho_rejt  = 'dn ';
 $utolso_vegrehajtas = '';
-if(basename(self())=='rendszeres_karbantartas.php' && isset($_GET['id'])){
+if(basename(self())=='rendszeres_karbantartas.php'){
     $uf = $adatbazis_kapcsolat->s('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d', 'rendszeres_karbantartas', "`recid`='{$_GET['id']}'");
     $uf = $uf[0];
 
@@ -1457,7 +1458,7 @@ $nap_rejt = 'dn ';
 $het_rejt = 'dn ';
 $ho_rejt  = 'dn ';
 $utolso_vegrehajtas = '';
-if(basename(self())=='eseti_fenntartas.php' && isset($_GET['id'])){
+if(basename(self())=='eseti_fenntartas.php'){
     $uf = $adatbazis_kapcsolat->s('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d', 'rendszeres_karbantartas', "`recid`='{$_GET['id']}'");
     $uf = $uf[0];
 
@@ -3388,9 +3389,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
     switch($tabla){
         case 'bejelentes':
 
-
             //Jogosultság és hiba kezelés
-
             if(!$memo){
                 echo json_encode(array(
                     'hiba' => 'Kérjük indokolja az elutasítást!',
@@ -3466,17 +3465,19 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
     if( ($elutasitas_id || $csak_memo) && is_array($idk) ) {
         foreach($idk as $id) {
 
-            if( addStatusz( $tabla.'_statusz', $id, $statusz, $elutasitas_id, $memo ) === false ) {
-                $db_error = true;
-            }
-
             /* Hozzáadjuk a megjegyzést is ha van */
+            //FONTOS, hogy előbb megjegyzés, majd csak utána a státusz, mert státusznál archiválunk és a megyjezést is archiválni kell
             if( $memo ) {
                 $megj_felvesz = addMegj($tabla, $id, $memo);
                 if( $megj_felvesz === false ) {
                     $db_error = true;
                 }
             }
+            
+            if( addStatusz( $tabla.'_statusz', $id, $statusz, $elutasitas_id, $memo ) === false ) {
+                $db_error = true;
+            }
+
         }
 
         if( !$db_error ) {

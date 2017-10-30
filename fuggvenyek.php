@@ -4543,6 +4543,7 @@ function getStatuszIdo( $time ) {
 /* Státusz hozzáadása */
 function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklista_recid = 0, $memo = '' ) {
     global $adatbazis_kapcsolat;
+    global $db_kapcs;
 
     $db_error = false;
     $kulso_kulcs = str_replace('_statusz', '', $tabla);
@@ -4620,13 +4621,69 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
                 foreach($pri as $kulcs => $mezok){
                     array_push($oszlopok, $kulcs);
                 }
+                
+                //További oszlopok (ID-k címkéjét is letároljuk)
+                $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$pri['telephely_id']}'"); 
+                array_push($oszlopok, 'telephely_cimk');
+                array_push($pri,      $telephely['nev']);
+                
+                require_once 'selectek.php';
+                $tipus_cimk = '';
+                foreach ($select_pri_tipus as $tipus){
+                    if($pri['tipus']==$tipus['value']){
+                        $tipus_cimk = $tipus['name'];
+                    }
+                }
+                array_push($oszlopok, 'tipus_cimk');
+                array_push($pri,      $tipus_cimk);
+                
+                $besorol_cimk = '';
+                foreach ($select_pri_besorol as $besorol){
+                    if($pri['besorol']==$besorol['value']){
+                        $besorol_cimk = $besorol['name'];
+                    }
+                }
+                array_push($oszlopok, 'besorol_cimk');
+                array_push($pri,      $besorol_cimk);
+                
+                $statusz_cimk = getStatText('projektigenyles', $stat_id);
+                array_push($oszlopok, 'stat_cimk'   );
+                array_push($pri,      $statusz_cimk );
 
                 $sql = $adatbazis_kapcsolat->i('projektigenyles_arch', $oszlopok, $pri);
-
                 if( $sql === false ) { $db_error = true; }
                 
                 $sql = $adatbazis_kapcsolat->d('projektigenyles', "`recid`='$recid'");
                 if( $sql === false ) { $db_error = true; }
+                
+                //Megjegyzés archiválása
+                $sql = 'INSERT `'.get_db_tabla().'megjegyzes_arch` SELECT * FROM `'.get_db_tabla().'megjegyzes` WHERE `tabla`=\'projektigenyles\' AND `id`=\''.$pri['recid'].'\'';
+                if(!mysqli_query($db_kapcs, $sql)){
+                    $db_error = true;
+                }
+
+                $sql = $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='projektigenyles' AND `id`='{$pri['recid']}'");
+                if( $sql === false ) { $db_error = true; }
+                
+                //További kapcsolódó táblák archiválása
+                $tablak = array(
+                                array('tabla' => 'projektigenyles_dok',     'kulcs' => 'projektigenyles_id'     ),
+                                array('tabla' => 'projektigenyles_eloterj', 'kulcs' => 'recid'                  ),
+                                array('tabla' => 'projektigenyles_kapcs',   'kulcs' => 'projektigenyles_recid'  ),
+                                array('tabla' => 'projektigenyles_megter',  'kulcs' => 'projektigenyles_recid'  ),
+                                array('tabla' => 'projektigenyles_statusz', 'kulcs' => 'projektigenyles_recid'  ),
+                                array('tabla' => 'projektigenyles_velemeny','kulcs' => 'projektigenyles_recid'  ),
+                                );
+                
+                foreach($tablak as $tabla){
+                    $sql = 'INSERT `'.get_db_tabla().$tabla['tabla'].'_arch` SELECT * FROM `'.get_db_tabla().$tabla['tabla'].'` WHERE `'.$tabla['kulcs'].'`=\''.$pri['recid'].'\'';
+                    if(!mysqli_query($db_kapcs, $sql)){
+                        $db_error = true;
+                    }
+                    $sql = $adatbazis_kapcsolat->d($tabla['tabla'], "`{$tabla['kulcs']}`='{$pri['recid']}'");
+                    if( $sql === false ) { $db_error = true; }
+                }
+                
             }
 
             if( !$db_error ) {
@@ -4636,7 +4693,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
             }
         }
         
-        //Ha azonos a státusz mint ahová léptetunk akkor is true-val térünk vissza
+        //Ha azonos a státusz mint ahová léptetünk akkor is true-val térünk vissza
         if($akt_statusz['stat_id']==$stat_id){
             return true;
         }

@@ -12,6 +12,12 @@ if( !_jog(JOG_PRIGENY_SZ_MEGTEKINT) && !_jog(JOG_PRIGENY_B_MEGTEKINT) && !_jog(J
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
 }
 
+//Cash-flow fül helyett módosítra lépünk
+if(isset($_GET['cash_flow'])){
+    $_GET['modosit'] = 1;
+    unset($_GET['cash_flow']);
+}
+
 //Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
@@ -1145,7 +1151,7 @@ require('selectek.php');
                         $gombok .= ' <input type="button" class="gomb foGomb" value="Visszaadás hiánypótlásra" title="Visszaadás hiánypótlásra" onclick="csoportMuvelet(\'pri_hianypotlasra\');">';
                     }
 
-                    $gombok .= ' <input type="button" class="gomb foGomb" value="FB előterjesztés nyomtatása" title="FB előterjesztés nyomtatása" onclick="window.open(\'projektigenyles.php?print=lista&amp;fb_elo\');">';
+                    //$gombok .= ' <input type="button" class="gomb foGomb" value="FB előterjesztés nyomtatása" title="FB előterjesztés nyomtatása" onclick="window.open(\'projektigenyles.php?print=lista&amp;fb_elo\');">';
 
                     //Vannak gombok amik itt a helyük, de a fő feltételen kívül dől el, hogy látszik-e (nem csak az a feltétle, hogy van-e minden kezelés jog)
                     $gombok .= $gombok_meg;
@@ -1502,23 +1508,16 @@ require('selectek.php');
                 }
             </script>
             <div id="cash_flow_div" class="dn">
+            
                 <div class="dt full">
                     <div class="dtc">
-                        Becsült költség: <b id="becs_kolt">'.number_format($sor['bkolt'], 0, '', ' ').' '.get_penznem().'</b>
-                    </div>
-                    <div class="dtc c">
-                        Szétosztott költség: <b id="szetoszt_kolt"></b>
-                    </div>
-                    <div class="dtc r">
-                        Különbség: <b id="kulonbseg"></b>
-                    </div>
-                </div>
-                <div class="dt naplo kijCont" data-tabla="cash_flow" data-mellek="cash_flow">
-                    <div class="dtr nFejlec">
-                        <div class="dtc" style="width: 30rem">Szálloda</div>
-                        <div class="dtc" style="width: 15rem">Dátum</div>
-                        <div class="dtc">Összeg</div>
-                    </div>
+
+                        <div class="dt naplo kijCont" data-tabla="cash_flow" data-mellek="cash_flow">
+                            <div class="dtr nFejlec">
+                                <div class="dtc" style="width: 30rem">Szálloda</div>
+                                <div class="dtc" style="width: 15rem">Dátum</div>
+                                <div class="dtc">Összeg</div>
+                            </div>
         ');
 
         $cash_flowk = $adatbazis_kapcsolat->s('recid telephely_id datum osszeg', 'cash_flow', "`apa_recid`='".$_GET['id']."'", 'insert_dt desc');
@@ -1545,7 +1544,42 @@ require('selectek.php');
             $i++;
         }
 
-        $tovabbi_tartalom .= '</div></div>';
+        $tovabbi_tartalom .= nl2('
+                        </div>
+                    </div>
+                    <div class="dtc" style="padding-left: 1rem">
+
+                        <div class="dt">
+                            <div class="dtr">
+                                <div class="dtc">
+                                    Becsült költség:
+                                </div>
+                                <div class="dtc r">
+                                    <b id="becs_kolt">'.number_format($sor['bkolt'], 0, '', ' ').' '.get_penznem().'</b>
+                                </div>
+                            </div>
+                            <div class="dtr">
+                                <div class="dtc">
+                                    Szétosztott költség:
+                                </div>
+                                <div class="dtc r">
+                                    <b id="szetoszt_kolt"></b>
+                                </div>
+                            </div>
+                            <div class="dtr">
+                                <div class="dtc">
+                                    Különbség:
+                                </div>
+                                <div class="dtc r">
+                                    <b id="kulonbseg"></b>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            ');
 
 	    $szamla_html .= str_replace(
             array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',           '{CK_EDITOR}', '{GOMBOK}'    ),
