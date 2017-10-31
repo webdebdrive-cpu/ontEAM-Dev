@@ -144,7 +144,7 @@ require_once('selectek.php');
     }
 
     $js_submit_elott = 'return form_ell_admin();';
-    
+
     /* Gombok kirajzolása minden oldalra */
     $gombok = '';
     if( isset($_GET['uj']) ) {
@@ -184,7 +184,7 @@ require_once('selectek.php');
         }else{
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt az értéket?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
-        
+
         if( _jog(JOG_ERTEKLISTAK_KEZEL) ){
             $gombok = nl2('
                 <div class="form_kuldes">
@@ -207,7 +207,7 @@ require_once('selectek.php');
             </div>
         ');
     }
-    
+
 	//Új termék felvitele
 	if(isset($_GET['uj']) && _jog(JOG_ERTEKLISTAK_KEZEL)){
 
@@ -341,11 +341,11 @@ require_once('selectek.php');
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'tartalom' => $szamla_html,
+                'tartalom' => $szamla_html.$gombok,
                 'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
-            echo $szamla_html;
+            echo $szamla_html.$gombok;
         }
 
         if($tobb_kep){
