@@ -2,7 +2,7 @@
 require_once('../weblap.php');
 //Config
 
-if( !_jog(JOG_MUNKALAP_MEGTEKINT) ) {
+if( !_jog(JOG_MUNKALAP_MEGTEKINT) && !_jog(JOG_MUNKALAP_MEGTEKINT_SZALL) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -404,17 +404,17 @@ if( isset($_POST['munkalapFelvesz']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     //Műszaki vezető csak olyan munkalapot vehet, fel, ahol a hozzárendelt személy a műszaki vezető
-    if(_jog(JOG_MUNKALAP_MUSZAKI_VEZ)){
-        $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id', 'munkalap', "`recid`='{$recid}'");
-        if( $munkalap === false ) { $db_error = true; }
-        if($munkalap['szemelyzet_id']!=MUSZAKI_VEZETO){
-            echo json_encode(array(
-                'hiba' => 'Műszaki vezetőként csak olyan munkalapot vehet fel, amely Műszaki vezetőhöz lett rendelve!'
-            ));
-            $weblap->leallit();
-            exit();
-        }
-    }
+//    if(???){
+//        $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id', 'munkalap', "`recid`='{$recid}'");
+//        if( $munkalap === false ) { $db_error = true; }
+//        if($munkalap['szemelyzet_id']!=MUSZAKI_VEZETO){
+//            echo json_encode(array(
+//                'hiba' => 'Műszaki vezetőként csak olyan munkalapot vehet fel, amely Műszaki vezetőhöz lett rendelve!'
+//            ));
+//            $weblap->leallit();
+//            exit();
+//        }
+//    }
 
 
     if( $recid ) {
@@ -2317,7 +2317,7 @@ require('selectek.php');
     /* Módosítás */
     } else {
 
-        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
+        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
 
         //Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
@@ -2329,7 +2329,7 @@ require('selectek.php');
         }
 
         //Csak diszpécser vagy diszpkp vezető törölhet
-        if(!_jog(JOG_DISZPECSER) && !_jog(JOG_MUNKALAP_DISZP_KP_VEZ)){
+        if(!_jog(JOG_MUNKALAP_UJ_LETREHOZ)){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága munkalap törléséhez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }else{
 
@@ -2342,19 +2342,20 @@ require('selectek.php');
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
             }
 
-            //Munkalap adatlapja csak akkor szerkeszthető, ha a státusz nyitott vagy folyamatban, és a belépett felhasználó diszpécser vagy diszpécser közp vezető
-            if( isset($_GET['modosit']) && in_array($sor['stat_id'], array(MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_FOLYAMATBAN)) ) {
-                $gombok = nl2('
-                    <div class="form_kuldes">
-                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
-                    </div>
-                ').$gombok;
-            }
+        }
+        
+        //Munkalap adatlapja csak akkor szerkeszthető, ha a státusz nyitott és van nyitott kezelés jog
+        if( isset($_GET['modosit']) && $sor['stat_id']==MUNKALAP_STAT_NYITOTT && _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ) {
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                </div>
+            ').$gombok;
         }
 
 
         /* Kijelöltekkel való művelet gombok */
-        if( _jog(JOG_DISZPECSER) ) {
+        if( _jog(JOG_MUNKALAP_UJ_LETREHOZ) ) {
             $gombok .= nl2('
                 <div id="kmCont">
                     <script>
@@ -2371,18 +2372,8 @@ require('selectek.php');
                         </div>
                     </div>
             ');
-            //A csoportotsítást nevezzük most már Várólistának
-//                    <div class="kijeloltek_muv">
-//                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
-//                        <div class="muv">
-//                            <ul>
-//                                <li><a onclick="varolistahozAdas(\'csak kérdezünk még\');">Várólistához adás</a></li>
-//                                <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\');">Várólistból kivétel</a></li>
-//                            </ul>
-//                        </div>
-//                    </div>
 
-            if( _jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_DISZP_KP_VEZ) ) {
+            if( _jog(JOG_MUNKALAP_MEGTEKINT) ) {
                 $gombok .= nl2('
                     <div class="kijeloltek_muv">
                         <input type="button" class="gombb foGomb" value="Munka átadása..." title="Munka átadása...">
@@ -2415,50 +2406,19 @@ require('selectek.php');
 
             $gombok .= '</div>';
 
-        //Ha a munkalapot megtekintheti, és Telepített, mobil vagy műszaki vezető, és a munkalap státusza felvéve vagy kész, akkor jelennek meg további gombok a munka felvétel gomb helyett (ez a következő ág)
-        } else if( _jog(JOG_MUNKALAP_MEGTEKINT) && ( (_jog(JOG_MUNKALAP_TELEPITETT) || _jog(JOG_MUNKALAP_MOBIL)) || _jog(JOG_MUNKALAP_MUSZAKI_VEZ)) && in_array($sor['stat_id'], array(MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_KESZ_IG)) ) {
+        }
+        
+        //Ha saját munkalapot kezehet, akkor ezeket a fukciókat éri el: felvétel, készrejelentés, rögzítés, visszaadás, anyagra várakoztatás.
+        if( _jog(JOG_MUNKALAP_SAJAT_KEZEL) ) {
 
-            $telephely = $adatbazis_kapcsolat->s('modell', 'telephely', 'id='.$sor['telephely_id'], '', '1');
-
-            $atadas_gomb = '';
-            if( $telephely ) {
-                $telephely = $telephely[0]['modell'];
-
-                /* Több szállodás modell */
-                if( !$telephely ) {
-                    $atadas_gomb = nl2('
-                        <script>
-                            muszVezAtadGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"atadasMuszVeznek();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                        </script>
-                        <input type="button" class="gomb foGomb" value="Átadás Műsz.Vez.-ne" title="Átadás Műsz.Vez.-nek" onclick="alert2(\'Biztos, hogy átadja a munkalapot Műszaki Vezetőnek?\', muszVezAtadGomb);">
-                    ');
-                /* Egy szállodás modell */
-                } else {
-                    $atadas_gomb = '<input type="button" class="gomb foGomb" value="Átadás diszpécsernek" title="Átadás diszpécsernek" onclick="csoportMuvelet(\'atadasDiszpecsernek\')">';
-                }
-            }
-
-            $gombok .= nl2('
-                <input type="button" class="gomb foGomb" value="Elvégzett feladat hozzáadása" title="Elvégzett feladat hozzáadása" onclick="csoportMuvelet(\'feladatHozzaad\')">
-                <input type="button" class="gomb foGomb" value="Készre jelentés" title="Készre jelentés" onclick="munkalapKeszre(\'csak kérdezünk még\');">
-                '.$atadas_gomb.'
-                <input type="button" class="gomb foGomb" value="Anyagigénylés szükséges" title="Anyagigénylés szükséges" onclick="csoportMuvelet(\'munkalapAnyagigenyles\');">
-                <input type="button" class="gomb foGomb" value="Anyag vételezés" title="Anyag vételezés" onclick="csoportMuvelet(\'munkalapAnyagvetelezes\');">
-                <input type="button" class="gomb_alert piros foGomb" value="Lezárás" title="Lezárás" onclick="munkalapLezaras(\'csak kérdezünk még\');">
-            ');
-
-        //Ha a munkalapot megtekintheti, és Telepített, mobil vagy műszaki vezető, akkor felveheti a munkát
-        } else if( _jog(JOG_MUNKALAP_MEGTEKINT) && ( (_jog(JOG_MUNKALAP_TELEPITETT) || _jog(JOG_MUNKALAP_MOBIL)) || _jog(JOG_MUNKALAP_MUSZAKI_VEZ)) ) {
-
-            $telephely = $adatbazis_kapcsolat -> select('nev', 'telephely', "`id`='{$sor['telephely_id']}'");
-            $telephely = $telephely[0];
+            $telephely = $adatbazis_kapcsolat -> s2('nev modell', 'telephely', "`id`='{$sor['telephely_id']}'");
 
             if( $sor['stat_id'] == MUNKALAP_STAT_FOLYAMATBAN ) {
                 $onclick = 'alert2(munkalapFelveszKerdes, munkalapFelvetelGomb);';
             }else{
                 $onclick = 'alert2(\'Csak folyamatban levő munkalap vehető fel!\', \'\', \'Hiba\');';
             }
-
+            
             $gombok .= nl2('
                 <script>
                     var munkalapFelveszKerdes = \'
@@ -2471,8 +2431,32 @@ require('selectek.php');
                     munkalapFelvetelGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkalapFelvesz(\''.$_GET['id'].'\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                 </script>
                 <input type="button" class="gomb foGomb" value="Munka felvétele" title="Munka felvétele" onclick="'.$onclick.'">
+                <input type="button" class="gomb foGomb" value="Készre jelentés" title="Készre jelentés" onclick="munkalapKeszre(\'csak kérdezünk még\');">
             ');
-        } else if( _jog(JOG_MUNKALAP_MEGTEKINT) && _jog(JOG_MUNKALAP_MUSZAK_ADMIN) ) {
+
+            $atadas_gomb = '';
+            /* Több szállodás modell */
+            if( !$telephely['modell'] ) {
+                $atadas_gomb = nl2('
+                    <script>
+                        muszVezAtadGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"atadasMuszVeznek();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                    </script>
+                    <input type="button" class="gomb foGomb" value="Átadás Műsz.Vez.-ne" title="Átadás Műsz.Vez.-nek" onclick="alert2(\'Biztos, hogy átadja a munkalapot Műszaki Vezetőnek?\', muszVezAtadGomb);">
+                ');
+            /* Egy szállodás modell */
+            } else {
+                $atadas_gomb = '<input type="button" class="gomb foGomb" value="Átadás diszpécsernek" title="Átadás diszpécsernek" onclick="csoportMuvelet(\'atadasDiszpecsernek\')">';
+            }
+
+            $gombok .= nl2('
+                <input type="button" class="gomb foGomb" value="Elvégzett feladat hozzáadása" title="Elvégzett feladat hozzáadása" onclick="csoportMuvelet(\'feladatHozzaad\')">
+                '.$atadas_gomb.'
+                <input type="button" class="gomb foGomb" value="Anyagigénylés szükséges" title="Anyagigénylés szükséges" onclick="csoportMuvelet(\'munkalapAnyagigenyles\');">
+                <input type="button" class="gomb foGomb" value="Anyag vételezés" title="Anyag vételezés" onclick="csoportMuvelet(\'munkalapAnyagvetelezes\');">
+                <input type="button" class="gomb_alert piros foGomb" value="Lezárás" title="Lezárás" onclick="munkalapLezaras(\'csak kérdezünk még\');">
+            ');
+
+        } else if( _jog(JOG_MUNKALAP_MEGTEKINT) ) {
             $gombok .= nl2('
                 <input type="button" class="gomb foGomb" value="Külső kivitelező hozzárendelése" title="Külső kivitelező hozzárendelése" onclick="csoportMuvelet(\'kulsokivHozzarend\');">
                 <input type="button" class="gomb foGomb" value="Küldés jóváhagyásra" title="Küldés jóváhagyásra" onclick="kuldesJovahagyasra(\''.$_GET['id'].'\', \'csak kérdezünk még\');">
@@ -2480,9 +2464,7 @@ require('selectek.php');
             ');
         }
 
-        if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) ){
-            $gombok .= '<input type="button" class="gomb foGomb" value="Anyag érkeztetés" title="Anyag érkeztetés" onclick="csoportMuvelet(\'munkalapErkeztet\')">';
-        }
+        $gombok .= '<input type="button" class="gomb foGomb" value="Anyag érkeztetés" title="Anyag érkeztetés" onclick="csoportMuvelet(\'munkalapErkeztet\')">';
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
@@ -2503,7 +2485,7 @@ require('selectek.php');
     $js_submit_elott = 'return form_ell_admin();';
 
 	//Új munkalap felvitele
-	if( isset($_GET['uj']) && ( _jog(JOG_DISZPECSER) ) ) {
+	if( isset($_GET['uj']) && ( _jog(JOG_MUNKALAP_UJ_LETREHOZ) ) ) {
 
         //NAVIGÁCIÓ
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
@@ -2622,7 +2604,7 @@ require('selectek.php');
         $munkalap_kapcs = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id` = '".$sor['recid']."'", '', '');
 
         //Duplákáláskor feltett kérdés
-        if(!_jog(JOG_DISZPECSER)){
+        if(!_jog(JOG_MUNKALAP_KESZITHET)){
             $szamla_html .= nl2('
                 <script>
                     duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Ok\" onclick=\"alert2()\"></p>";
@@ -2737,7 +2719,7 @@ require('selectek.php');
         $szamla_html .= '</div>';
 
         // Diszpécser a sürgős pipát mégis eléri
-        if(_jog(JOG_MUNKALAP_MUSZAKI_VEZ) && $sor['stat_id']==MUNKALAP_STAT_FELVEVE ){
+        if($sor['stat_id']==MUNKALAP_STAT_FELVEVE ){
             $szamla_html .= nl2('
                 <script>
                 $(document).ready(function () {
