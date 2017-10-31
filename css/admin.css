@@ -2502,6 +2502,21 @@ table.csikos th{
     text-align: center;
 }
 
+table.csikos th.szerepkor_jog{
+    font-size: 1rem;
+    height: 4rem;
+    padding: 0.3rem 0.1rem;
+    vertical-align: top;
+}
+
+table.csikos th.szerepkor_jog_kat{
+    background: #fff;
+    border: 0;
+    color: #242424;
+    height: 4rem;
+    padding-top: 2rem;
+}
+
 table.csikos.tetel_csikos th {
     width: 20%;
 }

@@ -39,7 +39,6 @@ $_SESSION['ketHasabos'] = array(
     'szallito.php',
     'szamla.php',
     'szerepkor.php',
-    'szerepkor_jog.php',
     'tervezes.php',
     'torzsadat.php',
     'utemezett_feladatok.php',
@@ -4788,7 +4787,7 @@ foreach($postok as $ertek){
         if( $sql === false ) { $db_error = true; }
 
         //Státusz tábla törlése, hacsak nem kivételes
-        $kivetelek = array('eszkozkezeles', 'felmeresi_terv', 'utemezett_feladatok');
+        $kivetelek = array('eszkozkezeles', 'felmeresi_terv', 'utemezett_feladatok', 'szerepkor');
         if( !in_array($ertek['tabla'], $kivetelek) ){
             $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }

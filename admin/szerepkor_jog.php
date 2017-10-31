@@ -322,23 +322,36 @@ require_once('selectek.php');
     $html = nl2('
             <script>
                 $(document).ready(function () {
-                    $(\'.fix_elso_oszl\').width( ($(window).width()-'.($_COOKIE['csuszkaSzelesseg']+500).')/10+\'rem\');
+                    $(\'.fix_elso_oszl\').width( ($(window).width()-450)/10+\'rem\');
                 });
             </script>
+            <style type="text/css">
+                .sor{
+                    max-width: none;
+                }
+                div.keret{
+                    padding-top: 0;
+                }
+            </style>
             <input type="hidden" name="jogokhozzaad">
             ');
-
+    
+    $html .= nl2('
+        <div class="fix_elso_oszl" style="width: 10rem">
+        <table class="csikos">
+    ');
     foreach($jogosultsagKatok as $kulcs_kat => $kat){
         $html .= nl2('
-                    <h3>'.$kat['nev'].'</h3>
-                    <div class="fix_elso_oszl" style="width: 10rem">
-                    <table class="csikos">
                     <tr>
-                        <th>Jog</th>
+                        <th class="szerepkor_jog_kat">'.$kat['nev'].'</th>
+                        <th colspan="100%" class="szerepkor_jog" style="background: #fff; border: 0"></th>
+                    </tr>
+                    <tr>
+                        <th class="szerepkor_jog">Jog</th>
                     ');
         $szerepkorok = $adatbazis_kapcsolat->s('recid nev flags', 'szerepkor', "", 'nev');
         foreach($szerepkorok as $szerepkor){
-            $html .= '<th class="nowrap">'.$szerepkor['nev'].'</th>';
+            $html .= '<th class="szerepkor_jog">'.$szerepkor['nev'].'</th>';
         }
         $html .= '</tr>';
 
@@ -409,12 +422,11 @@ require_once('selectek.php');
                 $html .= '</tr>';
             }
         }
-
-        $html .= nl2('
-                        </table>
-                    </div>
-                    ');
     }
+    $html .= nl2('
+                    </table>
+                </div>
+                ');
     
     $mezok = $html;
 
