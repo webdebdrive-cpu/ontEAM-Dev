@@ -121,7 +121,7 @@ if (isset($_POST['bal_panel_frissit'])) {
 }
 
 /* Foglalt azonosító ellenőrzése */
-if ($_POST['azon_ell']) {
+if( $_POST['azon_ell'] ) {
 
     $_POST['azon'] = trim($_POST['azon']);
     if($_POST['azon']){
@@ -376,40 +376,50 @@ require_once('selectek.php');
 
     //Eszközkezelésnél, az űrlap elpostolása előtt még ellenőrizzük, hogy az azonosító nem foglalt-e.
     //Egy ajax hívástbevárva tudjuk meg, hogy fogalalt-e vagy sem, és ha nem az, akkor újra elpostoljuk a formot de már egy az eredeti JS fügvny ellenőrzéssel.
-    $js_submit_elott = '
+    if( !isset($_GET['obj']) ) {
+        $js_submit_elott = '
+            mehet_e = false;
+            uj_form_ajax = $.ajax({
+                url : \''.basename(self()).'\',
+                type: \'POST\',
+                data: {
+                    azon    : $(\'#azon\').val(),
+                    recid   : \''.$_GET['id'].'\',
+                    azon_ell: new Date().getTime()
+                },
+                success: function (response) {
+                    response = JSON.parse(response);
+                    if(response.hiba){
+                        alert2(response.hiba, response.gomb, \'Hiba\');
                         mehet_e = false;
-                        uj_form_ajax = $.ajax({
-                            url : \''.basename(self()).'\',
-                            type: \'POST\',
-                            data: {
-                                azon    : $(\'#azon\').val(),
-                                recid   : \''.$_GET['id'].'\',
-                                azon_ell: new Date().getTime()
-                            },
-                            success: function (response) {
-                                response = JSON.parse(response);
-                                if(response.hiba){
-                                    alert2(response.hiba, response.gomb, \'Hiba\');
-                                    mehet_e = false;
-                                }else{
-                                    mehet_e = true;
-                                }
-                            }
-                        });
+                    }else{
+                        mehet_e = true;
+                    }
+                }
+            });
 
-                        $.when(
-                            uj_form_ajax
-                        ).then(function() {
-                            if(mehet_e){
-                                $(\'#szerk_form\').attr(\'onsubmit\', \'return form_ell_admin()\');
-                                $(\'#szerk_form\').submit();
-                            }else{
-                                return false;
-                            }
-                        } );
+            $.when(
+                uj_form_ajax
+            ).then(function() {
+                if(mehet_e){
+                    $(\'#szerk_form\').attr(\'onsubmit\', \'return form_ell_admin()\');
+                    $(\'#szerk_form\').submit();
+                }else{
+                    return false;
+                }
+            } );
 
-                        return false;
-                        ';
+            return false;
+        ';
+    } else {
+        $js_submit_elott = '
+            $(\'#szerk_form\').attr(\'onsubmit\', \'return form_ell_admin()\');
+            $(\'#szerk_form\').submit();
+
+            return false;
+        ';
+    }
+
 	//Új termék felvitele
 	if(isset($_GET['uj']) && _jog(JOG_ESZKOZ_KEZEL)){
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
