@@ -5239,6 +5239,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
                         'munkalapok',
                         'naplo',
                         'naptar',
+                        'obj',
                         'uj',
                         'utemezes',
                         'projekt_team',

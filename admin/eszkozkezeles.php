@@ -13,11 +13,18 @@ if( !_jog(JOG_ESZKOZ_MEGTEKINT) ) {
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
 }
 
-$megnevezes             = pathinfo(self());
-$megnevezes             = $megnevezes['filename'];
-$akt_tomb               = $eszkozkezeles_tomb;
-$torles                 = $megnevezes.'tid';
-$szoveg                 = 'gépet';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+if( isset($_GET['obj']) ) {
+    $megnevezes             = 'obj';
+    $akt_tomb               = $obj_tomb;
+    $torles                 = $megnevezes.'tid';
+    $szoveg                 = 'helyiséget';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+} else {
+    $megnevezes             = pathinfo(self());
+    $megnevezes             = $megnevezes['filename'];
+    $akt_tomb               = $eszkozkezeles_tomb;
+    $torles                 = $megnevezes.'tid';
+    $szoveg                 = 'gépet';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+}
 
 //Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
@@ -276,17 +283,23 @@ require_once('selectek.php');
         $eng_db = ' ('.$eng_db.')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['megjegyzesek']) || isset($_GET['dokumentumok']) || isset($_GET['naptar']) || isset($_GET['esemenyek']) || isset($_GET['engedelyek']) || isset($_GET['felmeresi']) || isset($_GET['terkep']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['megjegyzesek']) || isset($_GET['dokumentumok']) || isset($_GET['naptar']) || isset($_GET['esemenyek']) || isset($_GET['engedelyek']) || isset($_GET['felmeresi']) || isset($_GET['terkep']) || isset($_GET['obj']) ) {
         /* Számla fülek */
-        $ful_tomb = array(
-            'modosit'       => 'Adatlap',
-            'dokumentumok'  => 'Dokumentumok'.$dok_db,
-            'esemenyek'     => 'Események',
-            'engedelyek'    => 'Engedélyek'.$eng_db,
-            'felmeresi'     => 'Felmérési terv',
-            'terkep'        => 'Térkép',
-            'megjegyzesek'  => 'Megjegyzések'.$megj_db,
-        );
+        if( isset($_GET['obj']) ) {
+            $ful_tomb = array(
+                'obj' => 'Adatlap'
+            );
+        } else {
+            $ful_tomb = array(
+                'modosit'       => 'Adatlap',
+                'dokumentumok'  => 'Dokumentumok'.$dok_db,
+                'esemenyek'     => 'Események',
+                'engedelyek'    => 'Engedélyek'.$eng_db,
+                'felmeresi'     => 'Felmérési terv',
+                'terkep'        => 'Térkép',
+                'megjegyzesek'  => 'Megjegyzések'.$megj_db,
+            );
+        }
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
@@ -337,7 +350,7 @@ require_once('selectek.php');
         $gombok  = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
         $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
 
-        if(!$nem_szerkesztheti && isset($_GET['modosit']) && _jog(JOG_ESZKOZ_KEZEL)){
+        if(!$nem_szerkesztheti && (isset($_GET['modosit']) || isset($_GET['obj'])) && _jog(JOG_ESZKOZ_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
@@ -458,7 +471,7 @@ require_once('selectek.php');
         }
 
 	//Termék módosítása
-	}elseif(isset($_GET['modosit'])) {
+    }elseif(isset($_GET['modosit']) || isset($_GET['obj'])) {
 
         //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
@@ -538,7 +551,7 @@ require_once('selectek.php');
 			require_once('tobb_kep.php');
 		}
 
-	//Megjegyzések
+    //Megjegyzések
 	}elseif(isset($_GET['megjegyzesek'])){
 
         $szamla_html .= nl2('

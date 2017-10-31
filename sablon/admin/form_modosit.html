@@ -7,11 +7,11 @@
                 {MEZOK}
             </div>
             <script>
-                
+
                 function form_ell_admin_elott(){
                     {JS_SUBMIT_ELOTT}
                 }
-                
+
                 $(document).ready(function () {
                     $('.datepicker').datetimepicker({
                         closeOnDateSelect   : true,
@@ -28,13 +28,13 @@
                         timepicker          : true,
                         step                : 60,
                         validateOnBlur      : false,
-                        onChangeDateTime    : function(dp, $input){ 
+                        onChangeDateTime    : function(dp, $input){
                             $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
                             /* Órapontosak vagyunk */
                             $input.val( $input.val().substring(0, 14)+'00' );
                         }
                     });
-                    $('.ora_perc').datetimepicker({ 
+                    $('.ora_perc').datetimepicker({
                         closeOnDateSelect   : true,
                         datepicker          : false,
                         format              :'H:i',
@@ -47,7 +47,7 @@
                             $input.val( $input.val().substring(0, 3)+'00' );
                         }
                     });
-                    
+
                     /* Ha az űrlapnak nincs submit-ja, akkor minden mezőjét tiltunk.  */
                     if(!$('#szerk_form').parent().find('input.mentes_gomb').length){
                         $('#szerk_form input, #szerk_form textarea, #szerk_form select').attr('disabled', true);
@@ -55,9 +55,9 @@
                         $('#szerk_form input.foGomb').removeAttr('disabled');
                         $('.obj_gen').hide();
                     }
-                    
+
                 });
-                
+
             </script>
             <div>
                 <input type="hidden" name="{MEGNEVEZES}lista">

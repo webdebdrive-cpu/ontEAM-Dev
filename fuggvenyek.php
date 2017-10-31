@@ -3789,9 +3789,9 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
             $html .= '
                     <li>
-                        <a href="eszkozkezeles.php"><label'.$link.' for="telephely_'.$szalloda['id'].'">'.$szalloda['nev'].'</label></a>
-                        <input type="checkbox"'.$checked.'>';
-            // id="telephely_'.$szalloda['id'].'"
+                        <label'.$link.' for="telephely_'.$szalloda['id'].'">'.$szalloda['nev'].'</label>
+                        <input type="checkbox"'.$checked.' id="telephely_'.$szalloda['id'].'">';
+
                         if($szintek){
                             $html .= '<ol>';
                             foreach($szintek as $szint) {
@@ -3808,7 +3808,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 }
                                 $html .= '
                                         <li>
-                                            <a href="eszkozkezeles.php"><label'.$link.' for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label></a>
+                                            <a href="javascript: szamlaBetolt('.$szint['recid'].', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label></a>
                                             <input type="checkbox"'.$checked.' class="asdas">
                                         ';
                                 // id="szint_'.$szint['recid'].'"
@@ -3828,7 +3828,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                             $link = ' class="link"';
                                         }
                                         $html .= '<li>
-                                                    <a href="eszkozkezeles.php"><label'.$link.' for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label></a>
+                                                    <a href="javascript: szamlaBetolt('.$obj['recid'].', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label></a>
                                                     <input type="checkbox"'.$checked.'>';
                                         // id="obj_'.$obj['recid'].'"
                                             if($eszkozok){
