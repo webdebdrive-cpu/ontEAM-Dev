@@ -173,7 +173,7 @@ function i_u($type, $tabla, $tomb) {
         array_push($oszlopok, 'kezdho',        'kezdnap',           'vegeho',           'vegenap',          'aktkezd_d',            'aktvege_d'           );
         array_push($ertekek, $_POST['kezdho'], $_POST['kezdnap'],   $_POST['vegeho'],   $_POST['vegenap'],  $_POST['aktkezd_d'],    $_POST['aktvege_d']   );
     }
-    
+
     //Új bejegyzés esetén több mindent is le kell kezelni (iktatószám kizsámolás, plusz oszlopok beállítása
 	if($type == 'insert') {
         /* Insert DT és USR lekezelése általánosan */
@@ -297,7 +297,7 @@ function i_u($type, $tabla, $tomb) {
 
         //FB Előterjesztés új bejegyzés esetén
         } else if( $tabla == 'eloterj_fb' ) {
-            
+
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
             $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
             if( $ikt_seq === false ) { $db_error = true; }
@@ -329,7 +329,7 @@ function i_u($type, $tabla, $tomb) {
 
         //BOD Előterjesztés új bejegyzés esetén
         } else if( $tabla == 'eloterj_fb' ) {
-            
+
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
             $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
             if( $ikt_seq === false ) { $db_error = true; }
@@ -358,7 +358,7 @@ function i_u($type, $tabla, $tomb) {
 
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );
-            
+
         //Értéklista új bejegyzés esetén
         } else if( $tabla == 'erteklista' ) {
             $ertek = $adatbazis_kapcsolat->s('id', 'erteklista', "`csoport` = '".$_POST['csoport']."'", '', '');
@@ -677,7 +677,7 @@ function i_u($type, $tabla, $tomb) {
             }
 
         }
-        
+
         /* Előterjesztés (FB) státusz beszúrása */
         if( $tabla == 'eloterj_fb' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
@@ -688,7 +688,7 @@ function i_u($type, $tabla, $tomb) {
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(ELOT_FB_STAT_NYITOTT), "`recid`='$id'");
             if( $sql === false ) { $db_error = true; }
         }
-        
+
         /* Előterjesztés (BoD) státusz beszúrása */
         if( $tabla == 'eloterj_bod' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
@@ -866,24 +866,24 @@ function i_u($type, $tabla, $tomb) {
                 }
             }
         }
-        
+
         //Projektigényléseknél egy-több szállodás váltás lekezelése
         if( $tabla == 'projektigenyles' ) {
             $prigeny = $adatbazis_kapcsolat->s2('egy_tobb telephely_id', $tabla, "`recid`='{$_GET['id']}'");
-            
+
             //Ha többszállodás
             if($prigeny['egy_tobb']==1){
-                
+
                 // Változott a telephely, akkor töröljük a Cash-flow adatokat
                 if($prigeny['telephely_id']!=$_POST['telephely_id']){
                     $sql = $adatbazis_kapcsolat->d('cash_flow', "`apa_recid`='{$_GET['id']}'");
                     if( $sql === false ) { $db_error = true; }
                 }
-                
+
                 // Ha minden telephely azonos, akkor átállunk egy szállodásra
                 $cash_flowk = $adatbazis_kapcsolat->s2('DISTINCT telephely_id', 'cash_flow', "`apa_recid`='{$_GET['id']}'");
                 if( count($cash_flowk)==1 ){
-                    
+
                     $i_tmp = 0;
                     foreach($oszlopok as $ertek){
                         if($ertek=='egy_tobb'){
@@ -894,11 +894,11 @@ function i_u($type, $tabla, $tomb) {
                         }
                         $i_tmp++;
                     }
-                    
+
                 }
-                
+
             }
-            
+
             //Ha igény rögzítéséről van szó, akkor státuszt léptetünk, illetve iktatószámot is ekkor kap
             if ($_POST['igeny_rogzites']) {
                 if( addStatusz( 'projektigenyles_statusz', $_GET['id'], PRIGENY_STAT_NYITOTT ) === false ) { $db_error = true; }
@@ -933,7 +933,7 @@ function i_u($type, $tabla, $tomb) {
                 array_push($oszlopok,  'ikt_szam');
                 array_push($ertekek,   $ikt_szam );
             }
-            
+
         }
 
         //Szeméyzet aktív/ianktív váltása a hozzá tartozó login-t is aktív/inaktiválja
@@ -1035,7 +1035,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     var bejelentes_mehet        = false;
                     var bejelentes_mehet2       = false;
                     var alert_vegen             = false; /* Van, hogy mentés után még láttani akarunk egy alertet */
-                    var igeny_rogzites_uzemmod  = false; 
+                    var igeny_rogzites_uzemmod  = false;
                     function '.$fg.'{
             ');
 
@@ -1431,11 +1431,11 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
         ');
     }
-    
+
     // Projektigénylésnél váltás cash-flow fülre, ha azon voltunk
     $cash_flow_fulre_lepes = '';
     if( basename(self())=='projektigenyles.php' ){
-        $cash_flow_fulre_lepes = nl2('        
+        $cash_flow_fulre_lepes = nl2('
                     if($(\'#ful_cash_flow\').hasClass(\'active\')){
                         $.when( betoltott ).done(function() {
                             cash_flow_fulre_lep();
@@ -1479,15 +1479,15 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     }
 
                     '.$js_kieg.'
-                        
+
                     szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
                     betoltott = szamlaBetolt( \''.$_GET['id'].'\', \''.basename(self()).'\', \'modosit\', \'\', \'Elhagy kérdés nélkül\' );
-                    
+
                     '.$cash_flow_fulre_lepes.'
-                        
+
                     /* Ha lefutott az ajax, akkor még lehet dubni szeretnénk egy hibaüzenetet, vagy tájékoztatást */
                     alert2(alert_vegen);
-                        
+
                     formAdatok = response.adatok;
 
                     gombokNullaz();
@@ -1788,7 +1788,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
     }else{
         $order = $_OPTS['rend'];
     }
-    
+
     //Előterjesztéseknél ha státusz szerint rendezünk, akkor azon belül iktatószám
     if(basename(self())=='eloterj_fb.php' || basename(self())=='eloterj_bod.php'){
         if($order=='stat_id'){
@@ -1849,7 +1849,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             if(_jog(JOG_PRIGENY_TOBB_MEGTEKINT)){
                 $szallodak_kieg = ', 1011, 4301';
             }
-            
+
             //Számít a saját szállodai látókör
             $where = "`".get_db_tabla()."projektigenyles`.`telephely_id` IN (".implode(',', $szallodak).$szallodak_kieg.") AND ";
 
@@ -1875,10 +1875,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             if($where_jogok){
                 $where .= '('.csonkit($where_jogok, 4).') AND ';
             }
-            
+
             //Létrehozás alatti szállodát nem láthat senki, kivéve aki dolgozik rajta
             $where .= " (`stat_id`!='".PRIGENY_STAT_LETRE_ALATT."' OR `loginnev`='{$_SESSION[get_db_tabla().'user']}')";
-            
+
             //Viszont ahol véleményező vagyok, azokat az igényléseket mindenképp lássam
             $lathato_prigenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektigenyles_kapcs', "`login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
             $lathato_prigenyek = adatbazis2tomb($lathato_prigenyek, 'projektigenyles_recid');
@@ -2114,7 +2114,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             $order = trim($order, ', ');
 
         }
-        
+
         //Projektigénylésnél a telephey nevét átnevezzük, ne ütközzön a sima névvel
         $sql_as = '';
         if($tabla=='projektigenyles'){
@@ -3205,14 +3205,14 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             //Egy csoporton belül biztosan csak olyan bejelentések lesznek, amiknek azonos a telephelye
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$bsz['telephely_id']}'");
             $telephely = $telephely[0];
-            
+
             require 'selectek.php';
             foreach($select_pri_tipus as $tip){
                 if($bsz['tipus'] == $tip['value']){
                     $tipus = substr($tip['name'], 0, 1);
                 }
             }
-            
+
             if($bsz['rendk']){
                 $tipus = '<span class="piros">'.$tipus.'</span>';
             }
@@ -3799,9 +3799,9 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
             $html .= '
                     <li>
-                        <label'.$link.' for="telephely_'.$szalloda['id'].'">'.$szalloda['nev'].'</label>
-                        <input type="checkbox"'.$checked.' id="telephely_'.$szalloda['id'].'">';
-
+                        <a href="eszkozkezeles.php"><label'.$link.' for="telephely_'.$szalloda['id'].'">'.$szalloda['nev'].'</label></a>
+                        <input type="checkbox"'.$checked.'>';
+            // id="telephely_'.$szalloda['id'].'"
                         if($szintek){
                             $html .= '<ol>';
                             foreach($szintek as $szint) {
@@ -3818,9 +3818,10 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 }
                                 $html .= '
                                         <li>
-                                            <label'.$link.' for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label>
-                                            <input type="checkbox"'.$checked.' id="szint_'.$szint['recid'].'">
+                                            <a href="eszkozkezeles.php"><label'.$link.' for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label></a>
+                                            <input type="checkbox"'.$checked.' class="asdas">
                                         ';
+                                // id="szint_'.$szint['recid'].'"
 
                                 if($objektumok){
                                     $html .= '<ol>';
@@ -3837,9 +3838,9 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                             $link = ' class="link"';
                                         }
                                         $html .= '<li>
-                                                    <label'.$link.' for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label>
-                                                    <input type="checkbox"'.$checked.' id="obj_'.$obj['recid'].'">';
-
+                                                    <a href="eszkozkezeles.php"><label'.$link.' for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label></a>
+                                                    <input type="checkbox"'.$checked.'>';
+                                        // id="obj_'.$obj['recid'].'"
                                             if($eszkozok){
                                                 $html .= '<ol>';
                                                 foreach($eszkozok as $eszkoz){
@@ -4552,7 +4553,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
         /* Lekérjük az az éppen aktuális státuszt */
         $akt_statusz = $adatbazis_kapcsolat->s2('recid stat_id insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid desc', '1');
         if( $sql === false ) { $db_error = true; }
-        
+
         if( $akt_statusz && $akt_statusz['stat_id']!=$stat_id ) {
 
             /* Megállapítjuk a státusz idejét */
@@ -4607,26 +4608,26 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
             $alap_tabla = str_replace('_statusz', '', $tabla);
             $sql = $adatbazis_kapcsolat->u($alap_tabla, array('stat_id'), array($stat_id), "`recid`='$recid'");
             if( $sql === false ) { $db_error = true; }
-            
-            
+
+
             //Projektigénylés elutasításakor archiválunk
             if($alap_tabla=='projektigenyles' && $stat_id==PRIGENY_STAT_ELUTASITVA){
                 $pri = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='$recid'");
                 if( $pri === false ) { $db_error = true; }
-                
+
                 //Mivel tranzakcióban vagyunk, ezért az új értéket itt felülírom
                 $pri['stat_id'] = $stat_id;
-                
+
                 $oszlopok = array();
                 foreach($pri as $kulcs => $mezok){
                     array_push($oszlopok, $kulcs);
                 }
-                
+
                 //További oszlopok (ID-k címkéjét is letároljuk)
-                $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$pri['telephely_id']}'"); 
+                $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$pri['telephely_id']}'");
                 array_push($oszlopok, 'telephely_cimk');
                 array_push($pri,      $telephely['nev']);
-                
+
                 require_once 'selectek.php';
                 $tipus_cimk = '';
                 foreach ($select_pri_tipus as $tipus){
@@ -4636,7 +4637,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
                 }
                 array_push($oszlopok, 'tipus_cimk');
                 array_push($pri,      $tipus_cimk);
-                
+
                 $besorol_cimk = '';
                 foreach ($select_pri_besorol as $besorol){
                     if($pri['besorol']==$besorol['value']){
@@ -4645,17 +4646,17 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
                 }
                 array_push($oszlopok, 'besorol_cimk');
                 array_push($pri,      $besorol_cimk);
-                
+
                 $statusz_cimk = getStatText('projektigenyles', $stat_id);
                 array_push($oszlopok, 'stat_cimk'   );
                 array_push($pri,      $statusz_cimk );
 
                 $sql = $adatbazis_kapcsolat->i('projektigenyles_arch', $oszlopok, $pri);
                 if( $sql === false ) { $db_error = true; }
-                
+
                 $sql = $adatbazis_kapcsolat->d('projektigenyles', "`recid`='$recid'");
                 if( $sql === false ) { $db_error = true; }
-                
+
                 //Megjegyzés archiválása
                 $sql = 'INSERT `'.get_db_tabla().'megjegyzes_arch` SELECT * FROM `'.get_db_tabla().'megjegyzes` WHERE `tabla`=\'projektigenyles\' AND `id`=\''.$pri['recid'].'\'';
                 if(!mysqli_query($db_kapcs, $sql)){
@@ -4664,7 +4665,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 
                 $sql = $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='projektigenyles' AND `id`='{$pri['recid']}'");
                 if( $sql === false ) { $db_error = true; }
-                
+
                 //További kapcsolódó táblák archiválása
                 $tablak = array(
                                 array('tabla' => 'projektigenyles_dok',     'kulcs' => 'projektigenyles_id'     ),
@@ -4674,7 +4675,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
                                 array('tabla' => 'projektigenyles_statusz', 'kulcs' => 'projektigenyles_recid'  ),
                                 array('tabla' => 'projektigenyles_velemeny','kulcs' => 'projektigenyles_recid'  ),
                                 );
-                
+
                 foreach($tablak as $tabla){
                     $sql = 'INSERT `'.get_db_tabla().$tabla['tabla'].'_arch` SELECT * FROM `'.get_db_tabla().$tabla['tabla'].'` WHERE `'.$tabla['kulcs'].'`=\''.$pri['recid'].'\'';
                     if(!mysqli_query($db_kapcs, $sql)){
@@ -4683,7 +4684,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
                     $sql = $adatbazis_kapcsolat->d($tabla['tabla'], "`{$tabla['kulcs']}`='{$pri['recid']}'");
                     if( $sql === false ) { $db_error = true; }
                 }
-                
+
             }
 
             if( !$db_error ) {
@@ -4692,7 +4693,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
                 return false;
             }
         }
-        
+
         //Ha azonos a státusz mint ahová léptetünk akkor is true-val térünk vissza
         if($akt_statusz['stat_id']==$stat_id){
             return true;

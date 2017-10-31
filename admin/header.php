@@ -391,7 +391,7 @@ if(_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_P
                     <li><a href="'.$aloldalak['3'].'">FB előterjesztés</a></li>
                     <li><a href="'.$aloldalak['4'].'">BoD előterjesztés</a></li>
                 </ul>
-            </li>
+            </ul>
         ');
     }
 
