@@ -85,12 +85,12 @@ require_once('selectek.php');
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
+            'tortenet'      => 'Projekt történet',
             'projekt_team'  => 'Projekt-team',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'cash_flow'     => 'Cash-flow',
             'projektigeny'  => 'Projektigénylések',
             'rb_anyag'      => 'RB-anyagok',
-            'tortenet'      => 'Projekt történet',
             'garancialis'   => 'Garanciális munkák',
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );

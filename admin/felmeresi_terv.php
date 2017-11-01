@@ -229,7 +229,7 @@ require_once('selectek.php');
         $eng_db = ' ('.$eng_db.')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['megjegyzesek']) || isset($_GET['dokumentumok'])  ) {
+    if( isset($_GET['modosit']) || isset($_GET['megjegyzesek']) || isset($_GET['dokumentumok'])  ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Tervlap',
