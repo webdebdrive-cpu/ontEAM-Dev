@@ -1453,12 +1453,20 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     if( in_array($akt_php, $konyvtarszerkezetesek) ){
         $js_kieg = 'bal_panel_frissit(\''.$akt_php.'\', \''.$_GET['id'].'\');';
     }
+
+    $obj_szerk = '';
+    if( basename(self()) == 'eszkozkezeles.php' && isset($_GET['obj']) ) {
+        $obj_szerk = 'param_kieg += \'&amp;obj=1\';';
+    }
+
     $ajax_kod = nl2('
         utemezes_mehet = false;
         param_kieg = \'\';
         if(igeny_rogzites_uzemmod){
             param_kieg = \'&amp;igeny_rogzites=1\';
         }
+        '.$obj_szerk.'
+        console.log(\''.$param.str_replace('.php', '', basename(self())).'lista=1&amp;szerkeszt=1\'+param_kieg+\'&amp;ajax_form_modosit=\' + new Date().getTime());
         $.ajax({
             url : \''.self().'?id='.$_GET['id'].'\',
             type: \'POST\',

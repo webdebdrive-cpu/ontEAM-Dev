@@ -2083,7 +2083,6 @@ $obj_tomb = $akt_tomb = array(
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
-
 //Felmérési terv
 $megnevezes = 'felmeresi_terv';
 $felmeresi_terv_tomb = $akt_tomb = array(
@@ -4662,6 +4661,11 @@ foreach($postok as $ertek){
 			$tabla_id = $u_i_ret['1'];
 			$uj_lista   = 'uj';
 		}elseif(isset($_POST[$ertek['lista']])){
+            if( isset($_POST['obj']) ) {
+                $ertek['tabla'] = 'obj';
+                $ertek['tomb']  = $obj_tomb;
+            }
+            
 			$u_i_ret  = i_u('update',$ertek['tabla'],$ertek['tomb']);
 			$errnum   = $u_i_ret['0'];
 			$tabla_id = $u_i_ret['1'];
