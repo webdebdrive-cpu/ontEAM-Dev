@@ -987,9 +987,13 @@ if(basename(self())=='login.php' && !_jog(JOG_FELHASZNALOK_KEZEL)){
     $uj             = '';
 }
 
-if(basename(self())=='munkalap.php' && !_jog(JOG_MUNKALAP_UJ_LETREHOZ)){
-    $torles_icon    = '';
-    $uj             = '';
+if(basename(self())=='munkalap.php'){
+    if(!_jog(JOG_MUNKALAP_UJ_LETREHOZ)){
+        $uj             = '';
+    }
+    if(!_jog(JOG_MUNKALAP_TOROL)){
+        $torles_icon    = '';
+    }
 }
 
 //Ütemezett feladatok feltöltése törlése kinél legyen korlátozva?

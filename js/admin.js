@@ -2992,11 +2992,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                     $('.kijelolve').each(function () {
                         /* Ha már van csoportja */
                         if($(this).hasClass('behuz')){
-                            mar_csoportosak += $(this).find('span:first-of-type').html()+'<br>';
+                            mar_csoportosak += $(this).find('td.ikt_szam').html()+'<br>';
                         }
                         /* Ha nem nyitott a státusz */
                         if(!$(this).hasClass('nyitott_statuszu')){
-                            nem_nyitott_statuszuak += $(this).find('span:first-of-type').html()+'<br>';
+                            nem_nyitott_statuszuak += $(this).find('td.ikt_szam').html()+'<br>';
                         }
 
                         /* Ha nem azonosak a szállodák */

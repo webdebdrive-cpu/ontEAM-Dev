@@ -1900,9 +1900,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             //Saját megtekintése: saját szállodák + hozzárendelt személyzet: tehát toávbb szűrünk hozzárendelt személyzetre, amit a felhasználókon, majd személyezeten át kapunk meg
             if(_jog(JOG_MUNKALAP_MEGTEKINT)){
                 //Hozzárendelt személyzet megállapítása. Ez egyenlő a Személyzet beosztásával.
-                $felh        = $adatbazis_kapcsolat->s2('nev', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
-                $szemelyzet  = $adatbazis_kapcsolat->s2('szemelyzet_id', 'torzsadat', "`felh_loginnev`='{$felh['nev']}'");
-                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$szemelyzet['szemelyzet_id']}' AND ";
+                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND ";
             }
             if(_jog(JOG_MUNKALAP_MEGTEKINT_SZALL)){
                 $where .= ''; //Azaz ha saját szállodáim jogom van, akkor az egy lezább feltétel, nem szűrünk hozzárendelt személyzetre
@@ -2573,7 +2571,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             $kesz = '';
-            if( $bsz['stat_id'] == MUNKALAP_STAT_KESZ_IG ) {
+            if( $bsz['stat_id'] == MUNKALAP_STAT_KESZ ) {
                 $kesz = nl2('
                     <span class="icon zold">
                         <i class="material-icons">done</i>
@@ -2634,10 +2632,10 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <table'.$bold.'>
                             <tr>
                                 <td rowspan="2" style="width: 5rem; border: 0">'.$kesz.$dok_icon.$surgos.'</td>
-                                <td style="width: 9rem; border: 0">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 9rem; border: 0" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem; border: 0">'.getStatText($tabla, $bsz['stat_id']).'</td>
                                 <td style="width: 7rem; border: 0">'.$telephely['nev'].'</td>
-                                <td style="border: 0">'.$hely['nev'].' - '.$gep['nev'].'</td>
+                                <td style="width: 11rem; border: 0">'.$hely['nev'].' - '.$gep['nev'].'</td>
                             </tr>
                             <tr>
                                 <td style="border: 0" colspan="3">'.$tipus.'</td>

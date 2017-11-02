@@ -117,16 +117,21 @@ if(isset($_POST['jelszo_csere'])) {
                 /* Jelszó */
                 $jlsz = sha1($_POST['jlsz']);
 
-                $adatbazis_kapcsolat -> u('login', array('jelszo', 'helyesseg', 'van_jelszo'), array($jlsz, $helyesseg, 1), "`recid` = '".$felhasznalo['recid']."'");
+                $adatbazis_kapcsolat -> u('login',  array('jelszo', 'helyesseg',    'van_jelszo'),
+                                                    array($jlsz,    $helyesseg,     1           ),
+                                            "`recid` = '".$felhasznalo['recid']."'");
+                
+                $szemelyzet = $adatbazis_kapcsolat->s2('szemelyzet_id', 'torzsadat', "`felh_loginnev`='{$felhasznalo['nev']}'");
 
-                $_SESSION[get_db_tabla().'user']        = $felhasznalo['nev'];
-                $_SESSION[get_db_tabla().'teljes_nev']  = $felhasznalo['teljes_nev'];
-                $_SESSION[get_db_tabla().'login_recid'] = $felhasznalo['recid'];
-                $_SESSION[get_db_tabla().'rights']      = str_split($felhasznalo['flags']);
+                $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
+                $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
+                $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
+                $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
+                $_SESSION[get_db_tabla().'szemelyzet_id']   = $szemelyzet['szemelyzet_id'];
 
                 /* Nincs jelszó változók törlése */
                 $_SESSION['nincs_jelsz_felhid'] = false;
-                $_SESSION['nincs_jelsz'] = false;
+                $_SESSION['nincs_jelsz']        = false;
 
                 if( !$_SESSION['kert_url'] ) {
                     $_SESSION['kert_url'] = get_domain().'/'.get_admin();
@@ -172,11 +177,15 @@ if(isset($_POST['login'])) {
 
             if( $felhasznalo['van_jelszo'] ) {
                 if( $felhasznalo['jelszo'] == $_POST['jelszo'] && $felhasznalo['helyesseg'] == $helyesseg ) {
-                    $_SESSION[get_db_tabla().'user']        = $felhasznalo['nev'];
-                    $_SESSION[get_db_tabla().'teljes_nev']  = $felhasznalo['teljes_nev'];
-                    $_SESSION[get_db_tabla().'login_recid'] = $felhasznalo['recid'];
-                    $_SESSION[get_db_tabla().'szallito_id'] = $felhasznalo['szallito_id'];
-                    $_SESSION[get_db_tabla().'rights']      = str_split($felhasznalo['flags']);
+                    
+                    $szemelyzet = $adatbazis_kapcsolat->s2('szemelyzet_id', 'torzsadat', "`felh_loginnev`='{$felhasznalo['nev']}'");
+                    
+                    $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
+                    $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
+                    $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
+                    $_SESSION[get_db_tabla().'szallito_id']     = $felhasznalo['szallito_id'];
+                    $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
+                    $_SESSION[get_db_tabla().'szemelyzet_id']   = $szemelyzet['szemelyzet_id'];
 
 //                    if(!$_SESSION['kert_url']){
 //                        $_SESSION['kert_url'] = get_domain().'/'.get_admin();

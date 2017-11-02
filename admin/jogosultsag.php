@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 67-es ID-nál járunk
+ * 69-es ID-nál járunk
  * 11 -es kategória ID-nál járunk
 \*                                                  */
 
@@ -31,15 +31,17 @@ $jogosultsagok = array(
     3  => array('nev' => 'Saját megtekintése',                              'kat' => 1, 'sor' => 1  ),
     4  => array('nev' => 'Saját szállodák megtekintése',                    'kat' => 1, 'sor' => 2  ),
     5  => array('nev' => 'Új létrehozása',                                  'kat' => 1, 'sor' => 3,  'bekapcs' => '3'   ),
-    2  => array('nev' => 'Munkalapot készíthet',                            'kat' => 1, 'sor' => 4,  'bekapcs' => '3'   ),
-    31 => array('nev' => 'Nyitottak kezelése',                              'kat' => 1, 'sor' => 5,  'bekapcs' => '3'   ),
-    21 => array('nev' => 'Várakoztatás',                                    'kat' => 1, 'sor' => 6,  'bekapcs' => '3'   ),
-    22 => array('nev' => 'Saját kezelése',                                  'kat' => 1, 'sor' => 7,  'bekapcs' => '3'   ),
-    23 => array('nev' => 'Igazolás',                                        'kat' => 1, 'sor' => 8,  'bekapcs' => '3'   ),
-    24 => array('nev' => 'Vizsgálat',                                       'kat' => 1, 'sor' => 9,  'bekapcs' => '3'   ),
-    37 => array('nev' => 'Külsős: előkészítés',                             'kat' => 1, 'sor' => 10, 'bekapcs' => '3'   ),
-    34 => array('nev' => 'Külsős: döntés',                                  'kat' => 1, 'sor' => 11, 'bekapcs' => '3'   ),
-    67 => array('nev' => 'Külsős: megrendelés készítése',                   'kat' => 1, 'sor' => 12, 'bekapcs' => '3'   ),
+    68 => array('nev' => 'Munkalap törlése',                                'kat' => 1, 'sor' => 4,  'bekapcs' => '3'   ),
+    2  => array('nev' => 'Munkalapot készíthet',                            'kat' => 1, 'sor' => 5,  'bekapcs' => '3'   ),
+    31 => array('nev' => 'Nyitottak kezelése',                              'kat' => 1, 'sor' => 6,  'bekapcs' => '3'   ),
+    21 => array('nev' => 'Várakoztatás',                                    'kat' => 1, 'sor' => 7,  'bekapcs' => '3'   ),
+    22 => array('nev' => 'Saját kezelése',                                  'kat' => 1, 'sor' => 8,  'bekapcs' => '3'   ),
+    69 => array('nev' => 'Saját szálloda kezelése',                         'kat' => 1, 'sor' => 9,  'bekapcs' => '3'   ),
+    23 => array('nev' => 'Igazolás',                                        'kat' => 1, 'sor' => 10, 'bekapcs' => '3'   ),
+    24 => array('nev' => 'Vizsgálat',                                       'kat' => 1, 'sor' => 11, 'bekapcs' => '3'   ),
+    37 => array('nev' => 'Külsős: előkészítés',                             'kat' => 1, 'sor' => 12, 'bekapcs' => '3'   ),
+    34 => array('nev' => 'Külsős: döntés',                                  'kat' => 1, 'sor' => 13, 'bekapcs' => '3'   ),
+    67 => array('nev' => 'Külsős: megrendelés készítése',                   'kat' => 1, 'sor' => 14, 'bekapcs' => '3'   ),
     
     
     //Korábban ez volt
