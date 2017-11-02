@@ -57,7 +57,7 @@
             MUNKALAP_STAT_KESZ                  => array('nev' => 'Kész',                               'szinkod' => '#b3e5ab'),
             MUNKALAP_STAT_LEZART                => array('nev' => 'Lezárt',                             'szinkod' => '#fff'),
             MUNKALAP_STAT_IGAZOLT               => array('nev' => 'Igazolt, lezárható',                 'szinkod' => '#61616c'),
-            MUNKALAP_STAT_HOZREND_ELOKESZ       => array('nev' => 'Előkészítés alatt',                  'szinkod' => '#f5a56c'),
+            MUNKALAP_STAT_ELOKESZITES_ALATT     => array('nev' => 'Előkészítés alatt',                  'szinkod' => '#f5a56c'),
             MUNKALAP_STAT_DONTESRE_VAR          => array('nev' => 'Döntésre vár',                       'szinkod' => '#f5a56c'),
             MUNKALAP_STAT_HOZREND_MEGREND_VAR   => array('nev' => 'Hozzárendelés megrendelésre vár',    'szinkod' => '#f5a56c'),
             MUNKALAP_STAT_IGAZOLASRA_VAR        => array('nev' => 'Igazolásra vár',                     'szinkod' => ''),

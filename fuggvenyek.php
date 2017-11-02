@@ -2607,7 +2607,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             //Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
             $bold = '';
-            if( $bsz['stat_id'] == MUNKALAP_STAT_NYITOTT || $bsz['stat_id'] == MUNKALAP_STAT_HOZREND_ELOKESZ ){
+            if( $bsz['stat_id'] == MUNKALAP_STAT_NYITOTT || $bsz['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT ){
                 $bold    = ' class="b"';
                 $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }

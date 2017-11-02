@@ -384,7 +384,7 @@ if( isset($_POST['munkalapKulso']) ) {
                                             );
             if( $sql === false ) { $db_error = true; }
 
-            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZREND_ELOKESZ ) ) {
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
                 $db_error = true;
             }
         }
@@ -624,13 +624,24 @@ if( isset($_POST['munkalapRogzit']) ) {
 
     if( $recid ) {
 
-        // Ellenőrizzük, hogy kész státuszban van e
+        // Státusz ellenőrzés
         $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
         if( $munkalap['stat_id'] != MUNKALAP_STAT_KESZ ) {
             echo json_encode(array(
                 'hiba'  => 'Csak kész státuszú munkalapot lehet készre jelenteni!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        //Saját szálloda kezelés jog, vagy saját kezelés jog azonos személyzet_id-val jog kell hozzá
+        if( !_jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) && !_jog(JOG_MUNKALAP_SAJAT_KEZEL) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']!=$_SESSION[get_db_tabla().'szemelyzet_id'] ) ) {
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga ezt a munkalapot rögzíteni!',
                 'title' => 'Hiba',
             ));
 
@@ -685,13 +696,23 @@ if( isset($_POST['munkalapIgazol']) ) {
 
     if( $recid ) {
 
-        // Ellenőrizzük, hogy igazolásra vár státuszban van e
+        // Státusz ellenőrzése
         $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
-
         if( $munkalap['stat_id'] != MUNKALAP_STAT_IGAZOLASRA_VAR ) {
             echo json_encode(array(
                 'hiba'  => 'Csak igazolásra váró munkalapot lehet készre jelenteni!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+        
+        //Jog ellenőrzése
+        if( !_jog(JOG_MUNKALAP_IGAZOLAS) ) {
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga munkalapot igazolni!',
                 'title' => 'Hiba',
             ));
 
@@ -746,13 +767,24 @@ if( isset($_POST['munkalapIgazolElutasit']) ) {
 
     if( $recid ) {
 
-        // Ellenőrizzük, hogy igazolásra vár státuszban van e
+        // Státusz ellenőrzése
         $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
-
         if( $munkalap['stat_id'] != MUNKALAP_STAT_IGAZOLASRA_VAR ) {
             echo json_encode(array(
                 'hiba'  => 'Csak igazolásra váró munkalapot lehet készre jelenteni!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+        
+        
+        //Jog ellenőrzése
+        if( !_jog(JOG_MUNKALAP_IGAZOLAS) ) {
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga munkalap igazolást elutasítani!',
                 'title' => 'Hiba',
             ));
 
@@ -774,6 +806,160 @@ if( isset($_POST['munkalapIgazolElutasit']) ) {
 
         // Státusz léptetés
         if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_VIZSGALAT_ALATT ) ) {
+            $db_error = true;
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba',
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+
+/* Munkalap reklamáció elfogadása */
+if( isset($_POST['munkalapReklamacioElfogad']) ) {
+    $recid = $_POST['recid'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+
+        //Státusz ellenőrzés
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        if( $munkalap === false ) { $db_error = true; }
+        if( $munkalap['stat_id'] != MUNKALAP_STAT_VIZSGALAT_ALATT ) {
+            echo json_encode(array(
+                'hiba'  => 'Csak igazolásra váró munkalapot lehet készre jelenteni!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        //Jog ellenőrzés
+        if( !_jog(JOG_MUNKALAP_VIZSGALAT) ) {
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga reklamációt elfogadni!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+
+            echo json_encode(array(
+                'hiba' => 'Biztosan elfogadja a reklamációt?',
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="munkalapReklamacioElfogad();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Státusz léptetés
+        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT ) ) {
+            $db_error = true;
+        }
+        // Visszaadva pipa bepipálása, hozzárendelt személyzet és külső kivitelező nullázása
+        $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'szemelyzet_id', 'szallito_id'  ),
+                                                    array(1,            '',              ''             ),
+                                                    "`recid`='$recid'");
+        if( $sql === false ) { $db_error = true; }
+        
+        //Bejelentés folyamatban státuszt kap
+        $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='$recid'");
+
+        if( !addStatusz( 'bejelentes_statusz', $bejelentes['bejelentes_id'], BEJELENTES_STAT_FOLYAMATBAN ) ) {
+            $db_error = true;
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+
+            echo json_encode(array(
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba',
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+
+/* Munkalap reklamáció elfogadása */
+if( isset($_POST['munkalapReklamacioElutasit']) ) {
+    $recid = $_POST['recid'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+
+        //Státusz ellenőrzés
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        if( $munkalap === false ) { $db_error = true; }
+        if( $munkalap['stat_id'] != MUNKALAP_STAT_VIZSGALAT_ALATT ) {
+            echo json_encode(array(
+                'hiba'  => 'Csak igazolásra váró munkalapot lehet készre jelenteni!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        //Jog ellenőrzés
+        if( !_jog(JOG_MUNKALAP_VIZSGALAT) ) {
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga reklamációt elutasítani!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+
+            echo json_encode(array(
+                'hiba' => 'Biztosan elutasítja a reklamációt?',
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="munkalapReklamacioElutasit();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Státusz léptetés
+        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_LEZART ) ) {
             $db_error = true;
         }
 
@@ -891,7 +1077,7 @@ if( isset($_POST['kuldesJovahagyasra']) ) {
         if( $munkalap ) {
             $munkalap = $munkalap[0];
 
-            if( $munkalap['stat_id'] != MUNKALAP_STAT_HOZREND_ELOKESZ ) {
+            if( $munkalap['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT ) {
                 echo json_encode(array(
                     'hiba'  => 'Csak Hozzárendelés előkészítés alatt státuszban lehet külső kivitelezőt megadni!',
                     'title' => 'Hiba',
@@ -968,7 +1154,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
         if( $munkalap ) {
             $munkalap = $munkalap[0];
 
-            if( $munkalap['stat_id'] != MUNKALAP_STAT_HOZREND_ELOKESZ ) {
+            if( $munkalap['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT ) {
                 echo json_encode(array(
                     'hiba'  => 'Csak Hozzárendelés előkészítés alatt státuszban lehet külső kivitelezőt megadni!',
                     'title' => 'Hiba',
@@ -3492,7 +3678,7 @@ require('selectek.php');
                 ');
             //Egy szállodás modell
             } else {
-                $gombok = '<input type="button" class="gomb" value="Átadás diszpécsernek" onclick="csoportMuvelet(\'atadasDiszpecsernek\')">';
+                $gombok = '<input type="button" class="gomb" value="Átadás diszpécsernek" onclick="csoportMuvelet(\'atadasDiszpecsernek\')"> ';
             }
             
             //Kész státuszban látható. Munkalap igazolásra vár státuszba kerül és eltűnnek az elvégzett munka és anyag hozzáadása gombok.
@@ -3517,9 +3703,9 @@ require('selectek.php');
         }
 
         //Vizsgálat alatt státuszban látható.
-        if(_jog(JOG_MUNKALAP_VIZSGALAT)){
-            $gombok .= '<input type="button" class="gomb" value="Reklamáció elfogadása" onclick="alert2(\'Új gomb\')"> ';
-            $gombok .= '<input type="button" class="gomb" value="Reklamáció elutasítása" onclick="alert2(\'Új gomb\')"> ';
+        if($sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT)){
+            $gombok .= '<input type="button" class="gomb" value="Reklamáció elfogadása" onclick="munkalapReklamacioElfogad(\'csak kérdezünk még\');"> ';
+            $gombok .= '<input type="button" class="gomb" value="Reklamáció elutasítása" onclick="munkalapReklamacioElutasit(\'csak kérdezünk még\');"> ';
         }
         
         $gombok .= '</div>';

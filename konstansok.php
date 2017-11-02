@@ -70,7 +70,7 @@ define('MUNKALAP_STAT_ANYAGRAVAR',          '09');
 define('MUNKALAP_STAT_KESZ',                '10');
 define('MUNKALAP_STAT_LEZART',              '11');
 define('MUNKALAP_STAT_IGAZOLT',             '12');
-define('MUNKALAP_STAT_HOZREND_ELOKESZ',     '13');
+define('MUNKALAP_STAT_ELOKESZITES_ALATT',   '13');
 define('MUNKALAP_STAT_DONTESRE_VAR',        '14');
 define('MUNKALAP_STAT_HOZREND_MEGREND_VAR', '15');
 define('MUNKALAP_STAT_IGAZOLASRA_VAR',      '16');

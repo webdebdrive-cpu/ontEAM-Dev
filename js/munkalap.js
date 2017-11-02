@@ -373,6 +373,72 @@ function munkalapIgazolElutasit(csak_kerdezunk) {
     return false;
 }
 
+/* Munkalap reklamáció elfogadása */
+function munkalapReklamacioElfogad(csak_kerdezunk) {
+
+    if(balnav_kijelol_ell()){
+
+        alert2();
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid                       : _get('id'),
+                csak_kerdezunk              : csak_kerdezunk,
+                munkalapReklamacioElfogad   : new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    location.href = get_get();
+                }
+            }
+        });
+
+    }
+    return false;
+}
+
+/* Munkalap reklamáció elutasítása */
+function munkalapReklamacioElutasit(csak_kerdezunk) {
+
+    if(balnav_kijelol_ell()){
+
+        alert2();
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid                       : _get('id'),
+                csak_kerdezunk              : csak_kerdezunk,
+                munkalapReklamacioElutasit  : new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    location.href = get_get();
+                }
+            }
+        });
+
+    }
+    return false;
+}
+
 /* Munkalap lezárása */
 function munkalapLezaras(csak_kerdezunk) {
 
