@@ -112,6 +112,10 @@ if (isset($_POST['bal_panel_frissit'])) {
         array_push($bejegyzesek, $sor);
     }
 
+    if( $_POST['obj'] ) {
+        $_GET['obj'] = true;
+    }
+
     echo json_encode(array(
         'html' => '<div class="szamlaLapozas fent clearFix"></div>'.eszkozkezelesLista( $bejegyzesek, $megnevezes ).'<div class="szamlaLapozas clearFix"></div>'
     ));
