@@ -61,6 +61,7 @@
             MUNKALAP_STAT_DONTESRE_VAR          => array('nev' => 'Döntésre vár',                       'szinkod' => '#f5a56c'),
             MUNKALAP_STAT_HOZREND_MEGREND_VAR   => array('nev' => 'Hozzárendelés megrendelésre vár',    'szinkod' => '#f5a56c'),
             MUNKALAP_STAT_IGAZOLASRA_VAR        => array('nev' => 'Igazolásra vár',                     'szinkod' => ''),
+            MUNKALAP_STAT_VIZSGALAT_ALATT       => array('nev' => 'Vizsgálat alatt',                    'szinkod' => ''),
         ),
         'projektigenyles' => array(
             PRIGENY_STAT_NYITOTT                => array('nev' => 'Nyitott',                            'szinkod' => ''),

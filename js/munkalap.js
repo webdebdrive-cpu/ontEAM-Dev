@@ -1,7 +1,7 @@
 function munkalapDiszpKozp() {
     if(balnav_kijelol_ell()){
         $.ajax({
-            url : 'esemenyek.php',
+            url : 'munkalap.php',
             type: 'POST',
             data: {
                 recid: _get('id'),
@@ -12,12 +12,7 @@ function munkalapDiszpKozp() {
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        if( response.gomb ) {
-                            alert2(response.hiba, response.gomb);
-                        } else {
-                            alert2(response.hiba, '', 'Hiba');
-                        }
-
+                        alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
 
@@ -36,7 +31,7 @@ function munkalapTeruletiVezeto() {
     if(balnav_kijelol_ell()){
 
         $.ajax({
-            url : 'esemenyek.php',
+            url : 'munkalap.php',
             type: 'POST',
             data: {
                 recid: _get('id'),
@@ -47,12 +42,7 @@ function munkalapTeruletiVezeto() {
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        if( response.gomb ) {
-                            alert2(response.hiba, response.gomb);
-                        } else {
-                            alert2(response.hiba, '', 'Hiba');
-                        }
-
+                        alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
 
@@ -72,7 +62,7 @@ function munkalapMuszakiVezeto() {
     if(balnav_kijelol_ell()){
 
         $.ajax({
-            url : 'esemenyek.php',
+            url : 'munkalap.php',
             type: 'POST',
             data: {
                 recid: _get('id'),
@@ -83,12 +73,7 @@ function munkalapMuszakiVezeto() {
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        if( response.gomb ) {
-                            alert2(response.hiba, response.gomb);
-                        } else {
-                            alert2(response.hiba, '', 'Hiba');
-                        }
-
+                        alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
 
@@ -108,7 +93,7 @@ function munkalapAdminisztrator() {
     if(balnav_kijelol_ell()){
 
         $.ajax({
-            url : 'esemenyek.php',
+            url : 'munkalap.php',
             type: 'POST',
             data: {
                 recid: _get('id'),
@@ -119,12 +104,7 @@ function munkalapAdminisztrator() {
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        if( response.gomb ) {
-                            alert2(response.hiba, response.gomb);
-                        } else {
-                            alert2(response.hiba, '', 'Hiba');
-                        }
-
+                        alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
 
@@ -154,7 +134,7 @@ function munkalapMobil( that ) {
             addTorzsMunkID = $(that).find('input[name="addTorzsMunkID[]"]');
 
         var idk = {};
-        var i = 1;
+        var i   = 1;
 
         var sorok = $('#hozzBeosztasNelkul table tr.kijSor');
         if( sorok.length ) {
@@ -181,24 +161,19 @@ function munkalapMobil( that ) {
                 url : 'munkalap.php',
                 type: 'POST',
                 data: {
-                    idk: JSON.stringify(idk),
-                    munkMobilKivetel: munkMobilKivetel.serialize(),
-                    munkHozzMegszuntet: munkHozzMegszuntet.serialize(),
-                    addTorzsID: addTorzsID.serialize(),
-                    addTorzsMunkID: addTorzsMunkID.serialize(),
-                    munkalapMobil: new Date().getTime()
+                    idk                 : JSON.stringify(idk),
+                    munkMobilKivetel    : munkMobilKivetel.serialize(),
+                    munkHozzMegszuntet  : munkHozzMegszuntet.serialize(),
+                    addTorzsID          : addTorzsID.serialize(),
+                    addTorzsMunkID      : addTorzsMunkID.serialize(),
+                    munkalapMobil       : new Date().getTime()
                 },
                 success: function(response) {
                     if(response) {
                         response = JSON.parse(response);
 
                         if( response.hiba ) {
-                            if( response.gomb ) {
-                                alert2(response.hiba, response.gomb);
-                            } else {
-                                alert2(response.hiba, '', 'Hiba');
-                            }
-
+                            alert2(response.hiba, response.gomb, response.title);
                             return false;
                         }
 
@@ -251,12 +226,7 @@ function munkalapKulso( that ) {
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        if( response.gomb ) {
-                            alert2(response.hiba, response.gomb);
-                        } else {
-                            alert2(response.hiba, '', 'Hiba');
-                        }
-
+                        alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
 
@@ -291,16 +261,110 @@ function munkalapKeszre(csak_kerdezunk) {
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        if( response.gomb ) {
-                            alert2(response.hiba, response.gomb);
-                        } else {
-                            alert2(response.hiba, '', 'Hiba');
-                        }
-
+                        alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
 
-                    location.href = baseName(location.href) + '.php';
+                    location.href = get_get();
+                }
+            }
+        });
+
+    }
+    return false;
+}
+
+/* Munkalap Rögzítése */
+function munkalapRogzit(csak_kerdezunk) {
+
+    if(balnav_kijelol_ell()){
+
+        alert2();
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid         : _get('id'),
+                csak_kerdezunk: csak_kerdezunk,
+                munkalapRogzit: new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    location.href = get_get();
+                }
+            }
+        });
+
+    }
+    return false;
+}
+
+/* Munkalap Igazolása */
+function munkalapIgazol(csak_kerdezunk) {
+
+    if(balnav_kijelol_ell()){
+
+        alert2();
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid         : _get('id'),
+                csak_kerdezunk: csak_kerdezunk,
+                munkalapIgazol: new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    location.href = get_get();
+                }
+            }
+        });
+
+    }
+    return false;
+}
+
+/* Munkalap Igazolása */
+function munkalapIgazolElutasit(csak_kerdezunk) {
+
+    if(balnav_kijelol_ell()){
+
+        alert2();
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid                   : _get('id'),
+                csak_kerdezunk          : csak_kerdezunk,
+                munkalapIgazolElutasit  : new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    location.href = get_get();
                 }
             }
         });
@@ -320,25 +384,20 @@ function munkalapLezaras(csak_kerdezunk) {
             url : 'munkalap.php',
             type: 'POST',
             data: {
-                recid: _get('id'),
-                csak_kerdezunk: csak_kerdezunk,
-                munkalapLezaras: new Date().getTime()
+                recid           : _get('id'),
+                csak_kerdezunk  : csak_kerdezunk,
+                munkalapLezaras : new Date().getTime()
             },
             success: function(response) {
                 if(response) {
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        if( response.gomb ) {
-                            alert2(response.hiba, response.gomb);
-                        } else {
-                            alert2(response.hiba, '', 'Hiba');
-                        }
-
+                        alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
 
-                    location.href = baseName(location.href) + '.php';
+                    location.href = get_get();
                 }
             }
         });
@@ -367,12 +426,7 @@ function munkalapTelepitett(csak_kerdezunk) {
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        if( response.gomb ) {
-                            alert2(response.hiba, response.gomb);
-                        } else {
-                            alert2(response.hiba, '', 'Hiba');
-                        }
-
+                        alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
 
@@ -407,12 +461,7 @@ function munkalapFelvesz( recid ) {
                         response = JSON.parse(response);
 
                         if( response.hiba ) {
-                            if( response.gomb ) {
-                                alert2(response.hiba, response.gomb);
-                            } else {
-                                alert2(response.hiba, '', 'Hiba');
-                            }
-
+                             lert2(response.hiba, response.gomb, response.title);
                             return false;
                         }
 
@@ -464,12 +513,7 @@ function munkalapKeszit(csak_kerdezunk) {
                         response = JSON.parse(response);
 
                         if( response.hiba ) {
-                            if( response.gomb ) {
-                                alert2(response.hiba, response.gomb);
-                            } else {
-                                alert2(response.hiba, '', 'Hiba');
-                            }
-
+                            alert2(response.hiba, response.gomb, response.title);
                             return false;
                         }
 
@@ -482,6 +526,281 @@ function munkalapKeszit(csak_kerdezunk) {
             });
         } else {
             alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
+        }
+    }
+    return false;
+}
+
+
+/* Munkalaphoz adás - Megszűnt 2017.09.06 */
+/*
+function munkalaphozAdas(csak_kerdezunk) {
+
+    if(balnav_kijelol_ell()){
+
+        idk = {};
+
+        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+
+        if( szamlaSorok.length ) {
+            var i = 1;
+            szamlaSorok.each(function() {
+                var id = $(this).attr('data-recid');
+
+                idk[i] = id;
+                i++;
+            });
+        } else {
+            var recid = $('#szamlaBetolt').attr('data-recid');
+
+            if( recid ) {
+                idk[1] = recid;
+            }
+        }
+
+        var munkalapID = $('#munkalapID').val();
+        if(csak_kerdezunk){
+            munkalapID = '-1';
+        }
+
+        if( munkalapID ) {
+            if( objLength(idk) ) {
+                $.ajax({
+                    url : 'munkalap.php',
+                    type: 'POST',
+                    data: {
+                        idk             : JSON.stringify(idk),
+                        munkalapID      : munkalapID,
+                        csak_kerdezunk  : csak_kerdezunk,
+                        munkalaphozAdas : new Date().getTime()
+                    },
+                    success: function(response) {
+                        if(response) {
+                            response = JSON.parse(response);
+
+                            if( response.hiba ) {
+                                alert2(response.hiba, '', 'Hiba');
+                                return false;
+                            }
+
+                            if(csak_kerdezunk) {
+                                csoportMuvelet('munkalaphoz_adas');
+                            } else {
+                                location.href = 'munkalap.php?id=' + response.recid + '&modosit';
+
+                                kijelolesEltavolit();
+                                popupZar();
+                            }
+                        }
+                    }
+                });
+            } else {
+                alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
+            }
+        } else {
+            alert2('Kérem válasszon egy munkalapot!', '', 'Hiba');
+        }
+    }
+    return false;
+}
+*/
+function munkAnyagIgenyles( that, csak_kerdezunk ) {
+    var addCikkUj           = $(that).find('input[name="addCikkUj[]"]'),
+        addCikkID           = $(that).find('input[name="addCikkID[]"]'),
+        addCikkFelhMenny    = $(that).find('input[name="addCikkFelhMenny[]"]'),
+        addCikkSzukMenny    = $(that).find('input[name="addCikkSzukMenny[]"]');
+
+    if( addCikkID.length && addCikkFelhMenny.length ) {
+        $.ajax({
+         	url : 'munkalap.php',
+         	type: 'POST',
+         	data: {
+                recid               : _get('id'),
+                addCikkUj           : addCikkUj.serialize(),
+                addCikkID           : addCikkID.serialize(),
+                addCikkFelhMenny    : addCikkFelhMenny.serialize(),
+                addCikkSzukMenny    : addCikkSzukMenny.serialize(),
+                csak_kerdezunk      : csak_kerdezunk,
+                munkAnyagIgenyles   : new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    if( response.refresh ) {
+                        location.href = baseName(location.href) + '.php';
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+                    popupZar();
+                    alert2();
+         		}
+         	}
+        });
+    }
+
+    return false;
+}
+
+function munkAnyagVetelezes( that ) {
+    var addCikkUj = $(that).find('input[name="addCikkUj[]"]'),
+        addCikkID = $(that).find('input[name="addCikkID[]"]'),
+        addCikkFelhMenny = $(that).find('input[name="addCikkFelhMenny[]"]');
+
+    if( addCikkID.length && addCikkFelhMenny.length ) {
+        $.ajax({
+         	url : 'munkalap.php',
+         	type: 'POST',
+         	data: {
+                recid               : _get('id'),
+                addCikkUj           : addCikkUj.serialize(),
+                addCikkID           : addCikkID.serialize(),
+                addCikkFelhMenny    : addCikkFelhMenny.serialize(),
+                munkAnyagVetelezes  : new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        if( response.gomb ) {
+                            alert2(response.hiba, response.gomb, response.title);
+                        } else {
+                            alert2(response.hiba, response.gomb, response.title);
+                            document.getElementById('cikk_id_autocomp').focus();
+                        }
+
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+                    popupZar();
+         		}
+         	}
+        });
+    } else {
+        alert2('Kérem válasszon felhasznált mennyiséget!', '', 'Hiba');
+        document.getElementById('cikk_id_autocomp').focus();
+    }
+
+    return false;
+}
+
+function atadasMuszVeznek() {
+    if(balnav_kijelol_ell()){
+        if( _get('id') ) {
+            $.ajax({
+                url : 'munkalap.php',
+                type: 'POST',
+                data: {
+                    recid           : _get('id'),
+                    atadasMuszVeznek: new Date().getTime()
+                },
+                success: function(response) {
+                    if(response) {
+                        response = JSON.parse(response);
+
+                        if( response.hiba ) {
+                            alert2(response.hiba, response.gomb, response.title);
+                            return false;
+                        }
+                        location.href = 'munkalap.php';
+                    }
+                }
+            });
+        }
+    }
+}
+
+function atadasDiszpecsernek( that ) {
+    if(balnav_kijelol_ell()){
+        var erteklista_id = $(that).find('input[name="erteklista_id"]'),
+                     memo = $(that).find('textarea[name="atadas_memo"]');
+
+        if( erteklista_id ) {
+            $.ajax({
+                url : 'munkalap.php',
+                type: 'POST',
+                data: {
+                    recid               : _get('id'),
+                    erteklista_id       : erteklista_id.val(),
+                    memo                : memo.val(),
+                    atadasDiszpecsernek : new Date().getTime()
+                },
+                success: function(response) {
+                    if(response) {
+                        response = JSON.parse(response);
+
+                        if( response.hiba ) {
+                            if( response.gomb ) {
+                                alert2(response.hiba, response.gomb, response.title);
+                            } else {
+                                alert2(response.hiba, response.gomb, response.title);
+                                document.getElementById('erteklista_id_autocomp').focus();
+                            }
+
+                            return false;
+                        }
+
+                        location.href = 'munkalap.php';
+                    }
+                }
+            });
+        } else {
+            alert2('Adja meg az átadás okát!', '', 'Hiba');
+            document.getElementById('erteklista_id_autocomp').focus();
+        }
+    }
+
+    return false;
+}
+
+function feladatHozzaadas( that ) {
+
+    if(balnav_kijelol_ell()){
+
+        var erteklista_id = $(that).find('input[name="erteklista_id"]'),
+            memo = $(that).find('textarea[name="feladat_memo"]');
+
+        if( erteklista_id ) {
+            $.ajax({
+                url : 'munkalap.php',
+                type: 'POST',
+                data: {
+                    recid           : _get('id'),
+                    erteklista_id   : erteklista_id.val(),
+                    memo            : memo.val(),
+                    feladatHozzaadas: new Date().getTime()
+                },
+                success: function(response) {
+                    if(response) {
+                        response = JSON.parse(response);
+
+                        if( response.hiba ) {
+                            if( response.gomb ) {
+                                alert2(response.hiba, response.gomb, response.title);
+                            } else {
+                                alert2(response.hiba, response.gomb, response.title);
+                                document.getElementById('erteklista_id_autocomp').focus();
+                            }
+
+                            return false;
+                        }
+
+                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+                        popupZar();
+                    }
+                }
+            });
+        } else {
+            alert2('Adja meg az elvégzett munkát!', '', 'Hiba');
+            document.getElementById('erteklista_id_autocomp').focus();
         }
     }
     return false;

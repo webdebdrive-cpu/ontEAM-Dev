@@ -74,6 +74,7 @@ define('MUNKALAP_STAT_HOZREND_ELOKESZ',     '13');
 define('MUNKALAP_STAT_DONTESRE_VAR',        '14');
 define('MUNKALAP_STAT_HOZREND_MEGREND_VAR', '15');
 define('MUNKALAP_STAT_IGAZOLASRA_VAR',      '16');
+define('MUNKALAP_STAT_VIZSGALAT_ALATT',     '17');
 
 //Projektigénylés státuszok
 define('PRIGENY_STAT_NYITOTT',              '01' );

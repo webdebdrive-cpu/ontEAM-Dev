@@ -4603,6 +4603,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
                                                 "`recid`='{$akt_statusz['recid']}'"
                                             );
             if( $sql === false ) { $db_error = true; }
+            
             /* Beszúrjuk az újat */
             $sql = $adatbazis_kapcsolat -> i($tabla,
                                                 array($kulso_kulcs.'_recid', 'stat_id', 'erteklista_recid',  'insert_dt',   'insert_usr',                              'update_usr',                          'text' ),
@@ -4611,10 +4612,8 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
             if( $sql === false ) { $db_error = true; }
 
             /* Az alap tábla státusz oszlopát is karban tartjuk */
-            $alap_tabla = str_replace('_statusz', '', $tabla);
-            $sql = $adatbazis_kapcsolat->u($alap_tabla, array('stat_id'), array($stat_id), "`recid`='$recid'");
+            $sql = $adatbazis_kapcsolat->u($kulso_kulcs, array('stat_id'), array($stat_id), "`recid`='$recid'");
             if( $sql === false ) { $db_error = true; }
-
 
             //Projektigénylés elutasításakor archiválunk
             if($alap_tabla=='projektigenyles' && $stat_id==PRIGENY_STAT_ELUTASITVA){
