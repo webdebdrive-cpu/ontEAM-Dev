@@ -772,7 +772,7 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'bejelentes' ) {
 
             //Diszpécser nem módosíthat bejelentést
-            if(_jog(JOG_DISZPECSER)){
+            if(_jog(JOG_MUNKALAP_KESZITHET)){
                 $weblap -> leallit();
                 exit;
             }
@@ -1901,31 +1901,21 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         }
 
         if($tabla == 'munkalap'){
+            
+            //Ki-ki csak a saját szállodáit láthatja, ez alap
             $where = "`".get_db_tabla()."munkalap`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
-
-            //Ha nincs a megtekintéshez engedélye, vagy bejelentést láthat akkor nem is lát semmit
-            if( !_jog(JOG_MUNKALAP_MEGTEKINT) ){
-                $where .= ' FALSE';
-            }else{
-
-                //Belépve mint telepített
-                if( _jog(JOG_MUNKALAP_TELEPITETT) ) {
-                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".TELEPITETT_SZEMELYZET."' AND `".get_db_tabla()."munkalap`.`stat_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.", ".MUNKALAP_STAT_LEZART.") AND ";
-                //Belépve mint mobil
-                } else if( _jog(JOG_MUNKALAP_MOBIL) ) {
-                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".MOBILCSOPORT."' AND `".get_db_tabla()."munkalap`.`stat_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.", ".MUNKALAP_STAT_LEZART.") AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}')";
-                //Belépve mint diszp. kp. vezető
-                } else if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) || _jog(JOG_MUNKALAP_DISZP_KP_VEZ) || _jog(JOG_DISZPECSER) ||  _jog(JOG_MUNKALAP_TER_FELELOS) ) {
-                    $where .= '';
-                //Külső kivitelező
-                } else if( _jog(JOG_MUNKALAP_KULSO) ) {
-                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".KULSO_KIVITELEZO."' AND `".get_db_tabla()."munkalap`.`stat_id` IN (".MUNKALAP_STAT_FOLYAMATBAN.", ".MUNKALAP_STAT_FELVEVE.", ".MUNKALAP_STAT_KESZ_IG.", ".MUNKALAP_STAT_LEZART.") AND `".get_db_tabla()."munkalap`.`szallito_id` = '".$_SESSION[get_db_tabla().'szallito_id']."'";
-                //Műszaki adminisztrátor
-                } else if( _jog(JOG_MUNKALAP_MUSZAK_ADMIN) ) {
-                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id` = '".MUSZAKI_ADMINISZTRATOR."' AND `".get_db_tabla()."munkalap`.`stat_id` IN (".MUNKALAP_STAT_HOZREND_ELOKESZ.", ".MUNKALAP_STAT_HOZREND_JOVAHAGY.", ".MUNKALAP_STAT_HOZREND_MEGREND_VAR.")";
-                }
-
+            
+            //Saját megtekintése: saját szállodák + hozzárendelt személyzet: tehát toávbb szűrünk hozzárendelt személyzetre, amit a felhasználókon, majd személyezeten át kapunk meg
+            if(_jog(JOG_MUNKALAP_MEGTEKINT)){
+                //Hozzárendelt személyzet megállapítása. Ez egyenlő a Személyzet beosztásával.
+                $felh        = $adatbazis_kapcsolat->s2('nev', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+                $szemelyzet  = $adatbazis_kapcsolat->s2('szemelyzet_id', 'torzsadat', "`felh_loginnev`='{$felh['nev']}'");
+                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$szemelyzet['szemelyzet_id']}' AND ";
             }
+            if(_jog(JOG_MUNKALAP_MEGTEKINT_SZALL)){
+                $where .= ''; //Azaz ha saját szállodáim jogom van, akkor az egy lezább feltétel, nem szűrünk hozzárendelt személyzetre
+            }
+
 
         }
 
@@ -2070,7 +2060,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             $order = '';
             //Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
             //Csoportosítás már nincs
-//            if(_jog(JOG_DISZPECSER)){
+//            if(_jog(JOG_MUNKALAP_KESZITHET)){
 //                $order .= '`'.get_db_tabla().'bejelentes_csoport`.`nev`, ';
 //            }
 
@@ -2098,7 +2088,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
             $order = '';
             //Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
-            if(_jog(JOG_DISZPECSER)){
+            if(_jog(JOG_MUNKALAP_KESZITHET)){
                 $order .= '`'.get_db_tabla().'munkalap_csoport`.`nev`, ';
             }
             //A sürgős mindig elől lesz, bármi is a rendezettség
@@ -2347,7 +2337,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
-            if( !$frissit && _jog(JOG_DISZPECSER)/* Csoportra bontás csak a diszpécsernek jelenik meg */ ) {
+            if( !$frissit && _jog(JOG_MUNKALAP_KESZITHET)/* Csoportra bontás csak a diszpécsernek jelenik meg */ ) {
                 $aktCsoport = $bsz['csoport_id'];
 
                 if( $i == 1 || $csoport != $aktCsoport ) {
@@ -2474,7 +2464,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             $csoport_class = '';
             $csoport_data = '';
-            if( $bsz['csoport_id'] && _jog(JOG_DISZPECSER) ) {
+            if( $bsz['csoport_id'] && _jog(JOG_MUNKALAP_KESZITHET) ) {
                 $csoport_class = ' behuz dn';
 
                 $akt_csoport = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` = '{$_GET['id']}'", '', '1');
@@ -2524,7 +2514,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
 
         $jClass = '';
-        if( _jog(JOG_DISZPECSER) ) {
+        if( _jog(JOG_MUNKALAP_KESZITHET) ) {
             $jClass = ' kijelolheto';
         }
 
@@ -2540,7 +2530,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
-            if( !$frissit && $tabla && _jog(JOG_DISZPECSER) ) {
+            if( !$frissit && $tabla && _jog(JOG_MUNKALAP_KESZITHET) ) {
                 $aktCsoport = $bsz['csoport_id'];
 
                 if( $i == 1 || $csoport != $aktCsoport ) {
@@ -2617,8 +2607,8 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $bold    = ' class="b"';
                 $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
-            //Illetve telepítettnél/mobilnál/külsősnél, a fel nem vett munkalapok is
-            if( (_jog(JOG_MUNKALAP_TELEPITETT) || _jog(JOG_MUNKALAP_MOBIL) || _jog(JOG_MUNKALAP_KULSO)) && $bsz['stat_id'] != MUNKALAP_STAT_FELVEVE ){
+            //A fel nem vett munkalapok is
+            if( $bsz['stat_id'] != MUNKALAP_STAT_FELVEVE ){
                 $bold    = ' class="b"';
             }
 
@@ -2666,7 +2656,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             $csoport_class = '';
             $csoport_data  = '';
-            if( $bsz['csoport_id'] && _jog(JOG_DISZPECSER) ) {
+            if( $bsz['csoport_id'] && _jog(JOG_MUNKALAP_KESZITHET) ) {
                 $csoport_class = ' behuz';
                 if(!$frissit){
                     $csoport_class .= ' dn';

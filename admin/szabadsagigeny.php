@@ -256,19 +256,6 @@ require_once('selectek.php');
 			require_once('tobb_kep.php');
 		}
 
-	//Történet
-	}elseif(isset($_GET['tortenet'])){
-
-        $szamla_html .= get_tortenet($megnevezes);
-
-        if( $_GET['ajax'] ) {
-            echo json_encode(array(
-                'tartalom' => $szamla_html.$gombok
-            ));
-        } else {
-            echo $szamla_html.$gombok;
-        }
-
 	//Dokumentumok
 	}elseif(isset($_GET['dokumentumok'])){
 

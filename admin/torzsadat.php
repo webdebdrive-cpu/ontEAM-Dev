@@ -171,9 +171,9 @@ require_once('selectek.php');
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
+            'tortenet'      => 'Történet',
             'beosztasok'    => 'Beosztások',
             'szabadsag'     => 'Szabadság',
-            'tortenet'      => 'Történet',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );

@@ -79,3 +79,6 @@ GOMBOK KISZERVEZÉSE ÁLTALÁNOSAN
 
 CSOPORTOSÍTÁS ENGEDLYEZÉSE
 - A bal oldali navpanel UL-jének ha van "kijelolheto" class-ja, akkor lehet több sort kijelölni
+
+SAJÁT JS FÁJLOK
+- Ha egy menüpont alatt nagyon sok JS függvényt használunk, akkor azt nem az admin.js-ben gyűjtjük vég nékül, hanem egy saját JS fájlt kap. Pl. munkalap.js. Ezt a header.php-ban hívjuk meg.

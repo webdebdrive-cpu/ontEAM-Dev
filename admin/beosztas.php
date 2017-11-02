@@ -307,8 +307,8 @@ require_once('selectek.php');
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
-            'naptar'        => 'Naptár',
             'tortenet'      => 'Történet',
+            'naptar'        => 'Naptár',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );

@@ -604,6 +604,11 @@ $head -> js_css        = get_jsfajlok_admin();
 $head -> extrak        = '<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">';
 $head -> extrak       .= '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">';
 
+//Munkalapokkal kapcsolatos JS-eket külön fájlba szedjük össze
+if(basename(self())=='munkalap.php'){
+    $head -> extrak       .= '<script src="../js/munkalap.js"></script>';
+}
+
 $header_html .= $head -> getHtml();
 
 $body_class = '';
@@ -982,15 +987,16 @@ if(basename(self())=='login.php' && !_jog(JOG_FELHASZNALOK_KEZEL)){
     $uj             = '';
 }
 
-if(basename(self())=='munkalap.php' && !_jog(JOG_DISZPECSER)){
+if(basename(self())=='munkalap.php' && !_jog(JOG_MUNKALAP_UJ_LETREHOZ)){
     $torles_icon    = '';
     $uj             = '';
 }
 
-if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_MUNKALAP_TELEPITETT) && !_jog(JOG_MUNKALAP_MOBIL) && !_jog(JOG_MUNKALAP_DISZP_KP_VEZ) && !_jog(JOG_MUNKALAP_MUSZAKI_VEZ) && !_jog(JOG_MUNKALAP_MUSZAK_ADMIN) && !_jog(JOG_MUNKALAP_ADMIN) && !_jog(JOG_MUNKALAP_KULSO) && !_jog(JOG_MUNKALAP_TER_FELELOS)){
-    $torles_icon    = '';
-    $uj             = '';
-}
+//Ütemezett feladatok feltöltése törlése kinél legyen korlátozva?
+//if(basename(self())=='utemezett_feladatok.php' ){
+//    $torles_icon    = '';
+//    $uj             = '';
+//}
 
 if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL)){
     $torles_icon    = '';

@@ -928,16 +928,16 @@ $bejelentest_rogziti = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_
 $surgos_allit = '';
 if (isset($_GET['modosit'])) {
     //Módosításkor is csak akkor jön fel, ha az illető nem diszpécser (hanem bejelentő... neki nem kell indokolni, amúgy is csak saját bejelentésekhez fér hozzá)
-    if(_jog(JOG_BEJELENTES_KEZEL) && !_jog(JOG_DISZPECSER)){
+    if(_jog(JOG_BEJELENTES_KEZEL) && !_jog(JOG_MUNKALAP_KESZITHET)){
 
     }else{
         $surgos_allit = 'csoportMuvelet(\'surgosseg_indoklas\')';
     }
 
-    //Műszaki vezető esetén is legyen indoklós sürgős gomb
-    if(_jog(JOG_MUNKALAP_MUSZAKI_VEZ)){
-        $surgos_allit = 'csoportMuvelet(\'surgosseg_indoklas\')';
-    }
+    //Műszaki vezető esetén is legyen indoklós sürgős gomb... de már nincs ilyen jog, mi legyen?
+//    if(???){
+//        $surgos_allit = 'csoportMuvelet(\'surgosseg_indoklas\')';
+//    }
 }
 
 $usr_nev        = '';
@@ -2799,7 +2799,7 @@ if( isset($_GET['getBejBejelentok']) ) {
 //    $idk = json_decode($_POST['idk'], true);
 //    $munkalapID = $_POST['munkalapID'];
 //
-//    if( !_jog(JOG_DISZPECSER) ) {
+//    if( !_jog(JOG_MUNKALAP_KESZITHET) ) {
 //        echo json_encode(array(
 //            'hiba' => 'Nincs megfelelő jogosultság a művelet végrehajtásához!'
 //        ));
@@ -4140,7 +4140,7 @@ if (isset($_POST['surgosseg_allit'])) {
     mysqli_autocommit($db_kapcs, false);
 
     //Ha se nem diszpécser se nem disp.kp vez, akkor nincs joga sürgősséget állítani
-    if( (!_jog(JOG_DISZPECSER) && !_jog(JOG_MUNKALAP_DISZP_KP_VEZ) && !_jog(JOG_MUNKALAP_MUSZAKI_VEZ)) || (_jog(JOG_MUNKALAP_MUSZAKI_VEZ) && $_POST['page']=='bejelentes') ){
+    if( (!_jog(JOG_MUNKALAP_KESZITHET) ) || ( $_POST['page']=='bejelentes') ){
 
         echo json_encode(array(
             'hiba' => 'Önnek nincs joga sürgősséget állítani'
@@ -4166,7 +4166,7 @@ if (isset($_POST['surgosseg_allit'])) {
     }
     if($_POST['page']=='munkalap'){
 
-        if( (_jog(JOG_DISZPECSER || _jog(JOG_MUNKALAP_DISZP_KP_VEZ))) && $statusz['stat_id']!=MUNKALAP_STAT_NYITOTT && $statusz['stat_id']!=MUNKALAP_STAT_FOLYAMATBAN ){
+        if( (_jog(JOG_MUNKALAP_KESZITHET)) && $statusz['stat_id']!=MUNKALAP_STAT_NYITOTT && $statusz['stat_id']!=MUNKALAP_STAT_FOLYAMATBAN ){
             echo json_encode(array(
                 'hiba'  => 'Csak nyitott vagy folyamatban levő munkalap sürgőssége állítható!',
             ));
@@ -4175,7 +4175,7 @@ if (isset($_POST['surgosseg_allit'])) {
             exit();
         }
 
-        if( _jog(JOG_MUNKALAP_MUSZAKI_VEZ) && $statusz['stat_id']!=MUNKALAP_STAT_FELVEVE ){
+        if( $statusz['stat_id']!=MUNKALAP_STAT_FELVEVE ){
             echo json_encode(array(
                 'hiba'  => 'Csak felvett munkalap sürgőssége állítható!',
             ));
@@ -4731,7 +4731,7 @@ foreach($postok as $ertek){
             $weblap -> leallit(); exit;
         }
         //Diszpécsser nem törölhet bejegyzést
-        if($ertek['tabla']=='bejelentes' && _jog(JOG_DISZPECSER)){
+        if($ertek['tabla']=='bejelentes' && _jog(JOG_MUNKALAP_KESZITHET)){
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla']=='cikktorzs' && !_jog(JOG_CIKKTORZS_KEZEL)){
