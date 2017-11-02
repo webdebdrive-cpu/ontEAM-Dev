@@ -4953,11 +4953,12 @@ function szamlaSorFrissit( tabla, recid ) {
 }
 
 /* Könyvtárszerkezetek esetén a komplett bal oldalt újra kell számolni */
-function bal_panel_frissit( php, recid ) {
+function bal_panel_frissit( php, recid, obj ) {
     $.ajax({
         url : php+'?id='+recid,
         type: 'POST',
         data: {
+            obj: obj,
             bal_panel_frissit: new Date().getTime()
         },
         success: function (response) {

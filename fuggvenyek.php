@@ -1451,12 +1451,19 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     $konyvtarszerkezetesek = array('eszkozkezeles.php', 'felmeresi_terv.php');
     $akt_php = basename(self());
     if( in_array($akt_php, $konyvtarszerkezetesek) ){
-        $js_kieg = 'bal_panel_frissit(\''.$akt_php.'\', \''.$_GET['id'].'\');';
+        $is_obj = 'false';
+        if( isset($_GET['obj']) ) {
+            $is_obj = 'true';
+        }
+
+        $js_kieg = 'bal_panel_frissit(\''.$akt_php.'\', \''.$_GET['id'].'\', '.$is_obj.');';
     }
 
     $obj_szerk = '';
+    $tab = 'modosit';
     if( basename(self()) == 'eszkozkezeles.php' && isset($_GET['obj']) ) {
         $obj_szerk = 'param_kieg += \'&amp;obj=1\';';
+        $tab = 'obj';
     }
 
     $ajax_kod = nl2('
@@ -1466,7 +1473,6 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             param_kieg = \'&amp;igeny_rogzites=1\';
         }
         '.$obj_szerk.'
-        console.log(\''.$param.str_replace('.php', '', basename(self())).'lista=1&amp;szerkeszt=1\'+param_kieg+\'&amp;ajax_form_modosit=\' + new Date().getTime());
         $.ajax({
             url : \''.self().'?id='.$_GET['id'].'\',
             type: \'POST\',
@@ -1489,7 +1495,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     '.$js_kieg.'
 
                     szamlaSorFrissit(\''.str_replace('.php', '', basename(self())).'\', \''.$_GET['id'].'\');
-                    betoltott = szamlaBetolt( \''.$_GET['id'].'\', \''.basename(self()).'\', \'modosit\', \'\', \'Elhagy kérdés nélkül\' );
+                    betoltott = szamlaBetolt( \''.$_GET['id'].'\', \''.basename(self()).'\', \''.$tab.'\', \'\', \'Elhagy kérdés nélkül\' );
 
                     '.$cash_flow_fulre_lepes.'
 
@@ -1901,10 +1907,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         }
 
         if($tabla == 'munkalap'){
-            
+
             //Ki-ki csak a saját szállodáit láthatja, ez alap
             $where = "`".get_db_tabla()."munkalap`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
-            
+
             //Saját megtekintése: saját szállodák + hozzárendelt személyzet: tehát toávbb szűrünk hozzárendelt személyzetre, amit a felhasználókon, majd személyezeten át kapunk meg
             if(_jog(JOG_MUNKALAP_MEGTEKINT)){
                 //Hozzárendelt személyzet megállapítása. Ez egyenlő a Személyzet beosztásával.
@@ -3785,8 +3791,12 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $login_szallodai).")$sql_kieg", 'nev');
         foreach($szallodak as $szalloda){
 
+            if( isset($_GET['obj']) && $_GET['id'] ) {
+                $obj_sor = $adatbazis_kapcsolat->s2('telephely_id szulo', 'obj', "`recid` = '".$_GET['id']."'", '', '1');
+            }
+
             $checked = '';
-            if($akt_eszkoz['telephely_id']==$szalloda['id']){
+            if($akt_eszkoz['telephely_id']==$szalloda['id'] || (is_array($obj_sor) && count($obj_sor) && $szalloda['id'] == $obj_sor['telephely_id'])){
                 $checked = ' checked';
             }
 
@@ -3805,7 +3815,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             foreach($szintek as $szint) {
 
                                 $checked = '';
-                                if($akt_szint==$szint['recid']){
+                                if($akt_szint==$szint['recid'] || (is_array($obj_sor) && count($obj_sor) && $szint['recid'] == $obj_sor['szulo'])){
                                     $checked = ' checked';
                                 }
 
@@ -3826,7 +3836,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                     foreach($objektumok as $obj) {
 
                                         $checked = '';
-                                        if($akt_obj==$obj['recid']){
+                                        if($akt_obj==$obj['recid'] || (is_array($obj_sor) && count($obj_sor) && $_GET['id'] == $obj['recid'])){
                                             $checked = ' checked';
                                         }
 
