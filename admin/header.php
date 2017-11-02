@@ -604,6 +604,11 @@ $head -> js_css        = get_jsfajlok_admin();
 $head -> extrak        = '<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">';
 $head -> extrak       .= '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">';
 
+//Munkalapokkal kapcsolatos JS-eket külön fájlba szedjük össze
+if(basename(self())=='munkalap.php'){
+    $head -> extrak       .= '<script src="../js/munkalap.js"></script>';
+}
+
 $header_html .= $head -> getHtml();
 
 $body_class = '';

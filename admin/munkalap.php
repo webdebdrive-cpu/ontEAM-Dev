@@ -2435,7 +2435,7 @@ require('selectek.php');
             ');
 
             $atadas_gomb = '';
-            /* Több szállodás modell */
+            //Több szállodás modell
             if( !$telephely['modell'] ) {
                 $atadas_gomb = nl2('
                     <script>
@@ -2443,9 +2443,25 @@ require('selectek.php');
                     </script>
                     <input type="button" class="gomb foGomb" value="Átadás Műsz.Vez.-ne" title="Átadás Műsz.Vez.-nek" onclick="alert2(\'Biztos, hogy átadja a munkalapot Műszaki Vezetőnek?\', muszVezAtadGomb);">
                 ');
-            /* Egy szállodás modell */
+            //Egy szállodás modell
             } else {
                 $atadas_gomb = '<input type="button" class="gomb foGomb" value="Átadás diszpécsernek" title="Átadás diszpécsernek" onclick="csoportMuvelet(\'atadasDiszpecsernek\')">';
+            }
+            
+            //Kész státuszban látható. Munkalap igazolásra vár státuszba kerül és eltűnnek az elvégzett munka és anyag hozzáadása gombok.
+            if($sor['stat_id']==MUNKALAP_STAT_KESZ_IG){
+                $gombok .= '<input type="button" class="gomb" value="Rögzítés" title="Rögzítés" onclick="alert2(\'Új gomb\')"> ';
+            }
+            
+            //Igazolásra vár státuszban látható. Munkalap vizsgálat alatt státuszba kerül.
+            if($sor['stat_id']==MUNKALAP_STAT_KESZ_IG){
+                $gombok .= '<input type="button" class="gomb" value="Igazolás" title="Igazolás" onclick="alert2(\'Új gomb\')"> ';
+            }
+            
+            //Vizsgálat alatt státuszban látható.
+            if($sor['stat_id']==MUNKALAP_STAT_KESZ_IG){
+                $gombok .= '<input type="button" class="gomb" value="Reklamáció elfogadása" title="Reklamáció elfogadása" onclick="alert2(\'Új gomb\')"> ';
+                $gombok .= '<input type="button" class="gomb" value="Reklamáció elutasítása" title="Reklamáció elutasítása" onclick="alert2(\'Új gomb\')"> ';
             }
 
             $gombok .= nl2('
@@ -2453,6 +2469,7 @@ require('selectek.php');
                 '.$atadas_gomb.'
                 <input type="button" class="gomb foGomb" value="Anyagigénylés szükséges" title="Anyagigénylés szükséges" onclick="csoportMuvelet(\'munkalapAnyagigenyles\');">
                 <input type="button" class="gomb foGomb" value="Anyag vételezés" title="Anyag vételezés" onclick="csoportMuvelet(\'munkalapAnyagvetelezes\');">
+                '.$rogzites_gomb.'
                 <input type="button" class="gomb_alert piros foGomb" value="Lezárás" title="Lezárás" onclick="munkalapLezaras(\'csak kérdezünk még\');">
             ');
 
