@@ -40,7 +40,7 @@ $jogosultsagok = array(
     23 => array('nev' => 'Igazolás',                                        'kat' => 1, 'sor' => 10  ),
     24 => array('nev' => 'Vizsgálat',                                       'kat' => 1, 'sor' => 11  ),
     37 => array('nev' => 'Külsős: előkészítés',                             'kat' => 1, 'sor' => 12  ),
-    34 => array('nev' => 'Külsős: döntés',                                  'kat' => 1, 'sor' => 13  ),
+    34 => array('nev' => 'Külsős jóváhagyás',                               'kat' => 1, 'sor' => 13  ),
     67 => array('nev' => 'Külsős: megrendelés készítése',                   'kat' => 1, 'sor' => 14  ),
     
     

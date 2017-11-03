@@ -288,7 +288,7 @@
                         var name = $(this).attr('name');
 
                         if( stop ) {
-                            if($('#'+name).length){
+                            if($('#'+name).length && !$('#'+name).is('select')){
                                 document.getElementById(name).select();
                             }
                             return false;

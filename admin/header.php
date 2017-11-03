@@ -150,7 +150,7 @@ if( _jog(JOG_BEJELENTES_MEGTEKINT) || _jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
 }
 
 /* Munkák */
-if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_UTFEL_MEGTEKINT) || _jog(JOG_RENDSZ_KARB_MEGTEKINT) || _jog(JOG_ESETI_FENN_MEGTEKINT) ) {
+if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(JOG_UTFEL_MEGTEKINT) || _jog(JOG_RENDSZ_KARB_MEGTEKINT) || _jog(JOG_ESETI_FENN_MEGTEKINT) ) {
     $menu_nev        = 'Munkák';
     $menu_nev_kis    = 'munkák';
     $menu_nev_tobbes = 'Munkák';
@@ -170,7 +170,7 @@ if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_UTFEL_MEGTEKINT) || _jog(JOG_RENDSZ
     if(basename(self())=='uzemeltetesi_naplo.php')      { $oldalNev = 'Munkák / Üzemeltetési napló';                        }
 
     $aktmenuk  = '';
-    if(_jog(JOG_MUNKALAP_MEGTEKINT)){
+    if(_jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Munkalapok'                 ), $almenu_sablon );
     }
     if(_jog(JOG_UTFEL_MEGTEKINT)){
@@ -996,11 +996,11 @@ if(basename(self())=='munkalap.php'){
     }
 }
 
-//Ütemezett feladatok feltöltése törlése kinél legyen korlátozva?
-//if(basename(self())=='utemezett_feladatok.php' ){
-//    $torles_icon    = '';
-//    $uj             = '';
-//}
+//Ütemezett feladatok 
+if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_UTFEL_KEZEL) ){
+    $torles_icon    = '';
+    $uj             = '';
+}
 
 if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL)){
     $torles_icon    = '';

@@ -36,3 +36,48 @@
         <input type="button" name="megsem" class="gombb_alert" value="Nem" onclick="popupZar();">
     </div>
 </form>
+<script>
+/* Átadás diszpécsernek */
+function atadasDiszpecsernek( that ) {
+    if(balnav_kijelol_ell()){
+        var erteklista_id = $(that).find('input[name="erteklista_id"]'),
+                     memo = $(that).find('textarea[name="atadas_memo"]');
+
+        if( erteklista_id ) {
+            $.ajax({
+                url : 'munkalap.php',
+                type: 'POST',
+                data: {
+                    recid               : _get('id'),
+                    erteklista_id       : erteklista_id.val(),
+                    memo                : memo.val(),
+                    atadasDiszpecsernek : new Date().getTime()
+                },
+                success: function(response) {
+                    if(response) {
+                        response = JSON.parse(response);
+
+                        if( response.hiba ) {
+                            if( response.gomb ) {
+                                alert2(response.hiba, response.gomb, response.title);
+                            } else {
+                                alert2(response.hiba, response.gomb, response.title);
+                                document.getElementById('erteklista_id_autocomp').focus();
+                            }
+
+                            return false;
+                        }
+
+                        location.href = get_get();
+                    }
+                }
+            });
+        } else {
+            alert2('Adja meg az átadás okát!', '', 'Hiba');
+            document.getElementById('erteklista_id_autocomp').focus();
+        }
+    }
+
+    return false;
+}
+</script>

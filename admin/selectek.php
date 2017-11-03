@@ -132,6 +132,7 @@ array_push($select_szemelyzet, array('name' => 'Műszaki vezető',            'v
 array_push($select_szemelyzet, array('name' => 'Műszaki vezető helyettes',  'value' => MUSZAKI_VEZETO_HELYETTES,'szin' => '#FFCBF1' ));
 array_push($select_szemelyzet, array('name' => 'Területi felelős',          'value' => TERULETI_FELELOS,        'szin' => '#E0CBFF' ));
 array_push($select_szemelyzet, array('name' => 'Műszaki adminisztrátor',    'value' => MUSZAKI_ADMINISZTRATOR,  'szin' => '#E0CBFF' ));
+array_push($select_szemelyzet, array('name' => 'MSZK vezető',               'value' => MSZK_VEZETO,             'szin' => '#E0CBFF' ));
 
 //Projektigénylés tipus
 $select_pri_tipus = array();

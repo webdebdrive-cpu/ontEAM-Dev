@@ -612,7 +612,6 @@ require_once('selectek.php');
                 $sor[$tomb['name'].'_autocomp'] = '';
             }
         }
-
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
 
 		// Ez elkészíti a $mezok változót
@@ -660,7 +659,7 @@ require_once('selectek.php');
             if( $tomb['type'] == 'autocomplete' ) {
                 
                 if($tomb['csoport']){
-                    $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], 'recid='.$sor[$tomb['name']], '', '1');
+                    $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`id`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
                 }else{
                     $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], 'recid='.$sor[$tomb['name']], '', '1');

@@ -212,11 +212,17 @@ require_once('selectek.php');
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                $kulso_ertek = $adatbazis_kapcsolat->s('recid nev', $tomb['tabla'], 'recid='.$sor[$tomb['name']], '', '1');
+                
+                if($tomb['csoport']){
+                    $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`id`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
+                    $kulso_ertek['nev'] = $kulso_ertek['info'];
+                }else{
+                    $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], 'recid='.$sor[$tomb['name']], '', '1');
+                }
 
                 $sor[$tomb['name'].'_autocomp'] = '';
                 if( $kulso_ertek ) {
-                    $sor[$tomb['name'].'_autocomp'] = $kulso_ertek[0]['nev'];
+                    $sor[$tomb['name'].'_autocomp'] = $kulso_ertek['nev'];
                 }
             }
         }

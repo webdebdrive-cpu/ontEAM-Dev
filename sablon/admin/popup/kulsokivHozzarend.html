@@ -1,7 +1,7 @@
-<h2>Külső kivitelező hozzárendelése</h2>
+<h2>Szállító kiválasztása</h2>
 <form action="" id="munkalapKulso" class="popupForm" method="post" onsubmit="return kulsokivHozzarend( this );">
     <div class="kozep" style="min-height: 20rem">
-        <p>Válasszon külső kivitelezőt:</p>
+        <p>Válasszon szállítót:</p>
         <div class="dt">
             <div class="dtr"> 
                 <div class="dtc form_jobb plr0">
@@ -29,3 +29,39 @@
         <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
     </div>
 </form>
+<script>
+/* Külső kivitelező hozzárendelése */
+function kulsokivHozzarend( that ) {
+    var szallitoid = $(that).find('input[name="szallito_id"]');
+
+    if( szallitoid.val() ) {
+        $.ajax({
+         	url : 'munkalap.php',
+         	type: 'POST',
+         	data: {
+                recid            : _get('id'),
+                validate         : 'false',
+                szallitoid       : szallitoid.val(),
+                kulsokivHozzarend: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    popupZar();
+         		}
+         	}
+        });
+    } else {
+        alert2('Kérem válasszon szállítót!', '', 'Hiba');
+    }
+
+    return false;
+}
+</script>

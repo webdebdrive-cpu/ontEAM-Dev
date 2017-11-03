@@ -2611,8 +2611,9 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $bold    = ' class="b"';
                 $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
-            //A fel nem vett munkalapok is
-            if( $bsz['stat_id'] != MUNKALAP_STAT_FELVEVE ){
+            
+            //A folyamatban levő munkalapok félkövérek (feltéve ha kezelhetem)
+            if( (_jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) || (_jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==$bsz['szemelyzet_id'])) && $bsz['stat_id'] == MUNKALAP_STAT_FOLYAMATBAN ){
                 $bold    = ' class="b"';
             }
 

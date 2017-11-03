@@ -1462,46 +1462,6 @@ function kuldesJovahagyasra( recid, csak_kerdezunk ) {
     }
 }
 
-/* Külső kivitelező hozzárendelése */
-function kulsokivHozzarend( that ) {
-    var szallitoid = $(that).find('input[name="szallito_id"]');
-
-    if( szallitoid.val() ) {
-        $.ajax({
-         	url : 'munkalap.php',
-         	type: 'POST',
-         	data: {
-                recid            : _get('id'),
-                validate         : 'false',
-                szallitoid       : szallitoid.val(),
-                kulsokivHozzarend: new Date().getTime()
-            },
-         	success: function(response) {
-         		if(response) {
-                    response = JSON.parse(response);
-
-                    if( response.hiba ) {
-                        if( response.gomb ) {
-                            alert2(response.hiba, response.gomb);
-                        } else {
-                            alert2(response.hiba, '', 'Hiba');
-                        }
-
-                        return false;
-                    }
-
-                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
-                    popupZar();
-         		}
-         	}
-        });
-    } else {
-        alert2('Kérem válasszon külső kivitelezőt!');
-    }
-
-    return false;
-}
-
 function munkFeladatTorol( recid, that ) {
     if( recid ) {
         $.ajax({
@@ -2894,12 +2854,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                     response = JSON.parse(response);
 
                                     if( response.hiba ) {
-                                        if( response.gomb ) {
-                                            alert2(response.hiba, response.gomb);
-                                        } else {
-                                            alert2(response.hiba, '', 'Hiba');
-                                        }
-
+                                        alert2(response.hiba, response.gomb, response.title);
                                         popupZar();
                                         return false;
                                     }
@@ -2931,12 +2886,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 response = JSON.parse(response);
 
                                 if( response.hiba ) {
-                                    if( response.gomb ) {
-                                        alert2(response.hiba, response.gomb);
-                                    } else {
-                                        alert2(response.hiba, '', 'Hiba');
-                                    }
-
+                                    alert2(response.hiba, response.gomb, response.title);
                                     return false;
                                 }
 
@@ -3022,12 +2972,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 response = JSON.parse(response);
 
                                 if( response.hiba ) {
-                                    if( response.gomb ) {
-                                        alert2(response.hiba, response.gomb);
-                                    } else {
-                                        alert2(response.hiba, '', 'Hiba');
-                                    }
-
+                                    alert2(response.hiba, response.gomb, response.title);
                                     return false;
                                 }
 
@@ -3053,12 +2998,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 response = JSON.parse(response);
 
                                 if( response.hiba ) {
-                                    if( response.gomb ) {
-                                        alert2(response.hiba, response.gomb);
-                                    } else {
-                                        alert2(response.hiba, '', 'Hiba');
-                                    }
-
+                                    alert2(response.hiba, response.gomb, response.title);
                                     return false;
                                 }
 
@@ -3107,12 +3047,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 response = JSON.parse(response);
 
                                 if( response.hiba ) {
-                                    if( response.gomb ) {
-                                        alert2(response.hiba, response.gomb);
-                                    } else {
-                                        alert2(response.hiba, '', 'Hiba');
-                                    }
-
+                                    alert2(response.hiba, response.gomb, response.title);
                                     return false;
                                 }
 
@@ -3138,12 +3073,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 response = JSON.parse(response);
 
                                 if( response.hiba ) {
-                                    if( response.gomb ) {
-                                        alert2(response.hiba, response.gomb);
-                                    } else {
-                                        alert2(response.hiba, '', 'Hiba');
-                                    }
-
+                                    alert2(response.hiba, response.gomb, response.title);
                                     return false;
                                 }
 
@@ -3170,12 +3100,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 response = JSON.parse(response);
 
                                 if( response.hiba ) {
-                                    if( response.gomb ) {
-                                        alert2(response.hiba, response.gomb);
-                                    } else {
-                                        alert2(response.hiba, '', 'Hiba');
-                                    }
-
+                                    alert2(response.hiba, response.gomb, response.title);
                                     return false;
                                 }
 
@@ -3207,11 +3132,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                         response = JSON.parse(response);
 
                                         if( response.hiba ) {
-                                            if( response.gomb ) {
-                                                alert2(response.hiba, response.gomb);
-                                            } else {
-                                                alert2(response.hiba, '', 'Hiba');
-                                            }
+                                            alert2(response.hiba, response.gomb, response.title);
                                             popupZar();
                                             return false;
                                         }
@@ -3238,7 +3159,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         url : 'munkalap.php',
                         type: 'POST',
                         data: {
-                            recid: _get('id'),
+                            recid               : _get('id'),
                             munkalap_kulsoSelect: new Date().getTime()
                         },
                         success: function(response) {
@@ -3246,47 +3167,11 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 response = JSON.parse(response);
 
                                 if( response.hiba ) {
-                                    if( response.gomb ) {
-                                        alert2(response.hiba, response.gomb);
-                                    } else {
-                                        alert2(response.hiba, '', 'Hiba');
-                                    }
-
+                                    alert2(response.hiba, response.gomb, response.title);
                                     return false;
                                 }
 
                                 $('#hozzRendSelect').html(response.select);
-                                popupNyit();
-                            }
-                        }
-                    });
-                break;
-
-                case 'kulsokivHozzarend':
-                    $('#popupTart').html(data);
-
-                    $.ajax({
-                        url : 'munkalap.php',
-                        type: 'POST',
-                        data: {
-                            recid: _get('id'),
-                            validate: 'true',
-                            kulsokivHozzarend: new Date().getTime()
-                        },
-                        success: function(response) {
-                            if(response) {
-                                response = JSON.parse(response);
-
-                                if( response.hiba ) {
-                                    if( response.gomb ) {
-                                        alert2(response.hiba, response.gomb);
-                                    } else {
-                                        alert2(response.hiba, '', 'Hiba');
-                                    }
-
-                                    return false;
-                                }
-
                                 popupNyit();
                             }
                         }
