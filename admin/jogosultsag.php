@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 69-es ID-nál járunk
+ * 70-es ID-nál járunk
  * 11 -es kategória ID-nál járunk
 \*                                                  */
 
@@ -29,7 +29,7 @@ $jogosultsagok = array(
     41 => array('nev' => 'Bejelentések elutasítása',                        'kat' => 0, 'sor' => 4, 'bekapcs' => '1'   ),
 
     3  => array('nev' => 'Saját megtekintése',                              'kat' => 1, 'sor' => 1  ),
-    4  => array('nev' => 'Saját szállodák megtekintése',                    'kat' => 1, 'sor' => 2  ),
+    4  => array('nev' => 'Saját szállodák megtekintése',                    'kat' => 1, 'sor' => 2,  'kikapcs' => '3'   ),
     5  => array('nev' => 'Új létrehozása',                                  'kat' => 1, 'sor' => 3,  'bekapcs' => '3'   ),
     68 => array('nev' => 'Munkalap törlése',                                'kat' => 1, 'sor' => 4   ),
     2  => array('nev' => 'Munkalapot készíthet',                            'kat' => 1, 'sor' => 5   ),
@@ -42,6 +42,7 @@ $jogosultsagok = array(
     37 => array('nev' => 'Külsős: előkészítés',                             'kat' => 1, 'sor' => 12  ),
     34 => array('nev' => 'Külsős jóváhagyás',                               'kat' => 1, 'sor' => 13  ),
     67 => array('nev' => 'Külsős: megrendelés készítése',                   'kat' => 1, 'sor' => 14  ),
+    70 => array('nev' => 'Anyag érkeztetése',                               'kat' => 1, 'sor' => 15  ),
     
     
     //Korábban ez volt

@@ -838,33 +838,6 @@ function munkAnyagVetelezes( that ) {
     return false;
 }
 
-/* Átadás műszaki vezetőnek */
-function atadasMuszVeznek() {
-    if(balnav_kijelol_ell()){
-        if( _get('id') ) {
-            $.ajax({
-                url : 'munkalap.php',
-                type: 'POST',
-                data: {
-                    recid           : _get('id'),
-                    atadasMuszVeznek: new Date().getTime()
-                },
-                success: function(response) {
-                    if(response) {
-                        response = JSON.parse(response);
-
-                        if( response.hiba ) {
-                            alert2(response.hiba, response.gomb, response.title);
-                            return false;
-                        }
-                        location.href = get_get();
-                    }
-                }
-            });
-        }
-    }
-}
-
 function feladatHozzaadas( that ) {
 
     if(balnav_kijelol_ell()){
