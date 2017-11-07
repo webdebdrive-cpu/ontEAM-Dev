@@ -30,7 +30,7 @@ if(isset($_POST['session_name'])){
     session_id($_POST['session_name']);
     session_start();
     require_once('../weblap.php');
-    
+
     $konyvtar_db_nev = csonkit($_SESSION['fajl']['tabla'], 4);
     $utvonal = '../'.get_utvonal().$konyvtar_db_nev; //utolsó 4 karakter a "_dok", ezt levesszük
 
@@ -55,7 +55,7 @@ if(isset($_POST['session_name'])){
         $weblap -> leallit();
 		exit;
 	}
-    
+
     setlocale(LC_CTYPE, 'hu_HU.utf8');
     $fajlnev = pathinfo($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
     $fajlnev = $fajlnev['filename'];
@@ -254,7 +254,7 @@ function get_tobbkep_thumb($sor_kepek, $i) {
         if( !$felirat ) {
             $felirat = '<span class="i link">- Nincs leírás -</span>';
         }
-        
+
         //Eszközkezelés engedélyeknél dátumot is kiírunk
         $datum = '';
         if(basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
