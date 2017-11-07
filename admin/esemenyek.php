@@ -2767,7 +2767,7 @@ if( isset($_POST['csoportbaRendez']) ) {
 
     switch($page){
         case 'bejelentes'       : $hibauzi_param = 'bejelentést';       break;
-        case 'mukalap'          : $hibauzi_param = 'munkalapot';        break;
+        case 'munkalap'         : $hibauzi_param = 'munkalapot';        break;
         case 'projektigenyles'  : $hibauzi_param = 'projektigénylést';  break;
     }
 
@@ -2800,7 +2800,7 @@ if( isset($_POST['csoportbaRendez']) ) {
                 $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$telephelye['telephely_id']}'");
                 $telephely = $telephely[0];
                 echo json_encode(array(
-                    'hiba' => 'A csoportban csak a következő szállodához tartozó '.$hibauzi_param.' vehet fel: '.$telephely['nev']
+                    'hiba' => 'A csoportba csak a következő szállodához tartozó '.$hibauzi_param.' vehet fel:<br>'.$telephely['nev']
                 ));
                 $weblap->leallit();
                 exit();
@@ -2808,23 +2808,23 @@ if( isset($_POST['csoportbaRendez']) ) {
         }
 
         if( !$is_csoport ) {
-
             $sql = $adatbazis_kapcsolat -> u($page, array('csoport_id'), array($csoportID), "`recid` IN (".implode(',', $idk).")");
             if( $sql === false ) { $db_error = true; }
+
             //Munkalapok csoportba rendezésekor a státusza automatikusan várakozóra vált
             if($page=='munkalap'){
 
                 foreach($idk as $id) {
                     $statusz = addStatusz( $page.'_statusz', $id, MUNKALAP_STAT_VARAKOZO );
                     if( $statusz === false ) { $db_error = true; }
+ 
                     //Munkalaphoz tartozó Bejelentések státuszát is várakozóra léptetjük
-                    if($page=='munkalap'){
-                        $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$id}'");
-                        foreach($bejelentesek as $bej){
-                            $statusz = addStatusz( 'bejelentes_statusz', $bej['bejelentes_id'], BEJELENTES_STAT_VARAKOZO );
-                            if( $statusz === false ) { $db_error = true; }
-                        }
+                    $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$id}'");
+                    foreach($bejelentesek as $bej){
+                        $statusz = addStatusz( 'bejelentes_statusz', $bej['bejelentes_id'], BEJELENTES_STAT_VARAKOZO );
+                        if( $statusz === false ) { $db_error = true; }
                     }
+
                 }
             }
 
