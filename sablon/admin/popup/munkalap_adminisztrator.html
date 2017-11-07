@@ -1,5 +1,5 @@
-<h2>Adminisztrátornak</h2>
-<form action="" id="munkalapTelepitett" class="popupForm" method="post" onsubmit="return munkalapAdminisztrator();">
+<h2>Műszaki ügyintézőnek</h2>
+<form action="" class="popupForm" method="post" onsubmit="return munkalapAdminisztrator();">
     <div class="kozep" style="min-height: 20rem">
         <div class="dt">
             <div class="dtr"> 
@@ -29,3 +29,35 @@
         <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
     </div>
 </form>
+<script>
+function munkalapAdminisztrator() {
+
+    if(balnav_kijelol_ell()){
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid                   : _get('id'),
+                munkalapAdminisztrator  : new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    popupZar();
+                }
+            }
+        });
+
+    }
+
+    return false;
+}
+</script>
