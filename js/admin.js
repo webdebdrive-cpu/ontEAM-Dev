@@ -1462,30 +1462,6 @@ function kuldesJovahagyasra( recid, csak_kerdezunk ) {
     }
 }
 
-function munkFeladatTorol( recid, that ) {
-    if( recid ) {
-        $.ajax({
-         	url : 'esemenyek.php',
-         	type: 'POST',
-            async: false,
-         	data: {
-                recid: recid,
-                munkFeladatTorol: new Date().getTime()
-            },
-         	success: function(response) {
-         		if(response) {
-         			response = JSON.parse(response);
-
-                    $(that).parents('tr').remove();
-                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
-         		}
-         	}
-        });
-    } else {
-        $(that).parents('tr').remove();
-    }
-}
-
 /* Átadás diszpécser központi vezetőnek */
 function diszKozpVezAtadas( that ) {
     var memo = $(that).find('textarea[name="reklamacio_memo"]');
@@ -1654,29 +1630,6 @@ function bejelentesIgazolas( recid, csak_kerdezunk ) {
     }
 }
 
-function munkAnyagTorol( recid, that ) {
-    if( recid ) {
-        $.ajax({
-         	url : 'esemenyek.php',
-         	type: 'POST',
-            async: false,
-         	data: {
-                recid: recid,
-                munkAnyagTorol: new Date().getTime()
-            },
-         	success: function(response) {
-         		if(response) {
-         			response = JSON.parse(response);
-
-                    $(that).parents('tr').remove();
-         		}
-         	}
-        });
-    } else {
-        $(that).parents('tr').remove();
-    }
-}
-
 /* Anyagigénylés táblázat sor hozzáadás */
 function munkAnyagHozzaad( formID, igenyles ) {
     var form = $(formID);
@@ -1693,7 +1646,7 @@ function munkAnyagHozzaad( formID, igenyles ) {
     if( addCikkID.length ) {
         for(key in addCikkID) {
             if( addCikkID[key] == cikkID.val() ) {
-                alert2('Ez az anyag már hozzá van adva a munkalaptételhez!', '', 'Hiba');
+                alert2('Ez az anyag már hozzá van adva a munkalap tételhez!', '', 'Hiba');
 
                 cikkID.val('');
                 cikknev.val('');
@@ -1709,20 +1662,20 @@ function munkAnyagHozzaad( formID, igenyles ) {
     }
 
     if( cikknev.val() == '' || cikkID.val() == '' ) {
-        alert2('Válassza ki a cikket!');
+        alert2('Válassza ki a cikket!', '', 'Hiba');
         document.getElementById('cikk_id_autocomp').select();
         return false;
     }
 
     if( !igenyles && felh_menny.val() == '' ) {
-        alert2('Adja meg a felhasznált mennyiséget!');
+        alert2('Adja meg a felhasznált mennyiséget!', '', 'Hiba');
         document.getElementById('felh_menny').select();
         return false;
     }
 
     if( igenyles ) {
         if( felh_menny.val() == '' && szuk_menny.val() == '' ) {
-            alert2('Adja meg a felhasznát, vagy a szükséges mennyiséget!');
+            alert2('Adja meg a felhasznált, vagy a szükséges mennyiséget!', '', 'Hiba');
             document.getElementById('felh_menny').select();
             return false;
         }
@@ -1730,13 +1683,13 @@ function munkAnyagHozzaad( formID, igenyles ) {
 
     var sz_td = '';
     if( igenyles ) {
-        sz_td = '<td class="r">' + szuk_menny.val() + '<input type="hidden" name="addCikkSzukMenny[]" value="' + szuk_menny.val() + '"></td>';
+        sz_td = '<td class="c">' + szuk_menny.val() + '<input type="hidden" name="addCikkSzukMenny[]" value="' + szuk_menny.val() + '"></td>';
     }
 
     var table_sor = '<tr>' +
                         '<td>' + cikkid_origi.val() + '<input type="hidden" name="addCikkID[]" value="' + cikkid_origi.val() + '"><input type="hidden" name="addCikkUj[]" value="1"></td>' +
                         '<td>' + cikknev.val() + '</td>' +
-                        '<td class="r">' + felh_menny.val() + '<input type="hidden" name="addCikkFelhMenny[]" value="' + felh_menny.val() + '"></td>' +
+                        '<td class="c">' + felh_menny.val() + '<input type="hidden" name="addCikkFelhMenny[]" value="' + felh_menny.val() + '"></td>' +
                         sz_td +
                         '<td>' + cikkmee + '</td>' +
                         '<td></td>' +
@@ -2752,24 +2705,19 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                     $('#popupTart').html(data);
 
                     var ajax = $.ajax({
-                        url : 'esemenyek.php',
+                        url : 'munkalap.php',
                         type: 'POST',
                         data: {
-                            recid: _get('id'),
-                            szuk_menny: true,
-                            getMunkalapAnyagok: new Date().getTime()
+                            recid               : _get('id'),
+                            szuk_menny          : true,
+                            getMunkalapAnyagok  : new Date().getTime()
                         },
                         success: function(response) {
                             if(response) {
                                 response = JSON.parse(response);
 
                                 if( response.hiba ) {
-                                    if( response.gomb ) {
-                                        alert2(response.hiba, response.gomb);
-                                    } else {
-                                        alert2(response.hiba, '', 'Hiba');
-                                    }
-
+                                    alert2(response.hiba, response.gomb, response.title);
                                     return false;
                                 }
 
@@ -2787,7 +2735,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                     $('#popupTart').html(data);
 
                     var ajax = $.ajax({
-                        url : 'esemenyek.php',
+                        url : 'munkalap.php',
                         type: 'POST',
                         data: {
                             recid: _get('id'),
@@ -2798,12 +2746,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 response = JSON.parse(response);
 
                                 if( response.hiba ) {
-                                    if( response.gomb ) {
-                                        alert2(response.hiba, response.gomb);
-                                    } else {
-                                        alert2(response.hiba, '', 'Hiba');
-                                    }
-
+                                    alert2(response.hiba, response.gomb, response.title);
                                     return false;
                                 }
 
@@ -2871,6 +2814,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                     }
                 break;
 
+                /* Munkalapoknál elvégzett feladat hozzáadása */
                 case 'feladatHozzaad':
                     $('#popupTart').html(data);
 
@@ -2878,7 +2822,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         url : 'munkalap.php',
                         type: 'POST',
                         data: {
-                            recid: _get('id'),
+                            recid               : _get('id'),
                             getMunkalapFeladatok: new Date().getTime()
                         },
                         success: function(response) {

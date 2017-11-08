@@ -1,4 +1,4 @@
-<h2>Hibajelentéshez beérkezett anyagok rögzítése</h2>
+<h2>Anyag érkeztetése</h2>
 
 <div class="kozep">
     <div class="dt">
@@ -21,7 +21,8 @@
 </div>
 
 <div class="kuldes">
-    <input type="button" name="elkuld" value="Mentés" class="gomb" onclick="munkalapErkeztetMent()">
+    <input type="button" name="elkuld" value="Mentés" class="gombb" onclick="munkalapErkeztetMent()">
+    <input type="button" name="elkuld" value="Mégsem" class="gomb piros" onclick="popupZar()">
 </div>
 <script>
 	function munkalapErkeztetMent(){
@@ -36,7 +37,6 @@
             }
         });
 
-
         $.ajax({
             url : 'munkalap.php',
             type: 'POST',
@@ -48,10 +48,11 @@
                 if(response){
                     response = JSON.parse(response);
                     if( response.hiba ) {
-                        alert2(response.hiba, '', 'Hiba');
+                        alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
                 }
+                location.href = get_get();
                 popupZar();
             }
         });

@@ -532,8 +532,6 @@ function munkalapFelvesz( recid ) {
 
     if(balnav_kijelol_ell()){
 
-        alert2();
-
         if( recid ) {
             $.ajax({
                 url : 'munkalap.php',
@@ -545,19 +543,19 @@ function munkalapFelvesz( recid ) {
                 success: function(response) {
                     if(response) {
                         response = JSON.parse(response);
-
                         if( response.hiba ) {
-                             lert2(response.hiba, response.gomb, response.title);
+                            alert2(response.hiba, response.gomb, response.title);
                             return false;
                         }
 
                         szamlaBetolt(recid, baseName(location.href) + '.php', 'tetel');
+                        alert2();
                     }
                 }
             });
+
         }
 
-        alert2();
     }
 }
 
@@ -690,94 +688,8 @@ function munkalaphozAdas(csak_kerdezunk) {
     return false;
 }
 */
-function munkAnyagIgenyles( that, csak_kerdezunk ) {
-    var addCikkUj           = $(that).find('input[name="addCikkUj[]"]'),
-        addCikkID           = $(that).find('input[name="addCikkID[]"]'),
-        addCikkFelhMenny    = $(that).find('input[name="addCikkFelhMenny[]"]'),
-        addCikkSzukMenny    = $(that).find('input[name="addCikkSzukMenny[]"]');
 
-    if( addCikkID.length && addCikkFelhMenny.length ) {
-        $.ajax({
-         	url : 'munkalap.php',
-         	type: 'POST',
-         	data: {
-                recid               : _get('id'),
-                addCikkUj           : addCikkUj.serialize(),
-                addCikkID           : addCikkID.serialize(),
-                addCikkFelhMenny    : addCikkFelhMenny.serialize(),
-                addCikkSzukMenny    : addCikkSzukMenny.serialize(),
-                csak_kerdezunk      : csak_kerdezunk,
-                munkAnyagIgenyles   : new Date().getTime()
-            },
-         	success: function(response) {
-         		if(response) {
-                    response = JSON.parse(response);
-
-                    if( response.hiba ) {
-                        alert2(response.hiba, response.gomb, response.title);
-                        return false;
-                    }
-
-                    if( response.refresh ) {
-                        location.href = baseName(location.href) + '.php';
-                        return false;
-                    }
-
-                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
-                    popupZar();
-                    alert2();
-         		}
-         	}
-        });
-    }
-
-    return false;
-}
-
-function munkAnyagVetelezes( that ) {
-    var addCikkUj = $(that).find('input[name="addCikkUj[]"]'),
-        addCikkID = $(that).find('input[name="addCikkID[]"]'),
-        addCikkFelhMenny = $(that).find('input[name="addCikkFelhMenny[]"]');
-
-    if( addCikkID.length && addCikkFelhMenny.length ) {
-        $.ajax({
-         	url : 'munkalap.php',
-         	type: 'POST',
-         	data: {
-                recid               : _get('id'),
-                addCikkUj           : addCikkUj.serialize(),
-                addCikkID           : addCikkID.serialize(),
-                addCikkFelhMenny    : addCikkFelhMenny.serialize(),
-                munkAnyagVetelezes  : new Date().getTime()
-            },
-         	success: function(response) {
-         		if(response) {
-                    response = JSON.parse(response);
-
-                    if( response.hiba ) {
-                        if( response.gomb ) {
-                            alert2(response.hiba, response.gomb, response.title);
-                        } else {
-                            alert2(response.hiba, response.gomb, response.title);
-                            document.getElementById('cikk_id_autocomp').focus();
-                        }
-
-                        return false;
-                    }
-
-                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
-                    popupZar();
-         		}
-         	}
-        });
-    } else {
-        alert2('Kérem válasszon felhasznált mennyiséget!', '', 'Hiba');
-        document.getElementById('cikk_id_autocomp').focus();
-    }
-
-    return false;
-}
-
+/* Feladat hozzáadása */
 function feladatHozzaadas( that ) {
 
     if(balnav_kijelol_ell()){
@@ -821,4 +733,53 @@ function feladatHozzaadas( that ) {
         }
     }
     return false;
+}
+
+/* Feladat törlése */
+function munkFeladatTorol( recid, that ) {
+    if( recid ) {
+        $.ajax({
+         	url : 'munkalap.php',
+         	type: 'POST',
+            async: false,
+         	data: {
+                recid           : recid,
+                munkFeladatTorol: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+         			response = JSON.parse(response);
+
+                    $(that).parents('tr').remove();
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+         		}
+         	}
+        });
+    } else {
+        $(that).parents('tr').remove();
+    }
+}
+
+/* Munkalap anyagvételezésnél anyagok törlése */
+function munkAnyagTorol( recid, that ) {
+    if( recid ) {
+        $.ajax({
+         	url : 'munkalap.php',
+         	type: 'POST',
+            async: false,
+         	data: {
+                recid           : recid,
+                munkAnyagTorol  : new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+         			response = JSON.parse(response);
+
+                    $(that).parents('tr').remove();
+         		}
+         	}
+        });
+    } else {
+        $(that).parents('tr').remove();
+    }
 }
