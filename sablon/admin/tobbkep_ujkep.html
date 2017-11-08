@@ -8,7 +8,7 @@
     <br>
     <div class="talloz">
         <div>
-            <span>{GOMB_NEVE}</span> <input type="file" name="files[]" multiple="" onchange="beolvasas_{MEGN}(this.files);"{ENG_KIT}>
+            <span>{GOMB_NEVE}</span> <input type="file" name="files[]" multiple="" onchange="beolvasas_{MEGN}(this.files, false);"{ENG_KIT}>
         </div>
     </div>
 </div>
@@ -48,7 +48,9 @@ function elonezet_{MEGN}(file){
 }
 
 /* Beolvasás */
-function beolvasas_{MEGN}(fajlok){
+function beolvasas_{MEGN}(fajlok, ellenorzes_kihagy) {
+
+    var voltmar = [];
 
     var formData        = tests_{MEGN}.formdata ? new FormData() : null;
     var fajlok_kesz     = 0;
@@ -59,6 +61,8 @@ function beolvasas_{MEGN}(fajlok){
         /* Kép megjelenítése egyből: */
         /*elonezet_{MEGN}(fajlok[i]);*/
 
+        fajl = fajlok[i];
+
         var progress_id = 'jsff_{MEGN}_' + i;
         var pg = $('<progress id="'+progress_id+'" min="0" max="100" value="0">0</progress>');
         $('#jsff_{MEGN}').append(pg);
@@ -66,7 +70,7 @@ function beolvasas_{MEGN}(fajlok){
         var xhr = new XMLHttpRequest();
         xhr.open('POST', '{PHP_FAJL}');
 
-        (function(progress_id){
+        (function(progress_id, fajl, i){
             xhr.upload.onprogress = function(e){
                 var percent = parseInt(e.loaded / e.total * 100);
                 $('#' + progress_id).val(percent);
@@ -76,33 +80,72 @@ function beolvasas_{MEGN}(fajlok){
                 $('#' + progress_id).val(100);
                 $('#' + progress_id).fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
 
-                if(this.responseText.substring(0,5)=='Hiba!'){
-                    alert2(this.responseText.substring(5), '', 'Hiba');
-                }else{
-                    $('#sorrendezes_tobbkep').append(this.responseText);
-                    if (fajlok_kesz == fajlok.length){
-                        minden_fajl_kesz_{MEGN}();
+                if( this.responseText == 'frissit' ) {
+                    if(fajlok_kesz == fajlok.length) {
+                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'dokumentumok');
+                    }
+                } else {
+                    if(this.responseText.substring(0,5)=='Hiba!') {
+                        if( this.responseText.substring(5) == 'A fájl létezik!' ) {
+                            voltmar[i] = fajl;
+                        } else {
+                            alert2(this.responseText.substring(5), '', 'Hiba');
+                        }
+                    }else{
+                        $('#sorrendezes_tobbkep').append(this.responseText);
+                        if (fajlok_kesz == fajlok.length){
+                            minden_fajl_kesz_{MEGN}();
+                        }
+                    }
+
+                    if(fajlok_kesz == fajlok.length){
+                        if( voltmar.length ) {
+                            fajl_feluliras_alert_{MEGN}(voltmar);
+                        }
                     }
                 }
-
             };
-        }(progress_id));
+        }(progress_id, fajl, i));
 
         var parameterek = {{PARAMETEREK}};
         $.each(parameterek, function(kulcs, ertek){
             formData.append(kulcs, ertek);
         });
 
+        formData.append('ellenorzes_kihagy', ellenorzes_kihagy);
+
         xhr.send(formData);
 
     }
+
+    if( ellenorzes_kihagy ) {
+        alert2('');
+    }
+}
+felulirando_fajlok = false;
+function fajl_feluliras_alert_{MEGN}(tomb) {
+    if( tomb ) {
+        nevek = 'A következő fájlok már léteznek, felülírja őket?';
+        for (var i = 0; i < tomb.length; i++){
+            nevek += '<p>' + tomb[i].name + '</p>';
+        }
+
+        felulirando_fajlok = tomb;
+        alert2(nevek, '<input class="gomb zold" value="Igen" onclick="fajl_feluliras_{MEGN}();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">', 'Hiba');
+    }
+}
+
+function fajl_feluliras_{MEGN}() {
+    beolvasas_{MEGN}(felulirando_fajlok, true);
+
+    felulirando_fajlok = false;
 }
 
 /* Ha minden fájl feltöltése kész, akkor itt adhat meg további utasítás */
 function minden_fajl_kesz_{MEGN}(){
     {MINDEN_KESZ}
     $('#jsff_{MEGN}').find('progress').fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
-    
+
     szamlaSorFrissit(baseName(location.href), _get('id'));
 }
 
@@ -122,7 +165,7 @@ if(tests_{MEGN}.dnd){
     jsff_{MEGN}.ondrop = function(e){
         this.className = 'jsff';
         e.preventDefault();
-        beolvasas_{MEGN}(e.dataTransfer.files);
+        beolvasas_{MEGN}(e.dataTransfer.files, false);
     };
 
 }
