@@ -30,7 +30,7 @@ if(isset($_POST['session_name'])){
     session_id($_POST['session_name']);
     session_start();
     require_once('../weblap.php');
-    
+
     $konyvtar_db_nev = csonkit($_SESSION['fajl']['tabla'], 4);
     $utvonal = '../'.get_utvonal().$konyvtar_db_nev; //utolsó 4 karakter a "_dok", ezt levesszük
 
@@ -55,7 +55,7 @@ if(isset($_POST['session_name'])){
         $weblap -> leallit();
 		exit;
 	}
-    
+
     setlocale(LC_CTYPE, 'hu_HU.utf8');
     $fajlnev = pathinfo($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
     $fajlnev = $fajlnev['filename'];
@@ -88,24 +88,49 @@ if(isset($_POST['session_name'])){
 
         case 0:
             //Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
-            $kepnev = $utvonal.'/'.time().'_'.rand(1, 10000).'.'.kit($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
+            $kepnev = $utvonal.'/'.$fajlnev.'.'.kit($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
 
-            //Fájlfeltöltés
-            if(move_uploaded_file($_FILES[ $_SESSION['fajl']['megnevezes'] ]['tmp_name'], $kepnev)){
+            if( is_file($kepnev) && $_POST['ellenorzes_kihagy'] == 'false' ) {
+                echo 'Hiba!A fájl létezik!';
+            } else {
+                if( is_file($kepnev) && $_POST['ellenorzes_kihagy'] == 'true' ) {
+                    kep_torol($kepnev);
+                }
 
-                /* Vízjelezés */
-                //imagejpeg(logot_pecsetel($kepnev, '../elemek/vizjel.png', 50, 50, 100), $kepnev);
+                //Fájlfeltöltés
+                if(move_uploaded_file($_FILES[ $_SESSION['fajl']['megnevezes'] ]['tmp_name'], $kepnev)){
 
-                //Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
-                $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'], array($_SESSION['fajl']['oszlop'],   'utvonal',                                                           'fajlnev'    ),
-                                                                             array($_SESSION['fajl']['termek_id'], str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev), $fajlnev     )
-                                                );
-                $sor_kepek = $adatbazis_kapcsolat->s('*', $_SESSION['fajl']['tabla'], 'recid='.$id);
-                $sor_kepek = $sor_kepek[0];
+                    /* Vízjelezés */
+                    //imagejpeg(logot_pecsetel($kepnev, '../elemek/vizjel.png', 50, 50, 100), $kepnev);
 
-                $osszes_sor = $adatbazis_kapcsolat->s('recid', $_SESSION['fajl']['tabla'], '');
+                    $kep_tort = str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev);
+                    if( $_POST['ellenorzes_kihagy'] == 'false' ) {
+                        //Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
+                        $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'],
+                            array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev' ),
+                            array($_SESSION['fajl']['termek_id'], $kep_tort,  $fajlnev  )
+                        );
 
-                echo get_tobbkep_thumb($sor_kepek, count($osszes_sor));
+
+                        $sor_kepek = $adatbazis_kapcsolat->s('*', $_SESSION['fajl']['tabla'], 'recid='.$id);
+                        $sor_kepek = $sor_kepek[0];
+
+                        $osszes_sor = $adatbazis_kapcsolat->s('recid', $_SESSION['fajl']['tabla'], '');
+
+                        echo get_tobbkep_thumb($sor_kepek, count($osszes_sor));
+                    } else {
+                        $sor_kep = $adatbazis_kapcsolat->s('id', $_SESSION['fajl']['tabla'], "`id` = '{$id}' AND `utvonal` = '{$kep_tort}'", '', '0,1');
+
+                        if( !$sor_kep ) {
+                            $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'],
+                                array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev' ),
+                                array($_SESSION['fajl']['termek_id'], $kep_tort,  $fajlnev  )
+                            );
+                        }
+
+                        echo 'frissit';
+                    }
+                }
             }
         break;
     }
@@ -254,7 +279,7 @@ function get_tobbkep_thumb($sor_kepek, $i) {
         if( !$felirat ) {
             $felirat = '<span class="i link">- Nincs leírás -</span>';
         }
-        
+
         //Eszközkezelés engedélyeknél dátumot is kiírunk
         $datum = '';
         if(basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
