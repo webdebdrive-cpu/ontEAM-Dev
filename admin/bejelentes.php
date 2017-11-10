@@ -100,6 +100,84 @@ if( isset($_POST['bejSzallodaValaszt']) ) {
     exit();
 }
 
+
+//Folyamatban levő munkák
+if( isset($_GET['folyamatban_munkak']) ) {
+    $telephely_id = $_GET['telephely_id'];
+    $obj_id       = $_GET['obj_id'];
+    $mod          = $_GET['mod'];
+
+    $where = '';
+    if( $mod == 'true' ) {
+        $where = " AND `loginnev` != '".$_SESSION[get_db_tabla().'user']."'";
+    }
+
+    $bejelentesek = $adatbazis_kapcsolat->s('ikt_szam surgos telephely_id obj_id hiba_id hiba_text', 'bejelentes', "`telephely_id` = '{$telephely_id}' AND `obj_id` = '{$obj_id}'".$where);
+
+    if( $bejelentesek ) {
+        $html = nl2('
+            <div class="mobilkeret">
+                <table class="csikos">
+                    <tr>
+                        <th>Munkalap szám</th>
+                        <th>Szálloda</th>
+                        <th>Hely leírása</th>
+                        <th>Bejelentett hiba</th>
+                        <th>Hiba leírása</th>
+                        <th>Sürgős</th>
+                    </tr>
+        ');
+
+        foreach($bejelentesek as $bejelentes) {
+            /* Telephely */
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bejelentes['telephely_id'], '', '1');
+            $telephely = $telephely[0]['nev'];
+
+            /* Helység */
+            $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bejelentes['obj_id'], '', '1');
+            $helyseg = $helyseg[0]['nev'];
+
+            /* Hiba */
+            $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$bejelentes['hiba_id']}'");
+            $hiba = $hiba[0];
+
+            $surgos = '';
+            if( $bejelentes['surgos'] ) {
+                $surgos = nl2('
+                    <span class="icon piros">
+                        <i class="material-icons">error</i>
+                    </span>
+                ');
+            }
+
+            $html .= nl2('
+                <tr>
+                    <td>'.$bejelentes['ikt_szam'].'</td>
+                    <td>'.$telephely.'</td>
+                    <td>'.$helyseg.'</td>
+                    <td>'.nl2br($hiba['info']).'</td>
+                    <td>'.nl2br($bejelentes['hiba_text']).'</td>
+                    <td>'.$surgos.'</td>
+                </tr>
+            ');
+        }
+
+        $html .= '</table></div>';
+
+        echo json_encode(array(
+            'hiba' => 'Folyamatban lévő munkák listája'.$html.'Folytatja a hibabejelentést?',
+            'gomb' => '<p class="c"><input class="gomb zold" type="button" value="Igen" onclick="bejelentes_mehet = true; $(\'#szerk_form\').submit();"><input class="gomb piros" type="button" value="Nem" onclick="alert2()"></p>'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    echo json_encode(array('siker' => 1));
+
+    $weblap->leallit();
+    exit();
+}
+
 /* Bejelentés elutasítása */
 if( isset($_POST['bejelentesElutasit']) ) {
     $recid          = $_POST['recid'];
@@ -111,25 +189,18 @@ if( isset($_POST['bejelentesElutasit']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
-        $sql = $bejelentes = $adatbazis_kapcsolat->s('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
+        $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
+        if( $bejelentes === false ) { $db_error = true; }
 
-        if( $sql === false ) {
-            $db_error = true;
+        if( $bejelentes['stat_id'] != BEJELENTES_STAT_KESZ_IG ) {
+            echo json_encode(array(
+                'hiba' => 'Csak Kész, igazolásra váró bejelentések utasíthatók el!',
+            ));
+
+            $weblap->leallit();
+            exit();
         }
-
-        if( $bejelentes ) {
-            $bejelentes = $bejelentes[0];
-
-            if( $bejelentes['stat_id'] != BEJELENTES_STAT_KESZ_IG ) {
-                echo json_encode(array(
-                    'hiba' => 'Csak Kész, igazolásra váró bejelentések utasíthatók el!',
-                ));
-
-                $weblap->leallit();
-                exit();
-            }
-        }
-
+        
         if( $validate == 'true' ) {
             echo json_encode(array(
                 'statusz' => 'siker'
@@ -151,29 +222,30 @@ if( isset($_POST['bejelentesElutasit']) ) {
             }
 
             /* Megnézzük a munkalapjait */
-            $munkalap_kapcs = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$recid}'", '', '1');
-            if( $munkalap_kapcs === false ) { $db_error = true; }
-
-            if( $munkalap_kapcs ) {
-                $munkalap_kapcs = $munkalap_kapcs[0];
-
-                /* Lekérdezzük a további bejelentéseit kivéve a mostanit */
-                $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '".$munkalap_kapcs['munkalap_id']."' AND `bejelentes_id` != '{$recid}'", '', '');
-                if( $munk_kapcsok === false ) { $db_error = true; }
-
-                if( $munk_kapcsok ) {
-                    foreach($munk_kapcsok as $munk_kapcs) {
-                        if( !addStatusz( 'bejelentes_statusz', $munk_kapcs['bejelentes_id'], BEJELENTES_STAT_VIZSG_ALATT, $elutasitas_id, $memo ) ) {
-                            $db_error = true;
-                        }
-                        if( $memo ) {
-                            if( addMegj('bejelentes', $munk_kapcs['bejelentes_id'], $memo) === false ) {
-                                $db_error = true;
-                            }
-                        }
-                    }
-                }
-            }
+//            Ez megszűnt, mert nincs olyan hogy egy munkalap több bejelentés
+//            $munkalap_kapcs = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$recid}'", '', '1');
+//            if( $munkalap_kapcs === false ) { $db_error = true; }
+//
+//            if( $munkalap_kapcs ) {
+//                $munkalap_kapcs = $munkalap_kapcs[0];
+//
+//                /* Lekérdezzük a további bejelentéseit kivéve a mostanit */
+//                $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '".$munkalap_kapcs['munkalap_id']."' AND `bejelentes_id` != '{$recid}'", '', '');
+//                if( $munk_kapcsok === false ) { $db_error = true; }
+//
+//                if( $munk_kapcsok ) {
+//                    foreach($munk_kapcsok as $munk_kapcs) {
+//                        if( !addStatusz( 'bejelentes_statusz', $munk_kapcs['bejelentes_id'], BEJELENTES_STAT_VIZSG_ALATT, $elutasitas_id, $memo ) ) {
+//                            $db_error = true;
+//                        }
+//                        if( $memo ) {
+//                            if( addMegj('bejelentes', $munk_kapcs['bejelentes_id'], $memo) === false ) {
+//                                $db_error = true;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
 
             if( !$db_error ) {
                 mysqli_commit($db_kapcs);
@@ -257,6 +329,151 @@ if( isset($_POST['bejelentesIgazolas']) ) {
     $weblap->leallit();
     exit();
 }
+
+/* Bejelentés reklamáció elfogadása */
+if( isset($_POST['bejelentesReklamacioElfogad']) ) {
+    $recid = $_POST['recid'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+
+        //Státusz ellenőrzés
+        $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
+        if( $bejelentes === false ) { $db_error = true; }
+        if( $bejelentes['stat_id'] != BEJELENTES_STAT_VIZSG_ALATT ) {
+            echo json_encode(array(
+                'hiba'  => 'Csak igazolás alatti bejelentést lehet elfogadni!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        //Jog ellenőrzés
+        if( !_jog(JOG_BEJELENTES_VIZSGAL) ) {
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga reklamációt elfogadni!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+
+            echo json_encode(array(
+                'hiba' => 'Biztosan elfogadja a reklamációt?',
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="bejelentesReklamacioElfogad();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Státusz léptetés
+        if( !addStatusz( 'bejelentes_statusz', $recid, BEJELENTES_STAT_FOLYAMATBAN ) ) {
+            $db_error = true;
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+            echo json_encode(array(
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba',
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+
+/* Bejelentés reklamáció elutasítása */
+if( isset($_POST['bejelentesReklamacioElutasit']) ) {
+    $recid = $_POST['recid'];
+    $memo  = $_POST['memo'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+
+        // Státusz ellenőrzés
+        $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
+        if( $bejelentes === false ) { $db_error = true; }
+        if( $bejelentes['stat_id'] != BEJELENTES_STAT_VIZSG_ALATT ) {
+            echo json_encode(array(
+                'hiba'  => 'Csak igazolás alatti bejelentést lehet elutasítani!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Jog ellenőrzés
+        if( !_jog(JOG_BEJELENTES_VIZSGAL) ) {
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga reklamációt elutasítani!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+        
+        // Indoklás ellenőrzése
+        if( !$memo ) {
+            echo json_encode(array(
+                'hiba'  => 'Kérjük adja meg az indoklást!',
+                'gomb'  => '<input type="button" class="link gomb" value="Ok" onclick="alert2();">',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Státusz léptetés
+        if( !addStatusz( 'bejelentes_statusz', $recid, BEJELENTES_STAT_LEZART, '', $memo ) ) {
+            $db_error = true;
+        }
+        
+        // Megjegyzés hozzáadása
+        if(addMegj( 'bejelentes', $recid, $memo )===false){
+            $db_error = true;
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+            echo json_encode(array(
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba',
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+
 
 /* CSV generálása */
 if (isset($_GET['csv'])) {
@@ -437,15 +654,20 @@ require_once('selectek.php');
     // nem új feltöltés (de minden más fül...)
     } else {
 
-        $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
+        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
-        //Js, a törlés gombhoz
+        // Js, a törlés gombhoz
 	    $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         // Nyitott státuszú bejelentés elutasítása
         if( $sor['stat_id']==BEJELENTES_STAT_NYITOTT && _jog(JOG_BEJELENTES_ELUTASIT) ) {
             $gombok .= '<input type="button" class="gomb_alert piros foGomb" value="Bejelentés elutasítása" title="Bejelentés elutasítása" onclick="csoportMuvelet(\'elutasitas\');">';
+        }
+
+        // Reklamációk
+        if( $sor['stat_id']==BEJELENTES_STAT_VIZSG_ALATT && _jog(JOG_BEJELENTES_VIZSGAL) ) {
+            $gombok .= '<input type="button" class="gomb" value="Reklamáció elfogadása" onclick="bejelentesReklamacioElfogad(\'csak kérdezünk még\');"> ';
+            $gombok .= '<input type="button" class="gomb" value="Reklamáció elutasítása" onclick="csoportMuvelet(\'bejelentesReklamacioElutasit\');"> ';
         }
 
         // Törlés gomb hibaüzenetei
@@ -465,16 +687,13 @@ require_once('selectek.php');
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga bejelentést törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
             } else {
 
-                $obj = $adatbazis_kapcsolat -> select('nev telephely_id', 'obj', "`recid`='{$sor['obj_id']}'");
-                $obj = $obj[0];
+                $obj = $adatbazis_kapcsolat -> s2('nev telephely_id', 'obj', "`recid`='{$sor['obj_id']}'");
 
-                $szalloda = $adatbazis_kapcsolat -> select('nev', 'telephely', "`id`='{$obj['telephely_id']}'");
-                $szalloda = $szalloda[0];
+                $szalloda = $adatbazis_kapcsolat -> s2('nev', 'telephely', "`id`='{$obj['telephely_id']}'");
 
                 $gep_nev = '';
                 if($sor['gep_id']){
-                    $gep = $adatbazis_kapcsolat -> select('nev', 'eszkozkezeles', "`recid`='{$sor['gep_id']}'");
-                    $gep = $gep[0];
+                    $gep = $adatbazis_kapcsolat -> s2('nev', 'eszkozkezeles', "`recid`='{$sor['gep_id']}'");
                     if($gep['nev']){
                         $gep_nev = '<br>Gép: '.addslashes($gep['nev']);
                     }
@@ -516,19 +735,17 @@ require_once('selectek.php');
         if( $sor['stat_id']==BEJELENTES_STAT_KESZ_IG && _jog(JOG_BEJELENTES_KEZEL) ) {
             $gombok .= nl2('
                 <div id="kmCont">
-                    <input type="button" class="gombb foGomb" value="Jóváhagyás igazolása" title="Jóváhagyás igazolása" onclick="bejelentesIgazolas( \''.$sor['recid'].'\', \'Csak kérdezünk még\' );">
-                    <input type="button" class="gomb_alert piros foGomb" value="Jóváhagyás elutasítása" title="Jóváhagyás elutasítása" onclick="csoportMuvelet(\'bejelentesElutasit\');">
-
+                    <input type="button" class="gombb foGomb" value="Igazolás" onclick="bejelentesIgazolas( \''.$sor['recid'].'\', \'Csak kérdezünk még\' );">
+                    <input type="button" class="gomb_alert piros foGomb" value="Igazolás elutasítása" onclick="csoportMuvelet(\'bejelentesElutasit\');">
                 </div>
             ');
         }
 
-        // Munkalap készítse
+        // Munkalap készítése
         if( $sor['stat_id']==BEJELENTES_STAT_NYITOTT && _jog(JOG_MUNKALAP_KESZITHET) ) {
             $gombok .= nl2('
                 <input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="munkalapKeszit(\'csak kérdezünk még\')" title="Munkalap készítése">
             ');
-            //Ez a funkció megszűnt 2017.09.06 $gombok .= '<input type="button" class="gombb foGomb" value="Hozzáadás munkalaphoz" onclick="munkalaphozAdas(\'csak kérdezünk még\');" title="Hozzáadás munkalaphoz">';
         }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';

@@ -16,12 +16,17 @@ function alert2(uzi, ok_gomb, cim) {
     /*Üres alert eltűntetés*/
     if(!uzi){
 
-
         $('#szurkit').fadeOut(200);
         $('#alert2').fadeOut(200, function(){
             $('#szurkit').remove();
             $('#alert2').remove();
         });
+        
+        /* Ha popupban kaptunk volna hibaüzenetet, akkor visszatérve fókuszáljunk a hibásnak jelölt inputra */
+        if($('#popup').is(':visible')){
+            $('#popup input.hibas_ide_focus, #popup textarea.hibas_ide_focus, #popup select.hibas_ide_focus').select();
+        }
+        
         return true;
 
     }else{

@@ -612,19 +612,16 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
 
             /* Megvizsgáljuk, hogy egy/több szállodás modell */
-            $telephely = $adatbazis_kapcsolat->s('modell', 'telephely', "`id` = '".$_POST['telephely_id']."'", '', '1');
-
+            $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id` = '".$_POST['telephely_id']."'", '', '1');
             if( $telephely ) {
-                $telephely = $telephely[0];
 
                 /* Egyszállodás modell, így rögtön munkalapot generálunk belőle */
                 if( !$telephely['modell'] ) {
                     /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
-                    $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla` = 'munkalap' AND `ev` = '".date('y')."'", '', '');
+                    $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = 'munkalap' AND `ev` = '".date('y')."'", '', '');
                     if( $ikt_seq === false ) { $db_error = true; }
 
                     if( $ikt_seq ) {
-                        $ikt_seq = $ikt_seq[0];
 
                         /* Sorszám */
                         $sorszam = $ikt_seq['sorszam'];
@@ -649,8 +646,8 @@ function i_u($type, $tabla, $tomb) {
 
                     /* Munkalap beszúrása */
                     $recid = $adatbazis_kapcsolat -> i('munkalap',
-                                                        array('ikt_szam',   'stat_id',              'tipus_id',  'telephely_id',        'loginnev',                        'update_usr',                          'insert_dt',  'insert_usr'                             ),
-                                                        array($ikt_szam,    MUNKALAP_STAT_NYITOTT,  1,          $_POST['telephely_id'], $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']   )
+                                                        array('ikt_szam',   'stat_id',              'tipus_id',  'telephely_id',          'obj_id',          'gep_id',          'loginnev',                        'update_usr',                          'insert_dt',  'insert_usr'                             ),
+                                                        array($ikt_szam,    MUNKALAP_STAT_NYITOTT,  1,           $_POST['telephely_id'],  $_POST['obj_id'],  $_POST['gep_id'],  $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']   )
                                                     );
                     if( $recid === false ) { $db_error = true; }
 
@@ -1167,10 +1164,10 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 var folyamatban_hiba = false;
 
                 $.ajax({
-                    url : \'esemenyek.php\',
-                    type: \'GET\',
+                    url  : \'bejelentesek.php\',
+                    type : \'GET\',
                     async: false,
-                    data: esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;obj_id=\' + $(\'#obj_id\').val() + \'&amp;mod=\' + '.$mod.' + \'&amp;folyamatban_munkak=\' + new Date().getTime()),
+                    data : esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;obj_id=\' + $(\'#obj_id\').val() + \'&amp;mod=\' + '.$mod.' + \'&amp;folyamatban_munkak=\' + new Date().getTime()),
                     success: function(response) {
 
                         response = JSON.parse(response);
@@ -2518,7 +2515,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
 
         $jClass = '';
-        if( _jog(JOG_MUNKALAP_KESZITHET) ) {
+        if( _jog(JOG_MUNKALAP_VARAKOZTAT) ) {
             $jClass = ' kijelolheto';
         }
 

@@ -1231,6 +1231,11 @@ $(function() {
             alert2();
             felh_valt();
             kijelolesEltavolit();
+            
+            /* Ha popupban kaptunk volna hibaüzenetet, akkor visszatérve fókuszáljunk a hibásnak jelölt inputra */
+            if($('#popup').is(':visible')){
+                $('#popup input.hibas_ide_focus, #popup textarea.hibas_ide_focus, #popup select.hibas_ide_focus').select();
+            }
         }
     });
 
@@ -1628,6 +1633,43 @@ function bejelentesIgazolas( recid, csak_kerdezunk ) {
             });
         }
     }
+}
+
+/* Bejelentés reklamáció elfogadása */
+function bejelentesReklamacioElfogad(csak_kerdezunk) {
+
+    if(balnav_kijelol_ell()){
+
+        alert2();
+
+        $.ajax({
+            url : 'bejelentes.php',
+            type: 'POST',
+            data: {
+                recid                       : _get('id'),
+                csak_kerdezunk              : csak_kerdezunk,
+                bejelentesReklamacioElfogad : new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaSorFrissit('bejelentes', _get('id'));
+                    betoltve = szamlaBetolt(_get('id'), 'bejelentes.php', 'modosit');
+                    $.when(betoltve).then(function() {
+                        alert2('Kíván új munkalapot nyitni?', '<input type="button" class="gomb zold" value="Igen" onclick="location.href=\'munkalap.php?uj\'"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+                    });
+                }
+            }
+        });
+
+    }
+    return false;
 }
 
 /* Anyagigénylés táblázat sor hozzáadás */
@@ -2390,11 +2432,15 @@ function bejegyzesElutasitas( that, csak_memo ) {
                  memo = $(that).find('textarea[name="elutasitas_memo"]');
 
     if(!csak_memo && !elutasitas_id.val()){
-        alert2('Kérem válassza ki az elutasítás okát!', '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#elutasitas_id_autocomp\').focus();">', 'Hiba');
+        $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
+        $('#elutasitas_id_autocomp').addClass('hibas_ide_focus');
+        alert2('Kérem válassza ki az elutasítás okát!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
         return false;
     }
     if(!memo.val()){
-        alert2('Kérjük indokolja az elutasítást!', '<input type="button" class="link gomb" value="Ok" onclick="alert2(); $(\'#elutasitas_memo\').focus();">', 'Hiba');
+        $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
+        $('#elutasitas_memo').addClass('hibas_ide_focus');
+        alert2('Kérjük indokolja az elutasítást!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
         return false;
     }
 
@@ -4651,8 +4697,8 @@ function helyisegVane( that ) {
 /* Annak ellenőrzése, hogy a gép ki van-e már választva */
 function gepVane() {
 
-    var telephely_id = $('#telephely_id').val(),
-        obj_id = $('#obj_id').val();
+    var telephely_id    = $('#telephely_id').val(),
+                obj_id  = $('#obj_id').val();
 
     $.ajax({
         url : 'esemenyek.php',
@@ -5146,4 +5192,60 @@ function pri_eloterj_statusz_mod(pri_eloterj_recidk, stat_id_eloterjek, rogzit){
             }
         }
     });
+}
+
+/* Munkalap készítése FONTOS, hogy ne a munkalap.js-ben legyen, mert a bejelentesek.php-ben látni kell! */
+function munkalapKeszit(csak_kerdezunk) {
+
+    if(balnav_kijelol_ell()){
+
+        idk = {};
+
+        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+        if( szamlaSorok.length ) {
+            var i = 1;
+            szamlaSorok.each(function() {
+                var id = $(this).attr('data-recid');
+
+                idk[i] = id;
+                i++;
+            });
+        } else {
+            var recid = $('#szamlaBetolt').attr('data-recid');
+
+            if( recid ) {
+                idk[1] = recid;
+            }
+        }
+
+        if( objLength(idk) ) {
+            $.ajax({
+                url  : 'munkalap.php',
+                type : 'POST',
+                data : {
+                    idk             : JSON.stringify(idk),
+                    csak_kerdezunk  : csak_kerdezunk,
+                    munkalapKeszit  : new Date().getTime()
+                },
+                success: function(response) {
+                    if(response) {
+                        response = JSON.parse(response);
+
+                        if( response.hiba ) {
+                            alert2(response.hiba, response.gomb, response.title);
+                            return false;
+                        }
+
+                        location.href = 'munkalap.php?id=' + response.recid + '&modosit';
+
+                        kijelolesEltavolit();
+                        popupZar();
+                    }
+                }
+            });
+        } else {
+            alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
+        }
+    }
+    return false;
 }

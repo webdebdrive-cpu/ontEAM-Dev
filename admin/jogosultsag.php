@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 70-es ID-nál járunk
+ * 71-es ID-nál járunk
  * 11 -es kategória ID-nál járunk
 \*                                                  */
 
@@ -27,6 +27,7 @@ $jogosultsagok = array(
     1  => array('nev' => 'Bejelentés saját névben',                         'kat' => 0, 'sor' => 2, 'bekapcs' => '0',      'kikapcs' => '56'   ),
     56 => array('nev' => 'Bejelentés más nevében',                          'kat' => 0, 'sor' => 3, 'bekapcs' => '57',     'kikapcs' => '1'    ),
     41 => array('nev' => 'Bejelentések elutasítása',                        'kat' => 0, 'sor' => 4, 'bekapcs' => '1'   ),
+    71 => array('nev' => 'Bejelentések vizsgálat',                          'kat' => 0, 'sor' => 5   ),
 
     3  => array('nev' => 'Saját megtekintése',                              'kat' => 1, 'sor' => 1  ),
     4  => array('nev' => 'Saját szállodák megtekintése',                    'kat' => 1, 'sor' => 2,  'kikapcs' => '3'   ),
@@ -44,20 +45,6 @@ $jogosultsagok = array(
     67 => array('nev' => 'Külsős: megrendelés készítése',                   'kat' => 1, 'sor' => 14 ),
     70 => array('nev' => 'Anyag érkeztetése',                               'kat' => 1, 'sor' => 15 ),
     
-    
-    //Korábban ez volt
-//    3  => array('nev' => 'Munkalap megtekintése',                           'kat' => 1, 'sor' => 1,                          'kikapcs' => '5,21,22,23,24'),
-//    2  => array('nev' => 'Munkalapot készíthet',                            'kat' => 1, 'sor' => 2,  'bekapcs' => '56,57',   'kikapcs' => '1,5,31,21,22,24,34', 'i' => 'diszpécserek'),
-//    4  => array('torolve' => 'TÖRÖLVE',  'nev' => 'Munkalap kezelése',      'kat' => 1, 'sor' => 4),
-//    5  => array('nev' => 'Munkalapok kezelése mint telepített',             'kat' => 1, 'sor' => 5,  'bekapcs' => '3',       'kikapcs' => '2,21,22,23,24,31,34,37'),
-//    31 => array('nev' => 'Munkalapok kezelése mint mobil',                  'kat' => 1, 'sor' => 6,  'bekapcs' => '3',       'kikapcs' => '2,5,21,22,23,24,34,37'),
-//    21 => array('nev' => 'Munkalapok kezelése mint műszaki vezető',         'kat' => 1, 'sor' => 8,  'bekapcs' => '3',       'kikapcs' => '2,5,22,23,24,31,34,37'),
-//    22 => array('nev' => 'Munkalapok kezelése mint területi felelős',       'kat' => 1, 'sor' => 9,  'bekapcs' => '3',       'kikapcs' => '2,5,21,23,24,31,34,37'),
-//    23 => array('nev' => 'Munkalapok kezelése mint Diszp.központ vezető',   'kat' => 1, 'sor' => 10, 'bekapcs' => '0,1,2,3', 'kikapcs' => '5,21,22,24,31,34,37', 'kikapcskor_kikapcs' => '2'),
-//    24 => array('nev' => 'Munkalapok kezelése mint adminisztrátor',         'kat' => 1, 'sor' => 11, 'bekapcs' => '3',       'kikapcs' => '2,5,21,22,23,31,34,37'),
-//    37 => array('nev' => 'Munkalapok kezelése mint műszaki adminisztrátor', 'kat' => 1, 'sor' => 11, 'bekapcs' => '3',       'kikapcs' => '2,5,21,22,23,24,31,34'),
-//    34 => array('nev' => 'Munkalapok kezelése mint külső kivitelező',       'kat' => 1, 'sor' => 12, 'bekapcs' => '3',       'kikapcs' => '2,5,21,24,22,23,31,37'),
-
     6  => array('nev' => 'Felhasználók megtekintése',   'kat' => 2, 'sor' => 6,  'kikapcs' => '7'),
     7  => array('nev' => 'Felhasználók kezelése',       'kat' => 2, 'sor' => 7,  'bekapcs' => '6'),
     8  => array('nev' => 'Értéklisták megtekintése',    'kat' => 2, 'sor' => 8,  'kikapcs' => '9'),

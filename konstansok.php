@@ -167,6 +167,7 @@ define('JOG_BEJELENTES_KEZEL',          1 );
 define('JOG_BEJELENTES_MAS_NEVEBEN',    56);
 define('JOG_MUNKALAP_KESZITHET',        2 );
 define('JOG_BEJELENTES_ELUTASIT',       41);
+define('JOG_BEJELENTES_VIZSGAL',        71);
 define('JOG_MUNKALAP_MEGTEKINT',        3 );
 define('JOG_MUNKALAP_MEGTEKINT_SZALL',  4 );
 define('JOG_MUNKALAP_UJ_LETREHOZ',      5 );

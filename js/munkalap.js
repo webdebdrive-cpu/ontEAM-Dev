@@ -261,39 +261,6 @@ function munkalapKulsosJovahagy(csak_kerdezunk) {
     return false;
 }
 
-/* Munkalap külsős elutasítása */
-function munkalapKulsosElutasit(csak_kerdezunk) {
-
-    if(balnav_kijelol_ell()){
-
-        alert2();
-
-        $.ajax({
-            url : 'munkalap.php',
-            type: 'POST',
-            data: {
-                recid                   : _get('id'),
-                csak_kerdezunk          : csak_kerdezunk,
-                munkalapKulsosElutasit  : new Date().getTime()
-            },
-            success: function(response) {
-                if(response) {
-                    response = JSON.parse(response);
-
-                    if( response.hiba ) {
-                        alert2(response.hiba, response.gomb, response.title);
-                        return false;
-                    }
-
-                    location.href = get_get();
-                }
-            }
-        });
-
-    }
-    return false;
-}
-
 /* Munkalap Igazolása */
 function munkalapIgazol(csak_kerdezunk) {
 
@@ -327,39 +294,6 @@ function munkalapIgazol(csak_kerdezunk) {
     return false;
 }
 
-/* Munkalap Igazolása */
-function munkalapIgazolElutasit(csak_kerdezunk) {
-
-    if(balnav_kijelol_ell()){
-
-        alert2();
-
-        $.ajax({
-            url : 'munkalap.php',
-            type: 'POST',
-            data: {
-                recid                   : _get('id'),
-                csak_kerdezunk          : csak_kerdezunk,
-                munkalapIgazolElutasit  : new Date().getTime()
-            },
-            success: function(response) {
-                if(response) {
-                    response = JSON.parse(response);
-
-                    if( response.hiba ) {
-                        alert2(response.hiba, response.gomb, response.title);
-                        return false;
-                    }
-
-                    location.href = get_get();
-                }
-            }
-        });
-
-    }
-    return false;
-}
-
 /* Munkalap reklamáció elfogadása */
 function munkalapReklamacioElfogad(csak_kerdezunk) {
 
@@ -374,39 +308,6 @@ function munkalapReklamacioElfogad(csak_kerdezunk) {
                 recid                       : _get('id'),
                 csak_kerdezunk              : csak_kerdezunk,
                 munkalapReklamacioElfogad   : new Date().getTime()
-            },
-            success: function(response) {
-                if(response) {
-                    response = JSON.parse(response);
-
-                    if( response.hiba ) {
-                        alert2(response.hiba, response.gomb, response.title);
-                        return false;
-                    }
-
-                    location.href = get_get();
-                }
-            }
-        });
-
-    }
-    return false;
-}
-
-/* Munkalap reklamáció elutasítása */
-function munkalapReklamacioElutasit(csak_kerdezunk) {
-
-    if(balnav_kijelol_ell()){
-
-        alert2();
-
-        $.ajax({
-            url : 'munkalap.php',
-            type: 'POST',
-            data: {
-                recid                       : _get('id'),
-                csak_kerdezunk              : csak_kerdezunk,
-                munkalapReklamacioElutasit  : new Date().getTime()
             },
             success: function(response) {
                 if(response) {
@@ -557,62 +458,6 @@ function munkalapFelvesz( recid ) {
         }
 
     }
-}
-
-/* Munkalap készítése */
-function munkalapKeszit(csak_kerdezunk) {
-
-    if(balnav_kijelol_ell()){
-
-        idk = {};
-
-        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
-        if( szamlaSorok.length ) {
-            var i = 1;
-            szamlaSorok.each(function() {
-                var id = $(this).attr('data-recid');
-
-                idk[i] = id;
-                i++;
-            });
-        } else {
-            var recid = $('#szamlaBetolt').attr('data-recid');
-
-            if( recid ) {
-                idk[1] = recid;
-            }
-        }
-
-        if( objLength(idk) ) {
-            $.ajax({
-                url  : 'munkalap.php',
-                type : 'POST',
-                data : {
-                    idk             : JSON.stringify(idk),
-                    csak_kerdezunk  : csak_kerdezunk,
-                    munkalapKeszit  : new Date().getTime()
-                },
-                success: function(response) {
-                    if(response) {
-                        response = JSON.parse(response);
-
-                        if( response.hiba ) {
-                            alert2(response.hiba, response.gomb, response.title);
-                            return false;
-                        }
-
-                        location.href = 'munkalap.php?id=' + response.recid + '&modosit';
-
-                        kijelolesEltavolit();
-                        popupZar();
-                    }
-                }
-            });
-        } else {
-            alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
-        }
-    }
-    return false;
 }
 
 

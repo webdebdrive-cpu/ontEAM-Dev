@@ -123,7 +123,7 @@ array_push($select_honapok, array('name' => 'december',     'value' => '12'));
 
 //Ütemezés típushoz
 $select_szemelyzet = array();
-array_push($select_szemelyzet, array('name' => '- Válasszon -', 'value' => '' ));
+array_push($select_szemelyzet, array('name' => '- Válasszon -',             'value' => '0' ));
 array_push($select_szemelyzet, array('name' => 'Telepített személyzet',     'value' => TELEPITETT_SZEMELYZET,   'szin' => '#CBE3FF' ));
 array_push($select_szemelyzet, array('name' => 'Mobilcsoport',              'value' => MOBILCSOPORT,            'szin' => '#CCFFCB' ));
 array_push($select_szemelyzet, array('name' => 'Külső kivitelező',          'value' => KULSO_KIVITELEZO,        'szin' => '#FCFFCB' ));
