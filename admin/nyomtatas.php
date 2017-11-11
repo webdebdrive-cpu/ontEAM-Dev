@@ -3,6 +3,9 @@ require_once '../weblap.php';
 
 if ($_GET['print']=='lista') {
     
+    require 'selectek.php';
+    $tabla = str_replace('.php', '', basename(self()));
+    
     if ($_GET['mezo']) {
         $feltetel = '';
         $akt_tomb_szures = get_akt_tomb(str_replace('.php', '', basename(self())));
@@ -29,12 +32,47 @@ if ($_GET['print']=='lista') {
                 $_GET['felt'] = '';
             break;
         }
-        $feltetel .= $_GET['felt'];
+        
+        // Státusz szövegesen jelenjen meg
+        if ($_GET['mezo']=='stat_id') {
+            $feltetel .= getStatText($tabla, $_GET['felt']);
+        }elseif ($tabla=='projektigenyles' && $_GET['mezo']=='tipus') {
+            foreach($select_pri_tipus as $tipus){
+                if($tipus['value']==$_GET['felt']){
+                    $feltetel .= $tipus['name'];
+                    break;
+                }
+            }
+        }elseif ($tabla=='projektigenyles' && $_GET['mezo']=='besorol') {
+            foreach($select_pri_besorol as $tipus){
+                if($tipus['value']==$_GET['felt']){
+                    $feltetel .= $tipus['name'];
+                    break;
+                }
+            }
+        }elseif ($_GET['mezo']=='szemelyzet_id') {
+            foreach($select_szemelyzet as $tipus){
+                if($tipus['value']==$_GET['felt']){
+                    $feltetel .= $tipus['name'];
+                    break;
+                }
+            }
+        }else{
+            $feltetel .= $_GET['felt'];
+        }
         
         if($_GET['ksz']){
             $feltetel .= ' Tovább szűkítve a következő keresőszóval: '.$_GET['ksz'];
         }
         $feltetel = 'Szűrő feltételek: <b>'.$feltetel.'</b>';
+    }
+    
+    //Összetett szűréskor annak a címkéjét írjuk ki: trükk: beágyazzuk rejtve az összetett szűrést, és ugyanazt a JS-el kiszámolt mondatatot írtajuk ki
+    if($_SESSION['o_szuro_feltetel']){
+        $feltetel  = '<script src="../js/wdb_admin_min.js"></script>';
+        $feltetel .= '<script src="../js/wdb_admin_async_min.js"></script>';
+        $feltetel .= '<div class="dn">'.fajlbol_olvas('../sablon/admin/popup/osszetett_szuro.html', 1).'</div>';
+        $feltetel .= 'Szűrő feltételek: <b id="szuro_feltetel"></b>';
     }
     
     
@@ -60,17 +98,19 @@ if ($_GET['print']=='lista') {
     }
     
     //Bal oldali navpanel kiíratása
-    switch(str_replace('.php', '', basename(self()))){
+    switch($tabla){
 //        case 'anyagigenyles'        : $akt_tomb = $anyagigenyles_tomb;          break;
-        case 'bejelentes'           : $sorok_html = bejelentesLista( $sorok );      break;
+        case 'bejelentes'           : $sorok_html = bejelentesLista( $sorok, $tabla );      break;
 //        case 'beosztas'             : $akt_tomb = $beosztas_tomb;               break;
 //        case 'cikktorzs'            : $akt_tomb = $cikktorzs_tomb;              break;
 //        case 'eszkozkezeles'        : $akt_tomb = $eszkozkezeles_tomb;          break;
 //        case 'login'                : $akt_tomb = $login_tomb;                  break;
-        case 'munkalap'             : $sorok_html = munkalapLista( $sorok );        break;
+        case 'eloterj_fb'           : $sorok_html = eloterj_fbLista( $sorok, $tabla );      break;
+        case 'eloterj_bod'          : $sorok_html = eloterj_bodLista( $sorok, $tabla );     break;
+        case 'munkalap'             : $sorok_html = munkalapLista( $sorok, $tabla );        break;
 //        case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
 //        case 'torzsadat'            : $akt_tomb = $torzsadat_tomb;              break;
-        case 'projektigenyles'      : $sorok_html = projektigenylesLista( $sorok ); break;
+        case 'projektigenyles'      : $sorok_html = projektigenylesLista( $sorok, $tabla ); break;
     }
     
     echo nl2('
@@ -86,7 +126,6 @@ if ($_GET['print']=='lista') {
     <div class="padd" style="padding-bottom: 5rem; min-height: 60rem">
         '.$feltetel.'
         '.$sorok_html.'
-        
     </div>
     <div class="footer">
         <div class="dtc padd">

@@ -916,11 +916,16 @@ if (isset($_GET['csv'])) {
     if($open){
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
-
         $sql = 'SELECT
                 `ikt_szam` as \'Azonosító\',
                 `'.get_db_tabla().'projektigenyles`.`nev` as \'Név\',
-                `stat_id` as \'Státusz\'
+                `'.get_db_tabla().'projektigenyles`.`rendk` as \'Rendkívüli\',
+                `'.get_db_tabla().'projektigenyles`.`megter` as \'Megtérülő\',
+                `'.get_db_tabla().'projektigenyles`.`bkolt` as \'Becsült költsége\',
+                `'.get_db_tabla().'projektigenyles`.`stat_id` as \'Státusz\',
+                `'.get_db_tabla().'projektigenyles`.`tipus` as \'Típus\',
+                `'.get_db_tabla().'projektigenyles`.`prior` as \'Prioritás\',
+                `'.get_db_tabla().'projektigenyles`.`telephely_id` as \'Szálloda\'
                 '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);
@@ -931,6 +936,7 @@ if (isset($_GET['csv'])) {
         }
         fputcsv($open, $csvhead, ';');
 
+        require_once 'selectek.php';
         while( $sorok = mysqli_fetch_assoc($query) ){
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
@@ -938,7 +944,7 @@ if (isset($_GET['csv'])) {
                     $sor = getErtek('nev', 'telephely', 'id', $sor);
                 }
                 if($kulcs=='Bejelentett hiba'){
-                    $sor = getErtek('info', 'erteklista', 'recid', $sor);
+                    $sor = erteklista(4, $sor);
                 }
                 if($kulcs=='Helyiség'){
                     $sor = getErtek('nev', 'obj', 'recid', $sor);
@@ -946,11 +952,21 @@ if (isset($_GET['csv'])) {
                 if($kulcs=='Gépnév'){
                     $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
                 }
+                if($kulcs=='Prioritás'){
+                    $sor = erteklista(36, $sor);
+                }
                 if($kulcs=='Típus'){
-                    $sor = erteklista(6, $sor);
+                    if($sor){
+                        foreach($select_pri_tipus as $tipus){
+                            if($tipus['value']==$sor){
+                                $sor = $tipus['name'];
+                                break;
+                            }
+                        }
+                    }
                 }
                 if($kulcs=='Státusz'){
-                    $sor = getStatText('munkalap', $sor);
+                    $sor = getStatText($megnevezes, $sor);
                 }
 
                 $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );

@@ -852,6 +852,7 @@ $(function() {
             if(val && val!=true){
                 val = val.replace(/(\r|\n)/g, '#UJSOR#').replace(/'/g, '#APOSZTROF#');
             }
+
             if( taroltVal != val ) {
                 $(this).addClass('mod');
             } else {
@@ -5027,7 +5028,7 @@ function o_szures_gomb_mutat(){
 }
 
 /* Összetett szűrés mondat előállítása */
-function osszetett_szuro_mondat(){
+function osszetett_szuro_mondat(returnold){
 
     var mondat = '';
     $('#o_feltetel_halmaz div.dtr').each(function () {
@@ -5051,6 +5052,9 @@ function osszetett_szuro_mondat(){
     mondat = mondat.replace(/ ÉS +$/, '').replace(/ VAGY +$/, '');
 
     $('#o_szures_mondat').html('<b>Megfogalmazott feltétel:</b><br>'+mondat);
+    /* Ha nyomtatási nézetben lennénk, ott is jelenjen meg */
+    $('#szuro_feltetel').html(mondat);
+
 }
 
 /* Projektigénylés alatt az adatlap és cash flow fül közötti váltás */

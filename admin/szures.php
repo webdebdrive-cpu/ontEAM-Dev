@@ -1,5 +1,5 @@
 <?php
-/* Szűrés */
+// Operátor kiválasztása
 if (isset($_POST['f_szuro_mezo'])) {
     
     $akt_tomb_szures = get_akt_tomb($_POST['tabla']);
@@ -16,30 +16,32 @@ if (isset($_POST['f_szuro_mezo'])) {
     if($_POST['selected']=='lt'     ){ $selected_lt     = ' selected'; }
     if($_POST['selected']=='not_eq' ){ $selected_not_eq = ' selected'; }
     
+    $selectek = array('select_pri_tipus', 'select_pri_besorol', 'select_szemelyzet');
+    
     $operator = '';
     //Feltétel összerakása tömbből
     foreach ($akt_tomb_szures as $ertek){
         if($ertek['name']==$_POST['mezo']){
             
-            //Checkbox esetén Igen/Nem
+            // Checkbox esetén Igen/Nem
             if($ertek['type']=='checkbox'){
                 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 
                 
-            //Autocomplete esetén a switch.php alapján gyártunk egy inputot
+            // Autocomplete esetén a switch.php alapján gyártunk egy inputot
             }elseif($ertek['type']=='autocomplete'){
                 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
                 
-            //beosztása esetén
-            }elseif($ertek['type']=='select_szemelyzet'){
+            // selectek esetén csak = vagy üres operátort ajánnlunk fel
+            }elseif( in_array($ertek['type'], $selectek) ){
                 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
                 
-            //Általános esetben egy szabadszavas mező
+            // Általános esetben egy szabadszavas mező
             }else{
                 
                 //Numerikus adatok operátora
@@ -92,7 +94,7 @@ if (isset($_POST['f_szuro_mezo'])) {
     exit;
 }
 
-/* Operátor váltáskor generáljuk ki a feltétel mezőt */
+// Feltétel mező kigenerálása operátor váltáskor történik
 if (isset($_POST['f_szuro_mezo_operator'])) {
 
     $akt_tomb_szures = get_akt_tomb($_POST['tabla']);
@@ -110,7 +112,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
         $_POST['felt'] = '';
     }
     
-    //Ha az éppen kiválasztott operátor az ures, akkor az alábbit adjuk vissza és kész
+    // Ha az éppen kiválasztott operátor az ures, akkor az alábbit adjuk vissza és kész
     if($_POST['selected']=='empty'){
         $feltetel = nl2('
             <select class="f_felt">
@@ -119,7 +121,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
             </select>
             ');
     
-    //Ha nem az üres operátort választottuk ki
+    // Ha nem az üres operátort választottuk ki
     }else{
     
         foreach ($akt_tomb_szures as $ertek){
@@ -136,7 +138,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                         ');
 
 
-                //Autocomplete esetén a switch.php alapján gyártunk egy inputot
+                // Autocomplete esetén a switch.php alapján gyártunk egy inputot
                 }elseif($ertek['type']=='autocomplete'){
 
                     require_once('../class/html/class.Input.php');
@@ -144,7 +146,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
                     $input -> value = $_POST['felt'];
                     
-                    //Onblurra a hidden mező is nullázódjon, ha üres volna a mező
+                    // Onblurra a hidden mező is nullázódjon, ha üres volna a mező
                     $ertek['onblur'] .= 'if(!$(this).val()){ $(\'#'.$ertek['name'].'\').val(\'\'); }';
                     
                     if($ertek['alert']){
@@ -157,10 +159,10 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $input -> name          = $ertek['name'].'_autocomp_szurobe';
                     $input -> placeholder   = $ertek['placeholder'];
                     $input -> autocomplete  = 'off';
-                    //Ha van szélesség beállítva, akkor azt hozzuk ide is át
+                    // Ha van szélesség beállítva, akkor azt hozzuk ide is át
                     if(strpos($ertek['style'], 'width')!==false){
                         $input -> style = $ertek['style'];
-                    //egyébként 30rem-es
+                    // egyébként 30rem-es
                     }else{
                         $input -> style = 'width: 30rem';
                     }
@@ -175,7 +177,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                         $csoport_where = ' and csoport='.$ertek['csoport'];
                     }
 
-                    /* Lekérdezzük a külső tábla értékét */
+                    // Lekérdezzük a külső tábla értékét
                     $kulso_ertek = $adatbazis_kapcsolat->s($ertek['listaz'], $ertek['tabla'], $ertek['oszlop_keres'].'='.$kulso_val.$csoport_where, '', '1');
                     if( $kulso_ertek ) {
                         $input -> value = $kulso_ertek[0][$ertek['listaz']];
@@ -215,7 +217,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                         </script>
                     ');
 
-                //select_szemelyzet
+                // select_szemelyzet
                 }elseif($ertek['type']=='select_szemelyzet'){
                     
                     require_once('../class/html/class.Select.php');
@@ -225,13 +227,33 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
 
-                //select_szemelyzet
+                // select_szemelyzet
                 }elseif($ertek['type']=='select_cikltip'){
                     
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
 
                     $input = new Select($select_cikltip, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
+                    $feltetel = $input -> getHtml();
+
+                // select_pri_tipus
+                }elseif($ertek['type']=='select_pri_tipus'){
+                    
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+
+                    $input = new Select($select_pri_tipus, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
+                    $feltetel = $input -> getHtml();
+                    
+                // select_pri_besorol
+                }elseif($ertek['type']=='select_pri_besorol'){
+                    
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+
+                    $input = new Select($select_pri_besorol, $_POST['felt']);
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
                     

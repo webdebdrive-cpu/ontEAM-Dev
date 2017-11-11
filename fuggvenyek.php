@@ -1958,12 +1958,20 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
         //Szűrés lekezelése
         if ($_GET['mezo'] && $_GET['op']) {
+            //Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
+            if($where){
+                $where = '('.csonkit($where, 5).') AND ';
+            }
             $where .= get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla).' AND ';
         }
 
         //Ha van öszetettt szűrés feltétel
         if($_SESSION['o_szuro_feltetel']){
-            $where .= get_o_szures_where_kieg($_SESSION['o_szuro_feltetel'], $tabla);
+            //Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
+            if($where){
+                $where = '('.csonkit($where, 5).') AND ';
+            }
+            $where .= get_o_szures_where_kieg($_SESSION['o_szuro_feltetel'], $tabla).' AND ';
         }
 
         //ha van $_GET['idk'] változónk, akkor azokra az ID-kra még pluszban szűrünk
@@ -2414,7 +2422,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -2515,7 +2523,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
 
         $jClass = '';
-        if( _jog(JOG_MUNKALAP_VARAKOZTAT) ) {
+        if( _jog(JOG_MUNKALAP_VARAKOZTAT) && !isset($_GET['print']) ) {
             $jClass = ' kijelolheto';
         }
 
@@ -2531,7 +2539,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
-            if( !$frissit && $tabla && _jog(JOG_MUNKALAP_KESZITHET) ) {
+            if( !$frissit && $tabla && _jog(JOG_MUNKALAP_VARAKOZTAT) && !isset($_GET['print']) ) {
                 $aktCsoport = $bsz['csoport_id'];
 
                 if( $i == 1 || $csoport != $aktCsoport ) {
@@ -2596,7 +2604,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             } else if( is_array($kijeloltek) && in_array($bsz['recid'], $kijeloltek) ) {
                 $active = ' kijelolve';
@@ -2658,7 +2666,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             $csoport_class = '';
             $csoport_data  = '';
-            if( $bsz['csoport_id'] && _jog(JOG_MUNKALAP_KESZITHET) ) {
+            if( $bsz['csoport_id'] && _jog(JOG_MUNKALAP_VARAKOZTAT) && !isset($_GET['print']) ) {
                 $csoport_class = ' behuz';
                 if(!$frissit){
                     $csoport_class .= ' dn';
@@ -2710,7 +2718,7 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek )
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -2784,7 +2792,7 @@ function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit, $kijelolt
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -2859,7 +2867,7 @@ function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -2927,7 +2935,7 @@ function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -2973,7 +2981,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         foreach($bejegyzesek as $bsz) {
 
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3029,7 +3037,7 @@ function torzsadatLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3068,7 +3076,7 @@ function szabadsagigenyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3107,7 +3115,7 @@ function beosztasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3186,7 +3194,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3280,7 +3288,7 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3333,7 +3341,7 @@ function uzemeltetesi_naploLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3372,7 +3380,7 @@ function eloterj_bodLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3412,7 +3420,7 @@ function eloterj_fbLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3452,7 +3460,7 @@ function energiaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3491,7 +3499,7 @@ function tervezesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3530,7 +3538,7 @@ function cash_flowLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3569,7 +3577,7 @@ function raktarLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3608,7 +3616,7 @@ function szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3647,7 +3655,7 @@ function cikktorzsLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -3979,7 +3987,7 @@ function szerepkorLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -4020,7 +4028,7 @@ function loginLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -4089,7 +4097,7 @@ function erteklistaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -4128,7 +4136,7 @@ function szallitoLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -4180,7 +4188,7 @@ function ktghelyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -4219,7 +4227,7 @@ function ktgnemLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $i = 1;
         foreach($bejegyzesek as $bsz) {
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -4259,7 +4267,7 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         foreach($bejegyzesek as $bsz) {
 
             $active = '';
-            if( $bsz['recid'] == $_GET['id'] ) {
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
 
@@ -4448,7 +4456,7 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
             $fokat_html = '';
             if( $fokatok ) {
                 $active = '';
-                if( $telephelyID == $telephely['id'] ) {
+                if( $telephelyID == $telephely['id'] && !isset($_GET['print']) ) {
                     $active = ' kijelolve';
                 }
 
@@ -4724,11 +4732,14 @@ function get_akt_tomb($megn){
     global $bejelentes_tomb;
     global $beosztas_tomb;
     global $cikktorzs_tomb;
+    global $eloterj_fb_tomb;
+    global $eloterj_bod_tomb;
     global $eszkozkezeles_tomb;
     global $felmeresi_terv_tomb;
     global $login_tomb;
     global $munkalap_tomb;
     global $utemezett_feladatok_tomb;
+    global $projektigenyles_tomb;
     global $torzsadat_tomb;
 
     switch($megn){
@@ -4736,11 +4747,14 @@ function get_akt_tomb($megn){
         case 'bejelentes'           : $akt_tomb = $bejelentes_tomb;             break;
         case 'beosztas'             : $akt_tomb = $beosztas_tomb;               break;
         case 'cikktorzs'            : $akt_tomb = $cikktorzs_tomb;              break;
+        case 'eloterj_fb'           : $akt_tomb = $eloterj_fb_tomb;             break;
+        case 'eloterj_bod'          : $akt_tomb = $eloterj_bod_tomb;            break;
         case 'eszkozkezeles'        : $akt_tomb = $eszkozkezeles_tomb;          break;
         case 'felmeresi_terv'       : $akt_tomb = $felmeresi_terv_tomb;         break;
         case 'login'                : $akt_tomb = $login_tomb;                  break;
         case 'munkalap'             : $akt_tomb = $munkalap_tomb;               break;
         case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
+        case 'projektigenyles'      : $akt_tomb = $projektigenyles_tomb;        break;
         case 'torzsadat'            : $akt_tomb = $torzsadat_tomb;              break;
     }
 
@@ -4940,7 +4954,7 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     }
 
 }
-//Összetett szűrés SQL-jét állítja elő egy stingből.
+//Összetett szűrés SQL-jét állítja elő egy stringből.
 function get_o_szures_where_kieg($feltetel, $tabla){
 
     $sql = '';

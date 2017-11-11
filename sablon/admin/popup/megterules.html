@@ -40,6 +40,20 @@
 function addMegterules( pageID, that ) {
     var terulet = $('#erteklista_id').val();
     var osszeg  = $('#osszeg').val();
+    
+    /* Kötelező mezők */
+    if(!$('#erteklista_id').val()){
+        $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
+        $('#erteklista_id_autocomp').addClass('hibas_ide_focus');
+        alert2('Kérjük válasszon területet!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
+        return false;
+    }
+    if(!$('#osszeg').val()){
+        $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
+        $('#osszeg').addClass('hibas_ide_focus');
+        alert2('Kérjük adja meg az összeget!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
+        return false;
+    }
 
     if( pageID ) {
         var ajax = $.ajax({

@@ -82,7 +82,7 @@ if (isset($_POST['eloterj_visszanyit'])) {
     exit();
 }
 
-/* CSV generálása */
+// CSV generálása
 if (isset($_GET['csv'])) {
 
     $mibol   = get_web_charset();
@@ -112,7 +112,10 @@ if (isset($_GET['csv'])) {
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
         $sql = 'SELECT
-                `'.get_db_tabla().$megnevezes.'`.`nev` as \'Név\'
+                `'.get_db_tabla().$megnevezes.'`.`stat_id` as \'Státusz\',
+                `'.get_db_tabla().$megnevezes.'`.`ikt_szam` as \'Azonosító\',
+                `'.get_db_tabla().$megnevezes.'`.`nev` as \'Név\',
+                `'.get_db_tabla().$megnevezes.'`.`ules_datum` as \'Ülés dátuma\'
                 '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);
@@ -124,29 +127,15 @@ if (isset($_GET['csv'])) {
         fputcsv($open, $csvhead, ';');
 
         while( $sorok = mysqli_fetch_assoc($query) ){
+            
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
-                if($kulcs=='Szálloda'){
-                    $sor = getErtek('nev', 'telephely', 'id', $sor);
-                }
-                if($kulcs=='Bejelentett hiba'){
-                    $sor = getErtek('info', 'erteklista', 'recid', $sor);
-                }
-                if($kulcs=='Helyiség'){
-                    $sor = getErtek('nev', 'obj', 'recid', $sor);
-                }
-                if($kulcs=='Gépnév'){
-                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
-                }
-                if($kulcs=='Típus'){
-                    $sor = erteklista(6, $sor);
-                }
                 if($kulcs=='Státusz'){
                     $sor = getStatText('munkalap', $sor);
                 }
-
                 $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
             }
+
             fputcsv($open, $csvcont, ';');
         }
     }
@@ -162,6 +151,7 @@ if (isset($_GET['csv'])) {
     $weblap->leallit();
     exit();
 }
+
 
 
 
