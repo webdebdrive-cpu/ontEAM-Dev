@@ -119,8 +119,8 @@ if(isset($_POST['session_name'])){
 
                         echo get_tobbkep_thumb($sor_kepek, count($osszes_sor));
                     } else {
-                        $sor_kep = $adatbazis_kapcsolat->s('id', $_SESSION['fajl']['tabla'], "`id` = '{$id}' AND `utvonal` = '{$kep_tort}'", '', '0,1');
-
+                        $sor_kep = $adatbazis_kapcsolat->s($_SESSION['fajl']['oszlop'], $_SESSION['fajl']['tabla'], "`".$_SESSION['fajl']['oszlop']."` = '".$_POST['sorid']."' AND `utvonal` = '{$kep_tort}'", '', '0,1');
+                        
                         if( !$sor_kep ) {
                             $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'],
                                 array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev' ),
@@ -232,6 +232,8 @@ $minden_kesz = '';
 if($tobbkep_tablanev=='eszkozkezeles_eng_dok'){
     $minden_kesz = 'kapcsolodoSzerkeszt(\'eszkozkezel_engedely\');';
     $gomb_neve   = 'Új engedély feltöltése';
+} else {
+    $minden_kesz = 'szamlaBetolt(_get(\'id\'), baseName(location.href) + \'.php\', \'dokumentumok\');';
 }
 
 $sorrend_ujkep       = fajlbol_olvas('../sablon/admin/tobbkep_ujkep.html', true);
