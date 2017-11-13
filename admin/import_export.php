@@ -1564,7 +1564,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                 array('id', 'kezdho', 'kezdnap', 'vegeho', 'vegenap', 'idoszakos', 'aktiv', 'telephely_id', 'obj_id', 'gep_id', 'nev', 'leiras', 'riaszt', 'szemelyzet_id', 'hatosagi', 'cikltip',     'ciklaltip', 'ciklho', 'ciklho2', 'ciklhet', 'ho_rendsz_het', 'ciklnap', 'ciklszorz', 'honapjan', 'hataly_d', 'utnap_d', 'aktkezd_d', 'aktvege_d', 'esnap_d', 'utesnap_d', 'esem_d', 'loginnev', 'update_usr', 'insert_dt', 'insert_usr' ),
                                 array($id,  $kezdho,  $kezdnap,  $vegeho,  $vegenap,  $idoszakos,  $aktiv,  $telephely_id,  $obj_id,  $gep_id,  $nev,  $leiras,  $riaszt,  $szemelyzet_id,  $hatosagi,  $cikltip,      $ciklaltip,  $ciklho,  $ciklho2,  $ciklhet,  $ho_rendsz_het,  $ciklnap,  $ciklszorz,  $honapjan,  $hataly_d,  $utnap_d,  $aktkezd_d,  $aktvege_d,  $esnap_d,  $utesnap_d,  $esem_d,  $login_nev, $update_usr,  $insert_dt,  $insert_usr  )
                             );
-echo $adatbazis_kapcsolat->gp() . '<br>';
+
                         }
 
 					}

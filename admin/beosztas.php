@@ -36,7 +36,7 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');   //Azok a
 $szamla_html = '';
 
 
-//Adott beosztás adatinak lekérése kiíratáshoz
+// Adott beosztás adatinak lekérése kiíratáshoz
 if (isset($_POST['get_beosztas_adatok'])) {
 
     $naptar = $adatbazis_kapcsolat->s('felh_loginnev beosztas tol ig', 'beosztas_naptar', "`recid`='{$_POST['id']}'");
@@ -63,10 +63,10 @@ if (isset($_POST['get_beosztas_adatok'])) {
     exit;
 }
 
-//Naptárba tevés
+// Naptárba tevés
 if (isset($_POST['beosztas_naptarba_teszt'])) {
 
-    //Tranzakció indul
+    // Tranzakció indul
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
@@ -79,7 +79,7 @@ if (isset($_POST['beosztas_naptarba_teszt'])) {
     $_POST['tol'] = str_replace('.', '-', $_POST['tol']);
     $_POST['ig']  = str_replace('.', '-', $_POST['ig']);
 
-    //Előbb nézzük meg, hogy nincs-e ütközés más időponttal
+    // Előbb nézzük meg, hogy nincs-e ütközés más időponttal
     $utkozes = $adatbazis_kapcsolat->s('id', 'beosztas_naptar', nl2("
                                                                 `beosztas_id`='{$_POST['beosztas_id']}' AND
                                                                 `felh_loginnev`='$felh_loginnev'        AND
@@ -92,7 +92,7 @@ if (isset($_POST['beosztas_naptarba_teszt'])) {
     if($utkozes===false){
         $db_error = true;
     }
-    //Ha nincs ütközés, vagy felülírhatjuk, akkor beszúrjuk
+    // Ha nincs ütközés, vagy felülírhatjuk, akkor beszúrjuk
     if(!$utkozes || $_POST['felulir']){
         $sql = $adatbazis_kapcsolat->i('beosztas_naptar',   array('beosztas_id',         'tol',        'ig',           'beosztas',         'szerepkor',        'felh_loginnev'),
                                                             array($_POST['beosztas_id'], $_POST['tol'], $_POST['ig'], $_POST['beosztas'], $_POST['szerepkor'], $felh_loginnev)
@@ -101,7 +101,7 @@ if (isset($_POST['beosztas_naptarba_teszt'])) {
             $db_error = true;
         }
 
-        //Ha felül kell írni, akkor 3 estet le kell kezelni
+        // Ha felül kell írni, akkor 3 estet le kell kezelni
         if($_POST['felulir']){
 
             //Ha teljes az átfedés, akkor az eredeti bejegyzést töröljük, hisz egy új jött létre helyette
@@ -117,7 +117,7 @@ if (isset($_POST['beosztas_naptarba_teszt'])) {
 
         }
 
-    //Ha van ütközés, rákérdezünk, hogy biztosan?
+    // Ha van ütközés, rákérdezünk, hogy biztosan?
     }else{
 
         //a már megengedtük a felülírást, akkor nem kérdezzük meg újra
@@ -143,7 +143,7 @@ if (isset($_POST['beosztas_naptarba_teszt'])) {
     exit;
 }
 
-//Beosztás naptár
+// Beosztás naptár
 if (isset($_POST['naptar_torol'])) {
 
     //Tranzakció indul
@@ -661,8 +661,6 @@ require_once('selectek.php');
                 $i++;
             }
         }
-
-        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

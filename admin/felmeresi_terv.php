@@ -524,8 +524,6 @@ require_once('selectek.php');
             }
         }
 
-        $szamla_html .= '</div>';
-
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html.$gombok,

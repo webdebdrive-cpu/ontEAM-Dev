@@ -612,7 +612,6 @@ if(isset($_GET['modosit_ules'])){
             ');
             $i++;
         }
-        $szamla_html .= '</div>';
         
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -651,8 +650,6 @@ if(isset($_GET['modosit_ules'])){
                 $i++;
             }
         }
-
-        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

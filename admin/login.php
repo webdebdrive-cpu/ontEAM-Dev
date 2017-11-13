@@ -562,9 +562,8 @@ require_once('selectek.php');
     //Szállodák fül
     }elseif(isset($_GET['szallodak'])) {
 
-        $felh = $adatbazis_kapcsolat->s('recid nev', 'login', 'recid='.$_GET['id'], '', '1');
+        $felh = $adatbazis_kapcsolat->s2('recid nev', 'login', 'recid='.$_GET['id'], '', '1');
         if( $felh ) {
-            $felh = $felh[0];
 
             $sorok = $adatbazis_kapcsolat->s('recid telephely_id', 'telephely_kapcs', '`nev`=\''.$felh['nev'].'\'');
             $szamla_html .= '<div id="tablazatBeszur">';
@@ -651,8 +650,6 @@ require_once('selectek.php');
                 $i++;
             }
         }
-
-        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
