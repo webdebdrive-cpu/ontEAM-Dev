@@ -314,9 +314,9 @@ $(function() {
 
     /* Léptetés lefele nyíllal, lépkedve le fel */
     $(document).on('keyup', function(e) {
-        
+
         if( e.keyCode == 38 || e.keyCode == 40 ) {
-            
+
             var className = e.target.className;
             popup_display = $('#popup').css('display');
 
@@ -370,7 +370,9 @@ $(function() {
                 var active = $('#szamlaList li.szamla_sor.kijelolve').index('#szamlaList li.szamla_sor'),
                     szamlaDb = $('#szamlaList li.szamla_sor').length - 1;
 
-                $('#szamlaList li.szamla_sor').removeClass('kijelolve');
+                if( !formModositva ) {
+                    $('#szamlaList li.szamla_sor').removeClass('kijelolve');
+                }
 
                 if( e.keyCode == 38 ) {
                     kovSzamlaSor = active - 1;
@@ -386,7 +388,9 @@ $(function() {
                     }
                 }
 
-                $('#szamlaList li.szamla_sor').eq(kovSzamlaSor).addClass('kijelolve');
+                if( !formModositva ) {
+                    $('#szamlaList li.szamla_sor').eq(kovSzamlaSor).addClass('kijelolve');
+                }
 
                 var szamlaID = $('#szamlaList li.szamla_sor').eq(kovSzamlaSor).attr('data-recid');
 
@@ -948,6 +952,18 @@ $(function() {
     $(document).ajaxComplete(function (event, xhr, settings) {
         /* Felhasználóknál szálloda hozzáadása popup miatt ezt mégis kivettük, mert nem működött az autocomplete popupban: $('form.popupForm input.focus').select();*/
         $('#ajaxfedo').addClass('dn');
+
+        if( $('#szamlaList li.csoport').hasClass('kijelolve') ) {
+            /* Ha épp egy csoporton állunk, akkor elrejtük a jobb oldali tartalmakat */
+            $('#szamlaList li.csoport').each(function () {
+                if($(this).hasClass('kijelolve')){
+                    csoport_tartalom();
+                }
+            });
+        } else {
+            $('li.szamla_sor').removeClass('kijelolve');
+            $('#szamla-' + _get('id')).addClass('akt kijelolve');
+        }
     });
 
     $(document).on('click', 'ul.telephelyek a.nyit', function() {
@@ -1234,7 +1250,7 @@ $(function() {
             alert2();
             felh_valt();
             kijelolesEltavolit();
-            
+
             /* Ha popupban kaptunk volna hibaüzenetet, akkor visszatérve fókuszáljunk a hibásnak jelölt inputra */
             if($('#popup').is(':visible')){
                 $('#popup input.hibas_ide_focus, #popup textarea.hibas_ide_focus, #popup select.hibas_ide_focus').select();
@@ -1377,13 +1393,13 @@ function bejBejelentok( value ) {
 
 /* Új bejelentés feltöltés: első lépés, hogy telephelyet választunk */
 function bejSzallodaValaszt() {
-    
+
     /* Bejelentéseknél ha módosítva van egy adatlap, és újat szeretnénk feltölteni, akkor is egyből rákérdezünk, hogy biztosan elhagyja-e */
     if( formModositva ) {
         alert2('Biztosan elhagyja ezt a '+$('#rekord_neve_targy').html()+' mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; bejSzallodaValaszt();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
         return false;
     }
-    
+
     $.ajax({
      	url : 'bejelentes.php',
         type: 'POST',
