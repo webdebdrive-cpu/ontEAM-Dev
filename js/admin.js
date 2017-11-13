@@ -314,7 +314,9 @@ $(function() {
 
     /* Léptetés lefele nyíllal, lépkedve le fel */
     $(document).on('keyup', function(e) {
+        
         if( e.keyCode == 38 || e.keyCode == 40 ) {
+            
             var className = e.target.className;
             popup_display = $('#popup').css('display');
 
@@ -1373,7 +1375,15 @@ function bejBejelentok( value ) {
     }
 }
 
+/* Új bejelentés feltöltés: első lépés, hogy telephelyet választunk */
 function bejSzallodaValaszt() {
+    
+    /* Bejelentéseknél ha módosítva van egy adatlap, és újat szeretnénk feltölteni, akkor is egyből rákérdezünk, hogy biztosan elhagyja-e */
+    if( formModositva ) {
+        alert2('Biztosan elhagyja ezt a '+$('#rekord_neve_targy').html()+' mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; bejSzallodaValaszt();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
+        return false;
+    }
+    
     $.ajax({
      	url : 'bejelentes.php',
         type: 'POST',
@@ -2557,7 +2567,7 @@ function csoportbolTorol( oszlop ) {
 
 }
 
-/* Csoporthoz adás */
+/* Csoporthoz adáskor új csoport létrehozása */
 function addCsoport() {
     var ujcsoport = $('input[name="ujcsoportnev"]');
 
@@ -2640,7 +2650,7 @@ function csoportbaRendez( that ) {
                 alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
             }
         } else {
-            alert2('Kérem válasszon egy csoport', '', 'Hiba');
+            alert2('Kérem válasszon csoportot vagy hozzon létre újat!', '', 'Hiba');
         }
     }
 
@@ -3375,7 +3385,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
         /* ha volt üres pipa mellett üres mennyiség sor, akkor rákrédezünk */
         if(ures_men_ek_pipa0 && !ures_men_ek_pipa0_kesz){
             gombok = '<input class="link gomb" value="Igen" onclick="anyagigenyles_erkeztet(\'ures_men_ek_pipa0_kesz nem kérdezzük meg megint\', \'\', \'túlrendelés kérdésen már túl vagyunk\')" type="button"> <input class="link gomb" value="Nem" onclick="alert2()" type="button">';
-            alert2(ures_men_ek_pipa0+'<div class="l">Ezekhez az anyagokhoz nem adott meg beérkezett mennyiséget.<br>Ha folytatja, továbbra is beérkezésre váró státuszban maradnak!<br>Folytatja?</div>', gombok);
+            alert2(ures_men_ek_pipa0+'<div class="l">Ezekhez az anyagokhoz nem adott meg beérkezett mennyiséget.<br>Ha folytatja, továbbra is beérkezés alatt státuszban maradnak!<br>Folytatja?</div>', gombok);
             return false;
         }
         if(ures_men_ek_pipa1 && !ures_men_ek_pipa1_kesz){
@@ -3830,10 +3840,12 @@ function inArray( keresett, tomb ) {
     return false;
 }
 
+/* Navigáció előző */
 function naviElozo() {
     $(document).trigger(jQuery.Event('keyup', {keyCode: 38}));
 }
 
+/* Navigáció következő */
 function naviKov() {
     $(document).trigger(jQuery.Event('keyup', {keyCode: 40}));
 }
@@ -4267,7 +4279,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
 
     alert2('');
     if( formModositva && !kerdes_nelkul ) {
-        alert2('Biztosan elhagyja ezt a bejegyzést mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; szamlaBetolt( \'' + recid + '\', \'' + page + '\', \'' + muvelet + '\', \'' + szerkeszt + '\' ); $(\'#szamlaList li.szamla_sor\').removeClass(\'kijelolve\');" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
+        alert2('Biztosan elhagyja ezt a '+$('#rekord_neve_targy').html()+' mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; szamlaBetolt( \'' + recid + '\', \'' + page + '\', \'' + muvelet + '\', \'' + szerkeszt + '\' ); $(\'#szamlaList li.szamla_sor\').removeClass(\'kijelolve\');" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
         return false;
     }
 
@@ -4486,10 +4498,6 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
 
                     } else {
                         $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?uj');
-                    }
-
-                    if( !_get('megjegyzesek') && baseName(location.href) == 'bejelentes' && $('#diszpecser').length){
-                        /*$('#navGombok a.uj').attr('href', 'javascript: alert2(\'Diszpécserként nem hozhat létre új bejelentést!\'); void(0);');*/
                     }
 
                     /* Ha épp egy csoporton állunk, akkor elrejtük a jobb oldali tartalmakat */

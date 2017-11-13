@@ -933,7 +933,7 @@ function i_u($type, $tabla, $tomb) {
 
         }
 
-        //Szeméyzet aktív/ianktív váltása a hozzá tartozó login-t is aktív/inaktiválja
+        //Szeméyzet aktív/inaktív váltása a hozzá tartozó login-t is aktív/inaktiválja
         if( $tabla == 'torzsadat' ) {
             $login_nev = $adatbazis_kapcsolat->s('felh_loginnev', $tabla, "`recid`='{$_GET['id']}'");
             $login_nev = $login_nev[0];
@@ -1058,6 +1058,10 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 //Ha dátum mező, akkor az ürességet másképp figyeljük
                 if($ertek['alert'] && (strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false)){
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.substring(0,1)==\'\xa0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; } ';
+                }
+                // Személyzet_id-nál a 0 sem elfogadható érték
+                if($ertek['alert'] && $ertek['name']=='szemelyzet_id'){
+                    $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; } ';
                 }
 
                 if($ertek['mail']){
@@ -2038,16 +2042,16 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
     $limit = $lapozo ->getLimit();
 //echo 'sel:'.$select . ' ir:'.$irany.' or:'.$order.' lim:'.$limit.' where:'.$where.'<br>';
 
-    //Telephely táblával JOIN-olva, ha telephely_id alapján rendezünk vagy a selectben szerepel ez az oszlop
+    // Telephely táblával JOIN-olva, ha telephely_id alapján rendezünk vagy a selectben szerepel ez az oszlop
     $bejegyzesek = array();
     if(strpos($order, 'telephely_id')!==false  || strpos($select, 'telephely_id')!==false){
 
-        //Először is az ordert felülírjuk, ha eszerint akartunk rendezni
+        // Először is az ordert felülírjuk, ha eszerint akartunk rendezni
         if(strpos($order, 'telephely_id')!==false){
             $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
         }
 
-        //Rendezés anyagigényléskor
+        // Rendezés anyagigényléskor
         if($tabla=='anyagigenyles'){
             //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             if($_GET['rend']=='ikt_szam'){
@@ -2055,7 +2059,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             }
         }
 
-        //Rendezés beosztásnál
+        // Rendezés beosztásnál
         if($tabla=='beosztas'){
             //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             if($_GET['rend']=='telephely_id'){
@@ -2063,28 +2067,23 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             }
         }
 
-        //Bejelentéseknél a rendezés külön problémakör:
+        // Bejelentéseknél a rendezés külön problémakör:
         if($tabla=='bejelentes'){
 
             $order = '';
-            //Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
-            //Csoportosítás már nincs
-//            if(_jog(JOG_MUNKALAP_KESZITHET)){
-//                $order .= '`'.get_db_tabla().'bejelentes_csoport`.`nev`, ';
-//            }
 
             $irany_ikt_szam  = '';
             $irany_telephely = '';
 
-            //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            // Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             if($_GET['rend']=='surgos'){
                 $order .= '`'.get_db_tabla().'bejelentes`.`surgos` DESC, `'.get_db_tabla().'bejelentes`.`stat_id`, `'.get_db_tabla().'bejelentes`.`ikt_szam`';
 
-            //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
+            // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             }elseif($_GET['rend']=='telephely_id'){
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'bejelentes`.`ikt_szam`';
 
-            //Alapértelmezett rendezettség a sürgős, azon belül státusz
+            // Alapértelmezett rendezettség a sürgős, azon belül státusz
             }elseif($_GET['rend']=='ikt_szam'){
                 $order .= '`'.get_db_tabla().'bejelentes`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
             }
@@ -2366,13 +2365,13 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             ');
                         }
 
-                        $csoport_bej = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`csoport_id` = '{$aktCsoport}'", '', '');
+                        //Ha egy csoport elemén vagyunk, akkor a ki-be nyitó ikon "-"-on legyen
+                        $csoport_bej = $adatbazis_kapcsolat->s('recid', $tabla, "`csoport_id` = '{$aktCsoport}'");
                         $csoport_active = '';
                         if( $csoport_bej ) {
                             $csoport_bej = adatbazis2tomb($csoport_bej, 'recid');
-
                             if( in_array($_GET['id'], $csoport_bej) ) {
-                                //$csoport_active = ' kijelolve';
+                                $csoport_active = ' nyitva';
                             }
                         }
 
@@ -2543,12 +2542,11 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $aktCsoport = $bsz['csoport_id'];
 
                 if( $i == 1 || $csoport != $aktCsoport ) {
-                    $csoportSor = $adatbazis_kapcsolat->s('nev', $tabla.'_csoport', 'recid='.$aktCsoport, '', '1');
+                    $csoportSor = $adatbazis_kapcsolat->s2('nev', $tabla.'_csoport', 'recid='.$aktCsoport, '', '1');
 
                     if( $csoportSor ) {
-                        $csoportSor = $csoportSor[0];
 
-                        /* Van e sürgős */
+                        // Van e sürgős
                         $surgos_e = $adatbazis_kapcsolat->s('recid', $tabla, "`csoport_id` = '{$aktCsoport}' AND `surgos` > 0", '', '1');
                         $surgos_icon = '';
                         if( $surgos_e ) {
@@ -2559,11 +2557,14 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             ');
                         }
 
+                        //Ha egy csoport elemén vagyunk, akkor a ki-be nyitó ikon "-"-on legyen
                         $csoport_bej = $adatbazis_kapcsolat->s('recid', $tabla, "`csoport_id` = '{$aktCsoport}'");
-
                         $csoport_active = '';
                         if( $csoport_bej ) {
                             $csoport_bej = adatbazis2tomb($csoport_bej, 'recid');
+                            if( in_array($_GET['id'], $csoport_bej) ) {
+                                $csoport_active = ' nyitva';
+                            }
                         }
 
                         $html .= nl2('
@@ -3175,9 +3176,14 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     if( $csoportSor ) {
                         $csoport_bej = $adatbazis_kapcsolat->s('recid', $tabla, "`csoport_id` = '{$aktCsoport}'");
 
+                        //Ha egy csoport elemén vagyunk, akkor a ki-be nyitó ikon "-"-on legyen
+                        $csoport_bej = $adatbazis_kapcsolat->s('recid', $tabla, "`csoport_id` = '{$aktCsoport}'");
                         $csoport_active = '';
                         if( $csoport_bej ) {
                             $csoport_bej = adatbazis2tomb($csoport_bej, 'recid');
+                            if( in_array($_GET['id'], $csoport_bej) ) {
+                                $csoport_active = ' nyitva';
+                            }
                         }
 
                         $html .= nl2('

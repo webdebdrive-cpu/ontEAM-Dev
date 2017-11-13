@@ -937,7 +937,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
         if(!$igenylesek){
             echo json_encode(array(
                 'hiba' => nl2('
-                                Jelenleg egyik anyagigénylés sincs árazva státuszba,<br>tehát nincs jóváhagyásra váró anyagigénylés!
+                                Jelenleg egyik anyagigénylés sincs árazva státuszba,<br>tehát nincs jóváhagyás alatt anyagigénylés!
                             '),
             ));
             $weblap->leallit();
@@ -949,7 +949,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
 
         echo json_encode(array(
             'hiba' => nl2('
-                            Jóváhagyásra váró érték: '.number_format($ertek, 2, ',', ' ').' '.get_penznem().'
+                            Jóváhagyás alatti érték: '.number_format($ertek, 2, ',', ' ').' '.get_penznem().'
                             <br>Folytatja?
                         '),
             'gomb' => '<input class="gomb piros" value="Igen" onclick="anyagigenyles_mind_jovahagy();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
@@ -960,7 +960,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
     }
 
 
-    //Státusz léptetés jóváhagyvára
+    //Státusz léptetés jóváhagyás alattra
     $igenylesek = $adatbazis_kapcsolat->s('recid rndmen', 'anyagigenyles', "`stat_id`='".CIKKIGN_STAT_ARAZVA."'".get_akt_login_szallodai('sql'));
     foreach ($igenylesek as $igeny){
 
@@ -1739,7 +1739,7 @@ require_once('selectek.php');
                         function jovahagy_kiszamol(){
                             jhmen  = $(\'#jhmen\') .val().replace(\',\', \'.\').replace(/ /g,\'\');
                             rndear = $(\'#rndear\').val().replace(\',\', \'.\').replace(/ /g,\'\');
-                            $(\'#jovahagy_ertek\').html(\'Jóváhagyásra váró érték: \'+ezresek(jhmen*rndear, 2, \',\', \' \')+\' '.get_penznem().'\' );
+                            $(\'#jovahagy_ertek\').html(\'Jóváhagyás alatti érték: \'+ezresek(jhmen*rndear, 2, \',\', \' \')+\' '.get_penznem().'\' );
                         }
                     </script>
                     ');
@@ -1875,7 +1875,7 @@ require_once('selectek.php');
 	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
 
-        //Igénylésre váró anyagok a munkalapokon:
+        //Igénylés alatti anyagok a munkalapokon:
         //A beloginolt user szállodáit érintő munkalapokat szedjük össze
         $szallodak = get_akt_login_szallodai();
         if($szallodak){
@@ -1891,17 +1891,17 @@ require_once('selectek.php');
                 $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`=1");
                 foreach($telephelyek as $telephely){
 
-                    //Azon belül anyagonként járjuk be
+                    // Azon belül anyagonként járjuk be
                     $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`='".DISZPNAG_STAT_ANYAGRA_VAR."' AND `telephely_id`='{$telephely['telephely_id']}'");
                     foreach($anyagok as $anyag){
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 
-                        //A mutat linkbe csak azokat a munkalapokID-kat kell fevenni, ami adott anyag/státusz/telephelyhez tartozik
+                        // A mutat linkbe csak azokat a munkalapokID-kat kell fevenni, ami adott anyag/státusz/telephelyhez tartozik
                         $akt_munkalapok = $adatbazis_kapcsolat->s('distinct munkalap_id', 'munkalap_anyag', "`cikk_id`='{$anyag['cikk_id']}' AND `stat_id`='".DISZPNAG_STAT_ANYAGRA_VAR."' AND `telephely_id`='{$telephely['telephely_id']}'");
                         $akt_munkalapok = adatbazis2tomb($akt_munkalapok, 'munkalap_id');
                         $akt_munkalapok = implode(',', $akt_munkalapok);
 
-                        //Igénylésre váró darabszám kiszámítása
+                        // Igénylés alatti darabszám kiszámítása
                         $ig_var = 0;
                         $akt_anyagok = $adatbazis_kapcsolat->s('recid cikk_nev cikk_id szuk_men cikk_mee', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `cikk_id`='{$anyag['cikk_id']}' AND `stat_id`='".DISZPNAG_STAT_ANYAGRA_VAR."' AND `telephely_id`='{$telephely['telephely_id']}'");
                         foreach($akt_anyagok as $akt_anyag){
@@ -1917,14 +1917,14 @@ require_once('selectek.php');
                         $cikk_id = $adatbazis_kapcsolat->s('recid', 'cikktorzs', "`id`='{$cikkid_origi}'");
                         $cikk_id = $cikk_id[0]['recid'];
 
-                        //Anyagra váró darabszám kiszámítása (ugyanaz, csak másik státuszt figyelünk)
+                        // Anyagra váró darabszám kiszámítása (ugyanaz, csak másik státuszt figyelünk)
                         $anyag_var = 0;
                         $akt_anyagok = $adatbazis_kapcsolat->s('szuk_men', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`='".DISZPNAG_STAT_ANYAG_IGENYELVE."' AND `telephely_id`='{$telephely['telephely_id']}'");
                         foreach($akt_anyagok as $akt_anyag){
                             $anyag_var += $akt_anyag['szuk_men'];
                         }
 
-                        //Rendelés folyamatban kiszámítása: az összes olyan anyagigénylés, ahol adott anyag cikkszámmal dolgozunk és a státusza nem "törölt" és nem "lezárt"
+                        // Rendelés folyamatban kiszámítása: az összes olyan anyagigénylés, ahol adott anyag cikkszámmal dolgozunk és a státusza nem "törölt" és nem "lezárt"
                         $folyamatban = 0;
                         $folyamatbanok = $adatbazis_kapcsolat->s('igmen', $megnevezes, "`cikk_id`='$cikk_id' AND `telephely_id`='{$telephely['telephely_id']}' AND `stat_id` NOT IN (".CIKKIGN_STAT_LEZART.", ".CIKKIGN_STAT_TOROLT.")");
                         foreach($folyamatbanok as $foly){
@@ -1959,13 +1959,13 @@ require_once('selectek.php');
 
                 if($anyagok_html){
                     $szamla_html .= nl2('
-                                        <p style="margin-top: 2rem" class="b">Igénylésre váró anyagok a munkalapokon:</p>
+                                        <p style="margin-top: 2rem" class="b">Igénylés alatti anyagok a munkalapokon:</p>
                                         <table class="csikos">
                                         <tr>
                                             <th>Szálloda</th>
                                             <th>Cikk</th>
                                             <th>Név</th>
-                                            <th>Munkalapon igénylésre vár</th>
+                                            <th>Munkalapon igénylés alatt</th>
                                             <th>Munkalapon anyagra vár</th>
                                             <th>Igénylés rendelés folyamatában</th>
                                             <th>Mee</th>
@@ -2090,7 +2090,7 @@ require_once('selectek.php');
                 if(_jog(JOG_ANYAGIGENYLES_KEZEL)){
                     $nincs_folyamatban_statuszok = array(CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_VARAKOZO);
                     if(!in_array($sor['stat_id'], $nincs_folyamatban_statuszok)){
-                        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Az anyagigénylés nem törölhető, mert a státusza nem NYITOTT, ÁRAZVA vagy VÁRAKOZÓ!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+                        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Az anyagigénylés nem törölhető, mert a státusza nem Nyitott, Árazva vagy Várakozó!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
                     }else{
                         $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].', \'Kérdés\')" value="Töröl" title="Töröl">';
                     }

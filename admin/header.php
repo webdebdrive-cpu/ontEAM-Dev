@@ -936,10 +936,11 @@ if( basename(self())=='anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL)){
     //$uj             = '';
 }
 
-if(basename(self())=='bejelentes.php' && (!_jog(JOG_BEJELENTES_KEZEL))&& !_jog(JOG_BEJELENTES_MAS_NEVEBEN)){
-    $torles_icon    = '';
+if(basename(self())=='bejelentes.php' && (!_jog(JOG_BEJELENTES_KEZEL)) && !_jog(JOG_BEJELENTES_MAS_NEVEBEN)){
     $uj             = '';
-
+}
+if(basename(self())=='bejelentes.php' && !_jog(JOG_BEJELENTES_TORLESE)){
+    $torles_icon    = '';
 }
 
 if( basename(self())=='beosztas.php' && !_jog(JOG_BEOSZTASOK_KEZEL)){

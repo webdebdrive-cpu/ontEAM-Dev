@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 71-es ID-nál járunk
+ * 72-es ID-nál járunk
  * 11 -es kategória ID-nál járunk
 \*                                                  */
 
@@ -28,12 +28,13 @@ $jogosultsagok = array(
     56 => array('nev' => 'Bejelentés más nevében',                          'kat' => 0, 'sor' => 3, 'bekapcs' => '57',     'kikapcs' => '1'    ),
     41 => array('nev' => 'Bejelentések elutasítása',                        'kat' => 0, 'sor' => 4, 'bekapcs' => '1'   ),
     71 => array('nev' => 'Bejelentések vizsgálat',                          'kat' => 0, 'sor' => 5   ),
+    72 => array('nev' => 'Bejelentések törlése',                            'kat' => 0, 'sor' => 6   ),
 
     3  => array('nev' => 'Saját megtekintése',                              'kat' => 1, 'sor' => 1  ),
     4  => array('nev' => 'Saját szállodák megtekintése',                    'kat' => 1, 'sor' => 2,  'kikapcs' => '3'   ),
     5  => array('nev' => 'Új létrehozása',                                  'kat' => 1, 'sor' => 3  ),
     68 => array('nev' => 'Munkalap törlése',                                'kat' => 1, 'sor' => 4  ),
-    2  => array('nev' => 'Munkalapot készíthet',                            'kat' => 1, 'sor' => 5  ),
+    2  => array('nev' => 'Munkalapot készíthet bejelentésből',              'kat' => 1, 'sor' => 5  ),
     31 => array('nev' => 'Nyitottak kezelése',                              'kat' => 1, 'sor' => 6  ),
     21 => array('nev' => 'Várakoztatás',                                    'kat' => 1, 'sor' => 7  ),
     22 => array('nev' => 'Saját kezelése',                                  'kat' => 1, 'sor' => 8  ),
@@ -102,7 +103,6 @@ $jogosultsagok = array(
 
     42 => array('nev' => 'Eszközök olvasása',               'kat' => 8, 'sor' => 1, 'kikapcs' => '43'),
     43 => array('nev' => 'Eszközök kezelése',               'kat' => 8, 'sor' => 2, 'bekapcs' => '42'),
-    
     
     44 => array('nev' => 'Felmérési tervek olvasása',         'kat' => 11, 'sor' => 3, 'kikapcs' => '45'),
     45 => array('nev' => 'Felmérési tervek kezelése',         'kat' => 11, 'sor' => 4, 'bekapcs' => '44'),

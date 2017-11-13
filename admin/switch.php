@@ -97,9 +97,7 @@ foreach($akt_tomb as $ertek){
                 $tabla = 'obj';
             }
             $kulso_ertek = $adatbazis_kapcsolat->s($ertek['listaz'], $tabla, '`'.$ertek['oszlop_keres'].'`=\''.$kulso_val.'\''.$csoport_where, '', '1');
-if (isset($_GET['teszt'])) {
-    //echo $adatbazis_kapcsolat->gp() . '<br>';
-}
+
             if( $kulso_ertek ) {
                 $input -> value = $kulso_ertek[0][$ertek['listaz']];
             }

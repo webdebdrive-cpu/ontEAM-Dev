@@ -2282,7 +2282,7 @@ if( isset($_POST['getMunkalapFeladatok']) ) {
         // Kezelés jog ellenőrzése
         if( !_jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) && !_jog(JOG_MUNKALAP_SAJAT_KEZEL) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']!=$_SESSION[get_db_tabla().'szemelyzet_id'] ) ) {
             echo json_encode(array(
-                'hiba'  => 'Önnek nincs joga munkalapot felvenni!',
+                'hiba'  => 'Önnek nincs joga a művelethez!',
                 'title' => 'Hiba',
             ));
             $weblap->leallit();

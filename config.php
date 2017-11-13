@@ -19,7 +19,7 @@ error_reporting(E_ERROR);                       //Csak a hibákat írja ki
 require_once 'konstansok.php';
 
 //Adatbázis
-function get_db_tabla()   { return 'onteam_';                                                                               } //Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
+function get_db_tabla()   { return 'onteam_';                                                                           } //Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
 
 function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ? 'localhost'    : 'localhost'       );  } //Host
 function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ? 'wdbhu'        : 'szinvatrendhu1'  );  } //Adatbázis neve
@@ -39,12 +39,12 @@ function get_admin()         { return 'admin/';                                 
 function get_afa()           { return 27;                                       }
 function get_alapnyelv()     { return 'hu'/*pl. hu, en, de*/;                   } // Az oldal alapértelmezett nyelve mi legyen? Ez kerül a meta tagokba. A többnyelvűsítést a get_nyelvek()-nél kell beállítani.
 function get_alk()           { return
-                   ($_SERVER['HTTP_HOST']=='localhost') ? '' : '';            } // Rewritre rule localhoston is működjön, itt a www mappán belüli mappát add meg
-function get_country()       { return 'Hungary';                                     } // Pl.: Hungary
+                   ($_SERVER['HTTP_HOST']=='localhost') ? '' : '';              } // Rewritre rule localhoston is működjön, itt a www mappán belüli mappát add meg
+function get_country()       { return 'Hungary';                                } // Pl.: Hungary
 function css_img()           { return true;                                     } //Ha igaz, akkor a CSS-ben levő képeket DATA URI-ként beágyazza a CSS tartalmába, egyébént marad sima hivatkozás
-function get_domain()        { return 'www.onteam.hu';                        }
+function get_domain()        { return 'www.onteam.hu';                          }
 function get_mail($kiir)     { return !$kiir ? 'info@onteam.hu' :
-           mail_rejtes('<a href="mailto:'.get_mail().'">'.get_mail().'</a>'); }
+           mail_rejtes('<a href="mailto:'.get_mail().'">'.get_mail().'</a>');   }
 function get_megsz()         { return 'magaz';                                  }
 function get_mail_charset()  { return 'UTF-8';                                  } //ISO-8859-1, ISO-8859-2, Windows-1250, Windows-1251
 function get_nev()           { return 'onTEAM';                                 }

@@ -97,30 +97,11 @@ if (isset($_GET['isz2varos'])) {
     exit;
 }
 
-
-//Pretty URL-hez minta, hogyan azonosíts be a terméket
-//Hogy ne okozzon gondot minden egyes ID átadásakor ez a működés (pl. ajax hívásoknál), így ezt adott PHP fájlhoz kötjük.
-/*
-if(basename(self())=='index.php' && $_GET['id']){
-
-    $_GET['id'] = pretty_url_decode($_GET['id']);
-    $termek = $adatbazis_kapcsolat->s('id', 'termek', "`nevid`='{$_GET['id']}'");
-    $termek = $termek[0];
-    if($termek['id']){
-        $_GET['id'] = $termek['id'];
-    }
-
-}
-*/
-
+// Jogosultságok karbantartása
 if( $_SESSION[get_db_tabla().'user'] ) {
-    $felhasznalo = $adatbazis_kapcsolat->s('flags', 'login', 'nev='.$_SESSION[get_db_tabla().'user'], '', '1');
-
-    if( $felhasznalo ) {
-        $felhasznalo = $felhasznalo[0];
-
-        if( $felhasznalo['flags'] ) {
-            $_SESSION[get_db_tabla().'rights'] = str_split($felhasznalo['flags']);
-        }
+    $felhasznalo = $adatbazis_kapcsolat->s2('flags', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'", '', '1');
+    if( $felhasznalo['flags'] ) {
+        $_SESSION[get_db_tabla().'rights'] = str_split($felhasznalo['flags']);
     }
+
 }

@@ -130,7 +130,8 @@ array_push($select_szemelyzet, array('name' => 'Külső kivitelező',          '
 array_push($select_szemelyzet, array('name' => 'Műszaki vezető helyettes',  'value' => MUSZAKI_VEZETO_HELYETTES,'szin' => '#FFCBF1' ));
 array_push($select_szemelyzet, array('name' => 'Műszaki vezető',            'value' => MUSZAKI_VEZETO,          'szin' => '#FFCBCB' ));
 array_push($select_szemelyzet, array('name' => 'Területi felelős',          'value' => TERULETI_FELELOS,        'szin' => '#E0CBFF' ));
-array_push($select_szemelyzet, array('name' => 'Műszaki adminisztrátor',    'value' => MUSZAKI_ADMINISZTRATOR,  'szin' => '#E0CBFF' ));
+array_push($select_szemelyzet, array('name' => 'Műszaki ügyintéző',         'value' => MUSZAKI_ADMINISZTRATOR,  'szin' => '#E0CBFF' ));
+array_push($select_szemelyzet, array('name' => 'Diszpécser',                'value' => DISZPECSER,              'szin' => '#FFEBCB' ));
 array_push($select_szemelyzet, array('name' => 'Diszpécser közp. vezető',   'value' => DISZPECSER_KOZP_VEZETO,  'szin' => '#FFEBCB' ));
 array_push($select_szemelyzet, array('name' => 'MSZK vezető',               'value' => MSZK_VEZETO,             'szin' => '#E0CBFF' ));
 

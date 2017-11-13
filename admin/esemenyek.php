@@ -790,14 +790,6 @@ $kimeno_szamlak_tomb = $akt_tomb = array(
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
-//if (isset($_GET['teszt'])) {
-//    $valami = array('Szolgáltatásra adott el?leg', 'Követk.időszakot terh.költség,ráfordítás', 'Segédanyag tisztítószer', 'Nyomtatvány-irodaszer', 'Számítástechnikai anyag', 'Munkaruha felhasználás', 'Szerszám felhasználás', 'Védőétel-ital', 'Műszaki anyag vegyes', 'Műszaki anyag üzemeltetés', 'Műszaki segédanyag', 'Műszaki rb. anyagok', 'Ivóvíz díj', 'Csatornázási díj', 'Termál-, és gyógyvíz', 'Gyógyvíz', 'Villamos energia', 'Gáz', 'Olaj', 'Tüzelőanyag', 'Üzemanyag', 'Egyéb', 'Üzleti reprezentáció', 'Mosási költségtérítés', 'Személygépkocsi költségtérítés', 'Munkábajárás', 'Egyéb költségtérítés', 'Személyzeti menü', 'Személyzeti étkezés hozzájárulás', 'Kazán - karbantartás', 'Klíma - karbantartás', 'Felvonó - karbantartás', 'Egyéb épületgépészeti karbantartás', 'Elektromos hálózat karbantartás', 'Szőnyeg, padló - karbantartás', 'Festés, tapétázás - karbantartás', 'Vízvezeték-hálózat karbantartás', 'Egyéb - karbantartás', 'Konyhai gép - karbantartás', 'Kárpitos, asztalos - karbantartás', 'Takarítógép (2010.01.01-től nem használatos)', 'Mosodai gép - karbantartás', 'Számítógép (2010.01.01-től nem használatos)', 'Irodatechnika, telefon karbantartás', 'Tv, videó, stúdió - karbantartás', 'Gyengeáramú hálózat karbantartás', 'Járművek (2010.01.01-től nem használatos)', 'Tűzjelző - karbantartás', 'Gyógyászati, fitness berendezés karbantartás', 'Egyéb épület karbantartás', 'Uszoda - karbantartás', 'Egyéb gép, berendezés', 'Kapcsolóberendezés karbantartás', 'Egyéb épületvillamossági karbantartás', 'Belföldi szállítás', 'Szemétszállítás', 'Egyéb, veszélyes hulladék szállítás', 'Belföldi  egyéb (parkolás, közlekedés)', 'Szoftver felügyelet és követés', 'Posta', 'Internet', 'Egyéb ki nem emelt anyagjellegű költség', 'Előző évek anyagjellegű költségei', 'Csatornahálózat karbantartás', 'Távfűtés', 'Kéményseprés és egyéb', 'Külső szerződéssel foglalkoztatott munka', 'Bérelt eszközök bérleti díja', 'Lízing díjak', 'Egyéb  bérleti díj', 'Egyéb számlázott oktatási, tanfolyami dí', 'Szakértői díj', 'Tv, videó, kábeltelevízió előfizetés', 'Közvetített szolgáltatás (leány-anyaváll', 'Közvetített szolgáltatás(más vállalkozó)', 'Egyéb közvetített szolgáltatás', 'Előző évek közvetített szolgáltatásai', 'Káreseményekkel kapcs.ktgek', 'Késedelmi kamat', 'Fizetett kártérítés', 'Hulladék értékesítés (fordított adózás)');
-//    foreach($valami as $v){
-//        $adatbazis_kapcsolat->i('rendszer', array('nev', 'rkat', 'aktiv'), array($v, 5, 1));
-//    }
-//    exit;
-//}
-
 /* Rendszer */
 $megnevezes = 'ktghely';
 $ktghely_tomb = $akt_tomb = array(
@@ -867,13 +859,17 @@ $erteklista_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 /* Felhasználók */
+$disabled_uj = false;
+if (isset($_GET['uj'])) {
+    $disabled_uj = true;
+}
 $megnevezes = 'login';
 $login_tomb = $akt_tomb = array(
     array('type' => 'checkbox',         'megn' => 'Aktív felhasználó:',         'name' => 'aktiv',          'class' => 'check',             'szuro' => 1, 'post' => '<span style="margin-right: 4rem"></span>',   'osszevon' => true),
     array('type' => 'checkbox',         'megn' => 'Virtuális felhasználó:',     'name' => 'virtual',        'class' => 'check',             'szuro' => 1),
     array('type' => 'text',             'megn' => 'Login név:',                 'name' => 'nev',            'class' => 'f_loginnev',        'szuro' => 1,   'disabled' => $disabled_szerk,  'maxlength' => 10, 'alert' => 'Kérem töltse ki a login nevet!', 'style' => 'width: 10rem'),
     array('type' => 'text',             'megn' => 'Név:',                       'name' => 'teljes_nev',     'class' => 'oriasi',            'szuro' => 1,                 'maxlength' => 250, 'alert' => 'Kérem töltse ki a nevet!'),
-    array('type' => 'checkbox',         'megn' => 'Jelszóval rendelkezik:',     'name' => 'van_jelszo',     'class' => 'check',             'szuro' => 1),
+    array('type' => 'checkbox',         'megn' => 'Jelszóval rendelkezik:',     'name' => 'van_jelszo',     'class' => 'check',             'szuro' => 1, 'disabled' => $disabled_uj),
     array('type' => 'autocomplete',     'megn' => 'Beosztás:',                  'name' => 'beosztas_id',    'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a beosztást!'),
     array('type' => 'autocomplete',     'megn' => 'Részleg:',                   'name' => 'reszleg_id',     'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a részleget!'),
     array('type' => 'text',             'megn' => 'E-mail:',                    'name' => 'usermail',       'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250),
@@ -1723,11 +1719,11 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $megnevezes = 'torzsadat';
 $torzsadat_tomb = $akt_tomb = array(
     array('type' => 'checkbox',             'megn' => 'Aktív:',                 'name' => 'aktiv',                                  'szuro' => 1,   'class' => 'check'),
-	array('type' => 'text',                 'megn' => 'Munkavállaló neve:',     'name' => 'nev',            'maxlength' => 250,     'szuro' => 1,   'class' => 'oriasi'),
-	array('type' => 'text',                 'megn' => 'Születési ideje:',       'name' => 'szul_datum',                             'szuro' => 1,   'class' => 'kicsi datepicker'),
+	array('type' => 'text',                 'megn' => 'Munkavállaló neve:',     'name' => 'nev',            'maxlength' => 250,     'szuro' => 1,   'class' => 'oriasi',            'alert' => 'Kérjük adja meg a munkavállaló nevét!'),
+	array('type' => 'text',                 'megn' => 'Születési ideje:',       'name' => 'szul_datum',                             'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérjük adja meg a születés idejét!'),
 	array('type' => 'text',                 'megn' => 'Szakmája:',              'name' => 'szakma',         'maxlength' => 250,     'szuro' => 1,   'class' => 'oriasi'),
-    array('type' => 'select_szemelyzet',    'megn' => 'Beosztása:',             'name' => 'szemelyzet_id',                          'szuro' => 1,   'class' => 'disableNav'),
-	array('type' => 'text',                 'megn' => 'Munkaviszony kezdete:',  'name' => 'munka_kezd',                             'szuro' => 1,   'class' => 'kicsi datepicker'),
+    array('type' => 'select_szemelyzet',    'megn' => 'Beosztása:',             'name' => 'szemelyzet_id',                          'szuro' => 1,   'class' => 'disableNav',        'alert' => 'Kérjük adja meg a beosztást!'),
+	array('type' => 'text',                 'megn' => 'Munkaviszony kezdete:',  'name' => 'munka_kezd',                             'szuro' => 1,   'class' => 'kicsi datepicker',  'alert' => 'Kérjük adja meg a munkaviszony kezdetét!'),
 	array('type' => 'text',                 'megn' => 'Kompetenciák:',          'name' => 'komp',           'maxlength' => 250,     'szuro' => 1,   'class' => 'oriasi'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -2227,7 +2223,7 @@ if( isset($_GET['csoportSelect']) ) {
     $page = $_GET['page'];
 
     /* Lekérdezzük a csoportokat */
-    $html .= '<select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
+    $html .= '<select id="csoportID" name="csoportID"><option value="">- Válasszon -</option>';
 
     $csoportok = $adatbazis_kapcsolat->s('recid nev', $page.'_csoport', '', 'nev', '');
 
@@ -2726,7 +2722,7 @@ if( isset($_POST['csoportbolTorol']) ) {
         }
 
         /* Select előállítása */
-        $html = '<select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
+        $html = '<select id="csoportID" name="csoportID"><option value="">- Válasszon -</option>';
 
         $sql = $csoportok = $adatbazis_kapcsolat->s('recid nev', $page.'_csoport', '', 'nev', '');
         if( $sql === false ) { $db_error = true; }
@@ -2865,24 +2861,28 @@ if( isset($_GET['addCsoport']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sql = $csoport = $adatbazis_kapcsolat->s('nev', $page.'_csoport', "`nev` = '{$nev}'", '', '1');
-    if( $sql === false ) { $db_error = true; }
+    $csoport = $adatbazis_kapcsolat->s('nev', $page.'_csoport', "`nev` = '{$nev}'", '', '1');
+    if( $csoport === false ) { $db_error = true; }
 
     if( !$csoport ) {
-        $sql = $adatbazis_kapcsolat -> i($page.'_csoport',  array('nev', 'insert_dt',   'insert_usr',                            'update_usr'                            ),
+        $uj_csopid = $adatbazis_kapcsolat -> i($page.'_csoport',  array('nev', 'insert_dt',   'insert_usr',                            'update_usr'                            ),
                                                             array($nev,  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev']  )
                                         );
-        if( $sql === false ) { $db_error = true; }
+        if( $uj_csopid === false ) { $db_error = true; }
 
         /* Select előállítása */
-        $html = '<select id="csoportID" name="csoportID"><option value="">- Válassz -</option>';
+        $html = '<select id="csoportID" name="csoportID"><option value="">- Válasszon -</option>';
 
-        $sql = $csoportok = $adatbazis_kapcsolat->s('recid nev', $page.'_csoport', '', 'nev', '');
-        if( $sql === false ) { $db_error = true; }
+        $csoportok = $adatbazis_kapcsolat->s('recid nev', $page.'_csoport', '', 'nev', '');
+        if( $csoportok === false ) { $db_error = true; }
 
         if( $csoportok ) {
             foreach($csoportok as $csoport) {
-                $html .= '<option value="'.$csoport['recid'].'">'.$csoport['nev'].'</option>';
+                $selected = '';
+                if($csoport['recid']==$uj_csopid){
+                    $selected = ' selected';
+                }
+                $html .= '<option value="'.$csoport['recid'].'"'.$selected.'>'.$csoport['nev'].'</option>';
             }
         }
 
@@ -3470,10 +3470,9 @@ if( isset($_GET['addSzalloda']) ) {
     $szallID = $_GET['szallID'];
 
     if( $loginID && $szallID ) {
-        $felh = $adatbazis_kapcsolat->s('nev', 'login', 'recid='.$loginID, '', '1');
+        $felh = $adatbazis_kapcsolat->s2('nev', 'login', 'recid='.$loginID, '', '1');
 
         if( $felh ) {
-            $felh = $felh[0];
 
             $isKapcs = $adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`telephely_id` = '{$szallID}' AND `nev` = '".$felh['nev']."'", '', '1');
 
@@ -3875,14 +3874,10 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='anyagigenyles' && !_jog(JOG_ANYAGIGENYLES_KEZEL)){
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='bejelentes' && !_jog(JOG_BEJELENTES_KEZEL)){
+        if($ertek['tabla']=='bejelentes' && !_jog(JOG_BEJELENTES_TORLESE)){
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla']=='beosztas' && !_jog(JOG_BEOSZTASOK_KEZEL)){
-            $weblap -> leallit(); exit;
-        }
-        //Diszpécsser nem törölhet bejegyzést
-        if($ertek['tabla']=='bejelentes' && _jog(JOG_MUNKALAP_KESZITHET)){
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla']=='cikktorzs' && !_jog(JOG_CIKKTORZS_KEZEL)){
@@ -3929,12 +3924,12 @@ foreach($postok as $ertek){
             $weblap -> leallit(); exit;
         }
 
-        //Törléssel kapcsolatos műveletek egy tranzakció
+        // Törléssel kapcsolatos műveletek egy tranzakció
         $db_error = false;
         mysqli_autocommit($db_kapcs, false);
 
-        //Csak az törölheti, aki létrehozta
-        $csak_aki_letrehozta_torolheti = array('bejelentes', 'utemezett_feladatok', 'projektigenyles', 'rendszeres_karbantartas');
+        // Csak az törölheti, aki létrehozta
+        $csak_aki_letrehozta_torolheti = array('utemezett_feladatok', 'projektigenyles', 'rendszeres_karbantartas');
         if( in_array($ertek['tabla'], $csak_aki_letrehozta_torolheti) ){
             $loginnev = $adatbazis_kapcsolat->s('loginnev', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
             if( $loginnev === false ) { $db_error = true; }
@@ -3945,18 +3940,18 @@ foreach($postok as $ertek){
         }
 
         /* Kapcsolódó táblák törlése */
-        //Megjegyzéseket általánosságban
+        // Megjegyzéseket általánosságban
         $sql = $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='{$ertek['tabla']}' AND `id`='{$_GET[$ertek['torid']]}'");
         if( $sql === false ) { $db_error = true; }
 
-        //Státusz tábla törlése, hacsak nem kivételes
+        // Státusz tábla törlése, hacsak nem kivételes
         $kivetelek = array('eszkozkezeles', 'felmeresi_terv', 'utemezett_feladatok', 'szerepkor');
         if( !in_array($ertek['tabla'], $kivetelek) ){
             $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
         }
 
-        //Dokumentumok törlése
+        // Dokumentumok törlése
         $torolt_fajlok = '';
         $dokos_oldalak = array('anyagigenyles', 'bejelentes', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'munkalap', 'utemezett_feladatok', 'projektigenyles');
         if( in_array($ertek['tabla'], $dokos_oldalak) ){
@@ -3970,11 +3965,11 @@ foreach($postok as $ertek){
             if( $sql === false ) { $db_error = true; }
         }
 
-        //Felmérési tervnél a Tervlap is tartalmaz egy dokumentumot
+        // Felmérési tervnél a Tervlap is tartalmaz egy dokumentumot
         $fajl = $adatbazis_kapcsolat->s2('felm_terv', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
         kep_torol('../'.get_utvonal().$fajl['felm_terv']);
 
-        //Előterjesztéskor a kapcsolódó táblák és projektigénylés előterjesztés tábla törlése
+        // Előterjesztéskor a kapcsolódó táblák és projektigénylés előterjesztés tábla törlése
         if($ertek['tabla']=='eloterj_fb'){
             $elot = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_fb', "`recid`='{$_GET[$ertek['torid']]}'");
             if($elot['stat_id']!=ELOT_FB_STAT_NYITOTT){
@@ -3991,7 +3986,7 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='eloterj_bod'){
             $elot = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_bod', "`recid`='{$_GET[$ertek['torid']]}'");
             if($elot['stat_id']!=ELOT_BOD_STAT_NYITOTT){
-                exit;//Megszakítjuk, ha nincs is nyitott státuszban
+                exit;// Megszakítjuk, ha nincs is nyitott státuszban
             }
             $prigenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_bod_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
             foreach($prigenyek as $pri){
@@ -4002,7 +3997,7 @@ foreach($postok as $ertek){
             if( $sql === false ) { $db_error = true; }
         }
 
-        //Projektigénylésnél a véleményezők és azok dokumentumai
+        // Projektigénylésnél a véleményezők és azok dokumentumai
         if($ertek['tabla']=='projektigenyles'){
             $sql = $adatbazis_kapcsolat->d('projektigenyles_kapcs', "`projektigenyles_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
@@ -4014,7 +4009,7 @@ foreach($postok as $ertek){
             if( $sql === false ) { $db_error = true; }
         }
 
-        //Login táblából csak logikailag törlünk. Többi helyről fizikailag.
+        // Login táblából csak logikailag törlünk. Többi helyről fizikailag.
         if($ertek['tabla']=='login'){
             $sikeres_torles = $adatbazis_kapcsolat -> u($ertek['tabla'], array('torolve'), array(1), "`recid`='{$_GET[$ertek['torid']]}'");
         }else{

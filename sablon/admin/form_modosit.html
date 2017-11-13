@@ -53,6 +53,9 @@
                         $('#szerk_form input, #szerk_form textarea, #szerk_form select').attr('disabled', true);
                         $('#szerk_form input.f_nem_rejt').attr('disabled', false);
                         $('#szerk_form input.foGomb').removeAttr('disabled');
+                    }
+                    /* Ha a helyiség input tiltott, akkor az ikonja is legyen az */
+                    if($('#obj_id_autocomp').is(':disabled')){
                         $('.obj_gen').hide();
                     }
 
