@@ -1752,12 +1752,12 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         $kijeloltek = json_decode($kijeloltek, true);
     }
 
-    //Config
+    // Config
     if(!$tabla){
         $tabla  = str_replace('.php', '', basename(self()));
     }
 
-    //Dokumentumtárnál egyszerű a helyzet, nem kell számolni SQL-t
+    // Dokumentumtárnál egyszerű a helyzet, nem kell számolni SQL-t
     if($tabla=='dokumentumtar'){
         return dokumentumtarLista();
     }
@@ -1769,7 +1769,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         $order = $_OPTS['rend'];
     }
 
-    //Előterjesztéseknél ha státusz szerint rendezünk, akkor azon belül iktatószám
+    // Előterjesztéseknél ha státusz szerint rendezünk, akkor azon belül iktatószám
     if(basename(self())=='eloterj_fb.php' || basename(self())=='eloterj_bod.php'){
         if($order=='stat_id'){
             $order = '`stat_id`, `ikt_szam`';
@@ -1825,15 +1825,15 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         if($tabla=='projektigenyles'){
 
             $szallodak_kieg = '';
-            //Többszállodás esetén a két tobbsszállodás telephely_id-t felvesszük még
+            // Többszállodás esetén a két tobbsszállodás telephely_id-t felvesszük még
             if(_jog(JOG_PRIGENY_TOBB_MEGTEKINT)){
                 $szallodak_kieg = ', 1011, 4301';
             }
 
-            //Számít a saját szállodai látókör
+            // Számít a saját szállodai látókör
             $where = "`".get_db_tabla()."projektigenyles`.`telephely_id` IN (".implode(',', $szallodak).$szallodak_kieg.") AND ";
 
-            //Szűrés jogokra (igénylés tipusra külön látási jogok vannak)
+            // Szűrés jogokra (igénylés tipusra külön látási jogok vannak)
             $where_jogok = '';
             if(_jog(JOG_PRIGENY_B_MEGTEKINT)){
                 $where_jogok .= "`tipus`='".PRIGENY_TIPUS_BERUH."' OR ";
@@ -1845,7 +1845,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 $where_jogok .= "`tipus`='".PRIGENY_TIPUS_TARGY."' OR ";
             }
 
-            //Az egy-több szállodára is külön jogok vannak
+            // Az egy-több szállodára is külön jogok vannak
             if(_jog(JOG_PRIGENY_EGY_MEGTEKINT)){
                 $where_jogok .= "`egy_tobb`='0' OR ";
             }
@@ -1856,10 +1856,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 $where .= '('.csonkit($where_jogok, 4).') AND ';
             }
 
-            //Létrehozás alatti szállodát nem láthat senki, kivéve aki dolgozik rajta
+            // Létrehozás alatti szállodát nem láthat senki, kivéve aki dolgozik rajta
             $where .= " (`stat_id`!='".PRIGENY_STAT_LETRE_ALATT."' OR `loginnev`='{$_SESSION[get_db_tabla().'user']}')";
 
-            //Viszont ahol véleményező vagyok, azokat az igényléseket mindenképp lássam
+            // Viszont ahol véleményező vagyok, azokat az igényléseket mindenképp lássam
             $lathato_prigenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektigenyles_kapcs', "`login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
             $lathato_prigenyek = adatbazis2tomb($lathato_prigenyek, 'projektigenyles_recid');
             if($lathato_prigenyek){
@@ -1876,39 +1876,48 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
             // Ki-ki csak a saját szállodáit láthatja, ez alap
             $where = "`".get_db_tabla()."munkalap`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
-
-            // Saját megtekintése: saját szállodák + hozzárendelt személyzet: tehát toávbb szűrünk hozzárendelt személyzetre, amit a felhasználókon, majd személyezeten át kapunk meg
-            if(_jog(JOG_MUNKALAP_MEGTEKINT)){
-                // Hozzárendelt személyzet megállapítása. Ez egyenlő a Személyzet beosztásával.
-                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND ";
-                if(!$_SESSION[get_db_tabla().'szemelyzet_id']){
-                    $where .= ' FALSE AND ';
+            
+            // Ha mobilcsopotos felhasználó vagyok csak azokat a munkalapokat látom, amik mobilhoz vannak rendelve és a hozzárendelt személy üres vagy én vagyok.
+            if( $_SESSION[get_db_tabla().'szemelyzet_id']==MOBILCSOPORT ){
+                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}') ";
+                
+            // Ha nem mobilcsoport vagyok, akkor még a saját szállodák jogra kell figyleni:
+            }else{
+                
+                // Saját megtekintése: saját szállodák + hozzárendelt személyzet: tehát toávbb szűrünk hozzárendelt személyzetre, amit a felhasználókon, majd személyezeten át kapunk meg
+                if(_jog(JOG_MUNKALAP_MEGTEKINT)){
+                    // Hozzárendelt személyzet megállapítása. Ez egyenlő a Személyzet beosztásával.
+                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND ";
+                    if(!$_SESSION[get_db_tabla().'szemelyzet_id']){
+                        $where .= ' FALSE AND ';
+                    }
                 }
             }
+            
+            // Azaz ha saját szállodáim jogom van, akkor az egy lazább feltétel, nem szűrünk hozzárendelt személyzetre
             if(_jog(JOG_MUNKALAP_MEGTEKINT_SZALL)){
-                $where .= ''; // Azaz ha saját szállodáim jogom van, akkor az egy lazább feltétel, nem szűrünk hozzárendelt személyzetre
+                $where .= '';
             }
 
 
         }
 
-        //Keresés
+        // Keresés
         if( $_GET['ksz'] ) {
 
-            //Ki kell szűrni az " ... as " részeket.
+            // Ki kell szűrni az " ... as " részeket.
             $select_feldogloz = nl2($_OPTS['select']);
             if(strpos($select_feldogloz, '` as `')!==false){
                 $as_resz = strpos($select_feldogloz, '` as `');
-//var_dump($as_resz);
+
                 $select_tmp = substr($select_feldogloz, 1, $as_resz);
-                //maradékból vágjuk ki az as `ami ide van írva` részt. 4. ` karaterig vágunk
+                // Maradékból vágjuk ki az as `ami ide van írva` részt. 4. ` karaterig vágunk
                 $maradek    = substr($select_feldogloz, $as_resz);
                 for($i=0; $i<4; $i++){
                     $maradek = substr($maradek, 0, strpos('`'));
                 }
                 $select_feldogloz = $select_tmp.$maradek;
             }
-//var_dump($select_feldogloz);
 
             $selectek = explode(' ', $select_feldogloz);
             $ksz_where = '';
@@ -2089,24 +2098,25 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         if($tabla=='munkalap'){
 
             $order = '';
-            //Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
+            // Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
             if(_jog(JOG_MUNKALAP_KESZITHET)){
                 $order .= '`'.get_db_tabla().'munkalap_csoport`.`nev`, ';
             }
-            //A sürgős mindig elől lesz, bármi is a rendezettség
+            // A sürgős mindig elől lesz, bármi is a rendezettség
             $order .= '`'.get_db_tabla().'munkalap`.`surgos` DESC, ';
 
             $irany_ikt_szam  = '';
             $irany_telephely = '';
-            //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            
+            // Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             if($_GET['rend']=='ikt_szam'){
                 $order .= '`'.get_db_tabla().'munkalap`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
             }
-            //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
+            // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             if($_GET['rend']=='telephely_id'){
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'munkalap`.`ikt_szam`';
             }
-            //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
+            // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             if($_GET['rend']=='stat_id'){
                 $order .= '`'.get_db_tabla().'munkalap`.`stat_id` '.$_GET['irany'];
             }
@@ -2115,18 +2125,18 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
         }
 
-        //Projektigénylésnél a telephey nevét átnevezzük, ne ütközzön a sima névvel
+        // Projektigénylésnél a telephey nevét átnevezzük, ne ütközzön a sima névvel
         $sql_as = '';
         if($tabla=='projektigenyles'){
             $sql_as = ' as `teleph_nev`';
         }
 
-        //Select-et is kiegészítjük a rendezni kívánt oszloppal
+        // Select-et is kiegészítjük a rendezni kívánt oszloppal
         $select .= ', `'.get_db_tabla().'telephely`.`nev`'.$sql_as;
         $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit); //Ez minek van itt?
         $mit   = 'WHERE';
 
-        //Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
+        // Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
         $sql_kieg = '';
         if($tabla=='bejelentes'){
             $sql_kieg .= nl2('
@@ -2139,7 +2149,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                                 LEFT OUTER JOIN `'.get_db_tabla().'munkalap_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'munkalap_csoport`.`recid`
                             ');
         }
-        //Szűréskor megjegyzés JOIN
+        // Szűréskor megjegyzés JOIN
         if ($_GET['mezo']=='megjegyzes') {
             $sql_kieg .= ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
@@ -2149,12 +2159,12 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         $mivel = 'JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`'.$sql_kieg.' WHERE';
         $sql = $adatbazis_kapcsolat->gp();
 
-        /* Anyagrendelések miatt */
+        // Anyagrendelések miatt
         if( basename(self()) == 'anyagigenyles.php' && isset($_GET['anyagrend']) ) {
             $sql = str_replace('ORDER BY', ' GROUP BY `'.get_db_tabla().'anyagigenyles`.`rndid` ORDER BY', $sql);
         }
 
-        //Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elá kell beszúrni a JOIN-t
+        // Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elá kell beszúrni a JOIN-t
         if(strpos($sql, 'WHERE')===false){
             $mit = 'ORDER BY';
             $mivel = str_replace('WHERE', 'ORDER BY', $mivel);
@@ -2166,7 +2176,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             array_push($bejegyzesek, $sor);
         }
 
-    //Értéklistát csoport szerinti sorrendben, azon belül pedig infó szerinti sorrendben kell kilistázni
+    // Értéklistát csoport szerinti sorrendben, azon belül pedig infó szerinti sorrendben kell kilistázni
     }elseif($tabla=='erteklista'){
 
         //Gyorskeresőnél képződhet where feltétel

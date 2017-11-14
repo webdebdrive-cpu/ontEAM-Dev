@@ -389,7 +389,7 @@ if( isset($_POST['munkalapMobil']) ) {
             }
         }
 
-        /* Kivesszük a hozzárendelt mobil_loginnev-et */
+        // Kivesszük a hozzárendelt mobil_loginnev-et
         if( count($munkHozzMegszuntet) ) {
             foreach($munkHozzMegszuntet as $value) {
                 $munkalap = $adatbazis_kapcsolat->s2('recid stat_id', 'munkalap', "`recid` = '{$value}'", '', '1');
@@ -414,7 +414,7 @@ if( isset($_POST['munkalapMobil']) ) {
             }
         }
 
-        /* Törzsadat hozzárendelése munkalapokhoz */
+        // Törzsadat hozzárendelése munkalapokhoz
         if( count($addTorzsMunkID) ) {
             foreach($addTorzsMunkID as $key => $value) {
                 $munkalap = $adatbazis_kapcsolat->s2('recid stat_id', 'munkalap', "`recid` = '{$value}'", '', '1');
@@ -462,11 +462,11 @@ if( isset($_POST['munkalapMobil']) ) {
 
                 if( $munkalap ) {
 
-                    /* Hozzárendeljük a mobil személyzetet */
+                    // Hozzárendeljük a mobil személyzetet
                     $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id'), array(MOBILCSOPORT), "`recid` = '{$id}'");
                     if( $sql === false ) { $db_error = '8'; }
  
-                    /* Folyamatbanra állítjuk */
+                    // Folyamatbanra állítjuk
                     if( $munkalap['stat_id'] != MUNKALAP_STAT_FOLYAMATBAN ) {
                         if( !addStatusz( 'munkalap_statusz', $id, MUNKALAP_STAT_FOLYAMATBAN ) ) {
                             $db_error = '9';
@@ -3862,6 +3862,7 @@ require('selectek.php');
                             </ul>
                         </div>
                     </div>
+                </div>
             ');
         }
 

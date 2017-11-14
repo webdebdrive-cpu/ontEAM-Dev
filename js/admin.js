@@ -1897,7 +1897,7 @@ function munkHozzMegszuntet() {
 
             alert2();
         } else {
-            alert2('Kérem jelöljön ki sorokat!');
+            alert2('Kérem jelöljön ki sorokat!', '', 'Hiba');
         }
     }
 }
@@ -1937,7 +1937,7 @@ function munkHozzSzemely() {
                 document.getElementById('torzsadat_id_autocomp').select();
             }
         } else {
-            alert2('Kérem jelöljön ki sorokat!');
+            alert2('Kérem jelöljön ki sorokat!', '', 'Hiba');
         }
     }
 }
@@ -1965,7 +1965,7 @@ function munkBejelKoze() {
 
             alert2();
         } else {
-            alert2('Kérem jelöljön ki sorokat!');
+            alert2('Kérem jelöljön ki sorokat!', '', 'Hiba');
         }
     }
 }
