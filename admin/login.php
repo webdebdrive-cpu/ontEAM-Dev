@@ -49,19 +49,23 @@ if($tobb_kep){
 
 }
 
+// Jogosulktásgok beállítsa
 if( isset($_POST['jogokhozzaad']) ) {
     $id = $_POST['id'];
 
-    /* Kitöröljük a nem kívánatos POST elemeket */
+    // Kitöröljük a nem kívánatos POST elemeket
     unset($_POST['id']);
     unset($_POST['jogokhozzaad']);
 
-    /* Tömb sorrendezése */
+    // Tömb sorrendezése
     $jogok = array();
     foreach($_POST as $key => $value) {
         $kulcs = str_replace('jog-', '', $key);
-
-        $jogok[$kulcs] = $value;
+        if($value=='true'){
+            $jogok[$kulcs] = 1;
+        }else{
+            $jogok[$kulcs] = 0;
+        }
     }
 
     ksort($jogok);
@@ -69,8 +73,6 @@ if( isset($_POST['jogokhozzaad']) ) {
     $adatbazis_kapcsolat -> u('login', array('flags'), array(implode('', $jogok)), 'recid='.$id);
 
     $weblap->leallit();
-    hd($_SERVER['REQUEST_URI']);
-
     exit();
 }
 
@@ -227,8 +229,8 @@ require_once('selectek.php');
 
     $js_submit_elott = 'return form_ell_admin();';
 
-	//Új termék felvitele
-	if(isset($_GET['uj']) && _jog(JOG_FELHASZNALOK_KEZEL) && !$csak_szerkesztheto){
+	// Új felhasználó felvitele
+	if(isset($_GET['uj']) && _jog(JOG_FELHASZNALOK_KEZEL)){
 
         if (isset($_GET['foglalt_nev'])) {
             $navi = '<span class="piros">Ez a loginnév már foglalt!</span>';
@@ -383,6 +385,7 @@ require_once('selectek.php');
 
 	//Jogosultság
     }elseif(isset($_GET['jogosultsag'])) {
+        
         require_once('jogosultsag.php');
 
         $login = $adatbazis_kapcsolat->s('flags', 'login', 'recid='.$_GET['id'], '', '1');
@@ -390,10 +393,10 @@ require_once('selectek.php');
         if( $login ) {
             $login = $login[0];
 
-            /* Jogosultságok feldarabolás */
+            // Jogosultságok feldarabolás
             $flags = str_split($login['flags']);
 
-            /* Ellenőrzéshez */
+            // Ellenőrzéshez 
             $jogEll = array();
             $i = 0;
             foreach($jogosultsagok as $jog) {
@@ -408,30 +411,51 @@ require_once('selectek.php');
 
             $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($jogEll).'\'); </script>';
 
-            /* Hozzáadjuk az értékeket a jogosultságokhoz */
+            // Hozzáadjuk az értékeket a jogosultságokhoz
             $i = 0;
             foreach($jogosultsagok as $jog) {
                 $jogosultsagok[$i]['value'] = $flags[$i];
-                $jogosultsagok[$i]['id'] = $i;
+                $jogosultsagok[$i]['id']    = $i;
 
                 $i++;
             }
 
-            /* Kigyüjtjük a kategóriákat */
+            // Kigyüjtjük a kategóriákat
             $jogKatok = jogosultsagKatok( $jogosultsagok );
 
-            /* Rendezzük a kategóriákat */
+            // Rendezzük a kategóriákat
             function sortByOrder($a, $b) {
                 return $a['sor'] - $b['sor'];
             }
             usort($jogKatok, 'sortByOrder');
 
-            $szamla_html .= '<form id="szerk_form" action="" method="post"><div class="dt">';
+            $szamla_html .= nl2('
+                                <script>
+                                    function form_elkuld(){
+                                        param = \'\';
+                                        $(\'input[type="checkbox"]\').each(function () {
+                                            param += $(this).attr(\'name\')+\'=\'+$(this).is(\':checked\')+\'&amp;\';
+                                        });
+
+                                        $.ajax({
+                                            url    : \''.self().'\',
+                                            type   : \'POST\',
+                                            data   : esamp2es(param+\'&amp;id='.$_GET['id'].'&amp;jogokhozzaad=\' + new Date().getTime()),
+                                            success: function (response) {
+                                                $(\'input[type="checkbox"]\').removeClass(\'mod\');
+                                            }
+                                        });
+                                        return false;
+                                    }
+                                </script>
+                                <form id="szerk_form" action="" method="post" onsubmit="return form_elkuld();">
+                                    <div class="dt">
+                ');
 
             $jogdb = count($jogKatok);
             $jogdb_fel = ceil($jogdb / 2);
 
-            /* Kiíratjuk az egészet */
+            // Kiíratjuk az egészet
             $i = 1;
             foreach($jogKatok as $jogKat) {
                 if( $i == 1 ) {
@@ -488,11 +512,11 @@ require_once('selectek.php');
                         }
                     }
 
-                    //Ha épp most kap bekapcsolást, csak akkor futtatjuk le
+                    // Ha épp most kap bekapcsolást, csak akkor futtatjuk le
                     if($bekapcs){
                         $bekapcs = 'if( $(this).prop(\'checked\') ){'.$bekapcs.'}';
                     }
-                    //Ha épp most kapcsoltuk ki
+                    // Ha épp most kapcsoltuk ki
                     if($kikapcskor_kikapcs){
                         $kikapcskor_kikapcs = 'if( $(this).prop(\'checked\') == false ){'.$kikapcskor_kikapcs.'}';
                     }
@@ -622,7 +646,7 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	//Megjegyzések
+	// Megjegyzések
 	}elseif(isset($_GET['megjegyzesek'])){
 
         $szamla_html .= nl2('
@@ -634,7 +658,7 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
+        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
 
         if( $sorok ) {
             $i = 1;

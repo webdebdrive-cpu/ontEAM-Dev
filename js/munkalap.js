@@ -1,3 +1,4 @@
+/* Átadás területi vezetőnek */
 function munkalapTeruletiVezeto() {
 
     if(balnav_kijelol_ell()){
@@ -61,6 +62,38 @@ function munkalapMuszakiVezeto() {
     return false;
 }
 
+/* Munkalap átadása adminsiztrátornak */
+function munkalapAdminisztrator() {
+
+    if(balnav_kijelol_ell()){
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid                   : _get('id'),
+                munkalapAdminisztrator  : new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    popupZar();
+                }
+            }
+        });
+
+    }
+
+    return false;
+}
+
 /* Átadás műszaki vezető helyettesnek */
 function munkalapMuszakiVezetoHelyettes() {
 
@@ -88,6 +121,35 @@ function munkalapMuszakiVezetoHelyettes() {
             }
         });
 
+    }
+
+    return false;
+}
+
+/* Munkalap átadása MSZK Vezetőnek */
+function munkalapMSZKVezeto() {
+    if(balnav_kijelol_ell()){
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid               : _get('id'),
+                munkalapMSZKVezeto  : new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    popupZar();
+                }
+            }
+        });
     }
 
     return false;
@@ -157,6 +219,35 @@ function munkalapMobil( that ) {
                 }
             });
         }
+    }
+
+    return false;
+}
+
+/* Munka átadása Diszpécser központ vezetőnek */
+function munkalapDiszpKozp() {
+    if(balnav_kijelol_ell()){
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid               : _get('id'),
+                munkalapDiszpKozp   : new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    popupZar();
+                }
+            }
+        });
     }
 
     return false;

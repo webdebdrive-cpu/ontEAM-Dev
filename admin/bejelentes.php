@@ -183,7 +183,7 @@ if( isset($_POST['bejelentesElutasit']) ) {
     $recid          = $_POST['recid'];
     $validate       = $_POST['validate'];
     $elutasitas_id  = $_POST['elutasitas_id'];
-    $memo           = $_POST['memo'];
+    $memo           = erteklista(7, $elutasitas_id)."\r\n".$_POST['memo'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -221,32 +221,6 @@ if( isset($_POST['bejelentesElutasit']) ) {
                 }
             }
 
-            /* Megnézzük a munkalapjait */
-//            Ez megszűnt, mert nincs olyan hogy egy munkalap több bejelentés
-//            $munkalap_kapcs = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$recid}'", '', '1');
-//            if( $munkalap_kapcs === false ) { $db_error = true; }
-//
-//            if( $munkalap_kapcs ) {
-//                $munkalap_kapcs = $munkalap_kapcs[0];
-//
-//                /* Lekérdezzük a további bejelentéseit kivéve a mostanit */
-//                $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '".$munkalap_kapcs['munkalap_id']."' AND `bejelentes_id` != '{$recid}'", '', '');
-//                if( $munk_kapcsok === false ) { $db_error = true; }
-//
-//                if( $munk_kapcsok ) {
-//                    foreach($munk_kapcsok as $munk_kapcs) {
-//                        if( !addStatusz( 'bejelentes_statusz', $munk_kapcs['bejelentes_id'], BEJELENTES_STAT_VIZSG_ALATT, $elutasitas_id, $memo ) ) {
-//                            $db_error = true;
-//                        }
-//                        if( $memo ) {
-//                            if( addMegj('bejelentes', $munk_kapcs['bejelentes_id'], $memo) === false ) {
-//                                $db_error = true;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-
             if( !$db_error ) {
                 mysqli_commit($db_kapcs);
 
@@ -267,7 +241,7 @@ if( isset($_POST['bejelentesElutasit']) ) {
     exit();
 }
 
-/* Bejelentés igazolása */
+// Bejelentés igazolása
 if( isset($_POST['bejelentesIgazolas']) ) {
     $recid = $_POST['recid'];
 
@@ -330,7 +304,7 @@ if( isset($_POST['bejelentesIgazolas']) ) {
     exit();
 }
 
-/* Bejelentés reklamáció elfogadása */
+// Bejelentés reklamáció elfogadása
 if( isset($_POST['bejelentesReklamacioElfogad']) ) {
     $recid = $_POST['recid'];
 
@@ -1032,7 +1006,7 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-    /* Megjegyzés */
+    // Megjegyzés
     }elseif(isset($_GET['megjegyzesek'])) {
 
         $szamla_html .= nl2('
@@ -1044,7 +1018,7 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
+        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
 
         if( $sorok ) {
             $i = 1;

@@ -72,11 +72,10 @@ if (isset($_POST['velemenyezok_status_ell'])) {
 // Véleményező hozzáadása ajaxosan
 if( isset($_POST['addVelemenyezo']) ) {
 
-
     $login_recid    = $_POST['login_recid'];
     $pr_igeny_recid = $_POST['pr_igeny_recid'];
     
-    //Jogosultságkezelés
+    // Jogosultságkezelés
     if(!JOG_VELEMENYEZO_HOZZAAD){
 
         echo json_encode(array(
@@ -112,7 +111,7 @@ if( isset($_POST['addVelemenyezo']) ) {
 
     if( $pr_igeny_recid ) {
 
-        //Töröljük a korábbi véleményét ha van
+        // Töröljük a korábbi véleményét ha van
         if($_POST['korabbi_velemeny_torlesevel']){
             $akt_velemeny = $adatbazis_kapcsolat->s2('recid utvonal', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$pr_igeny_recid}' AND `login_recid`='{$login_recid}'");
             if($akt_velemeny===false){ $db_error = true; }
@@ -176,7 +175,7 @@ if( isset($_POST['addVelemenyezo']) ) {
     exit();
 }
 
-//Megtérülés hozzáadása
+// Megtérülés hozzáadása
 if (isset($_POST['addMegterules'])) {
 
     $terulet = $_POST['terulet'];
@@ -214,16 +213,12 @@ if (isset($_POST['addMegterules'])) {
     
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
-
         echo json_encode(array(
             'statusz' => 'siker',
             'kapcsID' => $kapcsID
         ));
-
     } else {
-
         mysqli_rollback($db_kapcs);
-
         echo json_encode(array(
             'hiba' => tranzakcioHiba()
         ));
@@ -233,7 +228,7 @@ if (isset($_POST['addMegterules'])) {
     exit();
 }
 
-//Egy vagy többszállodás select
+// Egy vagy többszállodás select
 if (isset($_POST['f_pri_egytobb'])) {
 
     $tobb_szalloda = '';
@@ -1731,7 +1726,7 @@ require('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	//Megjegyzések
+	// Megjegyzések
 	}elseif(isset($_GET['megjegyzesek'])){
 
         $szamla_html .= nl2('
@@ -1743,7 +1738,7 @@ require('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc');
+        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
 
         if( $sorok ) {
             $i = 1;

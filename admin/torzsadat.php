@@ -464,7 +464,7 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	//Megjegyzések
+	// Megjegyzések
 	}elseif(isset($_GET['megjegyzesek'])){
 
         $szamla_html .= nl2('
@@ -476,7 +476,7 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
+        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
 
         if( $sorok ) {
             $i = 1;

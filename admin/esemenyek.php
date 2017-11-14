@@ -122,11 +122,11 @@ switch($tabla) {
                                 ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('surgos', 'ikt_szam', 'telephely_id');
+        $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'telephely_id');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'surgos';
+            $_GET['rend'] = 'stat_id';
         }
 
         // Default rendezési irány
@@ -421,12 +421,12 @@ switch($tabla) {
 
         // Default rendezés
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'ikt_szam';
+            $_GET['rend'] = 'stat_id';
         }
 
         // Default rendezési irány
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
+            $_GET['irany'] = '';
         }
     break;
     case 'utemezett_feladatok.php':
@@ -2535,8 +2535,8 @@ if( isset($_POST['varolistabolKivetel']) ) {
 if( isset($_POST['bejegyzesElutasitas']) ) {
 
     $tabla          = $_POST['tabla'];
-    $memo           = trim($_POST['memo']);
     $elutasitas_id  = $_POST['elutasitas_id'];
+    $memo           = erteklista(7, $elutasitas_id)."\r\n".$_POST['memo'];
     $csak_memo      = $_POST['csak_memo'];
     $idk            = json_decode($_POST['idk'], true);
 
@@ -3252,7 +3252,7 @@ if( isset($_POST['addMegjegyzes']) ) {
     exit();
 }
 
-//Szakterület hozzáadása
+// Szakterület hozzáadása
 if( isset($_GET['addSzakterulet']) ) {
     $szallitoID = $_GET['szallitoID'];
     $szakterID  = $_GET['szakterID'];
@@ -3263,7 +3263,7 @@ if( isset($_GET['addSzakterulet']) ) {
         if( !$isKapcs ) {
             $kapcsID = $adatbazis_kapcsolat -> i('szakter_kapcs', array('szallito_id', 'szakter_id'), array($szallitoID, $szakterID));
 
-            /* Szakterület lekérdezése */
+            // Szakterület lekérdezése
             $sor = $adatbazis_kapcsolat->s('recid', 'erteklista', "`recid` = '{$szakterID}'", '', '1');
 
             if( $sor ) {
