@@ -47,6 +47,13 @@
                             $input.val( $input.val().substring(0, 3)+'00' );
                         }
                     });
+                    
+                    $(document).on('blur', '.datepicker, .datetimepicker', function(e) {
+                        if( !Date.parse( $(this).val().replace(/\./gi, '-') ) ){
+                            alert2('Helytelen dátum!', '', 'Hiba');
+                        }
+                    });
+                            
 
                     /* Ha az űrlapnak nincs submit-ja, akkor minden mezőjét tiltunk.  */
                     if(!$('#szerk_form').parent().find('input.mentes_gomb').length){

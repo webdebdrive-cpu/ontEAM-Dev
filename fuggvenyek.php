@@ -995,6 +995,21 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     var alert_vegen             = false; /* Van, hogy mentés után még láttani akarunk egy alertet */
                     var igeny_rogzites_uzemmod  = false;
                     function '.$fg.'{
+                        var volt_helytelen = false;
+                        $(\'.datepicker, .datetimepicker\').each(function () {
+                            if( 
+                                $(this).val()!=\'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\' &&
+                                $(this).val()!=\'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0\' && 
+                                $(this).val()!=\'0000.00.00\' && 
+                                $(this).val()!=\'0000.00.00 00:00\' && 
+                                !Date.parse( $(this).val().replace(/\./gi, \'-\') ) ){
+                                alert2(\'Helytelen dátum!\', \'\', \'Hiba\');
+                                volt_helytelen = true;
+                            }
+                        });
+                        if(volt_helytelen){
+                            return false;
+                        }
             ');
 
     $param = '';
@@ -2662,9 +2677,11 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             require_once 'selectek.php';
             $szemelyzet = '';
-            foreach($select_szemelyzet as $szemely){
-                if($szemely['value']==$bsz['szemelyzet_id']){
-                    $szemelyzet = $szemely['name'];
+            if($bsz['szemelyzet_id']){
+                foreach($select_szemelyzet as $szemely){
+                    if($szemely['value']==$bsz['szemelyzet_id']){
+                        $szemelyzet = $szemely['name'];
+                    }
                 }
             }
 
