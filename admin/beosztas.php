@@ -421,7 +421,7 @@ require_once('selectek.php');
     }
 
     $js_submit_elott = 'return form_ell_admin();';
-    
+
 	//Új termék felvitele
 	if(isset($_GET['uj']) && _jog(JOG_BEOSZTASOK_KEZEL) && !$csak_szerkesztheto){
 
@@ -503,7 +503,7 @@ require_once('selectek.php');
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                
+
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`id`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
@@ -595,7 +595,46 @@ require_once('selectek.php');
                 fajlbol_olvas('../sablon/admin/form_modosit.html', true)
             ).'<script>$(document).ready(function () { $(\'#szerk_form div.dt\').hide(); });</script>';
 
-        $szamla_html .= beosztas_naptar($_GET['id']);
+        //$szamla_html .= beosztas_naptar($_GET['id']);
+
+        /* Naptár események */
+        $naptar_sorok = $adatbazis_kapcsolat->s('recid tol ig felh_loginnev beosztas szerepkor', 'beosztas_naptar', "`beosztas_id` = '".$_GET['id']."'", 'tol', '');
+
+        $events = '';
+        if( $naptar_sorok ) {
+            foreach($naptar_sorok as $ns) {
+                /* Személyzet név */
+                $szemelyzet = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='".$ns['felh_loginnev']."'");
+                $szemelyzet = $szemelyzet[0];
+
+                /* Szín */
+                $bgcolor = '';
+                $color   = '#242424';
+                $kieg    = ' - Szabadság';
+                foreach($select_szemelyzet as $szerepkor) {
+                    if( $szerepkor['value'] && $ns['szerepkor'] == $szerepkor['value'] ) {
+                        $bgcolor = $szerepkor['szin'];
+                        $kieg    = ' - '.$szerepkor['name'];
+                    }
+                }
+
+                if( !$bgcolor ) {
+                    $color = '#fff';
+                }
+
+                $events .= "{ id: ".$ns['recid'].", title: '".$szemelyzet['nev'].$kieg."', start: '".$ns['tol']."', end: '".$ns['ig']."', backgroundColor: '".$bgcolor."', borderColor: '".$bgcolor."', textColor: '".$color."'},";
+            }
+
+            if( $events ) {
+                $events = csonkit($events, 1);
+            }
+        }
+
+        $szamla_html .= str_replace(
+            array('{EVENTS}'),
+            array( $events  ),
+            fajlbol_olvas('../sablon/admin/naptar.html', true)
+        );
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

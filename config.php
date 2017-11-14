@@ -130,6 +130,9 @@ function get_jsfajlok_admin(){
                 $utvonal.'js/scrollto.js',
                 $utvonal.'js/jquery.easing.1.3.js',
                 $utvonal.'js/admin_sorrendez.js',
+                $utvonal.'js/moment.min.js',
+                $utvonal.'js/fullcalendar.min.js',
+                $utvonal.'js/hu.js',
                 //{KOVETKEZO_ADMIN_JS}
 		);
 
@@ -145,6 +148,8 @@ function get_jsfajlok_admin(){
                 $utvonal.'css/fancybox_admin.css',
                 $utvonal.'css/feltolt.css',
                 $utvonal.'css/tooltip.css',
+                //$utvonal.'css/fullcalendar.min.css',
+                //$utvonal.'css/fullcalendar.print.min.css',
                 //{KOVETKEZO_ADMIN_CSS}
 		);
 
