@@ -518,7 +518,7 @@ $(function() {
         $('.foglalt').removeClass('kijelol');
         $('.beosztas_'+naptar_id).addClass('kijelol');
         $.ajax({
-            url: 'beosztas.php',
+            url : 'beosztas.php',
             type: 'POST',
             data: {
                 id                  : naptar_id,
@@ -1897,7 +1897,7 @@ function munkHozzMegszuntet() {
 
             alert2();
         } else {
-            alert2('Kérem jelöljön ki sorokat!');
+            alert2('Kérem jelöljön ki sorokat!', '', 'Hiba');
         }
     }
 }
@@ -1937,7 +1937,7 @@ function munkHozzSzemely() {
                 document.getElementById('torzsadat_id_autocomp').select();
             }
         } else {
-            alert2('Kérem jelöljön ki sorokat!');
+            alert2('Kérem jelöljön ki sorokat!', '', 'Hiba');
         }
     }
 }
@@ -1965,7 +1965,7 @@ function munkBejelKoze() {
 
             alert2();
         } else {
-            alert2('Kérem jelöljön ki sorokat!');
+            alert2('Kérem jelöljön ki sorokat!', '', 'Hiba');
         }
     }
 }
@@ -3503,12 +3503,15 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
             mellekre_valt = 'cash_flow';
         }
 
-        if(_get('cash_flow') || tabla=='cash_flow'){
+        if(tabla=='cash_flow' || _get('cash_flow')){
             szoveg = 'cash-flow-kat';
             /* Ha nincs minden kezelés joga, akkor nem törölheti */
             if( _jogok[39]=='0' && _jogok[60]=='0' && _jogok[59]=='0' && _jogok[62]=='0' && _jogok[49]=='0' && _jogok[47]=='0' && _jogok[64]=='0' ){
                 torolhet = false;
             }
+        }
+        if(tabla=='munkalap' || _get('modosit')){
+            full_szoveg = 'Biztosan törli a bejelentést a munkalapról?';
         }
         if(_get('engedelyek')){
             szoveg = 'engedélyeket';
@@ -3527,7 +3530,11 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
         }
 
         if(torolhet){
-            gomb_uzi   = 'Biztosan törli a kijelölt '+szoveg+'?';
+            if(full_szoveg){
+                gomb_uzi = full_szoveg;
+            }else{
+                gomb_uzi = 'Biztosan törli a kijelölt '+szoveg+'?';
+            }
             gomb_muv   = '<p class="c"><input class="gomb zold" type="button" value="Igen" onclick="mellekTorol(\'' + tabla + '\', \'' + mellek + '\', \'' + mellekre_valt + '\');"><input class="gomb piros" type="button" value="Nem" onclick="alert2()"></p>';
             ablak_cime = '';
         }else{

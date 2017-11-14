@@ -254,30 +254,27 @@ function i_u($type, $tabla, $tomb) {
         //Bejelentések  új bejegyzés esetén
         } else if( $tabla == 'bejelentes' ) {
 
-            /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
-            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
+            // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
+            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
             if( $ikt_seq === false ) { $db_error = true; }
             if( $ikt_seq ) {
-                $ikt_seq = $ikt_seq[0];
 
-                /* Sorszám */
                 $sorszam = $ikt_seq['sorszam'];
-
-                /* Sorszám növelés */
                 $sorszam++;
 
-                /* Letároljuk az új sorszámot */
                 $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
                 if( $sql === false ) { $db_error = true; }
+                
             } else {
-                /* Sorszám */
+                
                 $sorszam = 1;
 
                 $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
                 if( $sql === false ) { $db_error = true; }
+                
             }
 
-            /* Iktatószám formázása */
+            // Iktatószám formázása
             $ikt_szam = date('y').'/'.sprintf('%07d', $sorszam);
 
             array_push($oszlopok,  'ikt_szam');
@@ -295,7 +292,7 @@ function i_u($type, $tabla, $tomb) {
             }
 
 
-        //FB Előterjesztés új bejegyzés esetén
+        // FB Előterjesztés új bejegyzés esetén
         } else if( $tabla == 'eloterj_fb' ) {
 
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
@@ -327,39 +324,34 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );
 
-        //BOD Előterjesztés új bejegyzés esetén
+        // BOD Előterjesztés új bejegyzés esetén
         } else if( $tabla == 'eloterj_fb' ) {
 
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
-            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
+            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
             if( $ikt_seq === false ) { $db_error = true; }
             if( $ikt_seq ) {
-                $ikt_seq = $ikt_seq[0];
 
-                /* Sorszám */
                 $sorszam = $ikt_seq['sorszam'];
-
-                /* Sorszám növelés */
                 $sorszam++;
-
-                /* Letároljuk az új sorszámot */
                 $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
                 if( $sql === false ) { $db_error = true; }
+                
             } else {
-                /* Sorszám */
+                
                 $sorszam = 1;
-
                 $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
                 if( $sql === false ) { $db_error = true; }
+                
             }
 
-            /* Iktatószám formázása */
+            // Iktatószám formázása
             $ikt_szam = 'ELBO'.date('y').'/'.sprintf('%07d', $sorszam);
 
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );
 
-        //Értéklista új bejegyzés esetén
+        // Értéklista új bejegyzés esetén
         } else if( $tabla == 'erteklista' ) {
             $ertek = $adatbazis_kapcsolat->s('id', 'erteklista', "`csoport` = '".$_POST['csoport']."'", '', '');
 
@@ -373,35 +365,29 @@ function i_u($type, $tabla, $tomb) {
             array_push($ertekek,   $ertek_id  );
 
 
-        //Ütemezett feladatok új bejegyzés esetén
+        // Ütemezett feladatok új bejegyzés esetén
         } else if( $tabla == 'eseti_fenntartas' ) {
-            /* ID formázása */
 
             //Szálloda azonosító
             $szalloda   = $adatbazis_kapcsolat->s('azon', 'telephely', "`id`='{$_POST['telephely_id']}'");
             $szalloda   = $szalloda[0]['azon'];
 
             /* Megnézzük, hogy az adott hotel nevével létezik e bejegyzés */
-            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.$szalloda);
+            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.$szalloda);
             if( $ikt_seq === false ) { $db_error = true; }
             if( $ikt_seq ) {
-                $ikt_seq = $ikt_seq[0];
 
-                /* Sorszám */
                 $sorszam = $ikt_seq['sorszam'];
-
-                /* Sorszám növelés */
                 $sorszam++;
-
-                /* Letároljuk az új sorszámot */
                 $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.$szalloda);
                 if( $sql === false ) { $db_error = true; }
+                
             } else {
-                /* Sorszám */
+                
                 $sorszam = 1;
-
                 $id = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, $szalloda, $tabla));
                 if( $id === false ) { $db_error = true; }
+                
             }
             $id = $szalloda.sprintf('%04d', $sorszam);
 
@@ -411,25 +397,25 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
-        //Gégpek új bejegyzés esetén
+        // Gégpek új bejegyzés esetén
         } else if( $tabla == 'gep' ) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
-        //Költséghely új bejegyzés esetén
+        // Költséghely új bejegyzés esetén
         } else if( $tabla == 'ktghely' ) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
-        //Költségnem új bejegyzés esetén
+        // Költségnem új bejegyzés esetén
         } else if( $tabla == 'ktgnem' ) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
-        //Login új bejegyzés esetén
+        // Login új bejegyzés esetén
         } elseif( $tabla == 'login' ) {
 
-            //Nem lehet ugyanazt a loginnevet kétszer felhasználni
+            // Nem lehet ugyanazt a loginnevet kétszer felhasználni
             if($adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$_POST['nev']}'")){
                 header('Location:login.php?uj&foglalt_nev');
                 $weblap -> leallit();
@@ -455,29 +441,22 @@ function i_u($type, $tabla, $tomb) {
             /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
             $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = '{$tabla}' AND `ev` = '".date('y')."'");
             if( $ikt_seq === false ) { $db_error = true; }
-
             if( $ikt_seq ) {
 
-                /* Sorszám */
                 $sorszam = $ikt_seq['sorszam'];
-
-                /* Sorszám növelés */
                 $sorszam++;
-
-                /* Letároljuk az új sorszámot */
                 $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = '{$tabla}' AND `ev` = '".date('y')."'");
                 if( $sql === false ) { $db_error = true; }
 
             } else {
-                /* Sorszám */
+                
                 $sorszam = 1;
-
                 $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam',    'ev',       'tabla'),
                                                                 array($sorszam,     date('y'), $tabla));
                 if( $sql === false ) { $db_error = true; }
             }
 
-            /* Iktatószám formázása */
+            // Iktatószám formázása
             $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
 
             array_push($oszlopok,  'ikt_szam');
@@ -486,7 +465,7 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok,  'stat_id'                );
             array_push($ertekek,    MUNKALAP_STAT_NYITOTT   );
 
-        //Ütemezett feladatok új bejegyzés esetén
+        // Ütemezett feladatok új bejegyzés esetén
         } else if( $tabla == 'utemezett_feladatok' ) {
             /* ID formázása */
 
@@ -495,28 +474,23 @@ function i_u($type, $tabla, $tomb) {
             $szalloda   = $szalloda[0]['azon'];
 
             /* Megnézzük, hogy az adott hotel nevével létezik e bejegyzés */
-            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.$szalloda, '', '');
+            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.$szalloda, '', '');
             if( $ikt_seq === false ) {
                 $db_error = true;
             }
             if( $ikt_seq ) {
-                $ikt_seq = $ikt_seq[0];
 
-                /* Sorszám */
                 $sorszam = $ikt_seq['sorszam'];
-
-                /* Sorszám növelés */
                 $sorszam++;
-
-                /* Letároljuk az új sorszámot */
                 $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.$szalloda);
                 if( $sql === false ) { $db_error = true; }
+                
             } else {
-                /* Sorszám */
+                
                 $sorszam = 1;
-
                 $id = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, $szalloda, $tabla));
                 if( $id === false ) { $db_error = true; }
+                
             }
             $id = $szalloda.sprintf('%04d', $sorszam);
 
@@ -527,43 +501,35 @@ function i_u($type, $tabla, $tomb) {
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
 
-        //Projektigénylés új bejegyzés esetén
+        // Projektigénylés új bejegyzés esetén
         } else if( $tabla == 'projektigenyles' ) {
 
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
-        //Rendszeres karbantarás új bejegyzés esetén
+        // Rendszeres karbantarás új bejegyzés esetén
         } else if( $tabla == 'rendszeres_karbantartas' ) {
-            /* ID formázása */
 
-            //Szálloda azonosító
+            // Szálloda azonosító
             $szalloda   = $adatbazis_kapcsolat->s('azon', 'telephely', "`id`='{$_POST['telephely_id']}'");
             $szalloda   = $szalloda[0]['azon'];
 
             /* Megnézzük, hogy az adott hotel nevével létezik e bejegyzés */
-            $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.$szalloda);
-            if( $ikt_seq === false ) {
-                $db_error = true;
-            }
+            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.$szalloda);
+            if( $ikt_seq === false ) { $db_error = true; }
             if( $ikt_seq ) {
-                $ikt_seq = $ikt_seq[0];
 
-                /* Sorszám */
                 $sorszam = $ikt_seq['sorszam'];
-
-                /* Sorszám növelés */
                 $sorszam++;
-
-                /* Letároljuk az új sorszámot */
                 $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.$szalloda);
                 if( $sql === false ) { $db_error = true; }
+                
             } else {
-                /* Sorszám */
+                
                 $sorszam = 1;
-
                 $id = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, $szalloda, $tabla));
                 if( $id === false ) { $db_error = true; }
+                
             }
             $id = $szalloda.sprintf('%04d', $sorszam);
 
@@ -588,7 +554,7 @@ function i_u($type, $tabla, $tomb) {
         //Új bejegyzés létrehozása utáni teendők
         //Itt újabb if felételek jönnek a táblákra. Azért kerültek ide, mert itt már felhasználjuk a létrejött bejegyzés ID-ját (ezért nem fentebb kezeltük le)
 
-        /* Anyagigénylés státusz beszúrása */
+        // Anyagigénylés státusz beszúrása
         if( $tabla == 'anyagigenyles' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
                                                 array($tabla.'_recid', 'stat_id',             'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -599,10 +565,10 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
         }
 
-        //Bejelentések
+        // Bejelentések
         if( $tabla == 'bejelentes' ) {
 
-            //Kezdőstátusz beállítása
+            // Kezdőstátusz beállítása
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
                                             array($tabla.'_recid',   'stat_id',                  'insert_dt', 'insert_usr',                              'update_usr'                          ),
                                             array($id,               BEJELENTES_STAT_NYITOTT,    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
@@ -611,47 +577,42 @@ function i_u($type, $tabla, $tomb) {
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(BEJELENTES_STAT_NYITOTT), "`recid`='$id'");
             if( $sql === false ) { $db_error = true; }
 
-            /* Megvizsgáljuk, hogy egy/több szállodás modell */
+            // Megvizsgáljuk, hogy egy/több szállodás modell
             $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id` = '".$_POST['telephely_id']."'", '', '1');
             if( $telephely ) {
 
-                /* Egyszállodás modell, így rögtön munkalapot generálunk belőle */
+                // Egyszállodás modell, így rögtön munkalapot generálunk belőle
                 if( !$telephely['modell'] ) {
-                    /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
-                    $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = 'munkalap' AND `ev` = '".date('y')."'", '', '');
+                    
+                    // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
+                    $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
                     if( $ikt_seq === false ) { $db_error = true; }
-
                     if( $ikt_seq ) {
-
-                        /* Sorszám */
+                        
                         $sorszam = $ikt_seq['sorszam'];
-
-                        /* Sorszám növelés */
                         $sorszam++;
-
-                        /* Letároljuk az új sorszámot */
                         $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
                         if( $sql === false ) { $db_error = true; }
 
                     } else {
-                        /* Sorszám */
+                        
                         $sorszam = 1;
-
                         $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), 'munkalap'));
                         if( $sql === false ) { $db_error = true; }
+                        
                     }
 
-                    /* Iktatószám formázása */
+                    // Iktatószám formázása
                     $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
 
-                    /* Munkalap beszúrása */
+                    // Munkalap beszúrása
                     $recid = $adatbazis_kapcsolat -> i('munkalap',
-                                                        array('ikt_szam',   'stat_id',              'tipus_id',  'telephely_id',          'obj_id',          'gep_id',          'loginnev',                        'update_usr',                          'insert_dt',  'insert_usr'                             ),
-                                                        array($ikt_szam,    MUNKALAP_STAT_NYITOTT,  1,           $_POST['telephely_id'],  $_POST['obj_id'],  $_POST['gep_id'],  $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']   )
+                                                        array('ikt_szam',   'stat_id',              'tipus_id',  'telephely_id',          'obj_id',          'gep_id',          'szemelyzet_id',        'loginnev',                        'update_usr',                          'insert_dt',  'insert_usr'                             ),
+                                                        array($ikt_szam,    MUNKALAP_STAT_NYITOTT,  1,           $_POST['telephely_id'],  $_POST['obj_id'],  $_POST['gep_id'],  TELEPITETT_SZEMELYZET,  $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']   )
                                                     );
                     if( $recid === false ) { $db_error = true; }
 
-                    /* Felvesszük az első státuszt */
+                    // Felvesszük az első státuszt
                     $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
                                                         array('munkalap_recid', 'stat_id',              'insert_dt',    'insert_usr',                              'update_usr'                           ),
                                                         array($recid,           MUNKALAP_STAT_NYITOTT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
@@ -666,7 +627,7 @@ function i_u($type, $tabla, $tomb) {
                                                     );
                     if( $sql === false ) { $db_error = true; }
 
-                    /* Bejelentést is folyamatbanra állítjuk */
+                    // Bejelentést is folyamatbanra állítjuk
                     if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
                         $db_error = true;
                     }
@@ -1040,7 +1001,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     foreach($tomb as $ertek){
         if( $ertek['type'] != 'statusz' && $ertek['type'] != 'info' ) {
             if($ertek['name']) {
-                //Csak akkor figyelünk lenti paramétereket, ha egyáltalán az elem létezik. Ezzel egy csomó JS hibát elekerólhetünk és debuggolós szívásokat
+                
+                // Csak akkor figyelünk lenti paramétereket, ha egyáltalán az elem létezik. Ezzel egy csomó JS hibát elekerólhetünk és debuggolós szívásokat
                 $ret .= 'if($(\'#'.$ertek['name'].'\').length){ ';
 
                 if($ertek['alert']){
@@ -1051,14 +1013,17 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
                     $ret .= 'if($(\'#'.$ertek['name'].'\').val()==\'\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2(); '.$focus_autocomp.'.focus();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
                 }
-                //Ha numerikus a mező, akkor a 0,00 is üres értéknek számít
+                
+                // Ha numerikus a mező, akkor a 0,00 is üres értéknek számít
                 if(strpos($ertek['class'], 'f_num')!==false){
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0,00\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
                 }
-                //Ha dátum mező, akkor az ürességet másképp figyeljük
+                
+                // Ha dátum mező, akkor az ürességet másképp figyeljük
                 if($ertek['alert'] && (strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false)){
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value.substring(0,1)==\'\xa0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; } ';
                 }
+                
                 // Személyzet_id-nál a 0 sem elfogadható érték
                 if($ertek['alert'] && $ertek['name']=='szemelyzet_id'){
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; } ';
@@ -1776,7 +1741,7 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 	}
 }
 
-/* Központi SQL előállítása a bal oldali navpanel elemeinek kiszámításához (where feltétel, rendezés) */
+// Központi SQL előállítása a bal oldali navpanel elemeinek kiszámításához (where feltétel, rendezés)
 function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
     global $adatbazis_kapcsolat;
@@ -1787,12 +1752,12 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         $kijeloltek = json_decode($kijeloltek, true);
     }
 
-    //Config
+    // Config
     if(!$tabla){
         $tabla  = str_replace('.php', '', basename(self()));
     }
 
-    //Dokumentumtárnál egyszerű a helyzet, nem kell számolni SQL-t
+    // Dokumentumtárnál egyszerű a helyzet, nem kell számolni SQL-t
     if($tabla=='dokumentumtar'){
         return dokumentumtarLista();
     }
@@ -1804,7 +1769,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         $order = $_OPTS['rend'];
     }
 
-    //Előterjesztéseknél ha státusz szerint rendezünk, akkor azon belül iktatószám
+    // Előterjesztéseknél ha státusz szerint rendezünk, akkor azon belül iktatószám
     if(basename(self())=='eloterj_fb.php' || basename(self())=='eloterj_bod.php'){
         if($order=='stat_id'){
             $order = '`stat_id`, `ikt_szam`';
@@ -1812,7 +1777,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
     }
 
     $irany = $_GET['irany'];
-    //Aktív esetén a rendezés irányát meg kell fordítani (tehát az aktívak, egyesek legyenek elől)
+    // Aktív esetén a rendezés irányát meg kell fordítani (tehát az aktívak, egyesek legyenek elől)
     if($order=='aktiv'){
         if($irany=='desc'){
             $irany = 'asc';
@@ -1822,7 +1787,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
     }
     $order .= ' '.$irany;
 
-    //Ha nem egy konkrét recid-t keresünk, akkor állítsuk elő a where feltételt
+    // Ha nem egy konkrét recid-t keresünk, akkor állítsuk elő a where feltételt
     if(!$where){
 
         if( $tabla == 'rendszer' ) {
@@ -1840,11 +1805,11 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             $where = "`".get_db_tabla()."anyagigenyles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
 
-        //Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
-        //Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
+        // Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
+        // Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
         if($tabla == 'bejelentes'){
             $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
-            //Ha csak a saját részleget láthat, akkor tovább szűrünk részlegre is
+            // Ha csak a saját részleget láthat, akkor tovább szűrünk részlegre is
             $felh = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
             if(_jog(JOG_BEJELENTES_SAJAT_RESZL) && !_jog(JOG_BEJELENTES_MEGTEKINT)){
                 $where .= "`usr_reszleg_id`='{$felh['reszleg_id']}'";
@@ -1856,19 +1821,19 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         if($tabla == 'utemezett_feladatok'){
             $where = "`".get_db_tabla()."utemezett_feladatok`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
-        //A projektigénylés láthatóságának beálltásai
+        // A projektigénylés láthatóságának beálltásai
         if($tabla=='projektigenyles'){
 
             $szallodak_kieg = '';
-            //Többszállodás esetén a két tobbsszállodás telephely_id-t felvesszük még
+            // Többszállodás esetén a két tobbsszállodás telephely_id-t felvesszük még
             if(_jog(JOG_PRIGENY_TOBB_MEGTEKINT)){
                 $szallodak_kieg = ', 1011, 4301';
             }
 
-            //Számít a saját szállodai látókör
+            // Számít a saját szállodai látókör
             $where = "`".get_db_tabla()."projektigenyles`.`telephely_id` IN (".implode(',', $szallodak).$szallodak_kieg.") AND ";
 
-            //Szűrés jogokra (igénylés tipusra külön látási jogok vannak)
+            // Szűrés jogokra (igénylés tipusra külön látási jogok vannak)
             $where_jogok = '';
             if(_jog(JOG_PRIGENY_B_MEGTEKINT)){
                 $where_jogok .= "`tipus`='".PRIGENY_TIPUS_BERUH."' OR ";
@@ -1880,7 +1845,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 $where_jogok .= "`tipus`='".PRIGENY_TIPUS_TARGY."' OR ";
             }
 
-            //Az egy-több szállodára is külön jogok vannak
+            // Az egy-több szállodára is külön jogok vannak
             if(_jog(JOG_PRIGENY_EGY_MEGTEKINT)){
                 $where_jogok .= "`egy_tobb`='0' OR ";
             }
@@ -1891,10 +1856,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 $where .= '('.csonkit($where_jogok, 4).') AND ';
             }
 
-            //Létrehozás alatti szállodát nem láthat senki, kivéve aki dolgozik rajta
+            // Létrehozás alatti szállodát nem láthat senki, kivéve aki dolgozik rajta
             $where .= " (`stat_id`!='".PRIGENY_STAT_LETRE_ALATT."' OR `loginnev`='{$_SESSION[get_db_tabla().'user']}')";
 
-            //Viszont ahol véleményező vagyok, azokat az igényléseket mindenképp lássam
+            // Viszont ahol véleményező vagyok, azokat az igényléseket mindenképp lássam
             $lathato_prigenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektigenyles_kapcs', "`login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
             $lathato_prigenyek = adatbazis2tomb($lathato_prigenyek, 'projektigenyles_recid');
             if($lathato_prigenyek){
@@ -1909,38 +1874,50 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
         if($tabla == 'munkalap'){
 
-            //Ki-ki csak a saját szállodáit láthatja, ez alap
+            // Ki-ki csak a saját szállodáit láthatja, ez alap
             $where = "`".get_db_tabla()."munkalap`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
-
-            //Saját megtekintése: saját szállodák + hozzárendelt személyzet: tehát toávbb szűrünk hozzárendelt személyzetre, amit a felhasználókon, majd személyezeten át kapunk meg
-            if(_jog(JOG_MUNKALAP_MEGTEKINT)){
-                //Hozzárendelt személyzet megállapítása. Ez egyenlő a Személyzet beosztásával.
-                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND ";
+            
+            // Ha mobilcsopotos felhasználó vagyok csak azokat a munkalapokat látom, amik mobilhoz vannak rendelve és a hozzárendelt személy üres vagy én vagyok.
+            if( $_SESSION[get_db_tabla().'szemelyzet_id']==MOBILCSOPORT ){
+                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}') ";
+                
+            // Ha nem mobilcsoport vagyok, akkor még a saját szállodák jogra kell figyleni:
+            }else{
+                
+                // Saját megtekintése: saját szállodák + hozzárendelt személyzet: tehát toávbb szűrünk hozzárendelt személyzetre, amit a felhasználókon, majd személyezeten át kapunk meg
+                if(_jog(JOG_MUNKALAP_MEGTEKINT)){
+                    // Hozzárendelt személyzet megállapítása. Ez egyenlő a Személyzet beosztásával.
+                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND ";
+                    if(!$_SESSION[get_db_tabla().'szemelyzet_id']){
+                        $where .= ' FALSE AND ';
+                    }
+                }
             }
+            
+            // Azaz ha saját szállodáim jogom van, akkor az egy lazább feltétel, nem szűrünk hozzárendelt személyzetre
             if(_jog(JOG_MUNKALAP_MEGTEKINT_SZALL)){
-                $where .= ''; //Azaz ha saját szállodáim jogom van, akkor az egy lezább feltétel, nem szűrünk hozzárendelt személyzetre
+                $where .= '';
             }
 
 
         }
 
-        //Keresés
+        // Keresés
         if( $_GET['ksz'] ) {
 
-            //Ki kell szűrni az " ... as " részeket.
+            // Ki kell szűrni az " ... as " részeket.
             $select_feldogloz = nl2($_OPTS['select']);
             if(strpos($select_feldogloz, '` as `')!==false){
                 $as_resz = strpos($select_feldogloz, '` as `');
-//var_dump($as_resz);
+
                 $select_tmp = substr($select_feldogloz, 1, $as_resz);
-                //maradékból vágjuk ki az as `ami ide van írva` részt. 4. ` karaterig vágunk
+                // Maradékból vágjuk ki az as `ami ide van írva` részt. 4. ` karaterig vágunk
                 $maradek    = substr($select_feldogloz, $as_resz);
                 for($i=0; $i<4; $i++){
                     $maradek = substr($maradek, 0, strpos('`'));
                 }
                 $select_feldogloz = $select_tmp.$maradek;
             }
-//var_dump($select_feldogloz);
 
             $selectek = explode(' ', $select_feldogloz);
             $ksz_where = '';
@@ -1960,32 +1937,32 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
         }
 
-        //Szűrés lekezelése
+        // Szűrés lekezelése
         if ($_GET['mezo'] && $_GET['op']) {
-            //Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
+            // Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
             if($where){
                 $where = '('.csonkit($where, 5).') AND ';
             }
             $where .= get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla).' AND ';
         }
 
-        //Ha van öszetettt szűrés feltétel
+        // Ha van öszetettt szűrés feltétel
         if($_SESSION['o_szuro_feltetel']){
-            //Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
+            // Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
             if($where){
                 $where = '('.csonkit($where, 5).') AND ';
             }
             $where .= get_o_szures_where_kieg($_SESSION['o_szuro_feltetel'], $tabla).' AND ';
         }
 
-        //ha van $_GET['idk'] változónk, akkor azokra az ID-kra még pluszban szűrünk
+        // Ha van $_GET['idk'] változónk, akkor azokra az ID-kra még pluszban szűrünk
         if ($_GET['recidk']) {
             $where .= '`'.get_db_tabla().$tabla.'`.`recid` IN ('.$_GET['recidk'].') AND ';
         }
 
-        //Anyagigénylés/anyagrendelés lekezelése
+        // Anyagigénylés/anyagrendelés lekezelése
         if($tabla=='anyagigenyles'){
-            //Jóváhagyva státuszig anyagigénylés, afelett rendelés
+            // Jóváhagyva státuszig anyagigénylés, afelett rendelés
             if (isset($_GET['anyagrend'])) {
                 $where .= "`stat_id`>25";
             }else{
@@ -1993,15 +1970,15 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             }
         }
 
-        //Where feltétel lezárása
+        // Where feltétel lezárása
         $where = trim($where, ' AND ');
 
-    //Ha van megadva where feltétel, akkor az a recid=x, tehát frissítünk
+    // Ha van megadva where feltétel, akkor az a recid=x, tehát frissítünk
     }else{
         $frissit = true;
     }
 
-    //Lapozás előkészítése
+    // Lapozás előkészítése
     require_once('../class/class.Lapozo.php');
 
     if(!$_GET['oldal']){
@@ -2053,7 +2030,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
         // Rendezés anyagigényléskor
         if($tabla=='anyagigenyles'){
-            //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            // Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             if($_GET['rend']=='ikt_szam'){
                 $order = '`'.get_db_tabla().'anyagigenyles`.`ikt_szam` '.$_GET['irany'];
             }
@@ -2061,7 +2038,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
         // Rendezés beosztásnál
         if($tabla=='beosztas'){
-            //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            // Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             if($_GET['rend']=='telephely_id'){
                 $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'beosztas`.`tol`';
             }
@@ -2075,9 +2052,35 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             $irany_ikt_szam  = '';
             $irany_telephely = '';
 
-            // Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            // Ha iktatószám szerint rendezünk, akkor beállítunk egy aktuális sorrendet, és a sorrend oszlop szerint rendezünk
+            // Nyitott státuszú sürgősek, azon belül ikatatószám
+            $i = 0;
+            $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=1", 'ikt_szam');
+            foreach($bejelentesek as $bejelentes){
+                $adatbazis_kapcsolat->u('bejelentes', array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
+                $i++;
+            }
+            // Nyitott státuszú, nem sürgősek, azon belül ikatatószám
+            $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=0", 'ikt_szam');
+            foreach($bejelentesek as $bejelentes){
+                $adatbazis_kapcsolat->u('bejelentes', array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
+                $i++;
+            }
+            // Nem nyitott státuszú, sürgősek, azon belül ikatatószám
+            $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`!='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=1", 'ikt_szam');
+            foreach($bejelentesek as $bejelentes){
+                $adatbazis_kapcsolat->u('bejelentes', array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
+                $i++;
+            }
+            // Nem nyitott státuszú, nem sürgősek, azon belül ikatatószám
+            $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`!='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=0", 'ikt_szam');
+            foreach($bejelentesek as $bejelentes){
+                $adatbazis_kapcsolat->u('bejelentes', array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
+                $i++;
+            }
+            
             if($_GET['rend']=='surgos'){
-                $order .= '`'.get_db_tabla().'bejelentes`.`surgos` DESC, `'.get_db_tabla().'bejelentes`.`stat_id`, `'.get_db_tabla().'bejelentes`.`ikt_szam`';
+                $order .= '`'.get_db_tabla().'bejelentes`.`sor` '.$_GET['irany'].'';
 
             // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             }elseif($_GET['rend']=='telephely_id'){
@@ -2091,28 +2094,29 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
         }
 
-        //Rendezés munkalap esetén külön problémakör:
+        // Rendezés munkalap esetén külön problémakör:
         if($tabla=='munkalap'){
 
             $order = '';
-            //Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
+            // Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
             if(_jog(JOG_MUNKALAP_KESZITHET)){
                 $order .= '`'.get_db_tabla().'munkalap_csoport`.`nev`, ';
             }
-            //A sürgős mindig elől lesz, bármi is a rendezettség
+            // A sürgős mindig elől lesz, bármi is a rendezettség
             $order .= '`'.get_db_tabla().'munkalap`.`surgos` DESC, ';
 
             $irany_ikt_szam  = '';
             $irany_telephely = '';
-            //Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            
+            // Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             if($_GET['rend']=='ikt_szam'){
                 $order .= '`'.get_db_tabla().'munkalap`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
             }
-            //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
+            // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             if($_GET['rend']=='telephely_id'){
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'munkalap`.`ikt_szam`';
             }
-            //Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
+            // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             if($_GET['rend']=='stat_id'){
                 $order .= '`'.get_db_tabla().'munkalap`.`stat_id` '.$_GET['irany'];
             }
@@ -2121,18 +2125,18 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
         }
 
-        //Projektigénylésnél a telephey nevét átnevezzük, ne ütközzön a sima névvel
+        // Projektigénylésnél a telephey nevét átnevezzük, ne ütközzön a sima névvel
         $sql_as = '';
         if($tabla=='projektigenyles'){
             $sql_as = ' as `teleph_nev`';
         }
 
-        //Select-et is kiegészítjük a rendezni kívánt oszloppal
+        // Select-et is kiegészítjük a rendezni kívánt oszloppal
         $select .= ', `'.get_db_tabla().'telephely`.`nev`'.$sql_as;
         $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit); //Ez minek van itt?
         $mit   = 'WHERE';
 
-        //Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
+        // Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
         $sql_kieg = '';
         if($tabla=='bejelentes'){
             $sql_kieg .= nl2('
@@ -2145,7 +2149,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                                 LEFT OUTER JOIN `'.get_db_tabla().'munkalap_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'munkalap_csoport`.`recid`
                             ');
         }
-        //Szűréskor megjegyzés JOIN
+        // Szűréskor megjegyzés JOIN
         if ($_GET['mezo']=='megjegyzes') {
             $sql_kieg .= ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
@@ -2155,12 +2159,12 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         $mivel = 'JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`'.$sql_kieg.' WHERE';
         $sql = $adatbazis_kapcsolat->gp();
 
-        /* Anyagrendelések miatt */
+        // Anyagrendelések miatt
         if( basename(self()) == 'anyagigenyles.php' && isset($_GET['anyagrend']) ) {
             $sql = str_replace('ORDER BY', ' GROUP BY `'.get_db_tabla().'anyagigenyles`.`rndid` ORDER BY', $sql);
         }
 
-        //Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elá kell beszúrni a JOIN-t
+        // Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elá kell beszúrni a JOIN-t
         if(strpos($sql, 'WHERE')===false){
             $mit = 'ORDER BY';
             $mivel = str_replace('WHERE', 'ORDER BY', $mivel);
@@ -2172,7 +2176,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             array_push($bejegyzesek, $sor);
         }
 
-    //Értéklistát csoport szerinti sorrendben, azon belül pedig infó szerinti sorrendben kell kilistázni
+    // Értéklistát csoport szerinti sorrendben, azon belül pedig infó szerinti sorrendben kell kilistázni
     }elseif($tabla=='erteklista'){
 
         //Gyorskeresőnél képződhet where feltétel

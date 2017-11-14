@@ -129,20 +129,20 @@ define('PRKEZEL_STAT_NYITOTT',              '01' );
 
 
 
-//Projektigénylés tipusok
+// Projektigénylés tipusok
 define('PRIGENY_TIPUS_BERUH',           '1' );
 define('PRIGENY_TIPUS_FENNT',           '2' );
 define('PRIGENY_TIPUS_TARGY',           '3' );
 
-//Projektigénylés besorolások
+// Projektigénylés besorolások
 define('PRIGENY_BESOROL_FEJL',          '1' );
 define('PRIGENY_BESOROL_FELU',          '2' );
 define('PRIGENY_BESOROL_REKO',          '3' );
 
-//Projektigénylés megtérülési terület
+// Projektigénylés megtérülési terület
 define('PRIGENY_TERULET_DOK',           '1' );
 
-//személyzettípusok
+// Személyzettípusok
 define('TELEPITETT_SZEMELYZET',         '1' );
 define('MOBILCSOPORT',                  '2' );
 define('KULSO_KIVITELEZO',              '3' );

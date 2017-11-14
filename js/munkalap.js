@@ -152,7 +152,7 @@ function munkalapMobil( that ) {
                             return false;
                         }
 
-                        /*location.href = get_get();*/
+                        location.href = get_get();
                     }
                 }
             });
