@@ -1600,7 +1600,7 @@ if( isset($_POST['munkalap_kulsoSelect']) ) {
     $recid = $_POST['recid'];
 
     if( $select_szemelyzet ) {
-        /* Ellenőrizzük, hogy felvéve státuszban van e */
+        // Ellenőrizzük, hogy felvéve státuszban van e
         $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
@@ -1616,7 +1616,7 @@ if( isset($_POST['munkalap_kulsoSelect']) ) {
         }
 
         // Jog ellenőrzése
-        if( !_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ) {
+        if( !_jog(JOG_MUNKALAP_NYITOTT_KEZEL) ) {
             echo json_encode(array(
                 'hiba'  => 'Nincs joga az átadáshoz!',
                 'title' => 'Hiba',
