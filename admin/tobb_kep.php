@@ -43,6 +43,18 @@ if(isset($_POST['session_name'])){
         mkdir($utvonal, 0777);
     }
 
+    $ikt_szam = $adatbazis_kapcsolat->s('recid ikt_szam', $_SESSION['fajl']['konyvtar'], "`recid` = '".$_POST['sorid']."'", '', '1');
+
+    if( $ikt_szam ) {
+        $ikt_szam = $ikt_szam[0];
+
+        $utvonal = $utvonal.'/'.str_replace('/', '_', $ikt_szam['ikt_szam']);
+
+        if( !is_dir($utvonal) ) {
+            mkdir($utvonal, 0777);
+        }
+    }
+    
     // JS alapú fájlfeltöltés esetén a $_FILES['file'] tömbben vannak az adatok a $_FILES[megnevezés] helyett
     if($_FILES['file']){
         $_FILES[$_POST['megnevezes']] = $_FILES['file'];
@@ -120,7 +132,7 @@ if(isset($_POST['session_name'])){
                         echo get_tobbkep_thumb($sor_kepek, count($osszes_sor));
                     } else {
                         $sor_kep = $adatbazis_kapcsolat->s($_SESSION['fajl']['oszlop'], $_SESSION['fajl']['tabla'], "`".$_SESSION['fajl']['oszlop']."` = '".$_POST['sorid']."' AND `utvonal` = '{$kep_tort}'", '', '0,1');
-                        
+
                         if( !$sor_kep ) {
                             $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'],
                                 array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev' ),
