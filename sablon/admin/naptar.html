@@ -1,0 +1,34 @@
+<script>
+
+	$(document).ready(function() {
+        $('<link rel="stylesheet" type="text/css" href="../css/fullcalendar.min.css" />').appendTo('head');
+
+		$('#calendar').fullCalendar({
+			header: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'month,basicWeek,basicDay'
+			},
+			defaultDate: '2017-07-12',
+			navLinks: true, /* can click day/week names to navigate views */
+			editable: true,
+			eventLimit: true, /* allow "more" link when too many events */
+            lang: 'hu',
+            contentHeight: 600,
+            events: [{EVENTS}],
+            eventClick: function(calEvent, jsEvent, view) {
+
+                console.log('Event: ' + calEvent.title);
+                console.log('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
+                console.log('View: ' + view.name);
+
+                /* change the border color just for fun
+                $(this).css('border-color', 'red'); */
+
+            }
+		});
+
+	});
+
+</script>
+<div id="calendar"></div>

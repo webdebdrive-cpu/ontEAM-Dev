@@ -2843,3 +2843,8 @@ svg.piros path{
 div.jog_dt div.dtc.jog_dtc {
     padding: 0rem 5rem 0rem 0rem;
 }
+
+#calendar {
+    max-width: 900px;
+    margin: 0 auto;
+}
