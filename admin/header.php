@@ -707,7 +707,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         }
     }
 
-    /* Rendezés onchange linkje */
+    // Rendezés onchange linkje
     $irany = '';
     if( $_GET['irany'] ) {
         $irany = ', \''.$_GET['irany'].'\'';
@@ -719,8 +719,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $_OPTS['order'] = $_GET['rend'];
     }
 
-    /* Rendezési irány */
-    //Aktívnál fordítva van
+    // Rendezési irány
+    // Aktívnál fordítva van
     if($_GET['rend']=='aktiv' || (basename(self())=='utemezett_feladatok.php' && !$_GET['rend']) ){
         $_OPTS['order'] .= ' desc';
         $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▼ <span>Z-A</span></a>';
@@ -728,17 +728,15 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
             $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▲ <span>A-Z</span></a>';
         }
     }else{
-        $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▼ <span>Z-A</span></a>';
+        $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'asc\', \''.$_GET['rkat'].'\' ); void(0);">▲ <span>A-Z</span></a>';
         if( $_GET['irany'] && $_GET['irany'] == 'desc' ) {
-            $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'asc\', \''.$_GET['rkat'].'\' ); void(0);">▲ <span>A-Z</span></a>';
+            $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▼ <span>Z-A</span></a>';
 
             if( $_GET['rend'] && in_array($_GET['rend'], $rend_mezok) ) {
                 $_OPTS['order'] .= ' desc';
             }
         }
     }
-
-/* ....*/
 
     $tartBal  = szamla_lista();
 

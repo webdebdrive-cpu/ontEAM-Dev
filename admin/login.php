@@ -436,13 +436,14 @@ require_once('selectek.php');
                                         $(\'input[type="checkbox"]\').each(function () {
                                             param += $(this).attr(\'name\')+\'=\'+$(this).is(\':checked\')+\'&amp;\';
                                         });
-
+                                        
                                         $.ajax({
                                             url    : \''.self().'\',
                                             type   : \'POST\',
                                             data   : esamp2es(param+\'&amp;id='.$_GET['id'].'&amp;jogokhozzaad=\' + new Date().getTime()),
                                             success: function (response) {
                                                 $(\'input[type="checkbox"]\').removeClass(\'mod\');
+                                                formModositva = false;
                                             }
                                         });
                                         return false;
@@ -566,7 +567,7 @@ require_once('selectek.php');
                         <div class="muveletek"'.$muv_style.'>
                             <div class="form_kuldes">
                                 <input type="hidden" name="id" value="'.$_GET['id'].'">
-                                <input type="submit" class="gombb mentes_gomb" name="jogokhozzaad" id="mehet_gomb" disabled value="Mentés">
+                                <input type="submit" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
                             </div>
                         </div>
                     </div>

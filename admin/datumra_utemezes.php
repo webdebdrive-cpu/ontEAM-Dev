@@ -13,7 +13,7 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
 		$i = $i + 1;
 		$dlast = $dnext;
 		$dnext = null;
-		print 'lstart:'.$lstart.'<br>';
+		//print 'lstart:'.$lstart.'<br>';
 		$dlast = getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $cciklho, $cciklhet, $cciklnap);
 		$dnext = validnextdate($dlast, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d);
 		$lstart = true; //ha elsőnek kiszámolt esedékesség érvénytelen, újrakezdjük esedékesség számítását mai naptól
@@ -128,9 +128,9 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 		ütemezés 0 ciklusszorzóval:
 		, m.dlasthoz legközelebbi dátumot adja vissza (lehet előtte és utána is)*/
 		
-		print '0szorzó: getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
-			. '0,"' . $cciklho . '","' . $cciklhet . '","' . $cciklnap . '"'
-			. ',"' . $dlast . '")<br>';
+//		print '0szorzó: getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
+//			. '0,"' . $cciklho . '","' . $cciklhet . '","' . $cciklnap . '"'
+//			. ',"' . $dlast . '")<br>';
 			
 			
 		eval('$dnext = getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
@@ -148,7 +148,7 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 				$command = 'getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
 				. $nciklszorz . ',"' . $cciklho . '","' . $cciklhet . '","' . $cciklnap . '"'
 				. ',"' . $dnext . '");';
-				print '1szorzó: '.$command.'<br>';
+				//print '1szorzó: '.$command.'<br>';
 			eval('$returnvalue = '.$command);
 			return $returnvalue;
 		}
@@ -166,7 +166,7 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 			. ',"' . $cciklhet . '"'
 			. ',"' . $cciklnap . '"'
 			. ',"' . (empty($dlast) ? date(DATEFORMAT, time()) : $dlast) . '");';
-				print 'ütemezés: '.$command.'<br>';
+				//print 'ütemezés: '.$command.'<br>';
 			
 		eval('$returnvalue = '.$command);
 		return $returnvalue;
@@ -293,6 +293,7 @@ function dowtodate ( $nev,  $nho, $nhet, $nnap)
 
 function dateadd ($stringdate, $days, $months, $years)
 {
+
 	$date = DateTime::createFromFormat(DATEFORMAT, $stringdate);
 	if ($days > 0)
 		$date->add(new DateInterval('P'.$days.'D'));
@@ -306,6 +307,8 @@ function dateadd ($stringdate, $days, $months, $years)
 		$date->add(new DateInterval('P'.$years.'Y'));
 	if ($years < 0)
 		$date->sub(new DateInterval('P'.-$years.'Y'));
+    
+
 	
 	$returnvalue = $date->format(DATEFORMAT);
 	return $returnvalue;

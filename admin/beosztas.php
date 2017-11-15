@@ -187,7 +187,7 @@ if($tobb_kep){
 
 }
 
-/* CSV generálása */
+// CSV generálása
 if (isset($_GET['csv'])) {
 
     $mibol   = get_web_charset();
@@ -201,7 +201,7 @@ if (isset($_GET['csv'])) {
         mkdir('export/csv');
     }
 
-    //Régi fájlok törlése
+    // Régi fájlok törlése
     $utvonal = 'export/csv/';
     $fajlok = konyvtar_bejar($utvonal);
     foreach($fajlok as $fajl){
@@ -271,7 +271,7 @@ if (isset($_GET['csv'])) {
     exit();
 }
 
-/** Tartalom */
+// Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
@@ -483,7 +483,7 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	//Termék módosítása
+	// Beosztás módosítása
 	}elseif(isset($_GET['modosit'])) {
 
         //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
@@ -574,7 +574,7 @@ require_once('selectek.php');
 			require_once('tobb_kep.php');
 		}
 
-	//Naptár
+	// Naptár
 	}elseif(isset($_GET['naptar'])){
 
 		// Ez elkészíti a $mezok változót
@@ -590,8 +590,8 @@ require_once('selectek.php');
 
 	    $szamla_html .=
             str_replace(
-                array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'),
-                array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style  ),
+                array('{JS}', '{ACTION}', '{JS_SUBMIT_ELOTT}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'),
+                array( $js,    $action,   $js_submit_elott,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style  ),
                 fajlbol_olvas('../sablon/admin/form_modosit.html', true)
             ).'<script>$(document).ready(function () { $(\'#szerk_form div.dt\').hide(); });</script>';
 
@@ -645,7 +645,7 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	//Történet
+	// Történet
 	}elseif(isset($_GET['tortenet'])){
 
         $szamla_html .= get_tortenet($megnevezes);

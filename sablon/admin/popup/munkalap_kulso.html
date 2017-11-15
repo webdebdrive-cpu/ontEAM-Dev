@@ -1,5 +1,5 @@
 <h2>Munkalap átadása</h2>
-<form action="" id="munkalapKulso" class="popupForm" method="post" onsubmit="return munkalapKulso( this );">
+<form action="" id="munkalapKulso" class="popupForm" method="post" onsubmit="return munkalapKulso();">
     <div class="kozep" style="min-height: 20rem">
         <p>Válasszon külső kivitelezőt:</p>
         <div class="dt">
@@ -37,13 +37,13 @@
 </form>
 <script>
 /* Munkalap átadása külső csoportnak */
-function munkalapKulso( that ) {
+function munkalapKulso() {
 
     if(balnav_kijelol_ell()){
 
-        var szallito_id         = $(that).find('input[name="szallito_id"]'),
-        szallito_id_autocomp    = $(that).find('input[name="szallito_id_autocomp"]'),
-        szemelyzet_id           = $(that).find('select[name="p_szemelyzet_id"]');
+        var szallito_id         = $('#szallito_id'),
+        szallito_id_autocomp    = $('#szallito_id_autocomp'),
+        szemelyzet_id           = $('#p_szemelyzet_id');
 
         if( szallito_id.val() && szemelyzet_id.val() ) {
             alert2('Külső kivitelezőt és hozzárendelt személyzetet egyszerre nem lehet megadni!', '', 'Hiba');
@@ -54,7 +54,7 @@ function munkalapKulso( that ) {
             return false;
         }
 
-        if( !szallito_id.val() && !szemelyzet_id.val() ) {
+        if( !szallito_id.val() && (!szemelyzet_id.val() || szemelyzet_id.val()=='0') ) {
             alert2('Válasszon szállítót!', '', 'Hiba');
             document.getElementById('szallito_id_autocomp').focus();
             return false;

@@ -507,7 +507,7 @@ if( isset($_POST['munkalapKulso']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid && ($szallito_id || $szemelyzet_id) ) {
-        /* Ellenőrizzük, hogy felvéve státuszban van e */
+        
         $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'");
         if( $munkalap === false ) { $db_error = true; }
 
@@ -535,6 +535,7 @@ if( isset($_POST['munkalapKulso']) ) {
 
         // Ha külső kivitelezőnek adjuk át, akkor Folyamatban státuszt kap
         if( $szallito_id ) {
+
             $sql = $adatbazis_kapcsolat -> u('munkalap',
                                                 array('szemelyzet_id',   'szallito_id',   'update_usr'                           ),
                                                 array( KULSO_KIVITELEZO, $szallito_id,    $_SESSION[get_db_tabla().'teljes_nev'] ),
@@ -549,6 +550,7 @@ if( isset($_POST['munkalapKulso']) ) {
             
         // Ha személyezttípust választottunk, akkor előkészítés alatt státuszba léptetjük
         } else if( $szemelyzet_id ) {
+
             $sql = $adatbazis_kapcsolat -> u('munkalap',
                                                 array('szemelyzet_id',   'update_usr'                           ),
                                                 array($szemelyzet_id,    $_SESSION[get_db_tabla().'teljes_nev'] ),
@@ -573,6 +575,11 @@ if( isset($_POST['munkalapKulso']) ) {
                 'title' => 'Hiba',
             ));
         }
+    }else{
+        echo json_encode(array(
+            'hiba'  => 'Kérem válasszon egy külső kivitelezőt vagy hozzárendelt személyt!',
+            'title' => 'Hiba',
+        ));
     }
     
     $weblap->leallit();

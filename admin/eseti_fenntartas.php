@@ -35,12 +35,7 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
-if( $_POST ) {
-    echo '<pre style="font-size: 1.4rem">', print_r($_POST), '</pre>';
-    exit();
-}
-
-//Több kép menedzseléséhez
+// Több kép menedzseléséhez
 $tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
@@ -51,7 +46,6 @@ if($tobb_kep){
         return $megnevezes.'_id';
     }
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
-
 }
 
 

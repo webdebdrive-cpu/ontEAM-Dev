@@ -13,7 +13,7 @@ function alert2(uzi, ok_gomb, cim) {
         ok_gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2()">';
     }
 
-    /*Üres alert eltűntetés*/
+    /* Üres alert eltűntetés */
     if(!uzi){
 
         $('#szurkit').fadeOut(200);
@@ -22,16 +22,14 @@ function alert2(uzi, ok_gomb, cim) {
             $('#alert2').remove();
         });
         
-        /* Ha popupban kaptunk volna hibaüzenetet, akkor visszatérve fókuszáljunk a hibásnak jelölt inputra */
-        if($('#popup').is(':visible')){
-            $('#popup input.hibas_ide_focus, #popup textarea.hibas_ide_focus, #popup select.hibas_ide_focus').select();
-        }
+        /* Hibaüzenetkor ha adtunk "hibas_ide_focus" class-t egy inputra, akkor arra fókuszáljunk rá. */
+        $('input.hibas_ide_focus, textarea.hibas_ide_focus, select.hibas_ide_focus').select().removeClass('hibas_ide_focus');
         
         return true;
 
     }else{
 
-        /*kivesszük, mivel újból hozzá lesz adva*/
+        /* kivesszük, mivel újból hozzá lesz adva */
         $('#szurkit').remove();
         $('#alert2').remove();
 

@@ -600,6 +600,11 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_erteklista':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_erteklista, $sor['csoport']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -689,6 +694,10 @@ foreach($akt_tomb as $ertek){
             if( isset($_GET['uj']) && $_GET['telphely'] ) {
                 $selected = $_GET['telphely'];
             }
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
 
             $input = new Select($select_felh_telephely, $selected);
             $input -> cssClass = $ertek['class'];
@@ -734,6 +743,11 @@ foreach($akt_tomb as $ertek){
         break;
 
         case 'select_rkat':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_rkat, $sor['rkat']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -776,6 +790,11 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_fiz_mod':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_fiz_mod, $sor['fiz_mod']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -818,6 +837,11 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_afa_tipus':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_afa_tipus, $sor['afa_tipus']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -860,6 +884,11 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_eszk_csop':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_eszk_csop, $sor['eszkoz_csop']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -902,6 +931,11 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_cimzett':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_cimzett, $sor['cimzett']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -944,6 +978,11 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_ill_reszleg':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_ill_reszleg, $sor['ill_reszleg']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -986,6 +1025,11 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_cikltip':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_cikltip, $sor['cikltip']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1028,6 +1072,11 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_honapjan':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_honapjan, $sor['honapjan']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1072,6 +1121,11 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_ho_ism':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_ho_ism, $sor['ciklhet']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1116,6 +1170,11 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_ho_soran':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_ho_soran, $sor['ho_rendsz_het']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1160,6 +1219,10 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_szemelyzet':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
 
             $input = new Select($select_szemelyzet, $sor['szemelyzet_id']);
             $input -> cssClass = $ertek['class'];
@@ -1205,6 +1268,11 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_beosztas':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_beosztas, $sor['beosztas']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1250,6 +1318,11 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_pri_tipus':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_pri_tipus, $sor['tipus']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1295,6 +1368,11 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_pri_besorol':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_pri_besorol, $sor['besorol']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1340,6 +1418,11 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'select_pri_cel':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_pri_cel, $sor['megter_cel']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];

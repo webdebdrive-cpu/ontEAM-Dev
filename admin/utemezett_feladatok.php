@@ -61,7 +61,7 @@ if (isset($_GET['datumra_utemezes'])) {
     $sor = $adatbazis_kapcsolat->s('*', $megnevezes, "`recid`='{$_GET['id']}'");
     $sor = $sor[0];
 
-    if(!$sor['esem_d']){
+    if(!$sor['esem_d'] || $sor['esem_d']=='0000-00-00'){
         $sor['esem_d'] = date('Y-m-d');
     }
     $esem_d     = substr(str_replace('-', '.', $sor['esem_d']), 0, 10);
@@ -85,7 +85,7 @@ if (isset($_GET['datumra_utemezes'])) {
 
 }
 
-/* CSV generálása */
+// CSV generálása
 if (isset($_GET['csv'])) {
 
     $mibol   = get_web_charset();
@@ -215,11 +215,11 @@ require_once('selectek.php');
         );
     }
 
-    /* Gombok kirajzolása minden oldalra */
+    // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) ) {
 
-        //Újat csak "Ütemezett feladatok kezelése" joggal lehet
+        // Újat csak "Ütemezett feladatok kezelése" joggal lehet
         if(_jog(JOG_UTFEL_KEZEL) ){
             $gombok = nl2('
                 <div class="form_kuldes">
@@ -234,7 +234,7 @@ require_once('selectek.php');
                 }
             }
 
-            /* Műveletek box */
+            // Műveletek box
             $gombok = nl2('
                 <div class="muveletek"'.$muv_style.'>
                     '.$gombok.'
@@ -242,13 +242,13 @@ require_once('selectek.php');
             ');
         }
 
-    //Módosítás gombok
+    // Módosítás gombok
     } else {
 
         $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
 		$sor = $sor[0];
 
-        //Js, a törlés gombhoz
+        // Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         if( _jog(JOG_UTFEL_KEZEL) ){
@@ -278,7 +278,7 @@ require_once('selectek.php');
             }
         }
 
-        /* Műveletek box */
+        // Műveletek box
         $gombok = nl2('
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'
@@ -288,7 +288,7 @@ require_once('selectek.php');
 
     $js_submit_elott = 'return form_ell_admin();';
     
-	//Új termék felvitele
+	// Új termék felvitele
 	if( isset($_GET['uj']) && _jog(JOG_UTFEL_KEZEL) ){
 
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
@@ -349,10 +349,10 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	//Termék módosítása
+	// Ütemezet feladat módosítása
 	}elseif(isset($_GET['modosit'])) {
 
-        //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+        // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
@@ -360,7 +360,7 @@ require_once('selectek.php');
 	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
 		$sor = $sor[0];
 
-        //Régi adatbázisól jövő adatok miatt szükséges:
+        // Régi adatbázisól jövő adatok miatt szükséges:
         if($sor['cikltip']=='d'){
             $sor['ciklnap'] = $sor['ciklszorz'];
         }
@@ -370,7 +370,7 @@ require_once('selectek.php');
         if($sor['cikltip']=='m' && $sor['ciklaltip']=='2'){
             $sor['ciklho2'] = $sor['ciklszorz'];
         }
-//echo $adatbazis_kapcsolat->gp() . '<br>';
+
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
                 'datetime' => $sor['update_dt'],
@@ -436,6 +436,28 @@ require_once('selectek.php');
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
 
+//if (isset($_GET['utem'])) {
+    include('datumra_utemezes.php');
+    if(!$sor['esem_d'] || $sor['esem_d']=='0000-00-00'){
+        $sor['esem_d'] = date('Y-m-d');
+    }
+
+    $esem_d     = substr(str_replace('-', '.', $sor['esem_d']), 0, 10);
+    $esnap_d    = str_replace('-', '.', $sor['esnap_d']);
+    $aktkezd_d  = str_replace('-', '.', $sor['aktkezd_d']);
+    $aktvege_d  = str_replace('-', '.', $sor['aktvege_d']);
+
+    $szamla_html .=  "esemd: $esem_d<br>cikltip: $sor[cikltip]<br>ciklaltip: $sor[ciklaltip]<br>ciklszorz: $sor[ciklszorz]<br>ciklho: $sor[ciklho]<br>ciklhet: $sor[ciklhet]<br>ciklnap: $sor[ciklnap]<br>idoszakos: $sor[idoszakos]<br>kezdho: $sor[kezdho]<br>kezdnap: $sor[kezdnap]<br>vegeho: $sor[vegeho]<br>vegenap: $sor[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
+    //$getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
+    //$szamla_html .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
+//    $szamla_html .= '<hr>Ütemezés: ' . $utemezes;
+//    $szamla_html .= '<hr>Esedékes: ' . $sor['esnap_d'].' '.het_napja_txt($sor['esnap_d']);
+//    $szamla_html .= '<hr>Utolsó végrehajtás: ' . $esnap_d .' '.het_napja_txt($esnap_d);
+//    $szamla_html .= '<br>Következő: ' . $getnextvaliddate.' '.het_napja_txt($getnextvaliddate);
+//    $szamla_html .= '<br>';
+//    $szamla_html .= '<br>Következő 10 iteráció:<br>';
+//}
+        
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -449,10 +471,10 @@ require_once('selectek.php');
 			require_once('tobb_kep.php');
 		}
 
-	//Státusz
+	// Státusz
     }elseif(isset($_GET['naptar'])) {
 
-        //Hét beoszás fejléce
+        // Hét beoszás fejléce
         $fejlec = '';
         if(isset($_GET['akt_nap'])){
             $indulo = date2int($_GET['akt_nap']);
@@ -464,7 +486,7 @@ require_once('selectek.php');
             $fejlec .= '<th>'.date('Y-m-d', $idobelyeg).'<br>'.het_napja( date('w', $idobelyeg) ).'</th>';
         }
 
-        //Hét beoszás sorai
+        // Hét beoszás sorai
         $sorok = '';
         for($i=0; $i<24; $i++){
 
@@ -477,7 +499,6 @@ require_once('selectek.php');
             for($j=0; $j<6; $j++){
 
                 $db = count($adatbazis_kapcsolat->s('id', $megnevezes, "`esnap_d`='".date('Y-m-d', strtotime('+'.$j.' days'))."' AND `elv_ido_tol`='$ora:00'"));
-//echo $adatbazis_kapcsolat->gp() . '<br>';
                 if(!$db){
                     $db = '';
                 }
@@ -509,7 +530,7 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	//Ütemezés
+	// Ütemezés
     }elseif(isset($_GET['utemezes'])) {
 
         include('datumra_utemezes.php');
@@ -547,7 +568,7 @@ require_once('selectek.php');
             }
         }
 
-        if(!$sor['esem_d']){
+        if(!$sor['esem_d'] || $sor['esem_d']=='0000-00-00'){
             $sor['esem_d'] = date('Y-m-d');
         }
         $esem_d     = substr(str_replace('-', '.', $sor['esem_d']), 0, 10);
@@ -578,7 +599,7 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-    /* Dokumentumok */
+    // Dokumentumok
     }elseif(isset($_GET['dokumentumok'])) {
 
         if( $tobb_kep ) {

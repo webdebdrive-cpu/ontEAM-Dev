@@ -706,7 +706,7 @@ require_once('selectek.php');
         }
 
         // Munkalap készítése
-        if( $sor['stat_id']==BEJELENTES_STAT_NYITOTT && _jog(JOG_MUNKALAP_KESZITHET) ) {
+        if( ($sor['stat_id']==BEJELENTES_STAT_NYITOTT || $sor['stat_id']==BEJELENTES_STAT_FOLYAMATBAN) && _jog(JOG_MUNKALAP_KESZITHET) ) {
             $gombok .= nl2('
                 <input type="button" id="munkalapEgyeni" class="gomb" value="Munkalap készítése" onclick="munkalapKeszit(\'csak kérdezünk még\')" title="Munkalap készítése">
             ');
@@ -733,17 +733,17 @@ require_once('selectek.php');
 	//Új bejelentés felvitele
 	if(isset($_GET['uj'])){
 
-        //NAVIGÁCIÓ
+        // NAVIGÁCIÓ
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
 	    require_once('info.php');
 
-	    //FORM
-        //Újként szerkesztéskor feltöltjük a mezők tartalmát
+	    // FORM
+        // Újként szerkesztéskor feltöltjük a mezők tartalmát
 		if($_GET['ujkent']){
             $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
             if( $sor ) {
@@ -777,7 +777,7 @@ require_once('selectek.php');
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-        /* Javascipt-es ellenőrzéshez */
+        // Javascipt-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
         $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');

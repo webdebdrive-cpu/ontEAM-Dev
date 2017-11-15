@@ -56,7 +56,7 @@ if (isset($_GET['datumra_utemezes'])) {
     $sor = $adatbazis_kapcsolat->s('*', $megnevezes, "`recid`='{$_GET['id']}'");
     $sor = $sor[0];
 
-    if(!$sor['esem_d']){
+    if(!$sor['esem_d'] || $sor['esem_d']=='0000-00-00'){
         $sor['esem_d'] = date('Y-m-d');
     }
     $esem_d     = substr(str_replace('-', '.', $sor['esem_d']), 0, 10);
@@ -80,7 +80,7 @@ if (isset($_GET['datumra_utemezes'])) {
 
 }
 
-/* CSV generálása */
+// CSV generálása
 if (isset($_GET['csv'])) {
 
     $mibol   = get_web_charset();
@@ -94,7 +94,7 @@ if (isset($_GET['csv'])) {
         mkdir('export/csv');
     }
 
-    //Régi fájlok törlése
+    // Régi fájlok törlése
     $utvonal = 'export/csv/';
     $fajlok = konyvtar_bejar($utvonal);
     foreach($fajlok as $fajl){
@@ -277,7 +277,7 @@ require_once('selectek.php');
     
     $js_submit_elott = 'return form_ell_admin();';
 
-	//Új termék felvitele
+	// Új termék felvitele
 	if( isset($_GET['uj']) && _jog(JOG_RENDSZ_KARB_KEZEL) ){
 
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
@@ -536,7 +536,7 @@ require_once('selectek.php');
             }
         }
 
-        if(!$sor['esem_d']){
+        if(!$sor['esem_d'] || $sor['esem_d']=='0000-00-00'){
             $sor['esem_d'] = date('Y-m-d');
         }
         $esem_d     = substr(str_replace('-', '.', $sor['esem_d']), 0, 10);
@@ -567,7 +567,7 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-    /* Dokumentumok */
+    // Dokumentumok
     }elseif(isset($_GET['dokumentumok'])) {
 
         if( $tobb_kep ) {
