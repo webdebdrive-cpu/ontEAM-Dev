@@ -2,14 +2,13 @@
 
 	$(document).ready(function() {
         $('<link rel="stylesheet" type="text/css" href="../css/fullcalendar.min.css" />').appendTo('head');
-
 		$('#calendar').fullCalendar({
 			header: {
 				left: 'prev,next today',
 				center: 'title',
 				right: 'month,basicWeek,basicDay'
 			},
-			defaultDate: '2017-07-12',
+			defaultDate: '{START_DT}',
 			navLinks: true, /* can click day/week names to navigate views */
 			editable: true,
 			eventLimit: true, /* allow "more" link when too many events */
