@@ -426,7 +426,7 @@ switch($tabla) {
 
         // Default rendezési irány
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = '';
+            $_GET['irany'] = 'desc';
         }
     break;
     case 'utemezett_feladatok.php':
