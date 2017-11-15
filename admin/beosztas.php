@@ -630,9 +630,12 @@ require_once('selectek.php');
             }
         }
 
+        /* Start Date */
+        $start_dt = date('Y-m-d');
+
         $szamla_html .= str_replace(
-            array('{EVENTS}'),
-            array( $events  ),
+            array('{EVENTS}', '{START_DT}'),
+            array( $events,    $start_dt  ),
             fajlbol_olvas('../sablon/admin/naptar.html', true)
         );
 
