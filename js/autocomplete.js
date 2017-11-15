@@ -285,13 +285,19 @@
                     /* Autcomplete után a következő inputra fókusz */
                     stop = false;
                     form.find('input, select, textarea').each(function() {
-                        var name = $(this).attr('name');
+                        var name = $(this).attr('name'),
+                            element = $(this).prop("tagName");
 
                         if( stop ) {
-                            if($('#'+name).length && !$('#'+name).is('select')){
-                                document.getElementById(name).select();
+                            if($('#'+name).length) {
+                                if( element == 'SELECT' ) {
+                                    $('#' + name).focus();
+                                } else {
+                                    document.getElementById(name).select();
+                                }
+
+                                return false;
                             }
-                            return false;
                         }
 
                         if( name == mezo_nev ) {
@@ -422,11 +428,17 @@
 
                             stop = false;
                             form.find('input, select, textarea').each(function() {
-                                var name = $(this).attr('name');
+                                var name = $(this).attr('name'),
+                                    element = $(this).prop("tagName");
 
                                 if( stop ) {
-                                    if($('#'+name).length){
-                                        document.getElementById(name).select();
+                                    if($('#'+name).length) {
+                                        if( element == 'SELECT' ) {
+                                            $('#' + name).focus();
+                                        } else {
+                                            document.getElementById(name).select();
+                                        }
+
                                         return false;
                                     }
                                 }
