@@ -8,11 +8,12 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
 	$dlast = null;
 	$i = 0;
 	
-	while ($dlast != $dnext and $dnext < date(DATEFORMAT, strtotime('+1 year')))  //legfeljebb a következő 10 évre keressük ütemezhetőséget
+	while ($dlast != $dnext and $dnext < date(DATEFORMAT, strtotime('+10 year')))  //legfeljebb a következő 10 évre keressük ütemezhetőséget
 	{
 		$i = $i + 1;
 		$dlast = $dnext;
 		$dnext = null;
+		print 'lstart:'.$lstart.'<br>';
 		$dlast = getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $cciklho, $cciklhet, $cciklnap);
 		$dnext = validnextdate($dlast, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d);
 		$lstart = true; //ha elsőnek kiszámolt esedékesség érvénytelen, újrakezdjük esedékesség számítását mai naptól
@@ -126,6 +127,12 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 		/*
 		ütemezés 0 ciklusszorzóval:
 		, m.dlasthoz legközelebbi dátumot adja vissza (lehet előtte és utána is)*/
+		
+		print '0szorzó: getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
+			. '0,"' . $cciklho . '","' . $cciklhet . '","' . $cciklnap . '"'
+			. ',"' . $dlast . '")<br>';
+			
+			
 		eval('$dnext = getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
 			. '0,"' . $cciklho . '","' . $cciklhet . '","' . $cciklnap . '"'
 			. ',"' . $dlast . '");');
@@ -134,9 +141,14 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 			/*
 			ütemezés a legközelebbi dátumtól "1" ciklusszorzóval:
 			, legközelebbi jövőbeni dátumra fog esni*/
-			$command = 'getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
+		/*	$command = 'getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
 				. '1' . ',"' . $cciklho . '","' . $cciklhet . '","' . $cciklnap . '"'
 				. ',"' . $dnext . '");';
+				print '1szorzó: '.$command.'<br>';*/
+				$command = 'getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
+				. $nciklszorz . ',"' . $cciklho . '","' . $cciklhet . '","' . $cciklnap . '"'
+				. ',"' . $dnext . '");';
+				print '1szorzó: '.$command.'<br>';
 			eval('$returnvalue = '.$command);
 			return $returnvalue;
 		}
@@ -154,6 +166,8 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 			. ',"' . $cciklhet . '"'
 			. ',"' . $cciklnap . '"'
 			. ',"' . (empty($dlast) ? date(DATEFORMAT, time()) : $dlast) . '");';
+				print 'ütemezés: '.$command.'<br>';
+			
 		eval('$returnvalue = '.$command);
 		return $returnvalue;
 	}
@@ -187,7 +201,6 @@ function getnextdate_w ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 
 	$cciklnap = trim($cciklnap);
 	$nnapok = strlen($cciklnap);
-	
 	//Local anap(m.nnapok)
 	
 	for ($i = 0; $i < $nnapok; $i++)
@@ -195,10 +208,10 @@ function getnextdate_w ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 
 	sort($anap, SORT_NUMERIC);
 	
-	if ($ndow >= $anap[$nnapok]) //a hét utolsó ütemezett napján vagy utána
+	if ($ndow >= $anap[$nnapok-1]) //a hét utolsó ütemezett napján vagy utána
 	{
 		$nciklszorz = max($nciklszorz,1);
-		return dateadd ($dlast, ((max($nciklszorz, 1) * 7) - $ndow + $anap[0]), 0, 0);                          //a hét első ütemezett napja
+		return dateadd ($dlast, ((max($nciklszorz, 1) * 7) - $ndow + $anap[0]), 0, 0);//a hét első ütemezett napja
 	}
 	else
 	{
@@ -301,7 +314,8 @@ function dateadd ($stringdate, $days, $months, $years)
 function dowFormStringdate($stringdate)
 {
 	$date = DateTime::createFromFormat(DATEFORMAT, $stringdate);
-	$returnvalue = $date->format('N') + 1 % 7;
+	/*$returnvalue = $date->format('N') + 1 % 7;*/
+	$returnvalue = $date->format('N');
 	return $returnvalue;
 }
 

@@ -49,9 +49,7 @@
                     });
                     
                     $(document).on('blur', '.datepicker, .datetimepicker', function(e) {
-                        if( !Date.parse( $(this).val().replace(/\./gi, '-') ) ){
-                            alert2('Helytelen dátum!', '', 'Hiba');
-                        }
+                        valid_date($(this));
                     });
                             
 

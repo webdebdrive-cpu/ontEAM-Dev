@@ -3605,7 +3605,7 @@ if( !isset($_GET['oldal'])) { $_GET['oldal']=0;     }
 
 
 //ESEMÉNYEK
-//Flashfáljok törlése
+// Flashfáljok törlése
 if(isset($_POST['fajl_torol'])){
     $elem = $adatbazis_kapcsolat -> s2($_POST['oszlop'], $_POST['tabla'], 'recid='.$_POST['id']);
     kep_torol('../'.get_utvonal().$_POST['tabla'].'/'.$elem[$_POST['oszlop']]);
@@ -3708,7 +3708,7 @@ if (isset($_GET['kep_forgat'])) {
     exit;
 }
 
-//Sorrend mentése
+// Sorrend mentése
 if(isset($_POST['sorrendezes'])){
 
     //Mindig egy undefined-el kezdődik ezt le kell venni
@@ -3723,20 +3723,6 @@ if(isset($_POST['sorrendezes'])){
         $i++;
     }
 
-    $weblap -> leallit();
-    exit;
-}
-
-//Inline szerkesztéshez
-if(isset($_GET['inline_szerk'])){
-
-    $adatbazis_kapcsolat->u($_GET['tabla'], array($_GET['oszlop']), array($_GET['ertek']), 'id='.$_GET['sorid']);
-    $visszaolvas = $adatbazis_kapcsolat->s($_GET['oszlop'], $_GET['tabla'], 'id='.$_GET['sorid']);
-    if(is_numeric($visszaolvas[0][$_GET['oszlop']])){
-        echo number_format($visszaolvas[0][$_GET['oszlop']], 0, '', '.');
-    }else{
-        echo $visszaolvas[0][$_GET['oszlop']];
-    }
     $weblap -> leallit();
     exit;
 }

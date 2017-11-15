@@ -1,47 +1,6 @@
+var KEY_ESCAPE = 27;
+
 var naptar_latszik_nincs_leptetes = false; /* Ha a bal oldali navpanelben naptár jelenik meg, a léptetetést kikapcsoljuk */
-
-function lap_tetejere(){
-    if(getKepernyoMagas()<getOldalMagas()){
-    	document.write('<div class="nyil" onclick="scrollto(\'#teto\', 1000)" title="Lap tetejére"></div>');
-    }
-}
-
-function fajl_torol(dbsorid,tabla,oszlop,utvonal){
-	ajaxFunction();
-	req.onreadystatechange = processChoices;
-	req.open("POST", "esemenyek.php", true);
-	req.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=utf-8");
-	req.send("fajl_torles="+dbsorid+"&tabla="+tabla+"&oszlop="+oszlop+"&fajl=../"+utvonal);
-	document.getElementById('fajl_nagyito_'+oszlop).style.display='none';
-	document.getElementById('fajl_kuka_'+oszlop).style.display='none';
-	return true;
-}
-
-/* Inline szerkesztés megkezdése */
-var onclick_disabled = false;
-function inline_szerk(oszlop, sorid){
-    onclick_disabled = true;
-    $('#inline_szerk_'+oszlop+'_'+sorid+'_span').slideUp(30);
-    $('#inline_szerk_'+oszlop+'_'+sorid).slideDown(30);
-    $('#inline_szerk_'+oszlop+'_'+sorid).focus();
-}
-
-/* Inline szerkesztés menttése */
-function inline_szerk_ment(tabla, oszlop, sorid) {
-
-    $.ajax({
-        url : 'esemenyek.php',
-        type: 'GET',
-        data: esamp2es('tabla=' + tabla + '&amp;oszlop=' + oszlop + '&amp;ertek=' + sql_ertek( $('#inline_szerk_' + oszlop+'_'+sorid).val() ) + '&amp;sorid=' + sorid + '&amp;inline_szerk=' + new Date().getTime()),
-        success: function(html){
-            $('#inline_szerk_'+oszlop+'_'+sorid+'_text').html( html );
-        }
-    });
-    $('#inline_szerk_'+oszlop+'_'+sorid+'_span').slideDown(30);
-    $('#inline_szerk_'+oszlop+'_'+sorid).slideUp(30);
-    onclick_disabled = false;
-}
-
 
 /**
 *	Töröl
@@ -425,7 +384,7 @@ $(function() {
         };
     })();
 
-    /*Gyorskereső*/
+    /* Gyorskereső */
     $(document).on('keyup', '#rendezesKeres', function(e) {
         var that = $(this);
 
@@ -449,12 +408,7 @@ $(function() {
         $('.foglalt').removeClass('kijelol');
         $('#mehet_gomb_kivesz').attr('disabled', 'disabled');
     });
-    /* Megnyomva az Esc-et, a popup bezáródik, de csak akkor, ha az alert nincs nyitva */
-    $(document).on('keyup', function(e) {
-        if (e.which == 27 && !$('#alert2').is(':visible')) {
-            popupZar();
-        }
-    });
+    
     /* Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk */
     $(':input[type!="hidden"]').each(function (i) {
         $(this).attr('tabindex', i + 1);
@@ -1245,16 +1199,22 @@ $(function() {
         $(this).val( $(this).val().replace(/\W/g, '') );
     });
 
+    /* ESCAPE gomb lekezelése */
     $(document).on('keyup', function(e) {
-        if( e.keyCode == 27 ) {
+        if( e.keyCode == KEY_ESCAPE ) {
+            
             alert2();
             felh_valt();
             kijelolesEltavolit();
-
-            /* Ha popupban kaptunk volna hibaüzenetet, akkor visszatérve fókuszáljunk a hibásnak jelölt inputra */
-            if($('#popup').is(':visible')){
-                $('#popup input.hibas_ide_focus, #popup textarea.hibas_ide_focus, #popup select.hibas_ide_focus').select();
+            
+            /* Ha popupban kaptunk volna hibaüzenetet, akkor visszatérve fókuszáljunk a hibásnak jelölt inputra. Egyúttal vegyük is le ezt a classt róla */
+            $('input.hibas_ide_focus, textarea.hibas_ide_focus, select.hibas_ide_focus').select().removeClass('hibas_ide_focus');
+            
+            /* A popup bezáródik, de csak akkor, ha az alert nincs nyitva */
+            if( !$('#alert2').is(':visible') ){
+                popupZar();
             }
+
         }
     });
 
@@ -3663,7 +3623,7 @@ function kijelolesEltavolit() {
         $('#szamlaList li.szamla_sor').removeClass('kijelolve');
 
         $('.kijeloltek_muv').removeClass('active');
-        /*Csoportos gombokat sem retjük el soha $('#kmCont').find('input[type="button"]').attr('disabled', true);*/
+        
         $('#navGombok a.torles').attr('onclick', 'naviTorles();');
 
         $('ul.szamla_cont li.csoport').removeClass('kijelolve');
@@ -5283,4 +5243,29 @@ function munkalapKeszit(csak_kerdezunk) {
         }
     }
     return false;
+}
+
+/* Egy átadott elem értéke valid dátumú-e? */
+function valid_date(that){
+    /* Üres dátummezőt töltsük fel */
+    if(!that.val()){
+        if(that.hasClass('datepicker')){
+            that.val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0');
+        }
+        if(that.hasClass('datetimepicker')){
+            that.val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0');
+        }
+    }
+    if(
+        that.val()!='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' &&
+        that.val()!='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0' && 
+        that.val()!='0000.00.00' && 
+        that.val()!='0000.00.00 00:00' && 
+        !Date.parse( that.val().replace(/\./gi, '-') )
+        ){
+            alert2('Helytelen dátum!', '', 'Hiba');
+            that.addClass('hibas_ide_focus');
+            return false;
+    }
+    return true;
 }

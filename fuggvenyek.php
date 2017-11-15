@@ -997,13 +997,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     function '.$fg.'{
                         var volt_helytelen = false;
                         $(\'.datepicker, .datetimepicker\').each(function () {
-                            if( 
-                                $(this).val()!=\'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\' &&
-                                $(this).val()!=\'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0\' && 
-                                $(this).val()!=\'0000.00.00\' && 
-                                $(this).val()!=\'0000.00.00 00:00\' && 
-                                !Date.parse( $(this).val().replace(/\./gi, \'-\') ) ){
-                                alert2(\'Helytelen dátum!\', \'\', \'Hiba\');
+                            if(valid_date($(this))===false){
                                 volt_helytelen = true;
                             }
                         });
