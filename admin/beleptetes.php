@@ -53,7 +53,7 @@ if(isset($_POST['jelszo_csere'])) {
                 $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
                 $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
 
-                // Nincs jelszó változók törlése 
+                // Nincs jelszó változók törlése
                 $_SESSION['nincs_jelsz_felhid'] = false;
                 $_SESSION['nincs_jelsz']        = false;
 
@@ -95,11 +95,13 @@ if(isset($_POST['login'])) {
         }
 
         $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags jog van_jelszo szemelyzet_id', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'", '', '1');
+        
         if( $felhasznalo ) {
 
             if( $felhasznalo['van_jelszo'] ) {
+
                 if( $felhasznalo['jelszo'] == $_POST['jelszo'] && $felhasznalo['helyesseg'] == $helyesseg ) {
-                    
+
                     $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
                     $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
                     $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
