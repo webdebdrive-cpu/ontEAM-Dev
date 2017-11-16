@@ -12,6 +12,7 @@ Játékszabályok:
 
 require_once('../weblap.php');
 
+
 if( !_jog(JOG_BEJELENTES_MEGTEKINT) && !_jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
@@ -313,7 +314,7 @@ if( isset($_POST['bejelentesReklamacioElfogad']) ) {
 
     if( $recid ) {
 
-        //Státusz ellenőrzés
+        // Státusz ellenőrzés
         $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
         if( $bejelentes === false ) { $db_error = true; }
         if( $bejelentes['stat_id'] != BEJELENTES_STAT_VIZSG_ALATT ) {
@@ -326,7 +327,7 @@ if( isset($_POST['bejelentesReklamacioElfogad']) ) {
             exit();
         }
 
-        //Jog ellenőrzés
+        // Jog ellenőrzés
         if( !_jog(JOG_BEJELENTES_VIZSGAL) ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga reklamációt elfogadni!',
@@ -337,7 +338,7 @@ if( isset($_POST['bejelentesReklamacioElfogad']) ) {
             exit();
         }
 
-        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
@@ -373,7 +374,7 @@ if( isset($_POST['bejelentesReklamacioElfogad']) ) {
 }
 
 
-/* Bejelentés reklamáció elutasítása */
+// Bejelentés reklamáció elutasítása
 if( isset($_POST['bejelentesReklamacioElutasit']) ) {
     $recid = $_POST['recid'];
     $memo  = $_POST['memo'];

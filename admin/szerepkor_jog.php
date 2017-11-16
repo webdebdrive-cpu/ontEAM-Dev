@@ -228,7 +228,7 @@ require_once('selectek.php');
 
         $gombok = nl2('
             <div class="form_kuldes">
-                <input type="submit" class="gombb mentes_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                <input type="submit" class="gombb mentes_gomb" id="mehet_gomb" disabled value="Mentés" onclick="formModositva = false; $(\'#szerk_form\').submit()">
             </div>
         ').$gombok;
 

@@ -776,7 +776,7 @@ div.jsff div.talloz div input{
 }
 
 div.jsff progress{
-    background-color: #4E77A6;
+    background-color: #fff;
     margin-top: 1rem;
     width: 95%;
 }
@@ -2105,7 +2105,7 @@ div.navGombok a.disabled .material-icons {
 }
 
 #popup {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.2);
     display: none;
     height: 100%;
     position: fixed;
@@ -2511,7 +2511,7 @@ table.csikos th{
 table.csikos th.szerepkor_jog{
     font-size: 1.2rem;
     height: 4rem;
-    padding: 0.3rem 0.1rem;
+    padding: 0.3rem 0.4rem;
     vertical-align: top;
 }
 

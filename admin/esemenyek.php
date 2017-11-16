@@ -918,7 +918,9 @@ if( isset($_GET['manualisan']) ) {
     $bejelento = '';
 }
 
-$bejelentest_rogziti = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', 'recid='.$_SESSION[get_db_tabla().'login_recid']);
+if (isset($_GET['uj'])) {
+    $bejelentest_rogziti = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', 'recid='.$_SESSION[get_db_tabla().'login_recid']);
+}
 
 // Sűrgősség csak módosításkor jön fel: Munkalapoknál is, de ugyanaz a függvény, ezért elég itt beállítani, de
 // FONTOS hogy a munkalap tömb akkor ez után legyen!
@@ -1568,11 +1570,9 @@ $megnevezes = 'anyagigenyles';
 //Mennyiségi egység kiszámítása
 $cikkmee    = 'db';
 if (isset($_GET['id'])) {
-    $anyagigenyles = $adatbazis_kapcsolat->s('cikk_id', $megnevezes, "`recid`='{$_GET['id']}'");
-    $anyagigenyles = $anyagigenyles[0];
+    $anyagigenyles = $adatbazis_kapcsolat->s2('cikk_id', $megnevezes, "`recid`='{$_GET['id']}'");
 
-    $cikktorzs     = $adatbazis_kapcsolat->s('cikkmee', 'cikktorzs', "`id`='{$anyagigenyles['cikk_id']}'");
-    $cikktorzs     = $cikktorzs[0];
+    $cikktorzs     = $adatbazis_kapcsolat->s2('cikkmee', 'cikktorzs', "`id`='{$anyagigenyles['cikk_id']}'");
     $cikkmee       = $cikktorzs['cikkmee'];
 }
 $tav_04 = '<span style="margin-left: 0.5rem"></span>';
@@ -2837,30 +2837,45 @@ if (isset($_POST['csoport_tartalom'])) {
         case 'projektigenyles'  : $megnevezes = 'projektigénylések';    break;
     }
 
+    $csoport_neve = $adatbazis_kapcsolat->s2('nev', $_POST['tabla'].'_csoport', "`recid`='{$_POST['csoport_id']}'");
     $html = nl2('
-        <b>Csoportba tartozó '.$megnevezes.':</b>
+        <b>'.$csoport_neve['nev'].' csoportba tartozó '.$megnevezes.':</b>
         <table class="csikos" style="margin-top: 1rem">
             <tr>
-                <th>Iktatószám</th>
+                <th>Munkalap szám</th>
+                <th>Munkalap készítés dátuma</th>
                 <th>Telephely</th>
-                <th>Státusz</th>
+                <th>Helyiség</th>
+                <th>Gép</th>
+                <th>Bejelentett hiba</th>
             </tr>
         ');
-    $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id stat_id', $_POST['tabla'], "`csoport_id`='{$_POST['csoport_id']}'");
+    $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id stat_id obj_id gep_id insert_dt', $_POST['tabla'], "`csoport_id`='{$_POST['csoport_id']}'");
     foreach($munkalapok as $munkalap){
 
         $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$munkalap['telephely_id']}'");
+        $obj       = $adatbazis_kapcsolat->s2('nev', 'obj', "`recid`='{$munkalap['obj_id']}'");
+        $gep       = $adatbazis_kapcsolat->s2('nev', 'eszkozkezeles', "`recid`='{$munkalap['gep_id']}'");
+        
+        $bejelentes= $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'");
+        $bejelentes= $adatbazis_kapcsolat->s2('hiba_id, hiba_text', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
+        $hiba      = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$bejelentes['hiba_id']}'");
+        $hiba      = $hiba['info'].'<br>'.nl2br2($bejelentes['hiba_text']);
+        
         $html .= nl2('
             <tr>
                 <td style="text-align: left">'.$munkalap['ikt_szam'].'</td>
+                <td>'.str_replace('-', '.', substr($munkalap['insert_dt'], 0, 10)).'</td>
                 <td style="text-align: left">'.$telephely['nev'].'</td>
-                <td style="text-align: left">'.$_stat_text[$_POST['tabla']][$munkalap['stat_id']]['nev'].'</td>
+                <td style="text-align: left">'.$obj['nev'].'</td>
+                <td style="text-align: left">'.$gep['nev'].'</td>
+                <td style="text-align: left">'.$hiba.'</td>
             </tr>
             ');
     }
     $html .= '</table>';
 
-    echo $html;
+    echo '<div style="padding: 3rem">'.$html.'</div>';
 
     $weblap->leallit();
     exit();

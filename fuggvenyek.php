@@ -33,11 +33,12 @@ function i_u($type, $tabla, $tomb) {
     $oszlopok = array();
     $ertekek  = array();
 
-    //értékek párosítása
+    // értékek párosítása
 	$i = 0;
 	foreach($tomb as $ertek) {
         if( $ertek['type'] != 'nosql' ) {
-    		//Ha alert-es egy mező, és a post-ja üres, akkor hiba! (nem adott meg egy kötelező mezőt)
+            
+    		// Ha alert-es egy mező, és a post-ja üres, akkor hiba! (nem adott meg egy kötelező mezőt)
             if($ertek['alert'] != '' && $_POST[$ertek['name']] == '' && !$ertek['disabled']) {
     			return array($i, '');
     			break;
@@ -48,27 +49,27 @@ function i_u($type, $tabla, $tomb) {
     			$nevid = $ertek;
     		}
 
-    		//Wysiwyg útvonalszépítés a feltöltött képekre, HA van egyáltalán fájlfeltöltés
+    		// Wysiwyg útvonalszépítés a feltöltött képekre, HA van egyáltalán fájlfeltöltés
     		if($ertek['wysiwyg'] && $ertek['feltoltes']) {
                 $_POST[$ertek['name']] = str_replace('wysiwyg/ckfinder/core/connector/php/../../../../../', '', $_POST[$ertek['name']]);
             }
 
-            //Ha felhasználó adatlapját módosítjuk, és van megadva jelszó, akkor lecseréljük a mostanit
+            // Ha felhasználó adatlapját módosítjuk, és van megadva jelszó, akkor lecseréljük a mostanit
             if($tabla=='felh' && $ertek['name']=='reg_jelsz' && $_POST[$ertek['name']]) {
                 $_POST[$ertek['name']] = sha1($_POST[$ertek['name']]); //sha1 helyett más elkódolást is használhatnánk, de ez javasolt. A lényeg, hogy legyen összhangban a class.Felhasznalo konfigjával
             }
 
-            //Ha van datepicker class-ja, akkor dátum, és a pontokat kötőjelre cseréljük
+            // Ha van datepicker class-ja, akkor dátum, és a pontokat kötőjelre cseréljük
             if(strpos($ertek['class'], 'datepicker')!==false){
                 $_POST[$ertek['name']] = str_replace('.', '-', $_POST[$ertek['name']]);
             }
 
-            //Szám tiupusból ki kell szűrni a szóközt (ezresítés), és a vesszőt pontra cserélni
+            // Szám tiupusból ki kell szűrni a szóközt (ezresítés), és a vesszőt pontra cserélni
             if(strpos($ertek['class'], 'f_num')!==false){
                 $_POST[$ertek['name']] = str_replace(array(' ', ','), array('', '.'), $_POST[$ertek['name']]);
             }
 
-    		//Ha nem gomb, nem fájl és nem disabled és az oszlopnév sem üres és maga a POST egyáltalán létezik is (ne nullázzunk felül el nem küldött POST miatt)
+    		// Ha nem gomb, nem fájl és nem disabled és az oszlopnév sem üres és maga a POST egyáltalán létezik is (ne nullázzunk felül el nem küldött POST miatt)
     		if($ertek['type'] != 'submit' && $ertek['type'] != 'button' && $ertek['type'] != 'file' && $ertek['type'] != 'flashfile' && $ertek['type'] != 'jsfile' && !($ertek['disabled'] && $ertek['name'] != 'szallito_id' && $type == 'update'/*Tiltott mezőket beszúrni lehet csak moddolni nem*/) && $ertek['name'] && isset($_POST[$ertek['name']]) ) {
                 array_push($oszlopok, $ertek['name']);
     			array_push($ertekek, trim($_POST[$ertek['name']]));
@@ -78,7 +79,7 @@ function i_u($type, $tabla, $tomb) {
         }
 	}
 
-    //Dátumra ütmezés, ha az ütemezett feldaatokat módosítjuk/töltjük fel
+    // Dátumra ütmezés, ha az ütemezett feldaatokat módosítjuk/töltjük fel
     if( $tabla == 'utemezett_feladatok' || $tabla == 'rendszeres_karbantartas' ) {
 
         if($_POST['cikltip']=='l'){
@@ -87,7 +88,7 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  ''                );
         }
-        //Napi cilus, X naponként ismétlődik
+        // Napi cilus, X naponként ismétlődik
         if($_POST['ciklnap']){
             array_push($oszlopok, 'ciklaltip'       );
             array_push($ertekek,  '1'               );
@@ -174,9 +175,10 @@ function i_u($type, $tabla, $tomb) {
         array_push($ertekek, $_POST['kezdho'], $_POST['kezdnap'],   $_POST['vegeho'],   $_POST['vegenap'],  $_POST['aktkezd_d'],    $_POST['aktvege_d']   );
     }
 
-    //Új bejegyzés esetén több mindent is le kell kezelni (iktatószám kizsámolás, plusz oszlopok beállítása
+    // Új bejegyzés esetén több mindent is le kell kezelni (iktatószám kizsámolás, plusz oszlopok beállítása
 	if($type == 'insert') {
-        /* Insert DT és USR lekezelése általánosan */
+        
+        // Insert DT és USR lekezelése általánosan
         if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
             array_push($oszlopok, 'insert_dt',  'insert_usr'                          );
             array_push($ertekek,   'NOW()',     $_SESSION[get_db_tabla().'teljes_nev']);
@@ -246,7 +248,7 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
-        //Bejelentések  új bejegyzés esetén
+        // Bejelentések  új bejegyzés esetén
         } else if( $tabla == 'bejelentes' ) {
 
             // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
@@ -285,7 +287,15 @@ function i_u($type, $tabla, $tomb) {
                 array_push($oszlopok, 'loginnev'                        );
                 array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
             }
-
+            
+            // Új feltöltéskor a manuális mezők disabled-ek, ezért ezeket fel kell tölteni:
+            $bejelentest_rogziti = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', 'recid='.$_SESSION[get_db_tabla().'login_recid']);
+            array_push($oszlopok, 'usr_man_nev'                         );
+            array_push($ertekek,   $bejelentest_rogziti['teljes_nev']   );
+            array_push($oszlopok, 'usr_man_telefon'                     );
+            array_push($ertekek,   $bejelentest_rogziti['usertel']      );
+            array_push($oszlopok, 'usr_man_email'                       );
+            array_push($ertekek,   $bejelentest_rogziti['usermail']     );
 
         // FB Előterjesztés új bejegyzés esetén
         } else if( $tabla == 'eloterj_fb' ) {
@@ -2548,9 +2558,10 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     if( $bejegyzesek ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
 
-        $jClass = '';
+        $jClass         = '';
         if( _jog(JOG_MUNKALAP_VARAKOZTAT) && !isset($_GET['print']) ) {
             //$jClass = ' kijelolheto'; //2017.11.16 - nem kell kijelölhetőek legyenek a munkalapok
+            $jClass = ' csoport_nevre_kattintas';
         }
 
         // Ha nem adunk meg $tabla-t, akkor nyomtatási nézetben vagyunk
@@ -3000,7 +3011,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $jClass = '';
         //Nem mindig jelölhető ki, jogosultságon múlik
         if( _jog(JOG_ANYAGREND_KESZIT) ) {
-            $jClass = ' kijelolheto';
+            $jClass = ' kijelolheto csoport_nevre_kattintas';
         }
 
         if( !$frissit ) {

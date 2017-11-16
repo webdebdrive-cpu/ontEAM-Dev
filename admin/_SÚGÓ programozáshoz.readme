@@ -79,9 +79,11 @@ GOMBOK KISZERVEZÉSE ÁLTALÁNOSAN
 
 CSOPORTOSÍTÁS ENGEDLYEZÉSE
 - A bal oldali navpanel UL-jének ha van "kijelolheto" class-ja, akkor lehet több sort kijelölni
+- Csoport nevére kattintva mi történjen: "csoport_nevre_kattintas"-ra keress rá. Ezt a class nevet kell ráadni.
 
 SAJÁT JS FÁJLOK
 - Ha egy menüpont alatt nagyon sok JS függvényt használunk, akkor azt nem az admin.js-ben gyűjtjük vég nékül, hanem egy saját JS fájlt kap. Pl. munkalap.js. Ezt a header.php-ban hívjuk meg.
 
 FÓKOSZÁLÁSOK
 - Ha azt szeretnéd, hogy Esc után is a hibát kiváltott mezőre fókuszáljunk, akkor adj neki egy "hibas_ide_focus" class-t.
+

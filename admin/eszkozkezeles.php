@@ -625,10 +625,10 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	//Események
+	// Események
 	}elseif(isset($_GET['esemenyek'])){
 
-        //Adott géphez tartozó bejelentések
+        // Adott géphez tartozó bejelentések
         $bejelentes_html = '';
         $bejelentesek = $adatbazis_kapcsolat->s('recid ikt_szam hiba_id', 'bejelentes', "`gep_id`='{$_GET['id']}'", 'ikt_szam');
         foreach ($bejelentesek as $bejelentes){
@@ -654,7 +654,7 @@ require_once('selectek.php');
                 ';
         }
 
-        //Adott géphez tartozó munkalapok
+        // Adott géphez tartozó munkalapok
         $munkalap_html = '';
         $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam text', 'munkalap', "`gep_id`='{$_GET['id']}'", 'ikt_szam');
         foreach ($munkalapok as $munkalap){
@@ -679,7 +679,7 @@ require_once('selectek.php');
                 ';
         }
 
-        //Adott géphez tartozó ütemezett feladatok
+        // Adott géphez tartozó ütemezett feladatok
         $uf_html = '';
         $ufk = $adatbazis_kapcsolat->s('recid id nev', 'utemezett_feladatok', "`gep_id`='{$_GET['id']}'", 'id');
         foreach ($ufk as $uf){
@@ -715,7 +715,7 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	//Engedélyek
+	// Engedélyek fül
 	}elseif(isset($_GET['engedelyek'])){
 
         if( $tobb_kep ) {
