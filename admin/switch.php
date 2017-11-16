@@ -6,18 +6,17 @@ $osszevon_flag  = 0;
 $mezok          = '';
 foreach($akt_tomb as $ertek){
 
-    //Sessionből feltöltjük a sort, ha üres. Újként szerkesztéshez kell, remélem nem kavar be máshol
+    // Sessionből feltöltjük a sort, ha üres. Újként szerkesztéshez kell, remélem nem kavar be máshol
     if(isset($_GET['ujkent']) && !$sor[$ertek['name']] && $_SESSION[$ertek['name']]){
         $sor[$ertek['name']] = $_SESSION[$ertek['name']];
     }
 
 	switch($ertek['type']){
 
-
         case 'autocomplete':
             $input = new Input('text');
 
-            //Ha ezresít, automatikusan meghívunk rá két JS-t
+            // Ha ezresít, automatikusan meghívunk rá két JS-t
             if( $ertek['ezresit'] ){
                 $ertek['onkeyup'] .= '; onlyNumbers($(this)); this.value=ezresek(this.value,\'.\')';
                 $sor[$ertek['name']] = number_format($sor[$ertek['name']], 0, '', '.');
@@ -27,12 +26,12 @@ foreach($akt_tomb as $ertek){
                 $ertek['class'] .= ' csillag';
             }
 
-            /* Login fülön és külső kivitelezőt válaszva nem kell a disabled */
+            // Login fülön és külső kivitelezőt válaszva nem kell a disabled
             if( basename(self()) == 'login.php' && $sor['szerepkor_id'] == 12 ) {
                 $ertek['disabled'] = false;
             }
 
-            //Onblurra a hidden mező is nullázódjon, ha üres volna a mező
+            // Onblurra a hidden mező is nullázódjon, ha üres volna a mező
             $ertek['onblur'] .= 'if(!$(this).val()){ $(\'#'.$ertek['name'].'\').val(\'\'); }';
 
             $input -> autocomplete  = 'off';
@@ -1224,6 +1223,10 @@ foreach($akt_tomb as $ertek){
                 $ertek['class'] .= ' csillag';
             }
 
+            // Új feltöltésnél biztosan ne legyen hozzárendelt személy
+            if (isset($_GET['uj'])) {
+                $sor['szemelyzet_id'] = 0;
+            }
             $input = new Select($select_szemelyzet, $sor['szemelyzet_id']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];

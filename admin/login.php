@@ -71,12 +71,26 @@ if( isset($_POST['jogokhozzaad']) ) {
     ksort($jogok);
 
     $adatbazis_kapcsolat -> u('login', array('flags'), array(implode('', $jogok)), 'recid='.$id);
+    
+    // A formAdatok JS változoót frissíteni kelll
+    require_once('jogosultsag.php');
+    $i = 0;
+    foreach($jogosultsagok as $jog) {
+        if( $jogok[$i] ) {
+            $jogEll['jog-'.$i] = 1;
+        } else {
+            $jogEll['jog-'.$i] = 0;
+        }
+
+        $i++;
+    }
+    echo json_encode($jogEll);
 
     $weblap->leallit();
     exit();
 }
 
-/* CSV generálása */
+// CSV generálása
 if (isset($_GET['csv'])) {
 
     $mibol   = get_web_charset();
@@ -157,14 +171,14 @@ require_once('selectek.php');
         echo '<div id="szamlaBetolt">';
     }
 
-    /* Megjegyzések darabszáma */
+    // Megjegyzések darabszáma
     $megj_db = '';
     $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
     if( $megj_sorok ) {
         $megj_db = ' ('.count($megj_sorok).')';
     }
 
-    /* Dokumentumok darabszáma */
+    // Dokumentumok darabszáma
     $dok_db = '';
     $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
     if( $dok_sorok ) {
@@ -180,7 +194,7 @@ require_once('selectek.php');
     }
 
     if( isset($_GET['modosit']) || isset($_GET['jogosultsag']) || isset($_GET['szallodak']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
-        /* Számla fülek */
+        // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'jogosultsag'   => 'Jogosultságok',
@@ -220,7 +234,7 @@ require_once('selectek.php');
         }
     }
 
-    /* Műveletek box */
+    // Műveletek box
     $gombok = nl2('
         <div class="muveletek"'.$muv_style.'>
             '.$gombok.'
@@ -294,16 +308,15 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	//Termék módosítása
+	// Felhasználók módosítása
 	}elseif(isset($_GET['modosit'])) {
 
-        //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+        // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
@@ -339,7 +352,7 @@ require_once('selectek.php');
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
 
-        //NAVIGÁCIÓ
+        // NAVIGÁCIÓ
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel  = array( $navi,             '',         $gyk2 );
@@ -383,15 +396,14 @@ require_once('selectek.php');
 			require_once('tobb_kep.php');
 		}
 
-	//Jogosultság
+	// Jogosultság
     }elseif(isset($_GET['jogosultsag'])) {
         
         require_once('jogosultsag.php');
 
-        $login = $adatbazis_kapcsolat->s('flags', 'login', 'recid='.$_GET['id'], '', '1');
+        $login = $adatbazis_kapcsolat->s2('flags', 'login', 'recid='.$_GET['id'], '', '1');
 
         if( $login ) {
-            $login = $login[0];
 
             // Jogosultságok feldarabolás
             $flags = str_split($login['flags']);
@@ -442,8 +454,12 @@ require_once('selectek.php');
                                             type   : \'POST\',
                                             data   : esamp2es(param+\'&amp;id='.$_GET['id'].'&amp;jogokhozzaad=\' + new Date().getTime()),
                                             success: function (response) {
+
                                                 $(\'input[type="checkbox"]\').removeClass(\'mod\');
                                                 formModositva = false;
+                                                $(\'.mentes_gomb\').attr(\'disabled\', true);
+                                                
+                                                formAdatok = JSON.parse(response); 
                                             }
                                         });
                                         return false;
@@ -453,8 +469,8 @@ require_once('selectek.php');
                                     <div class="dt">
                 ');
 
-            $jogdb = count($jogKatok);
-            $jogdb_fel = ceil($jogdb / 2);
+            $jogdb      = count($jogKatok);
+            $jogdb_fel  = ceil($jogdb / 2);
 
             // Kiíratjuk az egészet
             $i = 1;
@@ -584,7 +600,7 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-    //Szállodák fül
+    // Szállodák fül
     }elseif(isset($_GET['szallodak'])) {
 
         $felh = $adatbazis_kapcsolat->s2('recid nev', 'login', 'recid='.$_GET['id'], '', '1');
@@ -633,7 +649,7 @@ require_once('selectek.php');
         }
 
 
-	//Dokumentumok
+	// Dokumentumok
 	}elseif(isset($_GET['dokumentumok'])){
 
         $szamla_html .= 'Dokumentumok felülete';

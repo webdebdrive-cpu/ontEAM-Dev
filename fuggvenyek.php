@@ -744,7 +744,7 @@ function i_u($type, $tabla, $tomb) {
         }
 
 
-        /* Ha volt változás, akkor logoljuk */
+        // Ha volt változás, akkor logoljuk
         $record = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
         if( $record === false ) { $db_error = true; }
         if( $record ) {
@@ -761,10 +761,10 @@ function i_u($type, $tabla, $tomb) {
                 }
             }
 
-            /* Kezdeményezett művelet */
+            // Kezdeményezett művelet
             $muvelet = 'A(z) '.$tabla.' '.$_GET['id'].'. recordját módosította.';
 
-            /* Végrehajtott változtatás */
+            // Végrehajtott változtatás
             $valtozas = '';
 
             $i = 1;
@@ -796,7 +796,7 @@ function i_u($type, $tabla, $tomb) {
             array_push($ertekek,  $_SESSION[get_db_tabla().'teljes_nev']);
         }
 
-        //Loginnál szerepkörök lekezelése
+        // Loginnál szerepkörök lekezelése
         if( $tabla == 'login' ) {
             if( $_POST['szerepkor_id'] && !$record[0]['flags'] ) {
                 $szerepkor = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
@@ -816,7 +816,7 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'projektigenyles' ) {
             $prigeny = $adatbazis_kapcsolat->s2('egy_tobb telephely_id', $tabla, "`recid`='{$_GET['id']}'");
 
-            //Ha többszállodás
+            // Ha többszállodás
             if($prigeny['egy_tobb']==1){
 
                 // Változott a telephely, akkor töröljük a Cash-flow adatokat
@@ -1873,7 +1873,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             // Ha nem mobilcsoport vagyok, akkor még a saját szállodák jogra kell figyleni:
             }else{
                 
-                // Saját megtekintése: saját szállodák + hozzárendelt személyzet: tehát toávbb szűrünk hozzárendelt személyzetre, amit a felhasználókon, majd személyezeten át kapunk meg
+                // Saját szem. tip. megtekintése: saját szállodák + hozzárendelt személyzet: tehát tovább szűrünk hozzárendelt személyzetre, amit a felhasználókon, majd személyezeten át kapunk meg
                 if(_jog(JOG_MUNKALAP_MEGTEKINT)){
                     // Hozzárendelt személyzet megállapítása. Ez egyenlő a Személyzet beosztásával.
                     $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND ";
@@ -2550,10 +2550,10 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
         $jClass = '';
         if( _jog(JOG_MUNKALAP_VARAKOZTAT) && !isset($_GET['print']) ) {
-            $jClass = ' kijelolheto';
+            //$jClass = ' kijelolheto'; //2017.11.16 - nem kell kijelölhetőek legyenek a munkalapok
         }
 
-        //Ha nem adunk meg $tabla-t, akkor nyomtatási nézetben vagyunk
+        // Ha nem adunk meg $tabla-t, akkor nyomtatási nézetben vagyunk
         $nohover = '';
         if(!$tabla){
             $nohover = ' nohover';
@@ -2584,7 +2584,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             ');
                         }
 
-                        //Ha egy csoport elemén vagyunk, akkor a ki-be nyitó ikon "-"-on legyen
+                        // Ha egy csoport elemén vagyunk, akkor a ki-be nyitó ikon "-"-on legyen
                         $csoport_bej = $adatbazis_kapcsolat->s('recid', $tabla, "`csoport_id` = '{$aktCsoport}'");
                         $csoport_active = '';
                         if( $csoport_bej ) {
@@ -2650,7 +2650,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $bold    = ' class="b"';
             }
 
-            /* Külső adatok */
+            // Külső adatok
             $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
             $hely      = $adatbazis_kapcsolat->s2('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
             $gep       = $adatbazis_kapcsolat->s2('nev', 'eszkozkezeles', 'recid='.$bsz['gep_id'], '', '1');

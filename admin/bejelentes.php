@@ -730,7 +730,7 @@ require_once('selectek.php');
 
     $js_submit_elott = 'return form_ell_admin();';
 
-	//Új bejelentés felvitele
+	// Új bejelentés felvitele
 	if(isset($_GET['uj'])){
 
         // NAVIGÁCIÓ
@@ -818,16 +818,15 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	//Termék módosítása
+	// Bejelentés módosítása
 	}elseif(isset($_GET['modosit'])) {
 
-        //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+        // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
@@ -864,7 +863,7 @@ require_once('selectek.php');
         }
 
 
-        //Duplákáláskor feltett kérdés
+        // Duplákáláskor feltett kérdés
         $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
         $telephely = $telephely[0]['nev'];
         $szamla_html .= nl2('
@@ -925,7 +924,7 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	/* Történet */
+	// Történet fül
     }elseif(isset($_GET['tortenet'])) {
 
         $szamla_html .= get_tortenet($megnevezes);
@@ -938,7 +937,7 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	//Munkalapok
+	// Munkalapok fül
 	}elseif(isset($_GET['munkalapok'])){
 
         $szamla_html .= nl2('
@@ -991,7 +990,7 @@ require_once('selectek.php');
         }
 
 
-    /* Dokumentumok */
+    // Dokumentumok fül
     }elseif(isset($_GET['dokumentumok'])) {
 
         if( $tobb_kep ) {

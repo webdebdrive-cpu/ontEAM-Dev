@@ -1,5 +1,5 @@
 <h2>Anyagigénylés munkalaphoz</h2>
-<form action="" id="munkAnyagAnyagigenyles" class="popupForm" method="post" onsubmit="return munkAnyagIgenyles( this, 'csak kérdezünk még' );">
+<form action="" id="munkAnyagAnyagigenyles" class="popupForm" method="post">
     <div class="kozep" style="min-height: 40rem">
         <div class="dt">
             <div class="dtr"> 
@@ -51,12 +51,92 @@
         </div>
     </div>
     <div class="kuldes">
-        <button type="button" name="button" onclick="munkAnyagHozzaad( '#munkAnyagAnyagigenyles', true );">Hozzáad</button>
-        <input type="submit" name="elkuld" value="Mentés">
-        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+        <input type="button" class="gomb" onclick="munkAnyagHozzaad( '#munkAnyagAnyagigenyles', true );" value="Hozzáad">
+        <input type="button" class="gomb zold" value="Mentés" onclick="munkAnyagIgenyles( this, 'csak kérdezünk még' )">
+        <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
     </div>
 </form>
 <script>
+/* Anyagigénylés táblázat sor hozzáadás */
+function munkAnyagHozzaad( formID, igenyles ) {
+    var form = $(formID);
+
+    var cikknev     = form.find('input[name="cikk_id_autocomp"]'),
+        cikkID      = form.find('input[name="cikk_id"]'),
+        cikkid_origi= form.find('input[name="cikkid_origi"]'),
+        felh_menny  = form.find('input[name="felh_menny"]'),
+        szuk_menny  = form.find('input[name="szuk_menny"]'),
+        cikkmee     = form.find('.insertMee').eq(0).text();
+
+    var addCikkID = form.find('input[name="addCikkID[]"]').map(function(){return $(this).val();}).get();
+
+    if( addCikkID.length ) {
+        for(key in addCikkID) {
+            if( addCikkID[key] == cikkID.val() ) {
+                alert2('Ez az anyag már hozzá van adva a munkalap tételhez!', '', 'Hiba');
+
+                cikkID.val('');
+                cikknev.val('');
+                felh_menny.val('');
+                szuk_menny.val('');
+                form.find('.insertMee').text('');
+
+                document.getElementById('cikk_id_autocomp').select();
+
+                return false;
+            }
+        }
+    }
+
+    if( cikknev.val() == '' || cikkID.val() == '' ) {
+        alert2('Válassza ki a cikket!', '', 'Hiba');
+        document.getElementById('cikk_id_autocomp').select();
+        return false;
+    }
+
+    if( !igenyles && felh_menny.val() == '' ) {
+        alert2('Adja meg a felhasznált mennyiséget!', '', 'Hiba');
+        document.getElementById('felh_menny').select();
+        return false;
+    }
+
+    if( igenyles ) {
+        if( felh_menny.val() == '' && szuk_menny.val() == '' ) {
+            alert2('Adja meg a felhasznált, vagy a szükséges mennyiséget!', '', 'Hiba');
+            document.getElementById('felh_menny').select();
+            return false;
+        }
+    }
+
+    var sz_td = '';
+    if( igenyles ) {
+        sz_td = '<td class="c">' + szuk_menny.val() + '<input type="hidden" name="addCikkSzukMenny[]" value="' + szuk_menny.val() + '"></td>';
+    }
+
+    var table_sor = '<tr>' +
+                        '<td>' + cikkid_origi.val() + '<input type="hidden" name="addCikkID[]" value="' + cikkid_origi.val() + '"><input type="hidden" name="addCikkUj[]" value="1"></td>' +
+                        '<td>' + cikknev.val() + '</td>' +
+                        '<td class="c">' + felh_menny.val() + '<input type="hidden" name="addCikkFelhMenny[]" value="' + felh_menny.val() + '"></td>' +
+                        sz_td +
+                        '<td>' + cikkmee + '</td>' +
+                        '<td></td>' +
+                        '<td><a onclick="munkAnyagTorol( false, this );"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
+                    '</tr>';
+
+    $('#insertTable table.csikos').append(table_sor);
+
+    cikkID.val('');
+    cikknev.val('');
+    felh_menny.val('');
+    szuk_menny.val('');
+    form.find('.insertMee').text('');
+    
+    $('#cikk_id_autocomp').focus();
+
+    return false;
+}
+
+/* Munkalap anyagigénylés mentése */
 function munkAnyagIgenyles( that, csak_kerdezunk ) {
     var addCikkUj           = $(that).find('input[name="addCikkUj[]"]'),
         addCikkID           = $(that).find('input[name="addCikkID[]"]'),
@@ -96,8 +176,13 @@ function munkAnyagIgenyles( that, csak_kerdezunk ) {
          		}
          	}
         });
+    }else{
+        $('#cikk_id_autocomp').addClass('hibas_ide_focus');
+        alert2('Kérem előbb adjon hozzá legalább egy cikket!', '', 'Hiba');
     }
 
     return false;
 }
+
+
 </script>

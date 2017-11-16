@@ -920,8 +920,8 @@ if( isset($_GET['manualisan']) ) {
 
 $bejelentest_rogziti = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', 'recid='.$_SESSION[get_db_tabla().'login_recid']);
 
-//Sűrgősség csak módosításkor jön fel: Munkalapoknál is, de ugyanaz a függvény, ezért elég itt beállítani, de
-//FONTOS hogy a munkalap tömb akkor ez után legyen!
+// Sűrgősség csak módosításkor jön fel: Munkalapoknál is, de ugyanaz a függvény, ezért elég itt beállítani, de
+// FONTOS hogy a munkalap tömb akkor ez után legyen!
 $surgos_allit = '';
 if (isset($_GET['modosit'])) {
     //Módosításkor is csak akkor jön fel, ha az illető nem diszpécser (hanem bejelentő... neki nem kell indokolni, amúgy is csak saját bejelentésekhez fér hozzá)
@@ -1018,10 +1018,9 @@ $bejelentes_dok_tomb = $akt_tomb = array(
 );
 
 
-/* Munkalap */
+// Munkalap tömb
 if(isset($_GET['modosit'])){
-    $munkalap = $adatbazis_kapcsolat->s('szemelyzet_id mobil_loginnev', 'munkalap', "`recid`='{$_GET['id']}'");
-    $munkalap = $munkalap[0];
+    $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev', 'munkalap', "`recid`='{$_GET['id']}'");
     $hozrend_mobilnev = '';
     if($munkalap['szemelyzet_id']==MOBILCSOPORT && $munkalap['mobil_loginnev']){
         $torzsadat = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='{$munkalap['mobil_loginnev']}'");

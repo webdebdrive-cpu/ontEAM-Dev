@@ -12,14 +12,14 @@ if( !_jog(JOG_SZEREPKOR_MEGTEKINT) ) {
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
 }
 
-//Config
+// Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'törzset';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-//Változók beállítása
+// Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
 $fajloszlop             = 'kep';                //Kép (vagy kivételes esetekben más fájl) oszlopneve.
@@ -35,7 +35,7 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
-//Több kép menedzseléséhez
+// Több kép menedzseléséhez
 $tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
@@ -46,18 +46,16 @@ if($tobb_kep){
         return $megnevezes.'_id';
     }
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
-
-
 }
 
 if( isset($_POST['jogokhozzaad']) ) {
     $id = $_POST['id'];
 
-    /* Kitöröljük a nem kívánatos POST elemeket */
+    // Kitöröljük a nem kívánatos POST elemeket
     unset($_POST['id']);
     unset($_POST['jogokhozzaad']);
 
-    /* Tömb sorrendezése */
+    // Tömb sorrendezése
     $jogok = array();
     foreach($_POST as $key => $value) {
         list($x, $x, $szerepkor_recid) = explode('_', $key);
@@ -74,15 +72,13 @@ if( isset($_POST['jogokhozzaad']) ) {
         $adatbazis_kapcsolat -> u('szerepkor', array('flags'), array(implode('', $szerepkor_tomb)), "`recid`='$szerepkor_recid'");
     }
 
-
-
     $weblap->leallit();
     hd($_SERVER['REQUEST_URI']);
 
     exit();
 }
 
-/* CSV generálása */
+// CSV generálása
 if (isset($_GET['csv'])) {
 
     $mibol   = get_web_charset();
@@ -96,7 +92,7 @@ if (isset($_GET['csv'])) {
         mkdir('export/csv');
     }
 
-    //Régi fájlok törlése
+    // Régi fájlok törlése
     $utvonal = 'export/csv/';
     $fajlok = konyvtar_bejar($utvonal);
     foreach($fajlok as $fajl){
@@ -175,14 +171,14 @@ require_once('selectek.php');
         echo '<div id="szamlaBetolt">';
     }
 
-    /* Megjegyzések darabszáma */
+    // Megjegyzések darabszáma
     $megj_db = '';
     $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
     if( $megj_sorok ) {
         $megj_db = ' ('.count($megj_sorok).')';
     }
 
-    /* Dokumentumok darabszáma */
+    // Dokumentumok darabszáma
     $dok_db = '';
     $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
     if( $dok_sorok ) {
@@ -198,7 +194,7 @@ require_once('selectek.php');
     }
 
     if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
-        /* Számla fülek */
+        // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tortenet'      => 'Történet',
@@ -351,7 +347,7 @@ require_once('selectek.php');
                     ');
         $szerepkorok = $adatbazis_kapcsolat->s('recid nev flags', 'szerepkor', "", 'nev');
         foreach($szerepkorok as $szerepkor){
-            $html .= '<th class="szerepkor_jog">'.$szerepkor['nev'].'</th>';
+            $html .= '<th class="szerepkor_jog">'.str_replace(' ', '<br>', $szerepkor['nev']).'</th>';
         }
         $html .= '</tr>';
 
@@ -391,11 +387,11 @@ require_once('selectek.php');
                         }
                     }
 
-                    //Ha épp most kap bekapcsolást, csak akkor futtatjuk le
+                    // Ha épp most kap bekapcsolást, csak akkor futtatjuk le
                     if($bekapcs){
                         $bekapcs = 'if( $(this).prop(\'checked\') ){'.$bekapcs.'}';
                     }
-                    //Ha épp most kapcsoltuk ki
+                    // Ha épp most kapcsoltuk ki
                     if($kikapcskor_kikapcs){
                         $kikapcskor_kikapcs = 'if( $(this).prop(\'checked\') == false ){'.$kikapcskor_kikapcs.'}';
                     }

@@ -1875,7 +1875,7 @@ require_once('selectek.php');
 	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
 
-        //Igénylés alatti anyagok a munkalapokon:
+        //Igénylésre váró anyagok a munkalapokon:
         //A beloginolt user szállodáit érintő munkalapokat szedjük össze
         $szallodak = get_akt_login_szallodai();
         if($szallodak){
@@ -1959,7 +1959,7 @@ require_once('selectek.php');
 
                 if($anyagok_html){
                     $szamla_html .= nl2('
-                                        <p style="margin-top: 2rem" class="b">Igénylés alatti anyagok a munkalapokon:</p>
+                                        <p style="margin-top: 2rem" class="b">Igénylésre váró anyagok a munkalapokon:</p>
                                         <table class="csikos">
                                         <tr>
                                             <th>Szálloda</th>

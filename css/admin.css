@@ -2548,10 +2548,12 @@ table.csikos th.anyag_th2 {
 }
 
 table.csikos th.anyag_th3 {
+    text-align: right;
     width: 20%;
 }
 
 table.csikos th.anyag_th4 {
+    text-align: right;
     width: 20%;
 }
 
