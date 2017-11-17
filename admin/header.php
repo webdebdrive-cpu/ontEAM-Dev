@@ -995,7 +995,7 @@ if(basename(self())=='munkalap.php'){
     }
 }
 
-//Ütemezett feladatok 
+//Ütemezett feladatok
 if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_UTFEL_KEZEL) ){
     $torles_icon    = '';
     $uj             = '';
@@ -1039,25 +1039,27 @@ if(in_array(basename(self()), $rendez_rejt_oldalak)){
     $rendezes_rejt = ' dn';
 }
 
+$get_get = get_get(array('pdf'));
+
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
     array('{CSS}', '{CEGNEV}', '{MENUK}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}', '{CSUSZKADN}', '{RENDEZES_REJT}' ),
-    array( $css,    get_nev(),  $menuk,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    get_get(),   $csv_get,   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,    $csuszkadn,    $rendezes_rejt    ),
+    array( $css,    get_nev(),  $menuk,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,    $csuszkadn,    $rendezes_rejt    ),
     $header_sablon
 );
 
 
 //Nyomtatási popup
 $header_html .= nl2('
-<div class="dn">
-    <div id="nyomtatasi_nezet">
-        Nyomtatási nézet választás...
-        <br><a href="'.self().get_get().'&amp;print=lista{KSZ}" target="_blank">Listanézet</a>
-        <br><a href="#" target="_blank">B nézet</a>
-        <br><a href="#" target="_blank">C nézet</a>
+    <div class="dn">
+        <div id="nyomtatasi_nezet">
+            Nyomtatási nézet választás...
+            <br><a href="'.self().get_get('pdf').'&amp;print=lista{KSZ}" target="_blank">Listanézet</a>
+            <br><a href="#" target="_blank">B nézet</a>
+            <br><a href="#" target="_blank">C nézet</a>
+        </div>
     </div>
-</div>
-    ');
+');
 //Jogosultság tomb JS-be
 $jogok = '';
 foreach ($_SESSION[get_db_tabla().'rights'] as $jog){

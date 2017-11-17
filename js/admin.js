@@ -408,7 +408,7 @@ $(function() {
         $('.foglalt').removeClass('kijelol');
         $('#mehet_gomb_kivesz').attr('disabled', 'disabled');
     });
-    
+
     /* Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk */
     $(':input[type!="hidden"]').each(function (i) {
         $(this).attr('tabindex', i + 1);
@@ -1202,14 +1202,14 @@ $(function() {
     /* ESCAPE gomb lekezelése */
     $(document).on('keyup', function(e) {
         if( e.keyCode == KEY_ESCAPE ) {
-            
+
             alert2();
             felh_valt();
             kijelolesEltavolit();
-            
+
             /* Ha popupban kaptunk volna hibaüzenetet, akkor visszatérve fókuszáljunk a hibásnak jelölt inputra. Egyúttal vegyük is le ezt a classt róla */
             $('input.hibas_ide_focus, textarea.hibas_ide_focus, select.hibas_ide_focus').select().removeClass('hibas_ide_focus');
-            
+
             /* A popup bezáródik, de csak akkor, ha az alert nincs nyitva */
             if( !$('#alert2').is(':visible') ){
                 popupZar();
@@ -3544,7 +3544,7 @@ function kijelolesEltavolit() {
         $('#szamlaList li.szamla_sor').removeClass('kijelolve');
 
         $('.kijeloltek_muv').removeClass('active');
-        
+
         $('#navGombok a.torles').attr('onclick', 'naviTorles();');
 
         $('ul.szamla_cont li.csoport').removeClass('kijelolve');
@@ -5179,9 +5179,9 @@ function valid_date(that){
     }
     if(
         that.val()!='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' &&
-        that.val()!='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0' && 
-        that.val()!='0000.00.00' && 
-        that.val()!='0000.00.00 00:00' && 
+        that.val()!='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0' &&
+        that.val()!='0000.00.00' &&
+        that.val()!='0000.00.00 00:00' &&
         !Date.parse( that.val().replace(/\./gi, '-') )
         ){
             alert2('Helytelen dátum!', '', 'Hiba');

@@ -1,11 +1,11 @@
 <?php
 require_once '../weblap.php';
 
-if ($_GET['print']=='lista') {
-    
+if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
+
     require 'selectek.php';
     $tabla = str_replace('.php', '', basename(self()));
-    
+
     if ($_GET['mezo']) {
         $feltetel = '';
         $akt_tomb_szures = get_akt_tomb(str_replace('.php', '', basename(self())));
@@ -23,7 +23,7 @@ if ($_GET['print']=='lista') {
             case 'gt'       : $feltetel .= ' > ';           break;
             case 'lt'       : $feltetel .= ' < ';           break;
             case 'not_eq'   : $feltetel .= ' <> ';          break;
-            case 'empty': 
+            case 'empty':
                 if($_GET['felt']==0){
                     $feltetel .= ' nem üres';
                 }else{
@@ -32,7 +32,7 @@ if ($_GET['print']=='lista') {
                 $_GET['felt'] = '';
             break;
         }
-        
+
         // Státusz szövegesen jelenjen meg
         if ($_GET['mezo']=='stat_id') {
             $feltetel .= getStatText($tabla, $_GET['felt']);
@@ -60,13 +60,13 @@ if ($_GET['print']=='lista') {
         }else{
             $feltetel .= $_GET['felt'];
         }
-        
+
         if($_GET['ksz']){
             $feltetel .= ' Tovább szűkítve a következő keresőszóval: '.$_GET['ksz'];
         }
         $feltetel = 'Szűrő feltételek: <b>'.$feltetel.'</b>';
     }
-    
+
     //Összetett szűréskor annak a címkéjét írjuk ki: trükk: beágyazzuk rejtve az összetett szűrést, és ugyanazt a JS-el kiszámolt mondatatot írtajuk ki
     if($_SESSION['o_szuro_feltetel']){
         $feltetel  = '<script src="../js/wdb_admin_min.js"></script>';
@@ -74,11 +74,11 @@ if ($_GET['print']=='lista') {
         $feltetel .= '<div class="dn">'.fajlbol_olvas('../sablon/admin/popup/osszetett_szuro.html', 1).'</div>';
         $feltetel .= 'Szűrő feltételek: <b id="szuro_feltetel"></b>';
     }
-    
-    
+
+
     //FB elétrejestzett lista nyomtatásakor a lekérdezésen még állítottunk
     if(isset($_GET['fb_elo'])){
-        
+
         $mit   = array('WHERE',   'ORDER');
         $mivel = array('WHERE (', ') AND `stat_id`=\''.PRIGENY_STAT_FB_TERJESZT.'\' ORDER');
         $_SESSION['akt_sql'] = str_replace($mit, $mivel, $_SESSION['akt_sql']);
@@ -96,7 +96,7 @@ if ($_GET['print']=='lista') {
     while($sor = mysqli_fetch_assoc($query)){
         array_push($sorok, $sor);
     }
-    
+
     //Bal oldali navpanel kiíratása
     switch($tabla){
 //        case 'anyagigenyles'        : $akt_tomb = $anyagigenyles_tomb;          break;
@@ -112,34 +112,64 @@ if ($_GET['print']=='lista') {
 //        case 'torzsadat'            : $akt_tomb = $torzsadat_tomb;              break;
         case 'projektigenyles'      : $sorok_html = projektigenylesLista( $sorok, $tabla ); break;
     }
-    
-    echo nl2('
-<link href="../css/nullaz.css" rel="stylesheet" type="text/css">
-<link href="../css/admin.css" rel="stylesheet" type="text/css">
-<link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
-<script src="../js/jquery.js"></script>
-<img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
-<title>Listanézet '.date('Y.m.d H:i:s').'</title>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-<div class="a4_allo"> 
-    <div class="padd" style="padding-bottom: 5rem; min-height: 60rem">
-        '.$feltetel.'
-        '.$sorok_html.'
-    </div>
-    <div class="footer">
-        <div class="dtc padd">
-            '.$_SESSION[get_db_tabla().'teljes_nev'].'
+    $html = nl2('
+        <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
+        <link href="../css/admin.css" rel="stylesheet" type="text/css">
+        <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
+        <script src="../js/jquery.js"></script>
+        <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
+        <title>Listanézet '.date('Y.m.d H:i:s').'</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+        <div class="a4_allo">
+            <div class="padd" style="padding-bottom: 5rem; min-height: 60rem">
+                '.$feltetel.'
+                '.$sorok_html.'
+            </div>
+            <div class="footer">
+                <div class="dtc padd">
+                    '.$_SESSION[get_db_tabla().'teljes_nev'].'
+                </div>
+                <div class="dtc r padd">
+                    '.date('Y.m.d H:i:s').'
+                </div>
+            </div>
         </div>
-        <div class="dtc r padd">
-            '.date('Y.m.d H:i:s').'
+    ');
+    echo $html;
+
+    include('../html2pdf/mpdf.php');
+    $mpdf = new mPDF('utf-8');
+    // $mpdf -> WriteHTML(file_get_contents('../css/nullaz.css'), 1);
+    $mpdf -> WriteHTML('
+        body{
+            background: #f00;
+            color: #242424;
+            font-family: \'Open Sans\', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 400;
+        }
+    ', 1);
+    //$mpdf -> WriteHTML(file_get_contents('../css/nyomtatas.css'), 1);
+    $mpdf -> WriteHTML( '
+        <div class="a4_allo">
+            <div class="padd" style="padding-bottom: 5rem; min-height: 60rem">
+                '.$feltetel.'
+                '.$sorok_html.'
+            </div>
+            <div class="footer">
+                <div class="dtc padd">
+                    '.$_SESSION[get_db_tabla().'teljes_nev'].'
+                </div>
+                <div class="dtc r padd">
+                    '.date('Y.m.d H:i:s').'
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-            ');
-    
-    
-    
+    ', 4);
+    $mpdf -> Output('teszt.pdf');
+
     $weblap -> leallit();
     exit;
 }
