@@ -139,36 +139,38 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
     ');
     echo $html;
 
-    include('../html2pdf/mpdf.php');
-    $mpdf = new mPDF('utf-8');
-    // $mpdf -> WriteHTML(file_get_contents('../css/nullaz.css'), 1);
-    $mpdf -> WriteHTML('
-        body{
-            background: #f00;
-            color: #242424;
-            font-family: \'Open Sans\', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 400;
-        }
-    ', 1);
-    //$mpdf -> WriteHTML(file_get_contents('../css/nyomtatas.css'), 1);
-    $mpdf -> WriteHTML( '
-        <div class="a4_allo">
-            <div class="padd" style="padding-bottom: 5rem; min-height: 60rem">
-                '.$feltetel.'
-                '.$sorok_html.'
-            </div>
-            <div class="footer">
-                <div class="dtc padd">
-                    '.$_SESSION[get_db_tabla().'teljes_nev'].'
+    if( isset($_GET['pdf']) ) {    
+        include('../html2pdf/mpdf.php');
+        $mpdf = new mPDF('utf-8');
+        // $mpdf -> WriteHTML(file_get_contents('../css/nullaz.css'), 1);
+        $mpdf -> WriteHTML('
+            body{
+                background: #f00;
+                color: #242424;
+                font-family: \'Open Sans\', sans-serif;
+                font-size: 1.4rem;
+                font-weight: 400;
+            }
+        ', 1);
+        //$mpdf -> WriteHTML(file_get_contents('../css/nyomtatas.css'), 1);
+        $mpdf -> WriteHTML( '
+            <div class="a4_allo">
+                <div class="padd" style="padding-bottom: 5rem; min-height: 60rem">
+                    '.$feltetel.'
+                    '.$sorok_html.'
                 </div>
-                <div class="dtc r padd">
-                    '.date('Y.m.d H:i:s').'
+                <div class="footer">
+                    <div class="dtc padd">
+                        '.$_SESSION[get_db_tabla().'teljes_nev'].'
+                    </div>
+                    <div class="dtc r padd">
+                        '.date('Y.m.d H:i:s').'
+                    </div>
                 </div>
             </div>
-        </div>
-    ', 4);
-    $mpdf -> Output('teszt.pdf');
+        ', 4);
+        $mpdf -> Output('teszt.pdf');
+    }
 
     $weblap -> leallit();
     exit;
