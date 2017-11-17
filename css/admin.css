@@ -1687,7 +1687,7 @@ ul.szamla_cont li.active a {
 }
 
 ul.szamla_cont li a table {
-    width: 100%;
+    width: 100rem;
 }
 
 ul.szamla_cont li a td {

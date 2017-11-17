@@ -3238,7 +3238,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
 
     /* Rendelés szám alapján a táblázat előállítása */
     }else{
-        
+
         if(!$('#rsz').val().trim()){
             $('#rsz').addClass('hibas_ide_focus');
             alert2('Kérjük adja meg a rendelés számot!', '', 'Hiba');
@@ -3329,7 +3329,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
                 torolhet = false;
             }
         }
-        
+
         var full_szoveg = '';
         if(tabla=='munkalap' || _get('modosit')){
             full_szoveg = 'Biztosan törli a bejelentést a munkalapról?';
@@ -4793,7 +4793,6 @@ function bejegyzesDuplikal() {
 
 /* A bal oldali navpanel kijelölésének ellenőrzése */
 function balnav_kijelol_ell(egy_csoport_reszben_szabad, kivetel_ell){
-    console.log($('li.szamla_sor.kijelolve:not(\'.behuz\')').length);
     /* Ha van csoport elem megjelölve, akkor azt vizsgáljuk meg, hogy a csoport összes eleme meg van-e jelölve */
     var van_resz_csoport  = false;
     var tobb_resz_csoport = false;

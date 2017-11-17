@@ -269,7 +269,7 @@
                     mezo_nev = mezo.attr('name').replace('_autocomp', '');
                     $('input[name="' + mezo_nev + '"]').val(recid);
 
-                    var form = $('input[name="' + mezo_nev + '"]').parents('#szerk_form');
+                    var form = $('input[name="' + mezo_nev + '"]').parents('form');
                     /* Lehet nem egy űrlapon vagyunk, hanem egy alert2-ben, ebben keressünk inputot */
                     if($('#alert2').length){
                         form = $('#alert2');
@@ -277,20 +277,23 @@
 
                     /* Autcomplete után a következő inputra fókusz */
                     stop = false;
-                    form.find('input, select, textarea').each(function() {
+                    form.find('input, select, textarea').filter(':not(:disabled)').each(function() {
                         var name = $(this).attr('name'),
-                            element = $(this).prop("tagName");
+                            type = $(this).attr('type'),
+                            tag  = $(this).prop('tagName');
 
-                        if( stop ) {
-                            if($('#'+name).length) {
-                                if( element == 'SELECT' ) {
-                                    $('#' + name).focus();
-                                } else {
+                        /* Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is */
+                        if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
+
+                            if( type == 'checkbox' || tag == 'SELECT' ) {
+                                document.getElementById(name).focus();
+                            } else {
+                                if($('#' + name).length){
                                     document.getElementById(name).select();
                                 }
-
-                                return false;
                             }
+
+                            return false;
                         }
 
                         if( name == mezo_nev ) {
@@ -417,23 +420,26 @@
                             mezo_nev = mezo.attr('name').replace('_autocomp', '');
                             $('input[name="' + mezo_nev + '"]').val(recid);
 
-                            var form = $('input[name="' + mezo_nev + '"]').parents('#szerk_form');
+                            var form = $('input[name="' + mezo_nev + '"]').parents('form');
 
                             stop = false;
-                            form.find('input, select, textarea').each(function() {
+                            form.find('input, select, textarea').filter(':not(:disabled)').each(function() {
                                 var name = $(this).attr('name'),
-                                    element = $(this).prop("tagName");
+                                    type = $(this).attr('type'),
+                                    tag  = $(this).prop('tagName');
 
-                                if( stop ) {
-                                    if($('#'+name).length) {
-                                        if( element == 'SELECT' ) {
-                                            $('#' + name).focus();
-                                        } else {
+                                /* Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is */
+                                if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
+
+                                    if( type == 'checkbox' || tag == 'SELECT' ) {
+                                        document.getElementById(name).focus();
+                                    } else {
+                                        if($('#' + name).length){
                                             document.getElementById(name).select();
                                         }
-
-                                        return false;
                                     }
+
+                                    return false;
                                 }
 
                                 if( name == mezo_nev ) {
