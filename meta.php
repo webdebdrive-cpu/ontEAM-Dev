@@ -16,8 +16,13 @@ function get_title(){
                 $title = trim($title, ' - ');
             }
         break;
-        case 'anyagigenyles.php'            : $title .= 'Anyagok / Anyagigénylések';                    break;
-        case 'anyagrendeles.php'            : $title .= 'Anyagok / Anyagrendelések';                    break;
+        case 'anyagigenyles.php':
+            if (isset($_GET['anyagrend'])) {
+                $title .= 'Anyagok / Anyagrendelések';
+            }else{
+                $title .= 'Anyagok / Anyagigénylések';
+            }
+        break;
         case 'bejelentes.php'               : $title .= 'Bejelentések';                                 break;
         case 'beosztas.php'                 : $title .= 'Személyzet / Beosztások';                      break;
         case 'cash_flow.php'                : $title .= 'Projektek / Cash Flow';                        break;

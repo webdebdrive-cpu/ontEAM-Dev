@@ -34,7 +34,12 @@
                         },
                         success: function(response){
                             response = JSON.parse(response);
-                            $('.szalloda_select').html('<select id="pop_telephely_id" name="pop_telephely_id"><option value="">-Válasszon-</option>'+response.html+'</select>');
+                            $('.szalloda_select').html('<select id="pop_telephely_id" name="pop_telephely_id" class="csillag"><option value="">-Válasszon-</option>'+response.html+'</select>');
+                            /* Ha csak egy szálloda van, akkor az legyen is kiválsztva, és a select disabled */
+                            if(response.szallodak_szama==1){
+                                $('#pop_telephely_id').val( $('#pop_telephely_id option:last').attr('value') );
+                                $('#pop_telephely_id').attr('disabled', true);
+                            }
                         }
                     });
                 });
@@ -138,9 +143,9 @@
     </div>
 </div>
 <div class="kuldes">
-    <button type="button" class="gomb" onclick="munkAnyagKPHozzaad( '#anyagigenylesKpBeszerez' );">Hozzáad</button>
-    <input type="button" class="gomb" value="Mentés" onclick="anyagigenylesKPBeszerez('kérdezünk')">
-    <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    <input type="button" class="gomb" value="Hozzáad" onclick="munkAnyagKPHozzaad('#anyagigenylesKpBeszerez')">
+    <input type="button" class="gomb zold" value="Mentés" onclick="anyagigenylesKPBeszerez('kérdezünk')">
+    <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
 </div>
 <script>
 
@@ -229,7 +234,6 @@
             rbs = '<i class="material-icons">done</i>';
         }
 
-
         var table_sor = '<tr>' +
                             '<td>' + $('#pop_telephely_id option:selected').text() + '<input type="hidden" name="add_telephely_id[]" value="' + $('#pop_telephely_id').val() + '"></td>' +
                             '<td>' + $('#cikkid_origi').val() + '<input type="hidden" name="addCikkID[]" value="' + $('#cikkid_origi').val() + '"></td>' +
@@ -286,6 +290,7 @@
 
         return false;
     }
+    
     function anyagigenylesKpnullaz(formID){
         var form = $(formID);
 
@@ -328,45 +333,45 @@
         }
 
         if( !$('#pop_szallito_autocomp').val() || !$('#pop_szallito').val() ) {
+            $('#pop_szallito_autocomp').addClass('hibas_ide_focus');
             alert2('Válassza ki a szállítót!', '', 'Hiba');
-            $('#pop_szallito_autocomp').focus();
             return false;
         }
 
         if( !$('#pop_telephely_id').val() ) {
+            $('#pop_telephely_id').addClass('hibas_ide_focus');
             alert2('Válassza ki a szállodát!', '', 'Hiba');
-            $('#pop_telephely_id').focus();
             return false;
         }
 
         if( !$('#cikk_id_autocomp').val() || !$('#cikk_id').val() ) {
+            $('#cikk_id_autocomp').addClass('hibas_ide_focus');
             alert2('Válassza ki a cikket!', '', 'Hiba');
-            $('#cikk_id_autocomp').focus();
             return false;
         }
 
         if( !$('#pop_menny').val() || $('#pop_menny').val()=='0,00' ) {
+            $('#pop_menny').addClass('hibas_ide_focus');
             alert2('Adja meg a rendelt mennyiséget!');
-            $('#pop_menny').select();
             return false;
         }
 
         if( !$('#pop_net_ear').val() || $('#pop_net_ear').val()=='0,0000' ) {
+            $('#pop_net_ear').addClass('hibas_ide_focus');
             alert2('Adja meg a nettó egységárat!');
-            $('#pop_net_ear').select();
             return false;
         }
 
         if( !$('#pop_afa_autocomp').val() ) {
+            $('#pop_afa_autocomp').addClass('hibas_ide_focus');
             alert2('Adja meg az ÁFA-t!');
-            $('#pop_afa_autocomp').select();
             return false;
         }
 
         return true;
     }
 
-
+    /* Készpénzes anyagbeszerzés mentése */
     function anyagigenylesKPBeszerez(csak_kerdezünk){
 
         if(csak_kerdezünk){
@@ -377,7 +382,7 @@
                 }
                 tetelek = 1;
             }
-            alert2('A számlán '+tetelek+' db tétel szerepel. Biztosan rögzíti a számlát?', '<input type="button" value="Igen" class="gomb" onclick="anyagigenylesKPBeszerez(); alert2();"> <input type="button" value="Nem" class="gomb" onclick="alert2();">');
+            alert2('A számlán '+tetelek+' db tétel szerepel. Biztosan rögzíti a számlát?', '<input type="button" value="Igen" class="gomb" onclick="anyagigenylesKPBeszerez(); alert2();"> <input type="button" value="Nem" class="gomb piros" onclick="alert2();">');
             return false;
         }
 
@@ -399,7 +404,7 @@
             i++;
         });
 
-        //Ha üres a táblázat, akkor a mezőben levő adatokból dolgozunk
+        /* Ha üres a táblázat, akkor a mezőben levő adatokból dolgozunk */
         if(!anyagok.length){
 
                 rb = $('#pop_kulsosnek').prop('checked');
@@ -428,12 +433,7 @@
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        if( response.gomb ) {
-                            alert2(response.hiba, response.gomb);
-                        } else {
-                            alert2(response.hiba, '', 'Hiba');
-                        }
-
+                        alert2(response.hiba, response.gomb, 'Hiba');
                         return false;
                     }
 

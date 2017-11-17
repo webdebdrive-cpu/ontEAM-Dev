@@ -4369,6 +4369,7 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     return false;
 }
 
+// Redndezés select címkéi
 function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     $oszlopNevek = array(
         'sor'           => 'Státusz',

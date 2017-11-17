@@ -2235,110 +2235,6 @@ if($page=='munkalap'){
     $hibauzi_szoveg_targy   = 'munkalapot';
     $varakozo_statid        = MUNKALAP_STAT_VARAKOZO;
 }
-if( isset($_POST['varolistahozAdas']) ) {
-
-    $db_error = false;
-    mysqli_autocommit($db_kapcs, false);
-
-    if( is_array($idk) ) {
-        /* Ellenőrizzük a csoportokat */
-        $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")");
-        if( $csoportok === false ) { $db_error = true; }
-
-        $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
-        $csoportok_unique = array_unique($csoportok);
-
-        $kijelolt_db = array_count_values($csoportok);
-
-        foreach( $csoportok_unique as $csu ) {
-            if( $csu > 0 ) {
-                $csoport_db = $adatbazis_kapcsolat->s('csoport_id', $page, "`csoport_id` = '{$csu}'");
-                if( $csoport_db === false ) { $db_error = true; }
-
-                if( count($csoport_db) != $kijelolt_db[$csu] ) {
-                    echo json_encode(array(
-                        'hiba' => 'Csoportosított '.$hibauzi_szoveg.' önmagában nem várakoztatható. Előbb vegye ki a csoportból!'
-                    ));
-
-                    $weblap->leallit();
-                    exit();
-                }
-            }
-        }
-
-        /* Ellenőrizzük a státuszokat is */
-        foreach($idk as $id) {
-            $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
-            if( $statusz === false ) { $db_error = true; }
-
-            if( $statusz ) {
-                $statusz = $statusz[0];
-                if(  !in_array($statusz['stat_id'], $nyitott_statid) ) {
-                    echo json_encode(array(
-                        'hiba' => 'Csak nyitott státuszú '.$hibauzi_szoveg_targy.' lehet várólistához adni!'
-                    ));
-
-                    $weblap->leallit();
-                    exit();
-                }
-            } else {
-                echo json_encode(array(
-                    'hiba' => 'Státusz nem található!'
-                ));
-
-                $weblap->leallit();
-                exit();
-            }
-        }
-
-        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
-        if (isset($_POST['csak_kerdezunk'])) {
-
-            echo json_encode(array(
-                'hiba' => 'Biztos várólistához adja a kijelölt '.$hibauzi_szoveg_targy.'? <br><br>Indoklás: <br><textarea name="varolista_indok" id="varolista_indok" class="oriasi"></textarea>',
-                'gomb' => '<input class="gomb zold" value="Igen" onclick="varolistahozAdas();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
-            ));
-
-            $weblap->leallit();
-            exit();
-        }
-
-        //Státusz léptetés
-        foreach($idk as $id) {
-            $statusz = addStatusz( $page.'_statusz', $id, $varakozo_statid );
-            if( $statusz === false ) { $db_error = true; }
-
-            //Munkalaphoz tartozó Bejelentések státuszát is várakozóra léptetjük
-            if($page=='munkalap'){
-                $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$id}'");
-                foreach($bejelentesek as $bej){
-                    $statusz = addStatusz( 'bejelentes_statusz', $bej['bejelentes_id'], BEJELENTES_STAT_VARAKOZO );
-                    if( $statusz === false ) { $db_error = true; }
-                }
-            }
-
-            /* Beírjuk az indoklást */
-            addMegj('munkalap', $id, $_POST['indok']);
-        }
-
-        if( !$db_error ) {
-            mysqli_commit($db_kapcs);
-
-            echo json_encode(array(
-                'statusz' => 'siker'
-            ));
-        } else {
-            mysqli_rollback($db_kapcs);
-
-            echo json_encode(array(
-                'hiba' => tranzakcioHiba()
-            ));
-        }
-    }
-
-    $weblap->leallit();
-    exit();
-}
 
 /* Várólistából kivétel */
 if( isset($_POST['varolistabolKivetel']) ) {
@@ -3492,7 +3388,8 @@ if (isset($_POST['get_szalloda_select_options'])) {
     $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $szallodak).")", 'nev');
 
     echo json_encode(array(
-        'html' => tomb2option($szallodak, 'id', 'nev')
+        'html'            => tomb2option($szallodak, 'id', 'nev'),
+        'szallodak_szama' => count($szallodak)
     ));
 
     $weblap->leallit();
