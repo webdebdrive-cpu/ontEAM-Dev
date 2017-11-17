@@ -2433,7 +2433,7 @@ function addCsoport() {
     }
 }
 
-/* Csoportba rendezés */
+// Csoportba rendezés
 function csoportbaRendez( that ) {
 
     if(balnav_kijelol_ell()){
@@ -2470,12 +2470,13 @@ function csoportbaRendez( that ) {
                                 response = JSON.parse(response);
 
                                 if( response.hiba ) {
-                                    alert2(response.hiba, '', 'Hiba');
+                                    alert2(response.hiba, response.gomb, 'Hiba');
                                     return false;
                                 }
 
                                 kijelolesEltavolit();
-                                bejegyzesekLista('#rendezesSelect', 'asc', '', '');
+                                bejegyzesekLista('#rendezesSelect', 'asc');
+                                location.href = get_get();
                                 popupZar();
                             }
                         }

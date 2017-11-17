@@ -1,35 +1,3 @@
-/* Átadás területi vezetőnek */
-function munkalapTeruletiVezeto() {
-
-    if(balnav_kijelol_ell()){
-
-        $.ajax({
-            url : 'munkalap.php',
-            type: 'POST',
-            data: {
-                recid: _get('id'),
-                munkalapTeruletiVezeto: new Date().getTime()
-            },
-            success: function(response) {
-                if(response) {
-                    response = JSON.parse(response);
-
-                    if( response.hiba ) {
-                        alert2(response.hiba, response.gomb, response.title);
-                        return false;
-                    }
-
-                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
-                    popupZar();
-                }
-            }
-        });
-
-    }
-
-    return false;
-}
-
 /* Átadás műszaki vezetőnek */
 function munkalapMuszakiVezeto() {
 

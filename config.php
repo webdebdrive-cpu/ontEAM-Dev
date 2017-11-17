@@ -22,14 +22,27 @@ require_once 'konstansok.php';
 function get_db_tabla()   { return 'onteam_';                                                                           } //Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
 
 function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ? 'localhost'    : 'localhost'       );  } //Host
-function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ? 'wdbhu'        : 'szinvatrendhu1'  );  } //Adatbázis neve
-function get_db_user()    { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ? 'wdbtdb'       : 'szinvatrendhu'   );  } //Felhasználói név
-function get_db_pass()    { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ? 'h3rbdzto'     : 'vikike'          );  } //Jelszó
-
-//function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'localhost'         : 'localhost' );        } //Host
-//function get_db()         { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu1'    : 'szinvatrendhu1' );   } //Adatbázis neve
-//function get_db_user()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'szinvatrendhu'     : 'szinvatrendhu' );    } //Felhasználói név
-//function get_db_pass()    { return ( $_SERVER['HTTP_HOST'] == 'localhost' ? 'vikike'            : 'vikike' );           } //Jelszó
+function get_db()         {
+    switch($_SERVER['HTTP_HOST']){
+        case 'demo.webdeb.hu'       : return 'wdbhu';
+        case 'demo.szinvatrend.hu'  : return 'szinvatrendhu1';
+        case 'onteam.hu'            : return 'onteamhu1';
+    }
+}
+function get_db_user(){
+    switch($_SERVER['HTTP_HOST']){
+        case 'demo.webdeb.hu'       : return 'wdbtdb';
+        case 'demo.szinvatrend.hu'  : return 'szinvatrendhu';
+        case 'onteam.hu'            : return 'onteamhu';
+    }
+}
+function get_db_pass(){
+    switch($_SERVER['HTTP_HOST']){
+        case 'demo.webdeb.hu'       : return 'h3rbdzto';
+        case 'demo.szinvatrend.hu'  : return 'vikike';
+        case 'onteam.hu'            : return 'Asiphnawt5';
+    }
+}
 
 function get_db_charset() { return 'UTF8';                                                                              } //Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
 function get_debug()      { return false;                                                                               } //Hibás adatbázislekérdezések megjelennek vagy sem

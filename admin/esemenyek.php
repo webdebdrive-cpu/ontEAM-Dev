@@ -2567,7 +2567,7 @@ if( isset($_POST['csoportbolTorol']) ) {
     exit();
 }
 
-/* Csoportba rendezés */
+// Csoportba rendezés
 if( isset($_POST['csoportbaRendez']) ) {
     $csoportID = $_POST['csoportID'];
     $idk       = json_decode($_POST['idk'], true);
@@ -2586,7 +2586,7 @@ if( isset($_POST['csoportbaRendez']) ) {
         $is_csoport = $adatbazis_kapcsolat->s('recid', $page, "`recid` IN (".implode(',', $idk).") AND `csoport_id` > '0'");
         if( $is_csoport === false ) {  $db_error = true; }
 
-        //Ellenőrizzük, hogy azonos szállodához tartoznak-e a bejeletések. Ha nem: hiba
+        // Ellenőrizzük, hogy azonos szállodához tartoznak-e a bejeletések. Ha nem: hiba
         $szallodak = $adatbazis_kapcsolat->s('distinct telephely_id', $page, "`recid` IN (".implode(',', $idk).")");
         if(count($szallodak)>1){
             echo json_encode(array(
@@ -2595,8 +2595,7 @@ if( isset($_POST['csoportbaRendez']) ) {
             $weblap->leallit();
             exit();
         }
-
-        //Csoportban milyen szállodájú bejegyzések vannak? Csak ilyet adható hozzá.
+        // Csoportban milyen szállodájú bejegyzések vannak? Csak ilyen adható hozzá.
         $egy_csoport_elem = $adatbazis_kapcsolat -> s('recid', $page, "`csoport_id`='$csoportID'", '', '1');
         $egy_csoport_elem = $egy_csoport_elem[0];
         if($egy_csoport_elem){
@@ -2619,14 +2618,22 @@ if( isset($_POST['csoportbaRendez']) ) {
             $sql = $adatbazis_kapcsolat -> u($page, array('csoport_id'), array($csoportID), "`recid` IN (".implode(',', $idk).")");
             if( $sql === false ) { $db_error = true; }
 
-            //Munkalapok csoportba rendezésekor a státusza automatikusan várakozóra vált
+            // Munkalapok csoportba rendezésekor a státusza automatikusan várakozóra vált, és a bejelentéseinek is, és a hozzárendelt személyeztet, és szállítót
             if($page=='munkalap'){
-
+                
                 foreach($idk as $id) {
+                    
+                    // Státusz léptetés
                     $statusz = addStatusz( $page.'_statusz', $id, MUNKALAP_STAT_VARAKOZO );
                     if( $statusz === false ) { $db_error = true; }
- 
-                    //Munkalaphoz tartozó Bejelentések státuszát is várakozóra léptetjük
+                    
+                    // Munkalap update
+                    $sql = $adatbazis_kapcsolat->u('munkalap',  array('szemelyzet_id', 'mobil_loginnev', 'szallito_id'  ),
+                                                                array(0,               '',               0              ),
+                                                    "`recid`='{$id}'");
+                    if( $sql === false ) { $db_error = true; }
+
+                    // Munkalaphoz tartozó Bejelentések státuszát is várakozóra léptetjük
                     $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$id}'");
                     foreach($bejelentesek as $bej){
                         $statusz = addStatusz( 'bejelentes_statusz', $bej['bejelentes_id'], BEJELENTES_STAT_VARAKOZO );
@@ -2638,13 +2645,11 @@ if( isset($_POST['csoportbaRendez']) ) {
 
             if( !$db_error ) {
                 mysqli_commit($db_kapcs);
-
                 echo json_encode(array(
                     'statusz' => 'siker'
                 ));
             } else {
                 mysqli_rollback($db_kapcs);
-
                 echo json_encode(array(
                     'hiba' => tranzakcioHiba()
                 ));
@@ -2664,7 +2669,7 @@ if( isset($_POST['csoportbaRendez']) ) {
     exit();
 }
 
-/* Új csoport/várólista hozzáadása */
+// Új csoport/várólista hozzáadása
 if( isset($_GET['addCsoport']) ) {
 
     $nev  = $_GET['csoportnev'];
