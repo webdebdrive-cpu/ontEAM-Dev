@@ -76,6 +76,7 @@ div.szamlaKereses {
     height: 100%;
     position: relative;
     width: 40rem;
+    white-space: nowrap;
 }
 
 .sor div.jobb {

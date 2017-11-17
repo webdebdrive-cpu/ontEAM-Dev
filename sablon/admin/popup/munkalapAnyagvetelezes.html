@@ -2,7 +2,7 @@
 <form action="" id="munkAnyagVetelezForm" class="popupForm" method="post">
     <div class="kozep" style="min-height: 40rem">
         <div class="dt">
-            <div class="dtr"> 
+            <div class="dtr">
                 <div class="dtc form_bal">Cikk:</div>
                 <div class="dtc form_jobb">
                     <input type="text" autocomplete="off" class="oriasi disableNav csillag focus" name="cikk_id_autocomp" id="cikk_id_autocomp" onblur="if(!$(this).val()){ $('#cikk_id').val(''); }" value="">
@@ -50,9 +50,9 @@
 </form>
 <script>
 function munkAnyagVetelezes() {
-    
+
     that = $('#munkAnyagVetelezForm');
-    
+
     var addCikkUj = $(that).find('input[name="addCikkUj[]"]'),
         addCikkID = $(that).find('input[name="addCikkID[]"]'),
         addCikkFelhMenny = $(that).find('input[name="addCikkFelhMenny[]"]');

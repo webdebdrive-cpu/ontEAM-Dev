@@ -139,7 +139,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
     ');
     echo $html;
 
-    if( isset($_GET['pdf']) ) {    
+    if( isset($_GET['pdf']) ) {
         include('../html2pdf/mpdf.php');
         $mpdf = new mPDF('utf-8');
         // $mpdf -> WriteHTML(file_get_contents('../css/nullaz.css'), 1);
@@ -168,7 +168,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
                     </div>
                 </div>
             </div>
-        ', 4);
+        ', 2);
         $mpdf -> Output('teszt.pdf');
     }
 
