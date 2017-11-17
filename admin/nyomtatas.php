@@ -141,18 +141,20 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
 
     if( isset($_GET['pdf']) ) {
         include('../html2pdf/mpdf.php');
-        $mpdf = new mPDF('utf-8');
-        // $mpdf -> WriteHTML(file_get_contents('../css/nullaz.css'), 1);
+        $mpdf = new mPDF('', '', 0, '', 15, 15, 15, 15, 8, 8);
+        $mpdf -> WriteHTML(fajlbol_olvas('../css/nullaz.css'), 1);
+        //$mpdf -> WriteHTML(fajlbol_olvas('../css/admin.css'), 1);
+        //$mpdf -> WriteHTML(fajlbol_olvas('../css/nyomtatas.css'), 1);
         $mpdf -> WriteHTML('
-            body{
-                background: #f00;
-                color: #242424;
-                font-family: \'Open Sans\', sans-serif;
-                font-size: 1.4rem;
-                font-weight: 400;
+            body {
+                font-size: 14px;
+            }
+
+            table {
+                border-bottom: 0.1rem solid #242424;
+                width: 100%;
             }
         ', 1);
-        //$mpdf -> WriteHTML(file_get_contents('../css/nyomtatas.css'), 1);
         $mpdf -> WriteHTML( '
             <div class="a4_allo">
                 <div class="padd" style="padding-bottom: 5rem; min-height: 60rem">
