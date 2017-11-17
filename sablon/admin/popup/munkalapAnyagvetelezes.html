@@ -1,5 +1,5 @@
 <h2>Anyag vételezés</h2>
-<form action="" id="munkAnyagVetelezForm" class="popupForm" method="post" onsubmit="return munkAnyagVetelezes( this );">
+<form action="" id="munkAnyagVetelezForm" class="popupForm" method="post">
     <div class="kozep" style="min-height: 40rem">
         <div class="dt">
             <div class="dtr"> 
@@ -24,7 +24,7 @@
             <div class="dtr">
                 <div class="dtc form_bal">Felh. menny.:</div>
                 <div class="dtc form_jobb wsn">
-                    <input type="text" id="felh_menny" class="f_num" name="felh_menny" value="" placeholder="" autocomplete="off" style="min-width: 5rem; width: 5rem;">
+                    <input type="text" id="felh_menny" class="f_num csillag" name="felh_menny" value="" placeholder="" autocomplete="off" style="min-width: 5rem; width: 5rem;">
                     <span class="insertMee"></span>
                 </div>
             </div>
@@ -43,16 +43,25 @@
         </div>
     </div>
     <div class="kuldes">
-        <button type="button" name="button" onclick="munkAnyagHozzaad( '#munkAnyagVetelezForm', false );">Hozzáad</button>
-        <input type="submit" name="elkuld" value="Mentés">
-        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+        <input type="button" class="gomb" onclick="munkAnyagHozzaad( '#munkAnyagVetelezForm', false );" value="Hozzáad">
+        <input type="button" class="gomb zold" name="elkuld" value="Mentés" onclick="munkAnyagVetelezes()">
+        <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
     </div>
 </form>
 <script>
-function munkAnyagVetelezes( that ) {
+function munkAnyagVetelezes() {
+    
+    that = $('#munkAnyagVetelezForm');
+    
     var addCikkUj = $(that).find('input[name="addCikkUj[]"]'),
         addCikkID = $(that).find('input[name="addCikkID[]"]'),
         addCikkFelhMenny = $(that).find('input[name="addCikkFelhMenny[]"]');
+
+    /* Van-e egyáltalán a táblázatnak sora */
+    if($(that).find('#insertTable tr').length<=1){
+        $('#cikk_id_autocomp').addClass('hibas_ide_focus');
+        alert2('Kérem válasszon felhasznált mennyiséget!', '', 'Hiba');
+    }
 
     if( addCikkID.length && addCikkFelhMenny.length ) {
         $.ajax({
@@ -85,9 +94,6 @@ function munkAnyagVetelezes( that ) {
          		}
          	}
         });
-    } else {
-        alert2('Kérem válasszon felhasznált mennyiséget!', '', 'Hiba');
-        document.getElementById('cikk_id_autocomp').focus();
     }
 
     return false;

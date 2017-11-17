@@ -1864,6 +1864,9 @@ require_once('selectek.php');
             if( $tomb['type'] == 'autocomplete' ) {
                 $sor[$tomb['name'].'_autocomp'] = '';
             }
+            if( strpos($tomb['class'], 'f_num') !== false ) {
+                $sor[$tomb['name']] = str_replace('.', '.', $sor[$tomb['name']]);
+            }
         }
 
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
@@ -1991,18 +1994,17 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	//Termék módosítása
+	// Anyagigénylés módosítása
     } elseif(isset($_GET['modosit'])) {
 
         //Anyagrendelés adatlapja
         if (isset($_GET['anyagrend'])) {
 
-            $rndid = $adatbazis_kapcsolat->s('recid rndid', 'anyagigenyles', "`recid` = '".$_GET['id']."'", '', '1');
+            $rndid = $adatbazis_kapcsolat->s2('recid rndid', 'anyagigenyles', "`recid` = '".$_GET['id']."'", '', '1');
 
             if( $rndid ) {
-                $rndid = $rndid[0];
 
-                /* Tétel sorok */
+                // Tétel sorok 
                 $sorok = $adatbazis_kapcsolat->s('cikk_id nev rndmen rndear cikkmee erkmen', 'anyagigenyles', "`rndid` = '".$rndid['rndid']."'", 'insert_dt desc', '');
 
                 if( $sorok ) {
@@ -2044,7 +2046,7 @@ require_once('selectek.php');
                 echo $szamla_html.$gombok;
             }
 
-        //Anyagigénylés adatlapja
+        // Anyagigénylés adatlapja
         }else{
 
             //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
@@ -2052,8 +2054,7 @@ require_once('selectek.php');
                 $_GET['id'] = $_GET['id_hidden'];
             }
 
-            $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-            $sor = $sor[0];
+            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
             if( $sor['datetime'] ) {
                 $_SESSION['formMod'] = array(
@@ -2064,7 +2065,6 @@ require_once('selectek.php');
 
             foreach($akt_tomb as $tomb) {
                 if( $tomb['type'] == 'autocomplete' ) {
-                    
                     if($tomb['csoport']){
                         $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`id`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                         $kulso_ertek['nev'] = $kulso_ertek['info'];

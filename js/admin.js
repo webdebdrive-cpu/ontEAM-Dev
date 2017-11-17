@@ -133,8 +133,6 @@ function jog_torol(id){
 
 }
 
-
-
 /**
 *	A képernyő szélességét adja vissza
 */
@@ -581,7 +579,7 @@ $(function() {
     $(document).on('click', 'ul.szamla_cont li.csoport', function(e) {
         var sorok       = $('#szamlaList li.szamla_sor'),
             id          = $(this).attr('data-id'),
-            kijelolheto = $('#szamlaList').hasClass('kijelolheto');
+            kijelolheto = $('#szamlaList').hasClass('csoport_nevre_kattintas');
 
         if( kijelolheto ) {
             /* Ha CTRL gombot használunk, másképp kell eljárni: ha meg volt jelölve, le kell venni a megjelöléseket */
@@ -598,12 +596,15 @@ $(function() {
             /* Sima kattintás esetén pedig a nem ehhez a csoporthoz tartozó sorokról kell levenni a kijelölést */
             }else{
 
-                /* Minden olyan sor, ami nem a csoport része, arról levesszük a kijelölést */
+                /* Minden olyan sor, ami NEM a csoport része, arról levesszük a kijelölést */
                 sorok.each(function () {
                     if($(this).attr('data-csoportid')!=id){
                         $(this).removeClass('kijelolve');
                     }
                 });
+
+                $('#szamlaHidden').removeClass('csoport');
+                $('li.csoport').removeClass('kijelolve');
 
                 $(this).addClass('kijelolve');
                 $('ul.szamla_cont li[data-csoportid="' + id + '"]').addClass('kijelolve');
@@ -813,6 +814,10 @@ $(function() {
                 val = val.replace(/(\r|\n)/g, '#UJSOR#').replace(/'/g, '#APOSZTROF#');
             }
 
+            /* Tizedes összegeknél a pontot vesszőre kell cseérlni az ellenőrzéshez*/
+            if($(this).hasClass('f_num')){
+                taroltVal = taroltVal.replace('\.', ',');
+            }
             if( taroltVal != val ) {
                 $(this).addClass('mod');
             } else {
@@ -1649,7 +1654,7 @@ function bejelentesReklamacioElfogad(csak_kerdezunk) {
                     szamlaSorFrissit('bejelentes', _get('id'));
                     betoltve = szamlaBetolt(_get('id'), 'bejelentes.php', 'modosit');
                     $.when(betoltve).then(function() {
-                        alert2('Kíván új munkalapot nyitni?', '<input type="button" class="gomb zold" value="Igen" onclick="location.href=\'munkalap.php?uj\'"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+                        alert2('Kíván új munkalapot nyitni?', '<input type="button" class="gomb zold" value="Igen" onclick="munkalapKeszit()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
                     });
                 }
             }
@@ -4816,6 +4821,7 @@ function naptar_torol(){
 function csoport_tartalom() {
     $('#szerk_form input:not(\'.foGomb\'), #szerk_form select, #szerk_form textarea').val('').prop('checked', false);
     $('div.statusz div.text, div.naplo, div.jsff, #sorrendezes_tobbkep, #szerk_form div.dt').hide();
+    $('#szamlaBetolt').html('');
 
     if( !$('#szamlaHidden').hasClass('csoport') ) {
         $.ajax({
@@ -5189,4 +5195,83 @@ function valid_date(that){
             return false;
     }
     return true;
+}
+
+/* Anyagigénylés táblázat sor hozzáadás */
+function munkAnyagHozzaad( formID, igenyles ) {
+    var form = $(formID);
+
+    var cikknev     = form.find('input[name="cikk_id_autocomp"]'),
+        cikkID      = form.find('input[name="cikk_id"]'),
+        cikkid_origi= form.find('input[name="cikkid_origi"]'),
+        felh_menny  = form.find('input[name="felh_menny"]'),
+        szuk_menny  = form.find('input[name="szuk_menny"]'),
+        cikkmee     = form.find('.insertMee').eq(0).text();
+
+    var addCikkID = form.find('input[name="addCikkID[]"]').map(function(){return $(this).val();}).get();
+
+    if( addCikkID.length ) {
+        for(key in addCikkID) {
+            if( addCikkID[key] == cikkID.val() ) {
+                alert2('Ez az anyag már hozzá van adva a munkalap tételhez!', '', 'Hiba');
+
+                cikkID.val('');
+                cikknev.val('');
+                felh_menny.val('');
+                szuk_menny.val('');
+                form.find('.insertMee').text('');
+
+                document.getElementById('cikk_id_autocomp').select();
+
+                return false;
+            }
+        }
+    }
+
+    if( cikknev.val() == '' || cikkID.val() == '' ) {
+        alert2('Válassza ki a cikket!', '', 'Hiba');
+        document.getElementById('cikk_id_autocomp').select();
+        return false;
+    }
+
+    if( !igenyles && (felh_menny.val() == '' || felh_menny.val() == '0,00') ) {
+        alert2('Adja meg a felhasznált mennyiséget!', '', 'Hiba');
+        document.getElementById('felh_menny').select();
+        return false;
+    }
+
+    if( igenyles ) {
+        if( (felh_menny.val() == '' || felh_menny.val() == '0,00') && (szuk_menny.val() == '' || szuk_menny.val() == '0,00') ) {
+            alert2('Adja meg a felhasznált, vagy a szükséges mennyiséget!', '', 'Hiba');
+            document.getElementById('felh_menny').select();
+            return false;
+        }
+    }
+
+    var sz_td = '';
+    if( igenyles ) {
+        sz_td = '<td class="c">' + szuk_menny.val() + '<input type="hidden" name="addCikkSzukMenny[]" value="' + szuk_menny.val() + '"></td>';
+    }
+
+    var table_sor = '<tr>' +
+                        '<td>' + cikkid_origi.val() + '<input type="hidden" name="addCikkID[]" value="' + cikkid_origi.val() + '"><input type="hidden" name="addCikkUj[]" value="1"></td>' +
+                        '<td>' + cikknev.val() + '</td>' +
+                        '<td class="c">' + felh_menny.val() + '<input type="hidden" name="addCikkFelhMenny[]" value="' + felh_menny.val() + '"></td>' +
+                        sz_td +
+                        '<td>' + cikkmee + '</td>' +
+                        '<td></td>' +
+                        '<td><a onclick="munkAnyagTorol( false, this );"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
+                    '</tr>';
+
+    $('#insertTable table.csikos').append(table_sor);
+
+    cikkID.val('');
+    cikknev.val('');
+    felh_menny.val('');
+    szuk_menny.val('');
+    form.find('.insertMee').text('');
+
+    $('#cikk_id_autocomp').focus();
+
+    return false;
 }

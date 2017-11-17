@@ -582,7 +582,7 @@ if( isset($_POST['munkalapKulso']) ) {
 }
 
 
-/* Munkalap Felvétele */
+// Munkalap Felvétele
 if( isset($_POST['munkalapFelvesz']) ) {
     $recid = $_POST['recid'];
 
@@ -1569,7 +1569,8 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             exit();
         }
 
-        $sql = $adatbazis_kapcsolat -> u('munkalap', array('szallito_id'), array($szallitoid), "`recid` = '{$recid}'");
+        // Munkalap update
+        $sql = $adatbazis_kapcsolat -> u('munkalap', array('szallito_id', 'szemelyzet_id'), array($szallitoid, MUSZAKI_ADMINISZTRATOR), "`recid` = '{$recid}'");
         if( $sql === false ) { $db_error = true; }
 
         if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_DONTESRE_VAR ) ) {
@@ -2824,7 +2825,7 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
         if(isset($_POST['csak_kerdezunk']) && $szuk_menny) {
             echo json_encode(array(
                 'hiba' => 'Ha folytatja, a munkalap Anyagra vár státuszba kerül. Folytatja?',
-                'gomb' => '<input class="gomb zold" value="Igen" onclick="munkAnyagIgenyles( \'#munkAnyagAnyagigenyles\' );" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="munkAnyagIgenyles();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
             $weblap->leallit();
