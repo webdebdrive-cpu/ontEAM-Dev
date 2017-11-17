@@ -1,0 +1,56 @@
+<h2>Átadás diszpécser központ vezetőnek</h2>
+<form action="" id="elutasitasForm" class="popupForm" method="post">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Indoklás:</div>
+                <div class="dtc form_jobb">
+                    <textarea name="atadas_indok" id="atadas_indok" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="button" name="elkuld" class="gomb zold" value="Mentés" onclick="munkalapDiszpKozp();">
+        <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+function munkalapDiszpKozp() {
+    
+    if(!$('#atadas_indok').val()){
+        $('#atadas_indok').addClass('hibas_ide_focus');
+        alert2('Kérjük indokolja meg az átadást!', '', 'Hiba');
+        return false;
+    }
+
+    if(balnav_kijelol_ell()){
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                indoklas            : $('#atadas_indok').val(),
+                recid               : _get('id'),
+                munkalapDiszpKozp   : new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    popupZar();
+                }
+            }
+        });
+
+    }
+
+    return false;
+}
+</script>
