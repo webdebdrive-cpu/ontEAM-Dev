@@ -2134,11 +2134,11 @@ if( isset($_GET['getBejBejelentok']) ) {
 }
 
 
-/* Csoport select */
+// Csoport select
 if( isset($_GET['csoportSelect']) ) {
     $page = $_GET['page'];
 
-    /* Lekérdezzük a csoportokat */
+    // Lekérdezzük a csoportokat
     $html .= '<select id="csoportID" name="csoportID"><option value="">- Válasszon -</option>';
 
     $csoportok = $adatbazis_kapcsolat->s('recid nev', $page.'_csoport', '', 'nev', '');
@@ -2160,7 +2160,7 @@ if( isset($_GET['csoportSelect']) ) {
     exit();
 }
 
-/* Munkalap select */
+// Munkalap select
 if( isset($_GET['munkalapSelect']) ) {
     $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam', 'munkalap', '', 'insert_dt desc', '');
 

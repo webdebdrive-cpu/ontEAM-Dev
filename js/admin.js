@@ -2530,10 +2530,6 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         alert2('Az alábbi '+$('#rekord_neve').html().toLowerCase()+' már csoport részei, így nem adhatóak újból csoporthoz:<br>'+mar_csoportosak, '', 'Hiba');
                         return false;
                     }
-                    if(nem_nyitott_statuszuak){
-                        alert2('Az alábbi '+$('#rekord_neve').html().toLowerCase()+' státuszai nem nyitottak, így nem adhatóak csoporthoz:<br>'+nem_nyitott_statuszuak, '', 'Hiba');
-                        return false;
-                    }
                     if(nem_azonos_szalloda){
                         alert2('Csak azonos szállodához tartozó '+$('#rekord_neve').html().toLowerCase()+' adhatóak csoporthoz!<br>', '', 'Hiba');
                         return false;
@@ -2560,9 +2556,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                     });
 
                     $.when( ajax ).then(function() {
-                        if(nem_nyitott_statuszuak==0){
-                            popupNyit();
-                        }
+                        popupNyit();
                     });
                 break;
 
@@ -5159,6 +5153,7 @@ function munkAnyagHozzaad( formID, igenyles ) {
     if( addCikkID.length ) {
         for(key in addCikkID) {
             if( addCikkID[key] == cikkID.val() ) {
+                $('#cikk_id_autocomp').addClass('hibas_ide_focus');
                 alert2('Ez az anyag már hozzá van adva a munkalap tételhez!', '', 'Hiba');
 
                 cikkID.val('');
@@ -5167,29 +5162,27 @@ function munkAnyagHozzaad( formID, igenyles ) {
                 szuk_menny.val('');
                 form.find('.insertMee').text('');
 
-                document.getElementById('cikk_id_autocomp').select();
-
                 return false;
             }
         }
     }
 
     if( cikknev.val() == '' || cikkID.val() == '' ) {
+        $('#cikk_id_autocomp').addClass('hibas_ide_focus');
         alert2('Válassza ki a cikket!', '', 'Hiba');
-        document.getElementById('cikk_id_autocomp').select();
         return false;
     }
 
     if( !igenyles && (felh_menny.val() == '' || felh_menny.val() == '0,00') ) {
+        $('#felh_menny').addClass('hibas_ide_focus');
         alert2('Adja meg a felhasznált mennyiséget!', '', 'Hiba');
-        document.getElementById('felh_menny').select();
         return false;
     }
 
     if( igenyles ) {
         if( (felh_menny.val() == '' || felh_menny.val() == '0,00') && (szuk_menny.val() == '' || szuk_menny.val() == '0,00') ) {
+            $('#felh_menny').addClass('hibas_ide_focus');
             alert2('Adja meg a felhasznált, vagy a szükséges mennyiséget!', '', 'Hiba');
-            document.getElementById('felh_menny').select();
             return false;
         }
     }
