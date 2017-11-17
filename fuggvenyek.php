@@ -2058,13 +2058,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 // Ez azért fontos, mert ha másik szűrésre vált, akkor ne forduljon meg rendezés nyíl.
                 
                 // Nem nyitott státuszú, nem sürgősek, azon belül ikatatószám
-                $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=0", 'ikt_szam');
+                $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=0", 'stat_id, ikt_szam');
                 foreach($bejelentesek as $bejelentes){
                     $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
                     $i++;
                 }
                 // Nem nyitott státuszú, sürgősek, azon belül ikatatószám
-                $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=1", 'ikt_szam');
+                $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=1", 'stat_id, ikt_szam');
                 foreach($bejelentesek as $bejelentes){
                     $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
                     $i++;
@@ -2116,13 +2116,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 
                 $i = 0;
                 // Nem nyitott státuszú, nem sürgősek, azon belül ikatatószám
-                $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".MUNKALAP_STAT_NYITOTT."' AND `surgos`=0", 'ikt_szam');
+                $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".MUNKALAP_STAT_NYITOTT."' AND `surgos`=0", 'stat_id, ikt_szam');
                 foreach($munkalapok as $munkalap){
                     $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
                     $i++;
                 }
                 // Nem nyitott státuszú, sürgősek, azon belül ikatatószám
-                $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".MUNKALAP_STAT_NYITOTT."' AND `surgos`=1", 'ikt_szam');
+                $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".MUNKALAP_STAT_NYITOTT."' AND `surgos`=1", 'stat_id, ikt_szam');
                 foreach($munkalapok as $munkalap){
                     $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
                     $i++;
@@ -2212,7 +2212,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
     // Értéklistát csoport szerinti sorrendben, azon belül pedig infó szerinti sorrendben kell kilistázni
     }elseif($tabla=='erteklista'){
 
-        //Gyorskeresőnél képződhet where feltétel
+        // Gyorskeresőnél képződhet where feltétel
         if($where){
             $where = ' AND '.$where;
         }
@@ -2235,7 +2235,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
     }else{
 
-        //Szűréskor kell pár JOIN-olás a külső táblákhoz
+        // Szűréskor kell pár JOIN-olás a külső táblákhoz
         $join = '';
         if ($_GET['mezo']=='megjegyzes') {
             $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
@@ -2249,7 +2249,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
     }
 
-    //Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
+    // Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
     if(!isset($_GET['szamlaSorFrissit'])){
         $_SESSION['akt_sql'] = $sql;
     }
@@ -2692,7 +2692,9 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
                             <tr>
-                                <td rowspan="2" style="width: 5rem; border: 0; white-space: nowrap;">'.$kesz.$dok_icon.$surgos.'&nbsp;</td>
+                                <td rowspan="2" style="width: 5rem; border: 0; white-space: nowrap;">
+                                    <br>'.$kesz.$dok_icon.$surgos.'&nbsp;
+                                </td>
                                 <td style="width: 9rem; border: 0" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem; border: 0">'.getStatText($tabla, $bsz['stat_id']).'</td>
                                 <td style="width: 7rem; border: 0">'.$telephely['nev'].'</td>
@@ -2721,7 +2723,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $csoport_data = ' data-csoportID="'.$bsz['csoport_id'].'"';
             }
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -4369,6 +4371,7 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     return false;
 }
 
+// Redndezés select címkéi
 function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     $oszlopNevek = array(
         'sor'           => 'Státusz',

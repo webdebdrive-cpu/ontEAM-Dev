@@ -41,13 +41,6 @@
 
         $(this).attr('data-origin-val', $(this).val());
 
-        /*if( !$('#autocomplete').length ) {
-            $('body').append('<div id="autocomplete"></div>');
-        }
-        if(options.popupba){
-            $('#autocomplete').addClass('popupba');
-        }*/
-
         $(this).keyup(function(e) {
 
             var that    = $(this);

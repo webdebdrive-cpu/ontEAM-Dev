@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 72-es ID-nál járunk
+ * 73-es ID-nál járunk
  * 11 -es kategória ID-nál járunk
 \*                                                  */
 
@@ -58,10 +58,11 @@ $jogosultsagok = array(
     14 => array('nev' => 'Igénylés jóváhagyása',        'kat' => 3, 'sor' => 3, 'i' => 'Vezető, árak és mennyiségek jóváhagyása.',  'bekapcs' => '12', 'kikapcs' => '13,15'),
     15 => array('nev' => 'Anyagrendelés készítése',     'kat' => 3, 'sor' => 4, 'i' => 'Adminisztrátor hölgyek',                    'bekapcs' => '12', 'kikapcs' => '13,14'),
     16 => array('nev' => 'Anyagrendelés megtekintése',  'kat' => 3, 'sor' => 5),
-    17 => array('nev' => 'Raktár megtekintése',         'kat' => 3, 'sor' => 6, 'kikapcs' => '18'),
-    18 => array('nev' => 'Raktár kezelése',             'kat' => 3, 'sor' => 7, 'bekapcs' => '17'),
-    19 => array('nev' => 'Cikktörzs megtekintése',      'kat' => 3, 'sor' => 8, 'kikapcs' => '20'),
-    20 => array('nev' => 'Cikktörzs kezelése',          'kat' => 3, 'sor' => 9, 'bekapcs' => '19'),
+    73 => array('nev' => 'Anyagrendelés törlése',       'kat' => 3, 'sor' => 6),
+    17 => array('nev' => 'Raktár megtekintése',         'kat' => 3, 'sor' => 7, 'kikapcs' => '18'),
+    18 => array('nev' => 'Raktár kezelése',             'kat' => 3, 'sor' => 8, 'bekapcs' => '17'),
+    19 => array('nev' => 'Cikktörzs megtekintése',      'kat' => 3, 'sor' => 9, 'kikapcs' => '20'),
+    20 => array('nev' => 'Cikktörzs kezelése',          'kat' => 3, 'sor' => 10,'bekapcs' => '19'),
     
     32 => array('nev' => 'Feladatok megtekintése',      'kat' => 5, 'sor' => 1, 'kikapcs' => '33'),
     33 => array('nev' => 'Feladatok kezelése',          'kat' => 5, 'sor' => 2, 'bekapcs' => '32'),

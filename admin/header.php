@@ -604,7 +604,7 @@ $head -> js_css        = get_jsfajlok_admin();
 $head -> extrak        = '<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">';
 $head -> extrak       .= '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">';
 
-//Munkalapokkal kapcsolatos JS-eket külön fájlba szedjük össze
+// Munkalapokkal kapcsolatos JS-eket külön fájlba szedjük össze
 if(basename(self())=='munkalap.php'){
     $head -> extrak       .= '<script src="../js/munkalap.js"></script>';
 }
@@ -617,7 +617,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 }
 
 $header_html .= '<body'.$body_class;
-    //Új feltöltésnél a név mezőn legyen a fókusz
+    // Új feltöltésnél a név mezőn legyen a fókusz
     if( isset($_GET['uj']) ) {
         if( basename(self()) == 'ktghely.php' || basename(self()) == 'ktgnem.php' ) {
             $header_html .=' onload="if(document.getElementById(\'id\')){document.getElementById(\'id\').focus();}"';
@@ -626,21 +626,21 @@ $header_html .= '<body'.$body_class;
         } else {
             $header_html .=' onload="if(document.getElementById(\'nev\')){document.getElementById(\'nev\').focus();}"';
         }
-    //Listánál a gyoskeresőn legyen a fókusz
+    // Listánál a gyoskeresőn legyen a fókusz
     } elseif( isset($_GET['lista']) ) {
         $header_html .=' onload="if(document.getElementById(\'id\')){document.getElementById(\'id\').focus();}"';
-    //Többképes képfeltöltésnél ugrás a képekhez
+    // Többképes képfeltöltésnél ugrás a képekhez
     }
 
 
 $header_html .='>';
 
-/* A form körüli keretete a lista nézetben nem jelenítjük meg */
+// A form körüli keretete a lista nézetben nem jelenítjük meg
 $css = '';
 if( !isset($_GET['lista']) && basename(self())!='index.php' ) {
     $css = ' keret';
 }
-/* Fotógaléria elrendezése miatt */
+// Fotógaléria elrendezése miatt
 if( basename(self()) == 'fotoalbumok.php' ) {
     $css = ' keret_nopadd';
 }
@@ -664,7 +664,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 $self = basename(self());
 $megn = str_replace('.php', '', basename(self()) );
 
-/* Bal oldali nav panel select-je */
+// Bal oldali nav panel select-je
 $tartBal  = '';
 $keresodn = ' dn';
 $rendezes = '';
@@ -673,7 +673,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     $tabla = str_replace('.php', '', basename(self()));
 
 
-    /* Rendezés */
+    // Rendezés
     $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
     $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
 
@@ -692,10 +692,14 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
             } else if( basename(self()) == 'munkalap.php' ) {
                 $kieg_text = 'Munkalap';
             } else if( basename(self()) == 'anyagigenyles.php' ) {
-                $kieg_text = 'Anyagigénylés';
+                if (isset($_GET['anyagrend'])) {
+                    $kieg_text = 'Anyagrendelés';
+                }else{
+                    $kieg_text = 'Anyagigénylés';
+                }
             }
 
-            //Cikktorzsnél az ID legyen cikkszám
+            // Cikktorzsnél az ID legyen cikkszám
             $rend_mezo_txt = getOszlopNev($rend_mezo, $kieg_text);
             if(basename(self())=='cikktorzs.php' && $rend_mezo=='id'){
                 $rend_mezo_txt = 'Cikkszám';
@@ -755,7 +759,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
     } elseif( basename(self()) == 'anyagigenyles.php' && !isset($_GET['megjegyzesek']) && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
-        $uj_link = 'javascript: alert2(\'Önnen nincs jogosultsága új anyagigénylés feltöltéséhez!\', \'\', \'Hiba\'); void(0);';
+        $uj_link = 'javascript: alert2(\'Önnek nincs jogosultsága új anyagigénylés feltöltéséhez!\', \'\', \'Hiba\'); void(0);';
 
     } elseif( basename(self()) == 'anyagigenyles.php' && isset($_GET['anyagrend']) ) {
         $uj_link = 'javascript: alert2(\'Új anyagigénylés csak az anyagigénylés menüpont alatt tölthető fel!\', \'\', \'Hiba\'); void(0);';
@@ -933,6 +937,10 @@ if( basename(self())=='anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL)){
     $torles_icon    = '';
     //$uj             = '';
 }
+// Anyagrendelés alatt nincs új felvitel
+if( basename(self())=='anyagigenyles.php' && isset($_GET['anyagrend'])){
+    $uj             = '';
+}
 
 if(basename(self())=='bejelentes.php' && (!_jog(JOG_BEJELENTES_KEZEL)) && !_jog(JOG_BEJELENTES_MAS_NEVEBEN)){
     $uj             = '';
@@ -995,7 +1003,7 @@ if(basename(self())=='munkalap.php'){
     }
 }
 
-//Ütemezett feladatok
+// Ütemezett feladatok 
 if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_UTFEL_KEZEL) ){
     $torles_icon    = '';
     $uj             = '';

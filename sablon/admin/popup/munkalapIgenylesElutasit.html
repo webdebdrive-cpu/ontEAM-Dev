@@ -21,7 +21,6 @@ function munkalapIgazolElutasit() {
     
     /* Megjegyzés kötelező */
     if(!$('#elutasitas_memo').val()){
-        $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
         $('#elutasitas_memo').addClass('hibas_ide_focus');
         alert2('Kérjük indokolja az elutasítást!', '<input type="button" class="link gomb" value="Ok" onclick="alert2();">', 'Hiba');
         return false;
