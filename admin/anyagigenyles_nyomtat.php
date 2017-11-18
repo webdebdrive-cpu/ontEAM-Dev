@@ -38,7 +38,8 @@ if (isset($_GET['szall'])) {
 
         //Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
         $ossz     = 0;
-        $anyagok = $adatbazis_kapcsolat->s('recid distinct cikk_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
+        $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
+//echo $adatbazis_kapcsolat->gp() . '<br>';
         foreach($anyagok as $anyag){
 
             $rndmen = 0;

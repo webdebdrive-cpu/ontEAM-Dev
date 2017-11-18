@@ -1807,22 +1807,24 @@ require_once('selectek.php');
         }
         // Anyagigénylés árazása
         if( _jog(JOG_ANYAGREND_KESZIT) ) {
-            $gombok .= nl2('
-                <div id="kmCont">
-                    <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
-                        <div class="muv">
-                            <ul>
-                                <li><a onclick="csoportMuvelet(\'anyagigenylesVarolistahozAdas\')">Várólistához adás</a></li>
-                                <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\');">Várólistából kivétel</a></li>
-                            </ul>
+            if(!isset($_GET['anyagrend'])){
+                $gombok .= nl2('
+                    <div id="kmCont">
+                        <div class="kijeloltek_muv">
+                            <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
+                            <div class="muv">
+                                <ul>
+                                    <li><a onclick="csoportMuvelet(\'anyagigenylesVarolistahozAdas\')">Várólistához adás</a></li>
+                                    <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\');">Várólistából kivétel</a></li>
+                                </ul>
+                            </div>
                         </div>
+                        <input type="button" class="gomb foGomb" value="Árazás" onclick="arazas()">
+                        <input type="button" class="gomb foGomb" value="Küldés jóváhagyásra" onclick="anyagigenyles_kuldes_jovahagyasra(\'csak kérdezünk még\')">
+                        <input type="button" class="gomb foGomb" value="Rendelés készítése" onclick="anyagigenyles_rendeles_keszit(\'csak kérdezünk még\')">
                     </div>
-                    <input type="button" class="gomb foGomb" value="Árazás" onclick="arazas()">
-                    <input type="button" class="gomb foGomb" value="Küldés jóváhagyásra" onclick="anyagigenyles_kuldes_jovahagyasra(\'csak kérdezünk még\')">
-                    <input type="button" class="gomb foGomb" value="Rendelés készítése" onclick="anyagigenyles_rendeles_keszit(\'csak kérdezünk még\')">
-                </div>
-            ');
+                ');
+            }
         }
         // Anyagigénylés érkeztetése
         if( _jog(JOG_ANYAGIGENYLES_KEZEL) ) {

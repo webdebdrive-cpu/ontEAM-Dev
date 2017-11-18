@@ -3174,6 +3174,18 @@ if( isset($_POST['munkalapTelepitett']) ) {
             exit();
         }
 
+        // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+
+            echo json_encode(array(
+                'hiba' => 'Biztosan telepített karbantartónak adja át a munkát?',
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="munkalapTelepitett();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
         // Munkalap update
         $sql = $adatbazis_kapcsolat -> u('munkalap',
                                                     array('szemelyzet_id',          'visszaadva' ),
@@ -3946,15 +3958,33 @@ require('selectek.php');
                     <input type="button" class="gomb foGomb" value="Átadás...">
                     <div class="muv">
                         <ul>
-                            <li'.$szemelyzet_id_rejt[TELEPITETT_SZEMELYZET].'><a onclick="csoportMuvelet(\'munkalapTelepitett\');">Telepítettnek</a></li>
+                            <li'.$szemelyzet_id_rejt[TELEPITETT_SZEMELYZET].'><a onclick="munkalapTelepitett(\'csak kérdezünk még\');">Telepítettnek</a></li>
                             <li'.$szemelyzet_id_rejt[MOBILCSOPORT].'><a onclick="csoportMuvelet(\'munkalap_mobil\');">Mobilnak</a></li>
                             <li'.$szemelyzet_id_rejt[KULSO_KIVITELEZO].'><a onclick="csoportMuvelet(\'munkalap_kulso\');">Külsőnek</a></li>
-                            <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO_HELYETTES].'><a onclick="csoportMuvelet(\'munkalapMuszakiVezetoHelyettes\');">Műszaki vezető helyettesnek</a></li>
-                            <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO].'><a onclick="csoportMuvelet(\'munkalapMuszakiVezeto\');">Műszaki vezetőnek</a></li>
-                            <li'.$szemelyzet_id_rejt[TERULETI_FELELOS].'><a onclick="csoportMuvelet(\'munkalapTeruletiVezeto\');">Területi felelősnek</a></li>
-                            <li'.$szemelyzet_id_rejt[MUSZAKI_ADMINISZTRATOR].'><a onclick="csoportMuvelet(\'munkalapAdminisztrator\');">Műszaki ügyintézőnek</a></li>
-                            <li'.$szemelyzet_id_rejt[DISZPECSER_KOZP_VEZETO].'><a onclick="csoportMuvelet(\'munkalapDiszpKozp\');">Diszp. közp. vezetőnek</a></li>
-                            <li'.$szemelyzet_id_rejt[MSZK_VEZETO].'><a onclick="csoportMuvelet(\'munkalapMSZKVezeto\');">MSZK vezetőnek</a></li>
+                            <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO_HELYETTES].'>
+                                <script> gomb_muszh = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiVezetoHelyettes()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
+                                <a onclick="alert2(\'Biztosan átadja a műszaki vezető helyettesnek?\', gomb_muszh)">Műszaki vezető helyettesnek</a>
+                            </li>
+                            <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO].'>
+                                <script> gomb_musz = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
+                                <a onclick="alert2(\'Biztosan átadja a műszaki vezetőnek?\', gomb_musz)">Műszaki vezetőnek</a>
+                            </li>
+                            <li'.$szemelyzet_id_rejt[TERULETI_FELELOS].'>
+                                <script> gomb_ter = \'<input type="button" class="gomb zold" onclick="munkalapTeruletiVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
+                                <a onclick="alert2(\'Biztosan átadja a területi felelősnek?\', gomb_ter)">Területi felelősnek</a>
+                            </li>
+                            <li'.$szemelyzet_id_rejt[MUSZAKI_ADMINISZTRATOR].'>
+                                <script> gomb_muszu = \'<input type="button" class="gomb zold" onclick="munkalapAdminisztrator()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
+                                <a onclick="alert2(\'Biztosan átadja a műszaki ügyintézőnek?\', gomb_muszu)">Műszaki ügyintézőnek</a>
+                            </li>
+                            <li'.$szemelyzet_id_rejt[DISZPECSER_KOZP_VEZETO].'>
+                                <script> gomb_dkpv = \'<input type="button" class="gomb zold" onclick="munkalapDiszpKozp()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
+                                <a onclick="alert2(\'Biztosan átadja a Diszp. közp. vezetőnek?\', gomb_dkpv)">Diszp. közp. vezetőnek</a>
+                            </li>
+                            <li'.$szemelyzet_id_rejt[MSZK_VEZETO].'>
+                                <script> gomb_mszk = \'<input type="button" class="gomb zold" onclick="munkalapMSZKVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
+                                <a onclick="alert2(\'Biztosan átadja a MSZK vezetőnek?\', gomb_mszk)">MSZK vezetőnek</a>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -3973,7 +4003,10 @@ require('selectek.php');
                         <div class="muv">
                             <ul>
                                 <li><a onclick="csoportMuvelet(\'atadasDiszpecsernek\');">Diszpécsernek</a></li>
-                                <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO].'><a onclick="csoportMuvelet(\'munkalapMuszakiVezeto\');">Műszaki vezetőnek</a></li>
+                                <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO].'>
+                                    <script> gomb_musz = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
+                                    <a onclick="alert2(\'Biztosan átadja a műszaki vezetőnek?\', gomb_musz)">Műszaki vezetőnek</a>
+                                </li>
                             </ul>
                         </div>
                     </div>
@@ -3988,11 +4021,26 @@ require('selectek.php');
                         <div class="muv">
                             <ul>
                                 <li><a onclick="csoportMuvelet(\'atadasDiszpecsernek\');">Diszpécsernek</a></li>
-                                <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO_HELYETTES].'><a onclick="csoportMuvelet(\'munkalapMuszakiVezetoHelyettes\');">Műszaki vezető helyettesnek</a></li>
-                                <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO].'><a onclick="csoportMuvelet(\'munkalapMuszakiVezeto\');">Műszaki vezetőnek</a></li>
-                                <li'.$szemelyzet_id_rejt[TERULETI_FELELOS].'><a onclick="csoportMuvelet(\'munkalapTeruletiVezeto\');">Területi felelősnek</a></li>
-                                <li'.$szemelyzet_id_rejt[DISZPECSER_KOZP_VEZETO].'><a onclick="csoportMuvelet(\'munkalapDiszpKozp\');">Diszp. közp. vezetőnek</a></li>
-                                <li'.$szemelyzet_id_rejt[MSZK_VEZETO].'><a onclick="csoportMuvelet(\'munkalapMSZKVezeto\');">MSZK vezetőnek</a></li>
+                                <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO_HELYETTES].'>
+                                    <script> gomb_muszh = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiVezetoHelyettes()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
+                                    <a onclick="alert2(\'Biztosan átadja a műszaki vezető helyettesnek?\', gomb_muszh)">Műszaki vezető helyettesnek</a>
+                                </li>
+                                <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO].'>
+                                    <script> gomb_musz = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
+                                    <a onclick="alert2(\'Biztosan átadja a műszaki vezetőnek?\', gomb_musz)">Műszaki vezetőnek</a>
+                                </li>
+                                <li'.$szemelyzet_id_rejt[TERULETI_FELELOS].'>
+                                    <script> gomb_ter = \'<input type="button" class="gomb zold" onclick="munkalapTeruletiVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
+                                    <a onclick="alert2(\'Biztosan átadja a területi felelősnek?\', gomb_ter)">Területi felelősnek</a>
+                                </li>
+                                <li'.$szemelyzet_id_rejt[DISZPECSER_KOZP_VEZETO].'>
+                                    <script> gomb_dkpv = \'<input type="button" class="gomb zold" onclick="munkalapDiszpKozp()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
+                                    <a onclick="alert2(\'Biztosan átadja a Diszp. közp. vezetőnek?\', gomb_dkpv)">Diszp. közp. vezetőnek</a>
+                                </li>
+                                <li'.$szemelyzet_id_rejt[MSZK_VEZETO].'>
+                                    <script> gomb_mszk = \'<input type="button" class="gomb zold" onclick="munkalapMSZKVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
+                                    <a onclick="alert2(\'Biztosan átadja a MSZK vezetőnek?\', gomb_mszk)">MSZK vezetőnek</a>
+                                </li>
                             </ul>
                         </div>
                     </div>
