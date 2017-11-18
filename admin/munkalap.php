@@ -569,6 +569,7 @@ if( isset($_POST['munkalapFelvesz']) ) {
 
 // Munkalap készre jelentése
 if( isset($_POST['munkalapKeszre']) ) {
+    
     $recid = $_POST['recid'];
 
     $db_error = false;
@@ -598,18 +599,6 @@ if( isset($_POST['munkalapKeszre']) ) {
                 'hiba'  => 'Önnek nincs joga munkalapot készre jelenteni!',
                 'title' => 'Hiba',
             ));
-            $weblap->leallit();
-            exit();
-        }
-
-        // Ellenőrizzük, hogy van e elvégzett munka hozzáadva
-        $is_feladat = $adatbazis_kapcsolat->s('recid', 'munkalap_feladat', "`munkalap_id` = '".$recid."'", '', '1');
-        if( !$is_feladat ) {
-            echo json_encode(array(
-                'hiba'  => 'Munkalap készre jelentéséhez adjon meg legalább egy elvégzett feladatot!',
-                'title' => 'Hiba',
-            ));
-
             $weblap->leallit();
             exit();
         }
@@ -703,6 +692,7 @@ if( isset($_POST['munkalapKeszre']) ) {
 
 // Munkalap készre jelentése
 if( isset($_POST['munkalapRogzit']) ) {
+    
     $recid = $_POST['recid'];
 
     $db_error = false;
@@ -734,8 +724,20 @@ if( isset($_POST['munkalapRogzit']) ) {
             $weblap->leallit();
             exit();
         }
+        
+        // Ellenőrizzük, hogy van e elvégzett munka hozzáadva
+        $is_feladat = $adatbazis_kapcsolat->s('recid', 'munkalap_feladat', "`munkalap_id` = '".$recid."'", '', '1');
+        if( !$is_feladat ) {
+            echo json_encode(array(
+                'hiba'  => 'Munkalap rögzítéséhez adjon meg legalább egy elvégzett feladatot!',
+                'title' => 'Hiba',
+            ));
 
-        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+            $weblap->leallit();
+            exit();
+        }
+
+        // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
@@ -754,13 +756,11 @@ if( isset($_POST['munkalapRogzit']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
-
             echo json_encode(array(
                 'statusz' => 'siker'
             ));
         } else {
             mysqli_rollback($db_kapcs);
-
             echo json_encode(array(
                 'hiba'  => tranzakcioHiba(),
                 'title' => 'Hiba',
@@ -1527,6 +1527,7 @@ if( isset($_POST['munkalap_kulsoSelect']) ) {
     $recid = $_POST['recid'];
 
     if( $select_szemelyzet ) {
+        
         // Ellenőrizzük, hogy felvéve státuszban van e
         $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
@@ -1556,7 +1557,9 @@ if( isset($_POST['munkalap_kulsoSelect']) ) {
         $select = '<select id="p_szemelyzet_id" name="p_szemelyzet_id">';
 
         foreach($select_szemelyzet as $value) {
-            $select .= '<option value="'.$value['value'].'">'.$value['name'].'</option>';
+            if($value['kulsos']){
+                $select .= '<option value="'.$value['value'].'">'.$value['name'].'</option>';
+            }
         }
 
         $select .= '</select>';
@@ -3077,6 +3080,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
 
 // Feladat hozzáadás
 if( isset($_POST['feladatHozzaadas']) ) {
+    
     $recid          = $_POST['recid'];
     $erteklista_id  = $_POST['erteklista_id'];
     $memo           = erteklista(5, $erteklista_id)."\r\n".$_POST['memo'];
@@ -3777,7 +3781,7 @@ require('selectek.php');
         );
     }
 
-    /* Gombok kirajzolása minden oldalra */
+    // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) ) {
 
@@ -3834,6 +3838,7 @@ require('selectek.php');
         }
 
         // Felvéve státusz alatt mindenki csak a felettesének adhatja át, tehát itt tovább szűkítünk
+        /* Felettesre szűrés mégsem kell
         if($sor['stat_id']==MUNKALAP_STAT_FELVEVE){
             switch ($_SESSION[get_db_tabla().'szemelyzet_id']){
                 case MOBILCSOPORT               : ; break; // Ő átadhatja, neki mindenki felettes
@@ -3846,7 +3851,7 @@ require('selectek.php');
                 case DISZPECSER_KOZP_VEZETO     : $szemelyzet_id_rejt[MUSZAKI_VEZETO_HELYETTES] = ' class="dn"'; $szemelyzet_id_rejt[MUSZAKI_VEZETO] = ' class="dn"'; $szemelyzet_id_rejt[TERULETI_FELELOS] = ' class="dn"'; $szemelyzet_id_rejt[MUSZAKI_ADMINISZTRATOR] = ' class="dn"'; break; // Hierarchiában latta levő személyzettípusok rejtése
                 case MSZK_VEZETO                : $szemelyzet_id_rejt[MUSZAKI_VEZETO_HELYETTES] = ' class="dn"'; $szemelyzet_id_rejt[MUSZAKI_VEZETO] = ' class="dn"'; $szemelyzet_id_rejt[TERULETI_FELELOS] = ' class="dn"'; $szemelyzet_id_rejt[MUSZAKI_ADMINISZTRATOR] = ' class="dn"'; $szemelyzet_id_rejt[DISZPECSER_KOZP_VEZETO] = ' class="dn"'; break; // Hierarchiában latta levő személyzettípusok rejtése
             }
-        }
+        }*/
 
         //Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
@@ -3882,7 +3887,7 @@ require('selectek.php');
 
 
         // Kijelöltekkel való művelet gombok
-        if( ($sor['stat_id']==MUNKALAP_STAT_NYITOTT || $sor['stat_id']==MUNKALAP_STAT_FOLYAMATBAN || $sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_VARAKOZO) && _jog(JOG_MUNKALAP_VARAKOZTAT) ) {
+        if( ($sor['stat_id']==MUNKALAP_STAT_NYITOTT || $sor['stat_id']==MUNKALAP_STAT_VARAKOZO) && _jog(JOG_MUNKALAP_VARAKOZTAT) ) {
             $gombok .= nl2('
                 <div id="kmCont">
                     <script>
@@ -3983,7 +3988,7 @@ require('selectek.php');
                             </li>
                             <li'.$szemelyzet_id_rejt[MSZK_VEZETO].'>
                                 <script> gomb_mszk = \'<input type="button" class="gomb zold" onclick="munkalapMSZKVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
-                                <a onclick="alert2(\'Biztosan átadja a MSZK vezetőnek?\', gomb_mszk)">MSZK vezetőnek</a>
+                                <a onclick="alert2(\'Biztosan átadja a Műszaki igazgatónak?\', gomb_mszk)">Műszaki igazgatónak</a>
                             </li>
                         </ul>
                     </div>
@@ -3995,6 +4000,22 @@ require('selectek.php');
         // Felvéve státusz + külsős előkészít jog
         if($sor['stat_id']==MUNKALAP_STAT_FELVEVE && $kezeles_jog){
 
+            $alert_musz_vez         = 'alert2(\'Biztosan átadja a műszaki vezetőnek?\', gomb_musz)';
+            $alert_musz_vez_helyett = 'alert2(\'Biztosan átadja a műszaki vezető helyettesnek?\', gomb_muszh)';
+            $alert_ter              = 'alert2(\'Biztosan átadja a területi felelősnek?\', gomb_ter)';
+            $alert_dkpv             = 'alert2(\'Biztosan átadja a Diszp. közp. vezetőnek?\', gomb_dkpv)';
+            $alert_mszk             = 'alert2(\'Biztosan átadja a Műszaki igazgatónak?\', gomb_mszk)';
+            // Ha nincs egyetlen elvégzett feladat sem, akkor nem lehet majd átadni, más hibaüzenet jön majd fel
+            $is_feladat = $adatbazis_kapcsolat->s('recid', 'munkalap_feladat', "`munkalap_id` = '{$_GET['id']}'", '', '1');
+            if(!$is_feladat){
+                $alert_musz_vez_helyett = 
+                $alert_musz_vez         =
+                $alert_ter              =
+                $alert_dkpv             =
+                $alert_mszk             =
+                'alert2(\'Átadáshoz adjon hozzá legalább egy elvégzett feladatot!\')';
+            }
+            
             // Egyszállodás modell
             if( !$telephely['modell'] ) {
                 $gombok .= nl2('
@@ -4005,7 +4026,7 @@ require('selectek.php');
                                 <li><a onclick="csoportMuvelet(\'atadasDiszpecsernek\');">Diszpécsernek</a></li>
                                 <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO].'>
                                     <script> gomb_musz = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
-                                    <a onclick="alert2(\'Biztosan átadja a műszaki vezetőnek?\', gomb_musz)">Műszaki vezetőnek</a>
+                                    <a onclick="'.$alert_muzs_vez.'">Műszaki vezetőnek</a>
                                 </li>
                             </ul>
                         </div>
@@ -4023,23 +4044,23 @@ require('selectek.php');
                                 <li><a onclick="csoportMuvelet(\'atadasDiszpecsernek\');">Diszpécsernek</a></li>
                                 <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO_HELYETTES].'>
                                     <script> gomb_muszh = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiVezetoHelyettes()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
-                                    <a onclick="alert2(\'Biztosan átadja a műszaki vezető helyettesnek?\', gomb_muszh)">Műszaki vezető helyettesnek</a>
+                                    <a onclick="'.$alert_musz_vez_helyett.'">Műszaki vezető helyettesnek</a>
                                 </li>
                                 <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO].'>
                                     <script> gomb_musz = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
-                                    <a onclick="alert2(\'Biztosan átadja a műszaki vezetőnek?\', gomb_musz)">Műszaki vezetőnek</a>
+                                    <a onclick="'.$alert_musz_vez.'">Műszaki vezetőnek</a>
                                 </li>
                                 <li'.$szemelyzet_id_rejt[TERULETI_FELELOS].'>
                                     <script> gomb_ter = \'<input type="button" class="gomb zold" onclick="munkalapTeruletiVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
-                                    <a onclick="alert2(\'Biztosan átadja a területi felelősnek?\', gomb_ter)">Területi felelősnek</a>
+                                    <a onclick="'.$alert_ter.'">Területi felelősnek</a>
                                 </li>
                                 <li'.$szemelyzet_id_rejt[DISZPECSER_KOZP_VEZETO].'>
                                     <script> gomb_dkpv = \'<input type="button" class="gomb zold" onclick="munkalapDiszpKozp()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
-                                    <a onclick="alert2(\'Biztosan átadja a Diszp. közp. vezetőnek?\', gomb_dkpv)">Diszp. közp. vezetőnek</a>
+                                    <a onclick="'.$alert_dkpv.'">Diszp. közp. vezetőnek</a>
                                 </li>
                                 <li'.$szemelyzet_id_rejt[MSZK_VEZETO].'>
                                     <script> gomb_mszk = \'<input type="button" class="gomb zold" onclick="munkalapMSZKVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
-                                    <a onclick="alert2(\'Biztosan átadja a MSZK vezetőnek?\', gomb_mszk)">MSZK vezetőnek</a>
+                                    <a onclick="'.$alert_mszk.'">Műszaki igazgatónak</a>
                                 </li>
                             </ul>
                         </div>
@@ -4063,7 +4084,7 @@ require('selectek.php');
                             <li'.$szemelyzet_id_rejt[TERULETI_FELELOS].'><a onclick="csoportMuvelet(\'munkalapTeruletiVezeto\');">Területi felelősnek</a></li>
                             <li'.$szemelyzet_id_rejt[MUSZAKI_ADMINISZTRATOR].'><a onclick="csoportMuvelet(\'munkalapAdminisztrator\');">Műszaki ügyintézőnek</a></li>
                             <li'.$szemelyzet_id_rejt[DISZPECSER_KOZP_VEZETO].'><a onclick="csoportMuvelet(\'munkalapDiszpKozp\');">Diszp. közp. vezetőnek</a></li>
-                            <li'.$szemelyzet_id_rejt[MSZK_VEZETO].'><a onclick="csoportMuvelet(\'munkalapMSZKVezeto\');">MSZK vezetőnek</a></li>
+                            <li'.$szemelyzet_id_rejt[MSZK_VEZETO].'><a onclick="csoportMuvelet(\'munkalapMSZKVezeto\');">Műszaki igazgatónak</a></li>
                         </ul>
                     </div>
                 </div>
@@ -4117,25 +4138,26 @@ require('selectek.php');
 
     $js_submit_elott = 'return form_ell_admin();';
 
-	//Új munkalap felvitele
+	// Új munkalap felvitele
 	if( isset($_GET['uj']) && ( _jog(JOG_MUNKALAP_UJ_LETREHOZ) ) ) {
 
-        //NAVIGÁCIÓ
+        // NAVIGÁCIÓ
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
 	    require_once('info.php');
 
-	    //FORM
+	    // FORM
 		if($_GET['ujkent']) {
-            $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['ujkent']);
-
+            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
             if( $sor ) {
-                $sor = $sor[0];
 
+                // Újként szerkesztésnél a sűrgős pipa nincs bepipálva (Bejleentéseknél új munkalap mkészítésekor)
+                $sor['surgos'] = 0;
+                
                 foreach($akt_tomb as $ertek) {
                     if( $ertek['name'] != 'ikt_szam' ) {
                         $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
@@ -4152,14 +4174,14 @@ require('selectek.php');
 
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-        /* Javascipt-es ellenőrzéshez */
+        // Javascipt-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
         $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
@@ -4390,13 +4412,14 @@ require('selectek.php');
         if( $sorok ) {
             foreach($sorok as $sor) {
                 $szamla_html .= nl2('
-                    <table class="csikos tetel_csikos full">
-                        <tr>
-                            <th class="nev">Személyzet</th>
-                            <th>Felvette</th>
-                            <th>Átadta</th>
-                            <th>Visszaadva</th>
-                        </tr>
+                    <div class="tetel_div">
+                        <table class="csikos tetel_csikos full">
+                            <tr>
+                                <th class="nev">Személyzet</th>
+                                <th>Felvette</th>
+                                <th>Átadta</th>
+                                <th>Visszaadva</th>
+                            </tr>
                 ');
 
                 $visszaadva = '';
@@ -4415,17 +4438,12 @@ require('selectek.php');
                 }
 
                 // Szerepkör
-                $tetel_felh = $adatbazis_kapcsolat->s('szerepkor_id', 'login', "`nev` = '".$sor['loginnev']."'", '', '');
-
+                $tetel_felh = $adatbazis_kapcsolat->s2('szerepkor_id', 'login', "`nev` = '".$sor['loginnev']."'", '', '');
                 $szerepkor = '';
                 if( $tetel_felh ) {
-                    $tetel_felh = $tetel_felh[0];
 
-                    $szerepkor_sor = $adatbazis_kapcsolat->s('nev', 'szerepkor', "`recid` = '".$tetel_felh['szerepkor_id']."'", '', '1');
-
+                    $szerepkor_sor = $adatbazis_kapcsolat->s2('nev', 'szerepkor', "`recid` = '".$tetel_felh['szerepkor_id']."'", '', '1');
                     if( $szerepkor_sor ) {
-                        $szerepkor_sor = $szerepkor_sor[0];
-
                         $szerepkor = '<br>('.$szerepkor_sor['nev'].')';
                     }
                 }
@@ -4443,10 +4461,10 @@ require('selectek.php');
 
                 // Elvégzett feladatok lekérdezése
                 $feladatok = $adatbazis_kapcsolat->s('erteklista_id tetel_id memo', 'munkalap_feladat', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
-
                 if( $feladatok ) {
                     $szamla_html .= nl2('
-                        <table class="csikos full al behuz">
+                        <div style="padding: 0.2rem">
+                        <table class="csikos full al">
                             <tr>
                                 <th>Elvégzett feladat</th>
                                 <th>Leírás</th>
@@ -4462,12 +4480,11 @@ require('selectek.php');
                         ');
                     }
 
-                    $szamla_html .= '</table>';
+                    $szamla_html .= '</table></div>';
                 }
 
                 // Elvégzett feladatok lekérdezése
                 $anyagok = $adatbazis_kapcsolat->s('cikk_id cikk_nev cikk_men szuk_men cikk_mee stat_id', 'munkalap_anyag', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
-
                 if( $anyagok ) {
                     $szamla_html .= nl2('
                         <table class="csikos full al behuz">
@@ -4504,6 +4521,8 @@ require('selectek.php');
 
                     $szamla_html .= '</table>';
                 }
+                
+                $szamla_html .= '</div>';
             }
         }
 

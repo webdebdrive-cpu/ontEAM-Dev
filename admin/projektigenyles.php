@@ -12,7 +12,7 @@ if( !_jog(JOG_PRIGENY_SZ_MEGTEKINT) && !_jog(JOG_PRIGENY_B_MEGTEKINT) && !_jog(J
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
 }
 
-//Cash-flow fül helyett módosítra lépünk
+// Cash-flow fül helyett módosítra lépünk
 if(isset($_GET['cash_flow'])){
     $_GET['modosit'] = 1;
     unset($_GET['cash_flow']);

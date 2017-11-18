@@ -124,16 +124,16 @@ array_push($select_honapok, array('name' => 'december',     'value' => '12'));
 //Ütemezés típushoz
 $select_szemelyzet = array();
 array_push($select_szemelyzet, array('name' => '- Válasszon -',             'value' => '0' ));
-array_push($select_szemelyzet, array('name' => 'Telepített személyzet',     'value' => TELEPITETT_SZEMELYZET,   'szin' => '#CBE3FF' ));
-array_push($select_szemelyzet, array('name' => 'Mobilcsoport',              'value' => MOBILCSOPORT,            'szin' => '#CCFFCB' ));
-array_push($select_szemelyzet, array('name' => 'Külső kivitelező',          'value' => KULSO_KIVITELEZO,        'szin' => '#FCFFCB' ));
-array_push($select_szemelyzet, array('name' => 'Műszaki vezető helyettes',  'value' => MUSZAKI_VEZETO_HELYETTES,'szin' => '#FFCBF1' ));
-array_push($select_szemelyzet, array('name' => 'Műszaki vezető',            'value' => MUSZAKI_VEZETO,          'szin' => '#FFCBCB' ));
-array_push($select_szemelyzet, array('name' => 'Területi felelős',          'value' => TERULETI_FELELOS,        'szin' => '#E0CBFF' ));
-array_push($select_szemelyzet, array('name' => 'Műszaki ügyintéző',         'value' => MUSZAKI_ADMINISZTRATOR,  'szin' => '#E0CBFF' ));
-array_push($select_szemelyzet, array('name' => 'Diszpécser',                'value' => DISZPECSER,              'szin' => '#FFEBCB' ));
-array_push($select_szemelyzet, array('name' => 'Diszpécser közp. vezető',   'value' => DISZPECSER_KOZP_VEZETO,  'szin' => '#FFEBCB' ));
-array_push($select_szemelyzet, array('name' => 'MSZK vezető',               'value' => MSZK_VEZETO,             'szin' => '#E0CBFF' ));
+array_push($select_szemelyzet, array('name' => 'Telepített személyzet',     'value' => TELEPITETT_SZEMELYZET,   'szin' => '#CBE3FF', 'kulsos' => 0 ));
+array_push($select_szemelyzet, array('name' => 'Mobilcsoport',              'value' => MOBILCSOPORT,            'szin' => '#CCFFCB', 'kulsos' => 0 ));
+array_push($select_szemelyzet, array('name' => 'Külső kivitelező',          'value' => KULSO_KIVITELEZO,        'szin' => '#FCFFCB', 'kulsos' => 0 ));
+array_push($select_szemelyzet, array('name' => 'Műszaki vezető helyettes',  'value' => MUSZAKI_VEZETO_HELYETTES,'szin' => '#FFCBF1', 'kulsos' => 1 ));
+array_push($select_szemelyzet, array('name' => 'Műszaki vezető',            'value' => MUSZAKI_VEZETO,          'szin' => '#FFCBCB', 'kulsos' => 1 ));
+array_push($select_szemelyzet, array('name' => 'Területi felelős',          'value' => TERULETI_FELELOS,        'szin' => '#E0CBFF', 'kulsos' => 1 ));
+array_push($select_szemelyzet, array('name' => 'Műszaki ügyintéző',         'value' => MUSZAKI_ADMINISZTRATOR,  'szin' => '#E0CBFF', 'kulsos' => 1 ));
+array_push($select_szemelyzet, array('name' => 'Diszpécser',                'value' => DISZPECSER,              'szin' => '#FFEBCB', 'kulsos' => 0 ));
+array_push($select_szemelyzet, array('name' => 'Diszpécser közp. vezető',   'value' => DISZPECSER_KOZP_VEZETO,  'szin' => '#FFEBCB', 'kulsos' => 1 ));
+array_push($select_szemelyzet, array('name' => 'Műszaki igazgató',          'value' => MSZK_VEZETO,             'szin' => '#E0CBFF', 'kulsos' => 1 ));
 
 //Projektigénylés tipus
 $select_pri_tipus = array();

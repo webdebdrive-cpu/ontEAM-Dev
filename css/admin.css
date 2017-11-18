@@ -2474,16 +2474,16 @@ table.csikos{
 }
 
 table.csikos.al{
-
+    margin-bottom: 1rem;
 }
 
 table.csikos.behuz {
-    margin: 0rem 0rem 0rem 2rem;
+    margin-left: 2rem;
     width: calc(100% - 2rem);
 }
 
 table.csikos tr{
-    background: #eeeeee;
+    background: #F7F7F7;
 }
 
 table.csikos tr:nth-of-type(2n){
@@ -2605,9 +2605,6 @@ table.csikos.kicsi td {
 
 table.csikos td:first-of-type{
     font-weight: 400;
-}
-table.csikos td:last-of-type, table.csikos th:last-of-type{
-    border-right: 0.1rem solid #fff;
 }
 
 table.csikos tr.link:hover{
@@ -2855,4 +2852,9 @@ div.jog_dt div.dtc.jog_dtc {
 #calendar {
     max-width: 900px;
     margin: 0 auto;
+}
+
+div.tetel_div{
+    border: 0.1rem solid #55A2FA;
+    margin-bottom: 1rem;
 }

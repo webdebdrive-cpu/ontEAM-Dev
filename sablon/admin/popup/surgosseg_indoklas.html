@@ -6,7 +6,7 @@
         <br>Biztos, hogy módosítja a <span class="f_pop_megnevezes"></span> sürgősségi státuszát?
         <br>
         <br>Indoklás:
-        <br><textarea id="indoklas" style="width: 100%"></textarea>
+        <br><textarea id="indoklas" style="width: 100%" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
     </div>
 </div>
 
@@ -28,6 +28,12 @@
     });
 
     function surgosseg_allit(){
+        
+        if(!$('#indoklas').val()){
+            $('#indoklas').addClass('hibas_ide_focus');
+            alert2('Kérjük indokolja meg a sürgősséget!', '', 'Hiba');
+            return false;
+        }
 
         $.ajax({
             url : 'esemenyek.php',

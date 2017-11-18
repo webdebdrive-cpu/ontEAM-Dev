@@ -1333,6 +1333,7 @@ function bejBejManualis( value ) {
     location.href = 'bejelentes.php?uj&manualisan&telphely=' + value;
 }
 
+// Bejelentés más nevében
 function bejBejelentok( value ) {
     if( value ) {
         $.ajax({
@@ -1344,11 +1345,7 @@ function bejBejelentok( value ) {
                 response = JSON.parse(response);
 
                 if( response.hiba ) {
-                    if( response.gomb ) {
-                        alert2(response.hiba, response.gomb);
-                    } else {
-                        alert2(response.hiba, '', 'Hiba');
-                    }
+                    alert2(response.hiba, response.gomb, response.title);
                 }
             }
         });
@@ -1567,12 +1564,7 @@ function bejelentesElutasit( that ) {
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        if( response.gomb ) {
-                            alert2(response.hiba, response.gomb);
-                        } else {
-                            alert2(response.hiba, '', 'Hiba');
-                        }
-
+                        alert2(response.hiba, response.gomb, 'Hiba');
                         return false;
                     }
 
@@ -2732,6 +2724,9 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
                 /* Az elutasítást csak egy soron lehet elvégezni. */
                 case 'elutasitas':
+                    
+                    alert2();
+                    
                     szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
                     if( szamlaSorok.length>1 ) {
 

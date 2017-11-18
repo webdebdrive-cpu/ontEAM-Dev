@@ -893,7 +893,7 @@ $szerepkor_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
-/* Bejelentés */
+// Bejelentés
 $megnevezes = 'bejelentes';
 
 // Felhasználó lekérdezése a bejelentés táblához
@@ -922,21 +922,18 @@ if (isset($_GET['uj'])) {
     $bejelentest_rogziti = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', 'recid='.$_SESSION[get_db_tabla().'login_recid']);
 }
 
-// Sűrgősség csak módosításkor jön fel: Munkalapoknál is, de ugyanaz a függvény, ezért elég itt beállítani, de
-// FONTOS hogy a munkalap tömb akkor ez után legyen!
-$surgos_allit = '';
+// Sűrgősség pipa
+$surgos_disabled = '';
+$surgos_onclick  = '';
 if (isset($_GET['modosit'])) {
-    //Módosításkor is csak akkor jön fel, ha az illető nem diszpécser (hanem bejelentő... neki nem kell indokolni, amúgy is csak saját bejelentésekhez fér hozzá)
-    if(_jog(JOG_BEJELENTES_KEZEL) && !_jog(JOG_MUNKALAP_KESZITHET)){
-
-    }else{
-        $surgos_allit = 'csoportMuvelet(\'surgosseg_indoklas\')';
+    
+    $surgos_disabled = true;
+    
+    $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid`='{$_GET['id']}'");
+    if( $bejelentes['stat_id']==BEJELENTES_STAT_NYITOTT && ( _jog(JOG_BEJELENTES_KEZEL) || _jog(JOG_BEJELENTES_MAS_NEVEBEN) ) ) {
+        $surgos_disabled = false;
+        $surgos_onclick  = 'csoportMuvelet(\'surgosseg_indoklas\')';
     }
-
-    //Műszaki vezető esetén is legyen indoklós sürgős gomb... de már nincs ilyen jog, mi legyen?
-//    if(???){
-//        $surgos_allit = 'csoportMuvelet(\'surgosseg_indoklas\')';
-//    }
 }
 
 $usr_nev        = '';
@@ -963,11 +960,11 @@ if( isset($_GET['bejelento']) ) {
     $szalloda_post = '<input type="hidden" name="telephely_id" value="'.$_GET['telphely'].'">';
 }
 
-//Bejelentések
+// Bejelentések
 $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'statusz',         'megn' => 'Státusz:',            'name' => 'stat_id',    'szuro' => 1,  'oldal' => $megnevezes),
-	array('type' => 'text',            'megn' => 'Bejelentés szám:',    'name' => 'ikt_szam',   'szuro' => 1,  'disabled' => true,       'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
-    array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',     'szuro' => 1,  'class' => 'check', 'onclick' => $surgos_allit),
+	array('type' => 'text',            'megn' => 'Bejelentés szám:',    'name' => 'ikt_szam',   'szuro' => 1,  'disabled' => true,              'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
+    array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',     'szuro' => 1,  'disabled' => $surgos_disabled,  'class' => 'check', 'onclick' => $surgos_onclick),
 
     array('type' => 'html',            'megn' => nl2('
                                                         <div class="dtr">
@@ -1021,20 +1018,31 @@ $bejelentes_dok_tomb = $akt_tomb = array(
 
 
 // Munkalap tömb
+$surgos_disabled = '';
+$surgos_onclick  = '';
 if(isset($_GET['modosit'])){
-    $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev', 'munkalap', "`recid`='{$_GET['id']}'");
+    
+    $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev stat_id', 'munkalap', "`recid`='{$_GET['id']}'");
     $hozrend_mobilnev = '';
     if($munkalap['szemelyzet_id']==MOBILCSOPORT && $munkalap['mobil_loginnev']){
-        $torzsadat = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='{$munkalap['mobil_loginnev']}'");
-        $torzsadat = $torzsadat[0];
+        $torzsadat = $adatbazis_kapcsolat->s2('nev', 'torzsadat', "`felh_loginnev`='{$munkalap['mobil_loginnev']}'");
         $hozrend_mobilnev = $torzsadat['nev'];
+    }
+    
+    // Sürgősség pipa
+    $surgos_onclick = 'csoportMuvelet(\'surgosseg_indoklas\')';
+    $surgos_disabled = true;
+    if(_jog(JOG_MUNKALAP_SURGOS_PIPAL)){
+        if($munkalap['stat_id']==MUNKALAP_STAT_NYITOTT && JOG_MUNKALAP_NYITOTT_KEZEL){
+            $surgos_disabled = false;
+        }
     }
 }
 $megnevezes = 'munkalap';
 $munkalap_tomb = $akt_tomb = array(
     array('type' => 'statusz',                  'megn' => 'Státusz:',                   'name' => 'stat_id',            'szuro' => 1,           'oldal' => $megnevezes),
     array('type' => 'text',                     'megn' => 'Munkalap szám:',             'name' => 'ikt_szam',           'szuro' => 1, 'disabled' => 1,        'maxlength' => 250, 'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
-    array('type' => 'checkbox',                 'megn' => 'Sürgős:',                    'name' => 'surgos',             'szuro' => 1,                                   'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>', 'onclick' => $surgos_allit),
+    array('type' => 'checkbox',                 'megn' => 'Sürgős:',                    'name' => 'surgos',             'szuro' => 1, 'disabled' => $surgos_disabled,   'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>', 'onclick' => $surgos_onclick),
     array('type' => 'checkbox',                 'megn' => 'Visszaadva:',                'name' => 'visszaadva',         'szuro' => 1, 'disabled' => 1,                  'class' => 'check'),
     array('type' => 'textarea',                 'megn' => 'Leírása:',                   'name' => 'text',               'szuro' => 1, 'disabled' => 0,                  'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images', 'width' => '100%', 'height' => '150'),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id',       'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
@@ -2057,7 +2065,7 @@ if (isset($_POST['f_o_szures_torol'])) {
     exit();
 }
 
-//Bejelentők lekérdezése
+// Bejelentés más nevében
 if( isset($_GET['getBejBejelentok']) ) {
     $telephely_id = $_GET['telephely_id'];
 
@@ -2065,20 +2073,14 @@ if( isset($_GET['getBejBejelentok']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     $sql = $telep_kapcsok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id` = '{$telephely_id}'", '', '');
-
-    if( $sql === false ) {
-        $db_error = true;
-    }
+    if( $sql === false ) { $db_error = true; }
 
     if( $telep_kapcsok ) {
         $telep_kapcsok = adatbazis2tomb($telep_kapcsok, 'nev');
 
-        /* Felhasználók lekérdezése */
+        // Felhasználók lekérdezése
         $sql = $loginok = $adatbazis_kapcsolat->s('nev teljes_nev reszleg_id beosztas_id szerepkor_id', 'login', "`nev` IN ('".implode('\' , \'', $telep_kapcsok)."') AND `szerepkor_id` = '6' AND `aktiv` > '0'", '', '');
-
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        if( $sql === false ) { $db_error = true; }
 
         if( $loginok ) {
             $html = nl2('
@@ -2106,8 +2108,9 @@ if( isset($_GET['getBejBejelentok']) ) {
             $html .= '</table></div>';
 
             echo json_encode(array(
-                'hiba' => 'Válasszon hibabejelentőt a(z) '.getErtek('nev', 'telephely', 'id', $telephely_id).' szállodából!'.$html,
-                'gomb' => '<p class="c"><input id="diszpFeltolt" class="gomb zold" disabled type="button" value="Tovább" onclick="bejBejValaszt( '.$telephely_id.' );"><input class="gomb zold" type="button" value="Manuálisan" onclick="bejBejManualis( '.$telephely_id.' );"><input class="gomb piros" type="button" value="Mégsem" onclick="alert2()"></p>'
+                'hiba'  => 'Válasszon hibabejelentőt a(z) '.getErtek('nev', 'telephely', 'id', $telephely_id).' szállodából!'.$html,
+                'gomb'  => '<p class="c"><input id="diszpFeltolt" class="gomb zold" disabled type="button" value="Tovább" onclick="bejBejValaszt( '.$telephely_id.' );"><input class="gomb zold" type="button" value="Manuálisan" onclick="bejBejManualis( '.$telephely_id.' );"><input class="gomb piros" type="button" value="Mégsem" onclick="alert2()"></p>',
+                'title' => 'Bejelentés más nevében',
             ));
 
             $weblap->leallit();
@@ -2236,14 +2239,14 @@ if($page=='munkalap'){
     $varakozo_statid        = MUNKALAP_STAT_VARAKOZO;
 }
 
-/* Várólistából kivétel */
+// Várólistából kivétel
 if( isset($_POST['varolistabolKivetel']) ) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
     if( is_array($idk) ) {
-        /* Ellenőrizzük a csoportokat */
+        // Ellenőrizzük a csoportokat
         $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")", '', '');
         if( $sql === false ) { $db_error = true; }
 
@@ -2268,7 +2271,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
             }
         }
 
-        /* Ellenőrizzük a státuszokat is */
+        // Ellenőrizzük a státuszokat is
         foreach($idk as $id) {
             $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
             if( $statusz === false ) { $db_error = true; }
@@ -2294,7 +2297,7 @@ if( isset($_POST['varolistabolKivetel']) ) {
             }
         }
 
-        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
@@ -2306,12 +2309,12 @@ if( isset($_POST['varolistabolKivetel']) ) {
             exit();
         }
 
-        /* Státuszt nyitott-ra állítjuk */
+        // Státuszt nyitott-ra állítjuk
         foreach($idk as $id) {
             $statusz = addStatusz( $page.'_statusz', $id, $nyitott_statid[0] );
             if( $statusz === false ) { $db_error = true; }
 
-            //Munkalaphoz tartozó Bejelentések státuszát is várakozóra léptetjük
+            // Munkalaphoz tartozó Bejelentések státuszát is várakozóra léptetjük
             if($page=='munkalap'){
                 $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$id}'");
                 foreach($bejelentesek as $bej){
@@ -2342,19 +2345,20 @@ if( isset($_POST['varolistabolKivetel']) ) {
 }
 
 
-/* Bejegyzések elutasítása */
+// Bejegyzések elutasítása
 if( isset($_POST['bejegyzesElutasitas']) ) {
 
     $tabla          = $_POST['tabla'];
     $elutasitas_id  = $_POST['elutasitas_id'];
-    $memo           = erteklista(7, $elutasitas_id)."\r\n".$_POST['memo'];
+    $erteklista     = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$elutasitas_id}'");
+    $memo           = $erteklista['info']."\r\n".$_POST['memo'];
     $csak_memo      = $_POST['csak_memo'];
     $idk            = json_decode($_POST['idk'], true);
 
     switch($tabla){
         case 'bejelentes':
 
-            //Jogosultság és hiba kezelés
+            // Jogosultság és hiba kezelés
             if(!$memo){
                 echo json_encode(array(
                     'hiba' => 'Kérjük indokolja az elutasítást!',
@@ -2380,7 +2384,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
                 exit();
             }
 
-            //Úgy is csak egy sort ad vissza, mert nem lehet több sort megjelölni
+            // Úgy is csak egy sort ad vissza, mert nem lehet több sort megjelölni
             $statusz = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")");
             if($statusz['stat_id']==BEJELENTES_STAT_ELUTASITVA){
                 echo json_encode(array(
@@ -2402,7 +2406,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
                 exit();
             }
 
-            //Úgy is csak egy sort ad vissza, mert nem lehet több sort megjelölni
+            // Úgy is csak egy sort ad vissza, mert nem lehet több sort megjelölni
             $stat_tmp = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid` IN (".implode(',', $idk).")");
             if(in_array($stat_tmp['stat_id'], prigeny_fb_bod_var())){
                 echo json_encode(array(
@@ -2447,13 +2451,11 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
-
             echo json_encode(array(
                 'statusz' => 'siker'
             ));
         } else {
             mysqli_rollback($db_kapcs);
-
             echo json_encode(array(
                 'hiba' => tranzakcioHiba()
             ));
@@ -2464,7 +2466,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
     exit();
 }
 
-/* Csoportból törlés */
+// Csoportból törlés
 if( isset($_POST['csoportbolTorol']) ) {
     $oszlop = $_POST['oszlop'];
     $idk    = json_decode($_POST['idk'], true);
@@ -3116,28 +3118,18 @@ if( isset($_GET['addSzakterulet']) ) {
     exit();
 }
 
-//Sűrgősség pipa lekezelése
+// Sűrgősség pipa lekezelése
 if (isset($_POST['surgosseg_allit'])) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
+    $megnevezes = '';
 
-    //Ha se nem diszpécser se nem disp.kp vez, akkor nincs joga sürgősséget állítani
-    if( (!_jog(JOG_MUNKALAP_KESZITHET) ) || ( $_POST['page']=='bejelentes') ){
-
-        echo json_encode(array(
-            'hiba' => 'Önnek nincs joga sürgősséget állítani'
-        ));
-
-        $weblap->leallit();
-        exit();
-
-    }
-
-    //Csak nyitott/folyamatban bejelentés sürgőssége állítható!
-    $statusz = $adatbazis_kapcsolat->s('stat_id', $_POST['page'], "`recid`='{$_POST['recid']}'");
-    $statusz = $statusz[0];
+    // Csak nyitott munkalap sürgőssége állítható!
+    $statusz = $adatbazis_kapcsolat->s2('stat_id', $_POST['page'], "`recid`='{$_POST['recid']}'");
     if($_POST['page']=='bejelentes'){
+        
+        $megnevezes = 'bejelentés';
         if($statusz['stat_id']!=BEJELENTES_STAT_NYITOTT){
             echo json_encode(array(
                 'hiba'  => 'Csak nyitott bejelentés sürgőssége állítható!',
@@ -3147,20 +3139,25 @@ if (isset($_POST['surgosseg_allit'])) {
             exit();
         }
     }
+    
+    // Csak nyitott munkalap sürgőssége állítható!
     if($_POST['page']=='munkalap'){
 
-        if( (_jog(JOG_MUNKALAP_KESZITHET)) && $statusz['stat_id']!=MUNKALAP_STAT_NYITOTT && $statusz['stat_id']!=MUNKALAP_STAT_FOLYAMATBAN ){
+        $megnevezes = 'munkalap';
+        
+        // Státusz ellenőrzés
+        if( $statusz['stat_id']!=MUNKALAP_STAT_NYITOTT ){
             echo json_encode(array(
-                'hiba'  => 'Csak nyitott vagy folyamatban levő munkalap sürgőssége állítható!',
+                'hiba'  => 'Csak nyutott munkalap sürgőssége állítható!',
             ));
-
             $weblap->leallit();
             exit();
         }
 
-        if( $statusz['stat_id']!=MUNKALAP_STAT_FELVEVE ){
+        // Jog ellenőrzése
+        if( !_jog(JOG_MUNKALAP_NYITOTT_KEZEL) || !_jog(JOG_MUNKALAP_SURGOS_PIPAL) ){
             echo json_encode(array(
-                'hiba'  => 'Csak felvett munkalap sürgőssége állítható!',
+                'hiba'  => 'Önnek nincs joga sürgősséget állítani!',
             ));
 
             $weblap->leallit();
@@ -3169,110 +3166,63 @@ if (isset($_POST['surgosseg_allit'])) {
 
     }
 
+    // Indoklás ellenőrzése
     if(!trim($_POST['indoklas'])){
         echo json_encode(array(
             'hiba'  => 'Az indoklás kitöltése kötelező!',
-            'focus' => 'indoklas',
         ));
 
         $weblap->leallit();
         exit();
     }
 
-    //Jelenleg sürgős-e vagy sem
-    $surgos = $adatbazis_kapcsolat->s('surgos', $_POST['page'], "`recid`='{$_POST['recid']}'");
-    if( $surgos === false ) {
-        $db_error = true;
-    }
-    $surgos = $surgos[0];
+    // Jelenleg sürgős-e vagy sem
+    $surgos = $adatbazis_kapcsolat->s2('surgos', $_POST['page'], "`recid`='{$_POST['recid']}'");
+    if( $surgos === false ) { $db_error = true; }
+    
     if($surgos['surgos']){
-        $surgos_allit = 0;
+        $uj_stat_szoveg = 'nem sürgős';
+        $surgos_allit   = 0;
     }else{
-        $surgos_allit = 1;
+        $uj_stat_szoveg = 'sürgős';
+        $surgos_allit   = 1;
     }
 
-    //Adott rekordon cseréjük a sürgősséget és beszúrjuk a megjegyzést
+    // Adott rekordon cseréjük a sürgősséget
     $sql = $adatbazis_kapcsolat->u($_POST['page'], array('surgos'), array($surgos_allit), "`recid`='{$_POST['recid']}'");
-    if( $sql === false ) {
-        $db_error = true;
-    }
-    if( addMegj($_POST['page'], $_POST['recid'], $_POST['indoklas']) === false ) {
+    if( $sql === false ) { $db_error = true; }
+    
+    // Indoklás a megjegyzésekbe
+    $indoklas = 'A '.$megnevezes.' sürgősségi státusza módosult: '.$uj_stat_szoveg."\n".$_POST['indoklas'];
+    if( addMegj($_POST['page'], $_POST['recid'], $indoklas) === false ) {
         $db_error = true;
     }
 
-    //Ha bejelentésen változtat, munkalapjait is megváltoztatjuk és beírjuk munkalapjai megjegyzésébe is.
+    // Ha bejelentésen változtat, munkalapjait is megváltoztatjuk és beírjuk munkalapjai megjegyzésébe is.
     if($_POST['page']=='bejelentes'){
         $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_POST['recid']}'");
-        if( $munkalapok === false ) {
-            $db_error = true;
-        }
+        if( $munkalapok === false ) { $db_error = true; }
         foreach($munkalapok as $munkalap){
-            //Munkalaponként megnézzük, hogy mi az aktuális sürgősségi állapota, és ha a hozzá tartozó bejelentések nem fedik, akkor állítjuk
-            $akt_munkalap = $adatbazis_kapcsolat->s('surgos', 'munkalap', "`recid`='{$munkalap['munkalap_id']}'");
-            if( $akt_munkalap === false ) {
+            $sql = $adatbazis_kapcsolat->u('munkalap', array('surgos'), array($surgos_allit), "`recid`='{$munkalap['munkalap_id']}'");
+            if( $sql === false ) { $db_error = true; }
+            
+            if( addMegj('munkalap', $munkalap['munkalap_id'], $indoklas) === false ) {
                 $db_error = true;
-            }
-            $akt_munkalap = $akt_munkalap[0];
-
-            $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['munkalap_id']}'");
-            if( $bejelentesek === false ) {
-                $db_error = true;
-            }
-            $bejelentes_idk = adatbazis2tomb($bejelentesek, 'bejelentes_id');
-            $bejelentes_idk = implode(',', $bejelentes_idk);
-
-            //Ha a munkalap státusza jelenleg sürgős
-            if($akt_munkalap['surgos']){
-
-                $van_surgos = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`recid`='".$bejelentes_idk."' AND `surgos`=1");
-                if( $van_surgos === false ) {
-                    $db_error = true;
-                }
-                //Ha nincs egyetlen sürgős bejelentése sem, akkor a munkalap se legyen már sürgős
-                if(count($van_surgos)==0){
-                    $sql = $adatbazis_kapcsolat->u('munkalap', array('surgos'), array(0), "`recid`='{$munkalap['munkalap_id']}'");
-                    if( $sql === false ) {
-                        $db_error = true;
-                    }
-                    if( addMegj('munkalap', $munkalap['munkalap_id'], $_POST['indoklas']) === false ) {
-                        $db_error = true;
-                    }
-                }
-
-            //Ha a munkalap státusza jelenleg nem sürős
-            }else{
-
-                //Ha csak egy sürgős bejelentése van, akkor a munkalap is sürgős lesz
-                $van_surgos = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`recid`='".$bejelentes_idk."' AND `surgos`=1", '', '1');
-                if( $van_surgos === false ) {
-                    $db_error = true;
-                }
-                if(count($van_surgos)>0){
-                    $sql = $adatbazis_kapcsolat->u('munkalap', array('surgos'), array(1), "`recid`='{$munkalap['munkalap_id']}'");
-                    if( $sql === false ) {
-                        $db_error = true;
-                    }
-                    if( addMegj('munkalap', $munkalap['munkalap_id'], $_POST['indoklas']) === false ) {
-                        $db_error = true;
-                    }
-                }
-
             }
         }
     }
 
-    //Ha munkalapon változtat, bejelentéseit is megváltoztatjuk és beírjuk belejentések megjegyzésébe is.
+    // Ha munkalapon változtat, bejelentéseit is megváltoztatjuk és beírjuk belejentések megjegyzésébe is.
     if($_POST['page']=='munkalap'){
         $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$_POST['recid']}'");
-        if( $bejelentesek === false ) {
-            $db_error = true;
-        }
+        if( $bejelentesek === false ) { $db_error = true; }
+        
+        // Bár ez felesleges, mert egy munkalaphoz csak egy bejelentés tartozhat csak
         foreach($bejelentesek as $bejelentes){
             $sql = $adatbazis_kapcsolat->u('bejelentes', array('surgos'), array($surgos_allit), "`recid`='{$bejelentes['bejelentes_id']}'");
-            if( $sql === false ) {
-                $db_error = true;
-            }
-            if( addMegj('bejelentes', $bejelentes['bejelentes_id'], $_POST['indoklas']) === false ) {
+            if( $sql === false ) { $db_error = true; }
+            
+            if( addMegj('bejelentes', $bejelentes['bejelentes_id'], $indoklas) === false ) {
                 $db_error = true;
             }
         }
@@ -3280,13 +3230,11 @@ if (isset($_POST['surgosseg_allit'])) {
 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
-
         echo json_encode(array(
             'statusz' => 'siker'
         ));
     } else {
         mysqli_rollback($db_kapcs);
-
         echo json_encode(array(
             'hiba' => tranzakcioHiba()
         ));
@@ -3296,7 +3244,7 @@ if (isset($_POST['surgosseg_allit'])) {
     exit();
 }
 
-/* Szálloda hozzáadása felhasználóhoz ajaxosan */
+// Szálloda hozzáadása felhasználóhoz ajaxosan
 if( isset($_GET['addSzalloda']) ) {
     $loginID = $_GET['loginID'];
     $szallID = $_GET['szallID'];

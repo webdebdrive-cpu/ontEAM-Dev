@@ -64,7 +64,7 @@ function alert2(uzi, ok_gomb, cim) {
 function alert_kiir(uzi, ok_gomb, cim){
 
     if(!cim){
-        cim = 'Kérdés - megerősítés';
+        cim = 'Kérdés';
     }
 
     var alert2_html = '';

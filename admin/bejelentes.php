@@ -102,8 +102,9 @@ if( isset($_POST['bejSzallodaValaszt']) ) {
 }
 
 
-//Folyamatban levő munkák
+// Folyamatban levő munkák
 if( isset($_GET['folyamatban_munkak']) ) {
+    
     $telephely_id = $_GET['telephely_id'];
     $obj_id       = $_GET['obj_id'];
     $mod          = $_GET['mod'];
@@ -179,12 +180,14 @@ if( isset($_GET['folyamatban_munkak']) ) {
     exit();
 }
 
-/* Bejelentés elutasítása */
+// Bejelentés elutasítása
 if( isset($_POST['bejelentesElutasit']) ) {
+    
     $recid          = $_POST['recid'];
     $validate       = $_POST['validate'];
     $elutasitas_id  = $_POST['elutasitas_id'];
-    $memo           = erteklista(7, $elutasitas_id)."\r\n".$_POST['memo'];
+    $erteklista     = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$elutasitas_id}'");
+    $memo           = $erteklista['info']."\r\n".$_POST['memo'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -206,12 +209,11 @@ if( isset($_POST['bejelentesElutasit']) ) {
             echo json_encode(array(
                 'statusz' => 'siker'
             ));
-
             $weblap->leallit();
             exit();
         }
 
-        /* Elutasítás */
+        // Elutasítás
         if( $bejelentes ) {
             if( !addStatusz( 'bejelentes_statusz', $recid, BEJELENTES_STAT_VIZSG_ALATT, $elutasitas_id, $memo ) ) {
                 $db_error = true;
@@ -224,13 +226,11 @@ if( isset($_POST['bejelentesElutasit']) ) {
 
             if( !$db_error ) {
                 mysqli_commit($db_kapcs);
-
                 echo json_encode(array(
                     'statusz' => 'siker'
                 ));
             } else {
                 mysqli_rollback($db_kapcs);
-
                 echo json_encode(array(
                     'hiba' => tranzakcioHiba()
                 ));
@@ -636,7 +636,10 @@ require_once('selectek.php');
 
         // Nyitott státuszú bejelentés elutasítása
         if( $sor['stat_id']==BEJELENTES_STAT_NYITOTT && _jog(JOG_BEJELENTES_ELUTASIT) ) {
-            $gombok .= '<input type="button" class="gomb" value="Bejelentés elutasítása" title="Bejelentés elutasítása" onclick="csoportMuvelet(\'elutasitas\');">';
+            $gombok .= nl2('
+                            <script> gomb_b_elut = \'<input type="button" class="gomb zold" onclick="csoportMuvelet(\\\'elutasitas\\\');" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
+                            <input type="button" class="gomb" value="Bejelentés elutasítása" title="Bejelentés elutasítása" onclick="alert2(\'Biztosan elutasítja a bejelentést?\', gomb_b_elut);">
+                        ');
         }
 
         // Reklamációk
@@ -905,17 +908,6 @@ require_once('selectek.php');
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
 
-        //Diszpécser a sürgős pipát mégis eléri, ha a státusza nyitott
-        if( $sor['stat_id']==BEJELENTES_STAT_NYITOTT && (_jog(JOG_MUNKALAP_KESZITHET) ) ){
-            $szamla_html .= nl2('
-                <script>
-                $(document).ready(function () {
-                    $(\'#surgos\').removeAttr(\'disabled\');
-                });
-                </script>
-                ');
-        }
-
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom'  => $szamla_html,
@@ -955,15 +947,16 @@ require_once('selectek.php');
         if( $munkalap_kapcsok ) {
             $i = 1;
             foreach($munkalap_kapcsok as $munkalap_kapcs) {
-                $sor = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap', "`recid` = '".$munkalap_kapcs['munkalap_id']."'", '', '1');
+                
+                // Csak akkor látszik a munkalap, ha az nyitott
+                $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap', "`recid` = '".$munkalap_kapcs['munkalap_id']."' AND `stat_id`='".MUNKALAP_STAT_NYITOTT."'", '', '1');
                 if( $sor ) {
-                    $sor = $sor[0];
 
-                    /* Telephely */
+                    // Telephely
                     $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
                     $telephely = $telephely[0]['nev'];
 
-                    /* Helység */
+                    // Helység
                     $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
                     $helyseg = $helyseg[0]['nev'];
 
