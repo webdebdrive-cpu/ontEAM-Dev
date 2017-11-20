@@ -9,13 +9,13 @@ define('NYOMTATAS_KIVETELES_CIM',   2032     );
 
 /* Státuszok */
 //Bejelentés státuszok
-define('BEJELENTES_STAT_NYITOTT',       '01');
-define('BEJELENTES_STAT_FOLYAMATBAN',   '02');
-define('BEJELENTES_STAT_ELUTASITVA',    '03');
-define('BEJELENTES_STAT_VARAKOZO',      '04');
-define('BEJELENTES_STAT_KESZ_IG',       '05');
-define('BEJELENTES_STAT_VIZSG_ALATT',   '06');
-define('BEJELENTES_STAT_LEZART',        '07');
+define('BEJELENTES_STAT_NYITOTT',       '01');//sorrend
+define('BEJELENTES_STAT_FOLYAMATBAN',   '02');//2
+define('BEJELENTES_STAT_ELUTASITVA',    '03');//5
+define('BEJELENTES_STAT_VARAKOZO',      '04');//6
+define('BEJELENTES_STAT_KESZ_IG',       '05');//3
+define('BEJELENTES_STAT_VIZSG_ALATT',   '06');//4
+define('BEJELENTES_STAT_LEZART',        '07');//7
 
 //Anyagigénylés státuszok
 define('CIKKIGN_STAT_NYITOTT',           '05');

@@ -24,14 +24,14 @@ if( !_jog(JOG_BEJELENTES_MEGTEKINT) && !_jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
 }
 
-//Config
+// Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $bejelentes_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'bejelentést';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-//Változók beállítása
+// Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
 $fajloszlop             = 'kep';                //Kép (vagy kivételes esetekben más fájl) oszlopneve.
@@ -47,7 +47,7 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
-//Több kép menedzseléséhez
+// Több kép menedzseléséhez
 $tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
@@ -135,7 +135,7 @@ if( isset($_GET['folyamatban_munkak']) ) {
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bejelentes['telephely_id'], '', '1');
             $telephely = $telephely[0]['nev'];
 
-            /* Helység */
+            // Helység */
             $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bejelentes['obj_id'], '', '1');
             $helyseg = $helyseg[0]['nev'];
 
@@ -764,7 +764,7 @@ require_once('selectek.php');
 				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
 
-            //A Bejelentést rögzítő adatai mindenképpen a beloginolt felhasználó lesz
+            // A Bejelentést rögzítő adatai mindenképpen a beloginolt felhasználó lesz
             $login = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
             $_SESSION['usr_man_nev']         = $login['teljes_nev'];
             $_SESSION['usr_man_beosztas_id'] = $login['beosztas_id'];
@@ -774,7 +774,7 @@ require_once('selectek.php');
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
@@ -949,7 +949,7 @@ require_once('selectek.php');
             foreach($munkalap_kapcsok as $munkalap_kapcs) {
                 
                 // Csak akkor látszik a munkalap, ha az nyitott
-                $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap', "`recid` = '".$munkalap_kapcs['munkalap_id']."' AND `stat_id`='".MUNKALAP_STAT_NYITOTT."'", '', '1');
+                $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap', "`recid` = '".$munkalap_kapcs['munkalap_id']."'", '', '1');
                 if( $sor ) {
 
                     // Telephely
@@ -965,7 +965,7 @@ require_once('selectek.php');
                             <div class="dtc"><a href="munkalap.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a></div>
                             <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
                             <div class="dtc">'.$sor['insert_dt'].'</div>
-                            <div class="dtc">'.getStatText('bejelentes', $sor['stat_id']).'</div>
+                            <div class="dtc">'.getStatText('munkalap', $sor['stat_id']).'</div>
                         </div>
                     ');
                 }

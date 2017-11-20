@@ -170,9 +170,10 @@ function i_u($type, $tabla, $tomb) {
         }
 
 
-        //Úgy általánosságban még hozzáadjuk a kezdho, kezdnap, vegeho, vegenap értékeket
+        // Úgy általánosságban még hozzáadjuk a kezdho, kezdnap, vegeho, vegenap értékeket
         array_push($oszlopok, 'kezdho',        'kezdnap',           'vegeho',           'vegenap',          'aktkezd_d',            'aktvege_d'           );
         array_push($ertekek, $_POST['kezdho'], $_POST['kezdnap'],   $_POST['vegeho'],   $_POST['vegenap'],  $_POST['aktkezd_d'],    $_POST['aktvege_d']   );
+
     }
 
     // Új bejegyzés esetén több mindent is le kell kezelni (iktatószám kizsámolás, plusz oszlopok beállítása
@@ -894,7 +895,7 @@ function i_u($type, $tabla, $tomb) {
                 if( $sql === false ) { $db_error = true; }
             }
         }
-
+        
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
 //echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
         if( $id === false ) { $db_error = true; }
@@ -919,11 +920,13 @@ function i_u($type, $tabla, $tomb) {
                         }
                     }
                 }
-
+// Ha nem Szinvatrendes teszt üzemmód
+if ( !($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett_feladatok.php') ) {
                 echo json_encode(array(
                     'statusz' => 'siker',
                     'adatok'  => $sor[0]
                 ));
+}
             }
         }
 	}
@@ -959,6 +962,75 @@ function i_u($type, $tabla, $tomb) {
     } else {
         mysqli_rollback($db_kapcs);
     }
+    
+// Szinvatrendes teszt üzemmód
+if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett_feladatok.php') {
+
+    $sor = $adatbazis_kapcsolat->s2('*', 'utemezett_feladatok', "`recid`='$id'");
+    $utemezes = 'Folyamatos';
+    if($sor['idoszakos']){
+        if($sor['aktkezd_d']>'0000-00-00' && $sor['aktkezd_d']>'0000-00-00'){
+            $utemezes = $sor['aktkezd_d'].'-'.$sor['aktvege_d'];
+            if($sor['aktvege_d']<date('Y-m-d')){
+                $utemezes = $sor['aktvege_d'].' után nincsenek további ütemezések.';
+                $kell_lista = false;
+            }
+        }else{
+            require_once 'selectek.php';
+            $kezdho = '';
+            foreach($select_honapok as $honap){
+                if($honap['value']==$sor['kezdho']){
+                    $kezdho = $honap['name'];
+                    break;
+                }
+            }
+            $vegeho = '';
+            foreach($select_honapok as $honap){
+                if($honap['value']==$sor['vegeho']){
+                    $vegeho = $honap['name'];
+                    break;
+                }
+            }
+            $utemezes = $kezdho.' '.$sor['kezdnap'].'. - '.$vegeho.' '.$sor['vegenap'].'.';
+        }
+    }
+
+    include('datumra_utemezes.php');
+    if(!$sor['esem_d'] || $sor['esem_d']=='0000-00-00'){
+        $sor['esem_d'] = date('Y-m-d');
+    }
+
+    $esem_d     = substr(str_replace('-', '.', $sor['esem_d']), 0, 10);
+    $esnap_d    = str_replace('-', '.', $sor['esnap_d']);
+    $aktkezd_d  = str_replace('-', '.', $sor['aktkezd_d']);
+    $aktvege_d  = str_replace('-', '.', $sor['aktvege_d']);
+
+    $kiir .=  "esemd: $esem_d
+        <br>cikltip: $sor[cikltip]
+        <br>ciklaltip: $sor[ciklaltip]
+        <br>ciklszorz: $sor[ciklszorz]
+        <br>ciklho: $sor[ciklho]
+        <br>ciklhet: $sor[ciklhet]
+        <br>ciklnap: $sor[ciklnap]
+        <br>idoszakos: $sor[idoszakos]
+        <br>kezdho: $sor[kezdho]
+        <br>kezdnap: $sor[kezdnap]
+        <br>vegeho: $sor[vegeho]
+        <br>vegenap: $sor[vegenap]
+        <br>aktkezd_d: $aktkezd_d
+        <br>aktvege_d: $aktvege_d";
+    $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
+    $kiir .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
+    $kiir .= '<hr>Ütemezés: ' . $utemezes;
+    $kiir .= '<hr>Esedékes: ' . $sor['esnap_d'].' '.het_napja_txt($sor['esnap_d']);
+    $kiir .= '<hr>Utolsó végrehajtás: ' . $esnap_d .' '.het_napja_txt($esnap_d);
+    $kiir .= '<br>Következő: ' . $getnextvaliddate.' '.het_napja_txt($getnextvaliddate);
+    $kiir .= '<br>';
+    $kiir .= '<br>Következő 10 iteráció:<br>';
+
+    echo json_encode( array('hiba' => $kiir) );
+    exit;
+}
 
 	return array('', $id);
 }
@@ -995,6 +1067,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                             return false;
                         }
             ');
+   
 
     $param = '';
     foreach($tomb as $ertek){
@@ -1100,7 +1173,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     }
 
 
-    //Egyedi hibaüzenetek
+    // Egyedi hibaüzenetek
     if( basename(self())=='anyagigenyles.php' ) {
         $ret .= nl2('
 
@@ -1160,7 +1233,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         ');
     }
 
-    //Személyzet -> Beosztás -> Naptár fül alatt nem a hagyományos form feldogozás törétnik majd, hanem egy beosztas_naptarba_teszt() FGV-t hívunk meg
+    // Személyzet -> Beosztás -> Naptár fül alatt nem a hagyományos form feldogozás törétnik majd, hanem egy beosztas_naptarba_teszt() FGV-t hívunk meg
     if( basename(self())=='beosztas.php' && isset($_GET['naptar']) ) {
         $ret .= nl2('
             if( $(\'#beosztas\').val()==1 && !$(\'#szerepkor\').val() ) {
@@ -1409,10 +1482,10 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 ');
     }
 
-    //Ajaxos form módosítás
+    // Ajaxos form módosítás
     $js_kieg = '';
 
-    //Felmérési terv esetén meg kell hívni még egy JS függvényt, ami a bal oldali navpanelt frissíti
+    // Felmérési terv esetén meg kell hívni még egy JS függvényt, ami a bal oldali navpanelt frissíti
     $konyvtarszerkezetesek = array('eszkozkezeles.php', 'felmeresi_terv.php');
     $akt_php = basename(self());
     if( in_array($akt_php, $konyvtarszerkezetesek) ){

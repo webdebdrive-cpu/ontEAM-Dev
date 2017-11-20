@@ -2,12 +2,13 @@
 require_once('../class/html/class.Input.php');
 require_once('../class/html/class.Select.php');
 
+
 $osszevon_flag  = 0;
 $mezok          = '';
 foreach($akt_tomb as $ertek){
 
     // Sessionből feltöltjük a sort, ha üres. Újként szerkesztéshez kell, remélem nem kavar be máshol
-    if(isset($_GET['ujkent']) && !$sor[$ertek['name']] && $_SESSION[$ertek['name']]){
+    if( (isset($_GET['ujkent']) || isset($_GET['ujkent_bejelentes'])) && !$sor[$ertek['name']] && $_SESSION[$ertek['name']]){
         $sor[$ertek['name']] = $_SESSION[$ertek['name']];
     }
 
@@ -73,7 +74,6 @@ foreach($akt_tomb as $ertek){
                     }
                 }
             }
-
             if($ertek['value_felulir']){
                 $input -> value   = $ertek['value_felulir'];
             }
@@ -90,7 +90,7 @@ foreach($akt_tomb as $ertek){
                 $csoport_where = " and `csoport` = '".$ertek['csoport']."'";
             }
 
-            /* Lekérdezzük a külső tábla értékét */
+            // Lekérdezzük a külső tábla értékét
             $tabla = $ertek['tabla'];
             if($ertek['tabla']=='obj_csakszint'){
                 $tabla = 'obj';
@@ -1612,10 +1612,10 @@ foreach($akt_tomb as $ertek){
         break;
 
 		case 'textarea':
+
             if(!$sor[ $ertek['name'] ]){
                 $sor[ $ertek['name'] ] = $ertek['value'];
             }
-
             if($ertek['alert']){
                 $ertek['class'] .= ' csillag';
             }
@@ -1671,16 +1671,15 @@ foreach($akt_tomb as $ertek){
                 $html .= str_replace('{TEXTAREA_ID}', $ertek['name'], fajlbol_olvas('../sablon/admin/bbkod.html', true));
             }
 
-
             $html .= $tag -> getHtml().$wysiwyg_html;
 
-            //Ha limitálva van a textarea (WYSIWYG-et nem célszerű együtt használni)
+            // Ha limitálva van a textarea (WYSIWYG-et nem célszerű együtt használni)
             if($ertek['limit']){
                 $html .= '<script>$(function(){ $(\'#'.$ertek['name'].'\').keyup(function(){ textarea_limit(\''.$ertek['name'].'\', '.$ertek['limit'].', \''.$ertek['name'].'_info\'); }) }); </script>';
                 $html .= '<div id="'.$ertek['name'].'_info"></div>';
             }
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">

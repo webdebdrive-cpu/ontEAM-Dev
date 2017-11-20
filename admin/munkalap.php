@@ -149,7 +149,7 @@ if( isset($_POST['munkalapKeszit']) ) {
 
                 echo json_encode(array(
                     'hiba' => 'Ehhez a bejelentéshez már készült munkalap. <br>Készít még egy munkalapot?',
-                    'gomb' => '<input class="gomb zold" value="Igen" onclick="location.href = \'munkalap.php?uj&ujkent='.$isMlap['munkalap_id'].'\';" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
+                    'gomb' => '<input class="gomb zold" value="Igen" onclick="location.href = \'munkalap.php?uj&ujkent_bejelentes='.$id.'\';" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
                 ));
 
                 $weblap->leallit();
@@ -4154,9 +4154,6 @@ require('selectek.php');
 		if($_GET['ujkent']) {
             $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
             if( $sor ) {
-
-                // Újként szerkesztésnél a sűrgős pipa nincs bepipálva (Bejleentéseknél új munkalap mkészítésekor)
-                $sor['surgos'] = 0;
                 
                 foreach($akt_tomb as $ertek) {
                     if( $ertek['name'] != 'ikt_szam' ) {
@@ -4168,8 +4165,18 @@ require('selectek.php');
             }
 
             foreach($akt_tomb as $ertek) {
-				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
+				$sor[$ertek['name']] = $_SESSION[$ertek['name']]; 
 			}
+		}
+        // Munkalap újként szerkesztése, de az adatokat a bejelentésből töltjük fel
+		if($_GET['ujkent_bejelentes']) {
+            $bejelentes = $adatbazis_kapcsolat -> s2('*', 'bejelentes', "`recid`='{$_GET['ujkent_bejelentes']}'");
+            $_SESSION['surgos']      = $bejelentes['surgos'];
+            $_SESSION['text']        = $bejelentes['hiba_text'];
+            $_SESSION['telephely_id']= $bejelentes['telephely_id'];
+            $_SESSION['obj_id']      = $bejelentes['obj_id'];
+            $_SESSION['gep_id']      = $bejelentes['gep_id'];
+            $_SESSION['tipus_id']    = '1';
 		}
 
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
@@ -4184,6 +4191,7 @@ require('selectek.php');
         // Javascipt-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
+        // Erre miért volt szükség? Az újként szerkesztés így nem működik
         $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
         $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
 
