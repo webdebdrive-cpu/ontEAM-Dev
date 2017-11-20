@@ -113,38 +113,43 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         case 'projektigenyles'      : $sorok_html = projektigenylesLista( $sorok, $tabla ); break;
     }
 
-    $html = nl2('
-        <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
-        <link href="../css/admin.css" rel="stylesheet" type="text/css">
-        <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
-        <script src="../js/jquery.js"></script>
-        <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
-        <title>Listanézet '.date('Y.m.d H:i:s').'</title>
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    if( !isset($_GET['pdf']) ) {
+        $html = nl2('
+            <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
+            <link href="../css/admin.css" rel="stylesheet" type="text/css">
+            <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
+            <script src="../js/jquery.js"></script>
+            <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
+            <title>Listanézet '.date('Y.m.d H:i:s').'</title>
+            <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-        <div class="a4_allo">
-            <div class="padd" style="padding-bottom: 5rem; min-height: 60rem">
-                '.$feltetel.'
-                '.$sorok_html.'
-            </div>
-            <div class="footer">
-                <div class="dtc padd">
-                    '.$_SESSION[get_db_tabla().'teljes_nev'].'
+            <div class="a4_allo">
+                <div class="padd" style="padding-bottom: 5rem; min-height: 60rem">
+                    '.$feltetel.'
+                    '.$sorok_html.'
                 </div>
-                <div class="dtc r padd">
-                    '.date('Y.m.d H:i:s').'
+                <div class="footer">
+                    <div class="dtc padd">
+                        '.$_SESSION[get_db_tabla().'teljes_nev'].'
+                    </div>
+                    <div class="dtc r padd">
+                        '.date('Y.m.d H:i:s').'
+                    </div>
                 </div>
             </div>
-        </div>
-    ');
-    echo $html;
+        ');
+        echo $html;
+
+        $weblap -> leallit();
+        exit;
+    }
 
     if( isset($_GET['pdf']) ) {
+        $sorok_html = preg_replace("/<i class=\"material-icons\">([a-z_]+)<\/i>/", "<img src=\"../elemek/ic_$1_black_24dp_2x.png\" class=\"icon\" width=\"18\">", $sorok_html);
+
         include('../html2pdf/mpdf.php');
         $mpdf = new mPDF('', '', 0, '', 15, 15, 15, 15, 8, 8);
         $mpdf -> WriteHTML(fajlbol_olvas('../css/nullaz.css'), 1);
-        //$mpdf -> WriteHTML(fajlbol_olvas('../css/admin.css'), 1);
-        //$mpdf -> WriteHTML(fajlbol_olvas('../css/nyomtatas.css'), 1);
         $mpdf -> WriteHTML('
             body {
                 font-size: 14px;
@@ -171,10 +176,36 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
                 </div>
             </div>
         ', 2);
-        $mpdf -> Output('teszt.pdf');
-    }
 
-    $weblap -> leallit();
-    exit;
+        $fajlnev = '../'.get_utvonal().$_SESSION['fajl']['konyvtar'];
+
+        if( !is_dir($fajlnev) ) {
+            mkdir($fajlnev, 0777);
+        }
+
+        $fajlnev = $fajlnev.'/'.date('ym');
+
+        if( !is_dir($fajlnev) ) {
+            mkdir($fajlnev, 0777);
+        }
+
+        $fajlnev = $fajlnev.'/'.$_SESSION[get_db_tabla().'teljes_nev'].'_'.date('Y_m_d_H_i_s').'.pdf';
+        $mpdf -> Output($fajlnev);
+
+        $disposition = 'attachment'; // 'attachment' vagy 'inline'
+    	$mimeType = 'application/octet-stream';
+
+        $fileName = $_SESSION[get_db_tabla().'teljes_nev'].'_'.date('Y_m_d_H_i_s').'.pdf';
+
+        header('Content-Type: '.$mimeType);
+    	header('Content-Disposition:'.$disposition.'; filename="'.trim(htmlspecialchars($fileName)).'"');
+    	header('Content-Description: '.trim(htmlentities($fileName)));
+    	header('Content-Length: '.(string)(filesize($fajlnev)));
+    	header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+    	header('Connection: close');
+    	readfile($fajlnev);
+
+        header('Location: '.$_SESSION['fajl']['konyvtar'].'.php');
+    }
 }
 ?>

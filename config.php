@@ -27,6 +27,7 @@ function get_db()         {
         case 'demo.webdeb.hu'       : return 'wdbhu';
         case 'demo.szinvatrend.hu'  : return 'szinvatrendhu1';
         case 'onteam.hu'            : return 'onteamhu1';
+        case 'localhost'            : return 'szinvatrendhu1';
     }
 }
 function get_db_user(){
@@ -34,6 +35,7 @@ function get_db_user(){
         case 'demo.webdeb.hu'       : return 'wdbtdb';
         case 'demo.szinvatrend.hu'  : return 'szinvatrendhu';
         case 'onteam.hu'            : return 'onteamhu';
+        case 'localhost'            : return 'szinvatrendhu';
     }
 }
 function get_db_pass(){
@@ -41,6 +43,7 @@ function get_db_pass(){
         case 'demo.webdeb.hu'       : return 'h3rbdzto';
         case 'demo.szinvatrend.hu'  : return 'vikike';
         case 'onteam.hu'            : return 'Asiphnawt5';
+        case 'localhost'            : return 'vikike';
     }
 }
 
