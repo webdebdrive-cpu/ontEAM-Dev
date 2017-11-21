@@ -2580,7 +2580,7 @@ table.csikos.al th{
     color: #242424;
 }
 table.csikos.behuz th:last-of-type{
-    border-right: 0.2rem solid #fff; 
+    border-right: 0.2rem solid #fff;
 }
 
 table.csikos th.l {
@@ -2694,7 +2694,7 @@ div.szamlaLapozas div.lapoz.pontok {
 }
 
 #kijelolt_erteke{
-    margin-top: 3rem;
+    margin-bottom: 3rem;
 }
 .beosztas_naptar{
     cursor: default;

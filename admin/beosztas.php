@@ -595,7 +595,7 @@ require_once('selectek.php');
                 fajlbol_olvas('../sablon/admin/form_modosit.html', true)
             ).'<script>$(document).ready(function () { $(\'#szerk_form div.dt\').hide(); });</script>';
 
-        //$szamla_html .= beosztas_naptar($_GET['id']);
+        // $szamla_html .= beosztas_naptar($_GET['id']);
 
         /* Naptár események */
         $naptar_sorok = $adatbazis_kapcsolat->s('recid tol ig felh_loginnev beosztas szerepkor', 'beosztas_naptar', "`beosztas_id` = '".$_GET['id']."'", 'tol', '');

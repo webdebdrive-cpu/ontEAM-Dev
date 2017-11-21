@@ -465,6 +465,7 @@ $(function() {
     /* Beosztás naptár bejegyzés törlésre kijelölés */
     $(document).on('click', '.foglalt', function(e) {
         naptar_id = $(this).attr('data-recid');
+        console.log(naptar_id);
         $('#naptar_torol_id').val(naptar_id);
         $('#mehet_gomb_kivesz').removeAttr('disabled');
         $('.foglalt').removeClass('kijelol');
@@ -2754,9 +2755,9 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
                 /* Az elutasítást csak egy soron lehet elvégezni. */
                 case 'elutasitas':
-                    
+
                     alert2();
-                    
+
                     szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
                     if( szamlaSorok.length>1 ) {
 

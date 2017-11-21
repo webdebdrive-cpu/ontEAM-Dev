@@ -17,17 +17,31 @@
             events: [{EVENTS}],
             eventClick: function(calEvent, jsEvent, view) {
 
-                console.log('Event: ' + calEvent.title);
+                /*console.log('Event: ' + calEvent.title);
                 console.log('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
-                console.log('View: ' + view.name);
+                console.log('View: ' + view.name);*/
+
+                if( calEvent.id ) {
+                    $.ajax({
+                        url : 'beosztas.php',
+                        type: 'POST',
+                        data: {
+                            id                  : calEvent.id,
+                            get_beosztas_adatok : new Date().getTime()
+                        },
+                        success: function (response) {
+                            $('#kijelolt_erteke').html(response);
+                        }
+                    });
+                }
 
                 /* change the border color just for fun
                 $(this).css('border-color', 'red'); */
-
             }
 		});
 
 	});
 
 </script>
+<div id="kijelolt_erteke"></div>
 <div id="calendar"></div>
