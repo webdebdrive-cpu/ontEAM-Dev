@@ -15,24 +15,21 @@ Használata:
 */
 
 
-//echo '1###volt|';
-
-
 include('weblap.php');
 
 if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'])){
 
-    //Több oszlop is szerepelhet a $_GET['oszlop']-ban (minden oszlop értékét sortöréssel tesszük a találati listába)
+    // Több oszlop is szerepelhet a $_GET['oszlop']-ban (minden oszlop értékét sortöréssel tesszük a találati listába)
     $oszlop_keres  = explode(',', str_replace(' ', '', $_GET['oszlop_keres']));
     $oszlop_listaz = explode(',', str_replace(' ', '', $_GET['oszlop_listaz']));
 
-    //Ha legalább egy értéke van
+    // Ha legalább egy értéke van
     if( count( $oszlop_keres ) ) {
 
         $where_sql = '';
         $oszlopok  = '';
 
-        //SQL előállítása
+        // SQL előállítása
         for( $i = 0; $i < count( $oszlop_keres ); $i++ ) {
 
             $oszlop_keres[$i] = trim($oszlop_keres[$i]);
@@ -41,7 +38,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             $oszlopok  .= '`'.$oszlop_keres[$i].'`, ';
         }
 
-        //Utolsó 4 karater levágása
+        // Utolsó 4 karater levágása
         $where_sql =  substr($where_sql, 0, strlen($where_sql) - 4);
         $oszlopok  =  substr($oszlopok,  0, strlen($oszlopok)  - 2);
 
@@ -67,7 +64,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             }
         }
 
-        /* Telephely id */
+        // Telephely id
         $obj_csak_szint = false;
         if($_GET['tabla']=='obj_csakszint'){
             $_GET['tabla'] = 'obj';
@@ -81,12 +78,21 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             }
         }
 
-        /* Objektm id */
+        // Objektm id
         if( $_GET['tabla'] == 'eszkozkezeles' && $_GET['obj_id'] ) {
             if( $where_sql ) {
                 $where_sql .= " AND `obj_id` = '".$_GET['obj_id']."'";
             } else {
                 $where_sql .= " WHERE `obj_id` = '".$_GET['obj_id']."'";
+            }
+        }
+
+        // Login táblában szűrhatünk személyzetre is
+        if( $_GET['tabla'] == 'login' && $_GET['szemelyzet_id'] ) {
+            if( $where_sql ) {
+                $where_sql .= " AND `szemelyzet_id` = '".$_GET['szemelyzet_id']."'";
+            } else {
+                $where_sql .= " WHERE `szemelyzet_id` = '".$_GET['szemelyzet_id']."'";
             }
         }
 
@@ -99,7 +105,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             }
         }
         
-        //Objektumonnkál van, hogy csak a szinteket szeretnénk lekérdezni
+        // Objektumonnkál van, hogy csak a szinteket szeretnénk lekérdezni
         if($obj_csak_szint){
             if( $where_sql ) {
                 $where_sql .= " AND `szulo`=0";
@@ -108,7 +114,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             }
         }
 
-        //DL lista elemeinek előállítása
+        // DL lista elemeinek előállítása
         $return = '<ul>';
 
         $select_kieg = '';
@@ -124,7 +130,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             $select_kieg .= ' `cikkmee`,';
         }
 
-        //Ha törzsadatlistát kérünk le, akkor a találati listát egész bonyolultan számítjuk ki:
+        // Ha törzsadatlistát kérünk le, akkor a találati listát egész bonyolultan számítjuk ki:
         if( $_GET['tabla'] == 'torzsadat' && $_GET['recid'] ) {
 
             //melyik szállodánál vagyunk

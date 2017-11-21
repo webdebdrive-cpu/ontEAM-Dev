@@ -32,6 +32,7 @@
             felt            : '',
             popupba         : '',
             arazas_beallit  : '',
+            szemelyzet_id   : '',                   /* Munkaidő ráfodítás név hozzáadásánál kell */
             csoport         : 0,
             szuros          : ''                    /* Ha a szűrőben hívtuk meg, akkor azt ezen keresztül tudjuk jelezni */
         };
@@ -92,24 +93,6 @@
                     });
                 }
 
-                /*if(options.szel == 'auto') {
-                    $('#autocomplete').css({
-                        'width'     : width,
-                        'left'      : left,
-                        'top'       : top+height,
-                        'display'   : 'block'
-                    });
-
-                } else {
-
-                    $('#autocomplete').css({
-                        'width'     : options.szel,
-                        'left'      : left,
-                        'top'       : top+height,
-                        'display'   : 'block'
-                    });
-                }*/
-
                 /* Ha nem a szűrőben van az autocomplete, akkor csak azokat a helyiségeket listázza ki,
                  *  ami adott szállodához tartozik, ezért átküldünk egy telephely_id értékete is */
                 telephely_id = '';
@@ -157,6 +140,7 @@
                             mezo            : options.mezo,
                             op              : options.op,
                             felt            : options.felt,
+                            szemelyzet_id   : options.szemelyzet_id,
                             telephely_id    : telephely_id,
                             obj_id          : obj_id
                         },

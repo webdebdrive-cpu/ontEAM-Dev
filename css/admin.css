@@ -2561,6 +2561,14 @@ table.csikos th.anyag_th5 {
     width: 20%;
 }
 
+table.csikos th.mido_th1 {
+    width: 20%;
+}
+
+table.csikos th.mido_th2 {
+    width: 20%;
+}
+
 table.csikos.kicsi th {
     font-size: 1.2rem;
     padding: 0.5rem 1rem;
@@ -2570,6 +2578,9 @@ table.csikos.al th{
     background: rgba(57, 74, 82, 0.18);
     border-right: 0.1rem solid transparent;
     color: #242424;
+}
+table.csikos.behuz th:last-of-type{
+    border-right: 0.2rem solid #fff; 
 }
 
 table.csikos th.l {

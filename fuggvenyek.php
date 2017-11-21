@@ -1005,28 +1005,35 @@ if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett
     $aktkezd_d  = str_replace('-', '.', $sor['aktkezd_d']);
     $aktvege_d  = str_replace('-', '.', $sor['aktvege_d']);
 
-    $kiir .=  "esemd: $esem_d
-        <br>cikltip: $sor[cikltip]
-        <br>ciklaltip: $sor[ciklaltip]
-        <br>ciklszorz: $sor[ciklszorz]
-        <br>ciklho: $sor[ciklho]
-        <br>ciklhet: $sor[ciklhet]
-        <br>ciklnap: $sor[ciklnap]
-        <br>idoszakos: $sor[idoszakos]
-        <br>kezdho: $sor[kezdho]
-        <br>kezdnap: $sor[kezdnap]
-        <br>vegeho: $sor[vegeho]
-        <br>vegenap: $sor[vegenap]
-        <br>aktkezd_d: $aktkezd_d
-        <br>aktvege_d: $aktvege_d";
+    $kiir .=  "
+        <div class='dtc vat'>
+            esemd: $esem_d
+            <br>cikltip: $sor[cikltip]
+            <br>ciklaltip: $sor[ciklaltip]
+            <br>ciklszorz: $sor[ciklszorz]
+            <br>ciklho: $sor[ciklho]
+            <br>ciklhet: $sor[ciklhet]
+            <br>ciklnap: $sor[ciklnap]
+            <br>idoszakos: $sor[idoszakos]
+            <br>kezdho: $sor[kezdho]
+            <br>kezdnap: $sor[kezdnap]
+            <br>vegeho: $sor[vegeho]
+            <br>vegenap: $sor[vegenap]
+            <br>aktkezd_d: $aktkezd_d
+            <br>aktvege_d: $aktvege_d";
     $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
     $kiir .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
     $kiir .= '<hr>Ütemezés: ' . $utemezes;
     $kiir .= '<hr>Esedékes: ' . $sor['esnap_d'].' '.het_napja_txt($sor['esnap_d']);
     $kiir .= '<hr>Utolsó végrehajtás: ' . $esnap_d .' '.het_napja_txt($esnap_d);
     $kiir .= '<br>Következő: ' . $getnextvaliddate.' '.het_napja_txt($getnextvaliddate);
-    $kiir .= '<br>';
+    $kiir .= '</div><div class="dtc vat">';
     $kiir .= '<br>Következő 10 iteráció:<br>';
+    for($i=0; $i<10; $i++){
+        $getnextvaliddate = getnextvaliddate(false, $getnextvaliddate, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
+        $kiir .= $getnextvaliddate . '<br>';
+    }
+    $kiir .= '</div>';
 
     echo json_encode( array('hiba' => $kiir) );
     exit;
@@ -2131,16 +2138,22 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 // Ez azért fontos, mert ha másik szűrésre vált, akkor ne forduljon meg rendezés nyíl.
                 
                 // Nem nyitott státuszú, nem sürgősek, azon belül ikatatószám
-                $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=0", 'stat_id, ikt_szam');
-                foreach($bejelentesek as $bejelentes){
-                    $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
-                    $i++;
+                // A státuszoknak is van egy sorrendje, ezt is fordított sorrendben soroljuk fel
+                $statuszok = array(BEJELENTES_STAT_LEZART, BEJELENTES_STAT_VARAKOZO, BEJELENTES_STAT_ELUTASITVA, BEJELENTES_STAT_VIZSG_ALATT, BEJELENTES_STAT_KESZ_IG, BEJELENTES_STAT_FOLYAMATBAN );
+                foreach($statuszok as $stat){
+                    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=0 AND `stat_id`='$stat'", 'ikt_szam');
+                    foreach($bejelentesek as $bejelentes){
+                        $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
+                        $i++;
+                    }
                 }
                 // Nem nyitott státuszú, sürgősek, azon belül ikatatószám
-                $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=1", 'stat_id, ikt_szam');
-                foreach($bejelentesek as $bejelentes){
-                    $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
-                    $i++;
+                foreach($statuszok as $stat){
+                $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=1 AND `stat_id`='$stat'", 'stat_id, ikt_szam');
+                    foreach($bejelentesek as $bejelentes){
+                        $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
+                        $i++;
+                    }
                 }
                 // Nyitott státuszú, nem sürgősek, azon belül ikatatószám
                 $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=0", 'ikt_szam');
@@ -2194,6 +2207,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                     $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
                     $i++;
                 }
+
                 // Nem nyitott státuszú, sürgősek, azon belül ikatatószám
                 $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".MUNKALAP_STAT_NYITOTT."' AND `surgos`=1", 'stat_id, ikt_szam');
                 foreach($munkalapok as $munkalap){

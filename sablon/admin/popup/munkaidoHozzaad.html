@@ -1,0 +1,112 @@
+<h2>Munkaidő ráfordítás hozzáadása</h2>
+<form action="" id="elvegzettFeladatForm" class="popupForm" method="post">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr"> 
+                <div class="dtc form_bal">Név:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" autocomplete="off" class="oriasi disableNav csillag focus" name="login_id_autocomp" id="login_id_autocomp" onblur="if(!$(this).val()){ $('#login_id').val(''); }" value="">
+                    <input type="hidden" name="login_id" id="login_id" value="">
+                    <script>
+                        $(document).ready(function() {
+                            $('#login_id_autocomp').autocomplete({
+                                'php_fajl'      : '../autocomplete.php',
+                                'tabla'         : 'login',
+                                'oszlop_keres'  : 'teljes_nev',
+                                'oszlop_listaz' : 'teljes_nev',
+                                'id_kiir'       : 'recid',
+                                'szemelyzet_id' : 2
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Óra : perc:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" name="ora" id="ora" class="csillag f_num" data-tort="0" style="min-width: 4.2rem; width: 4.2rem;" maxlength="3"> :
+                    <input type="text" name="perc" id="perc" class="csillag f_num" data-tort="0" style="min-width: 3.7rem; width: 3.7rem;" maxlength="2">
+                </div>
+            </div>
+        </div>
+        <div id="insertTable">
+            <table class="csikos">
+                <tr>
+                    <th>Név</th>
+                    <th>Munkaidő</th>
+                    <th class="torles"></th>
+                </tr>
+            </table>
+        </div>
+        <p>Hozzáadja a munkaidő ráfordítást a munkalaptételhez?</p>
+    </div>
+    <div class="kuldes">
+        <input type="button" name="elkuld" class="gomb zold" value="Igen" onclick="munkaidoHozzaadas()">
+        <input type="button" name="megsem" class="gomb piros" value="Nem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+/* Feladat hozzáadása */
+function munkaidoHozzaadas(negy_oras_kerdes_neklul) {
+
+    if(!$('#login_id').val()){
+        $('#login_id_autocomp').addClass('hibas_ide_focus');
+        alert2('Kérem válasszon egy nevet!', '', 'Hiba');
+        return false;
+    }
+
+    if( (!$('#ora').val() || $('#ora').val()=='0') && (!$('#perc').val() || $('#perc').val()=='0')){
+        $('#ora').addClass('hibas_ide_focus');
+        alert2('Kérem adja meg a munkavégzés idejét!', '', 'Hiba');
+        return false;
+    }
+
+    if( $('#ora').val()>=4 && !negy_oras_kerdes_neklul){
+        $('#perc').addClass('hibas_ide_focus');
+        alert2('4 óránál nagyobb munkaidőt adott meg, biztos benne?', '<input type="button" class="gomb zold" value="Igen" onclick="munkaidoHozzaadas(\'4 órás kérdés nélkül\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+
+    if( $('#perc').val()>59 ){
+        $('#perc').addClass('hibas_ide_focus');
+        alert2('A perc legfeljebb 59 lehet!', '', 'Hiba');
+        return false;
+    }
+
+    var login_id = $('#login_id'),
+        ora      = $('#ora'),
+        perc     = $('#perc');
+
+    if( login_id ) {
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid            : _get('id'),
+                login_id         : login_id.val(),
+                ora              : ora.val(),
+                perc             : perc.val(),
+                munkaidoHozzaadas: new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+                    popupZar();
+                }
+            }
+        });
+    } else {
+        alert2('Adja meg az elvégzett munkát!', '', 'Hiba');
+        document.getElementById('erteklista_id_autocomp').focus();
+    }
+    
+    return false;
+}
+</script>

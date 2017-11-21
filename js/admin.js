@@ -2722,6 +2722,36 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                     });
                 break;
 
+                /* Munkaidő ráfordításnál táblázat kiíratása */
+                case 'munkaidoHozzaad':
+                    $('#popupTart').html(data);
+
+                    var ajax = $.ajax({
+                        url : 'munkalap.php',
+                        type: 'POST',
+                        data: {
+                            recid               : _get('id'),
+                            getMunkalapMunkaido : new Date().getTime()
+                        },
+                        success: function(response) {
+                            if(response) {
+                                response = JSON.parse(response);
+
+                                if( response.hiba ) {
+                                    alert2(response.hiba, response.gomb, response.title);
+                                    return false;
+                                }
+
+                                $('#insertTable').html(response.html);
+                            }
+                        }
+                    });
+
+                    $.when( ajax ).then(function() {
+                        popupNyit();
+                    });
+                break;
+
                 /* Az elutasítást csak egy soron lehet elvégezni. */
                 case 'elutasitas':
                     
@@ -5141,7 +5171,8 @@ function munkAnyagHozzaad( formID, igenyles ) {
         cikkid_origi= form.find('input[name="cikkid_origi"]'),
         felh_menny  = form.find('input[name="felh_menny"]'),
         szuk_menny  = form.find('input[name="szuk_menny"]'),
-        cikkmee     = form.find('.insertMee').eq(0).text();
+        cikkmee     = form.find('.insertMee').eq(0).text(),
+        id_tmp      = new Date().getTime();
 
     var addCikkID = form.find('input[name="addCikkID[]"]').map(function(){return $(this).val();}).get();
 
@@ -5194,7 +5225,7 @@ function munkAnyagHozzaad( formID, igenyles ) {
                         sz_td +
                         '<td>' + cikkmee + '</td>' +
                         '<td></td>' +
-                        '<td><a onclick="munkAnyagTorol( false, this );"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
+                        '<td><a id="anyag_id_'+id_tmp+'" onclick="munkAnyagTorol( false, \'anyag_id_'+id_tmp+'\' );"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
                     '</tr>';
 
     $('#insertTable table.csikos').append(table_sor);

@@ -38,7 +38,7 @@ foreach($rkat as $rkat_sor){
 	array_push($select_rkat, array('name' => $rkat_sor['nev'], 'value' => $rkat_sor['recid'] ));
 }
 
-//Select tömb Ütemezés típushoz
+// Select tömb Ütemezés típushoz
 $select_cikltip = array();
 array_push($select_cikltip, array('name' => '- Válasszon -', 'value' => '' ));
 array_push($select_cikltip, array('name'  => 'Határidős',  'value' => 'l'));
@@ -46,7 +46,7 @@ array_push($select_cikltip, array('name'  => 'Naponta',    'value' => 'd'));
 array_push($select_cikltip, array('name'  => 'Hetente',    'value' => 'w'));
 array_push($select_cikltip, array('name'  => 'Havonta',    'value' => 'm'));
 
-//Select tömb Ütemezés típushoz
+// Select tömb Ütemezés típushoz
 $select_honapjan = array();
 array_push($select_honapjan, array('name' => '- Válasszon -', 'value' => '' ));
 array_push($select_honapjan, array('name' => 'Első',    'value' => '1'));
@@ -83,7 +83,7 @@ array_push($select_honapjan, array('name' => '30',      'value' => '30'));
 array_push($select_honapjan, array('name' => '31',      'value' => '31'));
 array_push($select_honapjan, array('name' => 'Utolsó',  'value' => '31'));
 
-//Select tömb Ütemezés típushoz
+// Select tömb Ütemezés típushoz
 $select_ho_ism = array();
 array_push($select_ho_ism, array('name' => '- Válasszon -', 'value' => '' ));
 array_push($select_ho_ism, array('name' => 'első',      'value' => '1'));
@@ -93,7 +93,7 @@ array_push($select_ho_ism, array('name' => 'negyedik',  'value' => '4'));
 array_push($select_ho_ism, array('name' => 'utolsó',    'value' => '5'));
 
 
-//Select tömb Ütemezés típushoz
+// Select tömb Ütemezés típushoz
 $select_ho_soran = array();
 array_push($select_ho_soran, array('name' => '- Válasszon -', 'value' => '' ));
 array_push($select_ho_soran, array('name' => 'hétfő',       'value' => '1'));
@@ -121,7 +121,7 @@ array_push($select_honapok, array('name' => 'okotóber',     'value' => '10'));
 array_push($select_honapok, array('name' => 'november',     'value' => '11'));
 array_push($select_honapok, array('name' => 'december',     'value' => '12'));
 
-//Ütemezés típushoz
+// Ütemezés típushoz
 $select_szemelyzet = array();
 array_push($select_szemelyzet, array('name' => '- Válasszon -',             'value' => '0' ));
 array_push($select_szemelyzet, array('name' => 'Telepített személyzet',     'value' => TELEPITETT_SZEMELYZET,   'szin' => '#CBE3FF', 'kulsos' => 0 ));
@@ -135,7 +135,7 @@ array_push($select_szemelyzet, array('name' => 'Diszpécser',                'va
 array_push($select_szemelyzet, array('name' => 'Diszpécser közp. vezető',   'value' => DISZPECSER_KOZP_VEZETO,  'szin' => '#FFEBCB', 'kulsos' => 1 ));
 array_push($select_szemelyzet, array('name' => 'Műszaki igazgató',          'value' => MSZK_VEZETO,             'szin' => '#E0CBFF', 'kulsos' => 1 ));
 
-//Projektigénylés tipus
+// Projektigénylés tipus
 $select_pri_tipus = array();
 array_push($select_pri_tipus, array('name' => '- Válasszon -',  'value' => '' ));
 //Ha mindent vagy saját prigényt kezelhetek, akkor látszik ez a kettő. Ha csak Tárgyi bejelentést tudok kezelni, akkor csak a Tárgyi eszköz marad
@@ -149,7 +149,7 @@ if( !isset($_GET['uj']) || _jog(JOG_PRIGENY_T_MEGTEKINT)){
     array_push($select_pri_tipus, array('name' => 'Tárgyi eszköz',  'value' => PRIGENY_TIPUS_TARGY  ));
 }
 
-//Projektigénylés besorolás
+// Projektigénylés besorolás
 $select_pri_besorol = array();
 array_push($select_pri_besorol, array('name' => '- Válasszon -',    'value' => '' ));
 array_push($select_pri_besorol, array('name' => 'Fejlesztés',       'value' => PRIGENY_BESOROL_FEJL  ));
@@ -157,20 +157,20 @@ array_push($select_pri_besorol, array('name' => 'Felújítás',        'value' =
 array_push($select_pri_besorol, array('name' => 'Rekonstrukció ',   'value' => PRIGENY_BESOROL_REKO  ));
 
 
-//Beosztás tipus
+// Beosztás tipus
 $select_beosztas = array();
 array_push($select_beosztas, array('name' => '- Válasszon -', 'value' => '' ));
 array_push($select_beosztas, array('name' => 'Munkavégzés',     'value' => '1' ));
 array_push($select_beosztas, array('name' => 'Szabadság',       'value' => '2' ));
 
-/* Anyag státuszok */
+// Anyag státuszok
 $munkAnyag_statusz = array(
     DISZPNAG_STAT_VAN_ANYAG         => 'Rendelkezésre áll',
     DISZPNAG_STAT_ANYAGRA_VAR       => 'Anyagigénylés szükséges',
     DISZPNAG_STAT_ANYAG_IGENYELVE   => 'Igényelve'
 );
 
-/* Értéklista csoport */
+// Értéklista csoport
 $select_erteklista = array();
 array_push($select_erteklista, array('name' => '-Válassz-', 'value' => '' ));
 $erteklistak = $adatbazis_kapcsolat -> select('csoport nev', 'erteklista_csoport', '', 'nev');

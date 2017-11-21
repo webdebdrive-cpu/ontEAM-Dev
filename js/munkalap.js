@@ -599,7 +599,7 @@ function feladatHozzaadas( that ) {
     if(balnav_kijelol_ell()){
 
         var erteklista_id = $(that).find('input[name="erteklista_id"]'),
-            memo = $(that).find('textarea[name="feladat_memo"]');
+                     memo = $(that).find('textarea[name="feladat_memo"]');
 
         if( erteklista_id ) {
             $.ajax({
@@ -640,7 +640,13 @@ function feladatHozzaadas( that ) {
 }
 
 /* Feladat törlése */
-function munkFeladatTorol( recid, that ) {
+function munkFeladatTorol( recid, elem_id, mehet ) {
+    
+    if(!mehet){
+        alert2('Biztosan törli az elvégzett feladatot?', '<input type="button" class="gomb zold" value="Igen" onclick="munkFeladatTorol( \''+recid+'\', \''+elem_id+'\', \'mehet\' )"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+    
     if( recid ) {
         $.ajax({
          	url : 'munkalap.php',
@@ -654,18 +660,55 @@ function munkFeladatTorol( recid, that ) {
          		if(response) {
          			response = JSON.parse(response);
 
-                    $(that).parents('tr').remove();
+                    $('#'+elem_id).parents('tr').remove();
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
          		}
          	}
         });
     } else {
-        $(that).parents('tr').remove();
+        $('#'+elem_id).parents('tr').remove();
+    }
+}
+
+/* Munkaidő törlése */
+function munkMunkaidoTorol( recid, elem_id, mehet ) {
+    
+    if(!mehet){
+        alert2('Biztosan törli ezt a munkaidőráfordítást?', '<input type="button" class="gomb zold" value="Igen" onclick="munkMunkaidoTorol( \''+recid+'\', \''+elem_id+'\', \'mehet\' )"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+    
+    if( recid ) {
+        $.ajax({
+         	url  : 'munkalap.php',
+         	type : 'POST',
+            async: false,
+         	data : {
+                recid            : recid,
+                munkMunkaidoTorol: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+         			response = JSON.parse(response);
+
+                    $('#'+elem_id).parents('tr').remove();
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+         		}
+         	}
+        });
+    } else {
+        $('#'+elem_id).parents('tr').remove();
     }
 }
 
 /* Munkalap anyagvételezésnél anyagok törlése */
-function munkAnyagTorol( recid, that ) {
+function munkAnyagTorol( recid, elem_id, mehet ) {
+    
+    if(!mehet){
+        alert2('Biztosan törli ezt az anyagot?', '<input type="button" class="gomb zold" value="Igen" onclick="munkAnyagTorol( '+recid+', \''+elem_id+'\', \'mehet\' ); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+    
     if( recid ) {
         $.ajax({
          	url : 'munkalap.php',
@@ -679,11 +722,12 @@ function munkAnyagTorol( recid, that ) {
          		if(response) {
          			response = JSON.parse(response);
 
-                    $(that).parents('tr').remove();
+                    $('#'+elem_id).parents('tr').remove();
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
          		}
          	}
         });
     } else {
-        $(that).parents('tr').remove();
+        $('#'+elem_id).parents('tr').remove();
     }
 }
