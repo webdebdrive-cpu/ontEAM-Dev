@@ -37,11 +37,12 @@ if(isset($_POST['session_name'])){
     if(!is_dir($utvonal)){
         mkdir($utvonal, 0777);
     }
-    $utvonal = $utvonal.'/'.date('ym');
+
+    /*$utvonal = $utvonal.'/'.date('ym');
 
     if(!is_dir($utvonal)){
         mkdir($utvonal, 0777);
-    }
+    }*/
 
     $ikt_szam = $adatbazis_kapcsolat->s('recid ikt_szam', $_SESSION['fajl']['konyvtar'], "`recid` = '".$_POST['sorid']."'", '', '1');
 
@@ -54,7 +55,7 @@ if(isset($_POST['session_name'])){
             mkdir($utvonal, 0777);
         }
     }
-    
+
     // JS alapú fájlfeltöltés esetén a $_FILES['file'] tömbben vannak az adatok a $_FILES[megnevezés] helyett
     if($_FILES['file']){
         $_FILES[$_POST['megnevezes']] = $_FILES['file'];
