@@ -622,7 +622,10 @@ require_once('selectek.php');
                     $color = '#fff';
                 }
 
-                $events .= "{ id: ".$ns['recid'].", title: '".$szemelyzet['nev'].$kieg."', start: '".$ns['tol']."', end: '".$ns['ig']."', backgroundColor: '".$bgcolor."', borderColor: '".$bgcolor."', textColor: '".$color."'},";
+                $tol = date('c', strtotime($ns['tol']));
+                $ig = date('c', strtotime($ns['ig']));
+
+                $events .= "{ id: ".$ns['recid'].", title: '".$szemelyzet['nev'].$kieg."', start: '".$tol."', end: '".$ig."', backgroundColor: '".$bgcolor."', borderColor: '".$bgcolor."', textColor: '".$color."'},";
             }
 
             if( $events ) {
@@ -631,7 +634,7 @@ require_once('selectek.php');
         }
 
         /* Start Date */
-        $start_dt = date('Y-m-d');
+        $start_dt = date('c');
 
         $szamla_html .= str_replace(
             array('{EVENTS}', '{START_DT}'),
