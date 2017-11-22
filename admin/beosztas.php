@@ -39,10 +39,8 @@ $szamla_html = '';
 // Adott beosztás adatinak lekérése kiíratáshoz
 if (isset($_POST['get_beosztas_adatok'])) {
 
-    $naptar = $adatbazis_kapcsolat->s('felh_loginnev beosztas tol ig', 'beosztas_naptar', "`recid`='{$_POST['id']}'");
-    $naptar = $naptar[0];
-    $szemelyzet = $adatbazis_kapcsolat->s('nev szemelyzet_id', 'torzsadat', "`felh_loginnev`='{$naptar['felh_loginnev']}'");
-    $szemelyzet = $szemelyzet[0];
+    $naptar = $adatbazis_kapcsolat->s2('felh_loginnev beosztas tol ig', 'beosztas_naptar', "`recid`='{$_POST['id']}'");
+    $szemelyzet = $adatbazis_kapcsolat->s2('nev szemelyzet_id', 'torzsadat', "`felh_loginnev`='{$naptar['felh_loginnev']}'");
 
     $ret = $szemelyzet['nev'].' - ';
     if($naptar['beosztas']==1){
@@ -143,7 +141,7 @@ if (isset($_POST['beosztas_naptarba_teszt'])) {
     exit;
 }
 
-// Beosztás naptár
+// Beosztás naptárból törlés
 if (isset($_POST['naptar_torol'])) {
 
     //Tranzakció indul
@@ -151,14 +149,11 @@ if (isset($_POST['naptar_torol'])) {
     mysqli_autocommit($db_kapcs, false);
 
     $beosztas_id = $adatbazis_kapcsolat->s('beosztas_id', 'beosztas_naptar', "`recid`='{$_POST['id']}'");
-    if($beosztas_id===false){
-        $db_error = true;
-    }
+    if($beosztas_id===false){ $db_error = true; }
+    
     $beosztas_id = $beosztas_id[0]['beosztas_id'];
     $sql = $adatbazis_kapcsolat->d('beosztas_naptar', "`recid`='{$_POST['id']}'");
-    if($sql===false){
-        $db_error = true;
-    }
+    if($sql===false){ $db_error = true; }
 
     if(!$db_error){
         echo json_encode( array('siker' => 'siker', 'naptar' => beosztas_naptar($beosztas_id)) );
@@ -172,7 +167,7 @@ if (isset($_POST['naptar_torol'])) {
     exit;
 }
 
-//Több kép menedzseléséhez
+// Több kép menedzseléséhez
 $tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
@@ -356,14 +351,13 @@ require_once('selectek.php');
 
     } elseif(isset($_GET['naptar'])) {
 
-        $beosztas = $adatbazis_kapcsolat->s('tol ig', 'beosztas', "`recid`='{$_GET['id']}'");
-        $beosztas = $beosztas[0];
+        $beosztas = $adatbazis_kapcsolat->s2('tol ig', 'beosztas', "`recid`='{$_GET['id']}'");
 
         if(_jog(JOG_BEOSZTASOK_KEZEL)){
             $gombok = nl2('
                 <div class="muveletek" style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);">
                     <div class="form_kuldes">
-                        <input type="button" class="gombb mentes_gomb" id="mehet_gomb" disabled value="Naptárba tesz" onclick="$(\'#szerk_form\').submit()">
+                        <input type="button" class="gombb mentes_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                         <input type="button" class="gombb gombb_alert" id="mehet_gomb_kivesz" disabled value="Naptárból kivesz" onclick="naptar_torol_kerdez()">
                         <input type="hidden" name="naptar_torol_id" id="naptar_torol_id" value="">
                         <input type="hidden" name="get_id" id="get_id" value="'.$_GET['id'].'">
@@ -379,7 +373,7 @@ require_once('selectek.php');
         $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
 		$sor = $sor[0];
 
-	    //Js, a törlés gombhoz
+	    // Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 	    if($elonezet){
            $gombok .= ' <input type="button" class="gombb" onclick="window.open(\''.$elonezet.'\')" value="Előnézet" title="Előnézet">';

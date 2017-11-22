@@ -55,8 +55,13 @@ if( isset($_POST['jogokhozzaad']) ) {
     $id = $_POST['id'];
 
     // Kitöröljük a nem kívánatos POST elemeket
+    $erintetteket_modositjuk = false;
+    if($_POST['erintettek_mod']){
+        $erintetteket_modositjuk = true;
+    }
     unset($_POST['id']);
     unset($_POST['jogokhozzaad']);
+    unset($_POST['erintettek_mod']);
     
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -76,8 +81,10 @@ if( isset($_POST['jogokhozzaad']) ) {
     // Szerepkör jogok eltárolása
     $adatbazis_kapcsolat -> u('szerepkor', array('flags'), array(implode('', $jogok)), 'recid='.$id);
     
-    // Az összes érintett felhasználónál frissítjük a jogokat
-    $adatbazis_kapcsolat->u('login', array('flags'), array(implode('', $jogok)), "`szerepkor_id`='$id'");
+    // Ha kell, az összes érintett felhasználónál frissítjük a jogokat
+    if($erintetteket_modositjuk){
+        $adatbazis_kapcsolat->u('login', array('flags'), array(implode('', $jogok)), "`szerepkor_id`='$id'");
+    }
     
     // A formAdatok JS változoót frissíteni kell
     require_once('jogosultsag.php');
@@ -438,10 +445,10 @@ require_once('selectek.php');
         if( $login ) {
             $login = $login[0];
 
-            /* Jogosultságok feldarabolás */
+            // Jogosultságok feldarabolás
             $flags = str_split($login['flags']);
 
-            /* Ellenőrzéshez */
+            //Ellenőrzéshez
             $jogEll = array();
             $i = 0;
             foreach($jogosultsagok as $jog) {
@@ -481,6 +488,7 @@ require_once('selectek.php');
                                         $(\'input[type="checkbox"]\').each(function () {
                                             param += $(this).attr(\'name\')+\'=\'+$(this).is(\':checked\')+\'&amp;\';
                                         });
+                                        param += \'erintettek_mod=\'+$(\'#erintettek_mod\').val()+\'&amp;\';
 
                                         $.ajax({
                                             url    : \''.self().'\',
@@ -491,6 +499,7 @@ require_once('selectek.php');
                                                 $(\'input[type="checkbox"]\').removeClass(\'mod\');
                                                 formModositva = false;
                                                 $(\'.mentes_gomb\').attr(\'disabled\', true);
+                                                $(\'#erintettek_mod\').val(\'\');
                                                 
                                                 formAdatok = JSON.parse(response); 
                                             }
@@ -606,14 +615,16 @@ require_once('selectek.php');
             }
 
             $szamla_html .= nl2('
-                <div class="muveletek">
-                    <div class="form_kuldes">
-                        <input type="hidden" name="id" value="'.$_GET['id'].'">
-                        <script> meget_gomb = \'<input type="button" class="gomb zold" value="Igen" onclick="$(\\\'#szerk_form\\\').submit(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\'; </script>
-                        <input type="button" class="gomb zold" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="alert2(\'A szerepkör jogosultságainak megváltoztatásával<br>az összes érintett felhasználó jogosultsága is módosulni fog!<br>Folytatja?\', meget_gomb)">
+                        <input type="hidden" name="erintettek_mod" id="erintettek_mod">
+                        <div class="muveletek">
+                            <div class="form_kuldes">
+                                <input type="hidden" name="id" value="'.$_GET['id'].'">
+                                <script> meget_gomb = \'<input type="button" class="gomb zold" value="Igen" onclick="$(\\\'#erintettek_mod\\\').val(1); $(\\\'#szerk_form\\\').submit(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="$(\\\'#szerk_form\\\').submit(); alert2();">\'; </script>
+                                <input type="button" class="gomb zold" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="alert2(\'A szerepkör megváltozott.<br>Jogait beállítsuk az érintett felhasználóknál is?\', meget_gomb)">
+                            </div>
+                        </div>
                     </div>
-                </div>
-                </div></form>
+                </form>
             ');
         }
 

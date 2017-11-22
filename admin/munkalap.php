@@ -4123,7 +4123,10 @@ require('selectek.php');
         }
 
         // Felvéve státusz + munkaidő hozzáad jog
-        if( ($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_KESZ || $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT) && _jog(JOG_MUNKALAP_MUNKAIDO_HOZZAAD) ){
+        if( 
+            (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_KESZ) && $kezeles_jog && _jog(JOG_MUNKALAP_MUNKAIDO_HOZZAAD) ) ||
+            ($sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) && _jog(JOG_MUNKALAP_MUNKAIDO_HOZZAAD) )
+            ){
             $gombok .= '<input type="button" class="gomb" value="Munkaidő hozzáad" onclick="csoportMuvelet(\'munkaidoHozzaad\');"> ';
         }
 

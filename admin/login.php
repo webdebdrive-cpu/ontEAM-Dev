@@ -12,14 +12,14 @@ if( !_jog(JOG_FELHASZNALOK_MEGTEKINT) ) {
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
 }
 
-//Config
+// Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $login_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'felhasználót';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-//Változók beállítása
+// Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
 $fajloszlop             = 'kep';                //Kép (vagy kivételes esetekben más fájl) oszlopneve.
@@ -35,7 +35,7 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
-//Több kép menedzseléséhez
+// Több kép menedzseléséhez
 $tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;            } // Maximum hány kép tallózható be
@@ -310,6 +310,17 @@ require_once('selectek.php');
 
 	// Felhasználók módosítása
 	}elseif(isset($_GET['modosit'])) {
+        
+        // Módosításnál figyeljük, hogy a szerepkör megváltozott-e
+        $js_submit_elott = nl2('
+                                if($(\'#szerepkor_id_autocomp\').hasClass(\'mod\')){
+                                    gomb_folytatja = \'<input type="button" class="gomb zold" value="Igen" onclick="form_ell_admin()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\';
+                                    alert2(\'A szerepkör megváltozott: \'+$(\'#szerepkor_id_autocomp\').val()+\'<br>Ha folytatja, az új szerepkör jogsultságai is beállításra kerülnek!<br>Folytatja?\', gomb_folytatja);
+                                    return false;
+                                }else{
+                                    return form_ell_admin();
+                                }
+                                ');
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){

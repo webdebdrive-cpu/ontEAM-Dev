@@ -465,7 +465,7 @@ $(function() {
     /* Beosztás naptár bejegyzés törlésre kijelölés */
     $(document).on('click', '.foglalt', function(e) {
         naptar_id = $(this).attr('data-recid');
-        console.log(naptar_id);
+        
         $('#naptar_torol_id').val(naptar_id);
         $('#mehet_gomb_kivesz').removeAttr('disabled');
         $('.foglalt').removeClass('kijelol');

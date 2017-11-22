@@ -806,9 +806,11 @@ function i_u($type, $tabla, $tomb) {
 
         // Loginnál szerepkörök lekezelése
         if( $tabla == 'login' ) {
-
-            if( $_POST['szerepkor_id'] && !$record[0]['flags'] ) {
-                $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
+            
+            // Ha változott a szerepkör, akkor a jogokat frissítjük
+            $login = $adatbazis_kapcsolat->s2('szerepkor_id', 'login', "`recid`='{$_POST['szerepkor_id']}'");
+            if( $login['szerepkor_id'] != $_POST['szerepkor_id'] ) {
+                $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', "`recid`='{$_POST['szerepkor_id']}'", '', '1');
                 if( $szerepkor === false ) { $db_error = true; }
 
                 if( $szerepkor['flags'] ) {
