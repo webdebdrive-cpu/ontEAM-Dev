@@ -35,7 +35,7 @@ $formazatlan_szam       = array();          //Azok az oszlopneveket sorold fel, 
 
 $szamla_html = '';
 
-// Több kép menedzseléséhez
+// Több kép menedzse$léséhez
 $tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;         } // Maximum hány kép tallózható be
@@ -3194,7 +3194,6 @@ if( isset($_POST['feladatHozzaadas']) ) {
                 ));
             } else {
                 mysqli_rollback($db_kapcs);
-
                 echo json_encode(array(
                     'hiba'  => tranzakcioHiba(),
                     'title' => 'Hiba',
@@ -3231,11 +3230,15 @@ if( isset($_POST['munkaidoHozzaadas']) ) {
     // Státusz ellenőrzése
     $akt_statusz = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
     if( $akt_statusz === false ) { $db_error = true; }
+    
+    // Kiszámoljuk a legutóbbi munkalap tételt, ehhez kerül hozzáadásra az új munkaidőráfordítás
+    $akt_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
+    if( $akt_tetel === false ) { $db_error = true; }
  
     // Státusz ellenőrzése
-    if( $akt_statusz['stat_id'] != MUNKALAP_STAT_FELVEVE ) {
+    if( $akt_statusz['stat_id'] != MUNKALAP_STAT_FELVEVE && $akt_statusz['stat_id'] != MUNKALAP_STAT_KESZ && $akt_statusz['stat_id'] != MUNKALAP_STAT_VIZSGALAT_ALATT ) {
         echo json_encode(array(
-            'hiba'  => 'Csak felvett munkalaphoz adható munkaidőráfordítás!',
+            'hiba'  => 'Csak felvett, kész vagy vizsgálat alatt státuszú munkalaphoz adható munkaidőráfordítás!',
             'title' => 'Hiba',
         ));
         $weblap->leallit();
@@ -3262,6 +3265,18 @@ if( isset($_POST['munkaidoHozzaadas']) ) {
         exit();
     }
 
+    // Ha a név már szerepel, hibaüzenet
+    if( $adatbazis_kapcsolat->s('recid', 'munkalap_munkaido', "`login_id`='$login_id' AND `tetel_id`='{$akt_tetel['recid']}'") ) {
+        $nev = $adatbazis_kapcsolat->s2('teljes_nev', 'login', "`recid`='$login_id'");
+        echo json_encode(array(
+            'hiba'  => $nev['teljes_nev'].' már szerepel a listában!',
+            'title' => 'Hiba',
+            'focus' => 'login_id_autocomp',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
     // Idő ellenőrzése
     if( !$ora && !$perc ) {
         echo json_encode(array(
@@ -3281,10 +3296,6 @@ if( isset($_POST['munkaidoHozzaadas']) ) {
         $weblap->leallit();
         exit();
     }
-
-    // Kiszámoljuk a legutóbbi munkalap tételt, ehhez kerül hozzáadásra az új munkaidőráfordítás
-    $akt_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
-    if( $akt_tetel === false ) { $db_error = true; }
 
     if( $akt_tetel ) {
         $sql = $adatbazis_kapcsolat -> i('munkalap_munkaido',
@@ -4098,7 +4109,7 @@ require('selectek.php');
         // Felvéve, kész, vizsgálat státusz + kezelés jog (viszgálat státusznál vízsgálat jog) bármelyike alatti gombok
         if(
             (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_KESZ) && $kezeles_jog ) ||
-            ($sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT )
+            ($sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
             ) {
             $gombok .= nl2('
                         <input type="button" class="gomb" value="Elvégzett feladat hozzáadása" onclick="csoportMuvelet(\'feladatHozzaad\')">
@@ -4112,7 +4123,7 @@ require('selectek.php');
         }
 
         // Felvéve státusz + munkaidő hozzáad jog
-        if( $sor['stat_id']==MUNKALAP_STAT_FELVEVE && _jog(JOG_MUNKALAP_MUNKAIDO_HOZZAAD) ){
+        if( ($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_KESZ || $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT) && _jog(JOG_MUNKALAP_MUNKAIDO_HOZZAAD) ){
             $gombok .= '<input type="button" class="gomb" value="Munkaidő hozzáad" onclick="csoportMuvelet(\'munkaidoHozzaad\');"> ';
         }
 
@@ -4594,10 +4605,10 @@ require('selectek.php');
                     <div class="tetel_div">
                         <table class="csikos tetel_csikos full">
                             <tr>
-                                <th class="nev">Személyzet</th>
-                                <th>Felvette</th>
-                                <th>Átadta</th>
-                                <th>Visszaadva</th>
+                                <th class="tetel_th1">Személyzet</th>
+                                <th class="tetel_th2">Felvette</th>
+                                <th class="tetel_th3">Átadta</th>
+                                <th class="l">Visszaadva</th>
                             </tr>
                 ');
 
@@ -4632,7 +4643,7 @@ require('selectek.php');
                         <td>'.$sor['insert_usr'].$szerepkor.'</td>
                         <td>'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</td>
                         <td>'.$atadta.'</td>
-                        <td>'.$visszaadva.$atadas_oka.'</td>
+                        <td class="l" style="padding-left: 3.7rem">'.$visszaadva.$atadas_oka.'</td>
                     </tr>
                 ');
 
@@ -4645,8 +4656,8 @@ require('selectek.php');
                         <div style="padding: 0.2rem">
                         <table class="csikos full al">
                             <tr>
-                                <th>Elvégzett feladat</th>
-                                <th>Leírás</th>
+                                <th class="feladat_th1">Elvégzett feladat</th>
+                                <th class="feladat_th2">Leírás</th>
                                 <th></th>
                             </tr>
                     ');
@@ -4715,7 +4726,7 @@ require('selectek.php');
                         <table class="csikos full al behuz">
                             <tr>
                                 <th class="mido_th1">Név</th>
-                                <th class="mido_th2">Munkaidő ráfordítás</th>
+                                <th class="mido_th2 r">Munkaidő ráfordítás</th>
                                 <th class="mido_th3"></th>
                             </tr>
                     ');
@@ -4727,7 +4738,7 @@ require('selectek.php');
                         $szamla_html .= nl2('
                             <tr>
                                 <td>'.getErtek('teljes_nev', 'login', 'recid', $munkaido['login_id']).'</td>
-                                <td>'.$munkaido['ora'].':'.$munkaido['perc'].'</td>
+                                <td class="r">'.$munkaido['ora'].':'.$munkaido['perc'].'</td>
                                 <td class="r"><a id="munk_ido2_'.$munkaido['recid'].'" class="link" onclick="munkMunkaidoTorol( \''.$munkaido['recid'].'\', \'munk_ido2_'.$munkaido['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a></td>
                             </tr>
                         ');

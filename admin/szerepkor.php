@@ -35,7 +35,7 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
-//Több kép menedzseléséhez
+// Több kép menedzseléséhez
 $tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
@@ -49,13 +49,17 @@ if($tobb_kep){
 
 }
 
-// Jogosulktásgok beállítsa
+// Jogosultásgok beállítsa
 if( isset($_POST['jogokhozzaad']) ) {
+    
     $id = $_POST['id'];
 
     // Kitöröljük a nem kívánatos POST elemeket
     unset($_POST['id']);
     unset($_POST['jogokhozzaad']);
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
 
     // Tömb sorrendezése
     $jogok = array();
@@ -67,12 +71,15 @@ if( isset($_POST['jogokhozzaad']) ) {
             $jogok[$kulcs] = 0;
         }
     }
-
     ksort($jogok);
 
+    // Szerepkör jogok eltárolása
     $adatbazis_kapcsolat -> u('szerepkor', array('flags'), array(implode('', $jogok)), 'recid='.$id);
     
-    // A formAdatok JS változoót frissíteni kelll
+    // Az összes érintett felhasználónál frissítjük a jogokat
+    $adatbazis_kapcsolat->u('login', array('flags'), array(implode('', $jogok)), "`szerepkor_id`='$id'");
+    
+    // A formAdatok JS változoót frissíteni kell
     require_once('jogosultsag.php');
     $i = 0;
     foreach($jogosultsagok as $jog) {
@@ -81,10 +88,20 @@ if( isset($_POST['jogokhozzaad']) ) {
         } else {
             $jogEll['jog-'.$i] = 0;
         }
-
         $i++;
     }
-    echo json_encode($jogEll);
+    
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode($jogEll);
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
 
     $weblap->leallit();
     exit();
@@ -234,14 +251,13 @@ require_once('selectek.php');
     // Módosítás gombok
     } else {
 
-        $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
+        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
         
         if( _jog(JOG_SZEREPKOR_KEZEL) ){
             // Js, a törlés gombhoz
-            $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
+            $gombok  = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
-            $gombok = nl2('
+            $gombok  = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                 </div>
@@ -255,7 +271,7 @@ require_once('selectek.php');
             }
         }
 
-        /* Műveletek box */
+        // Műveletek box
         $gombok = nl2('
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'
@@ -271,10 +287,10 @@ require_once('selectek.php');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
 	    require_once('info.php');
 
-	    //FORM
+	    // FORM
 		if(isset($_GET['ujkent'])){
 			foreach($akt_tomb as $ertek){
 				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
@@ -282,14 +298,14 @@ require_once('selectek.php');
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-        /* Javascipt-es ellenőrzéshez */
+        // Javascipt-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
         $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
@@ -324,16 +340,15 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	//Termék módosítása
+	// Szerepkörök módosítása
 	}elseif(isset($_GET['modosit'])) {
 
-        //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+        // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
@@ -369,22 +384,22 @@ require_once('selectek.php');
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
 
-        //NAVIGÁCIÓ
+        // NAVIGÁCIÓ
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel  = array( $navi,             '',         $gyk2 );
         //echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
         require_once('info.php');
 
-	    //FORM
+	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
-		//Form actionja
+		// orm actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
@@ -415,6 +430,7 @@ require_once('selectek.php');
 
     // Jogosultság
     }elseif(isset($_GET['jogosultsag'])) {
+        
         require_once('jogosultsag.php');
 
         $login = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_GET['id'], '', '1');
@@ -489,7 +505,7 @@ require_once('selectek.php');
             $jogdb = count($jogKatok);
             $jogdb_fel = ceil($jogdb / 2);
 
-            /* Kiíratjuk az egészet */
+            // Kiíratjuk az egészet
             $i = 1;
             foreach($jogKatok as $jogKat) {
                 if( $i == 1 ) {
@@ -528,13 +544,13 @@ require_once('selectek.php');
 
                     $onclick = '';
                     $kikapcs = '';
-                    if($jogSor['kikapcs']){
+                    if($jogSor['kikapcs']!=''/*Lényeges, hogy az üres stringgel legyen hasonlítva, mert 0 lehet értéke*/){
                         foreach(explode(',', $jogSor['kikapcs']) as $pipa_ki){
                             $kikapcs .= '$(\'#jog-'.$pipa_ki.'\').prop(\'checked\', false).removeClass(\'mod\');';
                         }
                     }
                     $kikapcskor_kikapcs = '';
-                    if($jogSor['kikapcskor_kikapcs']){
+                    if($jogSor['kikapcskor_kikapcs']!=''/*Lényeges, hogy az üres stringgel legyen hasonlítva, mert 0 lehet értéke*/){
                         foreach(explode(',', $jogSor['kikapcskor_kikapcs']) as $pipa_ki){
                             $kikapcskor_kikapcs .= '$(\'#jog-'.$pipa_ki.'\').prop(\'checked\', false).addClass(\'mod\');';
                         }
@@ -546,11 +562,11 @@ require_once('selectek.php');
                         }
                     }
 
-                    //Ha épp most kap bekapcsolást, csak akkor futtatjuk le
+                    // Ha épp most kap bekapcsolást, csak akkor futtatjuk le
                     if($bekapcs){
                         $bekapcs = 'if( $(this).prop(\'checked\') ){'.$bekapcs.'}';
                     }
-                    //Ha épp most kapcsoltuk ki
+                    // Ha épp most kapcsoltuk ki
                     if($kikapcskor_kikapcs){
                         $kikapcskor_kikapcs = 'if( $(this).prop(\'checked\') == false ){'.$kikapcskor_kikapcs.'}';
                     }
@@ -593,7 +609,8 @@ require_once('selectek.php');
                 <div class="muveletek">
                     <div class="form_kuldes">
                         <input type="hidden" name="id" value="'.$_GET['id'].'">
-                        <input type="submit" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                        <script> meget_gomb = \'<input type="button" class="gomb zold" value="Igen" onclick="$(\\\'#szerk_form\\\').submit(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\'; </script>
+                        <input type="button" class="gomb zold" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="alert2(\'A szerepkör jogosultságainak megváltoztatásával<br>az összes érintett felhasználó jogosultsága is módosulni fog!<br>Folytatja?\', meget_gomb)">
                     </div>
                 </div>
                 </div></form>

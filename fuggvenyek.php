@@ -24,7 +24,7 @@ function i_u($type, $tabla, $tomb) {
 	global $adatbazis_kapcsolat;
 	global $db_kapcs;
 
-    //Tranzakció indul
+    // Tranzakció indul
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
@@ -97,7 +97,7 @@ function i_u($type, $tabla, $tomb) {
             array_push($ertekek,  $_POST['ciklnap'] );
 
         }
-        //Napi ciklus, hétköznaponként ismétlődik
+        // Napi ciklus, hétköznaponként ismétlődik
         $hetkoz_kent = '';
         if($type == 'insert') {
             if($_POST['hetkoz_kent']){
@@ -116,7 +116,7 @@ function i_u($type, $tabla, $tomb) {
             array_push($ertekek,  '0'           );
         }
 
-        //Havi ciklus x havonta ismétlődik
+        // Havi ciklus x havonta ismétlődik
         if($_POST['ciklho']){
             array_push($oszlopok, 'ciklaltip'   );
             array_push($ertekek,  '1'           );
@@ -423,16 +423,13 @@ function i_u($type, $tabla, $tomb) {
                 exit;
             }
 
+            // Adott szerepkor jogosultságai lesz adott felhasználó jogosultsága is
             if( $_POST['szerepkor_id'] ) {
-                $szerepkor = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
+                $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
                 if( $szerepkor === false ) { $db_error = true; }
-                if( $szerepkor ) {
-                    $szerepkor = $szerepkor[0];
-
-                    if( $szerepkor['flags'] ) {
-                        array_push($oszlopok, 'flags'             );
-                        array_push($ertekek,   $szerepkor['flags']);
-                    }
+                if( $szerepkor['flags'] ) {
+                    array_push($oszlopok, 'flags'             );
+                    array_push($ertekek,   $szerepkor['flags']);
                 }
             }
 
@@ -724,10 +721,10 @@ function i_u($type, $tabla, $tomb) {
     // Update
 	} else {
 
-        /* Csak nyitott státuszú bejelentést lehet szerkeszteni */
+        // Csak nyitott státuszú bejelentést lehet szerkeszteni
         if( $tabla == 'bejelentes' ) {
 
-            //Diszpécser nem módosíthat bejelentést
+            // Diszpécser nem módosíthat bejelentést
             if(_jog(JOG_MUNKALAP_KESZITHET)){
                 $weblap -> leallit();
                 exit;
@@ -809,16 +806,14 @@ function i_u($type, $tabla, $tomb) {
 
         // Loginnál szerepkörök lekezelése
         if( $tabla == 'login' ) {
-            if( $_POST['szerepkor_id'] && !$record[0]['flags'] ) {
-                $szerepkor = $adatbazis_kapcsolat->s('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
-                if( $szerepkor === false ) { $db_error = true; }
-                if( $szerepkor ) {
-                    $szerepkor = $szerepkor[0];
 
-                    if( $szerepkor['flags'] ) {
-                        array_push($oszlopok, 'flags'             );
-                        array_push($ertekek,   $szerepkor['flags']);
-                    }
+            if( $_POST['szerepkor_id'] && !$record[0]['flags'] ) {
+                $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
+                if( $szerepkor === false ) { $db_error = true; }
+
+                if( $szerepkor['flags'] ) {
+                    array_push($oszlopok, 'flags'             );
+                    array_push($ertekek,   $szerepkor['flags']);
                 }
             }
         }
@@ -2137,11 +2132,12 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 // Fontos! A rendezési sorrendet fordítva számítjuk ki, mert az irány alapból DESC az iktatószám csökkenősorrendje miatt.
                 // Ez azért fontos, mert ha másik szűrésre vált, akkor ne forduljon meg rendezés nyíl.
                 
+                $i = 0;
                 // Nem nyitott státuszú, nem sürgősek, azon belül ikatatószám
                 // A státuszoknak is van egy sorrendje, ezt is fordított sorrendben soroljuk fel
-                $statuszok = array(BEJELENTES_STAT_LEZART, BEJELENTES_STAT_VARAKOZO, BEJELENTES_STAT_ELUTASITVA, BEJELENTES_STAT_VIZSG_ALATT, BEJELENTES_STAT_KESZ_IG, BEJELENTES_STAT_FOLYAMATBAN );
+                $statuszok = array(BEJELENTES_STAT_LEZART, BEJELENTES_STAT_ELUTASITVA, BEJELENTES_STAT_VARAKOZO, BEJELENTES_STAT_VIZSG_ALATT, BEJELENTES_STAT_KESZ_IG, BEJELENTES_STAT_FOLYAMATBAN);
                 foreach($statuszok as $stat){
-                    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=0 AND `stat_id`='$stat'", 'ikt_szam');
+                    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`surgos`=0 AND `stat_id`='$stat'", 'ikt_szam');
                     foreach($bejelentesek as $bejelentes){
                         $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
                         $i++;
@@ -2149,7 +2145,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 }
                 // Nem nyitott státuszú, sürgősek, azon belül ikatatószám
                 foreach($statuszok as $stat){
-                $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=1 AND `stat_id`='$stat'", 'stat_id, ikt_szam');
+                    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`surgos`=1 AND `stat_id`='$stat'", 'stat_id, ikt_szam');
                     foreach($bejelentesek as $bejelentes){
                         $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
                         $i++;
@@ -2162,7 +2158,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                     $i++;
                 }
                 // Nyitott státuszú sürgősek, azon belül ikatatószám
-                $i = 0;
                 $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=1", 'ikt_szam');
                 foreach($bejelentesek as $bejelentes){
                     $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
@@ -2202,17 +2197,23 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 
                 $i = 0;
                 // Nem nyitott státuszú, nem sürgősek, azon belül ikatatószám
-                $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".MUNKALAP_STAT_NYITOTT."' AND `surgos`=0", 'stat_id, ikt_szam');
-                foreach($munkalapok as $munkalap){
-                    $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
-                    $i++;
+                // A státuszoknak is van egy sorrendje, ezt is fordított sorrendben soroljuk fel
+                $statuszok = array( MUNKALAP_STAT_TOROLT, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_KESZ, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_FOLYAMATBAN );
+                foreach($statuszok as $stat){
+                    $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`surgos`=0 AND `stat_id`='$stat'", 'ikt_szam');
+                    foreach($munkalapok as $munkalap){
+                        $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
+                        $i++;
+                    }
                 }
 
                 // Nem nyitott státuszú, sürgősek, azon belül ikatatószám
-                $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`!='".MUNKALAP_STAT_NYITOTT."' AND `surgos`=1", 'stat_id, ikt_szam');
-                foreach($munkalapok as $munkalap){
-                    $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
-                    $i++;
+                foreach($statuszok as $stat){
+                    $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`surgos`=1 AND `stat_id`='$stat'", 'ikt_szam');
+                    foreach($munkalapok as $munkalap){
+                        $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
+                        $i++;
+                    }
                 }
                 // Nyitott státuszú, nem sürgősek, azon belül ikatatószám
                 $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_NYITOTT."' AND `surgos`=0", 'ikt_szam');

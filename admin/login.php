@@ -511,13 +511,13 @@ require_once('selectek.php');
 
                     $onclick = '';
                     $kikapcs = '';
-                    if($jogSor['kikapcs']){
+                    if($jogSor['kikapcs']!=''/*Lényeges, hogy az üres stringgel legyen hasonlítva, mert 0 lehet értéke*/){
                         foreach(explode(',', $jogSor['kikapcs']) as $pipa_ki){
                             $kikapcs .= '$(\'#jog-'.$pipa_ki.'\').prop(\'checked\', false).removeClass(\'mod\');';
                         }
                     }
                     $kikapcskor_kikapcs = '';
-                    if($jogSor['kikapcskor_kikapcs']){
+                    if($jogSor['kikapcskor_kikapcs']==''/*Lényeges, hogy az üres stringgel legyen hasonlítva, mert 0 lehet értéke*/){
                         foreach(explode(',', $jogSor['kikapcskor_kikapcs']) as $pipa_ki){
                             $kikapcskor_kikapcs .= '$(\'#jog-'.$pipa_ki.'\').prop(\'checked\', false).addClass(\'mod\');';
                         }

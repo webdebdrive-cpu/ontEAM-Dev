@@ -2474,12 +2474,13 @@ table.csikos{
 }
 
 table.csikos.al{
-    margin-bottom: 1rem;
+    margin-bottom: 3rem;
 }
 
 table.csikos.behuz {
+    border: 0.1rem solid #ccc;
     margin-left: 2rem;
-    width: calc(100% - 2rem);
+    width: calc(100% - 4rem);
 }
 
 table.csikos tr{
@@ -2523,10 +2524,6 @@ table.csikos th.szerepkor_jog_kat{
     padding-top: 2rem;
 }
 
-table.csikos.tetel_csikos th {
-    width: 20%;
-}
-
 table.csikos th.r{
     text-align: right;
 }
@@ -2539,6 +2536,26 @@ table.csikos th.torles {
     width: 4rem;
 }
 
+table.csikos th.tetel_th1 {
+    width: 36%;
+}
+
+table.csikos th.tetel_th2 {
+    width: 15.5%;
+}
+
+table.csikos th.tetel_th3 {
+    width: 26%;
+}
+
+table.csikos th.feladat_th1 {
+    width: 36.2%;
+}
+
+table.csikos th.feladat_th2 {
+    width: 15%;
+}
+
 table.csikos th.anyag_th1 {
     width: 7%;
 }
@@ -2549,7 +2566,7 @@ table.csikos th.anyag_th2 {
 
 table.csikos th.anyag_th3 {
     text-align: right;
-    width: 20%;
+    width: 23%;
 }
 
 table.csikos th.anyag_th4 {
@@ -2558,15 +2575,15 @@ table.csikos th.anyag_th4 {
 }
 
 table.csikos th.anyag_th5 {
-    width: 20%;
+    width: 24%;
 }
 
 table.csikos th.mido_th1 {
-    width: 20%;
+    width: 33%;
 }
 
 table.csikos th.mido_th2 {
-    width: 20%;
+    width: 17%;
 }
 
 table.csikos.kicsi th {
@@ -2578,9 +2595,6 @@ table.csikos.al th{
     background: rgba(57, 74, 82, 0.18);
     border-right: 0.1rem solid transparent;
     color: #242424;
-}
-table.csikos.behuz th:last-of-type{
-    border-right: 0.2rem solid #fff;
 }
 
 table.csikos th.l {
