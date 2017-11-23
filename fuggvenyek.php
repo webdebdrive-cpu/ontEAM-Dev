@@ -1237,7 +1237,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         ');
     }
 
-    // Személyzet -> Beosztás -> Naptár fül alatt nem a hagyományos form feldogozás törétnik majd, hanem egy beosztas_naptarba_teszt() FGV-t hívunk meg
+    // Személyzet -> Beosztás -> Naptár fül alatt nem a hagyományos form feldogozás törétnik majd, hanem egy beosztas_naptarba_tesz() FGV-t hívunk meg
     if( basename(self())=='beosztas.php' && isset($_GET['naptar']) ) {
         $ret .= nl2('
             if( $(\'#beosztas\').val()==1 && !$(\'#szerepkor\').val() ) {
@@ -1270,7 +1270,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 return false;
             }
 
-            beosztas_naptarba_teszt(\''.$_GET['id'].'\');
+            beosztas_naptarba_tesz(\''.$_GET['id'].'\');
             return false;
         ');
     }
@@ -4960,89 +4960,57 @@ function munkalap_folyamatbanra_halehet($munkalapidk){
 
 }
 
-
+// Beosztásonkál használt naptár kiegenerálása
 function beosztas_naptar($beosztas_id){
 
     global $adatbazis_kapcsolat;
+    
+    // Naptár események
+    $naptar_sorok = $adatbazis_kapcsolat->s('recid tol ig felh_loginnev beosztas szerepkor', 'beosztas_naptar', "`beosztas_id` = '".$beosztas_id."'", 'tol');
 
-    $idoint = $adatbazis_kapcsolat->s('tol ig', 'beosztas', "`recid`='$beosztas_id'");
-    $idoint = $idoint[0];
+    $events = '';
+    if( $naptar_sorok ) {
+        foreach($naptar_sorok as $ns) {
 
-    $kezd = strtotime($idoint['tol']);
-    $veg  = strtotime($idoint['ig']);
-    $napok = floor(($veg - $kezd) / (60 * 60 * 24))+1;
+            // Személyzet név
+            $szemelyzet = $adatbazis_kapcsolat->s2('nev', 'torzsadat', "`felh_loginnev`='".$ns['felh_loginnev']."'");
 
-    require 'selectek.php';
-    $szerepkorok = '';
-    foreach($select_szemelyzet as $szerepkor){
-        if($szerepkor['szin']){
-            $szerepkorok .= '<div style="background: '.$szerepkor['szin'].'; padding: 0.2rem 0.4rem; font-size: 1.1rem">'.$szerepkor['name'].'</div>';
-        }
-    }
-    $naptar = nl2('
-                <div class="dib" style="position: fixed; right: 0">
-                    '.$szerepkorok.'
-                </div>
-                <table>
-                <tr>
-                    <th>
-                        Dátum
-                    </th>
-                ');
-    for($i=0; $i<$napok; $i++){
-        $naptar .= '<th>'.date('d', $kezd+60*60*24*$i).'</th>';
-    }
-    $naptar .= nl2('
-                    </tr>
-                ');
+            // Szín
+            $bgcolor = '';
+            $color   = '#242424';
+            $kieg    = ' - Szabadság';
+            foreach($select_szemelyzet as $szerepkor) {
+                if( $szerepkor['value'] && $ns['szerepkor'] == $szerepkor['value'] ) {
+                    $bgcolor = $szerepkor['szin'];
+                    $kieg    = ' - '.$szerepkor['name'];
+                }
+            }
 
-    $szorzo   = 0.743;
-    $recidk = array();
-    $szemelyzet = $adatbazis_kapcsolat->s('distinct felh_loginnev', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}'");
-    $szemelyzet = adatbazis2tomb($szemelyzet, 'felh_loginnev');
-    foreach ($szemelyzet as $szemely){
+            if( !$bgcolor ) {
+                $color = '#fff';
+            }
 
-        $szemelyzet = $adatbazis_kapcsolat->s('nev', 'torzsadat', "`felh_loginnev`='{$szemely}'");
-        $szemelyzet = $szemelyzet[0];
+            $tol = date('c', strtotime($ns['tol']));
+            $ig  = date('c', strtotime($ns['ig']));
 
-        $idopontok = array();
-        $sorok = $adatbazis_kapcsolat->s('recid tol ig szerepkor', 'beosztas_naptar', "`beosztas_id`='{$beosztas_id}' AND `felh_loginnev`='$szemely'");
-        foreach($sorok as $sor){
-            array_push($idopontok, $sor);
+            $events .= "{ id: ".$ns['recid'].", title: '".$szemelyzet['nev'].$kieg."', start: '".$tol."', end: '".$ig."', backgroundColor: '".$bgcolor."', borderColor: '".$bgcolor."', textColor: '".$color."'},";
         }
 
-        $sor_cellak = '<td colspan="'.$napok.'">';
-
-        foreach($idopontok as $idopont){
-
-            $orak_kezdestol_rem = round((strtotime($idopont['tol'])-$kezd)                      / (60*60)/10*$szorzo);
-            $orak_hossza_rem    = round((strtotime($idopont['ig'] )-strtotime($idopont['tol'])) / (60*60)/10*$szorzo);
-
-            $foglalt = true;
-            $recid   = $idopont['recid'];
-            $style   = 'margin-left: '.$orak_kezdestol_rem.'rem; ';
-            $style  .= 'width: '.$orak_hossza_rem.'rem';
-            $text    = substr($idopont['tol'], 0, 13).'-'.substr($idopont['ig'], 0, 13);
-            $title   = substr($idopont['tol'], 0, 13).'-'.substr($idopont['ig'], 0, 13);
-            $sor_cellak .= '<div title="'.$title.'" class="foglalt beosztas_'.$recid.' szerepkor_'.$idopont['szerepkor'].'" data-recid="'.$recid.'" style="'.$style.'">'.$text.'</div>';
+        if( $events ) {
+            $events = csonkit($events, 1);
         }
-
-        $sor_cellak .= '</td>';
-
-        $naptar .= nl2('
-                        <tr>
-                            <th>
-                                '.$szemelyzet['nev'].'
-                            </th>
-                            '.$sor_cellak.'
-                        </tr>
-                    ');
-
     }
 
-    $naptar .= '</table>';
+    // Start Date
+    $start_dt = date('c');
 
-    return '<div id="kijelolt_erteke"></div><div class="beosztas_naptar">'.$naptar.'</div>';
+    $html .= str_replace(
+                array('{EVENTS}', '{START_DT}'),
+                array( $events,    $start_dt  ),
+                fajlbol_olvas('../sablon/admin/naptar.html', true)
+            );
+
+    return $html;
 }
 
 //A kapott mező, operátor és feltétel alapján előállítja a where feltétel kiegészítését

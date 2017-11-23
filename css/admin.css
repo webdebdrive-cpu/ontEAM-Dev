@@ -2710,87 +2710,6 @@ div.szamlaLapozas div.lapoz.pontok {
 #kijelolt_erteke{
     margin-bottom: 3rem;
 }
-.beosztas_naptar{
-    cursor: default;
-    overflow-x: scroll;
-    overflow-y: visible;
-    padding: 0;
-    margin: 0 0 0 17.4rem;
-    width: 70rem;
-}
-.beosztas_naptar table th, .beosztas_naptar table tr {
-    border-bottom: 0.1rem solid #ccc;
-}
-.beosztas_naptar table th, .beosztas_naptar table td {
-    height: 2.2rem;
-    line-height: 1;
-    position: relative;
-}
-.beosztas_naptar table tr th:first-of-type {
-    font-weight: normal;
-    font-size: 1.1rem;
-    height: 2.3rem;
-    padding: 0.4rem 0.5rem 0.2rem 0.4rem;
-}
-.beosztas_naptar table tr th:first-of-type {
-  position: absolute;
-  left: 1rem;
-  margin-top: -0.1rem;
-  top: auto;
-  text-align: left;
-  width: 18rem;
-}
-
-.beosztas_naptar table tr:first-of-type th {
-    background: #55A2FA;
-    border: 0.1rem solid #fff;
-    color: #fff;
-    font-weight: normal;
-    padding: 0 0.2rem;
-    font-size: 1.1rem;
-}
-
-/*.beosztas_naptar table tr:nth-of-type(2) th {
-    background: #4995EB;
-    border: 0.1rem solid #fff;
-    color: #fff;
-    font-weight: normal;
-}*/
-
-.beosztas_naptar table div.foglalt {
-    background: #CBE3FF;
-    margin: -0.6rem;
-    overflow: hidden;
-    font-size: 1.1rem;
-    height: 1.4rem;
-    padding: 0.2rem;
-    position: absolute;
-}
-.beosztas_naptar table div.foglalt.szerepkor_1 {
-    background: #CBE3FF;
-}
-.beosztas_naptar table div.foglalt.szerepkor_2 {
-    background: #CCFFCB;
-}
-.beosztas_naptar table div.foglalt.szerepkor_3 {
-    background: #FCFFCB;
-}
-.beosztas_naptar table div.foglalt.szerepkor_4 {
-    background: #FFEBCB;
-}
-.beosztas_naptar table div.foglalt.szerepkor_5 {
-    background: #FFCBCB;
-}
-.beosztas_naptar table div.foglalt.szerepkor_6 {
-    background: #FFCBF1;
-}
-.beosztas_naptar table div.foglalt.szerepkor_7 {
-    background: #E0CBFF;
-}
-
-.beosztas_naptar table div.foglalt.kijelol {
-    background: #FB4747;
-}
 
 #csuszkaallit span {
     background: #b4b8b7;
@@ -2882,4 +2801,9 @@ div.jog_dt div.dtc.jog_dtc {
 div.tetel_div{
     border: 0.1rem solid #55A2FA;
     margin-bottom: 1rem;
+}
+
+.beosztas_naptar .kijelol {
+    border: 0.1rem solid #FB4747;
+    background: #FB4747;
 }

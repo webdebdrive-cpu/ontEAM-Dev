@@ -401,10 +401,6 @@ $(function() {
     /* Általánosan kattintva a dokumentumban */
     $(document).on('click', function(e) {
         $('.kijeloltek_muv').removeClass('active');
-
-        /* Beosztás naptár felületéhez */
-        $('.foglalt').removeClass('kijelol');
-        $('#mehet_gomb_kivesz').attr('disabled', 'disabled');
     });
 
     /* Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk */
@@ -460,28 +456,6 @@ $(function() {
     /* Tallózásnál jelezzük, hogy a fájl ki lett választva */
     $(document).on('change', 'div.jsff input[type=file]', function(e) {
         $(this).parent().find('span').html('Fájl kiválasztva');
-    });
-
-    /* Beosztás naptár bejegyzés törlésre kijelölés */
-    $(document).on('click', '.foglalt', function(e) {
-        naptar_id = $(this).attr('data-recid');
-        
-        $('#naptar_torol_id').val(naptar_id);
-        $('#mehet_gomb_kivesz').removeAttr('disabled');
-        $('.foglalt').removeClass('kijelol');
-        $('.beosztas_'+naptar_id).addClass('kijelol');
-        $.ajax({
-            url : 'beosztas.php',
-            type: 'POST',
-            data: {
-                id                  : naptar_id,
-                get_beosztas_adatok : new Date().getTime()
-            },
-            success: function (response) {
-                $('#kijelolt_erteke').html(response);
-            }
-        });
-        e.stopPropagation();
     });
 
     $(document).on('click', '.kijeloltek_muv', function(e) {
@@ -4720,7 +4694,7 @@ function szuro_ertek_mezo_gen(that, felt){
 }
 
 /* Személyzet -> Beosztás -> Naptár fül alatt a felvesz gomb lekezelése */
-function beosztas_naptarba_teszt(beosztas_id, felulir){
+function beosztas_naptarba_tesz(beosztas_id, felulir){
     $.ajax({
         url: 'beosztas.php',
         type: 'POST',
@@ -4732,20 +4706,30 @@ function beosztas_naptarba_teszt(beosztas_id, felulir){
             beosztas        : $('#beosztas').val(),
             szerepkor       : $('#szerepkor').val(),
             felh_loginnev   : $('#felh_loginnev').val(),
-            beosztas_naptarba_teszt : new Date().getTime()
+            beosztas_naptarba_tesz : new Date().getTime()
         },
         success: function (response) {
             response = JSON.parse(response);
             if(response.siker){
+                
+                // Naptár csere
                 $('.beosztas_naptar').replaceWith(response.naptar);
-                $('#mehet_gomb').removeClass('gombb_alert');
-                $('#tol').val('    .  .     :  ').removeClass('mod');
-                $('#ig').val('    .  .     :  ').removeClass('mod');
-                $('#beosztas').val('').removeClass('mod');
-                $('#szerepkor').val('').removeClass('mod');
-                $('#felh_loginnev').val('').removeClass('mod');
-                $('#felh_loginnev_autocomp').val('').removeClass('mod');
+                
+                // Gombok rejtése
+                $('#mehet_gomb').attr('disabled', 'disabled');
+                $('#mehet_gomb_kivesz').attr('disabled', 'disabled');
+                
+                // Űrlap nullázása
+                $('#tol').val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0').removeClass('mod');
+                $('#ig').val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0').removeClass('mod');
+                $('#szerk_form input, #szerk_form select').removeClass('mod');
+                $('#beosztas').val('');
+                $('#szerepkor').val('');
+                $('#felh_loginnev').val('');
+                $('#felh_loginnev_autocomp').val('');
                 $('.beosztas_rejt').addClass('dn');
+                $('#szerk_form div.dt').hide();
+                formModositva = false;
             }
             if(response.hiba){
                 alert2(response.hiba, response.gomb, 'Hiba');
@@ -4757,28 +4741,28 @@ function beosztas_naptarba_teszt(beosztas_id, felulir){
 }
 
 function naptar_torol_kerdez(){
-    gomb = '<input class="gomb piros" type="button" value="Igen" onclick="naptar_torol()"> <input class="gomb zold" type="button" value="Nem" onclick="alert2()">';
+    gomb = '<input class="gomb zold" type="button" value="Igen" onclick="naptar_torol()"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';
     alert2('Biztosan törli ezt a beosztást?', gomb);
 }
 
 function naptar_torol(){
     $.ajax({
-        url: 'beosztas.php',
+        url : 'beosztas.php',
         type: 'POST',
         data: {
-            id: $('#naptar_torol_id').val(),
+            id          : $('#naptar_torol_id').val(),
             naptar_torol: new Date().getTime()
         },
         success: function (response) {
             response = JSON.parse(response);
             if(response.siker){
                 $('.beosztas_naptar').replaceWith(response.naptar);
-                $('#mehet_gomb_kivesz').removeClass('gombb_alert');
+                $('#mehet_gomb_kivesz').attr('disabled', 'disabled');
                 $('#naptar_torol_id').val('');
                 alert2();
             }
             if(response.hiba){
-                alert2(response.hiba, '', 'Hiba');
+                alert2(response.hiba, response.gomb, 'Hiba');
             }
         }
     });

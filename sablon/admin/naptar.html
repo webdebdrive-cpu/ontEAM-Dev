@@ -1,47 +1,59 @@
-<script>
-
-	$(document).ready(function() {
-        $('<link rel="stylesheet" type="text/css" href="../css/fullcalendar.min.css" />').appendTo('head');
-		$('#calendar').fullCalendar({
-			header: {
-				left: 'prev,next today',
-				center: 'title',
-				right: 'month,basicWeek,basicDay'
-			},
-			defaultDate: '{START_DT}',
-			navLinks: true, /* can click day/week names to navigate views */
-			editable: false,
-			eventLimit: true, /* allow "more" link when too many events */
-            lang: 'hu',
-            contentHeight: 600,
-            events: [{EVENTS}],
-            eventClick: function(calEvent, jsEvent, view) {
-
-                /*console.log('Event: ' + calEvent.title);
-                console.log('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
-                console.log('View: ' + view.name);*/
-
-                if( calEvent.id ) {
-                    $.ajax({
-                        url : 'beosztas.php',
-                        type: 'POST',
-                        data: {
-                            id                  : calEvent.id,
-                            get_beosztas_adatok : new Date().getTime()
-                        },
-                        success: function (response) {
-                            $('#kijelolt_erteke').html(response);
-                        }
-                    });
-                }
-
-                /* change the border color just for fun
-                $(this).css('border-color', 'red'); */
-            }
-		});
-
-	});
-
-</script>
 <div id="kijelolt_erteke"></div>
-<div id="calendar"></div>
+<div class="beosztas_naptar">
+    <script>
+
+        $(document).ready(function() {
+
+            $('#calendar').fullCalendar({
+                header: {
+                    left    : 'prev,next today',
+                    center  : 'title',
+                    right   : 'month,basicWeek,basicDay'
+                },
+                defaultDate     : '{START_DT}',
+                navLinks        : true, /* can click day/week names to navigate views */
+                editable        : false,
+                eventLimit      : true, /* allow "more" link when too many events */
+                lang            : 'hu',
+                contentHeight   : 600,
+                events          : [{EVENTS}],
+                eventClick      : function(calEvent, jsEvent, view) {
+
+                    /*console.log('Event: ' + calEvent.title);
+                    console.log('Coordinates: ' + jsEvent.pageX + ',' + jsEvent.pageY);
+                    console.log('View: ' + view.name);*/
+
+                    if( calEvent.id ) {
+
+                        $('#naptar_torol_id').val(calEvent.id);
+                        $('#mehet_gomb_kivesz').removeAttr('disabled');
+                        $('.beosztas_naptar a').removeClass('kijelol');
+                        $(this).addClass('kijelol');
+
+                        $.ajax({
+                            url : 'beosztas.php',
+                            type: 'POST',
+                            data: {
+                                id                  : calEvent.id,
+                                get_beosztas_adatok : new Date().getTime()
+                            },
+                            success: function (response) {
+                                $('#kijelolt_erteke').html(response);
+                            }
+                        });
+
+                    }
+
+                    /* change the border color just for fun
+                    $(this).css('border-color', 'red'); */
+                }
+            });
+
+        });
+$(document).on('click', function(e) {
+    
+});
+    </script>
+    <div id="kijelolt_erteke"></div>
+    <div id="calendar"></div>
+</div>
