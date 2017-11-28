@@ -926,9 +926,9 @@ if (isset($_GET['uj'])) {
 $surgos_disabled = '';
 $surgos_onclick  = '';
 if (isset($_GET['modosit'])) {
-    
+
     $surgos_disabled = true;
-    
+
     $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid`='{$_GET['id']}'");
     if( $bejelentes['stat_id']==BEJELENTES_STAT_NYITOTT && ( _jog(JOG_BEJELENTES_KEZEL) || _jog(JOG_BEJELENTES_MAS_NEVEBEN) ) ) {
         $surgos_disabled = false;
@@ -1021,14 +1021,14 @@ $bejelentes_dok_tomb = $akt_tomb = array(
 $surgos_disabled = '';
 $surgos_onclick  = '';
 if(isset($_GET['modosit'])){
-    
+
     $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev stat_id', 'munkalap', "`recid`='{$_GET['id']}'");
     $hozrend_mobilnev = '';
     if($munkalap['szemelyzet_id']==MOBILCSOPORT && $munkalap['mobil_loginnev']){
         $torzsadat = $adatbazis_kapcsolat->s2('nev', 'torzsadat', "`felh_loginnev`='{$munkalap['mobil_loginnev']}'");
         $hozrend_mobilnev = $torzsadat['nev'];
     }
-    
+
     // Sürgősség pipa
     $surgos_onclick = 'csoportMuvelet(\'surgosseg_indoklas\')';
     $surgos_disabled = true;
@@ -1265,7 +1265,7 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
     //array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
-    
+
 
 // Rendszeres karbantartás
 $nap_rejt = 'dn ';
@@ -2629,13 +2629,13 @@ if( isset($_POST['csoportbaRendez']) ) {
 
             // Munkalapok csoportba rendezésekor a státusza automatikusan várakozóra vált, és a bejelentéseinek is, és a hozzárendelt személyeztet, és szállítót
             if($page=='munkalap'){
-                
+
                 foreach($idk as $id) {
-                    
+
                     // Státusz léptetés
                     $statusz = addStatusz( $page.'_statusz', $id, MUNKALAP_STAT_VARAKOZO );
                     if( $statusz === false ) { $db_error = true; }
-                    
+
                     // Munkalap update
                     $sql = $adatbazis_kapcsolat->u('munkalap',  array('szemelyzet_id', 'mobil_loginnev', 'szallito_id'  ),
                                                                 array(0,               '',               0              ),
@@ -2766,12 +2766,12 @@ if (isset($_POST['csoport_tartalom'])) {
         $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$munkalap['telephely_id']}'");
         $obj       = $adatbazis_kapcsolat->s2('nev', 'obj', "`recid`='{$munkalap['obj_id']}'");
         $gep       = $adatbazis_kapcsolat->s2('nev', 'eszkozkezeles', "`recid`='{$munkalap['gep_id']}'");
-        
+
         $bejelentes= $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'");
         $bejelentes= $adatbazis_kapcsolat->s2('hiba_id, hiba_text', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
         $hiba      = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$bejelentes['hiba_id']}'");
         $hiba      = $hiba['info'].'<br>'.nl2br2($bejelentes['hiba_text']);
-        
+
         $html .= nl2('
             <tr>
                 <td style="text-align: left">'.$munkalap['ikt_szam'].'</td>
@@ -3135,7 +3135,7 @@ if (isset($_POST['surgosseg_allit'])) {
     // Csak nyitott munkalap sürgőssége állítható!
     $statusz = $adatbazis_kapcsolat->s2('stat_id', $_POST['page'], "`recid`='{$_POST['recid']}'");
     if($_POST['page']=='bejelentes'){
-        
+
         $megnevezes = 'bejelentés';
         if($statusz['stat_id']!=BEJELENTES_STAT_NYITOTT){
             echo json_encode(array(
@@ -3146,12 +3146,12 @@ if (isset($_POST['surgosseg_allit'])) {
             exit();
         }
     }
-    
+
     // Csak nyitott munkalap sürgőssége állítható!
     if($_POST['page']=='munkalap'){
 
         $megnevezes = 'munkalap';
-        
+
         // Státusz ellenőrzés
         if( $statusz['stat_id']!=MUNKALAP_STAT_NYITOTT ){
             echo json_encode(array(
@@ -3186,7 +3186,7 @@ if (isset($_POST['surgosseg_allit'])) {
     // Jelenleg sürgős-e vagy sem
     $surgos = $adatbazis_kapcsolat->s2('surgos', $_POST['page'], "`recid`='{$_POST['recid']}'");
     if( $surgos === false ) { $db_error = true; }
-    
+
     if($surgos['surgos']){
         $uj_stat_szoveg = 'nem sürgős';
         $surgos_allit   = 0;
@@ -3198,7 +3198,7 @@ if (isset($_POST['surgosseg_allit'])) {
     // Adott rekordon cseréjük a sürgősséget
     $sql = $adatbazis_kapcsolat->u($_POST['page'], array('surgos'), array($surgos_allit), "`recid`='{$_POST['recid']}'");
     if( $sql === false ) { $db_error = true; }
-    
+
     // Indoklás a megjegyzésekbe
     $indoklas = 'A '.$megnevezes.' sürgősségi státusza módosult: '.$uj_stat_szoveg."\n".$_POST['indoklas'];
     if( addMegj($_POST['page'], $_POST['recid'], $indoklas) === false ) {
@@ -3212,7 +3212,7 @@ if (isset($_POST['surgosseg_allit'])) {
         foreach($munkalapok as $munkalap){
             $sql = $adatbazis_kapcsolat->u('munkalap', array('surgos'), array($surgos_allit), "`recid`='{$munkalap['munkalap_id']}'");
             if( $sql === false ) { $db_error = true; }
-            
+
             if( addMegj('munkalap', $munkalap['munkalap_id'], $indoklas) === false ) {
                 $db_error = true;
             }
@@ -3223,12 +3223,12 @@ if (isset($_POST['surgosseg_allit'])) {
     if($_POST['page']=='munkalap'){
         $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$_POST['recid']}'");
         if( $bejelentesek === false ) { $db_error = true; }
-        
+
         // Bár ez felesleges, mert egy munkalaphoz csak egy bejelentés tartozhat csak
         foreach($bejelentesek as $bejelentes){
             $sql = $adatbazis_kapcsolat->u('bejelentes', array('surgos'), array($surgos_allit), "`recid`='{$bejelentes['bejelentes_id']}'");
             if( $sql === false ) { $db_error = true; }
-            
+
             if( addMegj('bejelentes', $bejelentes['bejelentes_id'], $indoklas) === false ) {
                 $db_error = true;
             }
@@ -3251,39 +3251,84 @@ if (isset($_POST['surgosseg_allit'])) {
     exit();
 }
 
+if( isset($_POST['getSzallodak']) ) {
+    /* Szálloda lekérdezése */
+    $telephelyek = $adatbazis_kapcsolat->s('id nev recid modell', 'telephely', '', '', '');
+
+    /* Felhasználóhoz kapcsolt szállodák */
+    $felh = $adatbazis_kapcsolat->s('nev', 'login', "`recid` = '".$_POST['recid']."'", '', '');
+
+    if( $felh ) {
+        $felh = $felh[0];
+
+        /* Kapcsolt szállodák */
+        $felh_szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev` = '".$felh['nev']."'", '', '');
+        $felh_szallodak = adatbazis2tomb($felh_szallodak, 'telephely_id');
+    }
+
+    if( !$felh_szallodak ) {
+        $felh_szallodak = array();
+    }
+
+    $html = '';
+    if( $telephelyek ) {
+        foreach($telephelyek as $telephely) {
+            $checked = '';
+            if( in_array($telephely['id'], $felh_szallodak) ) {
+                $checked = ' checked="checked"';
+            }
+
+            $html .= nl2('
+                <div class="dtr">
+                    <div class="dtc">
+                        <div class="cb">
+                            <input type="checkbox" class="check" name="telephely[]" id="telephely-'.$telephely['recid'].'" value="'.$telephely['id'].'" data-pesti="'.$telephely['modell'].'"'.$checked.'>
+                            <label for="telephely-'.$telephely['recid'].'"></label>
+                        </div>
+                    </div>
+                    <div class="dtc">
+                        '.$telephely['nev'].'
+                    </div>
+                </div>
+            ');
+        }
+    }
+
+    echo $html;
+
+    $weblap->leallit();
+    exit();
+}
+
 // Szálloda hozzáadása felhasználóhoz ajaxosan
 if( isset($_GET['addSzalloda']) ) {
-    $loginID = $_GET['loginID'];
-    $szallID = $_GET['szallID'];
+    $loginID  = $_GET['loginID'];
+    $szallIDs = json_decode($_GET['szallIDs'], true);
 
-    if( $loginID && $szallID ) {
+    if( $loginID && count($szallIDs) ) {
         $felh = $adatbazis_kapcsolat->s2('nev', 'login', 'recid='.$loginID, '', '1');
 
         if( $felh ) {
+            $adatbazis_kapcsolat -> d('telephely_kapcs', "`nev` = '".$felh['nev']."'");
 
-            $isKapcs = $adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`telephely_id` = '{$szallID}' AND `nev` = '".$felh['nev']."'", '', '1');
-
-            if( !$isKapcs ) {
-                $kapcsID = $adatbazis_kapcsolat -> i('telephely_kapcs', array('nev',        'telephely_id', 'insert_dt',    'insert_usr'                            ),
-                                                                        array($felh['nev'], $szallID,       'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
-                                                    );
-
-                /* Szálloda lekérdezése */
-                $sor = $adatbazis_kapcsolat->s('nev', 'telephely', "`id` = '{$szallID}'", '', '1');
-
-                if( $sor ) {
-                    echo json_encode(array(
-                        'statusz' => 'siker',
-                        'kapcsID' => $kapcsID,
-                        'uzi'     => ''
-                    ));
-                }
-            } else {
-                echo json_encode(array(
-                    'statusz' => 'hiba',
-                    'uzi'     => 'Ez a szálloda már hozzáadásra került!'
-                ));
+            /* Hozzáadjuk a szállodákat */
+            foreach($szallIDs as $key => $szallID) {
+                $kapcsID = $adatbazis_kapcsolat -> i('telephely_kapcs',
+                    array('nev',        'telephely_id', 'insert_dt',    'insert_usr'                            ),
+                    array($felh['nev'], $szallID,       'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
+                );
             }
+
+            echo json_encode(array(
+                'statusz' => 'siker',
+                'kapcsID' => $kapcsID,
+                'uzi'     => ''
+            ));
+        } else {
+            echo json_encode(array(
+                'statusz' => 'hiba',
+                'uzi'     => 'Ez a szálloda már hozzáadásra került!'
+            ));
         }
     }
 
@@ -3589,7 +3634,7 @@ foreach($postok as $ertek){
                 $ertek['tabla'] = 'obj';
                 $ertek['tomb']  = $obj_tomb;
             }
-            
+
 			$u_i_ret  = i_u('update',$ertek['tabla'],$ertek['tomb']);
 			$errnum   = $u_i_ret['0'];
 			$tabla_id = $u_i_ret['1'];
