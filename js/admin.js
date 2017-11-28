@@ -398,15 +398,21 @@ $(function() {
         }, 650);
     });
 
-    /* Általánosan kattintva a dokumentumban */
+    // Általánosan kattintva a dokumentumban
     $(document).on('click', function(e) {
         $('.kijeloltek_muv').removeClass('active');
     });
+    // Jobb egérgomb tiltása
+    $(document).on('contextmenu', function(e){
+        e.preventDefault();
+        return false;
+    }); 
 
-    /* Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk */
+    // Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk
     $(':input[type!="hidden"]').each(function (i) {
         $(this).attr('tabindex', i + 1);
     });
+    
 
     $(document).on('keyup', 'input[type="checkbox"]', function(e) {
         if( e.keyCode == 32 ) {
