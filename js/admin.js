@@ -3614,6 +3614,20 @@ function kapcsolodoSzerkeszt( oldal ) {
                 $('#addSzakterForm').attr('onsubmit', 'return addSzakterulet(\'' + _get('id') + '\', this);');
             break;
             case 'szallodak':
+                $.ajax({
+                 	url : 'esemenyek.php',
+                 	type: 'POST',
+                    data: {
+                        recid           : _get('id'),
+                        getSzallodak    : new Date().getTime()
+                    },
+                 	success: function(response) {
+                 		if(response) {
+                 			$('#addSzallodak').html(response);
+                 		}
+                 	}
+                 });
+
                 $('#addSzallodaForm').attr('onsubmit', 'return addSzalloda(\'' + _get('id') + '\', this);');
             break;
             case 'velemenyezok':
@@ -3658,6 +3672,33 @@ function kapcsolodoSzerkeszt( oldal ) {
 
         popupNyit();
     });
+}
+
+function szallodakJelol( value ) {
+    var telephelyek = $('input[name="telephely[]"]');
+
+    $('input[name="telephely[]"]').prop('checked', false);
+    if( value != 'urit' ) {
+        telephelyek.each(function() {
+            var pesti = parseInt( $(this).attr('data-pesti') );
+
+            switch( value ) {
+                case 'pesti':
+                    if( pesti ) {
+                        $(this).prop('checked', true);
+                    }
+                break;
+                case 'videki':
+                    if( !pesti ) {
+                        $(this).prop('checked', true);
+                    }
+                break;
+                case 'mind':
+                    $(this).prop('checked', true);
+                break;
+            }
+        });
+    }
 }
 
 /* Popup bezárása */
@@ -3960,11 +4001,19 @@ function addMegjegyzes( pageID, that ) {
 function addSzalloda( loginID, that ) {
     var szallID = $(that).find('input[name="addSzall"]').val();
 
-    if( loginID && szallID ) {
+    var telephelyek = $(that).find('input[name="telephely[]"]:checked');
+    var data = {};
+    telephelyek.each(function(i) {
+        var value = $(this).val();
+
+        data[i] = value;
+    });
+
+    if( loginID && objLength(data) ) {
         var ajax = $.ajax({
          	url : 'esemenyek.php',
          	type: 'GET',
-         	data: esamp2es('loginID=' + loginID + '&amp;szallID=' + szallID + '&amp;addSzalloda=' + new Date().getTime()),
+         	data: esamp2es('loginID=' + loginID + '&amp;szallIDs=' + JSON.stringify(data) + '&amp;addSzalloda=' + new Date().getTime()),
          	success: function(html) {
          		if(html) {
                     html = JSON.parse(html);
@@ -3975,7 +4024,7 @@ function addSzalloda( loginID, that ) {
                     }
 
          			szamlaBetolt(loginID, baseName(location.href) + '.php', 'szallodak').done(function() {
-                        $('#naploSor-' + html.kapcsID).addClass('uj');
+                        /*$('#naploSor-' + html.kapcsID).addClass('uj');*/
                     });
 
                     popupZar();
@@ -4711,14 +4760,14 @@ function beosztas_naptarba_tesz(beosztas_id, felulir){
         success: function (response) {
             response = JSON.parse(response);
             if(response.siker){
-                
+
                 // Naptár csere
                 $('.beosztas_naptar').replaceWith(response.naptar);
-                
+
                 // Gombok rejtése
                 $('#mehet_gomb').attr('disabled', 'disabled');
                 $('#mehet_gomb_kivesz').attr('disabled', 'disabled');
-                
+
                 // Űrlap nullázása
                 $('#tol').val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0').removeClass('mod');
                 $('#ig').val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0').removeClass('mod');

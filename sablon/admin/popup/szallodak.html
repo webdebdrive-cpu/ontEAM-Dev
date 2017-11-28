@@ -1,11 +1,23 @@
 <h2>Új Szálloda hozzáadása</h2>
 <form action="" id="addSzallodaForm" class="popupForm" method="post">
-    <div class="kozep" style="min-height: 26rem"> 
-        <div class="dt">
+    <div class="kozep" style="min-height: 26rem">
+        <div class="dt szalloda_hozzaad">
             <div class="dtr">
-                <div class="dtc">Szálloda:</div>
+                <div class="dtc">
+                    <h3>Gombok:</h3>
+
+                    <input type="button" name="megsem" class="gomb foGomb" value="Pesti szállodák" onclick="szallodakJelol( 'pesti' );">
+                    <input type="button" name="megsem" class="gomb foGomb" value="Vidéki szállodák" onclick="szallodakJelol( 'videki' );">
+                    <input type="button" name="megsem" class="gomb foGomb" value="Mind jelölés" onclick="szallodakJelol( 'mind' );">
+                    <input type="button" name="megsem" class="gomb foGomb" value="Mind ürítése" onclick="szallodakJelol( 'urit' );">
+                </div>
                 <div class="dtc form_jobb">
-                    <input type="text" name="addSzall_autocomp" id="szallodaKeres" class="gombm disableNav focus" value="" placeholder="Szálloda keresése..." autocomplete="off">
+                    <h3>Szállodák:</h3>
+
+                    <div class="szallodak_keret">
+                        <div id="addSzallodak" class="dt szallodak"></div>
+                    </div>
+                    <!--<input type="text" name="addSzall_autocomp" id="szallodaKeres" class="gombm disableNav focus" value="" placeholder="Szálloda keresése..." autocomplete="off">
                     <input type="hidden" name="addSzall" value="">
 
                     <script>
@@ -18,7 +30,7 @@
                                 'id_kiir'         : 'id'
                             });
                         });
-                    </script>
+                    </script>-->
                 </div>
             </div>
         </div>

@@ -2191,6 +2191,42 @@ div.navGombok a.disabled .material-icons {
     width: 100%;
 }
 
+#popup div.popup_tart div.dt.szalloda_hozzaad div.dtc {
+    vertical-align: top;
+}
+
+#popup div.dt.szalloda_hozzaad div.form_jobb {
+    padding-left: 5rem;
+}
+
+#popup div.dt.szalloda_hozzaad h3 {
+    padding-bottom: 2rem;
+}
+
+#popup div.szallodak_keret {
+    max-height: 40rem;
+    overflow-y: auto;
+    padding: 0.1rem 0rem 0rem 0rem;
+}
+
+#popup div.dt.szallodak {
+    max-height: 40rem;
+    overflow-y: auto;
+    width: 100%;
+}
+
+#popup div.dt.szallodak div.dtc {
+    width: auto;
+}
+
+#popup div.dt.szallodak div.dtc:first-child {
+    padding: 0rem 1.5rem 1rem 0rem;
+}
+
+#popup div.dt.szallodak div.dtc:last-child {
+    width: 100%;
+}
+
 #popup div.popup_tart div.dt div.dtc.form_jobb.wsn {
     padding-right: 4.5rem;
     white-space: nowrap;
