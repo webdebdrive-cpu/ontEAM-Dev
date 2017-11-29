@@ -19,7 +19,7 @@ $akt_tomb               = $munkalap_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'munkalapot';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-//Változók beállítása
+// Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
 $fajloszlop             = 'kep';                //Kép (vagy kivételes esetekben más fájl) oszlopneve.
@@ -1350,7 +1350,7 @@ if( isset($_POST['munkalapMegrendelve']) ) {
             if( $_POST['csak_kerdezunk'] ) {
                 echo json_encode(array(
                     'hiba' => 'Biztos, hogy megrendelte '.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).' partnertől a munka elvégzését?',
-                    'gomb' => '<input class="gomb piros" value="Igen" onclick="munkalapMegrendelve( '.$recid.' );" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+                    'gomb' => '<input class="gomb zold" value="Igen" onclick="munkalapMegrendelve( '.$recid.' );" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
                 ));
 
                 $weblap->leallit();
@@ -1424,7 +1424,7 @@ if( isset($_POST['kuldesJovahagyasra']) ) {
             if( $_POST['csak_kerdezunk'] ) {
                 echo json_encode(array(
                     'hiba' => 'Biztos elküldi jóváhagyásra a munkalapot?',
-                    'gomb' => '<input class="gomb piros" value="Igen" onclick="kuldesJovahagyasra( '.$recid.' );" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+                    'gomb' => '<input class="gomb zold" value="Igen" onclick="kuldesJovahagyasra( '.$recid.' );" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
                 ));
 
                 $weblap->leallit();
@@ -1603,7 +1603,7 @@ if( isset($_POST['munkalapLezaras']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
             echo json_encode(array(
                 'hiba' => 'Biztos lezárja a munkalapot?',
-                'gomb' => '<input class="gomb piros" value="Igen" onclick="munkalapLezaras();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="munkalapLezaras();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
             $weblap->leallit();
@@ -2220,17 +2220,17 @@ if( isset($_POST['getMunkalapFeladatok']) ) {
         $akt_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
         if( $akt_tetel === false ) { $db_error = true; }
 
-        $munkalapok = $adatbazis_kapcsolat->s('recid erteklista_id memo', 'munkalap_feladat', "`munkalap_id` = '{$recid}' AND `tetel_id` = '".$akt_tetel['recid']."'");
-        if( $munkalapok === false ) { $db_error = true; }
+        $munkalap_feladatok = $adatbazis_kapcsolat->s('recid erteklista_id memo', 'munkalap_feladat', "`munkalap_id` = '{$recid}' AND `tetel_id` = '".$akt_tetel['recid']."'");
+        if( $munkalap_feladatok === false ) { $db_error = true; }
 
-        if( $munkalapok ) {
+        if( $munkalap_feladatok ) {
             $sorok = '';
-            foreach($munkalapok as $munkalap) {
+            foreach($munkalap_feladatok as $munkalap_f) {
                 $sorok .= nl2('
-                    <tr>
-                        <td>'.erteklista(5, $munkalap['erteklista_id']).'<input type="hidden" name="addCikkID[]" value="'.$munkalap['cikk_id'].'"><input type="hidden" name="addCikkUj[]" value="0"></td>
-                        <td>'.nl2br($munkalap['memo']).'</td>
-                        <td><a id="feladat_id_'.$munkalap['recid'].'" onclick="munkFeladatTorol( \''.$munkalap['recid'].'\', \'feladat_id_'.$munkalap['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a></td>
+                    <tr class="feladat_sor_'.$munkalap_f['recid'].'">
+                        <td>'.erteklista(5, $munkalap_f['erteklista_id']).'<input type="hidden" name="addCikkID[]" value="'.$munkalap_f['cikk_id'].'"><input type="hidden" name="addCikkUj[]" value="0"></td>
+                        <td>'.nl2br($munkalap_f['memo']).'</td>
+                        <td><a id="feladat_id_'.$munkalap_f['recid'].'" onclick="munkFeladatTorol( \''.$munkalap_f['recid'].'\', \'feladat_id_'.$munkalap_f['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a></td>
                     </tr>
                 ');
             }
@@ -2291,7 +2291,7 @@ if( isset($_POST['getMunkalapMunkaido']) ) {
                 $munkaido['perc'] = '0'.$munkaido['perc'];
             }
             $sorok .= nl2('
-                <tr>
+                <tr class="munkaido_sor_'.$munkaido['recid'].'">
                     <td>'.$login['teljes_nev'].'</td>
                     <td>'.$munkaido['ora'].':'.$munkaido['perc'].'</td>
                     <td><a id="munk_ido_'.$munkaido['recid'].'" onclick="munkMunkaidoTorol( \''.$munkaido['recid'].'\', \'munk_ido_'.$munkaido['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a></td>
@@ -2428,7 +2428,7 @@ if( isset($_POST['hozzBeosztasNelkul']) ) {
         if( $munkalapok === false ) { $db_error = '1'; }
 
         $szemRendelt = '';
-        $sorok = '';
+        $sorok       = '';
         if( $munkalapok ) {
             $i = 1;
             foreach($munkalapok as $munkalap) {
@@ -2514,8 +2514,7 @@ if( isset($_POST['munkalapErkeztet']) ) {
         exit();
     }
 
-    $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$munkalap['telephely_id']}'");
-    $telephely = $telephely[0];
+    $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$munkalap['telephely_id']}'");
 
     $tablazat = nl2('
         <div style="margin: 1rem 0 0.3rem 0;">Felhasznált és hiányzó anyagok:</div>
@@ -2708,7 +2707,7 @@ if( isset($_POST['getMunkalapAnyagok']) ) {
                     }
 
                     $sorok .= nl2('
-                        <tr>
+                        <tr class="anyag_sor_'.$anyag['recid'].'">
                             <td>'.$anyag['cikk_id'].'<input type="hidden" name="addCikkID[]" value="'.$anyag['cikk_id'].'"><input type="hidden" name="addCikkUj[]" value="0"></td>
                             <td>'.$anyag['cikk_nev'].'</td>
                             <td>'.$anyag['cikk_men'].'<input type="hidden" name="addCikkFelhMenny[]" value="'.$anyag['cikk_men'].'"></td>
@@ -2796,7 +2795,7 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
         // Kezelés jog ellenőrzése
         if( !_jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) && !_jog(JOG_MUNKALAP_SAJAT_KEZEL) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']!=$_SESSION[get_db_tabla().'szemelyzet_id'] ) ) {
             echo json_encode(array(
-                'hiba'  => 'Önnek nincs joga anyagot vételezni!',
+                'hiba'  => 'Önnek nincs joga anyagot felhasználni!',
                 'title' => 'Hiba',
             ));
             $weblap->leallit();
@@ -2933,7 +2932,7 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
     exit();
 }
 
-// Munkalap anyag vételezés
+// Munkalap anyag felhasználás
 if( isset($_POST['munkAnyagVetelezes']) ) {
     $recid = $_POST['recid'];
 
@@ -2948,7 +2947,7 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
         // Státusz ellenőrzése
         if( $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE && $munkalap['stat_id'] != MUNKALAP_STAT_KESZ && $munkalap['stat_id'] != MUNKALAP_STAT_VIZSGALAT_ALATT ) {
             echo json_encode(array(
-                'hiba'  => 'Ebben a státuszban nem lehet anyagot vételezni!',
+                'hiba'  => 'Ebben a státuszban nem lehet anyagot felhasználni!',
                 'title' => 'Hiba',
             ));
             $weblap->leallit();
@@ -2956,7 +2955,7 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
         }
         if( $munkalap['stat_id'] == MUNKALAP_STAT_VIZSGALAT_ALATT && !_jog(JOG_MUNKALAP_VIZSGALAT) ) {
             echo json_encode(array(
-                'hiba'  => 'Ebben a státuszban csak vizsgálat joggal lehet anyagot vételezni!',
+                'hiba'  => 'Ebben a státuszban csak vizsgálat joggal lehet anyagot felhasználni!',
                 'title' => 'Hiba',
             ));
             $weblap->leallit();
@@ -2966,7 +2965,7 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
         // Kezelés jog ellenőrzése
         if( !_jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) && !_jog(JOG_MUNKALAP_SAJAT_KEZEL) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']!=$_SESSION[get_db_tabla().'szemelyzet_id'] ) ) {
             echo json_encode(array(
-                'hiba'  => 'Önnek nincs joga anyagot vételezni!',
+                'hiba'  => 'Önnek nincs joga anyagot felhasználni!',
                 'title' => 'Hiba',
             ));
             $weblap->leallit();
@@ -3246,7 +3245,7 @@ if( isset($_POST['munkaidoHozzaadas']) ) {
     }
 
     // Jog ellenőrzése
-    if( !_jog(JOG_MUNKALAP_MUNKAIDO_HOZZAAD) ) {
+    if( !_jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) && !_jog(JOG_MUNKALAP_SAJAT_KEZEL) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']!=$_SESSION[get_db_tabla().'szemelyzet_id'] ) ) {
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga munkaidőt ráfodítani!',
             'title' => 'Hiba',
@@ -4106,14 +4105,14 @@ require('selectek.php');
             $gombok .= '<input type="button" class="gomb" value="Készre jelentés" onclick="munkalapKeszre(\'csak kérdezünk még\');"> ';
         }
 
-        // Felvéve, kész, vizsgálat státusz + kezelés jog (viszgálat státusznál vízsgálat jog) bármelyike alatti gombok
+        // Felvéve, kész, vizsgálat státusz + kezelés jog (vizsgálat státusznál vízsgálat jog) bármelyike alatti gombok
         if(
             (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_KESZ) && $kezeles_jog ) ||
             ($sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
             ) {
             $gombok .= nl2('
                         <input type="button" class="gomb" value="Elvégzett feladat hozzáadása" onclick="csoportMuvelet(\'feladatHozzaad\')">
-                        <input type="button" class="gomb" value="Anyag vételezés" onclick="csoportMuvelet(\'munkalapAnyagvetelezes\');">
+                        <input type="button" class="gomb" value="Anyag felhasználás" onclick="csoportMuvelet(\'munkalapAnyagvetelezes\');">
                     ');
         }
 
@@ -4124,8 +4123,8 @@ require('selectek.php');
 
         // Felvéve státusz + munkaidő hozzáad jog
         if( 
-            (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_KESZ) && $kezeles_jog && _jog(JOG_MUNKALAP_MUNKAIDO_HOZZAAD) ) ||
-            ($sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) && _jog(JOG_MUNKALAP_MUNKAIDO_HOZZAAD) )
+            (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_KESZ) && $kezeles_jog ) ||
+            ($sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
             ){
             $gombok .= '<input type="button" class="gomb" value="Munkaidő hozzáad" onclick="csoportMuvelet(\'munkaidoHozzaad\');"> ';
         }
@@ -4421,7 +4420,6 @@ require('selectek.php');
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
-//echo $adatbazis_kapcsolat->gp() . '<br>';
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
                 'datetime' => $sor['update_dt'],
@@ -4528,6 +4526,7 @@ require('selectek.php');
                         <div class="dtc">Bejelentő</div>
                         <div class="dtc">Bejelentve</div>
                         <div class="dtc">Státusz</div>
+                        <div class="dtc"></div>
                     </div>
             ');
             $i = 1;
@@ -4537,17 +4536,16 @@ require('selectek.php');
                 $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id hiba_id insert_dt stat_id hiba_text usr_nev usr_telefon usr_email usr_beosztas_id usr_reszleg_id', 'bejelentes', "`recid` = '".$munkalap_kapcs['bejelentes_id']."'", '', '1');
                 if( $sor ) {
 
-                    /* Telephely */
+                    // Telephely
                     $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
                     $telephely = $telephely[0]['nev'];
 
-                    /* Helység */
+                    // Helység
                     $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
                     $helyseg = $helyseg[0]['nev'];
 
-                    /* Hiba */
-                    $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$sor['hiba_id']}'");
-                    $hiba = $hiba[0];
+                    // Hiba
+                    $hiba = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=4 AND `recid`='{$sor['hiba_id']}'");
 
                     $szamla_html .= nl2('
                         <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
@@ -4564,6 +4562,12 @@ require('selectek.php');
                             </div>
                             <div class="dtc">'.$sor['insert_dt'].'</div>
                             <div class="dtc">'.getStatText('bejelentes', $sor['stat_id']).'</div>
+                            <div class="dtc link">
+                                <script>
+                                    bej_torol_gomb = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\'munkalap_kapcs\\\', \\\'bejelentesek\\\', \\\'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
+                                </script>
+                                <span class="icon" onclick="$(\'#naploSor-'.$sor['recid'].'\').addClass(\'torles_elott\'); alert2(\'Biztosan törli a bejelentést a munkalapról?\', bej_torol_gomb);"><i class="material-icons" style="font-size: 2rem">delete</i></span>
+                            </div>
                         </div>
                     ');
                 }
@@ -4601,157 +4605,200 @@ require('selectek.php');
     } elseif(isset($_GET['tetel'])) {
 
         // Tétel sorok
+        $i = 0;
         $sorok = $adatbazis_kapcsolat->s('recid atadta_dt visszaadva erteklista_id loginnev insert_dt insert_usr', 'munkalap_tetel', "`munkalap_id` = '".$_GET['id']."'", 'recid desc');
-        if( $sorok ) {
-            foreach($sorok as $sor) {
+        foreach($sorok as $sor) {
+            
+            $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='{$_GET['id']}'");
+            $kezeles_jog = false;
+            if( _jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) || (_jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']==$_SESSION[get_db_tabla().'szemelyzet_id']) ) {
+                $kezeles_jog = true;
+            }
+            
+            $szamla_html .= nl2('
+                <div class="tetel_div">
+                    <table class="csikos tetel_csikos full">
+                        <tr>
+                            <th class="tetel_th1">Személyzet</th>
+                            <th class="tetel_th2">Felvette</th>
+                            <th class="tetel_th3">Átadta</th>
+                            <th class="l">Visszaadva</th>
+                        </tr>
+            ');
+
+            $visszaadva = '';
+            if( $sor['visszaadva'] ) {
+                $visszaadva = '<span class="icon piros"><i class="material-icons">done</i></span>';
+            }
+
+            $atadta = '';
+            if( $sor['atadta_dt'] != '0000-00-00 00:00:00' ) {
+                $atadta = date('Y.m.d H:i', strtotime($sor['atadta_dt']));
+            }
+
+            $atadas_oka = erteklista(7, $sor['erteklista_id']);
+            if( $atadas_oka ) {
+                $atadas_oka = '<br>'.$atadas_oka;
+            }
+
+            // Szerepkör
+            $tetel_felh = $adatbazis_kapcsolat->s2('szerepkor_id', 'login', "`nev` = '".$sor['loginnev']."'", '', '');
+            $szerepkor = '';
+            if( $tetel_felh ) {
+
+                $szerepkor_sor = $adatbazis_kapcsolat->s2('nev', 'szerepkor', "`recid` = '".$tetel_felh['szerepkor_id']."'", '', '1');
+                if( $szerepkor_sor ) {
+                    $szerepkor = '<br>('.$szerepkor_sor['nev'].')';
+                }
+            }
+
+            $szamla_html .= nl2('
+                <tr>
+                    <td>'.$sor['insert_usr'].$szerepkor.'</td>
+                    <td>'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</td>
+                    <td>'.$atadta.'</td>
+                    <td class="l" style="padding-left: 3.7rem">'.$visszaadva.$atadas_oka.'</td>
+                </tr>
+            ');
+
+            $szamla_html .= '</table>';
+
+            // Elvégzett feladatok lekérdezése
+            $feladatok = $adatbazis_kapcsolat->s('recid erteklista_id tetel_id memo', 'munkalap_feladat', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
+            if( $feladatok ) {
                 $szamla_html .= nl2('
-                    <div class="tetel_div">
-                        <table class="csikos tetel_csikos full">
-                            <tr>
-                                <th class="tetel_th1">Személyzet</th>
-                                <th class="tetel_th2">Felvette</th>
-                                <th class="tetel_th3">Átadta</th>
-                                <th class="l">Visszaadva</th>
-                            </tr>
+                    <div style="padding: 0.2rem">
+                    <table class="csikos full al">
+                        <tr>
+                            <th class="feladat_th1">Elvégzett feladat</th>
+                            <th class="feladat_th2">Leírás</th>
+                            <th></th>
+                        </tr>
                 ');
 
-                $visszaadva = '';
-                if( $sor['visszaadva'] ) {
-                    $visszaadva = '<span class="icon piros"><i class="material-icons">done</i></span>';
-                }
-
-                $atadta = '';
-                if( $sor['atadta_dt'] != '0000-00-00 00:00:00' ) {
-                    $atadta = date('Y.m.d H:i', strtotime($sor['atadta_dt']));
-                }
-
-                $atadas_oka = erteklista(7, $sor['erteklista_id']);
-                if( $atadas_oka ) {
-                    $atadas_oka = '<br>'.$atadas_oka;
-                }
-
-                // Szerepkör
-                $tetel_felh = $adatbazis_kapcsolat->s2('szerepkor_id', 'login', "`nev` = '".$sor['loginnev']."'", '', '');
-                $szerepkor = '';
-                if( $tetel_felh ) {
-
-                    $szerepkor_sor = $adatbazis_kapcsolat->s2('nev', 'szerepkor', "`recid` = '".$tetel_felh['szerepkor_id']."'", '', '1');
-                    if( $szerepkor_sor ) {
-                        $szerepkor = '<br>('.$szerepkor_sor['nev'].')';
+                foreach($feladatok as $feladat) {
+                    
+                    // Csak a legelső iterációban (tehát a legutóbb felvett tételnél) van törlés lehetőség, persze ha a státusz és jogok is rendben vannak.
+                    $torles = '';
+                    if(
+                            $i==0 &&
+                            (
+                                (($munkalap['stat_id']==MUNKALAP_STAT_FELVEVE || $munkalap['stat_id']==MUNKALAP_STAT_KESZ) && $kezeles_jog ) ||
+                                ($munkalap['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
+                            )
+                            
+                        ){
+                        $torles = '<a class="link" id="feladat2_id_'.$feladat['recid'].'" onclick="munkFeladatTorol( \''.$feladat['recid'].'\', \'feladat2_id_'.$feladat['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a>';
                     }
+                    $szamla_html .= nl2('
+                        <tr class="feladat_sor_'.$feladat['recid'].'">
+                            <td id="elv_feladat_nev_'.$feladat['recid'].'">'.erteklista(5, $feladat['erteklista_id']).'</td>
+                            <td id="elv_feladat_memo_'.$feladat['recid'].'">'.nl2br($feladat['memo']).'</td>
+                            <td class="r">'.$torles.'</td>
+                        </tr>
+                    ');
                 }
 
+                $szamla_html .= '</table></div>';
+            }
+
+            // Anyagigénylések lekérdezése
+            $anyagok = $adatbazis_kapcsolat->s('recid cikk_id cikk_nev cikk_men szuk_men cikk_mee stat_id', 'munkalap_anyag', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
+            if( $anyagok ) {
                 $szamla_html .= nl2('
-                    <tr >
-                        <td>'.$sor['insert_usr'].$szerepkor.'</td>
-                        <td>'.date('Y.m.d H:i', strtotime($sor['insert_dt'])).'</td>
-                        <td>'.$atadta.'</td>
-                        <td class="l" style="padding-left: 3.7rem">'.$visszaadva.$atadas_oka.'</td>
-                    </tr>
+                    <table class="csikos full al behuz">
+                        <tr>
+                            <th class="anyag_th1">Cikkszám</th>
+                            <th class="anyag_th2">Anyag felhasználás</th>
+                            <th class="anyag_th3">Felhasznált mennyiség</th>
+                            <th class="anyag_th4">Szükséges mennyiség</th>
+                            <th class="anyag_th5">Anyag státusz</th>
+                            <th class="anyag_th6"></th>
+                        </tr>
                 ');
+
+                foreach($anyagok as $anyag) {
+
+                    // Anyag törlés csak az első tételnél lehetséges, ha a státusz és jogok is rendben vannak
+                    $anyag_torol = '';
+                    if(     $i==0 &&
+                            (
+                                (($munkalap['stat_id']==MUNKALAP_STAT_FELVEVE || $munkalap['stat_id']==MUNKALAP_STAT_KESZ) && $kezeles_jog ) ||
+                                ($munkalap['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) ) 
+                            )
+                        ){
+                        $anyag_torol = '<a class="link" id="anyag2_id_'.$anyag['recid'].'" onclick="munkAnyagTorol( \''.$anyag['recid'].'\', \'anyag2_id_'.$anyag['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a>';
+                    }
+                    $cikk_men = '';
+                    if( $anyag['cikk_men'] > 0 ) {
+                        $cikk_men = $anyag['cikk_men'].' '.$anyag['cikk_mee'];
+                    }
+
+                    $szuk_men = '';
+                    if( $anyag['szuk_men'] > 0 ) {
+                        $szuk_men    = $anyag['szuk_men'].' '.$anyag['cikk_mee'];
+                        $anyag_torol = ''; // ha van szükséges mennyiség is, akkor mégsem törölhető az anyag
+                    }
+
+                    $szamla_html .= nl2('
+                        <tr class="anyag_sor_'.$anyag['recid'].'">
+                            <td id="anyag_cikkid_'.$anyag['recid'].'">'.$anyag['cikk_id'].'</td>
+                            <td id="anyag_nev_'.$anyag['recid'].'">'.$anyag['cikk_nev'].'</td>
+                            <td class="r">'.$cikk_men.'</td>
+                            <td class="r">'.$szuk_men.'</td>
+                            <td>'.$munkAnyag_statusz[$anyag['stat_id']].'</td>
+                            <td class="r">'.$anyag_torol.'</td>
+                        </tr>
+                    ');
+                }
 
                 $szamla_html .= '</table>';
-
-                // Elvégzett feladatok lekérdezése
-                $feladatok = $adatbazis_kapcsolat->s('recid erteklista_id tetel_id memo', 'munkalap_feladat', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
-                if( $feladatok ) {
-                    $szamla_html .= nl2('
-                        <div style="padding: 0.2rem">
-                        <table class="csikos full al">
-                            <tr>
-                                <th class="feladat_th1">Elvégzett feladat</th>
-                                <th class="feladat_th2">Leírás</th>
-                                <th></th>
-                            </tr>
-                    ');
-
-                    foreach($feladatok as $feladat) {
-                        $szamla_html .= nl2('
-                            <tr>
-                                <td>'.erteklista(5, $feladat['erteklista_id']).'</td>
-                                <td>'.nl2br($feladat['memo']).'</td>
-                                <td class="r"><a class="link" id="feladat2_id_'.$feladat['recid'].'" onclick="munkFeladatTorol( \''.$feladat['recid'].'\', \'feladat2_id_'.$feladat['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a></td>
-                            </tr>
-                        ');
-                    }
-
-                    $szamla_html .= '</table></div>';
-                }
-
-                // Anyagigénylések lekérdezése
-                $anyagok = $adatbazis_kapcsolat->s('recid cikk_id cikk_nev cikk_men szuk_men cikk_mee stat_id', 'munkalap_anyag', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
-                if( $anyagok ) {
-                    $szamla_html .= nl2('
-                        <table class="csikos full al behuz">
-                            <tr>
-                                <th class="anyag_th1">Cikkszám</th>
-                                <th class="anyag_th2">Anyag felhasználás</th>
-                                <th class="anyag_th3">Felhasznált mennyiség</th>
-                                <th class="anyag_th4">Szükséges mennyiség</th>
-                                <th class="anyag_th5">Anyag státusz</th>
-                                <th class="anyag_th6"></th>
-                            </tr>
-                    ');
-
-                    foreach($anyagok as $anyag) {
-                        
-                        $anyag_torol = '<a class="link" id="anyag2_id_'.$anyag['recid'].'" onclick="munkAnyagTorol( \''.$anyag['recid'].'\', \'anyag2_id_'.$anyag['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a>';
-                        $cikk_men = '';
-                        if( $anyag['cikk_men'] > 0 ) {
-                            $cikk_men = $anyag['cikk_men'].' '.$anyag['cikk_mee'];
-                        }
-
-                        $szuk_men = '';
-                        if( $anyag['szuk_men'] > 0 ) {
-                            $szuk_men    = $anyag['szuk_men'].' '.$anyag['cikk_mee'];
-                            $anyag_torol = ''; // ha van szükséges mennyiség is, akkor nem ttörölhető az anyag
-                        }
-
-                        $szamla_html .= nl2('
-                            <tr>
-                                <td>'.$anyag['cikk_id'].'</td>
-                                <td>'.$anyag['cikk_nev'].'</td>
-                                <td class="r">'.$cikk_men.'</td>
-                                <td class="r">'.$szuk_men.'</td>
-                                <td>'.$munkAnyag_statusz[$anyag['stat_id']].'</td>
-                                <td class="r">'.$anyag_torol.'</td>
-                            </tr>
-                        ');
-                    }
-
-                    $szamla_html .= '</table>';
-                }
-
-                // Munkaidő ráfordítás lekérdezése
-                $munkaidok = $adatbazis_kapcsolat->s('recid login_id ora perc', 'munkalap_munkaido', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
-                if( $munkaidok ) {
-                    $szamla_html .= nl2('
-                        <table class="csikos full al behuz">
-                            <tr>
-                                <th class="mido_th1">Név</th>
-                                <th class="mido_th2 r">Munkaidő ráfordítás</th>
-                                <th class="mido_th3"></th>
-                            </tr>
-                    ');
-
-                    foreach($munkaidok as $munkaido) {
-                        if($munkaido['perc']<10){
-                            $munkaido['perc'] = '0'.$munkaido['perc'];
-                        }
-                        $szamla_html .= nl2('
-                            <tr>
-                                <td>'.getErtek('teljes_nev', 'login', 'recid', $munkaido['login_id']).'</td>
-                                <td class="r">'.$munkaido['ora'].':'.$munkaido['perc'].'</td>
-                                <td class="r"><a id="munk_ido2_'.$munkaido['recid'].'" class="link" onclick="munkMunkaidoTorol( \''.$munkaido['recid'].'\', \'munk_ido2_'.$munkaido['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a></td>
-                            </tr>
-                        ');
-                    }
-
-                    $szamla_html .= '</table>';
-                }
-                
-                $szamla_html .= '</div>';
             }
+
+            // Munkaidő ráfordítás lekérdezése
+            $munkaidok = $adatbazis_kapcsolat->s('recid login_id ora perc', 'munkalap_munkaido', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
+            if( $munkaidok ) {
+                $szamla_html .= nl2('
+                    <table class="csikos full al behuz">
+                        <tr>
+                            <th class="mido_th1">Név</th>
+                            <th class="mido_th2 r">Munkaidő ráfordítás</th>
+                            <th class="mido_th3"></th>
+                        </tr>
+                ');
+
+                foreach($munkaidok as $munkaido) {
+                    if($munkaido['perc']<10){
+                        $munkaido['perc'] = '0'.$munkaido['perc'];
+                    }
+                    
+                    // Törlés csak az első tételnél lehetséges
+                    $torles = '';
+                    if(
+                            $i==0 &&
+                            (
+                                (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_KESZ) && $kezeles_jog ) ||
+                                ($sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
+                            )
+                        ){
+                        $torles = '<a id="munk_ido2_'.$munkaido['recid'].'" class="link" onclick="munkMunkaidoTorol( \''.$munkaido['recid'].'\', \'munk_ido2_'.$munkaido['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a>';
+                    }
+                    
+                    $szamla_html .= nl2('
+                        <tr class="munkaido_sor_'.$munkaido['recid'].'">
+                            <td id="munkaido_nev_'.$munkaido['recid'].'">'.getErtek('teljes_nev', 'login', 'recid', $munkaido['login_id']).'</td>
+                            <td id="munkaido_ido_'.$munkaido['recid'].'" class="r">'.$munkaido['ora'].':'.$munkaido['perc'].'</td>
+                            <td class="r">'.$torles.'</td>
+                        </tr>
+                    ');
+                }
+
+                $szamla_html .= '</table>';
+            }
+
+            $szamla_html .= '</div>';
+            
+            $i++;
         }
 
         if( $_GET['ajax'] ) {
@@ -4763,65 +4810,6 @@ require('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-/*	//Bejelentések
-	}elseif(isset($_GET['bejelentesek'])){
-
-        $szamla_html .= nl2('
-            <div class="dt naplo kijCont" data-tabla="munkalap_kapcs" data-mellek="bejelentesek">
-                <div class="dtr nFejlec">
-                    <div class="dtc">Bejelentés szám</div>
-                    <div class="dtc">Szálloda</div>
-                    <div class="dtc">Hiba</div>
-                    <div class="dtc">Bejelentve</div>
-                    <div class="dtc">Státusz</div>
-                </div>
-        ');
-
-        $munkalap_kapcsok = $adatbazis_kapcsolat->s('recid bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$_GET['id']}'");
-        if( $munkalap_kapcsok ) {
-            $i = 1;
-            foreach($munkalap_kapcsok as $munkalap_kapcs) {
-
-                $sor = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id obj_id hiba_id insert_dt stat_id', 'bejelentes', "`recid` = '".$munkalap_kapcs['bejelentes_id']."'", '', '1');
-                if( $sor ) {
-                    $sor = $sor[0];
-
-                    // Telephely
-                    $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
-                    $telephely = $telephely[0]['nev'];
-
-                    // Helység
-                    $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
-                    $helyseg = $helyseg[0]['nev'];
-
-                    // Hiba
-                    $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$sor['hiba_id']}'");
-                    $hiba = $hiba[0];
-
-                    $szamla_html .= nl2('
-                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                            <div class="dtc"><a href="bejelentes.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a></div>
-                            <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
-                            <div class="dtc">'.$hiba['info'].'</div>
-                            <div class="dtc">'.$sor['insert_dt'].'</div>
-                            <div class="dtc">'.getStatText('bejelentes', $sor['stat_id']).'</div>
-                        </div>
-                    ');
-                }
-
-                $i++;
-            }
-        }
-
-        if( $_GET['ajax'] ) {
-            echo json_encode(array(
-                'tartalom' => $szamla_html.$gombok,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
-            ));
-        } else {
-            echo $szamla_html.$gombok;
-        }
-*/
 	// Történet fül
 	}elseif(isset($_GET['tortenet'])){
 

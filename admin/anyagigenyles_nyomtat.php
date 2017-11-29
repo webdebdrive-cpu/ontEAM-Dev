@@ -129,15 +129,14 @@ if (isset($_GET['szall'])) {
     exit;
 }
 
-//Címenkénti nyomtatási kép
+// Címenkénti nyomtatási kép
 if (isset($_GET['cim'])) {
 
     $keret = get_keret();
     $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
     foreach($telephelyek as $telephely){
 
-        $telephely = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id`='{$telephely['telephely_id']}'");
-        $telephely = $telephely[0];
+        $telephely = $adatbazis_kapcsolat->s2('id nev', 'telephely', "`id`='{$telephely['telephely_id']}'");
 
         if($idk_impl){
 
@@ -218,18 +217,17 @@ if (isset($_GET['cim'])) {
     exit;
 }
 
-//Oracle cikkszám nyomtatási kép
+// Oracle cikkszám nyomtatási kép
 if (isset($_GET['oracle'])) {
     $keret = get_keret();
     $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
     foreach($telephelyek as $telephely){
 
-        $telephely = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id`='{$telephely['telephely_id']}'");
-        $telephely = $telephely[0];
+        $telephely = $adatbazis_kapcsolat->s2('id nev', 'telephely', "`id`='{$telephely['telephely_id']}'");
 
         if($idk_impl){
 
-            //Cikkenkénti összesítés
+            // Cikkenkénti összesítés
             $tetelek_html = '
                                 <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px">
                                 <tr>
@@ -387,9 +385,9 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                         <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px">
                     ';
 
-    //Van egy fix cím
-    $telephely = $adatbazis_kapcsolat->s('nev props', 'telephely', "`id`='".NYOMTATAS_FIX_CIM."'");
-    $telephely = $telephely[0];
+    // Van egy fix cím
+    $telephely = $adatbazis_kapcsolat->s2('nev props', 'telephely', "`id`='".NYOMTATAS_FIX_CIM."'");
+    
     $szn = get_props($telephely['props'], 'SZN');
     $cim = get_props($telephely['props'], 'cim');
     $fix_cim  = $szn.' '.$cim;
@@ -398,11 +396,9 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
         $anyagok = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")$sql_kieg");
         foreach($anyagok as $anyag){
 
-            $igenyles = $adatbazis_kapcsolat->s('erkcimid', 'anyagigenyles', "`recid` IN (".$idk_impl.")$sql_kieg AND `telephely_id`='{$anyag['telephely_id']}'");
-            $igenyles = $igenyles[0];
+            $igenyles = $adatbazis_kapcsolat->s2('erkcimid', 'anyagigenyles', "`recid` IN (".$idk_impl.")$sql_kieg AND `telephely_id`='{$anyag['telephely_id']}'");
 
-            $telephely = $adatbazis_kapcsolat->s('nev props', 'telephely', "`id`='{$anyag['telephely_id']}'");
-            $telephely = $telephely[0];
+            $telephely = $adatbazis_kapcsolat->s2('nev props', 'telephely', "`id`='{$anyag['telephely_id']}'");
 
             $szn = get_props($telephely['props'], 'SZN');
             $szl = get_props($telephely['props'], 'SZLACIM');

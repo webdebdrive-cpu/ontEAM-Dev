@@ -1,4 +1,4 @@
-<h2>Anyag vételezés</h2>
+<h2>Anyag felhasználás</h2>
 <form action="" id="munkAnyagVetelezForm" class="popupForm" method="post">
     <div class="kozep" style="min-height: 40rem">
         <div class="dt">
@@ -43,12 +43,28 @@
         </div>
     </div>
     <div class="kuldes">
-        <input type="button" class="gomb" onclick="munkAnyagHozzaad( '#munkAnyagVetelezForm', false );" value="Hozzáad">
+        <input type="button" class="gomb" onclick="munkAnyagHozzaad( '#munkAnyagVetelezForm', false );" value="Hozzáad" id="mukalapAnyagvetelezHozzaad">
         <input type="button" class="gomb zold" name="elkuld" value="Mentés" onclick="munkAnyagVetelezes()">
-        <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+        <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();" id="nem_gomb">
     </div>
 </form>
 <script>
+/* Felhasznált mennyiségre enterezve fusson le a hozzáadás */
+$(document).on('keyup', '#felh_menny', function(e) {
+    if (e.which == KEY_ENTER) {
+        $('#cikk_id_autocomp').focus();
+        $('#mukalapAnyagvetelezHozzaad').click();
+    }
+});
+
+/* Mégsem gombon tabozva a feladat inputra érkezzünk vissza */
+$(document).on('keydown', '#nem_gomb', function(event) {
+    if( event.keyCode == KEY_TAB ) {
+        $('#cikk_id_autocomp').focus();
+        return false;
+    }
+});
+
 function munkAnyagVetelezes() {
 
     that = $('#munkAnyagVetelezForm');

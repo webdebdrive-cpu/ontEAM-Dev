@@ -750,7 +750,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         exit;
     }
 
-    /* Új ikonra kattintva mi történik */
+    // Új ikonra kattintva mi történik
     $keresodn = '';
     if( isset($_GET['szakterulet']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);';
@@ -767,6 +767,11 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'bejelentes.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
+    // Bejelentés más és saját névben (ekkor kérdezünk előbb)
+    } elseif( basename(self()) == 'bejelentes.php' && _jog(JOG_BEJELENTES_MAS_NEVEBEN) && _jog(JOG_BEJELENTES_KEZEL) ) {
+        $uj_link = 'javascript: bejSajatMasneven(); void(0);';
+
+    // Bejelentés más nevében
     } elseif( basename(self()) == 'bejelentes.php' && _jog(JOG_BEJELENTES_MAS_NEVEBEN) ) {
         $uj_link = 'javascript: bejSzallodaValaszt(); void(0);';
 
@@ -781,6 +786,10 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     } elseif( isset($_GET['szallodak']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szallodak\'); void(0);';
+
+    // Munkalapon, ha nem a megjegyzés alatt vagyunk, és nincs jogunk új munkalapot létrehozni akkor hibaüzenet:
+    } elseif( basename(self()) == 'munkalap.php' && !isset($_GET['megjegyzesek']) && !_jog(JOG_MUNKALAP_UJ_LETREHOZ) ) {
+        $uj_link = 'javascript: alert2(\'Önnek nincs joga új munkalapot létrehozni!\', \'\', \'Hiba\'); void(0);';
 
     } elseif( basename(self()) == 'munkalap.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
@@ -859,14 +868,10 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
 $felh_nev = '';
 if( $_SESSION[get_db_tabla().'user'] ) {
-    $felhasznalo = $adatbazis_kapcsolat->s('recid nev teljes_nev reszleg_id', 'login', 'nev='.$_SESSION[get_db_tabla().'user'], '', '1');
+    $felhasznalo = $adatbazis_kapcsolat->s2('recid nev teljes_nev reszleg_id', 'login', 'nev='.$_SESSION[get_db_tabla().'user'], '', '1');
 
     if( $felhasznalo ) {
-        $felhasznalo = $felhasznalo[0];
-
-        /* Felhasználó név */
         $felh_nev = $felhasznalo['teljes_nev'];
-
         $reszleg = erteklista(17, $felhasznalo['reszleg_id']);
     }
 }
@@ -995,9 +1000,6 @@ if(basename(self())=='login.php' && !_jog(JOG_FELHASZNALOK_KEZEL)){
 }
 
 if(basename(self())=='munkalap.php'){
-    if(!_jog(JOG_MUNKALAP_UJ_LETREHOZ)){
-        $uj             = '';
-    }
     if(!_jog(JOG_MUNKALAP_TOROL)){
         $torles_icon    = '';
     }

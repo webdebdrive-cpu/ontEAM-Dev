@@ -659,7 +659,7 @@ foreach($akt_tomb as $ertek){
 
 
 
-            /* Kapcsolódó tábla adatai */
+            // Kapcsolódó tábla adatai
             if($ertek['tobb_szalloda']){
                 $where = '`azon` IN (\'DZ\', \'DH\')';
             }else{
@@ -669,20 +669,19 @@ foreach($akt_tomb as $ertek){
                     $where = "`id` IN (".implode(',', $telephely_kapcs).")";
                 }
             }
+            $where .= " AND `inaktiv`=0";
             
-            if($where){
-                $telephelyek = $adatbazis_kapcsolat -> select('id recid nev', 'telephely', $where, 'nev');
-                foreach($telephelyek as $telephely) {
-                    //Ha csak egy szálloda van, akkor a seletből csak az az egy értékváélasztható ki, ezt meg is tesszük, selectet így disabled-re téve.
-                    //Mindezet csak akkor, ha új feltöltés üzemmódban vagyunk
-                    if( count($telephelyek) == 1 && isset($_GET['uj']) ) {
-                        $sor['telephely_id'] = $telephely['id'];
-                        $ertek['disabled'] = true;
-                        $ertek['post'] .= '<input type="hidden" name="telephely_id" id="telephely_id" value="'.$sor['telephely_id'].'">';
-                    }
-
-                    array_push($select_felh_telephely, array('name' => $telephely['nev'], 'value' => $telephely['id'] ));
+            $telephelyek = $adatbazis_kapcsolat -> select('id recid nev', 'telephely', $where, 'nev');
+            foreach($telephelyek as $telephely) {
+                // Ha csak egy szálloda van, akkor a seletből csak az az egy értékváélasztható ki, ezt meg is tesszük, selectet így disabled-re téve.
+                // Mindezet csak akkor, ha új feltöltés üzemmódban vagyunk
+                if( count($telephelyek) == 1 && isset($_GET['uj']) ) {
+                    $sor['telephely_id'] = $telephely['id'];
+                    $ertek['disabled'] = true;
+                    $ertek['post'] .= '<input type="hidden" name="telephely_id" id="telephely_id" value="'.$sor['telephely_id'].'">';
                 }
+
+                array_push($select_felh_telephely, array('name' => $telephely['nev'], 'value' => $telephely['id'] ));
             }
 
             if( $ertek['alert'] ) {

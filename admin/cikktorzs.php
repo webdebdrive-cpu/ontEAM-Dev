@@ -55,7 +55,7 @@ if($tobb_kep){
 
 }
 
-/* CSV generálása */
+// CSV generálása
 if (isset($_GET['csv'])) {
 
     $mibol   = get_web_charset();
@@ -69,7 +69,7 @@ if (isset($_GET['csv'])) {
         mkdir('export/csv');
     }
 
-    //Régi fájlok törlése
+    // Régi fájlok törlése
     $utvonal = 'export/csv/';
     $fajlok = konyvtar_bejar($utvonal);
     foreach($fajlok as $fajl){

@@ -90,6 +90,50 @@ if( isset($_POST['jogokhozzaad']) ) {
     exit();
 }
 
+// Szálloda választó popup
+if( isset($_POST['getSzallodak']) ) {
+    // Szálloda lekérdezése
+    $telephelyek = $adatbazis_kapcsolat->s('id nev recid modell', 'telephely', "`inaktiv`='0'", 'nev');
+
+    // Felhasználóhoz kapcsolt szállodák
+    $felh = $adatbazis_kapcsolat->s2('nev', 'login', "`recid` = '".$_POST['recid']."'");
+
+    // Kapcsolt szállodák
+    $felh_szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev` = '".$felh['nev']."'", '', '');
+    $felh_szallodak = adatbazis2tomb($felh_szallodak, 'telephely_id');
+
+    if( !$felh_szallodak ) {
+        $felh_szallodak = array();
+    }
+
+    $html = '';
+    foreach($telephelyek as $telephely) {
+        $checked = '';
+        if( in_array($telephely['id'], $felh_szallodak) ) {
+            $checked = ' checked="checked"';
+        }
+
+        $html .= nl2('
+            <div class="dtr">
+                <div class="dtc">
+                    <div class="cb">
+                        <input type="checkbox" class="check" name="telephely[]" id="telephely-'.$telephely['recid'].'" value="'.$telephely['id'].'" data-pesti="'.$telephely['modell'].'"'.$checked.'>
+                        <label for="telephely-'.$telephely['recid'].'"></label>
+                    </div>
+                </div>
+                <div class="dtc">
+                    '.$telephely['nev'].'
+                </div>
+            </div>
+        ');
+    }
+
+    echo $html;
+
+    $weblap->leallit();
+    exit();
+}
+
 // CSV generálása
 if (isset($_GET['csv'])) {
 
@@ -620,7 +664,8 @@ require_once('selectek.php');
             $sorok = $adatbazis_kapcsolat->s('recid telephely_id', 'telephely_kapcs', '`nev`=\''.$felh['nev'].'\'');
             $szamla_html .= '<div id="tablazatBeszur">';
             if( $sorok ) {
-                /* Fejlécek */
+                
+                // Fejlécek
                 $szamla_html .= nl2('
                     <div class="dt naplo szakter kijCont" data-tabla="telephely_kapcs" data-mellek="szallodak">
                         <div class="dtr nFejlec">
@@ -630,11 +675,10 @@ require_once('selectek.php');
 
                 $i = 1;
                 $telephelyek = adatbazis2tomb($sorok, 'telephely_id');
-                $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $telephelyek).")", 'nev');
+                $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $telephelyek).") AND `inaktiv`=0", 'nev');
                 foreach($telephelyek as $telephely) {
 
-                    $kapcs_id = $adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`telephely_id`='{$telephely['id']}' AND `nev`='{$felh['nev']}'");
-                    $kapcs_id = $kapcs_id[0];
+                    $kapcs_id = $adatbazis_kapcsolat->s2('recid', 'telephely_kapcs', "`telephely_id`='{$telephely['id']}' AND `nev`='{$felh['nev']}'");
 
                     $szamla_html .= nl2('
                         <div id="naploSor-'.$kapcs_id['recid'].'" class="dtr nSor kijSor" data-id="'.$kapcs_id['recid'].'" data-i="'.$i.'">

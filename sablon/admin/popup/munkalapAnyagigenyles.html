@@ -51,12 +51,33 @@
         </div>
     </div>
     <div class="kuldes">
-        <input type="button" class="gomb" onclick="munkAnyagHozzaad( '#munkAnyagAnyagigenyles', true );" value="Hozzáad">
+        <input type="button" class="gomb" onclick="munkAnyagHozzaad( '#munkAnyagAnyagigenyles', true );" value="Hozzáad" id="mukalapAnyagigenylesHozzaad">
         <input type="button" class="gomb zold" value="Mentés" onclick="munkAnyagIgenyles('csak kérdezünk még')">
-        <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+        <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();" id="nem_gomb">
     </div>
 </form>
 <script>
+/* Felhasznált mennyiségre enterezve fusson le a hozzáadás */
+$(document).on('keyup', '#felh_menny', function(e) {
+    if (e.which == KEY_ENTER) {
+        $('#szuk_menny').focus();
+    }
+});
+$(document).on('keyup', '#szuk_menny', function(e) {
+    if (e.which == KEY_ENTER) {
+        $('#cikk_id_autocomp').focus();
+        $('#mukalapAnyagigenylesHozzaad').click();
+    }
+});
+
+/* Mégsem gombon tabozva a feladat inputra érkezzünk vissza */
+$(document).on('keydown', '#nem_gomb', function(event) {
+    if( event.keyCode == KEY_TAB ) {
+        $('#cikk_id_autocomp').focus();
+        return false;
+    }
+});
+
 /* Munkalap anyagigénylés mentése */
 function munkAnyagIgenyles( csak_kerdezunk ) {
     that = $('#munkAnyagAnyagigenyles');

@@ -60,6 +60,7 @@ if($tobb_kep){
     function get_tobbkep_tabla(){ return 'bejelentes_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 }
 
+// Új bejelentéskor előbb szállodát választunk, popup-ban feljön egy új szálloda lista
 if( isset($_POST['bejSzallodaValaszt']) ) {
     $szall_idk = get_akt_login_szallodai();
 
@@ -67,7 +68,7 @@ if( isset($_POST['bejSzallodaValaszt']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $szall_idk ) {
-        $sql = $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN ('".implode("', '", $szall_idk)."')", 'nev', '');
+        $sql = $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN ('".implode("', '", $szall_idk)."') AND `inaktiv`=0", 'nev');
         if( $sql === false ) { $db_error = true; }
 
         $html = '';
@@ -83,14 +84,12 @@ if( isset($_POST['bejSzallodaValaszt']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
-
             echo json_encode(array(
                 'statusz' => 'siker',
                 'html' => $html
             ));
         } else {
             mysqli_rollback($db_kapcs);
-
             echo json_encode(array(
                 'hiba' => tranzakcioHiba()
             ));
@@ -131,17 +130,16 @@ if( isset($_GET['folyamatban_munkak']) ) {
         ');
 
         foreach($bejelentesek as $bejelentes) {
-            /* Telephely */
+            // Telephely
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bejelentes['telephely_id'], '', '1');
             $telephely = $telephely[0]['nev'];
 
-            // Helység */
+            // Helység
             $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bejelentes['obj_id'], '', '1');
             $helyseg = $helyseg[0]['nev'];
 
-            /* Hiba */
-            $hiba = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=4 AND `recid`='{$bejelentes['hiba_id']}'");
-            $hiba = $hiba[0];
+            // Hiba
+            $hiba = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=4 AND `recid`='{$bejelentes['hiba_id']}'");
 
             $surgos = '';
             if( $bejelentes['surgos'] ) {
@@ -877,22 +875,22 @@ require_once('selectek.php');
             </script>
         ');
 
-        //NAVIGÁCIÓ
+        // NAVIGÁCIÓ
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel  = array( $navi,             '',         $gyk2 );
-        //echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
+        // echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
         require_once('info.php');
 
-	    //FORM
+	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
-		//Form actionja
+		// Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }

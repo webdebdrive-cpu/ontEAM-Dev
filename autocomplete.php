@@ -133,9 +133,8 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         // Ha törzsadatlistát kérünk le, akkor a találati listát egész bonyolultan számítjuk ki:
         if( $_GET['tabla'] == 'torzsadat' && $_GET['recid'] ) {
 
-            //melyik szállodánál vagyunk
-            $szalloda = $adatbazis_kapcsolat->s('telephely_id', 'beosztas', "`recid`='{$_GET['recid']}'");
-            $szalloda = $szalloda[0];
+            // melyik szállodánál vagyunk
+            $szalloda = $adatbazis_kapcsolat->s2('telephely_id', 'beosztas', "`recid`='{$_GET['recid']}'");
 
             //Ehhez milyen loginok tartoznak:
             $felhok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$szalloda['telephely_id']}'");

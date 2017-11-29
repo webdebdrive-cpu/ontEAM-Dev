@@ -593,57 +593,13 @@ function munkalaphozAdas(csak_kerdezunk) {
 }
 */
 
-/* Feladat hozzáadása */
-function feladatHozzaadas( that ) {
-
-    if(balnav_kijelol_ell()){
-
-        var erteklista_id = $(that).find('input[name="erteklista_id"]'),
-                     memo = $(that).find('textarea[name="feladat_memo"]');
-
-        if( erteklista_id ) {
-            $.ajax({
-                url : 'munkalap.php',
-                type: 'POST',
-                data: {
-                    recid           : _get('id'),
-                    erteklista_id   : erteklista_id.val(),
-                    memo            : memo.val(),
-                    feladatHozzaadas: new Date().getTime()
-                },
-                success: function(response) {
-                    if(response) {
-                        response = JSON.parse(response);
-
-                        if( response.hiba ) {
-                            if( response.gomb ) {
-                                alert2(response.hiba, response.gomb, response.title);
-                            } else {
-                                alert2(response.hiba, response.gomb, response.title);
-                                document.getElementById('erteklista_id_autocomp').focus();
-                            }
-
-                            return false;
-                        }
-
-                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
-                        popupZar();
-                    }
-                }
-            });
-        } else {
-            alert2('Adja meg az elvégzett munkát!', '', 'Hiba');
-            document.getElementById('erteklista_id_autocomp').focus();
-        }
-    }
-    return false;
-}
-
 /* Feladat törlése */
 function munkFeladatTorol( recid, elem_id, mehet ) {
     
+    $('.feladat_sor_'+recid).addClass('torles_elott');
+    
     if(!mehet){
-        alert2('Biztosan törli az elvégzett feladatot?', '<input type="button" class="gomb zold" value="Igen" onclick="munkFeladatTorol( \''+recid+'\', \''+elem_id+'\', \'mehet\' )"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        alert2('Biztosan törli a következő feladatot?<br><span class="f14">Elvégzett feladat:<br><span class="kek">'+$('#elv_feladat_nev_'+recid).html()+'</span><br>Leírás:<br><span class="kek">'+$('#elv_feladat_memo_'+recid).html()+'</span></span>', '<input type="button" class="gomb zold" value="Igen" onclick="munkFeladatTorol( \''+recid+'\', \''+elem_id+'\', \'mehet\' )"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
         return false;
     }
     
@@ -670,22 +626,25 @@ function munkFeladatTorol( recid, elem_id, mehet ) {
     }
 }
 
-/* Munkaidő törlése */
-function munkMunkaidoTorol( recid, elem_id, mehet ) {
+
+/* Munkalap anyagvételezésnél anyagok törlése */
+function munkAnyagTorol( recid, elem_id, mehet ) {
+    
+    $('.anyag_sor_'+recid).addClass('torles_elott');
     
     if(!mehet){
-        alert2('Biztosan törli ezt a munkaidőráfordítást?', '<input type="button" class="gomb zold" value="Igen" onclick="munkMunkaidoTorol( \''+recid+'\', \''+elem_id+'\', \'mehet\' )"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        alert2('Biztosan törli ezt az anyagot?<br><span class="f14 kek">'+$('#anyag_cikkid_'+recid).html()+' '+$('#anyag_nev_'+recid).html()+'</span>', '<input type="button" class="gomb zold" value="Igen" onclick="munkAnyagTorol( '+recid+', \''+elem_id+'\', \'mehet\' ); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
         return false;
     }
     
     if( recid ) {
         $.ajax({
-         	url  : 'munkalap.php',
-         	type : 'POST',
+         	url : 'munkalap.php',
+         	type: 'POST',
             async: false,
-         	data : {
-                recid            : recid,
-                munkMunkaidoTorol: new Date().getTime()
+         	data: {
+                recid           : recid,
+                munkAnyagTorol  : new Date().getTime()
             },
          	success: function(response) {
          		if(response) {
@@ -701,22 +660,24 @@ function munkMunkaidoTorol( recid, elem_id, mehet ) {
     }
 }
 
-/* Munkalap anyagvételezésnél anyagok törlése */
-function munkAnyagTorol( recid, elem_id, mehet ) {
+/* Munkaidő törlése */
+function munkMunkaidoTorol( recid, elem_id, mehet ) {
+    
+    $('.munkaido_sor_'+recid).addClass('torles_elott');
     
     if(!mehet){
-        alert2('Biztosan törli ezt az anyagot?', '<input type="button" class="gomb zold" value="Igen" onclick="munkAnyagTorol( '+recid+', \''+elem_id+'\', \'mehet\' ); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        alert2('Biztosan törli ezt a munkaidőráfordítást?<br><span class="f14 kek">'+$('#munkaido_nev_'+recid).html()+' '+$('#munkaido_ido_'+recid).html()+'</span>', '<input type="button" class="gomb zold" value="Igen" onclick="munkMunkaidoTorol( \''+recid+'\', \''+elem_id+'\', \'mehet\' )"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.torles_elott\').removeClass(\'torles_elott\');">');
         return false;
     }
     
     if( recid ) {
         $.ajax({
-         	url : 'munkalap.php',
-         	type: 'POST',
+         	url  : 'munkalap.php',
+         	type : 'POST',
             async: false,
-         	data: {
-                recid           : recid,
-                munkAnyagTorol  : new Date().getTime()
+         	data : {
+                recid            : recid,
+                munkMunkaidoTorol: new Date().getTime()
             },
          	success: function(response) {
          		if(response) {

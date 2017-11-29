@@ -492,7 +492,7 @@ input:focus{
 
 input.gomb{
     background: #54a2f9;
-    border: 0;
+    border: 0.1rem solid rgba(0, 0, 0, 0);
     border-radius: 0.3rem;
     color: #fff;
     cursor: pointer;
@@ -536,7 +536,7 @@ input.gomb_alert:hover, input.gomb_alert:focus, input.gomb_alert:active{
 
 input.gomb.zold, input.gombb{
     background: #75b54b;
-    border: 0;
+    border: 0.1rem solid rgba(0, 0, 0, 0);
     border-radius: 0.3rem;
     color: #fff;
     cursor: pointer;
@@ -545,6 +545,10 @@ input.gomb.zold, input.gombb{
     padding: 0.7rem;
     position: relative;
     transition: all ease-in-out 0.2s;
+}
+
+input.gomb:focus{
+    border: 0.1rem solid #f00;
 }
 
 input.gombb.input {
@@ -2025,10 +2029,6 @@ div.navGombok a {
     width: 2.2rem;
 }
 
-div.navGombok a:hover {
-    background: #8bc264;
-}
-
 div.navGombok a .material-icons {
     color: #34434a;
     position: absolute;
@@ -2058,7 +2058,8 @@ div.navGombok a.utolso .material-icons {
 }
 
 div.navGombok a.uj .material-icons {
-    color: #07a927;
+    background: #07a927;
+    color: #fff;
     font-size: 1.8rem;
 }
 
@@ -2100,8 +2101,18 @@ div.navGombok a:hover .material-icons {
     color: #fff;
 }
 
+div.navGombok a:hover, div.navGombok a.uj:hover .material-icons{ 
+    background: #8bc264;
+}
+
 div.navGombok a.disabled .material-icons {
     color: #e4e4e4;
+}
+
+input.autocomp, input.autocomp:focus{
+    background-image: url('../elemek/autoc.png');
+    background-repeat: no-repeat;
+    background-position: calc(100% - 0.6rem) center;
 }
 
 #popup {
@@ -2510,11 +2521,11 @@ table.csikos{
 }
 
 table.csikos.al{
+    border: 0.1rem solid #ccc;
     margin-bottom: 3rem;
 }
 
 table.csikos.behuz {
-    border: 0.1rem solid #ccc;
     margin-left: 2rem;
     width: calc(100% - 4rem);
 }
@@ -2529,6 +2540,10 @@ table.csikos tr:nth-of-type(2n){
 
 table.csikos tr.kiemelt{
     background: #FDE6B9;
+}
+
+table.csikos tr.torles_elott, div.dtr.torles_elott{
+    background: #FF8383 !important;
 }
 
 table.csikos tr.kiemelt:nth-of-type(2n){
@@ -2842,4 +2857,9 @@ div.tetel_div{
 .beosztas_naptar .kijelol {
     border: 0.1rem solid #FB4747;
     background: #FB4747;
+}
+
+#insertTable{
+    max-height: 30rem;
+    overflow: auto;
 }

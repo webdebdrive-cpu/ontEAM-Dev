@@ -1,4 +1,6 @@
+var KEY_ENTER  = 13;
 var KEY_ESCAPE = 27;
+var KEY_TAB    =  9;
 
 var naptar_latszik_nincs_leptetes = false; /* Ha a bal oldali navpanelben naptár jelenik meg, a léptetetést kikapcsoljuk */
 
@@ -427,7 +429,7 @@ $(function() {
     });
 
     $(document).on('keyup', 'input', function(e) {
-        if (e.which == 13 && !$('#alert2').is(':visible') ) {
+        if (e.which == KEY_ENTER && !$('#alert2').is(':visible') ) {
 
             mezo_nev = $(this).attr('name');
             stop = false;
@@ -877,7 +879,7 @@ $(function() {
 
     /* Alert-en az Ok gomb Enterre is működjön */
     $(document).on('keydown', function(e) {
-        if( e.keyCode == 13 && $('#alert2').length && !$('#alert2').hasClass('rFalse') ) {
+        if( e.keyCode == KEY_ENTER && $('#alert2').length && !$('#alert2').hasClass('rFalse') ) {
             $('#alert2 input[value="Ok"]').click();
         }
     });
@@ -1226,8 +1228,9 @@ $(function() {
         ev = event;
     });
 
+    /* Text inputon TAB-ozva */
     $(document).on('keydown', 'input[type="text"]', function(event) {
-        if( event.keyCode == 9 ) {
+        if( event.keyCode == KEY_TAB ) {
             var elementID = $(this).attr('id');
 
             if( elementID.indexOf('_autocomp') !== -1 ) {
@@ -1331,6 +1334,11 @@ function bejBejelentok( value ) {
             }
         });
     }
+}
+
+/* Bejelentés saját vagy más nevében? */
+function bejSajatMasneven() {
+    alert2('Saját nevében jelent be hibát?', '<input class="gomb" value="Bejelentés saját néven" onclick="location.href=\'bejelentes.php?uj\'" type="button"><input class="gomb piros" value="Bejelentés más nevében" onclick="bejSzallodaValaszt()" type="button">');
 }
 
 /* Új bejelentés feltöltés: első lépés, hogy telephelyet választunk */
@@ -3219,12 +3227,12 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
 
         /* ha volt üres pipa mellett üres mennyiség sor, akkor rákrédezünk */
         if(ures_men_ek_pipa0 && !ures_men_ek_pipa0_kesz){
-            gombok = '<input class="link gomb" value="Igen" onclick="anyagigenyles_erkeztet(\'ures_men_ek_pipa0_kesz nem kérdezzük meg megint\', \'\', \'túlrendelés kérdésen már túl vagyunk\')" type="button"> <input class="link gomb" value="Nem" onclick="alert2()" type="button">';
+            gombok = '<input class="gomb zold" value="Igen" onclick="anyagigenyles_erkeztet(\'ures_men_ek_pipa0_kesz nem kérdezzük meg megint\', \'\', \'túlrendelés kérdésen már túl vagyunk\')" type="button"> <input class="gomb piros" value="Nem" onclick="alert2()" type="button">';
             alert2(ures_men_ek_pipa0+'<div class="l">Ezekhez az anyagokhoz nem adott meg beérkezett mennyiséget.<br>Ha folytatja, továbbra is beérkezés alatt státuszban maradnak!<br>Folytatja?</div>', gombok);
             return false;
         }
         if(ures_men_ek_pipa1 && !ures_men_ek_pipa1_kesz){
-            gombok = '<input class="link gomb" value="Igen" onclick="anyagigenyles_erkeztet(\'ures_men_ek_pipa0_kesz nem kérdezzük meg megint\', \'ures_men_ek_pipa1_kesz nem kérdezzük meg megint\', \'túlrendelés kérdésen már túl vagyunk\')" type="button"> <input class="link gomb" value="Nem" onclick="alert2()" type="button">';
+            gombok = '<input class="gomb zold" value="Igen" onclick="anyagigenyles_erkeztet(\'ures_men_ek_pipa0_kesz nem kérdezzük meg megint\', \'ures_men_ek_pipa1_kesz nem kérdezzük meg megint\', \'túlrendelés kérdésen már túl vagyunk\')" type="button"> <input class="gomb piros" value="Nem" onclick="alert2()" type="button">';
             alert2(ures_men_ek_pipa1+'<div class="l">Ezekhez az anyagokhoz nem adott meg beérkezett mennyiséget.<br>Biztos, hogy már nem fognak beérkezni?<br>Folytatja?</div>', gombok);
             return false;
         }
@@ -3452,9 +3460,16 @@ function mellekTorol( tabla, mellek, mellekre_valt ) {
                         }else{
                             alert2();
                         }
+                        
+                        /* Munkalapok adatlapján a bejelentések törlésekor csak frissítünk */
+                        if(tabla=='munkalap_kapcs'){
+                            location.reload();
+                            return false;
+                        }
 
                         /* A számla betöltést csak akkor csináljuk meg, ha nincs ideiglenes sor hozzáadva, mert különben azok elvesznének */
                         if(!$('.kijCont .kijSor[data-id="UJ"]').length){
+                            
                             betoltott = szamlaBetolt(_get('id'), baseName(location.href) + '.php', mellek, '', 'kerdes_nelkul');
                             $.when( betoltott ).done(function() {
                                 if(mellekre_valt){
@@ -3621,7 +3636,7 @@ function kapcsolodoSzerkeszt( oldal ) {
             break;
             case 'szallodak':
                 $.ajax({
-                 	url : 'esemenyek.php',
+                 	url : 'login.php',
                  	type: 'POST',
                     data: {
                         recid           : _get('id'),
@@ -3709,8 +3724,13 @@ function szallodakJelol( value ) {
 
 /* Popup bezárása */
 function popupZar() {
-    $('#popup').css('display', 'none');
-    $('#popupTart').html('');
+    /* Anyagvételezés meg igénylésnél újratöltjük, mert összeakad a kettő */
+    if($('#munkAnyagAnyagigenyles').length || $('#munkAnyagVetelezForm').length){
+        location.reload();
+    }else{
+        $('#popup').css('display', 'none');
+        $('#popupTart').html('');
+    }
 }
 
 /* Popup megjelenítése és fókusz az első inputra */
@@ -5206,19 +5226,22 @@ function valid_date(that){
 function munkAnyagHozzaad( formID, igenyles ) {
     var form = $(formID);
 
-    var cikknev     = form.find('input[name="cikk_id_autocomp"]'),
-        cikkID      = form.find('input[name="cikk_id"]'),
-        cikkid_origi= form.find('input[name="cikkid_origi"]'),
-        felh_menny  = form.find('input[name="felh_menny"]'),
-        szuk_menny  = form.find('input[name="szuk_menny"]'),
-        cikkmee     = form.find('.insertMee').eq(0).text(),
+    var cikknev     = $('#cikk_id_autocomp'),
+        cikkID      = $('#cikk_id'),
+        cikkid_origi= $('#cikkid_origi'),
+        felh_menny  = $('#felh_menny'),
+        szuk_menny  = $('#szuk_menny'),
+        cikkmee     = $('.insertMee').eq(0).text(),
         id_tmp      = new Date().getTime();
 
     var addCikkID = form.find('input[name="addCikkID[]"]').map(function(){return $(this).val();}).get();
 
     if( addCikkID.length ) {
+
         for(key in addCikkID) {
-            if( addCikkID[key] == cikkID.val() ) {
+
+            if( addCikkID[key] == cikkid_origi.val() ) {
+
                 $('#cikk_id_autocomp').addClass('hibas_ide_focus');
                 alert2('Ez az anyag már hozzá van adva a munkalap tételhez!', '', 'Hiba');
 
@@ -5241,6 +5264,7 @@ function munkAnyagHozzaad( formID, igenyles ) {
 
     if( !igenyles && (felh_menny.val() == '' || felh_menny.val() == '0,00') ) {
         $('#felh_menny').addClass('hibas_ide_focus');
+        $('#felh_menny').focus(); /* A focus() itt kivételesen mégis kell. A Felh. menny mezőre Enterezve mégse a cikknév mezőben legyen a kurzor még a hibaüzenet alatt sem. */
         alert2('Adja meg a felhasznált mennyiséget!', '', 'Hiba');
         return false;
     }
@@ -5248,6 +5272,7 @@ function munkAnyagHozzaad( formID, igenyles ) {
     if( igenyles ) {
         if( (felh_menny.val() == '' || felh_menny.val() == '0,00') && (szuk_menny.val() == '' || szuk_menny.val() == '0,00') ) {
             $('#felh_menny').addClass('hibas_ide_focus');
+            $('#felh_menny').focus(); /* A focus() itt kivételesen mégis kell. A Felh. menny mezőre Enterezve mégse a cikknév mezőben legyen a kurzor még a hibaüzenet alatt sem. */
             alert2('Adja meg a felhasznált, vagy a szükséges mennyiséget!', '', 'Hiba');
             return false;
         }
@@ -5258,14 +5283,14 @@ function munkAnyagHozzaad( formID, igenyles ) {
         sz_td = '<td class="c">' + szuk_menny.val() + '<input type="hidden" name="addCikkSzukMenny[]" value="' + szuk_menny.val() + '"></td>';
     }
 
-    var table_sor = '<tr>' +
-                        '<td>' + cikkid_origi.val() + '<input type="hidden" name="addCikkID[]" value="' + cikkid_origi.val() + '"><input type="hidden" name="addCikkUj[]" value="1"></td>' +
-                        '<td>' + cikknev.val() + '</td>' +
+    var table_sor = '<tr class="anyag_sor_'+id_tmp+'">' +
+                        '<td id="anyag_cikkid_'+id_tmp+'">' + cikkid_origi.val() + '<input type="hidden" name="addCikkID[]" value="' + cikkid_origi.val() + '"><input type="hidden" name="addCikkUj[]" value="1"></td>' +
+                        '<td id="anyag_nev_'+id_tmp+'">' + cikknev.val() + '</td>' +
                         '<td class="c">' + felh_menny.val() + '<input type="hidden" name="addCikkFelhMenny[]" value="' + felh_menny.val() + '"></td>' +
                         sz_td +
                         '<td>' + cikkmee + '</td>' +
                         '<td></td>' +
-                        '<td><a id="anyag_id_'+id_tmp+'" onclick="munkAnyagTorol( false, \'anyag_id_'+id_tmp+'\' );"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
+                        '<td><a id="anyag_id_'+id_tmp+'" onclick="munkAnyagTorol( \''+id_tmp+'\', \'anyag_id_'+id_tmp+'\' );"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
                     '</tr>';
 
     $('#insertTable table.csikos').append(table_sor);

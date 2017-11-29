@@ -42,10 +42,18 @@
     </div>
     <div class="kuldes">
         <input type="button" name="elkuld" class="gomb zold" value="Igen" onclick="munkaidoHozzaadas()">
-        <input type="button" name="megsem" class="gomb piros" value="Nem" onclick="popupZar();">
+        <input type="button" name="megsem" class="gomb piros" value="Nem" onclick="popupZar();" id="nem_gomb">
     </div>
 </form>
 <script>
+/* Mégsem gombon tabozva a feladat inputra érkezzünk vissza */
+$(document).on('keydown', '#nem_gomb', function(event) {
+    if( event.keyCode == KEY_TAB ) {
+        $('#login_id_autocomp').focus();
+        return false;
+    }
+});
+    
 /* Feladat hozzáadása */
 function munkaidoHozzaadas(negy_oras_kerdes_neklul) {
 

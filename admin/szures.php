@@ -67,10 +67,10 @@ if (isset($_POST['f_szuro_mezo'])) {
         }
     }
     
-    //Kapcsolódó szállodák felsorolása
+    // Kapcsolódó szállodák felsorolása
     if( $_POST['mezo']=='telephely_id' || ($_POST['tabla'] == 'login' && $_POST['mezo']=='szalloda') ){
         
-        //Ilyenkor felülírva az operátorokat, csak egyenlőségjel van
+        // Ilyenkor felülírva az operátorokat, csak egyenlőségjel van
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
         
     }
@@ -286,7 +286,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
             }
         }
 
-        //Kapcsolódó szállodák felsorolása
+        // Kapcsolódó szállodák felsorolása
         if( $_POST['mezo']=='telephely_id' || ($_POST['tabla']=='login' && $_POST['mezo']=='szalloda' ) ){
 
             $feltetel = '<select class="f_felt">';

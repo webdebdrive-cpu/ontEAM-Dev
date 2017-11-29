@@ -41,6 +41,7 @@
         var options = $.extend(defaults, options);
 
         $(this).attr('data-origin-val', $(this).val());
+        $(this).addClass('autocomp'); /* Ettől lesz nyíl ikon az input végén, látszik, hogy egy autocompletes input. */
 
         $(this).keyup(function(e) {
 
@@ -214,6 +215,7 @@
             $(this).removeClass('aktiv');
         });
 
+        /* Klikkelve kiválasztva egy sor */
         $(document).on('click', '#autocomplete ul li', function(e) {
 
             var link   = $('#autocomplete ul li.aktiv').attr('data-href'),
@@ -368,11 +370,14 @@
                     }
                 }
             }
+            
+            /* Enterrel kiválasztva egy sort */
             if(e.keyCode==13) {
                 if( $('#autocomplete ul li').hasClass('aktiv') ) {
 
-                    var link = $('#autocomplete ul li.aktiv').attr('data-href'),
-                        recid = $('#autocomplete ul li.aktiv').attr('data-recid');
+                    var link   = $('#autocomplete ul li.aktiv').attr('data-href'),
+                        recid  = $('#autocomplete ul li.aktiv').attr('data-recid'),
+                        cikkid = $('#autocomplete ul li.aktiv').attr('data-cikkid');
 
                     if( baseName(location.href) == 'login' && recid == 12 ) {
                         $('#szallitoid_autocomp').attr('disabled', false);
@@ -384,6 +389,10 @@
                     var mee = $('#autocomplete ul li.aktiv').attr('data-mee');
                     if( mee !== undefined ) {
                         $('.insertMee').text(mee);
+                    }
+                    
+                    if( cikkid !== undefined ) {
+                        $('#cikkid_origi').val(cikkid);
                     }
 
                     if(link){

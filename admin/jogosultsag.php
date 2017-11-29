@@ -22,10 +22,13 @@ $jogosultsagKatok = array(
 
 $jogosultsagok = array(
 //Ez a _jog() ID_ja, tehát a => előtti rész
+
+//Törölni így tudsz:
+//123  => array('torolve' => 'TÖRÖLVE - a lényeg, hogy legyen egy torolve attribútuma is.',  'nev' => 'A törölt jog neve',   'kat' => 123, 'sor' => 123),
     0  => array('nev' => 'Saját részleg bejelentések megtekintése',         'kat' => 0, 'sor' => 0, 'kikapcs' => '57' ),
     57 => array('nev' => 'Saját szállodák bejelentéseinek megtekintése',    'kat' => 0, 'sor' => 1, 'kikapcs' => '0'  ),
-    1  => array('nev' => 'Bejelentés saját névben',                         'kat' => 0, 'sor' => 2, 'kikapcs' => '56'  ),
-    56 => array('nev' => 'Bejelentés más nevében',                          'kat' => 0, 'sor' => 3, 'kikapcs' => '1'  ),
+    1  => array('nev' => 'Bejelentés saját névben',                         'kat' => 0, 'sor' => 2  ),
+    56 => array('nev' => 'Bejelentés más nevében',                          'kat' => 0, 'sor' => 3  ),
     41 => array('nev' => 'Bejelentések elutasítása',                        'kat' => 0, 'sor' => 4  ),
     71 => array('nev' => 'Bejelentések vizsgálat',                          'kat' => 0, 'sor' => 5  ),
     72 => array('nev' => 'Bejelentések törlése',                            'kat' => 0, 'sor' => 6  ),
@@ -40,7 +43,7 @@ $jogosultsagok = array(
     68 => array('nev' => 'Munkalap törlése',                                'kat' => 1, 'sor' => 9  ),
     22 => array('nev' => 'Saját szem. tip. kezelése',                       'kat' => 1, 'sor' => 10, 'kikapcs' => '69' ),
     69 => array('nev' => 'Saját szálloda kezelése',                         'kat' => 1, 'sor' => 11, 'kikapcs' => '22' ),
-    75 => array('nev' => 'Munkaidő hozzáadása',                             'kat' => 1, 'sor' => 8  ),
+    75 => array('torolve' => 'TÖRÖLVE', 'nev' => 'Munkaidő hozzáadása',     'kat' => 1, 'sor' => 8  ),
     23 => array('nev' => 'Igazolás',                                        'kat' => 1, 'sor' => 12 ),
     24 => array('nev' => 'Vizsgálat',                                       'kat' => 1, 'sor' => 13 ),
     37 => array('nev' => 'Külsős: előkészítés',                             'kat' => 1, 'sor' => 14 ),

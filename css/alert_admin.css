@@ -40,7 +40,7 @@
 #alert2 .gomb{
     background-image: none;
 	background: #75b54b;
-    border: 0.0rem;
+    border: 0.1rem solid rgba(0, 0, 0, 0);;
 	border-radius: 0.3rem;
     color: #FFFFFF;
     cursor: pointer;
@@ -88,6 +88,10 @@
 
 #alert2 .gombb.zold:hover, #alert2 .gomb.zold:hover{
     background: #76B958;
+}
+
+#alert2 .gomb:focus, #alert2 .gombb:focus{
+    border: 0.1rem solid #f00;
 }
 
 #alert2 input, div.alert2 input {

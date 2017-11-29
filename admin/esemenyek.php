@@ -1074,8 +1074,7 @@ $utolso_vegrehajtas = '';
 $idoszakos_dn       = ' class="dn"';
 if(basename(self())=='utemezett_feladatok.php'){
 
-    $uf = $adatbazis_kapcsolat->s('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d', 'utemezett_feladatok', "`recid`='{$_GET['id']}'");
-    $uf = $uf[0];
+    $uf = $adatbazis_kapcsolat->s2('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d', 'utemezett_feladatok', "`recid`='{$_GET['id']}'");
 
     $utolso_vegrehajtas = $uf['esem_d'];
     $uf['aktkezd_d'] = str_replace('-', '.', $uf['aktkezd_d']);
@@ -1273,8 +1272,7 @@ $het_rejt = 'dn ';
 $ho_rejt  = 'dn ';
 $utolso_vegrehajtas = '';
 if(basename(self())=='rendszeres_karbantartas.php'){
-    $uf = $adatbazis_kapcsolat->s('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d', 'rendszeres_karbantartas', "`recid`='{$_GET['id']}'");
-    $uf = $uf[0];
+    $uf = $adatbazis_kapcsolat->s2('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d', 'rendszeres_karbantartas', "`recid`='{$_GET['id']}'");
 
     $utolso_vegrehajtas = $uf['esem_d'];
     $uf['aktkezd_d'] = str_replace('-', '.', $uf['aktkezd_d']);
@@ -1471,8 +1469,7 @@ $het_rejt = 'dn ';
 $ho_rejt  = 'dn ';
 $utolso_vegrehajtas = '';
 if(basename(self())=='eseti_fenntartas.php'){
-    $uf = $adatbazis_kapcsolat->s('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d', 'rendszeres_karbantartas', "`recid`='{$_GET['id']}'");
-    $uf = $uf[0];
+    $uf = $adatbazis_kapcsolat->s2('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d', 'rendszeres_karbantartas', "`recid`='{$_GET['id']}'");
 
     $utolso_vegrehajtas = $uf['esem_d'];
     $uf['aktkezd_d'] = str_replace('-', '.', $uf['aktkezd_d']);
@@ -2605,16 +2602,15 @@ if( isset($_POST['csoportbaRendez']) ) {
             exit();
         }
         // Csoportban milyen szállodájú bejegyzések vannak? Csak ilyen adható hozzá.
-        $egy_csoport_elem = $adatbazis_kapcsolat -> s('recid', $page, "`csoport_id`='$csoportID'", '', '1');
-        $egy_csoport_elem = $egy_csoport_elem[0];
+        $egy_csoport_elem = $adatbazis_kapcsolat -> s2('recid', $page, "`csoport_id`='$csoportID'", '', '1');
         if($egy_csoport_elem){
-            $telephelye = $adatbazis_kapcsolat->s('telephely_id', $page, "`recid`='{$egy_csoport_elem['recid']}'");
-            $telephelye = $telephelye[0];
-            $akt_elem_telephelye = $adatbazis_kapcsolat->s('telephely_id', $page, "`recid` IN (".implode(',', $idk).")", '', '1');
-            $akt_elem_telephelye = $akt_elem_telephelye[0];
+            $telephelye = $adatbazis_kapcsolat->s2('telephely_id', $page, "`recid`='{$egy_csoport_elem['recid']}'");
+            
+            $akt_elem_telephelye = $adatbazis_kapcsolat->s2('telephely_id', $page, "`recid` IN (".implode(',', $idk).")", '', '1');
+            
             if($telephelye['telephely_id']!=$akt_elem_telephelye['telephely_id']){
-                $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$telephelye['telephely_id']}'");
-                $telephely = $telephely[0];
+                $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$telephelye['telephely_id']}'");
+                
                 echo json_encode(array(
                     'hiba' => 'A csoportba csak a következő szállodához tartozó '.$hibauzi_param.' vehet fel:<br>'.$telephely['nev']
                 ));
@@ -3251,55 +3247,6 @@ if (isset($_POST['surgosseg_allit'])) {
     exit();
 }
 
-if( isset($_POST['getSzallodak']) ) {
-    /* Szálloda lekérdezése */
-    $telephelyek = $adatbazis_kapcsolat->s('id nev recid modell', 'telephely', '', '', '');
-
-    /* Felhasználóhoz kapcsolt szállodák */
-    $felh = $adatbazis_kapcsolat->s('nev', 'login', "`recid` = '".$_POST['recid']."'", '', '');
-
-    if( $felh ) {
-        $felh = $felh[0];
-
-        /* Kapcsolt szállodák */
-        $felh_szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev` = '".$felh['nev']."'", '', '');
-        $felh_szallodak = adatbazis2tomb($felh_szallodak, 'telephely_id');
-    }
-
-    if( !$felh_szallodak ) {
-        $felh_szallodak = array();
-    }
-
-    $html = '';
-    if( $telephelyek ) {
-        foreach($telephelyek as $telephely) {
-            $checked = '';
-            if( in_array($telephely['id'], $felh_szallodak) ) {
-                $checked = ' checked="checked"';
-            }
-
-            $html .= nl2('
-                <div class="dtr">
-                    <div class="dtc">
-                        <div class="cb">
-                            <input type="checkbox" class="check" name="telephely[]" id="telephely-'.$telephely['recid'].'" value="'.$telephely['id'].'" data-pesti="'.$telephely['modell'].'"'.$checked.'>
-                            <label for="telephely-'.$telephely['recid'].'"></label>
-                        </div>
-                    </div>
-                    <div class="dtc">
-                        '.$telephely['nev'].'
-                    </div>
-                </div>
-            ');
-        }
-    }
-
-    echo $html;
-
-    $weblap->leallit();
-    exit();
-}
-
 // Szálloda hozzáadása felhasználóhoz ajaxosan
 if( isset($_GET['addSzalloda']) ) {
     $loginID  = $_GET['loginID'];
@@ -3386,11 +3333,11 @@ if( isset($_GET['szamlaLista']) ) {
     exit();
 }
 
-/* Select generálása ajaxxal adott login szállodáiról */
+// Select generálása ajaxxal adott login szállodáiról
 if (isset($_POST['get_szalloda_select_options'])) {
 
     $szallodak = get_akt_login_szallodai();
-    $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $szallodak).")", 'nev');
+    $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $szallodak).") AND `inaktiv`=0", 'nev');
 
     echo json_encode(array(
         'html'            => tomb2option($szallodak, 'id', 'nev'),
@@ -3402,10 +3349,10 @@ if (isset($_POST['get_szalloda_select_options'])) {
 }
 
 
-//Kell-e kétszintű kategóriát kezelni vagy sem
+// Kell-e kétszintű kategóriát kezelni vagy sem
 $ketszintu_kat = false;
 
-//Változók mentése SESSION-ba és újrabetöltés, hogy a kiválasztott lista rendezése és szűkítése megmaradjon
+// Változók mentése SESSION-ba és újrabetöltés, hogy a kiválasztott lista rendezése és szűkítése megmaradjon
 if(isset($_GET['unset'])){
 	unset($_SESSION['kat']);
 	unset($_SESSION['epo']);

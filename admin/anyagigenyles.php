@@ -64,17 +64,17 @@ require_once 'anyagigenyles_nyomtat.php';
 
 if (isset($_POST['f_anyag_rendelkezesre_all'])) {
 
-    //Tranzakció indul
+    // Tranzakció indul
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    //Az érintett munkalap anyagok státuszait 0-ra állítjuk
+    // Az érintett munkalap anyagok státuszait 0-ra állítjuk
     $sql = $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array(DISZPNAG_STAT_VAN_ANYAG), "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$_POST['cikk_id']}'");
     if( $sql === false ) {
         $db_error = true;
     }
 
-    //Lefuttatjuk a munkalap_folyamatbanra_halehet függvényt, ezzel ha lehet, folyamatbanra állítva a munkalap státuszát
+    // Lefuttatjuk a munkalap_folyamatbanra_halehet függvényt, ezzel ha lehet, folyamatbanra állítva a munkalap státuszát
     $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_anyag', "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$_POST['cikk_id']}'");
     $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
     if(munkalap_folyamatbanra_halehet($munkalapok)===false){
@@ -445,7 +445,7 @@ if( isset($_POST['arazas']) ) {
                     <tr>
                         <td class="p r">Szállítási cím:</td>
                         <td class="p" colspan="3">
-                            <select'.$szall_sel_disabled.' id="pop_erkcimid" name="pop_erkcimid" onchange="if( $(this).val() ){ $(\'#pop_dbf\').prop(\'checked\', false); }">
+                            <select'.$szall_sel_disabled.' id="pop_erkcimid" name="pop_erkcimid" onchange="if( $(this).val() ){ $(\'#pop_dbf\').prop(\'checked\', false); }" class="csillag">
                                 <option value="">-Válasszon-</option>
                                 <option value="1"'.$szall_sel.'>Szálloda</option>
                                 <option value="2"'.$mszk_sel.'>MSZK</option>
@@ -758,12 +758,12 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
             }
         }
 
-        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
                 'hiba' => 'Biztos jóváhagyásra küldi kijelölt anyagigényléseket?',
-                'gomb' => '<input class="gomb piros" value="Igen" onclick="anyagigenyles_kuldes_jovahagyasra();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="anyagigenyles_kuldes_jovahagyasra();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
             $weblap->leallit();
@@ -956,9 +956,9 @@ if( isset($_POST['anyagigenyles_elutasitas']) ) {
                 'hiba' => nl2('
                                 <div id="hibauzi" class="piros"></div>
                                 Anyagigénylés elutasításának indoklása:
-                                <br><textarea id="pop_indoklas" style="width: 37rem; margin-top: 1rem"></textarea>
+                                <br><textarea id="pop_indoklas" style="width: 37rem; margin-top: 1rem" class="csillag" onkeyup="if( $(this).val().trim()==\'\' ){ $(this).val(\'\'); }"></textarea>
                             '),
-                'gomb' => '<input class="gomb piros" value="Igen" onclick="anyagigenyles_elutasitas();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+                'gomb' => '<input class="gomb zold" value="Elutasítás" onclick="anyagigenyles_elutasitas();" type="button"><input class="gomb piros" value="Mégsem" onclick="alert2()" type="button">'
             ));
 
             $weblap->leallit();
@@ -1005,7 +1005,7 @@ if( isset($_POST['anyagigenyles_elutasitas']) ) {
     exit();
 }
 
-//Minden anyagigénylés jóváhagyása: hatása jóváhagyva státuszt kap
+// Minden anyagigénylés jóváhagyása: hatása jóváhagyva státuszt kap
 if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
 
     $db_error = false;
@@ -1035,7 +1035,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
                             Jóváhagyás alatti érték: '.number_format($ertek, 2, ',', ' ').' '.get_penznem().'
                             <br>Folytatja?
                         '),
-            'gomb' => '<input class="gomb piros" value="Igen" onclick="anyagigenyles_mind_jovahagy();" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+            'gomb' => '<input class="gomb zold" value="Igen" onclick="anyagigenyles_mind_jovahagy();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
         ));
 
         $weblap->leallit();
@@ -1322,15 +1322,14 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                 </tr>
             ');
 
-        //Beloginolt user szállodáira is szűrünk
+        // Beloginolt user szállodáira is szűrünk
         $szallodak = get_akt_login_szallodai();
         if($szallodak){
 
             $igenylesek = $adatbazis_kapcsolat->s('recid telephely_id cikk_id nev igmen rndmen erkmen cikkmee szallito_id stat_id', 'anyagigenyles', "`aparecid`='{$recid['recid']}' AND `telephely_id` IN (".implode(',', $szallodak).")");
             foreach($igenylesek as $igeny){
 
-                $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$igeny['telephely_id']}'");
-                $telephely = $telephely[0];
+                $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$igeny['telephely_id']}'");
 
                 $gomb = '(nincs anyagra váró feladatok a diszpécser naplóban)';
                 //munkalap_anyag táblában keresünk olyan sorokat, ahol a státusz nem DISZPNAG_STAT_VAN_ANYAG, és a cikkid-ja adott anyagigénylés cikkid-ja. Ha van ilyen akkor Mutat gomb
@@ -1383,10 +1382,10 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
 
     }
 
-    //Anyagigénylés érkeztetésének feldolgozása
+    // Anyagigénylés érkeztetésének feldolgozása
     if($_POST['idk']){
 
-        //Tranzakció indul
+        // Tranzakció indul
         $db_error = false;
         mysqli_autocommit($db_kapcs, false);
 
@@ -1396,17 +1395,14 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
             //Ha nincs ID, nem is csinálunk semmit
             if($id){
 
-                $anyagigenyles = $adatbazis_kapcsolat->s('*', 'anyagigenyles', "`recid`='$id'");
-                if($anyagigenyles===false){
-                    $db_error = false;
-                }
-                $anyagigenyles = $anyagigenyles[0];
+                $anyagigenyles = $adatbazis_kapcsolat->s2('*', 'anyagigenyles', "`recid`='$id'");
+                if($anyagigenyles===false){ $db_error = false; }
 
                 $marerkmen = $anyagigenyles['erkmen'];
                 $rndmen    = $anyagigenyles['rndmen'];
 
 
-                //HA marerkmen+erkmen=0 ÉS nemfogerk=1 AKKOR statid=CIKKIGN_STAT_NEM_ERKEZETT
+                // HA marerkmen+erkmen=0 ÉS nemfogerk=1 AKKOR statid=CIKKIGN_STAT_NEM_ERKEZETT
                 if( ($marerkmen+$erkmen==0 || $marerkmen+$erkmen==0.00) && $nemfogerk){
                     $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_NEM_ERKEZETT );
                     if( $statusz === false ) {
@@ -1414,27 +1410,25 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                     }
 
 
-                //HA marerkmen+erkmen>=rndmen VAGY (marerkmen+erkmen>0 ÉS nemfogerk=1), AKKOR statid=CIKKIGN_STAT_BEERKEZETT
+                // HA marerkmen+erkmen>=rndmen VAGY (marerkmen+erkmen>0 ÉS nemfogerk=1), AKKOR statid=CIKKIGN_STAT_BEERKEZETT
                 }else if( $marerkmen+$erkmen>=$rndmen || ($marerkmen+$erkmen>0  && $nemfogerk) ){
                     $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_BEERKEZETT );
                     if( $statusz === false ) { $db_error = true; }
 
-                //HA marerkmen+erkmen>0 ÉS marerkmen+erkmen<rndmen ÉS nemfogerk=0 AKKOR statid=CIKKIGN_STAT_RESZBENBEERK
+                // HA marerkmen+erkmen>0 ÉS marerkmen+erkmen<rndmen ÉS nemfogerk=0 AKKOR statid=CIKKIGN_STAT_RESZBENBEERK
                 }elseif( $marerkmen+$erkmen>0 && $marerkmen+$erkmen<$rndmen && !$nemfogerk){
                     $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_RESZBENBEERK  );
                     if( $statusz === false ) { $db_error = true; }
                 }
 
-                //Végül UPDATE cikkign SET erkmen=marerkmen+erkmen, update_usr= WHERE recid=
+                // Végül UPDATE cikkign SET erkmen=marerkmen+erkmen, update_usr= WHERE recid=
                 $sql = $adatbazis_kapcsolat -> u('anyagigenyles',   array('erkmen',             'update_usr'                            ),
                                                                     array($marerkmen+$erkmen,   $_SESSION[get_db_tabla().'teljes_nev']  ),
                                                     "`recid`='$id'"
                                                 );
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                if( $sql === false ) { $db_error = true; }
 
-                //Ha erkmen>0 INSERT mozgas                    SET telephely_id=,                           szallito_id=,                cikk_id=,                        cikkmen=erkmen, mozgid=MOZGID_RAKTAR_BE, mozgir=1, rendtetid=recid, update_usr=, insert_usr=, insert_dt=NOW()
+                // Ha erkmen>0 INSERT mozgas                    SET telephely_id=,                           szallito_id=,                cikk_id=,                        cikkmen=erkmen, mozgid=MOZGID_RAKTAR_BE, mozgir=1, rendtetid=recid, update_usr=, insert_usr=, insert_dt=NOW()
                 if($erkmen>0){
                     $sql = $adatbazis_kapcsolat->i('mozgas',    array('telephely_id',                 'szallito_id',                 'cikk_id',                  'cikkmen', 'mozgid',          'mozgir', 'rendtetid', 'update_usr',                           'insert_usr',                            'insert_dt' ),
                                                                 array($anyagigenyles['telephely_id'], $anyagigenyles['szallito_id'], $anyagigenyles['cikk_id'],  $erkmen,    MOZGID_RAKTAR_BE,  1,        $id,         $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()'     )
@@ -1490,13 +1484,11 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
-
             echo json_encode(array(
                 'statusz' => 'siker'
             ));
         } else {
             mysqli_rollback($db_kapcs);
-
             echo json_encode(array(
                 'hiba' => tranzakcioHiba()
             ));
@@ -1769,23 +1761,22 @@ require_once('selectek.php');
     // Módosítás gombok
     } else {
 
-        $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
+        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
         // Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         // Anyagigénylés jóváhagyása
         if( _jog(JOG_ANYAGIGENYLES_JOVAHAGY) ) {
-            $gombok .= nl2('
-                <div id="kmCont">
-                    <input type="button" class="gomb foGomb zold" value="Jóváhagyás" onclick="anyagigenyles_jovahagy(\'csak kérdezünk még\')">
-                    <input type="button" class="gomb foGomb piros" value="Elutasítás" onclick="anyagigenyles_elutasitas(\'csak kérdezünk még\')">
-                    <input type="button" class="gomb foGomb" value="Mind jóváhagyása" onclick="anyagigenyles_mind_jovahagy(\'csak kérdezünk még\')">
-                </div>
-            ');
+            
+            if($sor['stat_id']==CIKKIGN_STAT_ARAZVA){
+                $gombok .= '<input type="button" class="gomb foGomb zold" value="Jóváhagyás" onclick="anyagigenyles_jovahagy(\'csak kérdezünk még\')"> ';
+                $gombok .= '<input type="button" class="gomb foGomb piros" value="Elutasítás" onclick="anyagigenyles_elutasitas(\'csak kérdezünk még\')"> ';
+            }
+            $gombok .= '<input type="button" class="gomb foGomb" value="Mind jóváhagyása" onclick="anyagigenyles_mind_jovahagy(\'csak kérdezünk még\')"> ';
+            
             // Ha jóváhagyás joga van, és a státusza árazva, akkor a jóváhagyott mennyiség enabled
-            if($sor['stat_id']==20){
+            if($sor['stat_id']==CIKKIGN_STAT_ARAZVA){
                 $gombok .= nl2('
                     <script>
                         $(document).ready(function() {
@@ -1807,22 +1798,33 @@ require_once('selectek.php');
         }
         // Anyagigénylés árazása
         if( _jog(JOG_ANYAGREND_KESZIT) ) {
+                
             if(!isset($_GET['anyagrend'])){
+                
+                $arazas        = '';
+                $kuld_jovahagy = '';
+                if($sor['stat_id']==CIKKIGN_STAT_NYITOTT){
+                    $arazas        = '<input type="button" class="gomb foGomb" value="Árazás" onclick="arazas()"> ';
+                    $kuld_jovahagy = '<input type="button" class="gomb foGomb" value="Küldés jóváhagyásra" onclick="anyagigenyles_kuldes_jovahagyasra(\'csak kérdezünk még\')"> ';
+                }
+                $rend_keszit = '';
+                if($sor['stat_id']==CIKKIGN_STAT_JOVAHAGYVA){
+                    $rend_keszit = '<input type="button" class="gomb foGomb" value="Rendelés készítése" onclick="anyagigenyles_rendeles_keszit(\'csak kérdezünk még\')"> ';
+                }
+                
                 $gombok .= nl2('
-                    <div id="kmCont">
-                        <div class="kijeloltek_muv">
-                            <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
-                            <div class="muv">
-                                <ul>
-                                    <li><a onclick="csoportMuvelet(\'anyagigenylesVarolistahozAdas\')">Várólistához adás</a></li>
-                                    <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\');">Várólistából kivétel</a></li>
-                                </ul>
-                            </div>
+                    <div class="kijeloltek_muv">
+                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
+                        <div class="muv">
+                            <ul>
+                                <li><a onclick="csoportMuvelet(\'anyagigenylesVarolistahozAdas\')">Várólistához adás</a></li>
+                                <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\');">Várólistából kivétel</a></li>
+                            </ul>
                         </div>
-                        <input type="button" class="gomb foGomb" value="Árazás" onclick="arazas()">
-                        <input type="button" class="gomb foGomb" value="Küldés jóváhagyásra" onclick="anyagigenyles_kuldes_jovahagyasra(\'csak kérdezünk még\')">
-                        <input type="button" class="gomb foGomb" value="Rendelés készítése" onclick="anyagigenyles_rendeles_keszit(\'csak kérdezünk még\')">
                     </div>
+                    '.$arazas.'
+                    '.$kuld_jovahagy.'
+                    '.$rend_keszit.'
                 ');
             }
         }
@@ -1830,15 +1832,12 @@ require_once('selectek.php');
         if( _jog(JOG_ANYAGIGENYLES_KEZEL) ) {
             if(isset($_GET['anyagrend'])){
                 $gombok .= nl2('
-                    <div id="kmCont">
-                        <input type="button" class="gomb foGomb" value="Anyagok érkeztetése" onclick="csoportMuvelet(\'anyagigenyles_erkeztet\')">
-                        <input type="button" class="gomb foGomb" value="Készpénzes anyagbeszerzés" onclick="csoportMuvelet(\'anyagigenylesKpBeszerez\');">
-                    </div>
+                    <input type="button" class="gomb foGomb" value="Anyagok érkeztetése" onclick="csoportMuvelet(\'anyagigenyles_erkeztet\')">
+                    <input type="button" class="gomb foGomb" value="Készpénzes anyagbeszerzés" onclick="csoportMuvelet(\'anyagigenylesKpBeszerez\');">
                 ');
             }
         }
 
-        // Jogosutságkezelés: csak az törölheti, aki létrehozta
         // Anyagrendeléskor anyagrendelés törlés jog kell hozzá
         if (isset($_GET['anyagrend']) ) {
             if(!_jog(JOG_ANYAGREND_TOROL)){
@@ -1899,10 +1898,10 @@ require_once('selectek.php');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
 	    require_once('info.php');
 
-	    //FORM
+	    // FORM
 		if(isset($_GET['ujkent'])){
 			foreach($akt_tomb as $ertek){
 				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
@@ -1910,7 +1909,7 @@ require_once('selectek.php');
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
@@ -2002,8 +2001,7 @@ require_once('selectek.php');
                             $folyamatban += $foly['igmen'];
                         }
 
-                        $szalloda = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$telephely['telephely_id']}'");
-                        $szalloda = $szalloda[0];
+                        $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$telephely['telephely_id']}'");
 
                         $mar_igenyelve = '(nincs igénylés)';
                         if($folyamatban){

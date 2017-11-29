@@ -576,8 +576,8 @@ function i_u($type, $tabla, $tomb) {
             $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id` = '".$_POST['telephely_id']."'", '', '1');
             if( $telephely ) {
 
-                // Egyszállodás modell, így rögtön munkalapot generálunk belőle
-                if( !$telephely['modell'] ) {
+                // Egyszállodás modell VAGY ha a "telefonon bejelentve" pipa be van pipálva, így rögtön munkalapot generálunk belőle
+                if( !$telephely['modell'] || $_POST['telefon'] ) {
                     
                     // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
                     $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
@@ -1018,7 +1018,9 @@ if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett
             <br>vegenap: $sor[vegenap]
             <br>aktkezd_d: $aktkezd_d
             <br>aktvege_d: $aktvege_d";
+//echo $kiir;
     $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
+//echo 'siker';
     $kiir .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
     $kiir .= '<hr>Ütemezés: ' . $utemezes;
     $kiir .= '<hr>Esedékes: ' . $sor['esnap_d'].' '.het_napja_txt($sor['esnap_d']);
@@ -1027,7 +1029,7 @@ if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett
     $kiir .= '</div><div class="dtc vat">';
     $kiir .= '<br>Következő 10 iteráció:<br>';
     for($i=0; $i<10; $i++){
-        $getnextvaliddate = getnextvaliddate(false, $getnextvaliddate, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
+        //$getnextvaliddate = getnextvaliddate(false, $getnextvaliddate, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
         $kiir .= $getnextvaliddate . '<br>';
     }
     $kiir .= '</div>';
@@ -1189,7 +1191,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             anyagig_id = \'#th\'+$(\'#telephely_id\').val()+\'a\'+$(\'#nev\').val();
             min_mennyiseg = $(anyagig_id).html();
             mee           = $(anyagig_id+\'_mee\').html();
-            gomb          = \'<input type="button" class="gomb piros" value="Igen" onclick="$(\\\'#igmen\\\').val(min_mennyiseg); $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()">\';
+            gomb          = \'<input type="button" class="gomb zold" value="Igen" onclick="$(\\\'#igmen\\\').val(min_mennyiseg); $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()">\';
             if(min_mennyiseg && min_mennyiseg>$(\'#igmen\').val()){
                 alert2(\'Igényelt mennyiség: \' + $(\'#igmen\').val() + \' \'+mee+\'<br>Minimális igényelhető mennyiség: \' +min_mennyiseg+\' \'+mee+\'<br>Ha folytatja, \' +min_mennyiseg+\' \'+mee+\' lesz igényelve.<br>Folytatja?\', gomb, \'Hiba\');
                 return false;
@@ -1356,14 +1358,14 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
                 /* gép és helyiség is üresen maradt figylemeztetés */
                 if(!$(\'#gep_id\').val() && !$(\'#obj_id\').val() && !helyiseg_gep_mehet){
-                    uf_gomb = \'<div class="c"><input type="button" class="gomb piros" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()"></div>\';
+                    uf_gomb = \'<div class="c"><input type="button" class="gomb zold" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()"></div>\';
                     alert2(\'Nem adott meg sem helyiséget sem gépet a feladathoz.<br>Folytatja?\', uf_gomb);
                     return false;
                 }
 
                 /* Riasztás 0 értékkel van beállítva, így mehet? */
                 if( (!$(\'#riaszt\').val() || $(\'#riaszt\').val()==0) && !riasztas_mehet ){
-                    uf_gomb2 = \'<div class="c"><input type="button" class="gomb piros" value="Igen" onclick="riasztas_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()"></div>\';
+                    uf_gomb2 = \'<div class="c"><input type="button" class="gomb zold" value="Igen" onclick="riasztas_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()"></div>\';
                     alert2(\'
                         Ön a következőt választotta:
                         <br>
@@ -1459,7 +1461,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         success: function(response) {
 
                             response = JSON.parse(response);
-                            uf_gomb3 = \'<div class="c"><input type="button" class="gomb piros" value="Igen" onclick="utemezes_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb zold" value="Nem" onclick="alert2()"></div>\';
+                            uf_gomb3 = \'<div class="c"><input type="button" class="gomb zold" value="Igen" onclick="utemezes_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()"></div>\';
                             alert2(response[\'uzenet\'], uf_gomb3);
                             $(\'#esnap_d\').val(response[\'esedekes\']);
                             return false;
@@ -2506,13 +2508,12 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                         $bold = '';
                         $bejelentes = $adatbazis_kapcsolat->s('recid telephely_id', 'bejelentes', "`csoport_id` = '{$aktCsoport}' AND `stat_id`='".BEJELENTES_STAT_NYITOTT."'", '', '1');
                         $bejelentes = $bejelentes[0];
-                        //Ha van legalább egy nyitott eleme, akkor biztosan nyitott a csoport is (elvégre a csoport státusza csak eygszerre mozoghat)
+                        // Ha van legalább egy nyitott eleme, akkor biztosan nyitott a csoport is (elvégre a csoport státusza csak eygszerre mozoghat)
                         if($bejelentes){
                             $bold = ' b';
                         }
-                        //Egy csoporton belül biztosan csak olyan bejelentések lesznek, amiknek azonos a telephelye
-                        $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$bejelentes['telephely_id']}'");
-                        $telephely = $telephely[0];
+                        // Egy csoporton belül biztosan csak olyan bejelentések lesznek, amiknek azonos a telephelye
+                        $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$bejelentes['telephely_id']}'");
 
                         $html .= nl2('
                                     <li class="szamla_datum csoport'.$csoport_active.$nohover.'" data-id="'.$aktCsoport.'">
@@ -2855,11 +2856,11 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek )
                 $active = ' kijelolve';
             }
 
-            /* Telephely */
+            // Telephely
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
             $telephely = $telephely[0]['nev'];
 
-            /* Helység */
+            // Helység
             $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
             $helyseg = $helyseg[0]['nev'];
 
@@ -2929,11 +2930,11 @@ function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit, $kijelolt
                 $active = ' kijelolve';
             }
 
-            /* Telephely */
+            // Telephely
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
             $telephely = $telephely[0]['nev'];
 
-            /* Helység */
+            // Helység
             $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
             $helyseg = $helyseg[0]['nev'];
 
@@ -3119,8 +3120,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             /* Telephely */
-            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
-            $telephely = $telephely[0];
+            $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
 
             $azon = $bsz['ikt_szam'];
             if (isset($_GET['anyagrend'])) {
@@ -3348,9 +3348,8 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $active .= ' nyitott_statuszu';
             }
 
-            //Egy csoporton belül biztosan csak olyan bejelentések lesznek, amiknek azonos a telephelye
-            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$bsz['telephely_id']}'");
-            $telephely = $telephely[0];
+            // Egy csoporton belül biztosan csak olyan bejelentések lesznek, amiknek azonos a telephelye
+            $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$bsz['telephely_id']}'");
 
             require 'selectek.php';
             foreach($select_pri_tipus as $tip){
@@ -3916,7 +3915,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 <ol class="konyvtar_szerk">
                 ';
 
-        //Ha már nyitva van egy bejegyzés, akkor a könyvtárszerkezetet is kinyitogatjuk
+        // Ha már nyitva van egy bejegyzés, akkor a könyvtárszerkezetet is kinyitogatjuk
         if($_GET['id']){
             $akt_eszkoz = $adatbazis_kapcsolat->s2('recid telephely_id obj_id', $tabla, "`recid`='{$_GET['id']}'");
             $akt_obj    = $akt_eszkoz['obj_id'];
@@ -3924,11 +3923,12 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $akt_szint  = $akt_szint['szulo'];
         }
 
-        //Ha van szűrés (az csak szállodára lehet)
+        // Ha van szűrés (az csak szállodára lehet)
         $sql_kieg = '';
         if ($_GET['mezo']) {
             $sql_kieg .= ' AND `id`=\''.$_GET['felt'].'\'';
         }
+        $sql_kieg .= " AND `inaktiv`=0";
 
         $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $login_szallodai).")$sql_kieg", 'nev');
         foreach($szallodak as $szalloda){
@@ -4580,7 +4580,7 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
         $where = "`id` = '{$telephelyID}'";
     }
 
-    $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', $where, 'nev', '');
+    $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', $where, 'nev');
 
     $html = '';
     if( $telephelyek ) {
@@ -4905,27 +4905,27 @@ function get_akt_tomb($megn){
     return $akt_tomb;
 }
 
-/* Az aktuálisan bejelentkezett felhasználóhoz rendelt szállodák ID_ját adja vissza. Ez többször előfroduló igén, azért van kiszervezve függvénybe. */
+// Az aktuálisan bejelentkezett felhasználóhoz rendelt szállodák ID_ját adja vissza. Ez többször előfroduló igén, azért van kiszervezve függvénybe.
 function get_akt_login_szallodai($sqlt_adj_vissza, $telephely_id_oszlop_helyett_masik_oszlop){
     global $adatbazis_kapcsolat;
 
     $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
     $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
 
-    //SQL-t adjunk vissza
+    // SQL-t adjunk vissza
     if($sqlt_adj_vissza){
         $oszlop = 'telephely_id';
         if($telephely_id_oszlop_helyett_masik_oszlop){
             $oszlop = $telephely_id_oszlop_helyett_masik_oszlop;
         }
-        //Ha tartozik hozzá szálloda
+        // Ha tartozik hozzá szálloda
         if($szallodak){
-            return ' AND `'.$oszlop.'` IN ('.implode(', ', $szallodak).')';
-        //Ha nem tartozik hozzá szálloda, akkor így válik majd hamissá az SQL feltétele
+            return ' AND `'.$oszlop.'` IN ('.implode(', ', $szallodak).') AND `inaktiv`=0';
+        // Ha nem tartozik hozzá szálloda, akkor így válik majd hamissá az SQL feltétele
         }else{
             return ' AND `'.$oszlop.'`=0';
         }
-    //Tömböt adunk vissza a szálloda ID-kal
+    // Tömböt adunk vissza a szálloda ID-kal
     }else{
         return $szallodak;
     }
