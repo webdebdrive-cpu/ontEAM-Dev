@@ -864,7 +864,6 @@ require_once('selectek.php');
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
 
-
         // Duplákáláskor feltett kérdés
         $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
         $telephely = $telephely[0]['nev'];

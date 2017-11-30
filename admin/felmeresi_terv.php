@@ -466,23 +466,30 @@ require_once('selectek.php');
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
+        
+        // Duplákáláskor feltett kérdés
+        $szamla_html .= nl2('
+            <script>
+                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                duplikaKerdes = \'Név: '.$sor['nev'].'<br><br>Biztos, hogy duplikálja?\';
+            </script>
+        ');
 
-        //NAVIGÁCIÓ
+        // NAVIGÁCIÓ
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel  = array( $navi,             '',         $gyk2 );
-        //echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
         require_once('info.php');
 
-	    //FORM
+	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
-		//Form actionja
+		// Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }

@@ -336,7 +336,14 @@ require_once('selectek.php');
             }
         }
 
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
+        $szamla_html .= nl2('
+                            <script>
+                                $(document).ready(function () {
+                                    ut_kulso_kivitlezo_beallit();
+                                });
+                                formAdatok = JSON.parse(\''.json_encode($sor).'\');
+                            </script>
+                        ');
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
@@ -410,7 +417,15 @@ require_once('selectek.php');
         foreach($sor as $kulcs => $elem){
             $json_sor[$kulcs] = nl2(str_replace(array("\n", "'"), array("#UJSOR#", "#APOSZTROF#"), $elem));
         }
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
+        $szamla_html .= nl2('
+                        <script>
+                            $(document).ready(function () {
+                                ut_kulso_kivitlezo_beallit();
+                            });
+                            formAdatok = JSON.parse(\''.json_encode($json_sor).'\');
+                        </script>
+                        ');
+        
         
 // Szinvatrednes demo
 if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu') {

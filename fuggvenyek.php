@@ -23,7 +23,7 @@
 function i_u($type, $tabla, $tomb) {
 	global $adatbazis_kapcsolat;
 	global $db_kapcs;
-
+   
     // Tranzakció indul
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -44,7 +44,7 @@ function i_u($type, $tabla, $tomb) {
     			break;
     		}
 
-            //Ha az adott esemenyek.php tomb sora tartalmaz nevid jelzést, akkor ezt a sort eltároljuk, mert ennek a nevéből gyártuk névid-t
+            // Ha az adott esemenyek.php tomb sora tartalmaz nevid jelzést, akkor ezt a sort eltároljuk, mert ennek a nevéből gyártuk névid-t
             if($ertek['nevid'] == true) {
     			$nevid = $ertek;
     		}
@@ -653,6 +653,19 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
         }
 
+        // Szállodákat is beállítjuk
+        if( $tabla == 'login' ) {
+            $adatok = explode(',', str_replace(array('"', '{', '}'), '', $_POST['szallodak_hidden']));
+            foreach($adatok as $adat){
+                list($x, $telephely_id) = explode(':', $adat);
+                $sql = $adatbazis_kapcsolat->i('telephely_kapcs',
+                                                            array('nev',        'telephely_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                            array($_POST['nev'], $telephely_id, 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                );
+                if( $sql === false ) { $db_error = true; }
+            }
+        }
+
         // Munkalap
         if( $tabla == 'munkalap' ) {
             if( $_POST['ujkentSzerkID'] ) {
@@ -693,11 +706,11 @@ function i_u($type, $tabla, $tomb) {
 
         }
 
-        //Naplózás
-        /* Kezdeményezett művelet */
+        // Naplózás
+        // Kezdeményezett művelet
         $muvelet = 'A(z) '.$tabla.'-ba új recordot szúrt be a következő azonosítóval: '.$id.'.';
 
-        /* Végrehajtott változtatás */
+        // Végrehajtott változtatás
         $valtozas = '1.: A(z) <strong>recid</strong> mező a következő értéket kapta: <strong>'.$id.'</strong><br>';
 
         $i = 2;
@@ -1096,7 +1109,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         $focus_autocomp = $ertek['name'].'_autocomp';
                     }
 
-                    $ret .= 'if($(\'#'.$ertek['name'].'\').val()==\'\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
+                    $ret .= 'if($(\'#'.$ertek['name'].'\').val()==\'\'){ document.getElementById(\''.$focus_autocomp.'\').className += \' alert\'; $(\'#'.$focus_autocomp.'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
                 }
                 
                 // Ha numerikus a mező, akkor a 0,00 is üres értéknek számít
@@ -1314,22 +1327,33 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         $param .= 'v=\'+$(\'#v\') .is(\':checked\')+\'&amp;';
         $ret .= nl2('
 
-                /* Kötelező mezők  hibaüzenetei */
+                /* Hozzárendelt személy ha külsős, akkor a Külső kivitelező kitöltése kötelező */
+                if($(\'#szemelyzet_id\').val()==3){
+                    if( !$(\'#szallito_id\').val() ){
+                        alert2(\'Kérjük adja meg a külső kivitelezőt!\', \'\', \'Hiba\');
+                        $(\'#szallito_id_autocomp\').addClass(\'hibas_ide_focus\');
+                        return false;
+                    }
+                }
+                /* Kötelező mezők hibaüzenetei */
                 if($(\'#cikltip\').val()==\'d\'){
                     if( !$(\'#ciklnap\').val() && $(\'#hetkoz_kent\').prop(\'checked\')==false ){
                         alert2(\'Kérjük állítsa be a kívánt ütemezést!\', \'\', \'Hiba\');
+                        $(\'#ciklnap\').addClass(\'hibas_ide_focus\');
                         return false;
                     }
                 }
                 if($(\'#cikltip\').val()==\'w\'){
                     if( !$(\'#ism_het\').val() || (!$(\'#h\').prop(\'checked\') && !$(\'#k\').prop(\'checked\') && !$(\'#s\').prop(\'checked\') && !$(\'#cs\').prop(\'checked\') && !$(\'#p\').prop(\'checked\') && !$(\'#sz\').prop(\'checked\') && !$(\'#v\').prop(\'checked\')) ){
                         alert2(\'Kérjük állítsa be a kívánt ütemezést!\', \'\', \'Hiba\');
+                        $(\'#ism_het\').addClass(\'hibas_ide_focus\');
                         return false;
                     }
                 }
                 if($(\'#cikltip\').val()==\'m\'){
                     if( !$(\'#ciklho\').val() && !$(\'#ciklho2\').val() ){
                         alert2(\'Kérjük állítsa be a kívánt ütemezést!\', \'\', \'Hiba\');
+                        $(\'#ciklho\').addClass(\'hibas_ide_focus\');
                         return false;
                     }
                 }
@@ -1338,27 +1362,32 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 if( $(\'#ciklho\').val()>0 && !$(\'#honapjan\').val() ){
                     alert2(\'Kérjük adja meg a hónap napját!\', \'\', \'Hiba\');
                     $(\'#honapjan\').addClass(\'alert\');
+                    $(\'#honapjan\').addClass(\'hibas_ide_focus\');
                     return false;
                 }
                 if( $(\'#honapjan\').val() && !$(\'#ciklho\').val() ){
                     alert2(\'Kérjük adja meg a havi ismétlődés gyakoriságát!\', \'\', \'Hiba\');
                     $(\'#ciklho\').addClass(\'alert\');
+                    $(\'#ciklho\').addClass(\'hibas_ide_focus\');
                     return false;
                 }
 
                 if( $(\'#ciklho2\').val()>0 && !$(\'#ciklhet\').val() ){
                     alert2(\'Kérjük adja meg a rendszerességet!\', \'\', \'Hiba\');
                     $(\'#ciklhet\').addClass(\'alert\');
+                    $(\'#ciklhet\').addClass(\'hibas_ide_focus\');
                     return false;
                 }
                 if( $(\'#ciklho2\').val()>0 && !$(\'#ho_rendsz_het\').val() ){
                     alert2(\'Kérjük adja meg a rendszerességet!\', \'\', \'Hiba\');
                     $(\'#ho_rendsz_het\').addClass(\'alert\');
+                    $(\'#ho_rendsz_het\').addClass(\'hibas_ide_focus\');
                     return false;
                 }
                 if( ( $(\'#ciklhet\').val()>0 || $(\'#ho_rendsz_het\').val() ) && !$(\'#ciklho2\').val() ){
                     alert2(\'Kérjük adja meg az ismétlődés gyakoriságát!\'+$(\'#ho_rendsz_het\').val(), \'\', \'Hiba\');
                     $(\'#ciklho2\').addClass(\'alert\');
+                    $(\'#ciklho2\').addClass(\'hibas_ide_focus\');
                     return false;
                 }
 
