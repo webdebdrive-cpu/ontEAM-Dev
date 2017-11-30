@@ -53,8 +53,14 @@ if($tobb_kep){
 if (isset($_GET['datumra_utemezes'])) {
     include('datumra_utemezes.php');
 
-    $sor = $adatbazis_kapcsolat->s('*', $megnevezes, "`recid`='{$_GET['id']}'");
-    $sor = $sor[0];
+    $sor = $adatbazis_kapcsolat->s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+    
+    // 0-ék helyett használjun üres stringet
+    foreach($sor as $kulcs => $ertek){
+        if(!$sor[$kulcs]){
+            $sor[$kulcs] = '';
+        }
+    }
 
     if(!$sor['esem_d'] || $sor['esem_d']=='0000-00-00'){
         $sor['esem_d'] = date('Y-m-d');
@@ -62,11 +68,11 @@ if (isset($_GET['datumra_utemezes'])) {
     $esem_d     = substr(str_replace('-', '.', $sor['esem_d']), 0, 10);
     $esnap_d    = str_replace('-', '.', $sor['esnap_d']);
 
-//    $szamla_html .=  "esemd: $esem_d<br>cikltip: $_GET[cikltip]<br>ciklaltip: $_GET[ciklaltip]<br>ciklszorz: $_GET[ciklszorz_]<br>ciklho: $_GET[ciklho]<br>ciklhet: $_GET[ciklhet]<br>ciklnap: $_GET[ciklnap]<br>idoszakos: $_GET[idoszakos]<br>kezdho: $_GET[kezdho]<br>kezdnap: $_GET[kezdnap]<br>vegeho: $_GET[vegeho]<br>vegenap: $_GET[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
-//    $getnextvaliddate = getnextvaliddate(false, $esem_d, $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $_GET['idoszakos'], $_GET['kezdho'], $_GET['kezdnap'], $_GET['vegeho'], $_GET['vegenap'], $aktkezd_d, $aktvege_d);
-//    $szamla_html .= '<hr>Következő esedékesség (esnap_d): ' . $esnap_d;
-//    $szamla_html .= '<br>Következő: ' . $getnextvaliddate;
-//    $szamla_html .= '<br>Szabály: ' . getcimke( $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $getnextvaliddate).'<br><br>';
+    $szamla_html .=  "esemd: $esem_d<br>cikltip: $_GET[cikltip]<br>ciklaltip: $_GET[ciklaltip]<br>ciklszorz: $_GET[ciklszorz_]<br>ciklho: $_GET[ciklho]<br>ciklhet: $_GET[ciklhet]<br>ciklnap: $_GET[ciklnap]<br>idoszakos: $_GET[idoszakos]<br>kezdho: $_GET[kezdho]<br>kezdnap: $_GET[kezdnap]<br>vegeho: $_GET[vegeho]<br>vegenap: $_GET[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
+    $getnextvaliddate = getnextvaliddate(false, $esem_d, $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $_GET['idoszakos'], $_GET['kezdho'], $_GET['kezdnap'], $_GET['vegeho'], $_GET['vegenap'], $aktkezd_d, $aktvege_d);
+    $szamla_html .= '<hr>Következő esedékesség (esnap_d): ' . $esnap_d;
+    $szamla_html .= '<br>Következő: ' . $getnextvaliddate;
+    $szamla_html .= '<br>Szabály: ' . getcimke( $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $getnextvaliddate).'<br><br>';
 
     //A hibaüzenetet ne tegyük a mezőbe
     if( mb_substr($getnextvaliddate, 0, 10)=='Hibaüzenet' ){
@@ -504,8 +510,14 @@ require_once('selectek.php');
         include('datumra_utemezes.php');
         $szamla_html .= 'Ön a következő ütemezést választotta:<br>';
 
-        $sor = $adatbazis_kapcsolat->s('*', $megnevezes, "`recid`='{$_GET['id']}'");
-        $sor = $sor[0];
+        $sor = $adatbazis_kapcsolat->s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+        
+        // 0-ék helyett használjun üres stringet
+        foreach($sor as $kulcs => $ertek){
+            if(!$sor[$kulcs]){
+                $sor[$kulcs] = '';
+            }
+        }
 
         $kell_lista = true;
         $utemezes = 'Folyamatos';

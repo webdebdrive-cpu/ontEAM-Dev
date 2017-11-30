@@ -429,27 +429,27 @@ foreach($akt_tomb as $ertek){
 
 		case 'jsfile':
             
-            //Milyen kiterjesztéseket engedünk meg
+            // Milyen kiterjesztéseket engedünk meg
             if($ertek['eng_kit']){
                 $ertek['eng_kit'] = ' accept="'.$ertek['eng_kit'].'"';
             }
 
-            //Fájlméret
+            // Fájlméret
             $meret = round($ertek['meret']/1048576);
             if(!$meret){
                 $meret = 1;
             }
 
-            //Bejegyzés szerkesztése vagy új feltöltés
+            // Bejegyzés szerkesztése vagy új feltöltés
             $uj_feltolt = '';
             if(isset($_GET['uj'])){
                 $uj_feltolt = '1';
             }
 
-            //Megnevezés változó/azonosító
+            // Megnevezés változó/azonosító
             $megn = $ertek['tabla'].'_'.$ertek['oszlop'];
 
-            //Fájlfeltöltéskor milyen paraméterek menjenek át
+            // Fájlfeltöltéskor milyen paraméterek menjenek át
             $parameterek = nl2("
                                 'sorid'         :   '{$_GET['id']}',
                                 'nev'           :   '".addslashes($sor['nev'])."',
@@ -471,13 +471,8 @@ foreach($akt_tomb as $ertek){
             $akt_fajl       = $akt_fajl[0];
             $utvonal        = '../'.get_utvonal().$akt_fajl[$ertek['oszlop']];
 
-            //Ha minden fájl feltöltése kész, mi történjen
-            $minden_kesz = '';
-            if(isset($_GET['modosit']) || isset($_GET['dokumentumok'])) {
-                $minden_kesz = 'get_admin_file_thumb(\''.$ertek['tabla'].'\', \''.$ertek['oszlop'].'\', \''.$_GET['id'].'\', \'#jsff_'.$megn.'_thumb\');';
-            }else{
-
-            }
+            // Ha minden fájl feltöltése kész, mi történjen
+            $minden_kesz = 'get_admin_file_thumb(\''.$ertek['tabla'].'\', \''.$ertek['oszlop'].'\', \''.$_GET['id'].'\', \'#jsff_'.$megn.'_thumb\');';
 
             $fajl_thumb  = get_admin_file_thumb($ertek['tabla'], $ertek['oszlop'], $_GET['id']);
 

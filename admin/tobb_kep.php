@@ -38,16 +38,9 @@ if(isset($_POST['session_name'])){
         mkdir($utvonal, 0777);
     }
 
-    /*$utvonal = $utvonal.'/'.date('ym');
-
-    if(!is_dir($utvonal)){
-        mkdir($utvonal, 0777);
-    }*/
-
-    $ikt_szam = $adatbazis_kapcsolat->s('recid ikt_szam', $_SESSION['fajl']['konyvtar'], "`recid` = '".$_POST['sorid']."'", '', '1');
+    $ikt_szam = $adatbazis_kapcsolat->s2('recid ikt_szam', $_SESSION['fajl']['konyvtar'], "`recid` = '".$_POST['sorid']."'", '', '1');
 
     if( $ikt_szam ) {
-        $ikt_szam = $ikt_szam[0];
 
         $utvonal = $utvonal.'/'.str_replace('/', '_', $ikt_szam['ikt_szam']);
 
@@ -100,8 +93,9 @@ if(isset($_POST['session_name'])){
         break;
 
         case 0:
-            //Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
-            $kepnev = $utvonal.'/'.$fajlnev.'.'.kit($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
+            // Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
+            $kit   = kit($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
+            $kepnev = $utvonal.'/'.$fajlnev.'.'.$kit;
 
             if( is_file($kepnev) && $_POST['ellenorzes_kihagy'] == 'false' ) {
                 echo 'Hiba!A fájl létezik!';
@@ -110,18 +104,15 @@ if(isset($_POST['session_name'])){
                     kep_torol($kepnev);
                 }
 
-                //Fájlfeltöltés
+                // Fájlfeltöltés
                 if(move_uploaded_file($_FILES[ $_SESSION['fajl']['megnevezes'] ]['tmp_name'], $kepnev)){
-
-                    /* Vízjelezés */
-                    //imagejpeg(logot_pecsetel($kepnev, '../elemek/vizjel.png', 50, 50, 100), $kepnev);
 
                     $kep_tort = str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev);
                     if( $_POST['ellenorzes_kihagy'] == 'false' ) {
-                        //Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
+                        // Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
                         $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'],
-                            array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev' ),
-                            array($_SESSION['fajl']['termek_id'], $kep_tort,  $fajlnev  )
+                            array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev'         ),
+                            array($_SESSION['fajl']['termek_id'], $kep_tort,  $fajlnev.'.'.$kit )
                         );
 
 
@@ -136,8 +127,8 @@ if(isset($_POST['session_name'])){
 
                         if( !$sor_kep ) {
                             $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'],
-                                array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev' ),
-                                array($_SESSION['fajl']['termek_id'], $kep_tort,  $fajlnev  )
+                                array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev'         ),
+                                array($_SESSION['fajl']['termek_id'], $kep_tort,  $fajlnev.'.'.$kit )
                             );
                         }
 
@@ -154,53 +145,7 @@ if(isset($_POST['session_name'])){
 
 require_once('../weblap.php');
 
-//Sorrendezés
-//if(isset($_POST['kepek_sorrend'])){
-//
-//    //Mindig egy undefined-el kezdődik ezt le kell venni
-//    $_POST['kepek_sorrend'] = substr($_POST['kepek_sorrend'], 9, strlen($_POST['kepek_sorrend']));
-//
-//    $sorrend_tomb = explode(';', $_POST['kepek_sorrend']);
-//    $i = 0;
-//    foreach($sorrend_tomb as $kepnev){
-//        $parancs = 'UPDATE `'.get_db_tabla().$tobbkep_tablanev.'` SET `sor`=\''.$i.'\' WHERE `utvonal`=\''.$kepnev.'\' AND `'.$_POST['azonosit_oszlop'].'`=\''.$_SESSION['fajl']['termek_id'].'\'';
-//        mysqli_query($db_kapcs, $parancs);
-//        $i++;
-//    }
-//
-//    $weblap -> leallit();
-//    exit;
-//}
-
-//Képfelírat lekérdezése
-//if($_POST['get_kepfelirat']){
-//    $felirat = mysqli_query($db_kapcs, 'SELECT `fajlnev` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['get_kepfelirat'].'\'');
-//    $felirat = mysqli_fetch_assoc($felirat);
-//    echo $felirat['fajlnev'];
-//
-//    $weblap -> leallit();
-//    exit;
-//}
-
-//Megjegyzés átírása
-//if(isset($_POST['megj_atir'])){
-//
-//    $parancs = 'UPDATE `'.get_db_tabla().$tobbkep_tablanev.'` SET `fajlnev`=\''.$_POST['szoveg'].'\' WHERE `recid`=\''.$_POST['id'].'\'';
-//    mysqli_query($db_kapcs, $parancs);
-////echo $adatbazis_kapcsolat->gp() . '<br>';
-//    $felirat = mysqli_query($db_kapcs, 'SELECT `fajlnev` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['id'].'\'');
-//    $felirat = mysqli_fetch_assoc($felirat);
-//    echo $felirat['fajlnev'];
-//
-//    if(!$felirat['fajlnev']){
-//        echo '<span class="i link">- Nincs leírás -</spam>';
-//    }
-//
-//    $weblap -> leallit();
-//    exit;
-//}
-
-//Kép törlése
+// Kép törlése
 if(isset($_POST['tobbkep_torol'])){
 
     $kepnev = mysqli_query($db_kapcs, 'SELECT `utvonal` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['tobbkep_torol'].'\'');
@@ -221,7 +166,7 @@ if(isset($_POST['tobbkep_torol'])){
 
 require_once '../class/html/class.Img.php';
 
-//Sessionok beállítása a feltöltéshez:
+// Sessionok beállítása a feltöltéshez:
 $megn = 'tobbkep'.$_GET['id'];
 $_SESSION['fajl']['megnevezes'] = $megn;                    //A $FILE változó neve, egyedi legyen
 $_SESSION['fajl']['nev']        = $sor['nev'];              //Fájlnév, a terméknévből származtatva (kiterjesztés nem kell, fajlnev_keszit is lesz később így ez sem kell)

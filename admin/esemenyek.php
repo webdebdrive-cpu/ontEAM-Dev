@@ -62,25 +62,26 @@ switch($tabla) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`rndid`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`cikk_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`nev` as `anyagigenyles_nev`,
-                                    `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`
+                                    `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
+                                    `'.get_db_tabla().'szallito`.`nev`
                                 ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id');
+        $_OPTS['rendezes']  = array('stat_id', 'telephely_id', 'cikk_id', 'szallito_id');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'ikt_szam';
+            $_GET['rend'] = 'stat_id';
         }
 
         // Default rendezési irány
         if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
+            $_GET['irany'] = '';
         }
     break;
     case 'anyagrendeles.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
-                                                    //TÉNYLEG AZ ANYAGIGÉNLÉS TÁBLÁBÓL DOLGOZIK
+                                    // V TÉNYLEG AZ ANYAGIGÉNLÉS TÁBLÁBÓL DOLGOZIK V
         $_OPTS['select']    = nl2('
                                     `'.get_db_tabla().'anyagigenyles`.`recid`,
                                     `'.get_db_tabla().'anyagigenyles`.`stat_id`,
@@ -3386,9 +3387,21 @@ if( !isset($_GET['oldal'])) { $_GET['oldal']=0;     }
 //ESEMÉNYEK
 // Flashfáljok törlése
 if(isset($_POST['fajl_torol'])){
-    $elem = $adatbazis_kapcsolat -> s2($_POST['oszlop'], $_POST['tabla'], 'recid='.$_POST['id']);
-    kep_torol('../'.get_utvonal().$_POST['tabla'].'/'.$elem[$_POST['oszlop']]);
-    $adatbazis_kapcsolat -> u($_POST['tabla'], $_POST['oszlop'], '', 'recid='.$_POST['id']);
+    
+    // Ha ismert az ID
+    if($_POST['id']){
+        $elem = $adatbazis_kapcsolat -> s2($_POST['oszlop'], $_POST['tabla'], 'recid='.$_POST['id']);
+        kep_torol('../'.get_utvonal().$_POST['tabla'].'/'.$elem[$_POST['oszlop']]);
+        $adatbazis_kapcsolat -> u($_POST['tabla'], $_POST['oszlop'], '', 'recid='.$_POST['id']);
+        
+    // Egyébként a cache fájlokat töröljük
+    }else{
+        $utvonal = '../'.get_utvonal().'cache/jsfajlok/'.session_id().'*';
+        $session_kezdetu_fajlok = glob($utvonal);
+        foreach($session_kezdetu_fajlok as $utvonal){
+            unlink($utvonal);
+        }
+    }
 
     $weblap -> leallit();
     exit;
@@ -3403,80 +3416,63 @@ if (isset($_GET['get_admin_file_thumb'])) {
 function get_admin_file_thumb($tabla, $oszlop, $id){
 
     global $adatbazis_kapcsolat;
-    $utvonal = $adatbazis_kapcsolat->s2($oszlop, $tabla, 'recid='.$id);
+    
+    // Fájl elérési útvonalának kiszámítása
+    $utvonal = $adatbazis_kapcsolat->s2($oszlop, $tabla, "`recid`='$id'");
     $utvonal = '../'.get_utvonal().$tabla.'/'.$utvonal[$oszlop];
+    
+    // Ha nem található a fájl akkor lehet új feltötlésről van szó (ekkor nincs $id-nk sem), akkor próbáljuk meg cache mappából dolgozni.
+    $cache_file = false;
+    if(!is_file($utvonal) && !$id){
+        // Nézzük meg, hogy van-e SESSION id kezdetű fájl a könyvtárban
+        $utvonal = '../'.get_utvonal().'cache/jsfajlok/'.session_id().'*';
+        $session_kezdetu_fajlok = glob($utvonal); //Ha több ilyen is van az azért lehet, mert több fájlfeltöltés input is volt a tömbben
+        $utvonal = $session_kezdetu_fajlok[0];
+        if(is_file($utvonal)){
+            $cache_file = true;
+        }
+    }
+    
     if(is_file($utvonal)){
 
         $neve = basename($utvonal);
         $kit = kit($neve);
-        //if($kit!='jpg' && $kit!='png' && $kit!='gif'){
-        //A képet nem jelenitjük meg
-        if(true){
-            if(is_file('../elemek/ikonok/'.$kit.'.png')){
-                $akt_fajl = '../elemek/ikonok/'.$kit.'.png';
-            }else{
-                $akt_fajl = '../elemek/ikonok/ismeretlen.png';
-            }
-
-            return nl2('
-                    <div id="fajl_'.$tabla.'_'.$oszlop.'_'.$id.'">
-                        <script>var gombfajl_'.$oszlop.'_'.$id.'=get_fajl_torol_gomb(\''.$id.'\', \''.$tabla.'\', \''.$oszlop.'\');</script>
-                        <div id="fajl_'.$oszlop.'_'.$id.'">
-
-                            <div class="file_thumb">
-                                <div class="dtc vam" title="Fájl letöltése">
-                                    <a href="'.$utvonal.'" target="_blank">
-                                        <img alt="'.htmlspecialchars($sor['nev']).'" src="'.$akt_fajl.'" width="25" height="25">
-                                    </a>
-                                </div>
-                                <div class="dtc vam f13 full">
-                                    <a href="'.$utvonal.'" target="_blank">
-                                        '.basename($utvonal).'
-                                    </a>
-                                </div>
-                                <div class="dtc vam link" onclick="alert2(\'Biztosan folytatja a csatolt fájl törlését?\', gombfajl_'.$oszlop.'_'.$id.')" title="Fájl törlése">
-                                    <i class="material-icons">delete</i>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                ');
-        //Ebben az esetben képelemről van szó
+        
+        if(is_file('../elemek/ikonok/'.$kit.'.png')){
+            $akt_fajl = '../elemek/ikonok/'.$kit.'.png';
         }else{
-
-            //Ha elég széles a kép, akkor resposítjuk, amúgy nem
-            $szelesseg = 0;
-            $width     = 'width: 100%';
-            if(is_file($utvonal)){
-                $szelesseg = getimagesize($utvonal);
-                $szelesseg = $szelesseg[0];
-            }
-            if($szelesseg<500){
-                $width = '';
-            }
-
-            return nl2('
-                    <div id="fajl_'.$tabla.'_'.$oszlop.'_'.$id.'">
-                        <script>var gombfajl_'.$oszlop.'_'.$id.'=get_fajl_torol_gomb(\''.$id.'\', \''.$tabla.'\', \''.$oszlop.'\');</script>
-                        <div class="kep_torol link">
-                            <span onclick="alert2(\'Biztosan törli a fájlt?\', gombfajl_'.$oszlop.'_'.$id.')">
-                                <img src="../elemek/admin/torol.png" alt="x" title="Kép törlése">
-                                Kép törlése
-                            </span>
-                            &nbsp;&nbsp;&nbsp;&nbsp;
-                            <span onclick="kep_forgat(\''.$utvonal.'\', \'-90\', \'#fajl_'.$oszlop.'_'.$id.'\')">
-                                <img src="../elemek/admin/elforgat.png" alt="C" title="Kép elforgatása">
-                                Kép elforgatása
-                            <span>
-                        </div>
-                        <div id="fajl_'.$oszlop.'_'.$id.'">
-                            '.kep_kiir($utvonal, htmlspecialchars($sor['nev']), 600, 600, '', $width, 'lightboxos').'
-                        </div>
-                    </div>
-                ');
+            $akt_fajl = '../elemek/ikonok/ismeretlen.png';
+        }
+        $fajlnev = basename($utvonal);
+        if($cache_file){
+            list($x, $x, $x, $fajlnev, $x) = explode('|||', $utvonal);
         }
 
+        return nl2('
+                <div id="fajl_'.$tabla.'_'.$oszlop.'_'.$id.'">
+                    <script>var gombfajl_'.$oszlop.'_'.$id.'=get_fajl_torol_gomb(\''.$id.'\', \''.$tabla.'\', \''.$oszlop.'\');</script>
+                    <div id="fajl_'.$oszlop.'_'.$id.'">
+
+                        <div class="file_thumb">
+                            <div class="dtc vam" title="Fájl letöltése">
+                                <a href="'.$utvonal.'" target="_blank">
+                                    <img alt="'.htmlspecialchars($sor['nev']).'" src="'.$akt_fajl.'" width="25" height="25">
+                                </a>
+                            </div>
+                            <div class="dtc vam f13 full">
+                                <a href="'.$utvonal.'" target="_blank">
+                                    '.$fajlnev.'
+                                </a>
+                            </div>
+                            <div class="dtc vam link" onclick="alert2(\'Biztosan folytatja a csatolt fájl törlését?\', gombfajl_'.$oszlop.'_'.$id.')" title="Fájl törlése">
+                                <i class="material-icons">delete</i>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            ');
+        
     }
 }
 
@@ -3814,14 +3810,14 @@ foreach($postok as $ertek){
 
             if(isset($_GET['noload'])){
 
-                //Visszaadjuk az elemek számát
+                // Visszaadjuk az elemek számát
                 echo number_format( count($adatbazis_kapcsolat->s('recid', $ertek['tabla'])), 0, '', '.' );
 
 				$weblap -> leallit();
 				exit();
 			}else{
 				$weblap -> leallit();
-				//header('location:'.self().str_replace('&amp;','&',get_get(array($ertek['torid'], 'kat', 'epo', 'oldal', 'order'))).'&siker&'.$ertek['torid'].'tobbkep_torol='.$_GET[$ertek['torid']]);
+				// header('location:'.self().str_replace('&amp;','&',get_get(array($ertek['torid'], 'kat', 'epo', 'oldal', 'order'))).'&siker&'.$ertek['torid'].'tobbkep_torol='.$_GET[$ertek['torid']]);
 				header('location:'.self());
 				exit();
 			}
@@ -3845,22 +3841,22 @@ foreach($postok as $ertek){
 	}
 }
 
-//JS FÁJLFELTÖLTÉSHEZ Új bejegyzés feltöltése után a csatolt fájl eltárolása adatbázisba és megfelelő mappába másolás
+// JS FÁJLFELTÖLTÉSHEZ Új bejegyzés feltöltése után a csatolt fájl eltárolása adatbázisba és megfelelő mappába másolás
 if(isset($_GET['modosit'])){
 
     $tabla = str_replace('.php', '', basename(self()));
 
-    //Nézzük meg, hogy van-e SESSION id kezdetű fájl a könyvtárban
+    // Nézzük meg, hogy van-e SESSION id kezdetű fájl a könyvtárban
     $utvonal = '../'.get_utvonal().'cache/jsfajlok/'.session_id().'*';
     $session_kezdetu_fajlok = glob($utvonal); //Ha több ilyen is van az azért lehet, mert több fájlfeltöltés input is volt a tömbben
     foreach($session_kezdetu_fajlok as $akt_fajl){
         list($eleje, $oszlop, $fajlnev, $fajlnev2, $vege) = explode('|||', $akt_fajl);
 
-        //Ha feltöltéskor a 'get_id'-t adtunk meg fájlnévnek, akkor az algoritmus ID, azaz a GET id szerint mentjük el
+        // Ha feltöltéskor a 'get_id'-t adtunk meg fájlnévnek, akkor az algoritmus ID, azaz a GET id szerint mentjük el
         if($fajlnev=='get_id'){
             $fajlnev = $_GET['id'];
 
-        //Ha nincs informácónk a fájl nevéről, akkor az algoritmus az NEV, azaz a bejegyzés nevéből származtatjuk
+        // Ha nincs informácónk a fájl nevéről, akkor az algoritmus az NEV, azaz a bejegyzés nevéből származtatjuk
         }elseif(!$fajlnev){
             $fajlnev = $adatbazis_kapcsolat->s('nev', $tabla, 'id='.$_GET['id']);
             $fajlnev = fajlnev_keszit($fajlnev[0]['nev']);
@@ -3883,7 +3879,7 @@ if(isset($_GET['modosit'])){
         $ujnev       = $kepnev.'_1';
 
         $i = 1;
-        //DE! megnézzük, hogy ez a '_1' nem foglalt-e. Ha az, keresünk szabad számot
+        // DE! megnézzük, hogy ez a '_1' nem foglalt-e. Ha az, keresünk szabad számot
         while( glob($akt_utvonal.$ujnev.'*') ){
             $i++;
             $ujnev = $kepnev.'_'.$i;
@@ -3891,17 +3887,17 @@ if(isset($_GET['modosit'])){
 
         $kepnev = fajlnev_keszit($ujnev).'.'.kit($akt_fajl);
 
-        //Fájlok mozgatása
+        // Fájlok mozgatása
         copy($akt_fajl, $akt_utvonal.$kepnev);
         unlink($akt_fajl);
 
-        //Végül letároljuk az adatbázisba is
+        // Végül letároljuk az adatbázisba is
         $adatbazis_kapcsolat->u($tabla, array($oszlop), array($alkonyvtar.$kepnev), 'recid='.$_GET['id']);
 
     }
 }
 
-//Kijelölt termékek törlése
+// Kijelölt termékek törlése
 if(isset($_POST['del'])){
 	$mit   = array('.jpg','.gif','.png');
 	$mivel = array('','','');

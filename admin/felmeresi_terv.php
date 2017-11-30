@@ -35,7 +35,7 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
-//Több kép menedzseléséhez
+// Több kép menedzseléséhez
 $tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
@@ -66,7 +66,7 @@ if (isset($_POST['bal_panel_frissit'])) {
     exit();
 }
 
-/* Foglalt azonosító ellenőrzése */
+// Foglalt azonosító ellenőrzése
 if ($_POST['azon_ell']) {
 
     $_POST['azon'] = trim($_POST['azon']);
@@ -91,7 +91,7 @@ if ($_POST['azon_ell']) {
     exit();
 }
 
-/* CSV generálása */
+// CSV generálása
 if (isset($_GET['csv'])) {
 
     $mibol   = get_web_charset();
@@ -105,7 +105,7 @@ if (isset($_GET['csv'])) {
         mkdir('export/csv');
     }
 
-    //Régi fájlok törlése
+    // Régi fájlok törlése
     $utvonal = 'export/csv/';
     $fajlok = konyvtar_bejar($utvonal);
     foreach($fajlok as $fajl){
@@ -172,6 +172,26 @@ if (isset($_GET['csv'])) {
     exit();
 }
 
+// Felmérési terv fájl létezik-e?
+if (isset($_POST['felmeresi_terv_csatolva'])) {
+    
+    $ft = $adatbazis_kapcsolat->s2('felm_terv', 'felmeresi_terv', "`recid`='{$_POST['recid']}'");
+    if(is_file('../'.get_utvonal().$megnevezes.'/'.$ft['felm_terv'])){
+        echo json_encode(array(
+            'hiba'  => 'Ehhez a tervhez már van felmérési terv csatolva. Ha folytatja, le fogja cserélni.<br>Folytatja?',
+            'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#jsff_felmeresi_terv_felm_terv input\').click(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">',
+            'title' => 'Kérdés',
+        ));
+    }else{
+        echo json_encode(array(
+            'tallozas_mehet'  => true,
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
 
 
 
@@ -192,29 +212,14 @@ require_once('selectek.php');
         echo '<div id="szamlaBetolt">';
     }
 
-    /* Megjegyzések darabszáma */
+    // Megjegyzések darabszáma
     $megj_db = '';
     $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
     if( $megj_sorok ) {
         $megj_db = ' ('.count($megj_sorok).')';
     }
 
-    /* Dokumentumok darabszáma */
-    $dok_db = '';
-    $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
-    if( $dok_sorok ) {
-        $dok_db = 0;
-
-        foreach($dok_sorok as $dok_sor) {
-            if( is_file('../'.get_utvonal().$megnevezes.'/'.$dok_sor['utvonal']) ) {
-                $dok_db += 1;
-            }
-        }
-
-        $dok_db = ' ('.$dok_db.')';
-    }
-
-    /* Engedélyek darabszáma */
+    // Engedélyek darabszáma
     $eng_db = '';
     $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_eng_dok', "`{$megnevezes}_id` = '".$_GET['id']."'");
     if( $dok_sorok ) {
@@ -229,11 +234,10 @@ require_once('selectek.php');
         $eng_db = ' ('.$eng_db.')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['megjegyzesek']) || isset($_GET['dokumentumok'])  ) {
-        /* Számla fülek */
+    if( isset($_GET['modosit']) || isset($_GET['megjegyzesek']) ) {
+        // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Tervlap',
-            //'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
         );
 
@@ -254,12 +258,13 @@ require_once('selectek.php');
         );
     }
 
-    /* Gombok kirajzolása minden oldalra */
+    // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) ) {
+        
         if(_jog(JOG_FT_KEZEL)){
             $gombok = nl2('
-                <input type="button" class="gombb zold" value="Felmérési terv csatolása" onclick="$(\'#jsff_felmeresi_terv_felm_terv input\').click()">
+                <input type="button" class="gomb" value="Felmérési terv csatolása" onclick="$(\'#jsff_felmeresi_terv_felm_terv input\').click()">
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                 </div>
@@ -280,16 +285,17 @@ require_once('selectek.php');
             ');
         }
 
-    //Módosítás gombok
+    // Módosítás gombok
     } else {
 
-        //Js, a törlés gombhoz
+        // Js, a törlés gombhoz
         $gombok  = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
         $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
 
         if(!$nem_szerkesztheti && isset($_GET['modosit']) && _jog(JOG_FT_KEZEL)){
+            
             $gombok = nl2('
-                <input type="button" class="gombb zold" value="Felmérési terv csatolása" onclick="$(\'#jsff_felmeresi_terv_felm_terv input\').click()">
+                <input type="button" class="gomb" value="Felmérési terv csatolása" onclick="felmeresi_terv_csatolva(\''.$_GET['id'].'\')">
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                 </div>
@@ -303,7 +309,7 @@ require_once('selectek.php');
             }
         }
 
-        /* Műveletek box */
+        // Műveletek box
         $gombok = nl2('
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'
@@ -311,8 +317,8 @@ require_once('selectek.php');
         ');
     }
 
-    //Felmérési terveknél, az űrlap elpostolása előtt még ellenőrizzük, hogy az azonosító nem foglalt-e.
-    //Egy ajax hívástbevárva tudjuk meg, hogy fogalalt-e vagy sem, és ha nem az, akkor újra elpostoljuk a formot de már egy az eredeti JS fügvny ellenőrzéssel.
+    // Felmérési terveknél, az űrlap elpostolása előtt még ellenőrizzük, hogy az azonosító nem foglalt-e.
+    // Egy ajax hívástbevárva tudjuk meg, hogy fogalalt-e vagy sem, és ha nem az, akkor újra elpostoljuk a formot de már egy az eredeti JS fügvny ellenőrzéssel.
     $js_submit_elott = '
                         mehet_e = false;
                         uj_form_ajax = $.ajax({
@@ -348,32 +354,40 @@ require_once('selectek.php');
                         return false;
                         ';
 
-	//Új FT felvitele
+	// Új FT felvitele
 	if(isset($_GET['uj']) && _jog(JOG_FT_KEZEL)){
+        
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
 	    require_once('info.php');
 
-	    //FORM
+	    // FORM
 		if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
-			}
+            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
+            if( $sor ) {
+                foreach($akt_tomb as $ertek){
+                    if( $ertek['name'] != 'azon' ) {
+                        $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
+                    }else{
+                        $_SESSION[$ertek['name']] = '';
+                    }
+                }
+            }
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-        /* Javascipt-es ellenőrzéshez */
+        // Javascipt-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
         $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');

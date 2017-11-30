@@ -195,9 +195,9 @@ function get_admin_file_thumb(tabla, oszlop, id, jquery_string){
         url : 'esemenyek.php',
         type: 'GET',
         data: esamp2es('tabla='+tabla+'&amp;oszlop='+oszlop+'&amp;id='+id+'&amp;get_admin_file_thumb=' + new Date().getTime()),
-        success: function(html){
+        success: function(response){
             alert2();
-            $(jquery_string).html(html);
+            $(jquery_string).html(response);
         }
     });
 }
@@ -3432,7 +3432,6 @@ function mellekTorol( tabla, mellek, mellekre_valt ) {
             becsult_szetosztott_ujraszamol();
         }
     });
-    alert2();
 
     if( objLength( idk ) ) {
         $.ajax({
@@ -3447,7 +3446,6 @@ function mellekTorol( tabla, mellek, mellekre_valt ) {
             success: function(response) {
                 if(response) {
                     response = JSON.parse(response);
-
                     if( response.hiba ) {
                         alert2(response.hiba, '', 'Hiba');
                         return false;
@@ -4869,6 +4867,8 @@ function csoport_tartalom() {
 function bejegyzesDuplikal() {
     if( _get('uj') ){
         alert2('Új feltöltés alatt nem értelmezett a duplikálás, előbb válasszon ki egy '+$('#rekord_neve_targy').html()+'!', '', 'Hiba');
+    }else if( baseName(location.href)=='felmeresi_terv' ){
+        location.href = baseName(location.href) + '.php?uj&ujkent='+_get('id');
     }else{
         szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit').done(function() {
             alert2(duplikaKerdes, duplikalGomb);
@@ -5304,4 +5304,25 @@ function munkAnyagHozzaad( formID, igenyles ) {
     $('#cikk_id_autocomp').focus();
 
     return false;
+}
+
+/* Felmérési tervhez van-e már feltöltve terv? */
+function felmeresi_terv_csatolva(recid){
+    $.ajax({
+        url : 'felmeresi_terv.php',
+        type: 'POST',
+        data: {
+            recid                   : recid,
+            felmeresi_terv_csatolva : new Date().getTime()
+        },
+        success: function (response) {
+            response = JSON.parse(response);
+            if(response['tallozas_mehet']){
+                $('#jsff_felmeresi_terv_felm_terv input').click();
+            }
+            if(response.hiba){
+                alert2(response.hiba, response.gomb, response.title);
+            }
+        }
+    });
 }

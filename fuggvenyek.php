@@ -1001,6 +1001,13 @@ if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett
     $esnap_d    = str_replace('-', '.', $sor['esnap_d']);
     $aktkezd_d  = str_replace('-', '.', $sor['aktkezd_d']);
     $aktvege_d  = str_replace('-', '.', $sor['aktvege_d']);
+    
+    // 0-ék helyett használjun üres stringet
+    foreach($sor as $kulcs => $ertek){
+        if(!$sor[$kulcs]){
+            $sor[$kulcs] = '';
+        }
+    }
 
     $kiir .=  "
         <div class='dtc vat'>
@@ -1018,9 +1025,9 @@ if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett
             <br>vegenap: $sor[vegenap]
             <br>aktkezd_d: $aktkezd_d
             <br>aktvege_d: $aktvege_d";
-//echo $kiir;
+
     $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
-//echo 'siker';
+
     $kiir .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
     $kiir .= '<hr>Ütemezés: ' . $utemezes;
     $kiir .= '<hr>Esedékes: ' . $sor['esnap_d'].' '.het_napja_txt($sor['esnap_d']);
@@ -1029,7 +1036,7 @@ if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett
     $kiir .= '</div><div class="dtc vat">';
     $kiir .= '<br>Következő 10 iteráció:<br>';
     for($i=0; $i<10; $i++){
-        //$getnextvaliddate = getnextvaliddate(false, $getnextvaliddate, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
+        $getnextvaliddate = getnextvaliddate(false, $getnextvaliddate, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
         $kiir .= $getnextvaliddate . '<br>';
     }
     $kiir .= '</div>';
@@ -1742,7 +1749,7 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 
 		}
 
-		//Egyébként ha nincs letárolva (sorid-s technika) és minden más esetben is törlünk minden hasonló fájlt
+		// Egyébként ha nincs letárolva (sorid-s technika) és minden más esetben is törlünk minden hasonló fájlt
         $kepnev_ = $utvonal.$kepnev;
 		if(is_file($kepnev_))       { if(!unlink($kepnev_)){        return 'k3'; } }
 		if(is_file($kepnev_.'.jpg')){ if(!unlink($kepnev_.'.jpg')){ return 'k3'; } }
@@ -1751,7 +1758,8 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 
 		remover($kepnev_.'_*');//Resized képek esetére
 
-	}else{//Egyébként másolat (Arra az esetre, ha pl. két termék neve megeggyezik és a nevéből nyerjük ki a képnevet => termeknev_2.jpg)
+    // Egyébként másolat (Arra az esetre, ha pl. két termék neve megeggyezik és a nevéből nyerjük ki a képnevet => termeknev_2.jpg)
+	}else{
 
 		$i = 1;
 		$ujnev = $kepnev;
@@ -2108,9 +2116,27 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
         // Rendezés anyagigényléskor
         if($tabla=='anyagigenyles'){
-            // Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
-            if($_GET['rend']=='ikt_szam'){
-                $order = '`'.get_db_tabla().'anyagigenyles`.`ikt_szam` '.$_GET['irany'];
+            
+            // Iktatószám melyik oszlopot jelenti:
+            $ikt_szam_oszlop = 'ikt_szam';
+            if (isset($_GET['anyagrend'])) {
+                $ikt_szam_oszlop = 'rndid';
+            }
+            // Státusz rendezésen belül iktatószám szerint rendezünk
+            if($_GET['rend']=='stat_id'){
+                $order = '`'.get_db_tabla().'anyagigenyles`.`stat_id` '.$_GET['irany'].', `'.$ikt_szam_oszlop.'` '.$_GET['irany'];
+            }
+            // Telephely nevét rendezzük, azon belül iktatószám
+            if($_GET['rend']=='telephely_id'){
+                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.$ikt_szam_oszlop.'` '.$_GET['irany'];
+            }
+            // Iktatószámon belül szálloda szerinti sorrend lesz
+            if($_GET['rend']=='cikk_id'){
+                $order = '`'.get_db_tabla().'anyagigenyles`.`cikk_id` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
+            }
+            // Szállító név szerinti rendezés, azon belül cikkszám
+            if($_GET['rend']=='szallito_id'){
+                $order = '`'.get_db_tabla().'szallito`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'anyagigenyles`.`cikk_id` '.$_GET['irany'];
             }
         }
 
@@ -2261,8 +2287,15 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit); //Ez minek van itt?
         $mit   = 'WHERE';
 
-        // Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
+        // Anyagigényléskor a szállítót vesszük még fel
         $sql_kieg = '';
+        if($tabla=='anyagigenyles'){
+            $sql_kieg .= nl2('
+                                LEFT JOIN `'.get_db_tabla().'szallito` ON (`'.get_db_tabla().'anyagigenyles`.`szallito_id`=`'.get_db_tabla().'szallito`.`recid`)
+                            ');
+        }
+
+        // Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
         if($tabla=='bejelentes'){
             $sql_kieg .= nl2('
                                 JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'erteklista`.`csoport`=4 AND `'.get_db_tabla().$tabla.'`.`hiba_id`=`'.get_db_tabla().'erteklista`.`recid`)
@@ -4461,13 +4494,14 @@ function bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     return false;
 }
 
-// Redndezés select címkéi
+// Rendezés select címkéi
 function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     $oszlopNevek = array(
         'sor'           => 'Státusz',
         'aktiv'         => 'Aktív',
         'csoport'       => 'Név',
         'cim'           => 'Cím',
+        'cikk_id'       => 'Cikkszám',
         'e-szamla'      => 'E-számla',
         'esnap_d'       => 'Esedékesség',
         'erkezett'      => 'Érkezett',
@@ -4479,6 +4513,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'rkat'          => 'Érték',
         'statusz'       => 'Státusz',
         'stat_id'       => 'Státusz',
+        'szallito_id'   => 'Szállító',
         'szerepkor_id'  => 'Szerepkör',
         'telephely_id'  => 'Szálloda',
         'teljes_nev'    => 'Teljes név',
@@ -4658,11 +4693,13 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
     return $html;
 }
 
+// Hét napja szövegesen
 function het_napja($nap){
     $napok = array('vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat');
     return $napok[$nap];
 }
 
+// Jogosultásg gyors lekérdezése
 function _jog( $value ) {
     if( $_SESSION[get_db_tabla().'rights'][$value] ) {
         return $_SESSION[get_db_tabla().'rights'][$value];
@@ -4671,20 +4708,16 @@ function _jog( $value ) {
     return false;
 }
 
+// Státusz idő kiszámítása
 function getStatuszIdo( $time ) {
-    /* Eltelt napok */
+    
+    // Eltelt napok, órák, percek, másodpercek
     $napok = floor($time / 86400);
+    $ora   = floor(($time % 86400) / 3600);
+    $perc  = floor(($time % 86400 % 3600) / 60);
+    $mp    = floor(($time % 86400 % 3600 % 60));
 
-    /* Óra */
-    $ora = floor(($time % 86400) / 3600);
-
-    /* Perc */
-    $perc = floor(($time % 86400 % 3600) / 60);
-
-    /* Másodperc */
-    $mp =  floor(($time % 86400 % 3600 % 60));
-
-    //Napokat csak akkor fűzzük hozzá, ha nagyobb mint 0
+    // Napokat csak akkor fűzzük hozzá, ha nagyobb mint 0
     $napok_string = '';
     if($napok){
         $napok_string = $napok.' nap ';
