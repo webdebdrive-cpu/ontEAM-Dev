@@ -1,9 +1,80 @@
 <h2>Munkalapok hozzárendelése mobil személyzethez</h2>
+
+<script>
+    $(function() {
+        $('ul.droptrue').sortable({
+            connectWith: 'ul.dropItem',
+            start: function( event, ui ) {
+                $(ui.item[0]).css('max-width', '17.9rem');
+            },
+            stop: function( event, ui ) {
+                $(ui.item[0]).css('max-width', '100%');
+            }
+        });
+
+        $('ul.dropfalse').sortable({
+            connectWith: 'ul.dropItem',
+            dropOnEmpty: false
+        });
+
+        $('.dropItem').disableSelection();
+    });
+</script>
+
 <form action="" id="munkalapMobil" class="popupForm" method="post" onsubmit="return munkalapMobil( this );">
+    <div class="kozep">
+        <p>Bejelentett hibák</p>
+        <div class="mobilkeret">
+            <ul class="dropItem droptrue">
+                <li class="ui-state-default">Gellért</li>
+                <li class="ui-state-default">Flamenco</li>
+                <li class="ui-state-default">Gellért</li>
+                <li class="ui-state-default">Aréna</li>
+                <li class="ui-state-default">Hilton</li>
+            </ul>
+        </div>
+
+        <table class="csoportok">
+            <tr>
+                <td>
+                    <p>'A' csoport</p>
+
+                    <ul class="dropItem droptrue">
+                    </ul>
+                </td>
+                <td>
+                    <p>'B' csoport</p>
+
+                    <ul class="dropItem droptrue">
+                        <li class="ui-state-default">Budapest</li>
+                    </ul>
+                </td>
+                <td>
+                    <p>'CN' csoport</p>
+
+                    <ul class="dropItem droptrue">
+                        <li class="ui-state-default">MSZ GH</li>
+                        <li class="ui-state-default">MSZ TH</li>
+                    </ul>
+                </td>
+                <td>
+                    <p>'D' csoport</p>
+
+                    <ul class="dropItem droptrue">
+                        <li class="ui-state-default">Platinus</li>
+                        <li class="ui-state-default">Rába</li>
+                        <li class="ui-state-default">SZK</li>
+                    </ul>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+<!--<form action="" id="munkalapMobil" class="popupForm" method="post" onsubmit="return munkalapMobil( this );">
     <div class="kozep">
         <table class="mobilTable">
             <tr>
-                <td class="mtb"> 
+                <td class="mtb">
                     <p>Hozzárendelt munkalapok beosztás nélkül</p>
                     <div id="hozzBeosztasNelkul" class="mobilkeret"></div>
                     <div class="clearFix">
@@ -46,4 +117,4 @@
         <input type="submit" name="elkuld" value="Mentés">
         <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
     </div>
-</form>
+</form>-->
