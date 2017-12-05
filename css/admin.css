@@ -2099,7 +2099,7 @@ div.navGombok a:hover .material-icons {
     color: #fff;
 }
 
-div.navGombok a:hover, div.navGombok a.uj:hover .material-icons{ 
+div.navGombok a:hover, div.navGombok a.uj:hover .material-icons{
     background: #8bc264;
 }
 
@@ -2860,4 +2860,30 @@ div.tetel_div{
 #insertTable{
     max-height: 30rem;
     overflow: auto;
+}
+
+#popup div.popup_tart table.csoportok {
+    width: 80rem;
+}
+
+table.csoportok tr td {
+    border: 0.1rem solid #242424;
+    padding: 1rem 1rem 1rem 1rem;
+    vertical-align: top;
+    width: 25%;
+}
+
+ul.dropItem {
+    background: #f1eff0;
+    min-height: 2rem;
+}
+
+ul.dropItem li {
+    background: #f1eff0;
+    border-bottom: 0.1rem solid #999;
+    padding: 0.5rem 1rem 0.5rem 1rem;
+}
+
+ul.dropItem li:last-child {
+    border-bottom: none;
 }
