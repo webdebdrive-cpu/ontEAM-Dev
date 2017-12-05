@@ -406,8 +406,8 @@ $(function() {
     });
     // Jobb egérgomb tiltása
     $(document).on('contextmenu', function(e){
-        /*e.preventDefault();
-        return false;*/
+        e.preventDefault();
+        return false;
     });
 
     // Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk
