@@ -42,7 +42,7 @@ $menuk           = '';
 $menu_sablon     = fajlbol_olvas('../sablon/admin/menu.html',   true);
 $almenu_sablon   = fajlbol_olvas('../sablon/admin/almenu.html', true);
 
-//Home ikon, csak ha már beléptünk
+// Home ikon, csak ha már beléptünk
 if($_SESSION[get_db_tabla().'login_recid']){
     $menuk .=
             nl2('
@@ -55,7 +55,7 @@ if($_SESSION[get_db_tabla().'login_recid']){
 $akt_almenu_mit  = array('{LINK}', '{NEV}');
 $akt_menu_mit    = array('{CLASS}', '{FOLINK}', '{MEGNEVEZES}', '{FONEV}', '{ALMENUK}');
 
-/* Bejövő számlák */
+// Bejövő számlák
 $menu_nev        = 'Bejövő számlák';
 $menu_nev_kis    = 'bejövő számlák';
 $menu_nev_tobbes = 'Bejövő számlák';
@@ -117,7 +117,7 @@ if( $aktmenuk ) {
 $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );*/
 
 
-/* Bejelentések */
+// Bejelentések
 if( _jog(JOG_BEJELENTES_MEGTEKINT) || _jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     $menu_nev        = 'Bejelentések';
     $menu_nev_kis    = 'bejelentések';
@@ -750,7 +750,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         exit;
     }
 
-    // Új ikonra kattintva mi történik
+    // Új ikonra kattintva mi történik 
+    // FONTOS! Az admin.js-ben is be kell állítani, hogy az ajaxos frissítések után is működjenek ezek a beállítások, ne csak hard betöltéskor.
     $keresodn = '';
     if( isset($_GET['szakterulet']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);';

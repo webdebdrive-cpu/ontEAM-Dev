@@ -3728,8 +3728,8 @@ function popupZar() {
     if($('#munkAnyagAnyagigenyles').length || $('#munkAnyagVetelezForm').length){
         location.reload();
     }else{
-        $('#popup').css('display', 'none');
         $('#popupTart').html('');
+        $('#popup').css('display', 'none');
     }
 }
 
@@ -4349,6 +4349,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
 
                     } else if( baseName(location.href) == 'bejelentes' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+
+                    } else if( baseName(location.href) == 'bejelentes' && _jogok[56] == 1 && _jogok[1] == 1 ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: bejSajatMasneven(); void(0);');
 
                     } else if( baseName(location.href) == 'bejelentes' && _jogok[56] == 1 ) {
                         $('#navGombok a.uj').attr('href', 'javascript: bejSzallodaValaszt(); void(0);');

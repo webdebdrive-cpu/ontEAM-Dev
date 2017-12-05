@@ -264,6 +264,14 @@ require_once('selectek.php');
         );
     }
 
+    // Új feletöltés alatti gombok
+    if (isset($_GET['uj'])) {
+        $gombok .= nl2('
+                        <input type="button" class="gomb" value="Szállodák hozzáadása" onclick="kapcsolodoSzerkeszt(\'szallodak\');">
+                        <input type="hidden" name="szallodak_hidden" id="szallodak_hidden">
+                        ');
+    }
+    
     if(_jog(JOG_FELHASZNALOK_KEZEL)){
         $gombok = nl2('
             <div class="form_kuldes">

@@ -1071,7 +1071,7 @@ if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett
 */
 function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
-    $hiba_txt = 'Hiba'; //Csak hogy egy helyen kelljen átírni.
+    $hiba_txt = 'Hiba'; // Csak hogy egy helyen kelljen átírni.
 
     $ret = nl2('
                 <'.str_replace('#', '', 's#cript').'>
@@ -1161,7 +1161,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         ');
                 }
 
-                //Addószám formátumának ellenőrzése (xx-xx-xxxxxx alakú-e). Az inputra egyébként a main.js-ben található cegjegyzekszam_formaz() függvényt hívd meg, de az alábbi ellenőrzéssel együtt lesz tökéletes
+                // Adószám formátumának ellenőrzése (xx-xx-xxxxxx alakú-e). Az inputra egyébként a main.js-ben található cegjegyzekszam_formaz() függvényt hívd meg, de az alábbi ellenőrzéssel együtt lesz tökéletes
                 if($ertek['name'] == 'cegjegyzek'){
                     $ret .= nl2('
                         reszek = $(\'#'.$ertek['name'].'\').val().split(\'-\');
@@ -1187,7 +1187,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             }
 
             if($ajax && !strstr($ertek['type'], 'file')/* tehát nem jsfile vagy sima file... */ && $ertek['type']!='nosql' ){
-                if($ertek['name']){//Ha van neve, nem HTML pl.
+                if($ertek['name']){// Ha van neve, nem HTML pl.
                     if($ertek['type']=='checkbox'){
                         $param .= $ertek['name'].'=\'+$(\'#'.$ertek['name'].'\').is(\':checked\')+\'&amp;';
                     }  else {
@@ -1302,6 +1302,16 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         $ret .= nl2('
             if($(\'#id\').hasClass(\'foglalt_id\')){
                 alert2($(\'#id\').val()+\' - \'+$(\'#nev\').val()+\'<br>Ez a kód már használatban van!\', \'\', \''.$hiba_txt.'\');
+                return false;
+            }
+        ');
+    }
+
+    if( basename(self())=='login.php' ){
+
+        $ret .= nl2('
+            if(!$(\'#szallodak_hidden\').val()){
+                alert2(\'Mentés előtt válasszon szállodát!\', \'<input type="button" class="gomb" value="Ok" onclick="kapcsolodoSzerkeszt(\\\'szallodak\\\'); alert2();">\', \'Hiba\');
                 return false;
             }
         ');
@@ -4097,17 +4107,18 @@ function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 <ol class="konyvtar_szerk">
                 ';
 
-        //Ha már nyitva van egy bejegyzés, akkor a könyvtárszerkezetet is kinyitogatjuk
+        // Ha már nyitva van egy bejegyzés, akkor a könyvtárszerkezetet is kinyitogatjuk
         if($_GET['id']){
             $akt_ft     = $adatbazis_kapcsolat->s2('recid telephely_id obj_id', $tabla, "`recid`='{$_GET['id']}'");
             $akt_szint  = $akt_ft['obj_id'];
         }
 
-        //Ha van szűrés (az csak szállodára lehet)
+        // Ha van szűrés (az csak szállodára lehet)
         $sql_kieg = '';
         if ($_GET['mezo']) {
             $sql_kieg .= ' AND `id`=\''.$_GET['felt'].'\'';
         }
+        $sql_kieg .= " AND `inaktiv`=0";
 
         $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN (".implode(',', $login_szallodai).")$sql_kieg", 'nev');
         foreach($szallodak as $szalloda){

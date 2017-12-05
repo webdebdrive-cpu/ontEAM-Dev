@@ -861,10 +861,8 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 // Felhasználók
 $disabled_uj    = false;
-$szallodak_gomb = '';
 if (isset($_GET['uj'])) {
     $disabled_uj = true;
-    $szallodak_gomb = '<input type="button" class="gomb" value="Szállodák" onclick="kapcsolodoSzerkeszt(\'szallodak\');"><input type="hidden" name="szallodak_hidden" id="szallodak_hidden">';
 }
 $megnevezes = 'login';
 $login_tomb = $akt_tomb = array(
@@ -880,7 +878,6 @@ $login_tomb = $akt_tomb = array(
     array('type' => 'text',             'megn' => 'Telefon:',                   'name' => 'usertel',        'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250, 'alert' => 'Kérjük adja meg a telefonszámot!'),
     array('type' => 'autocomplete',     'megn' => 'Szerepkör:',                 'name' => 'szerepkor_id',   'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'szerepkor', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'alert' => 'Kérem adja meg a szerepkört!'),
     array('type' => 'autocomplete',     'megn' => 'Partner cég:',               'name' => 'szallito_id',    'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
-    array('type' => 'html',             'megn' => $szallodak_gomb ),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -2816,27 +2813,39 @@ if( isset($_POST['mellekTorol']) ) {
         }
     }
 
-    //Törlés tényleges lekezelése
+    // Törlés tényleges lekezelése
     if( $tabla && is_array($idk) ) {
 
-        //Munkalapok-bejelentések kapcsolata
+        // Munkalapok-bejelentések kapcsolata
         if( $tabla == 'munkalap_kapcs' ) {
-            /* Újra nyitott státuszú lesz a bejegyzés */
+            // Újra nyitott státuszú lesz a bejegyzés
             foreach($idk as $id) {
+                
+                // Ha nincs joga, ne tudjon törölni
+                $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id', 'munkalap', "`recid`='$recid'");
+                if( $munkalap === false ) { $db_error = true; }
+                if( !_jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) && !_jog(JOG_MUNKALAP_SAJAT_KEZEL) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']!=$_SESSION[get_db_tabla().'szemelyzet_id'] ) ) {
+                    echo json_encode(array(
+                        'hiba' => 'Önnek nincs joga bejelentést törölni!'
+                    ));
+                    $weblap->leallit();
+                    exit();
+                }
+                
                 if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_NYITOTT ) === false ) {
                     $db_error = true;
                 }
 
-                /* Töröljük a csoportjukat, ha lenne */
+                // Töröljük a csoportjukat, ha lenne
                 $sql = $adatbazis_kapcsolat -> u('bejelentes', array('csoport_id'), array(0), "`recid` = '{$id}'");
                 if( $sql === false ) { $db_error = true; }
 
-                /* Sorok törlése */
+                // Sorok törlése
                 $sql = $adatbazis_kapcsolat -> d($tabla, "`munkalap_id` = '{$recid}' AND `bejelentes_id` = '{$id}'");
                 if( $sql === false ) { $db_error = true; }
             }
 
-        //Dokumentumok törlése
+        // Dokumentumok törlése
         } else if( strstr($tabla, '_dok') ) {
 
             $statuszt_nem_kell_figyelni = array('eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'utemezett_feladatok', 'rendszeres_karbantartas'); //Ezeknél a dokumentumainál nem figyeljük, hogy az apa tábla státusza nyitott-e
@@ -2864,7 +2873,7 @@ if( isset($_POST['mellekTorol']) ) {
                             $utvonal = '../'.get_utvonal().csonkit($tabla, 4).'/'.$fajl['utvonal'];
 
                             if( is_file($utvonal) ) {
-                                /* Töröljük a fájlt */
+                                // Töröljük a fájlt
                                 unlink($utvonal);
                                 remover('../'.get_utvonal().csonkit($tabla, 4).'/'.substr($fajl['utvonal'], 0, strrpos($fajl['utvonal'], '.')).'_*');
 
@@ -2888,13 +2897,12 @@ if( isset($_POST['mellekTorol']) ) {
                     echo json_encode(array(
                         'hiba' => 'Csak nyitott státuszú bejegyzések dokumentumai törölhetőek!'
                     ));
-
                     $weblap->leallit();
                     exit();
                 }
             }
 
-        //előterjesztésnél csak nyitott státuszban törölhető projektigénylés
+        // Előterjesztésnél csak nyitott státuszban törölhető projektigénylés
         } else if($tabla=='eloterj_fb_kapcs'){
 
             //Vegyük az első kijelölést, ebből már vissza tudjuk számolni, hogy melyik előterjesztésről van szó
@@ -2912,7 +2920,7 @@ if( isset($_POST['mellekTorol']) ) {
                 if( $sql === false ) { $db_error = true; }
             }
 
-        //előterjesztésnél csak nyitott státuszban törölhető projektigénylés
+        // Előterjesztésnél csak nyitott státuszban törölhető projektigénylés
         } else if($tabla=='eloterj_bod_kapcs'){
 
             //Vegyük az első kijelölést, ebből már vissza tudjuk számolni, hogy melyik előterjesztésről van szó
@@ -2930,7 +2938,7 @@ if( isset($_POST['mellekTorol']) ) {
                 if( $sql === false ) { $db_error = true; }
             }
 
-        //Projektigénylés véleményező törlés esetén töröljük a véleményt (fájlt) is ha volt
+        // Projektigénylés véleményező törlés esetén töröljük a véleményt (fájlt) is ha volt
         } else if($tabla=='projektigenyles_kapcs'){
 
             $velemenyezok = $adatbazis_kapcsolat->s('projektigenyles_recid, login_recid', $tabla, "`recid` IN (".implode(',', $idk).")");
@@ -2952,7 +2960,7 @@ if( isset($_POST['mellekTorol']) ) {
             $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
             if( $sql === false ) { $db_error = true; }
 
-            //Ha ellenőrizzük, hogy a megmaradtaknak mindnek van-e már vélemények. Státuszt kell léptetni ha igen.
+            // Ha ellenőrizzük, hogy a megmaradtaknak mindnek van-e már vélemények. Státuszt kell léptetni ha igen.
             prigeny_mindenki_velemenyezett_e($velemenyezo['projektigenyles_recid']);
 
         //Általános eset
@@ -2961,17 +2969,17 @@ if( isset($_POST['mellekTorol']) ) {
             if( $sql === false ) { $db_error = true; }
         }
 
-        //Projektigényléseknél véleményezők törlésekor vissza is kell állítani a projektigénylés státuszát
+        // Projektigényléseknél véleményezők törlésekor vissza is kell állítani a projektigénylés státuszát
         $pri_statusz_kerdez = false;
         if($tabla=='projektigenyles_kapcs'){
-            //Ha nem maradt véleményező, akkor rákérdezünk, hogy menjen-e vissza nyitottba
+            // Ha nem maradt véleményező, akkor rákérdezünk, hogy menjen-e vissza nyitottba
             $maradt_velemenyezo = $adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$recid}'", '', '0,1');
             if( $maradt_velemenyezo === false ) { $db_error = true; }
             if(!$maradt_velemenyezo){
                 $pri_statusz_kerdez = true;
             }
         }
-        //Projektigényléseknél megtérülés törlésekor ellenőrizzük, hogy van-e még, mert ha nincs, az adatlapon ki kell venni a pipát
+        // Projektigényléseknél megtérülés törlésekor ellenőrizzük, hogy van-e még, mert ha nincs, az adatlapon ki kell venni a pipát
         if($tabla=='projektigenyles_megter'){
             $van_megter = $adatbazis_kapcsolat->s2('recid', $tabla, "`projektigenyles_recid`='{$_POST['recid']}'");
             if( $van_megter === false ) { $db_error = true; }
@@ -2998,7 +3006,6 @@ if( isset($_POST['mellekTorol']) ) {
             }
         } else {
             mysqli_rollback($db_kapcs);
-
             echo json_encode(array(
                                 'hiba' => tranzakcioHiba()
                             ));
