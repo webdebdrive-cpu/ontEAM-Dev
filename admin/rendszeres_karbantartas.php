@@ -195,7 +195,7 @@ require_once('selectek.php');
     }
 
     if( isset($_GET['modosit']) || isset($_GET['naptar']) || isset($_GET['utemezes']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
-        /* Számla fülek */
+        // Számla fülek
         $ful_tomb = array(
             'naptar'        => 'Naptár',
             'modosit'       => 'Adatlap',
@@ -221,11 +221,11 @@ require_once('selectek.php');
         );
     }
 
-    /* Gombok kirajzolása minden oldalra */
+    // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) ) {
 
-        //Újat csak "Ütemezett feladatok kezelése" joggal lehet
+        // Újat csak "Ütemezett feladatok kezelése" joggal lehet
         if(_jog(JOG_RENDSZ_KARB_KEZEL) ){
             $gombok = nl2('
                 <div class="form_kuldes">
@@ -248,13 +248,13 @@ require_once('selectek.php');
             ');
         }
 
-    //Módosítás gombok
+    // Módosítás gombok
     } else {
 
         $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
 		$sor = $sor[0];
 
-        //Js, a törlés gombhoz
+        // Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         if( _jog(JOG_RENDSZ_KARB_KEZEL) ){
@@ -302,14 +302,14 @@ require_once('selectek.php');
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-        /* Javascipt-es ellenőrzéshez */
+        // Javascipt-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
         $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
@@ -326,7 +326,14 @@ require_once('selectek.php');
             }
         }
 
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
+        $szamla_html .= nl2('
+                            <script>
+                                $(document).ready(function () {
+                                    ut_kulso_kivitlezo_beallit();
+                                });
+                                formAdatok = JSON.parse(\''.json_encode($sor).'\');
+                            </script>
+                        ');
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
@@ -344,10 +351,10 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	//Termék módosítása
+	// Termék módosítása
 	}elseif(isset($_GET['modosit'])) {
 
-        //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+        // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
@@ -355,7 +362,7 @@ require_once('selectek.php');
 	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
 		$sor = $sor[0];
 
-        //Régi adatbázisól jövő adatok miatt szükséges:
+        // Régi adatbázisól jövő adatok miatt szükséges:
         if($sor['cikltip']=='d'){
             $sor['ciklnap'] = $sor['ciklszorz'];
         }
@@ -394,7 +401,14 @@ require_once('selectek.php');
         foreach($sor as $kulcs => $elem){
             $json_sor[$kulcs] = nl2(str_replace(array("\n", "'"), array("#UJSOR#", "#APOSZTROF#"), $elem));
         }
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
+        $szamla_html .= nl2('
+                        <script>
+                            $(document).ready(function () {
+                                ut_kulso_kivitlezo_beallit();
+                            });
+                            formAdatok = JSON.parse(\''.json_encode($json_sor).'\');
+                        </script>
+                        ');
 
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;

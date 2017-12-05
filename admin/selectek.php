@@ -1,36 +1,43 @@
 <?php
-/* Fizetési módok */
+// Fizetési módok
 $select_fiz_mod = array();
 array_push($select_fiz_mod, array('name' => '- Válasszon -',    'value' => ''));
 array_push($select_fiz_mod, array('name'  => 'Utalás',      'value' => 'Utalás'));
 array_push($select_fiz_mod, array('name'  => 'Készpénz',    'value' => 'Készpénz'));
 array_push($select_fiz_mod, array('name'  => 'Bankkártya',  'value' => 'Bankkártya'));
 
-/* Áfa típus */
+// Áfa típus
 $select_afa_tipus = array();
 array_push($select_afa_tipus, array('name' => '- Válasszon -',    'value' => ''));
 array_push($select_afa_tipus, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 array_push($select_afa_tipus, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 
-/* Eszköz csoport */
+// Eszköz csoport
 $select_eszk_csop = array();
 array_push($select_eszk_csop, array('name' => '- Válasszon -',    'value' => ''));
 array_push($select_eszk_csop, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 array_push($select_eszk_csop, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 
-/* Címzett */
+// Címzett
 $select_cimzett = array();
 array_push($select_cimzett, array('name' => '- Válasszon -',    'value' => ''));
 array_push($select_cimzett, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 array_push($select_cimzett, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 
-/* Illetékes részleg */
+// Illetékes részleg
 $select_ill_reszleg = array();
 array_push($select_ill_reszleg, array('name' => '- Válasszon -',    'value' => ''));
 array_push($select_ill_reszleg, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 array_push($select_ill_reszleg, array('name'  => 'Érték 1',    'value' => 'Érték 2'));
 
-//Select tömb előállítása rendszer kategóriákhoz
+// Oracle cikkszám
+$select_oracikkid = array();
+array_push($select_oracikkid, array('name' => '- Válasszon -',  'value' => ''));
+array_push($select_oracikkid, array('name'  => 'MÜZEM0004',     'value' => 'MÜZEM0004'));
+array_push($select_oracikkid, array('name'  => 'MVEGY0003',     'value' => 'MVEGY0003'));
+array_push($select_oracikkid, array('name'  => 'MÜSEG0001',     'value' => 'MÜSEG0001'));
+
+// Select tömb előállítása rendszer kategóriákhoz
 $select_rkat = array();
 array_push($select_rkat, array('name' => '- Válasszon -', 'value' => '' ));
 $rkat = $adatbazis_kapcsolat -> select('recid nev', 'rendszer_kat', '', 'nev');
@@ -127,13 +134,17 @@ array_push($select_szemelyzet, array('name' => '- Válasszon -',             'va
 array_push($select_szemelyzet, array('name' => 'Telepített személyzet',     'value' => TELEPITETT_SZEMELYZET,   'szin' => '#CBE3FF', 'kulsos' => 0 ));
 array_push($select_szemelyzet, array('name' => 'Mobilcsoport',              'value' => MOBILCSOPORT,            'szin' => '#CCFFCB', 'kulsos' => 0 ));
 array_push($select_szemelyzet, array('name' => 'Külső kivitelező',          'value' => KULSO_KIVITELEZO,        'szin' => '#FCFFCB', 'kulsos' => 0 ));
-array_push($select_szemelyzet, array('name' => 'Műszaki vezető helyettes',  'value' => MUSZAKI_VEZETO_HELYETTES,'szin' => '#FFCBF1', 'kulsos' => 1 ));
-array_push($select_szemelyzet, array('name' => 'Műszaki vezető',            'value' => MUSZAKI_VEZETO,          'szin' => '#FFCBCB', 'kulsos' => 1 ));
-array_push($select_szemelyzet, array('name' => 'Területi felelős',          'value' => TERULETI_FELELOS,        'szin' => '#E0CBFF', 'kulsos' => 1 ));
-array_push($select_szemelyzet, array('name' => 'Műszaki ügyintéző',         'value' => MUSZAKI_ADMINISZTRATOR,  'szin' => '#E0CBFF', 'kulsos' => 1 ));
-array_push($select_szemelyzet, array('name' => 'Diszpécser',                'value' => DISZPECSER,              'szin' => '#FFEBCB', 'kulsos' => 0 ));
-array_push($select_szemelyzet, array('name' => 'Diszpécser közp. vezető',   'value' => DISZPECSER_KOZP_VEZETO,  'szin' => '#FFEBCB', 'kulsos' => 1 ));
-array_push($select_szemelyzet, array('name' => 'Műszaki igazgató',          'value' => MSZK_VEZETO,             'szin' => '#E0CBFF', 'kulsos' => 1 ));
+
+$kiveteles_oldalak = array('utemezett_feladatok.php', 'rendszeres_karbantartas.php');
+if( !in_array(basename(self()), $kiveteles_oldalak) ){
+    array_push($select_szemelyzet, array('name' => 'Műszaki vezető helyettes',  'value' => MUSZAKI_VEZETO_HELYETTES,'szin' => '#FFCBF1', 'kulsos' => 1 ));
+    array_push($select_szemelyzet, array('name' => 'Műszaki vezető',            'value' => MUSZAKI_VEZETO,          'szin' => '#FFCBCB', 'kulsos' => 1 ));
+    array_push($select_szemelyzet, array('name' => 'Területi felelős',          'value' => TERULETI_FELELOS,        'szin' => '#E0CBFF', 'kulsos' => 1 ));
+    array_push($select_szemelyzet, array('name' => 'Műszaki ügyintéző',         'value' => MUSZAKI_ADMINISZTRATOR,  'szin' => '#E0CBFF', 'kulsos' => 1 ));
+    array_push($select_szemelyzet, array('name' => 'Diszpécser',                'value' => DISZPECSER,              'szin' => '#FFEBCB', 'kulsos' => 0 ));
+    array_push($select_szemelyzet, array('name' => 'Diszpécser közp. vezető',   'value' => DISZPECSER_KOZP_VEZETO,  'szin' => '#FFEBCB', 'kulsos' => 1 ));
+    array_push($select_szemelyzet, array('name' => 'Műszaki igazgató',          'value' => MSZK_VEZETO,             'szin' => '#E0CBFF', 'kulsos' => 1 ));
+}
 
 // Projektigénylés tipus
 $select_pri_tipus = array();
@@ -177,4 +188,3 @@ $erteklistak = $adatbazis_kapcsolat -> select('csoport nev', 'erteklista_csoport
 foreach($erteklistak as $erteklista) {
 	array_push($select_erteklista, array('name' => $erteklista['nev'], 'value' => (int)$erteklista['csoport'] ));
 }
-//{KOVETKEZO_SELECT}

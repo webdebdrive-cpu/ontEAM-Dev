@@ -140,7 +140,7 @@ foreach($akt_tomb as $ertek){
                 //lényeges, hogy ne legyen a string végén szóköz
               );
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -201,7 +201,7 @@ foreach($akt_tomb as $ertek){
             }
             $html .= '</div>';
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -312,7 +312,7 @@ foreach($akt_tomb as $ertek){
 
             }
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -353,7 +353,7 @@ foreach($akt_tomb as $ertek){
 
             }
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -392,7 +392,7 @@ foreach($akt_tomb as $ertek){
             
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -480,7 +480,7 @@ foreach($akt_tomb as $ertek){
             $mivel = array($megn,    $ertek['php_fajl'],    $ertek['eng_kit'],  $meret,     $minden_kesz,        $parameterek,    $fajl_thumb   );
             $html  = str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/jsfile.html', true));
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -525,7 +525,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -572,7 +572,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -619,7 +619,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -714,7 +714,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -761,7 +761,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -808,7 +808,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -855,7 +855,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -902,7 +902,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -949,7 +949,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -996,7 +996,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1043,7 +1043,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1092,7 +1092,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1141,7 +1141,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1190,7 +1190,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1228,6 +1228,7 @@ foreach($akt_tomb as $ertek){
             $input -> name     = $ertek['name'];
             $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
+            $input -> onchange = $ertek['onchange'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
             $input -> pre      = $ertek['pre'];
@@ -1243,7 +1244,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1293,7 +1294,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1343,7 +1344,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1393,7 +1394,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1443,7 +1444,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1463,8 +1464,55 @@ foreach($akt_tomb as $ertek){
                 $mezok .= "</div></div>";
             }
         break;
-        //{KOVETKEZO_SWITCH}
 
+		case 'select_oracikkid':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
+            $input = new Select($select_oracikkid, $sor['oracikkid']);
+            $input -> cssClass = $ertek['class'];
+            $input -> disabled = $ertek['disabled'];
+            $input -> id       = $ertek['name'];
+            $input -> name     = $ertek['name'];
+            $input -> naptar   = $ertek['naptar'];
+            $input -> onblur   = $ertek['onblur'];
+            $input -> onchange = $ertek['onchange'];
+            $input -> onclick  = $ertek['onclick'];
+            $input -> onfocus  = $ertek['onfocus'];
+            $input -> pre      = $ertek['pre'];
+            $input -> post     = $ertek['post'];
+            $input -> style    = $ertek['style'];
+
+            if($ertek['i']){
+                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
+            }
+
+            $html = $input -> getHtml();
+
+            // Összevonások lekezelése és tartalom összefűzése
+            if(!$osszevon_flag){
+                $mezok .= nl2("
+                                <div class=\"dtr{$ertek['dtr_class']}\">
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
+                                    <div class=\"dtc form_jobb\">
+                            ");
+            }else{
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+            }
+
+            $mezok .= $html;
+
+            if($ertek['osszevon']){
+                $osszevon_flag = 1;
+            }else{
+                $osszevon_flag = 0;
+                $mezok .= "</div></div>";
+            }
+        break;
+
+        
 		case 'submit':
             $input = new Input($ertek['type']);
             $input -> cssClass = $ertek['class'];
@@ -1584,7 +1632,7 @@ foreach($akt_tomb as $ertek){
 
             $html = $input -> getHtml().$hidden;
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">

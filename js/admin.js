@@ -723,7 +723,7 @@ $(function() {
 
     });
 
-    /* Oldal elhagyásakor rákrédezünk, hogy biztosan */
+    /* Oldal elhagyásakor rákérdezünk, hogy biztosan */
     $(window).bind('beforeunload', function(e) {
         if( formModositva && !_get('jogosultsag') ) {
             return 'Biztos elhagyja az oldalt mentés nélkül?';
@@ -792,7 +792,7 @@ $(function() {
                 }
             }
 
-            //Újsort le kell csérélni. Checkboxok miatt kell ez az if elé
+            // Újsort le kell csérélni. Checkboxok miatt kell ez az if elé
             if(val && val!=true){
                 val = val.replace(/(\r|\n)/g, '#UJSOR#').replace(/'/g, '#APOSZTROF#');
             }
@@ -3667,9 +3667,11 @@ function kapcsolodoSzerkeszt( oldal ) {
                  			$('#addSzallodak').html(response);
                  		}
                  	}
-                 });
+                });
+
 
                 $('#addSzallodaForm').attr('onsubmit', 'return addSzalloda(\'' + _get('id') + '\', this);');
+
             break;
             case 'velemenyezok':
                 $('#addVelemenyezokForm').attr('onsubmit', 'return addVelemenyezoFg(\'' + _get('id') + '\', this);');
@@ -3748,8 +3750,8 @@ function popupZar() {
     if($('#munkAnyagAnyagigenyles').length || $('#munkAnyagVetelezForm').length){
         location.reload();
     }else{
-        $('#popup').css('display', 'none');
         $('#popupTart').html('');
+        $('#popup').css('display', 'none');
     }
 }
 
@@ -4045,15 +4047,22 @@ function addMegjegyzes( pageID, that ) {
 
 /* Szálloda hozzárendelése felhasználóhoz */
 function addSzalloda( loginID, that ) {
+
     var szallID = $(that).find('input[name="addSzall"]').val();
 
     var telephelyek = $(that).find('input[name="telephely[]"]:checked');
     var data = {};
     telephelyek.each(function(i) {
         var value = $(this).val();
-
         data[i] = value;
     });
+
+    /* Új feltöltéskor csak hidden inputba teszük az adatokat. */
+    if(_get('uj')){
+        $('#szallodak_hidden').val( JSON.stringify(data) );
+        popupZar();
+        return false;
+    }
 
     if( loginID && objLength(data) ) {
         var ajax = $.ajax({
@@ -4070,7 +4079,7 @@ function addSzalloda( loginID, that ) {
                     }
 
          			szamlaBetolt(loginID, baseName(location.href) + '.php', 'szallodak').done(function() {
-                        /*$('#naploSor-' + html.kapcsID).addClass('uj');*/
+
                     });
 
                     popupZar();
@@ -4362,6 +4371,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
 
                     } else if( baseName(location.href) == 'bejelentes' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+
+                    } else if( baseName(location.href) == 'bejelentes' && _jogok[56] == 1 && _jogok[1] == 1 ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: bejSajatMasneven(); void(0);');
 
                     } else if( baseName(location.href) == 'bejelentes' && _jogok[56] == 1 ) {
                         $('#navGombok a.uj').attr('href', 'javascript: bejSzallodaValaszt(); void(0);');
@@ -4890,7 +4902,7 @@ function bejegyzesDuplikal() {
     if( _get('uj') ){
         alert2('Új feltöltés alatt nem értelmezett a duplikálás, előbb válasszon ki egy '+$('#rekord_neve_targy').html()+'!', '', 'Hiba');
     }else if( baseName(location.href)=='felmeresi_terv' ){
-        location.href = baseName(location.href) + '.php?uj&ujkent='+_get('id');
+        alert2(duplikaKerdes, duplikalGomb);
     }else{
         szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit').done(function() {
             alert2(duplikaKerdes, duplikalGomb);
@@ -5347,4 +5359,14 @@ function felmeresi_terv_csatolva(recid){
             }
         }
     });
+}
+
+/* Ütemezett feladatoknál és rendszeres karbantartásnál a külső kivitelző állapt a hozzárendelt személyzet értékén múlik */
+function ut_kulso_kivitlezo_beallit(){
+    if($('#szemelyzet_id').val()==3){
+        $('#szallito_id_autocomp').addClass('csillag').removeAttr('disabled');
+    }else{
+        $('#szallito_id_autocomp').removeClass('csillag').attr('disabled', true).val('');
+        $('#szallito_id').val('');
+    }
 }

@@ -42,7 +42,7 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
-//Több kép menedzseléséhez
+// Több kép menedzseléséhez
 $tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
@@ -56,7 +56,7 @@ if($tobb_kep){
 
 }
 
-//Engedély dátum megadása
+// Engedély dátum megadása
 if ($_POST['engedelyDatum']) {
 
     //Dátumok ellenőrzése
@@ -124,7 +124,7 @@ if (isset($_POST['bal_panel_frissit'])) {
     exit();
 }
 
-/* Foglalt azonosító ellenőrzése */
+// Foglalt azonosító ellenőrzése
 if( $_POST['azon_ell'] ) {
 
     $_POST['azon'] = trim($_POST['azon']);
@@ -149,7 +149,7 @@ if( $_POST['azon_ell'] ) {
     exit();
 }
 
-/* CSV generálása */
+// CSV generálása
 if (isset($_GET['csv'])) {
 
     $mibol   = get_web_charset();
@@ -163,7 +163,7 @@ if (isset($_GET['csv'])) {
         mkdir('export/csv');
     }
 
-    //Régi fájlok törlése
+    // Régi fájlok törlése
     $utvonal = 'export/csv/';
     $fajlok = konyvtar_bejar($utvonal);
     foreach($fajlok as $fajl){
@@ -250,14 +250,14 @@ require_once('selectek.php');
         echo '<div id="szamlaBetolt">';
     }
 
-    /* Megjegyzések darabszáma */
+    // Megjegyzések darabszáma
     $megj_db = '';
     $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
     if( $megj_sorok ) {
         $megj_db = ' ('.count($megj_sorok).')';
     }
 
-    /* Dokumentumok darabszáma */
+    // Dokumentumok darabszáma
     $dok_db = '';
     $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
     if( $dok_sorok ) {
@@ -272,7 +272,7 @@ require_once('selectek.php');
         $dok_db = ' ('.$dok_db.')';
     }
 
-    /* Engedélyek darabszáma */
+    // Engedélyek darabszáma
     $eng_db = '';
     $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_eng_dok', "`{$megnevezes}_id` = '".$_GET['id']."'");
     if( $dok_sorok ) {
@@ -347,7 +347,7 @@ require_once('selectek.php');
             ');
         }
 
-    //Módosítás gombok
+    // Módosítás gombok
     } else {
 
         //Js, a törlés gombhoz
@@ -378,8 +378,8 @@ require_once('selectek.php');
     }
 
 
-    //Eszközkezelésnél, az űrlap elpostolása előtt még ellenőrizzük, hogy az azonosító nem foglalt-e.
-    //Egy ajax hívástbevárva tudjuk meg, hogy fogalalt-e vagy sem, és ha nem az, akkor újra elpostoljuk a formot de már egy az eredeti JS fügvny ellenőrzéssel.
+    // Eszközkezelésnél, az űrlap elpostolása előtt még ellenőrizzük, hogy az azonosító nem foglalt-e.
+    // Egy ajax hívástbevárva tudjuk meg, hogy fogalalt-e vagy sem, és ha nem az, akkor újra elpostoljuk a formot de már egy az eredeti JS fügvny ellenőrzéssel.
     if( !isset($_GET['obj']) ) {
         $js_submit_elott = '
             mehet_e = false;
@@ -395,6 +395,7 @@ require_once('selectek.php');
                     response = JSON.parse(response);
                     if(response.hiba){
                         alert2(response.hiba, response.gomb, \'Hiba\');
+                        $(\'#azon\').addClass(\'hibas_ide_focus\');
                         mehet_e = false;
                     }else{
                         mehet_e = true;
@@ -424,8 +425,9 @@ require_once('selectek.php');
         ';
     }
 
-	//Új termék felvitele
+	// Új eszköz felvitele
 	if(isset($_GET['uj']) && _jog(JOG_ESZKOZ_KEZEL)){
+        
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
@@ -484,16 +486,16 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	//Termék módosítása
+	// Eszköz módosítása
     }elseif(isset($_GET['modosit']) || isset($_GET['obj'])) {
 
-        //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+        // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
+		
 //echo $adatbazis_kapcsolat->gp() . '<br>';
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(

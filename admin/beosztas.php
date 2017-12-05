@@ -12,14 +12,14 @@ if( !_jog(JOG_BEOSZTASOK_MEGTEKINT) ) {
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
 }
 
-//Config
+// Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $beosztas_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'beosztást';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-//Változók beállítása
+// Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
 $fajloszlop             = 'kep';                //Kép (vagy kivételes esetekben más fájl) oszlopneve.
@@ -297,7 +297,8 @@ require_once('selectek.php');
     }
 
     if( isset($_GET['modosit']) || isset($_GET['naptar']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
-        /* Számla fülek */
+        
+        // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tortenet'      => 'Történet',
@@ -323,10 +324,10 @@ require_once('selectek.php');
         );
     }
 
-    /* Gombok kirajzolása minden oldalra */
+    // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) ) {
-        /* Gombok */
+        // Gombok
         $gombok = nl2('
             <div class="form_kuldes">
                 <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
@@ -347,6 +348,7 @@ require_once('selectek.php');
             </div>
         ');
 
+    
     } elseif(isset($_GET['naptar'])) {
 
         $beosztas = $adatbazis_kapcsolat->s2('tol ig', 'beosztas', "`recid`='{$_GET['id']}'");
@@ -403,7 +405,7 @@ require_once('selectek.php');
             }
         }
 
-        /* Műveletek box */
+        // Műveletek box
         $gombok = nl2('
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'
@@ -432,14 +434,14 @@ require_once('selectek.php');
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-        /* Javascipt-es ellenőrzéshez */
+        // Javascipt-es ellenőrzéshez 
         $tabla = str_replace('.php', '', basename(self()));
 
         $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
@@ -477,13 +479,12 @@ require_once('selectek.php');
 	// Beosztás módosítása
 	}elseif(isset($_GET['modosit'])) {
 
-        //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+        // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
@@ -519,7 +520,7 @@ require_once('selectek.php');
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
 
-        //NAVIGÁCIÓ
+        // NAVIGÁCIÓ
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel  = array( $navi,             '',         $gyk2 );
@@ -531,10 +532,10 @@ require_once('selectek.php');
 	    //FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
-		//Form actionja
+		// Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
@@ -571,7 +572,7 @@ require_once('selectek.php');
 		// Ez elkészíti a $mezok változót
         $akt_tomb = $beosztas_naptar_tomb;
 
-	    //FORM
+	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
         $sor = array();
@@ -583,7 +584,7 @@ require_once('selectek.php');
 	    $szamla_html .=
             str_replace(
                 array('{JS}', '{ACTION}', '{JS_SUBMIT_ELOTT}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'),
-                array( $js,    $action,   $js_submit_elott,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style  ),
+                array( $js,    $action,   $js_submit_elott,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style   ),
                 fajlbol_olvas('../sablon/admin/form_modosit.html', true)
             ).'<script>$(document).ready(function () { $(\'#szerk_form div.dt\').hide(); });</script>';
 

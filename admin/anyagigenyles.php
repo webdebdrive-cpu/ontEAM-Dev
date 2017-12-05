@@ -1,29 +1,29 @@
 <?php
 require_once('../weblap.php');
 
-if (isset($_GET['adatok_karbantart'])) {
-    $statuszok = $adatbazis_kapcsolat->s('recid stat_id', 'munkalap_anyag');
-    foreach($statuszok as $statusz){
-        switch($statusz['stat_id']){
-            case '0': $statid = '00'; break;
-            case '1': $statid = '01'; break;
-            case '2': $statid = '02'; break;
-        }
-        $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array($statid), "`recid`='{$statusz['recid']}'");
-    }
-    exit;
-}
-if (isset($_GET['adat_javit_tmp'])) {
-    $anyagigenyles = $adatbazis_kapcsolat->s('recid cikk_id', 'anyagigenyles');
-    foreach($anyagigenyles as $anyag){
-        $ora = $adatbazis_kapcsolat->s('oracikkid', 'cikktorzs', "`id`='{$anyag['cikk_id']}'");
-        $ora = $ora[0];
-
-        $adatbazis_kapcsolat->u('anyagigenyles', array('oracikkid'), array($ora['oracikkid']), "`recid`='{$anyag['recid']}'");
-        echo $adatbazis_kapcsolat->gp() . '<br>';
-    }
-    exit;
-}
+//if (isset($_GET['adatok_karbantart'])) {
+//    $statuszok = $adatbazis_kapcsolat->s('recid stat_id', 'munkalap_anyag');
+//    foreach($statuszok as $statusz){
+//        switch($statusz['stat_id']){
+//            case '0': $statid = '00'; break;
+//            case '1': $statid = '01'; break;
+//            case '2': $statid = '02'; break;
+//        }
+//        $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array($statid), "`recid`='{$statusz['recid']}'");
+//    }
+//    exit;
+//}
+//if (isset($_GET['adat_javit_tmp'])) {
+//    $anyagigenyles = $adatbazis_kapcsolat->s('recid cikk_id', 'anyagigenyles');
+//    foreach($anyagigenyles as $anyag){
+//        $ora = $adatbazis_kapcsolat->s('oracikkid', 'cikktorzs', "`id`='{$anyag['cikk_id']}'");
+//        $ora = $ora[0];
+//
+//        $adatbazis_kapcsolat->u('anyagigenyles', array('oracikkid'), array($ora['oracikkid']), "`recid`='{$anyag['recid']}'");
+//
+//    }
+//    exit;
+//}
 
 if( !_jog(JOG_ANYAIGENLES_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
@@ -1770,10 +1770,10 @@ require_once('selectek.php');
         if( _jog(JOG_ANYAGIGENYLES_JOVAHAGY) ) {
             
             if($sor['stat_id']==CIKKIGN_STAT_ARAZVA){
-                $gombok .= '<input type="button" class="gomb foGomb zold" value="Jóváhagyás" onclick="anyagigenyles_jovahagy(\'csak kérdezünk még\')"> ';
-                $gombok .= '<input type="button" class="gomb foGomb piros" value="Elutasítás" onclick="anyagigenyles_elutasitas(\'csak kérdezünk még\')"> ';
+                $gombok .= '<input type="button" class="gomb zold" value="Jóváhagyás" onclick="anyagigenyles_jovahagy(\'csak kérdezünk még\')"> ';
+                $gombok .= '<input type="button" class="gomb piros" value="Elutasítás" onclick="anyagigenyles_elutasitas(\'csak kérdezünk még\')"> ';
+                $gombok .= '<input type="button" class="gomb" value="Mind jóváhagyása" onclick="anyagigenyles_mind_jovahagy(\'csak kérdezünk még\')"> ';
             }
-            $gombok .= '<input type="button" class="gomb foGomb" value="Mind jóváhagyása" onclick="anyagigenyles_mind_jovahagy(\'csak kérdezünk még\')"> ';
             
             // Ha jóváhagyás joga van, és a státusza árazva, akkor a jóváhagyott mennyiség enabled
             if($sor['stat_id']==CIKKIGN_STAT_ARAZVA){
@@ -2115,7 +2115,7 @@ require_once('selectek.php');
         // Anyagigénylés adatlapja
         }else{
 
-            //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+            // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
             if(isset($_GET['id_hidden'])){
                 $_GET['id'] = $_GET['id_hidden'];
             }
@@ -2166,28 +2166,34 @@ require_once('selectek.php');
                 }
             }
 
-            //$gombok .= ' <input type="button" id="kilepes_gomb" class="gombb_alert" onclick="szamlaBetolt('.$sor['recid'].', \''.basename(self()).'\', \'modosit\');" value="Kilépés" title="Kilépés">';
-
             if($id_latszik){
                 $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
             }
+            
+            // Duplákáláskor feltett kérdés
+            $szamla_html .= nl2('
+                <script>
+                    duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                    duplikaKerdes = \'Név: '.$sor['nev'].'<br><br>Biztos, hogy duplikálja?\';
+                </script>
+            ');
 
-            //NAVIGÁCIÓ
+            // NAVIGÁCIÓ
             $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
             $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
             $navi_mivel  = array( $navi,             '',         $gyk2 );
             //echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-            //HIBAüZENETEK
+            // HIBAüZENETEK
             require_once('info.php');
 
-            //FORM
+            // FORM
             $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
-            //Form actionja
+            // Form actionja
             $action = self().get_get(array('errnum','kephiba','siker'));
 
-            //Ckeditort csak akkor húzzuk be, ha kell
+            // Ckeditort csak akkor húzzuk be, ha kell
             if(is_file($ckeditor_js)){
                 $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
             }

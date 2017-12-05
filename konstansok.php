@@ -154,14 +154,14 @@ define('TERULETI_FELELOS',              '7' );
 define('MUSZAKI_ADMINISZTRATOR',        '8' );
 define('MSZK_VEZETO',                   '9' );
 
-//MozgásID-k
+// MozgásID-k
 define('MOZGID_RAKTAR_BE',              '01' );
 define('MOZGID_RAKTAR_KI',              '02' );
 define('MOZGID_LELTAR',                 '03' );
 
 
 
-//JOGOK
+// JOGOK
 define('JOG_BEJELENTES_MEGTEKINT',      57);
 define('JOG_BEJELENTES_SAJAT_RESZL',    0 );
 define('JOG_BEJELENTES_KEZEL',          1 );

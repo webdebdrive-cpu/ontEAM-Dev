@@ -53,6 +53,14 @@ $(document).on('keydown', '#nem_gomb', function(event) {
         return false;
     }
 });
+
+/* Perc mezőre enterezve fusson le a hozzáadás */
+$('#perc').on('keydown', function(e) {
+    if (e.which == KEY_ENTER) {
+        munkaidoHozzaadas();
+        return false;
+    }
+});
     
 /* Feladat hozzáadása */
 function munkaidoHozzaadas(negy_oras_kerdes_neklul) {
