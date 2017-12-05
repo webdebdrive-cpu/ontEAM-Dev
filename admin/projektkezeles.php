@@ -12,30 +12,30 @@ if( !_jog(JOG_PRKEZEL_MEGTEKINT) ) {
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
 }
 
-//Config
+// Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $projektkezeles_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'projekt kezelést';   //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'projekt kezelést';   // Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-//Változók beállítása
-$csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
-$elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
-$fajloszlop             = 'kep';                //Kép (vagy kivételes esetekben más fájl) oszlopneve.
-$id_latszik             = false;                //A termék ID-ja látsszon-e a felsorolásnál, kibontásnál (van, hogy ügyfél is használja)
-$kep_thumb_listaba      = false;                //Lista nézetben legyen-e a képoszlop alapján képthumbnail
-$magas                  = get_indexkep_m();     //Kiskép magassága
-$sorrendezes            = false;                //Ha sorrendet is be szeretnénk állítani. Adatbázisban sor oszlopot létre kell hozni, jquery-ui.js-t és admin_sorrendez.js-t aktiválni az adminhoz
-$szel                   = get_indexkep_sz();    //Kiskép szélessége
-$ujkent_szerkesztheto   = true;                 //Szerkesztésnél elérhető egy gomb, melyre kattintva a termékadatai átkerülnek az új feltöltésbe
+// Változók beállítása
+$csak_szerkesztheto     = false;                // Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
+$elonezet               = '';                   // Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
+$fajloszlop             = 'kep';                // Kép (vagy kivételes esetekben más fájl) oszlopneve.
+$id_latszik             = false;                // A termék ID-ja látsszon-e a felsorolásnál, kibontásnál (van, hogy ügyfél is használja)
+$kep_thumb_listaba      = false;                // Lista nézetben legyen-e a képoszlop alapján képthumbnail
+$magas                  = get_indexkep_m();     // Kiskép magassága
+$sorrendezes            = false;                // Ha sorrendet is be szeretnénk állítani. Adatbázisban sor oszlopot létre kell hozni, jquery-ui.js-t és admin_sorrendez.js-t aktiválni az adminhoz
+$szel                   = get_indexkep_sz();    // Kiskép szélessége
+$ujkent_szerkesztheto   = true;                 // Szerkesztésnél elérhető egy gomb, melyre kattintva a termékadatai átkerülnek az új feltöltésbe
 
-$ckeditor_js            = '../'.get_utvonal().'wysiwyg/ckeditor.js';    //Ckeditor JS útvonala
-$formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          //Azok az oszlopneveket sorold fel, melyek numerikus értéket is tartalmazhatnak, de nem szeretnéd, ha lista nézetben ezres csoportra bontaná
+$ckeditor_js            = '../'.get_utvonal().'wysiwyg/ckeditor.js';    // Ckeditor JS útvonala
+$formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          // Azok az oszlopneveket sorold fel, melyek numerikus értéket is tartalmazhatnak, de nem szeretnéd, ha lista nézetben ezres csoportra bontaná
 
 $szamla_html = '';
 
-//Több kép menedzseléséhez
+// Több kép menedzseléséhez
 $tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
@@ -49,7 +49,32 @@ if($tobb_kep){
 
 }
 
-/** Tartalom */
+// Projekt team hozzáadása
+if (isset($_POST['addProjektTeam'])) {
+    
+    if($_POST['prkezel_recid']){
+        
+        $adatbazis_kapcsolat -> d('projektkezeles_login', "`projektkezeles_recid` = '".$_POST['prkezel_recid']."'");
+
+        // Hozzáadjuk a Loginokat
+        $loginok = json_decode($_POST['loginok'], true);
+        foreach($loginok as $key => $login) {
+            $kapcsID = $adatbazis_kapcsolat -> i('projektkezeles_login',
+                                                    array('projektkezeles_recid',  'login_recid',   'insert_dt',    'insert_usr' ,                          'update_usr'                            ),
+                                                    array($_POST['prkezel_recid'], $login,          'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                );
+        }
+    }
+    
+    echo json_encode(array(
+        'statusz' => 'siker'
+    ));
+    
+    $weblap -> leallit();
+    exit;
+}
+
+// Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
@@ -59,14 +84,14 @@ require_once('selectek.php');
         echo '<div id="szamlaBetolt">';
     }
 
-    /* Megjegyzések darabszáma */
+    // Megjegyzések darabszáma
     $megj_db = '';
     $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
     if( $megj_sorok ) {
         $megj_db = ' ('.count($megj_sorok).')';
     }
 
-    /* Dokumentumok darabszáma */
+    // Dokumentumok darabszáma
     $dok_db = '';
     $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
     if( $dok_sorok ) {
@@ -82,7 +107,8 @@ require_once('selectek.php');
     }
 
     if( isset($_GET['modosit']) || isset($_GET['garancialis']) || isset($_GET['tortenet']) || isset($_GET['rb_anyag']) || isset($_GET['projektigeny']) || isset($_GET['cash_flow']) || isset($_GET['projekt_team']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
-        /* Számla fülek */
+        
+        // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tortenet'      => 'Projekt történet',
@@ -112,7 +138,7 @@ require_once('selectek.php');
         );
     }
 
-    /* Gombok kirajzolása minden oldalra */
+    // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) && _jog(JOG_PRKEZEL_KEZEL) ) {
 
@@ -129,23 +155,23 @@ require_once('selectek.php');
             }
         }
 
-        /* Műveletek box */
+        // Műveletek box
         $gombok = nl2('
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'
             </div>
         ');
 
-    //Módosítás gombok
-    } else {
-
-        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
-        //Ha a státusz elutasítva vagy jóváhagyva, akkor semmilyen gomb nem érhető el
+    // Módosítás gombok
+    }else{
+        
+       $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+        // Ha a státusz elutasítva vagy jóváhagyva, akkor semmilyen gomb nem érhető el
 
         // Ha van egyálátalán kezelésre joga
         if( _jog(JOG_PRKEZEL_KEZEL) ){
 
-            //Csak saját bejelentéseit szerkesztheti
+            // Csak saját bejelentéseit szerkesztheti
             $nem_szerkesztheti = false;
             if($sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
                 $nem_szerkesztheti = true;
@@ -168,17 +194,18 @@ require_once('selectek.php');
             }
         }
 
-        /* Műveletek box */
+        // Műveletek box
         $gombok = nl2('
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'
             </div>
         ');
+        
     }
 
     $js_submit_elott = 'return form_ell_admin();';
     
-	//Új termék felvitele
+	// Új termék felvitele
 	if(isset($_GET['uj']) && _jog(JOG_PRKEZEL_KEZEL) ){
 
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
@@ -186,10 +213,10 @@ require_once('selectek.php');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
 	    require_once('info.php');
 
-	    //FORM
+	    // FORM
 		if(isset($_GET['ujkent'])){
 			foreach($akt_tomb as $ertek){
 				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
@@ -197,14 +224,14 @@ require_once('selectek.php');
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-        /* Javascipt-es ellenőrzéshez */
+        // Javascipt-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
         $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
@@ -239,17 +266,16 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	//Termék módosítása
+	// Termék módosítása
 	}elseif(isset($_GET['modosit'])) {
 
-        //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+        // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
-//echo $adatbazis_kapcsolat->gp() . '<br>';
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
+// echo $adatbazis_kapcsolat->gp() . '<br>';
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
                 'datetime' => $sor['update_dt'],
@@ -284,22 +310,22 @@ require_once('selectek.php');
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
 
-        //NAVIGÁCIÓ
+        // NAVIGÁCIÓ
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel  = array( $navi,             '',         $gyk2 );
-        //echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
+        // echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
         require_once('info.php');
 
-	    //FORM
+	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
-		//Form actionja
+		// Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
@@ -326,7 +352,7 @@ require_once('selectek.php');
 			require_once('tobb_kep.php');
 		}
 
-	//Cash flow
+	// Cash flow
 	}elseif(isset($_GET['cash_flow'])){
 
         $szamla_html .= 'Cash flow felülete';
@@ -340,10 +366,44 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	//Projekt team
+	// Projekt team
 	}elseif(isset($_GET['projekt_team'])){
 
-        $szamla_html .= 'Projekt team felülete';
+        $sorok = $adatbazis_kapcsolat->s('recid projektkezeles_recid login_recid', 'projektkezeles_login', '`projektkezeles_recid`=\''.  $_GET['id'].'\'');
+        $szamla_html .= '<div id="tablazatBeszur">';
+        if( $sorok ) {
+
+            // Fejlécek
+            $szamla_html .= nl2('
+                <div class="dt naplo szakter kijCont" data-tabla="projektkezeles_login" data-mellek="projekt_team">
+                    <div class="dtr nFejlec">
+                        <div class="dtc">Név</div>
+                        <div class="dtc">Teljes név</div>
+                    </div>
+            ');
+
+            $i = 1;
+            $loginok = adatbazis2tomb($sorok, 'login_recid');
+            $loginok = $adatbazis_kapcsolat->s('recid nev teljes_nev', 'login', "`recid` IN (".implode(',', $loginok).")", 'nev');
+
+            foreach($loginok as $login) {
+                
+                $kapcs_id = $adatbazis_kapcsolat->s2('recid', 'projektkezeles_login', "`projektkezeles_recid`='{$_GET['id']}' AND `login_recid`='{$login['recid']}'");
+
+                $szamla_html .= nl2('
+                    <div id="naploSor-'.$kapcs_id['recid'].'" class="dtr nSor kijSor" data-id="'.$kapcs_id['recid'].'" data-i="'.$i.'">
+                        <div class="dtc">'.$login['nev'].'</div>
+                        <div class="dtc">'.$login['teljes_nev'].'</div>
+                    </div>
+                ');
+
+                $i++;
+            }
+
+            $szamla_html .= '</div>';
+        }
+
+        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -354,7 +414,7 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	//Projektigény
+	// Projektigény
 	}elseif(isset($_GET['projektigeny'])){
 
         $szamla_html .= 'Projektigény felülete';
@@ -368,7 +428,7 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	//Történet
+	// Történet
 	}elseif(isset($_GET['tortenet'])){
 
         $szamla_html .= get_tortenet($megnevezes);
@@ -381,7 +441,7 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	//RB-anyagok
+	// RB-anyagok
 	}elseif(isset($_GET['rb_anyag'])){
 
         $szamla_html .= 'RB-anyagok felülete';
@@ -395,7 +455,7 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	//Garanciális munkák
+	// Garanciális munkák
 	}elseif(isset($_GET['garancialis'])){
 
         $szamla_html .= 'Garanciális munkák felülete';

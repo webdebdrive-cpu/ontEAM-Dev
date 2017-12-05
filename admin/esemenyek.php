@@ -2700,7 +2700,7 @@ if( isset($_GET['addCsoport']) ) {
 
     if( !$csoport ) {
         $uj_csopid = $adatbazis_kapcsolat -> i($page.'_csoport',  array('nev', 'insert_dt',   'insert_usr',                            'update_usr'                            ),
-                                                            array($nev,  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                                  array($nev,  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev']  )
                                         );
         if( $uj_csopid === false ) { $db_error = true; }
 
@@ -2809,8 +2809,8 @@ if( isset($_POST['mellekTorol']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    //Ki-ki csak a saját rekordját törölheti, hacsak nem a kivételekbe tartozó tábláról van szó
-    $klivetelek = array('telephely_kapcs', 'munkalap_kapcs', 'projektigenyles_kapcs', 'cash_flow');
+    // Ki-ki csak a saját rekordját törölheti, hacsak nem a kivételekbe tartozó tábláról van szó
+    $klivetelek = array('telephely_kapcs', 'munkalap_kapcs', 'projektigenyles_kapcs', 'projektkezeles_login', 'cash_flow');
     if( !in_array($tabla, $kivetelek) && !strstr($tabla, '_dok') ) {
         if( $sql = $adatbazis_kapcsolat->s('id', $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`!='{$_SESSION[get_db_tabla().'user']}'")){
             echo json_encode(array(
@@ -3278,6 +3278,7 @@ if (isset($_POST['surgosseg_allit'])) {
 
 // Szálloda hozzáadása felhasználóhoz ajaxosan
 if( isset($_GET['addSzalloda']) ) {
+    
     $loginID  = $_GET['loginID'];
     $szallIDs = json_decode($_GET['szallIDs'], true);
 
@@ -3287,11 +3288,11 @@ if( isset($_GET['addSzalloda']) ) {
         if( $felh ) {
             $adatbazis_kapcsolat -> d('telephely_kapcs', "`nev` = '".$felh['nev']."'");
 
-            /* Hozzáadjuk a szállodákat */
+            // Hozzáadjuk a szállodákat
             foreach($szallIDs as $key => $szallID) {
                 $kapcsID = $adatbazis_kapcsolat -> i('telephely_kapcs',
-                    array('nev',        'telephely_id', 'insert_dt',    'insert_usr'                            ),
-                    array($felh['nev'], $szallID,       'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
+                    array('nev',        'telephely_id', 'insert_dt',    'insert_usr',                           'update_usr'                            ),
+                    array($felh['nev'], $szallID,       'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
                 );
             }
 

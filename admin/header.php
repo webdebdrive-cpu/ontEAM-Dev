@@ -837,6 +837,9 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'projektigenyles.php' && isset($_GET['megterules']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megterules\'); void(0);';
 
+    } elseif( basename(self()) == 'projektkezeles.php' && isset($_GET['projekt_team']) ) {
+        $uj_link = 'javascript: kapcsolodoSzerkeszt(\'projekt_team\'); void(0);';
+
     } elseif( basename(self()) == 'projektkezeles.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 

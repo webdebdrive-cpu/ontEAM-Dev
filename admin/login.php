@@ -92,6 +92,7 @@ if( isset($_POST['jogokhozzaad']) ) {
 
 // Szálloda választó popup
 if( isset($_POST['getSzallodak']) ) {
+    
     // Szálloda lekérdezése
     $telephelyek = $adatbazis_kapcsolat->s('id nev recid modell', 'telephely', "`inaktiv`='0'", 'nev');
 
@@ -99,7 +100,7 @@ if( isset($_POST['getSzallodak']) ) {
     $felh = $adatbazis_kapcsolat->s2('nev', 'login', "`recid` = '".$_POST['recid']."'");
 
     // Kapcsolt szállodák
-    $felh_szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev` = '".$felh['nev']."'", '', '');
+    $felh_szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev` = '".$felh['nev']."'");
     $felh_szallodak = adatbazis2tomb($felh_szallodak, 'telephely_id');
 
     if( !$felh_szallodak ) {
@@ -134,13 +135,54 @@ if( isset($_POST['getSzallodak']) ) {
     exit();
 }
 
+// Felhasználó választó popup
+if( isset($_POST['getLoginok']) ) {
+
+    // Kapcsolt (már team) loginok
+    $login_team = $adatbazis_kapcsolat->s('login_recid', 'projektkezeles_login', "`projektkezeles_recid`='".$_POST['recid']."'");
+    $login_team = adatbazis2tomb($login_team, 'login_recid');
+    if( !$login_team ) {
+        $login_team = array();
+    }
+    
+    // Felhasználók lekérdezése
+    $loginok = $adatbazis_kapcsolat->s('recid, nev, teljes_nev', 'login', "", 'nev');
+
+    $html = '';
+    foreach($loginok as $login) {
+        $checked = '';
+        if( in_array($login['recid'], $login_team) ) {
+            $checked = ' checked="checked"';
+        }
+
+        $html .= nl2('
+            <div class="dtr">
+                <div class="dtc">
+                    <div class="cb">
+                        <input type="checkbox" class="check" name="loginok[]" id="login-'.$login['recid'].'" value="'.$login['recid'].'"'.$checked.'>
+                        <label for="login-'.$login['recid'].'"></label>
+                    </div>
+                </div>
+                <div class="dtc">
+                    '.$login['nev'].' ('.$login['teljes_nev'].')
+                </div>
+            </div>
+        ');
+    }
+
+    echo $html;
+
+    $weblap->leallit();
+    exit();
+}
+
 // CSV generálása
 if (isset($_GET['csv'])) {
 
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
 
-    //Régi fájlok törlése
+    // Régi fájlok törlése
     $utvonal = 'export/csv/';
     $fajlok = konyvtar_bejar($utvonal);
     foreach($fajlok as $fajl){

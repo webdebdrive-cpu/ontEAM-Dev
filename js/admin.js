@@ -3385,6 +3385,9 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
         if(_get('projektigeny')){
             szoveg = 'projektigényléseket';
         }
+        if(_get('projekt_team')){
+            szoveg = 'felhasználókat';
+        }
 
         if(torolhet){
             if(full_szoveg){
@@ -3650,6 +3653,25 @@ function kapcsolodoSzerkeszt( oldal ) {
             break;
             case 'megterules':
                 $('#addMegterules').attr('onsubmit', 'return addMegterules(\'' + _get('id') + '\', this);');
+            break;
+            case 'projekt_team':
+                $.ajax({
+                 	url : 'login.php',
+                 	type: 'POST',
+                    data: {
+                        recid       : _get('id'),
+                        getLoginok  : new Date().getTime()
+                    },
+                 	success: function(response) {
+                 		if(response) {
+                 			$('#addLogin').html(response);
+                 		}
+                 	}
+                });
+
+
+                $('#addProjektTeam').attr('onsubmit', 'return addProjektTeam(\'' + _get('id') + '\', this);');
+
             break;
             case 'szakterulet':
                 $('#addSzakterForm').attr('onsubmit', 'return addSzakterulet(\'' + _get('id') + '\', this);');
@@ -4096,6 +4118,43 @@ function addSzalloda( loginID, that ) {
     return false;
 }
 
+/* Login hozzárendelése projektkezeléshez */
+function addProjektTeam( prkezel_recid, that ) {
+
+    var loginok = $(that).find('input[name="loginok[]"]:checked');
+    var data    = {};
+    loginok.each(function(i) {
+        var value = $(this).val();
+        data[i] = value;
+    });
+
+    if( prkezel_recid && objLength(data) ) {
+        var ajax = $.ajax({
+         	url : 'projektkezeles.php',
+         	type: 'POST',
+         	data: esamp2es('prkezel_recid=' + prkezel_recid + '&amp;loginok=' + JSON.stringify(data) + '&amp;addProjektTeam=' + new Date().getTime()),
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, '', 'Hiba');
+                        return false;
+                    }
+
+         			szamlaBetolt(prkezel_recid, baseName(location.href) + '.php', 'projekt_team').done(function() {
+
+                    });
+
+                    popupZar();
+         		}
+         	}
+        });
+    }
+
+    return false;
+}
+
 /* Vélemény hozzáadása */
 function velemeny_hozzaad(mehet){
 
@@ -4422,6 +4481,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
 
                     } else if( baseName(location.href) == 'projektigenyles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+
+                    } else if( baseName(location.href) == 'projektkezeles' && _get('projekt_team') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'projekt_team\'); void(0);');
 
                     } else if( baseName(location.href) == 'projektkezeles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
