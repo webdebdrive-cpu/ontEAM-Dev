@@ -723,7 +723,7 @@ $(function() {
 
     });
 
-    /* Oldal elhagyásakor rákrédezünk, hogy biztosan */
+    /* Oldal elhagyásakor rákérdezünk, hogy biztosan */
     $(window).bind('beforeunload', function(e) {
         if( formModositva && !_get('jogosultsag') ) {
             return 'Biztos elhagyja az oldalt mentés nélkül?';
@@ -792,7 +792,7 @@ $(function() {
                 }
             }
 
-            //Újsort le kell csérélni. Checkboxok miatt kell ez az if elé
+            // Újsort le kell csérélni. Checkboxok miatt kell ez az if elé
             if(val && val!=true){
                 val = val.replace(/(\r|\n)/g, '#UJSOR#').replace(/'/g, '#APOSZTROF#');
             }

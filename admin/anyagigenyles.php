@@ -1,29 +1,29 @@
 <?php
 require_once('../weblap.php');
 
-if (isset($_GET['adatok_karbantart'])) {
-    $statuszok = $adatbazis_kapcsolat->s('recid stat_id', 'munkalap_anyag');
-    foreach($statuszok as $statusz){
-        switch($statusz['stat_id']){
-            case '0': $statid = '00'; break;
-            case '1': $statid = '01'; break;
-            case '2': $statid = '02'; break;
-        }
-        $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array($statid), "`recid`='{$statusz['recid']}'");
-    }
-    exit;
-}
-if (isset($_GET['adat_javit_tmp'])) {
-    $anyagigenyles = $adatbazis_kapcsolat->s('recid cikk_id', 'anyagigenyles');
-    foreach($anyagigenyles as $anyag){
-        $ora = $adatbazis_kapcsolat->s('oracikkid', 'cikktorzs', "`id`='{$anyag['cikk_id']}'");
-        $ora = $ora[0];
-
-        $adatbazis_kapcsolat->u('anyagigenyles', array('oracikkid'), array($ora['oracikkid']), "`recid`='{$anyag['recid']}'");
-        echo $adatbazis_kapcsolat->gp() . '<br>';
-    }
-    exit;
-}
+//if (isset($_GET['adatok_karbantart'])) {
+//    $statuszok = $adatbazis_kapcsolat->s('recid stat_id', 'munkalap_anyag');
+//    foreach($statuszok as $statusz){
+//        switch($statusz['stat_id']){
+//            case '0': $statid = '00'; break;
+//            case '1': $statid = '01'; break;
+//            case '2': $statid = '02'; break;
+//        }
+//        $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array($statid), "`recid`='{$statusz['recid']}'");
+//    }
+//    exit;
+//}
+//if (isset($_GET['adat_javit_tmp'])) {
+//    $anyagigenyles = $adatbazis_kapcsolat->s('recid cikk_id', 'anyagigenyles');
+//    foreach($anyagigenyles as $anyag){
+//        $ora = $adatbazis_kapcsolat->s('oracikkid', 'cikktorzs', "`id`='{$anyag['cikk_id']}'");
+//        $ora = $ora[0];
+//
+//        $adatbazis_kapcsolat->u('anyagigenyles', array('oracikkid'), array($ora['oracikkid']), "`recid`='{$anyag['recid']}'");
+//
+//    }
+//    exit;
+//}
 
 if( !_jog(JOG_ANYAIGENLES_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
@@ -1770,10 +1770,10 @@ require_once('selectek.php');
         if( _jog(JOG_ANYAGIGENYLES_JOVAHAGY) ) {
             
             if($sor['stat_id']==CIKKIGN_STAT_ARAZVA){
-                $gombok .= '<input type="button" class="gomb foGomb zold" value="Jóváhagyás" onclick="anyagigenyles_jovahagy(\'csak kérdezünk még\')"> ';
-                $gombok .= '<input type="button" class="gomb foGomb piros" value="Elutasítás" onclick="anyagigenyles_elutasitas(\'csak kérdezünk még\')"> ';
+                $gombok .= '<input type="button" class="gomb zold" value="Jóváhagyás" onclick="anyagigenyles_jovahagy(\'csak kérdezünk még\')"> ';
+                $gombok .= '<input type="button" class="gomb piros" value="Elutasítás" onclick="anyagigenyles_elutasitas(\'csak kérdezünk még\')"> ';
+                $gombok .= '<input type="button" class="gomb" value="Mind jóváhagyása" onclick="anyagigenyles_mind_jovahagy(\'csak kérdezünk még\')"> ';
             }
-            $gombok .= '<input type="button" class="gomb foGomb" value="Mind jóváhagyása" onclick="anyagigenyles_mind_jovahagy(\'csak kérdezünk még\')"> ';
             
             // Ha jóváhagyás joga van, és a státusza árazva, akkor a jóváhagyott mennyiség enabled
             if($sor['stat_id']==CIKKIGN_STAT_ARAZVA){

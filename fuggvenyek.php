@@ -5075,7 +5075,8 @@ function beosztas_naptar($beosztas_id){
     }
 
     // Start Date
-    $start_dt = date('c');
+    $beosztas = $adatbazis_kapcsolat->s2('tol', 'beosztas', "`recid`='$beosztas_id'");
+    $start_dt = date('c', date2int($beosztas['tol']) );
 
     $html .= str_replace(
                 array('{EVENTS}', '{START_DT}'),

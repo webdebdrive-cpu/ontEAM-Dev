@@ -62,7 +62,7 @@ if($_POST['megnevezes']=='velemeny'){
             break;
 
             case 2:
-                echo 'Hiba! Túl nagy méretű fájl!'; /* A HTML form-ban is megadható volna egy méretkorlát? */
+                echo 'Hiba! Túl nagy méretű fájl!'; // A HTML form-ban is megadható volna egy méretkorlát?
             break;
 
             case 3:
@@ -179,7 +179,7 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
         $csakkep = 0;
     }
 
-    //Ha új feltöltés, akkor a képet ideiglenesen lementjük, míg a bejegyzés el nem készül hozzá
+    // Ha új feltöltés, akkor a képet ideiglenesen lementjük, míg a bejegyzés el nem készül hozzá
     if($_POST['uj_feltolt']){
 
         if($algoritmus=='fajlnev'){
@@ -187,13 +187,21 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
         }elseif($algoritmus=='id'){
             $fajlnev = 'get_id';
         }
-        //A fájl sorszáma pedig a SESSION id-ja, ezzel azonosítva az aktuális munkafolymatot
-        //majd #két sharp közt# az oszlop neve, hogy tudjuk, az adatbázisban melyik oszlopba kell beírni
-        //majd a következő #két sharp közt# a fájl végleges neve (ezt persze csak akkor tudjuk ha fájlnév vagy ID alapján mentjük el)
-        //végül a timestamp, hogy biztosan egyedi legyen
+        
+        // Nézzük meg, hogy van-e SESSION id kezdetű fájl a könyvtárban
+        $utvonal = get_utvonal().'cache/jsfajlok/'.session_id().'*';
+        $session_kezdetu_fajlok = glob($utvonal); //Ha több ilyen is van az azért lehet, mert több fájlfeltöltés input is volt a tömbben
+        foreach($session_kezdetu_fajlok as $akt_fajl){
+            unlink($akt_fajl);
+        }
+        
+        // A fájl sorszáma pedig a SESSION id-ja, ezzel azonosítva az aktuális munkafolymatot
+        // majd #két sharp közt# az oszlop neve, hogy tudjuk, az adatbázisban melyik oszlopba kell beírni
+        // majd a következő #két sharp közt# a fájl végleges neve (ezt persze csak akkor tudjuk ha fájlnév vagy ID alapján mentjük el)
+        // végül a timestamp, hogy biztosan egyedi legyen
         $sor_id     = session_id().'|||'.$fajl_oszlop.'|||'.$fajlnev.'|||'.$_FILES[$megnevezes]['name'].'|||'.time();
-        $algoritmus = 'id';             //Az algoritmus tehát ID szerinti, hogy ne legyen adatbázis művelet
-        $tabla      = 'cache/jsfajlok'; //A tartalom mappán belül a 'cache' könyvtárba mentjük majd el ideiglenesen
+        $algoritmus = 'id';             // Az algoritmus tehát ID szerinti, hogy ne legyen adatbázis művelet
+        $tabla      = 'cache/jsfajlok'; // A tartalom mappán belül a 'cache' könyvtárba mentjük majd el ideiglenesen
     }
 
 	switch($algoritmus){
@@ -221,7 +229,7 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
 
 				$pathinfo = pathinfo($sor[$fajl_oszlop]);
 				$kepnev    = str_replace($mit, $mivel, $pathinfo['filename']).'.'.kit($kepnev);
-				$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
+				$overwrite = true;	// Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
                 
                 $alkonyvtar = '';
                 if($tabla=='felmeresi_terv'){
@@ -278,12 +286,12 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
 				$pathinfo = pathinfo($sor[$fajl_oszlop]);
 
 				$kepnev    = str_replace($mit, $mivel, $pathinfo['filename']).'.'.kit($_FILES[$megnevezes]['name']);
-				$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
+				$overwrite = true;	// Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
 
 			// Ha nincs a táblában a neve (új felöltés vagy módosítás, és sose volt kép, vagy törölve lett)
 			}else{
 
-				//Itt a kiterjesztés az eredetileg felvitt fájl kiterjesztése lesz
+				// Itt a kiterjesztés az eredetileg felvitt fájl kiterjesztése lesz
 				$kit   = kit($_FILES[$megnevezes]['name']);
 
 				$i     = 1;
@@ -296,20 +304,20 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
 
 				$kepnev = fajlnev_keszit($ujnev).'.'.$kit;
 
-                //Ez most azért false, mert a JSFF-nél ha egy forban több fjál input is szerepelt, akkor felülírták egymást
+                // Ez most azért false, mert a JSFF-nél ha egy forban több fjál input is szerepelt, akkor felülírták egymást
                 $overwrite = false;
 
 			}
 		break;
 
 		default:
-			//elmentjük a kiterjesztést, kisbetűsre alakítva
+			// Elmentjük a kiterjesztést, kisbetűsre alakítva
             $kit = strtolower(substr($_FILES[$megnevezes]['name'],strrpos($_FILES[$megnevezes]['name'],'.'),strlen($_FILES[$megnevezes]['name'])));
 			$kepnev = $sor_id.$kit;
 
-			$algoritmus = 'sorid';//bizti kedvéért
-			$sor_id     = null;//Kinullázzuk a táblát, hogy a web_ftp ne próbálkozzon SQL-el
-			$overwrite  = true;	//Sorid esetén mindig töröljük az előzőt (pl. 'sorid'.jpg-t)
+			$algoritmus = 'sorid';  // bizti kedvéért
+			$sor_id     = null;     // Kinullázzuk a táblát, hogy a web_ftp ne próbálkozzon SQL-el
+			$overwrite  = true;     // Sorid esetén mindig töröljük az előzőt (pl. 'sorid'.jpg-t)
 		break;
 	}
 

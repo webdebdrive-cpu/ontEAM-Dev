@@ -175,18 +175,41 @@ if (isset($_GET['csv'])) {
 // Felmérési terv fájl létezik-e?
 if (isset($_POST['felmeresi_terv_csatolva'])) {
     
-    $ft = $adatbazis_kapcsolat->s2('felm_terv', 'felmeresi_terv', "`recid`='{$_POST['recid']}'");
-    if(is_file('../'.get_utvonal().$megnevezes.'/'.$ft['felm_terv'])){
-        echo json_encode(array(
-            'hiba'  => 'Ehhez a tervhez már van felmérési terv csatolva. Ha folytatja, le fogja cserélni.<br>Folytatja?',
-            'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#jsff_felmeresi_terv_felm_terv input\').click(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">',
-            'title' => 'Kérdés',
-        ));
+    // Új feltöltésnél még nincs recid, ekkor a Cache mappát kell megvizsgálni, hogy van-e session kezdetű fájl
+    if (!$_POST['recid']) {
+        // Nézzük meg, hogy van-e SESSION id kezdetű fájl a könyvtárban
+        $utvonal = '../'.get_utvonal().'cache/jsfajlok/'.session_id().'*';
+        $session_kezdetu_fajlok = glob($utvonal); //Ha több ilyen is van az azért lehet, mert több fájlfeltöltés input is volt a tömbben
+
+        if( count($session_kezdetu_fajlok)>0 ){
+            echo json_encode(array(
+                'hiba'  => 'Ehhez a tervhez már van felmérési terv csatolva. Ha folytatja, le fogja cserélni.<br>Folytatja?',
+                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#jsff_felmeresi_terv_felm_terv input\').click(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">',
+                'title' => 'Kérdés',
+            ));
+        }else{
+            echo json_encode(array(
+                'tallozas_mehet'  => true,
+            ));
+        }
+        
     }else{
-        echo json_encode(array(
-            'tallozas_mehet'  => true,
-        ));
+        
+        $ft = $adatbazis_kapcsolat->s2('felm_terv', 'felmeresi_terv', "`recid`='{$_POST['recid']}'");
+        if(is_file('../'.get_utvonal().$megnevezes.'/'.$ft['felm_terv'])){
+            echo json_encode(array(
+                'hiba'  => 'Ehhez a tervhez már van felmérési terv csatolva. Ha folytatja, le fogja cserélni.<br>Folytatja?',
+                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#jsff_felmeresi_terv_felm_terv input\').click(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">',
+                'title' => 'Kérdés',
+            ));
+        }else{
+            echo json_encode(array(
+                'tallozas_mehet'  => true,
+            ));
+        }
+        
     }
+    
     
     $weblap->leallit();
     exit();
@@ -202,7 +225,7 @@ if (isset($_POST['felmeresi_terv_csatolva'])) {
 
 
 
-/** Tartalom */
+// Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
@@ -264,7 +287,7 @@ require_once('selectek.php');
         
         if(_jog(JOG_FT_KEZEL)){
             $gombok = nl2('
-                <input type="button" class="gomb" value="Felmérési terv csatolása" onclick="$(\'#jsff_felmeresi_terv_felm_terv input\').click()">
+                <input type="button" class="gomb" value="Felmérési terv csatolása" onclick="felmeresi_terv_csatolva()">
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                 </div>
@@ -277,7 +300,7 @@ require_once('selectek.php');
                 }
             }
 
-            /* Műveletek box */
+            // Műveletek box
             $gombok = nl2('
                 <div class="muveletek"'.$muv_style.'>
                     '.$gombok.'
@@ -422,7 +445,7 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	//Termék módosítása
+	// Termék módosítása
 	}elseif(isset($_GET['modosit'])) {
 
         //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
@@ -430,8 +453,7 @@ require_once('selectek.php');
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 //echo $adatbazis_kapcsolat->gp() . '<br>';
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(

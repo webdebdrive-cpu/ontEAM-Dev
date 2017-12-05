@@ -926,7 +926,7 @@ if( $_SESSION['nincs_jelsz'] ) {
     $belepve  = '';
 }
 
-/* Törlés és új gombok ne is látsszon, ha nincs hozzá joga */
+// Törlés és új gombok ne is látsszon, ha nincs hozzá joga
 $torles_icon = nl2('
         <a onclick="naviTorles();" class="torles'.$torol_dis.'" title="Törlés">
             <i class="material-icons">delete</i>
@@ -941,7 +941,7 @@ $uj  = nl2('
 
 if( basename(self())=='anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL)){
     $torles_icon    = '';
-    //$uj             = '';
+    // $uj             = '';
 }
 // Anyagrendelés alatt nincs új felvitel
 if( basename(self())=='anyagigenyles.php' && isset($_GET['anyagrend'])){

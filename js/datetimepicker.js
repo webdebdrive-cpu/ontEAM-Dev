@@ -1604,10 +1604,10 @@ Date.parseFunctions={count:0};Date.parseRegexes=[];Date.formatFunctions={count:0
 
 
 function datum_formatumra_formaz(input) {
-    input = input.replace(/\./gi,  '').replace(/ /gi,  '');
+    input = input.replace(/\./gi,  '').replace(/ /gi,  '').replace(/:/gi,  '');
     n  = input.length;
     uj = '';
-    hanyszor = 0;
+    
     for (i = 0; i < n; i++) {
         if(!isNaN(parseFloat(input.substr(i, 1)))){
             switch (i) {
@@ -1633,5 +1633,5 @@ function datum_formatumra_formaz(input) {
             }
         }
     }
-    return uj.substring(0, 15);
+    return uj.substring(0, 16);
 }
