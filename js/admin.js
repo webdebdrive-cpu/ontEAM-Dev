@@ -406,15 +406,15 @@ $(function() {
     });
     // Jobb egérgomb tiltása
     $(document).on('contextmenu', function(e){
-        e.preventDefault();
-        return false;
-    }); 
+        /*e.preventDefault();
+        return false;*/
+    });
 
     // Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk
     $(':input[type!="hidden"]').each(function (i) {
         $(this).attr('tabindex', i + 1);
     });
-    
+
 
     $(document).on('keyup', 'input[type="checkbox"]', function(e) {
         if( e.keyCode == 32 ) {
@@ -1290,6 +1290,28 @@ $(function() {
 
     $('ul.alalmenu_cont').on('mouseleave', function() {
         $(this).find('ul.alalmenu').css('display', 'none');
+    });
+
+    $(document).on('click', '.autocomp', function() {
+        var that = $(this);
+
+        if( !that.val() ) {
+            setTimeout(function() {
+                var e = jQuery.Event('keyup');
+                e.which = 40;
+                that.focus().val('*').trigger(e);
+            }, 1);
+        }
+    });
+
+    $(document).on('blur', '.autocomp', function() {
+        $('.autocomp').each(function() {
+            var value = $(this).val();
+
+            if( value == '*' ) {
+                $(this).val('').change();
+            }
+        });
     });
 });
 
@@ -3458,7 +3480,7 @@ function mellekTorol( tabla, mellek, mellekre_valt ) {
                         }else{
                             alert2();
                         }
-                        
+
                         /* Munkalapok adatlapján a bejelentések törlésekor csak frissítünk */
                         if(tabla=='munkalap_kapcs'){
                             location.reload();
@@ -3467,7 +3489,7 @@ function mellekTorol( tabla, mellek, mellekre_valt ) {
 
                         /* A számla betöltést csak akkor csináljuk meg, ha nincs ideiglenes sor hozzáadva, mert különben azok elvesznének */
                         if(!$('.kijCont .kijSor[data-id="UJ"]').length){
-                            
+
                             betoltott = szamlaBetolt(_get('id'), baseName(location.href) + '.php', mellek, '', 'kerdes_nelkul');
                             $.when( betoltott ).done(function() {
                                 if(mellekre_valt){
