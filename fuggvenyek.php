@@ -1307,10 +1307,10 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         ');
     }
 
-    if( basename(self())=='login.php' ){
+    if( basename(self())=='login.php' && isset($_GET['uj']) ){
 
         $ret .= nl2('
-            if(!$(\'#szallodak_hidden\').val()){
+            if(!$(\'#szallodak_hidden\').val() || $(\'#szallodak_hidden\').val()==\'{}\'){
                 alert2(\'Mentés előtt válasszon szállodát!\', \'<input type="button" class="gomb" value="Ok" onclick="kapcsolodoSzerkeszt(\\\'szallodak\\\'); alert2();">\', \'Hiba\');
                 return false;
             }

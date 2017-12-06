@@ -2292,8 +2292,8 @@ if( isset($_POST['getMunkalapMunkaido']) ) {
             }
             $sorok .= nl2('
                 <tr class="munkaido_sor_'.$munkaido['recid'].'">
-                    <td>'.$login['teljes_nev'].'</td>
-                    <td>'.$munkaido['ora'].':'.$munkaido['perc'].'</td>
+                    <td id="munkaido_nev_'.$munkaido['recid'].'">'.$login['teljes_nev'].'</td>
+                    <td id="munkaido_ido_'.$munkaido['recid'].'">'.$munkaido['ora'].':'.$munkaido['perc'].'</td>
                     <td><a id="munk_ido_'.$munkaido['recid'].'" onclick="munkMunkaidoTorol( \''.$munkaido['recid'].'\', \'munk_ido_'.$munkaido['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a></td>
                 </tr>
             ');
@@ -3227,15 +3227,15 @@ if( isset($_POST['munkaidoHozzaadas']) ) {
     mysqli_autocommit($db_kapcs, false);
     
     // Státusz ellenőrzése
-    $akt_statusz = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
-    if( $akt_statusz === false ) { $db_error = true; }
+    $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+    if( $munkalap === false ) { $db_error = true; }
     
     // Kiszámoljuk a legutóbbi munkalap tételt, ehhez kerül hozzáadásra az új munkaidőráfordítás
     $akt_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
     if( $akt_tetel === false ) { $db_error = true; }
  
     // Státusz ellenőrzése
-    if( $akt_statusz['stat_id'] != MUNKALAP_STAT_FELVEVE && $akt_statusz['stat_id'] != MUNKALAP_STAT_KESZ && $akt_statusz['stat_id'] != MUNKALAP_STAT_VIZSGALAT_ALATT ) {
+    if( $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE && $munkalap['stat_id'] != MUNKALAP_STAT_KESZ && $munkalap['stat_id'] != MUNKALAP_STAT_VIZSGALAT_ALATT ) {
         echo json_encode(array(
             'hiba'  => 'Csak felvett, kész vagy vizsgálat alatt státuszú munkalaphoz adható munkaidőráfordítás!',
             'title' => 'Hiba',
@@ -4210,7 +4210,7 @@ require('selectek.php');
                                 <li><a onclick="csoportMuvelet(\'atadasDiszpecsernek\');">Diszpécsernek</a></li>
                                 <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO].'>
                                     <script> gomb_musz = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
-                                    <a onclick="'.$alert_muzs_vez.'">Műszaki vezetőnek</a>
+                                    <a onclick="'.$alert_musz_vez.'">Műszaki vezetőnek</a>
                                 </li>
                             </ul>
                         </div>

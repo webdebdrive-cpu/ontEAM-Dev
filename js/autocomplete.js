@@ -17,7 +17,7 @@
     $.fn.autocomplete = function(options) {
 
         var defaults = {
-            karaktertol     : 1,                    /* Hány karaktertől induljon a keresés          */
+            karaktertol     : 0,                    /* Hány karaktertől induljon a keresés          */
             limit           : 10,                   /* Hány tételt listázzon ki                     */
             szel            : 'auto',               /* Lista szélessége                             */
             php_fajl        : 'autocomplete.php',   /* PHP fájl, amit meghívunk                     */
@@ -44,161 +44,164 @@
         $(this).addClass('autocomp'); /* Ettől lesz nyíl ikon az input végén, látszik, hogy egy autocompletes input. */
 
         $(this).keyup(function(e) {
+            
+            /* Tabbal érkezve egy autocomplete mezőbe ne jöjjön fel a lista */
+            if(e.which!=KEY_TAB){
 
-            var that    = $(this);
+                var that    = $(this);
 
-            var width   = $(this).outerWidth();
-            var height  = $(this).outerHeight();
-            var left    = $(this).offset().left;
-            var top     = $(this).offset().top;
+                var width   = $(this).outerWidth();
+                var height  = $(this).outerHeight();
+                var left    = $(this).offset().left;
+                var top     = $(this).offset().top;
 
-            var length  = $(this).val().length;
-            var val     = $(this).val();
-            mezo        = $(this);
-            setting     = options;
+                var length  = $(this).val().length;
+                var val     = $(this).val();
+                mezo        = $(this);
+                setting     = options;
 
-            if(length >= options.karaktertol) {
-                var cont_id = $(this).attr('id') + '_cont',
-                    current_cont_id = $('#autocomplete').attr('data-cont');
+                if(length >= options.karaktertol) {
+                    var cont_id = $(this).attr('id') + '_cont',
+                        current_cont_id = $('#autocomplete').attr('data-cont');
 
-                if( !$('#' + cont_id).length ) {
-                    $(this).before('<div id="' + cont_id + '" class="autocomp_cont"></div>');
-                }
+                    if( !$('#' + cont_id).length ) {
+                        $(this).before('<div id="' + cont_id + '" class="autocomp_cont"></div>');
+                    }
 
-                if( current_cont_id === undefined ) {
-                    $('#' + cont_id).html('<div id="autocomplete" data-cont="' + cont_id + '"></div>');
-                } else if( cont_id != current_cont_id ) {
-                    $('#autocomplete').remove();
-                    $('#' + cont_id).html('<div id="autocomplete" data-cont="' + cont_id + '"></div>');
-                }
+                    if( current_cont_id === undefined ) {
+                        $('#' + cont_id).html('<div id="autocomplete" data-cont="' + cont_id + '"></div>');
+                    } else if( cont_id != current_cont_id ) {
+                        $('#autocomplete').remove();
+                        $('#' + cont_id).html('<div id="autocomplete" data-cont="' + cont_id + '"></div>');
+                    }
 
-                if($('#popup').css('display') == 'block'){
-                    $('#autocomplete').addClass('popupba');
-                } else {
-                    $('#autocomplete').removeClass('popupba');
-                }
+                    if($('#popup').css('display') == 'block'){
+                        $('#autocomplete').addClass('popupba');
+                    } else {
+                        $('#autocomplete').removeClass('popupba');
+                    }
 
-                if(options.szel == 'auto') {
-                    $('#' + cont_id).css({ 'width': width });
-                    $('#autocomplete').css({
-                        'display'   : 'block',
-                        'max-height': '30rem',
-                        'width'     : width
-                    });
-                } else {
-                    $('#' + cont_id).css({ 'width': options.szel });
-                    $('#autocomplete').css({
-                        'display'   : 'block',
-                        'max-height': '30rem',
-                        'width'     : options.szel
-                    });
-                }
+                    if(options.szel == 'auto') {
+                        $('#' + cont_id).css({ 'width': width });
+                        $('#autocomplete').css({
+                            'display'   : 'block',
+                            'max-height': '30rem',
+                            'width'     : width
+                        });
+                    } else {
+                        $('#' + cont_id).css({ 'width': options.szel });
+                        $('#autocomplete').css({
+                            'display'   : 'block',
+                            'max-height': '30rem',
+                            'width'     : options.szel
+                        });
+                    }
 
-                /* Ha nem a szűrőben van az autocomplete, akkor csak azokat a helyiségeket listázza ki,
-                 *  ami adott szállodához tartozik, ezért átküldünk egy telephely_id értékete is */
-                telephely_id = '';
-                if( !options.szuros && (
-                    baseName(location.href) == 'bejelentes' ||
-                    baseName(location.href) == 'utemezett_feladatok' ||
-                    baseName(location.href) == 'rendszeres_karbantartas' ||
-                    baseName(location.href) == 'munkalap' ||
-                    baseName(location.href) == 'eszkozkezeles' ||
-                    baseName(location.href) == 'felmeresi_terv'
-                    )
-                ) {
-                    telephely_id = $('#telephely_id').val();
-                }
+                    /* Ha nem a szűrőben van az autocomplete, akkor csak azokat a helyiségeket listázza ki,
+                     *  ami adott szállodához tartozik, ezért átküldünk egy telephely_id értékete is */
+                    telephely_id = '';
+                    if( !options.szuros && (
+                        baseName(location.href) == 'bejelentes' ||
+                        baseName(location.href) == 'utemezett_feladatok' ||
+                        baseName(location.href) == 'rendszeres_karbantartas' ||
+                        baseName(location.href) == 'munkalap' ||
+                        baseName(location.href) == 'eszkozkezeles' ||
+                        baseName(location.href) == 'felmeresi_terv'
+                        )
+                    ) {
+                        telephely_id = $('#telephely_id').val();
+                    }
 
-                obj_id = '';
-                if( !options.szuros && (
-                                        baseName(location.href) == 'bejelentes' ||
-                                        baseName(location.href) == 'eszkozkezeles' ||
-                                        baseName(location.href) == 'eseti_fenntartas' ||
-                                        baseName(location.href) == 'felmeresi_terv' ||
-                                        baseName(location.href) == 'munkalap' ||
-                                        baseName(location.href) == 'utemezett_feladatok' ||
-                                        baseName(location.href) == 'rendszeres_karbantartas'
-                                        )
-                ) {
-                    obj_id = $('#obj_id').val();
-                }
+                    obj_id = '';
+                    if( !options.szuros && (
+                                            baseName(location.href) == 'bejelentes' ||
+                                            baseName(location.href) == 'eszkozkezeles' ||
+                                            baseName(location.href) == 'eseti_fenntartas' ||
+                                            baseName(location.href) == 'felmeresi_terv' ||
+                                            baseName(location.href) == 'munkalap' ||
+                                            baseName(location.href) == 'utemezett_feladatok' ||
+                                            baseName(location.href) == 'rendszeres_karbantartas'
+                                            )
+                    ) {
+                        obj_id = $('#obj_id').val();
+                    }
 
-                if(e.keyCode!=40 && e.keyCode!=38 && e.keyCode!=13) {
+                    if(e.keyCode!=40 && e.keyCode!=38 && e.keyCode!=KEY_ENTER) {
 
-                    $.ajax({
-                        url     : options.php_fajl,
-                        type    : 'GET',
-                        data: {
-                            value           : val,
-                            limit           : options.limit,
-                            tabla           : options.tabla,
-                            oszlop_keres    : options.oszlop_keres,
-                            oszlop_listaz   : options.oszlop_listaz,
-                            rkat            : options.rkat,
-                            id_kiir         : options.id_kiir,
-                            csoport         : options.csoport,
-                            recid           : options.recid,
-                            mezo            : options.mezo,
-                            op              : options.op,
-                            felt            : options.felt,
-                            szemelyzet_id   : options.szemelyzet_id,
-                            telephely_id    : telephely_id,
-                            obj_id          : obj_id
-                        },
-                        success: function(msg) {
-                            $('div#autocomplete').html(msg);
+                        $.ajax({
+                            url     : options.php_fajl,
+                            type    : 'GET',
+                            data: {
+                                value           : val,
+                                limit           : options.limit,
+                                tabla           : options.tabla,
+                                oszlop_keres    : options.oszlop_keres,
+                                oszlop_listaz   : options.oszlop_listaz,
+                                rkat            : options.rkat,
+                                id_kiir         : options.id_kiir,
+                                csoport         : options.csoport,
+                                recid           : options.recid,
+                                mezo            : options.mezo,
+                                op              : options.op,
+                                felt            : options.felt,
+                                szemelyzet_id   : options.szemelyzet_id,
+                                telephely_id    : telephely_id,
+                                obj_id          : obj_id
+                            },
+                            success: function(msg) {
+                                $('div#autocomplete').html(msg);
 
-                            /* Ha kilógna a képernyőről */
-                            var offsetTop       = $(that).offset().top,
-                                documentHeight  = $(document).outerHeight(),
-                                documentHalf    = documentHeight / 2;
+                                /* Ha kilógna a képernyőről */
+                                var offsetTop       = $(that).offset().top,
+                                    documentHeight  = $(document).outerHeight(),
+                                    documentHalf    = documentHeight / 2;
 
-                            var autocompHeight  = $('#autocomplete').outerHeight(),
-                                autocompleteTop = height;
+                                var autocompHeight  = $('#autocomplete').outerHeight(),
+                                    autocompleteTop = height;
 
-                            /* Ha az input elhagyta a documentum felét */
-                            if( offsetTop > documentHalf ) {
-                                var maradekHely = documentHeight - (offsetTop + height);
+                                /* Ha az input elhagyta a documentum felét */
+                                if( offsetTop > documentHalf ) {
+                                    var maradekHely = documentHeight - (offsetTop + height);
 
-                                autocompleteTop = -Math.abs(autocompHeight);
-                                var posTop = $(that).position().top;
+                                    autocompleteTop = -Math.abs(autocompHeight);
+                                    var posTop = $(that).position().top;
 
-                                if( autocompHeight > posTop ) {
-                                    autocompleteTop = -Math.abs(posTop);
-                                    autocompHeight  = posTop;
+                                    if( autocompHeight > posTop ) {
+                                        autocompleteTop = -Math.abs(posTop);
+                                        autocompHeight  = posTop;
+                                    }
+
+                                    if($('#popup').css('display') == 'block') {
+                                        var popupHeight = $('div.popup_kont').outerHeight();
+
+                                        autocompHeight = popupHeight - posTop - 70;
+                                    }
+
+                                    $('#autocomplete').css({
+                                        'top': autocompleteTop,
+                                        'max-height': autocompHeight
+                                    });
+                                } else {
+                                    var posTop = $(that).position().top;
+
+                                    if($('#popup').css('display') == 'block') {
+                                        var popupHeight = $('div.popup_kont').outerHeight();
+                                        autocompHeight = popupHeight - height - posTop - parseInt($('#popup div.popup_tart div.kuldes').outerHeight());
+                                    }
+
+                                    $('#autocomplete').css({
+                                        'top'       : height,
+                                        'max-height': autocompHeight
+                                    });
                                 }
-
-                                if($('#popup').css('display') == 'block') {
-                                    var popupHeight = $('div.popup_kont').outerHeight();
-
-                                    autocompHeight = popupHeight - posTop - 70;
-                                }
-
-                                $('#autocomplete').css({
-                                    'top': autocompleteTop,
-                                    'max-height': autocompHeight
-                                });
-                            } else {
-                                var posTop = $(that).position().top;
-
-                                if($('#popup').css('display') == 'block') {
-                                    var popupHeight = $('div.popup_kont').outerHeight();
-
-                                    autocompHeight = popupHeight - height - posTop - parseInt($('#popup div.popup_tart div.kuldes').outerHeight());
-                                }
-
-                                $('#autocomplete').css({
-                                    'top': height,
-                                    'max-height': autocompHeight
-                                });
                             }
-                        }
-                    });
+                        });
 
+                    }
+
+                } else {
+                    $('#autocomplete').css({'display' : 'none'}).html('');
                 }
-
-            } else {
-                $('#autocomplete').css({'display' : 'none'}).html('');
             }
         });
 
@@ -307,11 +310,11 @@
 
         $(this).keypress(function(e) {
             if($(this).val() == '') {
-                if(e.keyCode==13) {
+                if(e.keyCode==KEY_ENTER) {
                     return false;
                 }
             } else if($('#autocomplete').css('display') == 'block') {
-                if(e.keyCode==13) {
+                if(e.keyCode==KEY_ENTER) {
                     return false;
                 }
             }
@@ -324,7 +327,7 @@
         });
 
         $(document).keyup(function(e) {
-            if(e.keyCode == 27){
+            if(e.keyCode == KEY_ESCAPE){
                 $("#autocomplete").css({'display':'none'}).html('');
             }
         });
@@ -332,7 +335,7 @@
 
         /* Tab esetén záródjon be az autocomplete, és ha nem változott az értéke, írjuk vissza az eredetit */
         $(this).keydown(function(e) {
-            if (e.keyCode == 9) {
+            if (e.keyCode == KEY_TAB) {
                 $('#autocomplete').css({'display':'none'}).html('');
             }
         });
@@ -372,7 +375,7 @@
             }
             
             /* Enterrel kiválasztva egy sort */
-            if(e.keyCode==13) {
+            if(e.keyCode==KEY_ENTER) {
                 if( $('#autocomplete ul li').hasClass('aktiv') ) {
 
                     var link   = $('#autocomplete ul li.aktiv').attr('data-href'),
@@ -408,7 +411,6 @@
                         van_uj_erteke = true;
 
                         mezo.attr('data-origin-val', mezo.val());
-
                         if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                             mezo_nev = mezo.attr('name').replace('_autocomp', '');
                             $('input[name="' + mezo_nev + '"]').val(recid);
@@ -448,7 +450,7 @@
 
                         /* KP-s anyagbeszerzéshez popuphoz */
                         if($('#pop_afa').length && $('#pop_afa').val()){
-                            osszegek_kiszamol();
+                            osszegek_kiszamol($('#pop_afa'));
                         }
 
                         e.stopPropagation();

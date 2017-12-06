@@ -1292,14 +1292,16 @@ $(function() {
         $(this).find('ul.alalmenu').css('display', 'none');
     });
 
+    /* Autocomplete inputra kattintva hozza le a listát */
     $(document).on('click', '.autocomp', function() {
         var that = $(this);
 
-        if( !that.val() ) {
+        /* Csak ha nincs nyitva */
+        if( !$('#autocomplete').is(':visible') ) {
             setTimeout(function() {
                 var e = jQuery.Event('keyup');
-                e.which = 40;
-                that.focus().val('*').trigger(e);
+                e.which = e.shiftKey;
+                that.focus().trigger(e);
             }, 1);
         }
     });
