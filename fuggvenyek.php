@@ -188,7 +188,7 @@ function i_u($type, $tabla, $tomb) {
         // Anyagigénylés új bejegyzés esetén
         if( $tabla == 'anyagigenyles' ) {
 
-            /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
+            // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
             $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
             if( $ikt_seq === false ) { $db_error = true; }
             if( $ikt_seq ) {
@@ -752,14 +752,12 @@ function i_u($type, $tabla, $tomb) {
                     echo json_encode(array(
                         'hiba' => 'Csak nyitott státuszú bejegyzést lehet módosítani!'
                     ));
-
                     exit();
                 }
             } else {
                 echo json_encode(array(
                     'hiba' => 'Státusz nem található!'
                 ));
-
                 exit();
             }
         }
@@ -821,7 +819,7 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'login' ) {
             
             // Ha változott a szerepkör, akkor a jogokat frissítjük
-            $login = $adatbazis_kapcsolat->s2('szerepkor_id', 'login', "`recid`='{$_POST['szerepkor_id']}'");
+            $login = $adatbazis_kapcsolat->s2('szerepkor_id', 'login', "`recid`='{$_GET['id']}'");
             if( $login['szerepkor_id'] != $_POST['szerepkor_id'] ) {
                 $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', "`recid`='{$_POST['szerepkor_id']}'", '', '1');
                 if( $szerepkor === false ) { $db_error = true; }
@@ -966,7 +964,7 @@ if ( !($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemez
         if( $sql === false ) { $db_error = true; }
 	}
 
-    //Tranzakció kommitolása, vagy rollback-ezése
+    // Tranzakció kommitolása, vagy rollback-ezése
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
     } else {
@@ -2004,7 +2002,8 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             
             // Ha mobilcsopotos felhasználó vagyok csak azokat a munkalapokat látom, amik mobilhoz vannak rendelve és a hozzárendelt személy üres vagy én vagyok.
             if( $_SESSION[get_db_tabla().'szemelyzet_id']==MOBILCSOPORT ){
-                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}') ";
+                $login = $adatbazis_kapcsolat->s2('mobil', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}') AND `mobil`='{$login['mobil']}'";
                 
             // Ha nem mobilcsoport vagyok, akkor még a saját szállodák jogra kell figyleni:
             }else{

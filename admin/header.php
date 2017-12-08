@@ -20,14 +20,14 @@ require_once('esemenyek.php');
 if( isset($_GET['szerkeszt']) && $_GET['id'] ) {
     $tabla = str_replace('.php', '', basename(self()));
 
-    /* Megnézzük, hogy van e érvényes sor */
+    // Megnézzük, hogy van e érvényes sor
     $record = $adatbazis_kapcsolat->s('recid', $tabla, 'recid='.$_GET['id'], '', '1');
 
     if( $record ) {
-        /* Kezdeményezett művelet */
+        // Kezdeményezett művelet
         $muvelet = 'A(z) '.$tabla.' '.$_GET['id'].'. recordjának szerkesztését kezdeményezte.';
 
-        /* Végrehajtott változtatás */
+        // Végrehajtott változtatás
         $valtozas = '-';
 
         $adatbazis_kapcsolat -> i(
@@ -149,7 +149,7 @@ if( _jog(JOG_BEJELENTES_MEGTEKINT) || _jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     $menuk .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
 
-/* Munkák */
+// Munkák
 if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(JOG_UTFEL_MEGTEKINT) || _jog(JOG_RENDSZ_KARB_MEGTEKINT) || _jog(JOG_ESETI_FENN_MEGTEKINT) ) {
     $menu_nev        = 'Munkák';
     $menu_nev_kis    = 'munkák';
@@ -164,6 +164,7 @@ if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(J
     );
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
     if(basename(self())=='munkalap.php')                { $oldalNev = 'Munkák / <span id="rekord_neve">Munkalapok</span><span class="dn" id="rekord_neve_egyes">munkalap</span><span class="dn" id="rekord_neve_targy">munkalapot</span>';                                              }
+    if(basename(self())=='mobil_hozzarendel.php')       { $oldalNev = 'Munkák / Munkalapok / <span id="rekord_neve">Mobil hozzárendelés</span><span class="dn" id="rekord_neve_egyes">hozzárendelés</span><span class="dn" id="rekord_neve_targy">hozzárendelést</span>';       }
     if(basename(self())=='utemezett_feladatok.php')     { $oldalNev = 'Munkák / <span id="rekord_neve">Ütemzett feladatok</span><span class="dn" id="rekord_neve_egyes">ütmezett feladat</span><span class="dn" id="rekord_neve_targy">ütemezett feladatot</span>';                     }
     if(basename(self())=='rendszeres_karbantartas.php') { $oldalNev = 'Munkák / <span id="rekord_neve">Rendszeres karbantartás</span><span class="dn" id="rekord_neve_egyes">rendszeres karbantartás</span><span class="dn" id="rekord_neve_targy">rendszeres karbantartást</span>';    }
     if(basename(self())=='eseti_fenntartas.php')        { $oldalNev = 'Munkák / <span id="rekord_neve">Eseti fenntartás</span><span class="dn" id="rekord_neve_egyes">eseti fenntartás</span><span class="dn" id="rekord_neve_targy">eseti fenntartást</span>';                         }
@@ -171,7 +172,15 @@ if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(J
 
     $aktmenuk  = '';
     if(_jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL)){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Munkalapok'                 ), $almenu_sablon );
+        $aktmenuk .= nl2('
+            <ul class="alalmenu_cont">
+                <a href="'.$aloldalak['0'].'">Munkalapok</a>
+                <ul class="alalmenu">
+                    <li><a href="mobil_hozzarendel.php">Mobil hozzárendelés</a></li>
+                    <li><a href="javascript:csoportMuvelet(\'mobil_szemelyzet_beosztas\')">Mobil személyzet beosztása</a></li>
+                </ul>
+            </ul>
+        ');
     }
     if(_jog(JOG_UTFEL_MEGTEKINT)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Ütemezett feladatok'        ), $almenu_sablon );
@@ -205,7 +214,7 @@ if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(J
 }
 
 
-/* Anyagok */
+// Anyagok
 if(_jog(JOG_ANYAIGENLES_MEGTEKINT) || _jog(JOG_ANYAGREND_MEGTEKINT) || _jog(JOG_RAKTAR_MEGTEKINT) || _jog(JOG_CIKKTORZS_MEGTEKINT)){
     $menu_nev        = 'Anyagok';
     $menu_nev_kis    = 'anyagok';
@@ -257,7 +266,7 @@ if(_jog(JOG_CIKKTORZS_MEGTEKINT)){
     $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
 
-/* Eszközök */
+// Eszközök
 $menu_nev        = 'Eszközök';
 $menu_nev_kis    = 'eszközök';
 $menu_nev_tobbes = 'Eszközök';
@@ -295,7 +304,7 @@ if( $aktmenuk ) {
 $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 
 
-/* Tervezés */
+// Tervezés
 $menu_nev        = 'Tervezés';
 $menu_nev_kis    = 'tervezés';
 $menu_nev_tobbes = 'Tervezés';
@@ -327,7 +336,7 @@ if( $aktmenuk ) {
 $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 
 
-/* Energia */
+// Energia
 $menu_nev        = 'Energia';
 $menu_nev_kis    = 'energia';
 $menu_nev_tobbes = 'Energia';
@@ -360,7 +369,7 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $
 
 
 
-/* Projektek */
+// Projektek
 if(_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_PRIGENY_EGY_MEGTEKINT) || _jog(JOG_PRIGENY_F_MEGTEKINT) || _jog(JOG_PRIGENY_TOBB_MEGTEKINT) || _jog(JOG_PRIGENY_T_MEGTEKINT) || _jog(JOG_PRKEZEL_MEGTEKINT) || _jog(JOG_ELOTERJ_MEGTEKINT)){
     $menu_nev        = 'Projektek';
     $menu_nev_kis    = 'rojektek';
@@ -417,7 +426,7 @@ if(_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_P
 
 
 
-/* Továbbiak */
+// Továbbiak
 $menu_nev        = 'Dokumentumok';
 $menu_nev_kis    = 'dokumentumok';
 $menu_nev_tobbes = 'Dokumentumok';
@@ -456,8 +465,8 @@ $menuk   .= str_replace( $akt_menu_mit, array( $style, '#'/*$aloldalak['0']*/, $
 
 
 
-/* Személyzet */
-if(_jog(25) || _jog(27) || _jog(29)){
+// Személyzet
+if(_jog(JOG_TORZSADAT_MEGTEKINT) || _jog(JOG_SZABADSAGIG_MEGTEKINT) || _jog(JOG_BEOSZTASOK_MEGTEKINT)){
     $menu_nev        = 'Személyzet';
     $menu_nev_kis    = 'személyzet';
     $menu_nev_tobbes = 'Személyzet';
@@ -469,13 +478,13 @@ if(_jog(25) || _jog(27) || _jog(29)){
     if(basename(self())=='beosztas.php')        { $oldalNev = 'Személyzet / <span id="rekord_neve">Beosztások</span><span class="dn" id="rekord_neve_egyes">beosztás</span><span class="dn" id="rekord_neve_targy">beosztást</span>';                   }
 
     $aktmenuk  = '';
-    if(_jog(25)){
+    if(_jog(JOG_TORZSADAT_MEGTEKINT)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Törzsadatok'        ), $almenu_sablon );
     }
-    if(_jog(27)){
+    if(_jog(JOG_SZABADSAGIG_MEGTEKINT)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Szabadságigények'   ), $almenu_sablon );
     }
-    if(_jog(29)){
+    if(_jog(JOG_BEOSZTASOK_MEGTEKINT)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Beosztások'         ), $almenu_sablon );
     }
 
@@ -501,7 +510,7 @@ if(_jog(25) || _jog(27) || _jog(29)){
 
 
 
-/* Rendszer beállítások */
+// Rendszer beállítások
 $menu_nev        = 'Rendszer';
 $menu_nev_kis    = 'rendszer';
 $menu_nev_tobbes = 'Rendszer';

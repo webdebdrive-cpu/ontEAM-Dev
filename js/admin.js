@@ -1315,6 +1315,13 @@ $(function() {
             }
         });
     });
+    
+    
+    $(document).on('click', '.mobilkeret li', function() {
+        $('.mobilkeret li').removeClass('kijelolt');
+        $(this).addClass('kijelolt');
+        $('#vissza_nyitottak_koze').removeClass('dn');
+    });
 });
 
 /* Projektigénylésnél ha a tipus nem Beruházás, akkor a Besorolás ne is jelenjen meg, értéke nullázódjon. */
@@ -4475,6 +4482,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
                     } else if( baseName(location.href) == 'munkalap' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
+                    } else if( baseName(location.href) == 'munkalap' && !_get('megjegyzesek') /* Egyelőre csak a megjegyzések fül a kivétel */ && _jogok[5] == 0 ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Önnek nincs joga új munkalapot létrehozni!\'); void(0);');
+
                     } else if( baseName(location.href) == 'rendszeres_karbantartas' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
@@ -5433,4 +5443,77 @@ function ut_kulso_kivitlezo_beallit(){
         $('#szallito_id_autocomp').removeClass('csillag').attr('disabled', true).val('');
         $('#szallito_id').val('');
     }
+}
+
+/* Mobilcsoport beosztás véglegesítése */
+function beosztas_veglegesit(mehet){
+    a_csop = '';
+    $('.mobilcsop_a li').each(function () {
+        a_csop += $(this).data('recid')+',';
+    });
+    b_csop = '';
+    $('.mobilcsop_b li').each(function () {
+        b_csop += $(this).data('recid')+',';
+    });
+    cn_csop = '';
+    $('.mobilcsop_cn li').each(function () {
+        cn_csop += $(this).data('recid')+',';
+    });
+    d_csop = '';
+    $('.mobilcsop_d li').each(function () {
+        d_csop += $(this).data('recid')+',';
+    });
+    
+    if(!a_csop && !b_csop && !cn_csop && !d_csop){
+        alert2('Kérem előbb húzza be a munkalapokat a kívánt csoportba!', '', 'Hiba');
+        return false;
+    }
+    
+    if(!mehet){
+        veglegesit_gomb = '<input type="button" class="gomb zold" value="Igen" onclick="beosztas_veglegesit(\'mehet\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">';
+        alert2('Biztos, hogy véglegesíti a mobil csoporthoz rendelést?', veglegesit_gomb);
+        return false;
+    }
+    
+    $.ajax({
+        url : 'mobil_hozzarendel.php',
+        type: 'POST',
+        data: {
+            a_csop              : a_csop,
+            b_csop              : b_csop,
+            cn_csop             : cn_csop,
+            d_csop              : d_csop,
+            beosztas_veglegesit : new Date().getTime()
+        },
+        success: function (response) {
+            response = JSON.parse(response);
+            if(response.hiba){
+                alert2(response.hiba, '', 'Hiba');
+            }else{
+                location.reload();
+            }
+        }
+    });
+
+}
+
+function munkalapok_nyitottak_koze(mehet){
+    
+    if(!mehet){
+        nyitottak_koze_gomb = '<input type="button" class="gomb zold" value="Igen" onclick="munkalapok_nyitottak_koze(\'mehet\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">';
+        alert2('Vissza a nyitottak közé:<br><br>'+$('.mobilkeret li.kijelolt .munkalapszam').html()+' munkalapszám<br>'+$('.mobilkeret li.kijelolt .szalloda').html()+' szálloda<br>'+$('.mobilkeret li.kijelolt .hiba').html()+' hiba<br><br>Biztos, hogy visszahelyezi a munkalapot a nyitottak közé?', nyitottak_koze_gomb);
+        return false;
+    }
+    
+    $.ajax({
+        url : 'mobil_hozzarendel.php',
+        type: 'POST',
+        data: {
+            recid                    : $('.mobilkeret li.kijelolt').data('recid'),
+            munkalapok_nyitottak_koze: new Date().getTime()
+        },
+        success: function (response) {
+            location.reload();
+        }
+    });
 }

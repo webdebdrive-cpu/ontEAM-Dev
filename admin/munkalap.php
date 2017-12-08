@@ -50,7 +50,11 @@ if($tobb_kep){
 }
 
 
-
+// Ha mobilcsoportra és státuszra egyszerre akarunk szűrni:
+if (isset($_GET['felvett_mobilcsop'])) {
+    $_SESSION['o_szuro_feltetel']   = 'me|stat_id#op|equal#fe|08#es|#me|mobil#op|equal#fe|d#es|#';
+    $_SESSION['o_szuro_html']       = '<div class="dtr"><div class="dtc"><b class="zaro nyit">(</b></div><div class="dtc"><input class="mezo" value="stat_id" type="hidden"><input class="op" value="equal" type="hidden"><input class="felt" value="08" type="hidden"><span class="m_mezo">Státusz</span> <span class="m_op">=</span> <span class="m_felt">Felvéve</span> </div><div class="dtc"><b class="zaro zar">)</b></div><div class="dtc"><select style="width: 7rem" class="es_vagy" onchange="osszetett_szuro_mondat()"><option value="es|">ÉS</option><option value="va|">VAGY</option></select></div><div class="dtc"><b class="torol">×</b></div></div><div class="dtr"><div class="dtc"><b class="zaro nyit">(</b></div><div class="dtc"><input class="mezo" value="mobil" type="hidden"><input class="op" value="equal" type="hidden"><input class="felt" value="d" type="hidden"><span class="m_mezo">Mobilcsoport</span> <span class="m_op">=</span> <span class="m_felt">D</span> </div><div class="dtc"><b class="zaro zar">)</b></div><div class="dtc"><select style="width: 7rem" class="es_vagy" onchange="osszetett_szuro_mondat()"><option value="es|">ÉS</option><option value="va|">VAGY</option></select></div><div class="dtc"><b class="torol">×</b></div></div>';
+}
 
 // Munkalap készítése
 if( isset($_POST['munkalapKeszit']) ) {
@@ -386,11 +390,16 @@ if( isset($_POST['munkalapMobil']) ) {
                     $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(MOBILCSOPORT, 0), "`recid` = '{$id}'");
                     if( $sql === false ) { $db_error = '8'; }
 
+                    // Régi működése
                     // Folyamatbanra állítjuk
-                    if( $munkalap['stat_id'] != MUNKALAP_STAT_FOLYAMATBAN ) {
-                        if( !addStatusz( 'munkalap_statusz', $id, MUNKALAP_STAT_FOLYAMATBAN ) ) {
-                            $db_error = '9';
-                        }
+//                    if( $munkalap['stat_id'] != MUNKALAP_STAT_FOLYAMATBAN ) {
+//                        if( !addStatusz( 'munkalap_statusz', $id, MUNKALAP_STAT_FOLYAMATBAN ) ) {
+//                            $db_error = '9';
+//                        }
+//                    }
+                    // Beosztás nélkül státuszra állítjuk
+                    if( !addStatusz( 'munkalap_statusz', $id, MUNKALAP_STAT_BEOSZTAS_NELKUL ) ) {
+                        $db_error = true;
                     }
                 }
             }

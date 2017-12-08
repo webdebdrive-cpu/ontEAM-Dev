@@ -62,6 +62,7 @@
             MUNKALAP_STAT_HOZREND_MEGREND_VAR   => array('nev' => 'Megrendelés alatt',                  'szinkod' => '#f5a56c'),
             MUNKALAP_STAT_IGAZOLASRA_VAR        => array('nev' => 'Igazolás alatt',                     'szinkod' => ''),
             MUNKALAP_STAT_VIZSGALAT_ALATT       => array('nev' => 'Vizsgálat alatt',                    'szinkod' => ''),
+            MUNKALAP_STAT_BEOSZTAS_NELKUL       => array('nev' => 'Mobil beosztás nélkül',              'szinkod' => ''),
         ),
         'projektigenyles' => array(
             PRIGENY_STAT_NYITOTT                => array('nev' => 'Nyitott',                            'szinkod' => ''),

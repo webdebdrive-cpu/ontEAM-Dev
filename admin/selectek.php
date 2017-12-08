@@ -112,7 +112,7 @@ array_push($select_ho_soran, array('name' => 'szombat',     'value' => '6'));
 array_push($select_ho_soran, array('name' => 'vasárnap',    'value' => '7'));
 
 
-//Select tömb Ütemezés típushoz
+// Select tömb Ütemezés típushoz
 $select_honapok = array();
 array_push($select_honapok, array('name' => '- Válasszon -','value' => '' ));
 array_push($select_honapok, array('name' => 'január',       'value' => '1'));
@@ -149,7 +149,7 @@ if( !in_array(basename(self()), $kiveteles_oldalak) ){
 // Projektigénylés tipus
 $select_pri_tipus = array();
 array_push($select_pri_tipus, array('name' => '- Válasszon -',  'value' => '' ));
-//Ha mindent vagy saját prigényt kezelhetek, akkor látszik ez a kettő. Ha csak Tárgyi bejelentést tudok kezelni, akkor csak a Tárgyi eszköz marad
+// Ha mindent vagy saját prigényt kezelhetek, akkor látszik ez a kettő. Ha csak Tárgyi bejelentést tudok kezelni, akkor csak a Tárgyi eszköz marad
 if( !isset($_GET['uj']) || _jog(JOG_PRIGENY_B_MEGTEKINT)){
     array_push($select_pri_tipus, array('name' => 'Beruházás',      'value' => PRIGENY_TIPUS_BERUH  ));
 }
@@ -167,12 +167,19 @@ array_push($select_pri_besorol, array('name' => 'Fejlesztés',       'value' => 
 array_push($select_pri_besorol, array('name' => 'Felújítás',        'value' => PRIGENY_BESOROL_FELU  ));
 array_push($select_pri_besorol, array('name' => 'Rekonstrukció ',   'value' => PRIGENY_BESOROL_REKO  ));
 
-
 // Beosztás tipus
 $select_beosztas = array();
 array_push($select_beosztas, array('name' => '- Válasszon -', 'value' => '' ));
 array_push($select_beosztas, array('name' => 'Munkavégzés',     'value' => '1' ));
 array_push($select_beosztas, array('name' => 'Szabadság',       'value' => '2' ));
+
+// Mobilcsoport
+$select_mobilcsoport = array();
+array_push($select_mobilcsoport, array('name' => '- Válasszon -', 'value' => '' ));
+array_push($select_mobilcsoport, array('name' => 'A',   'value' => 'a' ));
+array_push($select_mobilcsoport, array('name' => 'B',   'value' => 'b' ));
+array_push($select_mobilcsoport, array('name' => 'CN',  'value' => 'cn'));
+array_push($select_mobilcsoport, array('name' => 'D',   'value' => 'd' ));
 
 // Anyag státuszok
 $munkAnyag_statusz = array(

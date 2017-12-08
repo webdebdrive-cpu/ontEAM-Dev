@@ -1512,6 +1512,53 @@ foreach($akt_tomb as $ertek){
             }
         break;
 
+		case 'select_mobilcsoport':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
+            $input = new Select($select_mobilcsoport, $sor['mobil']);
+            $input -> cssClass = $ertek['class'];
+            $input -> disabled = $ertek['disabled'];
+            $input -> id       = $ertek['name'];
+            $input -> name     = $ertek['name'];
+            $input -> naptar   = $ertek['naptar'];
+            $input -> onblur   = $ertek['onblur'];
+            $input -> onchange = $ertek['onchange'];
+            $input -> onclick  = $ertek['onclick'];
+            $input -> onfocus  = $ertek['onfocus'];
+            $input -> pre      = $ertek['pre'];
+            $input -> post     = $ertek['post'];
+            $input -> style    = $ertek['style'];
+
+            if($ertek['i']){
+                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
+            }
+
+            $html = $input -> getHtml();
+
+            // Összevonások lekezelése és tartalom összefűzése
+            if(!$osszevon_flag){
+                $mezok .= nl2("
+                                <div class=\"dtr{$ertek['dtr_class']}\">
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
+                                    <div class=\"dtc form_jobb\">
+                            ");
+            }else{
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+            }
+
+            $mezok .= $html;
+
+            if($ertek['osszevon']){
+                $osszevon_flag = 1;
+            }else{
+                $osszevon_flag = 0;
+                $mezok .= "</div></div>";
+            }
+        break;
+
         
 		case 'submit':
             $input = new Input($ertek['type']);

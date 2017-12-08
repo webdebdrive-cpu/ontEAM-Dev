@@ -127,7 +127,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
         foreach ($akt_tomb_szures as $ertek){
             if($ertek['name']==$_POST['mezo']){
 
-                //Checkbox esetén Igen/Nem
+                // Checkbox esetén Igen/Nem
                 if($ertek['type']=='checkbox'){
 
                     $feltetel = nl2('
@@ -237,6 +237,16 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
 
+                // select_mobilcsoport
+                }elseif($ertek['type']=='select_mobilcsoport'){
+                    
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+
+                    $input = new Select($select_mobilcsoport, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
+                    $feltetel = $input -> getHtml();
+
                 // select_pri_tipus
                 }elseif($ertek['type']=='select_pri_tipus'){
                     
@@ -257,14 +267,14 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
                     
-                //Általános esetben egy szabadszavas mező
+                // Általános esetben egy szabadszavas mező
                 }else{
 
-                    //Numerikus adatok operátora
+                    // Numerikus adatok operátora
                     if( strpos($ertek['class'], 'f_num')!==false){
                         $feltetel = '<input type="text" placeholder="Érték..." class="f_num f_felt" value="'.$_POST['felt'].'">';
                     
-                    //Dátum mezők
+                    // Dátum mezők
                     }elseif( strpos($ertek['class'], 'datepicker')!==false){
                         $feltetel = nl2('
                             <input type="text" placeholder=" . . " class="datepicker f_felt" value="'.$_POST['felt'].'">
@@ -303,7 +313,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
         }
         
-        //Megjegyzés esetén tartalmazza operátor + szabadszavas mező
+        // Megjegyzés esetén tartalmazza operátor + szabadszavas mező
         if($_POST['mezo']=='megjegyzes'){
 
             $feltetel = nl2('
@@ -312,7 +322,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
         }
         
-        //Jogosultság esetén
+        // Jogosultság esetén
         if($_POST['mezo']=='jogosultsag'){
 
             require_once 'jogosultsag.php';
@@ -339,7 +349,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
         }
         
-        //Státusz esetén
+        // Státusz esetén
         if($_POST['mezo']=='stat_id'){
             
             $feltetel = '<select class="f_felt">';
@@ -364,7 +374,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 }
 
 
-//Melyik oldalon vagyunk: annak megfelelő tömbbel dolgozunk
+// Melyik oldalon vagyunk: annak megfelelő tömbbel dolgozunk
 $tabla = str_replace('.php', '', basename(self()));
 $akt_tomb_szures = get_akt_tomb($tabla);
 $sz_mezo = '';

@@ -53,12 +53,12 @@ define('ELOT_FB_STAT_NYITOTT',              '01');
 define('ELOT_FB_STAT_VEGLEGESITVE',         '02');
 define('ELOT_FB_STAT_DONT_ROG',             '03');
 
-//Előterjesztés (BoD) státuszok
+// Előterjesztés (BoD) státuszok
 define('ELOT_BOD_STAT_NYITOTT',             '01');
 define('ELOT_BOD_STAT_VEGLEGESITVE',        '02');
 define('ELOT_BOD_STAT_DONT_ROG',            '03');
 
-//Munkalap státuszok
+// Munkalap státuszok
 define('MUNKALAP_STAT_NYITOTT',             '01');
 define('MUNKALAP_STAT_FOLYAMATBAN',         '02');
 define('MUNKALAP_STAT_ELUTASITVA',          '03');
@@ -75,8 +75,9 @@ define('MUNKALAP_STAT_DONTESRE_VAR',        '14');
 define('MUNKALAP_STAT_HOZREND_MEGREND_VAR', '15');
 define('MUNKALAP_STAT_IGAZOLASRA_VAR',      '16');
 define('MUNKALAP_STAT_VIZSGALAT_ALATT',     '17');
+define('MUNKALAP_STAT_BEOSZTAS_NELKUL',     '18');
 
-//Projektigénylés státuszok
+// Projektigénylés státuszok
 define('PRIGENY_STAT_NYITOTT',              '01' );
 define('PRIGENY_STAT_LETRE_ALATT',          '02' );
 define('PRIGENY_STAT_VEL_ALATT',            '03' );
@@ -90,29 +91,29 @@ define('PRIGENY_STAT_BOD_TERJESZT_VAR',     '10' );
 define('PRIGENY_STAT_VARAKOZO',             '11' );
 define('PRIGENY_STAT_JOVAHAGYVA',           '12' );
 
-//Menteni, csak ezekben a státuszokban lehet
+// Menteni, csak ezekben a státuszokban lehet
 function prigeny_mentheto_statuszok(){
     return array(PRIGENY_STAT_LETRE_ALATT, PRIGENY_STAT_NYITOTT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_HIANYPOTLAS, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_FB_TERJESZT_VAR, PRIGENY_STAT_BOD_TERJESZT_VAR);
 }
 
-//Menteni, csak ezekben a státuszokban lehet
+// Menteni, csak ezekben a státuszokban lehet
 function prigeny_fb_bod_var(){
     return array(PRIGENY_STAT_FB_TERJESZT, PRIGENY_STAT_FB_TERJESZT_VAR, PRIGENY_STAT_BOD_TERJESZT, PRIGENY_STAT_BOD_TERJESZT_VAR);
 }
 
-//Hiánypótlásra ezekből a sátuszokból lehet léptetni
+// Hiánypótlásra ezekből a sátuszokból lehet léptetni
 function prigeny_hianypotlasba_statuszok(){
     return array(PRIGENY_STAT_NYITOTT, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_FB_TERJESZT);
 }
-//Ezekben a státuszokban lehet jóváhagyni egy igénylést
+// Ezekben a státuszokban lehet jóváhagyni egy igénylést
 function prigeny_jovahagyhato_statuszok(){
     return array(PRIGENY_STAT_FB_TERJESZT, PRIGENY_STAT_NYITOTT, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_FB_TERJESZT, PRIGENY_STAT_BOD_TERJESZT);
 }
-//FB-be ezekből a státuszokból lehet lépteni
+// FB-be ezekből a státuszokból lehet lépteni
 function prigeny_fb_ele_statuszok(){
     return array(PRIGENY_STAT_NYITOTT, PRIGENY_STAT_HIANYPOTOLT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_BOD_TERJESZT);
 }
-//BOD-ba ezekből a státuszokból lehet lépteni
+// BOD-ba ezekből a státuszokból lehet lépteni
 function prigeny_bod_ele_statuszok(){
     return array(PRIGENY_STAT_FB_TERJESZT);
 }
@@ -170,9 +171,6 @@ define('JOG_MUNKALAP_KESZITHET',        2 );
 define('JOG_BEJELENTES_ELUTASIT',       41);
 define('JOG_BEJELENTES_VIZSGAL',        71);
 define('JOG_BEJELENTES_TORLESE',        72);
-define('JOG_MUNKALAP_MEGTEKINT',        3 );
-define('JOG_MUNKALAP_MEGTEKINT_SZALL',  4 );
-define('JOG_MUNKALAP_UJ_LETREHOZ',      5 );
 define('JOG_FELHASZNALOK_MEGTEKINT',    6 );
 define('JOG_FELHASZNALOK_KEZEL',        7 );
 define('JOG_ERTEKLISTAK_MEGTEKINT',     8 );
@@ -189,6 +187,9 @@ define('JOG_RAKTAR_MEGTEKINT',          17);
 define('JOG_RAKTAR_KEZEL',              18);
 define('JOG_CIKKTORZS_MEGTEKINT',       19);
 define('JOG_CIKKTORZS_KEZEL',           20);
+define('JOG_MUNKALAP_MEGTEKINT',        3 );
+define('JOG_MUNKALAP_MEGTEKINT_SZALL',  4 );
+define('JOG_MUNKALAP_UJ_LETREHOZ',      5 );
 define('JOG_MUNKALAP_VARAKOZTAT',       21);
 define('JOG_MUNKALAP_SAJAT_KEZEL',      22);
 define('JOG_MUNKALAP_SAJAT_SZALL_KEZEL',69);

@@ -78,90 +78,7 @@ if( isset($_POST['jogokhozzaad']) ) {
     exit();
 }
 
-// CSV generálása
-if (isset($_GET['csv'])) {
-
-    $mibol   = get_web_charset();
-    $mibe    = 'windows-1250';
-
-    if( !is_dir('export') ) {
-        mkdir('export');
-    }
-
-    if( !is_dir('export/csv') ) {
-        mkdir('export/csv');
-    }
-
-    // Régi fájlok törlése
-    $utvonal = 'export/csv/';
-    $fajlok = konyvtar_bejar($utvonal);
-    foreach($fajlok as $fajl){
-        if(filemtime($fajl)<(time()-60*60)){
-            unlink($fajl);
-        }
-    }
-
-    $fajlnev = $utvonal.'csv'.time().'.csv';
-    $open = fopen($fajlnev,'a');
-    if($open){
-
-        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
-
-        $sql = 'SELECT
-            `'.get_db_tabla().'cikktorzs`.`id` as \'Cikkszám\',
-            `'.get_db_tabla().'cikktorzs`.`nev` as \'Név\'
-            '.$lekerdezes_fromtol;
-
-
-        $query      = mysqli_query($db_kapcs, $sql);
-
-        $csvhead    = array();
-        while($fejlec_nevek = mysqli_fetch_field($query)){
-            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
-        }
-        fputcsv($open, $csvhead, ';');
-
-        while( $sorok = mysqli_fetch_assoc($query) ){
-            $csvcont = array();
-            foreach( $sorok as $kulcs => $sor ) {
-                if($kulcs=='Szálloda'){
-                    $sor = getErtek('nev', 'telephely', 'id', $sor);
-                }
-                if($kulcs=='Bejelentett hiba'){
-                    $sor = getErtek('info', 'erteklista', 'recid', $sor);
-                }
-                if($kulcs=='Helyiség'){
-                    $sor = getErtek('nev', 'obj', 'recid', $sor);
-                }
-                if($kulcs=='Gépnév'){
-                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
-                }
-                if($kulcs=='Típus'){
-                    $sor = erteklista(6, $sor);
-                }
-                if($kulcs=='Státusz'){
-                    $sor = getStatText('munkalap', $sor);
-                }
-
-                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
-            }
-            fputcsv($open, $csvcont, ';');
-        }
-    }
-    fclose($open);
-
-    header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=$megnevezes.csv");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-
-    echo fajlbol_olvas($fajlnev);
-
-    $weblap->leallit();
-    exit();
-}
-
-/** Tartalom */
+// Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
@@ -169,28 +86,6 @@ require_once('selectek.php');
 
     if( !$_GET['ajax'] ) {
         echo '<div id="szamlaBetolt">';
-    }
-
-    // Megjegyzések darabszáma
-    $megj_db = '';
-    $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
-    if( $megj_sorok ) {
-        $megj_db = ' ('.count($megj_sorok).')';
-    }
-
-    // Dokumentumok darabszáma
-    $dok_db = '';
-    $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
-    if( $dok_sorok ) {
-        $dok_db = 0;
-
-        foreach($dok_sorok as $dok_sor) {
-            if( is_file('../'.get_utvonal().$megnevezes.'/'.$dok_sor['utvonal']) ) {
-                $dok_db += 1;
-            }
-        }
-
-        $dok_db = ' ('.$dok_db.')';
     }
 
     if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {

@@ -40,6 +40,7 @@ function get_title(){
         case 'ktgnem.php'                   : $title .= 'Rendszer / Költségnemek';                      break;
         case 'login.php'                    : $title .= 'Rendszer / Felhasználók';                      break;
         case 'munkalap.php'                 : $title .= 'Munkák / Munkalapok';                          break;
+        case 'mobil_hozzarendel.php'        : $title .= 'Munkák / Munkalapok / Mobil hozzárendelé';     break;
         case 'utemezett_feladatok.php'      : $title .= 'Munkák / Ütemzett feladatok';                  break;
         case 'uzemeltetesi_naplo.php'       : $title .= 'Munkák / Üzemeltetési napló';                  break;
         case 'projektigenyles.php'          : $title .= 'Projektek / Projektigénylések';                break;

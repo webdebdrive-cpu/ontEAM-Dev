@@ -49,7 +49,7 @@ if($tobb_kep){
 
 }
 
-// Jogosulktásgok beállítsa
+// Jogosultságok beállítsa
 if( isset($_POST['jogokhozzaad']) ) {
     $id = $_POST['id'];
 
