@@ -13,20 +13,23 @@ function alert2(uzi, ok_gomb, cim) {
         ok_gomb = '<input type="button" class="link gomb" value="Ok" onclick="alert2()">';
     }
 
-    /*Üres alert eltűntetés*/
+    /* Üres alert eltűntetés */
     if(!uzi){
-
 
         $('#szurkit').fadeOut(200);
         $('#alert2').fadeOut(200, function(){
             $('#szurkit').remove();
             $('#alert2').remove();
         });
+        
+        /* Hibaüzenetkor ha adtunk "hibas_ide_focus" class-t egy inputra, akkor arra fókuszáljunk rá. */
+        $('input.hibas_ide_focus, textarea.hibas_ide_focus, select.hibas_ide_focus').focus().removeClass('hibas_ide_focus');
+        
         return true;
 
     }else{
 
-        /*kivesszük, mivel újból hozzá lesz adva*/
+        /* kivesszük, mivel újból hozzá lesz adva */
         $('#szurkit').remove();
         $('#alert2').remove();
 
@@ -61,7 +64,7 @@ function alert2(uzi, ok_gomb, cim) {
 function alert_kiir(uzi, ok_gomb, cim){
 
     if(!cim){
-        cim = 'Kérdés - megerősítés';
+        cim = 'Kérdés';
     }
 
     var alert2_html = '';
@@ -69,7 +72,7 @@ function alert_kiir(uzi, ok_gomb, cim){
 
     $('body').append('<div id="szurkit" class="dn"></div>');
     $('body').append(alert2_html);
-    $('#szurkit, .szurkit').css({'opacity' : 0.8});
+    $('#szurkit, .szurkit').css({'opacity' : 0.2});
 
     var windowWidth  = document.documentElement.clientWidth;
     var windowHeight = document.documentElement.clientHeight;

@@ -1,24 +1,22 @@
 <h2>Új Szálloda hozzáadása</h2>
 <form action="" id="addSzallodaForm" class="popupForm" method="post">
-    <div class="kozep" style="min-height: 26rem"> 
-        <div class="dt">
+    <div class="kozep" style="min-height: 26rem">
+        <div class="dt szalloda_hozzaad">
             <div class="dtr">
-                <div class="dtc">Szálloda:</div>
-                <div class="dtc form_jobb">
-                    <input type="text" name="addSzall_autocomp" id="szallodaKeres" class="gombm disableNav focus" value="" placeholder="Szálloda keresése..." autocomplete="off">
-                    <input type="hidden" name="addSzall" value="">
+                <div class="dtc">
+                    <h3>Gombok:</h3>
 
-                    <script>
-                        $(document).ready(function() {
-                            $('#szallodaKeres').autocomplete({
-                                'php_fajl'        : '../kapcs_autocomplete.php',
-                                'tabla'           : 'telephely',
-                                'oszlop_keres'    : 'nev',
-                                'oszlop_listaz'   : 'nev',
-                                'id_kiir'         : 'id'
-                            });
-                        });
-                    </script>
+                    <input type="button" name="megsem" class="gomb" value="Pesti szállodák" onclick="szallodakJelol( 'pesti' );" style="width: 12rem">
+                    <input type="button" name="megsem" class="gomb" value="Vidéki szállodák" onclick="szallodakJelol( 'videki' );" style="width: 12rem">
+                    <input type="button" name="megsem" class="gomb" value="Mind jelölése" onclick="szallodakJelol( 'mind' );" style="width: 12rem">
+                    <input type="button" name="megsem" class="gomb" value="Mind ürítése" onclick="szallodakJelol( 'urit' );" style="width: 12rem">
+                </div>
+                <div class="dtc form_jobb">
+                    <h3>Szállodák:</h3>
+
+                    <div class="szallodak_keret">
+                        <div id="addSzallodak" class="dt szallodak"></div>
+                    </div>
                 </div>
             </div>
         </div>

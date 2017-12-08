@@ -1,0 +1,109 @@
+<h2>Mobil személyzet beosztása</h2>
+<div class="kozep">
+    <table>
+        <tr>
+            <td class="vat" style="padding-right: 3rem; min-width: 20rem; max-height: 25rem; overflow-y: auto">
+                <br>Beosztás nélkül:
+                <ul class="dropItem item2 droptrue2 mobil_csop_x" id="beosztas_nelkul">
+                    
+                </ul>
+            </td>
+            <td class="vat csoportok" style="min-width: 20rem; max-height: 25rem; overflow-y: auto">
+                <span class="f25">A</span><br> csoport
+                <ul class="dropItem item2 droptrue2 mobil_csop_a"></ul>
+                <span class="f25">B</span><br> csoport
+                <ul class="dropItem item2 droptrue2 mobil_csop_b"></ul>
+                <span class="f25">CN</span><br> csoport
+                <ul class="dropItem item2 droptrue2 mobil_csop_cn"></ul>
+                <span class="f25">D</span><br> csoport
+                <ul class="dropItem item2 droptrue2 mobil_csop_d"></ul>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="kuldes">
+    <input type="button" class="gomb zold" value="Mentés" onclick="mobil_beosztas_login_ment()">
+    <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+</div>
+<script>
+	$(document).ready(function(){
+        $.ajax({
+            url : 'mobil_hozzarendel.php',
+            type: 'POST',
+            data: {
+                beosztasok_lekerdez   : new Date().getTime()
+            },
+            success: function(response){
+                response = JSON.parse(response);
+                $('#beosztas_nelkul').html(response.x);
+                $('.mobil_csop_a').html(response.a);
+                $('.mobil_csop_b').html(response.b);
+                $('.mobil_csop_cn').html(response.cn);
+                $('.mobil_csop_d').html(response.d);
+            }
+        });
+    });
+    
+    /* Drag and drop */
+    $(function() {
+        $('ul.droptrue2').sortable({
+            connectWith: 'ul.dropItem.item2',
+            start: function( event, ui ) {
+
+            },
+            stop: function( event, ui ) {
+
+            },
+
+            placeholder: 'highlight'
+        });
+
+        $('ul.dropfalse2').sortable({
+            connectWith: 'ul.dropItem.item2',
+            dropOnEmpty: false
+        });
+
+
+        $('.dropItem.item2').disableSelection();
+    });
+    
+    function mobil_beosztas_login_ment(){
+        
+        x_csop = '';
+        $('.mobil_csop_x li').each(function () {
+            x_csop += $(this).data('recid')+',';
+        });
+        a_csop = '';
+        $('.mobil_csop_a li').each(function () {
+            a_csop += $(this).data('recid')+',';
+        });
+        b_csop = '';
+        $('.mobil_csop_b li').each(function () {
+            b_csop += $(this).data('recid')+',';
+        });
+        cn_csop = '';
+        $('.mobil_csop_cn li').each(function () {
+            cn_csop += $(this).data('recid')+',';
+        });
+        d_csop = '';
+        $('.mobil_csop_d li').each(function () {
+            d_csop += $(this).data('recid')+',';
+        });
+        
+        $.ajax({
+            url : 'mobil_hozzarendel.php',
+            type: 'POST',
+            data: {
+                x_csop                      : x_csop,
+                a_csop                      : a_csop,
+                b_csop                      : b_csop,
+                cn_csop                     : cn_csop,
+                d_csop                      : d_csop,
+                mobil_beosztas_login_ment   : new Date().getTime()
+            },
+            success: function(response){
+                popupZar();
+            }
+        });
+    }
+</script>

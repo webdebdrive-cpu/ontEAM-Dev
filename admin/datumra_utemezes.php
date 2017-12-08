@@ -8,7 +8,7 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
 	$dlast = null;
 	$i = 0;
 	
-	while ($dlast != $dnext and $dnext < date(DATEFORMAT, strtotime('+1 year')))  //legfeljebb a következő 10 évre keressük ütemezhetőséget
+	while (($dlast != $dnext or $dnext < date(DATEFORMAT, strtotime("+1 day"))) and $dnext < date(DATEFORMAT, strtotime('+2 year')))  //legfeljebb a következő 10 évre keressük ütemezhetőséget
 	{
 		$i = $i + 1;
 		$dlast = $dnext;
@@ -16,9 +16,9 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
 		$dlast = getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $cciklho, $cciklhet, $cciklnap);
 		$dnext = validnextdate($dlast, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d);
 		$lstart = true; //ha elsőnek kiszámolt esedékesség érvénytelen, újrakezdjük esedékesség számítását mai naptól
-		if ($i == 1000) //ha végtelen ciklusba keveredne
+		if ($i == 100) //ha végtelen ciklusba keveredne
 		{
-			$dnext = "Hibaüzenet, hogy végtelen ciklus miatt nem sikerült meghatározni semmit.";
+			$dnext = "Nem ütemezhető !";
 			break;
 			
 		}
@@ -39,7 +39,11 @@ function validnextdate($dnext, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cveg
 	mert a következő évekre nem vizsgáljuk a tárgyévet
 	kommentekben: tárgyév kifejezés azt az évet jelenti, amelyik m.daktkezd_d-ben van */
 
-	$nev = date("Y", strtotime($dnext));
+	//$nev = date("Y", strtotime($dnext)); // Ez magyar dátum formátumnál sajnos nem jó
+	$date = DateTime::createFromFormat(DATEFORMAT, $dnext);
+	$nev = $date->format("Y");
+
+	
 	if ($nidoszakos == 0) //folyamatos ütemezés
 	{
 		//+1, mert mára nem ütemezhet
@@ -137,7 +141,7 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 			$command = 'getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
 				. '1' . ',"' . $cciklho . '","' . $cciklhet . '","' . $cciklnap . '"'
 				. ',"' . $dnext . '");';
-			eval('$returnvalue = '.$command);
+			eval('$returnvalue = '.$command);			
 			return $returnvalue;
 		}
 		else
@@ -155,8 +159,10 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 			. ',"' . $cciklnap . '"'
 			. ',"' . (empty($dlast) ? date(DATEFORMAT, time()) : $dlast) . '");';
 		eval('$returnvalue = '.$command);
+		
 		return $returnvalue;
 	}
+	
 }
 
 function getnextdate_l( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
@@ -195,7 +201,7 @@ function getnextdate_w ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 
 	sort($anap, SORT_NUMERIC);
 	
-	if ($ndow >= $anap[$nnapok]) //a hét utolsó ütemezett napján vagy utána
+	if ($ndow >= $anap[$nnapok-1]) //a hét utolsó ütemezett napján vagy utána
 	{
 		$nciklszorz = max($nciklszorz,1);
 		return dateadd ($dlast, ((max($nciklszorz, 1) * 7) - $ndow + $anap[0]), 0, 0);                          //a hét első ütemezett napja
@@ -301,7 +307,7 @@ function dateadd ($stringdate, $days, $months, $years)
 function dowFormStringdate($stringdate)
 {
 	$date = DateTime::createFromFormat(DATEFORMAT, $stringdate);
-	$returnvalue = $date->format('N') + 1 % 7;
+	$returnvalue = $date->format('N') % 7;
 	return $returnvalue;
 }
 

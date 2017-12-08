@@ -6,7 +6,7 @@
                 <div class="dtc">Véleményező:</div>
                 <div class="dtc form_jobb">
                     <input type="text" name="addVelemenyezo_autocomp" id="velemenyezoKeres" class="gombm disableNav focus" value="" placeholder="Véleményező keresése..." autocomplete="off">
-                    <input type="hidden" name="addVelemenyezo" value="">
+                    <input type="hidden" name="addVelemenyezo" id="addVelemenyezo" value="">
 
                     <script>
                         $(document).ready(function() {
@@ -27,5 +27,39 @@
     <div class="kuldes">
         <input type="submit" name="elkuld" value="Mentés">
         <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+        <input type="hidden" id="korabbi_velemeny_torlesevel">
     </div>
 </form>
+<script>
+/* Véleményező hozzáadása projektigényléshez */
+function addVelemenyezoFg( pr_igeny_recid, that ) {
+
+    var login_recid = $('#addVelemenyezo').val();
+
+    if( pr_igeny_recid ) {
+        var ajax = $.ajax({
+         	url : 'projektigenyles.php',
+         	type: 'POST',
+         	data: esamp2es('login_recid=' + login_recid + '&amp;pr_igeny_recid=' + pr_igeny_recid + '&amp;korabbi_velemeny_torlesevel=' + $('#korabbi_velemeny_torlesevel').val() + '&amp;addVelemenyezo=' + new Date().getTime()),
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, 'Hiba');
+                        return false;
+                    }
+
+         			szamlaBetolt(pr_igeny_recid, baseName(location.href) + '.php', 'velemenyezok').done(function() {
+                        $('#naploSor-' + response.kapcsID).addClass('uj');
+                    });
+
+                    popupZar();
+         		}
+         	}
+        });
+    }
+
+    return false;
+}
+</script>

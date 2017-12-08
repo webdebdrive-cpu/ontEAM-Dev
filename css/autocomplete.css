@@ -23,7 +23,7 @@
 	cursor: pointer;
 	list-style-type: none;
 	overflow: hidden;
-    padding: 1.0rem;
+    padding: 0.2rem 0.5rem;
 }
 
 #autocomplete ul li:last-child {

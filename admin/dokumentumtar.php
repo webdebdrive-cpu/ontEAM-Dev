@@ -7,11 +7,6 @@ $akt_tomb               = $szamlak_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'dokumentumot';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-$gyorskereso_text       = '';       //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
-$oszlop_keres           = 'nev';                //Oszlopnevek, melyben keresünk (több oszlop is felsorolható vesszőkkel)
-$oszlop_listaz          = 'nev';                //Oszlopnevek, melyeket kilizátunk (több oszlop is felsorolható vesszőkkel)
-$gyorskereso_id         = 'ksz';                //Gyorskereső input neve és ID-ja
-
 //Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
@@ -32,7 +27,7 @@ $szamla_html = '';
 $tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
-    function get_tobbkep_csakkep()  { return 'true';    } // Lényeges, hogy egy string legyen
+    function get_tobbkep_csakkep()  { return '.jpg,.png';} // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
     function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
         global $megnevezes;
@@ -48,34 +43,12 @@ if( !$_GET['ajax'] ) {
 }
 require_once('selectek.php');
 
-if($gyorskereso_text){
-    $dl = nl2('
-                <input type="text" value="'.htmlspecialchars($_GET['ksz']).'" name="'.$gyorskereso_id.'" id="'.$gyorskereso_id.'" placeholder="'.$gyorskereso_text.'" autocomplete="off">
-                <script>
-                    $(document).ready(function() {
-                        $(\'#'.$gyorskereso_id.'\').autocomplete({
-                            \'php_fajl\'        : \'../autocomplete.php\',
-                            \'tabla\'           : \''.$megnevezes.'\',
-                            \'oszlop_keres\'    : \''.$oszlop_keres.'\',
-                            \'oszlop_listaz\'   : \''.$oszlop_listaz.'\'
-                        });
-                    });
-                </script>
-            ');
-    $gyk_sablon  = fajlbol_olvas('../sablon/admin/gyorskereso.html',  true);
-    $gyk_sablon2 = fajlbol_olvas('../sablon/admin/gyorskereso2.html', true);
-    $gyk_mit     = array('{ACTION}', '{FELIRAT}',       '{DL}', '{EGYEB_DE_FORM_NEM_LEHET}');
-    $gyk_mivel   = array(self(),     $gyorskereso_text, $dl);
-    $gyk  = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon);
-    $gyk2 = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon2);
-}
-
     if( !$_GET['ajax'] ) {
         echo '<div id="szamlaBetolt">';
     }
 
 
-    if( isset($_GET['modosit']) || isset($_GET['szamlak']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['szamlak']) || isset($_GET['dokumentumok']) ) {
         /* Számla fülek */
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
@@ -132,18 +105,22 @@ if($gyorskereso_text){
                     $link = 'projektigenyles.php?id='.$fajl[$apa_id].'&amp;velemenyezok';
                 }
                 $fajlok_html .= nl2('
-                    <li id="'.$azon.'" class="kijSor" title="'.$fajl['megj'].'" data-id="'.$fajl['recid'].'" data-i="'.$i.'">
-                        <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$fajl['recid'].'\');</script>
+                    <li id="'.$azon.'" class="nohover" title="'.$fajl['megj'].'" data-id="'.$fajl['recid'].'" data-i="'.$i.'">
                         <div class="kep">
-                            <div>'.$kep -> getHtml().'</div>
+                            <div>
+                                <a href="'.$kep_utvonal.'" target="_blank">
+                                    '.$kep -> getHtml().'
+                                </a>
+                           </div>
                         </div>
-                        <div id="megj_'.$azon.'_felirat" class="felirat f12 link c"'.$megj_szerkesztes_onclick.'>'.$felirat.'</div>
+                        <div id="megj_'.$azon.'_felirat" class="felirat f12 c"'.$megj_szerkesztes_onclick.'>
+                            <a href="'.$kep_utvonal.'" target="_blank">
+                                '.$felirat.'
+                            </a>
+                        </div>
                         <div class="nagyit">
                             <a href="'.$link.'" target="_blank" title="Ugrás menüpontra">
                                 <i class="material-icons">list</i>
-                            </a>
-                            <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
-                                <i class="material-icons">file_download</i>
                             </a>
                         </div>
                     </li>
@@ -154,6 +131,8 @@ if($gyorskereso_text){
         }
         if($fajlok_html){
             $fajlok_html = '<ul id="sorrendezes_tobbkep">'.$fajlok_html.'</ul>';
+        } else {
+            $fajlok_html = 'üres mappa';
         }
 
         echo $fajlok_html;

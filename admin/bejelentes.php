@@ -12,7 +12,8 @@ Játékszabályok:
 
 require_once('../weblap.php');
 
-if( !_jog(JOG_BEJELENTES_MEGTEKINT) ) {
+
+if( !_jog(JOG_BEJELENTES_MEGTEKINT) && !_jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -23,19 +24,14 @@ if( !_jog(JOG_BEJELENTES_MEGTEKINT) ) {
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
 }
 
-//Config
+// Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $bejelentes_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'bejelentést';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-$gyorskereso_text       = '';       //Gyorskereső felirat. Ha üres akkor nincs gyorskeresés
-$oszlop_keres           = 'nev';                //Oszlopnevek, melyben keresünk (több oszlop is felsorolható vesszőkkel)
-$oszlop_listaz          = 'nev';                //Oszlopnevek, melyeket kilizátunk (több oszlop is felsorolható vesszőkkel)
-$gyorskereso_id         = 'ksz';                //Gyorskereső input neve és ID-ja
-
-//Változók beállítása
+// Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
 $fajloszlop             = 'kep';                //Kép (vagy kivételes esetekben más fájl) oszlopneve.
@@ -51,11 +47,11 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
-//Több kép menedzseléséhez
+// Több kép menedzseléséhez
 $tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
-    function get_tobbkep_csakkep()  { return 'false';   } // Lényeges, hogy egy string legyen
+    function get_tobbkep_csakkep()  { return '';        } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
     function get_tobbkep_kepmeret() { return 10;        } // MB-ban
     function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
         global $megnevezes;
@@ -64,6 +60,7 @@ if($tobb_kep){
     function get_tobbkep_tabla(){ return 'bejelentes_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 }
 
+// Új bejelentéskor előbb szállodát választunk, popup-ban feljön egy új szálloda lista
 if( isset($_POST['bejSzallodaValaszt']) ) {
     $szall_idk = get_akt_login_szallodai();
 
@@ -71,12 +68,12 @@ if( isset($_POST['bejSzallodaValaszt']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $szall_idk ) {
-        $sql = $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN ('".implode("', '", $szall_idk)."')", 'nev', '');
+        $sql = $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN ('".implode("', '", $szall_idk)."') AND `inaktiv`=0", 'nev');
         if( $sql === false ) { $db_error = true; }
 
         $html = '';
         if( $szallodak ) {
-            $html .= '<select onchange="bejBejelentok( this.value );" style="width: 40rem;"><option value="">- Válassz -</option>';
+            $html .= '<select onchange="bejBejelentok( this.value );" style="width: 40rem;"><option value="">- Válasszon -</option>';
 
             foreach($szallodak as $szalloda) {
                 $html .= '<option value="'.$szalloda['id'].'">'.$szalloda['nev'].'</option>';
@@ -87,14 +84,12 @@ if( isset($_POST['bejSzallodaValaszt']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
-
             echo json_encode(array(
                 'statusz' => 'siker',
                 'html' => $html
             ));
         } else {
             mysqli_rollback($db_kapcs);
-
             echo json_encode(array(
                 'hiba' => tranzakcioHiba()
             ));
@@ -105,46 +100,118 @@ if( isset($_POST['bejSzallodaValaszt']) ) {
     exit();
 }
 
-/* Bejelentés elutasítása */
+
+// Folyamatban levő munkák
+if( isset($_GET['folyamatban_munkak']) ) {
+    
+    $telephely_id = $_GET['telephely_id'];
+    $obj_id       = $_GET['obj_id'];
+    $mod          = $_GET['mod'];
+
+    $where = '';
+    if( $mod == 'true' ) {
+        $where = " AND `loginnev` != '".$_SESSION[get_db_tabla().'user']."'";
+    }
+
+    $bejelentesek = $adatbazis_kapcsolat->s('ikt_szam surgos telephely_id obj_id hiba_id hiba_text', 'bejelentes', "`telephely_id` = '{$telephely_id}' AND `obj_id` = '{$obj_id}'".$where);
+
+    if( $bejelentesek ) {
+        $html = nl2('
+            <div class="mobilkeret">
+                <table class="csikos">
+                    <tr>
+                        <th>Munkalap szám</th>
+                        <th>Szálloda</th>
+                        <th>Hely leírása</th>
+                        <th>Bejelentett hiba</th>
+                        <th>Hiba leírása</th>
+                        <th>Sürgős</th>
+                    </tr>
+        ');
+
+        foreach($bejelentesek as $bejelentes) {
+            // Telephely
+            $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bejelentes['telephely_id'], '', '1');
+            $telephely = $telephely[0]['nev'];
+
+            // Helység
+            $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$bejelentes['obj_id'], '', '1');
+            $helyseg = $helyseg[0]['nev'];
+
+            // Hiba
+            $hiba = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=4 AND `recid`='{$bejelentes['hiba_id']}'");
+
+            $surgos = '';
+            if( $bejelentes['surgos'] ) {
+                $surgos = nl2('
+                    <span class="icon piros">
+                        <i class="material-icons">error</i>
+                    </span>
+                ');
+            }
+
+            $html .= nl2('
+                <tr>
+                    <td>'.$bejelentes['ikt_szam'].'</td>
+                    <td>'.$telephely.'</td>
+                    <td>'.$helyseg.'</td>
+                    <td>'.nl2br($hiba['info']).'</td>
+                    <td>'.nl2br($bejelentes['hiba_text']).'</td>
+                    <td>'.$surgos.'</td>
+                </tr>
+            ');
+        }
+
+        $html .= '</table></div>';
+
+        echo json_encode(array(
+            'hiba' => 'Folyamatban lévő munkák listája'.$html.'Folytatja a hibabejelentést?',
+            'gomb' => '<p class="c"><input class="gomb zold" type="button" value="Igen" onclick="bejelentes_mehet = true; $(\'#szerk_form\').submit();"><input class="gomb piros" type="button" value="Nem" onclick="alert2()"></p>'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    echo json_encode(array('siker' => 1));
+
+    $weblap->leallit();
+    exit();
+}
+
+// Bejelentés elutasítása
 if( isset($_POST['bejelentesElutasit']) ) {
+    
     $recid          = $_POST['recid'];
     $validate       = $_POST['validate'];
     $elutasitas_id  = $_POST['elutasitas_id'];
-    $memo           = $_POST['memo'];
+    $erteklista     = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$elutasitas_id}'");
+    $memo           = $erteklista['info']."\r\n".$_POST['memo'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
-        $sql = $bejelentes = $adatbazis_kapcsolat->s('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
+        $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
+        if( $bejelentes === false ) { $db_error = true; }
 
-        if( $sql === false ) {
-            $db_error = true;
-        }
-
-        if( $bejelentes ) {
-            $bejelentes = $bejelentes[0];
-
-            if( $bejelentes['stat_id'] != BEJELENTES_STAT_KESZ_IG ) {
-                echo json_encode(array(
-                    'hiba' => 'Csak Kész, igazolásra váró bejelentések utasíthatók el!',
-                ));
-
-                $weblap->leallit();
-                exit();
-            }
-        }
-
-        if( $validate == 'true' ) {
+        if( $bejelentes['stat_id'] != BEJELENTES_STAT_KESZ_IG ) {
             echo json_encode(array(
-                'statusz' => 'siker'
+                'hiba' => 'Csak Kész, igazolás alatti bejelentések utasíthatók el!',
             ));
 
             $weblap->leallit();
             exit();
         }
+        
+        if( $validate == 'true' ) {
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+            $weblap->leallit();
+            exit();
+        }
 
-        /* Elutasítás */
+        // Elutasítás
         if( $bejelentes ) {
             if( !addStatusz( 'bejelentes_statusz', $recid, BEJELENTES_STAT_VIZSG_ALATT, $elutasitas_id, $memo ) ) {
                 $db_error = true;
@@ -155,40 +222,13 @@ if( isset($_POST['bejelentesElutasit']) ) {
                 }
             }
 
-            /* Megnézzük a munkalapjait */
-            $munkalap_kapcs = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$recid}'", '', '1');
-            if( $munkalap_kapcs === false ) { $db_error = true; }
-
-            if( $munkalap_kapcs ) {
-                $munkalap_kapcs = $munkalap_kapcs[0];
-
-                /* Lekérdezzük a további bejelentéseit kivéve a mostanit */
-                $munk_kapcsok = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '".$munkalap_kapcs['munkalap_id']."' AND `bejelentes_id` != '{$recid}'", '', '');
-                if( $munk_kapcsok === false ) { $db_error = true; }
-
-                if( $munk_kapcsok ) {
-                    foreach($munk_kapcsok as $munk_kapcs) {
-                        if( !addStatusz( 'bejelentes_statusz', $munk_kapcs['bejelentes_id'], BEJELENTES_STAT_VIZSG_ALATT, $elutasitas_id, $memo ) ) {
-                            $db_error = true;
-                        }
-                        if( $memo ) {
-                            if( addMegj('bejelentes', $munk_kapcs['bejelentes_id'], $memo) === false ) {
-                                $db_error = true;
-                            }
-                        }
-                    }
-                }
-            }
-
             if( !$db_error ) {
                 mysqli_commit($db_kapcs);
-
                 echo json_encode(array(
                     'statusz' => 'siker'
                 ));
             } else {
                 mysqli_rollback($db_kapcs);
-
                 echo json_encode(array(
                     'hiba' => tranzakcioHiba()
                 ));
@@ -200,7 +240,7 @@ if( isset($_POST['bejelentesElutasit']) ) {
     exit();
 }
 
-/* Bejelentés igazolása */
+// Bejelentés igazolása
 if( isset($_POST['bejelentesIgazolas']) ) {
     $recid = $_POST['recid'];
 
@@ -219,7 +259,7 @@ if( isset($_POST['bejelentesIgazolas']) ) {
 
             if( $bejelentes['stat_id'] != BEJELENTES_STAT_KESZ_IG ) {
                 echo json_encode(array(
-                    'hiba' => 'Csak Kész, igazolásra váró bejelentések igazolhatóak!',
+                    'hiba' => 'Csak Kész, igazolás alatti bejelentések igazolhatóak!',
                 ));
 
                 $weblap->leallit();
@@ -231,7 +271,7 @@ if( isset($_POST['bejelentesIgazolas']) ) {
         if( isset($_POST['csak_kerdezunk']) && $_POST['csak_kerdezunk'] != 'false' ) {
             echo json_encode(array(
                 'hiba' => 'Ha folytatja, a bejelentés lezárt státuszra vált. Folytatja?',
-                'gomb' => '<input class="gomb piros" value="Igen" onclick="bejelentesIgazolas( \''.$recid.'\' );" type="button"><input class="gomb zold" value="Nem" onclick="alert2()" type="button">'
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="bejelentesIgazolas( \''.$recid.'\' );" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
             $weblap->leallit();
@@ -262,6 +302,151 @@ if( isset($_POST['bejelentesIgazolas']) ) {
     $weblap->leallit();
     exit();
 }
+
+// Bejelentés reklamáció elfogadása
+if( isset($_POST['bejelentesReklamacioElfogad']) ) {
+    $recid = $_POST['recid'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+
+        // Státusz ellenőrzés
+        $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
+        if( $bejelentes === false ) { $db_error = true; }
+        if( $bejelentes['stat_id'] != BEJELENTES_STAT_VIZSG_ALATT ) {
+            echo json_encode(array(
+                'hiba'  => 'Csak igazolás alatti bejelentést lehet elfogadni!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Jog ellenőrzés
+        if( !_jog(JOG_BEJELENTES_VIZSGAL) ) {
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga reklamációt elfogadni!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+
+            echo json_encode(array(
+                'hiba' => 'Biztosan elfogadja a reklamációt?',
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="bejelentesReklamacioElfogad();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Státusz léptetés
+        if( !addStatusz( 'bejelentes_statusz', $recid, BEJELENTES_STAT_FOLYAMATBAN ) ) {
+            $db_error = true;
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+            echo json_encode(array(
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba',
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+
+// Bejelentés reklamáció elutasítása
+if( isset($_POST['bejelentesReklamacioElutasit']) ) {
+    $recid = $_POST['recid'];
+    $memo  = $_POST['memo'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+
+        // Státusz ellenőrzés
+        $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
+        if( $bejelentes === false ) { $db_error = true; }
+        if( $bejelentes['stat_id'] != BEJELENTES_STAT_VIZSG_ALATT ) {
+            echo json_encode(array(
+                'hiba'  => 'Csak igazolás alatti bejelentést lehet elutasítani!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Jog ellenőrzés
+        if( !_jog(JOG_BEJELENTES_VIZSGAL) ) {
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga reklamációt elutasítani!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+        
+        // Indoklás ellenőrzése
+        if( !$memo ) {
+            echo json_encode(array(
+                'hiba'  => 'Kérjük adja meg az indoklást!',
+                'gomb'  => '<input type="button" class="link gomb" value="Ok" onclick="alert2();">',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Státusz léptetés
+        if( !addStatusz( 'bejelentes_statusz', $recid, BEJELENTES_STAT_LEZART, '', $memo ) ) {
+            $db_error = true;
+        }
+        
+        // Megjegyzés hozzáadása
+        if(addMegj( 'bejelentes', $recid, $memo )===false){
+            $db_error = true;
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+            echo json_encode(array(
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba',
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+
 
 /* CSV generálása */
 if (isset($_GET['csv'])) {
@@ -361,27 +546,6 @@ if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
 require_once('selectek.php');
-if($gyorskereso_text){
-    $dl = nl2('
-                <input type="text" value="'.htmlspecialchars($_GET['ksz']).'" name="'.$gyorskereso_id.'" id="'.$gyorskereso_id.'" placeholder="'.$gyorskereso_text.'" autocomplete="off">
-                <script>
-                    $(document).ready(function() {
-                        $(\'#'.$gyorskereso_id.'\').autocomplete({
-                            \'php_fajl\'        : \'../autocomplete.php\',
-                            \'tabla\'           : \''.$megnevezes.'\',
-                            \'oszlop_keres\'    : \''.$oszlop_keres.'\',
-                            \'oszlop_listaz\'   : \''.$oszlop_listaz.'\'
-                        });
-                    });
-                </script>
-            ');
-    $gyk_sablon  = fajlbol_olvas('../sablon/admin/gyorskereso.html',  true);
-    $gyk_sablon2 = fajlbol_olvas('../sablon/admin/gyorskereso2.html', true);
-    $gyk_mit     = array('{ACTION}', '{FELIRAT}',       '{DL}', '{EGYEB_DE_FORM_NEM_LEHET}');
-    $gyk_mivel   = array(self(),     $gyorskereso_text, $dl);
-    $gyk  = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon);
-    $gyk2 = str_replace($gyk_mit, $gyk_mivel, $gyk_sablon2);
-}
 
     if( !$_GET['ajax'] ) {
         echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
@@ -410,7 +574,7 @@ if($gyorskereso_text){
     }
 
     if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['munkalapok']) ) {
-        /* Számla fülek */
+        // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tortenet'      => 'Történet',
@@ -436,10 +600,10 @@ if($gyorskereso_text){
         );
     }
 
-    /* Gombok kirajzolása minden oldalra */
+    // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) ) {
-        /* Gombok */
+        // Gombok
         $gombok .= nl2('
             <div class="form_kuldes">
                 <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
@@ -450,170 +614,116 @@ if($gyorskereso_text){
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
+                $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
             }
         }
 
-        /* Műveletek box */
+        // Műveletek box
         $gombok = nl2('
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'
             </div>
         ');
-    } else {
-        $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
 
-        //Js, a törlés gombhoz
+    // nem új feltöltés (de minden más fül...)
+    } else {
+
+        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
+
+        // Js, a törlés gombhoz
 	    $gombok .= '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
-        /* Kijelöltekkel való művelet gombok */
-        /*
-        Bejelentéseknél nem lesznek csoportos műveletű gombok. Ezek a funkciók megszűntek 2017.09.06
-        if( _jog(JOG_DISZPECSER) ) {
-
+        // Nyitott státuszú bejelentés elutasítása
+        if( $sor['stat_id']==BEJELENTES_STAT_NYITOTT && _jog(JOG_BEJELENTES_ELUTASIT) ) {
             $gombok .= nl2('
-                <div id="kmCont">
-                    <script>
-                        csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                    </script>
-                    <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb" value="Csoportosítás..." title="Csoportosítás...">
-                        <div class="muv">
-                            <ul>
-                                <li><a onclick="csoportMuvelet(\'csoporthoz_adas\');">Csoporthoz adás</a></li>
-                                <li><a onclick="if(balnav_kijelol_ell(\'egy csoportot szabad megbontani\')){ alert2(\'Biztos kiveszi a kijelölt bejelentéseket a megadott csoportokból?\', csoportKiveszGomb); }">Csoportból kivétel</a></li>
-                                <li><a onclick="csa_alert();">Csoport átnevezése</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
-                        <div class="muv">
-                            <ul>
-                                <li><a onclick="varolistahozAdas(\'csak kérdezünk még\');">Várólistához adás</a></li>
-                                <li><a onclick="varolistabolKivetel(\'csak kérdezünk még\');">Várólistból kivétel</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            ');
-        }*/
-
-        // Akinek van joga hozzá, csak az tud elutasítani, és csak akkor, ha még nem készült belőle munkalap
-        $van_munkalapja = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
-        if( $sor['stat_id']!=BEJELENTES_STAT_ELUTASITVA && _jog(JOG_BEJELENTES_ELUTASIT) && !$van_munkalapja ) {
-            $gombok .= '<input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'bejelentesElutasit\');">';
+                            <script> gomb_b_elut = \'<input type="button" class="gomb zold" onclick="csoportMuvelet(\\\'elutasitas\\\');" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
+                            <input type="button" class="gomb" value="Bejelentés elutasítása" title="Bejelentés elutasítása" onclick="alert2(\'Biztosan elutasítja a bejelentést?\', gomb_b_elut);">
+                        ');
         }
 
-        /* Törlés gomb hibaüzenetei */
-        //Jogosutságkezelés: diszpécser nem törölhet
-        if(_jog(JOG_DISZPECSER)) {
-            $gombok .= nl2('
-                    <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nem törölhet bejelentést diszpécserként!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">
-                    <div id="diszpecser" class="dn">Innen fogja tudni a JS, hogy diszpécser vagyunk</div>
-                    ');
+        // Reklamációk
+        if( $sor['stat_id']==BEJELENTES_STAT_VIZSG_ALATT && _jog(JOG_BEJELENTES_VIZSGAL) ) {
+            $gombok .= '<input type="button" class="gomb" value="Reklamáció elfogadása" onclick="bejelentesReklamacioElfogad(\'csak kérdezünk még\');"> ';
+            $gombok .= '<input type="button" class="gomb" value="Reklamáció elutasítása" onclick="csoportMuvelet(\'bejelentesReklamacioElutasit\');"> ';
+        }
 
-        //Ha nem diszpécser
+        // Törlés gomb hibaüzenetei
+        // Csak nyitott státuszú törölhető
+        if($sor['stat_id']!=BEJELENTES_STAT_NYITOTT) {
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        // Csak törlés joggal törölhető
+        } else if( !_jog(JOG_BEJELENTES_TORLESE) ) {
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga bejelentést törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         } else {
 
-            $statusz = $adatbazis_kapcsolat->s2('stat_id', $megnevezes.'_statusz', "`{$megnevezes}_recid`='".$_GET['id']."'", 'insert_dt desc', '1');
+            $obj = $adatbazis_kapcsolat -> s2('nev telephely_id', 'obj', "`recid`='{$sor['obj_id']}'");
 
-            //Csak nyitott státuszú törölhető
-            if($statusz['stat_id'] != BEJELENTES_STAT_NYITOTT) {
+            $szalloda = $adatbazis_kapcsolat -> s2('nev', 'telephely', "`id`='{$obj['telephely_id']}'");
 
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-
-            //Csak saját bejelentés törölhető!
-            } elseif($sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
-
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-
-            } else {
-
-                $obj = $adatbazis_kapcsolat -> select('nev telephely_id', 'obj', "`recid`='{$sor['obj_id']}'");
-                $obj = $obj[0];
-
-                $szalloda = $adatbazis_kapcsolat -> select('nev', 'telephely', "`id`='{$obj['telephely_id']}'");
-                $szalloda = $szalloda[0];
-
-                $gep_nev = '';
-                if($sor['gep_id']){
-                    $gep = $adatbazis_kapcsolat -> select('nev', 'eszkozkezeles', "`recid`='{$sor['gep_id']}'");
-                    $gep = $gep[0];
-                    if($gep['nev']){
-                        $gep_nev = '<br>Gép: '.addslashes($gep['nev']);
-                    }
+            $gep_nev = '';
+            if($sor['gep_id']){
+                $gep = $adatbazis_kapcsolat -> s2('nev', 'eszkozkezeles', "`recid`='{$sor['gep_id']}'");
+                if($gep['nev']){
+                    $gep_nev = '<br>Gép: '.addslashes($gep['nev']);
                 }
-
-                //Hiba felirat, csak ha van hiba
-                if($sor['hiba_text']){
-                    $sor['hiba_text'] = '<br>Hiba: '.addslashes($sor['hiba_text']);
-                }
-                $gombok .= nl2('
-                    <script>var torol_kerdes = \'
-                        <div class="l">
-                            Bejelentés szám: '.$sor['ikt_szam'].'
-                            <br>Szálloda: '.addslashes($szalloda['nev']).'
-                            <br>Helyiség: '.addslashes($obj['nev']).'
-                            '.$sor['hiba_text'].'
-                            '.$gep_nev.'
-                        </div>
-                        <br>Biztosan törli ezt a '.$szoveg.'?
-                    \';</script><input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(torol_kerdes, gomb'.$_GET['id'].')" value="Töröl" title="Töröl">
-                ');
             }
 
+            //Hiba felirat, csak ha van hiba
+            if($sor['hiba_text']){
+                $sor['hiba_text'] = '<br>Hiba: '.addslashes($sor['hiba_text']);
+            }
+            $gombok .= nl2('
+                <script>var torol_kerdes = \'
+                    <div class="l">
+                        Bejelentés szám: '.$sor['ikt_szam'].'
+                        <br>Szálloda: '.addslashes($szalloda['nev']).'
+                        <br>Helyiség: '.addslashes($obj['nev']).'
+                        '.$sor['hiba_text'].'
+                        '.$gep_nev.'
+                    </div>
+                    <br>Biztosan törli ezt a '.$szoveg.'?
+                \';</script><input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(torol_kerdes, gomb'.$_GET['id'].')" value="Töröl" title="Töröl">
+            ');
         }
 
-        //Ha valaki bejelentő, és nem diszpécser, akkor csak saját bejelentéseit szerkesztheti
-        if(_jog(JOG_BEJELENTES_KEZEL) && !_jog(JOG_DISZPECSER)){
-
-            //Szerkeszthető egy bejelentés, ha nem vagyunk diszpécserek illetve ha mi magunk hoztuk létre a bejelentést.
-            $nem_szerkesztheti = false;
-            if(!_jog(JOG_DISZPECSER) && $sor['loginnev']!=$_SESSION[get_db_tabla().'user']){
-                $nem_szerkesztheti = true;
-            }
-            if($sor['stat_id']!=BEJELENTES_STAT_NYITOTT){
-                $nem_szerkesztheti = true;
-            }
-
-            if(!$nem_szerkesztheti && isset($_GET['modosit'])) {
+        // Szerkeszthető egy bejelentés, ha nyitott és van kezelés jogunk
+        if( isset($_GET['modosit'])                                         &&  //Más fülek alatt ne legyen mentés gomb
+            $sor['stat_id']==BEJELENTES_STAT_NYITOTT                        &&  //Nyitott
+            (_jog(JOG_BEJELENTES_KEZEL) || _jog(JOG_BEJELENTES_MAS_NEVEBEN))    //Ki-ki úgy is csak a saját listáját látja majd
+        ) {
                 $gombok = nl2('
                     <div class="form_kuldes">
                         <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
                         <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
                     </div>
                 ').$gombok;
-            }
-
-            //Igazolás és Elutasítás gombok
-            if( $sor['stat_id'] == BEJELENTES_STAT_KESZ_IG ) {
-                $gombok .= nl2('
-                    <div id="kmCont">
-                        <input type="button" class="gombb foGomb" value="Igazolás" title="Igazolás" onclick="bejelentesIgazolas( \''.$sor['recid'].'\', \'Csak kérdezünk még\' );">
-                        <input type="button" class="gomb_alert piros foGomb" value="Elutasítás" title="Elutasítás" onclick="csoportMuvelet(\'bejelentesElutasit\');">
-                    </div>
-                ');
-            }
         }
 
-        //Csak diszpécser készíthet munkalapot
-        if( _jog(JOG_DISZPECSER) ) {
+        // Igazolás és Elutasítás gombok
+        if( $sor['stat_id']==BEJELENTES_STAT_KESZ_IG && _jog(JOG_BEJELENTES_KEZEL) ) {
             $gombok .= nl2('
-                <input type="button" id="munkalapEgyeni" class="gombb foGomb" value="Munkalap készítése" onclick="munkalapKeszit(\'csak kérdezünk még\')" title="Munkalap készítése">
+                <div id="kmCont">
+                    <input type="button" class="gomb" value="Igazolás" onclick="bejelentesIgazolas( \''.$sor['recid'].'\', \'Csak kérdezünk még\' );">
+                    <input type="button" class="gomb" value="Igazolás elutasítása" onclick="csoportMuvelet(\'bejelentesElutasit\');">
+                </div>
             ');
-            //Ez a funkció megszűnt 2017.09.06 $gombok .= '<input type="button" class="gombb foGomb" value="Hozzáadás munkalaphoz" onclick="munkalaphozAdas(\'csak kérdezünk még\');" title="Hozzáadás munkalaphoz">';
+        }
+
+        // Munkalap készítése
+        if( ($sor['stat_id']==BEJELENTES_STAT_NYITOTT || $sor['stat_id']==BEJELENTES_STAT_FOLYAMATBAN) && _jog(JOG_MUNKALAP_KESZITHET) ) {
+            $gombok .= nl2('
+                <input type="button" id="munkalapEgyeni" class="gomb" value="Munkalap készítése" onclick="munkalapKeszit(\'csak kérdezünk még\')" title="Munkalap készítése">
+            ');
         }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
+                $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
             }
         }
 
-        /* Műveletek box */
+        // Műveletek box
         $gombok = nl2('
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'
@@ -621,20 +731,23 @@ if($gyorskereso_text){
         ');
     }
 
-	//Új bejelentés felvitele
+
+    $js_submit_elott = 'return form_ell_admin();';
+
+	// Új bejelentés felvitele
 	if(isset($_GET['uj'])){
 
-        //NAVIGÁCIÓ
+        // NAVIGÁCIÓ
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
 	    require_once('info.php');
 
-	    //FORM
-        //Újként szerkesztéskor feltöltjük a mezők tartalmát
+	    // FORM
+        // Újként szerkesztéskor feltöltjük a mezők tartalmát
 		if($_GET['ujkent']){
             $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
             if( $sor ) {
@@ -651,7 +764,7 @@ if($gyorskereso_text){
 				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
 
-            //A Bejelentést rögzítő adatai mindenképpen a beloginolt felhasználó lesz
+            // A Bejelentést rögzítő adatai mindenképpen a beloginolt felhasználó lesz
             $login = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
             $_SESSION['usr_man_nev']         = $login['teljes_nev'];
             $_SESSION['usr_man_beosztas_id'] = $login['beosztas_id'];
@@ -661,14 +774,14 @@ if($gyorskereso_text){
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-        /* Javascipt-es ellenőrzéshez */
+        // Javascipt-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
         $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
@@ -684,7 +797,6 @@ if($gyorskereso_text){
                 $sor[$tomb['name'].'_autocomp'] = '';
             }
         }
-
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
 
 		// Ez elkészíti a $mezok változót
@@ -697,8 +809,6 @@ if($gyorskereso_text){
 
         $mezok .= '<input type="hidden" id="masnevebenFeltolt" name="masnevebenFeltolt" value="'.$bejbejnev.'">';
 
-        $js_submit_elott = 'return form_ell_admin();';
-
 	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
 	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
@@ -706,22 +816,21 @@ if($gyorskereso_text){
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
-                'link' => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+                'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
         } else {
             echo $szamla_html;
         }
 
-	//Termék módosítása
+	// Bejelentés módosítása
 	}elseif(isset($_GET['modosit'])) {
 
-        //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+        // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
@@ -732,11 +841,17 @@ if($gyorskereso_text){
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                $kulso_ertek = $adatbazis_kapcsolat->s('recid nev', $tomb['tabla'], 'recid='.$sor[$tomb['name']], '', '1');
+                
+                if($tomb['csoport']){
+                    $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`id`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
+                    $kulso_ertek['nev'] = $kulso_ertek['info'];
+                }else{
+                    $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], 'recid='.$sor[$tomb['name']], '', '1');
+                }
 
                 $sor[$tomb['name'].'_autocomp'] = '';
                 if( $kulso_ertek ) {
-                    $sor[$tomb['name'].'_autocomp'] = $kulso_ertek[0]['nev'];
+                    $sor[$tomb['name'].'_autocomp'] = $kulso_ertek['nev'];
                 }
             }
         }
@@ -751,8 +866,7 @@ if($gyorskereso_text){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
 
-
-        //Duplákáláskor feltett kérdés
+        // Duplákáláskor feltett kérdés
         $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
         $telephely = $telephely[0]['nev'];
         $szamla_html .= nl2('
@@ -762,22 +876,22 @@ if($gyorskereso_text){
             </script>
         ');
 
-        //NAVIGÁCIÓ
+        // NAVIGÁCIÓ
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel  = array( $navi,             '',         $gyk2 );
-        //echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
+        // echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
         require_once('info.php');
 
-	    //FORM
+	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
-		//Form actionja
+		// Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
@@ -788,21 +902,10 @@ if($gyorskereso_text){
         $jobb_oldal = '';
 
 	    $szamla_html .= str_replace(
-            array('{JS}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}' ),
-            array( $js,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok   ),
+            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}'    ),
+            array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok       ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
-
-        //Diszpécser a sürgős pipát mégis eléri, ha a státusza nyitott
-        if( $sor['stat_id']==BEJELENTES_STAT_NYITOTT && (_jog(JOG_DISZPECSER) || _jog(JOG_MUNKALAP_DISZP_KP_VEZ) ) ){
-            $szamla_html .= nl2('
-                <script>
-                $(document).ready(function () {
-                    $(\'#surgos\').removeAttr(\'disabled\');
-                });
-                </script>
-                ');
-        }
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -813,7 +916,7 @@ if($gyorskereso_text){
             echo $szamla_html;
         }
 
-	/* Történet */
+	// Történet fül
     }elseif(isset($_GET['tortenet'])) {
 
         $szamla_html .= get_tortenet($megnevezes);
@@ -826,7 +929,7 @@ if($gyorskereso_text){
             echo $szamla_html.$gombok;
         }
 
-	//Munkalapok
+	// Munkalapok fül
 	}elseif(isset($_GET['munkalapok'])){
 
         $szamla_html .= nl2('
@@ -843,15 +946,16 @@ if($gyorskereso_text){
         if( $munkalap_kapcsok ) {
             $i = 1;
             foreach($munkalap_kapcsok as $munkalap_kapcs) {
-                $sor = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap', "`recid` = '".$munkalap_kapcs['munkalap_id']."'", '', '1');
+                
+                // Csak akkor látszik a munkalap, ha az nyitott
+                $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap', "`recid` = '".$munkalap_kapcs['munkalap_id']."'", '', '1');
                 if( $sor ) {
-                    $sor = $sor[0];
 
-                    /* Telephely */
+                    // Telephely
                     $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
                     $telephely = $telephely[0]['nev'];
 
-                    /* Helység */
+                    // Helység
                     $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
                     $helyseg = $helyseg[0]['nev'];
 
@@ -860,7 +964,7 @@ if($gyorskereso_text){
                             <div class="dtc"><a href="munkalap.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a></div>
                             <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
                             <div class="dtc">'.$sor['insert_dt'].'</div>
-                            <div class="dtc">'.getStatText('bejelentes', $sor['stat_id']).'</div>
+                            <div class="dtc">'.getStatText('munkalap', $sor['stat_id']).'</div>
                         </div>
                     ');
                 }
@@ -868,8 +972,6 @@ if($gyorskereso_text){
                 $i++;
             }
         }
-
-        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -881,7 +983,7 @@ if($gyorskereso_text){
         }
 
 
-    /* Dokumentumok */
+    // Dokumentumok fül
     }elseif(isset($_GET['dokumentumok'])) {
 
         if( $tobb_kep ) {
@@ -896,7 +998,7 @@ if($gyorskereso_text){
             echo $szamla_html.$gombok;
         }
 
-    /* Megjegyzés */
+    // Megjegyzés
     }elseif(isset($_GET['megjegyzesek'])) {
 
         $szamla_html .= nl2('
@@ -908,7 +1010,7 @@ if($gyorskereso_text){
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'insert_dt desc', '');
+        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
 
         if( $sorok ) {
             $i = 1;
@@ -924,8 +1026,6 @@ if($gyorskereso_text){
                 $i++;
             }
         }
-
-        $szamla_html .= '</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

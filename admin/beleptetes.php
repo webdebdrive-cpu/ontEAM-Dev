@@ -1,82 +1,11 @@
 <?php
-/*                                                                                                                      *\
-
-    0.  A Tudásbázisban ("Admin jelszavazása .htacceess-el"- címmel) van egy leírás, hogyan lehet .htaccess-el lejelszavazni egy admin mappát.
-         Ettől ez a PHP-s megoldás egy szebb verzió, de tudd, hogy ott van egy másik megoldás erre.
-
-    1.  Ha a header.php -ban rögtön a require_once('../weblap.php'); után meghívjuk ezt a fájlt require_once('beleptetes.php');
-        akkor az admin jelszóval védve lesz.
-
-    2.  Ugyanitt a header-t az alábbi kóddal kell kiegészteni:
-$jogok = $adatbazis_kapcsolat -> select('oldalak', 'jog', 'id='.$_SESSION[get_db_tabla().'jog']);
-$jogok = $jogok[0];
-
-//Nem tudjuk, hogy most  \n\r -lesz e, ezért csak \n-re vágok és trimmelek
-$jogok['oldalak'] = nl2br2($jogok['oldalak']);
-$jogosultsagok = explode('<br>', $jogok['oldalak']);
-$i = 0;
-foreach($jogosultsagok as $x){
-    $jogosultsagok[$i] = trim($jogosultsagok[$i]);
-    $i++;
-}
-
-
-    3.  Majd egy-egy menüpontnál vizsgálni kell, hogy az adott menüpontot kíratjuk-e:
-
-$menu_nev        = 'Valami';
-$menu_nev_kis    = 'valami';
-$menu_nev_tobbes = 'Valamik';
-$megnevezes      = 'valami';
-if(in_array($megn.'.php', $jogosultsagok)){
-    ...
-}
-
-    4.  Ellenőrizd a sablon fájlokat is az sablon/admin mappában. Ezeknek kell léteznie: beleptetes.html, nincsjog.html
-
-    5.  SQL adatbázis létrehozása:
-CREATE TABLE `TABLA_login` (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `nev` varchar(20) NOT NULL,
-  `jelszo` varchar(50) NOT NULL,
-  `jog` varchar(10) NOT NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
-
-CREATE TABLE `TABLA_jog` (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `nev` varchar(20) NOT NULL,
-  `oldalak` text NOT NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
-    6.  A jogosultságokat a `jog` táblával szabályozható, a felhasználóneveket jelszóval, és jogosultásggal pedig a `user` táblával.
-        DE! Erre már van egy felület is, ahol ez könnyedén szerkeszthető: beleptetes.php?jogok
-
-        Tudnivalók erről:
-
-        USEREK LÉTREHOZÁSA
-        $sha1 változóval beálítható, hogy hasznájon-e az adatbázis titkosítást vagy sem.
-        Ha $sha1 igaz, akkor `lohin` táblát úgy kell feltölteni, hogy a jelszavak $sha1-el elkódolva legyenek.
-
-        JOGOSULTSÁGOK
-        Ha a $jogolsultsagos változót igazra állítod, akkor az egyes menüpontok hozzáférése korlátozható. A `jog` tábla
-        `oldalak` oszlopában újsorral egymás alá sorold fel, hogy az adott jogosultság mely PHP fájlokhoz fér hozzá.
-        Javasolt ezt ABC szerinti sorrendben megtenni. Pl.:
-        index.php
-        termerk.php
-
-        Az adott jogosultságnak adható egy megnevezés is (pl. adminisztrátor, titkárnői jog). A jog ID-ját pedig a `login`
-        táblában kell hozzárendelni az adott userhez.
-
-\*                                                                                                                       */
-
-//Beállítások
+// Beállítások
 $sha1           = true;
 $jogolsultsagos = false;
 
 require_once('../weblap.php');
 
-//nem láthat bárki bármilyen tartalmat, viszont az admin bármit
+// Nem láthat bárki bármilyen tartalmat, viszont az admin bármit
 if( $_SESSION[get_db_tabla().'user'] && $_SESSION[get_db_tabla().'user'] != 'admin' ){
 
     $user_joga = $adatbazis_kapcsolat -> select('jog', 'login', 'nev='.$_SESSION[get_db_tabla().'user']);
@@ -85,7 +14,7 @@ if( $_SESSION[get_db_tabla().'user'] && $_SESSION[get_db_tabla().'user'] != 'adm
     $jogok = $adatbazis_kapcsolat -> select('oldalak', 'jog', 'id='.$user_joga['jog']);
     $jogok = $jogok[0];
 
-    //Nem tudjuk, hogy most  \n\r -lesz e, ezért csak \n-re vágok és trimmelek
+    // Nem tudjuk, hogy most  \n\r -lesz e, ezért csak \n-re vágok és trimmelek
     $jogok['oldalak'] = nl2br($jogok['oldalak']);
     $jogosultsagok = explode('<br />', $jogok['oldalak']);
     $i = 0;
@@ -102,31 +31,31 @@ if( $_SESSION[get_db_tabla().'user'] && $_SESSION[get_db_tabla().'user'] != 'adm
 
 }
 
-/* Jelszó csere */
+// Jelszó csere
 if(isset($_POST['jelszo_csere'])) {
     if( !empty($_POST['jlsz']) && !empty($_POST['jlsz2']) ) {
         if( $_POST['jlsz'] == $_POST['jlsz2'] ) {
-            $felhasznalo = $adatbazis_kapcsolat->s('recid nev teljes_nev jelszo helyesseg flags jog van_jelszo', 'login', "`recid` = '".$_SESSION['nincs_jelsz_felhid']."'", '', '1');
 
+            $felhasznalo = $adatbazis_kapcsolat->s2('recid nev teljes_nev jelszo helyesseg flags jog van_jelszo szemelyzet_id', 'login', "`recid` = '".$_SESSION['nincs_jelsz_felhid']."'", '', '1');
             if( $felhasznalo ) {
-                $felhasznalo = $felhasznalo[0];
 
-                /* Helyesség */
+                // Helyesség és jelszó
                 $helyesseg = sha1($felhasznalo['nev'].$_POST['jlsz']);
-
-                /* Jelszó */
                 $jlsz = sha1($_POST['jlsz']);
 
-                $adatbazis_kapcsolat -> u('login', array('jelszo', 'helyesseg', 'van_jelszo'), array($jlsz, $helyesseg, 1), "`recid` = '".$felhasznalo['recid']."'");
+                $adatbazis_kapcsolat -> u('login',  array('jelszo', 'helyesseg',    'van_jelszo'),
+                                                    array($jlsz,    $helyesseg,     1           ),
+                                            "`recid` = '".$felhasznalo['recid']."'");
 
-                $_SESSION[get_db_tabla().'user']        = $felhasznalo['nev'];
-                $_SESSION[get_db_tabla().'teljes_nev']  = $felhasznalo['teljes_nev'];
-                $_SESSION[get_db_tabla().'login_recid'] = $felhasznalo['recid'];
-                $_SESSION[get_db_tabla().'rights']      = str_split($felhasznalo['flags']);
+                $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
+                $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
+                $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
+                $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
+                $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
 
-                /* Nincs jelszó változók törlése */
+                // Nincs jelszó változók törlése
                 $_SESSION['nincs_jelsz_felhid'] = false;
-                $_SESSION['nincs_jelsz'] = false;
+                $_SESSION['nincs_jelsz']        = false;
 
                 if( !$_SESSION['kert_url'] ) {
                     $_SESSION['kert_url'] = get_domain().'/'.get_admin();
@@ -146,16 +75,16 @@ if(isset($_POST['jelszo_csere'])) {
     }
 }
 
-/* Jelszó csere mégsem */
+// Jelszó csere mégsem
 if(isset($_POST['megsem'])) {
     $_SESSION['nincs_jelsz_felhid'] = false;
-    $_SESSION['nincs_jelsz'] = false;
+    $_SESSION['nincs_jelsz']        = false;
 
     header('Location: index.php');
     exit();
 }
 
-/* Belétetés */
+// Belétetés
 if(isset($_POST['login'])) {
 
     if( $_POST['nev'] ) {
@@ -165,18 +94,20 @@ if(isset($_POST['login'])) {
             $_POST['jelszo'] = sha1($_POST['jelszo']);
         }
 
-        $felhasznalo = $adatbazis_kapcsolat->s('recid nev szallito_id teljes_nev jelszo helyesseg flags jog van_jelszo', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'", '', '1');
-
+        $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags jog van_jelszo szemelyzet_id', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'", '', '1');
+        
         if( $felhasznalo ) {
-            $felhasznalo = $felhasznalo[0];
 
             if( $felhasznalo['van_jelszo'] ) {
+
                 if( $felhasznalo['jelszo'] == $_POST['jelszo'] && $felhasznalo['helyesseg'] == $helyesseg ) {
-                    $_SESSION[get_db_tabla().'user']        = $felhasznalo['nev'];
-                    $_SESSION[get_db_tabla().'teljes_nev']  = $felhasznalo['teljes_nev'];
-                    $_SESSION[get_db_tabla().'login_recid'] = $felhasznalo['recid'];
-                    $_SESSION[get_db_tabla().'szallito_id'] = $felhasznalo['szallito_id'];
-                    $_SESSION[get_db_tabla().'rights']      = str_split($felhasznalo['flags']);
+
+                    $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
+                    $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
+                    $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
+                    $_SESSION[get_db_tabla().'szallito_id']     = $felhasznalo['szallito_id'];
+                    $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
+                    $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
 
 //                    if(!$_SESSION['kert_url']){
 //                        $_SESSION['kert_url'] = get_domain().'/'.get_admin();
@@ -229,7 +160,7 @@ if(isset($_POST['login'])) {
     }
 }
 
-//Kiléptetés
+// Kiléptetés
 if(isset($_GET['kilep'])){
     $adatbazis_kapcsolat -> u('login', array('logout_dt'), array(date('Y-m-d H:i:s')), '`recid` = \''.$_SESSION[get_db_tabla().'login_recid'].'\'');
 
@@ -246,25 +177,7 @@ if(isset($_GET['kilep'])){
 
 
 
-if(!$_SESSION[get_db_tabla().'user']){
-
-    /*$_SESSION['kert_url'] = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-
-    $felirat = '';
-    if(isset($_GET['hiba'])){
-        $felirat = '<h1 style="color: #fff">Helytelen felhasználó név vagy jelszó.</h1>';
-    }else{
-        $felirat = '<h1>Kérjük azonosítsd magad</h1>';
-    }
-
-    $mit   = array('{FELIRAT}', '{SELF}'        );
-    $mivel = array( $felirat,   'beleptetes.php');
-    echo str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/beleptetes.html'));
-
-    $adatbazis_kapcsolat -> bezar();
-    exit();*/
-
-}elseif(isset($_GET['nincsjog'])){
+if(isset($_GET['nincsjog'])){
 
     echo fajlbol_olvas('../sablon/admin/nincsjog.html');
 
@@ -272,7 +185,7 @@ if(!$_SESSION[get_db_tabla().'user']){
     exit();
 }
 
-//Jogosultságkezelés
+// Jogosultságkezelés
 if (isset($_GET['jogok'])) {
     require_once 'header.php';
 
@@ -392,7 +305,7 @@ if (isset($_GET['jogok'])) {
     require_once 'footer.php';
 }
 
-//Új login
+// Új login
 if (isset($_POST['uj_login'])) {
 
     $_POST['jelszo'] = md5($_POST['jelszo']);
@@ -403,7 +316,7 @@ if (isset($_POST['uj_login'])) {
     hd(self().'?jogok');
 }
 
-//Login adatok mentése ajaxal
+// Login adatok mentése ajaxal
 if (isset($_POST['login_mentes'])) {
 
     $adatbazis_kapcsolat->u('login', array('rendes_nev',         'nev',         'jog'),
@@ -421,7 +334,7 @@ if (isset($_POST['login_mentes'])) {
     exit;
 }
 
-//Login törlése
+// Login törlése
 if (isset($_POST['login_torol'])) {
 
     $adatbazis_kapcsolat->d('login', 'recid='.$_POST['id']);
@@ -433,7 +346,7 @@ if (isset($_POST['login_torol'])) {
 
 
 
-//Új jog
+// Új jog
 if (isset($_POST['uj_jog'])) {
 
     $adatbazis_kapcsolat->i('jog', array('nev', 'oldalak'), array($_POST['nev'], $_POST['oldalak']));
@@ -442,7 +355,7 @@ if (isset($_POST['uj_jog'])) {
 
 }
 
-//Jogosultásgok mentése ajaxal
+// Jogosultásgok mentése ajaxal
 if (isset($_POST['jog_mentes'])) {
 
     $adatbazis_kapcsolat->u('jog', array('nev', 'oldalak'), array($_POST['jog_nev'], $_POST['jog_oldalak']), 'id='.$_POST['id']);
@@ -454,7 +367,7 @@ if (isset($_POST['jog_mentes'])) {
 
 }
 
-//Jogosultásgok törlése
+// Jogosultásgok törlése
 if (isset($_POST['jog_torol'])) {
 
     $adatbazis_kapcsolat->d('jog', 'id='.$_POST['id']);

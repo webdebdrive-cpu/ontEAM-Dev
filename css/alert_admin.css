@@ -9,7 +9,7 @@
 }
 
 .szurkit {
-    opacity: 0.8;
+    opacity: 0.2;
 }
 
 .szurkit.dn {
@@ -40,7 +40,7 @@
 #alert2 .gomb{
     background-image: none;
 	background: #75b54b;
-    border: 0.0rem;
+    border: 0.1rem solid rgba(0, 0, 0, 0);;
 	border-radius: 0.3rem;
     color: #FFFFFF;
     cursor: pointer;
@@ -48,7 +48,7 @@
     font-weight: 700;
     height: auto;
     margin: 0rem 0.5rem 0rem 0rem;
-    padding: 1.2rem 1.7rem 1.2rem 1.7rem;
+    padding: 0.7rem;
     text-align: center;
     width: auto;
 }
@@ -90,6 +90,10 @@
     background: #76B958;
 }
 
+#alert2 .gomb:focus, #alert2 .gombb:focus{
+    border: 0.1rem solid #f00;
+}
+
 #alert2 input, div.alert2 input {
     font-size: 1.6rem;
     padding: 0.8rem 0.8rem 0.9rem 0.9rem;
@@ -110,6 +114,7 @@
 
 div.figy {
     border-radius: 0.6rem;
+    min-width: 40rem;
 }
 
 div.figy div.header{

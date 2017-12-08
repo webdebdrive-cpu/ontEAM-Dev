@@ -6,7 +6,7 @@ if($_FILES['file']){
     $_FILES[$_POST['megnevezes']] = $_FILES['file'];
 }
 
-//Tiltott fájlformátumok kiszűrése, szitnén nincs feltöltés
+// Tiltott fájlformátumok kiszűrése, szitnén nincs feltöltés
 $tiltott_fajlok = array('text/x-js', 'text/css', 'text/html', 'application/xhtml+xml', 'text/xml');
 if( in_array( $_FILES[$_POST['megnevezes']]['type'], $tiltott_fajlok ) ){
     $weblap -> leallit();
@@ -19,9 +19,9 @@ if(kit($_FILES[$_POST['megnevezes']]['name'])=='php'){
     exit;
 }
 
-/* Vélemény feltöltése */
+// Vélemény feltöltésének lekezelése
 if($_POST['megnevezes']=='velemeny'){
-    
+
     //Adott illető egyáltalán véleményező-e
     $prigeny = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$_POST['projektigenyles_recid']}'");
 
@@ -30,6 +30,17 @@ if($_POST['megnevezes']=='velemeny'){
         $weblap -> leallit();
         exit;
     }
+    
+    if(!trim($_POST['megj']) && !$_FILES[$_POST['megnevezes']]){
+        echo json_encode(array(
+            'hiba'  => 'Kérem csatoljon egy véleményt, vagy írjon megjegyzést!',
+            'gomb'  => '<input class="link gomb" value="Ok" onclick="alert2(); $(\'#velemeny_megj\').focus();" type="button">',
+        ));
+        
+        $weblap -> leallit();
+        exit;
+    }
+
     if($adatbazis_kapcsolat->s('recid', 'projektigenyles_kapcs', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'", '', '1')){
         
         $utvonal = get_utvonal().'projektigenyles_velemeny';
@@ -51,7 +62,7 @@ if($_POST['megnevezes']=='velemeny'){
             break;
 
             case 2:
-                echo 'Hiba! Túl nagy méretű fájl!'; /* A HTML form-ban is megadható volna egy méretkorlát? */
+                echo 'Hiba! Túl nagy méretű fájl!'; // A HTML form-ban is megadható volna egy méretkorlát?
             break;
 
             case 3:
@@ -71,29 +82,40 @@ if($_POST['megnevezes']=='velemeny'){
             break;
 
             case 0:
-                //Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
+                // Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
                 $kepnev = $utvonal.'/'.time().'_'.rand(1, 10000).'.'.kit($_FILES[$_POST['megnevezes']]['name']);
 
-                //Ha az illetőnek már volt feltöltve véleménye, akkor ezzel az újjal felülírjuk, azaz a korábbit töröljük
+                // Ha az illetőnek már volt feltöltve véleménye, akkor ezzel az újjal felülírjuk, azaz a korábbit töröljük
                 $korabbi_velemeny = $adatbazis_kapcsolat->s2('utvonal', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
                 if($korabbi_velemeny){
                     kep_torol(get_utvonal().'projektigenyles_velemeny/'.$korabbi_velemeny['utvonal']);
                     $adatbazis_kapcsolat->d('projektigenyles_velemeny', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
                 }
                 
-                //Fájlfeltöltés
+                // Fájlfeltöltés
                 if(move_uploaded_file($_FILES[$_POST['megnevezes']]['tmp_name'], $kepnev)){
 
-                    //Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
-                    $id = $adatbazis_kapcsolat -> i( 'projektigenyles_velemeny', array('projektigenyles_recid',         'login_recid',                            'utvonal',                                                            'fajlnev'                            ),
-                                                                                 array($_POST['projektigenyles_recid'], $_SESSION[get_db_tabla().'login_recid'],   str_replace(get_utvonal().'projektigenyles_velemeny/', '', $kepnev), $_FILES[$_POST['megnevezes']]['name'])
+                    // Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
+                    $id = $adatbazis_kapcsolat -> i( 'projektigenyles_velemeny', array('projektigenyles_recid',         'login_recid',                            'utvonal',                                                            'fajlnev'                               ),
+                                                                                 array($_POST['projektigenyles_recid'], $_SESSION[get_db_tabla().'login_recid'],   str_replace(get_utvonal().'projektigenyles_velemeny/', '', $kepnev), $_FILES[$_POST['megnevezes']]['name']   )
                                                     );
-                    //Ha ellenőrizzük, hogy a megmaradtaknak mindnek van-e már vélemények. Státuszt kell léptetni ha igen.
-                    prigeny_mindenki_velemenyezett_e($_POST['projektigenyles_recid']);
 
                 }
             break;
         }
+        
+        // A megjegyzés azért van külön ágban, mert nem biztos, hogy van fájl is.
+        $van_velemeny = $adatbazis_kapcsolat->s2('recid', 'projektigenyles_velemeny', "`projektigenyles_recid`='{$_POST['projektigenyles_recid']}' AND `login_recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+        if($van_velemeny){
+            $adatbazis_kapcsolat->u('projektigenyles_velemeny', array('megj'), array($_POST['megj']), "`recid`='{$van_velemeny['recid']}'");
+        }else{
+            $id = $adatbazis_kapcsolat -> i( 'projektigenyles_velemeny', array('projektigenyles_recid',         'login_recid',                            'megj'            ),
+                                                                         array($_POST['projektigenyles_recid'], $_SESSION[get_db_tabla().'login_recid'],  $_POST['megj']    )
+                                            );
+        }
+        
+        // Ellenőrizzük, hogy a megmaradtaknak mindnek van-e már vélemények. Státuszt kell léptetni ha igen.
+        prigeny_mindenki_velemenyezett_e($_POST['projektigenyles_recid']);
         
     }
     
@@ -102,7 +124,7 @@ if($_POST['megnevezes']=='velemeny'){
 }
 
 
-/* Általános eset */
+// Általános eset
 $tomb = array(
                 'algoritmus' => $_POST['algoritmus'],
                 'oszlop'     => $_POST['oszlop'],
@@ -139,7 +161,7 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
 
     global $adatbazis_kapcsolat;
 
-    //Hogy ne csak admin alól tudjuk használni
+    // Hogy ne csak admin alól tudjuk használni
 	if(basename( dirname( self() ) ).'/' == get_admin() ){
         $utvonal = '../'.get_utvonal();
     }else{
@@ -157,7 +179,7 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
         $csakkep = 0;
     }
 
-    //Ha új feltöltés, akkor a képet ideiglenesen lementjük, míg a bejegyzés el nem készül hozzá
+    // Ha új feltöltés, akkor a képet ideiglenesen lementjük, míg a bejegyzés el nem készül hozzá
     if($_POST['uj_feltolt']){
 
         if($algoritmus=='fajlnev'){
@@ -165,40 +187,49 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
         }elseif($algoritmus=='id'){
             $fajlnev = 'get_id';
         }
-        //A fájl sorszáma pedig a SESSION id-ja, ezzel azonosítva az aktuális munkafolymatot
-        //majd #két sharp közt# az oszlop neve, hogy tudjuk, az adatbázisban melyik oszlopba kell beírni
-        //majd a következő #két sharp közt# a fájl végleges neve (ezt persze csak akkor tudjuk ha fájlnév vagy ID alapján mentjük el)
-        //végül a timestamp, hogy biztosan egyedi legyen
+        
+        // Nézzük meg, hogy van-e SESSION id kezdetű fájl a könyvtárban
+        $utvonal = get_utvonal().'cache/jsfajlok/'.session_id().'*';
+        $session_kezdetu_fajlok = glob($utvonal); //Ha több ilyen is van az azért lehet, mert több fájlfeltöltés input is volt a tömbben
+        foreach($session_kezdetu_fajlok as $akt_fajl){
+            unlink($akt_fajl);
+        }
+        
+        // A fájl sorszáma pedig a SESSION id-ja, ezzel azonosítva az aktuális munkafolymatot
+        // majd #két sharp közt# az oszlop neve, hogy tudjuk, az adatbázisban melyik oszlopba kell beírni
+        // majd a következő #két sharp közt# a fájl végleges neve (ezt persze csak akkor tudjuk ha fájlnév vagy ID alapján mentjük el)
+        // végül a timestamp, hogy biztosan egyedi legyen
         $sor_id     = session_id().'|||'.$fajl_oszlop.'|||'.$fajlnev.'|||'.$_FILES[$megnevezes]['name'].'|||'.time();
-        $algoritmus = 'id';             //Az algoritmus tehát ID szerinti, hogy ne legyen adatbázis művelet
-        $tabla      = 'cache/jsfajlok'; //A tartalom mappán belül a 'cache' könyvtárba mentjük majd el ideiglenesen
+        $algoritmus = 'id';             // Az algoritmus tehát ID szerinti, hogy ne legyen adatbázis művelet
+        $tabla      = 'cache/jsfajlok'; // A tartalom mappán belül a 'cache' könyvtárba mentjük majd el ideiglenesen
     }
 
 	switch($algoritmus){
-		//case 'sorid': $kepnev=$sor_id; break;
 
 		case 'fajlnev':
 
 			$kepnev = $_FILES[$megnevezes]['name'];
 
-            //Fájl
+            // Fájl
             $kit = '.'.kit($_FILES[$megnevezes]['name']);
             $kepnev  = fajlnev_keszit( str_replace( $kit, '', $_FILES[$megnevezes]['name'] ) ).$kit;
             $_FILES[$megnevezes]['name'] = utf8($_FILES[$megnevezes]['name']);
 
-            //Ékezetek visszakonvertálása
+            // Ékezetek visszakonvertálása
             $mit   = array('&#337;',    '&#336;',   '&amp;#369;',   '&amp;#368;');
             $mivel = array('ő',             'Ő',            'ű',            'Ű'         );
             $_FILES[$megnevezes]['name'] = str_replace($mit, $mivel, $_FILES[$megnevezes]['name']);
 
             $sor = $adatbazis_kapcsolat -> s2($fajl_oszlop, $tabla, 'recid='.$sor_id);
+            unlink('../'.get_utvonal().$tabla.'/'.$sor[$fajl_oszlop]);
+            $sor[$fajl_oszlop] = '';
 
-            //ha a fájlt felülírjuk (tehát már el volt tárolva a neve a táblában), akkor levesszük a tábla nevét
+            // Ha a fájlt felülírjuk (tehát már el volt tárolva a neve a táblában), akkor levesszük a tábla nevét
             if( $sor[$fajl_oszlop] ){
 
 				$pathinfo = pathinfo($sor[$fajl_oszlop]);
 				$kepnev    = str_replace($mit, $mivel, $pathinfo['filename']).'.'.kit($kepnev);
-				$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
+				$overwrite = true;	// Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
                 
                 $alkonyvtar = '';
                 if($tabla=='felmeresi_terv'){
@@ -211,12 +242,12 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
                 }
 
                 
-			//Ha nincs a táblában a neve (új felöltés vagy módosítás, és sose volt kép, vagy törölve lett)
+			// Ha nincs a táblában a neve (új felöltés vagy módosítás, és sose volt kép, vagy törölve lett)
             }else{
 
 				$pathinfo = pathinfo($kepnev);
 				$kit      = $pathinfo['extension'];
-				$kepnev   = $pathinfo['filename'];
+				$kepnev   = $pathinfo['filename'].'.'.$kit;
                 
                 $alkonyvtar = '';
                 if($tabla=='felmeresi_terv'){
@@ -228,30 +259,26 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
                     mkdir($utvonal.$tabla.'/'.$alkonyvtar, 0777);
                 }
                 
-				$i     = 1;
-				$ujnev = $kepnev.'_1';
-				//DE! megnézzük, hogy ez a '_1' nem foglalt-e. Ha az, keresünk szabad számot
-                while( glob($utvonal.$tabla.'/'.$alkonyvtar.'/'.$ujnev.'*') ){
-					$i++;
-					$ujnev = $kepnev.'_'.$i;
-				}
-				$kepnev = fajlnev_keszit($ujnev).'.'.$kit;
+//				$i     = 1;
+//				$ujnev = $kepnev.'_1';
+//				//DE! megnézzük, hogy ez a '_1' nem foglalt-e. Ha az, keresünk szabad számot
+//                while( glob($utvonal.$tabla.'/'.$alkonyvtar.'/'.$ujnev.'*') ){
+//					$i++;
+//					$ujnev = $kepnev.'_'.$i;
+//				}
+//				$kepnev = fajlnev_keszit($ujnev).'.'.$kit;
 
-                //Ez most azért false, mert a JSFF-nél ha egy forban több fjál input is szerepelt, akkor felülírták egymást
-                $overwrite = false;
+                $overwrite = true;
 
 			}
 		break;
 
-		//termék nevéből nyert képnév
+		// Termék nevéből nyert képnév
 		case 'nev':
 
 			$kepnev  = stripslashes( strip_tags( htmlspecialchars_decode2( $_POST['nev'] ) ) );
 
-            $sor = $adatbazis_kapcsolat -> select($fajl_oszlop, $tabla, 'id='.$sor_id);
-            $sor = $sor[0];
-
-            //ha a fájlt felülírjuk (tehát már el volt tárolva a neve a táblában), akkor levesszük a a tábla nevét
+            // Ha a fájlt felülírjuk (tehát már el volt tárolva a neve a táblában), akkor levesszük a tábla nevét
 			if($sor[$fajl_oszlop]){
 
 				$mit      = array($tabla.'/');
@@ -259,17 +286,17 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
 				$pathinfo = pathinfo($sor[$fajl_oszlop]);
 
 				$kepnev    = str_replace($mit, $mivel, $pathinfo['filename']).'.'.kit($_FILES[$megnevezes]['name']);
-				$overwrite = true;	//Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
+				$overwrite = true;	// Megmondjuk a webftp-nek, hogy az adott fáljt írja felül, ne szemeteljünk, takarítsunk magunk után
 
-			//Ha nincs a táblában a neve (új felöltés vagy módosítás, és sose volt kép, vagy törölve lett)
+			// Ha nincs a táblában a neve (új felöltés vagy módosítás, és sose volt kép, vagy törölve lett)
 			}else{
 
-				//Itt a kiterjesztés az eredetileg felvitt fájl kiterjesztése lesz
+				// Itt a kiterjesztés az eredetileg felvitt fájl kiterjesztése lesz
 				$kit   = kit($_FILES[$megnevezes]['name']);
 
 				$i     = 1;
 				$ujnev = $kepnev.'_1';
-				//DE! megnézzük, hogy ez a '_1' nem foglalt-e. Ha az keresünk szabad számot
+				// DE! megnézzük, hogy ez a '_1' nem foglalt-e. Ha az keresünk szabad számot
                 while( glob($utvonal.$tabla.'/'.$ujnev.'*') ){
 					$i++;
 					$ujnev = $kepnev.'_'.$i;
@@ -277,20 +304,20 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
 
 				$kepnev = fajlnev_keszit($ujnev).'.'.$kit;
 
-                //Ez most azért false, mert a JSFF-nél ha egy forban több fjál input is szerepelt, akkor felülírták egymást
+                // Ez most azért false, mert a JSFF-nél ha egy forban több fjál input is szerepelt, akkor felülírták egymást
                 $overwrite = false;
 
 			}
 		break;
 
 		default:
-			//elmentjük a kiterjesztést, kisbetűsre alakítva
+			// Elmentjük a kiterjesztést, kisbetűsre alakítva
             $kit = strtolower(substr($_FILES[$megnevezes]['name'],strrpos($_FILES[$megnevezes]['name'],'.'),strlen($_FILES[$megnevezes]['name'])));
 			$kepnev = $sor_id.$kit;
 
-			$algoritmus = 'sorid';//bizti kedvéért
-			$sor_id     = null;//Kinullázzuk a táblát, hogy a web_ftp ne próbálkozzon SQL-el
-			$overwrite  = true;	//Sorid esetén mindig töröljük az előzőt (pl. 'sorid'.jpg-t)
+			$algoritmus = 'sorid';  // bizti kedvéért
+			$sor_id     = null;     // Kinullázzuk a táblát, hogy a web_ftp ne próbálkozzon SQL-el
+			$overwrite  = true;     // Sorid esetén mindig töröljük az előzőt (pl. 'sorid'.jpg-t)
 		break;
 	}
 

@@ -2,7 +2,7 @@
     <span class="hiba"></span>
     <div class="talloz" style="display: none">
         <div>
-            Tallózás <input type="file" name="files[]" onchange="beolvasas_{MEGN}(this.files);"{CSAK_KEP}>
+            <span>Tallózás</span> <input type="file" name="files[]" onchange="beolvasas_{MEGN}(this.files);"{ENG_KIT}>
         </div>
     </div>    
 </div>
@@ -48,65 +48,54 @@ function beolvasas_{MEGN}(fajlok){
     
     var formData        = tests_{MEGN}.formdata ? new FormData() : null;
     var fajlok_kesz     = 0;
-    var hibas_fajlok    = 0;
     
     for (var i = 0; i < fajlok.length; i++){
 
-        if(tests_{MEGN}.formdata{CSAK_KEP2}){
+        formData.append('file', fajlok[i]);
+        /* Kép megjelenítése egyből: */
+        /*elonezet_{MEGN}(fajlok[i]);*/
 
-            formData.append('file', fajlok[i]);
-            /* Kép megjelenítése egyből: */
-            /*elonezet_{MEGN}(fajlok[i]);*/
-            
-            var progress_id = 'jsff_{MEGN}_' + i;
-            var pg = $('<progress id="'+progress_id+'" min="0" max="100" value="0">0</progress>');
-            $('#jsff_{MEGN}').append(pg);
+        var progress_id = 'jsff_{MEGN}_' + i;
+        var pg = $('<progress id="'+progress_id+'" min="0" max="100" value="0">0</progress>');
+        $('#jsff_{MEGN}').append(pg);
 
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '{PHP_FAJL}');
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '{PHP_FAJL}');
 
-            (function(progress_id){
-                xhr.upload.onprogress = function(e){
-                    var percent = parseInt(e.loaded / e.total * 100);
-                    $('#' + progress_id).val(percent);
-                };
-                xhr.onload = function(){
-                    fajlok_kesz++;
-                    $('#' + progress_id).val(100);
-                    $('#' + progress_id).fadeOut(2000);
+        (function(progress_id){
+            xhr.upload.onprogress = function(e){
+                var percent = parseInt(e.loaded / e.total * 100);
+                $('#' + progress_id).val(percent);
+            };
+            xhr.onload = function(){
+                fajlok_kesz++;
+                $('#' + progress_id).val(100);
+                $('#' + progress_id).fadeOut(2000);
 
-                    /*
-                    // Ha a PHP-tól szöveget is vársz, azt így tudod lekérni:
-                    var html = this.responseText;
+                /*
+                // Ha a PHP-tól szöveget is vársz, azt így tudod lekérni:
+                var html = this.responseText;
 
-                    // Tömbbé így tudod alakítani, ha json adatot vársz
-                    var json_data = JSON.parse(html);
-                    */
+                // Tömbbé így tudod alakítani, ha json adatot vársz
+                var json_data = JSON.parse(html);
+                */
 
-                    if(this.responseText.substring(0,5)=='Hiba!'){
-                        alert2(this.responseText.substring(5), '', 'Hiba');
-                    }else{
-                        if (fajlok_kesz == fajlok.length-hibas_fajlok){
-                            minden_fajl_kesz_{MEGN}();
-                        }
+                if(this.responseText.substring(0,5)=='Hiba!'){
+                    alert2(this.responseText.substring(5), '', 'Hiba');
+                }else{
+                    if (fajlok_kesz == fajlok.length){
+                        minden_fajl_kesz_{MEGN}();
                     }
-                };
-            }(progress_id));
+                }
+            };
+        }(progress_id));
 
-            var parameterek = {{PARAMETEREK}};
-            $.each(parameterek, function(kulcs, ertek){
-                formData.append(kulcs, ertek);
-            });
-            
-            xhr.send(formData);
-            
-        /* Hibás vagy nem támogatott fájlokról tájékoztatjuk a usert */
-        }else{
-            
-            $('.uzenet').html('');
-            $('.hiba').append('<b>' + fajlok[i].name + '</b> nem támogatott fájlformátum, feltöltés nem lehetséges!<br>');
-            hibas_fajlok++;
-        }
+        var parameterek = {{PARAMETEREK}};
+        $.each(parameterek, function(kulcs, ertek){
+            formData.append(kulcs, ertek);
+        });
+
+        xhr.send(formData);
             
     }
 }

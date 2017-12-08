@@ -87,6 +87,7 @@ if (isset($_GET['statusz_fetlolt'])) {
     exit;
 }
 
+// Felhasználókból karbantartjuk a törzsadatokat
 if (isset($_GET['felh2torzs'])) {
     //Felhasználóból személyzet gyártása
     $felhok = $adatbazis_kapcsolat->s('*', 'login');

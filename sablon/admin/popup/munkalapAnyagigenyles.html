@@ -1,6 +1,6 @@
 <h2>Anyagigénylés munkalaphoz</h2>
-<form action="" id="munkAnyagAnyagigenyles" class="popupForm" method="post" onsubmit="return munkAnyagIgenyles( this, 'csak kérdezünk még' );">
-    <div class="kozep">
+<form action="" id="munkAnyagAnyagigenyles" class="popupForm" method="post">
+    <div class="kozep" style="min-height: 40rem">
         <div class="dt">
             <div class="dtr"> 
                 <div class="dtc form_bal">Cikk:</div>
@@ -51,8 +51,84 @@
         </div>
     </div>
     <div class="kuldes">
-        <button type="button" name="button" onclick="munkAnyagHozzaad( '#munkAnyagAnyagigenyles', true );">Hozzáad</button>
-        <input type="submit" name="elkuld" value="Mentés">
-        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+        <input type="button" class="gomb" onclick="munkAnyagHozzaad( '#munkAnyagAnyagigenyles', true );" value="Hozzáad" id="mukalapAnyagigenylesHozzaad">
+        <input type="button" class="gomb zold" value="Mentés" onclick="munkAnyagIgenyles('csak kérdezünk még')">
+        <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();" id="nem_gomb">
     </div>
 </form>
+<script>
+/* Felhasznált mennyiségre enterezve fusson le a hozzáadás */
+$(document).on('keyup', '#felh_menny', function(e) {
+    if (e.which == KEY_ENTER) {
+        $('#szuk_menny').focus();
+    }
+});
+$(document).on('keyup', '#szuk_menny', function(e) {
+    if (e.which == KEY_ENTER) {
+        $('#cikk_id_autocomp').focus();
+        $('#mukalapAnyagigenylesHozzaad').click();
+    }
+});
+
+/* Mégsem gombon tabozva a feladat inputra érkezzünk vissza */
+$(document).on('keydown', '#nem_gomb', function(event) {
+    if( event.keyCode == KEY_TAB ) {
+        $('#cikk_id_autocomp').focus();
+        return false;
+    }
+});
+
+/* Munkalap anyagigénylés mentése */
+function munkAnyagIgenyles( csak_kerdezunk ) {
+    that = $('#munkAnyagAnyagigenyles');
+    var addCikkUj           = $(that).find('input[name="addCikkUj[]"]'),
+        addCikkID           = $(that).find('input[name="addCikkID[]"]'),
+        addCikkFelhMenny    = $(that).find('input[name="addCikkFelhMenny[]"]'),
+        addCikkSzukMenny    = $(that).find('input[name="addCikkSzukMenny[]"]');
+
+    if( addCikkID.length && addCikkFelhMenny.length ) {
+        $.ajax({
+         	url : 'munkalap.php',
+         	type: 'POST',
+         	data: {
+                recid               : _get('id'),
+                addCikkUj           : addCikkUj.serialize(),
+                addCikkID           : addCikkID.serialize(),
+                addCikkFelhMenny    : addCikkFelhMenny.serialize(),
+                addCikkSzukMenny    : addCikkSzukMenny.serialize(),
+                csak_kerdezunk      : csak_kerdezunk,
+                munkAnyagIgenyles   : new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    if( response.refresh ) {
+                        location.href = get_get();
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+                    popupZar();
+                    alert2();
+         		}
+         	}
+        });
+    }
+    
+    /* Ha a táblázatnak még nincs sora */
+    if($(that).find('#insertTable tr').length<=1){
+        $('#cikk_id_autocomp').addClass('hibas_ide_focus');
+        alert2('Kérjük adjon hozzá legalább egy szükséges mennyiséget!', '', 'Hiba');
+    }
+
+    return false;
+}
+
+
+</script>

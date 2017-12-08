@@ -1,0 +1,82 @@
+<h2>Anyagigénylés várólistához adása</h2>
+<form action="" id="elutasitasForm" class="popupForm" method="post">
+    <div class="kozep">
+        
+        Biztos várólistához adja a kijelölt anygigényléseket?
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Indoklás:</div>
+                <div class="dtc form_jobb">
+                    <textarea name="varolista_indok" id="varolista_indok" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="button" name="elkuld" class="gomb zold" value="Igen" onclick="varolistahozAdas();">
+        <input type="button" name="megsem" class="gomb piros" value="Nem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+/* Várólistához adás */
+function varolistahozAdas() {
+
+    /* Megjegyzés kötelező */
+    if(!$('#varolista_indok').val()){
+        $('#varolista_indok').addClass('hibas_ide_focus');
+        alert2('Kérjük indokolja a várakoztatást!', '', 'Hiba');
+        return false;
+    }
+
+    if(balnav_kijelol_ell()){
+        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+
+        if( szamlaSorok.length ) {
+            idk = {};
+
+            var i = 1;
+            szamlaSorok.each(function() {
+                var id = $(this).attr('data-recid');
+
+                idk[i] = id;
+                i++;
+            });
+
+            if( objLength(idk) ) {
+                var page = $('#szamlaBetolt').attr('data-page');
+
+                $.ajax({
+                    url : 'anyagigenyles.php',
+                    type: 'POST',
+                    data: {
+                        idk             : JSON.stringify(idk),
+                        page            : page,
+                        indok           : $('#varolista_indok').val(),
+                        varolistahozAdas: new Date().getTime()
+                    },
+                    success: function(response) {
+                        if(response) {
+                            response = JSON.parse(response);
+
+                            if( response.hiba ) {
+                                alert2(response.hiba, response.gomb, 'Hiba');
+                                return false;
+                            }
+
+                            kijelolesEltavolit();
+                            szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                            /* navpanel frissítése (minden kijelölt sort) */
+                            szamlaSorok.each(function() {
+                                szamlaSorFrissit(page, $(this).attr('data-recid'));
+                            });
+                            popupZar();
+                        }
+                    }
+                });
+            } else {
+                alert2('Nincsenek kijelölt sorok!', '', 'Hiba');
+            }
+        }
+    }
+}
+</script>

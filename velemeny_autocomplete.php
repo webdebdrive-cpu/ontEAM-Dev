@@ -22,15 +22,16 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             $oszlopok  .= '`'.$oszlop_keres[$i].'`, ';
         }
         
-        //Azokat a felhasználókat válogassuk le, akik adott projektigénylés szállodájának látokörében vannak
-        $prigeny      = $adatbazis_kapcsolat->s2('telephely_id', 'projektigenyles', "`recid`='{$_GET['recid']}'");
-        $felhasznalok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$prigeny['telephely_id']}'");
-        $felhasznalok = adatbazis2tomb($felhasznalok, 'nev');
-
-        if($felhasznalok){
-            $where_sql = csonkit($where_sql, 4).' AND ';
-            $where_sql .= '`nev` IN (\''.implode('\', \'', $felhasznalok).'\') AND ';
-        }
+        //Azokat a felhasználókat válogassuk le, akik adott projektigénylés szállodájának látókörében vannak
+// Update: mindenkit felajánlunk
+//        $prigeny      = $adatbazis_kapcsolat->s2('telephely_id', 'projektigenyles', "`recid`='{$_GET['recid']}'");
+//        $felhasznalok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$prigeny['telephely_id']}'");
+//        $felhasznalok = adatbazis2tomb($felhasznalok, 'nev');
+//
+//        if($felhasznalok){
+//            $where_sql = csonkit($where_sql, 4).' AND ';
+//            $where_sql .= '`nev` IN (\''.implode('\', \'', $felhasznalok).'\') AND ';
+//        }
         
         //Utolsó 4 karater levágása
         $where_sql =  substr($where_sql, 0, strlen($where_sql) - 4);

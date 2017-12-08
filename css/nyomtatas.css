@@ -10,11 +10,12 @@
 }
 
 body{
-    background: #ccc;
+    background: #fff;
 }
 
 div.a4_allo {
     background: #fff;
+    border: 0.1rem solid #ccc;
     display: table;
     margin: auto;
     margin-bottom: 30px;

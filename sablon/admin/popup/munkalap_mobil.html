@@ -1,14 +1,13 @@
-<h2>Munkalapok hozzárendelése mobil személyzethez</h2>
 <form action="" id="munkalapMobil" class="popupForm" method="post" onsubmit="return munkalapMobil( this );">
     <div class="kozep">
         <table class="mobilTable">
             <tr>
-                <td class="mtb"> 
+                <td class="mtb">
                     <p>Hozzárendelt munkalapok beosztás nélkül</p>
                     <div id="hozzBeosztasNelkul" class="mobilkeret"></div>
                     <div class="clearFix">
                         <script>
-                            munkBejelKozeGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkBejelKoze();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                            munkBejelKozeGomb = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"munkBejelKoze();\"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                         </script>
                         <button type="button" name="button" class="flr" style="margin-top: 1rem;" onclick="alert2('Biztos, hogy kiveszi a munkalapot a mobil beosztásból?', munkBejelKozeGomb);">Vissza a munkalapok közé</button>
                     </div>
@@ -16,7 +15,7 @@
                     <div id="szemRendelt" class="mobilkeret"></div>
                     <div class="clearFix">
                         <script>
-                            munkHozzMegszuntetGomb = "<p class=\"c\"><input class=\"gomb piros\" type=\"button\" value=\"Igen\" onclick=\"munkHozzMegszuntet();\"><input class=\"gomb zold\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                            munkHozzMegszuntetGomb = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"munkHozzMegszuntet();\"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                         </script>
                         <button type="button" name="button" class="flr" style="margin-top: 1rem;" onclick="alert2('Biztosan megszüneteti a hozzárendelést?', munkHozzMegszuntetGomb);">Hozzárendelés megszüntetése</button>
                     </div>

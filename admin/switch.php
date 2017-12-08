@@ -2,22 +2,22 @@
 require_once('../class/html/class.Input.php');
 require_once('../class/html/class.Select.php');
 
+
 $osszevon_flag  = 0;
 $mezok          = '';
 foreach($akt_tomb as $ertek){
 
-    //Sessionből feltöltjük a sort, ha üres. Újként szerkesztéshez kell, remélem nem kavar be máshol
-    if(isset($_GET['ujkent']) && !$sor[$ertek['name']] && $_SESSION[$ertek['name']]){
+    // Sessionből feltöltjük a sort, ha üres. Újként szerkesztéshez kell, remélem nem kavar be máshol
+    if( (isset($_GET['ujkent']) || isset($_GET['ujkent_bejelentes'])) && !$sor[$ertek['name']] && $_SESSION[$ertek['name']]){
         $sor[$ertek['name']] = $_SESSION[$ertek['name']];
     }
 
 	switch($ertek['type']){
 
-
         case 'autocomplete':
             $input = new Input('text');
 
-            //Ha ezresít, automatikusan meghívunk rá két JS-t
+            // Ha ezresít, automatikusan meghívunk rá két JS-t
             if( $ertek['ezresit'] ){
                 $ertek['onkeyup'] .= '; onlyNumbers($(this)); this.value=ezresek(this.value,\'.\')';
                 $sor[$ertek['name']] = number_format($sor[$ertek['name']], 0, '', '.');
@@ -27,12 +27,12 @@ foreach($akt_tomb as $ertek){
                 $ertek['class'] .= ' csillag';
             }
 
-            /* Login fülön és külső kivitelezőt válaszva nem kell a disabled */
+            // Login fülön és külső kivitelezőt válaszva nem kell a disabled
             if( basename(self()) == 'login.php' && $sor['szerepkor_id'] == 12 ) {
                 $ertek['disabled'] = false;
             }
 
-            //Onblurra a hidden mező is nullázódjon, ha üres volna a mező
+            // Onblurra a hidden mező is nullázódjon, ha üres volna a mező
             $ertek['onblur'] .= 'if(!$(this).val()){ $(\'#'.$ertek['name'].'\').val(\'\'); }';
 
             $input -> autocomplete  = 'off';
@@ -74,7 +74,6 @@ foreach($akt_tomb as $ertek){
                     }
                 }
             }
-
             if($ertek['value_felulir']){
                 $input -> value   = $ertek['value_felulir'];
             }
@@ -91,15 +90,13 @@ foreach($akt_tomb as $ertek){
                 $csoport_where = " and `csoport` = '".$ertek['csoport']."'";
             }
 
-            /* Lekérdezzük a külső tábla értékét */
+            // Lekérdezzük a külső tábla értékét
             $tabla = $ertek['tabla'];
             if($ertek['tabla']=='obj_csakszint'){
                 $tabla = 'obj';
             }
             $kulso_ertek = $adatbazis_kapcsolat->s($ertek['listaz'], $tabla, '`'.$ertek['oszlop_keres'].'`=\''.$kulso_val.'\''.$csoport_where, '', '1');
-if (isset($_GET['teszt'])) {
-    //echo $adatbazis_kapcsolat->gp() . '<br>';
-}
+
             if( $kulso_ertek ) {
                 $input -> value = $kulso_ertek[0][$ertek['listaz']];
             }
@@ -143,7 +140,7 @@ if (isset($_GET['teszt'])) {
                 //lényeges, hogy ne legyen a string végén szóköz
               );
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -204,7 +201,7 @@ if (isset($_GET['teszt'])) {
             }
             $html .= '</div>';
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -315,7 +312,7 @@ if (isset($_GET['teszt'])) {
 
             }
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -356,7 +353,7 @@ if (isset($_GET['teszt'])) {
 
             }
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -388,11 +385,14 @@ if (isset($_GET['teszt'])) {
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
             $input -> style    = $ertek['style'];
-			$input -> value    = $ertek['value'];
-
+			$input -> value    = $sor[ $ertek['name'] ];
+            if($ertek['value']){
+                $input -> value    = $sor['value'];
+            }
+            
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -428,29 +428,28 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'jsfile':
-
-            //Csak kép
-            if($ertek['csakkep']){
-                $ertek['csakkep']  = ' accept="image/*"';
-                $ertek['csakkep2'] = ' && fajlok[i].type.match(/^image\//)';
+            
+            // Milyen kiterjesztéseket engedünk meg
+            if($ertek['eng_kit']){
+                $ertek['eng_kit'] = ' accept="'.$ertek['eng_kit'].'"';
             }
 
-            //Fájlméret
+            // Fájlméret
             $meret = round($ertek['meret']/1048576);
             if(!$meret){
                 $meret = 1;
             }
 
-            //Bejegyzés szerkesztése vagy új feltöltés
+            // Bejegyzés szerkesztése vagy új feltöltés
             $uj_feltolt = '';
             if(isset($_GET['uj'])){
                 $uj_feltolt = '1';
             }
 
-            //Megnevezés változó/azonosító
+            // Megnevezés változó/azonosító
             $megn = $ertek['tabla'].'_'.$ertek['oszlop'];
 
-            //Fájlfeltöltéskor milyen paraméterek menjenek át
+            // Fájlfeltöltéskor milyen paraméterek menjenek át
             $parameterek = nl2("
                                 'sorid'         :   '{$_GET['id']}',
                                 'nev'           :   '".addslashes($sor['nev'])."',
@@ -459,7 +458,6 @@ if (isset($_GET['teszt'])) {
                                 'algoritmus'    :   '{$ertek['algoritmus']}',
                                 'tabla'         :   '{$ertek['tabla']}',
                                 'oszlop'        :   '{$ertek['oszlop']}',
-                                'csakkep'       :   '{$ertek['csakkep']}',
                                 'reload'        :   '{$ertek['reload']}',
                                 'uj_feltolt'    :   '{$uj_feltolt}'
                                  ");
@@ -473,21 +471,16 @@ if (isset($_GET['teszt'])) {
             $akt_fajl       = $akt_fajl[0];
             $utvonal        = '../'.get_utvonal().$akt_fajl[$ertek['oszlop']];
 
-            //Ha minden fájl feltöltése kész, mi történjen
-            $minden_kesz = '';
-            if(isset($_GET['modosit']) || isset($_GET['dokumentumok'])) {
-                $minden_kesz = 'get_admin_file_thumb(\''.$ertek['tabla'].'\', \''.$ertek['oszlop'].'\', \''.$_GET['id'].'\', \'#jsff_'.$megn.'_thumb\'); $(\'\');';
-            }else{
-
-            }
+            // Ha minden fájl feltöltése kész, mi történjen
+            $minden_kesz = 'get_admin_file_thumb(\''.$ertek['tabla'].'\', \''.$ertek['oszlop'].'\', \''.$_GET['id'].'\', \'#jsff_'.$megn.'_thumb\');';
 
             $fajl_thumb  = get_admin_file_thumb($ertek['tabla'], $ertek['oszlop'], $_GET['id']);
 
-            $mit   = array('{MEGN}', '{PHP_FAJL}',          '{CSAK_KEP}',       '{CSAK_KEP2}',      '{MERET}',  '{MINDEN_KESZ}',     '{PARAMETEREK}', '{FAJL}'  );
-            $mivel = array($megn,    $ertek['php_fajl'],    $ertek['csakkep'],  $ertek['csakkep2'], $meret,     $minden_kesz,        $parameterek,    $fajl_thumb     );
+            $mit   = array('{MEGN}', '{PHP_FAJL}',          '{ENG_KIT}',        '{MERET}',  '{MINDEN_KESZ}',     '{PARAMETEREK}', '{FAJL}'      );
+            $mivel = array($megn,    $ertek['php_fajl'],    $ertek['eng_kit'],  $meret,     $minden_kesz,        $parameterek,    $fajl_thumb   );
             $html  = str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/jsfile.html', true));
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -532,7 +525,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -579,7 +572,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -601,6 +594,11 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_erteklista':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_erteklista, $sor['csoport']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -621,7 +619,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -656,23 +654,29 @@ if (isset($_GET['teszt'])) {
 
 
 
-            /* Kapcsolódó tábla adatai */
-            $telephely_kapcs = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', '`nev`=\''.$loginNev.'\'');
-            if( $telephely_kapcs ) {
-                $telephely_kapcs = adatbazis2tomb($telephely_kapcs, 'telephely_id');
-
-                $telephelyek = $adatbazis_kapcsolat -> select('id recid nev', 'telephely', "`id` IN (".implode(',', $telephely_kapcs).")", 'nev');
-                foreach($telephelyek as $telephely) {
-                    //Ha csak egy szálloda van, akkor a seletből csak az az egy értékváélasztható ki, ezt meg is tesszük, selectet így disabled-re téve.
-                    //Mindezet csak akkor, ha új feltöltés üzemmódban vagyunk
-                    if( count($telephelyek) == 1 && isset($_GET['uj']) ) {
-                        $sor['telephely_id'] = $telephely['id'];
-                        $ertek['disabled'] = true;
-                        $ertek['post'] .= '<input type="hidden" name="telephely_id" id="telephely_id" value="'.$sor['telephely_id'].'">';
-                    }
-
-                    array_push($select_felh_telephely, array('name' => $telephely['nev'], 'value' => $telephely['id'] ));
+            // Kapcsolódó tábla adatai
+            if($ertek['tobb_szalloda']){
+                $where = '`azon` IN (\'DZ\', \'DH\')';
+            }else{
+                $telephely_kapcs = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', '`nev`=\''.$loginNev.'\'');
+                if( $telephely_kapcs ) {
+                    $telephely_kapcs = adatbazis2tomb($telephely_kapcs, 'telephely_id');
+                    $where = "`id` IN (".implode(',', $telephely_kapcs).")";
                 }
+            }
+            $where .= " AND `inaktiv`=0";
+            
+            $telephelyek = $adatbazis_kapcsolat -> select('id recid nev', 'telephely', $where, 'nev');
+            foreach($telephelyek as $telephely) {
+                // Ha csak egy szálloda van, akkor a seletből csak az az egy értékváélasztható ki, ezt meg is tesszük, selectet így disabled-re téve.
+                // Mindezet csak akkor, ha új feltöltés üzemmódban vagyunk
+                if( count($telephelyek) == 1 && isset($_GET['uj']) ) {
+                    $sor['telephely_id'] = $telephely['id'];
+                    $ertek['disabled'] = true;
+                    $ertek['post'] .= '<input type="hidden" name="telephely_id" id="telephely_id" value="'.$sor['telephely_id'].'">';
+                }
+
+                array_push($select_felh_telephely, array('name' => $telephely['nev'], 'value' => $telephely['id'] ));
             }
 
             if( $ertek['alert'] ) {
@@ -682,6 +686,10 @@ if (isset($_GET['teszt'])) {
             $selected = $sor['telephely_id'];
             if( isset($_GET['uj']) && $_GET['telphely'] ) {
                 $selected = $_GET['telphely'];
+            }
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
             }
 
             $input = new Select($select_felh_telephely, $selected);
@@ -706,7 +714,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -728,6 +736,11 @@ if (isset($_GET['teszt'])) {
         break;
 
         case 'select_rkat':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_rkat, $sor['rkat']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -748,7 +761,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -770,6 +783,11 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_fiz_mod':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_fiz_mod, $sor['fiz_mod']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -790,7 +808,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -812,6 +830,11 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_afa_tipus':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_afa_tipus, $sor['afa_tipus']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -832,7 +855,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -854,6 +877,11 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_eszk_csop':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_eszk_csop, $sor['eszkoz_csop']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -874,7 +902,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -896,6 +924,11 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_cimzett':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_cimzett, $sor['cimzett']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -916,7 +949,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -938,6 +971,11 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_ill_reszleg':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_ill_reszleg, $sor['ill_reszleg']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -958,7 +996,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -980,6 +1018,11 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_cikltip':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_cikltip, $sor['cikltip']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1000,7 +1043,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1022,6 +1065,11 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_honapjan':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_honapjan, $sor['honapjan']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1044,7 +1092,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1066,6 +1114,11 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_ho_ism':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_ho_ism, $sor['ciklhet']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1088,7 +1141,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1110,6 +1163,11 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_ho_soran':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_ho_soran, $sor['ho_rendsz_het']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1132,7 +1190,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1154,6 +1212,15 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_szemelyzet':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+
+            // Új feltöltésnél biztosan ne legyen hozzárendelt személy
+            if (isset($_GET['uj'])) {
+                $sor['szemelyzet_id'] = 0;
+            }
             $input = new Select($select_szemelyzet, $sor['szemelyzet_id']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1161,6 +1228,7 @@ if (isset($_GET['teszt'])) {
             $input -> name     = $ertek['name'];
             $input -> naptar   = $ertek['naptar'];
             $input -> onblur   = $ertek['onblur'];
+            $input -> onchange = $ertek['onchange'];
             $input -> onclick  = $ertek['onclick'];
             $input -> onfocus  = $ertek['onfocus'];
             $input -> pre      = $ertek['pre'];
@@ -1176,7 +1244,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1198,6 +1266,11 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_beosztas':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_beosztas, $sor['beosztas']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1221,7 +1294,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1243,6 +1316,11 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_pri_tipus':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_pri_tipus, $sor['tipus']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1266,7 +1344,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1288,6 +1366,11 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_pri_besorol':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_pri_besorol, $sor['besorol']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1311,7 +1394,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1333,6 +1416,11 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'select_pri_cel':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
             $input = new Select($select_pri_cel, $sor['megter_cel']);
             $input -> cssClass = $ertek['class'];
             $input -> disabled = $ertek['disabled'];
@@ -1356,7 +1444,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml();
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1376,8 +1464,102 @@ if (isset($_GET['teszt'])) {
                 $mezok .= "</div></div>";
             }
         break;
-        //{KOVETKEZO_SWITCH}
 
+		case 'select_oracikkid':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
+            $input = new Select($select_oracikkid, $sor['oracikkid']);
+            $input -> cssClass = $ertek['class'];
+            $input -> disabled = $ertek['disabled'];
+            $input -> id       = $ertek['name'];
+            $input -> name     = $ertek['name'];
+            $input -> naptar   = $ertek['naptar'];
+            $input -> onblur   = $ertek['onblur'];
+            $input -> onchange = $ertek['onchange'];
+            $input -> onclick  = $ertek['onclick'];
+            $input -> onfocus  = $ertek['onfocus'];
+            $input -> pre      = $ertek['pre'];
+            $input -> post     = $ertek['post'];
+            $input -> style    = $ertek['style'];
+
+            if($ertek['i']){
+                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
+            }
+
+            $html = $input -> getHtml();
+
+            // Összevonások lekezelése és tartalom összefűzése
+            if(!$osszevon_flag){
+                $mezok .= nl2("
+                                <div class=\"dtr{$ertek['dtr_class']}\">
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
+                                    <div class=\"dtc form_jobb\">
+                            ");
+            }else{
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+            }
+
+            $mezok .= $html;
+
+            if($ertek['osszevon']){
+                $osszevon_flag = 1;
+            }else{
+                $osszevon_flag = 0;
+                $mezok .= "</div></div>";
+            }
+        break;
+
+		case 'select_mobilcsoport':
+            
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+            
+            $input = new Select($select_mobilcsoport, $sor['mobil']);
+            $input -> cssClass = $ertek['class'];
+            $input -> disabled = $ertek['disabled'];
+            $input -> id       = $ertek['name'];
+            $input -> name     = $ertek['name'];
+            $input -> naptar   = $ertek['naptar'];
+            $input -> onblur   = $ertek['onblur'];
+            $input -> onchange = $ertek['onchange'];
+            $input -> onclick  = $ertek['onclick'];
+            $input -> onfocus  = $ertek['onfocus'];
+            $input -> pre      = $ertek['pre'];
+            $input -> post     = $ertek['post'];
+            $input -> style    = $ertek['style'];
+
+            if($ertek['i']){
+                $input -> post = ' <div class="tooltip di"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div> '.$input -> post;
+            }
+
+            $html = $input -> getHtml();
+
+            // Összevonások lekezelése és tartalom összefűzése
+            if(!$osszevon_flag){
+                $mezok .= nl2("
+                                <div class=\"dtr{$ertek['dtr_class']}\">
+                                    <div class=\"dtc form_bal\"><span>{$ertek['megn']}</span></div>
+                                    <div class=\"dtc form_jobb\">
+                            ");
+            }else{
+                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+            }
+
+            $mezok .= $html;
+
+            if($ertek['osszevon']){
+                $osszevon_flag = 1;
+            }else{
+                $osszevon_flag = 0;
+                $mezok .= "</div></div>";
+            }
+        break;
+
+        
 		case 'submit':
             $input = new Input($ertek['type']);
             $input -> cssClass = $ertek['class'];
@@ -1497,7 +1679,7 @@ if (isset($_GET['teszt'])) {
 
             $html = $input -> getHtml().$hidden;
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">
@@ -1519,10 +1701,10 @@ if (isset($_GET['teszt'])) {
         break;
 
 		case 'textarea':
+
             if(!$sor[ $ertek['name'] ]){
                 $sor[ $ertek['name'] ] = $ertek['value'];
             }
-
             if($ertek['alert']){
                 $ertek['class'] .= ' csillag';
             }
@@ -1578,16 +1760,15 @@ if (isset($_GET['teszt'])) {
                 $html .= str_replace('{TEXTAREA_ID}', $ertek['name'], fajlbol_olvas('../sablon/admin/bbkod.html', true));
             }
 
-
             $html .= $tag -> getHtml().$wysiwyg_html;
 
-            //Ha limitálva van a textarea (WYSIWYG-et nem célszerű együtt használni)
+            // Ha limitálva van a textarea (WYSIWYG-et nem célszerű együtt használni)
             if($ertek['limit']){
                 $html .= '<script>$(function(){ $(\'#'.$ertek['name'].'\').keyup(function(){ textarea_limit(\''.$ertek['name'].'\', '.$ertek['limit'].', \''.$ertek['name'].'_info\'); }) }); </script>';
                 $html .= '<div id="'.$ertek['name'].'_info"></div>';
             }
 
-            //Összevonások lekezelése és tartalom összefűzése
+            // Összevonások lekezelése és tartalom összefűzése
             if(!$osszevon_flag){
                 $mezok .= nl2("
                                 <div class=\"dtr{$ertek['dtr_class']}\">

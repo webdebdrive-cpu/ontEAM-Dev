@@ -2,11 +2,16 @@
     <div class="dtc">
         {JS}
         {CK_EDITOR}
-        <form id="szerk_form" action="{ACTION}" enctype="multipart/form-data" method="post" onsubmit="javascript:return form_ell_admin()">
+        <form id="szerk_form" action="{ACTION}" enctype="multipart/form-data" method="post" onsubmit="javascript:return form_ell_admin_elott()">
             <div class="dt full">
                 {MEZOK}
             </div>
             <script>
+
+                function form_ell_admin_elott(){
+                    {JS_SUBMIT_ELOTT}
+                }
+
                 $(document).ready(function () {
                     $('.datepicker').datetimepicker({
                         closeOnDateSelect   : true,
@@ -14,22 +19,23 @@
                         mask                : /*'____.__.__'*/'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
                         timepicker          : false,
                         validateOnBlur      : false,
-                        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
+                        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert'); $('#megsem_gomb').removeAttr('disabled'); }
                     });
                     $('.datetimepicker').datetimepicker({
-                        closeOnDateSelect   : true,
+                        closeOnDateSelect   : false,
                         format              :'Y.m.d H:i',
                         mask                : /*'____.__.__ __:__'*/'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0',
                         timepicker          : true,
                         step                : 60,
                         validateOnBlur      : false,
-                        onChangeDateTime    : function(dp, $input){ 
-                            $('#mehet_gomb').removeAttr('disabled');
+                        onChangeDateTime    : function(dp, $input){
+                            $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
+                            $('#megsem_gomb').removeAttr('disabled');
                             /* Órapontosak vagyunk */
                             $input.val( $input.val().substring(0, 14)+'00' );
                         }
                     });
-                    $('.ora_perc').datetimepicker({ 
+                    $('.ora_perc').datetimepicker({
                         closeOnDateSelect   : true,
                         datepicker          : false,
                         format              :'H:i',
@@ -37,27 +43,44 @@
                         step                : 60,
                         validateOnBlur      : false,
                         onChangeDateTime    : function(dp, $input){
-                            $('#mehet_gomb').removeAttr('disabled');
+                            $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
+                            $('#megsem_gomb').removeAttr('disabled');
                             /* Órapontosak vagyunk */
                             $input.val( $input.val().substring(0, 3)+'00' );
                         }
                     });
                     
+                    $(document).on('blur', '.datepicker, .datetimepicker', function(e) {
+                        valid_date($(this));
+                    });
+                            
+
                     /* Ha az űrlapnak nincs submit-ja, akkor minden mezőjét tiltunk.  */
-                    if(!$('#szerk_form input.mentes_gomb').length){
+                    if(!$('#szerk_form').parent().find('input.mentes_gomb').length){
                         $('#szerk_form input, #szerk_form textarea, #szerk_form select').attr('disabled', true);
                         $('#szerk_form input.f_nem_rejt').attr('disabled', false);
                         $('#szerk_form input.foGomb').removeAttr('disabled');
                     }
-                    
+                    /* Ha a helyiség input tiltott, akkor az ikonja is legyen az */
+                    if($('#obj_id_autocomp').is(':disabled')){
+                        $('.obj_gen').hide();
+                    }
+
+                    /* Disabled inputokra ne lehessen jobbkilkkelni, ezért teszünk föléjük egy div-et */
+                    /*
+                    $('input[disabled], textarea[disabled]').each(function() {
+                        $(this).after('<div class="no_right_click"></div>');
+                    });
+                    */
                 });
+
             </script>
             <div>
                 <input type="hidden" name="{MEGNEVEZES}lista">
                 <input type="hidden" id="{MEGNEVEZES}ujkent_szerk" name="{MEGNEVEZES}ujkent_szerk" value="">
             </div>
-            {GOMBOK}
         </form>
+        {GOMBOK}
         {KEP}
     </div>
 </div>

@@ -62,6 +62,7 @@ function adoszam_formaz(szam) {
     return uj.substring(0, 14);
 }
 
+
 /**
  * @desc Cégjegyzékszám megadásakor formázza a megadott számot xx-xx-xxxxxx alakúra
  *

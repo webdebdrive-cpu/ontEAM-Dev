@@ -2,6 +2,8 @@
 <form action="" id="addCashFlow" class="popupForm" method="post">
     <div class="kozep">
         <div class="dt">
+            <div class="dtr" id="cf_szalloda">
+            </div>
             <div class="dtr"> 
                 <div class="dtc form_bal">Dátum:</div>
                 <div class="dtc form_jobb">
@@ -22,14 +24,77 @@
     </div>
 </form>
 <script>
-    $(document).ready(function () {
-        $('.datepicker').datetimepicker({
-            closeOnDateSelect   : true,
-            format              :'Y.m.d',
-            mask                : /*'____.__.__'*/'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
-            timepicker          : false,
-            validateOnBlur      : false,
-            onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
-        });
+$(document).ready(function () {
+
+    $('.datepicker').datetimepicker({
+        closeOnDateSelect   : true,
+        format              :'Y.m.d',
+        mask                : /*'____.__.__'*/'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+        timepicker          : false,
+        validateOnBlur      : false,
+        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
     });
+
+    $('#cf_szalloda').hide();
+    if( $('#egy_tobb_tobb').prop('checked') ){
+
+        $.ajax({
+            url : 'projektigenyles.php',
+            type: 'POST',
+            data: {
+                egy_tobb        : 'egy',
+                f_pri_egytobb   : new Date().getTime()
+            },
+            success: function(response){
+                $('#cf_szalloda').replaceWith(response);
+                $('#telephely_id').focus();
+                $('.xdsoft_datetimepicker').hide();
+            }
+        });
+    }
+});
+
+//Cash-flow hozzáadása
+function addCashFlow( pageID, that ) {
+
+    var telephely_id= $('#telephely_id').val();
+    var szalloda    = $('#telephely_id option:selected').html();
+    var datum       = $('#cf_datum').val();
+    var osszeg      = $('#cf_osszeg').val();
+    
+    if($('#telephely_id').length && !$('#telephely_id').val()){
+        alert2('Kérjük válasszon szállodát!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#telephely_id\').focus();">', 'Hiba');
+        return false;
+    }
+
+    var timestamp = Date.parse(datum.replace(/\./g, '-'));
+    if (isNaN(timestamp)){
+        alert2('Kérjük adjon meg egy valós dátumot!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#cf_datum\').focus();">', 'Hiba');
+        return false;
+    }
+    if(!osszeg.trim() || osszeg=='0'){
+        alert2('Kérjük adja meg az összeget!', '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#cf_osszeg\').focus();">', 'Hiba');
+        return false;
+    }
+
+    $('#cash_flow_div div.dt div.dtr:first').after(
+                                    '<div id="naploSor-UJ" class="dtr nSor kijSor" data-id="UJ">'               +
+                                        '<div class="dtc szalloda" style="width: 15rem">'                                +
+                                            '<input type="hidden" name="telephely_id" value="'+telephely_id+'">'+
+                                            szalloda                                                            +
+                                        '</div>'                                                                +
+                                        '<div class="dtc datum" style="width: 15rem">'+datum+'</div>'           +
+                                        '<div class="dtc osszeg">'+osszeg+' Ft</div>'                           +
+                                    '</div>'
+                                );
+    
+
+    popupZar();
+    becsult_szetosztott_ujraszamol();
+    $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
+    
+    formModositva = true;
+
+    return false;
+}
 </script>
