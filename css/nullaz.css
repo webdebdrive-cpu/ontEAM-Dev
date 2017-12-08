@@ -97,6 +97,19 @@ td.bottom {
     vertical-align: bottom;
 }
 
+/* Hogy bármilyeik inputra lehessen no_right_click-es div-et tenni, ami csak adott cella magasságú  */
+div{
+    /*position: relative;*/
+}
+
+div.no_right_click{
+    background: rgba(0,0,0,0);
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
 
 /* Általános stílusok */
 /*.alert  { color: #E00000;               }*/

@@ -965,7 +965,7 @@ if( isset($_GET['bejelento']) ) {
 // Bejelentések
 $bejelentes_tomb = $akt_tomb = array(
     array('type' => 'statusz',         'megn' => 'Státusz:',            'name' => 'stat_id',    'szuro' => 1,  'oldal' => $megnevezes),
-	array('type' => 'text',            'megn' => 'Bejelentés szám:',    'name' => 'ikt_szam',   'szuro' => 1,  'disabled' => true,              'maxlength' => 250, 'class' => 'kozepes', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
+	array('type' => 'text',            'megn' => 'Bejelentés szám:',    'name' => 'ikt_szam',   'szuro' => 1,  'disabled' => true,              'maxlength' => 250, 'osszevon' => 1, 'pre' => '<div class="dib">', 'post' => '</div><span style="margin-right: 4rem"></span>'),
     array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',     'szuro' => 1,  'disabled' => $surgos_disabled,  'class' => 'check', 'onclick' => $surgos_onclick),
 
     array('type' => 'html',            'megn' => nl2('

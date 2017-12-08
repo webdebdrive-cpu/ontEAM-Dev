@@ -819,12 +819,14 @@ $(function() {
 
                 $('#kilepes_gomb').val('Kilépés mentés nélkül');
                 $('#mehet_gomb').attr('disabled', false).addClass('gombb_alert');
+                $('#megsem_gomb').attr('disabled', false);
                 $('#visszavonas_gomb').attr('disabled', false);
 
                 formModositva = true;
             } else {
                 $('#kilepes_gomb').val('Kilépés');
                 $('#mehet_gomb').attr('disabled', true).removeClass('gombb_alert');
+                $('#megsem_gomb').attr('disabled', true);
                 $('#visszavonas_gomb').attr('disabled', true);
 
                 formModositva = false;
@@ -1164,6 +1166,7 @@ $(function() {
         $('.insertMee')     .html(mee);
 
         $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
+        $('#megsem_gomb').removeAttr('disabled');
     });
     $(document).on('click', '.f_anyag_rendelkezesre_all', function(e) {
 
@@ -4899,6 +4902,7 @@ function beosztas_naptarba_tesz(beosztas_id, felulir){
                 // Gombok rejtése
                 $('#mehet_gomb').attr('disabled', 'disabled');
                 $('#mehet_gomb_kivesz').attr('disabled', 'disabled');
+                $('#megsem_gomb').attr('disabled', 'disabled');
 
                 // Űrlap nullázása
                 $('#tol').val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0').removeClass('mod');
@@ -5147,6 +5151,7 @@ function prigeny_ful_valt(ful){
 
         if(vannak_ideiglenes_sorok){
             $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
+            $('#megsem_gomb').removeAttr('disabled');
         }
 
     }

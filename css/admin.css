@@ -406,9 +406,7 @@ input.gombm {
     padding: 0.7rem 0.8rem 0.6rem 0.9rem;
 }
 
-input[disabled],
-select[disabled],
-textarea[disabled] {
+input[disabled], select[disabled], textarea[disabled] {
     background: #f3f3f3;
     border: 0.1rem solid #cecfd1!important;
     color: #0d0d0d;
