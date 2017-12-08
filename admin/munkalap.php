@@ -1563,7 +1563,10 @@ if( isset($_POST['munkalap_kulsoSelect']) ) {
             exit();
         }
 
-        $select = '<select id="p_szemelyzet_id" name="p_szemelyzet_id">';
+        $select = nl2('
+                        <select id="p_szemelyzet_id" name="p_szemelyzet_id">
+                            <option value="">- Válasszon -</option>
+                        ');
 
         foreach($select_szemelyzet as $value) {
             if($value['kulsos']){
@@ -4050,9 +4053,9 @@ require('selectek.php');
         if(!_jog(JOG_MUNKALAP_TOROL)){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága munkalap törléséhez!\', \'\', \'Hiba\')" value="Töröl">';
         }else{
-            //Egyébként nézzük meg, hogy van-e tétel vagy bejelentés rajta. Ha van, akkor sem törölhető
-            if($adatbazis_kapcsolat->s('id', 'munkalap_tetel', "`munkalap_id`='{$_GET['id']}'")){
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A munkalap nem törölhető, mert munkavégzéseket tartalmaz!\', \'\', \'Hiba\')" value="Töröl">';
+            // Egyébként nézzük meg, hogy van-e tétel vagy bejelentés rajta. Ha van, akkor sem törölhető
+            if($adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id`='{$_GET['id']}'")){
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Munkalapszám: '.$sor['ikt_szam'].'<br>Szálloda: '.getErtek('nev', 'telephely', 'id', $sor['telephely_id']).'<br>Ennek a munkalapnak már vannak tételei, ezért nem törölhető!\', \'\', \'Hiba\')" value="Töröl">';
             }elseif($adatbazis_kapcsolat->s('recid ', 'munkalap_kapcs', "`munkalap_id` = '{$_GET['id']}'")){
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Munkalap törlése előtt vegye le róla a bejelentéseket!\', \'\', \'Hiba\')" value="Töröl">';
             }else{
@@ -4535,7 +4538,7 @@ require('selectek.php');
                         <div class="dtc">Bejelentő</div>
                         <div class="dtc">Bejelentve</div>
                         <div class="dtc">Státusz</div>
-                        <div class="dtc"></div>
+                        <!--<div class="dtc"></div>-->
                     </div>
             ');
             $i = 1;
@@ -4557,19 +4560,20 @@ require('selectek.php');
                     $hiba = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=4 AND `recid`='{$sor['hiba_id']}'");
                     
                     
-                    // Bejelentést, csak kezelés joggal lehet törölni
+                    // Bejelentést, csak kezelés joggal lehet törölni. Update: egyelőre nem lehet bejelentést törölni munkalapról
                     $torles = '';
-                    if($kezeles_jog){
-                        $torles = '
-                                <script>
-                                    bej_torol_gomb = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\'munkalap_kapcs\\\', \\\'bejelentesek\\\', \\\'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
-                                </script>
-                                <span class="icon" onclick="$(\'#naploSor-'.$sor['recid'].'\').addClass(\'torles_elott\'); alert2(\'Biztosan törli a bejelentést a munkalapról?\', bej_torol_gomb);"><i class="material-icons" style="font-size: 2rem">delete</i></span>
-                            ';
-                    }
+//                    if($kezeles_jog){
+//                        $torles = '
+//                                <script>
+//                                    bej_torol_gomb = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\'munkalap_kapcs\\\', \\\'bejelentesek\\\', \\\'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
+//                                </script>
+//                                <span class="icon" onclick="$(\'#naploSor-'.$sor['recid'].'\').addClass(\'torles_elott\'); alert2(\'Biztosan törli a bejelentést a munkalapról?\', bej_torol_gomb);"><i class="material-icons" style="font-size: 2rem">delete</i></span>
+//                            ';
+//                    }
 
+// HA MÉGIS KELLENE A TÖRLÉS, AKKOR A naploSor-nak adj egy "kijSor" class-t.
                     $szamla_html .= nl2('
-                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                        <div id="naploSor-'.$sor['recid'].'" class="dtr nSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                             <div class="dtc"><a href="bejelentes.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a></div>
                             <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
                             <div class="dtc">'.$hiba['info'].'</div>
@@ -4583,9 +4587,9 @@ require('selectek.php');
                             </div>
                             <div class="dtc">'.$sor['insert_dt'].'</div>
                             <div class="dtc">'.getStatText('bejelentes', $sor['stat_id']).'</div>
-                            <div class="dtc link">
+                            <!--<div class="dtc link">
                                 '.$torles.'
-                            </div>
+                            </div>-->
                         </div>
                     ');
                 }

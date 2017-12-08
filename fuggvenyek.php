@@ -2003,7 +2003,12 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             // Ha mobilcsopotos felhasználó vagyok csak azokat a munkalapokat látom, amik mobilhoz vannak rendelve és a hozzárendelt személy üres vagy én vagyok.
             if( $_SESSION[get_db_tabla().'szemelyzet_id']==MOBILCSOPORT ){
                 $login = $adatbazis_kapcsolat->s2('mobil', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
-                $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}') AND `mobil`='{$login['mobil']}'";
+                if($login['mobil']){
+                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}') AND `mobil`='{$login['mobil']}'";
+                // Ha nincs mobilcsoportom, akkor nem látok munkalapokat
+                }else{
+                    $where .= ' FALSE AND ';
+                }
                 
             // Ha nem mobilcsoport vagyok, akkor még a saját szállodák jogra kell figyleni:
             }else{
@@ -2829,14 +2834,22 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $gep       = $adatbazis_kapcsolat->s2('nev', 'eszkozkezeles', 'recid='.$bsz['gep_id'], '', '1');
             $tipus     = erteklista(6, $bsz['tipus_id']);
 
+            // Személyzettípus kiíratása
             require_once 'selectek.php';
             $szemelyzet = '';
             if($bsz['szemelyzet_id']){
-                foreach($select_szemelyzet as $szemely){
-                    if($szemely['value']==$bsz['szemelyzet_id']){
-                        $szemelyzet = $szemely['name'];
+                
+                // Ha a személyzettípus külső kivitelező, akkor a külső cég neve jelenjen meg
+                if($bsz['szemelyzet_id']==KULSO_KIVITELEZO){
+                    $szemelyzet = getErtek('nev', 'szallito', 'id', $bsz['szallito_id']);
+                }else{
+                    foreach($select_szemelyzet as $szemely){
+                        if($szemely['value']==$bsz['szemelyzet_id']){
+                            $szemelyzet = $szemely['name'];
+                        }
                     }
                 }
+                
             }
 
             $dok_icon = '';

@@ -144,7 +144,7 @@
         </div>
     </div>
     <div class="kuldes">
-        <input type="button" class="gomb" value="Hozzáad" onclick="munkAnyagKPHozzaad('#anyagigenylesKpBeszerez')">
+        <input type="button" class="gomb" value="Hozzáad" onclick="munkAnyagKPHozzaad('#anyagigenylesKpBeszerez')" id="kp_hozzaad_gomb">
         <input type="button" class="gomb zold" value="Mentés" onclick="anyagigenylesKPBeszerez('kérdezünk')">
         <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();" id="nem_gomb">
     </div>
@@ -155,6 +155,13 @@ $(document).on('keydown', '#nem_gomb', function(event) {
     if( event.keyCode == KEY_TAB ) {
         $('#cikk_id_autocomp').focus();
         return false;
+    }
+});
+
+$(document).on('keyup', '#pop_br_ar', function(e) {
+    if (e.which == KEY_ENTER) {
+        $('#cikk_id_autocomp').focus();
+        $('#kp_hozzaad_gomb').click();
     }
 });
 
