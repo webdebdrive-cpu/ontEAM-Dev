@@ -260,6 +260,7 @@ if($gyorskereso_text){
 
         $gombok = nl2('<div class="form_kuldes">
                           <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                          <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; history.back();">
                       </div>').$gombok;
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
@@ -379,6 +380,7 @@ if($gyorskereso_text){
         $gombok = nl2('
             <div class="form_kuldes">
                 <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
             </div>
         ').$gombok;
 
