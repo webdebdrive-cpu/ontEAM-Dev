@@ -204,7 +204,8 @@ require_once('selectek.php');
         if(_jog(JOG_CIKKTORZS_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="gombb" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; history.back();">
                 </div>
             ');
 
@@ -235,10 +236,11 @@ require_once('selectek.php');
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
                 </div>
             ').$gombok;
         }
-        
+
         if(!_jog(JOG_CIKKTORZS_KEZEL)){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga törléshez!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }else{
@@ -259,7 +261,7 @@ require_once('selectek.php');
             </div>
         ');
     }
-    
+
     $js_submit_elott = 'return form_ell_admin();';
 
 	// Új termék felvitele
@@ -311,7 +313,7 @@ require_once('selectek.php');
                 $sor[$tomb['name'].'_autocomp'] = '';
             }
         }
-        
+
         // Automatikus cikkszám
         $max = $adatbazis_kapcsolat->s2('MAX(`id`)', $megnevezes, "`id`>0");
         $max = number_format($max['MAX(`id`)'], 0, '', '');
@@ -358,7 +360,7 @@ require_once('selectek.php');
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                
+
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`id`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
@@ -382,7 +384,7 @@ require_once('selectek.php');
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
-        
+
         // Duplákáláskor feltett kérdés
         $szamla_html .= nl2('
             <script>

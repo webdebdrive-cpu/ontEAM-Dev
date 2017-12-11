@@ -260,7 +260,7 @@ if( isset($_POST['munkalapKeszit']) ) {
 
 // Munkalap átadása mobil csoportnak
 if( isset($_POST['munkalapMobil']) ) {
-    
+
     $idk = json_decode($_POST['idk'], true);
 
     $db_error = false;
@@ -489,7 +489,7 @@ if( isset($_POST['munkalapMobil_sima']) ) {
 
 // Munkalap átadása külső csoportnak
 if( isset($_POST['munkalapKulso']) ) {
-    
+
     $recid          = $_POST['recid'];
     $szallito_id    = $_POST['szallito_id'];
     $szemelyzet_id  = $_POST['szemelyzet_id'];
@@ -639,7 +639,7 @@ if( isset($_POST['munkalapFelvesz']) ) {
 
 // Munkalap készre jelentése
 if( isset($_POST['munkalapKeszre']) ) {
-    
+
     $recid = $_POST['recid'];
 
     $db_error = false;
@@ -775,7 +775,7 @@ if( isset($_POST['munkalapKeszre']) ) {
 
 // Munkalap készre jelentése
 if( isset($_POST['munkalapRogzit']) ) {
-    
+
     $recid = $_POST['recid'];
 
     $db_error = false;
@@ -810,7 +810,7 @@ if( isset($_POST['munkalapRogzit']) ) {
             $weblap->leallit();
             exit();
         }
-        
+
         // Ellenőrizzük, hogy van e elvégzett munka hozzáadva
         $is_feladat = $adatbazis_kapcsolat->s('recid', 'munkalap_feladat', "`munkalap_id` = '".$recid."'", '', '1');
         if( !$is_feladat ) {
@@ -1642,7 +1642,7 @@ if( isset($_POST['munkalap_kulsoSelect']) ) {
     $recid = $_POST['recid'];
 
     if( $select_szemelyzet ) {
-        
+
         // Ellenőrizzük, hogy felvéve státuszban van e
         $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
@@ -2388,14 +2388,14 @@ if( isset($_POST['getMunkalapFeladatok']) ) {
 
 // Munkalap munkaidő
 if( isset($_POST['getMunkalapMunkaido']) ) {
-    
+
     $recid = $_POST['recid'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
-        
+
         $akt_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
         if( $akt_tetel === false ) { $db_error = true; }
 
@@ -3269,7 +3269,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
 
 // Feladat hozzáadás
 if( isset($_POST['feladatHozzaadas']) ) {
-    
+
     $recid          = $_POST['recid'];
     $erteklista_id  = $_POST['erteklista_id'];
     $memo           = erteklista(5, $erteklista_id)."\r\n".$_POST['memo'];
@@ -3278,7 +3278,7 @@ if( isset($_POST['feladatHozzaadas']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $erteklista_id ) {
-        
+
         // Kiszámoljuk a legutóbbi munkalap tételt, ehhez kerül hozzáadásra az új feladat
         $akt_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
         if( $akt_tetel === false ) { $db_error = true; }
@@ -3343,15 +3343,15 @@ if( isset($_POST['munkaidoHozzaadas']) ) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-    
+
     // Státusz ellenőrzése
     $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
     if( $munkalap === false ) { $db_error = true; }
-    
+
     // Kiszámoljuk a legutóbbi munkalap tételt, ehhez kerül hozzáadásra az új munkaidőráfordítás
     $akt_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
     if( $akt_tetel === false ) { $db_error = true; }
- 
+
     // Státusz ellenőrzése
     if( $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE && $munkalap['stat_id'] != MUNKALAP_STAT_KESZ && $munkalap['stat_id'] != MUNKALAP_STAT_VIZSGALAT_ALATT ) {
         echo json_encode(array(
@@ -3441,7 +3441,7 @@ if( isset($_POST['munkaidoHozzaadas']) ) {
 
 // Munkalap átadása telepített csoportnak
 if( isset($_POST['munkalapTelepitett']) ) {
-    
+
     $recid    = $_POST['recid'];
     $indoklas = $_POST['indoklas'];
 
@@ -3492,12 +3492,12 @@ if( isset($_POST['munkalapTelepitett']) ) {
                                                     array(TELEPITETT_SZEMELYZET,    0            ),
                                                     "`recid` = '{$recid}'");
         if( $sql === false ) { $db_error = true; }
- 
+
         // Státusz léptetés
         if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN, '', $indoklas ) ) {
             $db_error = true;
         }
-        
+
         // Megjegyzés hozzáadása
         addMegj('munkalap', $recid, $indoklas);
 
@@ -3522,7 +3522,7 @@ if( isset($_POST['munkalapTelepitett']) ) {
 
 // Munkalap átadása területi vezetőnek
 if( isset($_POST['munkalapTeruletiVezeto']) ) {
-    
+
     $recid    = $_POST['recid'];
     $indoklas = $_POST['indoklas'];
     
@@ -3570,7 +3570,7 @@ if( isset($_POST['munkalapTeruletiVezeto']) ) {
                 $db_error = true;
             }
         }
-        
+
         // Megjegyzés hozzáadása
         addMegj('munkalap', $recid, $indoklas);
 
@@ -3596,7 +3596,7 @@ if( isset($_POST['munkalapTeruletiVezeto']) ) {
 
 // Munkalap átadása műszaki vezetőnek
 if( isset($_POST['munkalapMuszakiVezeto']) ) {
-    
+
     $recid    = $_POST['recid'];
     $indoklas = $_POST['indoklas'];
 
@@ -3644,7 +3644,7 @@ if( isset($_POST['munkalapMuszakiVezeto']) ) {
                 $db_error = true;
             }
         }
-        
+
         // Megjegyzés hozzáadása
         addMegj('munkalap', $recid, $indoklas);
 
@@ -3669,7 +3669,7 @@ if( isset($_POST['munkalapMuszakiVezeto']) ) {
 
 // Munkalap átadása műszaki vezetőnek
 if( isset($_POST['munkalapMuszakiVezetoHelyettes']) ) {
-    
+
     $recid    = $_POST['recid'];
     $indoklas = $_POST['indoklas'];
 
@@ -3717,7 +3717,7 @@ if( isset($_POST['munkalapMuszakiVezetoHelyettes']) ) {
                 $db_error = true;
             }
         }
-        
+
         // Megjegyzés hozzáadása
         addMegj('munkalap', $recid, $indoklas);
 
@@ -3742,7 +3742,7 @@ if( isset($_POST['munkalapMuszakiVezetoHelyettes']) ) {
 
 // Munkalap átadása adminisztrátornak
 if( isset($_POST['munkalapAdminisztrator']) ) {
-    
+
     $recid    = $_POST['recid'];
     $indoklas = $_POST['indoklas'];
 
@@ -3790,7 +3790,7 @@ if( isset($_POST['munkalapAdminisztrator']) ) {
                 $db_error = true;
             }
         }
-        
+
         // Megjegyzés hozzáadása
         addMegj('munkalap', $recid, $indoklas);
 
@@ -3815,7 +3815,7 @@ if( isset($_POST['munkalapAdminisztrator']) ) {
 
 // Munkalap átadása diszpécser központnak
 if( isset($_POST['munkalapDiszpKozp']) ) {
-    
+
     $recid    = $_POST['recid'];
     $indoklas = $_POST['indoklas'];
 
@@ -3863,7 +3863,7 @@ if( isset($_POST['munkalapDiszpKozp']) ) {
                 $db_error = true;
             }
         }
-        
+
         // Megjegyzés hozzáadása
         addMegj('munkalap', $recid, $indoklas);
 
@@ -3888,7 +3888,7 @@ if( isset($_POST['munkalapDiszpKozp']) ) {
 
 // Munkalap átadása MSZKvezetőnek
 if( isset($_POST['munkalapMSZKVezeto']) ) {
-    
+
     $recid    = $_POST['recid'];
     $indoklas = $_POST['indoklas'];
 
@@ -3936,7 +3936,7 @@ if( isset($_POST['munkalapMSZKVezeto']) ) {
                 $db_error = true;
             }
         }
-        
+
         // Megjegyzés hozzáadása
         addMegj('munkalap', $recid, $indoklas);
 
@@ -4169,6 +4169,7 @@ require('selectek.php');
         $gombok = nl2('
             <div class="form_kuldes">
                 <input type="button" class="gombb'.$class.' mentes_gomb" name="mehet_gomb" id="mehet_gomb"'.$disabled.' value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; history.back();">
             </div>
         ');
 
@@ -4244,6 +4245,15 @@ require('selectek.php');
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl">';
             }
 
+            //Munkalap adatlapja csak akkor szerkeszthető, ha a státusz nyitott vagy folyamatban, és a belépett felhasználó diszpécser vagy diszpécser közp vezető
+            if( isset($_GET['modosit']) && in_array($sor['stat_id'], array(MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_FOLYAMATBAN)) ) {
+                $gombok = nl2('
+                    <div class="form_kuldes">
+                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
+                    </div>
+                ').$gombok;
+            }
         }
 
 
@@ -4317,7 +4327,7 @@ require('selectek.php');
         }
 
         // Felvéve státusz + munkaidő hozzáad jog
-        if( 
+        if(
             (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_KESZ) && $kezeles_jog ) ||
             ($sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
             ){
@@ -4390,14 +4400,14 @@ require('selectek.php');
             // Ha nincs egyetlen elvégzett feladat sem, akkor nem lehet majd átadni, más hibaüzenet jön majd fel
             $is_feladat = $adatbazis_kapcsolat->s('recid', 'munkalap_feladat', "`munkalap_id` = '{$_GET['id']}'", '', '1');
             if(!$is_feladat){
-                $alert_musz_vez_helyett = 
+                $alert_musz_vez_helyett =
                 $alert_musz_vez         =
                 $alert_ter              =
                 $alert_dkpv             =
                 $alert_mszk             =
                 'alert2(\'Átadáshoz adjon hozzá legalább egy elvégzett feladatot!\')';
             }
-            
+
             // Egyszállodás modell
             if( !$telephely['modell'] ) {
                 $gombok .= nl2('
@@ -4536,7 +4546,7 @@ require('selectek.php');
 		if($_GET['ujkent']) {
             $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
             if( $sor ) {
-                
+
                 foreach($akt_tomb as $ertek) {
                     if( $ertek['name'] != 'ikt_szam' ) {
                         $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
@@ -4547,7 +4557,7 @@ require('selectek.php');
             }
 
             foreach($akt_tomb as $ertek) {
-				$sor[$ertek['name']] = $_SESSION[$ertek['name']]; 
+				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
 		}
         // Munkalap újként szerkesztése, de az adatokat a bejelentésből töltjük fel
@@ -4816,13 +4826,13 @@ require('selectek.php');
         $i = 0;
         $sorok = $adatbazis_kapcsolat->s('recid atadta_dt visszaadva erteklista_id loginnev insert_dt insert_usr', 'munkalap_tetel', "`munkalap_id` = '".$_GET['id']."'", 'recid desc');
         foreach($sorok as $sor) {
-            
+
             $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='{$_GET['id']}'");
             $kezeles_jog = false;
             if( _jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) || (_jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']==$_SESSION[get_db_tabla().'szemelyzet_id']) ) {
                 $kezeles_jog = true;
             }
-            
+
             $szamla_html .= nl2('
                 <div class="tetel_div">
                     <table class="csikos tetel_csikos full">
@@ -4885,7 +4895,7 @@ require('selectek.php');
                 ');
 
                 foreach($feladatok as $feladat) {
-                    
+
                     // Csak a legelső iterációban (tehát a legutóbb felvett tételnél) van törlés lehetőség, persze ha a státusz és jogok is rendben vannak.
                     $torles = '';
                     if(
@@ -4894,7 +4904,7 @@ require('selectek.php');
                                 (($munkalap['stat_id']==MUNKALAP_STAT_FELVEVE || $munkalap['stat_id']==MUNKALAP_STAT_KESZ) && $kezeles_jog ) ||
                                 ($munkalap['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
                             )
-                            
+
                         ){
                         $torles = '<a class="link" id="feladat2_id_'.$feladat['recid'].'" onclick="munkFeladatTorol( \''.$feladat['recid'].'\', \'feladat2_id_'.$feladat['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a>';
                     }
@@ -4932,7 +4942,7 @@ require('selectek.php');
                     if(     $i==0 &&
                             (
                                 (($munkalap['stat_id']==MUNKALAP_STAT_FELVEVE || $munkalap['stat_id']==MUNKALAP_STAT_KESZ) && $kezeles_jog ) ||
-                                ($munkalap['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) ) 
+                                ($munkalap['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
                             )
                         ){
                         $anyag_torol = '<a class="link" id="anyag2_id_'.$anyag['recid'].'" onclick="munkAnyagTorol( \''.$anyag['recid'].'\', \'anyag2_id_'.$anyag['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a>';
@@ -4979,7 +4989,7 @@ require('selectek.php');
                     if($munkaido['perc']<10){
                         $munkaido['perc'] = '0'.$munkaido['perc'];
                     }
-                    
+
                     // Törlés csak az első tételnél lehetséges
                     $torles = '';
                     if(
@@ -4991,7 +5001,7 @@ require('selectek.php');
                         ){
                         $torles = '<a id="munk_ido2_'.$munkaido['recid'].'" class="link" onclick="munkMunkaidoTorol( \''.$munkaido['recid'].'\', \'munk_ido2_'.$munkaido['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a>';
                     }
-                    
+
                     $szamla_html .= nl2('
                         <tr class="munkaido_sor_'.$munkaido['recid'].'">
                             <td id="munkaido_nev_'.$munkaido['recid'].'">'.getErtek('teljes_nev', 'login', 'recid', $munkaido['login_id']).'</td>
@@ -5005,7 +5015,7 @@ require('selectek.php');
             }
 
             $szamla_html .= '</div>';
-            
+
             $i++;
         }
 

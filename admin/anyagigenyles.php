@@ -1214,9 +1214,9 @@ echo $sorszam;
             // Letároljuk az új sorszámot
             $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), '`tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\'');
             if( $sql === false ) { $db_error = true; }
-            
+
         } else {
-            
+
             $sorszam = 1;
             $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), 'cikkrendfej'));
             if( $sql === false ) {  $db_error = true; }
@@ -1740,7 +1740,8 @@ require_once('selectek.php');
         if(_jog(JOG_ANYAGIGENYLES_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; history.back();">
                 </div>
             ');
 
@@ -1769,13 +1770,13 @@ require_once('selectek.php');
 
         // Anyagigénylés jóváhagyása
         if( _jog(JOG_ANYAGIGENYLES_JOVAHAGY) ) {
-            
+
             if($sor['stat_id']==CIKKIGN_STAT_ARAZVA){
                 $gombok .= '<input type="button" class="gomb zold" value="Jóváhagyás" onclick="anyagigenyles_jovahagy(\'csak kérdezünk még\')"> ';
                 $gombok .= '<input type="button" class="gomb piros" value="Elutasítás" onclick="anyagigenyles_elutasitas(\'csak kérdezünk még\')"> ';
                 $gombok .= '<input type="button" class="gomb" value="Mind jóváhagyása" onclick="anyagigenyles_mind_jovahagy(\'csak kérdezünk még\')"> ';
             }
-            
+
             // Ha jóváhagyás joga van, és a státusza árazva, akkor a jóváhagyott mennyiség enabled
             if($sor['stat_id']==CIKKIGN_STAT_ARAZVA){
                 $gombok .= nl2('
@@ -1799,9 +1800,9 @@ require_once('selectek.php');
         }
         // Anyagigénylés árazása
         if( _jog(JOG_ANYAGREND_KESZIT) ) {
-                
+
             if(!isset($_GET['anyagrend'])){
-                
+
                 $arazas        = '';
                 $kuld_jovahagy = '';
                 if($sor['stat_id']==CIKKIGN_STAT_NYITOTT){
@@ -1812,7 +1813,7 @@ require_once('selectek.php');
                 if($sor['stat_id']==CIKKIGN_STAT_JOVAHAGYVA){
                     $rend_keszit = '<input type="button" class="gomb foGomb" value="Rendelés készítése" onclick="anyagigenyles_rendeles_keszit(\'csak kérdezünk még\')"> ';
                 }
-                
+
                 $gombok .= nl2('
                     <div class="kijeloltek_muv">
                         <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
@@ -1873,6 +1874,7 @@ require_once('selectek.php');
                 $gombok = nl2('
                     <div class="form_kuldes">
                         <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="$(\'#szerk_form\').submit()">
+                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
                     </div>
                 ').$gombok;
             }
@@ -1894,7 +1896,7 @@ require_once('selectek.php');
     }
 
     $js_submit_elott = 'return form_ell_admin();';
-    
+
 	// Új termék felvitele
 	if(isset($_GET['uj']) && _jog(JOG_ANYAGIGENYLES_KEZEL)){
 
@@ -2077,7 +2079,7 @@ require_once('selectek.php');
 
             if( $rndid ) {
 
-                // Tétel sorok 
+                // Tétel sorok
                 $sorok = $adatbazis_kapcsolat->s('cikk_id nev rndmen rndear cikkmee erkmen', 'anyagigenyles', "`rndid` = '".$rndid['rndid']."'", 'insert_dt desc', '');
 
                 if( $sorok ) {
@@ -2176,7 +2178,7 @@ require_once('selectek.php');
             if($id_latszik){
                 $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
             }
-            
+
             // Duplákáláskor feltett kérdés
             $szamla_html .= nl2('
                 <script>
