@@ -1,0 +1,65 @@
+<h2>Határidőre ütemezés</h2>
+<form action="" id="munkalapHIUtemez" class="popupForm" method="post">
+    <div class="kozep" style="min-height: 10rem">
+        
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Dátum:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" autocomplete="off" class="datepicker csillag focus" name="hatarido_datum" id="hatarido_datum" value="">
+                    <script>
+                        
+                    </script>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="kuldes">
+        <input type="button" class="gomb zold" onclick="munkalapHIUtemez();" value="Ok">
+        <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();" id="nem_gomb">
+    </div>
+</form>
+<script>
+$(document).ready(function () {
+    $('.datepicker').datetimepicker({
+        closeOnDateSelect   : true,
+        format              : 'Y.m.d',
+        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+        timepicker          : false,
+        validateOnBlur      : false
+    });
+});
+
+function munkalapHIUtemez(){
+    if(!$('#hatarido_datum').val() || $('#hatarido_datum').val().substring(0,1)=='\xa0'){
+        $('#hatarido_datum').addClass('hibas_ide_focus');
+        alert2('Kérem adja meg a határidőt!', '', 'Hiba');
+        return false;
+    }
+    
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid               : _get('id'),
+            datum               : $('#hatarido_datum').val(),
+            munkalapHIUtemez    : new Date().getTime()
+        },
+        success: function(response){
+            if(response){
+                response = JSON.parse(response);
+                
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, 'Hiba');
+                    return false;
+                }
+                
+                szamlaSorFrissit('munkalap', _get('id'));
+                szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
+                popupZar();
+            }
+        }
+    });
+}
+</script>

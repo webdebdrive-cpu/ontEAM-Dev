@@ -176,7 +176,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
                 </div>
             </div>
         ', 2);
-
+//var_dump($_SESSION['fajl']['konyvtar']);
         $fajlnev = '../'.get_utvonal().$_SESSION['fajl']['konyvtar'];
 
         if( !is_dir($fajlnev) ) {

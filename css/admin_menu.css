@@ -113,6 +113,18 @@ div.menu{
 #sddm ul.alalmenu_cont {
     position: relative;
 }
+#sddm ul.alalmenu_cont>a:after {
+    border: 0.1rem solid #3e484a;
+    border-bottom: 0;
+    border-left: 0;
+    content: '';
+    height: 0.6rem;
+    position: absolute;
+    transform: rotate(45deg);
+    top: 1.6rem;
+    right: 1rem;
+    width: 0.6rem;
+}
 
 #sddm ul.alalmenu {
     background: #fff;

@@ -88,12 +88,12 @@ if (isset($_POST['munkalapok_nyitottak_koze'])) {
 if (isset($_POST['beosztasok_lekerdez'])) {
 
     $loginok_tomb = array();
-    $loginok = $adatbazis_kapcsolat->s('recid nev teljes_nev mobil', 'login', "`aktiv`>0 AND `szerepkor_id`='".MOBILCSOPORT."'", 'nev');
+    $loginok = $adatbazis_kapcsolat->s('recid nev teljes_nev mobil', 'login', "`aktiv`>0 AND `szemelyzet_id`='".MOBILCSOPORT."'", 'nev');
     foreach($loginok as $login){
         if(!$login['mobil']){
             $login['mobil'] = 'x';
         }
-        $loginok_tomb[$login['mobil']] .= '<li data-recid="'.$login['recid'].'">'.$login['nev'].' ('.$login['teljes_nev'].')</li>';
+        $loginok_tomb[$login['mobil']] .= '<li data-recid="'.$login['recid'].'">'.$login['teljes_nev'].'</li>';
     }
     echo json_encode($loginok_tomb);
     
@@ -219,6 +219,10 @@ require_once('selectek.php');
                 div.keret{
                     padding-top: 0;
                 }
+                #szamlaBetolt {
+                    margin: auto;
+                    width: auto;
+                }
             </style>
                 <script>
                     $(function() {
@@ -233,6 +237,14 @@ require_once('selectek.php');
                                 }else{
                                     $(\'#beosztas_veglegesit_gomb\').addClass(\'dn\');
                                 }
+                            },
+                            
+                            helper: function(e, tr) {
+                                var helper = tr.clone();
+                                helper.css({\'width\': \'23.2rem\'});
+                                helper.find(\'.dtc\').css({\'display\': \'none\'});
+                                helper.find(\'.dtc.latszik\').css({\'display\': \'table-cell\'});
+                                return helper;
                             },
                             
                             placeholder: \'highlight\'
@@ -251,6 +263,7 @@ require_once('selectek.php');
                 <div class="kozep">
 
                     <div class="mobilkeret">
+                        
                         <div class="dtr">
                             <div class="dtc r" style="width: 16rem"><!-- Szándékosan egyel több -->
                                 Munkalap szám
@@ -273,10 +286,11 @@ require_once('selectek.php');
                             <div class="dtc" style="width: 8rem">
                                 Bejelentés dátuma
                             </div>
-                            <div class="dtc c" style="width: 18rem">
+                            <div class="dtc c" style="width: 19.2rem">
                                 Státusz
                             </div>
                         </div>
+
                         <ul class="dropItem droptrue">');
     
     $munkalapok = $adatbazis_kapcsolat->s('*', 'munkalap', "`stat_id`='".MUNKALAP_STAT_BEOSZTAS_NELKUL."' AND `telephely_id` IN (".$sajat_szallodak.")", 'ikt_szam');

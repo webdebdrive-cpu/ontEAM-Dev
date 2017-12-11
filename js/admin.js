@@ -1325,6 +1325,11 @@ $(function() {
         $(this).addClass('kijelolt');
         $('#vissza_nyitottak_koze').removeClass('dn');
     });
+    /* Az első sor legyen alaból kijelölve, már ha van */
+    if($('.mobilkeret li').length){
+        $('.mobilkeret li:first-of-type').addClass('kijelolt');
+        $('#vissza_nyitottak_koze').removeClass('dn');
+    }
 });
 
 /* Projektigénylésnél ha a tipus nem Beruházás, akkor a Besorolás ne is jelenjen meg, értéke nullázódjon. */

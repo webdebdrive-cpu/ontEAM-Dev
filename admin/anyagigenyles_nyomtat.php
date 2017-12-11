@@ -1,6 +1,6 @@
 <?php
 
-//Ha nyomtatunk, akkor pár adatot rögtön ki is számolunk
+// Ha nyomtatunk, akkor pár adatot rögtön ki is számolunk
 if (isset($_GET['nyomtat'])) {
     $adatok              = base64_decode($_GET['nyomtat']);
     list($sorszam, $idk) = explode('|', $adatok);
@@ -8,18 +8,15 @@ if (isset($_GET['nyomtat'])) {
     $idk_impl            = implode(',', $idk);
 
     //Szállító kiszámítása
-    $szallito = $adatbazis_kapcsolat->s('szallito_id kcs_21', 'anyagigenyles', "`recid`='{$idk[1]}'");
-    $szallito = $szallito[0];
+    $szallito = $adatbazis_kapcsolat->s2('szallito_id kcs_21', 'anyagigenyles', "`recid`='{$idk[1]}'");
 
-    $penznem = $adatbazis_kapcsolat->s('info', 'erteklista', "`csoport`=21 AND `id`='{$szallito['kcs_21']}'");
-    $penznem = $penznem[0];
+    $penznem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=21 AND `id`='{$szallito['kcs_21']}'");
 
-    $szallito = $adatbazis_kapcsolat->s('nev knev tel tel2 isz varos utca', 'szallito', "`id`='{$szallito['szallito_id']}'");
-    $szallito = $szallito[0];
+    $szallito = $adatbazis_kapcsolat->s2('nev knev tel tel2 isz varos utca', 'szallito', "`id`='{$szallito['szallito_id']}'");
 
 }
 
-//Szállítói nyomtatási kép
+// Szállítói nyomtatási kép
 if (isset($_GET['szall'])) {
 
     if($idk_impl){
@@ -73,7 +70,7 @@ if (isset($_GET['szall'])) {
     }
 
 
-    //Lényegi tartalom
+    // Lényegi tartalom
     $tartalom = '
         '.get_fejlec_top($sorszam, 'lapszámmal').'
         <div class="padd minh">
@@ -119,10 +116,9 @@ if (isset($_GET['szall'])) {
 
     $mpdf -> WriteHTML( $html );
 
-    $anyag = $adatbazis_kapcsolat->s('kepfajl', 'anyagigenyles', "`rndid`='{$sorszam}'");
-    $anyag = $anyag[0];
+    $anyag = $adatbazis_kapcsolat->s2('kepfajl', 'anyagigenyles', "`rndid`='{$sorszam}'");
 
-    //Így tudod egy PDF fájlba elmenteni a generált taratlmat
+    // Így tudod egy PDF fájlba elmenteni a generált taratlmat
     $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../'.get_utvonal().$anyag['kepfajl'].'.pdf'), 'F');
 
     $weblap -> leallit();
@@ -140,7 +136,7 @@ if (isset($_GET['cim'])) {
 
         if($idk_impl){
 
-            //Cikkenkénti összesítés
+            // Cikkenkénti összesítés
             $tetelek_html = '
                                 <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px">
                                 <tr>
@@ -154,7 +150,7 @@ if (isset($_GET['cim'])) {
                                 </tr>
                             ';
 
-            //Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
+            // Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
             $ossz = 0;
             $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$telephely['id']}'");
             foreach($anyagok as $anyag){
@@ -191,7 +187,7 @@ if (isset($_GET['cim'])) {
                             ';
 
 
-            //Lényegi tartalom
+            // Lényegi tartalom
             $tartalom = '
                 '.get_fejlec_top($sorszam).'
                 <div class="padd minh">

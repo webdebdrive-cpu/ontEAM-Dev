@@ -12,10 +12,32 @@ echo htmlspecialchars($adatbazis_kapcsolat->gp()) . ';<br>';
 foreach($ut_feladatok as $ut_feladat){
     
     $text           = $ut_feladat['id'].' feladatot ütemezte '.$ut_feladat['insert_usr']."\r\n".$ut_feladat['nev']."\r\n".$ut_feladat['leiras'];
-    $feladat_szam   = 'M'.date('y').'/0'.$ut_feladat['id'];
     
-    $sql = $adatbazis_kapcsolat->i('munkalap', array('ikt_szam',    'stat_id',              'text', 'szemelyzet_id',                'obj_id',               'gep_id',                'insert_usr',               'insert_dt',    'update_usr'                ),
-                                               array($feladat_szam, MUNKALAP_STAT_NYITOTT,  $text,  $ut_feladat['szemelyzet_id'],   $ut_feladat['obj_id'],  $ut_feladat['gep_id'],   $ut_feladat['insert_usr'],  'NOW()',        $ut_feladat['update_usr']   )
+    // Feladatszám kiszámítása
+    // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
+    $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
+    if( $ikt_seq === false ) { $db_error = true; }
+    if( $ikt_seq ) {
+
+        $sorszam = $ikt_seq['sorszam'];
+        $sorszam++;
+        $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
+        if( $sql === false ) { $db_error = true; }
+
+    } else {
+
+        $sorszam = 1;
+        $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam',    'ev',       'tabla'     ),
+                                                        array($sorszam,     date('y'),  'munkalap'  )
+                                        );
+        if( $sql === false ) { $db_error = true; }
+    }
+
+    // Iktatószám formázása
+    $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
+    
+    $sql = $adatbazis_kapcsolat->i('munkalap', array('ikt_szam', 'uf_szam',         'stat_id',              'text', 'szemelyzet_id',                'obj_id',               'gep_id',               'esnap_d',              'insert_usr',               'insert_dt'    ),
+                                               array($ikt_szam,  $ut_feladat['id'], MUNKALAP_STAT_NYITOTT,  $text,  $ut_feladat['szemelyzet_id'],   $ut_feladat['obj_id'],  $ut_feladat['gep_id'],  $ut_feladat['esnap_d'], $ut_feladat['insert_usr'],  'NOW()',       )
                                    );
     if( $sql === false ) { $db_error = true; }
  echo $adatbazis_kapcsolat->gp() . ';<br>';
@@ -30,14 +52,14 @@ foreach($ut_feladatok as $ut_feladat){
     $oszlopok = array('utnap_d',        'utesnap_d'             );
     $ertekek  = array(date('Y-m-d'),    $ut_feladat['esnap_d']  );
     
-    // Ha nem határidős (azaz ciklikus), akor futtatjuk ütemező programot, ami visszaadja következő esedékességet
+    // Ha nem határidős (azaz ciklikus), akkor futtatjuk ütemező programot, ami visszaadja következő esedékességet
     if($ut_feladat['cikltip']!='l'){
         
         $esem_d     = substr(str_replace('-', '.', $ut_feladat['esem_d']), 0, 10);
         $aktkezd_d  = str_replace('-', '.', $ut_feladat['aktkezd_d']);
         $aktvege_d  = str_replace('-', '.', $ut_feladat['aktvege_d']);
         
-        //$esnap_d = getnextvaliddate(false, $esem_d, $ut_feladat['cikltip'], $ut_feladat['ciklaltip'], $ut_feladat['ciklszorz'], $ut_feladat['ciklho'], $ut_feladat['ciklhet'], $ut_feladat['ciklnap'], $ut_feladat['idoszakos'], $ut_feladat['kezdho'], $ut_feladat['kezdnap'], $ut_feladat['vegeho'], $ut_feladat['vegenap'], $aktkezd_d, $aktvege_d);
+        $esnap_d = getnextvaliddate(false, $esem_d, $ut_feladat['cikltip'], $ut_feladat['ciklaltip'], $ut_feladat['ciklszorz'], $ut_feladat['ciklho'], $ut_feladat['ciklhet'], $ut_feladat['ciklnap'], $ut_feladat['idoszakos'], $ut_feladat['kezdho'], $ut_feladat['kezdnap'], $ut_feladat['vegeho'], $ut_feladat['vegenap'], $aktkezd_d, $aktvege_d);
         $esnap_d = str_replace('.', '-', $esnap_d);
         // Ha ez egy múltbeli dátum, akkor az esnap_d mezőbe 3000-01-01-et írunk
         if($esnap_d<date('Y-m-d')){
@@ -59,7 +81,6 @@ foreach($ut_feladatok as $ut_feladat){
     if( $sql === false ) { $db_error = true; }
 echo $adatbazis_kapcsolat->gp() . ';<br>';
 }
-
 
 // Tranzakció kommitolása, vagy rollback-ezése
 if( !$db_error ) {

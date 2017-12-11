@@ -192,6 +192,32 @@ function munkalapMobil( that ) {
     return false;
 }
 
+/* Munkalap átadása mobilnak sima, tehát csak státuszt léptetünk */
+function munkalapMobil_sima() {
+    
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid               : _get('id'),
+            munkalapMobil_sima  : new Date().getTime()
+        },
+        success: function (response) {
+            if (response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                popupZar();
+            }
+        }
+    });
+}
+
 /* Munka átadása Diszpécser központ vezetőnek */
 function munkalapDiszpKozp() {
     if(balnav_kijelol_ell()){

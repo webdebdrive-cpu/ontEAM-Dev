@@ -875,7 +875,6 @@ $login_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',         'megn' => 'Beosztás:',                  'name' => 'beosztas_id',    'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a beosztást!'),
     array('type' => 'autocomplete',         'megn' => 'Részleg:',                   'name' => 'reszleg_id',     'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a részleget!'),
     array('type' => 'select_szemelyzet',    'megn' => 'Személyzet típus:',          'name' => 'szemelyzet_id',  'class' => 'disableNav',        'szuro' => 1),
-    array('type' => 'select_mobilcsoport',  'megn' => 'Mobilcsoport:',              'name' => 'mobil',          'class' => 'disableNav',        'szuro' => 1),
     array('type' => 'text',                 'megn' => 'E-mail:',                    'name' => 'usermail',       'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250),
     array('type' => 'text',                 'megn' => 'Telefon:',                   'name' => 'usertel',        'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250, 'alert' => 'Kérjük adja meg a telefonszámot!'),
     array('type' => 'autocomplete',         'megn' => 'Szerepkör:',                 'name' => 'szerepkor_id',   'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'szerepkor', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'alert' => 'Kérem adja meg a szerepkört!'),
@@ -1025,11 +1024,17 @@ $surgos_disabled = '';
 $surgos_onclick  = '';
 if(isset($_GET['modosit'])){
 
-    $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev stat_id', 'munkalap', "`recid`='{$_GET['id']}'");
+    $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev stat_id mobil', 'munkalap', "`recid`='{$_GET['id']}'");
     $hozrend_mobilnev = '';
     if($munkalap['szemelyzet_id']==MOBILCSOPORT && $munkalap['mobil_loginnev']){
         $torzsadat = $adatbazis_kapcsolat->s2('nev', 'torzsadat', "`felh_loginnev`='{$munkalap['mobil_loginnev']}'");
-        $hozrend_mobilnev = $torzsadat['nev'];
+        $hozrend_mobilnev .= $torzsadat['nev'];
+    }
+    if($munkalap['mobil']){
+        if($hozrend_mobilnev){
+            $hozrend_mobilnev .= ' | ';
+        }
+        $hozrend_mobilnev .= ' Mobilcsoport: <b>'.strtoupper($munkalap['mobil']).'</b>';
     }
 
     // Sürgősség pipa
@@ -1041,7 +1046,7 @@ if(isset($_GET['modosit'])){
         }
     }
 }
-// Bejelentésből 2. mukalap készítésekor a szálloda disabled
+// Bejelentésből 2. munkalap készítésekor a szálloda disabled
 $ub_disabled = false;
 if(isset($_GET['ujkent_bejelentes'])) {
     $ub_disabled = true;
@@ -1059,7 +1064,6 @@ $munkalap_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id', 'alert' => 'Kérjük adja meg a tipust!'),
     array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => 1,                  'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'szuro' => 1, 'disabled' => 1,                  'class' => 'disableNav',        'post'  => ' '.$hozrend_mobilnev),
-    array('type' => 'select_mobilcsoport',      'megn' => 'Mobilcsoport:',              'name' => 'mobil',              'szuro' => 1, 'disabled' => 1,                  'class' => 'disableNav'),
     array('type' => 'text',                     'megn' => 'Igényelt elvégzés:',         'name' => 'ig_el_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker'),
     array('type' => 'text',                     'megn' => 'Várható érkezés:',           'name' => 'varh_erk',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker'),
 	array('type' => 'nosql',                    'name' => 'ujkentSzerkID'),

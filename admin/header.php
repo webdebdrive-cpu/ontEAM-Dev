@@ -172,15 +172,11 @@ if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(J
 
     $aktmenuk  = '';
     if(_jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL)){
-        $aktmenuk .= nl2('
-            <ul class="alalmenu_cont">
-                <a href="'.$aloldalak['0'].'">Munkalapok</a>
-                <ul class="alalmenu">
-                    <li><a href="mobil_hozzarendel.php">Mobil hozzárendelés</a></li>
-                    <li><a href="javascript:csoportMuvelet(\'mobil_szemelyzet_beosztas\')">Mobil személyzet beosztása</a></li>
-                </ul>
-            </ul>
-        ');
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Munkalapok'                                                             ), $almenu_sablon );
+    }
+    if(_jog(JOG_MUNKALAP_NYITOTT_KEZEL)){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'mobil_hozzarendel.php', 'Mobil hozzárendelés'                                            ), $almenu_sablon );
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( 'javascript:csoportMuvelet(\'mobil_szemelyzet_beosztas\')', 'Mobil személyzet beosztása'  ), $almenu_sablon );
     }
     if(_jog(JOG_UTFEL_MEGTEKINT)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Ütemezett feladatok'        ), $almenu_sablon );

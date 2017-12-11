@@ -426,6 +426,67 @@ if( isset($_POST['munkalapMobil']) ) {
 }
 
 
+// Munkalap átadása mobilnak sima: azaz csak státuszt léptetünk
+if( isset($_POST['munkalapMobil_sima']) ) {
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $recid = $_POST['recid'];
+    
+    if($recid){
+        
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'");
+        if( $munkalap === false ) { $db_error = true; }
+
+        // Státusz ellenőrzése
+        if( $munkalap['stat_id'] != MUNKALAP_STAT_NYITOTT ) {
+            echo json_encode(array(
+                'hiba'  => 'Csak nyitott státuszú munkalapokat lehet mobilhoz rendelni!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+        
+        // Jog ellenőrzése
+        if( !_jog(JOG_MUNKALAP_NYITOTT_KEZEL) ) {
+            echo json_encode(array(
+                'hiba'  => 'Nincs joga az átadáshoz!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Státusz léptetés
+        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_BEOSZTAS_NELKUL ) ) {
+            $db_error = true;
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+            echo json_encode(array(
+                'statusz'        => 'siker',
+                'beosztasNelkul' => $beosztasNelkul,
+                'szemRendelt'    => $szemRendelt
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+            echo json_encode(array(
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba'.$db_error,
+            ));
+        }
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
+
 // Munkalap átadása külső csoportnak
 if( isset($_POST['munkalapKulso']) ) {
     
@@ -586,8 +647,11 @@ if( isset($_POST['munkalapKeszre']) ) {
 
     if( $recid ) {
 
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
+        
+        $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
+        if( $telephely === false ) { $db_error = true; }
 
         $akt_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
         if( $akt_tetel === false ) { $db_error = true; }
@@ -624,9 +688,19 @@ if( isset($_POST['munkalapKeszre']) ) {
             exit();
         }
 
-        // Készre állítjuk a munkalapot
-        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_KESZ ) ) {
-            $db_error = true;
+        // Töbszállodás modell esetén, Kész vagy igazolásra vár státuszra léptetjük attól függően, hogy milyen személyzettípusról van szó
+        $ig_var_statba_leptet = array(MOBILCSOPORT, KULSO_KIVITELEZO);
+        if( $telephely['modell'] == 1 && in_array($munkalap['szemelyzet_id'], $ig_var_statba_leptet) ){
+            // Készre állítjuk a munkalapot
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_IGAZOLASRA_VAR ) ) {
+                $db_error = true;
+            }
+            
+        }else{
+            // Készre állítjuk a munkalapot
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_KESZ ) ) {
+                $db_error = true;
+            }
         }
 
         // Munkalaphoz kapcsolódó bejelentés
@@ -709,8 +783,11 @@ if( isset($_POST['munkalapRogzit']) ) {
 
     if( $recid ) {
 
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
+        
+        $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
+        if( $telephely === false ) { $db_error = true; }
 
         // Státusz ellenőrzés
         if( $munkalap['stat_id'] != MUNKALAP_STAT_KESZ ) {
@@ -758,10 +835,26 @@ if( isset($_POST['munkalapRogzit']) ) {
             exit();
         }
 
-        // Státusz léptetés
-        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_IGAZOLASRA_VAR ) ) {
-            $db_error = true;
+        // Töbszállodás modell esetén, Lezárásra vár vagy lezárt státuszra léptetjük attól függően, hogy milyen személyzettípusról van szó
+        $lezart_statba_leptet = array(MOBILCSOPORT, KULSO_KIVITELEZO);
+        if( $telephely['modell'] == 1 && in_array($munkalap['szemelyzet_id'], $lezart_statba_leptet) ){
+            // Lezártra állítjuk a munkalapot
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_LEZART) ) {
+                $db_error = true;
+            }
+        // Töbszállodás modell esetén, ha a személyzettípus telepített személy, akkor lezárt státuszra léptetünk
+        }elseif( $telephely['modell'] == 1 && $munkalap['szemelyzet_id'] == TELEPITETT_SZEMELYZET ){
+            // Igazolásra várra állítjuk a munkalapot
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_LEZART ) ) {
+                $db_error = true;
+            }
+        }else{
+            // Igazolásra várra állítjuk a munkalapot
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_IGAZOLASRA_VAR ) ) {
+                $db_error = true;
+            }
         }
+
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -792,8 +885,12 @@ if( isset($_POST['munkalapIgazol']) ) {
     if( $recid ) {
 
         // Státusz ellenőrzése
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
+        
+        $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
+        if( $telephely === false ) { $db_error = true; }
+        
         if( $munkalap['stat_id'] != MUNKALAP_STAT_IGAZOLASRA_VAR ) {
             echo json_encode(array(
                 'hiba'  => 'Csak igazolásra alatti munkalapot lehet készre jelenteni!',
@@ -827,9 +924,18 @@ if( isset($_POST['munkalapIgazol']) ) {
             exit();
         }
 
-        // Státusz léptetés
-        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_LEZART ) ) {
-            $db_error = true;
+        // Töbszállodás modell esetén, Lezárásra vár vagy lezárt státuszra léptetjük attól függően, hogy milyen személyzettípusról van szó
+        $lezarasra_var_statba_leptet = array(MOBILCSOPORT, KULSO_KIVITELEZO);
+        if( $telephely['modell'] == 1 && in_array($munkalap['szemelyzet_id'], $lezarasra_var_statba_leptet) ){
+            // Lezárásra várra állítjuk a munkalapot
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_KESZ) ) {
+                $db_error = true;
+            }
+        }else{
+            // Lezártra állítjuk a munkalapot
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_LEZART ) ) {
+                $db_error = true;
+            }
         }
 
         if( !$db_error ) {
@@ -3419,11 +3525,15 @@ if( isset($_POST['munkalapTeruletiVezeto']) ) {
     
     $recid    = $_POST['recid'];
     $indoklas = $_POST['indoklas'];
-
+    
     if( $recid ) {
+        
+        $db_error = false;
+        mysqli_autocommit($db_kapcs, false);
 
         // Státusz ellenőrzése
         $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='$recid'");
+        if( $munkalap === false ) { $db_error = true; }
 
         if( $munkalap['stat_id'] != MUNKALAP_STAT_NYITOTT && $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE && $munkalap['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT ) {
             echo json_encode(array(
@@ -3447,7 +3557,8 @@ if( isset($_POST['munkalapTeruletiVezeto']) ) {
         }
 
         // Munkalap update
-        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(TERULETI_FELELOS, 0), "`recid` = '{$recid}'");
+        $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(TERULETI_FELELOS, 0), "`recid` = '{$recid}'");
+        if( $sql === false ) { $db_error = true; }
 
         // Státusz léptetés
         if($munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT){
@@ -3490,9 +3601,14 @@ if( isset($_POST['munkalapMuszakiVezeto']) ) {
     $indoklas = $_POST['indoklas'];
 
     if( $recid ) {
+        
+        $db_error = false;
+        mysqli_autocommit($db_kapcs, false);
 
         // Státusz ellenőrzése
         $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='$recid'");
+        if( $munkalap === false ) { $db_error = true; }
+        
         if( $munkalap['stat_id'] != MUNKALAP_STAT_NYITOTT && $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE && $munkalap['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT ) {
             echo json_encode(array(
                 'hiba'  => 'Ebben a státuszban nem adható át a munkalap!',
@@ -3515,7 +3631,8 @@ if( isset($_POST['munkalapMuszakiVezeto']) ) {
         }
 
         // Munkalap update
-        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(MUSZAKI_VEZETO, 0), "`recid` = '{$recid}'");
+        $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(MUSZAKI_VEZETO, 0), "`recid` = '{$recid}'");
+        if( $sql === false ) { $db_error = true; }
 
         // Státusz léptetés
         if($munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT){
@@ -3557,9 +3674,14 @@ if( isset($_POST['munkalapMuszakiVezetoHelyettes']) ) {
     $indoklas = $_POST['indoklas'];
 
     if( $recid ) {
+        
+        $db_error = false;
+        mysqli_autocommit($db_kapcs, false);
 
         // Státusz ellenőrzése
         $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='$recid'");
+        if( $munkalap === false ) { $db_error = true; }
+        
         if( $munkalap['stat_id'] != MUNKALAP_STAT_NYITOTT && $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE && $munkalap['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT ) {
             echo json_encode(array(
                 'hiba'  => 'Ebben a státuszban nem adható át a munkalap!',
@@ -3582,7 +3704,8 @@ if( isset($_POST['munkalapMuszakiVezetoHelyettes']) ) {
         }
 
         // Munkalap update
-        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(MUSZAKI_VEZETO_HELYETTES, 0), "`recid` = '{$recid}'");
+        $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(MUSZAKI_VEZETO_HELYETTES, 0), "`recid` = '{$recid}'");
+        if( $sql === false ) { $db_error = true; }
 
         // Státusz léptetés
         if($munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT){
@@ -3624,9 +3747,14 @@ if( isset($_POST['munkalapAdminisztrator']) ) {
     $indoklas = $_POST['indoklas'];
 
     if( $recid ) {
+        
+        $db_error = false;
+        mysqli_autocommit($db_kapcs, false);
 
         // Státusz ellenőrzése
         $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='$recid'");
+        if( $munkalap === false ) { $db_error = true; }
+        
         if( $munkalap['stat_id'] != MUNKALAP_STAT_NYITOTT && $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE && $munkalap['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT ) {
             echo json_encode(array(
                 'hiba'  => 'Ebben a státuszban nem adható át a munkalap!',
@@ -3649,7 +3777,8 @@ if( isset($_POST['munkalapAdminisztrator']) ) {
         }
 
         // Munkalap update
-        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(MUSZAKI_ADMINISZTRATOR, 0), "`recid` = '{$recid}'");
+        $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(MUSZAKI_ADMINISZTRATOR, 0), "`recid` = '{$recid}'");
+        if( $sql === false ) { $db_error = true; }
 
         // Státusz léptetés
         if($munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT){
@@ -3691,9 +3820,14 @@ if( isset($_POST['munkalapDiszpKozp']) ) {
     $indoklas = $_POST['indoklas'];
 
     if( $recid ) {
+        
+        $db_error = false;
+        mysqli_autocommit($db_kapcs, false);
 
         // Státusz ellenőrzése
         $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='$recid'");
+        if( $munkalap === false ) { $db_error = true; }
+        
         if( $munkalap['stat_id'] != MUNKALAP_STAT_NYITOTT && $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE && $munkalap['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT ) {
             echo json_encode(array(
                 'hiba'  => 'Ebben a státuszban nem adható át a munkalap!',
@@ -3716,7 +3850,8 @@ if( isset($_POST['munkalapDiszpKozp']) ) {
         }
 
         // Munkalap update
-        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(DISZPECSER_KOZP_VEZETO, 0), "`recid` = '{$recid}'");
+        $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(DISZPECSER_KOZP_VEZETO, 0), "`recid` = '{$recid}'");
+        if( $sql === false ) { $db_error = true; }
 
         // Státusz léptetés
         if($munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT){
@@ -3758,9 +3893,14 @@ if( isset($_POST['munkalapMSZKVezeto']) ) {
     $indoklas = $_POST['indoklas'];
 
     if( $recid ) {
+        
+        $db_error = false;
+        mysqli_autocommit($db_kapcs, false);
 
         // Státusz ellenőrzése
         $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='$recid'");
+        if( $munkalap === false ) { $db_error = true; }
+        
         if( $munkalap['stat_id'] != MUNKALAP_STAT_NYITOTT && $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE && $munkalap['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT ) {
             echo json_encode(array(
                 'hiba'  => 'Ebben a státuszban nem adható át a munkalap!',
@@ -3783,7 +3923,8 @@ if( isset($_POST['munkalapMSZKVezeto']) ) {
         }
 
         // Munkalap update
-        $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(MSZK_VEZETO, 0), "`recid` = '{$recid}'");
+        $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(MSZK_VEZETO, 0), "`recid` = '{$recid}'");
+        if( $sql === false ) { $db_error = true; }
 
         // Státusz léptetés
         if($munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT){
@@ -3813,6 +3954,47 @@ if( isset($_POST['munkalapMSZKVezeto']) ) {
         }
     }
 
+    $weblap->leallit();
+    exit();
+}
+
+// Határidőre ütemezés
+if (isset($_POST['munkalapHIUtemez'])) {
+    
+    $recid = $_POST['recid'];
+    $datum = str_replace('.', '-', $_POST['datum']);
+    
+    if($recid){
+    
+        $db_error = false;
+        mysqli_autocommit($db_kapcs, false);
+
+        $sql = $adatbazis_kapcsolat->u('munkalap', array('esnap_d'), array($datum), "`recid`='{$recid}'");
+        if( $sql === false ) { $db_error = true; }
+        
+        $megj = 'Dátumra ütemezve: '.$_POST['datum'];
+        if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_VARAKOZO, '', $megj ) === false ) {
+            $db_error = true;
+        }
+        
+        // És egy megjegyzést is
+        addMegj('munkalap', $recid, $megj);
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+            echo json_encode(array(
+                'statusz' => 'siker',
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+            echo json_encode(array(
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba',
+            ));
+        }
+        
+    }
+    
     $weblap->leallit();
     exit();
 }
@@ -4077,23 +4259,24 @@ require('selectek.php');
 
         // Kijelöltekkel való művelet gombok
         if( ($sor['stat_id']==MUNKALAP_STAT_NYITOTT || $sor['stat_id']==MUNKALAP_STAT_VARAKOZO) && _jog(JOG_MUNKALAP_VARAKOZTAT) ) {
-            $gombok .= nl2('
-                <div id="kmCont">
-                    <script>
-                        csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                    </script>
-                    <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb" value="Várakoztatás...">
-                        <div class="muv">
-                            <ul>
-                                <li><a onclick="csoportMuvelet(\'csoporthoz_adas\');">Csoporthoz adás</a></li>
-                                <li><a onclick="if(balnav_kijelol_ell(\'egy csoportot szabad megbontani\')){ alert2(\'Biztos kiveszi a kijelölt munkalapokat a megadott csoportokból?\', csoportKiveszGomb); }">Csoportból kivétel</a></li>
-                                <li><a onclick="csa_alert();">Csoport átnevezése</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            ');
+            $gombok .= '<input type="button" class="gomb" value="Határidőre ütemezés" onclick="csoportMuvelet(\'munkalapHIUtemez\');"> ';
+//            $gombok .= nl2('
+//                <div id="kmCont">
+//                    <script>
+//                        csoportKiveszGomb = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"csoportbolTorol(\'csoport_id\');\"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+//                    </script>
+//                    <div class="kijeloltek_muv">
+//                        <input type="button" class="gomb foGomb" value="Várakoztatás...">
+//                        <div class="muv">
+//                            <ul>
+//                                <li><a onclick="csoportMuvelet(\'csoporthoz_adas\');">Csoporthoz adás</a></li>
+//                                <li><a onclick="if(balnav_kijelol_ell(\'egy csoportot szabad megbontani\')){ alert2(\'Biztos kiveszi a kijelölt munkalapokat a megadott csoportokból?\', csoportKiveszGomb); }">Csoportból kivétel</a></li>
+//                                <li><a onclick="csa_alert();">Csoport átnevezése</a></li>
+//                            </ul>
+//                        </div>
+//                    </div>
+//                </div>
+//            ');
         }
 
         // Munka felvétele folyamatban státuszhoz és kezelés joghoz van kötve
@@ -4143,7 +4326,7 @@ require('selectek.php');
 
         // Kész státusz + kezelés jog
         if( $sor['stat_id']==MUNKALAP_STAT_KESZ && $kezeles_jog ){
-            $gombok .= '<input type="button" class="gomb" value="Rögzítés" onclick="munkalapRogzit(\'csak kérdezünk még\');"> ';
+            $gombok .= '<input type="button" class="gomb" value="Lezárás" onclick="munkalapRogzit(\'csak kérdezünk még\');"> ';
         }
 
         // Előkészítés státusz és külsős előkészítés jog kell hozzá
@@ -4160,7 +4343,10 @@ require('selectek.php');
                     <div class="muv">
                         <ul>
                             <li'.$szemelyzet_id_rejt[TELEPITETT_SZEMELYZET].'><a onclick="munkalapTelepitett(\'csak kérdezünk még\');">Telepítettnek</a></li>
-                            <li'.$szemelyzet_id_rejt[MOBILCSOPORT].'><a onclick="csoportMuvelet(\'munkalap_mobil\');">Mobilnak</a></li>
+                            <li'.$szemelyzet_id_rejt[MOBILCSOPORT]./* Korábbi onclick ez volt:  onclick="csoportMuvelet(\'munkalap_mobil\'); */'>
+                                <script> gomb_mobil = \'<input type="button" class="gomb zold" onclick="munkalapMobil_sima()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
+                                <a onclick="alert2(\'Biztosan átadja mobilnak?\', gomb_mobil)">Mobilnak</a>
+                            </li>
                             <li'.$szemelyzet_id_rejt[KULSO_KIVITELEZO].'><a onclick="csoportMuvelet(\'munkalap_kulso\');">Külsőnek</a></li>
                             <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO_HELYETTES].'>
                                 <script> gomb_muszh = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiVezetoHelyettes()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>

@@ -1168,13 +1168,15 @@ if( isset($_POST['rendeles_keszit']) ) {
         }
 
 
-        // Ha még nem kaptunk utasítást arra, hogy mehet adatbáziba, akkor a nyomtatási képeket ajánjuk fel
+        // Ha még nem kaptunk utasítást arra, hogy mehet adatbázisba, akkor a nyomtatási képeket ajánjuk fel
         if ($_POST['mehet_db_be']!='mehet') {
 
             mysqli_query($db_kapcs, 'SET AUTOCOMMIT=0');
             $sorszam = mysqli_query($db_kapcs, 'SELECT `sorszam` FROM `'.get_db_tabla().'iktszam_seq` WHERE `tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\' FOR UPDATE;');
-            $sorszam = mysql_fetch_array($sorszam);
-            $sorszam = $sorszam[0]+1;
+var_dump('SELECT `sorszam` FROM `'.get_db_tabla().'iktszam_seq` WHERE `tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\' FOR UPDATE;');
+            $sorszam = mysql_fetch_assoc($sorszam);
+            $sorszam = $sorszam['sorszam']+1;
+echo $sorszam;
             mysqli_query($db_kapcs, 'UPDATE `'.get_db_tabla().'iktszam_seq` SET `sorszam`=\''.$sorszam.'\' WHERE `tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\'');
             $sorszam = 'R'.date('y').'/'.sprintf('%04d', $sorszam).'|'.$_POST['idk'];
             $sorszam_kodolva = trim(base64_encode($sorszam), '=');
@@ -1239,7 +1241,7 @@ if( isset($_POST['rendeles_keszit']) ) {
         // Rendelés ID formázása
         $rndid = 'R'.date('y').'/'.sprintf('%04d', $sorszam);
         $rnd_dt = date('Y-m-d H:i:s');
-        $pdf_utvonal = 'doc/rendeles/'.date('y').'/'.$elozo_szallito.'/'.str_replace('/', '_', $rndid).'.pdf';
+        $pdf_utvonal = 'rendeles/'.date('y').'/'.$elozo_szallito.'/'.str_replace('/', '_', $rndid).'.pdf';
 
         // Létrehozunk egy új rendelésfej bejegyzést
         $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('stat_id',                'rndid', 'rnd_dt',  'kepfajl',     'szallito_id',    'insert_dt',    'insert_usr',                           'update_usr'                            ),
@@ -1289,8 +1291,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
     //Rendelésszám lekérdezése
     if($_POST['rsz']){
 
-        $recid = $adatbazis_kapcsolat->s('recid', 'cikkrendfej', "`rndid`='{$_POST['rsz']}'");
-        $recid = $recid[0];
+        $recid = $adatbazis_kapcsolat->s2('recid', 'cikkrendfej', "`rndid`='{$_POST['rsz']}'");
         if(!$recid){
             echo json_encode(array(
                 'hiba' => 'Nincs ilyen rendelésszám az anyagigénylés naplóban!'
@@ -1852,6 +1853,12 @@ require_once('selectek.php');
             }else{
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt az anyagigénylést?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
             }
+        }
+        
+        // Rendelés kép gomb
+        $utvonal = '../'.get_utvonal().$megnevezes.'/'.$sor['kepfajl'];
+        if(is_file($utvonal)){
+            $gombok .= ' <input type="button" class="gomb foGomb" value="Rendelés kép" onclick="window.open(\''.$utvonal.'\')">';
         }
 
         if( _jog(JOG_ANYAGIGENYLES_KEZEL) ){

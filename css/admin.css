@@ -471,7 +471,8 @@ input.oriasi{
     width: 100%;
 }
 
-input.datepicker{
+input.datepicker, #popup div.popup_tart div.dt div.dtc input[type="text"].datepicker{
+    min-width: 0;
     width: 8.6rem;
     white-space: pre;
 }
@@ -2325,7 +2326,7 @@ input.autocomp, input.autocomp:focus{
 
 #alert2 div.tart div.mobilkeret,
 #popup div.popup_tart div.mobilkeret {
-    border: 0.1rem solid #242424;
+    border: 0.1rem solid #55A2FA;
     max-height: 20rem;
     overflow-y: auto;
     padding: 0.2rem 0.2rem 0.2rem 0.2rem;
@@ -2517,12 +2518,12 @@ table.csikos{
 
 table.csikos.al{
     border: 0.1rem solid #ccc;
-    margin-bottom: 3rem;
+    margin-bottom: 1rem;
 }
 
 table.csikos.behuz {
-    margin-left: 2rem;
-    width: calc(100% - 4rem);
+    margin-left: 0.5rem;
+    width: calc(100% - 1rem);
 }
 
 table.csikos tr{
@@ -2860,10 +2861,12 @@ div.tetel_div{
 }
 
 div.mobilkeret{
-    border: 0.1rem solid #242424;
+    border: 0.1rem solid #55A2FA;
 }
 
-div.mobilkeret div.dtr div.dtc{
+div.mobilkeret div.dtr div.dtc {
+    background: #55A2FA;
+    color: #fff;
     font-weight: bold;
     text-align: center;
     vertical-align: middle;
@@ -2871,6 +2874,7 @@ div.mobilkeret div.dtr div.dtc{
 }
 
 div.mobilkeret li.kijelolt{
+    color: #fff;
     background: #55A2FA;
 }
 
@@ -2879,7 +2883,7 @@ table.csoportok{
 }
 
 table.csoportok td {
-    border: 0.1rem dotted #ccc;
+    
     padding: 1rem 1rem 1rem 1rem;
     vertical-align: top;
     text-align: center;
@@ -2893,23 +2897,29 @@ table.csoportok tr td .dropItem {
     border: 0.1rem solid #242424;
 }
 
-table.csoportok input[type='button']{
+table.csoportok input[type="button"]{
     background: #54A2F9;
     border-radius: 0.4rem;
     color: #fff;
     font-weight: bold;
     margin-bottom: 0.3rem;
-    padding: 0.2rem 0.4rem;
+    padding: 0.6rem 2.5rem;
+    transition: all ease-in-out 0.2s;
+}
+table.csoportok input[type="button"]:hover{
+    background: #5192DA;
+    cursor: pointer;
+    transition: all ease-in-out 0.2s;
+}
+table.csoportok input[type="button"]:focus{
+    border: 0.1rem solid #f00;
 }
 
-.csoportok ul.dropItem li .dtc{
+.csoportok ul.dropItem li .dtc, ul.dropItem li.ui-sortable-helper .dtc{
     display: none;
 }
-.csoportok ul.dropItem li .dtc.latszik{
+.csoportok ul.dropItem li .dtc.latszik, ul.dropItem li.ui-sortable-helper .dtc.latszik {
     display: table-cell;
-}
-.csoportok ul.dropItem li:first-of-type{
-    border-top: 0;
 }
 
 table.folyamatban td{
@@ -2923,22 +2933,25 @@ table.folyamatban tr:first-of-type td{
 
 ul.dropItem {
     background: #f1eff0;
-    min-height: 2rem;
+    min-height: 4.6rem;
+    margin: 0.1rem;
 }
 
 ul.dropItem li {
-    background: #f1eff0;
     cursor: move;
-    border-top: 0.1rem solid #999;
+    height: 2.6rem;
+    overflow: hidden;
     padding: 0.5rem 1rem 0.5rem 1rem;
+    min-width: 21rem;
 }
 
-ul.dropItem li:last-child {
-    border-bottom: none;
-}
 ul.dropItem .highlight {
     background: #B8D9FE;
     border: 0.2rem dotted #55A2FA;
     background-color: lightblue;
     min-height: 3rem;
+}
+
+ul.dropItem li.ui-sortable-helper {
+    border: 0.1rem solid #242424;
 }

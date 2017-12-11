@@ -436,7 +436,7 @@ function i_u($type, $tabla, $tomb) {
         // Munkalap új bejegyzés esetén
         } else if( $tabla == 'munkalap' ) {
 
-            /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
+            // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
             $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = '{$tabla}' AND `ev` = '".date('y')."'");
             if( $ikt_seq === false ) { $db_error = true; }
             if( $ikt_seq ) {
@@ -2053,9 +2053,9 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             foreach($selectek as $select_tmp) {
                 if( $select_tmp && $select_tmp != 'recid' ) {
                     if(strpos($select_tmp, '`')!==false){
-                        $ksz_where .= trim($select_tmp, ',')." LIKE '%{$_GET['ksz']}%' OR ";
+                        $ksz_where .= trim($select_tmp, ',')." LIKE '%{$_GET['ksz']}%' COLLATE utf8_bin OR ";
                     }else{
-                        $ksz_where .= "`{$select_tmp}` LIKE '%{$_GET['ksz']}%' OR ";
+                        $ksz_where .= "`{$select_tmp}` LIKE '%{$_GET['ksz']}%' COLLATE utf8_bin OR ";
                     }
                 }
             }
@@ -2743,7 +2743,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
-            if( !$frissit && $tabla && _jog(JOG_MUNKALAP_VARAKOZTAT) && !isset($_GET['print']) ) {
+            if( false/* Csoportra bontás kikapcsolva 2017.12.11 */ && !$frissit && $tabla && _jog(JOG_MUNKALAP_VARAKOZTAT) && !isset($_GET['print']) ) {
                 $aktCsoport = $bsz['csoport_id'];
 
                 if( $i == 1 || $csoport != $aktCsoport ) {
