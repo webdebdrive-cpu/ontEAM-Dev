@@ -195,7 +195,11 @@ foreach($akt_tomb as $ertek){
             $input -> onfocus  = $ertek['onfocus'];
             $input -> style    = $ertek['style'];
 
-            $html = '<div class="cb">'.$input -> getHtml().'<label for="'.$input -> id.'" onclick="$(\'#mehet_gomb\').addClass(\'gombb_alert\');"></label>';
+            $readonly = '';
+            if($input -> disabled){
+                $readonly = ' readonly';
+            }
+            $html = '<div class="cb">'.$input -> getHtml().'<label'.$readonly.' for="'.$input -> id.'" onclick="$(\'#mehet_gomb\').addClass(\'gombb_alert\');"></label>';
             if($ertek['i']){
                 $html .= ' <div class="tooltip di" style="margin-left: 2.5rem"><img src="../elemek/admin/info.gif" alt="i" class="tooltip"><div>'.$ertek['i'].'</div></div>';
             }

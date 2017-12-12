@@ -112,7 +112,7 @@ class Tag{
         if($this -> autocomplete){ $return .= ' autocomplete="' .$this -> autocomplete  .'"'; }
         if($this -> cssClass    ){ $return .= ' class="'        .$this -> cssClass      .'"'; }
         if($this -> data        ){ $return .= ' '.$this -> data;                              }
-        if($this -> disabled    ){ $return .= ' disabled';                                    }
+        if($this -> disabled    ){ $return .= ' readonly';                                    }
         if($this -> name        ){ $return .= ' name="'         .$this -> name          .'"'; }
         if($this -> id          ){ $return .= ' id="'           .$this -> id            .'"'; }
         if($this -> onblur      ){ $return .= ' onblur="'       .$this -> onblur        .'"'; }

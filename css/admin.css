@@ -1,4 +1,4 @@
-body{
+dibody{
     background: #fff;
     color: #242424;
     font-family: 'Open Sans', sans-serif;
@@ -406,7 +406,7 @@ input.gombm {
     padding: 0.7rem 0.8rem 0.6rem 0.9rem;
 }
 
-input[disabled], select[disabled], textarea[disabled] {
+input[disabled], select[disabled], textarea[disabled], input[readonly], select[readonly], textarea[readonly], input[readonly]:focus, select[readonly]:focus, textarea[readonly]:focus, input[readonly]:active, select[readonly]:active, textarea[readonly]:active {
     background: #f3f3f3;
     border: 0.1rem solid #cecfd1!important;
     color: #0d0d0d;
@@ -1123,7 +1123,7 @@ input.webdeb{
     border: 0.1rem solid #226294;
 }
 
-.cb input[type=checkbox][disabled] + label {
+.cb input[type=checkbox][disabled] + label, .cb input[type=checkbox][readonly] + label {
     background: #edeaea;
     color: #0d0d0d;
     cursor: default;

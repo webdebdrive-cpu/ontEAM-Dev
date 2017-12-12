@@ -409,6 +409,19 @@ $(function() {
         e.preventDefault();
         return false;
     });
+    // Readonly mezők tiltása
+    $('input[readonly]')   .removeAttr('onclick').removeAttr('onblur');
+    $('select[readonly]')  .removeAttr('onclick').removeAttr('onblur');
+    $('textarea[readonly]').removeAttr('onclick').removeAttr('onblur');
+    $(document).on('mousedown', 'input[readonly], select[readonly], textarea[readonly]', function(e) {
+        $(this).blur();
+        return false;
+    });
+    $(document).on('click', 'label[readonly]', function(e) {
+        e.preventDefault();
+        return false;
+    });
+
 
     // Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk
     $(':input[type!="hidden"]').each(function (i) {
@@ -801,6 +814,7 @@ $(function() {
             if($(this).hasClass('f_num')){
                 taroltVal = taroltVal.replace('\.', ',');
             }
+console.log(taroltVal+'-'+val);
             if( taroltVal != val ) {
                 $(this).addClass('mod');
             } else {

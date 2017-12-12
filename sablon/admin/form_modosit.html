@@ -57,21 +57,16 @@
 
                     /* Ha az űrlapnak nincs submit-ja, akkor minden mezőjét tiltunk.  */
                     if(!$('#szerk_form').parent().find('input.mentes_gomb').length){
-                        $('#szerk_form input, #szerk_form textarea, #szerk_form select').attr('disabled', true);
-                        $('#szerk_form input.f_nem_rejt').attr('disabled', false);
+                        $('#szerk_form input, #szerk_form textarea, #szerk_form select').attr('readonly', true);
+                        $('#szerk_form input.f_nem_rejt').attr('readonly', false);
                         $('#szerk_form input.foGomb').removeAttr('disabled');
                     }
                     /* Ha a helyiség input tiltott, akkor az ikonja is legyen az */
-                    if($('#obj_id_autocomp').is(':disabled')){
+                    var readonly_e = $('#obj_id_autocomp').attr('readonly');
+                    if(typeof readonly_e !== typeof undefined && readonly_e !== false){
                         $('.obj_gen').hide();
                     }
 
-                    /* Disabled inputokra ne lehessen jobbkilkkelni, ezért teszünk föléjük egy div-et */
-                    /*
-                    $('input[disabled], textarea[disabled]').each(function() {
-                        $(this).after('<div class="no_right_click"></div>');
-                    });
-                    */
                 });
 
             </script>

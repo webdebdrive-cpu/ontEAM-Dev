@@ -1461,7 +1461,8 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 			input
 				.data('xdsoft_datetimepicker', datetimepicker)
 				.on('open.xdsoft focusin.xdsoft mousedown.xdsoft', function (event) {
-					if (input.is(':disabled') || (input.data('xdsoft_datetimepicker').is(':visible') && options.closeOnInputClick)) {
+                    var readonly_e = input.attr('readonly');
+					if (input.is(':disabled') || (typeof readonly_e !== typeof undefined && readonly_e !== false) || (input.data('xdsoft_datetimepicker').is(':visible') && options.closeOnInputClick)) {
 						return;
 					}
 					clearTimeout(timer);
