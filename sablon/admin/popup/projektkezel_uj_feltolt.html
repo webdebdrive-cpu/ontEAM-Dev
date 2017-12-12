@@ -1,0 +1,52 @@
+<h2 id="eloterj_igneyles_csatolCim">Új projektkezelés létrehozása</h2>
+<form class="popupForm" method="post">
+    <div class="kozep">
+        <div id="igenyles_tablazat_uj_kezeleshez"></div>
+    </div>
+    <div class="kuldes">
+        <input type="button" class="gomb zold"  value="Mehet" onclick="projektkezeles_feltolt()">
+        <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+    $(document).ready(function(){
+        igenylesek_betolt_uj_kezeleshez();
+    });
+	function projektkezeles_feltolt(){
+        
+        location.href = esamp2es('projektkezeles.php?uj&amp;igeny_id=')+$('#igenyles_tablazat_uj_kezeleshez tr.kijelolve').data('recid');
+        return false;
+    }
+    
+    function igenylesek_betolt_uj_kezeleshez(order){
+        
+        mod = _get('id');
+        if(baseName(location.href)=='eloterj_bod'){
+            mod = 'bod';
+        }
+        
+        $.ajax({
+            url : 'projektkezeles.php',
+            type: 'POST',
+            data: {
+                eloterj_recid                   : _get('id'),
+                mod                             : mod,
+                order                           : order,
+                igenylesek_betolt_uj_kezeleshez : new Date().getTime()
+            },
+            success: function(response){
+                $('#igenyles_tablazat_uj_kezeleshez').html(response);
+            }
+        });
+    }
+    
+    function tabla_szur(tabla, kulcs, oszlop) {
+        var $rows = tabla.find('tr');
+        var val = $.trim(kulcs).replace(/ +/g, ' ').toLowerCase();
+
+        $rows.show().filter(function() {
+            var text = $(this).find('td:nth-of-type('+oszlop+')').text().replace(/\s+/g, ' ').toLowerCase();
+            return !~text.indexOf(val);
+        }).hide();
+    }
+</script>

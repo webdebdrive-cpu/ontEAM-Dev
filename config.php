@@ -47,10 +47,11 @@ function get_db_pass(){
     }
 }
 
-function get_db_charset() { return 'UTF8';                                                                              } //Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
-function get_debug()      { return false;                                                                               } //Hibás adatbázislekérdezések megjelennek vagy sem
+function get_db_charset() { return 'UTF8';                                      } // Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
+function get_debug()      { return false;                                       } // Hibás adatbázislekérdezések megjelennek vagy sem
+function get_ut_logfajl() { return '!utemezo_log.err';                          } // Ütemező logfájlja
 
-//Weblap
+// Weblap
 function get_admin()         { return 'admin/';                                 } // Admin könyvtár neve
 function get_afa()           { return 27;                                       }
 function get_alapnyelv()     { return 'hu'/*pl. hu, en, de*/;                   } // Az oldal alapértelmezett nyelve mi legyen? Ez kerül a meta tagokba. A többnyelvűsítést a get_nyelvek()-nél kell beállítani.
@@ -80,17 +81,17 @@ function get_title_hossz()  { return 75;                                        
 function get_desc_hossz()   { return 190;                                       } //Desc max mekkora legyen - ha 0, akkor korlátlan
 function get_key_hossz()    { return 200;                                       } //Key max mekkora legyen - ha 0, akkor korlátlan
 
-//Social linkek
+// Social linkek
 function get_facebook()     { return '';   }    //https://www.facebook.com/!FACEBOOK_PROFIL_LINKJE!
 function get_twitter()      { return '';   }    //https://twitter.com/!TWITTER_PROFIL_LINKJE!
 function get_google()       { return '';   }    //https://plus.google.com/!GOOGLE_PROFIL_LINKJE!
 
-//Letöltésnél nem engedünk meg minden kiterjesztést letölteni
+// Letöltésnél nem engedünk meg minden kiterjesztést letölteni
 function get_engedelyezett_letoltesek()  { return array('txt'); }
 
 function tranzakcioHiba() { return 'Az adatbázis műveleteket nem lehetett végrehajtani, kérem próbálja újra a folyamatot!'; }
 
-//Head
+// Head
 function get_doctype() { return '';                 } //transitional, frameset (egyébként strict)
 function get_noskype() { return true;               }
 function get_language(){ return get_alapnyelv();    }
@@ -164,15 +165,13 @@ function get_jsfajlok_admin(){
                 $utvonal.'css/fancybox_admin.css',
                 $utvonal.'css/feltolt.css',
                 $utvonal.'css/tooltip.css',
-                //$utvonal.'css/fullcalendar.min.css',
-                //$utvonal.'css/fullcalendar.print.min.css',
                 //{KOVETKEZO_ADMIN_CSS}
 		);
 
 	return array( 'js' => $js, 'css' => $css );
 }
 
-//Képek
+// Képek
 function get_mini_sz()    { return 1;  }
 function get_mini_m()     { return 1;  }
 function get_indexkep_sz(){ return 2;  }
@@ -182,7 +181,7 @@ function get_kep_m()      { return 3;  }
 function get_nagykep_sz() { return 4;  }
 function get_nagykep_m()  { return 4;  }
 
-//Ajaxból meghívott változókban pár speciális karaktert visszaállítunk (Az esamp2es JS függvényben alakítjuk ezeket át.)
+// Ajaxból meghívott változókban pár speciális karaktert visszaállítunk (Az esamp2es JS függvényben alakítjuk ezeket át.)
 foreach($_POST as $kulcs => $post){
     $_POST[$kulcs] = str_replace('!ES!',    '&', $_POST[$kulcs]);
     $_POST[$kulcs] = str_replace('|ES|',    '&', $_POST[$kulcs]); // Erre is szükség van, az admin WYSIWYG szerkesztője miatt

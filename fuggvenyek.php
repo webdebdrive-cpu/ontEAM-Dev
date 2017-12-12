@@ -498,7 +498,9 @@ function i_u($type, $tabla, $tomb) {
 
         // Projektigénylés új bejegyzés esetén
         } else if( $tabla == 'projektigenyles' ) {
-
+            
+            array_push($oszlopok, 'projektigenyles_recid'           );
+            array_push($ertekek, $_POST['projektigenyles_recid']    );
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 

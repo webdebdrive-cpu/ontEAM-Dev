@@ -1865,7 +1865,7 @@ array('type' => 'html',                     'megn' => nl2('
                                                             </div>
                                                         </div>
                                                                 ')),
-
+    array('type' => 'hidden',               'megn' => '',      'name' => 'projektigenyles_recid'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 

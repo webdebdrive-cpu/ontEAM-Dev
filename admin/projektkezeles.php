@@ -74,6 +74,149 @@ if (isset($_POST['addProjektTeam'])) {
     exit;
 }
 
+
+
+// Igénylések táblázat betöltése
+if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
+
+    $html = '';
+
+    $postfix         = '_fb';
+    $fb_bod_statusz  = PRIGENY_STAT_FB_TERJESZT_VAR;
+    $nyitott_statusz = ELOT_FB_STAT_NYITOTT;
+    $nyitott_is_sql  = ', \''.PRIGENY_STAT_NYITOTT.'\''; // FB csatolásnál a nyitottakat is be lehet csatolni, de BoD-nálm már nem
+    if($_POST['mod']=='bod'){
+        $postfix         = '_bod';
+        $fb_bod_statusz  = PRIGENY_STAT_BOD_TERJESZT_VAR;
+        $nyitott_statusz = ELOT_BOD_STAT_NYITOTT;
+        $nyitott_is_sql  = '';
+    }
+
+    // Rendezés beállítása
+    $join  = ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'projektigenyles`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
+    switch($_POST['order']){
+        case 'bkolt': $order = '`'.get_db_tabla().'projektigenyles`.`bkolt`, `'.get_db_tabla().'telephely`.`nev`';          $bkolt_selected = ' selected';  break;
+        case 'tipus': $order = '`'.get_db_tabla().'projektigenyles`.`tipus`, `'.get_db_tabla().'projektigenyles`.`bkolt`';  $tipus_selected = ' selected';  break;
+        default     : $order = '`'.get_db_tabla().'telephely`.`nev`,         `'.get_db_tabla().'projektigenyles`.`bkolt`';                                  break;
+    }
+
+    // Nem szerepelnek másik nyitott vagy véglegesítve státuszú előterjesztésben
+    $where_kieg = '';
+    $fb_kizart_recidk = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_fb` WHERE `stat_id` IN ('".ELOT_FB_STAT_NYITOTT."', '".ELOT_FB_STAT_VEGLEGESITVE."'))");
+    $fb_kizart_recidk = adatbazis2tomb($fb_kizart_recidk, 'projektigenyles_recid');
+    $bod_kizart_recidk = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_bod_kapcs', "`eloterj_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_bod` WHERE `stat_id` IN ('".ELOT_BOD_STAT_NYITOTT."', '".ELOT_BOD_STAT_VEGLEGESITVE."'))");
+    $bod_kizart_recidk = adatbazis2tomb($bod_kizart_recidk, 'projektigenyles_recid');
+    $kizart_recidk = array_merge($fb_kizart_recidk, $bod_kizart_recidk);
+    if($kizart_recidk){
+        $where_kieg .= ' AND `'.get_db_tabla().'projektigenyles`.`recid` NOT IN ('.implode(',', $kizart_recidk).')';
+    }
+
+    $szallodak = get_akt_login_szallodai();
+    $priek = $adatbazis_kapcsolat->s('
+                                        `'.get_db_tabla().'projektigenyles`.`recid`,
+                                        `'.get_db_tabla().'projektigenyles`.`nev`,
+                                        `'.get_db_tabla().'projektigenyles`.`tipus`,
+                                        `'.get_db_tabla().'projektigenyles`.`stat_id`,
+                                        `'.get_db_tabla().'projektigenyles`.`telephely_id`,
+                                        `'.get_db_tabla().'projektigenyles`.`bkolt`,
+                                        `'.get_db_tabla().'telephely`.`nev` as `t_nev`',
+                                        'projektigenyles',
+                                        "`stat_id`='".PRIGENY_STAT_JOVAHAGYVA."' AND `telephely_id` IN (".implode(',', $szallodak).")$where_kieg", $order, '', '', '', $join);
+
+    $i = 1;
+    foreach($priek as $pri){
+
+        // Szálloda
+        $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$pri['telephely_id']}'");
+
+        // Létrehozva dátum = első nyitott státusz
+        $letrehozva = $adatbazis_kapcsolat->s2('insert_dt', 'projektigenyles_statusz', "`projektigenyles_recid`='{$pri['recid']}' AND `stat_id`='".PRIGENY_STAT_NYITOTT."'", 'insert_dt', '1');
+
+        // Tipus
+        require_once 'selectek.php';
+        foreach($select_pri_tipus as $tip){
+            if($tip['value']==$pri['tipus']){
+                $tipus = $tip['name'];
+            }
+        }
+        if(!$pri['tipus']){
+            $tipus = '-';
+        }
+
+        // BoD elé terjesztettek
+        $kiemelt = '';
+        if($pri['stat_id']==$fb_bod_statusz){
+            $kiemelt = ' kiemelt';
+        }
+
+        $html .= '
+            <tr class="kijSor'.$kiemelt.'" data-i="'.$i.'" data-recid="'.$pri['recid'].'">
+                <td>'.getStatText('projektigenyles', $pri['stat_id']).'</td>
+                <td>'.$szalloda['nev'].'</td>
+                <td>'.$pri['nev'].'</td>
+                <td>'.$tipus.'</td>
+                <td class="r">'.number_format($pri['bkolt'], 0, '', ' ').' '.get_penznem().'</td>
+                <td>'.substr(str_replace('-', '.', $letrehozva['insert_dt']), 0, 10).'</td>
+            </tr>
+            ';
+        $i++;
+    }
+    if($html){
+
+        // Táblázat rendezhető: szálloda + becsült költség, becsült költség + szálloda, típus + becsült költség. Ezek legyenek egy lenyílóból kiválaszthatóak.
+        $html = '
+            Rendezés:
+            <select onchange="igenylesek_betolt_uj_kezeleshez(this.value)">
+                <option>szálloda + becsült költség</option>
+                <option value="bkolt"'.$bkolt_selected.'>becsült költség + szálloda</option>
+                <option value="tipus"'.$tipus_selected.'>típus + becsült költség</option>
+            </select>
+            <table class="csikos kijCont csak_egy_kijelolheto" id="prigenylesek" style="cursor: default">
+            <thead>
+            <tr>
+                <th>
+                    Státusz
+                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 1)">
+                </th>
+                <th>
+                    Szálloda
+                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 2)">
+                </th>
+                <th>
+                    Név
+                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 3)">
+                </th>
+                <th>
+                    Típus
+                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 4)">
+                </th>
+                <th class="r">
+                    Becsült költség
+                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 5)">
+                </th>
+                <th>
+                    Létrehozás dátuma
+                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 6)">
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+                '.$html.'
+            </tbody>
+            </table>';
+    }else{
+        $html = '<h1>Nem található csatolható projektigénylés!</h1><script>$(\'#eloterj_igneyles_csatolForm div.kuldes\').html(\'<input type="button" class="gomb zold" value="Ok" onclick="popupZar();">\');  $(\'#eloterj_igneyles_csatolCim\').html(\'Hiba\');</script>';
+    }
+
+    echo nl2($html);
+
+    $weblap->leallit();
+    exit();
+}
+
+
+
+
 // Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
@@ -207,14 +350,14 @@ require_once('selectek.php');
 
     $js_submit_elott = 'return form_ell_admin();';
     
-	// Új termék felvitele
+	// Új projektkezelés felvitele
 	if(isset($_GET['uj']) && _jog(JOG_PRKEZEL_KEZEL) ){
 
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
-
+        
 	    // HIBAüZENETEK
 	    require_once('info.php');
 
@@ -243,14 +386,27 @@ require_once('selectek.php');
         foreach($rend_mezok as $rend_mezo) {
             $sor[$rend_mezo] = '';
         }
-
-        foreach($akt_tomb as $tomb) {
-            if( $tomb['type'] == 'autocomplete' ) {
-                $sor[$tomb['name'].'_autocomp'] = '';
-            }
+        
+        // Ha van igénylés recid-nk, akkor annak az adatait felhasználjuk
+        if($_GET['igeny_id']){
+            $igenyles = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$_GET['igeny_id']}' AND `telephely_id` IN (".implode(', ', get_akt_login_szallodai()).")");
+            $sor['nev']             = $igenyles['nev'];
+            $sor['telephely_id']    = $igenyles['telephely_id'];
+            $sor['tipus']           = $igenyles['tipus'];
+            $sor['besorol']         = $igenyles['besorol'];
+            $sor['prior']           = $igenyles['prior'];
+            $sor['bkolt']           = $igenyles['bkolt'];
+            $sor['rendk']           = $igenyles['rendk'];
+            $sor['megter']          = $igenyles['megter'];
+            $sor['text']            = $igenyles['text'];
+            $sor['projektigenyles_recid'] = $_GET['igeny_id'];
         }
 
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
+        $json_sor = array();
+        foreach($sor as $kulcs => $elem){
+            $json_sor[$kulcs] = nl2(str_replace(array("\n", "'"), array("#UJSOR#", "#APOSZTROF#"), $elem));
+        }
+        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
@@ -419,7 +575,32 @@ require_once('selectek.php');
 	// Projektigény
 	}elseif(isset($_GET['projektigeny'])){
 
-        $szamla_html .= 'Projektigény felülete';
+        $kezeles  = $adatbazis_kapcsolat->s2('projektigenyles_recid', 'projektkezeles', "`recid`='{$_GET['id']}'");
+        if($kezeles['projektigenyles_recid']){
+            $igenyles = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$kezeles['projektigenyles_recid']}'");
+            $szamla_html .= nl2('
+                                <div class="dt naplo kijCont" data-tabla="munkalap_kapcs" data-mellek="munkalapok">
+                                    <div class="dtr nFejlec">
+                                    <div class="dtc">Azonosító</div>
+                                    <div class="dtc">Szálloda</div>
+                                    <div class="dtc">Név</div>
+                                    <div class="dtc">Leírás</div>
+                                    <div class="dtc">Létrehozva</div>
+                                    <div class="dtc">Státusz</div>
+                                </div>
+                                <div id="naploSor-'.$igenyles['recid'].'" class="dtr nSor" data-id="'.$igenyles['recid'].'" data-i="1">
+                                    <div class="dtc"><a href="projektigenyles.php?id='.$igenyles['recid'].'&amp;modosit" target="_blank">'.$igenyles['ikt_szam'].'</a></div>
+                                    <div class="dtc">'.getErtek('nev', 'telephely', 'id', $igenyles['telephely_id']).'</div>
+                                    <div class="dtc">'.$igenyles['nev'].'</div>
+                                    <div class="dtc">'.nl2br2($igenyles['text']).'</div>
+                                    <div class="dtc">'.str_replace('-', '.', $igenyles['insert_dt']).'</div>
+                                    <div class="dtc">'.getStatText('projektigenyles', $igenyles['stat_id']).'</div>
+                                </div>
+                            ');
+        }else{
+            $szamla_html .= 'Ehhez a projektkezelésehez nem tartozik igénylés.';
+        }
+        
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

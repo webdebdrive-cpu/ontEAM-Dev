@@ -2746,7 +2746,7 @@ div.szamlaLapozas div.lapoz.pontok {
 }
 
 .kijSor.kijelolve {
-    background: #55A2FA!important;
+    background: #3C88DE!important;
     color: #fff;
 }
 
@@ -2874,8 +2874,8 @@ div.mobilkeret div.dtr div.dtc {
 }
 
 div.mobilkeret li.kijelolt{
+    background: #3C88DE;
     color: #fff;
-    background: #55A2FA;
 }
 
 table.csoportok{

@@ -18,14 +18,14 @@ if(isset($_GET['cash_flow'])){
     unset($_GET['cash_flow']);
 }
 
-//Config
+// Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $projektigenyles_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'projekt igénylést';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-//Változók beállítása
+// Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
 $fajloszlop             = 'kep';                //Kép (vagy kivételes esetekben más fájl) oszlopneve.
@@ -41,7 +41,7 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
-//Több kép menedzseléséhez
+// Több kép menedzseléséhez
 $tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
@@ -55,7 +55,7 @@ if($tobb_kep){
 
 }
 
-//Véleményező hozzáadás státusz ellenőrzés
+// Véleményező hozzáadás státusz ellenőrzés
 if (isset($_POST['velemenyezok_status_ell'])) {
 
     $stat = $adatbazis_kapcsolat->s2('stat_id', $megnevezes, "`recid`='{$_POST['recid']}'");
@@ -136,7 +136,7 @@ if( isset($_POST['addVelemenyezo']) ) {
 //echo $adatbazis_kapcsolat->gp() . '<br>';
             if($kapcsID===false){ $db_error = true; }
 
-            //Ha hozzáadunk egy véleményezőt, akkor a státuszt biztosan léptethetjük véleményezés alattra
+            // Ha hozzáadunk egy véleményezőt, akkor a státuszt biztosan léptethetjük véleményezés alattra
             $akt_stat = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$pr_igeny_recid}'");
             if($akt_stat['stat_id']!=PRIGENY_STAT_VEL_ALATT){
                 if(addStatusz('projektigenyles_statusz', $pr_igeny_recid, PRIGENY_STAT_VEL_ALATT)===false){
@@ -304,7 +304,7 @@ if (isset($_POST['velemeny_torol'])) {
     exit();
 }
 
-//Új vélemény feltöltésekor ellenőrizzük, hogy van-e már feltöltött vélemény?
+// Új vélemény feltöltésekor ellenőrizzük, hogy van-e már feltöltött vélemény?
 if (isset($_POST['van_e_velemeny'])) {
 
     $db_error = false;
@@ -316,12 +316,12 @@ if (isset($_POST['van_e_velemeny'])) {
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
 
-        //Ha van már vélemény, akkor kérdezünk
+        // Ha van már vélemény, akkor kérdezünk
         if($van_velemeny){
             echo json_encode(array(
                 'kerdes' => 'Önnek már van feltölött véleménye. Biztosan felülírja?'
             ));
-        //Ha nincs vélemény, akkor mehet egyből a feltöltés
+        // Ha nincs vélemény, akkor mehet egyből a feltöltés
         }else{
             echo json_encode(array(
                 'mehet' => '1'
@@ -357,14 +357,14 @@ if (isset($_POST['pri_statusz_leptet'])) {
     mysqli_autocommit($db_kapcs, false);
 
 
-    //Jóváhagyáskor átmásoljuk a Projektkezelés menüpont alá
+    // Jóváhagyáskor átmásoljuk a Projektkezelés menüpont alá
     $igenyles = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='{$_POST['recid']}'");
     if( $igenyles === false ) { $db_error = true; }
 
-    //Jóváhagyáskor több mindenre figyelni kell
+    // Jóváhagyáskor több mindenre figyelni kell
     if($_POST['statusz']==PRIGENY_STAT_JOVAHAGYVA){
 
-        //Van-e jogunk hozzá? Ha nincs, akkor rollback
+        // Van-e jogunk hozzá? Ha nincs, akkor rollback
         if(!_jog(JOG_PRIGENY_JOVAHAGY)){
             echo json_encode(array(
                 'hiba' => 'Önnek nincs joga projektigénylést jóváhagyni!'
@@ -384,7 +384,7 @@ if (isset($_POST['pri_statusz_leptet'])) {
             exit;
         }
 
-        //A projetk ikt.száma PI prefix helyett csak egy P-t kap
+        // A projetk ikt.száma PI prefix helyett csak egy P-t kap
         $igenyles['ikt_szam'] = str_replace('PI', 'P', $igenyles['ikt_szam']);
 
         $mezok    = array('ikt_szam', 'telephely_id', 'nev', 'tipus', 'akt_adat', 'prior', 'besorol', 'rendk', 'megter', 'megter_cel', 'mertek', 'megter_adat', 'text', 'bkolt', 'loginnev');
@@ -397,7 +397,7 @@ if (isset($_POST['pri_statusz_leptet'])) {
         $prk_id = $adatbazis_kapcsolat->i('projektkezeles', $mezok, $ertekek);
         if( $prk_id === false ) { $db_error = true; }
 
-        //Státusz táblába is beszúrunk
+        // Státusz táblába is beszúrunk
         $sql = $adatbazis_kapcsolat -> i('projektkezeles_statusz',
                                             array('projektkezeles_recid', 'stat_id',              'insert_dt',    'insert_usr',                             'update_usr'                           ),
                                             array($prk_id,                 PRKEZEL_STAT_NYITOTT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
@@ -405,7 +405,7 @@ if (isset($_POST['pri_statusz_leptet'])) {
         if( $sql === false ) { $db_error = true; }
     }
 
-    //FB elé terjeszteni az alábbi státuszokkal nem lehet
+    // FB elé terjeszteni az alábbi státuszokkal nem lehet
     if( $_POST['statusz']==PRIGENY_STAT_FB_TERJESZT && !in_array($igenyles['stat_id'], prigeny_fb_ele_statuszok()) ){
             echo json_encode(array(
                 'hiba' => '!Ebből a státuszból nem lehet FB elé terjeszteni a projektigénylést!'
@@ -415,7 +415,7 @@ if (isset($_POST['pri_statusz_leptet'])) {
             exit;
     }
 
-    //BoD elé csak Elutasítás vagy Jóváhagyás joggal lehet
+    // BoD elé csak Elutasítás vagy Jóváhagyás joggal lehet
     if($_POST['statusz']==PRIGENY_STAT_BOD_TERJESZT){
         if(!_jog(JOG_PRIGENY_ELUTASIT) && !_jog(JOG_PRIGENY_JOVAHAGY)){
             echo json_encode(array(
@@ -427,7 +427,7 @@ if (isset($_POST['pri_statusz_leptet'])) {
         }
     }
 
-    //BoD elé terjeszteni az alábbi státuszokkal nem lehet
+    // BoD elé terjeszteni az alábbi státuszokkal nem lehet
     if( $_POST['statusz']==PRIGENY_STAT_BOD_TERJESZT && !in_array($igenyles['stat_id'], prigeny_bod_ele_statuszok()) ){
             echo json_encode(array(
                 'hiba' => 'Ebből a státuszból nem lehet BoD elé terjeszteni a projektigénylést!'
@@ -437,7 +437,7 @@ if (isset($_POST['pri_statusz_leptet'])) {
             exit;
     }
 
-    //Státusz tényleges léptetése
+    // Státusz tényleges léptetése
     if(addStatusz('projektigenyles_statusz', $_POST['recid'], $_POST['statusz'])===false){
         $db_error = true;
     }
@@ -607,7 +607,7 @@ if(isset($_POST['igenylesek_betolt'])){
         $nyitott_is_sql  = '';
     }
 
-    //Ha nem nyitott a státusza, akkor nincs is mit számolni
+    // Ha nem nyitott a státusza, akkor nincs is mit számolni
     $elot = $adatbazis_kapcsolat->s2('stat_id', 'eloterj'.$postfix, "`recid`='{$_POST['eloterj_recid']}'");
     if($elot['stat_id']!=$nyitott_statusz){
 
@@ -617,7 +617,7 @@ if(isset($_POST['igenylesek_betolt'])){
         exit();
     }
 
-    //Rendezés beállítása
+    // Rendezés beállítása
     $join  = ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().'projektigenyles`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
     switch($_POST['order']){
         case 'bkolt': $order = '`'.get_db_tabla().'projektigenyles`.`bkolt`, `'.get_db_tabla().'telephely`.`nev`';          $bkolt_selected = ' selected';  break;
@@ -625,7 +625,7 @@ if(isset($_POST['igenylesek_betolt'])){
         default     : $order = '`'.get_db_tabla().'telephely`.`nev`,         `'.get_db_tabla().'projektigenyles`.`bkolt`';                                  break;
     }
 
-    //nem szerepelnek másik nyitott vagy véglegesítve státuszú előterjesztésben
+    // nem szerepelnek másik nyitott vagy véglegesítve státuszú előterjesztésben
     $where_kieg = '';
     $fb_kizart_recidk = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_fb` WHERE `stat_id` IN ('".ELOT_FB_STAT_NYITOTT."', '".ELOT_FB_STAT_VEGLEGESITVE."'))");
     $fb_kizart_recidk = adatbazis2tomb($fb_kizart_recidk, 'projektigenyles_recid');
@@ -651,13 +651,13 @@ if(isset($_POST['igenylesek_betolt'])){
     $i = 1;
     foreach($priek as $pri){
 
-        //Szálloda
+        // Szálloda
         $szalloda = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$pri['telephely_id']}'");
 
         // Létrehozva dátum = első nyitott státusz
         $letrehozva = $adatbazis_kapcsolat->s2('insert_dt', 'projektigenyles_statusz', "`projektigenyles_recid`='{$pri['recid']}' AND `stat_id`='".PRIGENY_STAT_NYITOTT."'", 'insert_dt', '1');
 
-        //Tipus
+        // Tipus
         require_once 'selectek.php';
         foreach($select_pri_tipus as $tip){
             if($tip['value']==$pri['tipus']){
@@ -688,7 +688,7 @@ if(isset($_POST['igenylesek_betolt'])){
     }
     if($html){
 
-        //Táblázat rendezhető: szálloda + becsült költség, becsült költség + szálloda, típus + becsült költség. Ezek legyenek egy lenyílóból kiválaszthatóak.
+        // Táblázat rendezhető: szálloda + becsült költség, becsült költség + szálloda, típus + becsült költség. Ezek legyenek egy lenyílóból kiválaszthatóak.
         $html = '
             Rendezés:
             <select onchange="igenylesek_betolt(this.value)">
@@ -1075,6 +1075,7 @@ require('selectek.php');
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; history.back();">
                 </div>
             ');
 
@@ -1187,6 +1188,7 @@ require('selectek.php');
                     $gombok = nl2('
                         <div class="form_kuldes">
                             <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="'.$gomb_kieg.'$(\'#szerk_form\').submit()">
+                            <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
                         </div>
                     ').$gombok;
                 }

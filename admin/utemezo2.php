@@ -1,6 +1,14 @@
 <?php
 require_once('../weblap.php');
-require_once('datumra_utemezes.php');
+
+// Ha a lgofájl nem tartalmazza az !utemezo sikeresen lefutott! szöveget, akkor az első ütemező kifagyott
+$log_utvonal = get_ut_logfajl();
+$log = fajlbol_olvas($log_utvonal);
+if(strpos($log, '!utemezo sikeresen lefutott!')===false){
+    if($_SERVER['HTTP_HOST']=='onteam.hu'){
+        level_kuldes( get_nev(), get_mail(), 'Handari Tamás', 'bk@webdeb.hu', 'Ütemező nem futott le', nl2br($log) );
+    }
+}
 
 // Tranzakciót indítunk
 $db_error = false;

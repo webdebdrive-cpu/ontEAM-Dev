@@ -7,11 +7,16 @@ $db_error = false;
 mysqli_autocommit($db_kapcs, false);
 
 // Ütemezett feladatok lekérdezése, bejárása
+$log = '';
+$log_utvonal = get_ut_logfajl();
+unlink($log_utvonal);
 $ut_feladatok = $adatbazis_kapcsolat->s('*', 'utemezett_feladatok', "DATE_ADD(`esnap_d`, INTERVAL - `riaszt` DAY)<=CURDATE() AND `utnap_d`<CURDATE() AND `aktiv`=1");
-echo htmlspecialchars($adatbazis_kapcsolat->gp()) . ';<br>';
+fajlba_mentes($log_utvonal, fajlbol_olvas($log_utvonal).$adatbazis_kapcsolat->gp(). "\r\n");
 foreach($ut_feladatok as $ut_feladat){
     
-    $text           = $ut_feladat['id'].' feladatot ütemezte '.$ut_feladat['insert_usr']."\r\n".$ut_feladat['nev']."\r\n".$ut_feladat['leiras'];
+    // logolás
+    fajlba_mentes($log_utvonal, fajlbol_olvas($log_utvonal).'recid: '.$ut_feladat['id']. "\r\n");
+    $text = $ut_feladat['id'].' feladatot ütemezte '.$ut_feladat['insert_usr']."\r\n".$ut_feladat['nev']."\r\n".$ut_feladat['leiras'];
     
     // Feladatszám kiszámítása
     // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
@@ -88,3 +93,9 @@ if( !$db_error ) {
 } else {
     mysqli_rollback($db_kapcs);
 }
+
+
+// Végső log (ha ez nincs a fájban, akkor  kifagyott az ütemező
+fajlba_mentes($log_utvonal, fajlbol_olvas($log_utvonal).'!utemezo sikeresen lefutott!'. "\r\n");
+
+$weblap -> leallit();

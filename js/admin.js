@@ -504,7 +504,7 @@ $(function() {
             sorok  = parent.find('.kijSor');
 
         /* SHIFT gomb lekezelése */
-        if( e.shiftKey ) {
+        if( e.shiftKey && !parent.hasClass('csak_egy_kijelolheto') ) {
 
             if( !sorok.hasClass('kijelolve') ) {
                 $(this).addClass('kijelolve');
@@ -537,7 +537,7 @@ $(function() {
             }
 
         /* CTRL gombbal további sorok megjelölése */
-        } else if( e.ctrlKey ) {
+        } else if( e.ctrlKey && !parent.hasClass('csak_egy_kijelolheto') ) {
 
             if( $(this).hasClass('kijelolve') ) {
                 $(this).removeClass('kijelolve');
@@ -4507,6 +4507,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
 
                     } else if( baseName(location.href) == 'projektkezeles' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+
+                    } else if( baseName(location.href) == 'projektkezeles' && _get('modosit') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: csoportMuvelet(\'projektkezel_uj_feltolt\'); void(0);');
 
                     } else if( baseName(location.href) == 'projektigenyles' && _get('megterules') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megterules\'); void(0);');
