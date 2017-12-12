@@ -16,7 +16,8 @@
 (function($) {
     $.fn.autocomplete = function(options) {
 
-        if($(this).attr('readonly')==''){
+        var readonly_e = $(this).attr('readonly');
+        if(typeof readonly_e === typeof undefined || readonly_e === false){
 
             var defaults = {
                 karaktertol     : 0,                    /* Hány karaktertől induljon a keresés          */
