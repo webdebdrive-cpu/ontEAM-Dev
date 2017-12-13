@@ -105,7 +105,7 @@ if (isset($_GET['csv'])) {
         mkdir('export/csv');
     }
 
-    //Régi fájlok törlése
+    // Régi fájlok törlése
     $utvonal = 'export/csv/';
     $fajlok = konyvtar_bejar($utvonal);
     foreach($fajlok as $fajl){
@@ -162,7 +162,7 @@ if (isset($_GET['csv'])) {
     exit();
 }
 
-/** Tartalom */
+// Tartalom
 if( !$_GET['ajax'] && !isset($_GET['ut_teszt']) ) {
     require_once('header.php');
 }
@@ -419,6 +419,15 @@ require_once('selectek.php');
         foreach($sor as $kulcs => $elem){
             $json_sor[$kulcs] = nl2(str_replace(array("\r\n", "'"), array("#UJSOR#", "#APOSZTROF#"), $elem));
         }
+        $napok = array('1' => 'h', '2' => 'k', '3' => 's', '4' => 'cs', '5' => 'p', '6' => 'sz', '7' => 'v');
+        foreach($napok as $kulcs => $nap ){
+            if(strpos((string)$sor['ciklnap'], (string)$kulcs)!==false){
+                $json_sor[$nap] = 'true';
+            }else{
+                $json_sor[$nap] = 'false';
+            }
+        }
+        
         $szamla_html .= nl2('
                         <script>
                             $(document).ready(function () {
@@ -430,9 +439,9 @@ require_once('selectek.php');
         
         
 // Szinvatrednes demo
-if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu') {
-    $szamla_html .= '<script> $(document).ready(function () { $(\'#szerk_form div.dtr\').hide(); $(\'.mutat_szinva_tmp\').show(); $(\'.mutat_szinva_tmp div.dtr\').show(); }); </script>';
-}
+//if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu') {
+//    $szamla_html .= '<script> $(document).ready(function () { $(\'#szerk_form div.dtr\').hide(); $(\'.mutat_szinva_tmp\').show(); $(\'.mutat_szinva_tmp div.dtr\').show(); }); </script>';
+//}
 
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;

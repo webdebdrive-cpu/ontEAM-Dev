@@ -165,7 +165,7 @@ if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(J
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
     if(basename(self())=='munkalap.php')                { $oldalNev = 'Munkák / <span id="rekord_neve">Munkalapok</span><span class="dn" id="rekord_neve_egyes">munkalap</span><span class="dn" id="rekord_neve_targy">munkalapot</span>';                                              }
     if(basename(self())=='mobil_hozzarendel.php')       { $oldalNev = 'Munkák / Munkalapok / <span id="rekord_neve">Mobil hozzárendelés</span><span class="dn" id="rekord_neve_egyes">hozzárendelés</span><span class="dn" id="rekord_neve_targy">hozzárendelést</span>';       }
-    if(basename(self())=='utemezett_feladatok.php')     { $oldalNev = 'Munkák / <span id="rekord_neve">Ütemzett feladatok</span><span class="dn" id="rekord_neve_egyes">ütmezett feladat</span><span class="dn" id="rekord_neve_targy">ütemezett feladatot</span>';                     }
+    if(basename(self())=='utemezett_feladatok.php')     { $oldalNev = 'Munkák / <span id="rekord_neve">Ütemezett feladatok</span><span class="dn" id="rekord_neve_egyes">ütmezett feladat</span><span class="dn" id="rekord_neve_targy">ütemezett feladatot</span>';                     }
     if(basename(self())=='rendszeres_karbantartas.php') { $oldalNev = 'Munkák / <span id="rekord_neve">Rendszeres karbantartás</span><span class="dn" id="rekord_neve_egyes">rendszeres karbantartás</span><span class="dn" id="rekord_neve_targy">rendszeres karbantartást</span>';    }
     if(basename(self())=='eseti_fenntartas.php')        { $oldalNev = 'Munkák / <span id="rekord_neve">Eseti fenntartás</span><span class="dn" id="rekord_neve_egyes">eseti fenntartás</span><span class="dn" id="rekord_neve_targy">eseti fenntartást</span>';                         }
     if(basename(self())=='uzemeltetesi_naplo.php')      { $oldalNev = 'Munkák / <span id="rekord_neve">Üzemeltetési napló</span><span class="dn" id="rekord_neve_egyes">üzemeltetési napló</span><span class="dn" id="rekord_neve_targy">üzemeltetési naplót</span>';                   }
@@ -374,7 +374,7 @@ if(_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_P
     $aloldalak       = array($megn.'.php', 'projektkezeles.php', 'cash_flow.php', 'eloterj_fb.php', 'eloterj_bod.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
     if(basename(self())=='projektigenyles.php') { $oldalNev = 'Projektek / <span id="rekord_neve">Projektigénylések</span><span class="dn" id="rekord_neve_egyes">projektigénylés</span><span class="dn" id="rekord_neve_targy">projektigénylést</span>';                       }
-    if(basename(self())=='projektkezeles.php')  { $oldalNev = 'Projektek / <span id="rekord_neve">Projektkezelés</span><span class="dn" id="rekord_neve_egyes">projektkezelés</span><span class="dn" id="rekord_neve_targy">projektkezelést</span>';                            }
+    if(basename(self())=='projektkezeles.php')  { $oldalNev = 'Projektek / <span id="rekord_neve">Projektek</span><span class="dn" id="rekord_neve_egyes">projekt</span><span class="dn" id="rekord_neve_targy">projektet</span>';                                              }
     if(basename(self())=='cash_flow.php')       { $oldalNev = 'Projektek / <span id="rekord_neve">Cash Flow</span><span class="dn" id="rekord_neve_egyes">Cash Flow</span><span class="dn" id="rekord_neve_targy">Cash Flow-t</span>';                                          }
     if(basename(self())=='eloterj_fb.php')      { $oldalNev = 'Projektek / Előterjesztés / <span id="rekord_neve">FB előterjesztések</span><span class="dn" id="rekord_neve_egyes">FB előterjesztés</span><span class="dn" id="rekord_neve_targy">FB előterjesztést</span>';    }
     if(basename(self())=='eloterj_bod.php')     { $oldalNev = 'Projektek / Előterjesztés / <span id="rekord_neve">BoD előterjesztések</span><span class="dn" id="rekord_neve_egyes">BoD előterjesztés</span><span class="dn" id="rekord_neve_targy">BoD előterjesztést</span>'; }
@@ -384,7 +384,7 @@ if(_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGENY_B_MEGTEKINT) || _jog(JOG_P
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Projektigénylések'  ), $almenu_sablon );
     }
     if(_jog(JOG_PRKEZEL_MEGTEKINT)){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Projektkezelés'     ), $almenu_sablon );
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Projekt'        ), $almenu_sablon );
     }
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Cash-flow'          ), $almenu_sablon );
 

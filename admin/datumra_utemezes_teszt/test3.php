@@ -11,7 +11,7 @@ $tesztadatok = array("m","1",1,"","","4",0,"1","1","12","31","","");/*1 havonta 
 $tesztadatok = array("m","2",1,"","2","2",0,"1","1","12","31","","");/*1 havonta 2. kedd*/
 
 /*EZ FOG FUTNI*/
-$tesztadatok = array("w","",1,"","","13",0,"1","1","12","31","","");/*1 hetente hétfő szerda*/
+$tesztadatok = array("m","1","1","1","","14","","","","","","","");
 
 
 print_r(tesztadatok);

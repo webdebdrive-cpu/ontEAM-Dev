@@ -700,9 +700,9 @@ if( isset($_POST['munkalapKeszre']) ) {
             exit();
         }
 
-        // Töbszállodás modell esetén, Kész vagy igazolásra vár státuszra léptetjük attól függően, hogy milyen személyzettípusról van szó
+        // Kész vagy igazolásra vár státuszra léptetjük attól függően, hogy milyen személyzettípusról van szó
         $ig_var_statba_leptet = array(MOBILCSOPORT, KULSO_KIVITELEZO);
-        if( $telephely['modell'] == 1 && in_array($munkalap['szemelyzet_id'], $ig_var_statba_leptet) ){
+        if( in_array($munkalap['szemelyzet_id'], $ig_var_statba_leptet) ){
             // Készre állítjuk a munkalapot
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_IGAZOLASRA_VAR ) ) {
                 $db_error = true;
@@ -920,9 +920,9 @@ if( isset($_POST['munkalapIgazol']) ) {
             exit();
         }
 
-        // Töbszállodás modell esetén, Lezárásra vár vagy lezárt státuszra léptetjük attól függően, hogy milyen személyzettípusról van szó
+        // Lezárásra vár vagy lezárt státuszra léptetjük attól függően, hogy milyen személyzettípusról van szó
         $lezarasra_var_statba_leptet = array(MOBILCSOPORT, KULSO_KIVITELEZO);
-        if( $telephely['modell'] == 1 && in_array($munkalap['szemelyzet_id'], $lezarasra_var_statba_leptet) ){
+        if( in_array($munkalap['szemelyzet_id'], $lezarasra_var_statba_leptet) ){
             // Lezárásra várra állítjuk a munkalapot
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_KESZ) ) {
                 $db_error = true;

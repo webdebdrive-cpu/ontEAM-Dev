@@ -283,11 +283,8 @@ require_once('selectek.php');
                             <div class="dtc c" style="width: 10rem">
                                 Visszaadva
                             </div>
-                            <div class="dtc" style="width: 8rem">
+                            <div class="dtc" style="width: 9.2rem">
                                 Bejelentés dátuma
-                            </div>
-                            <div class="dtc c" style="width: 19.2rem">
-                                Státusz
                             </div>
                         </div>
 
@@ -331,9 +328,6 @@ require_once('selectek.php');
                             </div>
                             <div class="dtc" style="width: 8rem">
                                 '.substr(str_replace('-', '.', $munkalap['insert_dt']), 0, 10).'
-                            </div>
-                            <div class="dtc c" style="width: 18rem">
-                                '.getStatText('munkalap', $munkalap['stat_id']).'
                             </div>
                         </li>
                     ');
@@ -428,7 +422,7 @@ require_once('selectek.php');
                 
                 <div class="muveletek"> 
                     <input class="gomb dn" value="Mobil hozzárendelés véglegesítése" onclick="beosztas_veglegesit()" type="button" id="beosztas_veglegesit_gomb">
-                    <input class="gomb dn" value="Vissza a nyitottak közé" onclick="munkalapok_nyitottak_koze()" type="button" id="vissza_nyitottak_koze">
+                    <input class="gomb" value="Vissza a nyitottak közé" onclick="munkalapok_nyitottak_koze()" type="button" id="vissza_nyitottak_koze">
                     <input class="gomb" value="Mobil személyzet beosztása" onclick="csoportMuvelet(\'mobil_szemelyzet_beosztas\')" type="button">
                     
                     <input type="submit" class="gombb mentes_gomb dn" id="mehet_gomb" disabled value="Mentés" onclick="formModositva = false; $(\'#szerk_form\').submit()">

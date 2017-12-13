@@ -814,7 +814,9 @@ $(function() {
             if($(this).hasClass('f_num')){
                 taroltVal = taroltVal.replace('\.', ',');
             }
-console.log(taroltVal+'-'+val);
+            if(val==false){ val = 'false'; }
+            if(val==true){  val = 'true';  }
+/*console.log(taroltVal+'-'+val);*/
             if( taroltVal != val ) {
                 $(this).addClass('mod');
             } else {
@@ -1340,10 +1342,10 @@ console.log(taroltVal+'-'+val);
         $('#vissza_nyitottak_koze').removeClass('dn');
     });
     /* Az első sor legyen alaból kijelölve, már ha van */
-    if($('.mobilkeret li').length){
+    /*if($('.mobilkeret li').length){
         $('.mobilkeret li:first-of-type').addClass('kijelolt');
         $('#vissza_nyitottak_koze').removeClass('dn');
-    }
+    }*/
 });
 
 /* Projektigénylésnél ha a tipus nem Beruházás, akkor a Besorolás ne is jelenjen meg, értéke nullázódjon. */
@@ -5526,9 +5528,14 @@ function beosztas_veglegesit(mehet){
 
 function munkalapok_nyitottak_koze(mehet){
     
+    if( !$('.mobilkeret li.kijelolt').length ){
+        alert2('Előbb válasszon munkalapot!', '', 'Hiba');
+        return false;
+    }
+    
     if(!mehet){
         nyitottak_koze_gomb = '<input type="button" class="gomb zold" value="Igen" onclick="munkalapok_nyitottak_koze(\'mehet\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">';
-        alert2('Vissza a nyitottak közé:<br><br>'+$('.mobilkeret li.kijelolt .munkalapszam').html()+' munkalapszám<br>'+$('.mobilkeret li.kijelolt .szalloda').html()+' szálloda<br>'+$('.mobilkeret li.kijelolt .hiba').html()+' hiba<br><br>Biztos, hogy visszahelyezi a munkalapot a nyitottak közé?', nyitottak_koze_gomb);
+        alert2($('.mobilkeret li.kijelolt .munkalapszam').html()+' munkalapszám<br>'+$('.mobilkeret li.kijelolt .szalloda').html()+' szálloda<br>'+$('.mobilkeret li.kijelolt .hiba').html()+' hiba<br><br>Biztos, <span style="display: inline-block; width: 0.4rem"></span>hogy visszahelyezi a munkalapot a nyitottak közé?', nyitottak_koze_gomb);
         return false;
     }
     

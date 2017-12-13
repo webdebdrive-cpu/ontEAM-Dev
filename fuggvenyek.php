@@ -913,6 +913,7 @@ function i_u($type, $tabla, $tomb) {
         if( $id ) {
             $sor = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
             if( $sor === false ) { $db_error = true; }
+ 
             if( $sor ) {
                 $_SESSION['formMod'] = array(
                     'datetime' => $sor[0]['update_dt'],
@@ -930,13 +931,42 @@ function i_u($type, $tabla, $tomb) {
                         }
                     }
                 }
+                
+                // Üzemezett feladatoknál az esedékesség dátumát még ki kell számolni
+                if( $tabla == 'utemezett_feladatok' ) {
+                    
+                    $sor_tmp = $sor[0];
+                    
+                    include('datumra_utemezes.php');
+                    if(!$sor_tmp['esem_d'] || $sor_tmp['esem_d']=='0000-00-00'){
+                        $sor_tmp['esem_d'] = date('Y-m-d');
+                    }
+
+                    $esem_d     = substr(str_replace('-', '.', $sor_tmp['esem_d']), 0, 10);
+                    $esnap_d    = str_replace('-', '.', $sor_tmp['esnap_d']);
+                    $aktkezd_d  = str_replace('-', '.', $sor_tmp['aktkezd_d']);
+                    $aktvege_d  = str_replace('-', '.', $sor_tmp['aktvege_d']);
+
+                    // 0-ék helyett használjunk üres stringet
+                    foreach($sor_tmp as $kulcs => $ertek){
+                        if(!$sor_tmp[$kulcs]){
+                            $sor_tmp[$kulcs] = '';
+                        }
+                    }
+
+                    $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor_tmp['cikltip'], $sor_tmp['ciklaltip'], $sor_tmp['ciklszorz'], $sor_tmp['ciklho'], $sor_tmp['ciklhet'], $sor_tmp['ciklnap'], $sor_tmp['idoszakos'], $sor_tmp['kezdho'], $sor_tmp['kezdnap'], $sor_tmp['vegeho'], $sor_tmp['vegenap'], $aktkezd_d, $aktvege_d);
+                    $uj_esnap_d = str_replace('.', '-', $getnextvaliddate);
+                    $adatbazis_kapcsolat->u($tabla, array('esnap_d'), array($uj_esnap_d), "`recid`='{$_GET['id']}' AND `esnap_d`<'$uj_esnap_d'");
+
+                }
+                
 // Ha nem Szinvatrendes teszt üzemmód
-if ( !($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett_feladatok.php') ) {
+//if ( !($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett_feladatok.php') ) {
                 echo json_encode(array(
                     'statusz' => 'siker',
                     'adatok'  => $sor[0]
                 ));
-}
+//}
             }
         }
 	}
@@ -945,7 +975,8 @@ if ( !($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemez
 		$id=$_GET['id'];
 	}
 
-	if($nevid != '' && $type == 'insert'){//Ha kell, akkor beállítjuk még a nevid-s oszlopot
+    // Ha kell, akkor beállítjuk még a nevid-s oszlopot
+	if($nevid != '' && $type == 'insert'){
 
 		$nevid = fajlnev_keszit($_POST[$nevid[name]]);
 		if(!$nevid){
@@ -974,89 +1005,89 @@ if ( !($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemez
     }
     
 // Szinvatrendes teszt üzemmód
-if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett_feladatok.php') {
-
-    $sor = $adatbazis_kapcsolat->s2('*', 'utemezett_feladatok', "`recid`='$id'");
-    $utemezes = 'Folyamatos';
-    if($sor['idoszakos']){
-        if($sor['aktkezd_d']>'0000-00-00' && $sor['aktkezd_d']>'0000-00-00'){
-            $utemezes = $sor['aktkezd_d'].'-'.$sor['aktvege_d'];
-            if($sor['aktvege_d']<date('Y-m-d')){
-                $utemezes = $sor['aktvege_d'].' után nincsenek további ütemezések.';
-                $kell_lista = false;
-            }
-        }else{
-            require_once 'selectek.php';
-            $kezdho = '';
-            foreach($select_honapok as $honap){
-                if($honap['value']==$sor['kezdho']){
-                    $kezdho = $honap['name'];
-                    break;
-                }
-            }
-            $vegeho = '';
-            foreach($select_honapok as $honap){
-                if($honap['value']==$sor['vegeho']){
-                    $vegeho = $honap['name'];
-                    break;
-                }
-            }
-            $utemezes = $kezdho.' '.$sor['kezdnap'].'. - '.$vegeho.' '.$sor['vegenap'].'.';
-        }
-    }
-
-    include('datumra_utemezes.php');
-    if(!$sor['esem_d'] || $sor['esem_d']=='0000-00-00'){
-        $sor['esem_d'] = date('Y-m-d');
-    }
-
-    $esem_d     = substr(str_replace('-', '.', $sor['esem_d']), 0, 10);
-    $esnap_d    = str_replace('-', '.', $sor['esnap_d']);
-    $aktkezd_d  = str_replace('-', '.', $sor['aktkezd_d']);
-    $aktvege_d  = str_replace('-', '.', $sor['aktvege_d']);
-    
-    // 0-ék helyett használjun üres stringet
-    foreach($sor as $kulcs => $ertek){
-        if(!$sor[$kulcs]){
-            $sor[$kulcs] = '';
-        }
-    }
-
-    $kiir .=  "
-        <div class='dtc vat'>
-            esemd: $esem_d
-            <br>cikltip: $sor[cikltip]
-            <br>ciklaltip: $sor[ciklaltip]
-            <br>ciklszorz: $sor[ciklszorz]
-            <br>ciklho: $sor[ciklho]
-            <br>ciklhet: $sor[ciklhet]
-            <br>ciklnap: $sor[ciklnap]
-            <br>idoszakos: $sor[idoszakos]
-            <br>kezdho: $sor[kezdho]
-            <br>kezdnap: $sor[kezdnap]
-            <br>vegeho: $sor[vegeho]
-            <br>vegenap: $sor[vegenap]
-            <br>aktkezd_d: $aktkezd_d
-            <br>aktvege_d: $aktvege_d";
-
-    $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
-
-    $kiir .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
-    $kiir .= '<hr>Ütemezés: ' . $utemezes;
-    $kiir .= '<hr>Esedékes: ' . $sor['esnap_d'].' '.het_napja_txt($sor['esnap_d']);
-    $kiir .= '<hr>Utolsó végrehajtás: ' . $esnap_d .' '.het_napja_txt($esnap_d);
-    $kiir .= '<br>Következő: ' . $getnextvaliddate.' '.het_napja_txt($getnextvaliddate);
-    $kiir .= '</div><div class="dtc vat">';
-    $kiir .= '<br>Következő 10 iteráció:<br>';
-    for($i=0; $i<10; $i++){
-        $getnextvaliddate = getnextvaliddate(false, $getnextvaliddate, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
-        $kiir .= $getnextvaliddate . '<br>';
-    }
-    $kiir .= '</div>';
-
-    echo json_encode( array('hiba' => $kiir) );
-    exit;
-}
+//if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett_feladatok.php') {
+//
+//    $sor = $adatbazis_kapcsolat->s2('*', 'utemezett_feladatok', "`recid`='$id'");
+//    $utemezes = 'Folyamatos';
+//    if($sor['idoszakos']){
+//        if($sor['aktkezd_d']>'0000-00-00' && $sor['aktkezd_d']>'0000-00-00'){
+//            $utemezes = $sor['aktkezd_d'].'-'.$sor['aktvege_d'];
+//            if($sor['aktvege_d']<date('Y-m-d')){
+//                $utemezes = $sor['aktvege_d'].' után nincsenek további ütemezések.';
+//                $kell_lista = false;
+//            }
+//        }else{
+//            require_once 'selectek.php';
+//            $kezdho = '';
+//            foreach($select_honapok as $honap){
+//                if($honap['value']==$sor['kezdho']){
+//                    $kezdho = $honap['name'];
+//                    break;
+//                }
+//            }
+//            $vegeho = '';
+//            foreach($select_honapok as $honap){
+//                if($honap['value']==$sor['vegeho']){
+//                    $vegeho = $honap['name'];
+//                    break;
+//                }
+//            }
+//            $utemezes = $kezdho.' '.$sor['kezdnap'].'. - '.$vegeho.' '.$sor['vegenap'].'.';
+//        }
+//    }
+//
+//    include('datumra_utemezes.php');
+//    if(!$sor['esem_d'] || $sor['esem_d']=='0000-00-00'){
+//        $sor['esem_d'] = date('Y-m-d');
+//    }
+//
+//    $esem_d     = substr(str_replace('-', '.', $sor['esem_d']), 0, 10);
+//    $esnap_d    = str_replace('-', '.', $sor['esnap_d']);
+//    $aktkezd_d  = str_replace('-', '.', $sor['aktkezd_d']);
+//    $aktvege_d  = str_replace('-', '.', $sor['aktvege_d']);
+//    
+//    // 0-ék helyett használjunk üres stringet
+//    foreach($sor as $kulcs => $ertek){
+//        if(!$sor[$kulcs]){
+//            $sor[$kulcs] = '';
+//        }
+//    }
+//
+//    $kiir .=  "
+//        <div class='dtc vat'>
+//            esemd: $esem_d
+//            <br>cikltip: $sor[cikltip]
+//            <br>ciklaltip: $sor[ciklaltip]
+//            <br>ciklszorz: $sor[ciklszorz]
+//            <br>ciklho: $sor[ciklho]
+//            <br>ciklhet: $sor[ciklhet]
+//            <br>ciklnap: $sor[ciklnap]
+//            <br>idoszakos: $sor[idoszakos]
+//            <br>kezdho: $sor[kezdho]
+//            <br>kezdnap: $sor[kezdnap]
+//            <br>vegeho: $sor[vegeho]
+//            <br>vegenap: $sor[vegenap]
+//            <br>aktkezd_d: $aktkezd_d
+//            <br>aktvege_d: $aktvege_d";
+//
+//    $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
+//
+//    $kiir .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
+//    $kiir .= '<hr>Ütemezés: ' . $utemezes;
+//    $kiir .= '<hr>Esedékes: ' . $sor['esnap_d'].' '.het_napja_txt($sor['esnap_d']);
+//    $kiir .= '<hr>Utolsó végrehajtás: ' . $esnap_d .' '.het_napja_txt($esnap_d);
+//    $kiir .= '<br>Következő: ' . $getnextvaliddate.' '.het_napja_txt($getnextvaliddate);
+//    $kiir .= '</div><div class="dtc vat">';
+//    $kiir .= '<br>Következő 10 iteráció:<br>';
+//    for($i=0; $i<10; $i++){
+//        $getnextvaliddate = getnextvaliddate(false, $getnextvaliddate, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
+//        $kiir .= $getnextvaliddate . '<br>';
+//    }
+//    $kiir .= '</div>';
+//
+//    echo json_encode( array('hiba' => $kiir) );
+//    exit;
+//}
 
 	return array('', $id);
 }
@@ -1417,7 +1448,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         <br>
                         <br><b class="piros">Riasztás 0 nappal az esedékesség előtt.</b>
                         <br>
-                        <br>Ha folytatja, a feladat az esedékesség napján készül munkalap!
+                        <br>Ha folytatja, az esedékesség napján készül belőle munkalap!
                         <br>
                         <br>Folytatja?
                     \', uf_gomb2);

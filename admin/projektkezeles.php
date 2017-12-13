@@ -107,9 +107,17 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
     $bod_kizart_recidk = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_bod_kapcs', "`eloterj_recid` IN (SELECT `recid` FROM `".get_db_tabla()."eloterj_bod` WHERE `stat_id` IN ('".ELOT_BOD_STAT_NYITOTT."', '".ELOT_BOD_STAT_VEGLEGESITVE."'))");
     $bod_kizart_recidk = adatbazis2tomb($bod_kizart_recidk, 'projektigenyles_recid');
     $kizart_recidk = array_merge($fb_kizart_recidk, $bod_kizart_recidk);
+    
+    // Az olyan igyénlések, amelyek recid-je már a projektkezelés relációjában szerepel, azokat szűrjük ki
+    $kezelt_igenyek = $adatbazis_kapcsolat->s('projektigenyles_recid', 'projektkezeles', "`projektigenyles_recid`>0");
+    foreach($kezelt_igenyek as $kezelt_igeny){
+        array_push($kizart_recidk, $kezelt_igeny['projektigenyles_recid']);
+    }
+    
     if($kizart_recidk){
         $where_kieg .= ' AND `'.get_db_tabla().'projektigenyles`.`recid` NOT IN ('.implode(',', $kizart_recidk).')';
     }
+    
 
     $szallodak = get_akt_login_szallodai();
     $priek = $adatbazis_kapcsolat->s('
@@ -122,7 +130,7 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
                                         `'.get_db_tabla().'telephely`.`nev` as `t_nev`',
                                         'projektigenyles',
                                         "`stat_id`='".PRIGENY_STAT_JOVAHAGYVA."' AND `telephely_id` IN (".implode(',', $szallodak).")$where_kieg", $order, '', '', '', $join);
-
+//echo $adatbazis_kapcsolat->gp() . '<br>';
     $i = 1;
     foreach($priek as $pri){
 
@@ -151,16 +159,16 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
 
         $html .= '
             <tr class="kijSor'.$kiemelt.'" data-i="'.$i.'" data-recid="'.$pri['recid'].'">
-                <td>'.getStatText('projektigenyles', $pri['stat_id']).'</td>
                 <td>'.$szalloda['nev'].'</td>
-                <td>'.$pri['nev'].'</td>
+                <td style="width: 30rem">'.$pri['nev'].'</td>
                 <td>'.$tipus.'</td>
-                <td class="r">'.number_format($pri['bkolt'], 0, '', ' ').' '.get_penznem().'</td>
+                <td class="r">'.number_format($pri['bkolt'], 0, '', ' ').'</td>
                 <td>'.substr(str_replace('-', '.', $letrehozva['insert_dt']), 0, 10).'</td>
             </tr>
             ';
         $i++;
     }
+
     if($html){
 
         // Táblázat rendezhető: szálloda + becsült költség, becsült költség + szálloda, típus + becsült költség. Ezek legyenek egy lenyílóból kiválaszthatóak.
@@ -171,39 +179,37 @@ if(isset($_POST['igenylesek_betolt_uj_kezeleshez'])){
                 <option value="bkolt"'.$bkolt_selected.'>becsült költség + szálloda</option>
                 <option value="tipus"'.$tipus_selected.'>típus + becsült költség</option>
             </select>
-            <table class="csikos kijCont csak_egy_kijelolheto" id="prigenylesek" style="cursor: default">
-            <thead>
-            <tr>
-                <th>
-                    Státusz
-                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 1)">
-                </th>
-                <th>
-                    Szálloda
-                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 2)">
-                </th>
-                <th>
-                    Név
-                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 3)">
-                </th>
-                <th>
-                    Típus
-                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 4)">
-                </th>
-                <th class="r">
-                    Becsült költség
-                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 5)">
-                </th>
-                <th>
-                    Létrehozás dátuma
-                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 6)">
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-                '.$html.'
-            </tbody>
-            </table>';
+            <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
+                <table class="csikos v2 kijCont csak_egy_kijelolheto" id="prigenylesek" style="cursor: default;">
+                <thead>
+                <tr>
+                    <th>
+                        Szálloda
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 2)">
+                    </th>
+                    <th>
+                        Név
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 3)">
+                    </th>
+                    <th>
+                        Típus
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 4)">
+                    </th>
+                    <th>
+                        Becsült költség ('.get_penznem().')
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 5)">
+                    </th>
+                    <th>
+                        Létrehozás dátuma
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 6)">
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                    '.$html.'
+                </tbody>
+                </table>
+            </div>';
     }else{
         $html = '<h1>Nem található csatolható projektigénylés!</h1><script>$(\'#eloterj_igneyles_csatolForm div.kuldes\').html(\'<input type="button" class="gomb zold" value="Ok" onclick="popupZar();">\');  $(\'#eloterj_igneyles_csatolCim\').html(\'Hiba\');</script>';
     }

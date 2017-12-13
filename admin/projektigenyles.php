@@ -696,39 +696,41 @@ if(isset($_POST['igenylesek_betolt'])){
                 <option value="bkolt"'.$bkolt_selected.'>becsült költség + szálloda</option>
                 <option value="tipus"'.$tipus_selected.'>típus + becsült költség</option>
             </select>
-            <table class="csikos kijCont" id="prigenylesek" style="cursor: default">
-            <thead>
-            <tr>
-                <th>
-                    Státusz
-                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 1)">
-                </th>
-                <th>
-                    Szálloda
-                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 2)">
-                </th>
-                <th>
-                    Név
-                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 3)">
-                </th>
-                <th>
-                    Típus
-                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 4)">
-                </th>
-                <th class="r">
-                    Becsült költség
-                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 5)">
-                </th>
-                <th>
-                    Létrehozás dátuma
-                    <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 6)">
-                </th>
-            </tr>
-            </thead>
-            <tbody>
-                '.$html.'
-            </tbody>
-            </table>';
+            <div style="max-height: 40rem; overflow-y: auto; overflow-x: none;">
+                <table class="csikos v2 kijCont" id="prigenylesek" style="cursor: default">
+                <thead>
+                <tr>
+                    <th>
+                        Státusz
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 1)">
+                    </th>
+                    <th>
+                        Szálloda
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 2)">
+                    </th>
+                    <th>
+                        Név
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 3)">
+                    </th>
+                    <th>
+                        Típus
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 4)">
+                    </th>
+                    <th>
+                        Becsült költség
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 5)">
+                    </th>
+                    <th>
+                        Létrehozás dátuma
+                        <br><input type="text" class="flat" placeholder="Szűrés" onkeyup="tabla_szur($(\'#prigenylesek tbody\'), this.value, 6)">
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                    '.$html.'
+                </tbody>
+                </table>
+            </div>';
     }else{
         $html = '<h1>Nem található csatolható projektigénylés!</h1><script>$(\'#eloterj_igneyles_csatolForm div.kuldes\').html(\'<input type="button" class="gomb zold" value="Ok" onclick="popupZar();">\');  $(\'#eloterj_igneyles_csatolCim\').html(\'Hiba\');</script>';
     }
