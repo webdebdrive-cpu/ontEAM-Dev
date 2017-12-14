@@ -817,7 +817,7 @@ $(function() {
             if($(this).hasClass('f_num')){
                 taroltVal = taroltVal.replace('\.', ',');
             }
-            
+
             /* Checkboxok egy külön problémakör, mert itt a letárolt adat lehet üres, vagy stringes false. Ezt tehát itt külön le kell kezelni. */
             if($(this).attr('type')=='checkbox'){
                 if(val==false || val==''){ val = 'false'; }
@@ -826,7 +826,7 @@ $(function() {
             if(!taroltVal && (val=='false' || val==false) ){
                 val = '';
             }
-console.log(name+'-'+taroltVal+'-'+val);
+
             if( taroltVal != val ) {
                 $(this).addClass('mod');
             } else {
@@ -943,7 +943,7 @@ console.log(name+'-'+taroltVal+'-'+val);
 
     /* Ciklus tipus váltásakor megfelelő div megjelenítése */
     $(document).on('change', '.f_cikltip', function() {
-        
+
         /* VÁltáskor a ciklnap tárolt értéket nullázzuk, mert az új felületen minden üres */
         formAdatok.ciklhet          = '';
         formAdatok.ciklho           = '';
@@ -962,7 +962,7 @@ console.log(name+'-'+taroltVal+'-'+val);
         formAdatok.p  = '';
         formAdatok.sz = '';
         formAdatok.v  = '';
-        
+
         $('.cikltip').hide();
         if($('#tipus_'+$(this).val()).length){
             $('#tipus_'+$(this).val()).show();
@@ -1175,11 +1175,11 @@ console.log(name+'-'+taroltVal+'-'+val);
         $(this).find('option:selected').attr('selected', 'selected');
     });
 
-
     /* Szám mezők formázása */
     $(document).on('keyup', '.f_num', function(e) {
         onlyNumbers($(this));
     });
+
     $(document).on('blur', '.f_num', function(e) {
         tort = 2;
         if($(this).attr('data-tort')){
@@ -1196,6 +1196,7 @@ console.log(name+'-'+taroltVal+'-'+val);
             $('#igmen').val( $(anyagig_id).html() );
         }
     });
+
     $(document).on('click', '.f_anyagigenyles_mezok_kitolt', function(e) {
         recid_egyedi_azon   = $(this).attr('data-recid_egyedi_azon');
         telephely_id        = $(this).attr('data-telephely_id');
@@ -1259,7 +1260,7 @@ console.log(name+'-'+taroltVal+'-'+val);
         if( ev ) {
             var id = event.target.id;
 
-            if( ev !== false && id !== undefined && id.indexOf('_autocomp') === -1 ) {
+            if( ev !== false && id != '' && id !== undefined && id.indexOf('_autocomp') === -1 ) {
                 var elementID = ev.target.id;
 
                 if( elementID.indexOf('_autocomp') !== -1 ) {
@@ -1363,8 +1364,8 @@ console.log(name+'-'+taroltVal+'-'+val);
             }
         });
     });
-    
-    
+
+
     $(document).on('click', '.mobilkeret li', function() {
         $('.mobilkeret li').removeClass('kijelolt');
         $(this).addClass('kijelolt');
@@ -5523,18 +5524,18 @@ function beosztas_veglegesit(mehet){
     $('.mobilcsop_d li').each(function () {
         d_csop += $(this).data('recid')+',';
     });
-    
+
     if(!a_csop && !b_csop && !cn_csop && !d_csop){
         alert2('Kérem előbb húzza be a munkalapokat a kívánt csoportba!', '', 'Hiba');
         return false;
     }
-    
+
     if(!mehet){
         veglegesit_gomb = '<input type="button" class="gomb zold" value="Igen" onclick="beosztas_veglegesit(\'mehet\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">';
         alert2('Biztos, hogy véglegesíti a mobil csoporthoz rendelést?', veglegesit_gomb);
         return false;
     }
-    
+
     $.ajax({
         url : 'mobil_hozzarendel.php',
         type: 'POST',
@@ -5558,18 +5559,18 @@ function beosztas_veglegesit(mehet){
 }
 
 function munkalapok_nyitottak_koze(mehet){
-    
+
     if( !$('.mobilkeret li.kijelolt').length ){
         alert2('Előbb válasszon munkalapot!', '', 'Hiba');
         return false;
     }
-    
+
     if(!mehet){
         nyitottak_koze_gomb = '<input type="button" class="gomb zold" value="Igen" onclick="munkalapok_nyitottak_koze(\'mehet\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">';
         alert2($('.mobilkeret li.kijelolt .munkalapszam').html()+' munkalapszám<br>'+$('.mobilkeret li.kijelolt .szalloda').html()+' szálloda<br>'+$('.mobilkeret li.kijelolt .hiba').html()+' hiba<br><br>Biztos, <span style="display: inline-block; width: 0.4rem"></span>hogy visszahelyezi a munkalapot a nyitottak közé?', nyitottak_koze_gomb);
         return false;
     }
-    
+
     $.ajax({
         url : 'mobil_hozzarendel.php',
         type: 'POST',
