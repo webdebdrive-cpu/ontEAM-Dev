@@ -53,7 +53,9 @@
                     $(document).on('blur', '.datepicker, .datetimepicker', function(e) {
                         valid_date($(this));
                     });
-                            
+                    $(document).on('blur', '.ora_perc', function(e) {
+                        valid_ido($(this));
+                    });
 
                     /* Ha az űrlapnak nincs submit-ja, akkor minden mezőjét tiltunk.  */
                     if(!$('#szerk_form').parent().find('input.mentes_gomb').length){

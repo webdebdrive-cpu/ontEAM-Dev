@@ -79,7 +79,7 @@ function i_u($type, $tabla, $tomb) {
         }
 	}
 
-    // Dátumra ütmezés, ha az ütemezett feldaatokat módosítjuk/töltjük fel
+    // Dátumra ütmezés, ha az ütemezett feladatokat módosítjuk/töltjük fel
     if( $tabla == 'utemezett_feladatok' || $tabla == 'rendszeres_karbantartas' ) {
 
         if($_POST['cikltip']=='l'){
@@ -1433,7 +1433,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 }
 
 
-                /* gép és helyiség is üresen maradt figylemeztetés */
+                /* gép és helyiség is üresen maradt figyelmeztetés */
                 if(!$(\'#gep_id\').val() && !$(\'#obj_id\').val() && !helyiseg_gep_mehet){
                     uf_gomb = \'<div class="c"><input type="button" class="gomb zold" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()"></div>\';
                     alert2(\'Nem adott meg sem helyiséget sem gépet a feladathoz.<br>Folytatja?\', uf_gomb);
@@ -1457,7 +1457,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
 
                 /* Dátumra ütemezés közlése mentés előtt. */
-                if( /*!utemezes_mehet Ez egyelőre ne fusson le, de majd vissza kell kapcsolni*/ false ){
+                if( !utemezes_mehet ){
 
                     /* Ciklus szorzó kiszámítása */
                     ciklszorz_val = 0;
@@ -1491,8 +1491,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     ciklnap_val = $(\'#ciklnap\').val();
                     ciklho_val  = $(\'#ciklho\').val();
                     if($(\'#ciklho2\').val()>0){
-                        ciklho_val  = $(\'#ciklho2\').val();
                         ciklnap_val = $(\'#ho_rendsz_het\').val();
+                        ciklho_val  = $(\'#ciklho2\').val();
                     }
 
                     /* Havi ciklus esetén */

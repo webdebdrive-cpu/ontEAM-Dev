@@ -1141,13 +1141,13 @@ if(basename(self())=='utemezett_feladatok.php'){
     $kezd_ho = new Select($select_honapok, $uf['kezdho']);
     $kezd_ho -> id      = 'kezdho';
     $kezd_ho -> name    = 'kezdho';
-    $kezd_ho -> onchange = '$(\'#mehet_gomb\').attr(\'disabled\', false); egyszeri_nullaz();';
+    $kezd_ho -> onchange = '$(\'#mehet_gomb\').attr(\'disabled\', false); egyszeri_nullaz(); valid_date_ut_kezd();';
     $kezd_ho = $kezd_ho -> getHtml();
 
     $vege_ho = new Select($select_honapok, $uf['vegeho']);
     $vege_ho -> id      = 'vegeho';
     $vege_ho -> name    = 'vegeho';
-    $kezd_ho -> onchange = '$(\'#mehet_gomb\').attr(\'disabled\', false); egyszeri_nullaz();';
+    $kezd_ho -> onchange = '$(\'#mehet_gomb\').attr(\'disabled\', false); egyszeri_nullaz(); valid_date_ut_vege();';
     $vege_ho = $vege_ho -> getHtml();
 
 }
@@ -1267,8 +1267,8 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
                                                                         </div>
                                                                         <div class="dtc vam" style="padding-left: 0.7rem">
                                                                             Szokásos ütemezés '.$kezd_ho.'
-                                                                            <input type="text" id="kezdnap" name="kezdnap" value="'.$uf['kezdnap'].'" style="width: 3.5rem" maxlength="2" onfocus="egyszeri_nullaz()"> . napjától - '.$vege_ho.'
-                                                                            <input type="text" id="vegenap" name="vegenap" value="'.$uf['vegenap'].'" style="width: 3.5rem" maxlength="2" onfocus="egyszeri_nullaz()"> . napjáig
+                                                                            <input type="text" id="kezdnap" name="kezdnap" value="'.$uf['kezdnap'].'" style="width: 3.5rem" maxlength="2" onfocus="egyszeri_nullaz()" onblur="valid_date_ut_kezd()"> . napjától - '.$vege_ho.'
+                                                                            <input type="text" id="vegenap" name="vegenap" value="'.$uf['vegenap'].'" style="width: 3.5rem" maxlength="2" onfocus="egyszeri_nullaz()" onblur="valid_date_ut_vegeg()"> . napjáig
                                                                             <div style="margin-top: 0.5rem; display: none">
                                                                                 Egyszeri ütemezés
                                                                                 <input class="datepicker" id="aktkezd_d" name="aktkezd_d" value="'.$uf['aktkezd_d'].'" type="text" onblur="szokasos_nullaz()">
@@ -1278,8 +1278,8 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
                                                                         </div>
         ')),
 
-    array('type' => 'text',                     'megn' => 'Elvégzési idő:',     'name' => 'elv_ido_tol', 'class' => 'ora_perc', 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
-    array('type' => 'text',                     'megn' => '',                   'name' => 'elv_ido_ig',  'class' => 'ora_perc'),
+    array('type' => 'text',                     'megn' => 'Elvégzési idő:',     'name' => 'elv_ido_tol', 'class' => 'ora_perc', 'maxlength' => 5, 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
+    array('type' => 'text',                     'megn' => '',                   'name' => 'elv_ido_ig',  'class' => 'ora_perc', 'maxlength' => 5),
 
 
     //array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),

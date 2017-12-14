@@ -16,29 +16,48 @@
                     $('.datepicker').datetimepicker({
                         closeOnDateSelect   : true,
                         format              :'Y.m.d',
-                        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
+                        mask                : /*'____.__.__'*/'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
                         timepicker          : false,
                         validateOnBlur      : false,
-                        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
+                        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert'); $('#megsem_gomb').removeAttr('disabled'); }
                     });
                     $('.datetimepicker').datetimepicker({
-                        closeOnDateSelect   : true,
+                        closeOnDateSelect   : false,
                         format              :'Y.m.d H:i',
-                        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0',
+                        mask                : /*'____.__.__ __:__'*/'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0',
                         timepicker          : true,
                         step                : 60,
                         validateOnBlur      : false,
-                        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
+                        onChangeDateTime    : function(dp, $input){
+                            $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
+                            $('#megsem_gomb').removeAttr('disabled');
+                            /* Órapontosak vagyunk */
+                            $input.val( $input.val().substring(0, 14)+'00' );
+                        }
                     });
                     $('.ora_perc').datetimepicker({
                         closeOnDateSelect   : true,
                         datepicker          : false,
                         format              :'H:i',
-                        mask                : '\xa0\xa0:\xa0\xa0',
+                        mask                : /*'__:__'*/'\xa0\xa0:\xa0\xa0',
                         step                : 60,
                         validateOnBlur      : false,
-                        onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled'); }
+                        onChangeDateTime    : function(dp, $input){
+                            $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
+                            $('#megsem_gomb').removeAttr('disabled');
+                            /* Órapontosak vagyunk */
+                            $input.val( $input.val().substring(0, 3)+'00' );
+                        }
                     });
+                    
+                    $(document).on('blur', '.datepicker, .datetimepicker', function(e) {
+                        valid_date($(this));
+                    });
+                    $(document).on('blur', '.ora_perc', function(e) {
+                        valid_ido($(this));
+                    });
+                    
+                    
                 });
             </script>
             <div>

@@ -661,7 +661,11 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
                         }
 
 						input.on('keydown.xdsoft', function (event) {
-                            this.value = datum_formatumra_formaz(this.value);
+                            if( this.className.indexOf('ora_perc')>-1 ){
+                                this.value = datum_formatumra_formaz_ora(this.value);
+                            }else{
+                                this.value = datum_formatumra_formaz(this.value);
+                            }
 						});
 					}
 				}
@@ -1605,6 +1609,7 @@ Date.parseFunctions={count:0};Date.parseRegexes=[];Date.formatFunctions={count:0
 
 
 function datum_formatumra_formaz(input) {
+    
     input = input.replace(/\./gi,  '').replace(/ /gi,  '').replace(/:/gi,  '');
     n  = input.length;
     uj = '';
@@ -1635,4 +1640,26 @@ function datum_formatumra_formaz(input) {
         }
     }
     return uj.substring(0, 16);
+}
+
+function datum_formatumra_formaz_ora(input) {
+    input = input.replace(/:/gi,  '');
+    n  = input.length;
+    uj = '';
+    
+    for (i = 0; i < n; i++) {
+        if(!isNaN(parseFloat(input.substr(i, 1)))){
+            switch (i) {
+                case 2:
+                    uj = uj + ':' + input.substr(i, 1);
+                break;
+
+                default:
+                    uj = uj + input.substr(i, 1);
+                break;
+            }
+        }
+    }
+    
+    return uj.substring(0, 5);
 }

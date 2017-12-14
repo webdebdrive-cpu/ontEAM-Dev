@@ -759,8 +759,17 @@ $(function() {
                 val = $(this).prop('checked');
             }
 
+            if( $(this).hasClass('ora_perc') ) {
+                if( formAdatok[name] && formAdatok[name] != '00:00' ) {
+                    taroltVal = formAdatok[name];
+                } else {
+                    taroltVal = '\xa0\xa0:\xa0\xa0';
+                }
+            }
+
             if( $(this).hasClass('datepicker') ) {
-                if( formAdatok[name] != '0000-00-00' ) {
+                if( formAdatok[name] && formAdatok[name] != '0000-00-00' ) {
+
                     var date = new Date(formAdatok[name]);
 
                     var ev    = date.getFullYear(),
@@ -799,10 +808,10 @@ $(function() {
 
                     taroltVal = ev + '.' + honap + '.' + nap;
                 } else {
-                    if( formAdatok[name] != '0000-00-00 00:00'){
+                    if( formAdatok[name] == '0000-00-00 00:00'){
                         taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0';
                     }
-                    if( formAdatok[name] != '0000-00-00 00:00:00'){
+                    if( formAdatok[name] == '0000-00-00 00:00:00'){
                         taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0:\xa0\xa0';
                     }
                 }
@@ -821,12 +830,13 @@ $(function() {
             /* Checkboxok egy külön problémakör, mert itt a letárolt adat lehet üres, vagy stringes false. Ezt tehát itt külön le kell kezelni. */
             if($(this).attr('type')=='checkbox'){
                 if(val==false || val==''){ val = 'false'; }
-                if(val==true){  val = 'true';  }
+                if(val==true)   {  val       = 'true';  }
+                if(taroltVal==1){  taroltVal = 'true';  }
             }
             if(!taroltVal && (val=='false' || val==false) ){
                 val = '';
             }
-
+/*console.log(name+' '+taroltVal+' '+val);*/
             if( taroltVal != val ) {
                 $(this).addClass('mod');
             } else {
@@ -972,6 +982,7 @@ $(function() {
         $('#ciklnap').val('');
         $('#hetkoz_kent').prop('checked', false);
 
+        $('#esnap_d').val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0');
         $('#ciklhet').val('');
         $('#ism_het').val('');
         $('#ho_rendsz_het').val('');
@@ -1245,6 +1256,10 @@ $(function() {
 
             /* Ha popupban kaptunk volna hibaüzenetet, akkor visszatérve fókuszáljunk a hibásnak jelölt inputra. Egyúttal vegyük is le ezt a classt róla */
             $('input.hibas_ide_focus, textarea.hibas_ide_focus, select.hibas_ide_focus').select().removeClass('hibas_ide_focus');
+            /*  */
+            if($('#elv_ido_tol').length){
+                $('.xdsoft_datetimepicker').hide();
+            }
 
             /* A popup bezáródik, de csak akkor, ha az alert nincs nyitva */
             if( !$('#alert2').is(':visible') ){
@@ -4834,16 +4849,16 @@ $(document).ready(function () {
     scrollLeptet();
 });
 
-/* Időszakos ütemezésnél az egyeszeri időszak kimullázása */
+/* Időszakos ütemezésnél az egyeszeri időszak kinullázása */
 function egyszeri_nullaz(){
     $('#aktkezd_d').val('0000.00.00');
     $('#aktvege_d').val('0000.00.00');
 }
-/* Időszakos ütemezésnél a szokásos időszak kimullázása */
+/* Időszakos ütemezésnél a szokásos időszak kinullázása */
 function szokasos_nullaz(){
-    $('#kezdho').val('');
+    $('#kezdho') .val('');
     $('#kezdnap').val('');
-    $('#vegeho').val('');
+    $('#vegeho') .val('');
     $('#vegenap').val('');
 }
 
@@ -5389,6 +5404,32 @@ function valid_date(that){
             return false;
     }
     return true;
+}
+
+/* Ütemezett feldatoknál  */
+function valid_date_ut(datum, hibas_input){
+    if( !Date.parse( datum ) ){
+        alert2('Helytelen dátum!', '', 'Hiba');
+        hibas_input.addClass('hibas_ide_focus');
+        
+    }
+}
+function valid_date_ut_kezd(){
+    var ev = new Date();
+    valid_date_ut(ev.getFullYear()+'-'+$('#kezdho').val()+'-'+$('#kezdnap').val(), $('#kezdnap'));
+}
+function valid_date_ut_vege(){
+    var ev = new Date();
+    valid_date_ut(ev.getFullYear()+'-'+$('#vegeho').val()+'-'+$('#vegenap').val(), $('#vegenap'));
+}
+
+function valid_ido(hibas_input){
+    ora_perc = hibas_input.val().split(':');
+    if(ora_perc[0]>24 || ora_perc[0]<0 || ora_perc[1]>60 || ora_perc[0]<0){
+        alert2('Érvénytelen időpont!', '', 'Hiba');
+        hibas_input.addClass('hibas_ide_focus');
+        return false;
+    }
 }
 
 /* Anyagigénylés táblázat sor hozzáadás */

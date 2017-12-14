@@ -451,10 +451,10 @@ if( isset($_POST['munkalapMobil_sima']) ) {
         }
         
         // Szálloda modell ellenőrzése
-        $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`recid`='{$munkalap['telephely_id']}'");
-        if( !$telephely['stat_id'] ) {
+        $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
+        if( !$telephely['modell'] ) {
             echo json_encode(array(
-                'hiba'  => 'Csak többszállodás munkalapot lehet mobilhoz rendelni!',
+                'hiba'  => 'Csak fővárosi munkalapot lehet mobilhoz rendelni!',
                 'title' => 'Hiba',
             ));
 

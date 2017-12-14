@@ -55,7 +55,7 @@ if (isset($_GET['datumra_utemezes'])) {
 
     $sor = $adatbazis_kapcsolat->s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     
-    // 0-ék helyett használjun üres stringet
+    // 0-ék helyett használjunk üres stringet
     foreach($sor as $kulcs => $ertek){
         if(!$sor[$kulcs]){
             $sor[$kulcs] = '';
@@ -528,7 +528,7 @@ require_once('selectek.php');
 
         $sor = $adatbazis_kapcsolat->s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
         
-        // 0-ék helyett használjun üres stringet
+        // 0-ék helyett használjunk üres stringet
         foreach($sor as $kulcs => $ertek){
             if(!$sor[$kulcs]){
                 $sor[$kulcs] = '';
