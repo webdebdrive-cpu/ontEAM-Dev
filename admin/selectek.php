@@ -114,7 +114,9 @@ array_push($select_ho_soran, array('name' => 'vasárnap',    'value' => '7'));
 
 // Select tömb Ütemezés típushoz
 $select_honapok = array();
-array_push($select_honapok, array('name' => '- Válasszon -','value' => '' ));
+if(basename(self())!='utemezett_feladatok.php'){
+    array_push($select_honapok, array('name' => '- Válasszon -','value' => '' ));
+}
 array_push($select_honapok, array('name' => 'január',       'value' => '1'));
 array_push($select_honapok, array('name' => 'február',      'value' => '2'));
 array_push($select_honapok, array('name' => 'március',      'value' => '3'));

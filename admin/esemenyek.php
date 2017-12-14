@@ -1079,7 +1079,6 @@ $nap_rejt = 'dn ';
 $het_rejt = 'dn ';
 $ho_rejt  = 'dn ';
 $utolso_vegrehajtas = '';
-$idoszakos_dn       = ' class="dn"';
 if(basename(self())=='utemezett_feladatok.php'){
 
     $uf = $adatbazis_kapcsolat->s2('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d szemelyzet_id', 'utemezett_feladatok', "`recid`='{$_GET['id']}'");
@@ -1123,10 +1122,21 @@ if(basename(self())=='utemezett_feladatok.php'){
         break;
     }
 
-    //Időszakos ütemezés
+    // Időszakos ütemezés
     require_once 'selectek.php';
     require_once('../class/html/class.Input.php');
     require_once('../class/html/class.Select.php');
+    
+    // Kezdőértékek beállítása
+    if(!$uf['kezdnap']){
+        $uf['kezdnap'] = 1;
+    }
+    if(!$uf['vegeho']){
+        $uf['vegeho'] = 12;
+    }
+    if(!$uf['vegenap']){
+        $uf['vegenap'] = 31;
+    }
 
     $kezd_ho = new Select($select_honapok, $uf['kezdho']);
     $kezd_ho -> id      = 'kezdho';
@@ -1139,10 +1149,6 @@ if(basename(self())=='utemezett_feladatok.php'){
     $vege_ho -> name    = 'vegeho';
     $kezd_ho -> onchange = '$(\'#mehet_gomb\').attr(\'disabled\', false); egyszeri_nullaz();';
     $vege_ho = $vege_ho -> getHtml();
-
-    if($uf['idoszakos']){
-        $idoszakos_dn = '';
-    }
 
 }
 
@@ -1163,11 +1169,17 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',  'name' => 'szemelyzet_id', 'szuro' => 1, 'class' => 'disableNav', 'post' => ' Utoljára végrehajtva: <b>'.$utolso_vegrehajtas.'</b>' , 'alert' => 'Kérjük adja meg a hozzárendelt személyzetet!', 'onchange' => 'ut_kulso_kivitlezo_beallit();'),
     array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',   'name' => 'szallito_id',   'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
 
-    array('type' => 'html',                     'megn' => '<div class="dtr mutat_szinva_tmp"><div class="dtc" style="padding: 1rem 0 1rem 0">'),
-        array('type' => 'select_cikltip',           'megn' => 'Ütemezés típus:',    'name' => 'cikltip', 'class' => 'f_cikltip disableNav', 'szuro' => 1  ),
-    array('type' => 'html',                     'megn' => '</div>'),
-    array('type' => 'html',                     'megn' => '<div class="dtc" style="padding: 1rem 0 1rem 1rem"><fieldset style="width: auto; margin-top: 1rem">'),
-        array('type' => 'text',                     'megn' => '<span style="margin-left: 0.7rem"></span>Esedékes:',         'name' => 'esnap_d', 'szuro' => 1,     'class' => 'datepicker'),
+    array('type' => 'html',                     'megn' => nl2('
+                                                                <div class="dtr mutat_szinva_tmp">
+                                                                    <div class="dtc form_bal">
+                                                                        Ütemezés típus:
+                                                                    </div>
+                                                                ')
+                                                            ),
+    array('type' => 'html',                     'megn' => '<div class="dtc form_jobb" style="padding: 0rem 0 0rem 1rem">'),
+        array('type' => 'select_cikltip',           'megn' => '',    'name' => 'cikltip', 'class' => 'f_cikltip disableNav', 'szuro' => 1, 'style' => 'margin-left: -1.2rem'  ),
+    array('type' => 'html',                     'megn' => '<fieldset style="width: auto; margin-top: 0.2rem; margin-left: -0.5rem;">'),
+        array('type' => 'text',                     'megn' => '<span style="margin-left: 0.5rem"></span>Esedékes:',         'name' => 'esnap_d', 'szuro' => 1,     'class' => 'datepicker'),
 
         // Naponta
         array('type' => 'html',                     'megn' => nl2('<div id="tipus_d" style="padding: 0" class="'.$nap_rejt.'cikltip">')),
@@ -1187,53 +1199,56 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
                                                                 Ismétlődik <input maxlength="2" name="ism_het" id="ism_het" onkeyup="onlyNumbers( $(this) ); $(\'#mehet_gomb\').attr(\'disabled\', false);" style="width: 4rem" type="text" value="'.$ciklszorz_w.'">
                                                                 hetente a következő napokon:
                                                             </div>
-                                                            <div class="cb">
-                                                                <input name="h" id="h" type="checkbox"'.$h_checked.'>
-                                                                <label for="h" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
-                                                            </div>
-                                                            <label for="h" class="link"> hétfő</label>
+                                                            <div style="padding: 0 0 0.3rem 0.5rem">
+                                                                <div class="cb">
+                                                                    <input name="h" id="h" type="checkbox"'.$h_checked.'>
+                                                                    <label for="h" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                                </div>
+                                                                <label for="h" class="link"> hétfő</label>
 
-                                                            <span class="formText"></span>
-                                                            <div class="cb">
-                                                                <input name="k" id="k" type="checkbox"'.$k_checked.'>
-                                                                <label for="k" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
-                                                            </div>
-                                                            <label for="k" class="link"> kedd</label>
+                                                                <span class="formText"></span>
+                                                                <div class="cb">
+                                                                    <input name="k" id="k" type="checkbox"'.$k_checked.'>
+                                                                    <label for="k" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                                </div>
+                                                                <label for="k" class="link"> kedd</label>
 
-                                                            <span class="formText"></span>
-                                                            <div class="cb">
-                                                                <input name="s" id="s" type="checkbox"'.$s_checked.'>
-                                                                <label for="s" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
-                                                            </div>
-                                                            <label for="s" class="link"> szerda</label>
+                                                                <span class="formText"></span>
+                                                                <div class="cb">
+                                                                    <input name="s" id="s" type="checkbox"'.$s_checked.'>
+                                                                    <label for="s" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                                </div>
+                                                                <label for="s" class="link"> szerda</label>
 
-                                                            <span class="formText"></span>
-                                                            <div class="cb">
-                                                                <input name="cs" id="cs" type="checkbox"'.$cs_checked.'>
-                                                                <label for="cs" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
-                                                            </div>
-                                                            <label for="cs" class="link"> csütörtök</label>
+                                                                <span class="formText"></span>
+                                                                <div class="cb">
+                                                                    <input name="cs" id="cs" type="checkbox"'.$cs_checked.'>
+                                                                    <label for="cs" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                                </div>
+                                                                <label for="cs" class="link"> csütörtök</label>
 
-                                                            <span class="formText"></span>
-                                                            <div class="cb">
-                                                                <input name="p" id="p" type="checkbox"'.$p_checked.'>
-                                                                <label for="p" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
-                                                            </div>
-                                                            <label for="p" class="link"> péntek</label>
+                                                                <span class="formText"></span>
+                                                                <div class="cb">
+                                                                    <input name="p" id="p" type="checkbox"'.$p_checked.'>
+                                                                    <label for="p" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                                </div>
+                                                                <label for="p" class="link"> péntek</label>
 
-                                                            <span class="formText"></span>
-                                                            <div class="cb">
-                                                                <input name="sz" id="sz" type="checkbox"'.$sz_checked.'>
-                                                                <label for="sz" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
-                                                            </div>
-                                                            <label for="sz" class="link"> szombat</label>
+                                                                <span class="formText"></span>
+                                                                <div class="cb">
+                                                                    <input name="sz" id="sz" type="checkbox"'.$sz_checked.'>
+                                                                    <label for="sz" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                                </div>
+                                                                <label for="sz" class="link"> szombat</label>
 
-                                                            <span class="formText"></span>
-                                                            <div class="cb">
-                                                                <input name="v" id="v" type="checkbox"'.$v_checked.'>
-                                                                <label for="v" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                                <span class="formText"></span>
+                                                                <div class="cb">
+                                                                    <input name="v" id="v" type="checkbox"'.$v_checked.'>
+                                                                    <label for="v" onclick="$(\'#mehet_gomb\').attr(\'disabled\', false);"></label>
+                                                                </div>
+                                                                <label for="v" class="link"> vasárnap</label>
                                                             </div>
-                                                            <label for="v" class="link"> vasárnap</label>
+                                                                
                                             ')),
         array('type' => 'html',                     'megn' => nl2('</div>')),
 
@@ -1250,18 +1265,16 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
 
     array('type' => 'checkbox',                 'megn' => 'Időszakos ütemezés:','name' => 'idoszakos', 'szuro' => 1,   'class' => 'check', 'onclick' => '$(\'#idoszakos_utem\').toggle(); if(!$(\'#idoszakos_utem\').is(\':visible\')){ $(\'#idoszakos_utem input, #idoszakos_utem select\').val(\'\'); }', 'pre' => nl2('<div class="dtc vam">'), 'post' => nl2('
                                                                         </div>
-                                                                        <div class="dtc vam">
-                                                                            <fieldset'.$idoszakos_dn.' id="idoszakos_utem">
-                                                                                Szokásos ütemezés '.$kezd_ho.'
-                                                                                <input type="text" id="kezdnap" name="kezdnap" value="'.$uf['kezdnap'].'" style="width: 3.5rem" maxlength="2" onfocus="egyszeri_nullaz()"> . napjától - '.$vege_ho.'
-                                                                                <input type="text" id="vegenap" name="vegenap" value="'.$uf['vegenap'].'" style="width: 3.5rem" maxlength="2" onfocus="egyszeri_nullaz()"> . napjáig
-                                                                                <div style="margin-top: 0.5rem">
-                                                                                    Egyszeri ütemezés
-                                                                                    <input class="datepicker" id="aktkezd_d" name="aktkezd_d" value="'.$uf['aktkezd_d'].'" type="text" onblur="szokasos_nullaz()">
-                                                                                    <span class="formText"> - </span>
-                                                                                    <input class="datepicker" id="aktvege_d" name="aktvege_d" value="'.$uf['aktvege_d'].'" type="text" onblur="szokasos_nullaz()">
-                                                                                </div>
-                                                                            </fieldset>
+                                                                        <div class="dtc vam" style="padding-left: 0.7rem">
+                                                                            Szokásos ütemezés '.$kezd_ho.'
+                                                                            <input type="text" id="kezdnap" name="kezdnap" value="'.$uf['kezdnap'].'" style="width: 3.5rem" maxlength="2" onfocus="egyszeri_nullaz()"> . napjától - '.$vege_ho.'
+                                                                            <input type="text" id="vegenap" name="vegenap" value="'.$uf['vegenap'].'" style="width: 3.5rem" maxlength="2" onfocus="egyszeri_nullaz()"> . napjáig
+                                                                            <div style="margin-top: 0.5rem; display: none">
+                                                                                Egyszeri ütemezés
+                                                                                <input class="datepicker" id="aktkezd_d" name="aktkezd_d" value="'.$uf['aktkezd_d'].'" type="text" onblur="szokasos_nullaz()">
+                                                                                <span class="formText"> - </span>
+                                                                                <input class="datepicker" id="aktvege_d" name="aktvege_d" value="'.$uf['aktvege_d'].'" type="text" onblur="szokasos_nullaz()">
+                                                                            </div>
                                                                         </div>
         ')),
 

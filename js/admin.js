@@ -799,7 +799,12 @@ $(function() {
 
                     taroltVal = ev + '.' + honap + '.' + nap;
                 } else {
-                    taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0';
+                    if( formAdatok[name] != '0000-00-00 00:00'){
+                        taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0';
+                    }
+                    if( formAdatok[name] != '0000-00-00 00:00:00'){
+                        taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0:\xa0\xa0';
+                    }
                 }
             }
 
@@ -5371,9 +5376,11 @@ function valid_date(that){
     }
     if(
         that.val()!='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0' &&
-        that.val()!='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0\xa0:\xa0\xa0' &&
+        that.val()!='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0' &&
+        that.val()!='\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0:\xa0\xa0' &&
         that.val()!='0000.00.00' &&
         that.val()!='0000.00.00 00:00' &&
+        that.val()!='0000.00.00 00:00:00' &&
         !Date.parse( that.val().replace(/\./gi, '-') )
         ){
             alert2('Helytelen dátum!', '', 'Hiba');

@@ -936,7 +936,7 @@ function i_u($type, $tabla, $tomb) {
                 if( $tabla == 'utemezett_feladatok' ) {
                     
                     $sor_tmp = $sor[0];
-                    
+
                     include('datumra_utemezes.php');
                     if(!$sor_tmp['esem_d'] || $sor_tmp['esem_d']=='0000-00-00'){
                         $sor_tmp['esem_d'] = date('Y-m-d');
