@@ -422,12 +422,10 @@ $(function() {
         return false;
     });
 
-
     // Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk
     $(':input[type!="hidden"]').each(function (i) {
         $(this).attr('tabindex', i + 1);
     });
-
 
     $(document).on('keyup', 'input[type="checkbox"]', function(e) {
         if( e.keyCode == 32 ) {
@@ -784,7 +782,7 @@ $(function() {
             }
 
             if( $(this).hasClass('datetimepicker') ) {
-                if( formAdatok[name] != '0000-00-00 00:00' ) {
+                if( formAdatok[name] != '0000-00-00 00:00:00' && formAdatok[name] != '0000-00-00 00:00' ) {
                     var date = new Date(formAdatok[name]);
 
                     var ev    = date.getFullYear(),
@@ -814,15 +812,21 @@ $(function() {
             if($(this).hasClass('f_num')){
                 taroltVal = taroltVal.replace('\.', ',');
             }
-            if(val==false){ val = 'false'; }
-            if(val==true){  val = 'true';  }
-/*console.log(taroltVal+'-'+val);*/
+            
+            /* Checkboxok egy külön problémakör, mert itt a letárolt adat lehet üres, vagy stringes false. Ezt tehát itt külön le kell kezelni. */
+            if($(this).attr('type')=='checkbox'){
+                if(val==false || val==''){ val = 'false'; }
+                if(val==true){  val = 'true';  }
+            }
+            if(!taroltVal && (val=='false' || val==false) ){
+                val = '';
+            }
+console.log(name+'-'+taroltVal+'-'+val);
             if( taroltVal != val ) {
                 $(this).addClass('mod');
             } else {
                 $(this).removeClass('mod');
             }
-
             var form = $(this).parents('#szerk_form');
 
             mod = 0;
@@ -934,6 +938,26 @@ $(function() {
 
     /* Ciklus tipus váltásakor megfelelő div megjelenítése */
     $(document).on('change', '.f_cikltip', function() {
+        
+        /* VÁltáskor a ciklnap tárolt értéket nullázzuk, mert az új felületen minden üres */
+        formAdatok.ciklhet          = '';
+        formAdatok.ciklho           = '';
+        formAdatok.ciklho2          = '';
+        formAdatok.ciklnap          = '';
+        formAdatok.cikltip          = '';
+        formAdatok.esnap_d          = '0000-00-00'; /* Itt azért nem \xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0, mert a 0000-kat ellenőrzéskor visszaalakítjuk */
+        formAdatok.hetkoz_kent      = '';
+        formAdatok.honapjan         = '';
+        formAdatok.ho_rendsz_het    = '';
+        formAdatok.ism_het          = '';
+        formAdatok.h  = '';
+        formAdatok.k  = '';
+        formAdatok.s  = '';
+        formAdatok.cs = '';
+        formAdatok.p  = '';
+        formAdatok.sz = '';
+        formAdatok.v  = '';
+        
         $('.cikltip').hide();
         if($('#tipus_'+$(this).val()).length){
             $('#tipus_'+$(this).val()).show();

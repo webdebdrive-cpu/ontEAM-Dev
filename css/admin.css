@@ -1126,6 +1126,7 @@ input.webdeb{
 
 .cb input[type=checkbox][disabled] + label, .cb input[type=checkbox][readonly] + label {
     background: #edeaea;
+    border: 0.1rem solid #CECECE;
     color: #0d0d0d;
     cursor: default;
 }
@@ -1155,7 +1156,17 @@ input.webdeb{
 	filter: alpha(opacity=30);
 }
 
+.cb input[type=checkbox][readonly] + label:hover::after {
+	opacity: 0.0;
+	filter: alpha(opacity=0);
+}
+
 .cb input[type=checkbox]:checked + label:after {
+	opacity: 1;
+	filter: alpha(opacity=100);
+}
+
+.cb input[type=checkbox][readonly]:checked + label:hover::after {
 	opacity: 1;
 	filter: alpha(opacity=100);
 }

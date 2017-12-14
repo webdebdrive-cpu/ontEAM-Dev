@@ -267,7 +267,7 @@ if( isset($_POST['bejelentesIgazolas']) ) {
             }
         }
 
-        //Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
         if( isset($_POST['csak_kerdezunk']) && $_POST['csak_kerdezunk'] != 'false' ) {
             echo json_encode(array(
                 'hiba' => 'Ha folytatja, a bejelentés lezárt státuszra vált. Folytatja?',
@@ -446,9 +446,7 @@ if( isset($_POST['bejelentesReklamacioElutasit']) ) {
     exit();
 }
 
-
-
-/* CSV generálása */
+// CSV generálása
 if (isset($_GET['csv'])) {
 
 
@@ -541,7 +539,7 @@ if (isset($_GET['csv'])) {
     exit();
 }
 
-/** Tartalom */
+// Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
@@ -551,14 +549,14 @@ require_once('selectek.php');
         echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
-    /* Megjegyzések darabszáma */
+    // Megjegyzések darabszáma
     $megj_db = '';
     $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
     if( $megj_sorok ) {
         $megj_db = ' ('.count($megj_sorok).')';
     }
 
-    /* Dokumentumok darabszáma */
+    // Dokumentumok darabszáma
     $dok_db = '';
     $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
     if( $dok_sorok ) {
@@ -668,7 +666,7 @@ require_once('selectek.php');
                 }
             }
 
-            //Hiba felirat, csak ha van hiba
+            // Hiba felirat, csak ha van hiba
             if($sor['hiba_text']){
                 $sor['hiba_text'] = '<br>Hiba: '.addslashes($sor['hiba_text']);
             }
@@ -687,9 +685,9 @@ require_once('selectek.php');
         }
 
         // Szerkeszthető egy bejelentés, ha nyitott és van kezelés jogunk
-        if( isset($_GET['modosit'])                                         &&  //Más fülek alatt ne legyen mentés gomb
-            $sor['stat_id']==BEJELENTES_STAT_NYITOTT                        &&  //Nyitott
-            (_jog(JOG_BEJELENTES_KEZEL) || _jog(JOG_BEJELENTES_MAS_NEVEBEN))    //Ki-ki úgy is csak a saját listáját látja majd
+        if( isset($_GET['modosit'])                                         &&  // Más fülek alatt ne legyen mentés gomb
+            $sor['stat_id']==BEJELENTES_STAT_NYITOTT                        &&  // Nyitott
+            (_jog(JOG_BEJELENTES_KEZEL) || _jog(JOG_BEJELENTES_MAS_NEVEBEN))    // Ki-ki úgy is csak a saját listáját látja majd
         ) {
                 $gombok = nl2('
                     <div class="form_kuldes">
@@ -843,10 +841,10 @@ require_once('selectek.php');
             if( $tomb['type'] == 'autocomplete' ) {
                 
                 if($tomb['csoport']){
-                    $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`id`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
+                    $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
                 }else{
-                    $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], 'recid='.$sor[$tomb['name']], '', '1');
+                    $kulso_ertek = $adatbazis_kapcsolat->s2('recid nev', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}'", '', '1');
                 }
 
                 $sor[$tomb['name'].'_autocomp'] = '';
