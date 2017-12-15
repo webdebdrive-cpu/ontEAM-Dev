@@ -855,7 +855,7 @@ $megnevezes = 'erteklista';
 $erteklista_tomb = $akt_tomb = array(
 	//array('type' => 'text',             'megn' => 'ID:',         'name' => 'id',    'maxlength' => 250, 'class' => 'kicsi',     'alert' => 'Kérem töltse ki az ID-t!'),
     array('type' => 'select_erteklista', 'megn' => 'Csoport:',    'name' => 'csoport',    'disabled' => $csakUjkent,   'class' => 'disableNav',    'alert' =>  $szoveg_reg['varos'][$megsz],    'alert' => 'Kérem válassza ki a csoportot!'),
-	array('type' => 'text',              'megn' => 'Érték:',      'name' => 'info',       'maxlength' => 250, 'class' => 'oriasi',    'alert' => 'Kérem töltse ki az értéket!'),
+	array('type' => 'text',              'megn' => 'Érték:',      'name' => 'info',       'maxlength' => 40, 'class' => 'oriasi',    'alert' => 'Kérem töltse ki az értéket!'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -1694,11 +1694,15 @@ $beosztas_tomb = $akt_tomb = array(
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',          'name' => 'telephely_id',   'disabled' => $disabled,    'szuro' => 1,   'class' => 'disableNav',    'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this ); '),
 	array('type' => 'text',                     'megn' => 'Időszak:',           'name' => 'tol',            'disabled' => $disabled,    'szuro' => 1,   'class' => 'kicsi datepicker', 'megn_szurobe' => 'Időpont tól', 'osszevon' => 1),
 	array('type' => 'text',                     'megn' => ' - ',                'name' => 'ig',             'disabled' => $disabled,    'szuro' => 1,   'class' => 'kicsi datepicker', 'megn_szurobe' => 'Időpont ig'),
-	array('type' => 'text',                     'megn' => 'Készítette:',        'name' => 'insert_usr',     'disabled' => 1,            'szuro' => 1,   'class' => 'oriasi'),
-	array('type' => 'text',                     'megn' => 'Készítés ideje:',    'name' => 'insert_dt',      'disabled' => 1,            'szuro' => 1,   'class' => 'datetimepicker'),
-	array('type' => 'text',                     'megn' => 'Utoljára mentette:', 'name' => 'update_usr',     'disabled' => 1,            'szuro' => 1,   'class' => 'oriasi'),
-	array('type' => 'text',                     'megn' => 'Mentés ideje:',      'name' => 'update_dt',      'disabled' => 1,            'szuro' => 1,   'class' => 'datetimepicker'),
 );
+if(!isset($_GET['uj'])){
+    array_push( $beosztas_tomb,
+                array('type' => 'text',                     'megn' => 'Készítette:',        'name' => 'insert_usr',     'disabled' => 1,            'szuro' => 1,   'class' => 'oriasi'),
+                array('type' => 'text',                     'megn' => 'Készítés ideje:',    'name' => 'insert_dt',      'disabled' => 1,            'szuro' => 1,   'class' => 'datetimepicker'),
+                array('type' => 'text',                     'megn' => 'Utoljára mentette:', 'name' => 'update_usr',     'disabled' => 1,            'szuro' => 1,   'class' => 'oriasi'),
+                array('type' => 'text',                     'megn' => 'Mentés ideje:',      'name' => 'update_dt',      'disabled' => 1,            'szuro' => 1,   'class' => 'datetimepicker')
+            );
+}
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 $megnevezes = 'beosztas_naptar';

@@ -274,9 +274,15 @@ function i_u($type, $tabla, $tomb) {
 
             // Iktatószám formázása
             $ikt_szam = date('y').'/'.sprintf('%07d', $sorszam);
-
-            array_push($oszlopok,  'ikt_szam');
-            array_push($ertekek,   $ikt_szam );
+            // Felvesszük az értékek közé
+            $i = 0;
+            foreach($oszlopok as $oszl){
+                if($oszl=='ikt_szam'){
+                    $ertekek[$i] = $ikt_szam;
+                    break;
+                }
+                $i++;
+            }
 
             array_push($oszlopok,  'stat_id'                );
             array_push($ertekek,    BEJELENTES_STAT_NYITOTT );
@@ -288,15 +294,6 @@ function i_u($type, $tabla, $tomb) {
                 array_push($oszlopok, 'loginnev'                        );
                 array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
             }
-            
-            // Új feltöltéskor a manuális mezők disabled-ek, ezért ezeket fel kell tölteni:
-            $bejelentest_rogziti = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', 'recid='.$_SESSION[get_db_tabla().'login_recid']);
-            array_push($oszlopok, 'usr_man_nev'                         );
-            array_push($ertekek,   $bejelentest_rogziti['teljes_nev']   );
-            array_push($oszlopok, 'usr_man_telefon'                     );
-            array_push($ertekek,   $bejelentest_rogziti['usertel']      );
-            array_push($oszlopok, 'usr_man_email'                       );
-            array_push($ertekek,   $bejelentest_rogziti['usermail']     );
 
         // FB Előterjesztés új bejegyzés esetén
         } else if( $tabla == 'eloterj_fb' ) {
@@ -322,8 +319,15 @@ function i_u($type, $tabla, $tomb) {
             // Iktatószám formázása
             $ikt_szam = 'ELFB'.date('y').'/'.sprintf('%07d', $sorszam);
 
-            array_push($oszlopok,  'ikt_szam');
-            array_push($ertekek,   $ikt_szam );
+            // Felvesszük az értékek közé
+            $i = 0;
+            foreach($oszlopok as $oszl){
+                if($oszl=='ikt_szam'){
+                    $ertekek[$i] = $ikt_szam;
+                    break;
+                }
+                $i++;
+            }
 
         // BOD Előterjesztés új bejegyzés esetén
         } else if( $tabla == 'eloterj_fb' ) {
@@ -349,8 +353,15 @@ function i_u($type, $tabla, $tomb) {
             // Iktatószám formázása
             $ikt_szam = 'ELBO'.date('y').'/'.sprintf('%07d', $sorszam);
 
-            array_push($oszlopok,  'ikt_szam');
-            array_push($ertekek,   $ikt_szam );
+            // Felvesszük az értékek közé
+            $i = 0;
+            foreach($oszlopok as $oszl){
+                if($oszl=='ikt_szam'){
+                    $ertekek[$i] = $ikt_szam;
+                    break;
+                }
+                $i++;
+            }
 
         // Értéklista új bejegyzés esetén
         } else if( $tabla == 'erteklista' ) {
@@ -392,8 +403,15 @@ function i_u($type, $tabla, $tomb) {
             }
             $id = $szalloda.sprintf('%04d', $sorszam);
 
-            array_push($oszlopok,  'id' );
-            array_push($ertekek,   $id  );
+            // Felvesszük az értékek közé
+            $i = 0;
+            foreach($oszlopok as $oszl){
+                if($oszl=='id'){
+                    $ertekek[$i] = $id;
+                    break;
+                }
+                $i++;
+            }
 
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
@@ -457,8 +475,15 @@ function i_u($type, $tabla, $tomb) {
             // Iktatószám formázása
             $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
 
-            array_push($oszlopok,  'ikt_szam');
-            array_push($ertekek,   $ikt_szam );
+            // Felvesszük az értékek közé
+            $i = 0;
+            foreach($oszlopok as $oszl){
+                if($oszl=='ikt_szam'){
+                    $ertekek[$i] = $ikt_szam;
+                    break;
+                }
+                $i++;
+            }
 
             array_push($oszlopok,  'stat_id'                );
             array_push($ertekek,    MUNKALAP_STAT_NYITOTT   );
@@ -489,8 +514,15 @@ function i_u($type, $tabla, $tomb) {
             }
             $id = $szalloda.sprintf('%04d', $sorszam);
 
-            array_push($oszlopok,  'id' );
-            array_push($ertekek,   $id  );
+            // Felvesszük az értékek közé
+            $i = 0;
+            foreach($oszlopok as $oszl){
+                if($oszl=='id'){
+                    $ertekek[$i] = $id;
+                    break;
+                }
+                $i++;
+            }
 
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
@@ -499,8 +531,6 @@ function i_u($type, $tabla, $tomb) {
         // Projektigénylés új bejegyzés esetén
         } else if( $tabla == 'projektigenyles' ) {
             
-            array_push($oszlopok, 'projektigenyles_recid'           );
-            array_push($ertekek, $_POST['projektigenyles_recid']    );
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
@@ -530,8 +560,15 @@ function i_u($type, $tabla, $tomb) {
             }
             $id = $szalloda.sprintf('%04d', $sorszam);
 
-            array_push($oszlopok,  'id' );
-            array_push($ertekek,   $id  );
+            // Felvesszük az értékek közé
+            $i = 0;
+            foreach($oszlopok as $oszl){
+                if($oszl=='id'){
+                    $ertekek[$i] = $id;
+                    break;
+                }
+                $i++;
+            }
 
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
@@ -540,7 +577,6 @@ function i_u($type, $tabla, $tomb) {
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
         if( $id === false ) { $db_error = true; }
-
 
 //echo '<pre style="font-size: 1.4rem">';
 //echo $adatbazis_kapcsolat->gp() . '<br>';
@@ -735,20 +771,22 @@ function i_u($type, $tabla, $tomb) {
 
     // Update
 	} else {
-
         // Csak nyitott státuszú bejelentést lehet szerkeszteni
         if( $tabla == 'bejelentes' ) {
 
             // Diszpécser nem módosíthat bejelentést
             if(_jog(JOG_MUNKALAP_KESZITHET)){
+                echo json_encode(array(
+                    'hiba' => 'Önnek nincs joga munkalapot szerkeszteni!'
+                ));
+
                 $weblap -> leallit();
                 exit;
             }
-            $akt_statusz = $adatbazis_kapcsolat->s('stat_id', $tabla.'_statusz', "`{$tabla}_recid`='{$_GET['id']}'", 'recid desc', '1');
+            $akt_statusz = $adatbazis_kapcsolat->s2('stat_id', $tabla.'_statusz', "`{$tabla}_recid`='{$_GET['id']}'", 'recid desc', '1');
             if( $akt_statusz === false ) { $db_error = true; }
 
             if( $akt_statusz ) {
-                $akt_statusz = $akt_statusz[0];
 
                 if( $akt_statusz['stat_id'] != BEJELENTES_STAT_NYITOTT ) {
                     echo json_encode(array(
@@ -763,6 +801,7 @@ function i_u($type, $tabla, $tomb) {
                 exit();
             }
         }
+
 
 
         // Ha volt változás, akkor logoljuk
@@ -1271,7 +1310,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 var folyamatban_hiba = false;
 
                 $.ajax({
-                    url  : \'bejelentesek.php\',
+                    url  : \'bejelentes.php\',
                     type : \'GET\',
                     async: false,
                     data : esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;obj_id=\' + $(\'#obj_id\').val() + \'&amp;mod=\' + '.$mod.' + \'&amp;folyamatban_munkak=\' + new Date().getTime()),

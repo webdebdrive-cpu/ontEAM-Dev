@@ -4880,7 +4880,7 @@ require('selectek.php');
             $feladatok = $adatbazis_kapcsolat->s('recid erteklista_id tetel_id memo', 'munkalap_feladat', "`tetel_id` = '{$sor['recid']}'", 'insert_dt desc', '');
             if( $feladatok ) {
                 $szamla_html .= nl2('
-                    <div style="padding: 0.2rem">
+                    <div style="padding: 0 0.5rem">
                     <table class="csikos full al">
                         <tr>
                             <th class="feladat_th1">Elvégzett feladat</th>

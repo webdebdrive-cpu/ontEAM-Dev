@@ -54,11 +54,12 @@ if (isset($_POST['beosztas_veglegesit'])) {
                 if(addStatusz('munkalap_statusz', $id, MUNKALAP_STAT_FOLYAMATBAN)===false){
                     $db_error = true;
                 }
-                $sql = $adatbazis_kapcsolat->u('munkalap', array('mobil'), array($csoport), "`recid`='{$id}'");
+                $sql = $adatbazis_kapcsolat->u('munkalap', array('mobil', 'szemelyzet_id'), array($csoport, MOBILCSOPORT), "`recid`='{$id}'");
                 if($sql === false){ $db_error = true; }
             }
         }
     }
+
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode(array(
@@ -118,7 +119,7 @@ if (isset($_POST['mobil_beosztas_login_ment'])) {
             }
             $sql = $adatbazis_kapcsolat->u('login', array('mobil'), array($mobil), "`recid` IN (".trim($_POST[$csoport.'_csop'], ',').")");
             if($sql === false){ $db_error = true; }
- echo $adatbazis_kapcsolat->gp() . '<br>';
+
         }
     }
     if( !$db_error ) {
@@ -224,71 +225,73 @@ require_once('selectek.php');
                     width: auto;
                 }
             </style>
-                <script>
-                    $(function() {
-                        $(\'ul.droptrue\').sortable({
-                            connectWith: \'ul.dropItem\',
-                            start: function( event, ui ) {
-                                
-                            },
-                            stop: function( event, ui ) {
-                                if($(\'.mobilcsop_a li\').length || $(\'.mobilcsop_b li\').length || $(\'.mobilcsop_cn li\').length || $(\'.mobilcsop_d li\').length){
-                                    $(\'#beosztas_veglegesit_gomb\').removeClass(\'dn\');
-                                }else{
-                                    $(\'#beosztas_veglegesit_gomb\').addClass(\'dn\');
-                                }
-                            },
-                            
-                            helper: function(e, tr) {
-                                var helper = tr.clone();
-                                helper.css({\'width\': \'23.2rem\'});
-                                helper.find(\'.dtc\').css({\'display\': \'none\'});
-                                helper.find(\'.dtc.latszik\').css({\'display\': \'table-cell\'});
-                                return helper;
-                            },
-                            
-                            placeholder: \'highlight\'
-                        });
+            <script>
+                $(function() {
+                    $(\'ul.droptrue\').sortable({
+                        connectWith: \'ul.dropItem\',
+                        start: function( event, ui ) {
 
-                        $(\'ul.dropfalse\').sortable({
-                            connectWith: \'ul.dropItem\',
-                            dropOnEmpty: false
-                        });
+                        },
+                        stop: function( event, ui ) {
+                            if($(\'.mobilcsop_a li\').length || $(\'.mobilcsop_b li\').length || $(\'.mobilcsop_cn li\').length || $(\'.mobilcsop_d li\').length){
+                                $(\'#beosztas_veglegesit_gomb\').removeClass(\'dn\');
+                            }else{
+                                $(\'#beosztas_veglegesit_gomb\').addClass(\'dn\');
+                            }
+                        },
 
-                        
-                        $(\'.dropItem\').disableSelection();
+                        helper: function(e, tr) {
+                            var helper = tr.clone();
+                            helper.css({\'width\': \'21rem\'});
+                            helper.find(\'.dtc\').css({\'display\': \'none\'});
+                            helper.find(\'.dtc.latszik\').css({\'display\': \'table-cell\'});
+                            return helper;
+                        },
+
+                        placeholder: \'highlight\'
                     });
-                </script>
 
-                <div class="kozep">
+                    $(\'ul.dropfalse\').sortable({
+                        connectWith: \'ul.dropItem\',
+                        dropOnEmpty: false
+                    });
 
-                    <div class="mobilkeret">
-                        
-                        <div class="dtr">
-                            <div class="dtc r" style="width: 16rem"><!-- Szándékosan egyel több -->
-                                Munkalap szám
-                            </div>
-                            <div class="dtc latszik" style="width: 10rem">
-                                Szálloda
-                            </div>
-                            <div class="dtc latszik" style="width: 20rem">
-                                Bejelentett hiba
-                            </div>
-                            <div class="dtc" style="width: 15rem">
-                                Helyiség
-                            </div>
-                            <div class="dtc c" style="width: 7rem">
-                                Sürgős
-                            </div>
-                            <div class="dtc c" style="width: 10rem">
-                                Visszaadva
-                            </div>
-                            <div class="dtc" style="width: 9.2rem">
-                                Bejelentés dátuma
-                            </div>
+
+                    $(\'.dropItem\').disableSelection();
+                });
+            </script>
+
+            <div class="kozep mobil_hozzarendel">
+
+                <div class="mobilkeret">
+
+                    <div class="dtr">
+                        <div class="dtc r" style="width: 11.5rem">
+                            Munkalap szám
                         </div>
+                        <div class="dtc latszik" style="width: 10.2rem">
+                            Szálloda
+                        </div>
+                        <div class="dtc latszik" style="width: 23rem">
+                            Bejelentett hiba
+                        </div>
+                        <div class="dtc" style="width: 12rem">
+                            Helyiség
+                        </div>
+                        <div class="dtc c" style="width: 7rem">
+                            Sürgős
+                        </div>
+                        <div class="dtc c" style="width: 8.4rem">
+                            Visszaadva
+                        </div>
+                        <div class="dtc" style="width: 16rem">
+                            Bejelentés dátuma
+                        </div>
+                    </div>
 
-                        <ul class="dropItem droptrue">');
+                    <div class="csop_nelkul">
+                        <ul class="dropItem droptrue">
+                    ');
     
     $munkalapok = $adatbazis_kapcsolat->s('*', 'munkalap', "`stat_id`='".MUNKALAP_STAT_BEOSZTAS_NELKUL."' AND `telephely_id` IN (".$sajat_szallodak.")", 'ikt_szam');
     foreach($munkalapok as $munkalap){
@@ -308,151 +311,149 @@ require_once('selectek.php');
         
         $html .= nl2('
                         <li class="ui-state-default" data-recid="'.$munkalap['recid'].'" ondblclick="window.open(\'munkalap.php?id='.$munkalap['recid'].'&amp;modosit\', \'uj_tab\')">
-                            <div class="dtc munkalapszam" style="width: 15rem">
+                            <div class="dtc c munkalapszam" style="width: 11rem">
                                 '.$munkalap['ikt_szam'].'
                             </div>
-                            <div class="dtc latszik c szalloda" style="width: 10rem">
+                            <div class="dtc c latszik c szalloda" style="width: 10rem">
                                 '.getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
                             </div>
-                            <div class="dtc latszik hiba" style="width: 20rem">
+                            <div class="dtc c latszik hiba" style="width: 23rem">
                                 '.$hiba.'
                             </div>
-                            <div class="dtc" style="width: 15rem">
+                            <div class="dtc c" style="width: 12rem">
                                 '.getErtek('nev', 'obj', 'recid', $munkalap['obj_id']).'
                             </div>
-                            <div class="dtc c" style="width: 7rem">
+                            <div class="dtc c" style="width: 6rem">
                                 '.$surgos.'
                             </div>
-                            <div class="dtc c" style="width: 10rem">
+                            <div class="dtc c" style="width: 8.4rem">
                                 '.$visszaadva.'
                             </div>
-                            <div class="dtc" style="width: 8rem">
+                            <div class="dtc c" style="width: 15rem">
                                 '.substr(str_replace('-', '.', $munkalap['insert_dt']), 0, 10).'
                             </div>
                         </li>
                     ');
     }
     
-        // Számoljuk ki a folyamatban levő munkalapokat is
-        $mobilok        = array('a', 'b', 'cn', 'd');
-        $folyamatban    = array();
-        $folyamatban_db = array();
-        foreach($mobilok as $mobil){
-            
-            $munkalapok = $adatbazis_kapcsolat->s('recid telephely_id', 'munkalap', "`szemelyzet_id`='".MOBILCSOPORT."' AND `telephely_id` IN (".$sajat_szallodak.") AND `mobil`='{$mobil}' AND `stat_id`='".MUNKALAP_STAT_FOLYAMATBAN."'", 'ikt_szam');
-            foreach($munkalapok as $munkalap){
-                $kapcsolat  = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'", '', '0,1');
-                $bejelentes = $adatbazis_kapcsolat->s2('hiba_id', 'bejelentes', "`recid`='{$kapcsolat['bejelentes_id']}'");
-                $hiba       = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
-                $szalloda   = getErtek('nev',  'telephely',  'id', $munkalap['telephely_id']);
-                $folyamatban[$mobil] .= '
-                    <tr ondblclick="window.open(\'munkalap.php?id='.$munkalap['recid'].'&amp;modosit\', \'uj_tab\')">
-                        <td>
-                            '.$szalloda.'
-                        </td>
-                        <td>
-                            '.$hiba.'
-                        </td>
-                    </tr>';
-            }
-            
-            $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`szemelyzet_id`='".MOBILCSOPORT."' AND `telephely_id` IN (".$sajat_szallodak.") AND `mobil`='{$mobil}' AND `stat_id`='".MUNKALAP_STAT_FELVEVE."'");
-            $folyamatban_db[$mobil] = count($munkalapok);
-            
-            $folyamatban[$mobil] = nl2('
-                                    <table class="folyamatban">
-                                        <tr>
-                                            <td>Szálloda</td>
-                                            <td>Bejelentett hiba</td>
-                                        </tr>
-                                        '.$folyamatban[$mobil].'
-                                    </table>
-                                    ');
+    // Számoljuk ki a folyamatban levő munkalapokat is
+    $mobilok        = array('a', 'b', 'cn', 'd');
+    $folyamatban    = array();
+    $folyamatban_db = array();
+    foreach($mobilok as $mobil){
+
+        $munkalapok = $adatbazis_kapcsolat->s('recid telephely_id', 'munkalap', "`szemelyzet_id`='".MOBILCSOPORT."' AND `telephely_id` IN (".$sajat_szallodak.") AND `mobil`='{$mobil}' AND `stat_id`='".MUNKALAP_STAT_FOLYAMATBAN."'", 'ikt_szam');
+        foreach($munkalapok as $munkalap){
+            $kapcsolat  = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'", '', '0,1');
+            $bejelentes = $adatbazis_kapcsolat->s2('hiba_id', 'bejelentes', "`recid`='{$kapcsolat['bejelentes_id']}'");
+            $hiba       = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
+            $szalloda   = getErtek('nev',  'telephely',  'id', $munkalap['telephely_id']);
+            $folyamatban[$mobil] .= '
+                <tr ondblclick="window.open(\'munkalap.php?id='.$munkalap['recid'].'&amp;modosit\', \'uj_tab\')">
+                    <td>
+                        '.$szalloda.'
+                    </td>
+                    <td title="'.$hiba.'">
+                        '.resz_string($hiba, 30).'
+                    </td>
+                </tr>';
         }
 
-        $html .= nl2('
+        $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`szemelyzet_id`='".MOBILCSOPORT."' AND `telephely_id` IN (".$sajat_szallodak.") AND `mobil`='{$mobil}' AND `stat_id`='".MUNKALAP_STAT_FELVEVE."'");
+        $folyamatban_db[$mobil] = count($munkalapok);
+
+        $folyamatban[$mobil] = nl2('
+                                <table class="folyamatban">
+                                    <tr>
+                                        <td>Szálloda</td>
+                                        <td>Bejelentett hiba</td>
+                                    </tr>
+                                    '.$folyamatban[$mobil].'
+                                </table>
+                                ');
+    }
+
+    $html .= nl2('
                         </ul>
                     </div>
-
-                    <table class="csoportok">
-                        <tr>
-                            <td>
-                                <input type="button" value="\'A\' csoport ('.$folyamatban_db['a'].')" onclick="window.open(\'munkalap.php?felvett_mobilcsop\', \'munka_lista\')">
-                            </td>
-                            <td>
-                                <input type="button" value="\'B\' csoport ('.$folyamatban_db['b'].')" onclick="window.open(\'munkalap.php?felvett_mobilcsop\', \'munka_lista\')">
-                            </td>
-                            <td>
-                                <input type="button" value="\'CN\' csoport ('.$folyamatban_db['cn'].')" onclick="window.open(\'munkalap.php?felvett_mobilcsop\', \'munka_lista\')">
-                            </td>
-                            <td>
-                                <input type="button" value="\'D\' csoport ('.$folyamatban_db['d'].')" onclick="window.open(\'munkalap.php?felvett_mobilcsop\', \'munka_lista\')">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <ul class="dropItem droptrue mobilcsop_a"></ul>
-                            </td>
-                            <td>
-                                <ul class="dropItem droptrue mobilcsop_b"></ul>
-                            </td>
-                            <td>
-                                <ul class="dropItem droptrue mobilcsop_cn"></ul>
-                            </td>
-                            <td>
-                                <ul class="dropItem droptrue mobilcsop_d"></ul>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                '.$folyamatban['a'].'
-                            </td>
-                            <td>
-                                '.$folyamatban['b'].'
-                            </td>
-                            <td>
-                                '.$folyamatban['cn'].'
-                            </td>
-                            <td>
-                                '.$folyamatban['d'].'
-                            </td>
-                        </tr>
-                    </table>
                 </div>
-                
-                <div class="muveletek"> 
-                    <input class="gomb dn" value="Mobil hozzárendelés véglegesítése" onclick="beosztas_veglegesit()" type="button" id="beosztas_veglegesit_gomb">
-                    <input class="gomb" value="Vissza a nyitottak közé" onclick="munkalapok_nyitottak_koze()" type="button" id="vissza_nyitottak_koze">
-                    <input class="gomb" value="Mobil személyzet beosztása" onclick="csoportMuvelet(\'mobil_szemelyzet_beosztas\')" type="button">
-                    
-                    <input type="submit" class="gombb mentes_gomb dn" id="mehet_gomb" disabled value="Mentés" onclick="formModositva = false; $(\'#szerk_form\').submit()">
-                    
-                </div>
-                ');
-    
-    $mezok = $html;
 
-    $jobb_oldal = '';
-    $szamla_html .= str_replace(
-        array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}'    ),
-        array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok       ),
-        fajlbol_olvas('../sablon/admin/form_modosit.html', true)
-    );
+                <table class="csoportok">
+                    <tr>
+                        <td>
+                            <input type="button" value="\'A\' csoport ('.$folyamatban_db['a'].')" onclick="window.open(\'munkalap.php?felvett_mobilcsop\', \'munka_lista\')">
+                        </td>
+                        <td>
+                            <input type="button" value="\'B\' csoport ('.$folyamatban_db['b'].')" onclick="window.open(\'munkalap.php?felvett_mobilcsop\', \'munka_lista\')">
+                        </td>
+                        <td>
+                            <input type="button" value="\'CN\' csoport ('.$folyamatban_db['cn'].')" onclick="window.open(\'munkalap.php?felvett_mobilcsop\', \'munka_lista\')">
+                        </td>
+                        <td>
+                            <input type="button" value="\'D\' csoport ('.$folyamatban_db['d'].')" onclick="window.open(\'munkalap.php?felvett_mobilcsop\', \'munka_lista\')">
+                        </td>
+                    </tr>
+                    <tr class="teruletek">
+                        <td>
+                            <ul class="dropItem droptrue mobilcsop_a"></ul>
+                        </td>
+                        <td>
+                            <ul class="dropItem droptrue mobilcsop_b"></ul>
+                        </td>
+                        <td>
+                            <ul class="dropItem droptrue mobilcsop_cn"></ul>
+                        </td>
+                        <td>
+                            <ul class="dropItem droptrue mobilcsop_d"></ul>
+                        </td>
+                    </tr>
+                    <tr class="folyamatban">
+                        <td>
+                            '.$folyamatban['a'].'
+                        </td>
+                        <td>
+                            '.$folyamatban['b'].'
+                        </td>
+                        <td>
+                            '.$folyamatban['cn'].'
+                        </td>
+                        <td>
+                            '.$folyamatban['d'].'
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
-    if( $_GET['ajax'] ) {
-        echo json_encode(array(
-            'tartalom' => $szamla_html,
-            'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
-        ));
-    } else {
-        echo $szamla_html;
-    }
+            <div class="muveletek"> 
+                <input class="gomb dn" value="Mobil hozzárendelés véglegesítése" onclick="beosztas_veglegesit()" type="button" id="beosztas_veglegesit_gomb">
+                <input class="gomb" value="Vissza a nyitottak közé" onclick="munkalapok_nyitottak_koze()" type="button" id="vissza_nyitottak_koze">
+                <input class="gomb" value="Mobil személyzet beosztása" onclick="csoportMuvelet(\'mobil_szemelyzet_beosztas\')" type="button">
 
+                <input type="submit" class="gombb mentes_gomb dn" id="mehet_gomb" disabled value="Mentés" onclick="formModositva = false; $(\'#szerk_form\').submit()">
 
-    if( !$_GET['ajax'] ) {
-        echo '</div>';
-    }
+            </div>
+            ');
+
+$mezok = $html;
+
+$jobb_oldal = '';
+$szamla_html .= str_replace(
+    array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}'    ),
+    array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok       ),
+    fajlbol_olvas('../sablon/admin/form_modosit.html', true)
+);
+
+if( $_GET['ajax'] ) {
+    echo json_encode(array(
+        'tartalom' => $szamla_html,
+        'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
+    ));
+} else {
+    echo $szamla_html;
+}
+
 
 if( !$_GET['ajax'] ) {
+    echo '</div>';
     require_once('footer.php');
 }

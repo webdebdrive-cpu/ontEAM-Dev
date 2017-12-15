@@ -12,14 +12,14 @@ if( !_jog(JOG_SZEREPKOR_MEGTEKINT) ) {
     exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
 }
 
-//Config
+// Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $szerepkor_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'szerepkört';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-//Változók beállítása
+// Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
 $fajloszlop             = 'kep';                //Kép (vagy kivételes esetekben más fájl) oszlopneve.
@@ -195,7 +195,7 @@ if (isset($_GET['csv'])) {
     exit();
 }
 
-/** Tartalom */
+// Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
@@ -336,18 +336,6 @@ require_once('selectek.php');
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
-        $gombok = nl2('<div class="form_kuldes">
-                          <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
-                          <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; history.back();">
-                      </div>').$gombok;
-
-        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-            if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
-            }
-        }
-
         $js_submit_elott = 'return form_ell_admin();';
 
 	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
@@ -432,22 +420,6 @@ require_once('selectek.php');
 
         $jobb_oldal = '';
 
-        if(_jog(11)){
-            $gombok = nl2('
-                <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
-                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
-                </div>
-            ').$gombok;
-        }
-
-        $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-        if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-            if( $_COOKIE['csuszkaSzelesseg'] ) {
-                $muv_style = ' style="width: calc(100% - '.($_COOKIE['csuszkaSzelesseg'] + 16).'px);"';
-            }
-        }
-
 	    $szamla_html .= str_replace(
             array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}'    ),
             array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok       ),
@@ -480,7 +452,7 @@ require_once('selectek.php');
             // Jogosultságok feldarabolás
             $flags = str_split($login['flags']);
 
-            //Ellenőrzéshez
+            // Ellenőrzéshez
             $jogEll = array();
             $i = 0;
             foreach($jogosultsagok as $jog) {

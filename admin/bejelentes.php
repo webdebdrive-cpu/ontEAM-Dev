@@ -623,7 +623,7 @@ require_once('selectek.php');
             </div>
         ');
 
-    // nem új feltöltés (de minden más fül...)
+    // Nem új feltöltés (de minden más fül...)
     } else {
 
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);

@@ -2531,7 +2531,7 @@ table.csikos{
 
 table.csikos.al{
     border: 0.1rem solid #ccc;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
 }
 
 table.csikos.behuz {
@@ -2629,7 +2629,7 @@ table.csikos th.feladat_th1 {
 }
 
 table.csikos th.feladat_th2 {
-    width: 15%;
+    width: 57%;
 }
 
 table.csikos th.anyag_th1 {
@@ -2889,13 +2889,14 @@ div.tetel_div{
     overflow: auto;
 }
 
-div.mobilkeret{
+div.mobil_hozzarendel{
     border: 0.1rem solid #55A2FA;
 }
 
 div.mobilkeret div.dtr div.dtc {
     background: #55A2FA;
     color: #fff;
+    font-size: 1.4rem;
     font-weight: bold;
     text-align: center;
     vertical-align: middle;
@@ -2907,15 +2908,22 @@ div.mobilkeret li.kijelolt{
     color: #fff;
 }
 
-table.csoportok{
-    width: 100%;
+div.csop_nelkul{
+    border: 0.1rem solid #55A2FA;
+    margin: 0 0.4rem;
+    max-height: 40rem;
+    overflow-y: auto;
 }
 
-table.csoportok td {
-    
-    padding: 1rem 1rem 1rem 1rem;
-    vertical-align: top;
+table.csoportok{
+    margin: 0rem 0.5rem 0.5rem 0.5rem;
+    width: 99%;
+}
+
+table.csoportok > td {
+    padding: 0.2rem 0rem;
     text-align: center;
+    vertical-align: top;
     width: 25%;
 }
 table.csoportok tr:first-of-type td {
@@ -2931,7 +2939,7 @@ table.csoportok input[type="button"]{
     border-radius: 0.4rem;
     color: #fff;
     font-weight: bold;
-    margin-bottom: 0.3rem;
+    margin: 0.5rem 0;
     padding: 0.6rem 2.5rem;
     transition: all ease-in-out 0.2s;
 }
@@ -2944,6 +2952,24 @@ table.csoportok input[type="button"]:focus{
     border: 0.1rem solid #f00;
 }
 
+table.csoportok td{
+    text-align: center;
+    width: 25%;
+}
+
+table.csoportok tr.folyamatban > td {
+    border: 0.1rem solid #CCCCCC;
+    vertical-align: top;
+}
+
+table.csoportok tr.teruletek{
+    border: 0.1rem solid #CCCCCC;
+    vertical-align: top;
+}
+table.csoportok tr.teruletek ul {
+    border: 0;
+}
+
 .csoportok ul.dropItem li .dtc, ul.dropItem li.ui-sortable-helper .dtc{
     display: none;
 }
@@ -2951,12 +2977,23 @@ table.csoportok input[type="button"]:focus{
     display: table-cell;
 }
 
+table.folyamatban{
+    margin: 0.1rem;
+    width: 100%;
+}
+
 table.folyamatban td{
     border: 0.1rem solid #EDEDED;
+    font-size: 1.2rem;
     padding: 0.1rem 0.2rem;
+    text-align: center;
+}
+table.csoportok table.folyamatban td:first-of-type{
+    width: 8%;
 }
 
 table.folyamatban tr:first-of-type td{
+    font-size: 1.3rem;
     font-weight: bold;
 }
 
@@ -2967,10 +3004,11 @@ ul.dropItem {
 }
 
 ul.dropItem li {
+    border: 0.2rem dotted #BBCEFF;
     cursor: move;
-    height: 2.2rem;
+    height: 2.6rem;
     overflow: hidden;
-    padding: 0.5rem 1rem 0.5rem 1rem;
+    padding: 0.5rem 0rem 0.5rem 0rem;
     min-width: 21rem;
 }
 
@@ -2978,9 +3016,9 @@ ul.dropItem .highlight {
     background: #B8D9FE;
     border: 0.2rem dotted #55A2FA;
     background-color: lightblue;
-    min-height: 3rem;
+    height: 2.6rem;
 }
 
 ul.dropItem li.ui-sortable-helper {
-    border: 0.1rem solid #242424;
+    border: 0.2rem dotted #BBCEFF;
 }
