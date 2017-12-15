@@ -114,9 +114,7 @@ array_push($select_ho_soran, array('name' => 'vasárnap',    'value' => '7'));
 
 // Select tömb Ütemezés típushoz
 $select_honapok = array();
-if(basename(self())!='utemezett_feladatok.php'){
-    array_push($select_honapok, array('name' => '- Válasszon -','value' => '' ));
-}
+array_push($select_honapok, array('name' => '- Válasszon -','value' => '' ));
 array_push($select_honapok, array('name' => 'január',       'value' => '1'));
 array_push($select_honapok, array('name' => 'február',      'value' => '2'));
 array_push($select_honapok, array('name' => 'március',      'value' => '3'));
@@ -126,7 +124,7 @@ array_push($select_honapok, array('name' => 'június',       'value' => '6'));
 array_push($select_honapok, array('name' => 'július',       'value' => '7'));
 array_push($select_honapok, array('name' => 'augusztus',    'value' => '8'));
 array_push($select_honapok, array('name' => 'szeptember',   'value' => '9'));
-array_push($select_honapok, array('name' => 'okotóber',     'value' => '10'));
+array_push($select_honapok, array('name' => 'október',      'value' => '10'));
 array_push($select_honapok, array('name' => 'november',     'value' => '11'));
 array_push($select_honapok, array('name' => 'december',     'value' => '12'));
 

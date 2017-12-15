@@ -1114,6 +1114,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     var alert_vegen             = false; /* Van, hogy mentés után még láttani akarunk egy alertet */
                     var igeny_rogzites_uzemmod  = false;
                     function '.$fg.'{
+
                         var volt_helytelen = false;
                         $(\'.datepicker, .datetimepicker\').each(function () {
                             if(valid_date($(this))===false){
@@ -1146,6 +1147,14 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 // Ha numerikus a mező, akkor a 0,00 is üres értéknek számít
                 if(strpos($ertek['class'], 'f_num')!==false){
                     $ret .= 'if(document.getElementById(\''.$ertek['name'].'\').value==\'0,00\'){ document.getElementById(\''.$ertek['name'].'\').className += \' alert\'; $(\'#'.$ertek['name'].'\').addClass(\'hibas_ide_focus\'); alert2(\''.$ertek['alert'].'\', \'<p class="c"><input type="button" class="link gomb" value="Ok" onclick="alert2();"></p>\', \''.$hiba_txt.'\'); scrollto(\'#'.$ertek['name'].'\', 500); return false; }';
+                }
+                
+                // Ha dátum tipusú a mezők ellenőrzése
+                if( strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false ){
+                    $ret .= 'if( !valid_date( $(\'#'.$ertek['name'].'\') )===false ){ return false; }';
+                }
+                if( strpos($ertek['class'], 'ora_perc')!==false ){
+                    $ret .= 'if( valid_ido( $(\'#'.$ertek['name'].'\') )===false ){ return false; }';
                 }
                 
                 // Ha dátum mező, akkor az ürességet másképp figyeljük
@@ -1348,7 +1357,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         ');
     }
 
-
+    // Ütemezett feladatok ellenőrzése
     if( basename(self())=='utemezett_feladatok.php' || basename(self())=='rendszeres_karbantartas.php' ){
 
         $param .= 'hetkoz_kent=\'+$(\'#hetkoz_kent\').is(\':checked\')+\'&amp;';
@@ -1433,11 +1442,34 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                 }
 
 
-                /* gép és helyiség is üresen maradt figyelmeztetés */
+                /* Gép és helyiség is üresen maradt figyelmeztetés */
                 if(!$(\'#gep_id\').val() && !$(\'#obj_id\').val() && !helyiseg_gep_mehet){
                     uf_gomb = \'<div class="c"><input type="button" class="gomb zold" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()"></div>\';
                     alert2(\'Nem adott meg sem helyiséget sem gépet a feladathoz.<br>Folytatja?\', uf_gomb);
                     return false;
+                }
+
+                /*  Szokásos ütemezés ellenőrzése */
+                ev = new Date();
+                if( $(\'#kezdho\').val() && !Date.parse( ev.getFullYear()+\'-\'+$(\'#kezdho\').val()+\'-\'+$(\'#kezdnap\').val()) ){
+                    alert2(\'Helytelen szokásos ütemezés kezdődátum!\', \'\', \'Hiba\');
+                    $(\'#kezdnap\').addClass(\'hibas_ide_focus\');
+                    $(\'#kezdnap\').val(\'1\');
+                    return false;
+                }
+                if( $(\'#vegeho\').val() && !Date.parse( ev.getFullYear()+\'-\'+$(\'#vegeho\').val()+\'-\'+$(\'#vegenap\').val()) ){
+                    alert2(\'Helytelen szokásos ütemezés végdátum!\', \'\', \'Hiba\');
+                    $(\'#vegenap\').addClass(\'hibas_ide_focus\');
+                    $(\'#vegenap\').val(\'1\');
+                    return false;
+                }
+                
+                /* Időszakos ütemezés ha ki van pipálva, akkor a szokásos mezők kitöltése kötelező */
+                if( $(\'#idoszakos\').prop(\'checked\') ){
+                    if( !$(\'#kezdho\').val() || !$(\'#kezdnap\').val() || $(\'#kezdnap\').val()==\'0\' || !$(\'#vegeho\').val() || !$(\'#vegenap\').val() || $(\'#vegenap\').val()==\'0\' ){
+                        alert2(\'Ha az időszakos ütemezést bekapcsolta, akkor a szokásos időpontok kitöltése kötelező!\', \'\', \'Hiba\');
+                        return false;
+                    }
                 }
 
                 /* Riasztás 0 értékkel van beállítva, így mehet? */
@@ -1454,7 +1486,6 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     \', uf_gomb2);
                     return false;
                 }
-
 
                 /* Dátumra ütemezés közlése mentés előtt. */
                 if( !utemezes_mehet ){
@@ -1538,7 +1569,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                         success: function(response) {
 
                             response = JSON.parse(response);
-                            uf_gomb3 = \'<div class="c"><input type="button" class="gomb zold" value="Igen" onclick="utemezes_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()"></div>\';
+                            eredeti_esnap_d = $(\'#esnap_d\').val();
+                            uf_gomb3 = \'<div class="c"><input type="button" class="gomb zold" value="Igen" onclick="utemezes_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'#esnap_d\\\').val(eredeti_esnap_d);"></div>\';
                             alert2(response[\'uzenet\'], uf_gomb3);
                             $(\'#esnap_d\').val(response[\'esedekes\']);
                             return false;
@@ -2955,15 +2987,8 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek )
 
     if( $bejegyzesek ) {
 
-        $naptar_dn = 'dn';
-        $lista_dn  = '';
-        if (isset($_GET['naptar'])) {
-            $naptar_dn = '';
-            $lista_dn  = ' dn';
-        }
-
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$lista_dn.'">';
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
         }
 
         $i = 1;
@@ -2995,12 +3020,12 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek )
             }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$aktiv.' '.$bsz['id'].'</span>
+                            <span>'.$aktiv.' '.$bsz['id'].' '.str_replace('-', '.', $bsz['esnap_d']).'</span>
                             <span>'.$telephely.' - '.$helyseg.'</span>
                             <span>'.$bsz['uf_nev'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -3012,9 +3037,6 @@ function utemezett_feladatokLista( $bejegyzesek, $tabla, $frissit, $kijeloltek )
         if( !$frissit ) {
             $html .= nl2('
                 </ul>
-                <div id="naptar" class="'.$naptar_dn.'">
-                    <div class="naptar"></div>
-                </div>
             ');
         }
 

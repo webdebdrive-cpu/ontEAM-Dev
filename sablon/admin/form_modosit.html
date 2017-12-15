@@ -19,6 +19,7 @@
                         mask                : /*'____.__.__'*/'\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0',
                         timepicker          : false,
                         validateOnBlur      : false,
+                        scrollInput         : false,
                         onChangeDateTime    : function(){ $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert'); $('#megsem_gomb').removeAttr('disabled'); }
                     });
                     $('.datetimepicker').datetimepicker({
@@ -28,6 +29,7 @@
                         timepicker          : true,
                         step                : 60,
                         validateOnBlur      : false,
+                        scrollInput         : false,
                         onChangeDateTime    : function(dp, $input){
                             $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
                             $('#megsem_gomb').removeAttr('disabled');
@@ -42,19 +44,13 @@
                         mask                : /*'__:__'*/'\xa0\xa0:\xa0\xa0',
                         step                : 60,
                         validateOnBlur      : false,
+                        scrollInput         : false,
                         onChangeDateTime    : function(dp, $input){
                             $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
                             $('#megsem_gomb').removeAttr('disabled');
                             /* Órapontosak vagyunk */
                             $input.val( $input.val().substring(0, 3)+'00' );
                         }
-                    });
-                    
-                    $(document).on('blur', '.datepicker, .datetimepicker', function(e) {
-                        valid_date($(this));
-                    });
-                    $(document).on('blur', '.ora_perc', function(e) {
-                        valid_ido($(this));
                     });
 
                     /* Ha az űrlapnak nincs submit-ja, akkor minden mezőjét tiltunk.  */

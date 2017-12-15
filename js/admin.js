@@ -426,7 +426,61 @@ $(function() {
     $(':input[type!="hidden"]').each(function (i) {
         $(this).attr('tabindex', i + 1);
     });
+    
+    // Dátum mezőket elhagyva újraformázzuk
+    $(document).on('blur keyup', '.datepicker, .datetimepicker', function(e) {
+        $(this).val( datum_formatumra_formaz($(this).val()) );
+    });
+    $(document).on('blur keyup', '.ora_perc', function(e) {
+        $(this).val( datum_formatumra_formaz_ora($(this).val()) );
+    });
+    $(document).on('blur', '.datepicker', function(e) {
+        if(!$(this).val().trim()){
+            $(this).val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0');
+        }
+    });
+    $(document).on('blur', '.datetimepicker', function(e) {
+        if(!$(this).val().trim()){
+            $(this).val('\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0');
+        }
+    });
+    $(document).on('blur', '.ora_perc', function(e) {
+        if(!$(this).val().trim()){
+            $(this).val('\xa0\xa0:\xa0\xa0');
+        }
+    });
 
+    // Ütemezett feladatoknál az időszakos ütemezés pipára kattintva, az alapértelmezett értékek bellítása
+    $(document).on('click', '#idoszakos', function(e) {
+        if( $('#idoszakos').prop('checked') ){
+            if(!$('#kezdho').val()){
+                $('#kezdho').val('1').addClass('mod');
+            }
+            if(!$('#kezdnap').val() || $('#kezdnap').val()=='0'){
+                $('#kezdnap').val('1').addClass('mod');
+            }
+            if(!$('#vegeho').val()){
+                $('#vegeho').val('12').addClass('mod');
+            }
+            if(!$('#vegenap').val() || $('#vegenap').val()=='0'){
+                $('#vegenap').val('31').addClass('mod');
+            }
+            
+            /* Kötelező mezők jelzése */
+            $('#kezdho').addClass('csillag');
+            $('#kezdnap').addClass('csillag');
+            $('#vegeho').addClass('csillag');
+            $('#vegenap').addClass('csillag');
+        }else{
+            /* Kötelező mezők jelzése */
+            $('#kezdho').removeClass('csillag');
+            $('#kezdnap').removeClass('csillag');
+            $('#vegeho').removeClass('csillag');
+            $('#vegenap').removeClass('csillag');
+            
+        }
+    });
+    
     $(document).on('keyup', 'input[type="checkbox"]', function(e) {
         if( e.keyCode == 32 ) {
             var val = $(this).prop('checked');
@@ -764,6 +818,10 @@ $(function() {
                     taroltVal = formAdatok[name];
                 } else {
                     taroltVal = '\xa0\xa0:\xa0\xa0';
+                    /* Ha az input értéke üres, akkor az alapértelmezett érték legyen az értéke */
+                    if(!val){
+                        val = taroltVal;
+                    }
                 }
             }
 
@@ -787,6 +845,10 @@ $(function() {
                     taroltVal = ev + '.' + honap + '.' + nap;
                 } else {
                     taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0';
+                    /* Ha az input értéke üres, akkor az alapértelmezett érték legyen az értéke */
+                    if(!val){
+                        val = taroltVal;
+                    }
                 }
             }
 
@@ -813,6 +875,10 @@ $(function() {
                     }
                     if( formAdatok[name] == '0000-00-00 00:00:00'){
                         taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0:\xa0\xa0';
+                    }
+                    /* Ha az input értéke üres, akkor az alapértelmezett érték legyen az értéke */
+                    if(!val){
+                        val = taroltVal;
                     }
                 }
             }
@@ -4386,6 +4452,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
     naptar_latszik_nincs_leptetes = false;
     var dfrd1 = $.Deferred();
     /* Naptár megjelenítése */
+    /* Erre mégsincs szükség
     if(page=='utemezett_feladatok.php'){
         if(muvelet.indexOf('naptar')>=0){
             $('#naptar').show();
@@ -4401,7 +4468,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
             $('#utemezes').hide();
             $('#szamlaList').show();
         }
-    }
+    }*/
 
     if( recid && page ) {
 
@@ -5403,30 +5470,13 @@ function valid_date(that){
             that.addClass('hibas_ide_focus');
             return false;
     }
-    return true;
-}
-
-/* Ütemezett feldatoknál  */
-function valid_date_ut(datum, hibas_input){
-    if( !Date.parse( datum ) ){
-        alert2('Helytelen dátum!', '', 'Hiba');
-        hibas_input.addClass('hibas_ide_focus');
-        
-    }
-}
-function valid_date_ut_kezd(){
-    var ev = new Date();
-    valid_date_ut(ev.getFullYear()+'-'+$('#kezdho').val()+'-'+$('#kezdnap').val(), $('#kezdnap'));
-}
-function valid_date_ut_vege(){
-    var ev = new Date();
-    valid_date_ut(ev.getFullYear()+'-'+$('#vegeho').val()+'-'+$('#vegenap').val(), $('#vegenap'));
 }
 
 function valid_ido(hibas_input){
     ora_perc = hibas_input.val().split(':');
     if(ora_perc[0]>24 || ora_perc[0]<0 || ora_perc[1]>60 || ora_perc[0]<0){
         alert2('Érvénytelen időpont!', '', 'Hiba');
+        hibas_input.val('\xa0\xa0:\xa0\xa0');
         hibas_input.addClass('hibas_ide_focus');
         return false;
     }
