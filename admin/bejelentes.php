@@ -795,6 +795,37 @@ require_once('selectek.php');
                 $sor[$tomb['name'].'_autocomp'] = '';
             }
         }
+        
+        // Esemenyek.php bejelentések tömb előtti részből mintázva
+        if( $_GET['bejelento'] ) {
+            $bejelento = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', "`nev`='{$_GET['bejelento']}'");
+        // Módosítánál a GET['id']-ból visszaszámolva
+        } else {
+            $bejelento = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
+        }
+        $bejelentest_rogziti = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', 'recid='.$_SESSION[get_db_tabla().'login_recid']);
+        // Ha manuális kitöltés szeretnénk, akkor semmiképp ne legyen benne a bejelentő adata
+        if( isset($_GET['manualisan']) ) {
+            $bejelento = '';
+        }
+        $sor['usr_nev']                 = $bejelento['teljes_nev'];
+        $sor['usr_beosztas_id']         = $bejelento['beosztas_id'];
+        $sor['usr_beosztas_id_autocomp']= erteklista(18, $bejelento['beosztas_id']);
+        $sor['usr_reszleg_id']          = $bejelento['reszleg_id'];
+        $sor['usr_reszleg_id_autocomp'] = erteklista(17, $bejelento['reszleg_id']);
+        $sor['usr_telefon']             = $bejelento['usertel'];
+        $sor['usr_email']               = $bejelento['usermail'];
+        $sor['usr_man_nev']                 = $bejelentest_rogziti['teljes_nev'];
+        $sor['usr_man_beosztas_id']         = $bejelentest_rogziti['beosztas_id'];
+        $sor['usr_man_beosztas_id_autocomp']= erteklista(18, $bejelentest_rogziti['beosztas_id']);
+        $sor['usr_man_reszleg_id']          = $bejelentest_rogziti['reszleg_id'];
+        $sor['usr_man_reszleg_id_autocomp'] = erteklista(17, $bejelentest_rogziti['reszleg_id']);
+        $sor['usr_man_telefon']             = $bejelentest_rogziti['usertel'];
+        $sor['usr_man_email']               = $bejelentest_rogziti['usermail'];
+        if ($_GET['telephely']) {
+            $sor['telephely_id'] = $_GET['telephely'];
+        }
+        
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
 
 		// Ez elkészíti a $mezok változót

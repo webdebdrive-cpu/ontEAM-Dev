@@ -229,9 +229,9 @@
                     cikkid = $('#autocomplete ul li.aktiv').attr('data-cikkid');
 
                 if( baseName(location.href) == 'login' && recid == 12 ) {
-                    $('#szallitoid_autocomp').attr('disabled', false);
+                    $('#szallitoid_autocomp').attr('readonly', false);
                 } else {
-                    $('#szallitoid_autocomp').attr('disabled', true).val('');
+                    $('#szallitoid_autocomp').attr('readonly', true).val('');
                     $('#szallitoid').val('');
                 }
 
@@ -269,7 +269,7 @@
 
                         /* Autcomplete után a következő inputra fókusz */
                         stop = false;
-                        form.find('input, select, textarea').filter(':not(:disabled)').each(function() {
+                        form.find('input, select, textarea').filter(':not(:disabled)').filter(':not(:readonly)').each(function() {
                             var name = $(this).attr('name'),
                                 type = $(this).attr('type'),
                                 tag  = $(this).prop('tagName');
@@ -386,9 +386,9 @@
                             cikkid = $('#autocomplete ul li.aktiv').attr('data-cikkid');
 
                         if( baseName(location.href) == 'login' && recid == 12 ) {
-                            $('#szallitoid_autocomp').attr('disabled', false);
+                            $('#szallitoid_autocomp').attr('readonly', false);
                         } else {
-                            $('#szallitoid_autocomp').attr('disabled', true).val('');
+                            $('#szallitoid_autocomp').attr('readonly', true).val('');
                             $('#szallitoid').val('');
                         }
 
@@ -421,7 +421,7 @@
                                 var form = $('input[name="' + mezo_nev + '"]').parents('form');
 
                                 stop = false;
-                                form.find('input, select, textarea').filter(':not(:disabled)').each(function() {
+                                form.find('input, select, textarea').filter(':not(:disabled)').filter(':not(:readonly)').each(function() {
                                     var name = $(this).attr('name'),
                                         type = $(this).attr('type'),
                                         tag  = $(this).prop('tagName');

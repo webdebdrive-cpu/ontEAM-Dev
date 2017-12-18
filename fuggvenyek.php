@@ -2002,6 +2002,26 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             $order = '`stat_id`, `ikt_szam`';
         }
     }
+    
+    // Bizonyos rendezéseket pont fordítva szeretnénk rendezni, mint adott oldal alapértelmezett rendezése iránya
+    // Ezért az itt felsoroltakra váltva a rendezés irányán is fordítunk
+    $iranyt_is_valt = array(
+                            array('tabla' => 'utemezett_feladatok', 'rend' => 'esnap_d' ),
+                        );
+
+    $volt_irany_valtas = false;
+    foreach($iranyt_is_valt as $irany_valt){
+        if($irany_valt['tabla']==$tabla && $order==$irany_valt['rend'] && $_SESSION['elozo_rend']!=$_GET['rend']){
+            if(!$_GET['irany'] || $_GET['irany']=='asc'){
+                $_GET['irany'] = 'desc';
+            }else{
+                $_GET['irany'] = 'asc';
+            }
+            $volt_irany_valtas = true;
+        }
+    }
+    // Jegyezzük meg, mi volt az előző rendezés szempont, hogy kétszer nem váltsunk irányt
+    $_SESSION['elozo_rend'] = $order;
 
     $irany = $_GET['irany'];
     // Aktív esetén a rendezés irányát meg kell fordítani (tehát az aktívak, egyesek legyenek elől)
@@ -2157,9 +2177,12 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             foreach($selectek as $select_tmp) {
                 if( $select_tmp && $select_tmp != 'recid' ) {
                     if(strpos($select_tmp, '`')!==false){
-                        $ksz_where .= trim($select_tmp, ',')." LIKE '%{$_GET['ksz']}%' COLLATE utf8_bin OR ";
+                        $ksz_where .= trim($select_tmp, ',')." LIKE '%{$_GET['ksz']}%' OR ";
+                        
+                        // Ékezet sensitive verzió: $ksz_where .= trim($select_tmp, ',')." LIKE '%{$_GET['ksz']}%' COLLATE utf8_bin OR ";
                     }else{
-                        $ksz_where .= "`{$select_tmp}` LIKE '%{$_GET['ksz']}%' COLLATE utf8_bin OR ";
+                        $ksz_where .= "`{$select_tmp}` LIKE '%{$_GET['ksz']}%' OR ";
+                        // Ékezet sensitive verzió: $ksz_where .= "`{$select_tmp}` LIKE '%{$_GET['ksz']}%' COLLATE utf8_bin OR ";
                     }
                 }
             }
@@ -2375,7 +2398,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 $i = 0;
                 // Nem nyitott státuszú, nem sürgősek, azon belül ikatatószám
                 // A státuszoknak is van egy sorrendje, ezt is fordított sorrendben soroljuk fel
-                $statuszok = array( MUNKALAP_STAT_TOROLT, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_KESZ, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_FOLYAMATBAN );
+                $statuszok = array( MUNKALAP_STAT_TOROLT, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_KESZ, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_FOLYAMATBAN, MUNKALAP_STAT_BEOSZTAS_NELKUL );
                 foreach($statuszok as $stat){
                     $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`surgos`=0 AND `stat_id`='$stat'", 'ikt_szam');
                     foreach($munkalapok as $munkalap){
@@ -2630,6 +2653,21 @@ if(isset($_GET['debug'])) {
 
     if(!$html){
         $html = '<div class="p c b">Nincs találat a megadott feltételekre!</div>';
+    }
+    
+    // Ha volt irány váltás, akkor még egy JS kódot kiíratunk, amivel a nyilat is megfordítjuk
+    if($volt_irany_valtas){
+        $html .= '<script>
+                    $.when( lista ).then(function() {
+                        if( $(\'#rendezesIrany\').html()==\'▲ <span>A-Z</span>\' ){
+                            $(\'#rendezesIrany\').html(\'▼ <span>Z-A</span>\');
+                            $(\'#rendezesIrany\').attr(\'href\', $(\'#rendezesIrany\').attr(\'href\').replace(\'\\\'desc\\\'\', \'\\\'asc\\\'\'));
+                        }else{
+                            $(\'#rendezesIrany\').html(\'▲ <span>A-Z</span>\');
+                            $(\'#rendezesIrany\').attr(\'href\', $(\'#rendezesIrany\').attr(\'href\').replace(\'\\\'asc\\\'\', \'\\\'desc\\\'\'));
+                        }
+                    });
+                </script>';
     }
 
     return $html;
@@ -3279,55 +3317,117 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     if( $bejegyzesek ) {
 
-        $jClass = '';
-        //Nem mindig jelölhető ki, jogosultságon múlik
-        if( _jog(JOG_ANYAGREND_KESZIT) ) {
-            $jClass = ' kijelolheto csoport_nevre_kattintas';
-        }
-
-        if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
-        }
-
-        $i = 1;
-        foreach($bejegyzesek as $bsz) {
-
-            $active = '';
-            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
-                $active = ' kijelolve';
+        if(isset($_GET['anyagrend'])){
+            
+            $jClass = '';
+            // Nem mindig jelölhető ki, jogosultságon múlik
+            if( _jog(JOG_ANYAGREND_KESZIT) ) {
+                $jClass = ' kijelolheto csoport_nevre_kattintas';
             }
 
-            /* Telephely */
-            $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
-
-            $azon = $bsz['ikt_szam'];
-            if (isset($_GET['anyagrend'])) {
-                $azon = $bsz['rndid'];
+            if( !$frissit ) {
+                $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
             }
 
-            $bold = '';
-            if( $bsz['stat_id'] == CIKKIGN_STAT_NYITOTT ){
-                $bold = ' class="b"';
+            $i = 1;
+            foreach($bejegyzesek as $bsz) {
+
+                $active = '';
+                if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
+                    $active = ' kijelolve';
+                }
+
+                // Telephely
+                $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
+
+                $azon = $bsz['ikt_szam'];
+                if (isset($_GET['anyagrend'])) {
+                    $azon = $bsz['rndid'];
+                }
+
+                $bold = '';
+                if( $bsz['stat_id'] == CIKKIGN_STAT_NYITOTT ){
+                    $bold = ' class="b"';
+                }
+
+                $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                                <!--<span'.$bold.'>'.$azon.' '.$telephely['nev'].'</span>-->
+                                <span'.$bold.'>'.$azon.' '.$bsz['cikk_id'].' '.$bsz['anyagigenyles_nev'].'</span>
+                                <span'.$bold.'>'.getStatText('anyagigenyles', $bsz['stat_id']).'</span>
+                            </a>';
+
+                // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+                if($frissit){
+                    $active .= ' kijelolve';
+                }
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
+
+                $i++;
             }
 
-            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <!--<span'.$bold.'>'.$azon.' '.$telephely['nev'].'</span>-->
-                            <span'.$bold.'>'.$azon.' '.$bsz['cikk_id'].' '.$bsz['anyagigenyles_nev'].'</span>
-                            <span'.$bold.'>'.getStatText('anyagigenyles', $bsz['stat_id']).'</span>
-                        </a>';
-
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
-            if($frissit){
-                $active .= ' kijelolve';
+            if( !$frissit ) {
+                $html .= '</ul>';
             }
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+            
+        // Anyagigényléseknél egy táblázatot rajzolunk ki
+        }else{
 
+            if( !$frissit ) {
+                $html = '<table id="anyagigeny_tabla" class="szamla_cont">';
+            }
 
-            $i++;
-        }
+            $i = 1;
+            foreach($bejegyzesek as $bsz) {
 
-        if( !$frissit ) {
-            $html .= '</ul>';
+                $active = '';
+                if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
+                    $active = ' kijelolve';
+                }
+
+                // Telephely
+                $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
+
+                $azon = $bsz['ikt_szam'];
+                if (isset($_GET['anyagrend'])) {
+                    $azon = $bsz['rndid'];
+                }
+
+                $bold = '';
+                if( $bsz['stat_id'] == CIKKIGN_STAT_NYITOTT ){
+                    $bold = ' b';
+                }
+
+                // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+                if($frissit){
+                    $active .= ' kijelolve';
+                }
+                $html .= '
+                            <tr class="'.$active.'"'.$bold.' onclick="location.href=\''.$tabla.'.php?id='.$bsz['recid'].'&amp;tablazat\'">
+                                <td>'.$azon.'</td>
+                                <td>'.$bsz['cikk_id'].'</td>
+                                <td>'.$bsz['anyagigenyles_nev'].'</td>
+                                <td>'.getStatText('anyagigenyles', $bsz['stat_id']).'</td>
+                            </tr>
+                            ';
+                $i++;
+            }
+
+            if( !$frissit ) {
+                
+                // Az első sorra betöltéskor kattintunk
+                $html .= '</table>';
+                
+                if (!isset($_GET['id'])) {
+                    $html .= '
+                        <script>
+                            $(document).ready(function () {
+                                $(\'#anyagigeny_tabla tr:first-of-type\').click();
+                            });
+                        </script>
+                        ';
+                }
+            }
         }
 
         return nl2($html);
@@ -4763,7 +4863,8 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
 
     $telephelyek = $adatbazis_kapcsolat->s('id nev', 'telephely', $where, 'nev');
 
-    $html = '';
+    $fokat_i = 0;
+    $html    = '';
     if( $telephelyek ) {
         $html .= '<h2>Objektumok hierarchiája</h2><div class="kozep"><ul class="telephelyek">';
 
@@ -4815,7 +4916,7 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
 
                         $fokat_html .= '<li class="kat'.$alkatok.'"><a onclick="'.$onclick.'"'.$nyit.' data-recid="'.$fokat['recid'].'">'.$icon.$fokat['nev'].'</a>'.$kat_html.'</li>';
                     }
-
+                    $fokat_i++;
                 }
 
                 $fokat_html .= '</ul>';
@@ -4834,6 +4935,11 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
         }
 
         $html .= '</ul></div>';
+    }
+    
+    // Ha egy szálloda objektumhierarchiáját kérnénk le, de nincs, akkor hibaüzenet
+    if($telephelyID && !$fokat_i){
+        $html = '<h2>Objektumok hierarchiája</h2><div class="kozep">A(z) '.$telephely['nev'].' szállodához nem tartoznak objektumok!</ul></div>';
     }
 
     return $html;

@@ -1716,6 +1716,21 @@ ul.szamla_cont li.kijelolve a:not(.nohover) {
     color: #fff;
 }
 
+table.szamla_cont tr{
+    border-bottom: 0.1rem solid #D6D6D6;
+    cursor: pointer;
+}
+table.szamla_cont tr:hover{
+    background: #F1F8FF;
+}
+table.szamla_cont tr td{
+    padding: 0.1rem 0.2rem;
+}
+table.szamla_cont tr.kijelolve{
+    background: #55A2FA;
+    color: #fff;
+}
+
 div.szamlaKereses {
     background: #fffffd;
     position: relative;
@@ -2118,7 +2133,7 @@ div.navGombok a.disabled .material-icons {
     color: #e4e4e4;
 }
 
-input.autocomp, input.autocomp:focus{
+input.autocomp, input.autocomp.mod, input.autocomp:focus{
     background-image: url('../elemek/autoc.png');
     background-repeat: no-repeat;
     background-position: calc(100% - 0.6rem) center;

@@ -1,5 +1,5 @@
 <?php
-/** Tömbök létrehozása */
+// Tömbök létrehozása
 
 require_once('../weblap.php');
 
@@ -916,7 +916,7 @@ if( isset($_GET['uj']) && $_GET['bejelento'] ) {
     $bejelento = $adatbazis_kapcsolat->s2('teljes_nev beosztas_id reszleg_id usertel usermail', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
 }
 
-// Ha manuáőlis kitöltés szeretnénk, akkor semmiképp ne legyen benne a bejelentő adata
+// Ha manuális kitöltés szeretnénk, akkor semmiképp ne legyen benne a bejelentő adata
 if( isset($_GET['manualisan']) ) {
     $bejelento = '';
 }
@@ -960,7 +960,7 @@ $szalloda_dis  = false;
 $szalloda_post = '';
 if( isset($_GET['bejelento']) ) {
     $szalloda_dis  = true;
-    $szalloda_post = '<input type="hidden" name="telephely_id" value="'.$_GET['telphely'].'">';
+    $szalloda_post = '<input type="hidden" name="telephely_id" value="'.$_GET['telephely'].'">';
 }
 
 // Bejelentések
@@ -1065,8 +1065,8 @@ $munkalap_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id', 'alert' => 'Kérjük adja meg a tipust!'),
     array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => 1,                  'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'szuro' => 1, 'disabled' => 1,                  'class' => 'disableNav',        'post'  => ' '.$hozrend_mobilnev),
-    array('type' => 'text',                     'megn' => 'Igényelt elvégzés:',         'name' => 'ig_el_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker'),
-    array('type' => 'text',                     'megn' => 'Várható érkezés:',           'name' => 'varh_erk',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker'),
+    array('type' => 'text',                     'megn' => 'Igényelt elvégzés:',         'name' => 'ig_el_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker', 'maxlength' => 16),
+    array('type' => 'text',                     'megn' => 'Várható érkezés:',           'name' => 'varh_erk',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker', 'maxlength' => 16),
 	array('type' => 'nosql',                    'name' => 'ujkentSzerkID'),
 
     //array('type' => 'statusz',         'megn' => 'Státusz:',            'oldal' => 'bejelentes'),

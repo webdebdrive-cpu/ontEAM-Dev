@@ -498,7 +498,7 @@ $(function() {
 
             mezo_nev = $(this).attr('name');
             stop = false;
-            $(this).parents('form').find('input, select, textarea').filter(':not(:disabled)').each(function() {
+            $(this).parents('form').find('input, select, textarea').filter(':not(:disabled)').filter(':not(:readonly)').each(function() {
                 var name = $(this).attr('name'),
                     type = $(this).attr('type'),
                     tag  = $(this).prop('tagName');
@@ -825,7 +825,46 @@ $(function() {
                 }
             }
 
-            if( $(this).hasClass('datepicker') ) {
+            /* Dátumidő mező */
+            if( $(this).hasClass('datetimepicker') ) {
+                if( formAdatok[name] != '0000-00-00 00:00:00' && formAdatok[name] != '0000-00-00 00:00' ) {
+                    var date = new Date(formAdatok[name]);
+
+                    var ev    = date.getFullYear(),
+                        honap = date.getMonth() + 1,
+                        nap   = date.getDate(),
+                        ora   = date.getHours(),
+                        perc  = date.getMinutes();
+
+                    if( honap >= 0 && honap < 10 ) {
+                        honap = '0' + honap;
+                    }
+
+                    if( nap >= 0 && nap < 10 ) {
+                        nap = '0' + nap;
+                    }
+
+                    if( ora >= 0 && ora < 10 ) {
+                        ora = '0' + ora;
+                    }
+
+                    if( perc >= 0 && perc < 10 ) {
+                        perc = '0' + perc;
+                    }
+
+                    taroltVal = ev + '.' + honap + '.' + nap + ' ' + ora + ':' + perc;
+                    
+                } else {
+                    
+                    taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0';
+                    /* Ha az input értéke üres, akkor az alapértelmezett érték legyen az értéke */
+                    if(!val){
+                        val = taroltVal;
+                    }
+                }
+                
+            /* Dátum mező */
+            }else if( $(this).hasClass('datepicker') ) {
                 if( formAdatok[name] && formAdatok[name] != '0000-00-00' ) {
 
                     var date = new Date(formAdatok[name]);
@@ -852,37 +891,6 @@ $(function() {
                 }
             }
 
-            if( $(this).hasClass('datetimepicker') ) {
-                if( formAdatok[name] != '0000-00-00 00:00:00' && formAdatok[name] != '0000-00-00 00:00' ) {
-                    var date = new Date(formAdatok[name]);
-
-                    var ev    = date.getFullYear(),
-                        honap = date.getMonth() + 1,
-                        nap   = date.getDate();
-
-                    if( honap >= 0 && honap < 10 ) {
-                        honap = '0' + honap;
-                    }
-
-                    if( nap >= 0 && nap < 10 ) {
-                        nap = '0' + nap;
-                    }
-
-                    taroltVal = ev + '.' + honap + '.' + nap;
-                } else {
-                    if( formAdatok[name] == '0000-00-00 00:00'){
-                        taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0';
-                    }
-                    if( formAdatok[name] == '0000-00-00 00:00:00'){
-                        taroltVal = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0:\xa0\xa0';
-                    }
-                    /* Ha az input értéke üres, akkor az alapértelmezett érték legyen az értéke */
-                    if(!val){
-                        val = taroltVal;
-                    }
-                }
-            }
-
             // Újsort le kell csérélni. Checkboxok miatt kell ez az if elé
             if(val && val!=true){
                 val = val.replace(/(\r|\n)/g, '#UJSOR#').replace(/'/g, '#APOSZTROF#');
@@ -902,7 +910,7 @@ $(function() {
             if(!taroltVal && (val=='false' || val==false) ){
                 val = '';
             }
-/*console.log(name+' '+taroltVal+' '+val);*/
+console.log(name+' db:'+taroltVal+'|itt:'+val);
             if( taroltVal != val ) {
                 $(this).addClass('mod');
             } else {
@@ -1344,7 +1352,7 @@ $(function() {
             if( ev !== false && id != '' && id !== undefined && id.indexOf('_autocomp') === -1 ) {
                 var elementID = ev.target.id;
 
-                if( elementID.indexOf('_autocomp') !== -1 ) {
+                if( elementID.indexOf('_autocomp') !== -1 && !ev.target.attributes['readonly'] ) {
                     var originVal = $('#' + elementID).attr('data-origin-val');
                     var ertekID = $('#' + elementID.replace('_autocomp', '')).val();
 
@@ -1474,13 +1482,12 @@ function bejBejValaszt( telephely ) {
 
     if( sor.length ) {
         var nev = sor.attr('data-nev');
-
-        location.href = 'bejelentes.php?uj&bejelento=' + nev + '&telphely=' + telephely;
+        location.href = 'bejelentes.php?uj&bejelento=' + nev + '&telephely=' + telephely;
     }
 }
 
 function bejBejManualis( value ) {
-    location.href = 'bejelentes.php?uj&manualisan&telphely=' + value;
+    location.href = 'bejelentes.php?uj&manualisan&telephely=' + value;
 }
 
 // Bejelentés más nevében
@@ -3441,9 +3448,9 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                         return false;
                     }else{
                         $('#szallito_sor').show();
-                        $('#rsz').attr('disabled', true);
+                        $('#rsz').attr('readonly', true);
                         $('#pop_szallito').val(response.szallito);
-                        $('#pop_szallito').attr('disabled', true);
+                        $('#pop_szallito').attr('readonly', true);
                         $('#rendeles_tetelek').html(response.html);
 
                         /* Ráfókuszálás, kijelölés az első sor inputjára*/
@@ -3992,6 +3999,7 @@ function scrollLeptet() {
 }
 
 // Rendezés select onchange-re hívódik meg
+var lista = '';
 function bejegyzesekLista( that, irany, rkat, ksz ) {
     if( rkat === undefined ) {
         rkat = '';
@@ -4035,7 +4043,7 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
         if(_get('anyagrend')){
             param_kieg += '&amp;anyagrend=';
         }
-        var lista = $.ajax({
+        lista = $.ajax({
             url : 'esemenyek.php',
             type: 'GET',
             data: esamp2es('id=' + recid + '&amp;kijeloltek=' + JSON.stringify(idk) + '&amp;ksz=' + ksz + '&amp;rkat=' + rkat + '&amp;rend=' + rend + '&amp;irany=' + irany + '&amp;tabla=' + tabla + param_kieg + '&amp;szamlaLista=' + new Date().getTime()),
@@ -4525,6 +4533,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul ) {
                         'szallodak',
                         'szerkeszt',
                         'szakterulet',
+                        'tablazat',
                         'terkep',
                         'tortenet',
                         'tetel',
@@ -4819,57 +4828,61 @@ function moveCaretToEnd(el) {
 
 /* Annak ellenőrzése, hogy a szálloda ki van-e már választva */
 function szallodaVane( that ) {
-    var telephely_id = $('#telephely_id').val();
+    if(!$(that).attr('readonly')){
+        var telephely_id = $('#telephely_id').val();
 
-    if( !telephely_id ) {
-        if( $(that).attr('name') == 'obj_id_autocomp' ) {
-            $('#obj_id_autocomp').attr('disabled', true);
+        if( !telephely_id ) {
+            if( $(that).attr('name') == 'obj_id_autocomp' ) {
+                $('#obj_id_autocomp').attr('readonly', true);
 
-            alert2('Kérem előbb válasszon szállodát!');
-            return false;
-        }
-    } else {
-        if( $(that).attr('name') == 'telephely_id' ) {
-            $('#obj_id_autocomp').attr('disabled', false).val('').removeClass('mod');
-            $('#obj_id').val('');
+                alert2('Kérem előbb válasszon szállodát!');
+                return false;
+            }
+        } else {
+            if( $(that).attr('name') == 'telephely_id' ) {
+                $('#obj_id_autocomp').attr('readonly', false).val('').removeClass('mod');
+                $('#obj_id').val('');
 
-            /* Az autocomplete-t újra rá kell tenni, hogy az alapértelmezett értéke az üresség lehessen */
-            $('#obj_id_autocomp').autocomplete({
-                'php_fajl'      : '../autocomplete.php',
-                'tabla'         : 'obj',
-                'oszlop_keres'  : 'nev',
-                'oszlop_listaz' : 'nev',
-                'rkat'          : 0,
-                'csoport'       : 0,
-                'recid'         : '41',
-                'id_kiir'       : 'recid'
-            });
+                /* Az autocomplete-t újra rá kell tenni, hogy az alapértelmezett értéke az üresség lehessen */
+                $('#obj_id_autocomp').autocomplete({
+                    'php_fajl'      : '../autocomplete.php',
+                    'tabla'         : 'obj',
+                    'oszlop_keres'  : 'nev',
+                    'oszlop_listaz' : 'nev',
+                    'rkat'          : 0,
+                    'csoport'       : 0,
+                    'recid'         : '41',
+                    'id_kiir'       : 'recid'
+                });
 
-            $('#gep_id_autocomp').val('').removeClass('mod');
-            $('#gep_id').val('');
+                $('#gep_id_autocomp').val('').removeClass('mod');
+                $('#gep_id').val('');
+            }
         }
     }
 }
 
 /* Annak ellenőrzése, hogy a helyiség ki van-e már választva */
 function helyisegVane( that ) {
-    var telephely_id = $('#telephely_id').val();
-    var helyiseg = $('#obj_id_autocomp').val();
+    if(!$(that).attr('readonly')){
+        var telephely_id = $('#telephely_id').val();
+        var helyiseg = $('#obj_id_autocomp').val();
 
-    if( !helyiseg || !telephely_id ) {
-        if( $(that).attr('name') == 'gep_id_autocomp' ) {
-            $(that).attr('disabled', true);
-        }
+        if( !helyiseg || !telephely_id ) {
+            if( $(that).attr('name') == 'gep_id_autocomp' ) {
+                $(that).attr('readonly', true);
+            }
 
-        if( !telephely_id ) {
-            alert2('Kérem előbb válasszon szállodát!');
+            if( !telephely_id ) {
+                alert2('Kérem előbb válasszon szállodát!');
+                return false;
+            }
+
+            alert2('Kérem előbb válasszon helyiséget!');
             return false;
+        } else {
+            $('#gep_id_autocomp').attr('readonly', false);
         }
-
-        alert2('Kérem előbb válasszon helyiséget!');
-        return false;
-    } else {
-        $('#gep_id_autocomp').attr('disabled', false);
     }
 }
 
@@ -4888,10 +4901,10 @@ function gepVane() {
                 html = JSON.parse(html);
 
                 if( html.statusz ) {
-                    $('#gep_id_autocomp').attr('disabled', false).val('').removeClass('mod');
+                    $('#gep_id_autocomp').attr('readonly', false).val('').removeClass('mod');
                     $('#gep_id').val('');
                 } else {
-                    $('#gep_id_autocomp').attr('disabled', true).val('').removeClass('mod');
+                    $('#gep_id_autocomp').attr('readonly', true).val('').removeClass('mod');
                     $('#gep_id').val('');
                 }
             }
@@ -5587,12 +5600,12 @@ function felmeresi_terv_csatolva(recid){
     });
 }
 
-/* Ütemezett feladatoknál és rendszeres karbantartásnál a külső kivitelző állapt a hozzárendelt személyzet értékén múlik */
+/* Ütemezett feladatoknál és rendszeres karbantartásnál a külső kivitelző állapot a hozzárendelt személyzet értékén múlik */
 function ut_kulso_kivitlezo_beallit(){
     if($('#szemelyzet_id').val()==3){
-        $('#szallito_id_autocomp').addClass('csillag').removeAttr('disabled');
+        $('#szallito_id_autocomp').addClass('csillag').removeAttr('readonly');
     }else{
-        $('#szallito_id_autocomp').removeClass('csillag').attr('disabled', true).val('');
+        $('#szallito_id_autocomp').removeClass('csillag').attr('readonly', true).val('');
         $('#szallito_id').val('');
     }
 }

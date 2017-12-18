@@ -56,6 +56,11 @@ SZŰRÉS LEKEZELÉSE:
 - fuggvenyek.php adott php fájlt visszadja-e a get_akt_tomb() függvénnyel?
 - SQL-t a get_szures_where_kieg() függvény számolja ki
 
+SORREDEZÉS
+- Az A-Z és Z-A-t az admin.js bejegyzesekLista() függvény vége állítja. Illetve a header.php, maikor betölt az oldal.
+- A kilsitázott tételek valódi sorrendjét a fuggvenyek.php -ban szamla_lista() függvény elején kerül beállításra
+- fuggvenyek.php -ban szamla_lista() függvényben a $iranyt_is_valt tömbbel tudsz beállítani olyat, hogy más oszlop szerinti rendezés váltáskor az irány is változzon meg.
+
 NYOMATÁSI NÉZETEK KIGENEÁRLÁSA:
 - header.php
 

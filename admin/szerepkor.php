@@ -623,7 +623,7 @@ require_once('selectek.php');
                         <div class="muveletek">
                             <div class="form_kuldes">
                                 <input type="hidden" name="id" value="'.$_GET['id'].'">
-                                <script> meget_gomb = \'<input type="button" class="gomb zold" value="Igen" onclick="$(\\\'#erintettek_mod\\\').val(1); $(\\\'#szerk_form\\\').submit(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="$(\\\'#szerk_form\\\').submit(); alert2();">\'; </script>
+                                <script> meget_gomb = \'<input type="button" class="gomb zold" value="Igen" onclick="$(\\\'#erintettek_mod\\\').val(1); $(\\\'#szerk_form\\\').submit(); $(\\\'#mehet_gomb\\\').attr(\\\'disabled\\\', true); $(\\\'#megsem_gomb\\\').attr(\\\'disabled\\\', true); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="$(\\\'#szerk_form\\\').submit(); $(\\\'#mehet_gomb\\\').attr(\\\'disabled\\\', true); $(\\\'#megsem_gomb\\\').attr(\\\'disabled\\\', true); alert2();">\'; </script>
                                 <input type="button" class="gomb zold" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="alert2(\'A szerepkör megváltozott.<br>Jogait beállítsuk az érintett felhasználóknál is?\', meget_gomb)">
                                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
                             </div>

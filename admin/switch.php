@@ -427,7 +427,7 @@ foreach($akt_tomb as $ertek){
 		case 'info':
             $mezok .= nl2('<div class="dtr">
                               <div class="dtc form_bal"><span>'.$ertek['megn'].'</span></div>
-                              <div class="dtc form_jobb"><input type="text" name="'.$ertek['name'].'" class="kozepes" value="'.$ertek['value'].'" disabled></div>
+                              <div class="dtc form_jobb"><input type="text" name="'.$ertek['name'].'" class="kozepes" value="'.$ertek['value'].'" readonly></div>
                           </div>');
         break;
 
@@ -688,8 +688,8 @@ foreach($akt_tomb as $ertek){
             }
 
             $selected = $sor['telephely_id'];
-            if( isset($_GET['uj']) && $_GET['telphely'] ) {
-                $selected = $_GET['telphely'];
+            if( isset($_GET['uj']) && $_GET['telephely'] ) {
+                $selected = $_GET['telephely'];
             }
 
             if($ertek['alert']){

@@ -300,16 +300,15 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	//Termék módosítása
+	// Termék módosítása
 	}elseif(isset($_GET['modosit'])) {
 
-        //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+        // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
         if( $sor['datetime'] ) {
             $_SESSION['formMod'] = array(
@@ -345,22 +344,21 @@ require_once('selectek.php');
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
 
-        //NAVIGÁCIÓ
+        // NAVIGÁCIÓ
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel  = array( $navi,             '',         $gyk2 );
-        //echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
         require_once('info.php');
 
-	    //FORM
+	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
-		//Form actionja
+		// Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
@@ -396,7 +394,7 @@ require_once('selectek.php');
 
         $szamla_html .= '<div id="tablazatBeszur">';
         if( $sorok ) {
-            /* Fejlécek */
+            // Fejlécek
             $szamla_html .= nl2('
                 <div class="dt naplo szakter">
                     <div class="dtr nFejlec">
@@ -412,7 +410,12 @@ require_once('selectek.php');
                     $szamla_html .= nl2('
                         <div id="naploSor-'.$sor['recid'].'" class="dtr nSor">
                             <div class="dtc full">'.$szak_sor['info'].'</div>
-                            <div class="dtc"><a href="javascript: naploTorol(\'szakter_kapcs\', \''.$sor['recid'].'\'); void(0);" class="torles">Törlés</a></div>
+                            <div class="dtc">
+                                <script>
+                                    gomb_szakter_'.$szak_sor['recid'].' = \'<input type="button" value="Igen" class="gomb zold" onclick="naploTorol(\\\'szakter_kapcs\\\', \\\''.$sor['recid'].'\\\'); alert2();"><input type="button"value="Nem" class="gomb piros" onclick="alert2();">\';
+                                </script>
+                                <a href="javascript: alert2(\'Biztossan törli a szakterületet?\', gomb_szakter_'.$szak_sor['recid'].'); void(0);" class="torles">Törlés</a>
+                            </div>
                         </div>
                     ');
                 }

@@ -36,10 +36,10 @@
                             success: function(response){
                                 response = JSON.parse(response);
                                 $('.szalloda_select').html('<select id="pop_telephely_id" name="pop_telephely_id" class="csillag"><option value="">-Válasszon-</option>'+response.html+'</select>');
-                                /* Ha csak egy szálloda van, akkor az legyen is kiválsztva, és a select disabled */
+                                /* Ha csak egy szálloda van, akkor az legyen is kiválsztva, és a select readonly */
                                 if(response.szallodak_szama==1){
                                     $('#pop_telephely_id').val( $('#pop_telephely_id option:last').attr('value') );
-                                    $('#pop_telephely_id').attr('disabled', true);
+                                    $('#pop_telephely_id').attr('readonly', true);
                                 }
                             }
                         });
@@ -303,8 +303,8 @@ function munkAnyagKPHozzaad( formID ) {
 
     document.getElementById('cikk_id_autocomp').select();
 
-    $('#pop_szallito_autocomp').attr('disabled', true);
-    $('#pop_telephely_id').attr('disabled', true);
+    $('#pop_szallito_autocomp').attr('readonly', true);
+    $('#pop_telephely_id').attr('readonly', true);
 
     return false;
 }
@@ -336,8 +336,8 @@ function munkAnyagKPTorol(sor_id, mehet){
     
     $('.'+sor_id).remove();
     if(!$('input[name="addCikkID[]"]').length){
-        $('#pop_szallito_autocomp').attr('disabled', false);
-        $('#pop_telephely_id').attr('disabled', false);
+        $('#pop_szallito_autocomp').attr('readonly', false);
+        $('#pop_telephely_id').attr('readonly', false);
     }
 }
 function adatellenorzes(){
