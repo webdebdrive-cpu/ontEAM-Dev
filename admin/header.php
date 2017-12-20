@@ -750,7 +750,11 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         }
     }
 
-    $tartBal  = szamla_lista();
+    $tartBal = '';
+    // Anyagigénylésnél nincs bal nev panel
+    if(basename(self())!='anyagigenyles.php'){
+        $tartBal = szamla_lista();
+    }
 
     if (isset($_GET['gyorskereso_ajax'])) {
         echo $tartBal;

@@ -708,7 +708,7 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
                     exit();
                 }
 
-                //Valóban árazva van-e? Szállító és egységár megadva
+                // Valóban árazva van-e? Szállító és egységár megadva
                 $igenyles = $adatbazis_kapcsolat->s('szallito_id rndear kcs_21', 'anyagigenyles', "`recid`='$id'");
                 $igenyles = $igenyles[0];
                 if(!$igenyles['szallito_id'] || !$igenyles['rndear'] || !$igenyles['kcs_21']){
@@ -1677,10 +1677,10 @@ require_once('selectek.php');
         $dok_db = ' ('.$dok_db.')';
     }
 
-    if( isset($_GET['tablazat']) || isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['tetel']) ) {
+    if( isset($_GET['uj']) || isset($_GET['tablazat']) || isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['tetel']) ) {
         // Számla fülek
         $ful_tomb = array(
-            'tablazat'      => 'Táblázat',
+            'tablazat'      => 'Anyagigénylés',
             'modosit'       => 'Adatlap',
             'tortenet'      => 'Történet',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
@@ -1693,8 +1693,12 @@ require_once('selectek.php');
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
             }
-
-            $fulek .= '<a href="javascript: szamlaBetolt('.$_GET['id'].', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
+            
+            $id_betolteshez = $_GET['id'];
+            if(!$_GET['id']){
+                $id_betolteshez = $_SESSION['legutobbi_id'];
+            }
+            $fulek .= '<a href="javascript: szamlaBetolt('.$id_betolteshez.', \''.basename(self()).'\', \''.$key.'\', \'\', \'\', \'Mindenképp tölsön be\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
         }
 
         $szamla_html .= str_replace(
@@ -2048,13 +2052,21 @@ require_once('selectek.php');
 	// Táblázat
     } elseif(isset($_GET['tablazat'])) {
         
-        // A füle CSS-ét itt felülírjuk
+        // A füle CSS-ét itt felülírjuk, illetve a táblázat rendezőt is meghívjuk
         $szamla_html .= nl2('
                 <style type="text/css">
                     div.szamlaFulek{
                         margin-left: 0;
                     }
                 </style>
+                <script src="../js/sorttable.js"></script>
+                <script>
+                forEach(document.getElementsByTagName(\'table\'), function(table) {
+                  if (table.className.search(/\bsortable\b/) != -1) {
+                    sorttable.makeSortable(table);
+                  }
+                });
+                </script>
         ');
         
         $szamla_html .= szamla_lista();

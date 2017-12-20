@@ -52,6 +52,7 @@ array_push($select_cikltip, array('name'  => 'Határidős',  'value' => 'l'));
 array_push($select_cikltip, array('name'  => 'Naponta',    'value' => 'd'));
 array_push($select_cikltip, array('name'  => 'Hetente',    'value' => 'w'));
 array_push($select_cikltip, array('name'  => 'Havonta',    'value' => 'm'));
+array_push($select_cikltip, array('name'  => 'Évente',     'value' => 'y'));
 
 // Select tömb Ütemezés típushoz
 $select_honapjan = array();

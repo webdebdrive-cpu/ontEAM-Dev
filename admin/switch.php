@@ -245,11 +245,9 @@ foreach($akt_tomb as $ertek){
 
             $statusz = '';
             if( $sor['statusz'] ) {
-                $statusz_sor = $adatbazis_kapcsolat->s('recid nev', 'bsz_statusz', 'recid='.$sor['statusz'], '', '1');
+                $statusz_sor = $adatbazis_kapcsolat->s2('recid nev', 'bsz_statusz', 'recid='.$sor['statusz']);
 
                 if( $statusz_sor ) {
-                    $statusz_sor = $statusz_sor[0];
-
                     $statusz = $statusz_sor['nev'];
                 }
             }
@@ -278,18 +276,16 @@ foreach($akt_tomb as $ertek){
 
             if( $statusz_sor ) {
 
-                /* Státusz kiegészítés */
+                // Státusz kiegészítés
                 $statusz_text = '';
                 if( $statusz_sor['erteklista_recid'] ) {
-                    $erteklista = $adatbazis_kapcsolat->s('info', 'erteklista', 'recid='.$statusz_sor['erteklista_recid'], '', '1');
-
+                    $erteklista = $adatbazis_kapcsolat->s2('info', 'erteklista', 'recid='.$statusz_sor['erteklista_recid'], '', '1');
                     if( $ertek ) {
-                        $erteklista = $erteklista[0];
                         $statusz_text = '<p>'.$erteklista['info'].'</p>';
                     }
                 }
 
-                /* Státusz neve */
+                // Státusz neve
                 $statusz = getStatText($ertek['oldal'], $statusz_sor['stat_id']);
                 $szinkod = getStatText($ertek['oldal'], $statusz_sor['stat_id'], 'színkód');
                 $text_color = '';

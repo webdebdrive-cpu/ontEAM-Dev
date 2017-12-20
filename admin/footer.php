@@ -1,7 +1,10 @@
 <?php
-if(isset($_GET['kepekhez'])){
-    echo '<script>if(document.getElementById(\'kepek_form\')){gorgetes_start(\'kepek_form\');}</script>';
-}
 echo fajlbol_olvas('../sablon/admin/footer.html', true);
+
+// Legutóbbi ID megjegyeztetése
+if ($_GET['id']){
+    $_SESSION['legutobbi_id'] = $_GET['id'];
+}
+
 $weblap -> leallit();
 ?>

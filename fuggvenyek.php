@@ -774,15 +774,6 @@ function i_u($type, $tabla, $tomb) {
         // Csak nyitott státuszú bejelentést lehet szerkeszteni
         if( $tabla == 'bejelentes' ) {
 
-            // Diszpécser nem módosíthat bejelentést
-            if(_jog(JOG_MUNKALAP_KESZITHET)){
-                echo json_encode(array(
-                    'hiba' => 'Önnek nincs joga munkalapot szerkeszteni!'
-                ));
-
-                $weblap -> leallit();
-                exit;
-            }
             $akt_statusz = $adatbazis_kapcsolat->s2('stat_id', $tabla.'_statusz', "`{$tabla}_recid`='{$_GET['id']}'", 'recid desc', '1');
             if( $akt_statusz === false ) { $db_error = true; }
 
@@ -3317,6 +3308,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     if( $bejegyzesek ) {
 
+        // Anyagrendelés esetén más listát generálunk ki
         if(isset($_GET['anyagrend'])){
             
             $jClass = '';
@@ -3337,9 +3329,6 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     $active = ' kijelolve';
                 }
 
-                // Telephely
-                $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
-
                 $azon = $bsz['ikt_szam'];
                 if (isset($_GET['anyagrend'])) {
                     $azon = $bsz['rndid'];
@@ -3351,7 +3340,6 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 }
 
                 $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                                <!--<span'.$bold.'>'.$azon.' '.$telephely['nev'].'</span>-->
                                 <span'.$bold.'>'.$azon.' '.$bsz['cikk_id'].' '.$bsz['anyagigenyles_nev'].'</span>
                                 <span'.$bold.'>'.getStatText('anyagigenyles', $bsz['stat_id']).'</span>
                             </a>';
@@ -3374,7 +3362,26 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         }else{
 
             if( !$frissit ) {
-                $html = '<table id="anyagigeny_tabla" class="szamla_cont">';
+                $html .= nl2('
+                        <table class="szamla_cont_tabla sortable">
+                            <tr>
+                                <th>Anyagigénylés szám</th>
+                                <th>Szálloda</th>
+                                <th>Cikkszám</th>
+                                <th>Cikk név</th>
+                                <th>Szállító</th>
+                                <th>Igényelt mennyiség</th>
+                                <th>Mee</th>
+                                <th>Igénylés dátuma</th>
+                                <th>Jóváhagyott mennyiség</th>
+                                <th>Rendelt mennyiség</th>
+                                <th>Rendelési egységár ('.get_penznem().')</th>
+                                <th>Pénzn</th>
+                                <th>Deviza rend. egységár</th>
+                                <th>Deviza beérk. egységár</th>
+                                <th>Státusz</th>
+                            </tr>
+                        ');
             }
 
             $i = 1;
@@ -3388,11 +3395,6 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 // Telephely
                 $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
 
-                $azon = $bsz['ikt_szam'];
-                if (isset($_GET['anyagrend'])) {
-                    $azon = $bsz['rndid'];
-                }
-
                 $bold = '';
                 if( $bsz['stat_id'] == CIKKIGN_STAT_NYITOTT ){
                     $bold = ' b';
@@ -3403,11 +3405,22 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     $active .= ' kijelolve';
                 }
                 $html .= '
-                            <tr class="'.$active.'"'.$bold.' onclick="location.href=\''.$tabla.'.php?id='.$bsz['recid'].'&amp;tablazat\'">
-                                <td>'.$azon.'</td>
-                                <td>'.$bsz['cikk_id'].'</td>
+                            <tr class="'.$active.$bold.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click()" data-id="'.$bsz['recid'].'">
+                                <td class="c">'.$bsz['ikt_szam'].'</td>
+                                <td class="c">'.$telephely['nev'].'</td>
+                                <td class="c">'.$bsz['cikk_id'].'</td>
                                 <td>'.$bsz['anyagigenyles_nev'].'</td>
-                                <td>'.getStatText('anyagigenyles', $bsz['stat_id']).'</td>
+                                <td>'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                                <td class="r">'.$bsz['igmen'].'</td>
+                                <td class="c">'.$bsz['cikkmee'].'</td>
+                                <td class="c">'.substr(str_replace('-', '.', $bsz['insert_dt']), 0, 10).'</td>
+                                <td class="r">'.$bsz['jhmen'].'</td>
+                                <td class="r">'.$bsz['rndmen'].'</td>
+                                <td class="r">'.$bsz['rndear'].'</td>
+                                <td class="c">'.erteklista(21, $bsz['kcs_21']).'</td>
+                                <td class="r">'.$bsz['vrndear'].'</td>
+                                <td class="r">'.$bsz['verkear'].'</td>
+                                <td class="c">'.getStatText('anyagigenyles', $bsz['stat_id']).'</td>
                             </tr>
                             ';
                 $i++;
@@ -3418,16 +3431,38 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 // Az első sorra betöltéskor kattintunk
                 $html .= '</table>';
                 
-                if (!isset($_GET['id'])) {
-                    $html .= '
-                        <script>
-                            $(document).ready(function () {
-                                $(\'#anyagigeny_tabla tr:first-of-type\').click();
-                            });
-                        </script>
-                        ';
-                }
             }
+            
+            // A bal navpaneles lsitát is kirajzoljuk, mert léptetéshez, árazás popuphoz kell. Szóval ott lesz a forráskódban, de rejtve
+            if( !$frissit ) {
+                $html .= '<ul id="szamlaList" class="szamla_cont rendszer" style="display: none">';
+            }
+
+            $i = 1;
+            foreach($bejegyzesek as $bsz) {
+
+                $active = '';
+                if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
+                    $active = ' kijelolve';
+                }
+
+                $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                                '.$bsz['recid'].' - '.$bsz['ikt_szam'].'
+                            </a>';
+
+                // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+                if($frissit){
+                    $active .= ' kijelolve';
+                }
+                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
+                $i++;
+            }
+
+            if( !$frissit ) {
+                $html .= '</ul>';
+            }
+            
         }
 
         return nl2($html);
@@ -5510,7 +5545,6 @@ function get_iktatoszam_sorszam($tabla){
 // Státusz címkék és színeket visszaadó függvény ($_stat_text változó pedig a statusz_text.php -ben kerül előállításra)
 function getStatText($tabla, $statid, $szinkod = false) {
     global $_stat_text;
-
     if( $_stat_text[$tabla][$statid] ) {
         if( $szinkod ) {
             return $_stat_text[$tabla][$statid]['szinkod'];

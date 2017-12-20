@@ -63,6 +63,20 @@ switch($tabla) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`cikk_id`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`nev` as `anyagigenyles_nev`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`igmen`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`cikkmee`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`jhmen`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`rndmen`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`rndear`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`kcs_21`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`vrndear`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`verkear`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`rndid`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`rnd_dt`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`erkmen`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`erkear`,
                                     `'.get_db_tabla().'szallito`.`nev`
                                 ');
 

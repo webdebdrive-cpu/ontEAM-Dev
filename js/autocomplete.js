@@ -269,7 +269,7 @@
 
                         /* Autcomplete után a következő inputra fókusz */
                         stop = false;
-                        form.find('input, select, textarea').filter(':not(:disabled)').filter(':not(:readonly)').each(function() {
+                        form.find('input:not([readonly]), select:not([readonly]), textarea:not([readonly])').filter(':not(:disabled)').each(function() {
                             var name = $(this).attr('name'),
                                 type = $(this).attr('type'),
                                 tag  = $(this).prop('tagName');

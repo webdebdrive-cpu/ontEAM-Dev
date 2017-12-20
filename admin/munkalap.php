@@ -4592,6 +4592,7 @@ require('selectek.php');
                 $sor[$tomb['name'].'_autocomp'] = '';
             }
         }
+        $sor['ig_el_id'] = $sor['varh_erk'] = '0000-00-00 00:00:00';
 
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
 
