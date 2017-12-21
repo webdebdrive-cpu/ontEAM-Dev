@@ -659,7 +659,7 @@ if( isset($_POST['munkalapKeszre']) ) {
 
     if( $recid ) {
 
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id uf_szam szemelyzet_id telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
         
         $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
@@ -698,6 +698,12 @@ if( isset($_POST['munkalapKeszre']) ) {
 
             $weblap->leallit();
             exit();
+        }
+        
+        // Ha ütemezett feladatból jött létre (azaz van érték az uf_szam-ban), akkor az "Utoljára végrehajtva:" dátumát frissítjük
+        if($munkalap['uf_szam']){
+            $sql = $adatbazis_kapcsolat->u('utemezett_feladatok', array('esem_d'), array('NOW()'), "`id`='{$munkalap['uf_szam']}'");
+            if( $sql === false ) { $db_error = true; }
         }
 
         // Kész vagy igazolásra vár státuszra léptetjük attól függően, hogy milyen személyzettípusról van szó
@@ -3432,7 +3438,6 @@ if( isset($_POST['munkaidoHozzaadas']) ) {
 if( isset($_POST['munkalapTelepitett']) ) {
 
     $recid    = $_POST['recid'];
-    $indoklas = $_POST['indoklas'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -3483,12 +3488,9 @@ if( isset($_POST['munkalapTelepitett']) ) {
         if( $sql === false ) { $db_error = true; }
 
         // Státusz léptetés
-        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN, '', $indoklas ) ) {
+        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) ) {
             $db_error = true;
         }
-
-        // Megjegyzés hozzáadása
-        addMegj('munkalap', $recid, $indoklas);
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -3513,7 +3515,6 @@ if( isset($_POST['munkalapTelepitett']) ) {
 if( isset($_POST['munkalapTeruletiVezeto']) ) {
 
     $recid    = $_POST['recid'];
-    $indoklas = $_POST['indoklas'];
     
     if( $recid ) {
         
@@ -3551,17 +3552,14 @@ if( isset($_POST['munkalapTeruletiVezeto']) ) {
 
         // Státusz léptetés
         if($munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT){
-            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT, '', $indoklas ) === false ) {
+            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) === false ) {
                 $db_error = true;
             }
         }else{
-            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN, '', $indoklas ) === false ) {
+            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) === false ) {
                 $db_error = true;
             }
         }
-
-        // Megjegyzés hozzáadása
-        addMegj('munkalap', $recid, $indoklas);
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -3586,8 +3584,7 @@ if( isset($_POST['munkalapTeruletiVezeto']) ) {
 // Munkalap átadása műszaki vezetőnek
 if( isset($_POST['munkalapMuszakiVezeto']) ) {
 
-    $recid    = $_POST['recid'];
-    $indoklas = $_POST['indoklas'];
+    $recid = $_POST['recid'];
 
     if( $recid ) {
         
@@ -3625,17 +3622,14 @@ if( isset($_POST['munkalapMuszakiVezeto']) ) {
 
         // Státusz léptetés
         if($munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT){
-            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT, '', $indoklas ) === false ) {
+            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) === false ) {
                 $db_error = true;
             }
         }else{
-            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN, '', $indoklas ) === false ) {
+            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) === false ) {
                 $db_error = true;
             }
         }
-
-        // Megjegyzés hozzáadása
-        addMegj('munkalap', $recid, $indoklas);
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -3656,11 +3650,10 @@ if( isset($_POST['munkalapMuszakiVezeto']) ) {
 }
 
 
-// Munkalap átadása műszaki vezetőnek
+// Munkalap átadása műszaki vezető helyettesnek
 if( isset($_POST['munkalapMuszakiVezetoHelyettes']) ) {
 
     $recid    = $_POST['recid'];
-    $indoklas = $_POST['indoklas'];
 
     if( $recid ) {
         
@@ -3698,17 +3691,14 @@ if( isset($_POST['munkalapMuszakiVezetoHelyettes']) ) {
 
         // Státusz léptetés
         if($munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT){
-            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT, '', $indoklas ) === false ) {
+            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) === false ) {
                 $db_error = true;
             }
         }else{
-            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN, '', $indoklas ) === false ) {
+            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) === false ) {
                 $db_error = true;
             }
         }
-
-        // Megjegyzés hozzáadása
-        addMegj('munkalap', $recid, $indoklas);
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -3733,7 +3723,6 @@ if( isset($_POST['munkalapMuszakiVezetoHelyettes']) ) {
 if( isset($_POST['munkalapAdminisztrator']) ) {
 
     $recid    = $_POST['recid'];
-    $indoklas = $_POST['indoklas'];
 
     if( $recid ) {
         
@@ -3771,17 +3760,14 @@ if( isset($_POST['munkalapAdminisztrator']) ) {
 
         // Státusz léptetés
         if($munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT){
-            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT, '', $indoklas ) === false ) {
+            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) === false ) {
                 $db_error = true;
             }
         }else{
-            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN, '', $indoklas ) === false ) {
+            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) === false ) {
                 $db_error = true;
             }
         }
-
-        // Megjegyzés hozzáadása
-        addMegj('munkalap', $recid, $indoklas);
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -3806,7 +3792,6 @@ if( isset($_POST['munkalapAdminisztrator']) ) {
 if( isset($_POST['munkalapDiszpKozp']) ) {
 
     $recid    = $_POST['recid'];
-    $indoklas = $_POST['indoklas'];
 
     if( $recid ) {
         
@@ -3844,17 +3829,14 @@ if( isset($_POST['munkalapDiszpKozp']) ) {
 
         // Státusz léptetés
         if($munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT){
-            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT, '', $indoklas ) === false ) {
+            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) === false ) {
                 $db_error = true;
             }
         }else{
-            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN, '', $indoklas ) === false ) {
+            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) === false ) {
                 $db_error = true;
             }
         }
-
-        // Megjegyzés hozzáadása
-        addMegj('munkalap', $recid, $indoklas);
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -3879,7 +3861,6 @@ if( isset($_POST['munkalapDiszpKozp']) ) {
 if( isset($_POST['munkalapMSZKVezeto']) ) {
 
     $recid    = $_POST['recid'];
-    $indoklas = $_POST['indoklas'];
 
     if( $recid ) {
         
@@ -3917,17 +3898,14 @@ if( isset($_POST['munkalapMSZKVezeto']) ) {
 
         // Státusz léptetés
         if($munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT){
-            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT, '', $indoklas ) === false ) {
+            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) === false ) {
                 $db_error = true;
             }
         }else{
-            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN, '', $indoklas ) === false ) {
+            if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) === false ) {
                 $db_error = true;
             }
         }
-
-        // Megjegyzés hozzáadása
-        addMegj('munkalap', $recid, $indoklas);
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);

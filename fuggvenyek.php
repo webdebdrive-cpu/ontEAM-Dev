@@ -1997,18 +1997,19 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
     // Bizonyos rendezéseket pont fordítva szeretnénk rendezni, mint adott oldal alapértelmezett rendezése iránya
     // Ezért az itt felsoroltakra váltva a rendezés irányán is fordítunk
     $iranyt_is_valt = array(
-                            array('tabla' => 'utemezett_feladatok', 'rend' => 'esnap_d' ),
+                            array('tabla' => 'utemezett_feladatok', 'rend' => 'aktiv',      'default' => 'desc' ),
+                            array('tabla' => 'utemezett_feladatok', 'rend' => 'esnap_d',    'default' => 'asc' ),
                         );
 
     $volt_irany_valtas = false;
-    foreach($iranyt_is_valt as $irany_valt){
-        if($irany_valt['tabla']==$tabla && $order==$irany_valt['rend'] && $_SESSION['elozo_rend']!=$_GET['rend']){
-            if(!$_GET['irany'] || $_GET['irany']=='asc'){
-                $_GET['irany'] = 'desc';
-            }else{
-                $_GET['irany'] = 'asc';
+    if($_SESSION['elozo_rend']!=$_GET['rend']){
+        $i = 0;
+        foreach ($_OPTS['rendezes'] as $rendezes){
+            if($rendezes == $_GET['rend']){
+                $_GET['irany'] = $_OPTS['iranyok'][$i];
+                $volt_irany_valtas = true;
             }
-            $volt_irany_valtas = true;
+            $i++;
         }
     }
     // Jegyezzük meg, mi volt az előző rendezés szempont, hogy kétszer nem váltsunk irányt
@@ -2648,20 +2649,25 @@ if(isset($_GET['debug'])) {
     
     // Ha volt irány váltás, akkor még egy JS kódot kiíratunk, amivel a nyilat is megfordítjuk
     if($volt_irany_valtas){
+        if($_GET['irany']=='desc'){
+            $js = '
+                    $(\'#rendezesIrany\').html(\'▼ <span>Z-A</span>\');
+                    $(\'#rendezesIrany\').attr(\'href\', $(\'#rendezesIrany\').attr(\'href\').replace(\'\\\'desc\\\'\', \'\\\'asc\\\'\'));
+                    ';
+        }else{
+            $js = '
+                    $(\'#rendezesIrany\').html(\'▲ <span>A-Z</span>\');
+                    $(\'#rendezesIrany\').attr(\'href\', $(\'#rendezesIrany\').attr(\'href\').replace(\'\\\'asc\\\'\', \'\\\'desc\\\'\'));
+                    ';
+        }
         $html .= '<script>
                     $.when( lista ).then(function() {
-                        if( $(\'#rendezesIrany\').html()==\'▲ <span>A-Z</span>\' ){
-                            $(\'#rendezesIrany\').html(\'▼ <span>Z-A</span>\');
-                            $(\'#rendezesIrany\').attr(\'href\', $(\'#rendezesIrany\').attr(\'href\').replace(\'\\\'desc\\\'\', \'\\\'asc\\\'\'));
-                        }else{
-                            $(\'#rendezesIrany\').html(\'▲ <span>A-Z</span>\');
-                            $(\'#rendezesIrany\').attr(\'href\', $(\'#rendezesIrany\').attr(\'href\').replace(\'\\\'asc\\\'\', \'\\\'desc\\\'\'));
-                        }
+                        '.$js.'
                     });
                 </script>';
     }
 
-    return $html;
+    return nl2($html);
 
 }
 
@@ -5180,12 +5186,15 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 
 // Megjegyzés beszúrása
 function addMegj( $tabla, $id, $megj ) {
-    global $adatbazis_kapcsolat;
-    $ins   = $adatbazis_kapcsolat->i('megjegyzes',  array('tabla', 'id', 'megj', 'loginnev',                       'update_usr',                           'insert_dt', 'insert_usr'                           ),
-                                                    array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'] )
-                                    );
-    if(!$ins){
-        return false;
+    // Ha van egyáltalán megjegyzés
+    if(trim($megj)){
+        global $adatbazis_kapcsolat;
+        $ins   = $adatbazis_kapcsolat->i('megjegyzes',  array('tabla', 'id', 'megj', 'loginnev',                       'update_usr',                           'insert_dt', 'insert_usr'                           ),
+                                                        array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        );
+        if(!$ins){
+            return false;
+        }
     }
 }
 

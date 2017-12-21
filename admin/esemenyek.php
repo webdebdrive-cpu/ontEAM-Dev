@@ -434,6 +434,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id', 'stat_id');
+        $_OPTS['iranyok']   = array('asc',      'asc',          'desc'   );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -461,7 +462,8 @@ switch($tabla) {
 
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('id', 'aktiv', 'telephely_id', 'esnap_d');
+        $_OPTS['rendezes']  = array('id',  'aktiv', 'telephely_id', 'esnap_d');
+        $_OPTS['iranyok']   = array('asc', 'desc',  'asc',          'asc'    );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -1098,9 +1100,9 @@ if(basename(self())=='utemezett_feladatok.php'){
 
     $uf = $adatbazis_kapcsolat->s2('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d szemelyzet_id', 'utemezett_feladatok', "`recid`='{$_GET['id']}'");
 
-    $utolso_vegrehajtas = $uf['esem_d'];
-    $uf['aktkezd_d'] = str_replace('-', '.', $uf['aktkezd_d']);
-    $uf['aktvege_d'] = str_replace('-', '.', $uf['aktvege_d']);
+    $utolso_vegrehajtas = str_replace('-', '.', $uf['esem_d']);
+    $uf['aktkezd_d']    = str_replace('-', '.', $uf['aktkezd_d']);
+    $uf['aktvege_d']    = str_replace('-', '.', $uf['aktvege_d']);
 
     switch($uf['cikltip']){
         case 'd':

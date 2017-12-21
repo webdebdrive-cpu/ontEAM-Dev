@@ -11,11 +11,11 @@ $log = '';
 $log_utvonal = get_ut_logfajl();
 unlink($log_utvonal);
 $ut_feladatok = $adatbazis_kapcsolat->s('*', 'utemezett_feladatok', "DATE_ADD(`esnap_d`, INTERVAL - `riaszt` DAY)<=CURDATE() AND `utnap_d`<CURDATE() AND `aktiv`=1");
-fajlba_mentes($log_utvonal, fajlbol_olvas($log_utvonal).$adatbazis_kapcsolat->gp(). "\r\n");
+fajlba_mentes($log_utvonal, $adatbazis_kapcsolat->gp(). "\r\n");
 foreach($ut_feladatok as $ut_feladat){
     
     // logolás
-    fajlba_mentes($log_utvonal, fajlbol_olvas($log_utvonal).'recid: '.$ut_feladat['id']. "\r\n");
+    fajlba_mentes($log_utvonal, fajlbol_olvas($log_utvonal). "elindult ez a recid: $ut_feladat[recid]\r\n");
     $text = $ut_feladat['id'].' feladatot ütemezte '.$ut_feladat['insert_usr']."\r\n".$ut_feladat['nev']."\r\n".$ut_feladat['leiras'];
     
     // Feladatszám kiszámítása
@@ -40,9 +40,10 @@ foreach($ut_feladatok as $ut_feladat){
 
     // Iktatószám formázása
     $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
-    
-    $sql = $adatbazis_kapcsolat->i('munkalap', array('ikt_szam', 'uf_szam',         'stat_id',              'text', 'szemelyzet_id',                'obj_id',               'gep_id',               'esnap_d',              'insert_usr',               'insert_dt'    ),
-                                               array($ikt_szam,  $ut_feladat['id'], MUNKALAP_STAT_NYITOTT,  $text,  $ut_feladat['szemelyzet_id'],   $ut_feladat['obj_id'],  $ut_feladat['gep_id'],  $ut_feladat['esnap_d'], $ut_feladat['insert_usr'],  'NOW()',       )
+    // logolás
+    fajlba_mentes($log_utvonal, fajlbol_olvas($log_utvonal). "új iktatószám megvan: $ut_feladat[recid]\r\n");
+    $sql = $adatbazis_kapcsolat->i('munkalap', array('ikt_szam', 'uf_szam',         'stat_id',              'text', 'szemelyzet_id',                'obj_id',               'gep_id',               'tipus_id', 'esnap_d',              'insert_usr',               'insert_dt'    ),
+                                               array($ikt_szam,  $ut_feladat['id'], MUNKALAP_STAT_NYITOTT,  $text,  $ut_feladat['szemelyzet_id'],   $ut_feladat['obj_id'],  $ut_feladat['gep_id'],  3/*Ütemezett feladat a tipusa*/,    $ut_feladat['esnap_d'], $ut_feladat['insert_usr'],  'NOW()',       )
                                    );
     if( $sql === false ) { $db_error = true; }
  echo $adatbazis_kapcsolat->gp() . ';<br>';
@@ -63,7 +64,10 @@ foreach($ut_feladatok as $ut_feladat){
         $esem_d     = substr(str_replace('-', '.', $ut_feladat['esem_d']), 0, 10);
         $aktkezd_d  = str_replace('-', '.', $ut_feladat['aktkezd_d']);
         $aktvege_d  = str_replace('-', '.', $ut_feladat['aktvege_d']);
-        
+    
+        // logolás
+        fajlba_mentes($log_utvonal, fajlbol_olvas($log_utvonal). "recid:$ut_feladat[recid] getnextvaliddate($esem_d $ut_feladat[cikltip], $ut_feladat[ciklaltip], $ut_feladat[ciklszorz], $ut_feladat[ciklho], $ut_feladat[ciklhet], $ut_feladat[ciklnap], $ut_feladat[idoszakos], $ut_feladat[kezdho], $ut_feladat[kezdnap], $ut_feladat[vegeho], $ut_feladat[vegenap], $aktkezd_d, $aktvege_d) \r\n");
+    
         $esnap_d = getnextvaliddate(false, $esem_d, $ut_feladat['cikltip'], $ut_feladat['ciklaltip'], $ut_feladat['ciklszorz'], $ut_feladat['ciklho'], $ut_feladat['ciklhet'], $ut_feladat['ciklnap'], $ut_feladat['idoszakos'], $ut_feladat['kezdho'], $ut_feladat['kezdnap'], $ut_feladat['vegeho'], $ut_feladat['vegenap'], $aktkezd_d, $aktvege_d);
         $esnap_d = str_replace('.', '-', $esnap_d);
         // Ha ez egy múltbeli dátum, akkor az esnap_d mezőbe 3000-01-01-et írunk

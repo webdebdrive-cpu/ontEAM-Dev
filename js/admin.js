@@ -326,8 +326,8 @@ $(function() {
                 tabla = baseName(location.href);
 
                 /* Anyagigénylésnél használt táblázat esetén valójában a táblázat következő sorára kell ugrani, ami a helyben rendezetség miatt nem ugyanaz, mint a listá */
-                if($('.szamla_cont_tabla')){
-                    
+                if($('.szamla_cont_tabla').length){
+
                     var active   = $('.szamla_cont_tabla tr.kijelolve').index('.szamla_cont_tabla tr'),
                         szamlaDb = $('.szamla_cont_tabla tr').length - 1;
                         $('.szamla_cont_tabla tr').removeClass('kijelolve');
@@ -350,12 +350,11 @@ $(function() {
                     
                     $('#szamla-'+$('.szamla_cont_tabla tr.kijelolve').data('id')).click();
                     
-                    e.preventDefault();
                     return false;
                     
                 /* A listás, általános verzió */
                 }else{
-                
+
                     var active   = $('#szamlaList li.szamla_sor.kijelolve').index('#szamlaList li.szamla_sor'),
                         szamlaDb = $('#szamlaList li.szamla_sor').length - 1;
 
@@ -4018,23 +4017,45 @@ function naviTorles() {
 
 /* Bal oldali navpanelben kijelölt sor magasságában legyen a scroll */
 function scrollLeptet() {
-    if( $('.szamla_sor').hasClass('kijelolve') ) {
-        var active_top      = $('.szamla_sor.kijelolve').position().top,
-            activeHeight    = $('.szamla_sor.kijelolve').outerHeight(),
-            tartBalHeight   = $('#tartalomBal').outerHeight();
-
+    if($('.szamla_cont_tabla').length){
+        
+        var active_top      = $('.szamla_cont_tabla tr.kijelolve').position().top,
+            activeHeight    = $('.szamla_cont_tabla tr.kijelolve').outerHeight(),
+            tartBalHeight   = $('#szamlaBetolt').outerHeight();
+    
         /* Összeadjuk az active elem magasságát és a felső eltolását */
         var aTopH = active_top + activeHeight;
 
         if( (aTopH - activeHeight) < 0 ) {
-            $('#tartalomBal').scrollTop(0);
-            aTop = $('.szamla_sor.kijelolve').position().top;
-            $('#tartalomBal').scrollTop(aTop - 250);
+            $('#szamlaBetolt').scrollTop(0);
+            aTop = $('.szamla_cont_tabla tr.kijelolve').position().top;
+            $('#szamlaBetolt').scrollTop(aTop - 250);
         } else if( aTopH > tartBalHeight ) {
-            $('#tartalomBal').scrollTop(0);
-            aTop = $('.szamla_sor.kijelolve').position().top;
-            $('#tartalomBal').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
+            $('#szamlaBetolt').scrollTop(0);
+            aTop = $('.szamla_cont_tabla tr.kijelolve').position().top;
+            $('#szamlaBetolt').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
         }
+        
+    }else{
+        if( $('.szamla_sor').hasClass('kijelolve') ) {
+            var active_top      = $('.szamla_sor.kijelolve').position().top,
+                activeHeight    = $('.szamla_sor.kijelolve').outerHeight(),
+                tartBalHeight   = $('#tartalomBal').outerHeight();
+
+            /* Összeadjuk az active elem magasságát és a felső eltolását */
+            var aTopH = active_top + activeHeight;
+
+            if( (aTopH - activeHeight) < 0 ) {
+                $('#tartalomBal').scrollTop(0);
+                aTop = $('.szamla_sor.kijelolve').position().top;
+                $('#tartalomBal').scrollTop(aTop - 250);
+            } else if( aTopH > tartBalHeight ) {
+                $('#tartalomBal').scrollTop(0);
+                aTop = $('.szamla_sor.kijelolve').position().top;
+                $('#tartalomBal').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
+            }
+        }
+        
     }
 }
 

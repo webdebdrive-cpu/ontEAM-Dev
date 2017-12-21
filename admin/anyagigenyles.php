@@ -2061,11 +2061,17 @@ require_once('selectek.php');
                 </style>
                 <script src="../js/sorttable.js"></script>
                 <script>
-                forEach(document.getElementsByTagName(\'table\'), function(table) {
-                  if (table.className.search(/\bsortable\b/) != -1) {
-                    sorttable.makeSortable(table);
-                  }
-                });
+                    forEach(document.getElementsByTagName(\'table\'), function(table) {
+                      if (table.className.search(/\bsortable\b/) != -1) {
+                        sorttable.makeSortable(table);
+                      }
+                    });
+                    
+                    $(document).ready(function () {
+                        if(!$(\'.szamla_cont_tabla tr.kijelolve\').length){
+                            $(\'.szamla_cont_tabla tr:firsst-of-type\').click();
+                        }
+                    });
                 </script>
         ');
         
