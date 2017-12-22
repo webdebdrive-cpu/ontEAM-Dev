@@ -718,3 +718,27 @@ function munkMunkaidoTorol( recid, elem_id, mehet ) {
         $('#'+elem_id).parents('tr').remove();
     }
 }
+
+/* Munkalap vissza nyitottnak */
+function munkalapVisszaNyitott(recid, mehet){
+    if(!mehet){
+        alert2('Biztosan visszateszi a nyitottak közé?', '<input type="button" class="gomb zold" onclick="munkalapVisszaNyitott(\''+recid+'\', \'mehet\')" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">');
+        return false;
+    }
+    
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid                   : recid,
+            munkalapVisszaNyitott   : Date.now()
+        },
+        success: function (response) {
+            if( response.hiba ) {
+                alert2(response.hiba, response.gomb, response.title);
+                return false;
+            }
+            location.href = get_get();
+        }
+    });
+}

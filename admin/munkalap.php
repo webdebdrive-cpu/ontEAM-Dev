@@ -3971,6 +3971,41 @@ if (isset($_POST['munkalapHIUtemez'])) {
     exit();
 }
 
+// Hataáridőre ütemezésből vissza nyitottba
+if (isset($_POST['munkalapVisszaNyitott'])) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $recid = $_POST['recid'];
+    $statusz = addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT);
+    if( $statusz === false ) { $db_error = true; }
+
+    // Munkalaphoz tartozó Bejelentések státuszát pedig folyamatbanra léptetjük
+    if($page=='munkalap'){
+        $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$id}'");
+        foreach($bejelentesek as $bej){
+            $statusz = addStatusz( 'bejelentes_statusz', $bej['bejelentes_id'], BEJELENTES_STAT_FOLYAMATBAN );
+            if( $statusz === false ) { $db_error = true; }
+        }
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
 
 // CSV generálása
 if (isset($_GET['csv'])) {
@@ -4246,7 +4281,7 @@ require('selectek.php');
 
 
         // Kijelöltekkel való művelet gombok
-        if( ($sor['stat_id']==MUNKALAP_STAT_NYITOTT || $sor['stat_id']==MUNKALAP_STAT_VARAKOZO) && _jog(JOG_MUNKALAP_VARAKOZTAT) ) {
+        if( ($sor['stat_id']==MUNKALAP_STAT_NYITOTT) && _jog(JOG_MUNKALAP_VARAKOZTAT) ) {
             $gombok .= '<input type="button" class="gomb" value="Határidőre ütemezés" onclick="csoportMuvelet(\'munkalapHIUtemez\');"> ';
 //            $gombok .= nl2('
 //                <div id="kmCont">
@@ -4265,6 +4300,11 @@ require('selectek.php');
 //                    </div>
 //                </div>
 //            ');
+        }
+        
+        // Ha határidőre ütemezett a munkalap
+        if( ($sor['stat_id']==MUNKALAP_STAT_VARAKOZO) && _jog(JOG_MUNKALAP_VARAKOZTAT) ) {
+            $gombok .= '<input type="button" class="gomb" value="Vissza a nyitottak közé" onclick="munkalapVisszaNyitott(\''.$_GET['id'].'\')"> ';
         }
 
         // Munka felvétele folyamatban státuszhoz és kezelés joghoz van kötve

@@ -2529,10 +2529,10 @@ if( isset($_POST['csoportbolTorol']) ) {
 
         $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
 
-        /* Kiszedjük a duplikációkat */
+        // Kiszedjük a duplikációkat
         $csoportok = array_unique($csoportok);
 
-        //Ha legalább egy olyan elem van, aminek nincs is csoportja, akkor hibaüzenet
+        // Ha legalább egy olyan elem van, aminek nincs is csoportja, akkor hibaüzenet
         foreach($csoportok as $csoport){
             if(!$csoport){
                 switch($page){
@@ -2548,18 +2548,17 @@ if( isset($_POST['csoportbolTorol']) ) {
             }
         }
 
-        /* Frissítjük a megfelelő sorokat */
+        // Frissítjük a megfelelő sorokat
         $sql = $adatbazis_kapcsolat -> u($page, array($oszlop), array(0), "`recid` IN (".implode(',', $idk).")");
         if( $sql === false ) { $db_error = true; }
 
         // Munkalapok csoportból törlésekor a státusza automatikusan nyitottra vált
         if($page=='munkalap'){
-
             foreach($idk as $id) {
                 $statusz = addStatusz( $page.'_statusz', $id, MUNKALAP_STAT_NYITOTT);
                 if( $statusz === false ) { $db_error = true; }
 
-                //Munkalaphoz tartozó Bejelentések státuszát pedig folyamatbanra léptetjük
+                // Munkalaphoz tartozó Bejelentések státuszát pedig folyamatbanra léptetjük
                 if($page=='munkalap'){
                     $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$id}'");
                     foreach($bejelentesek as $bej){
@@ -2570,7 +2569,7 @@ if( isset($_POST['csoportbolTorol']) ) {
             }
         }
 
-        /* Csoportok bejárása */
+        // Csoportok bejárása
         if( $csoportok ) {
             foreach($csoportok as $csoport) {
                 $sql = $csoportok = $adatbazis_kapcsolat->s('recid', $page, "`csoport_id` = '{$csoport}' AND `torolve` = '0'", '', '1');
@@ -2583,9 +2582,8 @@ if( isset($_POST['csoportbolTorol']) ) {
             }
         }
 
-        /* Select előállítása */
+        // Select előállítása
         $html = '<select id="csoportID" name="csoportID"><option value="">- Válasszon -</option>';
-
         $sql = $csoportok = $adatbazis_kapcsolat->s('recid nev', $page.'_csoport', '', 'nev', '');
         if( $sql === false ) { $db_error = true; }
 
@@ -2594,19 +2592,16 @@ if( isset($_POST['csoportbolTorol']) ) {
                 $html .= '<option value="'.$csoport['recid'].'">'.$csoport['nev'].'</option>';
             }
         }
-
         $html .= '</select>';
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
-
             echo json_encode(array(
                 'statusz' => 'siker',
                 'html'    => $html
             ));
         } else {
             mysqli_rollback($db_kapcs);
-
             echo json_encode(array(
                 'hiba' => tranzakcioHiba()
             ));
