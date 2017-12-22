@@ -7,8 +7,8 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
 	$dnext = $dlast;
 	$dlast = null;
 	$i = 0;
-	
-	while (($dlast != $dnext or $dnext < date(DATEFORMAT, strtotime("+1 day"))) and $dnext < date(DATEFORMAT, strtotime('+2 year')))  //legfeljebb a következő 10 évre keressük ütemezhetőséget
+
+	while (($dlast != $dnext or $dnext < date(DATEFORMAT, strtotime("+1 day"))) and $dnext < date(DATEFORMAT, strtotime('+10 year')))  //legfeljebb a következő 2 évre keressük ütemezhetőséget
 	{
 		$i = $i + 1;
 		$dlast = $dnext;
@@ -122,6 +122,7 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 	*/
 	if ($lstart)
 	{
+
 		/*
 		újfelvitelkor vagy intervallum kezdéskor következő esedékesség számítása
 		ha m.dlast jövőbeni, akkor lehet esedékes ezért az előző nappal kezdjük
@@ -141,7 +142,8 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 			$command = 'getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
 				. '1' . ',"' . $cciklho . '","' . $cciklhet . '","' . $cciklnap . '"'
 				. ',"' . $dnext . '");';
-			eval('$returnvalue = '.$command);			
+
+			eval('$returnvalue = '.$command);
 			return $returnvalue;
 		}
 		else
@@ -158,7 +160,8 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 			. ',"' . $cciklhet . '"'
 			. ',"' . $cciklnap . '"'
 			. ',"' . (empty($dlast) ? date(DATEFORMAT, time()) : $dlast) . '");';
-		eval('$returnvalue = '.$command);
+
+        eval('$returnvalue = '.$command);
 		
 		return $returnvalue;
 	}
@@ -189,6 +192,7 @@ function getnextdate_d2 ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 
 function getnextdate_w ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 {
+
 	$ndow = dowFormStringdate($dlast);
 
 	$cciklnap = trim($cciklnap);
@@ -220,8 +224,27 @@ function getnextdate_w ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 
 function getnextdate_m1 ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 {
-	$dlast = dateadd ($dlast, 0, $nciklszorz, 0); 
+/*	$dlast = dateadd ($dlast, 0, $nciklszorz, 0); 
 	return lastvaliddate(yearFormStringdate($dlast), monthFormStringdate($dlast), intval($cciklnap));
+	*/
+	/*
+	print " getnextdate_m1 dlast elejen: ";
+	print " year: ".yearFormStringdate($dlast);
+	print " month: ".monthFormStringdate($dlast);
+	print " day: ".intval($cciklnap)."<BR>";
+	*/
+	if (yearFormStringdate($dlast) == yearFormStringdate(date(DATEFORMAT, time())) and monthFormStringdate($dlast) == monthFormStringdate(date(DATEFORMAT, time())) and intval($cciklnap) > dayFormStringdate($dlast))
+	{
+		/*$dlast = date(DATEFORMAT, mktime(0, 0, 0, monthFormStringdate(date(DATEFORMAT, time())), intval($cciklnap), yearFormStringdate(date(DATEFORMAT, time())))); */
+		$dlast = lastvaliddate(yearFormStringdate($dlast), monthFormStringdate($dlast), intval($cciklnap));	
+	}
+	else
+	{
+		$dlast = dateadd ($dlast, 0, $nciklszorz, 0); 
+	}
+	//ez már nem kell mert dateadd() megoldja $lastvaliddate = lastvaliddate(yearFormStringdate($dlast), monthFormStringdate($dlast), intval($cciklnap));	
+	//print "lastvaliddate: ".$lastvaliddate."<BR>";
+	return $dlast;
 }
 
 function getnextdate_m2 ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
@@ -246,15 +269,25 @@ function lastvaliddate ( $nev, $nho, $nnap)
 {
 	/*visszaadja a dátumot a paraméterekből
 	, vagy a hónap utolsó érvényes napját (ha nnap>28)*/
-	
 	if ($nnap > 28) //utolsó nap
 	{
 		//date(DATEFORMAT, mktime(0, 0, 0, $nho, $nnap, $nev))
 		$nnap = min($nnap,31);
-		$date = date(DATEFORMAT, mktime(0, 0, 0, $nho, $nnap, $nev));
-		$date1 = date(DATEFORMAT, mktime(0, 0, 0, $nho, $nnap - 1, $nev));
-		$date2 = date(DATEFORMAT, mktime(0, 0, 0, $nho, $nnap - 2, $nev));
+		
 		$date3 = date(DATEFORMAT, mktime(0, 0, 0, $nho, $nnap - 3, $nev));
+		$date2 = date(DATEFORMAT, mktime(0, 0, 0, $nho, $nnap - 2, $nev));
+		$date1 = date(DATEFORMAT, mktime(0, 0, 0, $nho, $nnap - 1, $nev));
+		$date = date(DATEFORMAT, mktime(0, 0, 0, $nho, $nnap, $nev));
+		
+		if (monthFormStringdate($date3) != monthFormStringdate($date2))
+			$date2 = "";
+		
+		if (monthFormStringdate($date3) != monthFormStringdate($date1))
+			$date1 = "";
+		
+		if (monthFormStringdate($date3) != monthFormStringdate($date))
+			$date = "";
+
 		$returnvalue = empty($date) ? (empty($date1) ? (empty($date2) ? $date3 : $date2 ) : $date1 ) : $date;
 	}
 	else
@@ -286,21 +319,66 @@ function dowtodate ( $nev,  $nho, $nhet, $nnap)
 
 function dateadd ($stringdate, $days, $months, $years)
 {
+	//print "dateadd: ".$stringdate;
 	$date = DateTime::createFromFormat(DATEFORMAT, $stringdate);
+	$originalDate = DateTime::createFromFormat(DATEFORMAT, $stringdate);
+	
 	if ($days > 0)
+	{
 		$date->add(new DateInterval('P'.$days.'D'));
+	}
 	if ($days < 0)
-		$date->sub(new DateInterval('P'.-$days.'D'));
+	{
+		$date->sub(new DateInterval('P'.-$days.'D'));	
+	}
 	if ($months > 0)
+	{		
 		$date->add(new DateInterval('P'.$months.'M'));
+		// visszaminuszoljuk a változást és ha nem az eredeti jön ki akkor az új hónapnak nincs annyi napja ezért hibásat ad vissza 
+		$testDate = DateTime::createFromFormat(DATEFORMAT, $date->format(DATEFORMAT));
+		$testDate->sub(new DateInterval('P'.$months.'M'));
+		if ($testDate != $originalDate)
+		{	
+			$date->modify( 'last day of -1 month' );
+		}
+	}
+		
 	if ($months < 0)
+	{
 		$date->sub(new DateInterval('P'.-$months.'M'));
+		// visszaminuszoljuk a változást és ha nem az eredeti jön ki akkor az új hónapnak nincs annyi napja ezért hibásat ad vissza
+		$testDate = DateTime::createFromFormat(DATEFORMAT, $date->format(DATEFORMAT));
+		$testDate->add(new DateInterval('P'.-$months.'M'));
+		if ($testDate != $originalDate)
+		{	
+			$date->modify( 'last day of -1 month' );
+		}		
+	}
 	if ($years > 0)
+	{
 		$date->add(new DateInterval('P'.$years.'Y'));
+		// visszaminuszoljuk a változást és ha nem az eredeti jön ki akkor az új hónapnak nincs annyi napja ezért hibásat ad vissza 
+		$testDate = DateTime::createFromFormat(DATEFORMAT, $date->format(DATEFORMAT));
+		$testDate->sub(new DateInterval('P'.$years.'Y'));
+		if ($testDate != $originalDate)
+		{	
+			$date->modify( 'last day of -1 month' );
+		}
+	}	
 	if ($years < 0)
+	{
 		$date->sub(new DateInterval('P'.-$years.'Y'));
+		// visszaminuszoljuk a változást és ha nem az eredeti jön ki akkor az új hónapnak nincs annyi napja ezért hibásat ad vissza
+		$testDate = DateTime::createFromFormat(DATEFORMAT, $date->format(DATEFORMAT));
+		$testDate->add(new DateInterval('P'.-$years.'Y'));
+		if ($testDate != $originalDate)
+		{	
+			$date->modify( 'last day of -1 month' );
+		}		
+	}		
 	
 	$returnvalue = $date->format(DATEFORMAT);
+	//print " -> ".$returnvalue." <BR>";
 	return $returnvalue;
 }
 
@@ -308,6 +386,13 @@ function dowFormStringdate($stringdate)
 {
 	$date = DateTime::createFromFormat(DATEFORMAT, $stringdate);
 	$returnvalue = $date->format('N') % 7;
+	return $returnvalue;
+}
+
+function dayFormStringdate($stringdate)
+{
+	$date = DateTime::createFromFormat(DATEFORMAT, $stringdate);
+	$returnvalue = intval($date->format('d'));
 	return $returnvalue;
 }
 

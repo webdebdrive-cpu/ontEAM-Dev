@@ -15,20 +15,15 @@ $db_error = false;
 mysqli_autocommit($db_kapcs, false);
 
 // Munkalapok ütemezett dátuma
-$munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`esnap_d`='".date('Y-m-d')."'");
+$munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`esnap_d`<='".date('Y-m-d')."' AND `stat_id`='".MUNKALAP_STAT_VARAKOZO."'");
 if( $munkalapok === false ) { $db_error = true; }
 echo $adatbazis_kapcsolat->gp() . '<br>';
 foreach($munkalapok as $munkalap){
     
-    $megj = 'Ütemezve erre a napra: '.date('Y-m-d');
-    
     // Nyitott státuszt kapnak
-    if( addStatusz( 'munkalap_statusz', $munkalap['recid'], MUNKALAP_STAT_VARAKOZO, '', $megj ) === false ) {
+    if( addStatusz( 'munkalap_statusz', $munkalap['recid'], MUNKALAP_STAT_VARAKOZO ) === false ) {
         $db_error = true;
     }
-    
-    // És egy megjegyzést is
-    addMegj('munkalap', $munkalap['recid'], $megj);
     
 }
 

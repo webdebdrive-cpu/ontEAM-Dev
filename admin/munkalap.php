@@ -3935,9 +3935,6 @@ if (isset($_POST['munkalapHIUtemez'])) {
     
         $db_error = false;
         mysqli_autocommit($db_kapcs, false);
-
-        $sql = $adatbazis_kapcsolat->u('munkalap', array('esnap_d'), array($datum), "`recid`='{$recid}'");
-        if( $sql === false ) { $db_error = true; }
         
         $megj = 'Dátumra ütemezve: '.$_POST['datum'];
         if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_VARAKOZO, '', $megj ) === false ) {
@@ -3946,6 +3943,14 @@ if (isset($_POST['munkalapHIUtemez'])) {
         
         // És egy megjegyzést is
         addMegj('munkalap', $recid, $megj);
+
+        // Sőt a munkalap megjegyzésébe is beleírjuk, illetve a dátumot frissítjük
+        $munkalap = $adatbazis_kapcsolat->s2('text', 'munkalap', "`recid`='{$recid}'");
+        if( $munkalap === false ) { $db_error = true; }
+        $sql = $adatbazis_kapcsolat->u('munkalap',  array('esnap_d', 'text'                              ),
+                                                    array($datum,    trim($munkalap['text']."\r\n".$megj)),
+                                                    "`recid`='{$recid}'");
+        if( $sql === false ) { $db_error = true; }
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -4091,7 +4096,7 @@ require('selectek.php');
     }
 
     if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || /*isset($_GET['bejelentesek']) ||*/ isset($_GET['tortenet']) || isset($_GET['anyagigenyles']) || isset($_GET['elszamolas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['tetel']) ) {
-        /* Számla fülek */
+        // Fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'tortenet'      => 'Történet',
@@ -4629,7 +4634,7 @@ require('selectek.php');
 
         $json_sor = array();
         foreach($sor as $kulcs => $elem){
-            $json_sor[$kulcs] = nl2(str_replace(array("\r\n", "'"), array("#UJSOR#", "#APOSZTROF#"), $elem));
+            $json_sor[$kulcs] = nl2(str_replace(array("\r\n", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem));
         }
 
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
