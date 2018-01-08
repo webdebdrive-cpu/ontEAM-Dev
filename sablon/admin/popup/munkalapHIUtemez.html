@@ -49,7 +49,7 @@ function munkalapHIUtemez(){
         success: function(response){
             if(response){
                 response = JSON.parse(response);
-                
+
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, 'Hiba');
                     return false;

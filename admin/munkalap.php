@@ -3936,6 +3936,16 @@ if (isset($_POST['munkalapHIUtemez'])) {
         $db_error = false;
         mysqli_autocommit($db_kapcs, false);
         
+        // Dátum nem lehet korábbi mint a jelen
+        if($_POST['datum']<=date('Y.m.d')){
+            echo json_encode(array(
+                'hiba'  => 'Csak jövőbeli dátumra ütemezhető egy munkalap!',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        
         $megj = 'Dátumra ütemezve: '.$_POST['datum'];
         if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_VARAKOZO, '', $megj ) === false ) {
             $db_error = true;
@@ -3948,7 +3958,7 @@ if (isset($_POST['munkalapHIUtemez'])) {
         $munkalap = $adatbazis_kapcsolat->s2('text', 'munkalap', "`recid`='{$recid}'");
         if( $munkalap === false ) { $db_error = true; }
         $sql = $adatbazis_kapcsolat->u('munkalap',  array('esnap_d', 'text'                              ),
-                                                    array($datum,    trim($munkalap['text']."\r\n".$megj)),
+                                                    array($datum,    trim($megj."\r\n".$munkalap['text'])),
                                                     "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
 
@@ -4282,7 +4292,7 @@ require('selectek.php');
 
         // Kijelöltekkel való művelet gombok
         if( ($sor['stat_id']==MUNKALAP_STAT_NYITOTT) && _jog(JOG_MUNKALAP_VARAKOZTAT) ) {
-            $gombok .= '<input type="button" class="gomb" value="Határidőre ütemezés" onclick="csoportMuvelet(\'munkalapHIUtemez\');"> ';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Határidőre ütemezés" onclick="csoportMuvelet(\'munkalapHIUtemez\');"> ';
 //            $gombok .= nl2('
 //                <div id="kmCont">
 //                    <script>
@@ -4367,7 +4377,7 @@ require('selectek.php');
 
             $gombok .= nl2('
                 <div class="kijeloltek_muv">
-                    <input type="button" class="gomb foGomb" value="Átadás...">
+                    <input type="button" class="gomb foGomb modositaskor_rejt" value="Átadás...">
                     <div class="muv">
                         <ul>
                             <li'.$szemelyzet_id_rejt[TELEPITETT_SZEMELYZET].'><a onclick="munkalapTelepitett(\'csak kérdezünk még\');">Telepítettnek</a></li>
@@ -4430,7 +4440,7 @@ require('selectek.php');
             if( !$telephely['modell'] ) {
                 $gombok .= nl2('
                     <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb" value="Átadás...">
+                        <input type="button" class="gomb foGomb modositaskor_rejt" value="Átadás...">
                         <div class="muv">
                             <ul>
                                 <li><a onclick="csoportMuvelet(\'atadasDiszpecsernek\');">Diszpécsernek</a></li>
@@ -4448,7 +4458,7 @@ require('selectek.php');
             } else {
                 $gombok .= nl2('
                     <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb" value="Átadás...">
+                        <input type="button" class="gomb foGomb modositaskor_rejt" value="Átadás...">
                         <div class="muv">
                             <ul>
                                 <li><a onclick="csoportMuvelet(\'atadasDiszpecsernek\');">Diszpécsernek</a></li>
@@ -4485,7 +4495,7 @@ require('selectek.php');
 
             $gombok .= nl2('
                 <div class="kijeloltek_muv">
-                    <input type="button" class="gomb foGomb" value="Átadás...">
+                    <input type="button" class="gomb foGomb modositaskor_rejt" value="Átadás...">
                     <div class="muv">
                         <ul>
                             <li><a onclick="csoportMuvelet(\'atadasDiszpecsernek\');">Diszpécsernek</a></li>

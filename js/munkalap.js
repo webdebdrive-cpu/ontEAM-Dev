@@ -722,7 +722,7 @@ function munkMunkaidoTorol( recid, elem_id, mehet ) {
 /* Munkalap vissza nyitottnak */
 function munkalapVisszaNyitott(recid, mehet){
     if(!mehet){
-        alert2('Biztosan visszateszi a nyitottak közé?', '<input type="button" class="gomb zold" onclick="munkalapVisszaNyitott(\''+recid+'\', \'mehet\')" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">');
+        alert2( 'Munkalapszám: '+$('#ikt_szam').val()+'<br>Szálloda: '+$('#telephely_id option:selected').text()+'<br>Biztosan visszateszi a nyitottak közé?', '<input type="button" class="gomb zold" onclick="munkalapVisszaNyitott(\''+recid+'\', \'mehet\')" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">');
         return false;
     }
     

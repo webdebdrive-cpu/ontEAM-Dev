@@ -2327,7 +2327,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 $i = 0;
                 // Nem nyitott státuszú, nem sürgősek, azon belül ikatatószám
                 // A státuszoknak is van egy sorrendje, ezt is fordított sorrendben soroljuk fel
-                $statuszok = array(BEJELENTES_STAT_LEZART, BEJELENTES_STAT_ELUTASITVA, BEJELENTES_STAT_VARAKOZO, BEJELENTES_STAT_VIZSG_ALATT, BEJELENTES_STAT_KESZ_IG, BEJELENTES_STAT_FOLYAMATBAN);
+                $statuszok = array_reverse( array(BEJELENTES_STAT_FOLYAMATBAN, BEJELENTES_STAT_KESZ_IG, BEJELENTES_STAT_VIZSG_ALATT, BEJELENTES_STAT_VARAKOZO, BEJELENTES_STAT_ELUTASITVA, BEJELENTES_STAT_LEZART) );
                 foreach($statuszok as $stat){
                     $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`surgos`=0 AND `stat_id`='$stat'", 'ikt_szam');
                     foreach($bejelentesek as $bejelentes){
@@ -2390,7 +2390,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 $i = 0;
                 // Nem nyitott státuszú, nem sürgősek, azon belül ikatatószám
                 // A státuszoknak is van egy sorrendje, ezt is fordított sorrendben soroljuk fel
-                $statuszok = array( MUNKALAP_STAT_TOROLT, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_KESZ, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_FOLYAMATBAN, MUNKALAP_STAT_BEOSZTAS_NELKUL );
+                $statuszok = array_reverse( array( MUNKALAP_STAT_BEOSZTAS_NELKUL, MUNKALAP_STAT_FOLYAMATBAN, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_KESZ, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_TOROLT ) );
                 foreach($statuszok as $stat){
                     $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`surgos`=0 AND `stat_id`='$stat'", 'ikt_szam');
                     foreach($munkalapok as $munkalap){

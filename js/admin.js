@@ -952,7 +952,7 @@ $(function() {
             if(!taroltVal && (val=='false' || val==false) ){
                 val = '';
             }
-console.log(name+' db:'+taroltVal+'|itt:'+val);
+/*console.log(name+' db:'+taroltVal+'|itt:'+val);*/
             if( taroltVal != val ) {
                 $(this).addClass('mod');
             } else {
@@ -967,11 +967,11 @@ console.log(name+' db:'+taroltVal+'|itt:'+val);
                 }
             });
             if( mod ) {
-
                 $('#kilepes_gomb').val('Kilépés mentés nélkül');
                 $('#mehet_gomb').attr('disabled', false).addClass('gombb_alert');
                 $('#megsem_gomb').attr('disabled', false);
                 $('#visszavonas_gomb').attr('disabled', false);
+                $('.modositaskor_rejt').hide();
 
                 formModositva = true;
             } else {
@@ -979,6 +979,7 @@ console.log(name+' db:'+taroltVal+'|itt:'+val);
                 $('#mehet_gomb').attr('disabled', true).removeClass('gombb_alert');
                 $('#megsem_gomb').attr('disabled', true);
                 $('#visszavonas_gomb').attr('disabled', true);
+                $('.modositaskor_rejt').show();
 
                 formModositva = false;
             }
@@ -3011,7 +3012,6 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         }
 
                     }
-
 
                 break;
 
