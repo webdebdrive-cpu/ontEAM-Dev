@@ -818,7 +818,7 @@ $(function() {
         }
 
     });
-    
+
     /* szamla_cont_tabla tábla egy sorára kattintva az legyen kijelölve, illetve a fület ID_ját is cserélni kell */
     $(document).on('click', '.szamla_cont_tabla tr:not(:first)', function(e) {
         $('.szamla_cont_tabla tr').removeClass('kijelolve');

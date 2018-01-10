@@ -2300,6 +2300,28 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             if($_GET['rend']=='szallito_id'){
                 $order = '`'.get_db_tabla().'szallito`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'anyagigenyles`.`cikk_id` '.$_GET['irany'];
             }
+            
+            // Táblázatos rendezésnél a SESSION-t kell figyelni
+            if($_SESSION['anyagigenyles_tablazat_rendez']){
+                switch($_SESSION['anyagigenyles_tablazat_rendez']){
+                    case 'anyag_tabla_ikt_szam'     : $order = '`'.get_db_tabla().'anyagigenyles`.`ikt_szam`';  break;
+                    case 'anyag_tabla_szalloda'     : $order = '`'.get_db_tabla().'telephely`.`nev`';           break;
+                    case 'anyag_tabla_cikkszam'     : $order = '`'.get_db_tabla().'anyagigenyles`.`cikk_id`';   break;
+                    case 'anyag_tabla_cikknev'      : $order = '`'.get_db_tabla().'anyagigenyles`.`nev`';       break;
+                    case 'anyag_tabla_szallito'     : $order = '`'.get_db_tabla().'szallito`.`nev`';            break;
+                    case 'anyag_tabla_ig_menny'     : $order = '`'.get_db_tabla().'anyagigenyles`.`igmen`';     break;
+                    case 'anyag_tabla_mee'          : $order = '`'.get_db_tabla().'anyagigenyles`.`cikkmee`';   break;
+                    case 'anyag_tabla_ig_datum'     : $order = '`'.get_db_tabla().'anyagigenyles`.`insert_dt`'; break;
+                    case 'anyag_tabla_jovah_menny'  : $order = '`'.get_db_tabla().'anyagigenyles`.`jhmen`';     break;
+                    case 'anyag_tabla_rend_menny'   : $order = '`'.get_db_tabla().'anyagigenyles`.`rndmen`';    break;
+                    case 'anyag_tabla_rend_egysegar': $order = '`'.get_db_tabla().'anyagigenyles`.`rndear`';    break;
+                    case 'anyag_tabla_penznem'      : $order = '`'.get_db_tabla().'erteklista`.`info`';         break;
+                    case 'anyag_tabla_dev_rend'     : $order = '`'.get_db_tabla().'anyagigenyles`.`vrndear`';   break;
+                    case 'anyag_tabla_dev_beerk'    : $order = '`'.get_db_tabla().'anyagigenyles`.`erkear`';    break;
+                    case 'anyag_tabla_statusz'      : $order = '`'.get_db_tabla().'anyagigenyles`.`stat_id`';   break;
+                }
+                $order .= ' '.$_SESSION['anyagigenyles_tablazat_irany'];
+            }
         }
 
         // Rendezés beosztásnál
@@ -2453,7 +2475,8 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         $sql_kieg = '';
         if($tabla=='anyagigenyles'){
             $sql_kieg .= nl2('
-                                LEFT JOIN `'.get_db_tabla().'szallito` ON (`'.get_db_tabla().'anyagigenyles`.`szallito_id`=`'.get_db_tabla().'szallito`.`recid`)
+                                LEFT JOIN `'.get_db_tabla().'szallito` ON (`'.get_db_tabla().'anyagigenyles`.`szallito_id`=`'.get_db_tabla().'szallito`.`id`)
+                                LEFT JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'anyagigenyles`.`kcs_21`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\'21\')
                             ');
         }
 
@@ -3366,27 +3389,43 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             
         // Anyagigényléseknél egy táblázatot rajzolunk ki
         }else{
+            
+            $oszlopok = array(
+                array('id' => 'anyag_tabla_ikt_szam',       'nev' => 'Anyagigénylés szám'),
+                array('id' => 'anyag_tabla_szalloda',       'nev' => 'Szálloda'),
+                array('id' => 'anyag_tabla_cikkszam',       'nev' => 'Cikkszám'),
+                array('id' => 'anyag_tabla_cikknev' ,       'nev' => 'Cikk név'),
+                array('id' => 'anyag_tabla_szallito',       'nev' => 'Szállító'),
+                array('id' => 'anyag_tabla_ig_menny',       'nev' => 'Igényelt mennyiség'),
+                array('id' => 'anyag_tabla_mee',            'nev' => 'Mee'),
+                array('id' => 'anyag_tabla_ig_datum',       'nev' => 'Igénylés dátuma'),
+                array('id' => 'anyag_tabla_jovah_menny',    'nev' => 'Jóváhagyott mennyiség'),
+                array('id' => 'anyag_tabla_rend_menny',     'nev' => 'Rendelt mennyiség'),
+                array('id' => 'anyag_tabla_rend_egysegar',  'nev' => 'Rendelési egységár ('.get_penznem().')'),
+                array('id' => 'anyag_tabla_penznem',        'nev' => 'Pénzn'),
+                array('id' => 'anyag_tabla_dev_rend',       'nev' => 'Deviza rend. egységár'),
+                array('id' => 'anyag_tabla_dev_beerk',      'nev' => 'Deviza beérk. egységár'),
+                array('id' => 'anyag_tabla_statusz',        'nev' => 'Státusz'),
+            );
 
             if( !$frissit ) {
                 $html .= nl2('
                         <table class="szamla_cont_tabla sortable">
-                            <tr>
-                                <th>Anyagigénylés szám</th>
-                                <th>Szálloda</th>
-                                <th>Cikkszám</th>
-                                <th>Cikk név</th>
-                                <th>Szállító</th>
-                                <th>Igényelt mennyiség</th>
-                                <th>Mee</th>
-                                <th>Igénylés dátuma</th>
-                                <th>Jóváhagyott mennyiség</th>
-                                <th>Rendelt mennyiség</th>
-                                <th>Rendelési egységár ('.get_penznem().')</th>
-                                <th>Pénzn</th>
-                                <th>Deviza rend. egységár</th>
-                                <th>Deviza beérk. egységár</th>
-                                <th>Státusz</th>
-                            </tr>
+                            <tr>');
+                foreach($oszlopok as $oszl){
+                    if($oszl['id']==$_SESSION['anyagigenyles_tablazat_rendez']){
+                        $class = '';
+                        if($_SESSION['anyagigenyles_tablazat_irany']=='desc'){
+                            $class = ' class="b sorttable_sorted_reverse"';
+                            $oszl['nev'] .= '<span id="sorttable_sortrevind">&nbsp;▴</span>';
+                        }else{
+                            $class = ' class="b sorttable_sorted"';
+                            $oszl['nev'] .= '<span id="sorttable_sortfwdind">&nbsp;▾</span>';
+                        }
+                    }
+                    $html .= '<th id="'.$oszl['id'].'"'.$class.'>'.$oszl['nev'].'</th>';
+                }
+                $html .= nl2('</tr>
                         ');
             }
 
@@ -3426,7 +3465,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 <td class="c">'.erteklista(21, $bsz['kcs_21']).'</td>
                                 <td class="r">'.$bsz['vrndear'].'</td>
                                 <td class="r">'.$bsz['verkear'].'</td>
-                                <td class="c">'.getStatText('anyagigenyles', $bsz['stat_id']).'</td>
+                                <td class="c" sorttable_customkey="'.$bsz['stat_id'].'">'.getStatText('anyagigenyles', $bsz['stat_id']).'</td>
                             </tr>
                             ';
                 $i++;

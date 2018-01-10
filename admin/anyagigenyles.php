@@ -1561,6 +1561,21 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
     exit();
 }
 
+// Anyagigénylés táblázat rendezésének letárolása SESSION-be
+if (isset($_POST['anyagigenyles_tablazat_rendez'])) {
+    
+    // Nem biztos, hogy küldönk oszlop adatot, lehet csak az irány változik
+    if($_POST['oszlop']){
+        $_SESSION['anyagigenyles_tablazat_rendez'] = $_POST['oszlop'];
+    }
+    if($_POST['irany']){
+        $_SESSION['anyagigenyles_tablazat_irany']  = $_POST['irany'];
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
 // CSV generálása
 if (isset($_GET['csv'])) {
 
@@ -1644,6 +1659,9 @@ if (isset($_GET['csv'])) {
     $weblap->leallit();
     exit();
 }
+
+
+
 
 // Tartalom
 if( !$_GET['ajax'] ) {
@@ -2072,10 +2090,77 @@ require_once('selectek.php');
                             $(\'.szamla_cont_tabla tr:firsst-of-type\').click();
                         }
                     });
+                    
+                    /* Oszlopnevekre kattintva azt is tároljuk le, hogy mi a sorrendezés és annak iránya */
+                    $(document).on(\'dblclick\', \'.szamla_cont_tabla th\', function(e) {
+                        
+                        oszlop = $(this).attr(\'id\');
+                        irany  = \'\';
+                        if( $(\'#sorttable_sortfwdind\').length ){
+                            irany = \'asc\';
+                        }
+                        if( $(\'#sorttable_sortrevind\').length ){
+                            irany = \'desc\';
+                        }
+                        
+                        $.ajax({
+                            url : \''.self().'\',
+                            type: \'POST\',
+                            data: {
+                                oszlop: oszlop,
+                                irany : irany,
+                                anyagigenyles_tablazat_rendez: Date.now()
+                            },
+                            success: function (response) {
+                            }
+                        });
+                    });
+                    
                 </script>
         ');
         
+        
         $szamla_html .= szamla_lista();
+        /*
+        // Rendezés beállítása
+        if($_SESSION['anyagigenyles_tablazat_rendez']){
+            $szamla_html .= nl2('
+                <script>
+                    $(document).ready(function () {
+                        setTimeout(function(){
+                           $(\'#'.$_SESSION['anyagigenyles_tablazat_rendez'].'\').click();
+                        }, 10);
+                        
+                    });
+                </script>
+                ');
+        }
+//var_dump($_SESSION['anyagigenyles_tablazat_rendez']);
+//var_dump($_SESSION['anyagigenyles_tablazat_iranyÍ']);
+        // Fordított irány esetén mégegyszer rákattintunk
+        if($_SESSION['anyagigenyles_tablazat_irany']=='desc'){
+            $szamla_html .= nl2('
+                <script>
+                    $(document).ready(function () {
+                        setTimeout(function(){
+                            $(\'#'.$_SESSION['anyagigenyles_tablazat_rendez'].'\').click();
+                                                       
+                            $.ajax({
+                                url : \''.self().'\',
+                                type: \'POST\',
+                                data: {
+                                    irany : \'desc\',
+                                    anyagigenyles_tablazat_rendez: Date.now()
+                                },
+                                success: function (response) {
+                                }
+                            });
+                        }, 20);
+                        
+                    });
+                </script>
+                ');
+        }*/
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html.$gombok,
