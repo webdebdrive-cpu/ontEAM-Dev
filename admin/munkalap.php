@@ -4017,6 +4017,62 @@ if (isset($_POST['munkalapVisszaNyitott'])) {
     exit();
 }
 
+// Hataáridőre ütemezésből vissza nyitottba
+if (isset($_POST['munkalapVisszavetel'])) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $recid = $_POST['recid'];
+    
+    $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'");
+    if( $munkalap === false ) { $db_error = true; }
+    
+    // Jog ellenőrzése
+    if($_SESSION[get_db_tabla().'szemelyzet_id']!=DISZPECSER){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga a munkalapot visszavenni!',
+            'title' => 'Hiba',
+        ));
+        
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Státusz ellenőrzése
+    if($munkalap['stat_id']!=MUNKALAP_STAT_FOLYAMATBAN){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => 'A munkalap nincs folyamatban státuszban, így már nem lehet visszavenni!',
+            'title' => 'Hiba',
+        ));
+        
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Státusz léptetés
+    $statusz = addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT);
+    if( $statusz === false ) { $db_error = true; }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
 // CSV generálása
 if (isset($_GET['csv'])) {
 
@@ -4267,7 +4323,7 @@ require('selectek.php');
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl">';
             }
 
-            //Munkalap adatlapja csak akkor szerkeszthető, ha a státusz nyitott vagy folyamatban, és a belépett felhasználó diszpécser vagy diszpécser közp vezető
+            // Munkalap adatlapja csak akkor szerkeszthető, ha a státusz nyitott vagy folyamatban
             if( isset($_GET['modosit']) && in_array($sor['stat_id'], array(MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_FOLYAMATBAN)) ) {
                 $gombok = nl2('
                     <div class="form_kuldes">
@@ -4317,6 +4373,11 @@ require('selectek.php');
             $gombok .= '<input type="button" class="gomb" value="Vissza a nyitottak közé" onclick="munkalapVisszaNyitott(\''.$_GET['id'].'\')"> ';
         }
 
+        // Visszavétel (Folyamatban státusz, user személyzettípusa diszpécser.
+        if( $sor['stat_id'] == MUNKALAP_STAT_FOLYAMATBAN && $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ) {
+            $gombok .= '<input type="button" class="gomb" value="Visszavétel" onclick="munkalapVisszavetel(\''.$_GET['id'].'\')"> ';
+        }
+        
         // Munka felvétele folyamatban státuszhoz és kezelés joghoz van kötve
         if( $sor['stat_id'] == MUNKALAP_STAT_FOLYAMATBAN && $kezeles_jog ) {
             $gombok .= nl2('
@@ -4458,7 +4519,7 @@ require('selectek.php');
             } else {
                 $gombok .= nl2('
                     <div class="kijeloltek_muv">
-                        <input type="button" class="gomb foGomb modositaskor_rejt" value="Átadás...">
+                        <input type="button" class="gomb foGomb" value="Átadás...">
                         <div class="muv">
                             <ul>
                                 <li><a onclick="csoportMuvelet(\'atadasDiszpecsernek\');">Diszpécsernek</a></li>
@@ -4495,7 +4556,7 @@ require('selectek.php');
 
             $gombok .= nl2('
                 <div class="kijeloltek_muv">
-                    <input type="button" class="gomb foGomb modositaskor_rejt" value="Átadás...">
+                    <input type="button" class="gomb foGomb" value="Átadás...">
                     <div class="muv">
                         <ul>
                             <li><a onclick="csoportMuvelet(\'atadasDiszpecsernek\');">Diszpécsernek</a></li>

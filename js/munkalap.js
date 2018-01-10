@@ -734,9 +734,37 @@ function munkalapVisszaNyitott(recid, mehet){
             munkalapVisszaNyitott   : Date.now()
         },
         success: function (response) {
+            response = JSON.parse(response);
             if( response.hiba ) {
                 alert2(response.hiba, response.gomb, response.title);
                 return false;
+            }
+            location.href = get_get();
+        }
+    });
+}
+
+/* Munkalap visszavétel */
+function munkalapVisszavetel(recid, mehet){
+    if(!mehet){
+        alert2( 'Munkalapszám: '+$('#ikt_szam').val()+'<br>Szálloda: '+$('#telephely_id option:selected').text()+'<br>Biztos, hogy visszaveszi a munkalapot?', '<input type="button" class="gomb zold" onclick="munkalapVisszavetel(\''+recid+'\', \'mehet\')" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">');
+        return false;
+    }
+    
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid               : recid,
+            munkalapVisszavetel : Date.now()
+        },
+        success: function (response) {
+            if(response){
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
             }
             location.href = get_get();
         }
