@@ -1063,17 +1063,43 @@ if( basename(self())=='torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL)){
 
 $csv_get = get_get(array('id'));
 
-$rendez_rejt_oldalak = array('dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
+$rendez_rejt_oldalak = array('anyagigenyles.php', 'dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
 if(in_array(basename(self()), $rendez_rejt_oldalak)){
     $rendezes_rejt = ' dn';
+}
+
+// Anyagigénylés tálbázatban másképp keresünk
+if(basename(self())=='anyagigenyles.php'){
+    $kereso = nl2('
+            <input type="text" name="ksz" id="rendezesKeres" class="disableNav" autocomplete="off" placeholder="Keresés" onkeyup="anyagigenyles_tabla_szur($(\'table.szamla_cont_tabla\'), $(this).val())">
+            <script>
+                function anyagigenyles_tabla_szur(tabla, kulcs) {
+                    var $rows = tabla.find(\'tbody tr\');
+                    var val = $.trim(kulcs).replace(/ +/g, \' \').toLowerCase();
+
+                    $rows.show().filter(function() {
+                        var text = $(this).text().replace(/\s+/g, \' \').toLowerCase();
+                        return !~text.indexOf(val);
+                    }).hide();
+                }
+            </script>
+            ');
+
+// Kereső általános esete
+}else{
+    $kereso = nl2('
+                <form action="" method="post" onsubmit="return false;">
+                    <input type="text" name="ksz" id="rendezesKeres" class="disableNav" value="{KSZ}" autocomplete="off" placeholder="Keresés">
+                </form>
+            ');
 }
 
 $get_get = get_get(array('pdf'));
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CSS}', '{CEGNEV}', '{MENUK}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}', '{CSUSZKADN}', '{RENDEZES_REJT}' ),
-    array($css,     get_nev(),  $menuk,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,    $csuszkadn,    $rendezes_rejt    ),
+    array('{CSS}', '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}', '{CSUSZKADN}', '{RENDEZES_REJT}' ),
+    array($css,     get_nev(),  $menuk,   $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,    $csuszkadn,    $rendezes_rejt    ),
     $header_sablon
 );
 

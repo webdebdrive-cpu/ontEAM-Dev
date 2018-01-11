@@ -2278,7 +2278,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
         // Rendezés anyagigényléskor
         if($tabla=='anyagigenyles'){
-            
+            /* Szerintem ez már nem fog kelleni
             // Iktatószám melyik oszlopot jelenti:
             $ikt_szam_oszlop = 'ikt_szam';
             if (isset($_GET['anyagrend'])) {
@@ -2299,29 +2299,32 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             // Szállító név szerinti rendezés, azon belül cikkszám
             if($_GET['rend']=='szallito_id'){
                 $order = '`'.get_db_tabla().'szallito`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'anyagigenyles`.`cikk_id` '.$_GET['irany'];
-            }
+            }*/
             
-            // Táblázatos rendezésnél a SESSION-t kell figyelni
-            if($_SESSION['anyagigenyles_tablazat_rendez']){
-                switch($_SESSION['anyagigenyles_tablazat_rendez']){
-                    case 'anyag_tabla_ikt_szam'     : $order = '`'.get_db_tabla().'anyagigenyles`.`ikt_szam`';  break;
-                    case 'anyag_tabla_szalloda'     : $order = '`'.get_db_tabla().'telephely`.`nev`';           break;
-                    case 'anyag_tabla_cikkszam'     : $order = '`'.get_db_tabla().'anyagigenyles`.`cikk_id`';   break;
-                    case 'anyag_tabla_cikknev'      : $order = '`'.get_db_tabla().'anyagigenyles`.`nev`';       break;
-                    case 'anyag_tabla_szallito'     : $order = '`'.get_db_tabla().'szallito`.`nev`';            break;
-                    case 'anyag_tabla_ig_menny'     : $order = '`'.get_db_tabla().'anyagigenyles`.`igmen`';     break;
-                    case 'anyag_tabla_mee'          : $order = '`'.get_db_tabla().'anyagigenyles`.`cikkmee`';   break;
-                    case 'anyag_tabla_ig_datum'     : $order = '`'.get_db_tabla().'anyagigenyles`.`insert_dt`'; break;
-                    case 'anyag_tabla_jovah_menny'  : $order = '`'.get_db_tabla().'anyagigenyles`.`jhmen`';     break;
-                    case 'anyag_tabla_rend_menny'   : $order = '`'.get_db_tabla().'anyagigenyles`.`rndmen`';    break;
-                    case 'anyag_tabla_rend_egysegar': $order = '`'.get_db_tabla().'anyagigenyles`.`rndear`';    break;
-                    case 'anyag_tabla_penznem'      : $order = '`'.get_db_tabla().'erteklista`.`info`';         break;
-                    case 'anyag_tabla_dev_rend'     : $order = '`'.get_db_tabla().'anyagigenyles`.`vrndear`';   break;
-                    case 'anyag_tabla_dev_beerk'    : $order = '`'.get_db_tabla().'anyagigenyles`.`erkear`';    break;
-                    case 'anyag_tabla_statusz'      : $order = '`'.get_db_tabla().'anyagigenyles`.`stat_id`';   break;
-                }
-                $order .= ' '.$_SESSION['anyagigenyles_tablazat_irany'];
+            // Táblázatos rendezés miatt itt másképp kell a rendezést megoldani
+            // Alapértelmezett irány beállítása
+            if(!$_SESSION['anyagigenyles_tablazat_rendez']){
+                $_SESSION['anyagigenyles_tablazat_rendez'] = 'anyag_tabla_ikt_szam';
+                $_SESSION['anyagigenyles_tablazat_irany']  = 'desc';
             }
+            switch($_SESSION['anyagigenyles_tablazat_rendez']){
+                case 'anyag_tabla_ikt_szam'     : $order = '`'.get_db_tabla().'anyagigenyles`.`ikt_szam`';  break;
+                case 'anyag_tabla_szalloda'     : $order = '`'.get_db_tabla().'telephely`.`nev`';           break;
+                case 'anyag_tabla_cikkszam'     : $order = '`'.get_db_tabla().'anyagigenyles`.`cikk_id`';   break;
+                case 'anyag_tabla_cikknev'      : $order = '`'.get_db_tabla().'anyagigenyles`.`nev`';       break;
+                case 'anyag_tabla_szallito'     : $order = '`'.get_db_tabla().'szallito`.`nev`';            break;
+                case 'anyag_tabla_ig_menny'     : $order = '`'.get_db_tabla().'anyagigenyles`.`igmen`';     break;
+                case 'anyag_tabla_mee'          : $order = '`'.get_db_tabla().'anyagigenyles`.`cikkmee`';   break;
+                case 'anyag_tabla_ig_datum'     : $order = '`'.get_db_tabla().'anyagigenyles`.`insert_dt`'; break;
+                case 'anyag_tabla_jovah_menny'  : $order = '`'.get_db_tabla().'anyagigenyles`.`jhmen`';     break;
+                case 'anyag_tabla_rend_menny'   : $order = '`'.get_db_tabla().'anyagigenyles`.`rndmen`';    break;
+                case 'anyag_tabla_rend_egysegar': $order = '`'.get_db_tabla().'anyagigenyles`.`rndear`';    break;
+                case 'anyag_tabla_penznem'      : $order = '`'.get_db_tabla().'erteklista`.`info`';         break;
+                case 'anyag_tabla_dev_rend'     : $order = '`'.get_db_tabla().'anyagigenyles`.`vrndear`';   break;
+                case 'anyag_tabla_dev_beerk'    : $order = '`'.get_db_tabla().'anyagigenyles`.`erkear`';    break;
+                case 'anyag_tabla_statusz'      : $order = '`'.get_db_tabla().'anyagigenyles`.`stat_id`';   break;
+            }
+            $order .= ' '.$_SESSION['anyagigenyles_tablazat_irany'];
         }
 
         // Rendezés beosztásnál
@@ -2854,7 +2857,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $csoport_data = ' data-csoportID="'.$bsz['csoport_id'].'"';
             }
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -3194,7 +3197,7 @@ function rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit, $kijelolt
                         </a>';
 
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -3241,7 +3244,7 @@ function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $active = ' kijelolve';
             }
 
-            /* Telephely */
+            // Telephely
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
             $telephely = $telephely[0]['nev'];
 
@@ -3269,7 +3272,7 @@ function eseti_fenntartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                         </a>';
 
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -3313,7 +3316,7 @@ function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -3472,13 +3475,10 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             if( !$frissit ) {
-                
-                // Az első sorra betöltéskor kattintunk
                 $html .= '</table>';
-                
             }
             
-            // A bal navpaneles lsitát is kirajzoljuk, mert léptetéshez, árazás popuphoz kell. Szóval ott lesz a forráskódban, de rejtve
+            // A bal navpaneles listát is kirajzoljuk, mert léptetéshez, árazás popuphoz kell. Szóval ott lesz a forráskódban, de rejtve
             if( !$frissit ) {
                 $html .= '<ul id="szamlaList" class="szamla_cont rendszer" style="display: none">';
             }
@@ -3536,7 +3536,7 @@ function torzsadatLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$bsz['nev'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -3575,7 +3575,7 @@ function szabadsagigenyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -3610,7 +3610,7 @@ function beosztasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $active = ' kijelolve';
             }
 
-            /* Telephely */
+            // Telephely
             $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
             $telephely = $telephely[0]['nev'];
 
@@ -3619,7 +3619,7 @@ function beosztasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$telephely.' '.str_replace('-', '.', $bsz['tol']).' - '.str_replace('-', '.', $bsz['ig']).'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -3645,7 +3645,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
         $csoport = $bejegyzesek[0]['csoport_id'];
 
-        //Ha nem adunk meg $tabla-t, akkor nyomtatási nézetben vagyunk
+        // Ha nem adunk meg $tabla-t, akkor nyomtatási nézetben vagyunk
         $nohover = '';
         if(!$tabla){
             $nohover = ' nohover';
@@ -3666,7 +3666,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     if( $csoportSor ) {
                         $csoport_bej = $adatbazis_kapcsolat->s('recid', $tabla, "`csoport_id` = '{$aktCsoport}'");
 
-                        //Ha egy csoport elemén vagyunk, akkor a ki-be nyitó ikon "-"-on legyen
+                        // Ha egy csoport elemén vagyunk, akkor a ki-be nyitó ikon "-"-on legyen
                         $csoport_bej = $adatbazis_kapcsolat->s('recid', $tabla, "`csoport_id` = '{$aktCsoport}'");
                         $csoport_active = '';
                         if( $csoport_bej ) {
@@ -3752,7 +3752,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $csoport_data = ' data-csoportID="'.$bsz['csoport_id'].'"';
             }
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -3805,7 +3805,7 @@ function projektkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span'.$bold.'>'.$statusz.'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -3844,7 +3844,7 @@ function uzemeltetesi_naploLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) 
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -3884,7 +3884,7 @@ function eloterj_bodLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$bsz['nev'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -3924,7 +3924,7 @@ function eloterj_fbLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$bsz['nev'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -3963,7 +3963,7 @@ function energiaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -4002,7 +4002,7 @@ function tervezesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -4041,7 +4041,7 @@ function cash_flowLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -4080,7 +4080,7 @@ function raktarLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -4119,7 +4119,7 @@ function szamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$bsz['recid'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -4158,7 +4158,7 @@ function cikktorzsLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$bsz['id'].' '.$bsz['nev'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -4488,7 +4488,7 @@ function szerepkorLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $active = ' kijelolve';
             }
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -4546,7 +4546,7 @@ function loginLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$aktiv.' '.$bsz['teljes_nev'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -4602,7 +4602,7 @@ function erteklistaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$bsz['info'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -4654,7 +4654,7 @@ function szallitoLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$aktiv.' '.$bsz['nev'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -4693,7 +4693,7 @@ function ktghelyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$bsz['id'].' - '.$bsz['nev'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }
@@ -4732,7 +4732,7 @@ function ktgnemLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <span>'.$bsz['id'].' - '.$bsz['nev'].'</span>
                         </a>';
 
-            //Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
             if($frissit){
                 $active .= ' kijelolve';
             }

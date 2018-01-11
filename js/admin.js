@@ -221,10 +221,19 @@ $(function() {
 
     /* Ha nincs kjelölve a bal navpanelben egy sor sem, akkor az első kijelöltjük */
     setTimeout(function() {
-
-        if( !$('#szamlaList li.szamla_sor').hasClass('kijelolve') && !_get('uj') ) {
-            $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
+        
+        /* Anyagigénylésnél nem a bal navpanelre kattintonunk, hanem a táblázat első sorára */
+        if( baseName(location.href)=='anyagigenyles' ){
+            if( !$('table.szamla_cont_tabla tr.kijelolve').length ){
+                $('table.szamla_cont_tabla tbody tr:first-of-type').addClass('kijelolve').click();
+            }
+        /* Kattintás a nav panel első elemére */
+        }else{
+            if( !$('#szamlaList li.szamla_sor').hasClass('kijelolve') && !_get('uj') ) {
+                $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
+            }
         }
+
 
     }, 1);
 
@@ -325,7 +334,7 @@ $(function() {
             if( inArray(baseName(location.href), ketHasabos) ) {
                 tabla = baseName(location.href);
 
-                /* Anyagigénylésnél használt táblázat esetén valójában a táblázat következő sorára kell ugrani, ami a helyben rendezetség miatt nem ugyanaz, mint a listá */
+                /* Anyagigénylésnél használt táblázat esetén valójában a táblázat következő sorára kell ugrani, ami a helyben rendezetség miatt nem ugyanaz, mint a bal oldali navpanelé */
                 if($('.szamla_cont_tabla').length){
 
                     var active   = $('.szamla_cont_tabla tr.kijelolve').index('.szamla_cont_tabla tr'),
