@@ -129,7 +129,7 @@ array_push($select_honapok, array('name' => 'október',      'value' => '10'));
 array_push($select_honapok, array('name' => 'november',     'value' => '11'));
 array_push($select_honapok, array('name' => 'december',     'value' => '12'));
 
-// Ütemezés típushoz
+// Ütemezés típushoz - A 'kulsos' paraméterrrel az szabályozható, hogy Külsős átadáskor, melyik személyzettípus jelenjen meg
 $select_szemelyzet = array();
 array_push($select_szemelyzet, array('name' => '- Válasszon -',             'value' => '0' ));
 array_push($select_szemelyzet, array('name' => 'Telepített személyzet',     'value' => TELEPITETT_SZEMELYZET,   'szin' => '#CBE3FF', 'kulsos' => 0 ));
@@ -138,12 +138,12 @@ array_push($select_szemelyzet, array('name' => 'Külső kivitelező',          '
 
 $kiveteles_oldalak = array('utemezett_feladatok.php', 'rendszeres_karbantartas.php');
 if( !in_array(basename(self()), $kiveteles_oldalak) ){
-    array_push($select_szemelyzet, array('name' => 'Műszaki vezető helyettes',  'value' => MUSZAKI_VEZETO_HELYETTES,'szin' => '#FFCBF1', 'kulsos' => 1 ));
+    array_push($select_szemelyzet, array('name' => 'Műszaki vezető helyettes',  'value' => MUSZAKI_VEZETO_HELYETTES,'szin' => '#FFCBF1', 'kulsos' => 0 ));
     array_push($select_szemelyzet, array('name' => 'Műszaki vezető',            'value' => MUSZAKI_VEZETO,          'szin' => '#FFCBCB', 'kulsos' => 1 ));
     array_push($select_szemelyzet, array('name' => 'Területi felelős',          'value' => TERULETI_FELELOS,        'szin' => '#E0CBFF', 'kulsos' => 1 ));
     array_push($select_szemelyzet, array('name' => 'Műszaki ügyintéző',         'value' => MUSZAKI_ADMINISZTRATOR,  'szin' => '#E0CBFF', 'kulsos' => 1 ));
     array_push($select_szemelyzet, array('name' => 'Diszpécser',                'value' => DISZPECSER,              'szin' => '#FFEBCB', 'kulsos' => 0 ));
-    array_push($select_szemelyzet, array('name' => 'Diszpécser közp. vezető',   'value' => DISZPECSER_KOZP_VEZETO,  'szin' => '#FFEBCB', 'kulsos' => 1 ));
+    array_push($select_szemelyzet, array('name' => 'Diszpécser közp. vezető',   'value' => DISZPECSER_KOZP_VEZETO,  'szin' => '#FFEBCB', 'kulsos' => 0 ));
     array_push($select_szemelyzet, array('name' => 'Műszaki igazgató',          'value' => MSZK_VEZETO,             'szin' => '#E0CBFF', 'kulsos' => 1 ));
 }
 

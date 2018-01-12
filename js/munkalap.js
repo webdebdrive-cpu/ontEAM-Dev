@@ -7,7 +7,7 @@ function munkalapMuszakiVezeto() {
             url : 'munkalap.php',
             type: 'POST',
             data: {
-                recid: _get('id'),
+                recid                : _get('id'),
                 munkalapMuszakiVezeto: new Date().getTime()
             },
             success: function(response) {
@@ -227,6 +227,36 @@ function munkalapDiszpKozp() {
             data: {
                 recid               : _get('id'),
                 munkalapDiszpKozp   : new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    popupZar();
+                }
+            }
+        });
+    }
+
+    return false;
+}
+
+/* Munka visszaadása - nem ugyanaz mint a  Diszpécser központ vezetőnek! */
+function munkalapVisszaad(mehet) {
+    if(balnav_kijelol_ell()){
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid           : _get('id'),
+                mehet           : mehet,
+                munkalapVisszaad: new Date().getTime()
             },
             success: function(response) {
                 if(response) {
