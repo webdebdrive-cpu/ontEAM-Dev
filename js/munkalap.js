@@ -30,6 +30,38 @@ function munkalapMuszakiVezeto() {
     return false;
 }
 
+/* Átadás területi felelősnek */
+function munkalapTeruletiVezeto() {
+
+    if(balnav_kijelol_ell()){
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid                 : _get('id'),
+                munkalapTeruletiVezeto: new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    popupZar();
+                }
+            }
+        });
+
+    }
+
+    return false;
+}
+
 /* Munkalap átadása adminsiztrátornak */
 function munkalapAdminisztrator() {
 
@@ -94,15 +126,15 @@ function munkalapMuszakiVezetoHelyettes() {
     return false;
 }
 
-/* Munkalap átadása MSZK Vezetőnek */
-function munkalapMSZKVezeto() {
+/* Munkalap átadása műszaki igazgatónak */
+function munkalapMuszakiIgazgato() {
     if(balnav_kijelol_ell()){
         $.ajax({
             url : 'munkalap.php',
             type: 'POST',
             data: {
-                recid               : _get('id'),
-                munkalapMSZKVezeto  : new Date().getTime()
+                recid                   : _get('id'),
+                munkalapMuszakiIgazgato : new Date().getTime()
             },
             success: function(response) {
                 if(response) {
@@ -247,7 +279,7 @@ function munkalapDiszpKozp() {
     return false;
 }
 
-/* Munka visszaadása - nem ugyanaz mint a  Diszpécser központ vezetőnek! */
+/* Munka visszaadása - nem ugyanaz mint a Diszpécser központ vezetőnek! */
 function munkalapVisszaad(mehet) {
     if(balnav_kijelol_ell()){
         $.ajax({

@@ -143,8 +143,8 @@ if( !in_array(basename(self()), $kiveteles_oldalak) ){
     array_push($select_szemelyzet, array('name' => 'Területi felelős',          'value' => TERULETI_FELELOS,        'szin' => '#E0CBFF', 'kulsos' => 1 ));
     array_push($select_szemelyzet, array('name' => 'Műszaki ügyintéző',         'value' => MUSZAKI_ADMINISZTRATOR,  'szin' => '#E0CBFF', 'kulsos' => 1 ));
     array_push($select_szemelyzet, array('name' => 'Diszpécser',                'value' => DISZPECSER,              'szin' => '#FFEBCB', 'kulsos' => 0 ));
-    array_push($select_szemelyzet, array('name' => 'Diszpécser közp. vezető',   'value' => DISZPECSER_KOZP_VEZETO,  'szin' => '#FFEBCB', 'kulsos' => 0 ));
-    array_push($select_szemelyzet, array('name' => 'Műszaki igazgató',          'value' => MSZK_VEZETO,             'szin' => '#E0CBFF', 'kulsos' => 1 ));
+    array_push($select_szemelyzet, array('name' => 'MSZK vezető',               'value' => MSZK_VEZETO,             'szin' => '#FFEBCB', 'kulsos' => 1 ));
+    array_push($select_szemelyzet, array('name' => 'Műszaki igazgató',          'value' => MUSZAKI_IGAZGATO,        'szin' => '#E0CBFF', 'kulsos' => 0 ));
 }
 
 // Projektigénylés tipus

@@ -148,12 +148,12 @@ define('TELEPITETT_SZEMELYZET',         '1' );
 define('MOBILCSOPORT',                  '2' );
 define('KULSO_KIVITELEZO',              '3' );
 define('DISZPECSER',                   '10' );
-define('DISZPECSER_KOZP_VEZETO',        '4' );
+define('MSZK_VEZETO',                   '4' );
 define('MUSZAKI_VEZETO',                '5' );
 define('MUSZAKI_VEZETO_HELYETTES',      '6' );
 define('TERULETI_FELELOS',              '7' );
 define('MUSZAKI_ADMINISZTRATOR',        '8' );
-define('MSZK_VEZETO',                   '9' );
+define('MUSZAKI_IGAZGATO',              '9' );
 
 // MozgásID-k
 define('MOZGID_RAKTAR_BE',              '01' );

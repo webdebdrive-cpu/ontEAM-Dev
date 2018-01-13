@@ -1,0 +1,67 @@
+<h2>Külső kivitelező hozzárendelése</h2>
+<form action="" id="munkalapKulso" class="popupForm" method="post" onsubmit="return kulsokivHozzarend( this );">
+    <div class="kozep" style="min-height: 30rem">
+        <p>Válasszon külső kivitelezőt:</p>
+        <div class="dt">
+            <div class="dtr"> 
+                <div class="dtc form_jobb plr0">
+                    <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="szallito_id_autocomp" id="szallito_id_autocomp" onblur="if(!$(this).val()){ $('#szallito_id').val(''); }" value="">
+                    <input type="hidden" name="szallito_id" id="szallito_id" value="">
+                    <script>
+                         $(document).ready(function() {
+                             $('#szallito_id_autocomp').autocomplete({
+                                 'php_fajl'         : '../autocomplete.php',
+                                 'tabla'            : 'szallito',
+                                 'oszlop_keres'     : 'nev',
+                                 'oszlop_listaz'    : 'nev',
+                                 'rkat'             : 0,
+                                 'csoport'          : 0,
+                                 'id_kiir'          : 'id'
+                             });
+                        });
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+/* Külső kivitelező hozzárendelése */
+function kulsokivHozzarend( that ) {
+    var szallitoid = $(that).find('input[name="szallito_id"]');
+
+    if( szallitoid.val() ) {
+        $.ajax({
+         	url : 'munkalap.php',
+         	type: 'POST',
+         	data: {
+                recid            : _get('id'),
+                validate         : 'false',
+                szallitoid       : szallitoid.val(),
+                kulsokivHozzarend: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    popupZar();
+         		}
+         	}
+        });
+    } else {
+        alert2('Kérem válasszon szállítót!', '', 'Hiba');
+    }
+
+    return false;
+}
+</script>
