@@ -2792,34 +2792,98 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         popupNyit();
                     });
                 break;
+                
+                case 'atadasDiszpecsernek':
 
-                case 'munkalapAnyagigenyles':
-                    $('#popupTart').html(data);
-
-                    var ajax = $.ajax({
+                    /* Ha felvéve vagy vizsgálat státuszban van, akkor azt is ellenőrizzük, hogy van-e feladat az utolsó tételéhez csatolva */
+                    var mehet = true;
+                    var ellenorzes = $.ajax({
                         url : 'munkalap.php',
                         type: 'POST',
                         data: {
-                            recid               : _get('id'),
-                            szuk_menny          : true,
-                            getMunkalapAnyagok  : new Date().getTime()
+                            recid        : _get('id'),
+                            atadas_diszp : _get('id'),
+                            van_e_feladat: Date.now()
                         },
-                        success: function(response) {
+                        success: function (response) {
                             if(response) {
                                 response = JSON.parse(response);
 
                                 if( response.hiba ) {
                                     alert2(response.hiba, response.gomb, response.title);
+                                    mehet = false;
                                     return false;
                                 }
 
-                                $('#insertTable').html(response.html);
                             }
                         }
                     });
+                    $.when( ellenorzes ).then(function() {
+                        
+                        if(mehet){
+                            $('#popupTart').html(data);
+                            popupNyit();
+                            return true;
+                        }
+                        
+                    });
+                break;
 
-                    $.when( ajax ).then(function() {
-                        popupNyit();
+                case 'munkalapAnyagigenyles':
+                    $('#popupTart').html(data);
+
+                    var mehet = true;
+                    var ellenorzes = $.ajax({
+                        url : 'munkalap.php',
+                        type: 'POST',
+                        data: {
+                            recid        : _get('id'),
+                            van_e_feladat: Date.now()
+                        },
+                        success: function (response) {
+                            if(response) {
+                                response = JSON.parse(response);
+
+                                if( response.hiba ) {
+                                    alert2(response.hiba, response.gomb, response.title);
+                                    mehet = false;
+                                    return false;
+                                }
+
+                            }
+                        }
+                    });
+                    $.when( ellenorzes ).then(function() {
+                        
+                        if(mehet){
+                        
+                            var ajax = $.ajax({
+                                url : 'munkalap.php',
+                                type: 'POST',
+                                data: {
+                                    recid               : _get('id'),
+                                    szuk_menny          : true,
+                                    getMunkalapAnyagok  : new Date().getTime()
+                                },
+                                success: function(response) {
+                                    if(response) {
+                                        response = JSON.parse(response);
+
+                                        if( response.hiba ) {
+                                            alert2(response.hiba, response.gomb, response.title);
+                                            return false;
+                                        }
+
+                                        $('#insertTable').html(response.html);
+                                    }
+                                }
+                            });
+
+                            $.when( ajax ).then(function() {
+                                popupNyit();
+                            });
+                        }
+                        
                     });
                 break;
 

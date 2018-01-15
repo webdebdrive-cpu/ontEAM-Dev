@@ -29,7 +29,7 @@
                 </div>
             </div>
         </div>
-        <p style="margin-top: 8rem">Ha folytatja, a munkalap visszakerül a diszpécserhez. Folytatja?</p>
+        <div id="visszaadas_kerdes" style="margin-top: 8rem">Ha folytatja, a munkalap visszakerül a diszpécserhez. Folytatja?</div>
     </div>
     <div class="kuldes">
         <input type="submit" name="elkuld" value="Igen">
@@ -37,6 +37,24 @@
     </div>
 </form>
 <script>
+/* Felvéve státusz alatt ki kell írni, hogy mely anyagok vannak szükséges mennyiséggel, mert ezek törlésre kerülnek */
+$(document).ready(function(){
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid                       : _get('id'),
+            szukseges_anyagok_listaja   : Date.now()
+        },
+        success: function(response){
+            if(response){
+                response = JSON.parse(response);
+                $('#visszaadas_kerdes').html(response.kerdes).css({'margin-top':'2rem'});
+            }
+        }
+    });
+});
+
 /* Átadás diszpécsernek */
 function atadasDiszpecsernek( that ) {
     if(balnav_kijelol_ell()){
