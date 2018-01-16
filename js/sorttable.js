@@ -91,26 +91,26 @@ sorttable = {
 	      headrow[i].sorttable_tbody = table.tBodies[0];
 	      dean_addEvent(headrow[i],"dblclick", function(e) {
 
-          if (this.className.search(/\bsorttable_sorted\b/) != -1) {
+          if( $(this).hasClass('sorttable_sorted') ){
+
             /* if we're already sorted by this column, just 
             // reverse the table, which is quicker */
             sorttable.reverse(this.sorttable_tbody);
-            this.className = this.className.replace('sorttable_sorted',
-                                                    'sorttable_sorted_reverse');
-            this.removeChild(document.getElementById('sorttable_sortfwdind'));
+            $(this).removeClass('sorttable_sorted').removeClass('sorttable_sorted_reverse');
+            $('#sorttable_sortfwdind').remove();
             sortrevind = document.createElement('span');
             sortrevind.id = "sorttable_sortrevind";
             sortrevind.innerHTML = stIsIE ? '&nbsp<font face="webdings">5</font>' : '&nbsp;&#x25B4;';
             this.appendChild(sortrevind);
             return;
           }
-          if (this.className.search(/\bsorttable_sorted_reverse\b/) != -1) {
+          if( $(this).hasClass('sorttable_sorted_reverse') ){
+
             /* if we're already sorted by this column in reverse, just 
             // re-reverse the table, which is quicker */
             sorttable.reverse(this.sorttable_tbody);
-            this.className = this.className.replace('sorttable_sorted_reverse',
-                                                    'sorttable_sorted');
-            this.removeChild(document.getElementById('sorttable_sortrevind'));
+            $(this).removeClass('sorttable_sorted').removeClass('sorttable_sorted_reverse');
+            $('#sorttable_sortrevind').remove();
             sortfwdind = document.createElement('span');
             sortfwdind.id = "sorttable_sortfwdind";
             sortfwdind.innerHTML = stIsIE ? '&nbsp<font face="webdings">6</font>' : '&nbsp;&#x25BE;';
@@ -122,8 +122,8 @@ sorttable = {
           theadrow = this.parentNode;
           forEach(theadrow.childNodes, function(cell) {
             if (cell.nodeType == 1) { /* an element */
-              cell.className = cell.className.replace('sorttable_sorted_reverse','');
-              cell.className = cell.className.replace('sorttable_sorted','');
+                cell.className = cell.className.replace('sorttable_sorted_reverse','');
+                cell.className = cell.className.replace('sorttable_sorted',        '');
             }
           });
           sortfwdind = document.getElementById('sorttable_sortfwdind');
@@ -150,8 +150,9 @@ sorttable = {
 	        /* If you want a stable sort, uncomment the following line */
 	        /* sorttable.shaker_sort(row_array, this.sorttable_sortfunction); */
 	        /* and comment out this one */
+
 	        row_array.sort(this.sorttable_sortfunction);
-            
+
 	        tb = this.sorttable_tbody;
 	        for (var j=0; j<row_array.length; j++) {
 	          tb.appendChild(row_array[j][1]);

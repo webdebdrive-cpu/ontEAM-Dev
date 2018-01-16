@@ -3344,7 +3344,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         if(isset($_GET['anyagrend'])){
             
             $jClass = '';
-            // Nem mindig jelölhető ki, jogosultságon múlik
+            // Anyagrendelés készíthet jöghöz van kötve a többszörös kijelölés (Anyagrend alatt is?)
             if( _jog(JOG_ANYAGREND_KESZIT) ) {
                 $jClass = ' kijelolheto csoport_nevre_kattintas';
             }
@@ -3394,7 +3394,8 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         }else{
             
             $oszlopok = array(
-                array('id' => 'anyag_tabla_ikt_szam',       'nev' => 'Anyagigénylés szám'),
+                array('id' => 'anyag_tabla_statusz',        'nev' => 'Státusz'),
+                array('id' => 'anyag_tabla_ikt_szam',       'nev' => 'Anyagig. szám'),
                 array('id' => 'anyag_tabla_szalloda',       'nev' => 'Szálloda'),
                 array('id' => 'anyag_tabla_cikkszam',       'nev' => 'Cikkszám'),
                 array('id' => 'anyag_tabla_cikknev' ,       'nev' => 'Cikk név'),
@@ -3405,19 +3406,23 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 array('id' => 'anyag_tabla_jovah_menny',    'nev' => 'Jóváhagyott mennyiség'),
                 array('id' => 'anyag_tabla_rend_menny',     'nev' => 'Rendelt mennyiség'),
                 array('id' => 'anyag_tabla_rend_egysegar',  'nev' => 'Rendelési egységár ('.get_penznem().')'),
-                array('id' => 'anyag_tabla_penznem',        'nev' => 'Pénzn'),
                 array('id' => 'anyag_tabla_dev_rend',       'nev' => 'Deviza rend. egységár'),
-                array('id' => 'anyag_tabla_dev_beerk',      'nev' => 'Deviza beérk. egységár'),
-                array('id' => 'anyag_tabla_statusz',        'nev' => 'Státusz'),
+                array('id' => 'anyag_tabla_penznem',        'nev' => 'Pénzn'),
             );
+            
+            // Anyagrendelés készíthet jöghöz van kötve a többszörös kijelölés
+            if( _jog(JOG_ANYAGREND_KESZIT) && !_jog(JOG_ANYAGIGENYLES_JOVAHAGY) ) {
+                $jClass = ' kijelolheto';
+            }
 
             if( !$frissit ) {
                 $html .= nl2('
-                        <table class="szamla_cont_tabla sortable">
+                        <table class="szamla_cont_tabla sortable'.$jClass.'">
+                        <thead>
                             <tr>');
                 foreach($oszlopok as $oszl){
+                    $class = '';
                     if($oszl['id']==$_SESSION['anyagigenyles_tablazat_rendez']){
-                        $class = '';
                         if($_SESSION['anyagigenyles_tablazat_irany']=='desc'){
                             $class = ' class="b sorttable_sorted_reverse"';
                             $oszl['nev'] .= '<span id="sorttable_sortrevind">&nbsp;▴</span>';
@@ -3429,11 +3434,24 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     $html .= '<th id="'.$oszl['id'].'"'.$class.'>'.$oszl['nev'].'</th>';
                 }
                 $html .= nl2('</tr>
+                        </thead>
+                        <tbody>
                         ');
             }
 
             $i = 1;
+            $rendelesi_ertek = 0;
+            $eredeti_ertekek = array();
             foreach($bejegyzesek as $bsz) {
+                
+                // Rendelési érték számítás
+                $rendelesi_ertek += $bsz['rndmen']*$bsz['rndear'];
+                
+                $bsz['igmen']   = str_replace('.', ',', $bsz['igmen']);
+                $bsz['jhmen']   = str_replace('.', ',', $bsz['jhmen']);
+                $bsz['rndmen']  = str_replace('.', ',', $bsz['rndmen']);
+                $bsz['rndear']  = str_replace('.', ',', $bsz['rndear']);
+                $bsz['vrndear'] = str_replace('.', ',', $bsz['vrndear']);
 
                 $active = '';
                 if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
@@ -3447,13 +3465,21 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 if( $bsz['stat_id'] == CIKKIGN_STAT_NYITOTT ){
                     $bold = ' b';
                 }
+                
+                // Anyagigénylés jog és Árazva státusz esetén a jóváhagyott mennyiség helyben szerkeszthető
+                $jhmen = $bsz['rndmen'];
+                if ( $bsz['stat_id']==CIKKIGN_STAT_ARAZVA && _jog(JOG_ANYAGIGENYLES_JOVAHAGY)) {
+                    $jhmen = '<input class="r f_num" data-tort="2" type="text" id="jhmen_'.$bsz['recid'].'" value="'.$bsz['rndmen'].'" style="width: 5rem" onclick="">';
+                }
+                $eredeti_ertekek['jhmen_'.$bsz['recid']] = $bsz['rndmen'];
 
                 // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
                 if($frissit){
                     $active .= ' kijelolve';
                 }
                 $html .= '
-                            <tr class="'.$active.$bold.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click()" data-id="'.$bsz['recid'].'">
+                            <tr class="'.$active.$bold.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click()" data-id="'.$bsz['recid'].'" data-i="'.$i.'">
+                                <td class="c" sorttable_customkey="'.$bsz['stat_id'].'">'.getStatText('anyagigenyles', $bsz['stat_id']).'</td>
                                 <td class="c">'.$bsz['ikt_szam'].'</td>
                                 <td class="c">'.$telephely['nev'].'</td>
                                 <td class="c">'.$bsz['cikk_id'].'</td>
@@ -3462,25 +3488,44 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 <td class="r">'.$bsz['igmen'].'</td>
                                 <td class="c">'.$bsz['cikkmee'].'</td>
                                 <td class="c">'.substr(str_replace('-', '.', $bsz['insert_dt']), 0, 10).'</td>
-                                <td class="r">'.$bsz['jhmen'].'</td>
+                                <td class="r" sorttable_customkey="'.$bsz['jhmen'].'">'.$jhmen.'</td>
                                 <td class="r">'.$bsz['rndmen'].'</td>
                                 <td class="r">'.$bsz['rndear'].'</td>
-                                <td class="c">'.erteklista(21, $bsz['kcs_21']).'</td>
                                 <td class="r">'.$bsz['vrndear'].'</td>
-                                <td class="r">'.$bsz['verkear'].'</td>
-                                <td class="c" sorttable_customkey="'.$bsz['stat_id'].'">'.getStatText('anyagigenyles', $bsz['stat_id']).'</td>
+                                <td class="c">'.erteklista(21, $bsz['kcs_21']).'</td>
                             </tr>
                             ';
                 $i++;
             }
 
             if( !$frissit ) {
-                $html .= '</table>';
+                
+                // Anyagigénylés jóváhagyás jog esetén a rendelési egységár alatt
+                if (_jog(JOG_ANYAGIGENYLES_JOVAHAGY)) {
+                    
+                    $html .= nl2('
+                            <tfoot>
+                            <tr>
+                                <td colspan="9"></td>
+                                <td colspan="2" class="r b">Rendelési érték:</td>
+                                <td class="r b">'.number_format($rendelesi_ertek, 0, ',', ' ').'</td>
+                                <td colspan="3" class="r"></td>
+                            </tr>
+                            </tfoot>
+                                ');
+                }
+                
+                $html .= nl2('
+                                </tbody>
+                                </table>
+                            ');
+                $html .= '<script> anyagig_eredeti_jhmen = JSON.parse(\''.json_encode($eredeti_ertekek).'\'); </script>';
             }
             
             // A bal navpaneles listát is kirajzoljuk, mert léptetéshez, árazás popuphoz kell. Szóval ott lesz a forráskódban, de rejtve
             if( !$frissit ) {
-                $html .= '<ul id="szamlaList" class="szamla_cont rendszer" style="display: none">';
+                //
+                $html .= '<ul id="szamlaList" class="szamla_cont rendszer kijelolheto csoport_nevre_kattintas" style="display: none">';
             }
 
             $i = 1;
@@ -5117,14 +5162,14 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
             
             // Beszúrjuk az újat
             $sql = $adatbazis_kapcsolat -> i($tabla,
-                                                array($kulso_kulcs.'_recid', 'stat_id', 'erteklista_recid',  'insert_dt',   'insert_usr',                              'update_usr'                         ),
-                                                array($recid,                $stat_id,  $erteklista_recid,   'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
+                                                array($kulso_kulcs.'_recid', 'stat_id', 'erteklista_recid', 'text',  'insert_dt',   'insert_usr',                              'update_usr'                         ),
+                                                array($recid,                $stat_id,  $erteklista_recid,  $memo,   'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
                                             );
             if( $sql === false ) { $db_error = true; }
             
-            // Ha van memó, akkor azt az előző státuszhoz írjuk be
-            $sql = $adatbazis_kapcsolat -> u($tabla, array('text' ), array($memo), "`recid`='{$akt_statusz['recid']}'");
-            if( $sql === false ) { $db_error = true; }
+            // Ha van memó, akkor azt az előző státuszhoz írjuk be: MÉGSEM, a friss sorba kerül be
+//            $sql = $adatbazis_kapcsolat -> u($tabla, array('text' ), array($memo), "`recid`='{$akt_statusz['recid']}'");
+//            if( $sql === false ) { $db_error = true; }
 
             // Az alap tábla státusz oszlopát is karban tartjuk
             $sql = $adatbazis_kapcsolat->u($kulso_kulcs, array('stat_id'), array($stat_id), "`recid`='$recid'");
@@ -5288,7 +5333,7 @@ function get_akt_login_szallodai($sqlt_adj_vissza, $telephely_id_oszlop_helyett_
         }
         // Ha tartozik hozzá szálloda
         if($szallodak){
-            return ' AND `'.$oszlop.'` IN ('.implode(', ', $szallodak).') AND `inaktiv`=0';
+            return ' AND `'.$oszlop.'` IN ('.implode(', ', $szallodak).')';
         // Ha nem tartozik hozzá szálloda, akkor így válik majd hamissá az SQL feltétele
         }else{
             return ' AND `'.$oszlop.'`=0';
@@ -5513,7 +5558,6 @@ function get_tortenet($megnevezes){
                 <div class="dtc">Státuszidő</div>
                 <div class="dtc">Göngyölt státuszidő</div>
                 <div class="dtc">Megjegyzés</div>
-                <!--<div class="dtc">Összesített státuszidő</div>-->
             </div>
     ');
 
@@ -5542,7 +5586,6 @@ function get_tortenet($megnevezes){
                     <div class="dtc">'.$sor['statido'].'</div>
                     <div class="dtc">'.$sor['gongyolt_statido'].'</div>
                     <div class="dtc">'.nl2br2($sor['text']).'</div>
-                    <!--<div class="dtc">'.$sor['ossz_statido'].'</div>-->
                 </div>
             ');
         }

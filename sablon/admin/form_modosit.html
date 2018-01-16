@@ -52,6 +52,13 @@
                             $input.val( $input.val().substring(0, 3)+'00' );
                         }
                     });
+                    
+                    /* Escapera záródjonbe */
+                    $(document).on('keyup', function(e) {
+                        if( e.keyCode == KEY_ESCAPE ) {
+                            $('.xdsoft_datetimepicker').hide();
+                        }
+                    });
 
                     /* Ha az űrlapnak nincs submit-ja, akkor minden mezőjét tiltunk.  */
                     if(!$('#szerk_form').parent().find('input.mentes_gomb').length){

@@ -94,3 +94,13 @@ if( $_SESSION[get_db_tabla().'user'] ) {
     }
 
 }
+
+// Ha jóváhagyás joggal léptünk az anyagigénylésekhez, és nem módossítottunk még a szűrésen, akkor alapból leszűrünk az árazva státuszra. 
+// Viszont emiatt kell egy get szűrés töröl is, hogy tudjuk mikor kapcsolták ki szándékosan.
+if (isset($_GET['szures_torol'])) {
+    $_SESSION['szures_torol'] = 1;
+    hd(basename(self()).'?tablazat');
+}
+if( empty($_POST) && basename(self()) == 'anyagigenyles.php' && _jog(JOG_ANYAGIGENYLES_JOVAHAGY) && !$_GET['mezo'] && !$_SESSION['szures_torol']){
+    header('Location:'.self().get_get('', 'nem &amp;').'&mezo=stat_id&op=equal&felt='.CIKKIGN_STAT_ARAZVA);
+}

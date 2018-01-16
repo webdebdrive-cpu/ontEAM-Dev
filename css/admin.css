@@ -1720,20 +1720,33 @@ table.szamla_cont_tabla {
     width: 100%;
 }
 /* Azért adunk egy fix szélességet a névnek, hogy kereséskor, se nagyon változzon meg a tálblázat szerkezete, ha egy olyan találat volna, ami túl rövid nevű */
-table.szamla_cont_tabla th:nth-of-type(4){
+table.szamla_cont_tabla th:nth-of-type(5){
     min-width: 50rem;
 }
 table.szamla_cont_tabla tr{
     border-bottom: 0.1rem solid #D6D6D6;
     cursor: pointer;
 }
-table.szamla_cont_tabla tr:hover{
+table.szamla_cont_tabla tbody tr:hover{
     background: #F1F8FF;
 }
+table.szamla_cont_tabla thead tr, table.szamla_cont_tabla thead tr:hover{
+    background: #F1EFF0;
+}
+table.szamla_cont_tabla tfoot tr:hover{
+    cursor: default;
+}
+table.szamla_cont_tabla th{
+    border-bottom: 0.1rem solid #8e8e8e;
+    font-weight: normal;
+    padding: 1rem 0.1rem;
+    user-select: none;
+}
+
 table.szamla_cont_tabla tr td{
     padding: 0.1rem 0.2rem;
 }
-table.szamla_cont_tabla tr.kijelolve{
+table.szamla_cont_tabla tr.kijelolve, table.szamla_cont_tabla tr.kijelolve:hover{
     background: #55A2FA;
     color: #fff;
 }
