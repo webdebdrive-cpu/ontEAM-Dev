@@ -19,11 +19,13 @@ function torol(fajl, objid){
         type: 'GET',
         data: esamp2es('&amp;becsapas=' + new Date().getTime()),
         success: function(html) {
+            if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             $.ajax({
                 url : fajl,
                 type: 'GET',
                 data: esamp2es('&amp;becsapas=' + new Date().getTime()),
                 success: function(html) {
+                    if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                     $('#bejegyzesek_szama').html(html);
                     $('#'+objid).fadeOut();
                     alert2();
@@ -40,6 +42,7 @@ function pipa_kapcsolo(id, valtozonev, lista_neve, sorid){
 		url : 'esemenyek.php',
 		data: valtozonev + '=1&' + lista_neve + '=1&id=' + sorid,
 		success: function(html){
+            if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             $('#'+id).toggleClass('aktiv');
         }
 	});
@@ -84,6 +87,7 @@ function login_mentes(id){
         type: 'POST',
         data: esamp2es('id='+id+'&amp;rendes_nev='+$('#rendes_nev_'+id).val()+'&amp;nev='+$('#nev_'+id).val()+'&amp;jelszo='+$('#jelszo_'+id).val()+'&amp;jog='+$('#jog_'+id).val()+'&amp;nyelv='+$('#nyelv_'+id).val()+'&amp;login_mentes=' + new Date().getTime()),
         success: function(html){
+            if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             alert2(html);
             $('#jelszo_'+id).val('');
         }
@@ -99,6 +103,7 @@ function login_torol(id){
         type: 'POST',
         data: esamp2es('id='+id+'&amp;login_torol=' + new Date().getTime()),
         success: function(html){
+            if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             $('#login_'+id).fadeOut();
             $('#login_'+id+'_szep').fadeOut();
         }
@@ -114,6 +119,7 @@ function jog_mentes(id){
         type: 'POST',
         data: esamp2es('id='+id+'&amp;jog_nev='+$('#jog_nev_'+id).val()+'&amp;jog_oldalak='+$('#jog_oldalak_'+id).val()+'&amp;jog_mentes=' + new Date().getTime()),
         success: function(html){
+            if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             alert2(html);
         }
     });
@@ -129,6 +135,7 @@ function jog_torol(id){
         type: 'POST',
         data: esamp2es('id='+id+'&amp;jog_torol=' + new Date().getTime()),
         success: function(html){
+            if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             $('#jog_'+id).fadeOut();
         }
     });
@@ -196,6 +203,7 @@ function get_admin_file_thumb(tabla, oszlop, id, jquery_string){
         type: 'GET',
         data: esamp2es('tabla='+tabla+'&amp;oszlop='+oszlop+'&amp;id='+id+'&amp;get_admin_file_thumb=' + new Date().getTime()),
         success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             alert2();
             $(jquery_string).html(response);
         }
@@ -428,6 +436,7 @@ $(function() {
                 type: 'GET',
                 data: esamp2es('ksz=' + that.val() + '&amp;gyorskereso_ajax=' + new Date().getTime()),
                 success: function (response) {
+                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                     $('#tartalomBal').html(response);
                 }
             });
@@ -1264,6 +1273,7 @@ $(function() {
                 f_o_szures_submit: new Date().getTime()
             },
             success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 response = JSON.parse(response);
 
                 if( response.hiba ) {
@@ -1285,6 +1295,7 @@ $(function() {
                 f_o_szures_torol: new Date().getTime()
             },
             success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 location.reload();
             }
         });
@@ -1350,6 +1361,7 @@ $(function() {
             type: 'POST',
             data: esamp2es('telephely_id=' + telephely_id + '&amp;cikk_id=' + cikkid_origi + '&amp;f_anyag_rendelkezesre_all=' + new Date().getTime()),
             success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 $('#sor_'+cikk_id).fadeOut();
             }
         });
@@ -1456,6 +1468,7 @@ $(function() {
                 f_pri_egytobb: new Date().getTime()
             },
             success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 $('#telephely_id').parent().parent().replaceWith(response);
             }
         });
@@ -1539,6 +1552,7 @@ function bejBejelentok( value ) {
             async: false,
             data: esamp2es('telephely_id=' + value + '&amp;getBejBejelentok=' + new Date().getTime()),
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 response = JSON.parse(response);
 
                 if( response.hiba ) {
@@ -1568,6 +1582,7 @@ function bejSzallodaValaszt() {
         type: 'POST',
      	data: esamp2es('bejSzallodaValaszt=' + new Date().getTime()),
      	success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
      		if(response) {
                 response = JSON.parse(response);
 
@@ -1602,6 +1617,7 @@ function munkalapMegrendelve( recid, csak_kerdezunk ) {
                 munkalapMegrendelve: new Date().getTime()
             },
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
                     response = JSON.parse(response);
 
@@ -1637,6 +1653,7 @@ function kuldesJovahagyasra( recid, csak_kerdezunk ) {
                 kuldesJovahagyasra: new Date().getTime()
             },
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
                     response = JSON.parse(response);
 
@@ -1672,6 +1689,7 @@ function diszKozpVezAtadas( that ) {
                 diszKozpVezAtadas: new Date().getTime()
             },
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
                     response = JSON.parse(response);
 
@@ -1710,6 +1728,7 @@ function diszKozpVezLezaras( that ) {
                 diszKozpVezLezaras: new Date().getTime()
             },
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
                     response = JSON.parse(response);
 
@@ -1762,6 +1781,7 @@ function bejelentesElutasit( that ) {
                 bejelentesElutasit: new Date().getTime()
             },
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
                     response = JSON.parse(response);
 
@@ -1798,6 +1818,7 @@ function bejelentesIgazolas( recid, csak_kerdezunk ) {
                     bejelentesIgazolas: new Date().getTime()
                 },
                 success: function(response) {
+                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                     if(response) {
                         response = JSON.parse(response);
 
@@ -1836,6 +1857,7 @@ function bejelentesReklamacioElfogad(csak_kerdezunk) {
                 bejelentesReklamacioElfogad : new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -1881,9 +1903,7 @@ function tobbBejegyzesTorol() {
                         type: 'GET',
                         data: esamp2es('noload&amp;' + baseName(location.href) + 'tid=' + idk[key] + '&amp;becsapas=' + new Date().getTime()),
                         success: function(response) {
-                            if(response) {
-
-                            }
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         }
                     });
                 }
@@ -2080,6 +2100,7 @@ function varolistabolKivetel(csak_kerdezunk) {
                         varolistabolKivetel : new Date().getTime()
                     },
                     success: function(response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         if(response) {
                             response = JSON.parse(response);
 
@@ -2141,6 +2162,7 @@ function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
                         kuldes_jovahagyasra : new Date().getTime()
                     },
                     success: function(response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         if(response) {
                             response = JSON.parse(response);
 
@@ -2206,6 +2228,7 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
                         rendeles_keszit     : new Date().getTime()
                     },
                     success: function(response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         if(response) {
                             response = JSON.parse(response);
 
@@ -2239,9 +2262,13 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
 // Árazott anyagigénylés jóváhagyása
 function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
 
+    if(!csak_kerdezunk){
+        formModositva = false;
+        $('.szamla_cont_tabla input').removeClass('mod');
+    }
     if(balnav_kijelol_ell()){
 
-        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+        szamlaSorok = $('.szamla_cont_tabla tbody tr.kijelolve');
         if( szamlaSorok.length ) {
             idk = {};
 
@@ -2279,6 +2306,7 @@ function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
                         anyagigenyles_jovahagy  : new Date().getTime()
                     },
                     success: function(response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         if(response) {
                             response = JSON.parse(response);
 
@@ -2303,7 +2331,7 @@ function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
                             if(_get('tablazat')){
                                 location.reload();
                             }else{
-                                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                                szamlaBetolt(_get('id'), baseName(location.href) + '.php');
                                 // navpanel frissítése (minden kijelölt sort)
                                 szamlaSorok.each(function() {
                                     szamlaSorFrissit(page, $(this).attr('data-recid'));
@@ -2321,6 +2349,7 @@ function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
     }
 }
 
+/* Anyagigénylés elutasítás */
 function anyagigenyles_elutasitas(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
@@ -2362,6 +2391,7 @@ function anyagigenyles_elutasitas(csak_kerdezunk) {
                         anyagigenyles_elutasitas    : new Date().getTime()
                     },
                     success: function(response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         if(response) {
                             response = JSON.parse(response);
 
@@ -2383,15 +2413,8 @@ function anyagigenyles_elutasitas(csak_kerdezunk) {
                             }
                             
                             /* Anyagigénylés táblázat esetén frissítjük az oldalt, egyébként adatlapra ugrunk */
-                            /*if(_get('tablazat')){
-                                location.reload();
-                            }else{*/
-                                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
-                                /* navpanel frissítése (minden kijelölt sort) */
-                                szamlaSorok.each(function() {
-                                    szamlaSorFrissit(page, $(this).attr('data-recid'));
-                                });
-                            /*}*/
+                            location.reload();
+                            
                             alert2();
                         }
                     }
@@ -2433,6 +2456,7 @@ function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
                         anyagigenyles_mind_jovahagy : new Date().getTime()
                     },
                     success: function(response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         if(response) {
                             response = JSON.parse(response);
 
@@ -2454,11 +2478,7 @@ function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
                             }
                             
                             /* Anyagigénylés táblázat esetén frissítjük az oldalt, egyébként adatlapra ugrunk */
-                            if(_get('tablazat')){
-                                location.reload();
-                            }else{
-                                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
-                            }
+                            location.reload();
                             
                             /* navpanel frissítése (minden kijelölt sort) */
                             szamlaSorok.each(function() {
@@ -2486,6 +2506,7 @@ function csoportAtnevezes( csoportID ) {
          	type: 'GET',
          	data: esamp2es('page=' + page + '&amp;csoportID=' + csoportID + '&amp;val=' + val + '&amp;csoportAtnevezes=' + new Date().getTime()),
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
          			response = JSON.parse(response);
 
@@ -2546,6 +2567,7 @@ function bejegyzesElutasitas( that, csak_memo ) {
                     bejegyzesElutasitas : new Date().getTime()
                 },
                 success: function(response) {
+                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                     if(response) {
                         response = JSON.parse(response);
 
@@ -2607,6 +2629,7 @@ function csoportbolTorol( oszlop ) {
                         csoportbolTorol : new Date().getTime()
                     },
                     success: function(response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         if(response) {
                             response = JSON.parse(response);
 
@@ -2644,6 +2667,7 @@ function addCsoport() {
          	type: 'GET',
          	data: esamp2es('page=' + page + '&amp;csoportnev=' + ujcsoport.val() + '&amp;addCsoport=' + new Date().getTime()),
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
          			response = JSON.parse(response);
 
@@ -2697,6 +2721,7 @@ function csoportbaRendez( that ) {
                             csoportbaRendez : new Date().getTime()
                         },
                         success: function(response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
@@ -2774,6 +2799,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         type: 'GET',
                         data: esamp2es('page=' + page + '&amp;csoportSelect=' + new Date().getTime()),
                         success: function(response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
@@ -2800,6 +2826,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         type: 'GET',
                         data: esamp2es('munkalapSelect=' + new Date().getTime()),
                         success: function(response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
@@ -2831,6 +2858,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                             van_e_feladat: Date.now()
                         },
                         success: function (response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
@@ -2866,6 +2894,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                             van_e_feladat: Date.now()
                         },
                         success: function (response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
@@ -2891,6 +2920,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                     getMunkalapAnyagok  : new Date().getTime()
                                 },
                                 success: function(response) {
+                                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                                     if(response) {
                                         response = JSON.parse(response);
 
@@ -2923,6 +2953,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                             getMunkalapAnyagok: new Date().getTime()
                         },
                         success: function(response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
@@ -2974,6 +3005,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                 hozzBeosztasNelkul  : new Date().getTime()
                             },
                             success: function(response) {
+                                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                                 if(response) {
                                     response = JSON.parse(response);
 
@@ -3007,6 +3039,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                             getMunkalapFeladatok: new Date().getTime()
                         },
                         success: function(response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
@@ -3037,6 +3070,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                             getMunkalapMunkaido : new Date().getTime()
                         },
                         success: function(response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
@@ -3125,6 +3159,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                             bejelentesElutasit: new Date().getTime()
                         },
                         success: function(response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
@@ -3151,6 +3186,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                             diszKozpVezAtadas: new Date().getTime()
                         },
                         success: function(response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
@@ -3200,6 +3236,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                             bejelentesElutasit: new Date().getTime()
                         },
                         success: function(response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
@@ -3226,6 +3263,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                             diszKozpVezAtadas: new Date().getTime()
                         },
                         success: function(response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
@@ -3253,6 +3291,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                             diszKozpVezLezaras: new Date().getTime()
                         },
                         success: function(response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
@@ -3285,6 +3324,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                                     munkalapErkeztet: new Date().getTime()
                                 },
                                 success: function(response) {
+                                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                                     if(response) {
                                         response = JSON.parse(response);
 
@@ -3320,6 +3360,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                             munkalap_kulsoSelect: new Date().getTime()
                         },
                         success: function(response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
@@ -3352,7 +3393,7 @@ function arazas() {
 
     idk = {};
 
-    szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+    szamlaSorok = $('.szamla_cont_tabla tbody tr.kijelolve');
 
     if( szamlaSorok.length ) {
         var i = 1;
@@ -3379,6 +3420,7 @@ function arazas() {
                 arazas  : new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -3417,6 +3459,24 @@ function arazas_ment(){
     if(!erkcimid){
         erkcimid = 3;
     }
+    
+    idk = '';
+    szamlaSorok = $('.szamla_cont_tabla tbody tr.kijelolve');
+    if( szamlaSorok.length ) {
+        var i = 1;
+        szamlaSorok.each(function() {
+            var id = $(this).attr('data-recid');
+
+            idk += id+',';
+            i++;
+        });
+    } else {
+        var recid = $('#szamlaBetolt').attr('data-recid');
+
+        if( recid ) {
+            idk = recid;
+        }
+    }
 
     $.ajax({
         url: 'anyagigenyles.php',
@@ -3436,7 +3496,7 @@ function arazas_ment(){
             arazas_ment : new Date().getTime()
         },
         success: function (response) {
-
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if(response){
                 response = JSON.parse(response);
                 if( response.hiba ) {
@@ -3449,13 +3509,15 @@ function arazas_ment(){
                 }
             }
 
-            /* 2do: sorokat befrissíteni */
+            /* Lista frissítése */
+            location.reload();
+            /* 2do: sorokat befrissíteni 
             idk = $('#idk').val().split(",");
             idk.forEach(function(id) {
                 szamlaSorFrissit('anyagigenyles', id);
             });
             szamlaBetolt(idk[0], 'anyagigenyles.php', 'modosit');
-            alert2();
+            alert2();*/
 
         }
     });
@@ -3556,6 +3618,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                 anyagigenyles_erkeztet  : new Date().getTime()
             },
             success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 popupZar();
             }
         });
@@ -3577,6 +3640,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                 anyagigenyles_erkeztet  : new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -3757,6 +3821,7 @@ function mellekTorol( tabla, mellek, mellekre_valt ) {
                 mellekTorol : new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
                     if( response.hiba ) {
@@ -3851,6 +3916,7 @@ function obj_gen(szintig) {
          	type: 'GET',
          	data: esamp2es('telephely_id=' + telephely_id + '&amp;szintig=' + szintig + '&amp;obj_general=' + new Date().getTime()),
          	success: function(html) {
+                if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(html) {
                     $('#popupTart').html(html);
                     popupNyit();
@@ -3918,6 +3984,7 @@ function kapcsolodoSzerkeszt( oldal ) {
                         cash_flow_ellenoriz: new Date().getTime()
                     },
                     success: function (response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         if (response) {
                             response = JSON.parse(response);
 
@@ -3951,6 +4018,7 @@ function kapcsolodoSzerkeszt( oldal ) {
                         getLoginok  : new Date().getTime()
                     },
                  	success: function(response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                  		if(response) {
                  			$('#addLogin').html(response);
                  		}
@@ -3973,6 +4041,7 @@ function kapcsolodoSzerkeszt( oldal ) {
                         getSzallodak    : new Date().getTime()
                     },
                  	success: function(response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                  		if(response) {
                  			$('#addSzallodak').html(response);
                  		}
@@ -3993,6 +4062,7 @@ function kapcsolodoSzerkeszt( oldal ) {
                         velemenyezok_status_ell : new Date().getTime()
                     },
                     success: function (response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         if (response) {
                             response = JSON.parse(response);
                             if( response.hiba ) {
@@ -4014,6 +4084,7 @@ function kapcsolodoSzerkeszt( oldal ) {
                         get_session_id: new Date().getTime()
                     },
                     success: function (response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         $('#popupTart').html(
                                             $('#popupTart').html().replace(/{GET_ID}/g, _get('id')).
                                             replace(/{SESSION_ID}/g, response)
@@ -4207,6 +4278,7 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
             type: 'GET',
             data: esamp2es('id=' + recid + '&amp;kijeloltek=' + JSON.stringify(idk) + '&amp;ksz=' + ksz + '&amp;rkat=' + rkat + '&amp;rend=' + rend + '&amp;irany=' + irany + '&amp;tabla=' + tabla + param_kieg + '&amp;szamlaLista=' + new Date().getTime()),
             success: function(html) {
+                if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(html) {
                     $('#tartalomBal').html(html).scrollTop(0);
 
@@ -4279,6 +4351,7 @@ function felhValt( that ) {
          	type: 'POST',
          	data: esamp2es('nev=' + felh_nev + '&amp;jelszo=' + felh_jlsz + '&amp;ajax=1&amp;login=' + new Date().getTime()),
          	success: function(html) {
+                if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(html) {
          			html = JSON.parse(html);
 
@@ -4311,6 +4384,7 @@ function addSzakterulet( szallitoID, that ) {
          	type: 'GET',
          	data: esamp2es('szallitoID=' + szallitoID + '&amp;szakterID=' + szakterID + '&amp;addSzakterulet=' + new Date().getTime()),
          	success: function(html) {
+                if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(html) {
                     html = JSON.parse(html);
 
@@ -4353,6 +4427,7 @@ function addMegjegyzes( pageID, that ) {
                 addMegjegyzes: new Date().getTime()
             },
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
                     response = JSON.parse(response);
 
@@ -4403,6 +4478,7 @@ function addSzalloda( loginID, that ) {
          	type: 'GET',
          	data: esamp2es('loginID=' + loginID + '&amp;szallIDs=' + JSON.stringify(data) + '&amp;addSzalloda=' + new Date().getTime()),
          	success: function(html) {
+                if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(html) {
                     html = JSON.parse(html);
 
@@ -4445,6 +4521,7 @@ function addProjektTeam( prkezel_recid, that ) {
          	type: 'POST',
          	data: esamp2es('prkezel_recid=' + prkezel_recid + '&amp;loginok=' + JSON.stringify(data) + '&amp;addProjektTeam=' + new Date().getTime()),
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
                     response = JSON.parse(response);
 
@@ -4484,6 +4561,7 @@ function velemeny_hozzaad(mehet){
                 van_e_velemeny: new Date().getTime()
             },
             success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 response = JSON.parse(response);
                 /* Ha még nincs véleménye, akkor nincs kérdés, mehet egyből */
                 if (response.mehet) {
@@ -4512,7 +4590,8 @@ function velemeny_torol( velemeny_recid, mehet ) {
                 velemeny_torol: new Date().getTime()
             },
             success: function (response) {
-
+                
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 response = JSON.parse(response);
 
                 if( response.hiba ) {
@@ -4538,6 +4617,7 @@ function naploTorol( tabla, sorID ) {
          	type: 'GET',
          	data: esamp2es('tabla=' + tabla + '&amp;sorID=' + sorID + '&amp;naploTorol=' + new Date().getTime()),
          	success: function(html) {
+                if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		$('#naploSor-' + sorID).fadeOut(300, function() {
                     $(this).remove();
                 });
@@ -4645,12 +4725,29 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                 anyagrend += 'felt='+_get('felt')+'&amp;';
             }
         }
+        
+        /* Ha nem ismert a művelet, akkor találjuk ki. Ez arra az esetre jó, ha nem tudjuk, melyik fül alatt vagyunk, és maradni szeretnénk adott fül alatt.
+         *  Ekkor ne paraméterezzük fel a szamlaBetolt() függvényt művelettel. 
+         *  */
+        if(!muvelet_param){
+            if(_get('modosit')      ){ muvelet_param = 'modosit';       }
+            if(_get('megjegyzesek') ){ muvelet_param = 'megjegyzesek';  }
+            if(_get('dokumentumok') ){ muvelet_param = 'dokumentumok';  }
+            if(_get('tortenet')     ){ muvelet_param = 'tortenet';      }
+            
+            /* Ha így sincs, akkor legyen a módosítás */
+            if(!muvelet_param){
+                muvelet_param = 'modosit';
+            }
+            
+        }
 
         var szamla = $.ajax({
          	url : page,
          	type: 'GET',
          	data: esamp2es('id=' + recid + '&amp;ajax=1&amp;' + szerk + anyagrend + muvelet_param + '=' + new Date().getTime()),
          	success: function(html) {
+                if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(html) {
                     html = JSON.parse(html);
                     
@@ -4893,6 +4990,7 @@ function szamlaSorFrissit( tabla, recid ) {
          	type: 'GET',
          	data: esamp2es('tabla=' + tabla + '&amp;recid=' + recid + param_kieg + '&amp;szamlaSorFrissit=' + new Date().getTime()),
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
                     /* A frissítendő sor data-i értéke maradjon változatlan. Amit kapunk abban lesz az értéke */
                     response = response.replace('data-i="1"', 'data-i="' + $('#szamla-' + recid).attr('data-i') + '"');
@@ -4913,6 +5011,7 @@ function bal_panel_frissit( php, recid, obj ) {
             bal_panel_frissit: new Date().getTime()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 $('#tartalomBal').html(response.html);
@@ -4928,6 +5027,7 @@ function ertekFoglalt(originVal, value, tabla, mezo) {
          	type: 'GET',
          	data: esamp2es('value=' + value + '&amp;tabla=' + tabla + '&amp;mezo=' + mezo + '&amp;ertekFoglalt=' + new Date().getTime()),
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
          			response = JSON.parse(response);
 
@@ -5070,6 +5170,7 @@ function gepVane() {
         type: 'GET',
         data: esamp2es('telephely_id=' + telephely_id + '&amp;obj_id=' + obj_id + '&amp;gepVane=' + new Date().getTime()),
         success: function(html) {
+            if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if( html ) {
                 html = JSON.parse(html);
 
@@ -5121,6 +5222,7 @@ function id_foglalt_e(fajl, mezo){
         type: 'GET',
         data: esamp2es('id=' + mezo.val() + '&amp;id_foglalt_e=' + new Date().getTime()),
         success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
                 mezo.addClass('foglalt_id');
@@ -5150,6 +5252,7 @@ function operator_beallit(that, selected, felt){
         type: 'POST',
         data: esamp2es('tabla=' + tabla + '&amp;selected=' + selected + '&amp;mezo=' + that.val() + '&amp;f_szuro_mezo=' + new Date().getTime()),
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             response = JSON.parse(response);
             if (response) {
                 /* Ha létezik az összetett változat, akkor ott jelenítjük meg */
@@ -5182,6 +5285,7 @@ function szuro_ertek_mezo_gen(that, felt){
         type: 'POST',
         data: esamp2es('tabla=' + tabla + '&amp;mezo=' + $('#'+prefix+'szuro_mezo').val() + '&amp;selected=' + selected.val() + '&amp;felt=' + felt + '&amp;f_szuro_mezo_operator=' + new Date().getTime()),
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             response = JSON.parse(response);
             if (response) {
                 $('#'+prefix+'feltetel').html(response.feltetel);
@@ -5218,6 +5322,7 @@ function beosztas_naptarba_tesz(beosztas_id, felulir){
             beosztas_naptarba_tesz : new Date().getTime()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             response = JSON.parse(response);
             if(response.siker){
 
@@ -5264,6 +5369,7 @@ function naptar_torol(){
             naptar_torol: new Date().getTime()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             response = JSON.parse(response);
             if(response.siker){
                 $('.beosztas_naptar').replaceWith(response.naptar);
@@ -5294,6 +5400,7 @@ function csoport_tartalom() {
                 csoport_tartalom: new Date().getTime()
             },
             success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 $('#szamlaHidden').addClass('csoport').html(response);
             }
         });
@@ -5383,7 +5490,7 @@ function pri_statusz_leptet(recid, statusz){
                 pri_statusz_leptet: new Date().getTime()
             },
             success: function (response) {
-
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 response = JSON.parse(response);
                 if(response.statusz=='siker'){
                     szamlaSorFrissit('projektigenyles', recid);
@@ -5497,6 +5604,7 @@ function getKonyvtar( link ) {
          	type: 'GET',
          	data: esamp2es('ajax=' + new Date().getTime()),
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
          			$('#szamlaBetolt').html(response);
 
@@ -5568,6 +5676,7 @@ function pri_eloterj_statusz_mod(pri_eloterj_recidk, stat_id_eloterjek, rogzit){
             pri_eloterj_statusz_mod : new Date().getTime()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             response = JSON.parse(response);
             if(response.hiba){
                 alert2(response.hiba, response.gomb, 'Hiba');
@@ -5613,6 +5722,7 @@ function munkalapKeszit(csak_kerdezunk) {
                     munkalapKeszit  : new Date().getTime()
                 },
                 success: function(response) {
+                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                     if(response) {
                         response = JSON.parse(response);
 
@@ -5765,6 +5875,7 @@ function felmeresi_terv_csatolva(recid){
             felmeresi_terv_csatolva : new Date().getTime()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             response = JSON.parse(response);
             if(response['tallozas_mehet']){
                 $('#jsff_felmeresi_terv_felm_terv input').click();
@@ -5827,6 +5938,7 @@ function beosztas_veglegesit(mehet){
             beosztas_veglegesit : new Date().getTime()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             response = JSON.parse(response);
             if(response.hiba){
                 alert2(response.hiba, '', 'Hiba');
@@ -5859,6 +5971,7 @@ function munkalapok_nyitottak_koze(mehet){
             munkalapok_nyitottak_koze: new Date().getTime()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             location.reload();
         }
     });

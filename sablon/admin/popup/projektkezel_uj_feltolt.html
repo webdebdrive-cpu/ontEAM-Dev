@@ -35,6 +35,7 @@
                 igenylesek_betolt_uj_kezeleshez : new Date().getTime()
             },
             success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 $('#igenyles_tablazat_uj_kezeleshez').html(response);
             }
         });

@@ -93,43 +93,7 @@ class Head{
 		
         global $tartalom_tomb;
         
-		$head = $this -> doc_type.'<!--
-
-
-
-
-
-                                                     OMM~                                                                            MMD
-                                                     OMM~                                                                            MMD
-                                                     OMM~                                                                            MMD
-=MM$        MMM       =MM$    DMMMMMMMMMMMMMMMMMNM   OMMMMMMMMMMMMMMMMMMMMMZ    NMMMMMMMMMMMMMMMMMMMMN       $NMMMMMMMMMMMMMMMMMM~   MMMMMMMMMMMMMMMMMMMMND
-=MM7        MMM       =MM$  NMMMMMMMMMMMMMMMMMMMMMM$ OMMMMMMMMMMMMMMMMMMMMMMMZ  NMMMMMMMMMMMMMMMMMMMMMMM   ?MMMMMMMMMMMMMMMMMMMMMMN  MMMMMMMMMMMMMMMMMMMMMMMM
-=MM7        MMM       =MMZ OMMM                  MMM OMM~                  MMM? NMM                  7MMM ,MMM                  MMM  MMD                  DMMN
-=MM7        MMM       =MM$ MMM  ?OOOOOOOOOOOOOOOMMMN OMM~                   MMM NMM,                  MMM DMM: :OOOOOOOOOOOOOOONMMM  MMD                   MMM
-=MM7        MMM       =MMZ MMM  MMMMMMMMMMMMMMMMMM8  OMM=                   MMM NMM,                  NMM NMM  MMMMMMMMMMMMMMMMMMM   MMD                   MMM
-=MM$        MMM       =MMZ NMMI                      OMM+                  $MMN NMM                   MMM ?MMN                       MMN                  ,MMM
- MMMNDDDDDDMMMMMDDDDDDNMM,  MMMMMDDDDDDDDDDDDDDDDD8= ,MMMNDDDDDDDDDDDDDDDMMMMM  NMM88DDDDDDDDDDDDDDNNMMM,  NMMMMDDDDDDDDDDDDDDDDDD7  MMMMNDDDDDDDDDDDDDDMMMMM:
-  NMMMMMMMMMMMMMMMMMMMMM,    $MMMMMMMMMMMMMMMMMMMMMM  =MMMMMMMMMMMMMMMMMMMMM8   NMMMMMMMMMMMMMMMMMMMMMN     ~MMMMMMMMMMMMMMMMMMMMMM   MMMMMMMMMMMMMMMMMMMMMM
- 
- ';
- 
- if($this -> language=='hu'){
-    $head .= 'www.webdeb.hu                                                                                                             Ahol a weblapok születnek...';
-}else{
-    $head .= 'www.webdeb.eu                                                                                                             Where websites are born...';
-}
-
-$head .= '
-
-
-
-
-
-
-
-
-
--->';
+		$head = $this -> doc_type;
 		$head .= '<html lang="'.$this -> language.'">';
 		$head .= '<head>';
 		$head .= '<title>'.$this -> title.'</title>';
@@ -200,7 +164,7 @@ $head .= '
             }
             fajlba_mentes($css_min_fajl, $css);
         }
-        $head .= '<link href="'.get_alk().$css_min_fajl.'" rel="stylesheet" type="text/css">';
+        $head .= '<link href="'.get_alk().$css_min_fajl.'?cache='.time().'" rel="stylesheet" type="text/css">';
         
         
 

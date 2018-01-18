@@ -1,39 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Beléptetés</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <link rel="stylesheet" href="../css/nullaz.css" type="text/css">
-    <link rel="stylesheet" href="../css/admin.css" type="text/css">
-    <link rel="stylesheet" href="../css/alert_admin.css" type="text/css">
-</head>
-<body onload="if(document.getElementById('nev')){document.getElementById('nev').focus();}">
-    <div id="alert2" class="noFooter rFalse" style="width: 40rem; margin: auto; position: relative; box-shadow: 0rem 0.1rem 0.2rem 0rem #ccc">
-        <div class="figy">
-            <div class="header">{FELIRAT}</div>
-            <div class="tart">
-                <form method="post" action="{SELF}">
-                    <table class="auto">
-                        <tr>
-                            <td class="p">
-                                <input type="text" name="nev" id="nev" placeholder="Felhasználó név" autocomplete="off">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="p">
-                                <input type="password" name="jelszo" placeholder="Jelszó">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="2" class="p c">
-                                <input class="gombb zold" type="submit" name="login" value="Belépés">
-                            </td>
-                        </tr>
-                    </table>
-                </form>
-            </div>
-            <div class="f_footer"></div>
+<link rel="stylesheet" href="../css/nullaz.css" type="text/css">
+<link rel="stylesheet" href="../css/admin.css" type="text/css">
+<link rel="stylesheet" href="../css/alert_admin.css" type="text/css">
+
+<div id="alert2" class="noFooter rFalse" style="width: 40rem; margin: auto; position: relative; box-shadow: 0rem 0.1rem 0.2rem 0rem #ccc">
+    <div class="figy">
+        <div class="header">{FELIRAT}</div>
+        <div class="tart">
+            <form method="post" action="{SELF}">
+                <table class="auto">
+                    <tr>
+                        <td class="p">
+                            <input type="text" name="nev" id="nev" placeholder="Felhasználó név" autocomplete="off" autofocus>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="p">
+                            <input type="password" name="jelszo" placeholder="Jelszó">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="p c">
+                            <input class="gombb zold" type="submit" name="login" value="Belépés">
+                        </td>
+                    </tr>
+                </table>
+            </form>
         </div>
+        <div class="f_footer"></div>
     </div>
-</body>
-</html>
+</div>

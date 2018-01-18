@@ -299,6 +299,7 @@ if(isset($_GET['modosit_ules'])){
                                 eloterj_veglegesit   : new Date().getTime()
                             },
                             success: function(response){
+                                if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                                 szamlaBetolt(\''.$_GET['id'].'\', \''.basename(self()).'\', \'modosit\');
                             }
                         });
@@ -321,6 +322,7 @@ if(isset($_GET['modosit_ules'])){
                                 eloterj_visszanyit   : new Date().getTime()
                             },
                             success: function(response){
+                                if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                                 szamlaBetolt(\''.$_GET['id'].'\', \''.basename(self()).'\', \'modosit\');
                             }
                         });

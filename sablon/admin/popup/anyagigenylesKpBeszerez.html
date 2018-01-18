@@ -34,6 +34,7 @@
                                 get_szalloda_select_options : new Date().getTime()
                             },
                             success: function(response){
+                                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                                 response = JSON.parse(response);
                                 $('.szalloda_select').html('<select id="pop_telephely_id" name="pop_telephely_id" class="csillag"><option value="">-Válasszon-</option>'+response.html+'</select>');
                                 /* Ha csak egy szálloda van, akkor az legyen is kiválsztva, és a select readonly */
@@ -454,6 +455,7 @@ function anyagigenylesKPBeszerez(csak_kerdezünk){
             anyagigenylesKPBeszerez : new Date().getTime()
         },
         success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if(response){
                 response = JSON.parse(response);
 

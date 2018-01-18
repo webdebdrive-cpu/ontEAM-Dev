@@ -20,6 +20,7 @@
                         o_szures: new Date().getTime()
                     },
                     success: function (response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         response = JSON.parse(response);
                         $('#o_szures').html(response.inputok);
                         $('#o_feltetel_halmaz').html(response.html);

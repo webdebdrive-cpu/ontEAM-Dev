@@ -1289,6 +1289,7 @@ require('selectek.php');
                                 addCashFlow  : new Date().getTime()
                             },
                             success: function(response) {
+                                if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                                 $(\'#cash_flow_div div.kijSor\').each(function() {
                                     $(this).attr(\'data-id\', \'UJ-FELDOLGOZVA\');
                                 });

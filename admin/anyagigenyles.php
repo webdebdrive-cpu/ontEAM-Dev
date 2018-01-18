@@ -249,7 +249,8 @@ if( isset($_POST['arazas']) ) {
                         ($elozo_rndear       && $igenyles['rndear']       && $elozo_rndear       != $igenyles['rndear']      )
                     ){
                     echo json_encode(array(
-                        'hiba' => 'Árazni csak azonos cikkeket, azonos szállítóval, pénznemmel és egységárral lehet!'.$hiba_kieg
+                        'hiba' => nl2(' A kijelölés több cikket tartalmaz.
+                                    <br>Szállítót és egységárat egyszerre csak egy cikkhez lehet megadni!')
                     ));
                     $weblap->leallit();
                     exit();
@@ -791,7 +792,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
             }
 
             // Jóváhagyott mennyiség ellenőrzése
-            $igenyles = $adatbazis_kapcsolat->s2('rndmen cikkmee', 'anyagigenyles', "`recid`='{$id}'");
+            $igenyles = $adatbazis_kapcsolat->s2('rndmen cikkmee kcs_21', 'anyagigenyles', "`recid`='{$id}'");
             if($_POST['jhmen']==0 || $_POST['jhmen']==0.00){
                 echo json_encode(array(
                     'hiba'  => 'A jóváhagyott mennyiség nem lehet 0 '.$igenyles['cikkmee'].'!',
@@ -826,7 +827,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
-                'hiba' => 'Biztosan jóváhagyja az anyagigénylést? ('.str_replace('.', ',', $igenyles['rndmen']).' '.$igenyles['cikkmee'].')',
+                'hiba' => 'Biztosan jóváhagyja az anyagigénylést? ('. number_format($_POST['jhmen']*$igenyles['rndmen'], 0, '', ' ').' '.erteklista(21, $igenyles['kcs_21']).')',
                 'gomb' => '<input class="gomb zold" value="Igen" onclick="anyagigenyles_jovahagy();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
@@ -946,7 +947,8 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
     if (isset($_POST['csak_kerdezunk'])) {
 
         $ertek = 0;
-        $igenylesek = $adatbazis_kapcsolat->s('igmen rndear', 'anyagigenyles', "`stat_id`='".CIKKIGN_STAT_ARAZVA."'".get_akt_login_szallodai('sql'));
+        $igenylesek = $adatbazis_kapcsolat->s('jhmen rndear kcs_21', 'anyagigenyles', "`stat_id`='".CIKKIGN_STAT_ARAZVA."'".get_akt_login_szallodai('sql'));
+        
         // Ha nincs találat, akkor hibaüzi és kilépés
         if(!$igenylesek){
             echo json_encode(array(
@@ -956,12 +958,12 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
             exit();
         }
         foreach ($igenylesek as $igeny){
-            $ertek += $igeny['igmen']*$igeny['rndear'];
+            $ertek += $igeny['jhmen']*$igeny['rndear'];
         }
 
         echo json_encode(array(
             'hiba' => nl2('
-                            Jóváhagyás alatti érték: '.number_format($ertek, 2, ',', ' ').' '.get_penznem().'
+                            Jóváhagyás alatti érték: '.number_format($ertek, 0, ',', ' ').' '. erteklista(21, $igeny['kcs_21']).'
                             <br>Folytatja?
                         '),
             'gomb' => '<input class="gomb zold" value="Igen" onclick="anyagigenyles_mind_jovahagy();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
@@ -1102,10 +1104,10 @@ if( isset($_POST['rendeles_keszit']) ) {
 
             mysqli_query($db_kapcs, 'SET AUTOCOMMIT=0');
             $sorszam = mysqli_query($db_kapcs, 'SELECT `sorszam` FROM `'.get_db_tabla().'iktszam_seq` WHERE `tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\' FOR UPDATE;');
-var_dump('SELECT `sorszam` FROM `'.get_db_tabla().'iktszam_seq` WHERE `tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\' FOR UPDATE;');
+//var_dump('SELECT `sorszam` FROM `'.get_db_tabla().'iktszam_seq` WHERE `tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\' FOR UPDATE;');
             $sorszam = mysql_fetch_assoc($sorszam);
             $sorszam = $sorszam['sorszam']+1;
-echo $sorszam;
+//echo $sorszam;
             mysqli_query($db_kapcs, 'UPDATE `'.get_db_tabla().'iktszam_seq` SET `sorszam`=\''.$sorszam.'\' WHERE `tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\'');
             $sorszam = 'R'.date('y').'/'.sprintf('%04d', $sorszam).'|'.$_POST['idk'];
             $sorszam_kodolva = trim(base64_encode($sorszam), '=');

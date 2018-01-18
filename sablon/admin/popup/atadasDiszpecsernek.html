@@ -47,6 +47,7 @@ $(document).ready(function(){
             szukseges_anyagok_listaja   : Date.now()
         },
         success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if(response){
                 response = JSON.parse(response);
                 $('#visszaadas_kerdes').html(response.kerdes).css({'margin-top':'2rem'});
@@ -72,6 +73,7 @@ function atadasDiszpecsernek( that ) {
                     atadasDiszpecsernek : new Date().getTime()
                 },
                 success: function(response) {
+                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                     if(response) {
                         response = JSON.parse(response);
 

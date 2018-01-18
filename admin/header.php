@@ -611,7 +611,7 @@ $head -> extrak       .= '<link href="https://fonts.googleapis.com/icon?family=M
 
 // Munkalapokkal kapcsolatos JS-eket külön fájlba szedjük össze
 if(basename(self())=='munkalap.php'){
-    $head -> extrak       .= '<script src="../js/munkalap.js"></script>';
+    $head -> extrak       .= '<script src="../js/munkalap.js?cache='.time().'"></script>';
 }
 
 $header_html .= $head -> getHtml();
@@ -1098,8 +1098,8 @@ $get_get = get_get(array('pdf'));
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CSS}', '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}', '{CSUSZKADN}', '{RENDEZES_REJT}' ),
-    array($css,     get_nev(),  $menuk,   $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,   $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,    $csuszkadn,    $rendezes_rejt    ),
+    array('{CACHE}',        '{CSS}', '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}', '{CSUSZKADN}', '{RENDEZES_REJT}' ),
+    array('?cache='.time(), $css,     get_nev(),  $menuk,   $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,    $csuszkadn,    $rendezes_rejt    ),
     $header_sablon
 );
 
@@ -1153,7 +1153,7 @@ if( $_SESSION[get_db_tabla().'login_recid'] ) {
 
     $mit   = array('{FELIRAT}', '{SELF}'        );
     $mivel = array( $felirat,   'beleptetes.php');
-    echo str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/nincs_jelszo.html'));
+    echo str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/nincs_jelszo.html', 1));
 } else {
     $_SESSION['kert_url'] = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 
@@ -1166,7 +1166,7 @@ if( $_SESSION[get_db_tabla().'login_recid'] ) {
 
     $mit   = array('{FELIRAT}', '{SELF}'        );
     $mivel = array( $felirat,   'beleptetes.php');
-    echo str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/beleptetes.html'));
+    echo str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/beleptetes.html', 1));
 }
 
 if( !$_SESSION[get_db_tabla().'login_recid'] ) {

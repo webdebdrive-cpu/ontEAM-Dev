@@ -499,7 +499,8 @@ require_once('selectek.php');
                                             type   : \'POST\',
                                             data   : esamp2es(param+\'&amp;id='.$_GET['id'].'&amp;jogokhozzaad=\' + new Date().getTime()),
                                             success: function (response) {
-
+                                            
+                                                if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                                                 $(\'input[type="checkbox"]\').removeClass(\'mod\');
                                                 formModositva = false;
                                                 $(\'.mentes_gomb\').attr(\'disabled\', true);

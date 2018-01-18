@@ -196,5 +196,4 @@ foreach($_GET as $kulcs => $get){
     $_GET[$kulcs] = str_replace('!SHARP!', '#', $_GET[$kulcs]);
     $_GET[$kulcs] = stripslashes($_GET[$kulcs]);
 }
-
 ?>

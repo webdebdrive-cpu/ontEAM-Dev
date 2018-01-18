@@ -29,6 +29,7 @@ $(document).on('dblclick', '.szamla_cont_tabla th', function(e) {
             anyagigenyles_tablazat_rendez: Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
         }
     });
 });

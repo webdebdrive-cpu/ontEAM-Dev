@@ -20,7 +20,6 @@ if (isset($_GET['css_img_uri'])) {
 
 }
 
-
 $weblap = new Weblap();
 // Kötelező adatok kitöltése, nyelv, session, adatbázis csatlakozás beállítása
 $weblap -> alap_nyelv      = get_alapnyelv();
@@ -86,6 +85,11 @@ if($weblap -> db_prefix){
 //    return $tartalom_tomb[$azon][$nyelv];
 //}
 
+// Kiléptetés, ha nem él a SESSION és nem az index.php-n vagyunk.
+if( !$_SESSION[get_db_tabla().'user'] && basename( $_SERVER['PHP_SELF'] )!='index.php' ){
+    echo 'SESKIL<script>location.href=\'index.php\'</script>';
+}
+    
 // Jogosultságok karbantartása
 if( $_SESSION[get_db_tabla().'user'] ) {
     $felhasznalo = $adatbazis_kapcsolat->s2('flags', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'", '', '1');

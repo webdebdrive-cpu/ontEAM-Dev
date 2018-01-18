@@ -34,6 +34,7 @@
                 beosztasok_lekerdez   : new Date().getTime()
             },
             success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 response = JSON.parse(response);
                 $('#beosztas_nelkul').html(response.x);
                 $('.mobil_csop_a').html(response.a);
@@ -102,6 +103,7 @@
                 mobil_beosztas_login_ment   : new Date().getTime()
             },
             success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 popupZar();
             }
         });

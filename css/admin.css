@@ -1718,6 +1718,7 @@ ul.szamla_cont li.kijelolve a:not(.nohover) {
 
 table.szamla_cont_tabla {
     width: 100%;
+    user-select: none;
 }
 /* Azért adunk egy fix szélességet a névnek, hogy kereséskor, se nagyon változzon meg a tálblázat szerkezete, ha egy olyan találat volna, ami túl rövid nevű */
 table.szamla_cont_tabla th:nth-of-type(5){
@@ -1740,7 +1741,6 @@ table.szamla_cont_tabla th{
     border-bottom: 0.1rem solid #8e8e8e;
     font-weight: normal;
     padding: 1rem 0.1rem;
-    user-select: none;
 }
 
 table.szamla_cont_tabla tr td{

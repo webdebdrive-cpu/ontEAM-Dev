@@ -67,7 +67,7 @@ define('MUNKALAP_STAT_TOROLT',              '06');
 define('MUNKALAP_STAT_VARAKOZO',            '07');
 define('MUNKALAP_STAT_FELVEVE',             '08');
 define('MUNKALAP_STAT_ANYAGRAVAR',          '09');
-define('MUNKALAP_STAT_KESZ',                '10');
+define('MUNKALAP_STAT_LEZARASRA_VAR',       '10');
 define('MUNKALAP_STAT_LEZART',              '11');
 define('MUNKALAP_STAT_IGAZOLT',             '12');
 define('MUNKALAP_STAT_ELOKESZITES_ALATT',   '13');

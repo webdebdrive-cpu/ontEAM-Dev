@@ -271,19 +271,19 @@ foreach($akt_tomb as $ertek){
                 $ertek['megn'] = $ertek['value'];
             }
 
-            $statusz_sor = $adatbazis_kapcsolat->s2('recid stat_id erteklista_recid', $ertek['oldal'].'_statusz', "`{$ertek['oldal']}_recid` = '".$_GET['id']."'", 'recid desc', '1');
+            $statusz_sor = $adatbazis_kapcsolat->s2('stat_id', $ertek['oldal'], "`recid` = '".$_GET['id']."'");
             $statusz = '';
 
             if( $statusz_sor ) {
 
-                // Státusz kiegészítés
-                $statusz_text = '';
+                // Státusz kiegészítés - Korábban ki kellett írni az értéklistát, az eludtasítás indoklás miatt? Mot már nem kell
+                /*$statusz_text = '';
                 if( $statusz_sor['erteklista_recid'] ) {
                     $erteklista = $adatbazis_kapcsolat->s2('info', 'erteklista', 'recid='.$statusz_sor['erteklista_recid'], '', '1');
                     if( $ertek ) {
                         $statusz_text = '<p>'.$erteklista['info'].'</p>';
                     }
-                }
+                }*/
 
                 // Státusz neve
                 $statusz = getStatText($ertek['oldal'], $statusz_sor['stat_id']);

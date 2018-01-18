@@ -44,6 +44,7 @@ $(document).ready(function() {
             type: 'GET',
             data: esamp2es('parameter=' + $(this).attr('data-parameter') + '&amp;f_fuggveny_neve=' + new Date().getTime()),
             success: function (html) {
+                if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 input.addClass('valami');
                 if(html){
                     alert2(html);

@@ -46,6 +46,7 @@ $(document).ready(function () {
                 f_pri_egytobb   : new Date().getTime()
             },
             success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 $('#cf_szalloda').replaceWith(response);
                 $('#telephely_id').focus();
                 $('.xdsoft_datetimepicker').hide();

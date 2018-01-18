@@ -2415,7 +2415,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 $i = 0;
                 // Nem nyitott státuszú, nem sürgősek, azon belül ikatatószám
                 // A státuszoknak is van egy sorrendje, ezt is fordított sorrendben soroljuk fel
-                $statuszok = array_reverse( array( MUNKALAP_STAT_BEOSZTAS_NELKUL, MUNKALAP_STAT_FOLYAMATBAN, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_KESZ, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_TOROLT ) );
+                $statuszok = array_reverse( array( MUNKALAP_STAT_BEOSZTAS_NELKUL, MUNKALAP_STAT_FOLYAMATBAN, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_TOROLT ) );
                 foreach($statuszok as $stat){
                     $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`surgos`=0 AND `stat_id`='$stat'", 'ikt_szam');
                     foreach($munkalapok as $munkalap){
@@ -2961,7 +2961,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             $kesz = '';
-            if( $bsz['stat_id'] == MUNKALAP_STAT_KESZ ) {
+            if( $bsz['stat_id'] == MUNKALAP_STAT_LEZARASRA_VAR ) {
                 $kesz = nl2('
                     <span class="icon zold">
                         <i class="material-icons">done</i>
@@ -3469,7 +3469,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 // Anyagigénylés jog és Árazva státusz esetén a jóváhagyott mennyiség helyben szerkeszthető
                 $jhmen = $bsz['rndmen'];
                 if ( $bsz['stat_id']==CIKKIGN_STAT_ARAZVA && _jog(JOG_ANYAGIGENYLES_JOVAHAGY)) {
-                    $jhmen = '<input class="r f_num" data-tort="2" type="text" id="jhmen_'.$bsz['recid'].'" value="'.$bsz['rndmen'].'" style="width: 5rem" onclick="">';
+                    $jhmen = '<input class="r f_num" data-tort="2" type="text" id="jhmen_'.$bsz['recid'].'" value="'.$bsz['rndmen'].'" style="width: 5rem" onclick="select()">';
                 }
                 $eredeti_ertekek['jhmen_'.$bsz['recid']] = $bsz['rndmen'];
 
@@ -3478,7 +3478,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     $active .= ' kijelolve';
                 }
                 $html .= '
-                            <tr class="'.$active.$bold.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click()" data-id="'.$bsz['recid'].'" data-i="'.$i.'">
+                            <tr class="'.$active.$bold.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click()" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
                                 <td class="c" sorttable_customkey="'.$bsz['stat_id'].'">'.getStatText('anyagigenyles', $bsz['stat_id']).'</td>
                                 <td class="c">'.$bsz['ikt_szam'].'</td>
                                 <td class="c">'.$telephely['nev'].'</td>
@@ -3508,7 +3508,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <tr>
                                 <td colspan="9"></td>
                                 <td colspan="2" class="r b">Rendelési érték:</td>
-                                <td class="r b">'.number_format($rendelesi_ertek, 0, ',', ' ').'</td>
+                                <td class="r b" id="rend_ertek">'.number_format($rendelesi_ertek, 0, ',', ' ').'</td>
                                 <td colspan="3" class="r"></td>
                             </tr>
                             </tfoot>

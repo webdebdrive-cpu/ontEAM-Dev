@@ -42,6 +42,7 @@ function addVelemenyezoFg( pr_igeny_recid, that ) {
          	type: 'POST',
          	data: esamp2es('login_recid=' + login_recid + '&amp;pr_igeny_recid=' + pr_igeny_recid + '&amp;korabbi_velemeny_torlesevel=' + $('#korabbi_velemeny_torlesevel').val() + '&amp;addVelemenyezo=' + new Date().getTime()),
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
                     response = JSON.parse(response);
 

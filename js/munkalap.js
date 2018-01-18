@@ -11,6 +11,7 @@ function munkalapMuszakiVezeto() {
                 munkalapMuszakiVezeto: new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -43,6 +44,7 @@ function munkalapTeruletiVezeto() {
                 munkalapTeruletiVezeto: new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -75,6 +77,7 @@ function munkalapAdminisztrator() {
                 munkalapAdminisztrator  : new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -107,6 +110,7 @@ function munkalapMuszakiVezetoHelyettes() {
                 munkalapMuszakiVezetoHelyettes: new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -137,6 +141,7 @@ function munkalapMuszakiIgazgato() {
                 munkalapMuszakiIgazgato : new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -206,6 +211,7 @@ function munkalapMobil( that ) {
                     munkalapMobil       : new Date().getTime()
                 },
                 success: function(response) {
+                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                     if(response) {
                         response = JSON.parse(response);
 
@@ -235,6 +241,7 @@ function munkalapMobil_sima() {
             munkalapMobil_sima  : new Date().getTime()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
 
@@ -261,6 +268,7 @@ function munkalapDiszpKozp() {
                 munkalapDiszpKozp   : new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -295,6 +303,7 @@ function munkalapKeszre(csak_kerdezunk) {
                 munkalapKeszre: new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -328,6 +337,7 @@ function munkalapRogzit(csak_kerdezunk) {
                 munkalapRogzit: new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -361,6 +371,7 @@ function munkalapKulsosJovahagy(csak_kerdezunk) {
                 munkalapKulsosJovahagy  : new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -394,6 +405,7 @@ function munkalapIgazol(csak_kerdezunk) {
                 munkalapIgazol: new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -427,6 +439,7 @@ function munkalapReklamacioElfogad(csak_kerdezunk) {
                 munkalapReklamacioElfogad   : new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -460,6 +473,7 @@ function munkalapKulsosMegrendelve(csak_kerdezunk) {
                 munkalapKulsosMegrendelve   : new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -493,6 +507,7 @@ function munkalapLezaras(csak_kerdezunk) {
                 munkalapLezaras : new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -526,6 +541,7 @@ function munkalapTelepitett(csak_kerdezunk) {
                 munkalapTelepitett: new Date().getTime()
             },
             success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
 
@@ -559,6 +575,7 @@ function munkalapFelvesz( recid ) {
                     munkalapFelvesz : new Date().getTime()
                 },
                 success: function(response) {
+                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                     if(response) {
                         response = JSON.parse(response);
                         if( response.hiba ) {
@@ -621,6 +638,7 @@ function munkalaphozAdas(csak_kerdezunk) {
                         munkalaphozAdas : new Date().getTime()
                     },
                     success: function(response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                         if(response) {
                             response = JSON.parse(response);
 
@@ -671,6 +689,7 @@ function munkFeladatTorol( recid, elem_id, mehet ) {
                 munkFeladatTorol: new Date().getTime()
             },
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
          			response = JSON.parse(response);
 
@@ -705,6 +724,7 @@ function munkAnyagTorol( recid, elem_id, mehet ) {
                 munkAnyagTorol  : new Date().getTime()
             },
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
          			response = JSON.parse(response);
 
@@ -738,6 +758,7 @@ function munkMunkaidoTorol( recid, elem_id, mehet ) {
                 munkMunkaidoTorol: new Date().getTime()
             },
          	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
          			response = JSON.parse(response);
 
@@ -754,7 +775,7 @@ function munkMunkaidoTorol( recid, elem_id, mehet ) {
 /* Munkalap vissza nyitottnak */
 function munkalapVisszaNyitott(recid, mehet){
     if(!mehet){
-        alert2( 'Munkalapszám: '+$('#ikt_szam').val()+'<br>Szálloda: '+$('#telephely_id option:selected').text()+'<br>Biztosan visszateszi a nyitottak közé?', '<input type="button" class="gomb zold" onclick="munkalapVisszaNyitott(\''+recid+'\', \'mehet\')" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">');
+        alert2( 'Munkalapszám: '+$('#ikt_szam_hibauzibe').html()+'<br>Szálloda: '+$('#telephely_hibauzibe').html()+'<br>Biztosan visszateszi a nyitottak közé?', '<input type="button" class="gomb zold" onclick="munkalapVisszaNyitott(\''+recid+'\', \'mehet\')" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">');
         return false;
     }
     
@@ -766,6 +787,7 @@ function munkalapVisszaNyitott(recid, mehet){
             munkalapVisszaNyitott   : Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             response = JSON.parse(response);
             if( response.hiba ) {
                 alert2(response.hiba, response.gomb, response.title);
@@ -779,7 +801,7 @@ function munkalapVisszaNyitott(recid, mehet){
 /* Munkalap visszavétel */
 function munkalapVisszavetel(recid, mehet){
     if(!mehet){
-        alert2( 'Munkalapszám: '+$('#ikt_szam').val()+'<br>Szálloda: '+$('#telephely_id option:selected').text()+'<br>Biztos, hogy visszaveszi a munkalapot?', '<input type="button" class="gomb zold" onclick="munkalapVisszavetel(\''+recid+'\', \'mehet\')" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">');
+        alert2( 'Munkalapszám: '+$('#ikt_szam_hibauzibe').html()+'<br>Szálloda: '+$('#telephely_hibauzibe').html()+'<br>Biztos, hogy visszaveszi a munkalapot?', '<input type="button" class="gomb zold" onclick="munkalapVisszavetel(\''+recid+'\', \'mehet\')" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">');
         return false;
     }
     
@@ -791,6 +813,7 @@ function munkalapVisszavetel(recid, mehet){
             munkalapVisszavetel : Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if(response){
                 response = JSON.parse(response);
                 if( response.hiba ) {

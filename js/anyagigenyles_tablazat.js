@@ -28,6 +28,7 @@ $(document).on('dblclick', '.szamla_cont_tabla th', function(e) {
             anyagigenyles_tablazat_rendez: Date.now()
         },
         success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
         }
     });
 });
@@ -40,6 +41,7 @@ $(document).on('blur keyup', '.szamla_cont_tabla tbody input', function(e) {
     }else{
         $(this).removeClass('mod');
     }
+    
 });
 
 /* Form modosítva változó beállítása: minden egyes billentyű leutésre mod clastt keresünk. Ha találunk, akkor módosítva van a form */
@@ -49,6 +51,16 @@ $(document).on('keyup', '.szamla_cont_tabla input', function(e) {
     }else{
         formModositva = false;
     }
+    
+    /* Enterre újraszámoljuk a táblázat alatti összesítsét */
+    osszeg = 0;
+    if (e.which == KEY_ENTER) {
+        $('.szamla_cont_tabla input').each(function () {
+            osszeg += Number($(this).val().replace(',', '.').replace(' ', ''));
+        });
+        $('#rend_ertek').html( ezresek(osszeg, 0, '', ' ') );
+    }
+    
 });
 
 
@@ -116,7 +128,7 @@ $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
         }
 
         /* Kijelölt sorok átmásolása az eredeti navpanelbe */
-        setTimeout(function(){ 
+        setTimeout(function(){
 
             $('#szamlaList li').removeClass('kijelolve');
             $('.szamla_cont_tabla tbody tr.kijelolve').each(function () {

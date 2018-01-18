@@ -102,6 +102,7 @@ sorttable = {
             sortrevind.id = "sorttable_sortrevind";
             sortrevind.innerHTML = stIsIE ? '&nbsp<font face="webdings">5</font>' : '&nbsp;&#x25B4;';
             this.appendChild(sortrevind);
+            ujra_sorszamoz();
             return;
           }
           if( $(this).hasClass('sorttable_sorted_reverse') ){
@@ -115,9 +116,11 @@ sorttable = {
             sortfwdind.id = "sorttable_sortfwdind";
             sortfwdind.innerHTML = stIsIE ? '&nbsp<font face="webdings">6</font>' : '&nbsp;&#x25BE;';
             this.appendChild(sortfwdind);
+            ujra_sorszamoz();
             return;
           }
           
+          ujra_sorszamoz();
           /* remove sorttable_sorted classes */
           theadrow = this.parentNode;
           forEach(theadrow.childNodes, function(cell) {
@@ -474,3 +477,15 @@ var forEach = function(object, block, context) {
 	}
 };
 
+/* Rendezés után a data-i-ket újra kell számolni */
+function ujra_sorszamoz(){
+    /* Hagyjuk időt az átrendezésnek */
+    setTimeout(function(){
+        var i = 1;
+        $('.szamla_cont_tabla tbody tr').each(function () {
+            $(this).attr('data-i', i);
+            i++;
+        });
+    }, 1);
+
+}

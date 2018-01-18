@@ -355,6 +355,7 @@ require_once('selectek.php');
                                 azon_ell: new Date().getTime()
                             },
                             success: function (response) {
+                                if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                                 response = JSON.parse(response);
                                 if(response.hiba){
                                     alert2(response.hiba, response.gomb, \'Hiba\');

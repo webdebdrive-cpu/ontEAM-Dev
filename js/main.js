@@ -603,6 +603,7 @@ function get_file_thumb(php, kiir_id){
         type: 'POST',
         data: esamp2es('get_file_thumb=' + new Date().getTime()),
         success: function(html){
+            if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             alert2();
             $('#'+kiir_id).html(html);
         }
@@ -743,6 +744,7 @@ function isz2varos(isz_id, varos_id, utvonal) {
             type: 'GET',
             data: esamp2es('isz='+$('#'+isz_id).val()+'&amp;isz2varos=' + new Date().getTime()),
             success: function(html) {
+                if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if (html) {
                     $('#'+varos_id).val(html);
 

@@ -10,6 +10,7 @@ function get_tobbkep_megj(link, id, input_azon){
 		url  : link,
 		data : 'get_kepfelirat=' + id + '&tabla=' + baseName(location.href),
 		success: function(html){
+            if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             $('#' + input_azon).removeAttr('disabled');
             $('#' + input_azon).focus();
             $('#' + input_azon).val(html);
@@ -25,6 +26,7 @@ function tobbkep_megj_atir(link, szoveg, id){
 		url : link,
 		data: 'megj_atir=1&szoveg=' + szoveg + '&id=' + id + '&tabla=' + baseName(location.href),
 		success: function(html){
+            if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             $('#megj_kep' + id + '_felirat').html(html);
         }
 	});
@@ -37,7 +39,8 @@ function tobbkep_torol(link, id, li_id){
 		type: 'POST',
 		url : link,
 		data: 'tobbkep_torol=' + id + '&tabla=' + baseName(location.href),
-		success: function(html){
+		success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
         }
 	});
 	$('#'+li_id).fadeOut();

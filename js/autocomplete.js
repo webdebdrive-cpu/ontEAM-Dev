@@ -152,6 +152,7 @@
                                     obj_id          : obj_id
                                 },
                                 success: function(msg) {
+                                    if(msg.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                                     $('div#autocomplete').html(msg);
 
                                     /* Ha kilógna a képernyőről */

@@ -29,6 +29,9 @@
 
     function surgosseg_allit(){
         
+        /* Ne kérdezzen rá, hogy elhagyjuk-e az oldalt */
+        formModositva = false;
+        
         if(!$('#indoklas').val()){
             $('#indoklas').addClass('hibas_ide_focus');
             alert2('Kérjük indokolja meg a sürgősséget!', '', 'Hiba');
@@ -45,6 +48,7 @@
                 surgosseg_allit : new Date().getTime()
             },
             success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response){
                     response = JSON.parse(response);
                     if( response.hiba ) {
