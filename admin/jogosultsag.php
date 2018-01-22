@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 75-es ID-nál járunk
+ * 78-es ID-nál járunk
  * 11 -es kategória ID-nál járunk
 \*                                                  */
 
@@ -42,14 +42,16 @@ $jogosultsagok = array(
     21 => array('nev' => 'Várakoztatás',                                    'kat' => 1, 'sor' => 7  ),
     68 => array('nev' => 'Munkalap törlése',                                'kat' => 1, 'sor' => 9  ),
     22 => array('nev' => 'Saját szem. tip. kezelése',                       'kat' => 1, 'sor' => 10, 'kikapcs' => '69' ),
-    69 => array('nev' => 'Saját szálloda kezelése',                         'kat' => 1, 'sor' => 11, 'kikapcs' => '22' ),
+    69 => array('nev' => 'Saját szállodák kezelése',                        'kat' => 1, 'sor' => 11, 'nincs_pipa' => 1, 'i' => 'Műszaki vezető, Területi felelős' ),
+    76 => array('nev' => '&nbsp;&nbsp;&nbsp; Telepített',                   'kat' => 1, 'sor' => 12 ),
+    77 => array('nev' => '&nbsp;&nbsp;&nbsp; Mobil',                        'kat' => 1, 'sor' => 13 ),
+    78 => array('nev' => '&nbsp;&nbsp;&nbsp; Külsős',                       'kat' => 1, 'sor' => 14 ),
     75 => array('torolve' => 'TÖRÖLVE', 'nev' => 'Munkaidő hozzáadása',     'kat' => 1, 'sor' => 8  ),
-    23 => array('nev' => 'Igazolás',                                        'kat' => 1, 'sor' => 12 ),
-    24 => array('nev' => 'Vizsgálat',                                       'kat' => 1, 'sor' => 13 ),
-    37 => array('nev' => 'Külsős: előkészítés',                             'kat' => 1, 'sor' => 14 ),
-    34 => array('nev' => 'Külsős jóváhagyás',                               'kat' => 1, 'sor' => 15 ),
-    67 => array('nev' => 'Külsős: megrendelés készítése',                   'kat' => 1, 'sor' => 16 ),
-    70 => array('nev' => 'Anyag érkeztetése',                               'kat' => 1, 'sor' => 17 ),
+    23 => array('nev' => 'Igazolás',                                        'kat' => 1, 'sor' => 15 ),
+    24 => array('nev' => 'Vizsgálat',                                       'kat' => 1, 'sor' => 16 ),
+    37 => array('nev' => 'Külsős: előkészítés',                             'kat' => 1, 'sor' => 17 ),
+    34 => array('nev' => 'Külsős jóváhagyás',                               'kat' => 1, 'sor' => 18 ),
+    67 => array('nev' => 'Külsős: megrendelés készítése',                   'kat' => 1, 'sor' => 19 ),
     
     6  => array('nev' => 'Felhasználók megtekintése',   'kat' => 2, 'sor' => 6),
     7  => array('nev' => 'Felhasználók kezelése',       'kat' => 2, 'sor' => 7),
@@ -59,15 +61,16 @@ $jogosultsagok = array(
     11 => array('nev' => 'Szerepkörök kezelése',        'kat' => 2, 'sor' => 11),
 
     12 => array('nev' => 'Anyagigénylés megtekintése',  'kat' => 3, 'sor' => 1),
-    13 => array('nev' => 'Anyagigénylés kezelése',      'kat' => 3, 'sor' => 2, 'i' => 'Vezető, új igénylés készítése. Törölhet, ha a státusza<br> nyitott, árazva, várakozó.'),
-    14 => array('nev' => 'Igénylés jóváhagyása',        'kat' => 3, 'sor' => 3, 'i' => 'Vezető, árak és mennyiségek jóváhagyása.'),
+    13 => array('nev' => 'Új igénylés létrehozása',     'kat' => 3, 'sor' => 2, 'i' => 'Műszaki vezető'),
+    14 => array('nev' => 'Igénylés jóváhagyása',        'kat' => 3, 'sor' => 3, 'i' => 'Szálloda igazgató'),
     15 => array('nev' => 'Anyagrendelés készítése',     'kat' => 3, 'sor' => 4, 'i' => 'Adminisztrátor hölgyek',),
-    16 => array('nev' => 'Anyagrendelés megtekintése',  'kat' => 3, 'sor' => 5),
-    73 => array('nev' => 'Anyagrendelés törlése',       'kat' => 3, 'sor' => 6),
-    17 => array('nev' => 'Raktár megtekintése',         'kat' => 3, 'sor' => 7),
-    18 => array('nev' => 'Raktár kezelése',             'kat' => 3, 'sor' => 8),
-    19 => array('nev' => 'Cikktörzs megtekintése',      'kat' => 3, 'sor' => 9),
-    20 => array('nev' => 'Cikktörzs kezelése',          'kat' => 3, 'sor' => 10),
+    70 => array('nev' => 'Anyag érkeztetése',           'kat' => 3, 'sor' => 5 ),
+    16 => array('nev' => 'Anyagrendelés megtekintése',  'kat' => 3, 'sor' => 6),
+    73 => array('nev' => 'Anyagrendelés törlése',       'kat' => 3, 'sor' => 7),
+    17 => array('nev' => 'Raktár megtekintése',         'kat' => 3, 'sor' => 8),
+    18 => array('nev' => 'Raktár kezelése',             'kat' => 3, 'sor' => 9),
+    19 => array('nev' => 'Cikktörzs megtekintése',      'kat' => 3, 'sor' => 10),
+    20 => array('nev' => 'Cikktörzs kezelése',          'kat' => 3, 'sor' => 11),
     
     32 => array('nev' => 'Feladatok megtekintése',      'kat' => 5, 'sor' => 1),
     33 => array('nev' => 'Feladatok kezelése',          'kat' => 5, 'sor' => 2),

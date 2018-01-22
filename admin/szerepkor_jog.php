@@ -136,7 +136,7 @@ require_once('selectek.php');
         }
     }
 
-    /* Műveletek box */
+    // Műveletek box
     $gombok = nl2('
         <div class="muveletek"'.$muv_style.'>
             '.$gombok.'
@@ -146,13 +146,12 @@ require_once('selectek.php');
     $js_submit_elott = 'return true;';
 
 
-    //Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
+    // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
     if(isset($_GET['id_hidden'])){
         $_GET['id'] = $_GET['id_hidden'];
     }
 
-    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-    $sor = $sor[0];
+    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
     if( $sor['datetime'] ) {
         $_SESSION['formMod'] = array(
@@ -247,70 +246,81 @@ require_once('selectek.php');
         $html .= '</tr>';
 
         foreach($jogosultsagok as $kulcs_jog => $jogSor){
-            if($jogSor['kat']==$kulcs_kat){
-                
-                $html .= nl2('
-                            <tr>
-                                <td class="l">'.$jogSor['nev'].'</td>
-                            ');
-                foreach($szerepkorok as $szerepkor){
-                
-                    $checked = '';
-                    if( $szerepkor['flags'][$kulcs_jog] ) {
-                        $checked = ' checked="checked"';
-                    }
+            if(!$jogSor['torolve']){
+                if($jogSor['kat']==$kulcs_kat){
 
-                    $jogSor['nev'] .= ':';
-
-                    $onclick = '';
-                    $kikapcs = '';
-                    if($jogSor['kikapcs']){
-                        foreach(explode(',', $jogSor['kikapcs']) as $pipa_ki){
-                            $kikapcs .= '$(\'#jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$pipa_ki.'\').prop(\'checked\', false).removeClass(\'mod\');';
-                        }
-                    }
-                    $kikapcskor_kikapcs = '';
-                    if($jogSor['kikapcskor_kikapcs']){
-                        foreach(explode(',', $jogSor['kikapcskor_kikapcs']) as $pipa_ki){
-                            $kikapcskor_kikapcs .= '$(\'#jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$pipa_ki.'\').prop(\'checked\', false).addClass(\'mod\');';
-                        }
-                    }
-                    $bekapcs = '';
-                    if($jogSor['bekapcs']!=''){
-                        foreach(explode(',', $jogSor['bekapcs']) as $pipa_be){
-                            $bekapcs .= '$(\'#jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$pipa_be.'\').prop(\'checked\', true).addClass(\'mod\');';
-                        }
-                    }
-
-                    // Ha épp most kap bekapcsolást, csak akkor futtatjuk le
-                    if($bekapcs){
-                        $bekapcs = 'if( $(this).prop(\'checked\') ){'.$bekapcs.'}';
-                    }
-                    // Ha épp most kapcsoltuk ki
-                    if($kikapcskor_kikapcs){
-                        $kikapcskor_kikapcs = 'if( $(this).prop(\'checked\') == false ){'.$kikapcskor_kikapcs.'}';
-                    }
-
-                    if($kikapcs || $kikapcskor_kikapcs || $bekapcs){
-                        $onclick = ' onclick="'.$kikapcs.$kikapcskor_kikapcs.$bekapcs.'"';
-                    }
-
-                    $dn = '';
-                    if($jogSor['torolve']){
-                        $dn = ' dn';
-                    }
-                
                     $html .= nl2('
-                            <td>
-                                <div class="cb'.$dn.'">
-                                    <input type="hidden" name="jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$kulcs_jog.'" value="0">
-                                    <input type="checkbox" class="check" name="jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$kulcs_jog.'" id="jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$kulcs_jog.'" value="1"'.$checked.$onclick.'>
-                                    <label for="jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$kulcs_jog.'"></label>
-                                </div>
-                            </td>
-                            ');
+                                <tr>
+                                    <td class="l">'.$jogSor['nev'].'</td>
+                                ');
+                    foreach($szerepkorok as $szerepkor){
+
+                        $checked = '';
+                        if( $szerepkor['flags'][$kulcs_jog] ) {
+                            $checked = ' checked="checked"';
+                        }
+
+                        $jogSor['nev'] .= ':';
+
+                        $onclick = '';
+                        $kikapcs = '';
+                        if($jogSor['kikapcs']){
+                            foreach(explode(',', $jogSor['kikapcs']) as $pipa_ki){
+                                $kikapcs .= '$(\'#jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$pipa_ki.'\').prop(\'checked\', false).removeClass(\'mod\');';
+                            }
+                        }
+                        $kikapcskor_kikapcs = '';
+                        if($jogSor['kikapcskor_kikapcs']){
+                            foreach(explode(',', $jogSor['kikapcskor_kikapcs']) as $pipa_ki){
+                                $kikapcskor_kikapcs .= '$(\'#jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$pipa_ki.'\').prop(\'checked\', false).addClass(\'mod\');';
+                            }
+                        }
+                        $bekapcs = '';
+                        if($jogSor['bekapcs']!=''){
+                            foreach(explode(',', $jogSor['bekapcs']) as $pipa_be){
+                                $bekapcs .= '$(\'#jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$pipa_be.'\').prop(\'checked\', true).addClass(\'mod\');';
+                            }
+                        }
+
+                        // Ha épp most kap bekapcsolást, csak akkor futtatjuk le
+                        if($bekapcs){
+                            $bekapcs = 'if( $(this).prop(\'checked\') ){'.$bekapcs.'}';
+                        }
+                        // Ha épp most kapcsoltuk ki
+                        if($kikapcskor_kikapcs){
+                            $kikapcskor_kikapcs = 'if( $(this).prop(\'checked\') == false ){'.$kikapcskor_kikapcs.'}';
+                        }
+
+                        if($kikapcs || $kikapcskor_kikapcs || $bekapcs){
+                            $onclick = ' onclick="'.$kikapcs.$kikapcskor_kikapcs.$bekapcs.'"';
+                        }
+
+                        // A már törölteket rejtsük el
+                        $dn = '';
+                        if($jogSor['torolve']){
+                            $dn = ' dn';
+                        }
+
+                        // Van ahol a pipát kell elrejteni
+                        $dn_pipa  = '';
+                        $dn_pipac = '';
+                        if($jogSor['nincs_pipa']){
+                            $dn_pipa  = ' dn';
+                            $dn_pipac = ' class="dn"';
+                        }
+
+                        $html .= nl2('
+                                <td>
+                                    <div class="cb'.$dn.'">
+                                        <input type="hidden" name="jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$kulcs_jog.'" value="0">
+                                        <input type="checkbox" class="check'.$dn_pipa.'" name="jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$kulcs_jog.'" id="jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$kulcs_jog.'" value="1"'.$checked.$onclick.'>
+                                        <label'.$dn_pipac.' for="jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$kulcs_jog.'"></label>
+                                    </div>
+                                </td>
+                                ');
+                    }
+                    $html .= '</tr>';
                 }
-                $html .= '</tr>';
             }
         }
     }

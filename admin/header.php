@@ -740,9 +740,9 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
             $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▲ <span>A-Z</span></a>';
         }
     }else{
-        $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'asc\', \''.$_GET['rkat'].'\' ); void(0);">▲ <span>A-Z</span></a>';
+        $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▲ <span>A-Z</span></a>';
         if( $_GET['irany'] && $_GET['irany'] == 'desc' ) {
-            $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▼ <span>Z-A</span></a>';
+            $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'asc\', \''.$_GET['rkat'].'\' ); void(0);">▼ <span>Z-A</span></a>';
 
             if( $_GET['rend'] && in_array($_GET['rend'], $rend_mezok) ) {
                 $_OPTS['order'] .= ' desc';
@@ -751,8 +751,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     }
 
     $tartBal = '';
-    // Anyagigénylésnél nincs bal nev panel
-    if(basename(self())!='anyagigenyles.php'){
+    // Anyagigénylésnél nincs bal nev panel (de anyagrendnél már igen!)
+    if(basename(self())!='anyagigenyles.php' || isset($_GET['anyagrend'])){
         $tartBal = szamla_lista();
     }
 
@@ -905,7 +905,7 @@ if( !in_array($megn, $nem_kell_szuro)){
     require_once 'szures.php';
 }
 
-/* NYOMTATÁS itt lesz lekezelve, itt hívjuk meg */
+// NYOMTATÁS itt lesz lekezelve, itt hívjuk meg
 require_once 'nyomtatas.php';
 
 
@@ -957,17 +957,23 @@ $uj  = nl2('
         </a>
     ');
 
+$duplikal  = nl2('
+        <a class="duplikal" title="Duplikálás" onclick="bejegyzesDuplikal();">
+            <i class="material-icons">queue</i>
+        </a>
+    ');
+
 if( basename(self())=='anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL)){
     $torles_icon    = '';
     // $uj             = '';
 }
 // Anyagrendelés alatt nincs új felvitel
 if( basename(self())=='anyagigenyles.php' && isset($_GET['anyagrend'])){
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if(basename(self())=='bejelentes.php' && (!_jog(JOG_BEJELENTES_KEZEL)) && !_jog(JOG_BEJELENTES_MAS_NEVEBEN)){
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 if(basename(self())=='bejelentes.php' && !_jog(JOG_BEJELENTES_TORLESE)){
     $torles_icon    = '';
@@ -975,47 +981,47 @@ if(basename(self())=='bejelentes.php' && !_jog(JOG_BEJELENTES_TORLESE)){
 
 if( basename(self())=='beosztas.php' && !_jog(JOG_BEOSZTASOK_KEZEL)){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if( basename(self())=='cikktorzs.php' && !_jog(JOG_CIKKTORZS_KEZEL)){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if(basename(self())=='eloterj_bod.php' && !_jog(JOG_ELOTERJ_KEZEL)){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if(basename(self())=='eloterj_fb.php' && !_jog(JOG_ELOTERJ_KEZEL)){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if(basename(self())=='erteklista.php' && !_jog(JOG_ERTEKLISTAK_KEZEL)){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if(basename(self())=='erteklista.php' && !_jog(JOG_SZEREPKOR_KEZEL)){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if(basename(self())=='eszkozkezeles.php' && !_jog(JOG_ESZKOZ_KEZEL)){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if(basename(self())=='felmeresi_terv.php' && !_jog(JOG_FT_KEZEL)){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if(basename(self())=='login.php' && !_jog(JOG_FELHASZNALOK_KEZEL)){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if(basename(self())=='munkalap.php'){
@@ -1027,38 +1033,44 @@ if(basename(self())=='munkalap.php'){
 // Ütemezett feladatok 
 if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_UTFEL_KEZEL) ){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL)){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if( basename(self())=='projektkezeles.php' && !_jog(JOG_PRKEZEL_KEZEL) ){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if( basename(self())=='raktar.php' && !_jog(JOG_RAKTAR_KEZEL)){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
-//Szerepkör jogoknál semmi értelme az új és törlés ikonoknak
+// Szerepkör alatt semmi értelme az új és törlés ikonoknak
+if( basename(self())=='szerepkor.php'){
+    $torles_icon    = '';
+    $uj = $duplikal = '';
+}
+
+// Szerepkör jogoknál semmi értelme az új és törlés ikonoknak
 if( basename(self())=='szerepkor_jog.php'){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if( basename(self())=='szabadsagigeny.php' && !_jog(JOG_SZABADSAGIG_KEZEL)){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 if( basename(self())=='torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL)){
     $torles_icon    = '';
-    $uj             = '';
+    $uj = $duplikal = '';
 }
 
 $csv_get = get_get(array('id'));
@@ -1088,9 +1100,18 @@ if(basename(self())=='anyagigenyles.php'){
 // Kereső általános esete
 }else{
     $kereso = nl2('
-                <form action="" method="post" onsubmit="return false;">
-                    <input type="text" name="ksz" id="rendezesKeres" class="disableNav" value="{KSZ}" autocomplete="off" placeholder="Keresés">
-                </form>
+            <input type="text" name="ksz" id="rendezesKeres" class="disableNav" autocomplete="off" placeholder="Keresés" onkeyup="altalanos_tabla_szur($(\'#szamlaList\'), $(this).val())">
+            <script>
+                function altalanos_tabla_szur(tabla, kulcs) {
+                    var $rows = tabla.find(\'li\');
+                    var val = $.trim(kulcs).replace(/ +/g, \' \').toLowerCase();
+
+                    $rows.show().filter(function() {
+                        var text = $(this).text().replace(/\s+/g, \' \').toLowerCase();
+                        return !~text.indexOf(val);
+                    }).hide();
+                }
+            </script>
             ');
 }
 
@@ -1098,13 +1119,13 @@ $get_get = get_get(array('pdf'));
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CACHE}',        '{CSS}', '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{TORLES}',   '{UJ}', '{CSUSZKADN}', '{RENDEZES_REJT}' ),
-    array('?cache='.time(), $css,     get_nev(),  $menuk,   $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $torles_icon, $uj,    $csuszkadn,    $rendezes_rejt    ),
+    array('{CACHE}',        '{CSS}', '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{UJ}', '{DUPLIKAL}', '{TORLES}',   '{CSUSZKADN}', '{RENDEZES_REJT}' ),
+    array('?cache='.time(), $css,     get_nev(),  $menuk,   $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $uj,    $duplikal,    $torles_icon, $csuszkadn,    $rendezes_rejt    ),
     $header_sablon
 );
 
 
-//Nyomtatási popup
+// Nyomtatási popup
 $header_html .= nl2('
     <div class="dn">
         <div id="nyomtatasi_nezet">
@@ -1115,7 +1136,8 @@ $header_html .= nl2('
         </div>
     </div>
 ');
-//Jogosultság tomb JS-be
+
+// Jogosultság tomb JS-be
 $jogok = '';
 foreach ($_SESSION[get_db_tabla().'rights'] as $jog){
     $jogok .= $jog;

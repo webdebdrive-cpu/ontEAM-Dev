@@ -771,6 +771,7 @@ function i_u($type, $tabla, $tomb) {
 
     // Update
 	} else {
+        
         // Csak nyitott státuszú bejelentést lehet szerkeszteni
         if( $tabla == 'bejelentes' ) {
 
@@ -792,8 +793,6 @@ function i_u($type, $tabla, $tomb) {
                 exit();
             }
         }
-
-
 
         // Ha volt változás, akkor logoljuk
         $record = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
@@ -851,9 +850,9 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'login' ) {
             
             // Ha változott a szerepkör, akkor a jogokat frissítjük
-            $login = $adatbazis_kapcsolat->s2('szerepkor_id', 'login', "`recid`='{$_GET['id']}'");
-            if( $login['szerepkor_id'] != $_POST['szerepkor_id'] ) {
-                $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', "`recid`='{$_POST['szerepkor_id']}'", '', '1');
+            $login = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`recid`='{$_GET['id']}'");
+            if( $login['szemelyzet_id'] != $_POST['szemelyzet_id'] ) {
+                $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', "`recid`='{$_POST['szemelyzet_id']}'", '', '1');
                 if( $szerepkor === false ) { $db_error = true; }
 
                 if( $szerepkor['flags'] ) {
@@ -2012,7 +2011,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             $i++;
         }
     }
-    // Jegyezzük meg, mi volt az előző rendezés szempont, hogy kétszer nem váltsunk irányt
+    // Jegyezzük meg, mi volt az előző rendezés szempont, hogy kétszer ne váltsunk irányt
     $_SESSION['elozo_rend'] = $order;
 
     $irany = $_GET['irany'];
@@ -2278,28 +2277,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
         // Rendezés anyagigényléskor
         if($tabla=='anyagigenyles'){
-            /* Szerintem ez már nem fog kelleni
-            // Iktatószám melyik oszlopot jelenti:
-            $ikt_szam_oszlop = 'ikt_szam';
-            if (isset($_GET['anyagrend'])) {
-                $ikt_szam_oszlop = 'rndid';
-            }
-            // Státusz rendezésen belül iktatószám szerint rendezünk
-            if($_GET['rend']=='stat_id'){
-                $order = '`'.get_db_tabla().'anyagigenyles`.`stat_id` '.$_GET['irany'].', `'.$ikt_szam_oszlop.'` '.$_GET['irany'];
-            }
-            // Telephely nevét rendezzük, azon belül iktatószám
-            if($_GET['rend']=='telephely_id'){
-                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.$ikt_szam_oszlop.'` '.$_GET['irany'];
-            }
-            // Iktatószámon belül szálloda szerinti sorrend lesz
-            if($_GET['rend']=='cikk_id'){
-                $order = '`'.get_db_tabla().'anyagigenyles`.`cikk_id` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
-            }
-            // Szállító név szerinti rendezés, azon belül cikkszám
-            if($_GET['rend']=='szallito_id'){
-                $order = '`'.get_db_tabla().'szallito`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'anyagigenyles`.`cikk_id` '.$_GET['irany'];
-            }*/
             
             // Táblázatos rendezés miatt itt másképp kell a rendezést megoldani
             // Alapértelmezett irány beállítása
@@ -2345,49 +2322,40 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             
             if($_GET['rend']=='stat_id'){
                 
+                if( !$_GET['irany'] ) {
+                    $_GET['irany'] = 'desc';
+                }
+                
                 // Ha státusz szerint rendezünk, akkor beállítunk egy aktuális sorrendet, és a sorrend oszlop szerint rendezünk
                 // Fontos! A rendezési sorrendet fordítva számítjuk ki, mert az irány alapból DESC az iktatószám csökkenősorrendje miatt.
                 // Ez azért fontos, mert ha másik szűrésre vált, akkor ne forduljon meg rendezés nyíl.
                 
                 $i = 0;
-                // Nem nyitott státuszú, nem sürgősek, azon belül ikatatószám
-                // A státuszoknak is van egy sorrendje, ezt is fordított sorrendben soroljuk fel
+                // Nem nyitott státuszú, azon belül sürgősek majd iktatószám
+                // A státuszoknak is van egy sorrendje
                 $statuszok = array_reverse( array(BEJELENTES_STAT_FOLYAMATBAN, BEJELENTES_STAT_KESZ_IG, BEJELENTES_STAT_VIZSG_ALATT, BEJELENTES_STAT_VARAKOZO, BEJELENTES_STAT_ELUTASITVA, BEJELENTES_STAT_LEZART) );
                 foreach($statuszok as $stat){
-                    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`surgos`=0 AND `stat_id`='$stat'", 'ikt_szam');
+                    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='$stat'", '`surgos`, `ikt_szam`');
                     foreach($bejelentesek as $bejelentes){
                         $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
                         $i++;
                     }
                 }
-                // Nem nyitott státuszú, sürgősek, azon belül ikatatószám
-                foreach($statuszok as $stat){
-                    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`surgos`=1 AND `stat_id`='$stat'", 'stat_id, ikt_szam');
-                    foreach($bejelentesek as $bejelentes){
-                        $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
-                        $i++;
-                    }
-                }
-                // Nyitott státuszú, nem sürgősek, azon belül ikatatószám
-                $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=0", 'ikt_szam');
-                foreach($bejelentesek as $bejelentes){
-                    $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
-                    $i++;
-                }
-                // Nyitott státuszú sürgősek, azon belül ikatatószám
-                $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".BEJELENTES_STAT_NYITOTT."' AND `surgos`=1", 'ikt_szam');
+
+                // Nyitott státuszú, azon belül sürgősek majd iktatószám
+                $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".BEJELENTES_STAT_NYITOTT."'", '`surgos`, `ikt_szam`');
                 foreach($bejelentesek as $bejelentes){
                     $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
                     $i++;
                 }
                 
-                $order .= '`'.get_db_tabla().$tabla.'`.`sor` '.$_GET['irany'].'';
+                $order .= '`'.get_db_tabla().$tabla.'`.`sor` '.$_GET['irany'];
 
             // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             }elseif($_GET['rend']=='telephely_id'){
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam`';
 
-            // Alapértelmezett rendezettség a sürgős, azon belül státusz
+            // Alapértelmezett rendezettség a sürgős, azon belül telephely
             }elseif($_GET['rend']=='ikt_szam'){
                 $order .= '`'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
             }
@@ -2408,43 +2376,33 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
             
             // Ha státusz szerint rendezünk
             if($_GET['rend']=='stat_id'){
+                
+                if( !$_GET['irany'] ) {
+                    $_GET['irany'] = 'desc';
+                }
+                
                 // Ha státusz szerint rendezünk, akkor beállítunk egy aktuális sorrendet, és a sorrend oszlop szerint rendezünk
                 // Fontos! A rendezési sorrendet fordítva számítjuk ki, mert az irány alapból DESC az iktatószám csökkenősorrendje miatt.
                 // Ez azért fontos, mert ha másik szűrésre vált, akkor ne forduljon meg rendezés nyíl.
                 
                 $i = 0;
-                // Nem nyitott státuszú, nem sürgősek, azon belül ikatatószám
-                // A státuszoknak is van egy sorrendje, ezt is fordított sorrendben soroljuk fel
+                // Nem nyitott státuszú, azon belül sürgősek majd iktatószám
+                // A státuszoknak is van egy sorrendje
                 $statuszok = array_reverse( array( MUNKALAP_STAT_BEOSZTAS_NELKUL, MUNKALAP_STAT_FOLYAMATBAN, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_TOROLT ) );
                 foreach($statuszok as $stat){
-                    $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`surgos`=0 AND `stat_id`='$stat'", 'ikt_szam');
+                    $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='$stat'", '`surgos`, `ikt_szam`');
                     foreach($munkalapok as $munkalap){
                         $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
                         $i++;
                     }
                 }
 
-                // Nem nyitott státuszú, sürgősek, azon belül ikatatószám
-                foreach($statuszok as $stat){
-                    $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`surgos`=1 AND `stat_id`='$stat'", 'ikt_szam');
-                    foreach($munkalapok as $munkalap){
-                        $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
-                        $i++;
-                    }
-                }
-                // Nyitott státuszú, nem sürgősek, azon belül ikatatószám
-                $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_NYITOTT."' AND `surgos`=0", 'ikt_szam');
+                // Nyitott státuszú, azon belül sürgősek majd iktatószám
+                $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_NYITOTT."'", '`surgos`, `ikt_szam`');
                 foreach($munkalapok as $munkalap){
                     $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
                     $i++;
                 }
-                // Nyitott státuszú sürgősek, azon belül ikatatószám
-                $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_NYITOTT."' AND `surgos`=1", 'ikt_szam');
-                foreach($munkalapok as $munkalap){
-                    $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
-                    $i++;
-                }
-                
                 
                 $order .= '`'.get_db_tabla().$tabla.'`.`sor` '.$_GET['irany'].'';
                 
@@ -2676,11 +2634,13 @@ if(isset($_GET['debug'])) {
     // Ha volt irány váltás, akkor még egy JS kódot kiíratunk, amivel a nyilat is megfordítjuk
     if($volt_irany_valtas){
         if($_GET['irany']=='desc'){
+
             $js = '
                     $(\'#rendezesIrany\').html(\'▼ <span>Z-A</span>\');
                     $(\'#rendezesIrany\').attr(\'href\', $(\'#rendezesIrany\').attr(\'href\').replace(\'\\\'desc\\\'\', \'\\\'asc\\\'\'));
                     ';
         }else{
+
             $js = '
                     $(\'#rendezesIrany\').html(\'▲ <span>A-Z</span>\');
                     $(\'#rendezesIrany\').attr(\'href\', $(\'#rendezesIrany\').attr(\'href\').replace(\'\\\'asc\\\'\', \'\\\'desc\\\'\'));
@@ -5344,7 +5304,7 @@ function get_akt_login_szallodai($sqlt_adj_vissza, $telephely_id_oszlop_helyett_
     }
 }
 
-//A kapott munkalapID-k alapján bejárjuk a munkalapokat. Ha adott munkalapon minden anyag státusza 0 (beérkezett), akkor maga a munkalap státusza folyamatbanra állítható
+// A kapott munkalapID-k alapján bejárjuk a munkalapokat. Ha adott munkalapon minden anyag státusza 0 (beérkezett), akkor maga a munkalap státusza folyamatbanra állítható
 function munkalap_folyamatbanra_halehet($munkalapidk){
 
     global $adatbazis_kapcsolat;
@@ -5352,14 +5312,14 @@ function munkalap_folyamatbanra_halehet($munkalapidk){
     $db_error = false;
 
     foreach($munkalapidk as $mukalap_id){
-        //Ha nincs olyan anyag, aminek a státusza ne 0 volna, akkor a munkalap státuszát folyamatbanra váltjuk
-        $sql = $adatbazis_kapcsolat->s('recid', 'munkalap_anyag', "`munkalap_id`='$mukalap_id' AND `stat_id`!='0'");
+        // Ha nincs olyan anyag, aminek a státusza ne 0 volna, akkor a munkalap státuszát folyamatbanra váltjuk
+        $sql = $adatbazis_kapcsolat->s('recid', 'munkalap_anyag', "`munkalap_id`='$mukalap_id' AND `stat_id`!='".DISZPNAG_STAT_VAN_ANYAG."'");
         if( $sql === false ) {
             $db_error = true;
             return false;
         }
         if(!$sql){
-            if(!addStatusz( 'munkalap_statusz', $mukalap_id, MUNKALAP_STAT_FOLYAMATBAN )){
+            if(!addStatusz( 'munkalap_statusz', $mukalap_id, MUNKALAP_STAT_NYITOTT )){
                 $db_error = true;
             }
         }

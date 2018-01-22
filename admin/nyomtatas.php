@@ -67,7 +67,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         $feltetel = 'Szűrő feltételek: <b>'.$feltetel.'</b>';
     }
 
-    //Összetett szűréskor annak a címkéjét írjuk ki: trükk: beágyazzuk rejtve az összetett szűrést, és ugyanazt a JS-el kiszámolt mondatatot írtajuk ki
+    // Összetett szűréskor annak a címkéjét írjuk ki: trükk: beágyazzuk rejtve az összetett szűrést, és ugyanazt a JS-el kiszámolt mondatatot írtajuk ki
     if($_SESSION['o_szuro_feltetel']){
         $feltetel  = '<script src="../js/wdb_admin_min.js"></script>';
         $feltetel .= '<script src="../js/wdb_admin_async_min.js"></script>';
@@ -76,7 +76,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
     }
 
 
-    //FB elétrejestzett lista nyomtatásakor a lekérdezésen még állítottunk
+    // FB elétrejestzett lista nyomtatásakor a lekérdezésen még állítottunk
     if(isset($_GET['fb_elo'])){
 
         $mit   = array('WHERE',   'ORDER');
@@ -97,7 +97,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         array_push($sorok, $sor);
     }
 
-    //Bal oldali navpanel kiíratása
+    // Bal oldali navpanel kiíratása
     switch($tabla){
 //        case 'anyagigenyles'        : $akt_tomb = $anyagigenyles_tomb;          break;
         case 'bejelentes'           : $sorok_html = bejelentesLista( $sorok, $tabla );      break;
@@ -111,6 +111,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
 //        case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
 //        case 'torzsadat'            : $akt_tomb = $torzsadat_tomb;              break;
         case 'projektigenyles'      : $sorok_html = projektigenylesLista( $sorok, $tabla ); break;
+        case 'szerepkor'            : $sorok_html = szerepkorLista( $sorok, $tabla );       break;
     }
 
     if( !isset($_GET['pdf']) ) {

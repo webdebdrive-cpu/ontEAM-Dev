@@ -99,6 +99,11 @@
     padding: 0.8rem 0.8rem 0.9rem 0.9rem;
 }
 
+#alert2 input.flat, div.alert2 input.flat {
+    font-size: 1.2rem;
+    padding: 0.4rem 0.4rem;
+}
+
 #alert2 input:disabled, div.alert2 input:disabled {
     display: inline-block;
 }

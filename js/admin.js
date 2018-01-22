@@ -1,8 +1,9 @@
+var KEY_TAB    =  9;
 var KEY_ENTER  = 13;
 var KEY_ESCAPE = 27;
-var KEY_TAB    =  9;
-var KEY_DOWN   =  40;
-var KEY_UP     =  38;
+var KEY_SPACE  = 32;
+var KEY_UP     = 38;
+var KEY_DOWN   = 40;
 
 /**
 *	Töröl
@@ -231,7 +232,7 @@ $(function() {
     setTimeout(function() {
         
         /* Anyagigénylésnél nem a bal navpanelre kattintonunk, hanem a táblázat első sorára */
-        if( baseName(location.href)=='anyagigenyles' ){
+        if( baseName(location.href)=='anyagigenyles' && !_get('anyagrend') ){
             if( !$('table.szamla_cont_tabla tr.kijelolve').length ){
                 $('table.szamla_cont_tabla tbody tr:first-of-type').addClass('kijelolve').click();
             }
@@ -427,6 +428,7 @@ $(function() {
     })();
 
     /* Gyorskereső */
+    /* JS-el oldottuk meg ajax helyett
     $(document).on('keyup', '#rendezesKeres', function(e) {
         var that = $(this);
 
@@ -441,7 +443,7 @@ $(function() {
                 }
             });
         }, 650);
-    });
+    });*/
 
     // Általánosan kattintva a dokumentumban
     $(document).on('click', function(e) {
@@ -524,8 +526,9 @@ $(function() {
         }
     });
     
+    /* Checkbox space-ra is kapcsolódjon ki/be */
     $(document).on('keyup', 'input[type="checkbox"]', function(e) {
-        if( e.keyCode == 32 ) {
+        if( e.keyCode == KEY_SPACE ) {
             var val = $(this).prop('checked');
 
             if( val ) {
@@ -542,6 +545,7 @@ $(function() {
             mezo_nev = $(this).attr('name');
             stop = false;
             $(this).parents('form').find('input, select, textarea').filter(':not(:disabled)').filter(':not(:readonly)').each(function() {
+
                 var name = $(this).attr('name'),
                     type = $(this).attr('type'),
                     tag  = $(this).prop('tagName');
@@ -939,7 +943,7 @@ $(function() {
                 }
             }
 
-            // Újsort le kell csérélni. Checkboxok miatt kell ez az if elé
+            /* Újsort le kell csérélni. Checkboxok miatt kell ez az if elé */
             if(val && val!=true){
                 val = val.replace(/(\r|\n)/g, '#UJSOR#').replace(/'/g, '#APOSZTROF#');
             }
@@ -1357,7 +1361,7 @@ $(function() {
         cikk_id      = $(this).attr('data-cikk_id');
 
         $.ajax({
-            url: 'anyagigenyles.php',
+            url : 'anyagigenyles.php',
             type: 'POST',
             data: esamp2es('telephely_id=' + telephely_id + '&amp;cikk_id=' + cikkid_origi + '&amp;f_anyag_rendelkezesre_all=' + new Date().getTime()),
             success: function (response) {
@@ -2241,13 +2245,23 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
 
                                 return false;
                             }
+                            
+                            /* Ha mehet, akkor anyagrendelésre ugrunk át */
+                            if(mehet){
+                                
+                                location.href = 'anyagigenyles.php?id='+_get('id')+'&modosit&anyagrend';
+                                
+                            }else{
+                                
+                                /* Adatlap frissítése */
+                                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                                /* navpanel frissítése (minden kijelölt sort) */
+                                szamlaSorok.each(function() {
+                                    szamlaSorFrissit('anyagigenyles', $(this).attr('data-recid'));
+                                });
+                                
+                            }
 
-                            /* Adatlap frissítése */
-                            szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
-                            /* navpanel frissítése (minden kijelölt sort) */
-                            szamlaSorok.each(function() {
-                                szamlaSorFrissit('anyagigenyles', $(this).attr('data-recid'));
-                            });
                             alert2();
                         }
                     }
@@ -2891,6 +2905,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         type: 'POST',
                         data: {
                             recid        : _get('id'),
+                            igenyles     : 1,
                             van_e_feladat: Date.now()
                         },
                         success: function (response) {
@@ -2944,32 +2959,61 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
                 case 'munkalapAnyagvetelezes':
                     $('#popupTart').html(data);
-
-                    var ajax = $.ajax({
+                    
+                    var mehet = true;
+                    var ellenorzes = $.ajax({
                         url : 'munkalap.php',
                         type: 'POST',
                         data: {
-                            recid: _get('id'),
-                            getMunkalapAnyagok: new Date().getTime()
+                            recid        : _get('id'),
+                            van_e_feladat: Date.now()
                         },
-                        success: function(response) {
+                        success: function (response) {
                             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
                                 if( response.hiba ) {
                                     alert2(response.hiba, response.gomb, response.title);
+                                    mehet = false;
                                     return false;
                                 }
 
-                                $('#insertTable').html(response.html);
                             }
                         }
                     });
+                    $.when( ellenorzes ).then(function() {
+                        
+                        if(mehet){
 
-                    $.when( ajax ).then(function() {
-                        popupNyit();
+                            var ajax = $.ajax({
+                                url : 'munkalap.php',
+                                type: 'POST',
+                                data: {
+                                    recid               : _get('id'),
+                                    getMunkalapAnyagok  : new Date().getTime()
+                                },
+                                success: function(response) {
+                                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                                    if(response) {
+                                        response = JSON.parse(response);
+
+                                        if( response.hiba ) {
+                                            alert2(response.hiba, response.gomb, response.title);
+                                            return false;
+                                        }
+
+                                        $('#insertTable').html(response.html);
+                                    }
+                                }
+                            });
+                            
+                            $.when( ajax ).then(function() {
+                                popupNyit();
+                            });
+                        }
                     });
+
                 break;
 
                 case 'munkalap_mobil':
@@ -3062,30 +3106,60 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                 case 'munkaidoHozzaad':
                     $('#popupTart').html(data);
 
-                    var ajax = $.ajax({
+                    var mehet = true;
+                    var ellenorzes = $.ajax({
                         url : 'munkalap.php',
                         type: 'POST',
                         data: {
-                            recid               : _get('id'),
-                            getMunkalapMunkaido : new Date().getTime()
+                            recid        : _get('id'),
+                            munkaido     : 1,
+                            van_e_feladat: Date.now()
                         },
-                        success: function(response) {
+                        success: function (response) {
                             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
                                 if( response.hiba ) {
                                     alert2(response.hiba, response.gomb, response.title);
+                                    mehet = false;
                                     return false;
                                 }
 
-                                $('#insertTable').html(response.html);
                             }
                         }
                     });
+                    
+                    $.when( ellenorzes ).then(function() {
+                        
+                        if(mehet){
 
-                    $.when( ajax ).then(function() {
-                        popupNyit();
+                            var ajax = $.ajax({
+                                url : 'munkalap.php',
+                                type: 'POST',
+                                data: {
+                                    recid               : _get('id'),
+                                    getMunkalapMunkaido : new Date().getTime()
+                                },
+                                success: function(response) {
+                                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                                    if(response) {
+                                        response = JSON.parse(response);
+
+                                        if( response.hiba ) {
+                                            alert2(response.hiba, response.gomb, response.title);
+                                            return false;
+                                        }
+
+                                        $('#insertTable').html(response.html);
+                                    }
+                                }
+                            });
+
+                            $.when( ajax ).then(function() {
+                                popupNyit();
+                            });
+                        }
                     });
                 break;
 

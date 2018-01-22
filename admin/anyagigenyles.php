@@ -46,16 +46,12 @@ if (isset($_POST['f_anyag_rendelkezesre_all'])) {
 
     // Az érintett munkalap anyagok státuszait 0-ra állítjuk
     $sql = $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array(DISZPNAG_STAT_VAN_ANYAG), "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$_POST['cikk_id']}'");
-    if( $sql === false ) {
-        $db_error = true;
-    }
+    if( $sql === false ) { $db_error = true; }
 
     // Lefuttatjuk a munkalap_folyamatbanra_halehet függvényt, ezzel ha lehet, folyamatbanra állítva a munkalap státuszát
     $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_anyag', "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$_POST['cikk_id']}'");
     $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
-    if(munkalap_folyamatbanra_halehet($munkalapok)===false){
-        $db_error = true;
-    }
+    if(munkalap_folyamatbanra_halehet($munkalapok)===false){ $db_error = true; }
 
     // Tranzakció kommitolása, vagy rollback-ezése
     if( !$db_error ) {
@@ -2075,7 +2071,6 @@ require_once('selectek.php');
 
                 // Tétel sorok
                 $sorok = $adatbazis_kapcsolat->s('cikk_id nev rndmen rndear cikkmee erkmen', 'anyagigenyles', "`rndid` = '".$rndid['rndid']."'", 'insert_dt desc', '');
-
                 if( $sorok ) {
                     $szamla_html .= nl2('
                         <table class="csikos tetel_csikos full">

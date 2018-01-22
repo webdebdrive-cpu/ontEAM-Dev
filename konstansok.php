@@ -154,6 +154,8 @@ define('MUSZAKI_VEZETO_HELYETTES',      '6' );
 define('TERULETI_FELELOS',              '7' );
 define('MUSZAKI_ADMINISZTRATOR',        '8' );
 define('MUSZAKI_IGAZGATO',              '9' );
+define('SZALLODA_IGAZGATO',             '11');
+define('HIBABEJELENTO',                 '12');
 
 // MozgásID-k
 define('MOZGID_RAKTAR_BE',              '01' );
@@ -193,6 +195,9 @@ define('JOG_MUNKALAP_UJ_LETREHOZ',      5 );
 define('JOG_MUNKALAP_VARAKOZTAT',       21);
 define('JOG_MUNKALAP_SAJAT_KEZEL',      22);
 define('JOG_MUNKALAP_SAJAT_SZALL_KEZEL',69);
+define('JOG_MUNKALAP_KEZEL_TELEPITETT', 76);
+define('JOG_MUNKALAP_KEZEL_MOBIL',      77);
+define('JOG_MUNKALAP_KEZEL_KULSO',      78);
 define('JOG_MUNKALAP_IGAZOLAS',         23);
 define('JOG_MUNKALAP_MUNKAIDO_HOZZAAD_TOROLVE', 75);
 define('JOG_MUNKALAP_VIZSGALAT',        24);

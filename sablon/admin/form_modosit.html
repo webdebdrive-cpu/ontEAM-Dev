@@ -61,7 +61,13 @@
                     });
 
                     /* Ha az űrlapnak nincs submit-ja, akkor minden mezőjét tiltunk.  */
-                    if(!$('#szerk_form').parent().find('input.mentes_gomb').length){
+                    if( !$('#szerk_form').parent().find('input.mentes_gomb').length ){
+                        
+                        /* Checbox-ok labeljeire is kell egy readonly, hogy ne lehessen rákattintani */
+                        $('#szerk_form input[type="checkbox"]').each(function() {
+                            $('label[for="'+$(this).attr('id')+'"]').attr('readonly', true);
+                        });
+
                         $('#szerk_form input, #szerk_form textarea, #szerk_form select').attr('readonly', true);
                         $('#szerk_form input.f_nem_rejt').attr('readonly', false);
                         $('#szerk_form input.foGomb').removeAttr('disabled');

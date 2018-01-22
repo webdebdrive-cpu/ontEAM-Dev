@@ -6,7 +6,7 @@ $log_utvonal = get_ut_logfajl();
 $log = fajlbol_olvas($log_utvonal);
 if(strpos($log, '!utemezo sikeresen lefutott!')===false){
     if($_SERVER['HTTP_HOST']=='onteam.hu' || $_SERVER['HTTP_HOST']=='demo.szinvatrend.hu'){
-        level_kuldes( get_nev(), get_mail(), 'Handari Tamás', 'bk@webdeb.hu', 'Ütemező nem futott le', nl2br($log) );
+        // level_kuldes( get_nev(), get_mail(), 'Handari Tamás', 'bk@webdeb.hu', 'Ütemező nem futott le', nl2br($log) );
     }
 }
 
@@ -21,12 +21,11 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 foreach($munkalapok as $munkalap){
     
     // Nyitott státuszt kapnak
-    if( addStatusz( 'munkalap_statusz', $munkalap['recid'], MUNKALAP_STAT_VARAKOZO ) === false ) {
+    if( addStatusz( 'munkalap_statusz', $munkalap['recid'], MUNKALAP_STAT_NYITOTT ) === false ) {
         $db_error = true;
     }
     
 }
-
 
 // Tranzakció kommitolása, vagy rollback-ezése
 if( !$db_error ) {

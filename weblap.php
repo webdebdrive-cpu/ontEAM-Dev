@@ -86,8 +86,8 @@ if($weblap -> db_prefix){
 //}
 
 // Kiléptetés, ha nem él a SESSION és nem az index.php-n vagyunk.
-if( !$_SESSION[get_db_tabla().'user'] && basename( $_SERVER['PHP_SELF'] )!='index.php' ){
-    echo 'SESKIL<script>location.href=\'index.php\'</script>';
+if( !$_SESSION[get_db_tabla().'user'] && basename( $_SERVER['PHP_SELF'] )!='index.php' && basename( $_SERVER['PHP_SELF'] )!='beleptetes.php' ){
+    echo 'SESKIL<script>document.body.innerHTML = \'\'; location.href=\'index.php\'</script>';
 }
     
 // Jogosultságok karbantartása
@@ -105,6 +105,6 @@ if (isset($_GET['szures_torol'])) {
     $_SESSION['szures_torol'] = 1;
     hd(basename(self()).'?tablazat');
 }
-if( empty($_POST) && basename(self()) == 'anyagigenyles.php' && _jog(JOG_ANYAGIGENYLES_JOVAHAGY) && !$_GET['mezo'] && !$_SESSION['szures_torol']){
+if( empty($_POST) && basename(self()) == 'anyagigenyles.php' && !$_GET['anyagrend'] && _jog(JOG_ANYAGIGENYLES_JOVAHAGY) && !$_GET['mezo'] && !$_SESSION['szures_torol']){
     header('Location:'.self().get_get('', 'nem &amp;').'&mezo=stat_id&op=equal&felt='.CIKKIGN_STAT_ARAZVA);
 }

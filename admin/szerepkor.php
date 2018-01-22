@@ -589,9 +589,18 @@ require_once('selectek.php');
                         $onclick = ' onclick="'.$kikapcs.$bekapcs.$kikapcskor_kikapcs.'"';
                     }
 
+                    // A már törölteket rejtsük el
                     $dn = '';
                     if($jogSor['torolve']){
                         $dn = ' dn';
+                    }
+                    
+                    // Van ahol a pipát kell elrejteni
+                    $dn_pipa  = '';
+                    $dn_pipac = '';
+                    if($jogSor['nincs_pipa']){
+                        $dn_pipa  = ' dn';
+                        $dn_pipac = ' class="dn"';
                     }
 
                     $szamla_html .= nl2('
@@ -600,8 +609,8 @@ require_once('selectek.php');
                             <div class="dtc form_jobb">
                                 <div class="cb">
                                     <input type="hidden" name="jog-'.$jogSor['id'].'" value="0">
-                                    <input type="checkbox" class="check" name="jog-'.$jogSor['id'].'" id="jog-'.$jogSor['id'].'" value="1"'.$checked.$onclick.'>
-                                    <label for="jog-'.$jogSor['id'].'"></label>
+                                    <input type="checkbox" class="check'.$dn_pipa.'" name="jog-'.$jogSor['id'].'" id="jog-'.$jogSor['id'].'" value="1"'.$checked.$onclick.'>
+                                    <label'.$dn_pipac.' for="jog-'.$jogSor['id'].'"></label>
                                     '.$info.'
                                 </div>
                             </div>

@@ -119,22 +119,25 @@ foreach($akt_tomb as $ertek){
             }
 
             $html .= nl2(
-                    //lényeges, hogy ne legyen a string elején szóköz
+                    // lényeges, hogy ne legyen a string elején szóköz
+                    // Az autocomplete tulajdonságot egy kis timeout után adjuk rá, hogy az utólagosan rátett readonly biztosan rajta legyen már
                     '<script>
                     $(document).ready(function() {
-                        $(\'#'.$ertek['name'].'_autocomp\').autocomplete({
-                            \'php_fajl\'        : \'../autocomplete.php\',
-                            \'tabla\'           : \''.$ertek['tabla'].'\',
-                            \'oszlop_keres\'    : \''.$ertek['oszlop_keres_autocomp'].'\',
-                            \'oszlop_listaz\'   : \''.$ertek['listaz'].'\',
-                            \'rkat\'            : '.$rkat.',
-                            \'csoport\'         : '.$csoport.',
-                            \'recid\'           : \''.$_GET['id'].'\',
-                            \'mezo\'            : \''.$_GET['mezo'].'\',
-                            \'op\'              : \''.$_GET['op'].'\',
-                            \'felt\'            : \''.$_GET['felt'].'\',
-                            \'id_kiir\'         : \''.$id_kiir.'\'
-                        });
+                        setTimeout(function(){ 
+                            $(\'#'.$ertek['name'].'_autocomp\').autocomplete({
+                                \'php_fajl\'        : \'../autocomplete.php\',
+                                \'tabla\'           : \''.$ertek['tabla'].'\',
+                                \'oszlop_keres\'    : \''.$ertek['oszlop_keres_autocomp'].'\',
+                                \'oszlop_listaz\'   : \''.$ertek['listaz'].'\',
+                                \'rkat\'            : '.$rkat.',
+                                \'csoport\'         : '.$csoport.',
+                                \'recid\'           : \''.$_GET['id'].'\',
+                                \'mezo\'            : \''.$_GET['mezo'].'\',
+                                \'op\'              : \''.$_GET['op'].'\',
+                                \'felt\'            : \''.$_GET['felt'].'\',
+                                \'id_kiir\'         : \''.$id_kiir.'\'
+                            });
+                        }, 1000);
                     });
                 </script>'
                 //lényeges, hogy ne legyen a string végén szóköz

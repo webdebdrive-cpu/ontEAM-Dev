@@ -61,7 +61,7 @@ SORREDEZÉS
 - A kilsitázott tételek valódi sorrendjét a fuggvenyek.php -ban szamla_lista() függvény elején kerül beállításra
 - Az esemenyek.php -ban a rendezhető mezőknél az alapértelmezett irányt is meg tudod adni egy tömbben, de nem kötelező (ha nincs, akkor marad ami volt). 
 
-NYOMATÁSI NÉZETEK KIGENEÁRLÁSA:
+NYOMTATÁSI NÉZETEK KIGENEÁRLÁSA:
 - header.php
 
 STÁTUSZOK KARBANTARTÁSA

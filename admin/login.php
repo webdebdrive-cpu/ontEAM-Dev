@@ -247,7 +247,7 @@ if (isset($_GET['csv'])) {
 }
 
 
-/** Tartalom */
+// Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
@@ -350,10 +350,10 @@ require_once('selectek.php');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
 	    require_once('info.php');
 
-	    //FORM
+	    // FORM
 		if(isset($_GET['ujkent'])){
 			foreach($akt_tomb as $ertek){
 				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
@@ -361,14 +361,14 @@ require_once('selectek.php');
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-        /* Javascipt-es ellenőrzéshez */
+        // Javascipt-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
         $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
@@ -408,9 +408,9 @@ require_once('selectek.php');
         
         // Módosításnál figyeljük, hogy a szerepkör megváltozott-e
         $js_submit_elott = nl2('
-                                if($(\'#szerepkor_id_autocomp\').hasClass(\'mod\')){
+                                if($(\'#szemelyzet_id\').hasClass(\'mod\')){
                                     gomb_folytatja = \'<input type="button" class="gomb zold" value="Igen" onclick="form_ell_admin()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">\';
-                                    alert2(\'A szerepkör megváltozott: \'+$(\'#szerepkor_id_autocomp\').val()+\'<br>Ha folytatja, az új szerepkör jogsultságai is beállításra kerülnek!<br>Folytatja?\', gomb_folytatja);
+                                    alert2(\'A szerepkör megváltozott: \'+$(\'#szemelyzet_id option:selected\').text()+\'<br>Ha folytatja, az új szerepkör jogsultságai is beállításra kerülnek!<br>Folytatja?\', gomb_folytatja);
                                     return false;
                                 }else{
                                     return form_ell_admin();
@@ -649,9 +649,18 @@ require_once('selectek.php');
                         $onclick = ' onclick="'.$kikapcs.$kikapcskor_kikapcs.$bekapcs.'"';
                     }
 
+                    // A már törölteket rejtsük el
                     $dn = '';
                     if($jogSor['torolve']){
                         $dn = ' dn';
+                    }
+                    
+                    // Van ahol a pipát kell elrejteni
+                    $dn_pipa  = '';
+                    $dn_pipac = '';
+                    if($jogSor['nincs_pipa']){
+                        $dn_pipa  = ' dn';
+                        $dn_pipac = ' class="dn"';
                     }
 
                     $szamla_html .= nl2('
@@ -660,8 +669,8 @@ require_once('selectek.php');
                             <div class="dtc form_jobb">
                                 <div class="cb">
                                     <input type="hidden" name="jog-'.$jogSor['id'].'" value="0">
-                                    <input type="checkbox" class="check" name="jog-'.$jogSor['id'].'" id="jog-'.$jogSor['id'].'" value="1"'.$checked.$onclick.'>
-                                    <label for="jog-'.$jogSor['id'].'"></label>
+                                    <input type="checkbox" class="check'.$dn_pipa.'" name="jog-'.$jogSor['id'].'" id="jog-'.$jogSor['id'].'" value="1"'.$checked.$onclick.'>
+                                    <label'.$dn_pipac.' for="jog-'.$jogSor['id'].'"></label>
                                     '.$info.'
                                 </div>
                             </div>

@@ -688,11 +688,7 @@ switch($tabla) {
         if( !$_GET['rend'] ) {
             $_GET['rend'] = 'nev';
         }
-
-        // Default rendezési irány
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = 'desc';
-        }
+        
     break;
 }
 
@@ -891,10 +887,11 @@ $login_tomb = $akt_tomb = array(
     array('type' => 'checkbox',             'megn' => 'Jelszóval rendelkezik:',     'name' => 'van_jelszo',     'class' => 'check',             'szuro' => 1, 'disabled' => $disabled_uj),
     array('type' => 'autocomplete',         'megn' => 'Beosztás:',                  'name' => 'beosztas_id',    'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a beosztást!'),
     array('type' => 'autocomplete',         'megn' => 'Részleg:',                   'name' => 'reszleg_id',     'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a részleget!'),
-    array('type' => 'select_szemelyzet',    'megn' => 'Személyzet típus:',          'name' => 'szemelyzet_id',  'class' => 'disableNav',        'szuro' => 1),
+    array('type' => 'select_szemelyzet',    'megn' => 'Szerepkör:',                 'name' => 'szemelyzet_id',  'class' => 'disableNav',        'szuro' => 1, 'alert' => 'Kérjük adja meg a szerepkört!'),
     array('type' => 'text',                 'megn' => 'E-mail:',                    'name' => 'usermail',       'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250),
+    array('type' => 'checkbox',             'megn' => 'Kap értesítést:',            'name' => 'kap_mailt',      'class' => 'check',             'szuro' => 1, 'disabled' => $disabled_uj),
     array('type' => 'text',                 'megn' => 'Telefon:',                   'name' => 'usertel',        'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250, 'alert' => 'Kérjük adja meg a telefonszámot!'),
-    array('type' => 'autocomplete',         'megn' => 'Szerepkör:',                 'name' => 'szerepkor_id',   'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'szerepkor', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'alert' => 'Kérem adja meg a szerepkört!'),
+    //array('type' => 'autocomplete',         'megn' => 'Szerepkör:',                 'name' => 'szerepkor_id',   'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'szerepkor', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'alert' => 'Kérem adja meg a szerepkört!'),
     array('type' => 'autocomplete',         'megn' => 'Partner cég:',               'name' => 'szallito_id',    'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
@@ -902,7 +899,7 @@ $login_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
-/* Szerepkör */
+// Szerepkör
 $megnevezes = 'szerepkor';
 $szerepkor_tomb = $akt_tomb = array(
 	array('type' => 'text',        'megn' => 'Név:',        'name' => 'nev',   'maxlength' => 250, 'alert' => 'Kérem töltse ki a nevet!', 'class' => 'oriasi'),
@@ -2137,12 +2134,18 @@ if( isset($_GET['getBejBejelentok']) ) {
             $html = nl2('
                 <div id="bejbejelentok" class="mobilkeret">
                     <table class="csikos egyErtek sorLink">
-                        <tr>
-                            <th>Név</th>
-                            <th>Részleg</th>
-                            <th>Beosztás</th>
-                            <th>Szerepkör</th>
-                        </tr>
+                        <thead>
+                            <tr>
+                                <th>
+                                    Név
+                                    <input type="text" class="flat" onkeyup="tabla_szur( $(\'#bejbejelentok table tbody\'), this.value );">
+                                </th>
+                                <th>Részleg</th>
+                                <th>Beosztás</th>
+                                <th>Szerepkör</th>
+                            </tr>
+                        </thead>
+                        <tbody>
             ');
 
             foreach($loginok as $login) {
@@ -2156,7 +2159,22 @@ if( isset($_GET['getBejBejelentok']) ) {
                 ');
             }
 
-            $html .= '</table></div>';
+            $html .= nl2('
+                    </tbody>
+                    </table>
+                </div>
+                <script>
+                function tabla_szur(tabla, kulcs, oszlop) {
+                    var $rows = tabla.find(\'tr\');
+                    var val = $.trim(kulcs).replace(/ +/g, \' \').toLowerCase();
+
+                    $rows.show().filter(function() {
+                        var text = $(this).find(\'td:nth-of-type(1)\').text().replace(/\s+/g, \' \').toLowerCase();
+                        return !~text.indexOf(val);
+                    }).hide();
+                }
+                </script>
+                ');
 
             echo json_encode(array(
                 'hiba'  => 'Válasszon hibabejelentőt a(z) '.getErtek('nev', 'telephely', 'id', $telephely_id).' szállodából!'.$html,
