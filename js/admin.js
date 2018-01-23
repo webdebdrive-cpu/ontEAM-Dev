@@ -957,6 +957,7 @@ $(function() {
             if($(this).attr('type')=='checkbox'){
                 if(val==false || val==''){ val = 'false'; }
                 if(val==true)   {  val       = 'true';  }
+                if(taroltVal==0){  taroltVal = '';      }
                 if(taroltVal==1){  taroltVal = 'true';  }
             }
             if(!taroltVal && (val=='false' || val==false) ){

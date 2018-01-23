@@ -55,7 +55,7 @@ function munkalapKulso() {
         }
 
         if( !szallito_id.val() && (!szemelyzet_id.val() || szemelyzet_id.val()=='0') ) {
-            alert2('Válasszon külső kivitelezőt!', '', 'Hiba');
+            alert2('Válasszon külső kivitelezőt vagy hozzárendelt személyzetet!', '', 'Hiba');
             document.getElementById('szallito_id_autocomp').focus();
             return false;
         }

@@ -553,7 +553,7 @@ require_once('selectek.php');
 
                     $jogSor['nev'] .= ':';
                     if($jogSor['i']){
-                        $jogSor['nev'] .= '<br><i>('.$jogSor['i'].')</i><br><br>';
+                        $jogSor['nev'] .= '<br><i>('.$jogSor['i'].')</i>';
                     }
 
                     $onclick = '';

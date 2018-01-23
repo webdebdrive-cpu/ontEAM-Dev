@@ -604,7 +604,7 @@ if( isset($_POST['munkalapFelvesz']) ) {
 
     // Kezelés jog ellenőrzése
     $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
-    if( (!_jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) && !_jog(JOG_MUNKALAP_SAJAT_KEZEL) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']!=$_SESSION[get_db_tabla().'szemelyzet_id'] ) ) || !in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $felvehetik) ) {
+    if( !( get_kezeles_jog($munkalap['szemelyzet_id']) && in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $felvehetik) ) ) {
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga munkalapot felvenni!',
             'title' => 'Hiba',
@@ -673,10 +673,11 @@ if( isset($_POST['munkalapKeszre']) ) {
         }
 
         // Jog ellenőrzése
+        $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
         if(
             !(
-                ( $munkalap['stat_id']==MUNKALAP_STAT_FOLYAMATBAN && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ||
-                ( $munkalap['stat_id']==MUNKALAP_STAT_FELVEVE && get_kezeles_jog_felveve($munkalap['szemelyzet_id']) )
+                ( $munkalap['stat_id']==MUNKALAP_STAT_FOLYAMATBAN && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
+                ( $munkalap['stat_id']==MUNKALAP_STAT_FELVEVE && in_array($munkalap['szemelyzet_id'], $felvehetik) && get_kezeles_jog($munkalap['szemelyzet_id']) )
             )
           ) {
             echo json_encode(array(
@@ -830,7 +831,7 @@ if( isset($_POST['munkalapRogzit']) ) {
         }
 
         // Jog ellenőrzése
-        if( !_jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) && !_jog(JOG_MUNKALAP_SAJAT_KEZEL) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']!=$_SESSION[get_db_tabla().'szemelyzet_id'] ) ) {
+        if( !get_kezeles_jog($munkalap['szemelyzet_id']) ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga ezt a munkalapot lezárni!',
                 'title' => 'Hiba',
@@ -1614,8 +1615,11 @@ if( isset($_POST['kulsokivHozzarend']) ) {
 
     if( $recid ) {
 
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
+        
+        $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
+        if( $telephely === false ) { $db_error = true; }
 
         // Státusz ellenőrzése
         if( $munkalap['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT ) {
@@ -1627,8 +1631,18 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             exit();
         }
 
-        // Jog ellenőrzése
-        if( !_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT ) ) {
+        // Jog ellenőrzése (javaslattétel esetén külsős előkészítés jog
+        if( isset($_POST['javaslattetel']) && !_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT ) ) {
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga külső kivitelezőt hozzárendelni!',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+
+        // Jog ellenőrzése (javaslattétel esetén külsős előkészítés jog
+        if( !isset($_POST['javaslattetel']) && !($_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO && $munkalap['szemelyzet_id']==MUSZAKI_VEZETO && !$telephely['modell']) ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga külső kivitelezőt hozzárendelni!',
                 'title' => 'Hiba',
@@ -1648,7 +1662,10 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                 $db_error = true;
             }
         }else{
-            $sql = $adatbazis_kapcsolat -> u('munkalap', array('szallito_id', 'szemelyzet_id'), array($szallitoid, KULSO_KIVITELEZO), "`recid` = '{$recid}'");
+            $sql = $adatbazis_kapcsolat -> u('munkalap', 
+                                                        array('szallito_id', 'szemelyzet_id' ),
+                                                        array($szallitoid,   KULSO_KIVITELEZO),
+                                                "`recid` = '{$recid}'");
             if( $sql === false ) { $db_error = true; }
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) ) {
                 $db_error = true;
@@ -3005,7 +3022,7 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
         }
 
         // Kezelés jog ellenőrzése
-        if( !($munkalap['stat_id']==MUNKALAP_STAT_FELVEVE && get_kezeles_jog_felveve($munkalap['szemelyzet_id'])) ) {
+        if( !($munkalap['stat_id']==MUNKALAP_STAT_FELVEVE && get_kezeles_jog($munkalap['szemelyzet_id'])) ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga anyagot igényelni!',
                 'title' => 'Hiba',
@@ -3165,7 +3182,7 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
 
     if( $recid ) {
 
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='{$recid}'");
+        $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='{$recid}'");
         if( $munkalap === false ) { $db_error = true; }
 
         // Státusz ellenőrzése
@@ -3178,23 +3195,17 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
             exit();
         }
         
+        $kezeles_jog = get_kezeles_jog($sor['szemelyzet_id']);
+        $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
+        
         // Jog ellenőrzése
         if(
             !(
-                (($munkalap['stat_id']==MUNKALAP_STAT_FELVEVE || $munkalap['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR) && get_kezeles_jog_felveve($munkalap['szemelyzet_id']) ) ||
-                ($munkalap['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
+                ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE         && in_array($munkalap['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
+                ( $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR   && in_array($munkalap['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
+                ( $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
             )
         ) {
-            echo json_encode(array(
-                'hiba'  => 'Nincs joga anyagot felhasználni!',
-                'title' => 'Hiba',
-            ));
-            $weblap->leallit();
-            exit();
-        }
-
-        // Kezelés jog ellenőrzése
-        if( !_jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) && !_jog(JOG_MUNKALAP_SAJAT_KEZEL) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']!=$_SESSION[get_db_tabla().'szemelyzet_id'] ) ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga anyagot felhasználni!',
                 'title' => 'Hiba',
@@ -3331,18 +3342,24 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
         if( $akt_tetel ) {
 
             // Státusz és jog ellenőrzése
-            $munkalap     = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id', 'munkalap', "`recid`='$recid'");
+            $munkalap     = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id', 'munkalap', "`recid`='{$recid}'");
+            if( $munkalap === false ) { $db_error = true; }
+            
             $telephely    = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
+            if( $telephely === false ) { $db_error = true; }
+            
             $utolso_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id`='{$recid}'", 'recid desc', '1');
+            if( $utolso_tetel === false ) { $db_error = true; }
 
+            $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
             if(
                 !(
-                    ( $telephely['modell']  && $munkalap['stat_id']==MUNKALAP_STAT_FELVEVE            && get_kezeles_jog_felveve($munkalap['szemelyzet_id'])      ) || 
-                    ( $telephely['modell']  && $munkalap['stat_id']==MUNKALAP_STAT_ANYAGRAVAR         && _jog(JOG_MUNKALAP_ANYAG_ERKEZTET)                        ) || 
-                    ( $telephely['modell']  && $munkalap['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT    && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO   ) || 
-                    ( $telephely['modell']  && $munkalap['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT  && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO   ) || 
-                    ( !$telephely['modell'] && $munkalap['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT    && _jog(JOG_MUNKALAP_VIZSGALAT)                             ) || 
-                    ( !$telephely['modell'] && $munkalap['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT  && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO   )
+                    ( /* Modell nem számít */ $munkalap['stat_id']==MUNKALAP_STAT_FELVEVE            && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
+                    ( /* Modell nem számít */ $munkalap['stat_id']==MUNKALAP_STAT_FOLYAMATBAN        && in_array($munkalap['szemelyzet_id'], $felvehetik) && get_kezeles_jog($munkalap['szemelyzet_id']) ) ||
+                    ( $telephely['modell'] && $munkalap['stat_id']==MUNKALAP_STAT_ANYAGRAVAR         && _jog(JOG_MUNKALAP_ANYAG_ERKEZTET)                        ) || 
+                    ( $telephely['modell'] && $munkalap['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT  && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO   ) || 
+                    ( /* Modell nem számít */ $munkalap['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT    && _jog(JOG_MUNKALAP_VIZSGALAT)                             ) || 
+                    ( !$telephely['modell'] && $munkalap['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO  )
                 )
                ){
                 echo json_encode(array(
@@ -3462,12 +3479,17 @@ if( isset($_POST['feladatHozzaadas']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='$recid'");
+    $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='$recid'");
     if( $munkalap === false ) { $db_error = true; }
+    
+    $kezeles_jog = get_kezeles_jog($sor['szemelyzet_id']);
+    $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
+    
     if(
         !(
-            (($munkalap['stat_id']==MUNKALAP_STAT_FELVEVE || $munkalap['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR) && get_kezeles_jog_felveve($munkalap['szemelyzet_id']) ) ||
-            ($munkalap['stat_id'] ==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
+            ( $sor['stat_id']==MUNKALAP_STAT_FOLYAMATBAN && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
+            ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog )  ||
+            ( $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
         )
        ){
         echo json_encode(array(
@@ -3566,7 +3588,7 @@ if( isset($_POST['munkaidoHozzaadas']) ) {
     // Jog ellenőrzése
     if(
         !(
-            (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR) && $kezeles_jog_felveve ) ||
+            (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR) && get_kezeles_jog($munkalap['szemelyzet_id']) ) ||
             ($sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
         )
     ) {
@@ -3859,10 +3881,10 @@ if( isset($_POST['munkalapMuszakiVezeto']) ) {
 
         // Jog ellenőrzése
         if( 
-            !( // Ha nem igaz a következő feltétle rendszer
+            !( // Ha nem igaz a következő feltétel rendszer
                 ( $munkalap['stat_id'] == MUNKALAP_STAT_NYITOTT             && _jog(JOG_MUNKALAP_NYITOTT_KEZEL)                                                          ) ||    // Nyitott státusz alatt nyitottak kezelése jog
                 ( $munkalap['stat_id'] == MUNKALAP_STAT_FOLYAMATBAN         && $_SESSION[get_db_tabla().'szemelyzet_id']==TELEPITETT_SZEMELYZET && !$telephely['modell'] ) ||    // Folyamatban státusz alatt fontos, hogy telepített legyen a személy, egszállodás modell
-                ( $munkalap['stat_id'] == MUNKALAP_STAT_FELVEVE             && $_SESSION[get_db_tabla().'szemelyzet_id']==TELEPITETT_SZEMELYZET && !$telephely['modell'] ) ||    // Felvéve státusz alatt fontos, hogy telepített legyen a személy, egszállodás modell
+                ( $munkalap['stat_id'] == MUNKALAP_STAT_FELVEVE             && get_kezeles_jog($munkalap['szemelyzet_id']) && !$telephely['modell']                      ) ||    // Felvéve státusz alatt fontos, hogy kezelés joga legyen és egyszállodás modell
                 ( $munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT   && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT)                                                       )       // Előkészítés státusz alatt előkészítés jog
             )
             ){
@@ -4139,7 +4161,10 @@ if( isset($_POST['munkalapDiszpKozp']) ) {
         }
 
         // Munkalap update
-        $sql = $adatbazis_kapcsolat -> u('munkalap', array('szemelyzet_id', 'visszaadva'), array(MSZK_VEZETO, 0), "`recid` = '{$recid}'");
+        $sql = $adatbazis_kapcsolat -> u('munkalap',
+                                                    array('szemelyzet_id', 'visszaadva'),
+                                                    array(MSZK_VEZETO,     0           ),
+                                                "`recid` = '{$recid}'");
         if( $sql === false ) { $db_error = true; }
 
         // Státusz léptetés
@@ -4605,15 +4630,8 @@ require('selectek.php');
 
         $telephely  = $adatbazis_kapcsolat -> s2('nev modell', 'telephely', "`id`='{$sor['telephely_id']}'");
 
-        // Kezelés jog: ha csak saját, akkor figyelni kell, hogy a hozzárendelt személy és a személyzet beosztás stimmel-e
-        // Szállás kezelés jognál mindig elérhetőek a gombok.
-        $kezeles_jog = false;
-        if( _jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) || (_jog(JOG_MUNKALAP_SAJAT_KEZEL) && $sor['szemelyzet_id']==$_SESSION[get_db_tabla().'szemelyzet_id']) ) {
-            $kezeles_jog = true;
-        }
-        
-        // Felvéve státusz alatt bonyolultabb a kezelés jog
-        $kezeles_jog_felveve = get_kezeles_jog_felveve($sor['szemelyzet_id']);
+        // Kezelés jog
+        $kezeles_jog = get_kezeles_jog($sor['szemelyzet_id']);
         
         // Utolsó feladat van-e?
         $utolso_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id`='{$_GET['id']}'", 'recid desc', '1');
@@ -4724,7 +4742,7 @@ require('selectek.php');
         
         // Munka felvétele folyamatban státuszhoz és kezelés joghoz van kötve
         $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
-        if( $sor['stat_id'] == MUNKALAP_STAT_FOLYAMATBAN && $kezeles_jog && in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $felvehetik) ) {
+        if( $sor['stat_id'] == MUNKALAP_STAT_FOLYAMATBAN && in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $felvehetik) && $kezeles_jog ) {
             $gombok .= nl2('
                 <script>
                     var munkalapFelveszKerdes = \'
@@ -4740,39 +4758,49 @@ require('selectek.php');
         }
 
         // Felvéve státusz + kezelés jog
+        $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
         if(
-                ( $sor['stat_id']==MUNKALAP_STAT_FOLYAMATBAN && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ||
-                ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE && $kezeles_jog_felveve )
+                ( $sor['stat_id']==MUNKALAP_STAT_FOLYAMATBAN && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
+                ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog )
            ){
             $gombok .= '<input type="button" class="gomb" value="Készre jelentés" onclick="munkalapKeszre(\'csak kérdezünk még\');"> ';
         }
 
         // Felvéve, kész, vizsgálat státusz + kezelés jog (vizsgálat státusznál vízsgálat jog) bármelyike alatti gombok
+        $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
         if(
-            (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR) && $kezeles_jog_felveve ) ||
-            ($sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
+            ( $sor['stat_id']==MUNKALAP_STAT_FOLYAMATBAN && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
+            ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog )  ||
+            ( $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
             ) {
-            $gombok .= nl2('
-                        <input type="button" class="gomb" value="Elvégzett feladat hozzáadása" onclick="csoportMuvelet(\'feladatHozzaad\')">
-                        <input type="button" class="gomb" value="Anyag felhasználás" onclick="csoportMuvelet(\'munkalapAnyagvetelezes\');">
-                    ');
+            $gombok .= nl2('<input type="button" class="gomb" value="Elvégzett feladat hozzáadása" onclick="csoportMuvelet(\'feladatHozzaad\')"> ');
+        }
+
+        // Felvéve, kész, vizsgálat státusz + kezelés jog (vizsgálat státusznál vízsgálat jog) bármelyike alatti gombok
+        $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
+        if(
+            ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE         && in_array($munkalap['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
+            ( $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR   && in_array($munkalap['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
+            ( $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
+            ) {
+            $gombok .= nl2('<input type="button" class="gomb" value="Anyag felhasználás" onclick="csoportMuvelet(\'munkalapAnyagvetelezes\');"> ');
         }
 
         // Felvéve státusz + kezelés jog
-        if( $sor['stat_id']==MUNKALAP_STAT_FELVEVE && $kezeles_jog_felveve ){
+        if( $sor['stat_id']==MUNKALAP_STAT_FELVEVE && $kezeles_jog ){
             $gombok .= nl2('<input type="button" class="gomb" value="Anyagigénylés szükséges" onclick="csoportMuvelet(\'munkalapAnyagigenyles\');"> ');
         }
 
         // Felvéve státusz + munkaidő hozzáad jog
         if(
-            (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR) && $kezeles_jog_felveve ) ||
+            (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR) && $kezeles_jog ) ||
             ($sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
             ){
             $gombok .= '<input type="button" class="gomb" value="Munkaidő hozzáad" onclick="csoportMuvelet(\'munkaidoHozzaad\');"> ';
         }
 
         // Előkészítés státusz és külsős előkészítés jog kell hozzá
-        if($sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id']){
+        if( $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ){
             $gombok .= '<input type="button" class="gomb foGomb" value="Javaslattétel" onclick="csoportMuvelet(\'kulsokivHozzarend\');"> ';
         }
 
@@ -4835,7 +4863,7 @@ require('selectek.php');
         }
 
         // Felvéve státusz + külsős előkészít jog + Egyszállodás modell
-        if($sor['stat_id']==MUNKALAP_STAT_FELVEVE && $kezeles_jog && !$telephely['modell'] /*Egyszállodás modell*/ ){
+        if($sor['stat_id']==MUNKALAP_STAT_FELVEVE && !$telephely['modell'] /*Egyszállodás modell*/ && $kezeles_jog ){
 
             $alert_musz_vez         = 'alert2(\'Biztosan átadja a Műszaki vezetőnek?\', gomb_musz)';
             $alert_musz_vez_helyett = 'alert2(\'Biztosan átadja a Műszaki vezető helyettesnek?\', gomb_muszh)';
@@ -4957,12 +4985,13 @@ require('selectek.php');
         }*/
 
         // Visszaadás Diszpécsernek
+        $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
         if( 
-            ( $telephely['modell'] && $sor['stat_id']==MUNKALAP_STAT_FELVEVE            && $kezeles_jog_felveve ) || 
+            ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_FELVEVE            && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
+            ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_FOLYAMATBAN        && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
             ( $telephely['modell'] && $sor['stat_id']==MUNKALAP_STAT_ANYAGRAVAR         && _jog(JOG_MUNKALAP_ANYAG_ERKEZTET)                        ) || 
-            ( $telephely['modell'] && $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT    && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO   ) || 
             ( $telephely['modell'] && $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT  && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO   ) || 
-            ( !$telephely['modell'] && $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT   && _jog(JOG_MUNKALAP_VIZSGALAT)                             ) || 
+            ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT    && _jog(JOG_MUNKALAP_VIZSGALAT)                             ) || 
             ( !$telephely['modell'] && $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO  )
            ){
             $gombok .= '<input type="button" class="gomb" value="Visszaadás" onclick="csoportMuvelet(\'atadasDiszpecsernek\');"> ';
@@ -4987,7 +5016,6 @@ require('selectek.php');
 
         // Lezárás: Vizsgálat alatt + Vizsgálat jog
         if( $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) ){
-            // $gombok .= '<input type="button" class="gomb" value="Reklamáció elfogadása" onclick="munkalapReklamacioElfogad(\'csak kérdezünk még\');"> ';
             $gombok .= '<input type="button" class="gomb" value="Lezárás" onclick="csoportMuvelet(\'munkalapReklamacioElutasit\');"> ';
         }
         
@@ -5550,10 +5578,9 @@ require('selectek.php');
 
             $i = 1;
             foreach($sorok as $sor) {
-                $anyag_sor = $adatbazis_kapcsolat->s('ikt_szam cikk_id nev igmen rndmen cikkmee stat_id', 'anyagigenyles', "`cikk_id` = '".$sor['cikk_id']."'", '', '1');
+                $anyag_sor = $adatbazis_kapcsolat->s2('ikt_szam cikk_id nev igmen rndmen cikkmee stat_id', 'anyagigenyles', "`cikk_id` = '".$sor['cikk_id']."'", '', '1');
 
                 if( $anyag_sor ) {
-                    $anyag_sor = $anyag_sor[0];
 
                     $szamla_html .= nl2('
                         <tr>
@@ -5662,15 +5689,16 @@ if( !$_GET['ajax'] ) {
 
 
 // Kezelés jogot visszaadó függvény (felvéve státusz alatt)
-function get_kezeles_jog_felveve($szemelyzet_id){
-    $kezeles_jog_felveve = false;
+function get_kezeles_jog($szemelyzet_id){
+    $kezeles_jog = false;
     if( 
-            (_jog(JOG_MUNKALAP_SAJAT_KEZEL)         && $szemelyzet_id == $_SESSION[get_db_tabla().'szemelyzet_id'])  ||
+            ( _jog(JOG_MUNKALAP_SAJAT_KEZEL)        && $szemelyzet_id == $_SESSION[get_db_tabla().'szemelyzet_id'] ) ||
             ( _jog(JOG_MUNKALAP_KEZEL_TELEPITETT)   && $szemelyzet_id == TELEPITETT_SZEMELYZET )                     ||
             ( _jog(JOG_MUNKALAP_KEZEL_MOBIL)        && $szemelyzet_id == MOBILCSOPORT          )                     ||
+            // Ez utóbbi feltétek vizsgálat sokszor feles leges, mert a feltétel (ahol ez a függvény meghívódik) eleve kizárja a külső kivitelezőket. De nem baj, így általánosa meghívható ez a függvény.
             ( _jog(JOG_MUNKALAP_KEZEL_KULSO)        && $szemelyzet_id == KULSO_KIVITELEZO      )
         ) {
-        $kezeles_jog_felveve = true;
+        $kezeles_jog = true;
     }
-    return $kezeles_jog_felveve;
+    return $kezeles_jog;
 }

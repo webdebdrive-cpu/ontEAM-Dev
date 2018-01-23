@@ -312,16 +312,25 @@ require_once('selectek.php');
                         <input type="button" class="gomb" value="Szállodák hozzáadása" onclick="kapcsolodoSzerkeszt(\'szallodak\');">
                         <input type="hidden" name="szallodak_hidden" id="szallodak_hidden">
                         ');
+        if(_jog(JOG_FELHASZNALOK_KEZEL)){
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; history.back();">
+                </div>
+            ').$gombok;
+        }
+    }elseif (isset($_GET['modosit'])) {
+        if(_jog(JOG_FELHASZNALOK_KEZEL)){
+            $gombok = nl2('
+                <div class="form_kuldes">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
+                </div>
+            ').$gombok;
+        }
     }
     
-    if(_jog(JOG_FELHASZNALOK_KEZEL)){
-        $gombok = nl2('
-            <div class="form_kuldes">
-                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
-                <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; history.back();">
-            </div>
-        ').$gombok;
-    }
     $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
     if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
         if( $_COOKIE['csuszkaSzelesseg'] ) {
@@ -565,6 +574,7 @@ require_once('selectek.php');
                                                 $(\'input[type="checkbox"]\').removeClass(\'mod\');
                                                 formModositva = false;
                                                 $(\'.mentes_gomb\').attr(\'disabled\', true);
+                                                $(\'#megsem_gomb\').attr(\'disabled\', true);
                                                 
                                                 formAdatok = JSON.parse(response); 
                                             }
@@ -613,7 +623,7 @@ require_once('selectek.php');
 
                     $jogSor['nev'] .= ':';
                     if($jogSor['i']){
-                        $jogSor['nev'] .= '<br><i>('.$jogSor['i'].')</i><br><br>';
+                        $jogSor['nev'] .= '<br><i>('.$jogSor['i'].')</i>';
                     }
 
                     $onclick = '';
@@ -700,6 +710,7 @@ require_once('selectek.php');
                             <div class="form_kuldes">
                                 <input type="hidden" name="id" value="'.$_GET['id'].'">
                                 <input type="submit" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                                <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload()();">
                             </div>
                         </div>
                     </div>

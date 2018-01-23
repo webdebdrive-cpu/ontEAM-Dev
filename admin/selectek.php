@@ -134,6 +134,10 @@ $szerepkorok = $adatbazis_kapcsolat->s('recid nev', 'szerepkor', "", 'recid');
 
 $select_szemelyzet = array();
 array_push($select_szemelyzet, array('name' => '- Válasszon -',                             'value' => '0' ));
+if( !in_array(basename(self()), $kiveteles_oldalak) ){
+    array_push($select_szemelyzet, array('name' => $szerepkorok[HIBABEJELENTO-1]['nev'],             'value' => HIBABEJELENTO,           'szin' => '#E0CBFF', 'kulsos' => 0 ));
+}
+
 array_push($select_szemelyzet, array('name' => $szerepkorok[TELEPITETT_SZEMELYZET-1]['nev'],  'value' => TELEPITETT_SZEMELYZET,   'szin' => '#CBE3FF', 'kulsos' => 0 ));
 array_push($select_szemelyzet, array('name' => $szerepkorok[MOBILCSOPORT-1]['nev'],           'value' => MOBILCSOPORT,            'szin' => '#CCFFCB', 'kulsos' => 0 ));
 array_push($select_szemelyzet, array('name' => $szerepkorok[KULSO_KIVITELEZO-1]['nev'],       'value' => KULSO_KIVITELEZO,        'szin' => '#FCFFCB', 'kulsos' => 0 ));
@@ -148,7 +152,6 @@ if( !in_array(basename(self()), $kiveteles_oldalak) ){
     array_push($select_szemelyzet, array('name' => $szerepkorok[MSZK_VEZETO-1]['nev'],               'value' => MSZK_VEZETO,             'szin' => '#FFEBCB', 'kulsos' => 1 ));
     array_push($select_szemelyzet, array('name' => $szerepkorok[MUSZAKI_IGAZGATO-1]['nev'],          'value' => MUSZAKI_IGAZGATO,        'szin' => '#E0CBFF', 'kulsos' => 0 ));
     array_push($select_szemelyzet, array('name' => $szerepkorok[SZALLODA_IGAZGATO-1]['nev'],         'value' => SZALLODA_IGAZGATO,       'szin' => '#E0CBFF', 'kulsos' => 0 ));
-    array_push($select_szemelyzet, array('name' => $szerepkorok[HIBABEJELENTO-1]['nev'],             'value' => HIBABEJELENTO,           'szin' => '#E0CBFF', 'kulsos' => 0 ));
 }
 
 // Projektigénylés tipus

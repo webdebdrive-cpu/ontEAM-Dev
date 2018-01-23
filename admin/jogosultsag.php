@@ -33,7 +33,7 @@ $jogosultsagok = array(
     71 => array('nev' => 'Bejelentések vizsgálat',                          'kat' => 0, 'sor' => 5  ),
     72 => array('nev' => 'Bejelentések törlése',                            'kat' => 0, 'sor' => 6  ),
 
-    3  => array('nev' => 'Saját szem. tip. megtekintése',                   'kat' => 1, 'sor' => 1, 'kikapcs' => '4'  ),
+    3  => array('nev' => 'Saját szerepkör megtekintése',                    'kat' => 1, 'sor' => 1, 'kikapcs' => '4'  ),
     4  => array('nev' => 'Saját szállodák megtekintése',                    'kat' => 1, 'sor' => 2, 'kikapcs' => '3'  ),
     5  => array('nev' => 'Új létrehozása',                                  'kat' => 1, 'sor' => 3  ),
     2  => array('nev' => 'Munkalapot készíthet bejelentésből',              'kat' => 1, 'sor' => 4  ),
@@ -41,7 +41,7 @@ $jogosultsagok = array(
     74 => array('nev' => 'Sürgősség megváltoztatása',                       'kat' => 1, 'sor' => 6  ),
     21 => array('nev' => 'Várakoztatás',                                    'kat' => 1, 'sor' => 7  ),
     68 => array('nev' => 'Munkalap törlése',                                'kat' => 1, 'sor' => 9  ),
-    22 => array('nev' => 'Saját szem. tip. kezelése',                       'kat' => 1, 'sor' => 10, 'kikapcs' => '69' ),
+    22 => array('nev' => 'Saját szerepkör kezelése',                        'kat' => 1, 'sor' => 10, 'kikapcs' => '69' ),
     69 => array('nev' => 'Saját szállodák kezelése',                        'kat' => 1, 'sor' => 11, 'nincs_pipa' => 1, 'i' => 'Műszaki vezető, Területi felelős' ),
     76 => array('nev' => '&nbsp;&nbsp;&nbsp; Telepített',                   'kat' => 1, 'sor' => 12 ),
     77 => array('nev' => '&nbsp;&nbsp;&nbsp; Mobil',                        'kat' => 1, 'sor' => 13 ),

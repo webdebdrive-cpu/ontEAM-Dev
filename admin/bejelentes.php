@@ -808,13 +808,13 @@ require_once('selectek.php');
         if( isset($_GET['manualisan']) ) {
             $bejelento = '';
         }
-        $sor['usr_nev']                 = $bejelento['teljes_nev'];
-        $sor['usr_beosztas_id']         = $bejelento['beosztas_id'];
-        $sor['usr_beosztas_id_autocomp']= erteklista(18, $bejelento['beosztas_id']);
-        $sor['usr_reszleg_id']          = $bejelento['reszleg_id'];
-        $sor['usr_reszleg_id_autocomp'] = erteklista(17, $bejelento['reszleg_id']);
-        $sor['usr_telefon']             = $bejelento['usertel'];
-        $sor['usr_email']               = $bejelento['usermail'];
+        $sor['usr_nev']                     = $bejelento['teljes_nev'];
+        $sor['usr_beosztas_id']             = $bejelento['beosztas_id'];
+        $sor['usr_beosztas_id_autocomp']    = erteklista(18, $bejelento['beosztas_id']);
+        $sor['usr_reszleg_id']              = $bejelento['reszleg_id'];
+        $sor['usr_reszleg_id_autocomp']     = erteklista(17, $bejelento['reszleg_id']);
+        $sor['usr_telefon']                 = $bejelento['usertel'];
+        $sor['usr_email']                   = $bejelento['usermail'];
         $sor['usr_man_nev']                 = $bejelentest_rogziti['teljes_nev'];
         $sor['usr_man_beosztas_id']         = $bejelentest_rogziti['beosztas_id'];
         $sor['usr_man_beosztas_id_autocomp']= erteklista(18, $bejelentest_rogziti['beosztas_id']);
