@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 78-es ID-nál járunk
+ * 79-es ID-nál járunk
  * 11 -es kategória ID-nál járunk
 \*                                                  */
 
@@ -25,28 +25,29 @@ $jogosultsagok = array(
 
 //Törölni így tudsz:
 //123  => array('torolve' => 'TÖRÖLVE - a lényeg, hogy legyen egy torolve attribútuma is.',  'nev' => 'A törölt jog neve',   'kat' => 123, 'sor' => 123),
-    0  => array('nev' => 'Saját részleg bejelentések megtekintése',         'kat' => 0, 'sor' => 0, 'kikapcs' => '57' ),
-    57 => array('nev' => 'Saját szállodák bejelentéseinek megtekintése',    'kat' => 0, 'sor' => 1, 'kikapcs' => '0'  ),
+    0  => array('nev' => 'Saját részleg bejelentések megtekintése',         'kat' => 0, 'sor' => 0  ),
+    57 => array('nev' => 'Saját szállodák bejelentéseinek megtekintése',    'kat' => 0, 'sor' => 1  ),
     1  => array('nev' => 'Bejelentés saját névben',                         'kat' => 0, 'sor' => 2  ),
     56 => array('nev' => 'Bejelentés más nevében',                          'kat' => 0, 'sor' => 3  ),
     41 => array('nev' => 'Bejelentések elutasítása',                        'kat' => 0, 'sor' => 4  ),
     71 => array('nev' => 'Bejelentések vizsgálat',                          'kat' => 0, 'sor' => 5  ),
     72 => array('nev' => 'Bejelentések törlése',                            'kat' => 0, 'sor' => 6  ),
 
-    3  => array('nev' => 'Saját szerepkör megtekintése',                    'kat' => 1, 'sor' => 1, 'kikapcs' => '4'  ),
-    4  => array('nev' => 'Saját szállodák megtekintése',                    'kat' => 1, 'sor' => 2, 'kikapcs' => '3'  ),
-    5  => array('nev' => 'Új létrehozása',                                  'kat' => 1, 'sor' => 3  ),
-    2  => array('nev' => 'Munkalapot készíthet bejelentésből',              'kat' => 1, 'sor' => 4  ),
-    31 => array('nev' => 'Nyitottak kezelése',                              'kat' => 1, 'sor' => 5  ),
-    74 => array('nev' => 'Sürgősség megváltoztatása',                       'kat' => 1, 'sor' => 6  ),
-    21 => array('nev' => 'Várakoztatás',                                    'kat' => 1, 'sor' => 7  ),
+    75 => array('torolve' => 'TÖRÖLVE', 'nev' => 'Munkaidő hozzáadása',     'kat' => 1, 'sor' => 0  ),
+    3  => array('nev' => 'Saját szerepkör megtekintése',                    'kat' => 1, 'sor' => 1, 'i' => 'telepített, mobil, külső partner'  ),
+    4  => array('nev' => 'Saját szállodák megtekintése',                    'kat' => 1, 'sor' => 2, 'i' => 'diszpécser, MSZK vezető, műszaki vezető, területi felelős'  ),
+    79 => array('nev' => 'Saját feladatok megtekintése',                    'kat' => 1, 'sor' => 3, 'i' => 'Szálloda igazgató, műszaki ügyintéző, területi felelős<br>kezelt jogok: igazolás, vizsgálat, külsős előkészítés,<br>jóváhagyás, megrendelés készítése'  ),
+    5  => array('nev' => 'Új létrehozása',                                  'kat' => 1, 'sor' => 4  ),
+    2  => array('nev' => 'Munkalapot készíthet bejelentésből',              'kat' => 1, 'sor' => 5  ),
+    31 => array('nev' => 'Nyitottak kezelése',                              'kat' => 1, 'sor' => 6  ),
+    74 => array('nev' => 'Sürgősség megváltoztatása',                       'kat' => 1, 'sor' => 7  ),
+    21 => array('nev' => 'Várakoztatás',                                    'kat' => 1, 'sor' => 8  ),
     68 => array('nev' => 'Munkalap törlése',                                'kat' => 1, 'sor' => 9  ),
-    22 => array('nev' => 'Saját szerepkör kezelése',                        'kat' => 1, 'sor' => 10, 'kikapcs' => '69' ),
+    22 => array('nev' => 'Saját szerepkör kezelése',                        'kat' => 1, 'sor' => 10 ),
     69 => array('nev' => 'Saját szállodák kezelése',                        'kat' => 1, 'sor' => 11, 'nincs_pipa' => 1, 'i' => 'Műszaki vezető, Területi felelős' ),
-    76 => array('nev' => '&nbsp;&nbsp;&nbsp; Telepített',                   'kat' => 1, 'sor' => 12 ),
-    77 => array('nev' => '&nbsp;&nbsp;&nbsp; Mobil',                        'kat' => 1, 'sor' => 13 ),
-    78 => array('nev' => '&nbsp;&nbsp;&nbsp; Külsős',                       'kat' => 1, 'sor' => 14 ),
-    75 => array('torolve' => 'TÖRÖLVE', 'nev' => 'Munkaidő hozzáadása',     'kat' => 1, 'sor' => 8  ),
+    76 => array('nev' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Telepített', 'kat' => 1, 'sor' => 12 ),
+    77 => array('nev' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mobil',      'kat' => 1, 'sor' => 13 ),
+    78 => array('nev' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Külsős',     'kat' => 1, 'sor' => 14 ),
     23 => array('nev' => 'Igazolás',                                        'kat' => 1, 'sor' => 15 ),
     24 => array('nev' => 'Vizsgálat',                                       'kat' => 1, 'sor' => 16 ),
     37 => array('nev' => 'Külsős: előkészítés',                             'kat' => 1, 'sor' => 17 ),

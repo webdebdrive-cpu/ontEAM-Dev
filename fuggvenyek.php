@@ -2125,7 +2125,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                     $where .= ' FALSE AND ';
                 }
                 
-            // Ha nem mobilcsoport vagyok, akkor még a saját szállodák jogra kell figyleni:
+            // Ha nem mobilcsoport vagyok, akkor még a saját szállodák jogra kell figyelni:
             }else{
                 
                 // Saját szem. tip. megtekintése: saját szállodák + hozzárendelt személyzet: tehát tovább szűrünk hozzárendelt személyzetre, amit a felhasználókon, majd személyezeten át kapunk meg
@@ -2138,11 +2138,33 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 }
             }
             
-            // Azaz ha saját szállodáim jogom van, akkor az egy lazább feltétel, nem szűrünk hozzárendelt személyzetre
-            if(_jog(JOG_MUNKALAP_MEGTEKINT_SZALL)){
+            // Azaz ha saját szállodáim/saját feladataim jogom van, akkor az egy lazább feltétel, nem szűrünk hozzárendelt személyzetre
+            if( _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) ){
                 $where .= '';
             }
-
+            
+            // Ha saját feladatok a láthatósági kör, akkor az SQL feltétel azon múlik, hogy milyen jogai vannak a felhasználónak
+            if( _jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ){
+                $statuszra_szures = array();
+                if( _jog(JOG_MUNKALAP_IGAZOLAS) ){
+                    array_push($statuszra_szures, MUNKALAP_STAT_IGAZOLASRA_VAR);
+                }
+                if( _jog(JOG_MUNKALAP_VIZSGALAT) ){
+                    array_push($statuszra_szures, MUNKALAP_STAT_VIZSGALAT_ALATT);
+                }
+                if( _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ){
+                    array_push($statuszra_szures, MUNKALAP_STAT_ELOKESZITES_ALATT);
+                }
+                if( _jog(JOG_MUNKALAP_KULSOS_DONTES) ){
+                    array_push($statuszra_szures, MUNKALAP_STAT_DONTESRE_VAR);
+                }
+                if( _jog(JOG_MUNKALAP_KULSOS_MEGREND) ){
+                    array_push($statuszra_szures, MUNKALAP_STAT_HOZREND_MEGREND_VAR);
+                }
+                if($statuszra_szures){
+                    $where .= "`".get_db_tabla()."munkalap`.`stat_id` IN (".implode(',', $statuszra_szures).")";
+                }
+            }
 
         }
 
@@ -5233,8 +5255,9 @@ function addMegj( $tabla, $id, $megj ) {
     // Ha van egyáltalán megjegyzés
     if(trim($megj)){
         global $adatbazis_kapcsolat;
-        $ins   = $adatbazis_kapcsolat->i('megjegyzes',  array('tabla', 'id', 'megj', 'loginnev',                       'update_usr',                           'insert_dt', 'insert_usr'                           ),
-                                                        array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'] )
+        $szerepkor = getErtek('nev', 'szerepkor', 'recid', $_SESSION[get_db_tabla().'szemelyzet_id']);
+        $ins   = $adatbazis_kapcsolat->i('megjegyzes',  array('tabla', 'id', 'megj', 'loginnev',                       'szerepkor',                                 'szerepkor_txt',    'update_usr',                           'insert_dt', 'insert_usr'                           ),
+                                                        array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'szemelyzet_id'],   $szerepkor,         $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'] )
                                         );
         if(!$ins){
             return false;

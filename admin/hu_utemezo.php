@@ -12,8 +12,8 @@ $log .= '*****************************
 '.date('Y.m.d H:i:s').' ütemezés indul
 '.$adatbazis_kapcsolat->gp();
 
+var_dump( getnextvaliddate(false, '0000.00.00', 'd', 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, '0000.00.00', '0000.00.00')  );
 foreach($ut_feladatok as $ut_feladat){
-    
     // Tranzakciót indítunk
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -22,7 +22,7 @@ foreach($ut_feladatok as $ut_feladat){
     $log .= 'Recid: '.$ut_feladat['recid'].' Feladatszám: '.$ut_feladat['id'].'
         ';
     $text = $ut_feladat['id'].' feladatot ütemezte '.$ut_feladat['insert_usr']."\r\n".$ut_feladat['nev']."\r\n".$ut_feladat['leiras'];
-    
+
     // Feladatszám kiszámítása
     // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
     $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
@@ -66,7 +66,6 @@ foreach($ut_feladatok as $ut_feladat){
         $esem_d     = substr(str_replace('-', '.', $ut_feladat['esem_d']), 0, 10);
         $aktkezd_d  = str_replace('-', '.', $ut_feladat['aktkezd_d']);
         $aktvege_d  = str_replace('-', '.', $ut_feladat['aktvege_d']);
-    
 
         // logolás
         $log .= "recid:$ut_feladat[recid] getnextvaliddate(false, $esem_d $ut_feladat[cikltip], $ut_feladat[ciklaltip], $ut_feladat[ciklszorz], $ut_feladat[ciklho], $ut_feladat[ciklhet], $ut_feladat[ciklnap], $ut_feladat[idoszakos], $ut_feladat[kezdho], $ut_feladat[kezdnap], $ut_feladat[vegeho], $ut_feladat[vegenap], $aktkezd_d, $aktvege_d) \r\n";
@@ -83,7 +82,7 @@ foreach($ut_feladatok as $ut_feladat){
         
     // Ha határidős volt, akkor inaktiváljuk
     }else{
-
+        
         array_push($oszlopok, 'aktiv');
         array_push($ertekek,  0      );
         

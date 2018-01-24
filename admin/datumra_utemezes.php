@@ -4,6 +4,13 @@ define("DATEFORMAT", "Y.m.d");
 
 function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $cciklho, $cciklhet, $cciklnap, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d)
 {
+    
+    /* Az utolsó lefutás dátuma nem lehet csupa 0, mert később nem tudunk ezzel az adattal számolni */
+    if($dlast=='0000.00.00'){
+        echo 'Az utolsó lefutás dátuma nem lehet csupa 0!';
+        return '0000.00.00';
+    }
+    
 	$dnext = $dlast;
 	$dlast = null;
 	$i = 0;
@@ -107,6 +114,12 @@ function validnextdate($dnext, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cveg
 //fela köv.esedékesség dátumát adja vissza
 function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $cciklho, $cciklhet, $cciklnap)
 {
+    /* Mivel nincs olyan figgvény, hogy valami_0, ezért ha az altipus értéke 0, 
+     * akkor az értékéből üres stinget készítünk, hogy ne jelenjen meg a függvény nevében.
+     */
+    if($cciklaltip==0){
+        $cciklaltip = '';
+    }
 	/*
 	lstart:
 	ha false, m.dlasttól számolva a szabály szerinti következő esedékességet adja vissza
@@ -153,6 +166,7 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 	}
 	else
 	{
+
 		//ütemezéskori következő esedékesség számítása
 		$command = 'getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
 			. $nciklszorz
@@ -326,6 +340,7 @@ function dateadd ($stringdate, $days, $months, $years)
 	if ($days > 0)
 	{
 		$date->add(new DateInterval('P'.$days.'D'));
+
 	}
 	if ($days < 0)
 	{
@@ -376,7 +391,7 @@ function dateadd ($stringdate, $days, $months, $years)
 			$date->modify( 'last day of -1 month' );
 		}		
 	}		
-	
+
 	$returnvalue = $date->format(DATEFORMAT);
 	//print " -> ".$returnvalue." <BR>";
 	return $returnvalue;

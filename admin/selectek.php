@@ -132,6 +132,7 @@ array_push($select_honapok, array('name' => 'december',     'value' => '12'));
 // Ütemezés típushoz - A 'kulsos' paraméterrrel az szabályozható, hogy Külsős átadáskor, melyik személyzettípus jelenjen meg
 $szerepkorok = $adatbazis_kapcsolat->s('recid nev', 'szerepkor', "", 'recid');
 
+$kiveteles_oldalak = array('utemezett_feladatok.php', 'rendszeres_karbantartas.php');
 $select_szemelyzet = array();
 array_push($select_szemelyzet, array('name' => '- Válasszon -',                             'value' => '0' ));
 if( !in_array(basename(self()), $kiveteles_oldalak) ){
@@ -142,7 +143,6 @@ array_push($select_szemelyzet, array('name' => $szerepkorok[TELEPITETT_SZEMELYZE
 array_push($select_szemelyzet, array('name' => $szerepkorok[MOBILCSOPORT-1]['nev'],           'value' => MOBILCSOPORT,            'szin' => '#CCFFCB', 'kulsos' => 0 ));
 array_push($select_szemelyzet, array('name' => $szerepkorok[KULSO_KIVITELEZO-1]['nev'],       'value' => KULSO_KIVITELEZO,        'szin' => '#FCFFCB', 'kulsos' => 0 ));
 
-$kiveteles_oldalak = array('utemezett_feladatok.php', 'rendszeres_karbantartas.php');
 if( !in_array(basename(self()), $kiveteles_oldalak) ){
     array_push($select_szemelyzet, array('name' => $szerepkorok[MUSZAKI_VEZETO_HELYETTES-1]['nev'],  'value' => MUSZAKI_VEZETO_HELYETTES,'szin' => '#FFCBF1', 'kulsos' => 0 ));
     array_push($select_szemelyzet, array('name' => $szerepkorok[MUSZAKI_VEZETO-1]['nev'],            'value' => MUSZAKI_VEZETO,          'szin' => '#FFCBCB', 'kulsos' => 1 ));

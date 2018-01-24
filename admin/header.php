@@ -150,7 +150,7 @@ if( _jog(JOG_BEJELENTES_MEGTEKINT) || _jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
 }
 
 // Munkák
-if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(JOG_UTFEL_MEGTEKINT) || _jog(JOG_RENDSZ_KARB_MEGTEKINT) || _jog(JOG_ESETI_FENN_MEGTEKINT) ) {
+if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) || _jog(JOG_UTFEL_MEGTEKINT) || _jog(JOG_RENDSZ_KARB_MEGTEKINT) || _jog(JOG_ESETI_FENN_MEGTEKINT) ) {
     $menu_nev        = 'Munkák';
     $menu_nev_kis    = 'munkák';
     $menu_nev_tobbes = 'Munkák';
@@ -171,20 +171,20 @@ if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(J
     if(basename(self())=='uzemeltetesi_naplo.php')      { $oldalNev = 'Munkák / <span id="rekord_neve">Üzemeltetési napló</span><span class="dn" id="rekord_neve_egyes">üzemeltetési napló</span><span class="dn" id="rekord_neve_targy">üzemeltetési naplót</span>';                   }
 
     $aktmenuk  = '';
-    if(_jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL)){
+    if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Munkalapok'                                                             ), $almenu_sablon );
     }
-    if(_jog(JOG_MUNKALAP_NYITOTT_KEZEL)){
+    if( _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( 'mobil_hozzarendel.php', 'Mobil hozzárendelés'                                            ), $almenu_sablon );
         $aktmenuk .= str_replace( $akt_almenu_mit, array( 'javascript:csoportMuvelet(\'mobil_szemelyzet_beosztas\')', 'Mobil személyzet beosztása'  ), $almenu_sablon );
     }
-    if(_jog(JOG_UTFEL_MEGTEKINT)){
+    if( _jog(JOG_UTFEL_MEGTEKINT) ){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Ütemezett feladatok'        ), $almenu_sablon );
     }
-    if(_jog(JOG_RENDSZ_KARB_MEGTEKINT)){
+    if( _jog(JOG_RENDSZ_KARB_MEGTEKINT) ){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Rendszeres karbantartás'    ), $almenu_sablon );
     }
-    if(_jog(JOG_ESETI_FENN_MEGTEKINT)){
+    if( _jog(JOG_ESETI_FENN_MEGTEKINT) ){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Eseti fenntartás'           ), $almenu_sablon );
     }
     $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'Üzemeltetési napló'         ), $almenu_sablon );
@@ -887,11 +887,11 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
 $felh_nev = '';
 if( $_SESSION[get_db_tabla().'user'] ) {
-    $felhasznalo = $adatbazis_kapcsolat->s2('recid nev teljes_nev reszleg_id', 'login', 'nev='.$_SESSION[get_db_tabla().'user'], '', '1');
+    $felhasznalo = $adatbazis_kapcsolat->s2('recid nev teljes_nev szemelyzet_id reszleg_id', 'login', 'nev='.$_SESSION[get_db_tabla().'user'], '', '1');
 
     if( $felhasznalo ) {
         $felh_nev = $felhasznalo['teljes_nev'];
-        $reszleg = erteklista(17, $felhasznalo['reszleg_id']);
+        $reszleg  = getErtek('nev', 'szerepkor', 'recid', $felhasznalo['szemelyzet_id']).' - '.erteklista(17, $felhasznalo['reszleg_id']);
     }
 }
 
