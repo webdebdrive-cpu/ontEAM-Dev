@@ -18,13 +18,13 @@ if( $_POST['tabla'] ) {
     $tobbkep_tablanev = $_POST['tabla'].'_dok';
 }
 
-//Eszközkezelésnél az engedélyeknek van egy külön tálbája
+// Eszközkezelésnél az engedélyeknek van egy külön tálbája
 if(basename($_SERVER['PHP_SELF']) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
     $tobbkep_tablanev = 'eszkozkezeles_eng_dok';
 }
-//echo $tobbkep_tablanev; exit;
+// echo $tobbkep_tablanev; exit;
 
-//Képfeltöltés
+// Képfeltöltés
 if(isset($_POST['session_name'])){
 
     session_id($_POST['session_name']);
@@ -54,7 +54,7 @@ if(isset($_POST['session_name'])){
         $_FILES[$_POST['megnevezes']] = $_FILES['file'];
     }
 
-	//Tiltott fájlformátumok kiszűrése, szitnén nincs feltöltés
+	// Tiltott fájlformátumok kiszűrése, szitnén nincs feltöltés
 	$tiltott_fajlok = array('text/x-js', 'text/css', 'text/html', 'application/xhtml+xml', 'text/xml');
     if( in_array( $_FILES[ $_SESSION['fajl']['megnevezes'] ]['type'], $tiltott_fajlok ) ){
         echo 'Hiba!Ilyen formátumú fájl feltöltése tiltott, a fájlfeltöltés nem jött létre!';
@@ -73,7 +73,7 @@ if(isset($_POST['session_name'])){
         break;
 
         case 2:
-            echo 'Hiba! Túl nagy méretű fájl!'; /* A HTML form-ban is megadható volna egy méretkorlát? */
+            echo 'Hiba! Túl nagy méretű fájl!'; // A HTML form-ban is megadható volna egy méretkorlát?
         break;
 
         case 3:
@@ -111,13 +111,12 @@ if(isset($_POST['session_name'])){
                     if( $_POST['ellenorzes_kihagy'] == 'false' ) {
                         // Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
                         $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'],
-                            array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev'         ),
-                            array($_SESSION['fajl']['termek_id'], $kep_tort,  $fajlnev.'.'.$kit )
+                            array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev',         'loginnev',                        'insert_dt',   'insert_usr',                            'update_usr'                           ),
+                            array($_SESSION['fajl']['termek_id'], $kep_tort,  $fajlnev.'.'.$kit, $_SESSION[get_db_tabla().'user'],  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev'] )
                         );
 
 
-                        $sor_kepek = $adatbazis_kapcsolat->s('*', $_SESSION['fajl']['tabla'], 'recid='.$id);
-                        $sor_kepek = $sor_kepek[0];
+                        $sor_kepek = $adatbazis_kapcsolat->s2('*', $_SESSION['fajl']['tabla'], 'recid='.$id);
 
                         $osszes_sor = $adatbazis_kapcsolat->s('recid', $_SESSION['fajl']['tabla'], '');
 
@@ -127,8 +126,8 @@ if(isset($_POST['session_name'])){
 
                         if( !$sor_kep ) {
                             $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'],
-                                array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev'         ),
-                                array($_SESSION['fajl']['termek_id'], $kep_tort,  $fajlnev.'.'.$kit )
+                                array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev',            'loginnev',                        'insert_dt',   'insert_usr',                            'update_usr'                            ),
+                                array($_SESSION['fajl']['termek_id'], $kep_tort,  $fajlnev.'.'.$kit,    $_SESSION[get_db_tabla().'user'],  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev']  )
                             );
                         }
 
@@ -162,8 +161,7 @@ if(isset($_POST['tobbkep_torol'])){
 
 
 
-/** Tartalom */
-
+// Tartalom
 require_once '../class/html/class.Img.php';
 
 // Sessionok beállítása a feltöltéshez:
@@ -175,16 +173,16 @@ $_SESSION['fajl']['tabla']      = $tobbkep_tablanev;        //Képek tábla, ame
 $_SESSION['fajl']['oszlop']     = get_tobbkep_oszlopnev();  //Képek tábla oszopa, amellyel összekapcsoljuk a termékkel
 $_SESSION['fajl']['termek_id']  = $_GET['id'];              //A termék azonosítója, amivel összekapcsoljuk
 
-/* Korlátozás csak képre */
+// Korlátozás csak képre
 $eng_kit = '';
 if(get_tobbkep_csakkep()){
     $eng_kit = ' accept="'.get_tobbkep_csakkep().'"';
 }
 
-//Fájlfeltöltéskor milyen paraméterek menjenek át
+// Fájlfeltöltéskor milyen paraméterek menjenek át
 $parameterek = "'session_name':'".session_id()."', 'megnevezes':'".$megn."', 'sorid':'".$_GET['id']."'";
 
-//Ha minden fájl feltöltése kész, mi történjen (ide kéne egy jó ajax hívás)
+// Ha minden fájl feltöltése kész, mi történjen (ide kéne egy jó ajax hívás)
 $gomb_neve   = 'Tallózás';
 $minden_kesz = '';
 if($tobbkep_tablanev=='eszkozkezeles_eng_dok'){
@@ -202,30 +200,42 @@ $tobbkep_html  = '';
 $tobbkep_html .= str_replace($sorrend_ujkep_mit, $sorrend_ujkep_mivel, $sorrend_ujkep);
 
 $i     = 0;
-$kepek = $adatbazis_kapcsolat -> select('*', $tobbkep_tablanev, get_tobbkep_oszlopnev().'='.$_GET['id'], 'sor');
+$kepek = $adatbazis_kapcsolat -> s('*', $tobbkep_tablanev, get_tobbkep_oszlopnev().'='.$_GET['id'], 'sor');
 
-//Eszközkezelés engedélyeknél dátumot is kiírunk
+// Eszközkezelés engedélyeknél dátumot is kiírunk
 $mellek = 'dokumentumok';
 if(basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
     $mellek = 'engedelyek';
 }
 
-$tobbkep_html .= '<div><ul id="sorrendezes_tobbkep" class="kijCont" data-tabla="'.$tobbkep_tablanev.'" data-mellek="'.$mellek.'">';
-$i = 1;
-foreach($kepek as $sor_kepek) {
-    $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i);
+if($kepek){
+    $tobbkep_html .= nl2('
+                        <div>
+                            <ul id="sorrendezes_tobbkep" data-tabla="'.$tobbkep_tablanev.'" data-mellek="'.$mellek.'">
+                                <li class="fejlec">
+                                    <div class="kep">Kép</div>
+                                    <div class="felirat c" style="width: 15rem">Fájlnév</div>
+                                    <div class="felirat">Feltölötte</div>
+                                    <div class="felirat">Dátum</div>
+                                    <div class="maradek torles"></div>
+                                </li>
+                                ');
+    $i = 1;
+    foreach($kepek as $sor_kepek) {
+        $tobbkep_html .= get_tobbkep_thumb($sor_kepek, $i, $tobbkep_tablanev);
 
-    $i++;
+        $i++;
+    }
+    $tobbkep_html .= '</ul></div>';
 }
-$tobbkep_html .= '</ul></div>';
 $szamla_html .= $tobbkep_html;
 
 
 
 
 
-/* A több képe thumbnailját hozza létre, egy adatbázis sorból */
-function get_tobbkep_thumb($sor_kepek, $i) {
+// A több képe thumbnailját hozza létre, egy adatbázis sorból
+function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
 
     require_once('../weblap.php');
 
@@ -240,7 +250,7 @@ function get_tobbkep_thumb($sor_kepek, $i) {
             $felirat = '<span class="i link">- Nincs leírás -</span>';
         }
 
-        //Eszközkezelés engedélyeknél dátumot is kiírunk
+        // Eszközkezelés engedélyeknél dátumot is kiírunk
         $datum = '';
         if(basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
             $datum = '';
@@ -251,11 +261,32 @@ function get_tobbkep_thumb($sor_kepek, $i) {
             if($sor_kepek['veg']!='0000-00-00'){
                 $datum .= str_replace('-', '.', $sor_kepek['veg']);
             }
+        // Egyébként az insertDt
+        }else{
+            $datum .= substr( str_replace('-', '.', $sor_kepek['insert_dt']), 0, 10 );
         }
-
+        
+        $sor_kepek['fajlnev'] = htmlspecialchars($sor_kepek['fajlnev']);
+        
         $azon    = 'kep'.$sor_kepek['recid'];
+
+        // Csak az törölheti, aki feltöltötte
+        $torles = '';
+        $betolt = 'dokumentumok';
+        if( isset($_GET['engedelyek']) ){
+            $betolt = 'engedelyek';
+        }
+        if( $sor_kepek['loginnev'] == $_SESSION[get_db_tabla().'user']  ){
+            $torles = '
+                        <script>
+                            dok_torol_gomb_'.$sor_kepek['recid'].' = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\''.$tabla.'\\\', \\\''.$betolt.'\\\', \\\'\\\', \\\''.$sor_kepek['recid'].'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
+                        </script>
+                        <span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy törli a(z) '.$sor_kepek['fajlnev'].' dokumentumot?\', dok_torol_gomb_'.$sor_kepek['recid'].');"><i class="material-icons" style="font-size: 2rem">delete</i></span>
+                ';
+        }
+        
         $tobbkep_html .= nl2('
-            <li id="'.$azon.'" class="kijSor" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'">
+            <li id="'.$azon.'" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'">
                 <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
                 <div class="kep">
                     <div>
@@ -264,12 +295,14 @@ function get_tobbkep_thumb($sor_kepek, $i) {
                         </a>
                     </div>
                 </div>
-                <div id="megj_'.$azon.'_felirat" class="felirat f12 c" style="width: 15rem">
+                <div id="megj_'.$azon.'_felirat" class="felirat c" style="width: 15rem">
                     <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
                         '.wordwrap($felirat, 20, '<br>', 1).'
                     </a>
                 </div>
-                <div class="maradek f12">'.$datum.'</div>
+                <div class="felirat">'.$sor_kepek['insert_usr'].'</div>
+                <div class="felirat">'.$datum.'</div>
+                <div class="maradek torles">'.$torles.'</div>
             </li>
         ');
 

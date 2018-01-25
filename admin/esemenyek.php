@@ -1055,9 +1055,9 @@ if(isset($_GET['modosit'])){
     $surgos_onclick = 'csoportMuvelet(\'surgosseg_indoklas\')';
     $surgos_disabled = true;
     if(_jog(JOG_MUNKALAP_SURGOS_PIPAL)){
-        if($munkalap['stat_id']==MUNKALAP_STAT_NYITOTT && JOG_MUNKALAP_NYITOTT_KEZEL){
+        //if($munkalap['stat_id']==MUNKALAP_STAT_NYITOTT && JOG_MUNKALAP_NYITOTT_KEZEL){
             $surgos_disabled = false;
-        }
+        //}
     }
 }
 // Bejelentésből 2. munkalap készítésekor a szálloda disabled
@@ -2172,6 +2172,15 @@ if( isset($_GET['getBejBejelentok']) ) {
                         var text = $(this).find(\'td:nth-of-type(1)\').text().replace(/\s+/g, \' \').toLowerCase();
                         return !~text.indexOf(val);
                     }).hide();
+
+                    if( $(\'table.egyErtek tr.kijSor.kijelolve\').is(\':hidden\') ){
+                        $(\'#diszpFeltolt\').attr(\'disabled\', true);
+                        $(\'#masnevebenFeltolt\').val(\'\');
+                    }else{
+                        $(\'#diszpFeltolt\').attr(\'disabled\', false);
+                        $(\'#masnevebenFeltolt\').val( $(\'table.egyErtek tr.kijSor.kijelolve\').attr(\'data-nev\') );
+                    }
+
                 }
                 </script>
                 ');
@@ -2876,19 +2885,12 @@ if( isset($_POST['mellekTorol']) ) {
             foreach($idk as $id) {
                 
                 // Ha nincs joga, ne tudjon törölni
-                $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id', 'munkalap', "`recid`='$recid'");
-                if( $munkalap === false ) { $db_error = true; }
-                if( !_jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) && !_jog(JOG_MUNKALAP_SAJAT_KEZEL) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']!=$_SESSION[get_db_tabla().'szemelyzet_id'] ) ) {
+                if( !_jog(JOG_MUNKALAP_TOROL) ) {
                     echo json_encode(array(
                         'hiba' => 'Önnek nincs joga bejelentést törölni!'
                     ));
                     $weblap->leallit();
                     exit();
-                }
-                
-                // Bejelentés státuszt léptetünk
-                if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_NYITOTT ) === false ) {
-                    $db_error = true;
                 }
                 
                 // Megejgyzést is adunk hozzá
@@ -2904,64 +2906,73 @@ if( isset($_POST['mellekTorol']) ) {
                 // Sorok törlése
                 $sql = $adatbazis_kapcsolat -> d($tabla, "`munkalap_id` = '{$recid}' AND `bejelentes_id` = '{$id}'");
                 if( $sql === false ) { $db_error = true; }
+                
+                // Ha a bejelentés nem szerepel más munkalapon, akkor státusza nyitott lesz
+                $szerepel_mas_munkalapon = $adatbazis_kapcsolat->s('recid', $tabla, "`bejelentes_id`='{$id}'");
+                if(!$szerepel_mas_munkalapon){
+                    if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_NYITOTT ) === false ) {
+                        $db_error = true;
+                    }
+                }
             }
 
         // Dokumentumok törlése
         } else if( strstr($tabla, '_dok') ) {
 
-            $statuszt_nem_kell_figyelni = array('eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'utemezett_feladatok', 'rendszeres_karbantartas'); //Ezeknél a dokumentumainál nem figyeljük, hogy az apa tábla státusza nyitott-e
-            $apa_tabla = str_replace('_dok', '', $tabla);
-            if(!in_array($apa_tabla, $statuszt_nem_kell_figyelni)){
-                $sor = $adatbazis_kapcsolat->s('stat_id', $apa_tabla, "`recid` = '{$recid}'");
-                if( $sor === false ) { $db_error = true; }
-                $statuszt_nem_kell_figyelni = false;
-            }else{
-                $statuszt_nem_kell_figyelni = true;
-            }
+            // Korábban számított, hogy csak nyitott státuszban lehessen törölni
+//            $statuszt_nem_kell_figyelni = array('eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'utemezett_feladatok', 'rendszeres_karbantartas'); //Ezeknél a dokumentumainál nem figyeljük, hogy az apa tábla státusza nyitott-e
+//            $apa_tabla = str_replace('_dok', '', $tabla);
+//            if(!in_array($apa_tabla, $statuszt_nem_kell_figyelni)){
+//                $sor = $adatbazis_kapcsolat->s2('stat_id', $apa_tabla, "`recid` = '{$recid}'");
+//                if( $sor === false ) { $db_error = true; }
+//                $statuszt_nem_kell_figyelni = false;
+//            }else{
+//                $statuszt_nem_kell_figyelni = true;
+//            }
 
-            if( $sor || $statuszt_nem_kell_figyelni ) {
-                $sor = $sor[0];
+            //if( $sor || $statuszt_nem_kell_figyelni ) {
 
-                if( $sor['stat_id'] == '01' || $statuszt_nem_kell_figyelni ) {
-                    $fajlok = $adatbazis_kapcsolat->s('recid utvonal', $tabla, "`recid` IN (".implode(',', $idk).")");
+                //if( $sor['stat_id'] == '01' || $statuszt_nem_kell_figyelni ) {
+                    $fajlok = $adatbazis_kapcsolat->s('recid utvonal', $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`='{$_SESSION[get_db_tabla().'user']}'");
                     if( $fajlok === false ) { $db_error = true; }
 
                     if( $fajlok ) {
-                        $mit = 'A(z) '.str_replace('_dok', '', $tabla).' '.$recid.'. recordját módosította.';
+                        $mit      = 'A(z) '.str_replace('_dok', '', $tabla).' '.$recid.'. recordját módosította.';
                         $valtozas = 'A következő fájlokat törölte: <br>';
 
                         foreach($fajlok as $fajl) {
                             $utvonal = '../'.get_utvonal().csonkit($tabla, 4).'/'.$fajl['utvonal'];
 
                             if( is_file($utvonal) ) {
+                                
                                 // Töröljük a fájlt
                                 unlink($utvonal);
                                 remover('../'.get_utvonal().csonkit($tabla, 4).'/'.substr($fajl['utvonal'], 0, strrpos($fajl['utvonal'], '.')).'_*');
 
-                                /* Töröljük a sort is */
+                                // Töröljük a sort is
                                 $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` = '".$fajl['recid']."'");
                                 if( $sql === false ) { $db_error = true; }
 
-                                /* Log változás */
+                                // Log változás
                                 $valtozas .= '<strong>'.$utvonal.'</strong><br>';
                             }
                         }
 
-                        /* Logoljuk */
+                        // Logoljuk
                         $sql = $adatbazis_kapcsolat -> i('log',
                             array('felh_id',                                'nev', 'valtozas'),
                             array($_SESSION[get_db_tabla().'login_recid'],  $mit,  $valtozas )
                         );
                         if( $sql === false ) { $db_error = true; }
                     }
-                } else {
-                    echo json_encode(array(
-                        'hiba' => 'Csak nyitott státuszú bejegyzések dokumentumai törölhetőek!'
-                    ));
-                    $weblap->leallit();
-                    exit();
-                }
-            }
+//                } else {
+//                    echo json_encode(array(
+//                        'hiba' => 'Csak nyitott státuszú bejegyzések dokumentumai törölhetőek!'
+//                    ));
+//                    $weblap->leallit();
+//                    exit();
+//                }
+            //}
 
         // Előterjesztésnél csak nyitott státuszban törölhető projektigénylés
         } else if($tabla=='eloterj_fb_kapcs'){
@@ -3222,17 +3233,17 @@ if (isset($_POST['surgosseg_allit'])) {
 
         $megnevezes = 'munkalap';
 
-        // Státusz ellenőrzés
+        /*// Státusz ellenőrzés
         if( $statusz['stat_id']!=MUNKALAP_STAT_NYITOTT ){
             echo json_encode(array(
                 'hiba'  => 'Csak nyutott munkalap sürgőssége állítható!',
             ));
             $weblap->leallit();
             exit();
-        }
+        }*/
 
         // Jog ellenőrzése
-        if( !_jog(JOG_MUNKALAP_NYITOTT_KEZEL) || !_jog(JOG_MUNKALAP_SURGOS_PIPAL) ){
+        if( /*!_jog(JOG_MUNKALAP_NYITOTT_KEZEL) ||*/ !_jog(JOG_MUNKALAP_SURGOS_PIPAL) ){
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga sürgősséget állítani!',
             ));
@@ -3764,12 +3775,27 @@ foreach($postok as $ertek){
         $db_error = false;
         mysqli_autocommit($db_kapcs, false);
 
-        // Csak az törölheti, aki létrehozta
-        $csak_aki_letrehozta_torolheti = array('utemezett_feladatok', 'projektigenyles', 'rendszeres_karbantartas');
-        if( in_array($ertek['tabla'], $csak_aki_letrehozta_torolheti) ){
-            $loginnev = $adatbazis_kapcsolat->s('loginnev', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
+        // Ütmezett feladatoknál és társainál vagy törlés jog kell hozzá, vagy ha az nincs, akkor az kell, hogy magam hoztam létre
+        if(
+            ( $ertek['tabla']=='utemezett_feladatok'     && !_jog( JOG_UTFEL_TOROL       )  ) ||
+            ( $ertek['tabla']=='rendszeres_karbantartas' && !_jog( JOG_RENDSZ_KARB_TOROL )  ) ||
+            ( $ertek['tabla']=='eseti_fenntartas'        && !_jog( JOG_ESETI_FENN_TOROL  )  )
+        ){
+            
+            $loginnev = $adatbazis_kapcsolat->s2('loginnev', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
             if( $loginnev === false ) { $db_error = true; }
-            $loginnev = $loginnev[0];
+
+            if($loginnev['loginnev']!=$_SESSION[get_db_tabla().'user']){
+                $weblap -> leallit(); exit;
+            }
+        }
+        
+        // Csak az törölheti, aki létrehozta (itt nem vizsgálunk külön törlés jogot
+        $csak_aki_letrehozta_torolheti = array('projektigenyles');
+        if( in_array($ertek['tabla'], $csak_aki_letrehozta_torolheti) ){
+            $loginnev = $adatbazis_kapcsolat->s2('loginnev', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
+            if( $loginnev === false ) { $db_error = true; }
+
             if($loginnev['loginnev']!=$_SESSION[get_db_tabla().'user']){
                 $weblap -> leallit(); exit;
             }

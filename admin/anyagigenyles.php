@@ -677,12 +677,11 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
         // Ellenőrizzük a státuszokat és hogy mind árazva van-e?
         foreach($idk as $id) {
 
-            $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
+            $statusz = $adatbazis_kapcsolat->s2('recid stat_id insert_dt', $page.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
             if( $statusz === false ) { $db_error = true; }
 
             if( $statusz ) {
 
-                $statusz = $statusz[0];
                 if(  $statusz['stat_id']!=CIKKIGN_STAT_NYITOTT ) {
                     echo json_encode(array(
                         'hiba' => 'Csak nyitott státuszú anyagigényléseket lehet jóváhagyásra küldeni!'
@@ -693,8 +692,8 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
                 }
 
                 // Valóban árazva van-e? Szállító és egységár megadva
-                $igenyles = $adatbazis_kapcsolat->s2('szallito_id rndear kcs_21', 'anyagigenyles', "`recid`='$id'");
-                if(!$igenyles['szallito_id'] || !$igenyles['rndear'] || !$igenyles['kcs_21']){
+                $igenyles = $adatbazis_kapcsolat->s2('szallito_id rndear rndmen kcs_21', 'anyagigenyles', "`recid`='$id'");
+                if(!$igenyles['szallito_id'] || $igenyles['rndear']==0.0000 || $igenyles['rndmen']==0.00 || !$igenyles['kcs_21']){
                     echo json_encode(array(
                         'hiba' => 'Csak árazott anyagigényléseket lehet jóváhagyásra küldeni!'
                     ));
@@ -734,13 +733,11 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
-
             echo json_encode(array(
                 'statusz' => 'siker'
             ));
         } else {
             mysqli_rollback($db_kapcs);
-
             echo json_encode(array(
                 'hiba' => tranzakcioHiba()
             ));
@@ -772,7 +769,6 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
                 echo json_encode(array(
                     'hiba' => 'Csak árazva státuszú anyagigényléseket lehet jóváhagyni!'
                 ));
-
                 $weblap->leallit();
                 exit();
             }
@@ -782,19 +778,18 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
                 echo json_encode(array(
                     'hiba' => 'Nincs joga jóváhagyni!'
                 ));
-
                 $weblap->leallit();
                 exit();
             }
 
             // Jóváhagyott mennyiség ellenőrzése
-            $igenyles = $adatbazis_kapcsolat->s2('rndmen cikkmee kcs_21', 'anyagigenyles', "`recid`='{$id}'");
+            $igenyles = $adatbazis_kapcsolat->s2('rndmen rndear cikkmee kcs_21', 'anyagigenyles', "`recid`='{$id}'");
             if($_POST['jhmen']==0 || $_POST['jhmen']==0.00){
                 echo json_encode(array(
-                    'hiba'  => 'A jóváhagyott mennyiség nem lehet 0 '.$igenyles['cikkmee'].'!',
+                    'hiba'  => 'A jóváhagyott mennyiség nem lehet 0 '.$igenyles['cikkmee'].'!<script>$(\'#jhmen_'.$id.'\').addClass(\'hibas_ide_focus\')</script>',
+                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#jhmen_'.$id.'\').select()">',
                     'focus' => 'jhmen'
                 ));
-
                 $weblap->leallit();
                 exit();
             }
@@ -803,7 +798,6 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
                     'hiba'  => 'A jóváhagyott mennyiség nem lehet negatív!',
                     'focus' => 'jhmen'
                 ));
-
                 $weblap->leallit();
                 exit();
             }
@@ -812,7 +806,6 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
                     'hiba'  => 'A jóváhagyott mennyiség nem lehet több, mint a jóváhagyásra váró mennyiség ('.str_replace('.', ',', $igenyles['rndmen']).' '.$igenyles['cikkmee'].')!',
                     'focus' => 'jhmen',
                 ));
-
                 $weblap->leallit();
                 exit();
             }
@@ -823,7 +816,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
-                'hiba' => 'Biztosan jóváhagyja az anyagigénylést? ('. number_format($_POST['jhmen']*$igenyles['rndmen'], 0, '', ' ').' '.erteklista(21, $igenyles['kcs_21']).')',
+                'hiba' => 'Jóváhagyott érték: '. number_format($_POST['jhmen']*$igenyles['rndear'], 0, '', ' ').' '. get_penznem()/*Igen ide a Ft-kell és enm az utolsó tétel pénzneme */.'<br>Biztosan jóváhagyja az anyagigénylést?',
                 'gomb' => '<input class="gomb zold" value="Igen" onclick="anyagigenyles_jovahagy();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
@@ -938,12 +931,13 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
+    $jhmenek = json_decode($_POST['jhmenek'], true);
 
     // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
     if (isset($_POST['csak_kerdezunk'])) {
 
         $ertek = 0;
-        $igenylesek = $adatbazis_kapcsolat->s('jhmen rndear kcs_21', 'anyagigenyles', "`stat_id`='".CIKKIGN_STAT_ARAZVA."'".get_akt_login_szallodai('sql'));
+        $igenylesek = $adatbazis_kapcsolat->s('recid jhmen rndmen rndear kcs_21 cikkmee', 'anyagigenyles', "`stat_id`='".CIKKIGN_STAT_ARAZVA."'".get_akt_login_szallodai('sql'));
         
         // Ha nincs találat, akkor hibaüzi és kilépés
         if(!$igenylesek){
@@ -953,10 +947,46 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
             $weblap->leallit();
             exit();
         }
-        foreach ($igenylesek as $igeny){
-            $ertek += $igeny['jhmen']*$igeny['rndear'];
-        }
+        $i = 0;
 
+        foreach ($igenylesek as $igeny){
+            
+            // Ha postban kaptunk volna ide értéket, akkor azzal számolunk
+            if($jhmenek[$igeny['recid']]){
+                $igeny['jhmen'] = $jhmenek[$igeny['recid']];
+            }
+            
+            if($igeny['jhmen']==0.00 ){
+                echo json_encode(array(
+                    'hiba'  => 'A jóváhagyott mennyiség nem lehet 0 '.$igeny['cikkmee'].'!<script>$(\'#jhmen_'.$igeny['recid'].'\').addClass(\'hibas_ide_focus\')</script>',
+                    'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#jhmen_'.$igeny['recid'].'\').select()">',
+                    'focus' => 'jhmen'
+                ));
+                $weblap->leallit();
+                exit();
+            }
+            if($igeny['jhmen']<0){
+                echo json_encode(array(
+                    'hiba'  => 'A jóváhagyott mennyiség nem lehet negatív!',
+                    'focus' => 'jhmen'
+                ));
+                $weblap->leallit();
+                exit();
+            }
+            if($igeny['jhmen']>$igeny['rndmen']){
+                echo json_encode(array(
+                    'hiba'  => 'A jóváhagyott mennyiség nem lehet több, mint a jóváhagyásra váró mennyiség ('.str_replace('.', ',', $igeny['rndmen']).' '.$igeny['cikkmee'].')!',
+                    'focus' => 'jhmen',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+            
+            $ertek += $igeny['jhmen']*$igeny['rndear'];
+            
+            $i++;
+        }
         echo json_encode(array(
             'hiba' => nl2('
                             Jóváhagyás alatti érték: '.number_format($ertek, 0, ',', ' ').' '. erteklista(21, $igeny['kcs_21']).'
@@ -1680,7 +1710,7 @@ require_once('selectek.php');
             if($key=='tablazat'){
                 $fulek .= '<a href="'.self().get_get($kivetelek).'&amp;tablazat"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
             }else{
-                $fulek .= '<a href="javascript: szamlaBetolt('.$id_betolteshez.', \''.basename(self()).'\', \''.$key.'\', \'\', \'\', \'Mindenképp tölsön be\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
+                $fulek .= '<a href="javascript: szamlaBetolt(\''.$id_betolteshez.'\', \''.basename(self()).'\', \''.$key.'\', \'\', \'\', \'Mindenképp tölsön be\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
             }
         }
 
@@ -2128,6 +2158,8 @@ require_once('selectek.php');
             }
 
             foreach($akt_tomb as $tomb) {
+                
+                // Autocomplete lekezelése
                 if( $tomb['type'] == 'autocomplete' ) {
                     if($tomb['csoport']){
                         $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
@@ -2140,7 +2172,9 @@ require_once('selectek.php');
                     if( $kulso_ertek ) {
                         $sor[$tomb['name'].'_autocomp'] = $kulso_ertek['nev'];
                     }
+                    
                 }
+                
             }
 
             $json_sor = array();
@@ -2215,7 +2249,7 @@ require_once('selectek.php');
             
             // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
             $szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
-
+            
             if( $_GET['ajax'] ) {
                 echo json_encode(array(
                     'tartalom' => $szamla_html,

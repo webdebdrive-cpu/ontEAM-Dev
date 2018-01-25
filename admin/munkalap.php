@@ -52,8 +52,8 @@ if($tobb_kep){
 
 // Ha mobilcsoportra és státuszra egyszerre akarunk szűrni:
 if (isset($_GET['felvett_mobilcsop'])) {
-    $_SESSION['o_szuro_feltetel']   = 'me|stat_id#op|equal#fe|08#es|#me|mobil#op|equal#fe|d#es|#';
-    $_SESSION['o_szuro_html']       = '<div class="dtr"><div class="dtc"><b class="zaro nyit">(</b></div><div class="dtc"><input class="mezo" value="stat_id" type="hidden"><input class="op" value="equal" type="hidden"><input class="felt" value="08" type="hidden"><span class="m_mezo">Státusz</span> <span class="m_op">=</span> <span class="m_felt">Felvéve</span> </div><div class="dtc"><b class="zaro zar">)</b></div><div class="dtc"><select style="width: 7rem" class="es_vagy" onchange="osszetett_szuro_mondat()"><option value="es|">ÉS</option><option value="va|">VAGY</option></select></div><div class="dtc"><b class="torol">×</b></div></div><div class="dtr"><div class="dtc"><b class="zaro nyit">(</b></div><div class="dtc"><input class="mezo" value="mobil" type="hidden"><input class="op" value="equal" type="hidden"><input class="felt" value="d" type="hidden"><span class="m_mezo">Mobilcsoport</span> <span class="m_op">=</span> <span class="m_felt">D</span> </div><div class="dtc"><b class="zaro zar">)</b></div><div class="dtc"><select style="width: 7rem" class="es_vagy" onchange="osszetett_szuro_mondat()"><option value="es|">ÉS</option><option value="va|">VAGY</option></select></div><div class="dtc"><b class="torol">×</b></div></div>';
+    $_SESSION['o_szuro_feltetel']   = 'me|stat_id#op|equal#fe|08#es|#me|mobil#op|equal#fe|'.$_GET['csop'].'#es|#';
+    $_SESSION['o_szuro_html']       = '<div class="dtr"><div class="dtc"><b class="zaro nyit">(</b></div><div class="dtc"><input class="mezo" value="stat_id" type="hidden"><input class="op" value="equal" type="hidden"><input class="felt" value="08" type="hidden"><span class="m_mezo">Státusz</span> <span class="m_op">=</span> <span class="m_felt">Felvéve</span> </div><div class="dtc"><b class="zaro zar">)</b></div><div class="dtc"><select style="width: 7rem" class="es_vagy" onchange="osszetett_szuro_mondat()"><option value="es|">ÉS</option><option value="va|">VAGY</option></select></div><div class="dtc"><b class="torol">×</b></div></div><div class="dtr"><div class="dtc"><b class="zaro nyit">(</b></div><div class="dtc"><input class="mezo" value="mobil" type="hidden"><input class="op" value="equal" type="hidden"><input class="felt" value="'.$_GET['felvett_mobilcsop'].'" type="hidden"><span class="m_mezo">Mobilcsoport</span> <span class="m_op">=</span> <span class="m_felt">'. strtoupper($_GET['csop']).'</span> </div><div class="dtc"><b class="zaro zar">)</b></div><div class="dtc"><select style="width: 7rem" class="es_vagy" onchange="osszetett_szuro_mondat()"><option value="es|">ÉS</option><option value="va|">VAGY</option></select></div><div class="dtc"><b class="torol">×</b></div></div>';
 }
 
 // Munkalap készítése
@@ -589,7 +589,7 @@ if( isset($_POST['munkalapFelvesz']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='{$recid}'");
+    $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='{$recid}'");
     if( $munkalap === false ) { $db_error = true; }
 
     // Státusz ellenőrzése
@@ -604,7 +604,7 @@ if( isset($_POST['munkalapFelvesz']) ) {
 
     // Kezelés jog ellenőrzése
     $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
-    if( !( get_kezeles_jog($munkalap['szemelyzet_id']) && in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $felvehetik) ) ) {
+    if( !( get_kezeles_jog($munkalap['szemelyzet_id']) && in_array($sor['szemelyzet_id'], $felvehetik) ) ) {
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga munkalapot felvenni!',
             'title' => 'Hiba',
@@ -2369,11 +2369,11 @@ if( isset($_POST['getMunkalapFeladatok']) ) {
 
     if( $recid ) {
 
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='$recid'");
+        $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='$recid'");
         if( $munkalap === false ) { $db_error = true; }
 
         // Státusz ellenőrzése
-        if( $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE && $munkalap['stat_id'] != MUNKALAP_STAT_LEZARASRA_VAR && $munkalap['stat_id'] != MUNKALAP_STAT_VIZSGALAT_ALATT ) {
+        if( $munkalap['stat_id'] != MUNKALAP_STAT_FOLYAMATBAN && $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE && $munkalap['stat_id'] != MUNKALAP_STAT_VIZSGALAT_ALATT ) {
             echo json_encode(array(
                 'hiba'  => 'Ebben a státuszban nem adható hozzá feladat!',
                 'title' => 'Hiba',
@@ -2384,7 +2384,15 @@ if( isset($_POST['getMunkalapFeladatok']) ) {
         }
 
         // Kezelés jog ellenőrzése
-        if( !_jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) && !_jog(JOG_MUNKALAP_SAJAT_KEZEL) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $munkalap['szemelyzet_id']!=$_SESSION[get_db_tabla().'szemelyzet_id'] ) ) {
+        $kezeles_jog = get_kezeles_jog($sor['szemelyzet_id']);
+        $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
+        if( 
+                !(
+                    ( $sor['stat_id']==MUNKALAP_STAT_FOLYAMATBAN     && $sor['szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
+                    ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE         && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog )  ||
+                    ( $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
+                )
+            ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga a művelethez!',
                 'title' => 'Hiba',
@@ -3087,6 +3095,9 @@ if( isset($_POST['munkAnyagIgenyles']) ) {
 
                     $cikk_sor = $adatbazis_kapcsolat->s2('id nev cikkmee oracikkid', 'cikktorzs', "`id` = '{$value}'");
                     if( $cikk_sor === false ) { $db_error = true; }
+                    
+                    // Ezresítő szóközöket kiszűrjük a emnyiségből
+                    $addCikkFelhMenny[$key] = str_replace(' ', '', $addCikkFelhMenny[$key]);
 
                     if( $is_anyag && $addCikkUj[$key] ) {
                         echo json_encode(array(
@@ -3195,7 +3206,6 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
         
         $kezeles_jog = get_kezeles_jog($sor['szemelyzet_id']);
         $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
-        
         // Jog ellenőrzése
         if(
             !(
@@ -3234,6 +3244,7 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
         parse_str($_POST['addCikkFelhMenny']);
 
         if( count($addCikkID) && count($addCikkID) == count($addCikkFelhMenny) ) {
+
             $akt_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
             if( $akt_tetel === false ) { $db_error = true; }
 
@@ -3243,6 +3254,9 @@ if( isset($_POST['munkAnyagVetelezes']) ) {
 
                 $cikk_sor = $adatbazis_kapcsolat->s2('id recid nev cikkmee oracikkid', 'cikktorzs', "`id` = '{$value}'");
                 if( $cikk_sor === false ) { $db_error = true; }
+                
+                // Ezresítő szóközöket kiszűrjük a emnyiségből
+                $addCikkFelhMenny[$key] = str_replace(' ', '', $addCikkFelhMenny[$key]);
 
                 if( $is_anyag && $addCikkUj[$key] ) {
                     echo json_encode(array(
@@ -3482,7 +3496,6 @@ if( isset($_POST['feladatHozzaadas']) ) {
     
     $kezeles_jog = get_kezeles_jog($sor['szemelyzet_id']);
     $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
-    
     if(
         !(
             ( $sor['stat_id']==MUNKALAP_STAT_FOLYAMATBAN && $sor['szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
@@ -3566,7 +3579,7 @@ if( isset($_POST['munkaidoHozzaadas']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     // Státusz ellenőrzése
-    $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+    $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
     if( $munkalap === false ) { $db_error = true; }
 
     // Kiszámoljuk a legutóbbi munkalap tételt, ehhez kerül hozzáadásra az új munkaidőráfordítás
@@ -3586,7 +3599,7 @@ if( isset($_POST['munkaidoHozzaadas']) ) {
     // Jog ellenőrzése
     if(
         !(
-            (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR) && get_kezeles_jog($munkalap['szemelyzet_id']) ) ||
+            (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR) && get_kezeles_jog($sor['szemelyzet_id']) ) ||
             ($sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
         )
     ) {
@@ -4572,7 +4585,7 @@ require('selectek.php');
                 $active = ' class="active"';
             }
 
-            $fulek .= '<a href="javascript: szamlaBetolt('.$_GET['id'].', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
+            $fulek .= '<a href="javascript: szamlaBetolt(\''.$_GET['id'].'\', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
         }
 
         $szamla_html .= str_replace(
@@ -4740,7 +4753,7 @@ require('selectek.php');
         
         // Munka felvétele folyamatban státuszhoz és kezelés joghoz van kötve
         $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
-        if( $sor['stat_id'] == MUNKALAP_STAT_FOLYAMATBAN && in_array($_SESSION[get_db_tabla().'szemelyzet_id'], $felvehetik) && $kezeles_jog ) {
+        if( $sor['stat_id'] == MUNKALAP_STAT_FOLYAMATBAN && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog ) {
             $gombok .= nl2('
                 <script>
                     var munkalapFelveszKerdes = \'
@@ -4767,8 +4780,8 @@ require('selectek.php');
         // Felvéve, kész, vizsgálat státusz + kezelés jog (vizsgálat státusznál vízsgálat jog) bármelyike alatti gombok
         $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
         if(
-            ( $sor['stat_id']==MUNKALAP_STAT_FOLYAMATBAN && $sor['szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
-            ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog )  ||
+            ( $sor['stat_id']==MUNKALAP_STAT_FOLYAMATBAN     && $sor['szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
+            ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE         && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog )  ||
             ( $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
             ) {
             $gombok .= nl2('<input type="button" class="gomb" value="Elvégzett feladat hozzáadása" onclick="csoportMuvelet(\'feladatHozzaad\')"> ');
@@ -4777,8 +4790,8 @@ require('selectek.php');
         // Felvéve, kész, vizsgálat státusz + kezelés jog (vizsgálat státusznál vízsgálat jog) bármelyike alatti gombok
         $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
         if(
-            ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE         && in_array($munkalap['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
-            ( $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR   && in_array($munkalap['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
+            ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE         && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
+            ( $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR   && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
             ( $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
             ) {
             $gombok .= nl2('<input type="button" class="gomb" value="Anyag felhasználás" onclick="csoportMuvelet(\'munkalapAnyagvetelezes\');"> ');
@@ -5248,7 +5261,7 @@ require('selectek.php');
                         <div class="dtc">Bejelentő</div>
                         <div class="dtc">Bejelentve</div>
                         <div class="dtc">Státusz</div>
-                        <!--<div class="dtc"></div>-->
+                        <div class="dtc"></div>
                     </div>
             ');
             $i = 1;
@@ -5270,16 +5283,16 @@ require('selectek.php');
                     $hiba = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=4 AND `recid`='{$sor['hiba_id']}'");
                     
                     
-                    // Bejelentést, csak kezelés joggal lehet törölni. Update: egyelőre nem lehet bejelentést törölni munkalapról
+                    // Bejelentést, csak munkalap törlés joggal lehet törölni.
                     $torles = '';
-//                    if($kezeles_jog){
-//                        $torles = '
-//                                <script>
-//                                    bej_torol_gomb = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\'munkalap_kapcs\\\', \\\'bejelentesek\\\', \\\'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
-//                                </script>
-//                                <span class="icon" onclick="$(\'#naploSor-'.$sor['recid'].'\').addClass(\'torles_elott\'); alert2(\'Biztosan törli a bejelentést a munkalapról?\', bej_torol_gomb);"><i class="material-icons" style="font-size: 2rem">delete</i></span>
-//                            ';
-//                    }
+                    if( _jog( JOG_MUNKALAP_TOROL ) ){
+                        $torles = '
+                                <script>
+                                    bej_torol_gomb = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\'munkalap_kapcs\\\', \\\'bejelentesek\\\', \\\'\\\', \\\''.$sor['recid'].'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
+                                </script>
+                                <span class="icon" onclick="$(\'#naploSor-'.$sor['recid'].'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy leveszi a bejelentést a munkalapról?\', bej_torol_gomb);"><i class="material-icons" style="font-size: 2rem">delete</i></span>
+                            ';
+                    }
 
 // HA MÉGIS KELLENE A TÖRLÉS, AKKOR A naploSor-nak adj egy "kijSor" class-t.
                     $szamla_html .= nl2('
@@ -5297,9 +5310,9 @@ require('selectek.php');
                             </div>
                             <div class="dtc">'.$sor['insert_dt'].'</div>
                             <div class="dtc">'.getStatText('bejelentes', $sor['stat_id']).'</div>
-                            <!--<div class="dtc link">
+                            <div class="dtc link">
                                 '.$torles.'
-                            </div>-->
+                            </div>
                         </div>
                     ');
                 }

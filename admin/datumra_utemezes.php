@@ -4,18 +4,24 @@ define("DATEFORMAT", "Y.m.d");
 
 function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $cciklho, $cciklhet, $cciklnap, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d)
 {
-    
-    /* Az utolsó lefutás dátuma nem lehet csupa 0, mert később nem tudunk ezzel az adattal számolni */
-    if($dlast=='0000.00.00'){
-        echo 'Az utolsó lefutás dátuma nem lehet csupa 0!';
-        return '0000.00.00';
-    }
-    
 	$dnext = $dlast;
 	$dlast = null;
 	$i = 0;
-
-	while (($dlast != $dnext or $dnext < date(DATEFORMAT, strtotime("+1 day"))) and $dnext < date(DATEFORMAT, strtotime('+10 year')))  //legfeljebb a következő 2 évre keressük ütemezhetőséget
+    
+    /* Mivel nincs olyan függvény, hogy valami_0, ezért ha az altipus értéke 0,
+     * akkor az értékéből üres stinget készítünk, hogy ne jelenjen meg a függvény nevében.
+     */
+    if($cciklaltip==0){
+        $cciklaltip = '';
+    }
+    /* Hasonlóan a $dlast értéke ha csupa 0, akkor cseréljük le üres stringre
+     */
+    if($dlast=='0000.00.00'){
+        $dlast = '';
+    }
+	
+	
+	while (($dlast != $dnext or $dnext < date(DATEFORMAT, strtotime("+1 day"))) and $dnext < date(DATEFORMAT, strtotime('+2 year')))  //legfeljebb a következő 2 évre keressük ütemezhetőséget
 	{
 		$i = $i + 1;
 		$dlast = $dnext;
@@ -114,12 +120,7 @@ function validnextdate($dnext, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cveg
 //fela köv.esedékesség dátumát adja vissza
 function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $cciklho, $cciklhet, $cciklnap)
 {
-    /* Mivel nincs olyan figgvény, hogy valami_0, ezért ha az altipus értéke 0, 
-     * akkor az értékéből üres stinget készítünk, hogy ne jelenjen meg a függvény nevében.
-     */
-    if($cciklaltip==0){
-        $cciklaltip = '';
-    }
+    
 	/*
 	lstart:
 	ha false, m.dlasttól számolva a szabály szerinti következő esedékességet adja vissza
@@ -135,7 +136,6 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 	*/
 	if ($lstart)
 	{
-
 		/*
 		újfelvitelkor vagy intervallum kezdéskor következő esedékesség számítása
 		ha m.dlast jövőbeni, akkor lehet esedékes ezért az előző nappal kezdjük
@@ -155,8 +155,7 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 			$command = 'getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
 				. '1' . ',"' . $cciklho . '","' . $cciklhet . '","' . $cciklnap . '"'
 				. ',"' . $dnext . '");';
-
-			eval('$returnvalue = '.$command);
+			eval('$returnvalue = '.$command);			
 			return $returnvalue;
 		}
 		else
@@ -166,7 +165,6 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 	}
 	else
 	{
-
 		//ütemezéskori következő esedékesség számítása
 		$command = 'getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
 			. $nciklszorz
@@ -174,8 +172,7 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 			. ',"' . $cciklhet . '"'
 			. ',"' . $cciklnap . '"'
 			. ',"' . (empty($dlast) ? date(DATEFORMAT, time()) : $dlast) . '");';
-
-        eval('$returnvalue = '.$command);
+		eval('$returnvalue = '.$command);
 		
 		return $returnvalue;
 	}
@@ -206,7 +203,6 @@ function getnextdate_d2 ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 
 function getnextdate_w ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 {
-
 	$ndow = dowFormStringdate($dlast);
 
 	$cciklnap = trim($cciklnap);
@@ -249,16 +245,15 @@ function getnextdate_m1 ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 	*/
 	if (yearFormStringdate($dlast) == yearFormStringdate(date(DATEFORMAT, time())) and monthFormStringdate($dlast) == monthFormStringdate(date(DATEFORMAT, time())) and intval($cciklnap) > dayFormStringdate($dlast))
 	{
-		/*$dlast = date(DATEFORMAT, mktime(0, 0, 0, monthFormStringdate(date(DATEFORMAT, time())), intval($cciklnap), yearFormStringdate(date(DATEFORMAT, time())))); */
-		$dlast = lastvaliddate(yearFormStringdate($dlast), monthFormStringdate($dlast), intval($cciklnap));	
+		$dlast = date(DATEFORMAT, mktime(0, 0, 0, monthFormStringdate(date(DATEFORMAT, time())), intval($cciklnap), yearFormStringdate(date(DATEFORMAT, time())))); 
 	}
 	else
 	{
 		$dlast = dateadd ($dlast, 0, $nciklszorz, 0); 
 	}
-	//ez már nem kell mert dateadd() megoldja $lastvaliddate = lastvaliddate(yearFormStringdate($dlast), monthFormStringdate($dlast), intval($cciklnap));	
+	$lastvaliddate = lastvaliddate(yearFormStringdate($dlast), monthFormStringdate($dlast), intval($cciklnap));	
 	//print "lastvaliddate: ".$lastvaliddate."<BR>";
-	return $dlast;
+	return $lastvaliddate;
 }
 
 function getnextdate_m2 ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
@@ -340,7 +335,6 @@ function dateadd ($stringdate, $days, $months, $years)
 	if ($days > 0)
 	{
 		$date->add(new DateInterval('P'.$days.'D'));
-
 	}
 	if ($days < 0)
 	{
@@ -391,7 +385,7 @@ function dateadd ($stringdate, $days, $months, $years)
 			$date->modify( 'last day of -1 month' );
 		}		
 	}		
-
+	
 	$returnvalue = $date->format(DATEFORMAT);
 	//print " -> ".$returnvalue." <BR>";
 	return $returnvalue;

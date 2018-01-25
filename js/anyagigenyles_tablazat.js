@@ -55,10 +55,21 @@ $(document).on('keyup', '.szamla_cont_tabla input', function(e) {
     /* Enterre újraszámoljuk a táblázat alatti összesítsét */
     osszeg = 0;
     if (e.which == KEY_ENTER) {
-        $('.szamla_cont_tabla input').each(function () {
-            osszeg += Number($(this).val().replace(',', '.').replace(' ', ''));
+        $('.szamla_cont_tabla tbody tr').each(function () {
+            id = $(this).attr('data-recid');
+            /* Ha van input, akkor annak az rétéke */
+            if( $('#jhmen_'+id).length ){
+                jhmen = Number( $('#jhmen_'+id).val().replace(',', '.') );
+            /* Ha nincs input, akkor a TD értéke */
+            }else{
+                jhmen = Number( $('#td_jhmen_'+id).html().replace(',', '.'));
+            }
+
+            rndear  = Number( $('#td_rndear_'+id).html().replace(',', '.'));
+            osszeg += jhmen*rndear;
         });
         $('#rend_ertek').html( ezresek(osszeg, 0, '', ' ') );
+        
     }
     
 });
@@ -132,10 +143,10 @@ $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
 
             $('#szamlaList li').removeClass('kijelolve');
             $('.szamla_cont_tabla tbody tr.kijelolve').each(function () {
-                $('#szamla-'+$(this).attr('data-id')).addClass('kijelolve');
+                $('#szamla-'+$(this).attr('data-recid')).addClass('kijelolve');
             });
 
-        }, 1);
+        }, 10);
         
     /* Ha nem egy kijelölhető táblázat, akkor csak a megnyomott sor legyen megjelölve */
     }else{

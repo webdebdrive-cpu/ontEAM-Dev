@@ -1041,7 +1041,7 @@ require('selectek.php');
             }else if($key=='modosit'){
                 $fulek .= '<a id="ful_'.$key.'" href="javascript:prigeny_ful_valt(\'adatlap\');"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
             }else{
-                $fulek .= '<a id="ful_'.$key.'" href="javascript: szamlaBetolt('.$_GET['id'].', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
+                $fulek .= '<a id="ful_'.$key.'" href="javascript: szamlaBetolt(\''.$_GET['id'].'\', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
             }
         }
 

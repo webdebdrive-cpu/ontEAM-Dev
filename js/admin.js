@@ -231,7 +231,7 @@ $(function() {
     /* Ha nincs kjelölve a bal navpanelben egy sor sem, akkor az első kijelöltjük */
     setTimeout(function() {
         
-        /* Anyagigénylésnél nem a bal navpanelre kattintonunk, hanem a táblázat első sorára */
+        /* Anyagigénylésnél nem a bal navpanelre kattintunk, hanem a táblázat első sorára */
         if( baseName(location.href)=='anyagigenyles' && !_get('anyagrend') ){
             if( !$('table.szamla_cont_tabla tr.kijelolve').length ){
                 $('table.szamla_cont_tabla tbody tr:first-of-type').addClass('kijelolve').click();
@@ -338,7 +338,7 @@ $(function() {
                 tabla = baseName(location.href);
 
                 /* Anyagigénylésnél használt táblázat esetén valójában a táblázat következő sorára kell ugrani, ami a helyben rendezetség miatt nem ugyanaz, mint a bal oldali navpanelé */
-                if($('.szamla_cont_tabla').length){
+                if( $('.szamla_cont_tabla').length && _get('tablazat') ){
 
                     var active   = $('.szamla_cont_tabla tr.kijelolve').index('.szamla_cont_tabla tbody tr'),
                         szamlaDb = $('.szamla_cont_tabla tbody tr').length - 1;
@@ -941,6 +941,10 @@ $(function() {
                         val = taroltVal;
                     }
                 }
+                
+            /* Numerikus mező */
+            }else if( $(this).hasClass('f_num') ) {
+                val = val.replace(/ /g, '');
             }
 
             /* Újsort le kell csérélni. Checkboxok miatt kell ez az if elé */
@@ -1439,6 +1443,7 @@ $(function() {
         }
     });
 
+    /* Bejelentés más nevében Tovább gomb ki-be kapcsolása */
     $(document).on('click', 'table.egyErtek tr.kijSor', function() {
         $(this).parents('table.egyErtek').find('tr.kijSor').removeClass('kijelolve');
         $(this).addClass('kijelolve');
@@ -2136,6 +2141,7 @@ function varolistabolKivetel(csak_kerdezunk) {
     }
 }
 
+/* Anyagigénylés küldés jóváhagyásra */
 function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
     if(balnav_kijelol_ell()){
     
@@ -2172,20 +2178,15 @@ function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
                             response = JSON.parse(response);
 
                             if( response.hiba ) {
-
-                                if( response.gomb ) {
-                                    alert2(response.hiba, response.gomb);
-                                } else {
-                                    alert2(response.hiba, '', 'Hiba');
-                                }
-
+                                alert2(response.hiba, response.gomb, 'Hiba');
                                 return false;
                             }
-                            szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
-                            /* navpanel frissítése (minden kijelölt sort) */
+                            
+                            location.href = 'anyagigenyles.php?tablazat';
+                            /* navpanel frissítése (minden kijelölt sort)
                             szamlaSorok.each(function() {
                                 szamlaSorFrissit(page, $(this).attr('data-recid'));
-                            });
+                            });*/
                             alert2();
                         }
                     }
@@ -2198,6 +2199,7 @@ function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
     }
 }
 
+/* Anyagigénylés, rendelés készítése */
 function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
     if(balnav_kijelol_ell()){
 
@@ -2448,13 +2450,16 @@ function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
 
         szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
         if( szamlaSorok.length ) {
-            idk = {};
+            idk     = {};
+            jhmenek = {};
 
             var i = 1;
             szamlaSorok.each(function() {
-                var id = $(this).attr('data-recid');
+                var id    = $(this).attr('data-recid');
+                var jhmen = $('#jhmen_'+id).val();
 
-                idk[i] = id;
+                idk[i]      = id;
+                jhmenek[id] = jhmen;
                 i++;
             });
 
@@ -2466,6 +2471,7 @@ function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
                     type: 'POST',
                     data: {
                         idk                         : JSON.stringify(idk),
+                        jhmenek                     : JSON.stringify(jhmenek),
                         page                        : page,
                         csak_kerdezunk              : csak_kerdezunk,
                         anyagigenyles_mind_jovahagy : new Date().getTime()
@@ -3858,23 +3864,30 @@ function jobbOldalEltuntet( sorok ) {
 }
 
 /* Kapcsoló táblák - fülek alatti rekordok - törlése általános függvénye */
-function mellekTorol( tabla, mellek, mellekre_valt ) {
+function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
 
-    var kijelolve = $('.kijCont .kijSor.kijelolve'),
-        idk       = {};
+    /* Ha van konkrét ID? akkor azt a sort töröljuk (pl. munkalapok adatlapján a bejelentések sorai) */
+    if(konkret_id){
+        var idk       = {konkret_id};
+    }else{
 
-    var i = 1;
-    kijelolve.each(function() {
-        var id = $(this).attr('data-id');
+        var kijelolve = $('.kijCont .kijSor.kijelolve'),
+            idk       = {};
 
-        /* Az ideiglenes soroknak nincs ID-ja, pontosabban az értéke UJ. Ezeket nem adjuk át az ajax-nak */
-        if(id!='UJ'){
-            idk[i] = id;
-        }
-        i++;
-    });
+        var i = 1;
+        kijelolve.each(function() {
+            var id = $(this).attr('data-id');
 
-    /* Ha vannak olyan ideiglenes soraink (aminek az Id-ja UJ), azoakt elég csak eltűnteni
+            /* Az ideiglenes soroknak nincs ID-ja, pontosabban az értéke UJ. Ezeket nem adjuk át az ajax-nak */
+            if(id!='UJ'){
+                idk[i] = id;
+            }
+            i++;
+        });
+        
+    }
+
+    /* Ha vannak olyan ideiglenes soraink (aminek az Id-ja UJ), azokat elég csak eltűnteni
       Pl.: Projektigénylésnél a cash-flow */
 
     $('.kijCont .kijSor.kijelolve[data-id="UJ"]').fadeOut('', function(){
@@ -4204,7 +4217,11 @@ function szallodakJelol( value ) {
 function popupZar() {
     /* Anyagvételezés meg igénylésnél újratöltjük, mert összeakad a kettő */
     if($('#munkAnyagAnyagigenyles').length || $('#munkAnyagVetelezForm').length){
-        location.reload();
+        /*Korábban itt újratöltöttük az oldalt, hogy a popup tartalma biztosan ürüljön
+         * location.reload();
+         * */
+        $('#popupTart').html('');
+        $('#popup').css('display', 'none');
     }else{
         $('#popupTart').html('');
         $('#popup').css('display', 'none');
@@ -5997,8 +6014,31 @@ function beosztas_veglegesit(mehet){
     }
 
     if(!mehet){
+        
         veglegesit_gomb = '<input type="button" class="gomb zold" value="Igen" onclick="beosztas_veglegesit(\'mehet\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2();">';
-        alert2('Biztos, hogy véglegesíti a mobil csoporthoz rendelést?', veglegesit_gomb);
+        
+        /* 
+         * Vagy rákérdezünk, hogy biztosan véglegesít-e, de ha olyan csoportba húzott feladatot, amihez nincs rendelve személyzet, akkor meg arra kérdezünk rá 
+         * Ezt ajax-al számoljuk ki.
+         * */
+        $.ajax({
+            url: 'mobil_hozzarendel.php',
+            type: 'POST',
+            data: {
+                a_csop              : a_csop,
+                b_csop              : b_csop,
+                cn_csop             : cn_csop,
+                d_csop              : d_csop,
+                beosztas_kerdez     : Date.now()
+            },
+            success: function (response) {
+                if (response) {
+                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                    response = JSON.parse(response);
+                    alert2(response.hiba, veglegesit_gomb);
+                }
+            }
+        });
         return false;
     }
 

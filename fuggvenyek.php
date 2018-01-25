@@ -2161,8 +2161,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 if( _jog(JOG_MUNKALAP_KULSOS_MEGREND) ){
                     array_push($statuszra_szures, MUNKALAP_STAT_HOZREND_MEGREND_VAR);
                 }
+                
+                // Szűrés azokra a státuszokra, amiket láthat
                 if($statuszra_szures){
-                    $where .= "`".get_db_tabla()."munkalap`.`stat_id` IN (".implode(',', $statuszra_szures).")";
+                    $where .= "`".get_db_tabla()."munkalap`.`stat_id` IN (".implode(',', $statuszra_szures).") AND ";
+                // Ha egyiket sem láthatja, akkor legyen üres a lista
+                }else{
+                    $where .= ' FALSE AND ';
                 }
             }
 
@@ -3451,7 +3456,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 // Anyagigénylés jog és Árazva státusz esetén a jóváhagyott mennyiség helyben szerkeszthető
                 $jhmen = $bsz['rndmen'];
                 if ( $bsz['stat_id']==CIKKIGN_STAT_ARAZVA && _jog(JOG_ANYAGIGENYLES_JOVAHAGY)) {
-                    $jhmen = '<input class="r f_num" data-tort="2" type="text" id="jhmen_'.$bsz['recid'].'" value="'.$bsz['rndmen'].'" style="width: 5rem" onclick="select()">';
+                    $jhmen = '<input class="r f_num" data-tort="2" data-recid="'.$bsz['recid'].'" type="text" id="jhmen_'.$bsz['recid'].'" value="'.$bsz['rndmen'].'" style="width: 5rem" onclick="select()">';
                 }
                 $eredeti_ertekek['jhmen_'.$bsz['recid']] = $bsz['rndmen'];
 
@@ -3470,9 +3475,9 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 <td class="r">'.$bsz['igmen'].'</td>
                                 <td class="c">'.$bsz['cikkmee'].'</td>
                                 <td class="c">'.substr(str_replace('-', '.', $bsz['insert_dt']), 0, 10).'</td>
-                                <td class="r" sorttable_customkey="'.$bsz['jhmen'].'">'.$jhmen.'</td>
+                                <td class="r" id="td_jhmen_'.$bsz['recid'].'" sorttable_customkey="'.$bsz['jhmen'].'">'.$jhmen.'</td>
                                 <td class="r">'.$bsz['rndmen'].'</td>
-                                <td class="r">'.$bsz['rndear'].'</td>
+                                <td class="r" id="td_rndear_'.$bsz['recid'].'">'.$bsz['rndear'].'</td>
                                 <td class="r">'.$bsz['vrndear'].'</td>
                                 <td class="c">'.erteklista(21, $bsz['kcs_21']).'</td>
                             </tr>
@@ -4353,7 +4358,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 }
                                 $html .= '
                                         <li>
-                                            <a href="javascript: szamlaBetolt('.$szint['recid'].', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label></a>
+                                            <a href="javascript: szamlaBetolt(\''.$szint['recid'].'\', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label></a>
                                             <input type="checkbox"'.$checked.' class="asdas">
                                         ';
                                 // id="szint_'.$szint['recid'].'"
@@ -4373,7 +4378,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                             $link = ' class="link"';
                                         }
                                         $html .= '<li>
-                                                    <a href="javascript: szamlaBetolt('.$obj['recid'].', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label></a>
+                                                    <a href="javascript: szamlaBetolt(\''.$obj['recid'].'\', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label></a>
                                                     <input type="checkbox"'.$checked.'>';
                                         // id="obj_'.$obj['recid'].'"
                                             if($eszkozok){
@@ -4383,7 +4388,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                                     if($akt_eszkoz['recid']==$eszkoz['recid']){
                                                         $aktiv = ' aktiv';
                                                     }
-                                                    $html .= '<li class="sor'.$aktiv.'" onclick="szamlaBetolt('.$eszkoz['recid'].', \'eszkozkezeles.php\', \'modosit\')">'.$eszkoz['nev'].'<li>';
+                                                    $html .= '<li class="sor'.$aktiv.'" onclick="szamlaBetolt(\''.$eszkoz['recid'].'\', \'eszkozkezeles.php\', \'modosit\')">'.$eszkoz['nev'].'<li>';
                                                 }
                                                 $html .= '</ol>';
                                             }
@@ -4479,7 +4484,7 @@ function felmeresi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                         if($akt_ft['recid']==$ft['recid']){
                                             $aktiv = ' aktiv';
                                         }
-                                        $html .= '<li class="sor'.$aktiv.'" onclick="szamlaBetolt('.$ft['recid'].', \'felmeresi_terv.php\', \'modosit\')">'.$ft['nev'].'<li>';
+                                        $html .= '<li class="sor'.$aktiv.'" onclick="szamlaBetolt(\''.$ft['recid'].'\', \'felmeresi_terv.php\', \'modosit\')">'.$ft['nev'].'<li>';
                                     }
                                     $html .= '</ol>';
                                 }
@@ -4571,6 +4576,7 @@ function loginLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span>'.$aktiv.' '.$bsz['teljes_nev'].'</span>
+                            <span style="display: none">'.$bsz['nev'].'</span>
                         </a>';
 
             // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort

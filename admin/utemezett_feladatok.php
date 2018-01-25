@@ -17,7 +17,7 @@ $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
 $akt_tomb               = $utemezett_feladatok_tomb;
 $torles                 = $megnevezes.'tid';
-$szoveg                 = 'feladatot';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
+$szoveg                 = 'ütemezett feladatot';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
 // Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
@@ -261,7 +261,7 @@ require_once('selectek.php');
                 $active = ' class="active"';
             }
 
-            $fulek .= '<a href="javascript: szamlaBetolt('.$_GET['id'].', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
+            $fulek .= '<a href="javascript: szamlaBetolt(\''.$_GET['id'].'\', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
         }
 
         $szamla_html .= str_replace(
@@ -307,15 +307,11 @@ require_once('selectek.php');
         // Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
-        if( _jog(JOG_UTFEL_KEZEL) ){
-            // Csak saját bejelentés törölhető!
-            if($sor['loginnev'] != $_SESSION[get_db_tabla().'user']) {
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak saját bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-            }else{
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
-            }
+        // Csak saját bejelentés törölhető!
+        if( !_jog(JOG_UTFEL_TOROL) && $sor['loginnev'] != $_SESSION[get_db_tabla().'user'] ) {
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga '.$szoveg.' törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }else{
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga ütemezett feladatot törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt az '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
 
         if( _jog(JOG_UTFEL_KEZEL) ){

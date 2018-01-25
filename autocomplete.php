@@ -78,7 +78,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             }
         }
 
-        // Login táblában szűrhatünk személyzetre is
+        // Login táblában szűrhetünk személyzetre is
         if( $_GET['tabla'] == 'login' && $_GET['szemelyzet_id'] ) {
             if( $where_sql ) {
                 $where_sql .= " AND `szemelyzet_id` = '".$_GET['szemelyzet_id']."'";
@@ -87,7 +87,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             }
         }
 
-        /* Szállítók esetén csak az aktívakat soroljuk fel */
+        // Szállítók esetén csak az aktívakat soroljuk fel
         if( $_GET['tabla'] == 'szallito' ) {
             if( $where_sql ) {
                 $where_sql .= " AND `aktiv` = '1'";
@@ -127,17 +127,17 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             // melyik szállodánál vagyunk
             $szalloda = $adatbazis_kapcsolat->s2('telephely_id', 'beosztas', "`recid`='{$_GET['recid']}'");
 
-            //Ehhez milyen loginok tartoznak:
+            // Ehhez milyen loginok tartoznak:
             $felhok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$szalloda['telephely_id']}'");
             $felhok = adatbazis2tomb($felhok, 'nev');
 
             $where_sql = " WHERE `felh_loginnev` IN ('".implode('\', \'', $felhok)."')";
-            //$loginnevek = $adatbazis_kapcsolat->s('recid nev', 'torzsadat', "`felh_loginnev` IN ('".implode('\', \'', $felhok)."')");
+            // $loginnevek = $adatbazis_kapcsolat->s('recid nev', 'torzsadat', "`felh_loginnev` IN ('".implode('\', \'', $felhok)."')");
 
         }
         
 
-//echo 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`'; exit;
+// echo 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`'; exit;
         $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
         while( $sor = mysqli_fetch_array($lekerdez) ) {
 
@@ -161,7 +161,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
 
                 $return .= $sor[$oszlop_listaz[$i]];
 
-                //Az utolsó után nem kell <br>
+                // Az utolsó után nem kell <br>
                 if( $i != $size ) {
                     $return .= '<br>';
                 }

@@ -864,6 +864,10 @@ div.jsff_thumb div.torol:hover{
     margin: 0.5rem 0rem 0rem 0rem;
 }
 
+#sorrendezes_tobbkep li.fejlec, #sorrendezes_tobbkep li.fejlec:hover {
+    background: #F1EFF0;
+}
+
 /* Több kép thumbnailjai */
 #sorrendezes,
 #sorrendezes_album,
@@ -938,7 +942,7 @@ div.jsff_thumb div.torol:hover{
 #sorrendezes_album li:hover div.torol:hover,
 #sorrendezes_tobbkep li:hover div.torol:hover,
 #sorrendezes_bejegyzes li:hover div.torol:hover {
-    background: #6189b0 url('../elemek/admin/torol_hover.png') no-repeat center;
+    background: #F1F8FF url('../elemek/admin/torol_hover.png') no-repeat center;
 }
 
 #sorrendezes li.fajl,
@@ -1035,6 +1039,19 @@ div.jsff_thumb div.torol:hover{
     padding: 0.2rem 0rem 0rem 1rem;
     text-align: left;
     vertical-align: middle;
+}
+#sorrendezes li div.maradek.r,
+#sorrendezes_album li div.maradek.r,
+#sorrendezes_tobbkep li div.maradek.r,
+#sorrendezes_bejegyzes li div.maradek.r {
+    text-align: right;
+}
+#sorrendezes li div.maradek.torles,
+#sorrendezes_album li div.maradek.torles,
+#sorrendezes_tobbkep li div.maradek.torles,
+#sorrendezes_bejegyzes li div.maradek.torles {
+    text-align: right;
+    padding-right: 1rem;
 }
 
 #sorrendezes li:not(.kijelolve):hover,
@@ -1731,7 +1748,7 @@ table.szamla_cont_tabla tr{
 table.szamla_cont_tabla tbody tr:hover{
     background: #F1F8FF;
 }
-table.szamla_cont_tabla thead tr, table.szamla_cont_tabla thead tr:hover{
+table.szamla_cont_tabla thead tr, table.szamla_cont_tabla thead tr:hover, table.szamla_cont_tabla tfoot tr, table.szamla_cont_tabla tfoot tr:hover{
     background: #F1EFF0;
 }
 table.szamla_cont_tabla tfoot tr:hover{
@@ -2586,7 +2603,7 @@ table.csikos tr.kiemelt{
     background: #FDE6B9;
 }
 
-table.csikos tr.torles_elott, div.dtr.torles_elott{
+table.csikos tr.torles_elott, div.dtr.torles_elott, .torles_elott{
     background: #FF8383 !important;
 }
 

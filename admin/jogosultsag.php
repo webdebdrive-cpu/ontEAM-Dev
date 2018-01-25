@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 79-es ID-nál járunk
+ * 82-es ID-nál járunk
  * 11 -es kategória ID-nál járunk
 \*                                                  */
 
@@ -75,12 +75,15 @@ $jogosultsagok = array(
     
     32 => array('nev' => 'Feladatok megtekintése',      'kat' => 5, 'sor' => 1),
     33 => array('nev' => 'Feladatok kezelése',          'kat' => 5, 'sor' => 2),
+    80 => array('nev' => 'Törlés',                      'kat' => 5, 'sor' => 3),
     
     35 => array('nev' => 'Karbantartások megtekintése', 'kat' => 6, 'sor' => 1),
     36 => array('nev' => 'Karbantartások kezelése',     'kat' => 6, 'sor' => 2),
+    81 => array('nev' => 'Törlés',                      'kat' => 6, 'sor' => 3),
     
     54 => array('nev' => 'Eseti fenntartás megtekintése','kat' => 9, 'sor' => 1),
     55 => array('nev' => 'Eseti fenntartás kezelése',    'kat' => 9, 'sor' => 2),
+    82 => array('nev' => 'Törlés',                       'kat' => 9, 'sor' => 3),
     
     25 => array('nev' => 'Törzsadatok olvasása',        'kat' => 4, 'sor' => 1),
     26 => array('nev' => 'Törzsadatok kezelése',        'kat' => 4, 'sor' => 2),
