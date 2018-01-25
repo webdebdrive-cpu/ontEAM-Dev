@@ -3560,7 +3560,7 @@ function arazas_ment(){
     }
 
     $.ajax({
-        url: 'anyagigenyles.php',
+        url : 'anyagigenyles.php',
         type: 'POST',
         data: {
             idk         : $('#idk').val(),

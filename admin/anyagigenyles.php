@@ -342,7 +342,7 @@ if( isset($_POST['arazas']) ) {
                     </tr>
                     <tr>
                         <td class="p r">Rendelt mennyiség:</td>
-                        <td class="p"><input'.$rndmen_disabled.' type="text" name="pop_rndmen" id="pop_rndmen" class="f_num" value="'.number_format($ossz_rend_menny, 2, ',', ' ').'"> '.$igenyles['cikkmee'].'</td>
+                        <td class="p"><input'.$rndmen_disabled.' type="text" name="pop_rndmen" id="pop_rndmen" class="f_num csillag" value="'.number_format($ossz_rend_menny, 2, ',', ' ').'"> '.$igenyles['cikkmee'].'</td>
                         <td class="p r">
                             Rendelési összeg:
                         </td>
@@ -510,6 +510,16 @@ if ($_POST['arazas_ment']) {
                     array(
                         'hiba'  => 'Kérjük adja meg a szállítót!',
                         'focus' => 'pop_szallito'
+                    )
+            );
+        $weblap -> leallit();
+        exit();
+    }
+    if( !$_POST['rndmen'] || $_POST['rndmen']=='0.00' ){
+        echo json_encode(
+                    array(
+                        'hiba'  => 'Kérjük adja meg a rendelt mennyiséget!',
+                        'focus' => 'pop_rndmen'
                     )
             );
         $weblap -> leallit();

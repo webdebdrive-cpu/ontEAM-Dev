@@ -35,7 +35,7 @@ if (isset($_POST['f_szuro_mezo'])) {
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
                 
-            // selectek esetén csak = vagy üres operátort ajánnlunk fel
+            // selectek esetén csak = vagy üres operátort ajánlunk fel
             }elseif( in_array($ertek['type'], $selectek) ){
                 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
@@ -75,17 +75,17 @@ if (isset($_POST['f_szuro_mezo'])) {
         
     }
     
-    //Megjegyzés esetén tartalmazza operátor + szabadszavas mező
+    // Megjegyzés esetén tartalmazza operátor + szabadszavas mező
     if($_POST['mezo']=='megjegyzes'){
         $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
     }
     
-    //Jogosultságnál és Státusznál csak =
-    if($_POST['mezo']=='jogosultsag' || $_POST['mezo']=='stat_id'){
+    // Jogosultságnál, Státusznál és Mobilcsoportnál csak =
+    if($_POST['mezo']=='jogosultsag' || $_POST['mezo']=='stat_id' || ( $_POST['mezo']=='mobil' && $_POST['tabla'] == 'munkalap' ) ){
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
     }
     
-    //Operátor select bezárása
+    // Operátor select bezárása
     $operator = '<select class="f_szuro_mezo_operator" data-tabla="'.$_POST['tabla'].'">'.$operator.'</select>';
     
     echo json_encode( array('operator' => $operator) );
@@ -254,6 +254,16 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     require_once('selectek.php');
 
                     $input = new Select($select_pri_tipus, $_POST['felt']);
+                    $input -> cssClass = 'f_felt';
+                    $feltetel = $input -> getHtml();
+                    
+                // select_pri_besorol
+                }elseif($_POST['mezo']=='mobil'){
+                    
+                    require_once('../class/html/class.Select.php');
+                    require_once('selectek.php');
+
+                    $input = new Select($select_mobilcsoport, $_POST['felt']);
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
                     
