@@ -4797,7 +4797,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
         if(_get('anyagrend')){
             anyagrend = 'anyagrend&amp;';
         }
-        
+
         /* Anyagigénylés alatt a művelet ha táblázat, nem frissítjük újra az egész oldal tartalmát (táblázat sorain lépkedve ne frissüljenek az adatok)
          * De az anyagigénylés fülre kattintva mégis be kell tölteni, erre hasznájuk a  "tablazat_" műveletet */
         muvelet_param = muvelet;

@@ -286,8 +286,12 @@ if( isset($_POST['arazas']) ) {
         $igenyles = $adatbazis_kapcsolat->s2('*', 'anyagigenyles', "`recid`='$betoltid'");
 
         if($default_ertekek_mutat){
-            $ossz_rend_menny    = $igenyles['igmen'];
             $igenyles['kcs_21'] = 5;
+        }
+        
+        // Ha nincs rendelés mennyiség, akkor az igénylés összege kerül bele
+        if(!$ossz_rend_menny){
+            $ossz_rend_menny = $ossz_ig_menny;
         }
 
         $igenyles['atvaltva_d'] = str_replace('-', '.', $igenyles['atvaltva_d']);
@@ -569,7 +573,7 @@ if ($_POST['arazas_ment']) {
     }
 
     // Ha nem HUF
-    if($_POST['kcs_21']!=5){
+    if( $_POST['kcs_21']!=5 ){
         if(!$_POST['arfolyam'] || number_format($_POST['arfolyam'], 4, '.', '')=='0.0000'){
             echo json_encode(
                         array(
@@ -608,21 +612,23 @@ if ($_POST['arazas_ment']) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    // Több sor esetén a rendelt mennyiséget nem írjuk felül
+    // Több sor esetén a rendelt mennyiséghez az igényelt mennyiséget írjuk be
     if(count($idk)>1){
-        $sql = $adatbazis_kapcsolat->u('anyagigenyles',     array('szallito_id',         'kcs_21',         'rndear',           'vrndear',          'arfolyam',          'atvaltva_d',           'erkcimid'        ),
-                                                            array($_POST['szallito_id'], $_POST['kcs_21'], $_POST['rndear'],   $_POST['vrndear'],   $_POST['arfolyam'], $_POST['atvaltva_d'],   $_POST['erkcimid']),
-                                        "`recid` IN (".$_POST['idk'].")");
+        foreach($idk as $id){            
+            $anyagig = $adatbazis_kapcsolat->s2('igmen', 'anyagigenyles', "`recid`='{$id}'");
+            if( $anyagig === false ) { $db_error = true; }
+            $sql = $adatbazis_kapcsolat->u('anyagigenyles',     array('szallito_id',         'kcs_21',         'rndear',           'rndmen',            'vrndear',          'arfolyam',          'atvaltva_d',           'erkcimid'        ),
+                                                                array($_POST['szallito_id'], $_POST['kcs_21'], $_POST['rndear'],   $anyagig['igmen'],   $_POST['vrndear'],   $_POST['arfolyam'], $_POST['atvaltva_d'],   $_POST['erkcimid']),
+                                            "`recid` = '{$id}'");
+        }
 
     // Egy sor esetén a rendelt mennyiséget is felülírjuk
     }else{
-        $sql = $adatbazis_kapcsolat->u('anyagigenyles',     array('szallito_id',         'kcs_21',         'rndear',           'rndmen',           'vrndear',          'arfolyam',          'atvaltva_d',         'erkcimid'        ),
-                                                            array($_POST['szallito_id'], $_POST['kcs_21'], $_POST['rndear'],   $_POST['rndmen'],   $_POST['vrndear'],   $_POST['arfolyam'], $_POST['atvaltva_d'], $_POST['erkcimid']),
+        $sql = $adatbazis_kapcsolat->u('anyagigenyles',         array('szallito_id',         'kcs_21',         'rndear',           'rndmen',           'vrndear',          'arfolyam',          'atvaltva_d',         'erkcimid'        ),
+                                                                array($_POST['szallito_id'], $_POST['kcs_21'], $_POST['rndear'],   $_POST['rndmen'],   $_POST['vrndear'],   $_POST['arfolyam'], $_POST['atvaltva_d'], $_POST['erkcimid']),
                                         "`recid` IN (".$_POST['idk'].")");
     }
-    if( $sql === false ) {
-        $db_error = true;
-    }
+    if( $sql === false ) { $db_error = true; }
 
     // Ha az igényléstől kisebb a rendelés, akkor megjegyzést is fűztek hozzá
     if($_POST['ig_menny']>$_POST['rndmen']){
@@ -641,7 +647,6 @@ if ($_POST['arazas_ment']) {
         mysqli_rollback($db_kapcs);
         echo json_encode(array('hiba' => 'Az adatbázisba való íráskor hiba történt!'));
     }
-
 
     $weblap -> leallit();
     exit();
@@ -1717,6 +1722,10 @@ require_once('selectek.php');
                 $id_betolteshez = $_SESSION['legutobbi_id'];
             }
             
+            // Hogy JS alatt is biztosan lássuk ezt a get-et
+            if(isset($_GET['anyagrend'])){
+                $_GET['anyagrend'] = 1;
+            }
             if($key=='tablazat'){
                 $fulek .= '<a href="'.self().get_get($kivetelek).'&amp;tablazat"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
             }else{
@@ -2091,7 +2100,7 @@ require_once('selectek.php');
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
-                'fulek'    => $fulek, // Ajax esetén csak a gombokat írjuk ki
+                'fulek'    => $fulek,  // A fülek is változnak
                 'tartalom' => $gombok, // Ajax esetén csak a gombokat írjuk ki
                 'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
@@ -2106,7 +2115,6 @@ require_once('selectek.php');
         if (isset($_GET['anyagrend'])) {
 
             $rndid = $adatbazis_kapcsolat->s2('recid rndid', 'anyagigenyles', "`recid` = '".$_GET['id']."'", '', '1');
-
             if( $rndid ) {
 
                 // Tétel sorok

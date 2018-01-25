@@ -1613,7 +1613,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
 
     if( $recid ) {
 
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
         
         $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
@@ -1630,7 +1630,11 @@ if( isset($_POST['kulsokivHozzarend']) ) {
         }
 
         // Jog ellenőrzése (javaslattétel esetén külsős előkészítés jog
-        if( isset($_POST['javaslattetel']) && !_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT ) ) {
+        if( 
+            !(
+                $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id']
+            )
+        ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga külső kivitelezőt hozzárendelni!',
                 'title' => 'Hiba',
@@ -3370,7 +3374,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
                     ( $telephely['modell'] && $sor['stat_id']==MUNKALAP_STAT_FELVEVE            && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
                     ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_FOLYAMATBAN        && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
                     ( $telephely['modell'] && $sor['stat_id']==MUNKALAP_STAT_ANYAGRAVAR         && _jog(JOG_MUNKALAP_ANYAG_ERKEZTET)    ) || 
-                    ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT  && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO && _jog( JOG_MUNKALAP_KULSOS_ELOKESZIT )  ) ||
+                    ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT  && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id'] && _jog( JOG_MUNKALAP_KULSOS_ELOKESZIT )  ) ||
                     ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT    && _jog(JOG_MUNKALAP_VIZSGALAT)         )
                 )
                ){
@@ -3398,14 +3402,15 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
             }
 
             // Anyagra vár státusz esetén az anyagokat is törölni kell (ha van benne felhasznált anyag, akkor csak nullázni a szükséges mennyiséget)
-            if($munkalap['stat_id'] == MUNKALAP_STAT_ANYAGRAVAR){
-                
+            if( $munkalap['stat_id'] == MUNKALAP_STAT_ANYAGRAVAR ){
                 $sql = $adatbazis_kapcsolat->d('munkalap_anyag', "`tetel_id`='{$utolso_tetel['recid']}' AND `cikk_men`=0.00");
                 if( $sql === false ) { $db_error = true; }
                 $sql = $adatbazis_kapcsolat->u('munkalap_anyag', array('szuk_men'), array(0.00), "`tetel_id`='{$utolso_tetel['recid']}' AND `cikk_men`!=0.00");
                 if( $sql === false ) { $db_error = true; }
+            }
 
-                // Frissítjük a munkalap tételt
+            // Frissítjük a munkalap tételt, ha épp dolgozunk rajta, azaz folyamatban vagy felvéve státuszban van.
+            if( $munkalap['stat_id'] == MUNKALAP_STAT_FELVEVE ){
                 $sql = $adatbazis_kapcsolat -> u('munkalap_tetel',
                                                     array('atadta_dt',  'visszaadva', 'erteklista_id', 'update_usr'                           ),
                                                     array('NOW()',      1,            $erteklista_id,  $_SESSION[get_db_tabla().'teljes_nev'] ),
@@ -3413,6 +3418,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
                                                 );
                 if( $sql === false ) { $db_error = true; }
             }
+            
 
             // Frissítjuk a munkalap visszaadva sorát, ürítjük a személyzeteket
             $sql = $adatbazis_kapcsolat -> u('munkalap',
@@ -4811,7 +4817,7 @@ require('selectek.php');
         }
 
         // Előkészítés státusz és külsős előkészítés jog kell hozzá
-        if( $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ){
+        if( $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id'] ){
             $gombok .= '<input type="button" class="gomb foGomb" value="Javaslattétel" onclick="csoportMuvelet(\'kulsokivHozzarend\');"> ';
         }
 
@@ -5001,7 +5007,7 @@ require('selectek.php');
             ( $telephely['modell'] && $sor['stat_id']==MUNKALAP_STAT_FELVEVE            && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog ) ||
             ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_FOLYAMATBAN        && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
             ( $telephely['modell'] && $sor['stat_id']==MUNKALAP_STAT_ANYAGRAVAR         && _jog(JOG_MUNKALAP_ANYAG_ERKEZTET)    ) || 
-            ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT  && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO && _jog( JOG_MUNKALAP_KULSOS_ELOKESZIT )  ) ||
+            ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT  && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id'] && _jog( JOG_MUNKALAP_KULSOS_ELOKESZIT )  ) ||
             ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT    && _jog(JOG_MUNKALAP_VIZSGALAT)         )
            ){
             $gombok .= '<input type="button" class="gomb" value="Visszaadás" onclick="csoportMuvelet(\'atadasDiszpecsernek\');"> ';

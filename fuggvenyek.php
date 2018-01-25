@@ -3454,7 +3454,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 }
                 
                 // Anyagigénylés jog és Árazva státusz esetén a jóváhagyott mennyiség helyben szerkeszthető
-                $jhmen = $bsz['rndmen'];
+                $jhmen = $bsz['jhmen'];
                 if ( $bsz['stat_id']==CIKKIGN_STAT_ARAZVA && _jog(JOG_ANYAGIGENYLES_JOVAHAGY)) {
                     $jhmen = '<input class="r f_num" data-tort="2" data-recid="'.$bsz['recid'].'" type="text" id="jhmen_'.$bsz['recid'].'" value="'.$bsz['rndmen'].'" style="width: 5rem" onclick="select()">';
                 }
