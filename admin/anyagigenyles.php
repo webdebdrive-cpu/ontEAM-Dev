@@ -1842,6 +1842,7 @@ require_once('selectek.php');
                 ');
             }
         }
+        
         // Anyagigénylés érkeztetése
         if( _jog(JOG_ANYAGIGENYLES_KEZEL) ) {
             if(isset($_GET['anyagrend'])){

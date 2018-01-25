@@ -238,7 +238,6 @@ $szamla_html .= $tobbkep_html;
 function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
 
     require_once('../weblap.php');
-
     $tobbkep_html = '';
     $kep_utvonal = '../'.get_utvonal().csonkit($_SESSION['fajl']['tabla'], 4).'/'.$sor_kepek['utvonal'];
     if(is_file($kep_utvonal)){
@@ -285,6 +284,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
                 ';
         }
         
+
         $tobbkep_html .= nl2('
             <li id="'.$azon.'" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'">
                 <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>

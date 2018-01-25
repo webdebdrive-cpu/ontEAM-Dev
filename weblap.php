@@ -1,5 +1,5 @@
 <?php
-//Ha $db_prefix nem üres (tehát használunk adatbázist), akkor a következők végrehajtás kötelező
+// Ha $db_prefix nem üres (tehát használunk adatbázist), akkor a következők végrehajtás kötelező
 require_once('config.php');
 require_once('engine.php');
 require_once('class/class.Weblap.php');
@@ -100,7 +100,7 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 }
 
 // Ha olyan $_GET['id']-t akarnék megnézni, ami az aktuális SQL-nek nem is eredménye, akkor kinullázzuk: ne lehessen leskelődni
-/*if($_GET['id']){
+if($_GET['id']){
     $van_getid = false;
     $akt_sql = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
     while( $akt_sor = mysqli_fetch_assoc($akt_sql) ){
@@ -111,7 +111,7 @@ if( $_SESSION[get_db_tabla().'user'] ) {
     if(!$van_getid){
         $_GET['id'] = '';
     }
-}*/
+}
 
 // Ha jóváhagyás joggal léptünk az anyagigénylésekhez, és nem módossítottunk még a szűrésen, akkor alapból leszűrünk az árazva státuszra. 
 // Viszont emiatt kell egy get szűrés töröl is, hogy tudjuk mikor kapcsolták ki szándékosan.
