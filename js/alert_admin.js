@@ -21,10 +21,10 @@ function alert2(uzi, ok_gomb, cim) {
             $('#szurkit').remove();
             $('#alert2').remove();
         });
-        
+
         /* Hibaüzenetkor ha adtunk "hibas_ide_focus" class-t egy inputra, akkor arra fókuszáljunk rá. */
         $('input.hibas_ide_focus, textarea.hibas_ide_focus, select.hibas_ide_focus').focus().removeClass('hibas_ide_focus');
-        
+
         return true;
 
     }else{
