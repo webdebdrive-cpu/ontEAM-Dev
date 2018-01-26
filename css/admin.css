@@ -1763,6 +1763,9 @@ table.szamla_cont_tabla th{
 table.szamla_cont_tabla tr td{
     padding: 0.1rem 0.2rem;
 }
+table.szamla_cont_tabla tfoot tr td{
+    padding: 1rem 0.2rem;
+}
 table.szamla_cont_tabla tr.kijelolve, table.szamla_cont_tabla tr.kijelolve:hover{
     background: #55A2FA;
     color: #fff;

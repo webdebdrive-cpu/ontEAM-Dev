@@ -249,4 +249,8 @@ define('JOG_ESZKOZ_KEZEL',              43);
 define('JOG_FT_MEGTEKINT',              44);
 define('JOG_FT_KEZEL',                  45);
 
+
+
+define('HIBA_ADJON_FELADAT',           ' kérjük adjon hozzá egy elvégzett feladatot!');
+
 ?>

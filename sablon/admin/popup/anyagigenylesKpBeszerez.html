@@ -76,7 +76,7 @@
                 </div>
             </div>
             <div class="dtr">
-                <div class="dtc form_bal">Megjegyzés:</div>
+                <div class="dtc form_bal">Leírás:</div>
                 <div class="dtc form_jobb">
                     <textarea name="pop_igleir" id="pop_igleir" style="width: 100%; min-height: 4rem; height: 4rem"></textarea>
                 </div>
@@ -145,6 +145,7 @@
                     <th class="r">Nettó érték</th>
                     <th class="r">Bruttó egységár</th>
                     <th class="r">Bruttó érték</th>
+                    <th class="r">Leírás</th>
                     <th class="torles"></th>
                 </tr>
             </table>
@@ -271,6 +272,7 @@ function munkAnyagKPHozzaad( formID ) {
                         '<td class="r pop_net_ar nowrap">' + $('#pop_net_ar').val() + '</td>' +
                         '<td class="r nowrap">' + $('#pop_br_ear').val() + '</td>' +
                         '<td class="r nowrap">' + $('#pop_br_ar').val() + '</td>' +
+                        '<td class="r pop_igleir nowrap">' + $('#pop_igleir').val().replace(/\n/g,'<br>') + '</td>' +
 
                         '<td><a onclick="munkAnyagKPTorol(\'sor_kp_igeny_'+id_tmp+'\');"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
                     '</tr>';
@@ -289,6 +291,7 @@ function munkAnyagKPHozzaad( formID ) {
                         '<td class="r"></td>' +
                         '<td class="r ossz_br nowrap" style="font-weight: bold"></td>' +
 
+                        '<td></td>' +
                         '<td></td>' +
                     '</tr>';
             ;
@@ -323,6 +326,7 @@ function anyagigenylesKpnullaz(formID){
     $('#cikk_id_autocomp').val('');
     $('#cikk_id').val('');
     $('#cikkid_origi').val('');
+    $('#pop_igleir').val('');
 
     $('#pop_kulsosnek').prop('checked', false);
     $('#pop_menny').val('0,00');
@@ -431,6 +435,7 @@ function anyagigenylesKPBeszerez(csak_kerdezünk){
                                 rb      : rb,
                                 menny   : $(this).find('td.pop_menny').html(),
                                 ear     : $(this).find('td.pop_net_ear').html(),
+                                igleir  : $(this).find('td.pop_igleir').html(),
                             };
         }
         i++;
@@ -448,6 +453,7 @@ function anyagigenylesKPBeszerez(csak_kerdezünk){
                                 rb      : rb,
                                 menny   : $('#pop_menny').val(),
                                 ear     : $('#pop_net_ear').val(),
+                                igleir  : $('#pop_igleir').val(),
                             };
     }
 

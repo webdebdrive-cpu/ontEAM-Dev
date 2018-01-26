@@ -25,7 +25,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
 
             $oszlop_keres[$i] = trim($oszlop_keres[$i]);
 
-            $where_sql .= '`'.$oszlop_keres[$i].'` LIKE \'%'.$_GET['value'].'%\' OR ';
+            $where_sql .= '`'.$oszlop_keres[$i].'` LIKE \'%'.htmlspecialchars($_GET['value']).'%\' OR ';
             $oszlopok  .= '`'.$oszlop_keres[$i].'`, ';
         }
 

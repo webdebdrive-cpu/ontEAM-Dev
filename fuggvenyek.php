@@ -2987,7 +2987,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $tipus     = erteklista(6, $bsz['tipus_id']);
 
             // Személyzettípus kiíratása
-            require_once 'selectek.php';
+            require 'selectek.php';
             $szemelyzet = '';
             if($bsz['szemelyzet_id']){
                 
@@ -3454,16 +3454,17 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 }
                 
                 // Anyagigénylés jog és Árazva státusz esetén a jóváhagyott mennyiség helyben szerkeszthető
-                $jhmen = $bsz['jhmen'];
+                $jhmen = number_format($bsz['jhmen'], 2, ',', ' ');
                 if ( $bsz['stat_id']==CIKKIGN_STAT_ARAZVA && _jog(JOG_ANYAGIGENYLES_JOVAHAGY)) {
-                    $jhmen = '<input class="r f_num" data-tort="2" data-recid="'.$bsz['recid'].'" type="text" id="jhmen_'.$bsz['recid'].'" value="'.$bsz['rndmen'].'" style="width: 5rem" onclick="select()">';
+                    $jhmen = '<input class="r f_num" data-tort="2" data-recid="'.$bsz['recid'].'" type="text" id="jhmen_'.$bsz['recid'].'" value="'.number_format($bsz['rndmen'], 0, ',', ' ').'" style="width: 6rem; font-size: 1.4rem;" onclick="select()">';
                 }
-                $eredeti_ertekek['jhmen_'.$bsz['recid']] = $bsz['rndmen'];
+                $eredeti_ertekek['jhmen_'.$bsz['recid']] = number_format($bsz['rndmen'], 0, ',', ' ');
 
                 // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
                 if($frissit){
                     $active .= ' kijelolve';
                 }
+                
                 $html .= '
                             <tr class="'.$active.$bold.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click()" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
                                 <td class="c" sorttable_customkey="'.$bsz['stat_id'].'">'.getStatText('anyagigenyles', $bsz['stat_id']).'</td>
@@ -3472,13 +3473,13 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 <td class="c">'.$bsz['cikk_id'].'</td>
                                 <td>'.$bsz['anyagigenyles_nev'].'</td>
                                 <td>'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
-                                <td class="r">'.$bsz['igmen'].'</td>
+                                <td class="r nowrap">'.number_format($bsz['igmen'], 2, ',', ' ').'</td>
                                 <td class="c">'.$bsz['cikkmee'].'</td>
                                 <td class="c">'.substr(str_replace('-', '.', $bsz['insert_dt']), 0, 10).'</td>
-                                <td class="r" id="td_jhmen_'.$bsz['recid'].'" sorttable_customkey="'.$bsz['jhmen'].'">'.$jhmen.'</td>
-                                <td class="r">'.$bsz['rndmen'].'</td>
-                                <td class="r" id="td_rndear_'.$bsz['recid'].'">'.$bsz['rndear'].'</td>
-                                <td class="r">'.$bsz['vrndear'].'</td>
+                                <td class="r nowrap" id="td_jhmen_'.$bsz['recid'].'" sorttable_customkey="'.$bsz['jhmen'].'">'.$jhmen.'</td>
+                                <td class="r nowrap">'.number_format($bsz['rndmen'], 2, ',', ' ').'</td>
+                                <td class="r nowrap" id="td_rndear_'.$bsz['recid'].'">'.number_format($bsz['rndear'], 4, ',', ' ').'</td>
+                                <td class="r nowrap">'.number_format($bsz['vrndear'], 4, ',', ' ').'</td>
                                 <td class="c">'.erteklista(21, $bsz['kcs_21']).'</td>
                             </tr>
                             ';
@@ -3731,7 +3732,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $statusz = getStatText($tabla, $bsz['stat_id']);
             }
 
-            //Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
+            // Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
             $bold = '';
             if( $bsz['stat_id'] == PRIGENY_STAT_NYITOTT ){
                 $bold    = ' class="b"';
@@ -3751,18 +3752,20 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if($bsz['rendk']){
                 $tipus = '<span class="piros">'.$tipus.'</span>';
             }
-
+//echo '<pre style="font-size: 1.4rem">';
+//print_r($bsz);
+//echo '</pre>';
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
                             <tr>
-                                <td rowspan="2" style="width: 2rem; text-align: center">'.$tipus.'</td>
-                                <td style="width: 10rem">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 10rem">'.$telephely['nev'].'</td>
-                                <td>'.$statusz.'</td>
+                                <td rowspan="2" style="width: 2rem; text-align: center; border: 0;">'.$tipus.'</td>
+                                <td style="width: 10rem; border: 0;">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 10rem; border: 0;">'.$telephely['nev'].'</td>
+                                <td style="border: 0;">'.$statusz.'</td>
                             </tr>
                             <tr>
-                                <td colspan="2">'.$bsz['nev'].'</td>
-                                <td>'.number_format($bsz['bkolt'], 0, '', ' ').' '.get_penznem().'</td>
+                                <td style="border: 0;" colspan="2">'.$bsz['nev'].'</td>
+                                <td style="border: 0;">'.number_format($bsz['bkolt'], 0, '', ' ').' '.get_penznem().'</td>
                             </tr>
                             </table>
                         </a>
@@ -4886,7 +4889,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     if( basename(self()) == 'login.php' ) {
         $oszlopNevek['nev'] = 'Login név';
     }
-    if( basename(self()) == 'eloterj_fb.php' || basename(self()) == 'eloterj_bod.php' ) {
+    if( basename(self()) == 'projektigenyles.php' || basename(self()) == 'eloterj_fb.php' || basename(self()) == 'eloterj_bod.php' ) {
         $oszlopNevek['ikt_szam'] = 'Azonosító';
     }
     if( basename(self()) == 'utemezett_feladatok.php' ) {

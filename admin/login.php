@@ -146,7 +146,7 @@ if( isset($_POST['getLoginok']) ) {
     }
     
     // Felhasználók lekérdezése
-    $loginok = $adatbazis_kapcsolat->s('recid, nev, teljes_nev', 'login', "", 'nev');
+    $loginok = $adatbazis_kapcsolat->s('recid, nev, teljes_nev, beosztas_id', 'login', "", 'nev');
 
     $html = '';
     foreach($loginok as $login) {
@@ -164,7 +164,7 @@ if( isset($_POST['getLoginok']) ) {
                     </div>
                 </div>
                 <div class="dtc">
-                    '.$login['nev'].' ('.$login['teljes_nev'].')
+                    '.$login['teljes_nev'].' ('.erteklista(18, $login['beosztas_id']).')
                 </div>
             </div>
         ');

@@ -2839,6 +2839,19 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                     });
                 break;
 
+                case 'anyagigenylesLeirasHozzaadas':
+                    
+                    szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+                    if( szamlaSorok.length>1 ) {
+                        alert2('Leírást egyszerre csak egy anyagigényléshez lehet hozzáadni!');
+                        return false;
+                    }else{
+                        $('#popupTart').html(data);
+                        popupNyit();
+                    }
+                    
+                break;
+
                 case 'munkalaphoz_adas':
                     $('#popupTart').html(data);
 
@@ -3080,33 +3093,64 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
                 /* Munkalapoknál elvégzett feladat hozzáadása */
                 case 'feladatHozzaad':
+                    
                     $('#popupTart').html(data);
-
-                    var ajax = $.ajax({
+                    
+                    var mehet = true;
+                    var ellenorzes = $.ajax({
                         url : 'munkalap.php',
                         type: 'POST',
                         data: {
-                            recid               : _get('id'),
-                            getMunkalapFeladatok: new Date().getTime()
+                            recid                           : _get('id'),
+                            van_e_feladat_feladat_hozzaad   : Date.now()
                         },
-                        success: function(response) {
+                        success: function (response) {
                             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                             if(response) {
                                 response = JSON.parse(response);
 
                                 if( response.hiba ) {
                                     alert2(response.hiba, response.gomb, response.title);
+                                    mehet = false;
                                     return false;
                                 }
 
-                                $('#insertTable').html(response.html);
                             }
                         }
                     });
+                    $.when( ellenorzes ).then(function() {
+                        
+                        if(mehet){
 
-                    $.when( ajax ).then(function() {
-                        popupNyit();
+                            var ajax = $.ajax({
+                                url : 'munkalap.php',
+                                type: 'POST',
+                                data: {
+                                    recid               : _get('id'),
+                                    getMunkalapFeladatok: new Date().getTime()
+                                },
+                                success: function(response) {
+                                    if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                                    if(response) {
+                                        response = JSON.parse(response);
+
+                                        if( response.hiba ) {
+                                            alert2(response.hiba, response.gomb, response.title);
+                                            return false;
+                                        }
+
+                                        $('#insertTable').html(response.html);
+                                    }
+                                }
+                            });
+                            
+                            $.when( ajax ).then(function() {
+                                popupNyit();
+                            });
+                            
+                        }
                     });
+
                 break;
 
                 /* Munkaidő ráfordításnál táblázat kiíratása */

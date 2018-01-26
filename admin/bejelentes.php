@@ -1039,15 +1039,15 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
-
+        $sorok = $adatbazis_kapcsolat->s('recid megj szerepkor insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
         if( $sorok ) {
             $i = 1;
             foreach($sorok as $sor) {
+                $szerepkor = getErtek('nev', 'szerepkor', 'recid', $sor['szerepkor']);
                 $szamla_html .= nl2('
                     <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                        <div class="dtc">'.nl2br($sor['megj']).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].'</div>
+                        <div class="dtc">'.htmlspecialchars_decode( nl2br($sor['megj']) ).'</div>
+                        <div class="dtc">'.$sor['insert_usr'].' '.$szerepkor.'</div>
                         <div class="dtc">'.$sor['insert_dt'].'</div>
                     </div>
                 ');

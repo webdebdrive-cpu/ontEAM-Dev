@@ -82,6 +82,44 @@ if($tobb_kep){
     }
 }
 
+// Get leírás
+if (isset($_POST['get_leiras'])) {
+    
+    $anyagig = $adatbazis_kapcsolat->s2('igleir', 'anyagigenyles', "`recid`='{$_POST['id']}'");
+    echo json_encode(array(
+        'txt' => str_replace('<br>', "\n", htmlspecialchars_decode( $anyagig['igleir'] ) )
+    ));
+    $weblap->leallit();
+    exit();
+}
+
+// Leírás update
+if (isset($_POST['anyagigenylesLeirasHozzaadas'])) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    if( is_array($idk) ) {
+        $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('igleir'), array($_POST['indok']), "`recid`='{$idk[1]}'");
+        if( $sql === false ) { $db_error = true; }
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
 // Várólistához adás
 if( isset($_POST['varolistahozAdas']) ) {
 
@@ -125,7 +163,6 @@ if( isset($_POST['varolistahozAdas']) ) {
                     echo json_encode(array(
                         'hiba' => 'Csak nyitott státuszú anyagigénylést lehet várólistához adni!'
                     ));
-
                     $weblap->leallit();
                     exit();
                 }
@@ -133,7 +170,6 @@ if( isset($_POST['varolistahozAdas']) ) {
                 echo json_encode(array(
                     'hiba' => 'Státusz nem található!'
                 ));
-
                 $weblap->leallit();
                 exit();
             }
@@ -1518,8 +1554,8 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
 
 
             // Anyagigénylés beszúrása (itt nem kell iktatószámot generálni, mert egyből archiválni fogjuk)
-            $anyagigenyles = $adatbazis_kapcsolat->i('anyagigenyles', array('rndid',  'szallito_id',         'telephely_id',         'cikk_id',            'nev',            'cikkmee',            'stat_id',             'rndmen',         'igmen',         'jhmen',         'erkmen',        'erkear',      'rndear',      'kulsosnek', 'keszpenz', 'erkcimid', 'rnd_dt', 'kcs_21', 'oracikkid', 'aparecid',      'insert_dt',  'insert_usr',                              'update_usr'                             ),
-                                                                      array($rndid,   $_POST['szallito_id'], $_POST['telephely_id'], $anyag['cikkszam'],   $ciktorzs['nev'], $ciktorzs['cikkmee'],  CIKKIGN_STAT_NYITOTT, $anyag['menny'],  $anyag['menny'], $anyag['menny'], $anyag['menny'], $anyag['ear'], $anyag['ear'], $kulsosnek,  1,          1,          'NOW()',   5,       $oracikkid,  $cikkrendfej_id, 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+            $anyagigenyles = $adatbazis_kapcsolat->i('anyagigenyles', array('rndid',  'szallito_id',         'telephely_id',         'cikk_id',            'nev',            'cikkmee',            'stat_id',             'igleir',         'rndmen',         'igmen',         'jhmen',         'erkmen',        'erkear',      'rndear',      'kulsosnek', 'keszpenz', 'erkcimid', 'rnd_dt', 'kcs_21', 'oracikkid', 'aparecid',      'insert_dt',  'insert_usr',                              'update_usr'                             ),
+                                                                      array($rndid,   $_POST['szallito_id'], $_POST['telephely_id'], $anyag['cikkszam'],   $ciktorzs['nev'], $ciktorzs['cikkmee'],  CIKKIGN_STAT_NYITOTT, $anyag['igleir'], $anyag['menny'],  $anyag['menny'], $anyag['menny'], $anyag['menny'], $anyag['ear'], $anyag['ear'], $kulsosnek,  1,          1,          'NOW()',   5,       $oracikkid,  $cikkrendfej_id, 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
                                                     );
             if( $anyagigenyles === false ) { $db_error = true; }
 
@@ -1828,6 +1864,7 @@ require_once('selectek.php');
 
                 $gombok .= nl2('
                     <div class="kijeloltek_muv">
+                        <input type="button" class="gomb" value="Leírás hozzáadása" title="Leírás hozzáadása" onclick="csoportMuvelet(\'anyagigenylesLeirasHozzaadas\')">
                         <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
                         <div class="muv">
                             <ul>
@@ -1875,6 +1912,7 @@ require_once('selectek.php');
             $gombok .= ' <input type="button" class="gomb foGomb" value="Rendelés kép" onclick="window.open(\''.$utvonal.'\')">';
         }
 
+        /* Anyagigénylés nem szerkeszthető egyáltalán
         if( _jog(JOG_ANYAGIGENYLES_KEZEL) ){
 
             // Csak saját bejelentéseit szerkesztheti
@@ -1891,7 +1929,7 @@ require_once('selectek.php');
                     </div>
                 ').$gombok;
             }
-        }
+        }*/
 
         if(isset($_GET['anyagrend'])){
             $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
@@ -2137,7 +2175,7 @@ require_once('selectek.php');
                         $szamla_html .= nl2('
                             <tr >
                                 <td class="l">'.$sor['cikk_id'].'</td>
-                                <td class="l">'.$sor['nev'].'</td>
+                                <td class="l">'.htmlspecialchars_decode($sor['nev']).'</td>
                                 <td class="r">'.number_format($sor['rndear'], 4, ',', ' ').'</td>
                                 <td class="r">'.$sor['rndmen'].'</td>
                                 <td>'.$sor['cikkmee'].'</td>

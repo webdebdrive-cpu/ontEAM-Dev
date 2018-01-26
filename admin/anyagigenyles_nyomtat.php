@@ -7,7 +7,7 @@ if (isset($_GET['nyomtat'])) {
     $idk                 = json_decode($idk, true);
     $idk_impl            = implode(',', $idk);
 
-    //Szállító kiszámítása
+    // Szállító kiszámítása
     $szallito = $adatbazis_kapcsolat->s2('szallito_id kcs_21', 'anyagigenyles', "`recid`='{$idk[1]}'");
 
     $penznem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=21 AND `id`='{$szallito['kcs_21']}'");
@@ -25,11 +25,11 @@ if (isset($_GET['szall'])) {
         $tetelek_html = '
                             <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px">
                             <tr>
-                                <th>Név</th>
-                                <th>Mee</th>
-                                <th>Rendelt mennyiség</th>
-                                <th>Nettó rendelési egységár</th>
-                                <th>Nettó összesen ('.$penznem['info'].')</th>
+                                <th class="l">Név</th>
+                                <th style="width: 20px" class="r">Mee</th>
+                                <th style="width: 20px" class="r">Rendelt mennyi- ség</th>
+                                <th style="width: 20px" class="r">Nettó rendelési egységár</th>
+                                <th style="width: 60px" class="r">Nettó összesen ('.$penznem['info'].')</th>
                             </tr>
                         ';
 
@@ -47,11 +47,11 @@ if (isset($_GET['szall'])) {
 
             $tetelek_html .= '
                             <tr>
-                                <td>'.$a_lek['nev'].'</td>
+                                <td class="b">'.$a_lek['nev'].'</td>
                                 <td class="c">'.$a_lek['cikkmee'].'</td>
-                                <td class="r">'.number_format($rndmen, 2, ',', ' ').'</td>
-                                <td class="r">'.number_format($a_lek['rndear'], 4, ',', ' ').'</td>
-                                <td class="r">'.number_format($rndmen*$a_lek['rndear'], 4, ',', ' ').'</td>
+                                <td class="r" style="white-space: nowrap;">'.number_format($rndmen, 2, ',', ' ').'</td>
+                                <td class="r" style="white-space: nowrap;">'.number_format($a_lek['rndear'], 2, ',', ' ').'</td>
+                                <td class="r" style="white-space: nowrap;">'.number_format($rndmen*$a_lek['rndear'], 0, ',', ' ').'</td>
                             </tr>
                             ';
             $ossz += $rndmen*$a_lek['rndear'];
@@ -60,9 +60,8 @@ if (isset($_GET['szall'])) {
                         <tr>
                             <td style="border: 0"></td>
                             <td style="border: 0"></td>
-                            <td style="border: 0"></td>
-                            <td style="border: 0" class="r b">Mindösszesen:</td>
-                            <td style="border: 0" class="r b">'.number_format($ossz, 4, ',', ' ').'</td>
+                            <td style="border: 0" class="r b" colspan="2">Mindösszesen:</td>
+                            <td style="border: 0; white-space: nowrap;" class="r b">'.number_format($ossz, 0, ',', ' ').'</td>
                         </tr>
                         </table>
                         ';
@@ -80,19 +79,19 @@ if (isset($_GET['szall'])) {
                 <div style="font-size: 14px; margin: 20px 0 3px 0;">
                     Tisztelt szállító!
                 </div>
-                <div style="font-size: 13px; margin: 0 0 3px 0;">
+                <div style="font-size: 12px; margin: 0 0 2px 0;">
                     <b>A szállító levelet vagy a számla másolatát minden esetben hagyja az árú átvevőjénél és a számlán tüntesse fel megrendelőnk számát, ellenkező esetben a számlát nem áll módunkban befogadni!</b>
                 </div>
-                <div style="font-size: 14px; margin: 0 0 5px 0;">
+                <div style="font-size: 13px; margin: 0 0 8px 0;">
                     Megrendeljük Önöktől az alábbi anyagokat.
                 </div>
 
-                <div class="i" style="font-size: 14px">I. Cikkenkénti összesítés:</div>
+                <div class="i" style="font-size: 13px">I. Cikkenkénti összesítés:</div>
                 '.$tetelek_html.'
-                <div class="i" style="font-size: 14px">II. Szállítási címenkénti összesítés:</div>
+                <div class="i" style="font-size: 13px">II. Szállítási címenkénti összesítés:</div>
                 '.szallitasi_cimenkenti_lista($idk_impl).'
 
-                <div style="font-size: 13px; margin: 30px 0 3px 0;">
+                <div style="font-size: 12px; margin: 30px 0 3px 0;">
                     Üdvözlettel,
                     <br>Budapest, '.date_formaz(date('Y-m-d')).'
                 </div>
@@ -102,7 +101,7 @@ if (isset($_GET['szall'])) {
         </div>
             ';
 
-    $keret = get_keret();
+    $keret = get_keret($sorszam.' Megrendelés a szállítónak');
     $html = str_replace('{TARTALOM}', $tartalom, $keret);
     echo nl2($html);
 
@@ -128,7 +127,7 @@ if (isset($_GET['szall'])) {
 // Címenkénti nyomtatási kép
 if (isset($_GET['cim'])) {
 
-    $keret = get_keret();
+    $keret = get_keret($sorszam.' Szállítási címenkénti összesítés');
     $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
     foreach($telephelyek as $telephely){
 
@@ -146,7 +145,7 @@ if (isset($_GET['cim'])) {
                                     <th>Rendelt mennyiség</th>
                                     <th>Nettó rendelési egységár</th>
                                     <th>Nettó összesen ('.$penznem['info'].')</th>
-                                    <th style="width: 200px">Megjegyzés</th>
+                                    <th style="width: 200px">Leírás</th>
                                 </tr>
                             ';
 
@@ -156,7 +155,7 @@ if (isset($_GET['cim'])) {
             foreach($anyagok as $anyag){
 
                 $rndmen = 0;
-                $anyag_lek = $adatbazis_kapcsolat->s('cikk_id nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `cikk_id`='{$anyag['cikk_id']}' AND `telephely_id`='{$telephely['id']}'");
+                $anyag_lek = $adatbazis_kapcsolat->s('cikk_id nev cikkmee rndmen rndear igleir', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `cikk_id`='{$anyag['cikk_id']}' AND `telephely_id`='{$telephely['id']}'");
                 foreach($anyag_lek as $a_lek){
                     $rndmen += $a_lek['rndmen'];
                 }
@@ -165,10 +164,10 @@ if (isset($_GET['cim'])) {
                                     <td>'.$a_lek['cikk_id'].'</td>
                                     <td>'.$a_lek['nev'].'</td>
                                     <td class="c">'.$a_lek['cikkmee'].'</td>
-                                    <td class="r">'.number_format($rndmen, 2, ',', ' ').'</td>
-                                    <td class="r">'.number_format($a_lek['rndear'], 4, ',', ' ').'</td>
-                                    <td class="r">'.number_format($rndmen*$a_lek['rndear'], 4, ',', ' ').'</td>
-                                    <td></td>
+                                    <td class="r" style="white-space: nowrap;">'.number_format($rndmen, 2, ',', ' ').'</td>
+                                    <td class="r" style="white-space: nowrap;">'.number_format($a_lek['rndear'], 2, ',', ' ').'</td>
+                                    <td class="r" style="white-space: nowrap;">'.number_format($rndmen*$a_lek['rndear'], 0, ',', ' ').'</td>
+                                    <td>'.htmlspecialchars_decode(nl2br2($a_lek['igleir'])).'</td>
                                 </tr>
                                 ';
                 $ossz += $rndmen*$a_lek['rndear'];
@@ -180,7 +179,7 @@ if (isset($_GET['cim'])) {
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td class="r b">'.number_format($ossz, 4, ',', ' ').'</td>
+                                <td class="r b" style="white-space: nowrap;">'.number_format($ossz, 0, ',', ' ').'</td>
                                 <td></td>
                             </tr>
                             </table>
@@ -215,7 +214,8 @@ if (isset($_GET['cim'])) {
 
 // Oracle cikkszám nyomtatási kép
 if (isset($_GET['oracle'])) {
-    $keret = get_keret();
+    
+    $keret = get_keret($sorszam.' Oracle cikkszámonkénti összesítés');
     $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
     foreach($telephelyek as $telephely){
 
@@ -236,24 +236,25 @@ if (isset($_GET['oracle'])) {
             $ossz = 0;
             $anyagok = $adatbazis_kapcsolat->s('distinct oracikkid', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$telephely['id']}'");
             foreach($anyagok as $anyag){
-
-                $rndmen = 0;
+                $rndmen   = 0;
+                $ossz_tmp = 0;
                 $anyag_lek = $adatbazis_kapcsolat->s('cikk_id nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `oracikkid`='{$anyag['oracikkid']}' AND `telephely_id`='{$telephely['id']}'");
                 foreach($anyag_lek as $a_lek){
-                    $rndmen += $a_lek['rndmen'];
+                    $ossz_tmp += $a_lek['rndmen']*$a_lek['rndear'];
                 }
+                $ossz += $ossz_tmp;
+
                 $tetelek_html .= '
                                 <tr>
                                     <td>'.$anyag['oracikkid'].'</td>
-                                    <td class="r">'.number_format($rndmen*$a_lek['rndear'], 4, ',', ' ').'</td>
+                                    <td class="r">'.number_format($ossz_tmp, 0, ',', ' ').'</td>
                                 </tr>
                                 ';
-                $ossz += $rndmen*$a_lek['rndear'];
             }
             $tetelek_html .= '
                             <tr>
                                 <td class="b">Mindösszesen:</td>
-                                <td class="r b">'.number_format($ossz, 4, ',', ' ').'</td>
+                                <td class="r b" style="white-space: nowrap;">'.number_format($ossz, 0, ',', ' ').'</td>
                             </tr>
                             </table>
                             ';
@@ -302,17 +303,17 @@ function get_fejlec_top($sorszam, $lapszammal){
                     <table class="full">
                     <tr>
                         <td style="padding: 4px 4px 0 0">
-                            <img src="../elemek/dh_logo.png" alt="Logo">
+                            <img src="../elemek/dh_logo.png" alt="Logo" width="50">
                         </td>
                         <td style="font-size: 11px">
                             Danubius Zrt.
-                            <br>Műszaki szolgáltató központ
+                            <br>Műszaki Szolgáltató Központ
                             <br>ontEAM
                         </td>
                     </tr>
                     </table>
                 </td>
-                <td class="b c" style="width: 34%">
+                <td class="b c" style="width: 34%; font-size: 14px">
                     Megrendelés sz.: '.$sorszam.'
                 </td>
                 <td class="r" style="font-size: 11px; width: 33%; padding-right: 10px">
@@ -337,12 +338,12 @@ function get_fejlec($szallito){
 
     return '
             <div style="padding: 0 15px 0 15px">
-                <table style="margin: auto; margin-top: 20px; width: 95%">
+                <table style="margin: auto; margin-top: 20px; width: 100%">
                 <tr>
-                    <td class="b" style="font-size: 13px; width: 50%; padding: 0 10px">
+                    <td class="b" style="font-size: 13px; width: 50%; padding: 0 5px">
                         Szállító:
                     </td>
-                    <td class="b" style="font-size: 13px; width: 50%; padding: 0 10px">
+                    <td class="b" style="font-size: 13px; width: 50%; padding: 0 5px">
                         Megrendelő:
                     </td>
                 </tr>
@@ -350,14 +351,14 @@ function get_fejlec($szallito){
 
                 <table class="border full" style="margin: auto; margin-top: 0;">
                 <tr>
-                    <td class="vat" style="font-size: 12px; width: 50%; padding: 10px; border: 1px solid #ddd;">
+                    <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">
                         Név: '.$szallito['nev'].'
                         <br>Kapcs.: '.$szallito['knev'].'
                         <br>Tel.: '.$szallito['tel'].'
                         <br>Fax.: '.$szallito['tel2'].'
                         <br>Cím.: '.$szallito['isz'].' '.$szallito['varos'].', '.$szallito['utca'].'
                     </td>
-                    <td class="vat" style="font-size: 12px; width: 50%; padding: 10px; border: 1px solid #ddd;">
+                    <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">
                         Név: Műszaki szolgáltató központ
                         <br>Üi.: '.$_SESSION[get_db_tabla().'teljes_nev'].'
                         '.$tel_kieg.'
@@ -425,7 +426,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                                     <br>Adószám:
                                     <br>Számlaküldési cím:
                                 </td>
-                                <td style="border: 1px solid #ddd;">
+                                <td style="border: 1px solid #ddd;" colspan="2">
                                     '.$szall_cim.'
                                     <br>'.$szl.' '.$cim.'
                                     <br>'.NYOMTATAS_ADOSZAM.'
@@ -440,7 +441,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
             foreach($anyag_lek as $a_lek){
 
                 $rndmen = 0;
-                $anyag_lek_db = $adatbazis_kapcsolat->s('nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$anyag['telephely_id']}' AND `cikk_id`='{$a_lek['cikk_id']}'");
+                $anyag_lek_db = $adatbazis_kapcsolat->s('nev cikkmee rndmen rndear igleir', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$anyag['telephely_id']}' AND `cikk_id`='{$a_lek['cikk_id']}'");
                 foreach($anyag_lek_db as $a_lek_db){
                     $rndmen += $a_lek_db['rndmen'];
                 }
@@ -449,6 +450,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                                 <tr>
                                     <td class="vat c" style="border: 1px solid #ddd;">'.number_format($rndmen, 2, ',', '.').' '.$a_lek_db['cikkmee'].'</td>
                                     <td class="vat" style="border: 1px solid #ddd;">'.$a_lek_db['nev'].'</td>
+                                    <td class="vat" style="border: 1px solid #ddd;">'. htmlspecialchars_decode(nl2br2($a_lek_db['igleir'])) .'</td>
                                 </tr>
                                 ';
             }
@@ -456,7 +458,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
             //Telephelyek után egy kis elválasztó
             $szallcim_html .= '
                             <tr>
-                                <td colspan="2" style="border: 1px solid #ddd; padding: 7px; border-left: 0; border-right: 0; border-bottom: 0"></td>
+                                <td colspan="3" style="border: 1px solid #ddd; padding: 7px; border-left: 0; border-right: 0; border-bottom: 0"></td>
                             </tr>
                             ';
         }
@@ -472,25 +474,30 @@ function get_alairasok(){
     return '
                 <table class="full" style="font-size: 12px; margin-top: 80px">
                 <tr>
-                    <td class="c">
-                        .................................................
-                        <br>Csanádi Péter
-                        <br>MSzK vezető
+                    <td class="l">
+                        ......................................................................
+                        <div class="c" style="padding-right: 60px">
+                            Kővágó Levente
+                            <br>Diszpécser központ vezető
+                        </div>
                     </td>
-                    <td class="c">
-                        .................................................
-                        <br>Kővágó Levente
-                        <br>Diszpécser központ vezető
+                    <td class="r">
+                        ......................................................................
+                        <div class="c" style="padding-left: 60px">
+                            Sánta Zoltán
+                            <br>Diszpécser központ vezető helyettes
+                        </div>
                     </td>
                 </tr>
                 </table>
         ';
 }
 
-function get_keret(){
+function get_keret($title){
+    
     return '
 <head>
-    <title></title>
+    <title>'.$title.'</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
     <link href="../css/admin.css" rel="stylesheet" type="text/css">
@@ -504,7 +511,7 @@ function get_keret(){
         <div class="footer">
             <div class="dtc padd">
             </div>
-            <div class="dtc r padd" style="font-size: 11px">
+            <div class="dtc r padd" style="font-size: 7px">
                 '.$_SESSION[get_db_tabla().'user'].'
                 '.date('Y.m.d H:i:s').'
             </div>

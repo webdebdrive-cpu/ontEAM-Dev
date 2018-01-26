@@ -13,6 +13,8 @@ body{
     background: #fff;
 }
 
+.vat{ vertical-align: top; }
+
 div.a4_allo {
     background: #fff;
     border: 0.1rem solid #ccc;
@@ -47,7 +49,6 @@ div.lap_alja{
 
 div.footer{
     bottom: 0;
-    border-top: 1px solid #333333;
     display: table;
     font-size: 11px;
     height: 30px;
@@ -64,5 +65,7 @@ img.nyomtat_ikon{
 
 table.border td, table.border th{
     border: 1px solid #ddd;
+    font-size: 11px;
     padding: 3px 0.5rem;
+    vertical-align: top;
 }
