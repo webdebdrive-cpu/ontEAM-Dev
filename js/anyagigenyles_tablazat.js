@@ -44,8 +44,9 @@ $(document).on('blur keyup', '.szamla_cont_tabla tbody input', function(e) {
     
 });
 
-/* Form modosítva változó beállítása: minden egyes billentyű leutésre mod clastt keresünk. Ha találunk, akkor módosítva van a form */
+/* Form modosítva változó beállítása: minden egyes billentyű leutésre mod classt keresünk. Ha találunk, akkor módosítva van a form */
 $(document).on('keyup', '.szamla_cont_tabla input', function(e) {
+
     if( $('.szamla_cont_tabla input.mod').length ){
         formModositva = true;
     }else{
@@ -55,17 +56,20 @@ $(document).on('keyup', '.szamla_cont_tabla input', function(e) {
     /* Enterre újraszámoljuk a táblázat alatti összesítsét */
     osszeg = 0;
     if (e.which == KEY_ENTER) {
+
         $('.szamla_cont_tabla tbody tr').each(function () {
             id = $(this).attr('data-recid');
-            /* Ha van input, akkor annak az rétéke */
+
+            /* Ha van input, akkor annak az értéke */
             if( $('#jhmen_'+id).length ){
-                jhmen = Number( $('#jhmen_'+id).val().replace(',', '.') );
+                jhmen = Number( $('#jhmen_'+id).val().replace(',', '.').replace(' ', '') );
+
             /* Ha nincs input, akkor a TD értéke */
             }else{
-                jhmen = Number( $('#td_jhmen_'+id).html().replace(',', '.'));
+                jhmen = Number( $('#td_jhmen_'+id).html().replace(',', '.').replace(' ', ''));
             }
 
-            rndear  = Number( $('#td_rndear_'+id).html().replace(',', '.'));
+            rndear  = Number( $('#td_rndear_'+id).html().replace(',', '.').replace(' ', ''));
             osszeg += jhmen*rndear;
         });
         $('#rend_ertek').html( ezresek(osszeg, 0, '', ' ') );

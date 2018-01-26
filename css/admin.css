@@ -1764,6 +1764,7 @@ table.szamla_cont_tabla tr td{
     padding: 0.1rem 0.2rem;
 }
 table.szamla_cont_tabla tfoot tr td{
+    font-size: 1.6rem;
     padding: 1rem 0.2rem;
 }
 table.szamla_cont_tabla tr.kijelolve, table.szamla_cont_tabla tr.kijelolve:hover{

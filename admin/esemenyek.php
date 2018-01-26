@@ -1619,6 +1619,8 @@ if (isset($_GET['id'])) {
     $cikktorzs     = $adatbazis_kapcsolat->s2('cikkmee', 'cikktorzs', "`id`='{$anyagigenyles['cikk_id']}'");
     $cikkmee       = $cikktorzs['cikkmee'];
 }
+
+$mezonev = 'Jóváhagyott mennyiség:';
 $style = '';
 if (isset($_GET['modosit'])) {
     $igenyles = $adatbazis_kapcsolat->s2('stat_id', $megnevezes, "`recid`='{$_GET['id']}'");
@@ -1629,6 +1631,7 @@ if (isset($_GET['modosit'])) {
     
     if( $igenyles['stat_id'] == CIKKIGN_STAT_ARAZVA && _jog(JOG_ANYAGIGENYLES_JOVAHAGY) ){
         $style = 'font-size: 1.4rem;';
+        $mezonev = 'Jóváhagyás alatti érték:';
     }
 }
 
@@ -1645,7 +1648,7 @@ $anyagigenyles_tomb = $akt_tomb = array(
     array('type' => 'text',                     'megn' => 'Cikk név:',                      'name' => 'nev',            'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'cikktorzs', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
     array('type' => 'text',                     'megn' => 'Igényelt mennyiség:',            'name' => 'igmen',          'szuro' => 1,   'disabled' => 1,   'class' => 'f_num', 'post' => ' '.$cikkmee.'<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
     array('type' => 'checkbox',                 'megn' => 'RB-s anyag:',                    'name' => 'kulsosnek',      'szuro' => 1,   'disabled' => 1),
-    array('type' => 'text',                     'megn' => 'Jóváhagyott mennyiség:',         'name' => 'jhmen',          'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'post' => ' '.$cikkmee.'<span style="margin-left: 2rem"></span>', 'osszevon' => 1, 'style' => $style),
+    array('type' => 'text',                     'megn' => $mezonev,                         'name' => 'jhmen',          'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'post' => ' '.$cikkmee.'<span style="margin-left: 2rem"></span>', 'osszevon' => 1, 'style' => $style),
     array('type' => 'text',                     'megn' => $tav_4.'Rendelés szám:',          'name' => 'rndid',          'szuro' => 1,   'disabled' => 1,   'style' => 'width: 9rem'),
     array('type' => 'text',                     'megn' => 'Rendelt mennyiség:',             'name' => 'rndmen',         'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="2"',   'post' => ' '.$cikkmee.'<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
     array('type' => 'text',                     'megn' => $tav_12.'Rendelési egységár:',    'name' => 'rndear',         'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="4"',   'post' => ' '.  get_penznem()),

@@ -3418,6 +3418,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             $oszl['nev'] .= '<span id="sorttable_sortfwdind">&nbsp;▾</span>';
                         }
                     }
+                    
                     $html .= '<th id="'.$oszl['id'].'"'.$class.'>'.$oszl['nev'].'</th>';
                 }
                 $html .= nl2('</tr>
@@ -3456,9 +3457,9 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 // Anyagigénylés jog és Árazva státusz esetén a jóváhagyott mennyiség helyben szerkeszthető
                 $jhmen = number_format($bsz['jhmen'], 2, ',', ' ');
                 if ( $bsz['stat_id']==CIKKIGN_STAT_ARAZVA && _jog(JOG_ANYAGIGENYLES_JOVAHAGY)) {
-                    $jhmen = '<input class="r f_num" data-tort="2" data-recid="'.$bsz['recid'].'" type="text" id="jhmen_'.$bsz['recid'].'" value="'.number_format($bsz['rndmen'], 0, ',', ' ').'" style="width: 6rem; font-size: 1.4rem;" onclick="select()">';
+                    $jhmen = '<input class="r f_num" data-tort="2" data-recid="'.$bsz['recid'].'" type="text" id="jhmen_'.$bsz['recid'].'" value="'.number_format($bsz['rndmen'], 2, ',', ' ').'" style="width: 7rem; font-size: 1.4rem;" onclick="select()">';
                 }
-                $eredeti_ertekek['jhmen_'.$bsz['recid']] = number_format($bsz['rndmen'], 0, ',', ' ');
+                $eredeti_ertekek['jhmen_'.$bsz['recid']] = number_format($bsz['rndmen'], 2, ',', ' ');
 
                 // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
                 if($frissit){
@@ -3496,7 +3497,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <tr>
                                 <td colspan="9"></td>
                                 <td colspan="2" class="r b">Rendelési érték:</td>
-                                <td class="r b" id="rend_ertek">'.number_format($rendelesi_ertek, 0, ',', ' ').'</td>
+                                <td class="r b" id="rend_ertek" style="white-space: nowrap;">'.number_format($rendelesi_ertek, 0, ',', ' ').'</td>
                                 <td colspan="3" class="r"></td>
                             </tr>
                             </tfoot>
