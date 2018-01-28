@@ -468,7 +468,7 @@ $(function() {
         return false;
     });
 
-    // Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk
+    // Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk. Ehhez be kell állítani a tabndexeket
     $(':input[type!="hidden"]').each(function (i) {
         $(this).attr('tabindex', i + 1);
     });
@@ -545,7 +545,7 @@ $(function() {
 
             mezo_nev = $(this).attr('name');
             stop = false;
-            $(this).parents('form').find('input, select, textarea').filter(':not(:disabled)').filter(':not(:readonly)').each(function() {
+            $(this).parents('form').find('input, select, textarea').filter(':not(:disabled)').filter(":not([readonly='readonly'])").each(function() {
 
                 var name = $(this).attr('name'),
                     type = $(this).attr('type'),
@@ -576,7 +576,10 @@ $(function() {
 
     /* Tallózásnál jelezzük, hogy a fájl ki lett választva */
     $(document).on('change', 'div.jsff input[type=file]', function(e) {
-        $(this).parent().find('span').html('Fájl kiválasztva');
+        /* Új feltöltésnél (pl. bejelentésnél) ne tegye */
+        if(!_get('uj')){
+            $(this).parent().find('span').html('Fájl kiválasztva');
+        }
     });
 
     $(document).on('click', '.kijeloltek_muv', function(e) {
@@ -1344,6 +1347,7 @@ $(function() {
     });
 
     $(document).on('click', '.f_anyagigenyles_mezok_kitolt', function(e) {
+        
         recid_egyedi_azon   = $(this).attr('data-recid_egyedi_azon');
         telephely_id        = $(this).attr('data-telephely_id');
         cikk_id             = $(this).attr('data-cikk_id');
@@ -1353,12 +1357,14 @@ $(function() {
 
         $('#telephely_id')  .val(telephely_id);
         $('#nev_autocomp')  .val(nev_autocompl);
+        $('#nev_autocomp')  .attr('data-original-val', cikk_id);
         $('#nev')           .val(cikk_id);
         $('#igmen')         .val(igmen);
         $('.insertMee')     .html(mee);
 
         $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
         $('#megsem_gomb').removeAttr('disabled');
+        
     });
     $(document).on('click', '.f_anyag_rendelkezesre_all', function(e) {
 
@@ -2143,22 +2149,19 @@ function varolistabolKivetel(csak_kerdezunk) {
                             response = JSON.parse(response);
 
                             if( response.hiba ) {
-                                if( response.gomb ) {
-                                    alert2(response.hiba, response.gomb);
-                                } else {
-                                    alert2(response.hiba, '', 'Hiba');
-                                }
-
+                                alert2(response.hiba, response.gomb, 'Hiba');
                                 return false;
                             }
 
-                            kijelolesEltavolit();
+                            location.reload();
+                            /*kijelolesEltavolit();
                             szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
-                            /* navpanel frissítése (minden kijelölt sort) */
+                            
                             szamlaSorok.each(function() {
                                 szamlaSorFrissit(page, $(this).attr('data-recid'));
                             });
                             alert2();
+                            */
                         }
                     }
                 });
@@ -2878,6 +2881,54 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         popupNyit();
                     }
                     
+                break;
+                
+                /* Ellenőrizzük, hogy van-e várólistás vagy sem, ha van hiba */
+                case 'anyagigenylesVarolistahozAdas':
+                    
+                    
+                    szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+                    idk = {};
+
+                    var i = 1;
+                    szamlaSorok.each(function() {
+                        var id = $(this).attr('data-recid');
+
+                        idk[i] = id;
+                        i++;
+                    });
+
+                    var mehet = true;
+                    ellenorzes = $.ajax({
+                        url : 'anyagigenyles.php',
+                        type: 'POST',
+                        data: {
+                            idk                 : JSON.stringify(idk),
+                            van_e_varoslista    : Date.now()
+                        },
+                        success: function(response){
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                            if(response){
+                                response = JSON.parse(response);
+
+                                if( response.hiba ) {
+                                    alert2(response.hiba, response.gomb, 'Hiba');
+                                    mehet = false;
+                                    return false;
+                                }
+                                
+                                
+                            }
+                        }
+                    });
+                    
+                    $.when( ellenorzes ).then(function() {
+                        if(mehet){
+                            $('#popupTart').html(data);
+                            popupNyit();
+                            return true;
+                        }
+                    });
                 break;
 
                 case 'munkalaphoz_adas':

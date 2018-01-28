@@ -101,7 +101,7 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 
 // Ha olyan $_GET['id']-t akarnék megnézni, ami az aktuális SQL-nek nem is eredménye, akkor kinullázzuk: ne lehessen leskelődni
 if($_GET['id']){
-    szamla_lista(); // Ezt azért futtatjuk le, hogy az aktuális oldalnak megfelelő $_SESSION['akt_sql'] jöjjön létre, hogy tudjunk ID-t ellenőrizni.
+    szamla_lista('', '', '', 'csak SQL miatt'); // Ezt azért futtatjuk le, hogy az aktuális oldalnak megfelelő $_SESSION['akt_sql'] jöjjön létre, hogy tudjunk ID-t ellenőrizni.
     $van_getid = false;
     $akt_sql = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
     while( $akt_sor = mysqli_fetch_assoc($akt_sql) ){

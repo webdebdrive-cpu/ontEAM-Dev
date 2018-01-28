@@ -114,7 +114,6 @@ if( isset($_GET['folyamatban_munkak']) ) {
     }
 
     $bejelentesek = $adatbazis_kapcsolat->s('ikt_szam surgos telephely_id obj_id hiba_id hiba_text', 'bejelentes', "`telephely_id` = '{$telephely_id}' AND `obj_id` = '{$obj_id}'".$where);
-
     if( $bejelentesek ) {
         $html = nl2('
             <div class="mobilkeret">
@@ -198,7 +197,6 @@ if( isset($_POST['bejelentesElutasit']) ) {
             echo json_encode(array(
                 'hiba' => 'Csak Kész, igazolás alatti bejelentések utasíthatók el!',
             ));
-
             $weblap->leallit();
             exit();
         }
@@ -223,6 +221,7 @@ if( isset($_POST['bejelentesElutasit']) ) {
             }
 
             if( !$db_error ) {
+
                 mysqli_commit($db_kapcs);
                 echo json_encode(array(
                     'statusz' => 'siker'
@@ -248,14 +247,10 @@ if( isset($_POST['bejelentesIgazolas']) ) {
     mysqli_autocommit($db_kapcs, false);
 
     if( $recid ) {
-        $sql = $bejelentes = $adatbazis_kapcsolat->s('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
-
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
+        if( $bejelentes === false ) { $db_error = true; }
 
         if( $bejelentes ) {
-            $bejelentes = $bejelentes[0];
 
             if( $bejelentes['stat_id'] != BEJELENTES_STAT_KESZ_IG ) {
                 echo json_encode(array(
@@ -285,13 +280,11 @@ if( isset($_POST['bejelentesIgazolas']) ) {
 
             if( !$db_error ) {
                 mysqli_commit($db_kapcs);
-
                 echo json_encode(array(
                     'statusz' => 'siker'
                 ));
             } else {
                 mysqli_rollback($db_kapcs);
-
                 echo json_encode(array(
                     'hiba' => tranzakcioHiba()
                 ));
@@ -635,14 +628,14 @@ require_once('selectek.php');
         if( $sor['stat_id']==BEJELENTES_STAT_NYITOTT && _jog(JOG_BEJELENTES_ELUTASIT) ) {
             $gombok .= nl2('
                             <script> gomb_b_elut = \'<input type="button" class="gomb zold" onclick="csoportMuvelet(\\\'elutasitas\\\');" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
-                            <input type="button" class="gomb" value="Bejelentés elutasítása" title="Bejelentés elutasítása" onclick="alert2(\'Biztosan elutasítja a bejelentést?\', gomb_b_elut);">
+                            <input type="button" class="gomb modositaskor_rejt" value="Bejelentés elutasítása" title="Bejelentés elutasítása" onclick="alert2(\'Biztosan elutasítja a bejelentést?\', gomb_b_elut);">
                         ');
         }
 
         // Reklamációk
         if( $sor['stat_id']==BEJELENTES_STAT_VIZSG_ALATT && _jog(JOG_BEJELENTES_VIZSGAL) ) {
-            $gombok .= '<input type="button" class="gomb" value="Reklamáció elfogadása" onclick="bejelentesReklamacioElfogad(\'csak kérdezünk még\');"> ';
-            $gombok .= '<input type="button" class="gomb" value="Reklamáció elutasítása" onclick="csoportMuvelet(\'bejelentesReklamacioElutasit\');"> ';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Reklamáció elfogadása" onclick="bejelentesReklamacioElfogad(\'csak kérdezünk még\');"> ';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Reklamáció elutasítása" onclick="csoportMuvelet(\'bejelentesReklamacioElutasit\');"> ';
         }
 
         // Törlés gomb hibaüzenetei
@@ -701,8 +694,8 @@ require_once('selectek.php');
         if( $sor['stat_id']==BEJELENTES_STAT_KESZ_IG && _jog(JOG_BEJELENTES_KEZEL) ) {
             $gombok .= nl2('
                 <div id="kmCont">
-                    <input type="button" class="gomb" value="Igazolás" onclick="bejelentesIgazolas( \''.$sor['recid'].'\', \'Csak kérdezünk még\' );">
-                    <input type="button" class="gomb" value="Igazolás elutasítása" onclick="csoportMuvelet(\'bejelentesElutasit\');">
+                    <input type="button" class="gomb modositaskor_rejt" value="Igazolás" onclick="bejelentesIgazolas( \''.$sor['recid'].'\', \'Csak kérdezünk még\' );">
+                    <input type="button" class="gomb modositaskor_rejt" value="Igazolás elutasítása" onclick="csoportMuvelet(\'bejelentesElutasit\');">
                 </div>
             ');
         }
@@ -710,7 +703,7 @@ require_once('selectek.php');
         // Munkalap készítése
         if( ($sor['stat_id']==BEJELENTES_STAT_NYITOTT || $sor['stat_id']==BEJELENTES_STAT_FOLYAMATBAN) && _jog(JOG_MUNKALAP_KESZITHET) ) {
             $gombok .= nl2('
-                <input type="button" id="munkalapEgyeni" class="gomb" value="Munkalap készítése" onclick="munkalapKeszit(\'csak kérdezünk még\')" title="Munkalap készítése">
+                <input type="button" id="munkalapEgyeni" class="gomb modositaskor_rejt" value="Munkalap készítése" onclick="munkalapKeszit(\'csak kérdezünk még\')" title="Munkalap készítése">
             ');
         }
 
@@ -987,10 +980,15 @@ require_once('selectek.php');
                     // Helység
                     $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
                     $helyseg = $helyseg[0]['nev'];
-
+                    
+                    $ikt_szam = '<a href="munkalap.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a>';
+                    if( !_jog(JOG_MUNKALAP_MEGTEKINT) && !_jog(JOG_MUNKALAP_MEGTEKINT_SZALL) && !_jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ){
+                        $ikt_szam = $sor['ikt_szam'];
+                    }
+                    
                     $szamla_html .= nl2('
                         <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                            <div class="dtc"><a href="munkalap.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a></div>
+                            <div class="dtc">'.$ikt_szam.'</div>
                             <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
                             <div class="dtc">'.$sor['insert_dt'].'</div>
                             <div class="dtc">'.getStatText('munkalap', $sor['stat_id']).'</div>

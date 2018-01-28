@@ -1,23 +1,21 @@
 <?php
-/*Konstansok*/
-
-
-//Általános konstansok
+// Általános konstansok
 define('NYOMTATAS_ADOSZAM',  '10219522-2-44' );
 define('NYOMTATAS_FIX_CIM',         1040     );
 define('NYOMTATAS_KIVETELES_CIM',   2032     );
 
-/* Státuszok */
-//Bejelentés státuszok
-define('BEJELENTES_STAT_NYITOTT',       '01');//sorrend
-define('BEJELENTES_STAT_FOLYAMATBAN',   '02');//2
-define('BEJELENTES_STAT_ELUTASITVA',    '03');//5
-define('BEJELENTES_STAT_VARAKOZO',      '04');//6
-define('BEJELENTES_STAT_KESZ_IG',       '05');//3
-define('BEJELENTES_STAT_VIZSG_ALATT',   '06');//4
-define('BEJELENTES_STAT_LEZART',        '07');//7
+// Státuszok
+// Bejelentés státuszok
+define('BEJELENTES_STAT_NYITOTT',       '01');
+define('BEJELENTES_STAT_FOLYAMATBAN',   '02');
+define('BEJELENTES_STAT_ELUTASITVA',    '03');
+define('BEJELENTES_STAT_VARAKOZO',      '04');
+define('BEJELENTES_STAT_KESZ_IG',       '05');
+define('BEJELENTES_STAT_VIZSG_ALATT',   '06');
+define('BEJELENTES_STAT_LEZART',        '07');
 
-//Anyagigénylés státuszok
+// Anyagigénylés státuszok
+define('CIKKIGN_STAT_VARAKOZO',          '01');
 define('CIKKIGN_STAT_NYITOTT',           '05');
 define('CIKKIGN_STAT_MEGR_OSSZEALL',     '10');
 define('CIKKIGN_STAT_ARAZVA',            '20');
@@ -28,11 +26,10 @@ define('CIKKIGN_STAT_BEERKEZETT',        '40');
 define('CIKKIGN_STAT_SZLA_BEERK',        '45');
 define('CIKKIGN_STAT_LEZART',            '50');
 define('CIKKIGN_STAT_TOROLT',            '51');
-define('CIKKIGN_STAT_VARAKOZO',          '52');
 define('CIKKIGN_STAT_NEM_ERKEZETT',      '90');
 define('CIKKIGN_STAT_ELUTASITVA',        '91');
 
-//Cikkrendfej státuszok
+// Cikkrendfej státuszok
 define('CIKKRNDFEJ_STAT_MEGRENDELVE',    '30');
 define('CIKKRNDFEJ_STAT_RESZBEN_BEERK',  '35');
 define('CIKKRNDFEJ_STAT_BEERKEZETT',     '40');
@@ -43,12 +40,12 @@ define('CIKKRNDFEJ_STAT_VARAKOZO',       '52');
 define('CIKKRNDFEJ_STAT_ANYAG_NEM',      '90');
 define('CIKKRNDFEJ_STAT_ELUTASITVA',     '91');
 
-//Munkalap Anyagigénylés státuszok
+// Munkalap Anyagigénylés státuszok
 define('DISZPNAG_STAT_VAN_ANYAG',       '00');
 define('DISZPNAG_STAT_ANYAGRA_VAR',     '01');
 define('DISZPNAG_STAT_ANYAG_IGENYELVE', '02');
 
-//Előterjesztés (FB) státuszok
+// Előterjesztés (FB) státuszok
 define('ELOT_FB_STAT_NYITOTT',              '01');
 define('ELOT_FB_STAT_VEGLEGESITVE',         '02');
 define('ELOT_FB_STAT_DONT_ROG',             '03');

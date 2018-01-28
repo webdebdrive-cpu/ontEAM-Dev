@@ -751,6 +751,7 @@ if( isset($_POST['munkalapKeszre']) ) {
         }
 
         // Munkalaphoz kapcsolódó bejelentés
+        $mail_megy = array();
         $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '{$recid}'");
         if( $bejelentesek === false ) { $db_error = true; }
 
@@ -782,6 +783,7 @@ if( isset($_POST['munkalapKeszre']) ) {
                     // Lekérdezzük a bejelentéseit
                     foreach($bejelentesek as $bejelentes) {
                         // Átállítjuk a bejelentések státuszát Igazolás alatt
+                        array_push($mail_megy, $bejelentes['bejelentes_id']);
                         if( !addStatusz( 'bejelentes_statusz', $bejelentes['bejelentes_id'], BEJELENTES_STAT_KESZ_IG ) ) {
                             $db_error = true;
                         }
@@ -794,6 +796,7 @@ if( isset($_POST['munkalapKeszre']) ) {
                 // Lekérdezzük a bejelentéseit
                 foreach($bejelentesek as $bejelentes) {
                     // Átállítjuk a bejelentések státuszát Igazolás alatt
+                    array_push($mail_megy, $bejelentes['bejelentes_id']);
                     if( !addStatusz( 'bejelentes_statusz', $bejelentes['bejelentes_id'], BEJELENTES_STAT_KESZ_IG ) ) {
                         $db_error = true;
                     }
@@ -803,9 +806,25 @@ if( isset($_POST['munkalapKeszre']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
+            
+            // Levélküldés
+            foreach($mail_megy as $bejelentes_id){
+                $valasz = level_felkeszit_es_kuld('bejelentes', $bejelentes_id, _jog(JOG_BEJELENTES_SAJAT_RESZL));
+                if( substr($valasz, 0, 4)=='Hiba' ){
+                    echo json_encode(array(
+                        'hiba'  => $valasz,
+                        'title' => 'Hiba',
+                    ));
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+            mysqli_commit($db_kapcs);
+            
             echo json_encode(array(
                 'statusz' => 'siker'
             ));
+            
         } else {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
@@ -4439,6 +4458,15 @@ if (isset($_POST['munkalapHIUtemez'])) {
                                                     array($datum,    trim($megj."\r\n".$munkalap['text'])),
                                                     "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
+        
+        // Ha van bejelentése, akkor azt várakozóra kell tenni
+        $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
+        if( $bejelentesek === false ) { $db_error = true; }
+        foreach($bejelentesek as $bej){
+            if( addStatusz( 'bejelentes_statusz', $bej['bejelentes_id'], BEJELENTES_STAT_VARAKOZO ) === false ) {
+                $db_error = true;
+            }
+        }
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -4459,7 +4487,7 @@ if (isset($_POST['munkalapHIUtemez'])) {
     exit();
 }
 
-// Hataáridőre ütemezésből vissza nyitottba
+// Határidőre ütemezésből vissza nyitottba
 if (isset($_POST['munkalapVisszaNyitott'])) {
     
     $db_error = false;
@@ -4470,12 +4498,26 @@ if (isset($_POST['munkalapVisszaNyitott'])) {
     if( $statusz === false ) { $db_error = true; }
 
     // Munkalaphoz tartozó Bejelentések státuszát pedig folyamatbanra léptetjük
-    if($page=='munkalap'){
-        $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$id}'");
-        foreach($bejelentesek as $bej){
+    $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
+    foreach($bejelentesek as $bej){
+
+        // Adott bejelentésenk van-e több munkalapja?
+        $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bej['bejelentes_id']}' AND `munkalap_id`!='{$recid}'");
+        if( $munkalapok === false ) { $db_error = true; }
+        $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
+
+        $hataridore_utemezett = '';
+        if($munkalapok){
+            $hataridore_utemezett = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_VARAKOZO."' AND `recid` IN (".implode(',', $munkalapok).")");
+            if( $hataridore_utemezett === false ) { $db_error = true; }
+        }
+
+        // Ha nincs több határidőre ütemezett munkalapja, akkor Folyamatban státuszt kap
+        if(!$hataridore_utemezett){
             $statusz = addStatusz( 'bejelentes_statusz', $bej['bejelentes_id'], BEJELENTES_STAT_FOLYAMATBAN );
             if( $statusz === false ) { $db_error = true; }
         }
+
     }
     
     if( !$db_error ) {
@@ -5237,6 +5279,14 @@ require('selectek.php');
                 $sor[$tomb['name'].'_autocomp'] = '';
             }
         }
+        
+        // Adatok feltöltése rózsaszínezés ellen
+        if($_GET['ujkent_bejelentes']) {
+            $sor['telephely_id']        = $bejelentes['telephely_id'];
+            $sor['obj_id_autocomp']     = getErtek('nev', 'obj', 'recid', $bejelentes['obj_id']);
+            $sor['gep_id_autocomp']     = getErtek('nev', 'eszkozkezeles', 'recid', $bejelentes['gep_id']);
+            $sor['tipus_id_autocomp']   = erteklista(6, 1);
+        }
         $sor['ig_el_id'] = $sor['varh_erk'] = '0000-00-00 00:00:00';
 
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
@@ -5245,6 +5295,9 @@ require('selectek.php');
 		require('switch.php');
 
         $mezok .= '<input type="hidden" id="ujkentSzerkID" name="ujkentSzerkID" value="'.$_GET['ujkent'].'">';
+        if (isset($_GET['ujkent_bejelentes'])) {
+            $mezok .= '<input type="hidden" id="ujkentSzerkBejelentesbol" name="ujkentSzerkBejelentesbol" value="'.$_GET['ujkent_bejelentes'].'">';
+        }
 
 	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
 	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );

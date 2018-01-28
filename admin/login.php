@@ -58,21 +58,36 @@ if( isset($_POST['jogokhozzaad']) ) {
     unset($_POST['jogokhozzaad']);
 
     // Tömb sorrendezése
-    $jogok = array();
+    $jogok      = array();
+    $mail_jogok = array();
     foreach($_POST as $key => $value) {
-        $kulcs = str_replace('jog-', '', $key);
-        if($value=='true'){
-            $jogok[$kulcs] = 1;
-        }else{
-            $jogok[$kulcs] = 0;
+        
+        if( strpos($key, 'jog-')!==false ){
+            $kulcs = str_replace('jog-', '', $key);
+            if($value=='true'){
+                $jogok[$kulcs] = 1;
+            }else{
+                $jogok[$kulcs] = 0;
+            }
+        }
+        if( strpos($key, 'mail-')!==false ){
+            $kulcs = str_replace('mail-', '', $key);
+            if($value=='true'){
+                $mail_jogok[$kulcs] = 1;
+            }else{
+                $mail_jogok[$kulcs] = 0;
+            }
         }
     }
 
     ksort($jogok);
+    ksort($mail_jogok);
 
-    $adatbazis_kapcsolat -> u('login', array('flags'), array(implode('', $jogok)), 'recid='.$id);
+    $adatbazis_kapcsolat -> u('login',  array('flags',             'mail_flags'             ),
+                                        array(implode('', $jogok), implode('', $mail_jogok) ),
+                                "`recid`='{$id}'");
     
-    // A formAdatok JS változoót frissíteni kelll
+    // A formAdatok JS változoiót frissíteni kelll
     require_once('jogosultsag.php');
     $i = 0;
     foreach($jogosultsagok as $jog) {
@@ -80,6 +95,11 @@ if( isset($_POST['jogokhozzaad']) ) {
             $jogEll['jog-'.$i] = 1;
         } else {
             $jogEll['jog-'.$i] = 0;
+        }
+        if( $mail_jogok[$i] ) {
+            $jogEll['mail-'.$i] = 1;
+        } else {
+            $mail_jogok['mail-'.$i] = 0;
         }
 
         $i++;
@@ -516,12 +536,12 @@ require_once('selectek.php');
         
         require_once('jogosultsag.php');
 
-        $login = $adatbazis_kapcsolat->s2('flags', 'login', 'recid='.$_GET['id'], '', '1');
-
+        $login = $adatbazis_kapcsolat->s2('flags mail_flags', 'login', "`recid`='{$_GET['id']}'", '', '1');
         if( $login ) {
 
             // Jogosultságok feldarabolás
-            $flags = str_split($login['flags']);
+            $flags  = str_split($login['flags']     );
+            $mflags = str_split($login['mail_flags']);
 
             // Ellenőrzéshez 
             $jogEll = array();
@@ -532,6 +552,11 @@ require_once('selectek.php');
                 } else {
                     $jogEll['jog-'.$i] = 0;
                 }
+                if( $mflags[$i] ) {
+                    $jogEll['mail-'.$i] = 1;
+                } else {
+                    $jogEll['mail-'.$i] = 0;
+                }
 
                 $i++;
             }
@@ -541,13 +566,14 @@ require_once('selectek.php');
             // Hozzáadjuk az értékeket a jogosultságokhoz
             $i = 0;
             foreach($jogosultsagok as $jog) {
-                $jogosultsagok[$i]['value'] = $flags[$i];
-                $jogosultsagok[$i]['id']    = $i;
+                $jogosultsagok[$i]['value']      = $flags[$i];
+                $jogosultsagok[$i]['mail_value'] = $mflags[$i];
+                $jogosultsagok[$i]['id']         = $i;
 
                 $i++;
             }
 
-            // Kigyüjtjük a kategóriákat
+            // Kigyűjtjük a kategóriákat
             $jogKatok = jogosultsagKatok( $jogosultsagok );
 
             // Rendezzük a kategóriákat
@@ -605,9 +631,15 @@ require_once('selectek.php');
                     ';
                 }
 
+                $oszlop_cim = '';
+                if( $i==1 || $i==$jogdb_fel ){
+                    $oszlop_cim = 'Email értesítés';
+                }
                 $szamla_html .= '
                     <div class="dtr">
                         <div class="dtc form_bal jogKat"><span>'.$jogKat['nev'].':</span></div>
+                        <div class="dtc form_jobb"></div>
+                        <div class="dtc form_jobb">'.$oszlop_cim.'</div>
                     </div>
                 ';
 
@@ -619,6 +651,11 @@ require_once('selectek.php');
                     $checked = '';
                     if( $jogSor['value'] ) {
                         $checked = ' checked="checked"';
+                    }
+
+                    $mail_checked = '';
+                    if( $jogSor['mail_value'] ) {
+                        $mail_checked = ' checked="checked"';
                     }
 
                     $jogSor['nev'] .= ':';
@@ -681,7 +718,13 @@ require_once('selectek.php');
                                     <input type="hidden" name="jog-'.$jogSor['id'].'" value="0">
                                     <input type="checkbox" class="check'.$dn_pipa.'" name="jog-'.$jogSor['id'].'" id="jog-'.$jogSor['id'].'" value="1"'.$checked.$onclick.'>
                                     <label'.$dn_pipac.' for="jog-'.$jogSor['id'].'"></label>
-                                    '.$info.'
+                                </div>
+                            </div>
+                            <div class="dtc form_jobb">
+                                <div class="cb">
+                                    <input type="hidden" name="mail-'.$jogSor['id'].'" value="0">
+                                    <input type="checkbox" class="check'.$dn_pipa.'" name="mail-'.$jogSor['id'].'" id="mail-'.$jogSor['id'].'" value="1"'.$mail_checked.'>
+                                    <label'.$dn_pipac.' for="mail-'.$jogSor['id'].'"></label>
                                 </div>
                             </div>
                         </div>

@@ -239,10 +239,12 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
 
     require_once('../weblap.php');
     $tobbkep_html = '';
+    
+    $sor_kepek['utvonal'] = stripslashes(htmlspecialchars_decode($sor_kepek['utvonal']));
     $kep_utvonal = '../'.get_utvonal().csonkit($_SESSION['fajl']['tabla'], 4).'/'.$sor_kepek['utvonal'];
     if(is_file($kep_utvonal)){
 
-        $felirat = utf8($sor_kepek['fajlnev']);
+        $felirat = utf8(stripslashes($sor_kepek['fajlnev']));
         $kep     = new Img($kep_utvonal, $felirat, 200, 200);
 
         if( !$felirat ) {
@@ -290,7 +292,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
                 <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
                 <div class="kep">
                     <div>
-                        <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
+                        <a href="'.htmlspecialchars($kep_utvonal).'" target="_blank" title="Letöltés">
                             '.$kep -> getHtml().'
                         </a>
                     </div>

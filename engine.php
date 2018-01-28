@@ -1464,7 +1464,7 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
         $mail = new PHPMailer;
 
         $uzi = mail_img2cid($uzi, $mail, $cimzett_mail);
-
+echo 'd';
         $mail -> CharSet  = get_web_charset();
         $mail -> setFrom($felado_mail, $felado_nev);
         $mail -> addReplyTo($felado_mail, $felado_nev);

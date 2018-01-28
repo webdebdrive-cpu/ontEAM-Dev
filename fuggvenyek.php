@@ -578,6 +578,7 @@ function i_u($type, $tabla, $tomb) {
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
         if( $id === false ) { $db_error = true; }
 
+
 //echo '<pre style="font-size: 1.4rem">';
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '</pre>';
@@ -703,11 +704,11 @@ function i_u($type, $tabla, $tomb) {
                 if( $sql === false ) { $db_error = true; }
             }
         }
-
         // Munkalap
         if( $tabla == 'munkalap' ) {
             if( $_POST['ujkentSzerkID'] ) {
                 $munk_kapcs = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id` = '".$_POST['ujkentSzerkID']."'");
+
                 if( $munk_kapcs === false ) { $db_error = true; }
 
                 if( $munk_kapcs ) {
@@ -717,8 +718,18 @@ function i_u($type, $tabla, $tomb) {
                                                             array($id,           $mkapcs['bejelentes_id'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
                                                         );
                         if( $sql === false ) { $db_error = true; }
+
                     }
                 }
+            }
+            
+            // Bejelentésből újként szerkesztve
+            if( $_POST['ujkentSzerkBejelentesbol'] ) {
+                $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
+                                                    array('munkalap_id', 'bejelentes_id',                    'insert_dt',  'insert_usr',                               'update_usr'                             ),
+                                                    array($id,           $_POST['ujkentSzerkBejelentesbol'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+                                                );
+                if( $sql === false ) { $db_error = true; }
             }
 
             // Felvesszük az első státuszt
@@ -926,8 +937,7 @@ function i_u($type, $tabla, $tomb) {
 
         // Szeméyzet aktív/inaktív váltása a hozzá tartozó login-t is aktív/inaktiválja
         if( $tabla == 'torzsadat' ) {
-            $login_nev = $adatbazis_kapcsolat->s('felh_loginnev', $tabla, "`recid`='{$_GET['id']}'");
-            $login_nev = $login_nev[0];
+            $login_nev = $adatbazis_kapcsolat->s2('felh_loginnev', $tabla, "`recid`='{$_GET['id']}'");
             if( $login_nev === false ) { $db_error = true; }
             if($login_nev){
                 $sql = $adatbazis_kapcsolat->u('login', array('aktiv'), array($_POST['aktiv']), "`nev`='{$login_nev['felh_loginnev']}'");
@@ -1289,7 +1299,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         ');
     }
 
-    if( basename(self())=='bejelentes.php' ) {
+    // Új bejelentéskor egy popup feljön, hogy milyen folyamatban levő bejelentések vannak
+    if( basename(self())=='bejelentes.php' && isset($_GET['uj']) ) {
         $mod = 'false';
         if( isset($_GET['modosit']) ) {
             $mod = 'true';
@@ -1297,9 +1308,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
         $ret .= nl2('
             if( !bejelentes_mehet ) {
-                var folyamatban_hiba = false;
 
-                $.ajax({
+                var ellenorzes = $.ajax({
                     url  : \'bejelentes.php\',
                     type : \'GET\',
                     async: false,
@@ -1307,23 +1317,19 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     success: function(response) {
 
                         response = JSON.parse(response);
-
                         if( response.hiba ) {
-                            if( response.gomb ) {
-                                alert2(response.hiba, response.gomb);
-                            } else {
-                                alert2(response.hiba, \'\', \''.$hiba_txt.'\');
-                            }
-
-                            folyamatban_hiba = true;
+                            alert2(response.hiba, response.gomb);
+                            return false;
+                        }
+                        if( response.siker ) {
+                            bejelentes_mehet = true;
+                            $(\'#szerk_form\').submit();
                         }
 
                     }
                 });
 
-                if( folyamatban_hiba ) {
-                    return false;
-                }
+                return false;
             }
         ');
     }
@@ -1959,7 +1965,7 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 }
 
 // Központi SQL előállítása a bal oldali navpanel elemeinek kiszámításához (where feltétel, rendezés)
-function szamla_lista( $where, $tabla, $kijeloltek = false ) {
+function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = false ) {
 
     global $adatbazis_kapcsolat;
     global $db_kapcs;
@@ -1986,44 +1992,54 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
         $order = $_OPTS['rend'];
     }
 
-    // Előterjesztéseknél ha státusz szerint rendezünk, akkor azon belül iktatószám
-    if(basename(self())=='eloterj_fb.php' || basename(self())=='eloterj_bod.php'){
-        if($order=='stat_id'){
-            $order = '`stat_id`, `ikt_szam`';
-        }
-    }
-    
-    // Bizonyos rendezéseket pont fordítva szeretnénk rendezni, mint adott oldal alapértelmezett rendezése iránya
-    // Ezért az itt felsoroltakra váltva a rendezés irányán is fordítunk
-    $iranyt_is_valt = array(
-                            array('tabla' => 'utemezett_feladatok', 'rend' => 'aktiv',      'default' => 'desc' ),
-                            array('tabla' => 'utemezett_feladatok', 'rend' => 'esnap_d',    'default' => 'asc' ),
-                        );
-
-    $volt_irany_valtas = false;
-    if($_SESSION['elozo_rend']!=$_GET['rend']){
-        $i = 0;
-        foreach ($_OPTS['rendezes'] as $rendezes){
-            if($rendezes == $_GET['rend']){
-                $_GET['irany'] = $_OPTS['iranyok'][$i];
-                $volt_irany_valtas = true;
+    // Ha csak az SQL kell, hogy lássuk, mik a kapott ID-k, akkor a rendezéssel ne bajlódjunk
+    if(!$csak_sql_miatt){
+        // Előterjesztéseknél ha státusz szerint rendezünk, akkor azon belül iktatószám
+        if(basename(self())=='eloterj_fb.php' || basename(self())=='eloterj_bod.php'){
+            if($order=='stat_id'){
+                $order = '`stat_id`, `ikt_szam`';
             }
-            $i++;
         }
-    }
-    // Jegyezzük meg, mi volt az előző rendezés szempont, hogy kétszer ne váltsunk irányt
-    $_SESSION['elozo_rend'] = $order;
 
-    $irany = $_GET['irany'];
-    // Aktív esetén a rendezés irányát meg kell fordítani (tehát az aktívak, egyesek legyenek elől)
-    if($order=='aktiv'){
-        if($irany=='desc'){
-            $irany = 'asc';
-        }else{
-            $irany = 'desc';
+        // Bizonyos rendezéseket pont fordítva szeretnénk rendezni, mint adott oldal alapértelmezett rendezése iránya
+        // Ezért az itt felsoroltakra váltva a rendezés irányán is fordítunk
+        $iranyt_is_valt = array(
+                                array('tabla' => 'utemezett_feladatok', 'rend' => 'aktiv',          'default' => 'desc' ),
+                                array('tabla' => 'utemezett_feladatok', 'rend' => 'esnap_d',        'default' => 'asc' ),
+                            );
+
+        $volt_irany_valtas = false;
+        if($_SESSION['elozo_rend']!=$_GET['rend']){
+            $i = 0;
+            foreach ($_OPTS['rendezes'] as $rendezes){
+                if($rendezes == $_GET['rend']){
+                    $_GET['irany'] = $_OPTS['iranyok'][$i];
+                    $volt_irany_valtas = true;
+                }
+                $i++;
+            }
         }
+
+        // Jegyezzük meg, mi volt az előző rendezés szempont, hogy kétszer ne váltsunk irányt
+        $_SESSION['elozo_rend'] = $order;
+
+        $irany = $_GET['irany'];
+        // Ha egy rendezésben vegyesen vannak az irányok, akkor erre az esetre letároljuk az ellenkezőjét egy másik GET-be
+        if($_GET['irany']=='desc'){
+            $_GET['ellen_irany'] = '';
+        }else{
+            $_GET['ellen_irany'] = 'desc';
+        }
+        // Aktív esetén a rendezés irányát meg kell fordítani (tehát az aktívak, egyesek legyenek elől)
+        if($order=='aktiv'){
+            if($irany=='desc'){
+                $irany = 'asc';
+            }else{
+                $irany = 'desc';
+            }
+        }
+        $order .= ' '.$irany;
     }
-    $order .= ' '.$irany;
 
     // Ha nem egy konkrét recid-t keresünk, akkor állítsuk elő a where feltételt
     if(!$where){
@@ -2104,8 +2120,8 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
                 $where .= " OR `".  get_db_tabla()."projektigenyles`.`recid` IN (".implode(',', $lathato_prigenyek).") AND ";
             }
 
-
         }
+        
         if($tabla == 'rendszeres_karbantartas'){
             $where = "`".get_db_tabla()."rendszeres_karbantartas`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
@@ -2285,7 +2301,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
     $lapozo -> sablon_select      = $utvonal.'lapozas_select.html';
 
 
-    /* Számolás */
+    // Számolás
     $lapozo -> lapozas();
 
     $lapozas = $lapozo -> kiir();
@@ -2446,6 +2462,22 @@ function szamla_lista( $where, $tabla, $kijeloltek = false ) {
 
             $order = trim($order, ', ');
 
+        }
+        
+        // Rendezés Ütemezett feladatoknál 
+        if( $tabla=='utemezett_feladatok' ){
+            // Ha aktív szerint rendezünk, akkor azon belül esedékesség dátuma csökkenő + szálloda csökkenő
+            if($_GET['rend']=='aktiv'){
+                $order = '`aktiv` '.$_GET['irany'].', `esnap_d` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
+            }
+            // Ha szálloda szerint rendezünk, akkor azon belül esedékesség dátuma csökkenő + szálloda csökkenő
+            if($_GET['rend']=='telephely_id'){
+                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `aktiv` '.$_GET['ellen_irany'].', `esnap_d` '.$_GET['ellen_irany'];
+            }
+            // Ha szálloda szerint rendezünk, akkor azon belül esedékesség dátuma csökkenő + szálloda csökkenő
+            if($_GET['rend']=='esnap_d'){
+                $order = '`esnap_d` '.$_GET['irany'].', `aktiv` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['ellen_irany'];
+            }
         }
 
         // Projektigénylésnél a telephey nevét átnevezzük, ne ütközzön a sima névvel
@@ -3359,7 +3391,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 }
 
                 $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                                <span'.$bold.'>'.$azon.' '.$bsz['cikk_id'].' '.$bsz['anyagigenyles_nev'].'</span>
+                                <span'.$bold.'>'.$azon.' '.$bsz['cikk_id'].' '.htmlspecialchars_decode($bsz['anyagigenyles_nev']).'</span>
                                 <span'.$bold.'>'.getStatText('anyagigenyles', $bsz['stat_id']).'</span>
                             </a>';
 
@@ -3433,7 +3465,9 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             foreach($bejegyzesek as $bsz) {
                 
                 // Rendelési érték számítás
-                $rendelesi_ertek += $bsz['rndmen']*$bsz['rndear'];
+                if( $bsz['stat_id']==CIKKIGN_STAT_ARAZVA ){
+                    $rendelesi_ertek += $bsz['rndmen']*$bsz['rndear'];
+                }
                 
                 $bsz['igmen']   = str_replace('.', ',', $bsz['igmen']);
                 $bsz['jhmen']   = str_replace('.', ',', $bsz['jhmen']);
@@ -3495,9 +3529,9 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     $html .= nl2('
                             <tfoot>
                             <tr>
-                                <td colspan="9"></td>
-                                <td colspan="2" class="r b">Rendelési érték:</td>
-                                <td class="r b" id="rend_ertek" style="white-space: nowrap;">'.number_format($rendelesi_ertek, 0, ',', ' ').'</td>
+                                <td colspan="8"></td>
+                                <td colspan="3" class="r b">Jóváhagyásra váró érték:</td>
+                                <td class="r b" id="rend_ertek" style="white-space: nowrap;">'.number_format($rendelesi_ertek, 0, ',', ' ').' '. get_penznem().'</td>
                                 <td colspan="3" class="r"></td>
                             </tr>
                             </tfoot>
@@ -5077,6 +5111,15 @@ function _jog( $value ) {
     return false;
 }
 
+// Jogosultásghoz tartozó mail gyors lekérdezése
+function _mail_jog( $value ) {
+    if( $_SESSION[get_db_tabla().'mail_rights'][$value] ) {
+        return $_SESSION[get_db_tabla().'mail_rights'][$value];
+    }
+
+    return false;
+}
+
 // Státusz idő kiszámítása
 function getStatuszIdo( $time ) {
     
@@ -5693,9 +5736,85 @@ function het_napja_txt($datum){
     return $het_napjai[date('w', strtotime($datum))];
 }
 
-//Valós dátum-e
+// Valós dátum-e
 function valos_datum_e($datum){
     $datum = substr(str_replace('.', '-', $datum), 0, 10);
     list($ev, $ho, $nap) = explode('-', $datum);
     return checkdate($ho, $nap, $ev);
+}
+
+// Levélküldés előtt jogot vizsgálunk, levél tartlamát kiszámoljuk
+function level_felkeszit_es_kuld($tabla, $recid, $jog){
+    
+    global $adatbazis_kapcsolat;
+    $cimzett_mail = '';
+    $cimzett_nev  = '';
+
+    // Mail küldés jog ellenőrzése
+    if(_mail_jog($jog) ){
+        // Mely tábláknál ellenőrizzünk szállodát is (saját szállodák)
+        $szallodat_ellenorizz = array('bejelentes', 'munkalap');
+        if(in_array($tabla, $szallodat_ellenorizz) ){
+            $szalloda = $adatbazis_kapcsolat->s2('telephely_id', $tabla, "`recid`='{$recid}'");
+            $sajat_szallodak = get_akt_login_szallodai();
+            
+            // Ha adott rekord szállodája a usernek nem saját szállodája, akkor kilépünk
+            if( !in_array($szalloda['telephely_id'], $sajat_szallodak) ){
+                return false;
+            }
+        }
+        
+        // Kinek menjen a mail?
+        switch($tabla){
+            // Bejelentőnek
+            case 'bejelentes':
+                $bejelentes = $adatbazis_kapcsolat->s2('ikt_szam usr_nev usr_email usr_telefon stat_id loginnev', $tabla, "`recid`='{$recid}'");
+                $cimzett_nev  = $bejelentes['usr_nev'];
+                $cimzett_mail = $bejelentes['usr_email'];
+                $telefon      = $bejelentes['usr_telefon'];
+                $targy        = $bejelentes['ikt_szam'].' hibabejelentés '. getStatText($tabla, $bejelentes['stat_id']);
+                $uzi          = $targy;
+                $loginnev     = $bejelentes['loginnev'];
+            break;
+        }
+        // Aktív-e és nem virtuális-e a felhasználó, van-e mailcíme? Ha nem, kilépünk
+        $login = $adatbazis_kapcsolat -> s2('teljes_nev usermail aktiv virtual', 'login', "`nev` = '{$loginnev}'");
+        if(!$login['aktiv'] || $login['virtual'] || !$login['usermail']){
+            return false;
+        }
+        $szerepkor = getErtek('nev', 'szerepkor', 'id', $login['szemelyzet_id']);
+        // Ha még nincs meg a címzett, akkor a login táblából számítjuk
+        if(!$cimzett_nev) { $cimzett_nev   = $login['teljes_nev'];  }
+        if(!$cimzett_mail){ $cimzett_mail  = $login['usermail'];    }
+        if(!$telefon)     { $telefon       = $login['usertel'];     }
+// Teszteléshez
+$tmp = $adatbazis_kapcsolat->s2('usermail', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
+$cimzett_mail = $tmp['usermail'];
+
+        // Tényleges küldés
+        $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $cimzett_nev, $cimzett_mail, $targy, $uzi);
+        // Ha van értéke, az egy hibaüzenet, akor sikerült küldeni, ha nincs visszatérési érték
+        if( $sikeres_kuldes ){
+
+            addMegj($tabla, $recid, 'E-mail küldése nem sikerült '.$cimzett_nev.' '.$szerepkor.' felhasználónak');
+            
+            // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
+            if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ){
+                return  nl2('Hiba: E-mail küldése nem sikerült
+                        <br>'.$cimzett_nev.' '.$szerepkor.'
+                        <br>Tel: '.$telefon.'
+                        <br>Email: '.$cimzett_mail.'
+                        ');
+            }
+            
+        // Sikeres levélküldés
+        }else{
+
+            $adatbazis_kapcsolat->u($tabla, array('mail_ment'), array(1), "`recid`='{$recid}'");
+            addMegj($tabla, $recid, 'E-mail elküldve '.$cimzett_nev.' '.$szerepkor.' felhasználónak');
+        
+        }
+        
+    }
+
 }

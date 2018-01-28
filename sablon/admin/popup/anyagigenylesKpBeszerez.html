@@ -418,7 +418,7 @@ function anyagigenylesKPBeszerez(csak_kerdezünk){
             }
             tetelek = 1;
         }
-        alert2('A számlán '+tetelek+' db tétel szerepel. Biztosan rögzíti a számlát?', '<input type="button" value="Igen" class="gomb" onclick="anyagigenylesKPBeszerez(); alert2();"> <input type="button" value="Nem" class="gomb piros" onclick="alert2();">');
+        alert2('A számlán '+tetelek+' db tétel szerepel. Biztosan rögzíti a számlát?', '<input type="button" value="Igen" class="gomb" onclick="anyagigenylesKPBeszerez();"> <input type="button" value="Nem" class="gomb piros" onclick="alert2();">');
         return false;
     }
 
@@ -471,16 +471,16 @@ function anyagigenylesKPBeszerez(csak_kerdezünk){
             if(response){
                 response = JSON.parse(response);
 
-                if( response.hiba ) {
+                /*if( response.hiba ) {
                     alert2(response.hiba, response.gomb, 'Hiba');
                     return false;
-                }
+                }*/
 
                 if( response.alert ) {
                     alert2(response.alert, response.gomb);
                 }
 
-                popupZar();
+                /*popupZar();*/
             }
         }
     });

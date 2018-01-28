@@ -20,7 +20,7 @@
             BEJELENTES_STAT_FOLYAMATBAN => array('nev' => 'Folyamatban',            'szinkod' => '#f5a56c'),
             BEJELENTES_STAT_ELUTASITVA  => array('nev' => 'Elutasítva',             'szinkod' => '#C44B4B'),
             BEJELENTES_STAT_VARAKOZO    => array('nev' => 'Várakozó',               'szinkod' => '#c4e63b'),
-            BEJELENTES_STAT_KESZ_IG     => array('nev' => 'Igazolás alatt',         'szinkod' => '#b3e5ab'),
+            BEJELENTES_STAT_KESZ_IG     => array('nev' => 'Igazolásra vár',         'szinkod' => '#b3e5ab'),
             BEJELENTES_STAT_VIZSG_ALATT => array('nev' => 'Vizsgálat alatt',        'szinkod' => '#b3e5ab'),
             BEJELENTES_STAT_LEZART      => array('nev' => 'Lezárt',                 'szinkod' => '#fff'),
         ),

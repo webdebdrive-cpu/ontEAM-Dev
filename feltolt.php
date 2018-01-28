@@ -13,6 +13,9 @@ if( in_array( $_FILES[$_POST['megnevezes']]['type'], $tiltott_fajlok ) ){
     exit;
 }
 
+$mit   = array('"', '\'', '&', '#');
+$mivel = array();
+$_FILES[$_POST['megnevezes']]['name'] = nl2(str_replace($mit, $mivel, $_FILES[$_POST['megnevezes']]['name']));
 if(kit($_FILES[$_POST['megnevezes']]['name'])=='php'){
     echo 'nice try :)';
     $weblap -> leallit();
@@ -47,7 +50,6 @@ if($_POST['megnevezes']=='velemeny'){
         if(!is_dir($utvonal)){
             mkdir($utvonal, 0777);
         }
-
 
         $utvonal = $utvonal.'/'.date('ym');
 
