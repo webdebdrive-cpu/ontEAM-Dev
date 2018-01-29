@@ -9,10 +9,8 @@ if (isset($_GET['nyomtat'])) {
 
     // Szállító kiszámítása
     $szallito = $adatbazis_kapcsolat->s2('szallito_id kcs_21', 'anyagigenyles', "`recid`='{$idk[1]}'");
-
     $penznem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=21 AND `id`='{$szallito['kcs_21']}'");
-
-    $szallito = $adatbazis_kapcsolat->s2('nev knev tel tel2 isz varos utca', 'szallito', "`id`='{$szallito['szallito_id']}'");
+    $szallito = $adatbazis_kapcsolat->s2('id nev knev tel tel2 isz varos utca', 'szallito', "`id`='{$szallito['szallito_id']}'");
 
 }
 
@@ -115,10 +113,19 @@ if (isset($_GET['szall'])) {
 
     $mpdf -> WriteHTML( $html );
 
-    $anyag = $adatbazis_kapcsolat->s2('kepfajl', 'anyagigenyles', "`rndid`='{$sorszam}'");
+    // Így tudod egy PDF fájlba elmenteni a generált tartalmat
+    // Könyvtárak kialakítása
+    if( !is_dir('../'.get_utvonal().'rendeles') ) {
+        mkdir('../'.get_utvonal().'rendeles');
+    }
+    if( !is_dir('../'.get_utvonal().'rendeles/'.date('y')) ) {
+        mkdir('../'.get_utvonal().'rendeles/'.date('y'));
+    }
+    if( !is_dir('../'.get_utvonal().'rendeles/'.date('y').'/'.$szallito['id']) ) {
+        mkdir('../'.get_utvonal().'rendeles/'.date('y').'/'.$szallito['id']);
+    }
 
-    // Így tudod egy PDF fájlba elmenteni a generált taratlmat
-    $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../'.get_utvonal().$anyag['kepfajl'].'.pdf'), 'F');
+    $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../'.get_utvonal().'rendeles/'.date('y').'/'.$szallito['id'].'/'.str_replace('/', '_', $sorszam).'.pdf'), 'F');
 
     $weblap -> leallit();
     exit;

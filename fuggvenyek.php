@@ -1300,10 +1300,13 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     }
 
     // Új bejelentéskor egy popup feljön, hogy milyen folyamatban levő bejelentések vannak
-    if( basename(self())=='bejelentes.php' && isset($_GET['uj']) ) {
+    if( basename(self())=='bejelentes.php' ) {
+        
         $mod = 'false';
+        $get_id = '';
         if( isset($_GET['modosit']) ) {
             $mod = 'true';
+            $get_id = '&amp;recid=\' + '.$_GET['id'].' + \'';
         }
 
         $ret .= nl2('
@@ -1313,7 +1316,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                     url  : \'bejelentes.php\',
                     type : \'GET\',
                     async: false,
-                    data : esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;obj_id=\' + $(\'#obj_id\').val() + \'&amp;mod=\' + '.$mod.' + \'&amp;folyamatban_munkak=\' + new Date().getTime()),
+                    data : esamp2es(\'telephely_id=\' + $(\'#telephely_id\').val() + \'&amp;obj_id=\' + $(\'#obj_id\').val() + \'&amp;mod=\' + '.$mod.' + \''.$get_id.'&amp;folyamatban_munkak=\' + new Date().getTime()),
                     success: function(response) {
 
                         response = JSON.parse(response);
@@ -1733,11 +1736,9 @@ function get_termek_thumb($id, $sablon, $hivatkozott_oldal, $id_oszlop, $id_get_
 
     global $adatbazis_kapcsolat;
 
-    $termek = $adatbazis_kapcsolat->s('id nev kep text ar akcar', $tabla, "`$id_oszlop`='$id'");
-    $termek = $termek[0];
+    $termek = $adatbazis_kapcsolat->s2('id nev kep text ar akcar', $tabla, "`$id_oszlop`='$id'");
 
-    $kat = $adatbazis_kapcsolat->s('nev', 'kat', "`id`='{$termek['kat']}'");
-    $kat = $kat[0];
+    $kat = $adatbazis_kapcsolat->s2('nev', 'kat', "`id`='{$termek['kat']}'");
 
     //Link
     $link = $hivatkozott_oldal.'?'.fajlnev_keszit($kat['nev'].' '.$termek['nev']).'&amp;'.$id_get_neve.'='.$termek[$id_oszlop];
@@ -2319,7 +2320,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Rendezés anyagigényléskor
-        if($tabla=='anyagigenyles'){
+        if($tabla=='anyagigenyles' && !isset($_GET['anyagrend'])){
             
             // Táblázatos rendezés miatt itt másképp kell a rendezést megoldani
             // Alapértelmezett irány beállítása
@@ -2345,6 +2346,16 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 case 'anyag_tabla_statusz'      : $order = '`'.get_db_tabla().'anyagigenyles`.`stat_id`';   break;
             }
             $order .= ' '.$_SESSION['anyagigenyles_tablazat_irany'];
+        }
+        
+        // Rendezés anyagrendeléskor
+        if($tabla=='anyagigenyles' && isset($_GET['anyagrend'])){
+            if($_GET['rend']=='stat_id'){
+                $order = '`'.get_db_tabla().'anyagigenyles`.`stat_id` '.$_GET['irany'].', `'.get_db_tabla().'anyagigenyles`.`rndid` '.$_GET['ellen_irany'].'';
+            }
+            if($_GET['rend']=='rnd_dt'){
+                $order = '`'.get_db_tabla().'anyagigenyles`.`rnd_dt` '.$_GET['irany'].', `'.get_db_tabla().'anyagigenyles`.`rndid` '.$_GET['irany'].'';
+            }
         }
 
         // Rendezés beosztásnál
@@ -3391,7 +3402,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 }
 
                 $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                                <span'.$bold.'>'.$azon.' '.$bsz['cikk_id'].' '.htmlspecialchars_decode($bsz['anyagigenyles_nev']).'</span>
+                                <span'.$bold.'>'.$azon.' - '.str_replace('-', '.', $bsz['rnd_dt']).'</span>
                                 <span'.$bold.'>'.getStatText('anyagigenyles', $bsz['stat_id']).'</span>
                             </a>';
 
@@ -3794,12 +3805,12 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <table'.$bold.'>
                             <tr>
                                 <td rowspan="2" style="width: 2rem; text-align: center; border: 0;">'.$tipus.'</td>
-                                <td style="width: 10rem; border: 0;">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 10rem; border: 0;">'.$telephely['nev'].'</td>
-                                <td style="border: 0;">'.$statusz.'</td>
+                                <td style="width: 15rem; border: 0;">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 17rem; border: 0; text-align: left">'.$telephely['nev'].'</td>
+                                <td style="border: 0; text-align: left">'.$statusz.'</td>
                             </tr>
                             <tr>
-                                <td style="border: 0;" colspan="2">'.$bsz['nev'].'</td>
+                                <td style="border: 0; white-space: pre-wrap;" colspan="2">'.$bsz['nev'].'</td>
                                 <td style="border: 0;">'.number_format($bsz['bkolt'], 0, '', ' ').' '.get_penznem().'</td>
                             </tr>
                             </table>
@@ -4902,12 +4913,14 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'e-szamla'      => 'E-számla',
         'esnap_d'       => 'Esedékesség',
         'erkezett'      => 'Érkezett',
+        'rkat'          => 'Érték',
         'id'            => 'Kód',
         'ikt_szam'      => $kieg_nev.' szám',
         'nev'           => 'Név',
+        'rndid'         => 'Rendelés száma',
+        'rnd_dt'        => 'Rendelés dátum',
         'recid'         => 'Rendszer ID',
         'surgos'        => 'Sürgős',
-        'rkat'          => 'Érték',
         'statusz'       => 'Státusz',
         'stat_id'       => 'Státusz',
         'szallito_id'   => 'Szállító',
@@ -5017,7 +5030,7 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
     $fokat_i = 0;
     $html    = '';
     if( $telephelyek ) {
-        $html .= '<h2>Objektumok hierarchiája</h2><div class="kozep"><ul class="telephelyek">';
+        $html .= '<h2>Objektumok hierarchiája</h2><div class="kozep" style="max-height: 30rem"><ul class="telephelyek">';
 
         $egy_szalloda_nyitva = '';
         if( count($telephelyek)==1 ){
@@ -5090,7 +5103,7 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
     
     // Ha egy szálloda objektumhierarchiáját kérnénk le, de nincs, akkor hibaüzenet
     if($telephelyID && !$fokat_i){
-        $html = '<h2>Objektumok hierarchiája</h2><div class="kozep">A(z) '.$telephely['nev'].' szállodához nem tartoznak objektumok!</ul></div>';
+        $html = '<h2>Objektumok hierarchiája</h2><div class="kozep" style="max-height: 30rem">A(z) '.$telephely['nev'].' szállodához nem tartoznak objektumok!</ul></div>';
     }
 
     return $html;

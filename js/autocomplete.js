@@ -315,10 +315,12 @@
             $(this).keypress(function(e) {
                 if($(this).val() == '') {
                     if(e.keyCode==KEY_ENTER) {
+/*                        $("#autocomplete").css({'display':'none'}).html('');*/
                         return false;
                     }
                 } else if($('#autocomplete').css('display') == 'block') {
                     if(e.keyCode==KEY_ENTER) {
+                        /*$("#autocomplete").css({'display':'none'}).html('');*/
                         return false;
                     }
                 }
@@ -422,7 +424,7 @@
                                 var form = $('input[name="' + mezo_nev + '"]').parents('form');
 
                                 stop = false;
-                                form.find('input, select, textarea').filter(':not(:disabled)').filter(':not(:readonly)').each(function() {
+                                form.find('input, select, textarea').filter(':not(:disabled)').filter(":not([readonly='readonly'])").each(function() {
                                     var name = $(this).attr('name'),
                                         type = $(this).attr('type'),
                                         tag  = $(this).prop('tagName');

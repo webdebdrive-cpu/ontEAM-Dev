@@ -76,7 +76,10 @@ function get_fokep_torol(self, get_id, keptorol){
 
 /* Kibontásnál egy flashfájllal felvitt fájl törlése */
 function get_fajl_torol_gomb(id, tabla, oszlop){
-    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="$.ajax({type: \'POST\',url : \'esemenyek.php\',data: \'fajl_torol=1&tabla=' + tabla + '&oszlop=' + oszlop + '&id=' + id + '\', success: function(html){}}); alert2(); $(\'#fajl_' + tabla + '_' + oszlop + '_' + id + '\').fadeOut();"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';
+    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="$.ajax({type: \'POST\',url : \'esemenyek.php\',data: \'fajl_torol=1&tabla=' + tabla + '&oszlop=' + oszlop + '&id=' + id + '\', success: function(html){}}); alert2(); $(\'#fajl_' + tabla + '_' + oszlop + '_' + id + '\').fadeOut(); "> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';
+}
+function get_fajl_torol_gomb2(id, tabla, oszlop){
+    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="$.ajax({type: \'POST\',url : \'esemenyek.php\',data: \'fajl_torol=1&tabla=' + tabla + '&oszlop=' + oszlop + '&id=' + id + '\', success: function(html){}}); alert2(); $(\'#fajl_' + oszlop + '_' + id + '\').fadeOut();"> <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';
 }
 
 
@@ -540,7 +543,7 @@ $(function() {
         }
     });
 
-    $(document).on('keyup', 'input', function(e) {
+    $(document).on('keyup', 'input, select', function(e) {
         if (e.which == KEY_ENTER && !$('#alert2').is(':visible') ) {
 
             mezo_nev = $(this).attr('name');
@@ -1355,11 +1358,11 @@ $(function() {
         igmen               = $('#th'+telephely_id+'a'+cikk_id).html();
         mee                 = $('#th'+telephely_id+'a'+cikk_id+'_mee').html();
 
-        $('#telephely_id')  .val(telephely_id);
+        $('#telephely_id')  .val(telephely_id).addClass('mod');
         $('#nev_autocomp')  .val(nev_autocompl);
-        $('#nev_autocomp')  .attr('data-original-val', cikk_id);
-        $('#nev')           .val(cikk_id);
-        $('#igmen')         .val(igmen);
+        $('#nev_autocomp')  .attr('data-original-val', cikk_id).addClass('mod');
+        $('#nev')           .val(cikk_id).addClass('mod');
+        $('#igmen')         .val(igmen).addClass('mod');
         $('.insertMee')     .html(mee);
 
         $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
@@ -3804,7 +3807,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
         /* ha volt üres pipa mellett üres mennyiség sor, akkor rákrédezünk */
         if(ures_men_ek_pipa0 && !ures_men_ek_pipa0_kesz){
             gombok = '<input class="gomb zold" value="Igen" onclick="anyagigenyles_erkeztet(\'ures_men_ek_pipa0_kesz nem kérdezzük meg megint\', \'\', \'túlrendelés kérdésen már túl vagyunk\')" type="button"> <input class="gomb piros" value="Nem" onclick="alert2()" type="button">';
-            alert2(ures_men_ek_pipa0+'<div class="l">Ezekhez az anyagokhoz nem adott meg beérkezett mennyiséget.<br>Ha folytatja, továbbra is beérkezés alatt státuszban maradnak!<br>Folytatja?</div>', gombok);
+            alert2(ures_men_ek_pipa0+'<div class="l">Ezekhez az anyagokhoz nem adott meg beérkezett mennyiséget.<br>Ha folytatja, továbbra is megrendelve alatt státuszban maradnak!<br>Folytatja?</div>', gombok);
             return false;
         }
         if(ures_men_ek_pipa1 && !ures_men_ek_pipa1_kesz){
@@ -3813,9 +3816,8 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
             return false;
         }
 
-        alert2();
         $.ajax({
-            url: 'anyagigenyles.php',
+            url : 'anyagigenyles.php',
             type: 'POST',
             data: {
                 idk                     : idk,
@@ -3823,6 +3825,13 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
             },
             success: function (response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response){
+                    response = JSON.parse(response);
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, 'Hiba');
+                        return false;
+                    }
+                }
                 popupZar();
             }
         });
@@ -4898,7 +4907,13 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
 
     alert2('');
     if( formModositva && !kerdes_nelkul ) {
-        alert2('Biztosan elhagyja ezt a(z) '+$('#rekord_neve_targy').html()+' mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; szamlaBetolt( \'' + recid + '\', \'' + page + '\', \'' + muvelet + '\', \'' + szerkeszt + '\' ); $(\'#szamlaList li.szamla_sor\').removeClass(\'kijelolve\');" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
+        
+        var a_az = 'a';
+        var kezdobetu = $('#rekord_neve_targy').html().substr(0,1);
+        if(kezdobetu=='a' || kezdobetu=='e' || kezdobetu=='i' || kezdobetu=='o' || kezdobetu=='u'){
+            a_az = 'az';
+        }
+        alert2('Biztosan elhagyja ezt '+a_az+' '+$('#rekord_neve_targy').html()+' mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; szamlaBetolt( \'' + recid + '\', \'' + page + '\', \'' + muvelet + '\', \'' + szerkeszt + '\' ); $(\'#szamlaList li.szamla_sor\').removeClass(\'kijelolve\');" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
         return false;
     }
 

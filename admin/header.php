@@ -1075,8 +1075,12 @@ if( basename(self())=='torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL)){
 
 $csv_get = get_get(array('id'));
 
-$rendez_rejt_oldalak = array('anyagigenyles.php', 'dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
+$rendez_rejt_oldalak = array('dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
 if(in_array(basename(self()), $rendez_rejt_oldalak)){
+    $rendezes_rejt = ' dn';
+}
+// Anyagigénylésnél DE nem anyagrendelésnél is rejtjük
+if(basename(self())=='anyagigenyles.php' && !isset($_GET['anyagrend'])){
     $rendezes_rejt = ' dn';
 }
 

@@ -108,9 +108,10 @@ if( isset($_GET['folyamatban_munkak']) ) {
     $obj_id       = $_GET['obj_id'];
     $mod          = $_GET['mod'];
 
+    // Ha szerkesztésnél ellenőrzünk
     $where = '';
     if( $mod == 'true' ) {
-        $where = " AND `loginnev` != '".$_SESSION[get_db_tabla().'user']."'";
+        $where = " AND `recid`!='{$_GET['recid']}'";
     }
 
     $bejelentesek = $adatbazis_kapcsolat->s('ikt_szam surgos telephely_id obj_id hiba_id hiba_text', 'bejelentes', "`telephely_id` = '{$telephely_id}' AND `obj_id` = '{$obj_id}'".$where);

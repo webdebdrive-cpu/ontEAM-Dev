@@ -80,17 +80,36 @@ switch($tabla) {
                                     `'.get_db_tabla().'szallito`.`nev`
                                 ');
 
-        // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('stat_id', 'telephely_id', 'cikk_id', 'szallito_id');
+        // Anyagrendeléskor más a rendezés
+        if (isset($_GET['anyagrend'])) {
+            // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
+            $_OPTS['rendezes']  = array('rndid', 'stat_id', 'rnd_dt');
+            $_OPTS['iranyok']   = array('desc',  'asc',     'desc'  );
 
-        // Default rendezés
-        if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'stat_id';
-        }
+            // Default rendezés
+            if( !$_GET['rend'] ) {
+                $_GET['rend'] = 'rndid';
+            }
 
-        // Default rendezési irány
-        if( !$_GET['irany'] ) {
-            $_GET['irany'] = '';
+            // Default rendezési irány
+            if( !$_GET['irany'] ) {
+                $_GET['irany'] = 'desc';
+            }
+            
+        // Anyagigénylés rendezése
+        }else{
+            // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
+            $_OPTS['rendezes']  = array('stat_id', 'telephely_id', 'cikk_id', 'szallito_id');
+
+            // Default rendezés
+            if( !$_GET['rend'] ) {
+                $_GET['rend'] = 'stat_id';
+            }
+
+            // Default rendezési irány
+            if( !$_GET['irany'] ) {
+                $_GET['irany'] = '';
+            }
         }
     break;
     case 'anyagrendeles.php':
@@ -574,9 +593,9 @@ switch($tabla) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`bkolt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`tipus`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`rendk`,
+                                    `stat_id`,
                                     `telephely_id`,
-                                    `csoport_id`,
-                                    `stat_id`
+                                    `csoport_id`
                                     ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
@@ -1639,7 +1658,7 @@ $tav_4  = '<span style="margin-left: 4rem"></span>';
 $anyagigenyles_tomb = $akt_tomb = array(
     array('type' => 'statusz',                  'megn' => 'Státusz:',                       'name' => 'stat_id',        'szuro' => 1,   'oldal' => $megnevezes),
     array('type' => 'text',                     'megn' => 'Anyagigénylés szám:',            'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 8rem'),
-    array('type' => 'checkbox',                 'megn' => 'Készpénzes:',                    'name' => 'keszpenz',       'szuro' => 1,   'disabled' => 1,   'post' => $post),
+//    array('type' => 'checkbox',                 'megn' => 'Készpénzes:',                    'name' => 'keszpenz',       'szuro' => 1,   'disabled' => 1,   'post' => $post),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                      'name' => 'telephely_id',   'szuro' => 1,   'disabled' => 1,   'class' => 'disableNav',   'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'text',                     'megn' => 'Cikkszám:',                      'name' => 'cikk_id',        'szuro' => 1,   'disabled' => 1),
     array('type' => 'text',                     'megn' => 'Cikk név:',                      'name' => 'nev',            'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'cikktorzs', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
@@ -1658,6 +1677,20 @@ $anyagigenyles_tomb = $akt_tomb = array(
     array('type' => 'textarea',                 'megn' => 'Leírás:',                        'name' => 'igleir',         'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'style' => 'height: 4rem'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+// Anyagrendeléskor más az űrlap
+if (isset($_GET['anyagrend'])) {
+    $anyagigenyles_tomb = $akt_tomb = array(
+        array('type' => 'statusz',                  'megn' => 'Státusz:',                       'name' => 'stat_id',        'szuro' => 1,   'oldal' => $megnevezes),
+        array('type' => 'text',                     'megn' => 'Rendelés szám:',                 'name' => 'rndid',          'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 6.4rem'),
+        array('type' => 'text',                     'megn' => 'Rendelés dátum:',                'name' => 'rnd_dt',         'szuro' => 1,   'disabled' => 1,   'style' => 'width: 7.4rem'),
+        array('type' => 'text',                     'megn' => 'Rendelés érték:',                'name' => 'rndertek',       'szuro' => 1,   'disabled' => 1,   'style' => 'width: 7.3rem; text-align: right', 'osszevon' => 1, 'post' => ' '.get_penznem().'<span style="margin-left: 4.5rem"></span>'),
+        array('type' => 'checkbox',                 'megn' => 'Készpénzes:',                    'name' => 'keszpenz',       'szuro' => 1,   'disabled' => 1),
+        array('type' => 'autocomplete',             'megn' => 'Szállító:',                      'name' => 'szallito_id',    'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'id_kiir' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
+        array('type' => 'text',                     'megn' => 'Képfájl:',                       'name' => 'kepfajl',        'szuro' => 1,   'disabled' => 1),
+    );
+}
+
 // Anyagigénylésnél a feltöltésnek az űrlapja minimalizált
 $anyagigenyles_tomb_feltolt = array(
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                      'name' => 'telephely_id',   'class' => 'disableNav',   'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
@@ -1821,7 +1854,7 @@ array('type' => 'html',                     'megn' => nl2('
                                                                 Becsült költsége:
                                                             </div>
                                                             <div class="dtc">
-                                                                <div class="dtc" style="padding-left: 0; padding-right: 4rem; ">
+                                                                <div class="dtc" style="padding-left: 0; padding-right: 4rem; white-space: nowrap;">
                                                                 ')),
     array('type' => 'text',                 'megn_szurobe' => 'Becsült költség:', 'name' => 'bkolt',          'szuro' => 1,       'class' => 'oriasi f_num csillag', 'data' => 'data-tort="0"', 'style' => 'width: 11.5rem; margin-left: -0.2rem;', 'onblur' => 'becsult_szetosztott_ujraszamol();', 'post' => ' '.get_penznem()),
 array('type' => 'html',                     'megn' => nl2('
@@ -3512,18 +3545,25 @@ if( !isset($_GET['oldal'])) { $_GET['oldal']=0;     }
 if(isset($_POST['fajl_torol'])){
     
     // Ha ismert az ID
-    if($_POST['id']){
+    if( is_numeric($_POST['id']) ){
         $elem = $adatbazis_kapcsolat -> s2($_POST['oszlop'], $_POST['tabla'], 'recid='.$_POST['id']);
         kep_torol('../'.get_utvonal().$_POST['tabla'].'/'.$elem[$_POST['oszlop']]);
         $adatbazis_kapcsolat -> u($_POST['tabla'], $_POST['oszlop'], '', 'recid='.$_POST['id']);
         
     // Egyébként a cache fájlokat töröljük
     }else{
-        $utvonal = '../'.get_utvonal().'cache/jsfajlok/'.session_id().'*';
-        $session_kezdetu_fajlok = glob($utvonal);
-        foreach($session_kezdetu_fajlok as $utvonal){
-            unlink($utvonal);
+        
+        // Ha a post tábla egy konkrét útvonalat tartalmaz, akkor csak azt töröljük.
+        if( is_file($_POST['tabla']) ){
+            unlink($_POST['tabla']);
+        }else{
+            $utvonal = '../'.get_utvonal().'cache/jsfajlok/'.session_id().'*';
+            $session_kezdetu_fajlok = glob($utvonal);
+            foreach($session_kezdetu_fajlok as $utvonal){
+                unlink($utvonal);
+            }
         }
+        
     }
 
     $weblap -> leallit();
@@ -3568,7 +3608,49 @@ function get_admin_file_thumb($tabla, $oszlop, $id){
         }
         $fajlnev = basename($utvonal);
         if($cache_file){
-            list($x, $x, $x, $fajlnev, $x) = explode('|||', $utvonal);
+            $return = '';
+            $i = 0;
+            foreach($session_kezdetu_fajlok as $utvonal){
+                
+                $neve = basename($utvonal);
+                $kit = kit($neve);
+
+                if(is_file('../elemek/ikonok/'.$kit.'.png')){
+                    $akt_fajl = '../elemek/ikonok/'.$kit.'.png';
+                }else{
+                    $akt_fajl = '../elemek/ikonok/ismeretlen.png';
+                }
+                
+                list($x, $x, $x, $fajlnev, $x) = explode('|||', $utvonal);
+                
+                $return .= nl2('
+                        <div id="fajl_'.$tabla.'_'.$oszlop.'_'.$id.'">
+                            <script>var gombfajl_'.$oszlop.'_'.$i.'=get_fajl_torol_gomb2(\'sorszam_'.$i.'\', \''.$utvonal.'\', \''.$oszlop.'\');</script>
+                            <div id="fajl_'.$oszlop.'_sorszam_'.$i.'">
+
+                                <div class="file_thumb">
+                                    <div class="dtc vam" title="Fájl letöltése">
+                                        <a href="'.$utvonal.'" target="_blank">
+                                            <img alt="'.htmlspecialchars($sor['nev']).'" src="'.$akt_fajl.'" width="25" height="25">
+                                        </a>
+                                    </div>
+                                    <div class="dtc vam f13 full">
+                                        <a href="'.$utvonal.'" target="_blank">
+                                            '.$fajlnev.'
+                                        </a>
+                                    </div>
+                                    <div class="dtc vam link" onclick="alert2(\'Biztosan folytatja a csatolt fájl törlését?\', gombfajl_'.$oszlop.'_'.$i.')" title="Fájl törlése">
+                                       <i class="material-icons">delete</i>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    ');
+                $i++;
+            }
+            
+            return $return;
         }
 
         return nl2('

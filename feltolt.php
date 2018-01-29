@@ -191,11 +191,11 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
         }
         
         // Nézzük meg, hogy van-e SESSION id kezdetű fájl a könyvtárban
-        $utvonal = get_utvonal().'cache/jsfajlok/'.session_id().'*';
+        /*$utvonal = get_utvonal().'cache/jsfajlok/'.session_id().'*';
         $session_kezdetu_fajlok = glob($utvonal); //Ha több ilyen is van az azért lehet, mert több fájlfeltöltés input is volt a tömbben
         foreach($session_kezdetu_fajlok as $akt_fajl){
             unlink($akt_fajl);
-        }
+        }*/
         
         // A fájl sorszáma pedig a SESSION id-ja, ezzel azonosítva az aktuális munkafolymatot
         // majd #két sharp közt# az oszlop neve, hogy tudjuk, az adatbázisban melyik oszlopba kell beírni

@@ -1570,7 +1570,7 @@ require('selectek.php');
                                     Becsült költség:
                                 </div>
                                 <div class="dtc r">
-                                    <b id="becs_kolt">'.number_format($sor['bkolt'], 0, '', ' ').' '.get_penznem().'</b>
+                                    <b id="becs_kolt" class="nowrap">'.number_format($sor['bkolt'], 0, '', ' ').' '.get_penznem().'</b>
                                 </div>
                             </div>
                             <div class="dtr">
@@ -1578,7 +1578,7 @@ require('selectek.php');
                                     Szétosztott költség:
                                 </div>
                                 <div class="dtc r">
-                                    <b id="szetoszt_kolt"></b>
+                                    <b id="szetoszt_kolt" class="nowrap"></b>
                                 </div>
                             </div>
                             <div class="dtr">
@@ -1586,7 +1586,7 @@ require('selectek.php');
                                     Különbség:
                                 </div>
                                 <div class="dtc r">
-                                    <b id="kulonbseg"></b>
+                                    <b id="kulonbseg" class="nowrap"></b>
                                 </div>
                             </div>
                         </div>

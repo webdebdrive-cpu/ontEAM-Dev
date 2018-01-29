@@ -5170,7 +5170,7 @@ require('selectek.php');
 
         // Anyagra vár és anyag érkeztetése jog
         if( $sor['stat_id']==MUNKALAP_STAT_ANYAGRAVAR && _jog( JOG_MUNKALAP_ANYAG_ERKEZTET ) ){
-            $gombok .= '<input type="button" class="gomb foGomb" value="Anyag érkeztetés" onclick="csoportMuvelet(\'munkalapErkeztet\')"> ';
+            $gombok .= '<input type="button" class="gomb foGomb" value="Anyag rendelkezésre áll" onclick="csoportMuvelet(\'munkalapErkeztet\')"> ';
         }
 
         // Igazolás alatt státuszban látható. Munkalap vizsgálat alatt státuszba kerül.

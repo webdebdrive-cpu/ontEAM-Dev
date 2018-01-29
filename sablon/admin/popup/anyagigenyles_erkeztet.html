@@ -1,23 +1,22 @@
 <h2>Anyagok érkeztetése</h2>
 <form action="" id="anyagErkForm" class="popupForm" method="post" onsubmit="return anyagigenyles_erkeztet();">
     <div class="kozep"> 
-        <div class="c"> 
-            Adjon meg egy rendelésszámot!
+        <div> 
             <table>
                 <tr>
-                    <td class="r p">Rendelés szám:</td>
-                    <td class="l p"><input type="text" id="rsz" autocomplete="off" class="csillag"></td>
+                    <td class="r form_bal" style="width: 12rem">Rendelés szám:</td>
+                    <td class="l form_jobb"><input type="text" id="rsz" autocomplete="off" maxlength="8" class="csillag" style="width: 6.7rem"></td>
                 </tr>
                 <tr id="szallito_sor" class="dn">
-                    <td class="r p">Szállító:</td>
-                    <td class="l p">
-                        <input type="text" id="pop_szallito">
+                    <td class="r form_bal">Szállító:</td>
+                    <td class="l form_jobb">
+                        <input type="text" id="pop_szallito" style="width: 100%">
                     </td>
                 </tr>
             </table>
 
         </div>
-        <div id="rendeles_tetelek"></div>
+        <div id="rendeles_tetelek" style="max-height: 30rem; overflow-y: auto"></div>
     </div>
     <div class="kuldes">
         <input name="elkuld" value="Ok" type="submit">

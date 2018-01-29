@@ -273,8 +273,15 @@ foreach($akt_tomb as $ertek){
             if($ertek['value']){
                 $ertek['megn'] = $ertek['value'];
             }
+            
+            // Anyagrendelések alatt a cikkrendfej-ből kell már dolgozni
+            if($ertek['oldal']=='anyagigenyles' && isset($_GET['anyagrend'])){
+                $anyag       = $adatbazis_kapcsolat->s2('rndid', $ertek['oldal'], "`recid` = '".$_GET['id']."'");
+                $statusz_sor = $adatbazis_kapcsolat->s2('stat_id', 'cikkrendfej', "`rndid` = '".$anyag['rndid']."'");
+            }else{
+                $statusz_sor = $adatbazis_kapcsolat->s2('stat_id', $ertek['oldal'], "`recid` = '".$_GET['id']."'");
+            }
 
-            $statusz_sor = $adatbazis_kapcsolat->s2('stat_id', $ertek['oldal'], "`recid` = '".$_GET['id']."'");
             $statusz = '';
 
             if( $statusz_sor ) {
