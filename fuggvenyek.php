@@ -5757,7 +5757,7 @@ function valos_datum_e($datum){
 }
 
 // Levélküldés előtt jogot vizsgálunk, levél tartlamát kiszámoljuk
-function level_felkeszit_es_kuld($tabla, $recid, $jog){
+function level_felkeszit_es_kuld($tabla, $recid, $jog, $sablon){
     
     global $adatbazis_kapcsolat;
     $cimzett_mail = '';
@@ -5776,7 +5776,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $jog){
                 return false;
             }
         }
-        
+
         // Kinek menjen a mail?
         switch($tabla){
             // Bejelentőnek
@@ -5786,10 +5786,16 @@ function level_felkeszit_es_kuld($tabla, $recid, $jog){
                 $cimzett_mail = $bejelentes['usr_email'];
                 $telefon      = $bejelentes['usr_telefon'];
                 $targy        = $bejelentes['ikt_szam'].' hibabejelentés '. getStatText($tabla, $bejelentes['stat_id']);
-                $uzi          = $targy;
+                $uzi          = fajlbol_olvas('../sablon/admin/mail/'.$sablon.'.html');
                 $loginnev     = $bejelentes['loginnev'];
             break;
         }
+        
+        // Paraméterek cseréje
+        $mit   = array('{NEV}');
+        $mivel = array($cimzett_nev);
+        $uzi   = str_replace($mit, $mivel, $uzi).fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        
         // Aktív-e és nem virtuális-e a felhasználó, van-e mailcíme? Ha nem, kilépünk
         $login = $adatbazis_kapcsolat -> s2('teljes_nev usermail aktiv virtual', 'login', "`nev` = '{$loginnev}'");
         if(!$login['aktiv'] || $login['virtual'] || !$login['usermail']){
@@ -5806,6 +5812,7 @@ $cimzett_mail = $tmp['usermail'];
 
         // Tényleges küldés
         $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $cimzett_nev, $cimzett_mail, $targy, $uzi);
+        
         // Ha van értéke, az egy hibaüzenet, akor sikerült küldeni, ha nincs visszatérési érték
         if( $sikeres_kuldes ){
 

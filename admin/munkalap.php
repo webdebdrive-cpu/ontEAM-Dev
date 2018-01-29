@@ -809,7 +809,8 @@ if( isset($_POST['munkalapKeszre']) ) {
             
             // Levélküldés
             foreach($mail_megy as $bejelentes_id){
-                $valasz = level_felkeszit_es_kuld('bejelentes', $bejelentes_id, _jog(JOG_BEJELENTES_SAJAT_RESZL));
+                $valasz = level_felkeszit_es_kuld('bejelentes', $bejelentes_id, _jog(JOG_BEJELENTES_SAJAT_RESZL), 'munkalapKeszre');
+
                 if( substr($valasz, 0, 4)=='Hiba' ){
                     echo json_encode(array(
                         'hiba'  => $valasz,
@@ -1686,6 +1687,22 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             ));
             $weblap->leallit();
             exit();
+        }
+        
+        // Javaslattétel esetén ellenőrizzük, hogy van-e már fájl
+        if( isset($_POST['javaslattetel']) ){
+            $van_doksi = $adatbazis_kapcsolat->s('recid', 'munkalap_dok', "`munkalap_id`='{$recid}'", '', '1');
+            if( $van_doksi === false ) { $db_error = true; }
+            
+            // Ha nincs egyetlen dokumentum sem, akkor figyelmeztetés
+            if(!$van_doksi){
+                echo json_encode(array(
+                    'hiba'  => 'Javaslattételhez töltsön fel egy dokumentumot!<br>(árajánlat, összesítő stb.)',
+                    'title' => 'Hiba',
+                ));
+                $weblap->leallit();
+                exit();
+            }
         }
 
         // Munkalap update
@@ -2762,7 +2779,7 @@ if( isset($_POST['munkalapErkeztet']) ) {
             <th>Szükséges mennyiség</th>
             <th>Mee</th>
             <th>Anyag státusz</th>
-            <th>Anyag beérkezett</th>
+            <th>Anyag rendelkezésre áll</th>
         </tr>
         ');
 
@@ -2776,7 +2793,7 @@ if( isset($_POST['munkalapErkeztet']) ) {
             }
         }
 
-        // ha anyagstátusz= igénylés alatt vagy igényelve, anyag beérkezett oszlopban pipáló
+        // ha anyagstátusz = igénylés alatt vagy igényelve, anyag beérkezett oszlopban pipáló
         // ha anyagstátusz=rendelkezésre áll vagy üres (ez elvileg nem lehet), szürkén mutatjuk sort és nem tud pipálni
         $disabled = '';
         $szurkit  = '';

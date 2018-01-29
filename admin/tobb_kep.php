@@ -27,32 +27,56 @@ if(basename($_SERVER['PHP_SELF']) == 'eszkozkezeles.php' && isset($_GET['engedel
 // Képfeltöltés
 if(isset($_POST['session_name'])){
 
-    session_id($_POST['session_name']);
-    session_start();
-    require_once('../weblap.php');
+    // Ha a megnevezés csak annyi, hogy javaslattetel_popup, akkor munkalap javaslattétel popuján töltünk fel képet, ekkor másképp kell eljárni
+    if($_POST['megnevezes']=='javaslattetel_popup'){
+        
+        require_once('../weblap.php');
+        $konyvtar_db_nev = csonkit($_SESSION['fajl']['tabla'], 4);
+        $utvonal = '../'.get_utvonal().'munkalap';
+        $ikt_szam = $adatbazis_kapcsolat->s2('recid ikt_szam', 'munkalap', "`recid` = '".$_POST['sorid']."'", '', '1');
+        if( $ikt_szam ) {
+            $utvonal = $utvonal.'/'.str_replace('/', '_', $ikt_szam['ikt_szam']);
+            if( !is_dir($utvonal) ) {
+                mkdir($utvonal, 0777);
+            }
+        }
+        
+        // JS alapú fájlfeltöltés esetén a $_FILES['file'] tömbben vannak az adatok a $_FILES[megnevezés] helyett
+        if($_FILES['file']){
+            $_FILES[ $_SESSION['fajl']['megnevezes'] ] = $_FILES['file'];
+        }
+        
+        $sor_kepek = 'munkalap';
+        $tobbkep_tablanev = 'munkalap_dok';
+        
+    // Általános eset
+    }else{
+        
+        session_id($_POST['session_name']);
+        session_start();
+        require_once('../weblap.php');
 
-    $konyvtar_db_nev = csonkit($_SESSION['fajl']['tabla'], 4);
-    $utvonal = '../'.get_utvonal().$konyvtar_db_nev; //utolsó 4 karakter a "_dok", ezt levesszük
+        $konyvtar_db_nev = csonkit($_SESSION['fajl']['tabla'], 4);
+        $utvonal = '../'.get_utvonal().$konyvtar_db_nev; //utolsó 4 karakter a "_dok", ezt levesszük
 
-    if(!is_dir($utvonal)){
-        mkdir($utvonal, 0777);
-    }
-
-    $ikt_szam = $adatbazis_kapcsolat->s2('recid ikt_szam', $_SESSION['fajl']['konyvtar'], "`recid` = '".$_POST['sorid']."'", '', '1');
-
-    if( $ikt_szam ) {
-
-        $utvonal = $utvonal.'/'.str_replace('/', '_', $ikt_szam['ikt_szam']);
-
-        if( !is_dir($utvonal) ) {
+        if(!is_dir($utvonal)){
             mkdir($utvonal, 0777);
+        }
+
+        $ikt_szam = $adatbazis_kapcsolat->s2('recid ikt_szam', $_SESSION['fajl']['konyvtar'], "`recid` = '".$_POST['sorid']."'", '', '1');
+        if( $ikt_szam ) {
+            $utvonal = $utvonal.'/'.str_replace('/', '_', $ikt_szam['ikt_szam']);
+            if( !is_dir($utvonal) ) {
+                mkdir($utvonal, 0777);
+            }
+        }
+        
+        // JS alapú fájlfeltöltés esetén a $_FILES['file'] tömbben vannak az adatok a $_FILES[megnevezés] helyett
+        if($_FILES['file']){
+            $_FILES[$_POST['megnevezes']] = $_FILES['file'];
         }
     }
 
-    // JS alapú fájlfeltöltés esetén a $_FILES['file'] tömbben vannak az adatok a $_FILES[megnevezés] helyett
-    if($_FILES['file']){
-        $_FILES[$_POST['megnevezes']] = $_FILES['file'];
-    }
 
 	// Tiltott fájlformátumok kiszűrése, szitnén nincs feltöltés
 	$tiltott_fajlok = array('text/x-js', 'text/css', 'text/html', 'application/xhtml+xml', 'text/xml');
@@ -237,6 +261,12 @@ $szamla_html .= $tobbkep_html;
 // A több képe thumbnailját hozza létre, egy adatbázis sorból
 function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
 
+    $javaslattetel = '';
+    if($_POST['megnevezes']=='javaslattetel_popup'){
+        $tabla = 'munkalap_dok';
+        $javaslattetel = 'javaslattetel';
+    }
+    
     require_once('../weblap.php');
     $tobbkep_html = '';
     
@@ -280,7 +310,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
         if( $sor_kepek['loginnev'] == $_SESSION[get_db_tabla().'user']  ){
             $torles = '
                         <script>
-                            dok_torol_gomb_'.$sor_kepek['recid'].' = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\''.$tabla.'\\\', \\\''.$betolt.'\\\', \\\'\\\', \\\''.$sor_kepek['recid'].'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
+                            dok_torol_gomb_'.$sor_kepek['recid'].' = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\''.$tabla.'\\\', \\\''.$betolt.'\\\', \\\''.$javaslattetel.'\\\', \\\''.$sor_kepek['recid'].'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
                         </script>
                         <span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy törli a(z) '.$sor_kepek['fajlnev'].' dokumentumot?\', dok_torol_gomb_'.$sor_kepek['recid'].');"><i class="material-icons" style="font-size: 2rem">delete</i></span>
                 ';

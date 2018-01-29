@@ -756,6 +756,7 @@ div.jsff div.talloz div{
     border-radius: 0.2rem;
     color: #fff;
     cursor: pointer;
+    display: block;
     font-size: 1.4rem;
     padding: 0.6rem 1.2rem;
     position: relative;
@@ -780,6 +781,7 @@ div.jsff div.talloz div input{
 
 div.jsff progress{
     background-color: #fff;
+    display: block;
     margin-top: 1rem;
     width: 95%;
 }
@@ -872,6 +874,7 @@ div.jsff_thumb div.torol:hover{
 
 /* Több kép thumbnailjai */
 #sorrendezes,
+#feltoltott_fajl,
 #sorrendezes_album,
 #sorrendezes_tobbkep,
 #sorrendezes_bejegyzes{
@@ -879,6 +882,7 @@ div.jsff_thumb div.torol:hover{
 }
 
 #sorrendezes li,
+#feltoltott_fajl li,
 #sorrendezes_album li,
 #sorrendezes_tobbkep li,
 #sorrendezes_bejegyzes li{
@@ -893,6 +897,7 @@ div.jsff_thumb div.torol:hover{
 }
 
 #sorrendezes li div.nagyit,
+#feltoltott_fajl li div.nagyit,
 #sorrendezes_album li div.nagyit,
 #sorrendezes_tobbkep li div.nagyit,
 #sorrendezes_bejegyzes li div.nagyit {
@@ -910,6 +915,7 @@ div.jsff_thumb div.torol:hover{
 
 .material-icons.kek,
 #sorrendezes li div.nagyit a .material-icons,
+#feltoltott_fajl li div.nagyit a .material-icons,
 #sorrendezes_album li div.nagyit a .material-icons,
 #sorrendezes_tobbkep li div.nagyit a .material-icons,
 #sorrendezes_bejegyzes li div.nagyit a .material-icons {
@@ -921,6 +927,7 @@ div.jsff_thumb div.torol:hover{
 }
 
 #sorrendezes li div.torol,
+#feltoltott_fajl li div.torol,
 #sorrendezes_album li div.torol,
 #sorrendezes_tobbkep li div.torol,
 #sorrendezes_bejegyzes li div.torol{
@@ -936,11 +943,12 @@ div.jsff_thumb div.torol:hover{
     width: 2.2rem;
 }
 
-#sorrendezes_tobbkep li div.nagyit a {
+#sorrendezes_tobbkep li div.nagyit a, #feltoltott_fajl li div.nagyit a {
     display: inline-block;
 }
 
 #sorrendezes li:hover div.torol:hover,
+#feltoltott_fajl li:hover div.torol:hover,
 #sorrendezes_album li:hover div.torol:hover,
 #sorrendezes_tobbkep li:hover div.torol:hover,
 #sorrendezes_bejegyzes li:hover div.torol:hover {
@@ -948,6 +956,7 @@ div.jsff_thumb div.torol:hover{
 }
 
 #sorrendezes li.fajl,
+#feltoltott_fajl li.fajl,
 #sorrendezes_album li.fajl,
 #sorrendezes_tobbkep li.fajl,
 #sorrendezes_bejegyzes li.fajl{
@@ -963,6 +972,7 @@ div.jsff_thumb div.torol:hover{
 }
 
 #sorrendezes li div.kep,
+#feltoltott_fajl li div.kep,
 #sorrendezes_album li div.kep,
 #sorrendezes_tobbkep li div.kep,
 #sorrendezes_bejegyzes li div.kep{
@@ -979,6 +989,7 @@ div.jsff_thumb div.torol:hover{
 
 
 #sorrendezes li div.kep div,
+#feltoltott_fajl li div.kep div,
 #sorrendezes_album li div.kep div,
 #sorrendezes_tobbkep li div.kep div,
 #sorrendezes_bejegyzes li div.kep div {
@@ -988,7 +999,7 @@ div.jsff_thumb div.torol:hover{
     width: 2.5rem;
 }
 
-#sorrendezes_tobbkep li div.kep img {
+#sorrendezes_tobbkep li div.kep img, #feltoltott_fajl li div.kep img{
     width: auto;
     max-height: 100%;
     max-width: none;
@@ -999,6 +1010,7 @@ div.jsff_thumb div.torol:hover{
 }
 
 #sorrendezes li div.kep_fajl,
+#feltoltott_fajl li div.kep_fajl,
 #sorrendezes_album li div.kep_fajl,
 #sorrendezes_tobbkep li div.kep_fajl,
 #sorrendezes_bejegyzes li div.kep_fajl{
@@ -1011,6 +1023,7 @@ div.jsff_thumb div.torol:hover{
 }
 
 #sorrendezes li div.felirat,
+#feltoltott_fajl li div.felirat,
 #sorrendezes_album li div.felirat,
 #sorrendezes_tobbkep li div.felirat,
 #sorrendezes_bejegyzes li div.felirat {
@@ -1029,6 +1042,7 @@ div.jsff_thumb div.torol:hover{
 }
 
 #sorrendezes li div.maradek,
+#feltoltott_fajl li div.maradek,
 #sorrendezes_album li div.maradek,
 #sorrendezes_tobbkep li div.maradek,
 #sorrendezes_bejegyzes li div.maradek {
@@ -1043,12 +1057,14 @@ div.jsff_thumb div.torol:hover{
     vertical-align: middle;
 }
 #sorrendezes li div.maradek.r,
+#feltoltott_fajl li div.maradek.r,
 #sorrendezes_album li div.maradek.r,
 #sorrendezes_tobbkep li div.maradek.r,
 #sorrendezes_bejegyzes li div.maradek.r {
     text-align: right;
 }
 #sorrendezes li div.maradek.torles,
+#feltoltott_fajl li div.maradek.torles,
 #sorrendezes_album li div.maradek.torles,
 #sorrendezes_tobbkep li div.maradek.torles,
 #sorrendezes_bejegyzes li div.maradek.torles {
@@ -1057,6 +1073,7 @@ div.jsff_thumb div.torol:hover{
 }
 
 #sorrendezes li:not(.kijelolve):hover,
+#feltoltott_fajl li:not(.kijelolve):hover,
 #sorrendezes_album li:not(.kijelolve):hover,
 #sorrendezes_tobbkep li:not(.kijelolve):hover,
 #sorrendezes_bejegyzes li:not(.kijelolve):hover {
@@ -1064,6 +1081,7 @@ div.jsff_thumb div.torol:hover{
 }
 
 #sorrendezes li.nohover:hover,
+#feltoltott_fajl li.nohover:hover,
 #sorrendezes_album li.nohover:hover,
 #sorrendezes_tobbkep li.nohover:hover,
 #sorrendezes_bejegyzes li.nohover:hover {
@@ -1509,8 +1527,10 @@ div.header div.dtc.logo {
 div.header div.dtc.logo a {
     border-right: 0.1rem solid #e6e6e6;
     display: inline-block;
-    height: 2rem;
+    height: 3.4rem;
+    margin-top: 0.3rem;
     width: 11.4rem;
+    padding-right: 0.9rem;
 }
 
 div.header div.dtc.logo a img {

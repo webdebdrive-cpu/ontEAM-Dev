@@ -270,7 +270,7 @@
 
                         /* Autcomplete után a következő inputra fókusz */
                         stop = false;
-                        form.find('input:not([readonly]), select:not([readonly]), textarea:not([readonly])').filter(':not(:disabled)').each(function() {
+                        form.find('input:not([readonly]), select:not([readonly]), textarea:not([readonly])').filter(':not(:disabled)').filter(":not([type='file'])").each(function() {
                             var name = $(this).attr('name'),
                                 type = $(this).attr('type'),
                                 tag  = $(this).prop('tagName');
@@ -326,7 +326,7 @@
                 }
             });
 
-            /* Bárhova kattintva az oldalon, vagy Entert nomva, az autocomplete záródjon be  */
+            /* Bárhova kattintva az oldalon, vagy Entert nyomva, az autocomplete záródjon be  */
             that = $(this);
             $(document).click(function() {
                 $('#autocomplete').css({'display':'none'}).html('');
@@ -424,7 +424,7 @@
                                 var form = $('input[name="' + mezo_nev + '"]').parents('form');
 
                                 stop = false;
-                                form.find('input, select, textarea').filter(':not(:disabled)').filter(":not([readonly='readonly'])").each(function() {
+                                form.find('input, select, textarea').filter(':not(:disabled)').filter(":not([readonly='readonly'])").filter(":not([type='file'])").each(function() {
                                     var name = $(this).attr('name'),
                                         type = $(this).attr('type'),
                                         tag  = $(this).prop('tagName');

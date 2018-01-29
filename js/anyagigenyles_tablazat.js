@@ -53,31 +53,31 @@ $(document).on('keyup', '.szamla_cont_tabla input', function(e) {
         formModositva = false;
     }
     
-    /* Enterre újraszámoljuk a táblázat alatti összesítsét */
-    osszeg = 0;
-    if (e.which == KEY_ENTER) {
-
-        $('.szamla_cont_tabla tbody tr').each(function () {
-            id = $(this).attr('data-recid');
-
-            /* Ha van input, akkor annak az értéke */
-            if( $('#jhmen_'+id).length ){
-                jhmen = Number( $('#jhmen_'+id).val().replace(',', '.').replace(' ', '') );
-
-            /* Ha nincs input, akkor a TD értéke */
-            }else{
-                jhmen = Number( $('#td_jhmen_'+id).html().replace(',', '.').replace(' ', ''));
-            }
-
-            rndear  = Number( $('#td_rndear_'+id).html().replace(',', '.').replace(' ', ''));
-            osszeg += jhmen*rndear;
-        });
-        $('#rend_ertek').html( ezresek(osszeg, 0, '', ' ') );
-        
-    }
-    
 });
 
+/* Mező elhagyásakor */
+$(document).on('blur', '.szamla_cont_tabla input', function(e) {
+    /* Enterre újraszámoljuk a táblázat alatti összesítsét */
+    osszeg = 0;
+
+    $('.szamla_cont_tabla tbody tr').each(function () {
+        id = $(this).attr('data-recid');
+
+        /* Ha van input, akkor annak az értéke */
+        if( $('#jhmen_'+id).length ){
+            jhmen = Number( $('#jhmen_'+id).val().replace(',', '.').replace(' ', '') );
+
+        /* Ha nincs input, akkor a TD értéke */
+        }else{
+            jhmen = Number( $('#td_jhmen_'+id).html().replace(',', '.').replace(' ', ''));
+        }
+
+        rndear  = Number( $('#td_rndear_'+id).html().replace(',', '.').replace(' ', ''));
+        osszeg += jhmen*rndear;
+    });
+    $('#rend_ertek').html( ezresek(osszeg, 0, '', ' ')+' Ft' );
+        
+});
 
 /* Anyagigénylés táblázat Ctrl+Shift kijelölése */
 $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {

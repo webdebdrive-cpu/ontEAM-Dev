@@ -709,6 +709,10 @@ require_once('selectek.php');
                         $dn_pipa  = ' dn';
                         $dn_pipac = ' class="dn"';
                     }
+                    $dn_mail  = ' dn';
+                    if($jogSor['mail']){
+                        $dn_mail = '';
+                    }
 
                     $szamla_html .= nl2('
                         <div class="dtr'.$dn.'">
@@ -720,7 +724,7 @@ require_once('selectek.php');
                                     <label'.$dn_pipac.' for="jog-'.$jogSor['id'].'"></label>
                                 </div>
                             </div>
-                            <div class="dtc form_jobb">
+                            <div class="dtc form_jobb'.$dn_mail.'">
                                 <div class="cb">
                                     <input type="hidden" name="mail-'.$jogSor['id'].'" value="0">
                                     <input type="checkbox" class="check'.$dn_pipa.'" name="mail-'.$jogSor['id'].'" id="mail-'.$jogSor['id'].'" value="1"'.$mail_checked.'>

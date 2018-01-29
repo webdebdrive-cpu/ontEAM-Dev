@@ -60,7 +60,9 @@ if(isset($_POST['jelszo_csere'])) {
                 }
 
                 $adatbazis_kapcsolat -> bezar();
+                
                 header('Location: http://'.$_SESSION['kert_url']);
+
                 exit();
             }
         } else {
@@ -85,6 +87,7 @@ if(isset($_POST['megsem'])) {
 // Belétetés
 if(isset($_POST['login'])) {
 
+    unset($_SESSION['bejelento_menu_rejt']);
     if( $_POST['nev'] ) {
         $helyesseg = sha1($_POST['nev'].$_POST['jelszo']);
 
@@ -114,13 +117,37 @@ if(isset($_POST['login'])) {
 
                     $adatbazis_kapcsolat -> u('login', array('login_dt'), array(date('Y-m-d H:i:s')), '`recid` = \''.$felhasznalo['recid'].'\'');
 
+                    // Vizsgáljuk, hogy csak bejelentés joga van-e. Ha igen, akkor bejelentések menüopntra visszük egyből
+                    $i = 0;
+                    $bejelento = true;
+                    foreach($_SESSION[get_db_tabla().'rights'] as $flag){
+                        if($flag && $i!=0 && $i!=56 && $i!=57 ){
+                            $bejelento = false;
+                        }
+                        $i++;
+                    }
+                    if($bejelento){
+                        $_SESSION['bejelento_menu_rejt'] = 1;
+                    }
+                    
                     if( $_POST['ajax'] ) {
-                        echo json_encode(array(
-                            'statusz' => 'siker'
-                        ));
+                        if($bejelento){
+                            echo json_encode(array(
+                                'statusz' => 'bejelento'
+                            ));
+                        }else{
+                            echo json_encode(array(
+                                'statusz' => 'siker'
+                            ));
+                        }
                     } else {
+
+                        if($bejelento){
+                            header('Location: http://'.$_SERVER['HTTP_HOST'].'/'.get_admin().'bejelentes.php');
+                        }else{
+                            header('Location: http://'.$_SESSION['kert_url']);
+                        }
                         $adatbazis_kapcsolat -> bezar();
-                        header('Location: http://'.$_SESSION['kert_url']);
                         exit();
                     }
                 } else {
@@ -168,6 +195,7 @@ if(isset($_GET['kilep'])){
     unset($_SESSION[get_db_tabla().'szallito_id']);
     unset($_SESSION['user_adatok']);
     unset($_SESSION[get_db_tabla().'rights']);
+    unset($_SESSION['bejelento_menu_rejt']);
 
     $adatbazis_kapcsolat -> bezar();
     header('Location:index.php');

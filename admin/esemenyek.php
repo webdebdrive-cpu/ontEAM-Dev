@@ -1657,7 +1657,7 @@ $tav_26 = '<span style="margin-left: 2.6rem"></span>';
 $tav_4  = '<span style="margin-left: 4rem"></span>';
 $anyagigenyles_tomb = $akt_tomb = array(
     array('type' => 'statusz',                  'megn' => 'Státusz:',                       'name' => 'stat_id',        'szuro' => 1,   'oldal' => $megnevezes),
-    array('type' => 'text',                     'megn' => 'Anyagigénylés szám:',            'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 8rem'),
+    array('type' => 'text',                     'megn' => 'Anyagigénylés szám:',            'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 8rem'),
 //    array('type' => 'checkbox',                 'megn' => 'Készpénzes:',                    'name' => 'keszpenz',       'szuro' => 1,   'disabled' => 1,   'post' => $post),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                      'name' => 'telephely_id',   'szuro' => 1,   'disabled' => 1,   'class' => 'disableNav',   'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'text',                     'megn' => 'Cikkszám:',                      'name' => 'cikk_id',        'szuro' => 1,   'disabled' => 1),
@@ -1682,12 +1682,12 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 if (isset($_GET['anyagrend'])) {
     $anyagigenyles_tomb = $akt_tomb = array(
         array('type' => 'statusz',                  'megn' => 'Státusz:',                       'name' => 'stat_id',        'szuro' => 1,   'oldal' => $megnevezes),
-        array('type' => 'text',                     'megn' => 'Rendelés szám:',                 'name' => 'rndid',          'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 6.4rem'),
+        array('type' => 'text',                     'megn' => 'Rendelés szám:',                 'name' => 'rndid',          'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 6.6rem'),
         array('type' => 'text',                     'megn' => 'Rendelés dátum:',                'name' => 'rnd_dt',         'szuro' => 1,   'disabled' => 1,   'style' => 'width: 7.4rem'),
         array('type' => 'text',                     'megn' => 'Rendelés érték:',                'name' => 'rndertek',       'szuro' => 1,   'disabled' => 1,   'style' => 'width: 7.3rem; text-align: right', 'osszevon' => 1, 'post' => ' '.get_penznem().'<span style="margin-left: 4.5rem"></span>'),
         array('type' => 'checkbox',                 'megn' => 'Készpénzes:',                    'name' => 'keszpenz',       'szuro' => 1,   'disabled' => 1),
         array('type' => 'autocomplete',             'megn' => 'Szállító:',                      'name' => 'szallito_id',    'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'id_kiir' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
-        array('type' => 'text',                     'megn' => 'Képfájl:',                       'name' => 'kepfajl',        'szuro' => 1,   'disabled' => 1),
+        array('type' => 'text',                     'megn' => 'Képfájl:',                       'name' => 'kepfajl',        'szuro' => 0,   'disabled' => 1),
     );
 }
 
@@ -2582,7 +2582,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
 
                 $hiba = '';
                 foreach($idk as $id){
-                    $valasz = level_felkeszit_es_kuld($level_tabla, $id, $level_jog);
+                    $valasz = level_felkeszit_es_kuld($level_tabla, $id, $level_jog, 'bejelentesElutasit');
                     if( substr($valasz, 0, 4)=='Hiba' ){
                         $hiba .= $valasz;
                     }
@@ -3576,6 +3576,7 @@ if (isset($_GET['get_admin_file_thumb'])) {
     $weblap -> leallit();
     exit;
 }
+// Képek fájlok, fileok kiírátása
 function get_admin_file_thumb($tabla, $oszlop, $id){
 
     global $adatbazis_kapcsolat;
@@ -4229,7 +4230,7 @@ if(isset($_POST['del'])){
 	exit();
 }
 
-//Kép törlése
+// Kép törlése
 if(isset($_GET['keptorol']) && $_GET['keptorol']!=''){
 
 	if(isset($_GET['tabla'])){//Tehát a kép útvonala adatbázisban volt mentve, azt kell törölni

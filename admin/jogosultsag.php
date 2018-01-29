@@ -25,12 +25,12 @@ $jogosultsagok = array(
 
 //Törölni így tudsz:
 //123  => array('torolve' => 'TÖRÖLVE - a lényeg, hogy legyen egy torolve attribútuma is.',  'nev' => 'A törölt jog neve',   'kat' => 123, 'sor' => 123),
-    0  => array('nev' => 'Saját részleg bejelentések megtekintése',         'kat' => 0, 'sor' => 0  ),
+    0  => array('nev' => 'Saját részleg bejelentések megtekintése',         'kat' => 0, 'sor' => 0, 'mail' => 1 ),
     57 => array('nev' => 'Saját szállodák bejelentéseinek megtekintése',    'kat' => 0, 'sor' => 1  ),
     1  => array('nev' => 'Bejelentés saját névben',                         'kat' => 0, 'sor' => 2  ),
     56 => array('nev' => 'Bejelentés más nevében',                          'kat' => 0, 'sor' => 3  ),
     41 => array('nev' => 'Bejelentések elutasítása',                        'kat' => 0, 'sor' => 4  ),
-    71 => array('nev' => 'Bejelentések vizsgálat',                          'kat' => 0, 'sor' => 5  ),
+    71 => array('nev' => 'Bejelentések vizsgálat',                          'kat' => 0, 'sor' => 5, 'mail' => 1  ),
     72 => array('nev' => 'Bejelentések törlése',                            'kat' => 0, 'sor' => 6  ),
 
     75 => array('torolve' => 'TÖRÖLVE', 'nev' => 'Munkaidő hozzáadása',     'kat' => 1, 'sor' => 0  ),

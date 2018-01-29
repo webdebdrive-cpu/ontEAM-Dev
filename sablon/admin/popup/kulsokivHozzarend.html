@@ -22,6 +22,185 @@
                     </script>
                 </div>
             </div>
+            <div class="dtr">
+                <div class="dtc form_jobb plr0" style="padding-top: 2rem;">
+                    <strong>Dokumentumok hozzáadása:</strong>
+                    
+                    <div id="jsff_javaslattetel_popup" class="jsff">
+                        <span class="uzenet">
+                            <span class="f15">Húzza ide a fájlokat</span>
+                            <br>vagy tallózza be az alábbi gombbal:
+                        </span>
+                        <span class="hiba"></span>
+                        <br>
+                        <div class="talloz">
+                            <div>
+                                <span>Tallózás</span> <input type="file" name="files[]" multiple="" onchange="beolvasas_javaslattetel_popup(this.files, false);">
+                            </div>
+                        </div>
+                    </div>
+                    <ul id="feltoltott_fajl" data-tabla="munkalap_dok" data-mellek="dokumentumok"></ul>
+
+                    <script>
+                    var jsff_javaslattetel_popup = document.getElementById('jsff_javaslattetel_popup'),
+                        tests_javaslattetel_popup = {
+                            filereader  : typeof FileReader != 'undefined',
+                            dnd         : 'draggable' in document.createElement('span'),
+                            formdata    : !!window.FormData,
+                            progress    : 'upload' in new XMLHttpRequest
+                        },
+                        kepformatumok_javaslattetel_popup = {
+                            'image/png' : true,
+                            'image/jpeg': true,
+                            'image/gif' : true
+                        };
+
+                    /* Előnézet */
+                    function elonezet_javaslattetel_popup(file){
+
+                        /* Ha van filereader, és képelemről van szó, akkor készítünk egy thumbnailt */
+                        if (tests_javaslattetel_popup.filereader === true && kepformatumok_javaslattetel_popup[file.type] === true) {
+                            var reader = new FileReader();
+                            reader.onload = function (event) {
+                                var image   = new Image();
+                                image.src   = event.target.result;
+                                jsff_javaslattetel_popup.appendChild(image);
+                            };
+                            reader.readAsDataURL(file);
+
+                        /* Egyébként csak egy sort írunk */
+                        }else{
+                            jsff_javaslattetel_popup.innerHTML += 'Feltöltve ' + file.name + ' ' + (file.size ? (file.size/1024|0) + 'K' : '') + '<br>';
+                        }
+
+                    }
+
+                    /* Beolvasás */
+                    function beolvasas_javaslattetel_popup(fajlok, ellenorzes_kihagy) {
+
+                        var voltmar = [];
+
+                        var formData        = tests_javaslattetel_popup.formdata ? new FormData() : null;
+                        var fajlok_kesz     = 0;
+
+                        for (var i = 0; i < fajlok.length; i++){
+
+                            formData.append('file', fajlok[i]);
+                            /* Kép megjelenítése egyből: */
+                            /*elonezet_javaslattetel_popup(fajlok[i]);*/
+
+                            fajl = fajlok[i];
+
+                            var progress_id = 'jsff_javaslattetel_popup_' + i;
+                            var pg = $('<progress id="'+progress_id+'" min="0" max="100" value="0">0</progress>');
+                            $('#jsff_javaslattetel_popup').append(pg);
+
+                            var xhr = new XMLHttpRequest();
+                            xhr.open('POST', 'tobb_kep.php');
+
+                            (function(progress_id, fajl, i){
+                                xhr.upload.onprogress = function(e){
+                                    var percent = parseInt(e.loaded / e.total * 100);
+                                    $('#' + progress_id).val(percent);
+                                };
+                                xhr.onload = function(){
+                                    fajlok_kesz++;
+                                    $('#' + progress_id).val(100);
+                                    $('#' + progress_id).fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
+
+                                    if( this.responseText == 'frissit' ) {
+                                        if(fajlok_kesz == fajlok.length) {
+                                            szamlaBetolt(_get('id'), 'munkalap.php', 'dokumentumok');
+                                        }
+                                    } else {
+                                        if(this.responseText.substring(0,5)=='Hiba!') {
+                                            if( this.responseText.substring(5) == 'A fájl létezik!' ) {
+                                                voltmar[i] = fajl;
+                                            } else {
+                                                alert2(this.responseText.substring(5), '', 'Hiba');
+                                            }
+                                        }else{
+                                            $('#feltoltott_fajl').append(this.responseText);
+                                            if (fajlok_kesz == fajlok.length){
+                                                minden_fajl_kesz_javaslattetel_popup();
+                                            }
+                                        }
+
+                                        if(fajlok_kesz == fajlok.length){
+                                            if( voltmar.length ) {
+                                                fajl_feluliras_alert_javaslattetel_popup(voltmar);
+                                            }
+                                        }
+                                    }
+                                };
+                            }(progress_id, fajl, i));
+
+                            var parameterek = {'session_name':'', 'megnevezes':'javaslattetel_popup', 'sorid':_get('id')};
+                            $.each(parameterek, function(kulcs, ertek){
+                                formData.append(kulcs, ertek);
+                            });
+
+                            formData.append('ellenorzes_kihagy', ellenorzes_kihagy);
+
+                            xhr.send(formData);
+
+                        }
+
+                        if( ellenorzes_kihagy ) {
+                            alert2('');
+                        }
+                    }
+                    felulirando_fajlok = false;
+                    function fajl_feluliras_alert_javaslattetel_popup(tomb) {
+                        if( tomb ) {
+                            nevek = 'A következő fájlok már léteznek, felülírja őket?';
+                            for (var i = 0; i < tomb.length; i++){
+                                nevek += '<p>' + tomb[i].name + '</p>';
+                            }
+
+                            felulirando_fajlok = tomb;
+                            alert2(nevek, '<input class="gomb zold" value="Igen" onclick="fajl_feluliras_javaslattetel_popup();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">', 'Hiba');
+                        }
+                    }
+
+                    function fajl_feluliras_javaslattetel_popup() {
+                        beolvasas_javaslattetel_popup(felulirando_fajlok, true);
+
+                        felulirando_fajlok = false;
+                    }
+
+                    /* Ha minden fájl feltöltése kész, akkor itt adhat meg további utasítás */
+                    function minden_fajl_kesz_javaslattetel_popup(){
+
+                        $('#jsff_javaslattetel_popup').find('progress').fadeOut(2000, function(){ $('#' + progress_id).next('br').remove(); });
+                        
+                    }
+
+                    /* Ha működik a drag&drop, akkor a CSS class-t megváltoztatjuk draghoverre */
+                    if(tests_javaslattetel_popup.dnd){
+
+                        jsff_javaslattetel_popup.ondragover = function(){
+                            this.className = 'jsff hover';
+                            return false;
+                        };
+
+                        jsff_javaslattetel_popup.ondragleave = function(){
+                            this.className = 'jsff';
+                            return false;
+                        };
+
+                        jsff_javaslattetel_popup.ondrop = function(e){
+                            this.className = 'jsff';
+                            e.preventDefault();
+                            beolvasas_javaslattetel_popup(e.dataTransfer.files, false);
+                        };
+
+                    }
+                    </script>
+
+                    
+                </div>
+            </div>
         </div>
     </div>
     <div class="kuldes">
