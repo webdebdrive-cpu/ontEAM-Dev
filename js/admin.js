@@ -861,7 +861,6 @@ $(function() {
             val  = $(this).val();
 
         if( name != 'mehet_gomb'  ) {
-
             var taroltVal = htmlspecialchars_decode(formAdatok[name]);
             if(taroltVal===undefined){
                 taroltVal = '';
@@ -973,7 +972,8 @@ $(function() {
             if(!taroltVal && (val=='false' || val==false) ){
                 val = '';
             }
-
+console.log(val+' '+taroltVal);
+/*console.log(name+' db:'+taroltVal+'|itt:'+val);*/
             if( taroltVal != val ) {
                 $(this).addClass('mod');
             } else {
@@ -3963,7 +3963,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
         }
 
         var full_szoveg = '';
-        if(tabla=='munkalap' || _get('modosit')){
+        if(tabla=='munkalap' && _get('modosit')){
             full_szoveg = 'Biztosan törli a bejelentést a munkalapról?';
         }
         if(_get('engedelyek')){
@@ -3973,7 +3973,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
             szoveg = 'megtérüléseket';
         }
         if(_get('szallodak')){
-            szoveg = 'szállodákat';
+            szoveg = 'szállodákat'; 
         }
         if(_get('velemenyezok')){
             szoveg = 'véleményezőket';

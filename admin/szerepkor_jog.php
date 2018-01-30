@@ -230,6 +230,8 @@ require_once('selectek.php');
         <div class="fix_elso_oszl" style="width: 10rem">
         <table class="csikos">
     ');
+    
+    $json_sor = array();
     foreach($jogosultsagKatok as $kulcs_kat => $kat){
         $html .= nl2('
                     <tr>
@@ -255,9 +257,11 @@ require_once('selectek.php');
                                 ');
                     foreach($szerepkorok as $szerepkor){
 
-                        $checked = '';
+                        $checked  = '';
+                        $checked2 = '';
                         if( $szerepkor['flags'][$kulcs_jog] ) {
-                            $checked = ' checked="checked"';
+                            $checked  = ' checked="checked"';
+                            $checked2 = 'true';
                         }
 
                         $jogSor['nev'] .= ':';
@@ -309,6 +313,7 @@ require_once('selectek.php');
                             $dn_pipac = ' class="dn"';
                         }
 
+                        $json_sor['jog_k'.$kulcs_kat.'_sz'.$szerepkor['recid'].'-'.$kulcs_jog] = $checked2;
                         $html .= nl2('
                                 <td>
                                     <div class="cb'.$dn.'">
@@ -328,6 +333,10 @@ require_once('selectek.php');
                     </table>
                 </div>
                 ');
+    foreach($sor as $kulcs => $elem){
+        $json_sor[$kulcs] = nl2(str_replace(array("\r\n", "'"), array("#UJSOR#", "#APOSZTROF#"), $elem));
+    }
+    $html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
     
     $mezok = $html;
 

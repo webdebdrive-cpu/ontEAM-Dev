@@ -1209,9 +1209,12 @@ input.webdeb{
 }
 
 /* Input végébe csillag, ha kötelező */
-.csillag, .csillag:focus{
+.csillag, .csillag:focus {
     background: #fff;
     border-left: 0.4rem solid #52a3f5!important;
+}
+.csillag.mod, .csillag.mod:focus {
+    background: #ffdcdd;
 }
 
 /* Rendelések szerkesztéséhez */
