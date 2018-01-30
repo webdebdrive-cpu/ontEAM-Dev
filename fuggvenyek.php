@@ -3062,17 +3062,17 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
                             <tr>
-                                <td rowspan="2" style="width: 5rem; border: 0; white-space: nowrap;">
+                                <td rowspan="2" style="width: 5rem; white-space: nowrap;">
                                     <br>'.$kesz.$dok_icon.$surgos.'&nbsp;
                                 </td>
-                                <td style="width: 9rem; border: 0" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 9rem; border: 0">'.getStatText($tabla, $bsz['stat_id']).'</td>
-                                <td style="width: 7rem; border: 0">'.$telephely['nev'].'</td>
-                                <td style="border: 0">'.$hely['nev'].' - '.$gep['nev'].'</td>
+                                <td style="width: 9rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 9rem;">'.getStatText($tabla, $bsz['stat_id']).'</td>
+                                <td style="width: 7rem;">'.$telephely['nev'].'</td>
+                                <td>'.$hely['nev'].' - '.$gep['nev'].'</td>
                             </tr>
                             <tr>
-                                <td style="border: 0" colspan="3">'.$tipus.'</td>
-                                <td style="border: 0">'.$szemelyzet.'</td>
+                                <td colspan="3">'.$tipus.'</td>
+                                <td>'.$szemelyzet.'</td>
                             </tr>
                             </table>
                          </a>';
@@ -3804,14 +3804,14 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
                             <tr>
-                                <td rowspan="2" style="width: 2rem; text-align: center; border: 0;">'.$tipus.'</td>
-                                <td style="width: 15rem; border: 0;">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 17rem; border: 0; text-align: left">'.$telephely['nev'].'</td>
-                                <td style="border: 0; text-align: left">'.$statusz.'</td>
+                                <td rowspan="2" style="width: 2rem; text-align: center;">'.$tipus.'</td>
+                                <td style="width: 15rem;">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 17rem; text-align: left">'.$telephely['nev'].'</td>
+                                <td style="text-align: left">'.$statusz.'</td>
                             </tr>
                             <tr>
-                                <td style="border: 0; white-space: pre-wrap;" colspan="2">'.$bsz['nev'].'</td>
-                                <td style="border: 0;">'.number_format($bsz['bkolt'], 0, '', ' ').' '.get_penznem().'</td>
+                                <td style="white-space: pre-wrap;" colspan="2">'.$bsz['nev'].'</td>
+                                <td>'.number_format($bsz['bkolt'], 0, '', ' ').' '.get_penznem().'</td>
                             </tr>
                             </table>
                         </a>

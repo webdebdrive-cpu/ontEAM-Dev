@@ -121,11 +121,13 @@ if(isset($_POST['login'])) {
                     $i = 0;
                     $bejelento = true;
                     foreach($_SESSION[get_db_tabla().'rights'] as $flag){
-                        if($flag && $i!=0 && $i!=56 && $i!=57 ){
+
+                        if($flag && $i!=0 && $i!=1 && $i!=57 ){
                             $bejelento = false;
                         }
                         $i++;
                     }
+
                     if($bejelento){
                         $_SESSION['bejelento_menu_rejt'] = 1;
                     }
