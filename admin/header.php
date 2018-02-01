@@ -1165,6 +1165,7 @@ $header_html .= nl2('
 echo $header_html.fajlbol_olvas('../sablon/admin/js_beagyazasok.html', true);
 
 if( $_SESSION[get_db_tabla().'login_recid'] ) {
+    
     $felirat = '<h1>Bejelentkezés</h1>';
 
     echo str_replace(
@@ -1174,7 +1175,9 @@ if( $_SESSION[get_db_tabla().'login_recid'] ) {
     );
 
     echo fajlbol_olvas('../sablon/admin/popup.html');
+    
 } elseif( $_SESSION['nincs_jelsz'] && $_SESSION['nincs_jelsz_felhid'] ) {
+
     $_SESSION['kert_url'] = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 
     $felirat = '';
@@ -1182,6 +1185,10 @@ if( $_SESSION[get_db_tabla().'login_recid'] ) {
         $felirat = '<h1 style="color: #fff">Kérem töltse ki a mezőket!</h1>';
     } elseif( isset($_GET['jelszonemazonos']) ) {
         $felirat = '<h1 style="color: #fff">A két jelszó nem egyezik!</h1>';
+    } elseif( isset($_GET['jelszohossz']) ) {
+        $felirat = '<h1 style="color: #fff">A jelszó hossza 8 és 20 karakter között legyen!</h1>';
+    } elseif( isset($_GET['betuszam']) ) {
+        $felirat = '<h1 style="color: #fff">A jelszó betűket és számokat is tartalmazzon!</h1>';
     } else {
         $felirat = '<h1>Válasszon jelszót</h1>';
     }
@@ -1189,7 +1196,9 @@ if( $_SESSION[get_db_tabla().'login_recid'] ) {
     $mit   = array('{FELIRAT}', '{SELF}'        );
     $mivel = array( $felirat,   'beleptetes.php');
     echo str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/nincs_jelszo.html', 1));
+    
 } else {
+    
     $_SESSION['kert_url'] = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 
     $felirat = '';

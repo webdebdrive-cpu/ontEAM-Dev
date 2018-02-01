@@ -365,11 +365,21 @@ require_once('selectek.php');
         </div>
     ');
 
-    $js_submit_elott = 'return form_ell_admin();';
-
 	// Új felhasználó felvitele
 	if(isset($_GET['uj']) && _jog(JOG_FELHASZNALOK_KEZEL)){
+        
+        // Módosításnál figyeljük, hogy a szerepkör megváltozott-e
+        $js_submit_elott = nl2('
+                                if( $(\'#nev\').val().length<8 ){
+                                    alert2(\'A Login név hossza nem lehet kevesebb mint 8 karakter!\');
+                                    return false;
+                                }
+                                ');
 
+        // Hibaüzenetek lekezelése
+        if (isset($_GET['rovid_nev'])) {
+            $navi = '<span class="piros">A Login név hossza nem lehet kevesebb mint 8 karakter!</span>';
+        }
         if (isset($_GET['foglalt_nev'])) {
             $navi = '<span class="piros">Ez a loginnév már foglalt!</span>';
         }

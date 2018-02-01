@@ -210,9 +210,9 @@ function i_u($type, $tabla, $tomb) {
             $ikt_szam = date('y').'/'.sprintf('%04d', $sorszam);
 
             // Miután a $_POST['nev']-et felvettük cikkid-nak, csak utána írjuk felül
-            $cikktorzs = $adatbazis_kapcsolat->s('id nev cikkmee oracikkid', 'cikktorzs', "`recid`='{$_POST['nev']}'");
+            $cikktorzs = $adatbazis_kapcsolat->s2('id nev cikkmee oracikkid', 'cikktorzs', "`recid`='{$_POST['nev']}'");
             if( $cikktorzs === false ) { $db_error = true; }
-            $cikktorzs = $cikktorzs[0];
+            
             // Új anyagigényléskor a munkalaphoz tartozó anyagok státuszán állítani kell
             $sql = $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array(MUNKALAP_STAT_FOLYAMATBAN), "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$cikktorzs['id']}'");
             if( $sql === false ) { $db_error = true; }
@@ -239,7 +239,7 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok,  'ikt_szam');
             array_push($ertekek,   $ikt_szam );
 
-            // Mennyisgéi egységet pedig az anyag mennyiségi egységéből
+            // Mennyiségi egységet pedig az anyag mennyiségi egységéből
             array_push($oszlopok,  'oracikkid');
             array_push($ertekek,   $cikktorzs['oracikkid'] );
 
@@ -433,6 +433,13 @@ function i_u($type, $tabla, $tomb) {
 
         // Login új bejegyzés esetén
         } elseif( $tabla == 'login' ) {
+
+            // Loginnév hossza nem lehet rövidebb mint 8 karkater
+            if( mb_strlen( $_POST['nev'], 'UTF-8' )<8 ){
+                header('Location:login.php?uj&rovid_nev');
+                $weblap -> leallit();
+                exit;
+            }
 
             // Nem lehet ugyanazt a loginnevet kétszer felhasználni
             if($adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$_POST['nev']}'")){

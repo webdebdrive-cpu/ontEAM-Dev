@@ -31,44 +31,67 @@ if( $_SESSION[get_db_tabla().'user'] && $_SESSION[get_db_tabla().'user'] != 'adm
 
 // Jelszó csere
 if(isset($_POST['jelszo_csere'])) {
+    
+    // Jelszó nem üres-e
     if( !empty($_POST['jlsz']) && !empty($_POST['jlsz2']) ) {
-        if( $_POST['jlsz'] == $_POST['jlsz2'] ) {
+        
+        // Elég hosszúak-e
+        $hossz = mb_strlen($_POST['jlsz'], 'UTF-8');
+        if( $hossz>=8 && $hossz<=20 ){
+            
+            // Tartalmaz-e betűt és számot
+            if (preg_match('/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/', $_POST['jlsz'])){
 
-            $felhasznalo = $adatbazis_kapcsolat->s2('recid nev teljes_nev jelszo helyesseg flags mail_flags jog van_jelszo szemelyzet_id', 'login', "`recid` = '".$_SESSION['nincs_jelsz_felhid']."'", '', '1');
-            if( $felhasznalo ) {
+                // Azonosak-e
+                if( $_POST['jlsz'] == $_POST['jlsz2'] ) {
 
-                // Helyesség és jelszó
-                $helyesseg = sha1($felhasznalo['nev'].$_POST['jlsz']);
-                $jlsz = sha1($_POST['jlsz']);
+                    $felhasznalo = $adatbazis_kapcsolat->s2('recid nev teljes_nev jelszo helyesseg flags mail_flags jog van_jelszo szemelyzet_id', 'login', "`recid` = '".$_SESSION['nincs_jelsz_felhid']."'");
+                    if( $felhasznalo ) {
 
-                $adatbazis_kapcsolat -> u('login',  array('jelszo', 'helyesseg',    'van_jelszo'),
-                                                    array($jlsz,    $helyesseg,     1           ),
-                                            "`recid` = '".$felhasznalo['recid']."'");
-                $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
-                $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
-                $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
-                $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
-                $_SESSION[get_db_tabla().'mail_rights']     = str_split($felhasznalo['mail_flags']);
-                $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
+                        // Helyesség és jelszó
+                        $helyesseg  = sha1($felhasznalo['nev'].$_POST['jlsz']);
+                        $jlsz       = sha1($_POST['jlsz']);
 
-                // Nincs jelszó változók törlése
-                $_SESSION['nincs_jelsz_felhid'] = false;
-                $_SESSION['nincs_jelsz']        = false;
+                        $adatbazis_kapcsolat -> u('login',  array('jelszo', 'helyesseg',    'van_jelszo'),
+                                                            array($jlsz,    $helyesseg,     1           ),
+                                                    "`recid` = '".$felhasznalo['recid']."'");
+                        $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
+                        $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
+                        $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
+                        $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
+                        $_SESSION[get_db_tabla().'mail_rights']     = str_split($felhasznalo['mail_flags']);
+                        $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
 
-                if( !$_SESSION['kert_url'] ) {
-                    $_SESSION['kert_url'] = get_domain().'/'.get_admin();
+                        // Nincs jelszó változók törlése
+                        $_SESSION['nincs_jelsz_felhid'] = false;
+                        $_SESSION['nincs_jelsz']        = false;
+
+                        if( !$_SESSION['kert_url'] ) {
+                            $_SESSION['kert_url'] = get_domain().'/'.get_admin();
+                        }
+
+                        $adatbazis_kapcsolat -> bezar();
+
+                        header('Location: http://'.$_SESSION['kert_url']);
+
+                        exit();
+                    }
+                    
+                } else {
+                    header('Location: index.php?jelszonemazonos');
+                    exit();
                 }
-
-                $adatbazis_kapcsolat -> bezar();
                 
-                header('Location: http://'.$_SESSION['kert_url']);
-
+            } else {
+                header('Location: index.php?betuszam');
                 exit();
             }
+            
         } else {
-            header('Location: index.php?jelszonemazonos');
+            header('Location: index.php?jelszohossz');
             exit();
         }
+        
     } else {
         header('Location: index.php?jelszoures');
         exit();
@@ -95,8 +118,8 @@ if(isset($_POST['login'])) {
             $_POST['jelszo'] = sha1($_POST['jelszo']);
         }
 
-        $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags mail_flags jog van_jelszo szemelyzet_id', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'", '', '1');
-        
+        $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags mail_flags jog van_jelszo szemelyzet_id', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'");
+
         if( $felhasznalo ) {
 
             if( $felhasznalo['van_jelszo'] ) {
@@ -163,7 +186,9 @@ if(isset($_POST['login'])) {
                         exit();
                     }
                 }
+                
             } else {
+
                 $_SESSION['nincs_jelsz_felhid'] = $felhasznalo['recid'];
                 $_SESSION['nincs_jelsz']        = true;
 
@@ -176,14 +201,31 @@ if(isset($_POST['login'])) {
                     header('Location: index.php');
                 }
             }
+            
         } else {
-            $adatbazis_kapcsolat -> bezar();
-            header('Location: index.php?hiba');
+            
+            if( $_POST['ajax'] ) {
+                echo json_encode(array(
+                    'statusz' => 'hiba',
+                    'link'    => 'beleptetes.php?kilep'
+                ));
+            } else {
+                header('Location: index.php');
+            }
             exit();
+            
         }
+        
     } else {
-        $adatbazis_kapcsolat -> bezar();
-        header('Location: index.php?hiba');
+        
+        if( $_POST['ajax'] ) {
+            echo json_encode(array(
+                'statusz' => 'hiba',
+                'link'    => 'beleptetes.php?kilep'
+            ));
+        } else {
+            header('Location: index.php');
+        }
         exit();
     }
 }

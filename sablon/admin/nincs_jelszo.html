@@ -8,26 +8,30 @@
     <link rel="stylesheet" href="../css/alert_admin.css" type="text/css">
 </head>
 <body onload="if(document.getElementById('nev')){document.getElementById('nev').focus();}">
-    <div id="alert2" class="noFooter rFalse" style="width: 40rem; margin: auto; position: relative;">
+    <div class="noFooter rFalse alert2" style="width: 40rem; margin: auto; position: relative;">
         <div class="figy">
             <div class="header">{FELIRAT}</div>
             <div class="tart">
-                <form method="post" action="{SELF}">
+                <span style="font-weight: normal; font-size: 1.1rem; line-height: 1.3; display: block; margin-bottom: 1rem">
+                    A jelszó hossza minimum 8, maximum 20 karakter hosszú lehet!
+                    <br>Ügyeljen, hogy a jelszó számokat és betűket is tartalmazzon!
+                </span>
+                <form method="post" action="{SELF}" onsubmit="return jelszo_ell()">
                     <table class="auto">
                         <tr>
                             <td class="p">
-                                <input type="password" name="jlsz" placeholder="Jelszó" autofocus>
+                                <input type="password" id="jlsz" name="jlsz" placeholder="Jelszó" autofocus maxlength="20">
                             </td>
                         </tr>
                         <tr>
                             <td class="p">
-                                <input type="password" name="jlsz2" placeholder="Jelszó megerősítése">
+                                <input type="password" id="jlsz2" name="jlsz2" placeholder="Jelszó megerősítése" maxlength="20">
                             </td>
                         </tr>
                         <tr>
                             <td colspan="2" class="p c">
-                                <input class="gombb zold" type="submit" name="jelszo_csere" value="Mentés">
-                                <input class="gombb piros" type="submit" name="megsem" value="Mégsem">
+                                <input class="gombb zold" type="submit" name="jelszo_csere" value="Mentés" style="margin-right: 0.2rem">
+                                <input class="gomb piros" type="submit" name="megsem" value="Mégsem">
                             </td>
                         </tr>
                     </table>
@@ -36,5 +40,29 @@
             <div class="f_footer"></div>
         </div>
     </div>
+    <script>
+        function jelszo_ell(){
+            
+            if( !$('#jlsz').val() ){
+                alert2('Kérjük válasszon jelszót!');
+                return false;
+            }
+            if( $('#jlsz').val()!=$('#jlsz2').val() ){
+                alert2('A két jelszó nem egyezik!');
+                return false;
+            }
+            if( $('#jlsz').val().length<8 || $('#jlsz').val().length>20 ){
+                alert2('A jelszó hossza 8 és 20 karakter között legyen!');
+                return false;
+            }
+            jelszo = $('#jlsz').val();
+            if( jelszo.search(/[a-zA-Z]/) == -1 || jelszo.search(/[0-9]/) == -1 ){
+                alert2('A jelszó betűket és számokat is tartalmazzon!');
+                return false;
+            }
+            
+            return true;
+        }
+    </script>
 </body>
 </html>

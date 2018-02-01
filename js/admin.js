@@ -972,7 +972,7 @@ $(function() {
             if(!taroltVal && (val=='false' || val==false) ){
                 val = '';
             }
-console.log(val+' '+taroltVal);
+
 /*console.log(name+' db:'+taroltVal+'|itt:'+val);*/
             if( taroltVal != val ) {
                 $(this).addClass('mod');
@@ -1385,9 +1385,9 @@ console.log(val+' '+taroltVal);
         });
     });
 
-   /* Loginnév mező formázása */
+    /* Loginnév mező formázása */
     $(document).on('keyup', '.f_loginnev', function(e) {
-        $(this).val( $(this).val().replace(/\W/g, '') );
+        $(this).val( $(this).val().replace(/[^a-zA-Z0-9._éáűőúöüóíÉÁŰŐÚÖÜÓÍ]+/g, '') );
     });
 
     /* ESCAPE gomb lekezelése */
