@@ -1387,7 +1387,7 @@ $(function() {
 
     /* Loginnév mező formázása */
     $(document).on('keyup', '.f_loginnev', function(e) {
-        $(this).val( $(this).val().replace(/[^a-zA-Z0-9._éáűőúöüóíÉÁŰŐÚÖÜÓÍ]+/g, '') );
+        $(this).val( $(this).val().replace(/[^a-zA-Z0-9._@éáűőúöüóíÉÁŰŐÚÖÜÓÍ]+/g, '') );
     });
 
     /* ESCAPE gomb lekezelése */

@@ -434,9 +434,16 @@ function i_u($type, $tabla, $tomb) {
         // Login új bejegyzés esetén
         } elseif( $tabla == 'login' ) {
 
-            // Loginnév hossza nem lehet rövidebb mint 8 karkater
+            // Loginnév hossza nem lehet rövidebb mint 8 karakter
             if( mb_strlen( $_POST['nev'], 'UTF-8' )<8 ){
                 header('Location:login.php?uj&rovid_nev');
+                $weblap -> leallit();
+                exit;
+            }
+
+            // Ha illegális karaktert használt
+            if( preg_match('/[^a-zA-Z0-9._@éáűőúöüóíÉÁŰŐÚÖÜÓÍ]+/', $_POST['nev']) ){
+                header('Location:login.php?uj&hibasnev');
                 $weblap -> leallit();
                 exit;
             }
