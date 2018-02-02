@@ -11,7 +11,12 @@ $html = str_replace($mit, '', $html);
 
 
 $mpdf = new mPDF('utf-8');
-$mpdf -> WriteHTML( $html );
+
+$mpdf ->nbpgPrefix = '/ ';
+
+$mpdf ->setHeader('{PAGENO} {nbpg}');
+
+$mpdf ->WriteHTML( $html );
 
 // PDF fájlba mentése
 $mpdf -> Output( 'teszt.pdf', 'F' );
