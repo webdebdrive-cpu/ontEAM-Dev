@@ -45,7 +45,7 @@ if(isset($_POST['jelszo_csere'])) {
                 // Azonosak-e
                 if( $_POST['jlsz'] == $_POST['jlsz2'] ) {
 
-                    $felhasznalo = $adatbazis_kapcsolat->s2('recid nev teljes_nev jelszo helyesseg flags mail_flags jog van_jelszo szemelyzet_id', 'login', "`recid` = '".$_SESSION['nincs_jelsz_felhid']."'");
+                    $felhasznalo = $adatbazis_kapcsolat->s2('recid nev teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id', 'login', "`recid` = '".$_SESSION['nincs_jelsz_felhid']."'");
                     if( $felhasznalo ) {
 
                         // Helyesség és jelszó
@@ -59,7 +59,7 @@ if(isset($_POST['jelszo_csere'])) {
                         $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];
                         $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
                         $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
-                        $_SESSION[get_db_tabla().'mail_rights']     = str_split($felhasznalo['mail_flags']);
+                        $_SESSION[get_db_tabla().'ertesites']       = str_split($felhasznalo['flags_ert']);
                         $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
 
                         // Nincs jelszó változók törlése
@@ -69,11 +69,24 @@ if(isset($_POST['jelszo_csere'])) {
                         if( !$_SESSION['kert_url'] ) {
                             $_SESSION['kert_url'] = get_domain().'/'.get_admin();
                         }
+                        
+                        // Vizsgáljuk, hogy csak bejelentés joga van-e. Ha igen, akkor bejelentések menüopntra visszük egyből
+                        $i = 0;
+                        $bejelento = true;
+                        foreach($_SESSION[get_db_tabla().'rights'] as $flag){
+
+                            if($flag && $i!=0 && $i!=1 && $i!=57 ){
+                                $bejelento = false;
+                            }
+                            $i++;
+                        }
+
+                        if($bejelento){
+                            $_SESSION['bejelento_menu_rejt'] = 1;
+                        }
 
                         $adatbazis_kapcsolat -> bezar();
-
                         header('Location: http://'.$_SESSION['kert_url']);
-
                         exit();
                     }
                     
@@ -118,7 +131,7 @@ if(isset($_POST['login'])) {
             $_POST['jelszo'] = sha1($_POST['jelszo']);
         }
 
-        $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags mail_flags jog van_jelszo szemelyzet_id', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'");
+        $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'");
 
         if( $felhasznalo ) {
 
@@ -131,7 +144,7 @@ if(isset($_POST['login'])) {
                     $_SESSION[get_db_tabla().'login_recid']     = $felhasznalo['recid'];
                     $_SESSION[get_db_tabla().'szallito_id']     = $felhasznalo['szallito_id'];
                     $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
-                    $_SESSION[get_db_tabla().'mail_rights']     = str_split($felhasznalo['mail_flags']);
+                    $_SESSION[get_db_tabla().'ertesites']       = str_split($felhasznalo['flags_ert']);
                     $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
 
 //                    if(!$_SESSION['kert_url']){

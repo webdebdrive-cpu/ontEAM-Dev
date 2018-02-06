@@ -178,7 +178,7 @@ if( isset($_GET['folyamatban_munkak']) ) {
     exit();
 }
 
-// Bejelentés elutasítása
+// Bejelentés igazolás elutasítása
 if( isset($_POST['bejelentesElutasit']) ) {
     
     $recid          = $_POST['recid'];
@@ -222,6 +222,22 @@ if( isset($_POST['bejelentesElutasit']) ) {
             }
 
             if( !$db_error ) {
+
+                mysqli_commit($db_kapcs);
+                
+                $hiba = '';
+                $valasz = level_felkeszit_es_kuld('bejelentes', $recid, ERT_BEJ_IGAZOL_ELUTASITKOR, 'bejelentesIgazolElutasit', '_jog'.JOG_BEJELENTES_VIZSGAL);
+                if( substr($valasz, 0, 4)=='Hiba' ){
+                    $hiba .= $valasz;
+                }
+                if($hiba){
+                    echo json_encode(array(
+                        'hiba'  => $hiba,
+                        'title' => 'Hiba',
+                    ));
+                    $weblap->leallit();
+                    exit();
+                }
 
                 mysqli_commit($db_kapcs);
                 echo json_encode(array(
@@ -424,6 +440,21 @@ if( isset($_POST['bejelentesReklamacioElutasit']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
+            
+            $hiba = '';
+            $valasz = level_felkeszit_es_kuld('bejelentes', $recid, ERT_BEJ_REKL_ELUTASITKOR, 'bejelentesReklElutasit', 'bejelento');
+            if( substr($valasz, 0, 4)=='Hiba' ){
+                $hiba .= $valasz;
+            }
+            if($hiba){
+                echo json_encode(array(
+                    'hiba'  => $hiba,
+                    'title' => 'Hiba',
+                ));
+                $weblap->leallit();
+                exit();
+            }
+            
             echo json_encode(array(
                 'statusz' => 'siker'
             ));

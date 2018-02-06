@@ -456,8 +456,8 @@ function i_u($type, $tabla, $tomb) {
             }
 
             // Adott szerepkor jogosultságai lesz adott felhasználó jogosultsága is
-            if( $_POST['szerepkor_id'] ) {
-                $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', 'recid='.$_POST['szerepkor_id'], '', '1');
+            if( $_POST['szemelyzet_id'] ) {
+                $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', "`recid`='{$_POST['szemelyzet_id']}'", '', '1');
                 if( $szerepkor === false ) { $db_error = true; }
                 if( $szerepkor['flags'] ) {
                     array_push($oszlopok, 'flags'             );
@@ -1399,8 +1399,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         ');
     }
 
+    // Új felhasználó feltöltésekor a szállodát is ki kell választani
     if( basename(self())=='login.php' && isset($_GET['uj']) ){
-
         $ret .= nl2('
             if(!$(\'#szallodak_hidden\').val() || $(\'#szallodak_hidden\').val()==\'{}\'){
                 alert2(\'Mentés előtt válasszon szállodát!\', \'<input type="button" class="gomb" value="Ok" onclick="kapcsolodoSzerkeszt(\\\'szallodak\\\'); alert2();">\', \'Hiba\');
@@ -5014,6 +5014,31 @@ function jogosultsagKatok( $tomb ) {
     return false;
 }
 
+function ertesitesKatok( $tomb ) {
+    require('ertesitesek.php');
+
+    if( $tomb ) {
+        $katok = array();
+
+        foreach($tomb as $value) {
+            if( !in_array($value['kat'], adatbazis2tomb($katok, 'id')) ) {
+                array_push(
+                    $katok,
+                    array(
+                        'id'  => $value['kat'],
+                        'nev' => $ertesitesekKatok[$value['kat']]['nev'],
+                        'sor' => $ertesitesekKatok[$value['kat']]['sor'],
+                    )
+                );
+            }
+        }
+
+        return $katok;
+    }
+
+    return false;
+}
+
 function getJogSorRendez( $katID, $tomb ) {
     $jogKatok = array();
 
@@ -5090,6 +5115,7 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
                             $icon    = '<span class="icon"></span>';
                             $nyit    = ' class="nyit link"';
                             $onclick = '';
+                            $fokat['nev'] = '<span onclick="addObj( this );" data-recid="'.$fokat['recid'].'">'.$fokat['nev'].'</span>';
                         }
 
                         $fokat_html .= '<li class="kat'.$alkatok.'"><a onclick="'.$onclick.'"'.$nyit.' data-recid="'.$fokat['recid'].'">'.$icon.$fokat['nev'].'</a>'.$kat_html.'</li>';
@@ -5138,10 +5164,10 @@ function _jog( $value ) {
     return false;
 }
 
-// Jogosultásghoz tartozó mail gyors lekérdezése
-function _mail_jog( $value ) {
-    if( $_SESSION[get_db_tabla().'mail_rights'][$value] ) {
-        return $_SESSION[get_db_tabla().'mail_rights'][$value];
+// Értesítés gyors lekérdezése
+function _ert( $value ) {
+    if( $_SESSION[get_db_tabla().'ertesites'][$value] ) {
+        return $_SESSION[get_db_tabla().'ertesites'][$value];
     }
 
     return false;
@@ -5771,14 +5797,14 @@ function valos_datum_e($datum){
 }
 
 // Levélküldés előtt jogot vizsgálunk, levél tartlamát kiszámoljuk
-function level_felkeszit_es_kuld($tabla, $recid, $jog, $sablon){
+function level_felkeszit_es_kuld($tabla, $recid, $jog, $sablon, $cimzett){
     
     global $adatbazis_kapcsolat;
     $cimzett_mail = '';
     $cimzett_nev  = '';
-
     // Mail küldés jog ellenőrzése
-    if(_mail_jog($jog) ){
+    if( _ert($jog) ){
+
         // Mely tábláknál ellenőrizzünk szállodát is (saját szállodák)
         $szallodat_ellenorizz = array('bejelentes', 'munkalap');
         if(in_array($tabla, $szallodat_ellenorizz) ){
@@ -5792,61 +5818,180 @@ function level_felkeszit_es_kuld($tabla, $recid, $jog, $sablon){
         }
 
         // Kinek menjen a mail?
-        switch($tabla){
+        switch($cimzett){
             // Bejelentőnek
-            case 'bejelentes':
-                $bejelentes = $adatbazis_kapcsolat->s2('ikt_szam usr_nev usr_email usr_telefon stat_id loginnev', $tabla, "`recid`='{$recid}'");
-                $cimzett_nev  = $bejelentes['usr_nev'];
-                $cimzett_mail = $bejelentes['usr_email'];
-                $telefon      = $bejelentes['usr_telefon'];
-                $targy        = $bejelentes['ikt_szam'].' hibabejelentés '. getStatText($tabla, $bejelentes['stat_id']);
-                $uzi          = fajlbol_olvas('../sablon/admin/mail/'.$sablon.'.html');
-                $loginnev     = $bejelentes['loginnev'];
+            case 'bejelento':
+                $munkalap_kapcs = $adatbazis_kapcsolat->s2('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$recid}'");
+                $bejelentes     = $adatbazis_kapcsolat->s2('ikt_szam usr_nev usr_email usr_telefon stat_id telephely_id obj_id loginnev insert_dt hiba_id', $tabla, "`recid`='{$recid}'");
+                $cimzett_nev    = $bejelentes['usr_nev'];
+                $cimzett_mail   = $bejelentes['usr_email'];
+                $telefon        = $bejelentes['usr_telefon'];
+                
+                $mit            = array('{IKT_SZAM}',            '{SZALLODA}',                                                    '{INS_DT}',                '{HIBA}',                                                        '{OBJ}'                                                 );
+                $mivel          = array($bejelentes['ikt_szam'], getErtek('nev', 'telephely', 'id', $bejelentes['telephely_id']),  $bejelentes['insert_dt'], getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']), getErtek('nev', 'obj', 'recid', $bejelentes['obj_id'])  );
+                $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/bejelentonek.html') );
+                
+                // Aktív-e és nem virtuális-e a felhasználó, van-e mailcíme? Ha nem, kilépünk
+                $login = $adatbazis_kapcsolat -> s2('teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`nev` = '{$bejelentes['loginnev']}'");
+                if(!$login['aktiv'] || $login['virtual'] || !$login['usermail']){
+                    return false;
+                }
+                
+                // Ha még nincs meg a címzett, akkor a login táblából számítjuk
+                if(!$cimzett_nev) { $cimzett_nev   = $login['teljes_nev'];  }
+                if(!$cimzett_mail){ $cimzett_mail  = $login['usermail'];    }
+                if(!$telefon)     { $telefon       = $login['usertel'];     }
+                
+                $cimzettek = array( array('teljes_nev' => $cimzett_nev, 'usermail' => $cimzett_mail, 'szemelyzet_id' => $bejelentes['szemelyzet_id']) );
+            break;
+
+            // Bejelentés vizsgál joggal rendelkezőknek
+            case '_jog'.JOG_BEJELENTES_VIZSGAL:
+                
+                $bejelentes     = $adatbazis_kapcsolat->s2('ikt_szam usr_nev usr_email usr_telefon stat_id telephely_id obj_id loginnev insert_dt hiba_id', $tabla, "`recid`='{$recid}'");
+                $mit            = array('{IKT_SZAM}',            '{SZALLODA}',                                                    '{INS_DT}',                '{HIBA}',                                                        '{OBJ}'                                                 );
+                $mivel          = array($bejelentes['ikt_szam'], getErtek('nev', 'telephely', 'id', $bejelentes['telephely_id']),  $bejelentes['insert_dt'], getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']), getErtek('nev', 'obj', 'recid', $bejelentes['obj_id'])  );
+                $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/bejelentonek.html') );
+                
+                // Több címzett is van
+                $cimzettek = $adatbazis_kapcsolat->s('teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_BEJELENTES_VIZSGAL+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0");
+                if(!$cimzettek){
+                    return false;
+                }
+                
+            break;
+        
+            // Munkalap igazolás joggal rendelkezőknek
+            case '_jog'.JOG_MUNKALAP_IGAZOLAS:
+
+                $munkalap       = $adatbazis_kapcsolat->s2('ikt_szam telephely_id obj_id insert_dt', $tabla, "`recid`='{$recid}'");
+                $munkalap_kapcs = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
+                $bejelentes     = $adatbazis_kapcsolat->s2('hiba_id', 'bejelentes', "`recid`='{$munkalap_kapcs['bejelentes_id']}'");
+
+                $mit            = array('{IKT_SZAM}',          '{SZALLODA}',                                                   '{INS_DT}',             '{HIBA}',                                                        '{OBJ}',                                              '{KESZRE_JELENTETTE}' );
+                $mivel          = array($munkalap['ikt_szam'], getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']),  $munkalap['insert_dt'], getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']), getErtek('nev', 'obj', 'recid', $munkalap['obj_id']), ''  );
+                $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/munkalaposoknak.html') );
+                
+                // Több címzett is van
+                $cimzettek = $adatbazis_kapcsolat->s('teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_MUNKALAP_IGAZOLAS+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0");
+                if(!$cimzettek){
+                    return false;
+                }
+                
             break;
         }
+
+        // Esemény neve
+        switch( $sablon ){
         
-        // Paraméterek cseréje
-        $mit   = array('{NEV}');
-        $mivel = array($cimzett_nev);
-        $uzi   = str_replace($mit, $mivel, $uzi).fajlbol_olvas('../sablon/admin/mail/alairas.html');
+            case 'bejelentesElutasit':
+                $esemeny =  'bejelentés elutasításakor';
+                $targy   =  'ontEAM bejelentett hiba elutasítva';
+                $uzi     =  'Az Ön által bejelentett hiba elutasításra került.
+                            <br>'.
+                            $uzi.
+                            fajlbol_olvas('../sablon/admin/mail/alairas.html');
+            break;
         
-        // Aktív-e és nem virtuális-e a felhasználó, van-e mailcíme? Ha nem, kilépünk
-        $login = $adatbazis_kapcsolat -> s2('teljes_nev usermail aktiv virtual', 'login', "`nev` = '{$loginnev}'");
-        if(!$login['aktiv'] || $login['virtual'] || !$login['usermail']){
-            return false;
+            case 'bejelentesReklElutasit':
+                $esemeny =  'bejelentés reklamáció elutasításakor';
+                $targy   =  'ontEAM hibabejelentés lezárásra került';
+                $uzi     =  'Az Ön által bejelentett reklamáció elutasításra került.
+                            <br>'.
+                            $uzi.
+                            fajlbol_olvas('../sablon/admin/mail/alairas.html');
+            break;
+        
+            case 'bejelentesIgazolElutasit':
+                $esemeny =  'bejelentés igazolásának elutasításakor';
+                $targy   =  'ontEAM hibabejelenés vizsgálatra vár';
+                $uzi     =  'A bejelentés vizsgálatra vár.
+                            <br>'.
+                            $uzi.
+                            fajlbol_olvas('../sablon/admin/mail/alairas.html');
+            break;
+        
+            case 'munkalapKeszre':
+                $esemeny =  'munkalap készre jelentéskor';
+                $targy   =  'ontEAM bejelentett hiba javítása elkészült';
+                $uzi     =  'Az Ön által bejelentett hiba javítása sikeresen befejeződött.
+                            <br>'.
+                            $uzi.
+                            fajlbol_olvas('../sablon/admin/mail/alairas.html');
+            break;
+        
+            case 'munkalapKeszreKulso':
+                $esemeny =  'munkalap készre jelentéskor';
+                $targy   =  'ontEAM bejelentett hiba javítása igazolásra vár';
+                $uzi     =  'A bejelentett hiba javítása befejeződött.
+                            <br>'.
+                            $uzi.
+                            fajlbol_olvas('../sablon/admin/mail/alairas.html');
+            break;
+        
+            case 'munkalapElutasit':
+                $esemeny =  'munkalap lezárásakor';
+                $targy   =  'ontEAM hibabejelentés lezárásra került';
+                $uzi     =  'Az Ön által bejelentett reklamáció elutasításra került.
+                            <br>'.
+                            $uzi.
+                            fajlbol_olvas('../sablon/admin/mail/alairas.html');
+            break;
+
         }
-        $szerepkor = getErtek('nev', 'szerepkor', 'id', $login['szemelyzet_id']);
-        // Ha még nincs meg a címzett, akkor a login táblából számítjuk
-        if(!$cimzett_nev) { $cimzett_nev   = $login['teljes_nev'];  }
-        if(!$cimzett_mail){ $cimzett_mail  = $login['usermail'];    }
-        if(!$telefon)     { $telefon       = $login['usertel'];     }
+
+        // Levélküldés
+        $megj = '';
+        $hiba = '';
+
+        foreach($cimzettek as $cimzett){
 // Teszteléshez
-$tmp = $adatbazis_kapcsolat->s2('usermail', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
-$cimzett_mail = $tmp['usermail'];
+//$tmp = $adatbazis_kapcsolat->s2('usermail', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
+//$cimzett['usermail'] = $tmp['usermail'];
 
-        // Tényleges küldés
-        $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $cimzett_nev, $cimzett_mail, $targy, $uzi);
-        
-        // Ha van értéke, az egy hibaüzenet, akor sikerült küldeni, ha nincs visszatérési érték
-        if( $sikeres_kuldes ){
+            $szerepkor = getErtek('nev', 'szerepkor', 'id', $cimzett['szemelyzet_id']);
 
-            addMegj($tabla, $recid, 'E-mail küldése nem sikerült '.$cimzett_nev.' '.$szerepkor.' felhasználónak');
-            
-            // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
-            if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ){
-                return  nl2('Hiba: E-mail küldése nem sikerült
-                        <br>'.$cimzett_nev.' '.$szerepkor.'
-                        <br>Tel: '.$telefon.'
-                        <br>Email: '.$cimzett_mail.'
-                        ');
+            $mit            = array('{NEV}');
+            $mivel          = array($cimzett['teljes_nev']);
+            $megszolitas    = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/megszolitas.html'));
+
+            // Tényleges küldés
+
+            $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $cimzett['teljes_nev'], $cimzett['usermail'], $targy, $megszolitas.$uzi);
+
+            // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
+            if( $sikeres_kuldes ){
+
+                $megj .= 'E-mail küldése nem sikerült '.$cimzett['teljes_nev'].' '.$szerepkor.' felhasználónak '.$esemeny.'<br><br>';
+
+                // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
+                if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ){
+                    $hiba .=  nl2('Hiba: E-mail küldése nem sikerült
+                            <br>'.$cimzett_nev.' '.$szerepkor.'
+                            <br>Tel: '.$telefon.'
+                            <br>Email: '.$cimzett_mail.'
+                            ');
+                }
+
+            // Sikeres levélküldés
+            }else{
+
+                $adatbazis_kapcsolat->u($tabla, array('mail_ment'), array(1), "`recid`='{$recid}'");
+
+                $megj .= 'E-mail elküldve '.$cimzett['teljes_nev'].' '.$szerepkor.' felhasználónak '.$esemeny.'<br><br>';
+
             }
-            
-        // Sikeres levélküldés
-        }else{
-
-            $adatbazis_kapcsolat->u($tabla, array('mail_ment'), array(1), "`recid`='{$recid}'");
-            addMegj($tabla, $recid, 'E-mail elküldve '.$cimzett_nev.' '.$szerepkor.' felhasználónak');
+        }
         
+        // Megjegyzés hozzáadása
+        addMegj($tabla, $recid, $megj);
+        if($munkalap_kapcs){
+            addMegj('munkalap', $munkalap_kapcs['munkalap_id'], $megj);
+        }
+        
+        // Hibaüzenettel is visszatérhetünk
+        if($hiba){
+            return $hiba;
         }
         
     }

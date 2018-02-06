@@ -805,12 +805,11 @@ if( isset($_POST['munkalapKeszre']) ) {
         }
 
         if( !$db_error ) {
-            mysqli_commit($db_kapcs);
-            
+            // mysqli_commit($db_kapcs);
+
             // Levélküldés
             foreach($mail_megy as $bejelentes_id){
-                $valasz = level_felkeszit_es_kuld('bejelentes', $bejelentes_id, _jog(JOG_BEJELENTES_SAJAT_RESZL), 'munkalapKeszre');
-
+                $valasz = level_felkeszit_es_kuld('bejelentes', $bejelentes_id, ERT_KESZRE_JELENTESKOR, 'munkalapKeszre', 'bejelento');
                 if( substr($valasz, 0, 4)=='Hiba' ){
                     echo json_encode(array(
                         'hiba'  => $valasz,
@@ -820,6 +819,22 @@ if( isset($_POST['munkalapKeszre']) ) {
                     exit();
                 }
             }
+            
+            // Ha külsős, akkor más levelet küldünk
+            if( $munkalap['szemelyzet_id']==KULSO_KIVITELEZO || $munkalap['szemelyzet_id']==MOBILCSOPORT ){
+
+                $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_KESZRE_KULSO_MOBIL, 'munkalapKeszreKulso', '_jog'.JOG_MUNKALAP_IGAZOLAS);
+                if( substr($valasz, 0, 4)=='Hiba' ){
+                    echo json_encode(array(
+                        'hiba'  => $valasz,
+                        'title' => 'Hiba',
+                    ));
+                    $weblap->leallit();
+                    exit();
+                }
+                
+            }
+
             mysqli_commit($db_kapcs);
             
             echo json_encode(array(
@@ -1400,6 +1415,26 @@ if( isset($_POST['munkalapReklamacioElutasit']) ) {
         }
 
         if( !$db_error ) {
+            
+            // Ha a státusza vizsgálat alatt, akkor levelet is küldünk
+            if( $munkalap['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT ){
+                mysqli_commit($db_kapcs);
+
+                // Levélküldés
+                $hiba = '';
+                $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_ELUTASIT_UTAN, 'munkalapElutasit', '_jog'.JOG_MUNKALAP_IGAZOLAS);
+                if( substr($valasz, 0, 4)=='Hiba' ){
+                    $hiba .= $valasz;
+                }
+                if($hiba){
+                    echo json_encode(array(
+                        'hiba'  => $hiba,
+                        'title' => 'Hiba',
+                    ));
+                    $weblap->leallit();
+                    exit();
+                }
+            }
             mysqli_commit($db_kapcs);
             echo json_encode(array(
                 'statusz' => 'siker'

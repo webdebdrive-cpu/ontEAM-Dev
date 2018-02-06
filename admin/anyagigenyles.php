@@ -62,7 +62,7 @@ if (isset($_POST['anyagigenyles_mar_igenyelve'])) {
                         <br>'.$_POST['cikk_id'].' '.$munkalap_anyag['cikk_nev'].'
                         <br>
                         <br>Diszpécsernaplóban igénylésre váró mennyiség: '.$_POST['ig_alatt'].' '.$munkalap_anyag['cikk_mee'].'
-                        <br>Már igényelt mennyiség: '.$_POST['ig_foly'].' '.$munkalap_anyag['cikk_mee'].'
+                        <br>Már igényelt mennyiség: '.$_POST['ig_men'].' '.$munkalap_anyag['cikk_mee'].'
                         <br>Ha folytatja, a diszpécsernaplóban igénylésre váró mennyiség státusza át lesz állítva "'.$munkAnyag_statusz[DISZPNAG_STAT_ANYAG_IGENYELVE].'" státuszra.
                         <br>
                         <br>Folytatja?');
@@ -1475,17 +1475,15 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                 }
 
                 // Ha a státusz nagyobb mit a beérkezett, akkor azokat már csak szürkén jelenítjük meg disabledezve
-                $szurkit   = '';
-                $disabled  = '';
-                $disabled2 = '';
+                $szurkit  = '';
+                $disabled = '';
                 if($igeny['stat_id']>CIKKIGN_STAT_RESZBENBEERK){
-                    $szurkit   = ' class="erkeztet_szurkit"';
-                    $disabled  = ' readonly';
-                    $disabled2 = ' disabled';
+                    $szurkit  = ' class="erkeztet_szurkit"';
+                    $disabled = ' readonly';
                 }
 
                 $html .= nl2('
-                            <tr'.$szurkit.' id="erkeztet_sor_'.$igeny['recid'].'">
+                            <tr'.$szurkit.'>
                                 <td id="erkeztet_szall_'.$igeny['recid'].'" class="nowrap">'.$telephely['nev'].'</td>
                                 <td id="erkeztet_cikkid_'.$igeny['recid'].'">'.$igeny['cikk_id'].'</td>
                                 <td class="l" id="erkeztet_cikknev_'.$igeny['recid'].'">'.$igeny['nev'].'</td>
@@ -1496,7 +1494,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                                 <td class="c" id="mee_'.$igeny['recid'].'">'.$igeny['cikkmee'].'</td>
                                 <td class="c">
                                     <div class="cb">
-                                        <input type="checkbox" class="nem_tobb_beerk" data-id="'.$igeny['recid'].'" id="nem_tobb_'.$igeny['recid'].'"'.$disabled2.'>
+                                        <input type="checkbox" class="nem_tobb_beerk" data-id="'.$igeny['recid'].'" id="nem_tobb_'.$igeny['recid'].'"'.$disabled.'>
                                         <label for="nem_tobb_'.$igeny['recid'].'"></label>
                                     </div>
                                 </td>
@@ -2201,8 +2199,6 @@ require_once('selectek.php');
                     // Azon belül anyagonként járjuk be
                     $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`!='".DISZPNAG_STAT_VAN_ANYAG."' AND `telephely_id`='{$telephely['telephely_id']}'".$anyag_sql);
                     foreach($anyagok as $anyag){
-                        
-                        $recid_egyedi_azon = $anyag['cikk_id'];
 
                         // A mutat linkbe csak azokat a munkalapokID-kat kell fevenni, ami adott anyag/státusz/telephelyhez tartozik
                         $akt_munkalapok = $adatbazis_kapcsolat->s('distinct munkalap_id', 'munkalap_anyag', "`cikk_id`='{$anyag['cikk_id']}' AND `telephely_id`='{$telephely['telephely_id']}' AND `stat_id`='".DISZPNAG_STAT_ANYAGRA_VAR."'".$anyag_sql);
@@ -2223,11 +2219,11 @@ require_once('selectek.php');
                             $anyag_var += $akt_anyag['szuk_men'];
                         }
 
-                        //  cikktörzs rec_id-jára van szükségünk a későbbiekben. ID alapján megkeressük
-                        $cikkid_origi = $anyag['cikk_id'];
+                        //A cikktörzs rec_id-jáéra van szükségünk a későbbiekben. ID alapján megkeressük
+                        $cikkid_origi = $cikk_id;
                         $cikk_id = $adatbazis_kapcsolat->s('recid', 'cikktorzs', "`id`='{$cikkid_origi}'");
                         $cikk_id = $cikk_id[0]['recid'];
-//echo $adatbazis_kapcsolat->gp() . '<br>';
+
                         // Rendelés folyamatban kiszámítása: az összes olyan anyagigénylés, ahol adott anyag cikkszámmal dolgozunk és a státusza nem "törölt" és nem "lezárt"
                         $folyamatban = 0;
                         $folyamatbanok = $adatbazis_kapcsolat->s('stat_id igmen rndmen erkmen', 'anyagigenyles', "`cikk_id`='{$anyag['cikk_id']}' AND `telephely_id`='{$telephely['telephely_id']}' AND `stat_id` IN ('".CIKKIGN_STAT_NYITOTT."', '".CIKKIGN_STAT_ARAZVA."', '".CIKKIGN_STAT_JOVAHAGYVA."', '".CIKKIGN_STAT_MEGRENDELVE."', '".CIKKIGN_STAT_RESZBENBEERK."') ");
@@ -2245,7 +2241,7 @@ require_once('selectek.php');
 
                         $mar_igenyelve = '(nincs igénylés)';
                         if($folyamatban){
-                            $mar_igenyelve = '<input type="button" value="Már igényelve" class="gomb" onclick="anyagigenyles_mar_igenyelve(\''.$anyag['cikk_id'].'\', \''.$telephely['telephely_id'].'\', \''.number_format($ig_var, 2, ',', ' ').'\', \''.number_format($folyamatban, 2, ',', ' ').'\', \'csak kérezünk\')">';
+                            $mar_igenyelve = '<input type="button" value="Már igényelve" class="gomb" onclick="anyagigenyles_mar_igenyelve(\''.$anyag['cikk_id'].'\', \''.$telephely['telephely_id'].'\', \''.number_format($ig_var, 2, ',', ' ').'\', \''.number_format($anyag_var, 2, ',', ' ').'\', \'csak kérezünk\')">';
                         }
 
                         // Kiíratáshoz

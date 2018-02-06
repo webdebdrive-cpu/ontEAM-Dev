@@ -1460,7 +1460,6 @@ function level_kuldes( $felado_nev, $felado_mail, $cimzett_nev, $cimzett_mail, $
     
     if($cimzett_mail){
         require_once('class/class.Phpmailer.php');
-
         $mail = new PHPMailer;
 
         $uzi = mail_img2cid($uzi, $mail, $cimzett_mail);
@@ -1593,7 +1592,6 @@ function logot_pecsetel( $kep, $logo, $eltolas_x = 0, $eltolas_y = 0, $kicsinyit
 *   @return string: új $html, amiben a képek már cid-el szerepelnek
 */
 function mail_img2cid($html, $mail, $cimzett_mail){
-    
     preg_match_all('/<img[^>]+src="([^"]+)"[^>]*>/ms', $html, $kepek, PREG_SET_ORDER);
     if(count($kepek)){
         
@@ -1610,7 +1608,7 @@ function mail_img2cid($html, $mail, $cimzett_mail){
         //Csatolt képek lerendezése
         $csatolva_volt = array();
         foreach( $csatolt_kepek as $csatolt_kep ){
-    		list( $x1, $x2, $x3 ) = split(';', $csatolt_kep);
+    		list( $x1, $x2, $x3 ) = explode(';', $csatolt_kep);
             //Gmail-re a hagyományos módszerre külünk ki levelet (nem CID-el), mert nem megy át
             if(strpos($cimzett_mail, '@gmail.com') || strpos($cimzett_mail, '@hotmail.com')){
                 //Ha ../-el kezdődik az útvonal, akkor valószínűleg ezt elvesszük(../elemek/x.jpg => www.domain.hu/elemek/x.jpg)

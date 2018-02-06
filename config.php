@@ -19,32 +19,50 @@ error_reporting(E_ERROR);                       //Csak a hibákat írja ki
 require_once 'konstansok.php';
 
 //Adatbázis
-function get_db_tabla()   { return 'onteam_';                                                                           } //Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
+date_default_timezone_set('Europe/Budapest');
 
+function get_db_tabla()   {                                     //Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
+    switch($_SERVER['HTTP_HOST']){
+        case 'teszt.onteam.hu'  : return 'onteam_teszt_';
+        default                 : return 'onteam_';
+    }
+} 
 function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ? 'localhost'    : 'localhost'       );  } //Host
 function get_db()         {
     switch($_SERVER['HTTP_HOST']){
+        case 'localhost'            : return 'szinvatrendhu1';
         case 'demo.webdeb.hu'       : return 'wdbhu';
         case 'demo.szinvatrend.hu'  : return 'szinvatrendhu1';
-        case 'onteam.hu'            : return 'onteamhu1';
-        case 'localhost'            : return 'szinvatrendhu1';
+        case 'onteam.hu'            : return 'onteam_live';
+        case 'teszt.onteam.hu'	    : return 'onteam_live';
     }
 }
-function get_db_user(){
+function get_db_user() {
     switch($_SERVER['HTTP_HOST']){
+        case 'localhost'            : return 'szinvatrendhu';
         case 'demo.webdeb.hu'       : return 'wdbtdb';
         case 'demo.szinvatrend.hu'  : return 'szinvatrendhu';
-        case 'onteam.hu'            : return 'onteamhu';
-        case 'localhost'            : return 'szinvatrendhu';
+        case 'onteam.hu'            : return 'onteam_live';
+        case 'teszt.onteam.hu'      : return 'onteam_live' ;
     }
 }
-function get_db_pass(){
+function get_db_pass() {
     switch($_SERVER['HTTP_HOST']){
+        case 'localhost'            : return 'vikike';
         case 'demo.webdeb.hu'       : return 'h3rbdzto';
         case 'demo.szinvatrend.hu'  : return 'vikike';
-        case 'onteam.hu'            : return 'Asiphnawt5';
-        case 'localhost'            : return 'vikike';
+        case 'onteam.hu'            : return 'HMERDQgx0JHp124U';
+        case 'teszt.onteam.hu'	    : return 'HMERDQgx0JHp124U';
     }
+}
+
+// Teszt környezetben vagyunk-e vagy sem
+function get_teszt_rendszer() {
+    $teszt_rendszerek = array('demo.webdeb.hu', 'demo.szinvatrend.hu', 'teszt.onteam.hu');
+    if( in_array($_SERVER['HTTP_HOST'], $teszt_rendszerek) ) {
+        return true;
+    }
+    return false;
 }
 
 function get_db_charset() { return 'UTF8';                                      } // Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
@@ -60,7 +78,7 @@ function get_alk()           { return
 function get_country()       { return 'Hungary';                                } // Pl.: Hungary
 function css_img()           { return true;                                     } //Ha igaz, akkor a CSS-ben levő képeket DATA URI-ként beágyazza a CSS tartalmába, egyébént marad sima hivatkozás
 function get_domain()        { return 'www.onteam.hu';                          }
-function get_mail($kiir)     { return !$kiir ? 'info@onteam.hu' :
+function get_mail($kiir)     { return !$kiir ? 'noreply@onteam.hu' :
            mail_rejtes('<a href="mailto:'.get_mail().'">'.get_mail().'</a>');   }
 function get_megsz()         { return 'magaz';                                  }
 function get_mail_charset()  { return 'UTF-8';                                  } //ISO-8859-1, ISO-8859-2, Windows-1250, Windows-1251

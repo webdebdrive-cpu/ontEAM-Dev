@@ -933,7 +933,10 @@ if( isset($_GET['uj']) ) {
     $uj_dis = ' disabled';
 }
 
-$belepve = nl2('
+$belepve = nl2(' 
+    <div class="dtc link f25" style="border-right: 0.1rem solid #e9e9e9; padding-right: 1rem; padding-left: 1rem" onclick="window.open(\'../'.get_utvonal().'Hibabejelentes_az_ontEAM_rendszerben.pdf\')">
+        ?
+    </div>
     <div class="dtc nav c felh">
         <a href="javascript: felh_valt( true ); void(0);">'.$felh_nev.'</a>
         <br><span class="f11">'.$reszleg.'</span>
@@ -1128,6 +1131,12 @@ if(basename(self())=='anyagigenyles.php'){
             ');
 }
 
+// Teszt rendszer felirat
+$teszt_rendszerek = array('demo.webdeb.hu', 'demo.szinvatrend.hu', 'teszt.onteam.hu');
+if( get_teszt_rendszer() ){
+    $belepve .= '<div class="teszt_rendszer">Teszt rendszer</div>';
+}
+
 $get_get = get_get(array('pdf'));
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
@@ -1166,7 +1175,7 @@ echo $header_html.fajlbol_olvas('../sablon/admin/js_beagyazasok.html', true);
 
 if( $_SESSION[get_db_tabla().'login_recid'] ) {
     
-    $felirat = '<h1>Bejelentkezés</h1>';
+    $felirat = '<h1 style="font-size: 2rem">Bejelentkezés</h1>';
 
     echo str_replace(
         array('{FELIRAT}', '{SELF}'),
@@ -1182,15 +1191,15 @@ if( $_SESSION[get_db_tabla().'login_recid'] ) {
 
     $felirat = '';
     if( isset($_GET['jelszoures']) ) {
-        $felirat = '<h1 style="color: #fff">Kérem töltse ki a mezőket!</h1>';
+        $felirat = '<h1 style="font-size: 1.8rem">Kérem töltse ki a mezőket!</h1>';
     } elseif( isset($_GET['jelszonemazonos']) ) {
-        $felirat = '<h1 style="color: #fff">A két jelszó nem egyezik!</h1>';
+        $felirat = '<h1 style="font-size: 1.8rem">A két jelszó nem egyezik!</h1>';
     } elseif( isset($_GET['jelszohossz']) ) {
-        $felirat = '<h1 style="color: #fff">A jelszó hossza 8 és 20 karakter között legyen!</h1>';
+        $felirat = '<h1 style="font-size: 1.6rem">A jelszó hossza 8 és 20 karakter között legyen!</h1>';
     } elseif( isset($_GET['betuszam']) ) {
-        $felirat = '<h1 style="color: #fff">A jelszó betűket és számokat is tartalmazzon!</h1>';
+        $felirat = '<h1 style="font-size: 1.6rem">A jelszó betűket és számokat is tartalmazzon!</h1>';
     } else {
-        $felirat = '<h1>Válasszon jelszót</h1>';
+        $felirat = '<h1 style="font-size: 2rem">Válasszon jelszót</h1>';
     }
 
     $mit   = array('{FELIRAT}', '{SELF}'        );
@@ -1203,9 +1212,9 @@ if( $_SESSION[get_db_tabla().'login_recid'] ) {
 
     $felirat = '';
     if(isset($_GET['hiba'])){
-        $felirat = '<h1 style="color: #fff">Helytelen felhasználó név vagy jelszó!</h1>';
+        $felirat = '<h1 style="font-size: 1.8rem">Helytelen felhasználó név vagy jelszó!</h1>';
     }else{
-        $felirat = '<h1>Bejelentkezés</h1>';
+        $felirat = '<h1 style="font-size: 2rem">Bejelentkezés</h1>';
     }
 
     $mit   = array('{FELIRAT}', '{SELF}'        );

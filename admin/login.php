@@ -59,7 +59,6 @@ if( isset($_POST['jogokhozzaad']) ) {
 
     // Tömb sorrendezése
     $jogok      = array();
-    $mail_jogok = array();
     foreach($_POST as $key => $value) {
         
         if( strpos($key, 'jog-')!==false ){
@@ -70,42 +69,85 @@ if( isset($_POST['jogokhozzaad']) ) {
                 $jogok[$kulcs] = 0;
             }
         }
-        if( strpos($key, 'mail-')!==false ){
-            $kulcs = str_replace('mail-', '', $key);
-            if($value=='true'){
-                $mail_jogok[$kulcs] = 1;
-            }else{
-                $mail_jogok[$kulcs] = 0;
-            }
-        }
     }
 
     ksort($jogok);
-    ksort($mail_jogok);
 
-    $adatbazis_kapcsolat -> u('login',  array('flags',             'mail_flags'             ),
-                                        array(implode('', $jogok), implode('', $mail_jogok) ),
-                                "`recid`='{$id}'");
+    $adatbazis_kapcsolat -> u('login',  array('flags'), array(implode('', $jogok)), "`recid`='{$id}'");
     
-    // A formAdatok JS változoiót frissíteni kelll
+    // A formAdatok JS változoiót frissíteni kell
     require_once('jogosultsag.php');
-    $i = 0;
+    $i      = 0;
+    $jogEll = array();
     foreach($jogosultsagok as $jog) {
         if( $jogok[$i] ) {
             $jogEll['jog-'.$i] = 1;
         } else {
             $jogEll['jog-'.$i] = 0;
         }
-        if( $mail_jogok[$i] ) {
-            $jogEll['mail-'.$i] = 1;
-        } else {
-            $mail_jogok['mail-'.$i] = 0;
-        }
 
         $i++;
     }
     echo json_encode($jogEll);
 
+    $weblap->leallit();
+    exit();
+}
+
+// Értesítések beállítsa
+if( isset($_POST['ertekhozzaad']) ) {
+    $id = $_POST['id'];
+
+    // Kitöröljük a nem kívánatos POST elemeket
+    unset($_POST['id']);
+    unset($_POST['ertekhozzaad']);
+
+    // Tömb sorrendezése
+    $ertek      = array();
+    foreach($_POST as $key => $value) {
+        
+        if( strpos($key, 'ert-')!==false ){
+            $kulcs = str_replace('ert-', '', $key);
+            if($value=='true'){
+                $ertek[$kulcs] = 1;
+            }else{
+                $ertek[$kulcs] = 0;
+            }
+        }
+    }
+
+    ksort($ertek);
+
+    $adatbazis_kapcsolat -> u('login',  array('flags_ert'), array(implode('', $ertek)), "`recid`='{$id}'");
+    
+    // A formAdatok JS változoiót frissíteni kell
+    require_once('ertesitesek.php');
+    $i      = 0;
+    $ertEll = array();
+    foreach($ertesitesek as $ert) {
+        if( $ertek[$i] ) {
+            $ertEll['ert-'.$i] = 1;
+        } else {
+            $ertEll['ert-'.$i] = 0;
+        }
+
+        $i++;
+    }
+    echo json_encode($ertEll);
+
+    $weblap->leallit();
+    exit();
+}
+
+// Adott felhasználó létezik-e már
+if( isset($_POST['login_letezik']) ) {
+
+    if( $adatbazis_kapcsolat->s2('recid', 'login', "`nev`='{$_POST['nev']}'") ){
+        echo json_encode(array(
+            'hiba' => 'Ez a loginnév már foglalt!'
+        ));
+    }
+    
     $weblap->leallit();
     exit();
 }
@@ -299,11 +341,12 @@ require_once('selectek.php');
         $dok_db = ' ('.$dok_db.')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['jogosultsag']) || isset($_GET['szallodak']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['jogosultsag']) || isset($_GET['ertesites']) || isset($_GET['szallodak']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'jogosultsag'   => 'Jogosultságok',
+            'ertesites'     => 'Értesítések',
             'szallodak'     => 'Szállodák',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db,
@@ -365,17 +408,55 @@ require_once('selectek.php');
         </div>
     ');
 
-    $js_submit_elott = 'return form_ell_admin();';
 	// Új felhasználó felvitele
 	if(isset($_GET['uj']) && _jog(JOG_FELHASZNALOK_KEZEL)){
         
         // Módosításnál figyeljük, hogy a szerepkör megváltozott-e
         $js_submit_elott .= nl2('
+            
+                                formModositva = false;
                                 if( $(\'#nev\').val().length<8 ){
                                     alert2(\'A Login név hossza nem lehet kevesebb mint 8 karakter!\');
+                                    $(\'#nev\').addClass(\'hibas_ide_focus\');
                                     return false;
                                 }
                                 
+                                var letezik = false;
+                                login_letezik = $.ajax({
+                                    url : \'login.php\',
+                                    type: \'POST\',
+                                    data: esamp2es(\'nev=\' + $(\'#nev\').val() + \'&amp;login_letezik=\' + new Date().getTime()),
+                                    success: function(response) {
+                                        if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
+                                        if(response) {
+                                            response = JSON.parse(response);
+
+                                            if( response.hiba ) {
+                                                letezik = response.hiba;
+                                            }
+                                            
+                                        }
+                                        return false;
+                                    }
+                                });
+
+                                $.when( login_letezik ).then(function() {
+
+                                    if(letezik){
+                                        alert2(letezik, \'\', \'Hiba\');
+                                        $(\'#nev\').addClass(\'hibas_ide_focus\');
+                                        return false;
+                                    }else{
+                                        login_mehet = true;
+                                        return form_ell_admin();
+                                    }
+                                    
+                                });
+                                
+                                if(!login_mehet){
+                                    return false;
+                                }
+
                                 ');
 
         // Hibaüzenetek lekezelése
@@ -551,12 +632,11 @@ require_once('selectek.php');
         
         require_once('jogosultsag.php');
 
-        $login = $adatbazis_kapcsolat->s2('flags mail_flags', 'login', "`recid`='{$_GET['id']}'", '', '1');
+        $login = $adatbazis_kapcsolat->s2('flags', 'login', "`recid`='{$_GET['id']}'", '', '1');
         if( $login ) {
 
             // Jogosultságok feldarabolás
             $flags  = str_split($login['flags']     );
-            $mflags = str_split($login['mail_flags']);
 
             // Ellenőrzéshez 
             $jogEll = array();
@@ -566,11 +646,6 @@ require_once('selectek.php');
                     $jogEll['jog-'.$i] = 1;
                 } else {
                     $jogEll['jog-'.$i] = 0;
-                }
-                if( $mflags[$i] ) {
-                    $jogEll['mail-'.$i] = 1;
-                } else {
-                    $jogEll['mail-'.$i] = 0;
                 }
 
                 $i++;
@@ -582,7 +657,6 @@ require_once('selectek.php');
             $i = 0;
             foreach($jogosultsagok as $jog) {
                 $jogosultsagok[$i]['value']      = $flags[$i];
-                $jogosultsagok[$i]['mail_value'] = $mflags[$i];
                 $jogosultsagok[$i]['id']         = $i;
 
                 $i++;
@@ -646,15 +720,10 @@ require_once('selectek.php');
                     ';
                 }
 
-                $oszlop_cim = '';
-                if( $i==1 || $i==$jogdb_fel ){
-                    $oszlop_cim = 'Email értesítés';
-                }
                 $szamla_html .= '
                     <div class="dtr">
                         <div class="dtc form_bal jogKat"><span>'.$jogKat['nev'].':</span></div>
                         <div class="dtc form_jobb"></div>
-                        <div class="dtc form_jobb">'.$oszlop_cim.'</div>
                     </div>
                 ';
 
@@ -751,6 +820,221 @@ require_once('selectek.php');
                 }
 
                 if( $jogdb == $i ) {
+                    $szamla_html .= '
+                            </div>
+                        </div>
+                    ';
+                }
+
+                $i++;
+            }
+
+            $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
+            if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
+                if( $_COOKIE['csuszkaSzelesseg'] ) {
+                    $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
+                }
+            }
+
+            $szamla_html .= nl2('
+                        <div class="muveletek"'.$muv_style.'>
+                            <div class="form_kuldes">
+                                <input type="hidden" name="id" value="'.$_GET['id'].'">
+                                <input type="submit" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés">
+                                <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload()();">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            ');
+
+        }
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html
+            ));
+        } else {
+            echo $szamla_html;
+        }
+
+	// Értesítések
+    }elseif(isset($_GET['ertesites'])) {
+        
+        require_once('ertesitesek.php');
+
+        $login = $adatbazis_kapcsolat->s2('flags_ert', 'login', "`recid`='{$_GET['id']}'", '', '1');
+        if( $login ) {
+
+            // Értesítések feldarabolás
+            $flags = str_split($login['flags_ert']);
+
+            // Ellenőrzéshez 
+            $ertEll = array();
+            $i = 0;
+            foreach($ertesitesek as $ert) {
+                if( $flags[$i] ) {
+                    $ertEll['ert-'.$i] = 1;
+                } else {
+                    $ertEll['ert-'.$i] = 0;
+                }
+
+                $i++;
+            }
+
+            $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($ertEll).'\'); </script>';
+
+            // Hozzáadjuk az értékeket az értesítésekhez
+            $i = 0;
+            foreach($ertesitesek as $ert) {
+                $ertesitesek[$i]['value']      = $flags[$i];
+                $ertesitesek[$i]['id']         = $i;
+
+                $i++;
+            }
+
+            // Kigyűjtjük a kategóriákat
+            $ertKatok = ertesitesKatok( $ertesitesek );
+
+            // Rendezzük a kategóriákat
+            function sortByOrder($a, $b) {
+                return $a['sor'] - $b['sor'];
+            }
+            usort($ertKatok, 'sortByOrder');
+
+            $szamla_html .= nl2('
+                                <script>
+                                    function form_elkuld(){
+                                        param = \'\';
+                                        $(\'input[type="checkbox"]\').each(function () {
+                                            param += $(this).attr(\'name\')+\'=\'+$(this).is(\':checked\')+\'&amp;\';
+                                        });
+                                        
+                                        $.ajax({
+                                            url    : \''.self().'\',
+                                            type   : \'POST\',
+                                            data   : esamp2es(param+\'&amp;id='.$_GET['id'].'&amp;ertekhozzaad=\' + new Date().getTime()),
+                                            success: function (response) {
+
+                                                if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
+                                                $(\'input[type="checkbox"]\').removeClass(\'mod\');
+                                                formModositva = false;
+                                                $(\'.mentes_gomb\').attr(\'disabled\', true);
+                                                $(\'#megsem_gomb\').attr(\'disabled\', true);
+                                                
+                                                formAdatok = JSON.parse(response); 
+                                            }
+                                        });
+                                        return false;
+                                    }
+                                </script>
+                                <form id="szerk_form" action="" method="post" onsubmit="return form_elkuld();">
+                                    <div class="dt">
+                ');
+
+            $ertdb      = count($ertKatok);
+            $ertdb_fel  = ceil($ertdb / 2);
+
+            // Kiíratjuk az egészet
+            $i = 1;
+            foreach($ertKatok as $ertKat) {
+                if( $i == 1 ) {
+                    $szamla_html .= '
+                        <div class="dt jog_dt">
+                            <div class="dtr">
+                                <div class="dtc jog_dtc">
+                    ';
+                } else if( $i == $ertdb_fel ) {
+                    $szamla_html .= '
+                                </div>
+                                <div class="dtc jog_dtc">
+                    ';
+                }
+
+                $szamla_html .= '
+                    <div class="dtr">
+                        <div class="dtc form_bal jogKat"><span>'.$ertKat['nev'].':</span></div>
+                        <div class="dtc form_jobb"></div>
+                    </div>
+                ';
+
+                $ertSorok = getJogSorRendez( $ertKat['id'],  $ertesitesek);
+                usort($ertSorok, 'sortByOrder');
+
+                foreach($ertSorok as $ertSor) {
+
+                    $checked = '';
+                    if( $ertSor['value'] ) {
+                        $checked = ' checked="checked"';
+                    }
+
+                    $ertSor['nev'] .= ':';
+                    if($ertSor['i']){
+                        $ertSor['nev'] .= '<br><i class="f12">('.$ertSor['i'].')</i><div style="margin-bottom: 0.8rem"></div>';
+                    }
+
+                    $onclick = '';
+                    $kikapcs = '';
+                    if($ertSor['kikapcs']!=''/*Lényeges, hogy az üres stringgel legyen hasonlítva, mert 0 lehet értéke*/){
+                        foreach(explode(',', $ertSor['kikapcs']) as $pipa_ki){
+                            $kikapcs .= '$(\'#ert-'.$pipa_ki.'\').prop(\'checked\', false).removeClass(\'mod\');';
+                        }
+                    }
+                    $kikapcskor_kikapcs = '';
+                    if($ertSor['kikapcskor_kikapcs']==''/*Lényeges, hogy az üres stringgel legyen hasonlítva, mert 0 lehet értéke*/){
+                        foreach(explode(',', $ertSor['kikapcskor_kikapcs']) as $pipa_ki){
+                            $kikapcskor_kikapcs .= '$(\'#ert-'.$pipa_ki.'\').prop(\'checked\', false).addClass(\'mod\');';
+                        }
+                    }
+                    $bekapcs = '';
+                    if($ertSor['bekapcs']!=''){
+                        foreach(explode(',', $ertSor['bekapcs']) as $pipa_be){
+                            $bekapcs .= '$(\'#ert-'.$pipa_be.'\').prop(\'checked\', true).addClass(\'mod\');';
+                        }
+                    }
+
+                    // Ha épp most kap bekapcsolást, csak akkor futtatjuk le
+                    if($bekapcs){
+                        $bekapcs = 'if( $(this).prop(\'checked\') ){'.$bekapcs.'}';
+                    }
+                    // Ha épp most kapcsoltuk ki
+                    if($kikapcskor_kikapcs){
+                        $kikapcskor_kikapcs = 'if( $(this).prop(\'checked\') == false ){'.$kikapcskor_kikapcs.'}';
+                    }
+
+                    if($kikapcs || $kikapcskor_kikapcs || $bekapcs){
+                        $onclick = ' onclick="'.$kikapcs.$kikapcskor_kikapcs.$bekapcs.'"';
+                    }
+
+                    // A már törölteket rejtsük el
+                    $dn = '';
+                    if($ertSor['torolve']){
+                        $dn = ' dn';
+                    }
+                    
+                    // Van ahol a pipát kell elrejteni
+                    $dn_pipa  = '';
+                    $dn_pipac = '';
+                    if($ertSor['nincs_pipa']){
+                        $dn_pipa  = ' dn';
+                        $dn_pipac = ' class="dn"';
+                    }
+
+                    $szamla_html .= nl2('
+                        <div class="dtr'.$dn.'">
+                            <div class="dtc form_bal"><span>'.$ertSor['nev'].'</span></div>
+                            <div class="dtc form_jobb">
+                                <div class="cb">
+                                    <input type="hidden" name="ert-'.$ertSor['id'].'" value="0">
+                                    <input type="checkbox" class="check'.$dn_pipa.'" name="ert-'.$ertSor['id'].'" id="ert-'.$ertSor['id'].'" value="1"'.$checked.$onclick.'>
+                                    <label'.$dn_pipac.' for="ert-'.$ertSor['id'].'"></label>
+                                </div>
+                            </div>
+                        </div>
+                    ');
+                }
+
+                if( $ertdb == $i ) {
                     $szamla_html .= '
                             </div>
                         </div>

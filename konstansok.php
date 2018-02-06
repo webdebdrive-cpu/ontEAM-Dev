@@ -246,6 +246,14 @@ define('JOG_ESZKOZ_KEZEL',              43);
 define('JOG_FT_MEGTEKINT',              44);
 define('JOG_FT_KEZEL',                  45);
 
+// ÉRTESÍTÉSEK
+define('ERT_KESZRE_JELENTESKOR',         0);
+define('ERT_BEJ_ELUTASITKOR',            1);
+define('ERT_BEJ_REKL_ELUTASITKOR',       2);
+define('ERT_BEJ_IGAZOL_ELUTASITKOR',     3);
+define('ERT_MUNK_KESZRE_KULSO_MOBIL',    4);
+define('ERT_MUNK_ELUTASIT_UTAN',         5);
+
 
 
 define('HIBA_ADJON_FELADAT',           ' kérjük adjon hozzá egy elvégzett feladatot!');

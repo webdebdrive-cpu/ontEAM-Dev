@@ -62,7 +62,6 @@ if( isset($_POST['jogokhozzaad']) ) {
     unset($_POST['id']);
     unset($_POST['jogokhozzaad']);
     unset($_POST['erintettek_mod']);
-
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
@@ -83,7 +82,7 @@ if( isset($_POST['jogokhozzaad']) ) {
 
     // Ha kell, az összes érintett felhasználónál frissítjük a jogokat
     if($erintetteket_modositjuk){
-        $adatbazis_kapcsolat->u('login', array('flags'), array(implode('', $jogok)), "`szerepkor_id`='$id'");
+        $adatbazis_kapcsolat->u('login', array('flags'), array(implode('', $jogok)), "`szemelyzet_id`='{$id}'");
     }
 
     // A formAdatok JS változoót frissíteni kell

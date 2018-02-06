@@ -5048,6 +5048,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         'elszamolas',
                         'engedelyek',
                         'esemenyek',
+                        'ertesites',
                         'felmeresi',
                         'garancialis',
                         'id',

@@ -92,9 +92,12 @@ if( !$_SESSION[get_db_tabla().'user'] && basename( $_SERVER['PHP_SELF'] )!='inde
     
 // Jogosultságok karbantartása
 if( $_SESSION[get_db_tabla().'user'] ) {
-    $felhasznalo = $adatbazis_kapcsolat->s2('flags', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'", '', '1');
+    $felhasznalo = $adatbazis_kapcsolat->s2('flags flags_ert', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'", '', '1');
     if( $felhasznalo['flags'] ) {
-        $_SESSION[get_db_tabla().'rights'] = str_split($felhasznalo['flags']);
+        $_SESSION[get_db_tabla().'rights']    = str_split($felhasznalo['flags']);
+    }
+    if( $felhasznalo['flags_ert'] ) {
+        $_SESSION[get_db_tabla().'ertesites'] = str_split($felhasznalo['flags_ert']);
     }
 
 }

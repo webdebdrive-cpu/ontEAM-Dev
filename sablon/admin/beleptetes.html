@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="../css/admin.css" type="text/css">
 <link rel="stylesheet" href="../css/alert_admin.css" type="text/css">
 
-<div id="alert2" class="noFooter rFalse" style="width: 40rem; margin: auto; position: relative; box-shadow: 0rem 0.1rem 0.2rem 0rem #ccc">
+<div class="noFooter rFalse alert2" style="width: 40rem; margin: auto; position: relative; box-shadow: 0rem 0.1rem 0.2rem 0rem #ccc">
     <div class="figy">
         <div class="header">{FELIRAT}</div>
         <div class="tart">
@@ -29,3 +29,29 @@
         <div class="f_footer"></div>
     </div>
 </div>
+
+<div class="c" style="margin-top: 2rem">
+    <input type="button" class="gomb" value="Elfelejtettem a jelszavam" onclick="elf_jelszo()">
+</div>
+<script>
+	function elf_jelszo(){
+        if( !$('#nev').val().trim() ){
+            alert2('Kérem adja meg a felhasználói nevét!');
+            $('#nev').addClass('hibas_ide_focus');
+            return false;
+        }
+        
+        alert2('Elfelejtett jelszó küldése...', '', 'Információ');
+        $.ajax({
+            url : 'index.php',
+            type: 'POST',
+            data: {
+                fuggveny_neve   : Date.now()
+            },
+            success: function(response){
+                alert2('Kérése feldolgozás alatt, értesítést fog kapni új jelszaváról!', '', 'Információ');
+            }
+        });
+
+    }
+</script>

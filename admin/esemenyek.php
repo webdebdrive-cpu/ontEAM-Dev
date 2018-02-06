@@ -1007,8 +1007,8 @@ $bejelentes_tomb = $akt_tomb = array(
 
                                                             </div>
                                                             <div class="dtc" style="padding-top: 2rem">
-                                                                <div class="dib c" style="width: 26%; padding-top: 1rem">Bejelentő</div>
-                                                                <div class="dib c" style="width: 26%; padding-top: 1rem">Bejelentést rögzítő</div>
+                                                                <div class="dib c" style="width: 26%; min-width: 21rem; padding-top: 1rem">Bejelentő</div>
+                                                                <div class="dib c" style="width: 26%; min-width: 21rem; padding-top: 1rem">Bejelentést rögzítő</div>
                                                             </div>
                                                         </div>
                                                     ')),
@@ -1047,7 +1047,7 @@ $bejelentes_tomb = $akt_tomb = array(
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 if (isset($_GET['uj'])) {
-    array_push($bejelentes_tomb, array('type' => 'jsfile', 'megn' => 'Dokumentumok hozzáadása:',  'name' => 'termek_kep',  'tabla' => $megnevezes,  'oszlop' => 'bejelentesUjFeltoltes',   'algoritmus' => 'fajlnev',   'meret' => 31457280, 'csakkep'  => false, 'sablon_post'  => '_bejelentes') );
+    array_push($bejelentes_tomb, array('type' => 'jsfile', 'megn' => 'Dokumentumok<br>hozzáadása:',  'name' => 'termek_kep',  'tabla' => $megnevezes,  'oszlop' => 'bejelentesUjFeltoltes',   'algoritmus' => 'fajlnev',   'meret' => 31457280, 'csakkep'  => false, 'sablon_post'  => '_bejelentes') );
 }
 
 $bejelentes_dok_tomb = $akt_tomb = array(
@@ -2519,7 +2519,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
 
             $statusz     = BEJELENTES_STAT_ELUTASITVA;
             $level_tabla = 'bejelentes';
-            $level_jog   = _jog(JOG_BEJELENTES_VIZSGAL);
+            $level_jog   = ERT_BEJ_ELUTASITKOR;
         break;
         case 'projektigenyles':
             $statusz = PRIGENY_STAT_ELUTASITVA;
@@ -2576,13 +2576,13 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
-            
+
             // Levélküldés
             if($level_tabla){
 
                 $hiba = '';
                 foreach($idk as $id){
-                    $valasz = level_felkeszit_es_kuld($level_tabla, $id, $level_jog, 'bejelentesElutasit');
+                    $valasz = level_felkeszit_es_kuld($level_tabla, $id, $level_jog, 'bejelentesElutasit', 'bejelento');
                     if( substr($valasz, 0, 4)=='Hiba' ){
                         $hiba .= $valasz;
                     }
@@ -2596,6 +2596,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
                     exit();
                 }
             }
+
             mysqli_commit($db_kapcs);
             echo json_encode(array(
                 'statusz' => 'siker'

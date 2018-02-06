@@ -96,6 +96,19 @@ h1{
     text-align: center;
 }
 
+div.teszt_rendszer {
+    color: #f00;
+    letter-spacing: 1.3rem;
+    font-size: 2rem;
+    font-weight: bold;
+    left: 25%;
+    position: absolute;
+    top: 1.2rem;
+    text-transform: uppercase;
+    text-align: center;
+    width: 50%;
+}
+
 /* Űrlap körüli keret */
 div.keret{
     padding: 2rem 2rem 2rem 2rem;
@@ -306,6 +319,7 @@ div.kijeloltek_muv div.muv li a:hover {
     text-align: left;
     vertical-align: middle;
     width: 100%;
+    white-space: nowrap;
 }
 
 .form_jobb a.obj_gen {
@@ -461,6 +475,7 @@ input.kicsi{
 }
 
 input.kozepes{
+    min-width: 20rem;
     width: 25%;
 }
 
