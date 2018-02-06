@@ -1,38 +1,12 @@
 <?php
-include('../weblap.php');
-include('../html2pdf/mpdf.php');
-
-// HTML, amiből PDF-et készítünk
-$html = fajlbol_olvas('teszt.html');
-
-// Lecserélünk belőle pár js-t css-t, ami nem kell a PDF-hez
-$mit = array('<script src="../js/jquery.js"></script>', '<link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">');
-$html = str_replace($mit, '', $html);
-
-$rendeles_szam = 'Megrendelés sz.: R18/0018 ';
-$footer_stamp  = 'teszt 2018.02.01 15:04:20';
-
-
 // $mpdf = new mPDF('utf-8');
-$mpdf = new mPDF('utf-8','A4','','','15','15','28','18');
-
-
-//$mpdf ->use_kwt = true; // Tabel előtt header elemekkel egyött megy másik oldalra
-$mpdf ->shrink_tabels_to_fit = 1; // Autosizing
-//$mpdf->shrink_tables_to_fit = 0; kikapcsolt állapot
 // Fejléc képe
-//$mpdf ->header_kep = file_get_contents('../elemek/pdf_header.png');
+// $mpdf ->header_kep = file_get_contents('../elemek/pdf_header.png');
 // $kep = '<img src="var:header_kep" />';
 // $mpdf ->WriteHTML($kep);
 // $mpdf ->WriteHTML($kep)
-//$mpdf ->Image('var: header_kep',0,0, 33);
+// $mpdf ->Image('var: header_kep',0,0, 33);
 
-
-
-// $tarolo = '\'|\'.$rendeles_szam.\'|{PAGENO} {nbpg}\'';
-
-// $mpdf ->pagenumPrefix = $rendeles_szam;
-$mpdf ->nbpgPrefix = '/ ';
 /*$tomb = array(
              'L' => array(
                  'content'=> '',
@@ -54,6 +28,33 @@ $mpdf ->nbpgPrefix = '/ ';
 
 $mpdf ->SetHeader($tomb, 0);
 */
+
+
+
+// $tarolo = '\'|\'.$rendeles_szam.\'|{PAGENO} {nbpg}\'';
+
+// $mpdf ->pagenumPrefix = $rendeles_szam;
+include('../weblap.php');
+include('../html2pdf/mpdf.php');
+
+// HTML, amiből PDF-et készítünk
+$html = fajlbol_olvas('teszt.html');
+
+// Lecserélünk belőle pár js-t css-t, ami nem kell a PDF-hez
+$mit = array('<script src="../js/jquery.js"></script>', '<link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">');
+$html = str_replace($mit, '', $html);
+
+$rendeles_szam = 'Megrendelés sz.: R18/0018 ';
+$footer_stamp  = 'teszt 2018.02.01 15:04:20';
+
+
+
+$mpdf = new mPDF('utf-8','A4','','','15','15','28','28');
+
+
+
+
+
 
 $header = '<div style="padding-bottom: 10px;height150px;">
                 <table class="full" style="margin_bottom:20px;">
@@ -77,8 +78,11 @@ $footer = '<div class="footer">
                 <div class="dtc r padd" style="font-size: 7px">'.$footer_stamp.'</div>
             </div>';
 
+
+$mpdf ->nbpgPrefix = '/ ';
 $mpdf ->SetHTMLHeader( $header);
 $mpdf ->SetHTMLFooter( $footer);
+
 $mpdf ->WriteHTML( $html);
 
 // PDF fájlba mentése
