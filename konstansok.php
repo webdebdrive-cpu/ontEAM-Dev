@@ -254,6 +254,8 @@ define('ERT_BEJ_IGAZOL_ELUTASITKOR',     3);
 define('ERT_MUNK_KESZRE_KULSO_MOBIL',    4);
 define('ERT_MUNK_ELUTASIT_UTAN',         5);
 
+define('ERT_ANYAGIG_JOVAHAGYAS',        10);
+
 
 
 define('HIBA_ADJON_FELADAT',           ' kérjük adjon hozzá egy elvégzett feladatot!');

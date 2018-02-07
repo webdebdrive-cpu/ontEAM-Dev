@@ -5871,6 +5871,17 @@ function level_felkeszit_es_kuld($tabla, $recid, $jog, $sablon, $cimzett){
             }
 
         break;
+
+        // Anyagigénylés küldés jóváhagyásra
+        case '_jog'.JOG_ANYAGIGENYLES_JOVAHAGY:
+
+            // Több címzett is van
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_ANYAGIGENYLES_JOVAHAGY+1).", 1)=1 AND substr(`flags_ert`, ".($jog+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0");
+            if(!$cimzettek){
+                return false;
+            }
+
+        break;
     }
 
     // Esemény neve
@@ -5930,11 +5941,26 @@ function level_felkeszit_es_kuld($tabla, $recid, $jog, $sablon, $cimzett){
                         fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
+        case 'anyagigenylesJovahagy':
+            $esemeny =  'anyagigénylés elküldése jóváhagyásrakor';
+            $targy   =  'ontEAM anyagigénylések jóváhagyásra várnak';
+            $uzi     =  'Anyagigénylések várnak az Ön jóváhagyására.
+                        <br>'.
+                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        break;
+
     }
 
     // Levélküldés
     $megj = '';
     $hiba = '';
+    
+    $targy_kieg = '';
+    $uzi_kieg   = '';
+    if( get_teszt_rendszer() ){
+        $targy_kieg = '[Teszt email]';
+        $uzi_kieg   = '[Teszt email]<br><br>';
+    }
 
     foreach($cimzettek as $cimzett){
 // Teszteléshez
@@ -5960,7 +5986,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $jog, $sablon, $cimzett){
         $megszolitas    = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/megszolitas.html'));
 
         // Tényleges küldés
-        $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $cimzett['teljes_nev'], $cimzett['usermail'], $targy, $megszolitas.$uzi);
+        $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $cimzett['teljes_nev'], $cimzett['usermail'], $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
 
         // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
         if( $sikeres_kuldes ){
@@ -5985,9 +6011,9 @@ function level_felkeszit_es_kuld($tabla, $recid, $jog, $sablon, $cimzett){
 
         }
     }
-
     // Megjegyzés hozzáadása
     addMegj($tabla, $recid, $megj);
+    // Ha volt kapcsolódó munkalap, akkor oda is beírjuk a megjegyést
     if($munkalap_kapcs){
         addMegj('munkalap', $munkalap_kapcs['munkalap_id'], $megj);
     }

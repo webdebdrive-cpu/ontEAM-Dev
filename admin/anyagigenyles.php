@@ -817,9 +817,7 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
     if( is_array($idk) ) {
         // Ellenőrizzük a csoportokat
         $sql = $csoportok = $adatbazis_kapcsolat->s('csoport_id', $page, "`recid` IN (".implode(',', $idk).")", '', '');
-        if( $sql === false ) {
-            $db_error = true;
-        }
+        if( $sql === false ) { $db_error = true; }
 
         $csoportok = adatbazis2tomb($csoportok, 'csoport_id');
         $csoportok_unique = array_unique($csoportok);
@@ -829,10 +827,7 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
         foreach( $csoportok_unique as $csu ) {
             if( $csu > 0 ) {
                 $sql = $csoport_db = $adatbazis_kapcsolat->s('csoport_id', $page, "`csoport_id` = '{$csu}'", '', '');
-
-                if( $sql === false ) {
-                    $db_error = true;
-                }
+                if( $sql === false ) { $db_error = true; }
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
@@ -897,12 +892,28 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
 
         foreach($idk as $id) {
             $statusz = addStatusz( $page.'_statusz', $id, CIKKIGN_STAT_ARAZVA );
-            if( $statusz === false ) {
-                $db_error = true;
-            }
+            if( $statusz === false ) { $db_error = true; }
         }
 
         if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+            
+            $hiba = '';
+            foreach($idk as $id) {
+                $valasz = level_felkeszit_es_kuld($page, $id, ERT_ANYAGIG_JOVAHAGYAS, 'anyagigenylesJovahagy', '_jog'.JOG_ANYAGIGENYLES_JOVAHAGY);
+                if( substr($valasz, 0, 4)=='Hiba' ){
+                    $hiba .= $valasz;
+                }
+            }
+            if($hiba){
+                echo json_encode(array(
+                    'hiba'  => $hiba,
+                    'title' => 'Hiba',
+                ));
+                $weblap->leallit();
+                exit();
+            }
+
             mysqli_commit($db_kapcs);
             echo json_encode(array(
                 'statusz' => 'siker'
@@ -2565,7 +2576,7 @@ require_once('selectek.php');
             foreach($sorok as $sor) {
                 $szamla_html .= nl2('
                     <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                        <div class="dtc">'.nl2br($sor['megj']).'</div>
+                        <div class="dtc">'.htmlspecialchars_decode( nl2br($sor['megj']) ).'</div>
                         <div class="dtc">'.$sor['insert_usr'].'</div>
                         <div class="dtc">'.$sor['insert_dt'].'</div>
                     </div>
