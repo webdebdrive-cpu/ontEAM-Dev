@@ -1400,7 +1400,7 @@ $(function() {
 
             /* Ha popupban kaptunk volna hibaüzenetet, akkor visszatérve fókuszáljunk a hibásnak jelölt inputra. Egyúttal vegyük is le ezt a classt róla */
             $('input.hibas_ide_focus, textarea.hibas_ide_focus, select.hibas_ide_focus').select().removeClass('hibas_ide_focus');
-            /*  */
+            
             if($('#elv_ido_tol').length){
                 $('.xdsoft_datetimepicker').hide();
             }
@@ -6247,6 +6247,7 @@ function beosztas_veglegesit(mehet){
 
 }
 
+/* Munkalap vissza a nyitottak közé (Mobil hozzárendelés felület) */
 function munkalapok_nyitottak_koze(mehet){
 
     if( !$('.mobilkeret li.kijelolt').length ){

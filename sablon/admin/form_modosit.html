@@ -72,11 +72,21 @@
                         $('#szerk_form input.f_nem_rejt').attr('readonly', false);
                         $('#szerk_form input.foGomb').removeAttr('disabled');
                     }
+                    
+                    
+                    /* Fókuszálás az űrlap első nem disabled mezőjére */
+                    $('#szerk_form input:text, #szerk_form textarea, #szerk_form select').filter(':not(:disabled)').filter(":not([readonly='readonly'])").first().focus().select();
+                    
                     /* Ha a helyiség input tiltott, akkor az ikonja is legyen az */
                     var readonly_e = $('#obj_id_autocomp').attr('readonly');
                     if(typeof readonly_e !== typeof undefined && readonly_e !== false){
                         $('.obj_gen').hide();
                     }
+                    
+                    /* Readonly mezőkre ne lehessen tabozni */
+                    $('#szerk_form input').filter("[readonly='readonly']").each(function() {
+                        $(this).attr('tabindex', '-1');
+                    });
 
                 });
 

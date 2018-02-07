@@ -110,7 +110,7 @@ if (isset($_POST['beosztas_veglegesit'])) {
 // Nyitottak közé
 if (isset($_POST['munkalapok_nyitottak_koze'])) {
 
-    addStatusz('munkalap', $_POST['recid'], MUNKALAP_STAT_NYITOTT);
+    var_dump(addStatusz('munkalap_statusz', $_POST['recid'], MUNKALAP_STAT_NYITOTT));
     
     $weblap -> leallit();
     exit;
@@ -341,7 +341,7 @@ require_once('selectek.php');
         }
         
         $html .= nl2('
-                        <li class="ui-state-default" data-recid="'.$munkalap['recid'].'" ondblclick="window.open(\'munkalap.php?id='.$munkalap['recid'].'&amp;modosit\', \'uj_tab\')">
+                        <li class="ui-state-default" data-recid="'.$munkalap['recid'].'" ondblclick="window.open(\'munkalap.php?id='.$munkalap['recid'].'&amp;modosit&amp;szures_vege\', \'uj_tab\')">
                             <div class="dtc c munkalapszam" style="width: 11rem">
                                 '.$munkalap['ikt_szam'].'
                             </div>
@@ -380,7 +380,7 @@ require_once('selectek.php');
             $hiba       = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
             $szalloda   = getErtek('nev',  'telephely',  'id', $munkalap['telephely_id']);
             $folyamatban[$mobil] .= '
-                <tr ondblclick="window.open(\'munkalap.php?id='.$munkalap['recid'].'&amp;modosit\', \'uj_tab\')">
+                <tr class="link" ondblclick="window.open(\'munkalap.php?id='.$munkalap['recid'].'&amp;modosit&amp;szures_vege\', \'uj_tab\')">
                     <td>
                         '.$szalloda.'
                     </td>
