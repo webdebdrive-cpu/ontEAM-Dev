@@ -12,7 +12,7 @@
 
 <div class="kuldes">
     <input name="elkuld" class="gombb" value="Ok" type="button" onclick="surgosseg_allit()">
-    <input name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();" type="button">
+    <input name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar(); $('#surgos').removeClass('mod'); if( !$('#szamlaBetolt .mod').length ){ formModositva = false; }" type="button">
 </div>
 
 <script>

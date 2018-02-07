@@ -88,7 +88,7 @@
                             $('#' + cont_id).css({ 'width': width });
                             $('#autocomplete').css({
                                 'display'   : 'block',
-                                'max-height': '30rem',
+                                /*'max-height': '30rem', Ez miért kellett? Azért vettem ki, mert lefele nyíllal tovább nőtt a méretet külső hozzárendelés popupnál*/
                                 'width'     : width
                             });
                         } else {

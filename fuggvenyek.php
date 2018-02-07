@@ -2248,6 +2248,14 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             if($where){
                 $where = '('.csonkit($where, 5).') AND ';
             }
+            
+            // Dátum mezők (sajnos itt class-ra már nem tudok keresni, szóval konkrét mezőnevek alapján dől el)
+            // nél ha egyenlős akor az valóban like
+            $datum_mezok = array('insert_dt');
+            if( in_array($_GET['mezo'], $datum_mezok) && $_GET['op']=='equal' ){
+                $_GET['op'] = 'like';
+            }
+            
             $where .= get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla).' AND ';
         }
 
@@ -2791,8 +2799,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
 
                         $bold = '';
-                        $bejelentes = $adatbazis_kapcsolat->s('recid telephely_id', 'bejelentes', "`csoport_id` = '{$aktCsoport}' AND `stat_id`='".BEJELENTES_STAT_NYITOTT."'", '', '1');
-                        $bejelentes = $bejelentes[0];
+                        $bejelentes = $adatbazis_kapcsolat->s2('recid telephely_id', 'bejelentes', "`csoport_id` = '{$aktCsoport}' AND `stat_id`='".BEJELENTES_STAT_NYITOTT."'", '', '1');
                         // Ha van legalább egy nyitott eleme, akkor biztosan nyitott a csoport is (elvégre a csoport státusza csak eygszerre mozoghat)
                         if($bejelentes){
                             $bold = ' b';
@@ -2874,7 +2881,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 <td rowspan="2" style="width: 5rem">'.$kesz.$dok_icon.$surgos.'</td>
                                 <td style="width: 9rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem">'.getStatText($tabla, $bsz['stat_id']).'</td>
-                                <td style="width: 7rem">'.substr($bsz['insert_dt'], 0, 16).'</td>
+                                <td style="width: 7rem">'.str_replace('-', '.', substr($bsz['insert_dt'], 0, 16) ).'</td>
                                 <td>'.$telephely.' - '.$helyseg.'</td>
                             </tr>
                             <tr>
@@ -5403,6 +5410,13 @@ function get_akt_tomb($megn){
         case 'projektigenyles'      : $akt_tomb = $projektigenyles_tomb;        break;
         case 'torzsadat'            : $akt_tomb = $torzsadat_tomb;              break;
     }
+    
+    // Beállítjuk mindenhol a megn_szurobe értéket, mert ez alapján fogjuk rendezni
+    foreach($akt_tomb as $kulcs => $elem){
+        if( !$akt_tomb[$kulcs]['megn_szurobe'] ){
+            $akt_tomb[$kulcs]['megn_szurobe'] = $akt_tomb[$kulcs]['megn'];
+        }
+    }
 
     return $akt_tomb;
 }
@@ -5558,6 +5572,9 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         return '`'.get_db_tabla().'anyagigenyles`.`nev` LIKE \'%'.$felt.'%\'';
     }elseif($tabla=='bejelentes' && $mezo=='telephely_id'){
         return '`'.get_db_tabla().'bejelentes`.`telephely_id`=\''.$felt.'\'';
+    }elseif($tabla=='bejelentes' && $mezo=='insert_dt'){
+        $felt = str_replace('.', '-', $felt);
+        return '`'.get_db_tabla().'bejelentes`.`insert_dt`'.$op.'\''.$felt.'\'';
     }elseif($tabla=='login' && $mezo=='szalloda'){
         return '`'.get_db_tabla().'telephely_kapcs`.`telephely_id`=\''.$felt.'\'';
     }elseif($tabla=='utemezett_feladatok' && $mezo=='telephely_id'){
@@ -6023,4 +6040,40 @@ function level_felkeszit_es_kuld($tabla, $recid, $jog, $sablon, $cimzett){
         return $hiba;
     }
 
+}
+
+// Többdimenziós tömb rendezése kulcs alapján
+function tobbdim_tomb_kulcs_rendez($array, $on, $order=SORT_ASC){
+
+    $new_array = array();
+    $sortable_array = array();
+
+    if (count($array) > 0) {
+        foreach ($array as $k => $v) {
+            if (is_array($v)) {
+                foreach ($v as $k2 => $v2) {
+                    if ($k2 == $on) {
+                        $sortable_array[$k] = $v2;
+                    }
+                }
+            } else {
+                $sortable_array[$k] = $v;
+            }
+        }
+
+        switch ($order) {
+            case SORT_ASC:
+                asort($sortable_array);
+                break;
+            case SORT_DESC:
+                arsort($sortable_array);
+                break;
+        }
+
+        foreach ($sortable_array as $k => $v) {
+            $new_array[$k] = $array[$k];
+        }
+    }
+
+    return $new_array;
 }

@@ -19,7 +19,7 @@ if (isset($_POST['f_szuro_mezo'])) {
     $selectek = array('select_pri_tipus', 'select_pri_besorol', 'select_szemelyzet');
     
     $operator = '';
-    //Feltétel összerakása tömbből
+    // Feltétel összerakása tömbből
     foreach ($akt_tomb_szures as $ertek){
         if($ertek['name']==$_POST['mezo']){
             
@@ -28,6 +28,12 @@ if (isset($_POST['f_szuro_mezo'])) {
                 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 
+            // Dátum mező esetén
+            }elseif( strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false ){
+                
+                $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+                $operator .= '<option value="gt"'.$selected_gt.'>&gt;</option>';
+                $operator .= '<option value="lt"'.$selected_lt.'>&lt;</option>';
                 
             // Autocomplete esetén a switch.php alapján gyártunk egy inputot
             }elseif($ertek['type']=='autocomplete'){
@@ -284,8 +290,8 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     if( strpos($ertek['class'], 'f_num')!==false){
                         $feltetel = '<input type="text" placeholder="Érték..." class="f_num f_felt" value="'.$_POST['felt'].'">';
                     
-                    // Dátum mezők
-                    }elseif( strpos($ertek['class'], 'datepicker')!==false){
+                    // Dátum mezők (mindig csak dátum pontos)
+                    }elseif( strpos($ertek['class'], 'datepicker')!==false ||  strpos($ertek['class'], 'datetimepicker')!==false ){
                         $feltetel = nl2('
                             <input type="text" placeholder=" . . " class="datepicker f_felt" value="'.$_POST['felt'].'">
                             <script>$(\'.datepicker\').datetimepicker({
@@ -384,10 +390,11 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 }
 
 
-// Melyik oldalon vagyunk: annak megfelelő tömbbel dolgozunk
+// Melyik oldalon vagyunk: annak megfelelő tömbbel dolgozunk. Szűrhető mezők listája.
 $tabla = str_replace('.php', '', basename(self()));
 $akt_tomb_szures = get_akt_tomb($tabla);
 $sz_mezo = '';
+$akt_tomb_szures = tobbdim_tomb_kulcs_rendez($akt_tomb_szures, 'megn_szurobe', SORT_ASC);
 foreach($akt_tomb_szures as $ertek){
     if($ertek['szuro']){
         if($ertek['megn_szurobe']){
