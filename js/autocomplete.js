@@ -162,9 +162,13 @@
                                         documentHeight  = $(document).outerHeight(),
                                         documentHalf    = documentHeight / 2;
 
-                                    var autocompHeight  = $('#autocomplete').outerHeight(),
+                                    var autocompHeight  = $('#autocomplete ul').outerHeight(),
                                         autocompleteTop = height;
-                                        
+
+                                    if( autocompHeight > 300 ) {
+                                        autocompHeight = 300;
+                                    }
+
                                     /* Ha az input elhagyta a documentum felét */
                                     if( offsetTop > documentHalf ) {
                                         var maradekHely = documentHeight - (offsetTop + height);
@@ -348,7 +352,7 @@
                 }
             });
 
-            $(this).keyup(function(e) {
+            $(this).keydown(function(e) {
                 var aktiv  = $('#autocomplete ul li.aktiv');
                 var first   = $('#autocomplete ul li:first-child');
                 var last    = $('#autocomplete ul li:last-child');
