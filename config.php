@@ -82,6 +82,13 @@ function get_alk()           { return
 function get_country()       { return 'Hungary';                                } // Pl.: Hungary
 function css_img()           { return true;                                     } //Ha igaz, akkor a CSS-ben levő képeket DATA URI-ként beágyazza a CSS tartalmába, egyébént marad sima hivatkozás
 function get_domain()        { return 'www.onteam.hu';                          }
+function get_http()          {
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') {
+        return 'https://';
+    }else{
+        return 'http://';
+    }
+}
 function get_mail($kiir)     { return !$kiir ? 'noreply@onteam.hu' :
            mail_rejtes('<a href="mailto:'.get_mail().'">'.get_mail().'</a>');   }
 function get_megsz()         { return 'magaz';                                  }

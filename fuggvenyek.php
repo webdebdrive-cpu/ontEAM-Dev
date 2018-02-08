@@ -871,11 +871,11 @@ function i_u($type, $tabla, $tomb) {
             array_push($ertekek,  $_SESSION[get_db_tabla().'teljes_nev']);
         }
 
-        // Loginnál szerepkörök lekezelése
+        // Loginnál szerepkörök lekezelése +  Jelszóval rendelkezik pipa kiszedése esetén e-mail értesítés küldése
         if( $tabla == 'login' ) {
             
             // Ha változott a szerepkör, akkor a jogokat frissítjük
-            $login = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`recid`='{$_GET['id']}'");
+            $login = $adatbazis_kapcsolat->s2('szemelyzet_id van_jelszo', 'login', "`recid`='{$_GET['id']}'");
             if( $login['szemelyzet_id'] != $_POST['szemelyzet_id'] ) {
                 $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', "`recid`='{$_POST['szemelyzet_id']}'", '', '1');
                 if( $szerepkor === false ) { $db_error = true; }
@@ -884,6 +884,11 @@ function i_u($type, $tabla, $tomb) {
                     array_push($oszlopok, 'flags'             );
                     array_push($ertekek,   $szerepkor['flags']);
                 }
+            }
+
+            // Ha most vették ki a Jelszóval rendelkezik pipát, akkor e-mail értesítés küldése
+            if( $login['van_jelszo'] && !$_POST['van_jelszo'] ) {
+                level_felkeszit_es_kuld('login', $_GET['id'], '', 'elfelejtettJelszoKuld', 'elfelejtettJelszoKuld');
             }
         }
 
@@ -5818,7 +5823,7 @@ function valos_datum_e($datum){
     return checkdate($ho, $nap, $ev);
 }
 
-// Levélküldés előtt jogot vizsgálunk, levél tartlamát kiszámoljuk
+// Levélküldés előtt jogot, értesítés pipát vizsgálunk, levél tartlamát és címzetteket kiszámoljuk
 function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
     
     global $adatbazis_kapcsolat;
@@ -5865,6 +5870,22 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
             $uzi        = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
             
             $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags_ert`, ".($ert_pipa+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0");
+            if(!$cimzettek){
+                return false;
+            }
+            
+        break;
+        
+        // Elfelejtett jelszó küldése
+        case 'elfelejtettJelszoKuld':
+            
+            $domain     = get_http().get_domain();
+            $domain     = '<a href="'.$domain.'" target="_blank">'.$domain.'</a>';
+            $mit        = array('{DOMAIN}'  );
+            $mivel      = array($domain     );
+            $uzi        = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );
+            
+            $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "`recid`='{$recid}'");
             if(!$cimzettek){
                 return false;
             }
@@ -5954,6 +5975,13 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
                         fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
+        case 'elfelejtettJelszoKuld':
+            $esemeny =  'elfelejtett jelszó kiküldésekor';
+            $targy   =  'ontEAM elfelejtett jelszó';
+            $uzi     =  $uzi.
+                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        break;
+
         case 'munkalapKeszre':
             $esemeny =  'munkalap készre jelentéskor';
             $targy   =  'ontEAM bejelentett hiba javítása elkészült';
@@ -6006,7 +6034,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
 // Teszteléshez
 //$tmp = $adatbazis_kapcsolat->s2('usermail', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
 //$cimzett['usermail'] = $tmp['usermail'];
-        
+
         // Mely tábláknál ellenőrizzünk szállodát is (saját szállodák)
         $szallodat_ellenorizz = array('bejelentes', 'munkalap');
         if(in_array($tabla, $szallodat_ellenorizz) ){

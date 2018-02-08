@@ -987,23 +987,8 @@ $(function() {
                     mod++;
                 }
             });
-            if( mod ) {
-                $('#kilepes_gomb').val('Kilépés mentés nélkül');
-                $('#mehet_gomb').attr('disabled', false).addClass('gombb_alert');
-                $('#megsem_gomb').attr('disabled', false);
-                $('#visszavonas_gomb').attr('disabled', false);
-                $('.modositaskor_rejt').hide();
-
-                formModositva = true;
-            } else {
-                $('#kilepes_gomb').val('Kilépés');
-                $('#mehet_gomb').attr('disabled', true).removeClass('gombb_alert');
-                $('#megsem_gomb').attr('disabled', true);
-                $('#visszavonas_gomb').attr('disabled', true);
-                $('.modositaskor_rejt').show();
-
-                formModositva = false;
-            }
+            
+            gombok_valt(mod);
 
             e.preventDefault();
         }
@@ -1337,7 +1322,7 @@ $(function() {
             tort = $(this).attr('data-tort');
         }
         $(this).val( ezresek($(this).val().replace(/ /g, '').replace('.', '').replace(',', '.'), tort, ',', ' ') );
-        $(this).focus().blur(); /* Ez azért kell, hogy ha 0 volt az értéke, kitörlöm üresnek, akkor az ezresek 0-át vissza teszi bele, tehát a mezőről le kellene venni a 'mod' classzt, és ezt egy focus-blur-al oldom meg */
+        $(this).focus().blur(); /* Ez azért kell, hogy ha 0 volt az értéke, kitörlöm üresnek, akkor az ezresek 0-át vissza teszi bele, tehát a mezőről le kellene venni a 'mod' class-t, és ezt egy focus-blur-al oldom meg */
     });
 
     /* Anyagigénylésnél a mennyiség mező kitöltése szálloda + anyag ismerete alapján */
@@ -6273,4 +6258,25 @@ function munkalapok_nyitottak_koze(mehet){
             location.reload();
         }
     });
+}
+
+/* Az űrlap gombjait váltjuk: mentés / mégsem látsszon vagy a kék gombok. Illetve fomr módosított-e vagy sem.  */
+function gombok_valt(mod){
+    if( mod ) {
+        $('#kilepes_gomb').val('Kilépés mentés nélkül');
+        $('#mehet_gomb').attr('disabled', false).addClass('gombb_alert');
+        $('#megsem_gomb').attr('disabled', false);
+        $('#visszavonas_gomb').attr('disabled', false);
+        $('.modositaskor_rejt').hide();
+
+        formModositva = true;
+    } else {
+        $('#kilepes_gomb').val('Kilépés');
+        $('#mehet_gomb').attr('disabled', true).removeClass('gombb_alert');
+        $('#megsem_gomb').attr('disabled', true);
+        $('#visszavonas_gomb').attr('disabled', true);
+        $('.modositaskor_rejt').show();
+
+        formModositva = false;
+    }
 }
