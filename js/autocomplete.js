@@ -165,6 +165,10 @@
                                     var autocompHeight  = $('#autocomplete ul').outerHeight(),
                                         autocompleteTop = height;
 
+                                    if( autocompHeight > 300 ) {
+                                        autocompHeight = 300;
+                                    }
+
                                     /* Ha az input elhagyta a documentum felét */
                                     if( offsetTop > documentHalf ) {
                                         var maradekHely = documentHeight - (offsetTop + height);
