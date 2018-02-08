@@ -2261,18 +2261,18 @@ require_once('selectek.php');
                         $akt_anyag = $adatbazis_kapcsolat->s2('cikk_nev cikk_id szuk_men cikk_mee', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `telephely_id`='{$telephely['telephely_id']}' AND `cikk_id`='{$anyag['cikk_id']}'");
 
                         $anyagok_html .= nl2('
-                                        <tr id="sor_'.$cikk_id.'">
+                                        <tr id="sor_'.$anyag['cikk_id'].'">
                                             <td>'.$szalloda['nev'].'</td>
                                             <td id="cikk_id_'.$recid_egyedi_azon.'">'.$akt_anyag['cikk_id'].'</td>
                                             <td id="cikk_nev_'.$recid_egyedi_azon.'" class="l">'.$akt_anyag['cikk_nev'].'</td>
-                                            <td class="r piros" id="th'.$telephely['telephely_id'].'a'.$cikk_id.'">'.number_format($ig_var, 2, ',', ' ').'</td>
+                                            <td class="r piros" id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'">'.number_format($ig_var, 2, ',', ' ').'</td>
                                             <td class="r">'.number_format($anyag_var, 2, ',', ' ').'</td>
                                             <td class="r zold">'.number_format($folyamatban, 2, ',', ' ').'</td>
-                                            <td id="th'.$telephely['telephely_id'].'a'.$cikk_id.'_mee">'.$akt_anyag['cikk_mee'].'</td>
+                                            <td id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'_mee">'.$akt_anyag['cikk_mee'].'</td>
                                             <td><input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$akt_munkalapok.'\')"></td>
-                                            <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$cikk_id.'"></td>
+                                            <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$anyag['cikk_id'].'"></td>
                                             <td>'.$mar_igenyelve.'</td>
-                                            <td><input type="button" value="Anyag rendelkezésre áll" class="gomb f_anyag_rendelkezesre_all" data-telephely_id="'.$telephely['telephely_id'].'" data-cikkid_origi="'.$cikkid_origi.'" data-cikk_id="'.$cikk_id.'"></td>
+                                            <td><input type="button" value="Anyag rendelkezésre áll" class="gomb f_anyag_rendelkezesre_all" data-telephely_id="'.$telephely['telephely_id'].'" data-cikkid_origi="'.$anyag['cikk_id'].'" data-cikk_id="'.$anyag['cikk_id'].'"></td>
                                         </tr>
                                         ');
                     }

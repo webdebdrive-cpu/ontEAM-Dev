@@ -850,6 +850,11 @@ require_once('selectek.php');
         if ($_GET['telephely']) {
             $sor['telephely_id'] = $_GET['telephely'];
         }
+        // Ha csak egy szálloda tartozik adott felhasználóhoz, akkor a szálloda választónak adott az értéke, ezt adjuk is át a formAdatoknak
+        $szallodak = get_akt_login_szallodai();
+        if( count($szallodak)==1 ){
+            $sor['telephely_id'] = $szallodak[0];
+        }
         
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($sor).'\'); </script>';
 

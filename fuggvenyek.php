@@ -3500,12 +3500,6 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 if( $bsz['stat_id']==CIKKIGN_STAT_ARAZVA ){
                     $rendelesi_ertek += $bsz['rndmen']*$bsz['rndear'];
                 }
-                
-                $bsz['igmen']   = str_replace('.', ',', $bsz['igmen']);
-                $bsz['jhmen']   = str_replace('.', ',', $bsz['jhmen']);
-                $bsz['rndmen']  = str_replace('.', ',', $bsz['rndmen']);
-                $bsz['rndear']  = str_replace('.', ',', $bsz['rndear']);
-                $bsz['vrndear'] = str_replace('.', ',', $bsz['vrndear']);
 
                 $active = '';
                 if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
