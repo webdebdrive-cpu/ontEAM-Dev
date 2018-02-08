@@ -84,20 +84,22 @@
                             $('#autocomplete').removeClass('popupba');
                         }
 
-                        if(options.szel == 'auto') {
-                            $('#' + cont_id).css({ 'width': width });
-                            $('#autocomplete').css({
-                                'display'   : 'block',
-                                'max-height': '30rem',
-                                'width'     : width
-                            });
-                        } else {
-                            $('#' + cont_id).css({ 'width': options.szel });
-                            $('#autocomplete').css({
-                                'display'   : 'block',
-                                'max-height': '30rem',
-                                'width'     : options.szel
-                            });
+                        if( $('#autocomplete').css('display') != 'block' ) {
+                            if(options.szel == 'auto') {
+                                $('#' + cont_id).css({ 'width': width });
+                                $('#autocomplete').css({
+                                    'display'   : 'block',
+                                    'max-height': '30rem',
+                                    'width'     : width
+                                });
+                            } else {
+                                $('#' + cont_id).css({ 'width': options.szel });
+                                $('#autocomplete').css({
+                                    'display'   : 'block',
+                                    'max-height': '30rem',
+                                    'width'     : options.szel
+                                });
+                            }
                         }
 
                         /* Ha nem a szűrőben van az autocomplete, akkor csak azokat a helyiségeket listázza ki,
@@ -162,7 +164,7 @@
 
                                     var autocompHeight  = $('#autocomplete').outerHeight(),
                                         autocompleteTop = height;
-
+                                        
                                     /* Ha az input elhagyta a documentum felét */
                                     if( offsetTop > documentHalf ) {
                                         var maradekHely = documentHeight - (offsetTop + height);
@@ -365,6 +367,9 @@
                             first.addClass('aktiv');
                         }
                     }
+
+                    var scrollHeight = $('#autocomplete').prop('scrollHeight');
+                    $('#autocomplete').scrollTop($('#autocomplete').scrollTop() + $('#autocomplete ul li.aktiv').position().top - 20);
                 }
                 if(e.keyCode==38) {
                     if(!$('#autocomplete ul li').hasClass('aktiv')) {
@@ -378,6 +383,9 @@
                             last.addClass('aktiv');
                         }
                     }
+
+                    var scrollHeight = $('#autocomplete').prop('scrollHeight');
+                    $('#autocomplete').scrollTop($('#autocomplete').scrollTop() + $('#autocomplete ul li.aktiv').position().top - 20);
                 }
 
                 /* Enterrel kiválasztva egy sort */
