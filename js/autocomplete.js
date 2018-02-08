@@ -352,7 +352,7 @@
                 }
             });
 
-            $(this).keyup(function(e) {
+            $(this).keydown(function(e) {
                 var aktiv  = $('#autocomplete ul li.aktiv');
                 var first   = $('#autocomplete ul li:first-child');
                 var last    = $('#autocomplete ul li:last-child');
