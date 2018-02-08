@@ -20,7 +20,6 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
         $dlast = '';
     }
 	
-	
 	while (($dlast != $dnext or $dnext < date(DATEFORMAT, strtotime("+1 day"))) and $dnext < date(DATEFORMAT, strtotime('+2 year')))  //legfeljebb a következő 2 évre keressük ütemezhetőséget
 	{
 		$i = $i + 1;
@@ -120,7 +119,6 @@ function validnextdate($dnext, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cveg
 //fela köv.esedékesség dátumát adja vissza
 function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $cciklho, $cciklhet, $cciklnap)
 {
-    
 	/*
 	lstart:
 	ha false, m.dlasttól számolva a szabály szerinti következő esedékességet adja vissza

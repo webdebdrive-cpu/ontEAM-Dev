@@ -663,9 +663,6 @@ if( isset($_POST['munkalapKeszre']) ) {
         $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
         if( $telephely === false ) { $db_error = true; }
 
-        $akt_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
-        if( $akt_tetel === false ) { $db_error = true; }
-
         // Státusz ellenőrzés
         if( $munkalap['stat_id'] != MUNKALAP_STAT_FOLYAMATBAN && $munkalap['stat_id'] != MUNKALAP_STAT_FELVEVE ) {
             echo json_encode(array(
@@ -711,6 +708,7 @@ if( isset($_POST['munkalapKeszre']) ) {
             $weblap->leallit();
             exit();
         }
+        // Ha a tételen nincs feladat, akkor hibaüzenet:
         $feladat = $adatbazis_kapcsolat->s2('recid', 'munkalap_feladat', "`tetel_id`='{$utolso_tetel['recid']}'", '', '1');
         if( !$feladat ) {
             echo json_encode(array(
@@ -738,6 +736,10 @@ if( isset($_POST['munkalapKeszre']) ) {
             $sql = $adatbazis_kapcsolat->u('utemezett_feladatok', array('esem_d'), array('NOW()'), "`id`='{$munkalap['uf_szam']}'");
             if( $sql === false ) { $db_error = true; }
         }
+        
+        // Az utolsó tételnél frissítjük az átadta dátumot
+        $sql = $adatbazis_kapcsolat->u('munkalap_tetel', array('atadta_dt'), array('NOW()'), "`recid`='{$utolso_tetel['recid']}'");
+        if( $sql === false ) { $db_error = true; }
 
         // Kész vagy igazolásra vár státuszra léptetjük attól függően, hogy milyen személyzettípusról van szó
         $ig_var_statba_leptet = array(MOBILCSOPORT, KULSO_KIVITELEZO);

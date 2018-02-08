@@ -1062,10 +1062,15 @@ if( isset($_POST['anyagigenyles_elutasitas']) ) {
         // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
         if (isset($_POST['csak_kerdezunk'])) {
 
+            $anyagigenyles = $adatbazis_kapcsolat->s2('cikk_id nev cikkmee igmen', 'anyagigenyles', "`recid`='{$id}'");
             echo json_encode(array(
                 'hiba' => nl2('
                                 <div id="hibauzi" class="piros"></div>
-                                Anyagigénylés elutasításának indoklása:
+                                Cikkszám: '.$anyagigenyles['cikk_id'].'
+                                <br>Cikk név: '.$anyagigenyles['nev'].'
+                                <br>Mennyiség: '.number_format($anyagigenyles['igmen'], 2, ',', ' ').' '.$anyagigenyles['cikkmee'].'
+                                <br>
+                                <br>Anyagigénylés elutasításának indoklása:
                                 <br><textarea id="pop_indoklas" style="width: 37rem; margin-top: 1rem" class="csillag" onkeyup="if( $(this).val().trim()==\'\' ){ $(this).val(\'\'); }"></textarea>
                             '),
                 'gomb' => '<input class="gomb zold" value="Elutasítás" onclick="anyagigenyles_elutasitas();" type="button"><input class="gomb piros" value="Mégsem" onclick="alert2()" type="button">'
@@ -1120,7 +1125,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
 
         $ertek = 0;
         $igenylesek = $adatbazis_kapcsolat->s('recid jhmen rndmen rndear kcs_21 cikkmee', 'anyagigenyles', "`stat_id`='".CIKKIGN_STAT_ARAZVA."'".get_akt_login_szallodai('sql'));
-        
+//echo $adatbazis_kapcsolat->gp() . '<br>';
         // Ha nincs találat, akkor hibaüzi és kilépés
         if(!$igenylesek){
             echo json_encode(array(
@@ -1164,7 +1169,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
                 $weblap->leallit();
                 exit();
             }
-            
+
             $ertek += $igeny['jhmen']*$igeny['rndear'];
             
             $i++;

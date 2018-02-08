@@ -2084,14 +2084,14 @@ $eszkozkezeles_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
-//Objectumok
+// Objektumok
 $megnevezes = 'obj';
 $obj_tomb = $akt_tomb = array(
 	array('type' => 'text',    'megn' => 'Név:',   'name' => 'nev',    'maxlength' => 250, 'class'  => 'oriasi', 'alert' => 'Kérem töltse ki a nevet!'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
-//Felmérési terv
+// Felmérési terv
 $megnevezes = 'felmeresi_terv';
 $felmeresi_terv_tomb = $akt_tomb = array(
 	array('type' => 'text',                     'megn' => 'Név:',                   'name' => 'nev',            'maxlength' => 250, 'class'  => 'oriasi', 'alert' => 'Kérem töltse ki a nevet!'),
@@ -2105,7 +2105,20 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //{KOVETKEZO_TOMB}
 
 
-//Összetett szűrés törlése, ha menüpontot váltunk
+
+
+
+// Elfelejtett jelszó igénylés
+if (isset($_POST['elfelejtett_jelszo'])) {
+    
+    $login = $adatbazis_kapcsolat->s2('recid', 'login', "`nev`='{$_POST['nev']}'");
+    level_felkeszit_es_kuld('login', $login['recid'], ERT_ELFELEJTETT_JELSZO, 'elfelejtettJelszo', 'elfelejtettJelszo');
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Összetett szűrés törlése, ha menüpontot váltunk
 $kivetelek = array('header.php', 'esemenyek.php');
 if( !in_array(basename(self()), $kivetelek) ){
     if($_SESSION['o_szuro_feltetel'] && $_SESSION['elozo_oldal']!=self()){
@@ -2114,7 +2127,7 @@ if( !in_array(basename(self()), $kivetelek) ){
     }
     $_SESSION['elozo_oldal'] = self();
 }
-//Összetett szűrés inicializálása
+// Összetett szűrés inicializálása
 if (isset($_POST['o_szures'])) {
     require_once 'szures.php';
 
@@ -2126,7 +2139,7 @@ if (isset($_POST['o_szures'])) {
     $weblap->leallit();
     exit();
 }
-//Összetett szűrés SQL-é alaktíása
+// Összetett szűrés SQL-é alaktíása
 if (isset($_POST['f_o_szures_submit'])) {
 
     $sql = 'SELECT * FROM `'.get_db_tabla().$_POST['tabla'].'` WHERE '.get_o_szures_where_kieg($_POST['feltetel'], $_POST['tabla']);
@@ -2145,7 +2158,7 @@ if (isset($_POST['f_o_szures_submit'])) {
     $weblap->leallit();
     exit();
 }
-//Összetett szűrés törlése
+// Összetett szűrés törlése
 if (isset($_POST['f_o_szures_torol'])) {
     unset($_SESSION['o_szuro_feltetel']);
     unset($_SESSION['o_szuro_html']);

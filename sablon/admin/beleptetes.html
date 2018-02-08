@@ -43,10 +43,11 @@
         
         alert2('Elfelejtett jelszó küldése...', '', 'Információ');
         $.ajax({
-            url : 'index.php',
+            url : 'esemenyek.php',
             type: 'POST',
             data: {
-                fuggveny_neve   : Date.now()
+                nev                 : $('#nev').val(),
+                elfelejtett_jelszo  : Date.now()
             },
             success: function(response){
                 alert2('Kérése feldolgozás alatt, értesítést fog kapni új jelszaváról!', '', 'Információ');

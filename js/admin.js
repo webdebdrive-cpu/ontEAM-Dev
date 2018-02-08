@@ -2481,7 +2481,7 @@ function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
 
-        szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
+        szamlaSorok = $('#szamlaList li.szamla_sor.arazva');
         if( szamlaSorok.length ) {
             idk     = {};
             jhmenek = {};
@@ -4946,7 +4946,7 @@ function _get( ertek ) {
 
 /* Adatlap betöltése */
 function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigenylesnel_is ) {
-
+    
     alert2('');
     if( formModositva && !kerdes_nelkul ) {
         
