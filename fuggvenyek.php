@@ -2436,6 +2436,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             }elseif($_GET['rend']=='telephely_id'){
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam`';
 
+            // Helyiség név szerinti rendezés
+            }elseif($_GET['rend']=='nev'){
+                $order .= '`'.get_db_tabla().'obj`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].'';
+
             // Alapértelmezett rendezettség a sürgős, azon belül telephely
             }elseif($_GET['rend']=='ikt_szam'){
                 $order .= '`'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
@@ -2494,7 +2498,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 
             // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             }elseif($_GET['rend']=='telephely_id'){
-                
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam`';
             }
 
@@ -4952,11 +4955,15 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'telephely_id'  => 'Szálloda',
         'teljes_nev'    => 'Teljes név',
         'torolve'       => 'Törölve',
+        'torolve'       => 'Törölve',
     );
 
     // Néhol át kell írni az általános mezőneveket (pl. loginnál a nev nem Név, hanem Login név)
     if( basename(self()) == 'bejelentes.php' ) {
         $oszlopNevek['surgos'] = 'Státusz';
+    }
+    if( basename(self()) == 'bejelentes.php' && $oszlop == 'nev' ) {
+        $oszlopNevek['nev'] = 'Helyiség';
     }
     if( basename(self()) == 'login.php' ) {
         $oszlopNevek['nev'] = 'Login név';
@@ -5969,8 +5976,9 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
         break;
 
         case 'elfelejtettJelszo':
+            $login   = $adatbazis_kapcsolat->s2('teljes_nev', 'login', "`recid`='{$recid}'");
             $esemeny =  'elfelejtett jelszó igénylésekor';
-            $targy   =  'ontEAM új jelszó kérés';
+            $targy   =  $login['teljes_nev'].' új jelszót kér '.get_nev().' rendszerhez';
             $uzi     =  $uzi.
                         fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;

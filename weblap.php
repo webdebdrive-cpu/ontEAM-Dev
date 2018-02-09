@@ -60,7 +60,6 @@ if($weblap -> db_prefix){
         $_POST[$kulcs] = sql_ertek($_POST[$kulcs]);
     }
 }
-
 //Majd a weblap indulhat, ekkor tölthető ki a meta (később már lesz kimenet)
     require_once('esemenyek.php');	//Ezt ne töröld, még ha üres is, kell, mert különben az admin nem működik
     require_once('meta.php');
@@ -85,8 +84,8 @@ if($weblap -> db_prefix){
 //    return $tartalom_tomb[$azon][$nyelv];
 //}
 
-// Kiléptetés, ha nem él a SESSION és nem az index.php-n vagyunk.
-if( !$_SESSION[get_db_tabla().'user'] && basename( $_SERVER['PHP_SELF'] )!='index.php' && basename( $_SERVER['PHP_SELF'] )!='beleptetes.php' ){
+// Kiléptetés, ha nem él a SESSION és nem az index.php-n vagyunk és nem is egy ütemezőn.
+if( !$_SESSION[get_db_tabla().'user'] && basename( $_SERVER['PHP_SELF'] )!='index.php' && substr(basename( $_SERVER['PHP_SELF'] ), 0, 8)!='utemezo_' && basename( $_SERVER['PHP_SELF'] )!='beleptetes.php' ){
     echo 'SESKIL<script>document.body.innerHTML = \'\'; location.href=\'index.php\'</script>';
 }
     
@@ -116,7 +115,6 @@ if($_GET['id']){
         $_GET['id'] = '';
     }
 }
-
 // Ha jóváhagyás joggal léptünk az anyagigénylésekhez, és nem módossítottunk még a szűrésen, akkor alapból leszűrünk az árazva státuszra. 
 // Viszont emiatt kell egy get szűrés töröl is, hogy tudjuk mikor kapcsolták ki szándékosan.
 if (isset($_GET['szures_torol'])) {

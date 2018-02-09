@@ -12,7 +12,6 @@ $log .= '*****************************
 '.date('Y.m.d H:i:s').' ütemezés indul
 '.$adatbazis_kapcsolat->gp();
 
-var_dump( getnextvaliddate(false, '0000.00.00', 'd', 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, '0000.00.00', '0000.00.00')  );
 foreach($ut_feladatok as $ut_feladat){
     // Tranzakciót indítunk
     $db_error = false;
@@ -21,6 +20,7 @@ foreach($ut_feladatok as $ut_feladat){
     // logolás
     $log .= 'Recid: '.$ut_feladat['recid'].' Feladatszám: '.$ut_feladat['id'].'
         ';
+
     $text = $ut_feladat['id'].' feladatot ütemezte '.$ut_feladat['insert_usr']."\r\n".$ut_feladat['nev']."\r\n".$ut_feladat['leiras'];
 
     // Feladatszám kiszámítása
@@ -45,14 +45,14 @@ foreach($ut_feladatok as $ut_feladat){
  
     // Iktatószám formázása
     $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
-    $sql = $adatbazis_kapcsolat->i('munkalap', array('ikt_szam', 'uf_szam',         'stat_id',              'text', 'szemelyzet_id',                'obj_id',               'gep_id',               'tipus_id', 'esnap_d',              'insert_usr',               'insert_dt'    ),
-                                               array($ikt_szam,  $ut_feladat['id'], MUNKALAP_STAT_NYITOTT,  $text,  $ut_feladat['szemelyzet_id'],   $ut_feladat['obj_id'],  $ut_feladat['gep_id'],  3/*Ütemezett feladat a tipusa*/,    $ut_feladat['esnap_d'], $ut_feladat['insert_usr'],  'NOW()',       )
+    $ujrecid = $adatbazis_kapcsolat->i('munkalap',  array('ikt_szam', 'uf_szam',         'stat_id',              'text', 'szemelyzet_id',                'telephely_id',               'obj_id',               'gep_id',               'tipus_id', 'esnap_d',              'insert_usr',               'insert_dt'    ),
+                                                    array($ikt_szam,  $ut_feladat['id'], MUNKALAP_STAT_NYITOTT,  $text,  $ut_feladat['szemelyzet_id'],   $ut_feladat['telephely_id'],  $ut_feladat['obj_id'],  $ut_feladat['gep_id'],  3/*Ütemezett feladat a tipusa*/,    $ut_feladat['esnap_d'], $ut_feladat['insert_usr'],  'NOW()',       )
                                    );
-    if( $sql === false ) { $db_error = true; }
+    if( $ujrecid === false ) { $db_error = true; }
 
     $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
                                         array('munkalap_recid', 'stat_id',                 'insert_dt',    'insert_usr',                'update_usr'                ),
-                                        array($id,              MUNKALAP_STAT_NYITOTT,     'NOW()',        $ut_feladat['insert_usr'],   $ut_feladat['update_usr']   )
+                                        array($ujrecid,         MUNKALAP_STAT_NYITOTT,     'NOW()',        $ut_feladat['insert_usr'],   $ut_feladat['update_usr']   )
                                     );
     if( $sql === false ) { $db_error = true; }
     
@@ -69,7 +69,7 @@ foreach($ut_feladatok as $ut_feladat){
 
         // logolás
         $log .= "recid:$ut_feladat[recid] getnextvaliddate(false, $esem_d $ut_feladat[cikltip], $ut_feladat[ciklaltip], $ut_feladat[ciklszorz], $ut_feladat[ciklho], $ut_feladat[ciklhet], $ut_feladat[ciklnap], $ut_feladat[idoszakos], $ut_feladat[kezdho], $ut_feladat[kezdnap], $ut_feladat[vegeho], $ut_feladat[vegenap], $aktkezd_d, $aktvege_d) \r\n";
-//echo $esnap_d . "recid:$ut_feladat[recid] getnextvaliddate(false, $esem_d $ut_feladat[cikltip], $ut_feladat[ciklaltip], $ut_feladat[ciklszorz], $ut_feladat[ciklho], $ut_feladat[ciklhet], $ut_feladat[ciklnap], $ut_feladat[idoszakos], $ut_feladat[kezdho], $ut_feladat[kezdnap], $ut_feladat[vegeho], $ut_feladat[vegenap], $aktkezd_d, $aktvege_d) \r\n";
+// echo $esnap_d . "recid:$ut_feladat[recid] getnextvaliddate(false, $esem_d $ut_feladat[cikltip], $ut_feladat[ciklaltip], $ut_feladat[ciklszorz], $ut_feladat[ciklho], $ut_feladat[ciklhet], $ut_feladat[ciklnap], $ut_feladat[idoszakos], $ut_feladat[kezdho], $ut_feladat[kezdnap], $ut_feladat[vegeho], $ut_feladat[vegenap], $aktkezd_d, $aktvege_d) <br><br>";
         $esnap_d = getnextvaliddate(false, $esem_d, $ut_feladat['cikltip'], $ut_feladat['ciklaltip'], $ut_feladat['ciklszorz'], $ut_feladat['ciklho'], $ut_feladat['ciklhet'], $ut_feladat['ciklnap'], $ut_feladat['idoszakos'], $ut_feladat['kezdho'], $ut_feladat['kezdnap'], $ut_feladat['vegeho'], $ut_feladat['vegenap'], $aktkezd_d, $aktvege_d);
 
         $esnap_d = str_replace('.', '-', $esnap_d);
@@ -91,7 +91,7 @@ foreach($ut_feladatok as $ut_feladat){
     // A tényleges update
     $sql = $adatbazis_kapcsolat->u('utemezett_feladatok',  $oszlopok, $ertekek, "`recid`='{$ut_feladat['recid']}'");
     if( $sql === false ) { $db_error = true; }
-echo $adatbazis_kapcsolat->gp() . ';<br>';
+// echo $adatbazis_kapcsolat->gp() . ';<br>';
 
     // Tranzakció kommitolása, vagy rollback-ezése
     if( !$db_error ) {
@@ -101,8 +101,9 @@ echo $adatbazis_kapcsolat->gp() . ';<br>';
     }
  
 }
- 
+
 // Végső log (ha ez nincs a fájban, akkor  kifagyott az ütemező
 fajlba_mentes($log_utvonal, $log."\n\r".date('Y.m.d H:i:s').' ütemezés vége !utemezo sikeresen lefutott!'. "\r\n");
+echo htmlspecialchars($log) . '<br>';
  
 $weblap -> leallit();

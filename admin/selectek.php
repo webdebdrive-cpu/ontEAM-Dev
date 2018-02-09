@@ -59,7 +59,7 @@ $select_honapjan = array();
 array_push($select_honapjan, array('name' => '- Válasszon -', 'value' => '' ));
 array_push($select_honapjan, array('name' => 'Első',    'value' => '1'));
 array_push($select_honapjan, array('name' => '1',       'value' => '1'));
-array_push($select_honapjan, array('name' => '2',       'value' => '1'));
+array_push($select_honapjan, array('name' => '2',       'value' => '2'));
 array_push($select_honapjan, array('name' => '3',       'value' => '3'));
 array_push($select_honapjan, array('name' => '4',       'value' => '4'));
 array_push($select_honapjan, array('name' => '5',       'value' => '5'));

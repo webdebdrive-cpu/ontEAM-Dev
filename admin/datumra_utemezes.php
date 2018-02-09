@@ -7,7 +7,7 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
 	$dnext = $dlast;
 	$dlast = null;
 	$i = 0;
-    
+
     /* Mivel nincs olyan függvény, hogy valami_0, ezért ha az altipus értéke 0,
      * akkor az értékéből üres stinget készítünk, hogy ne jelenjen meg a függvény nevében.
      */
@@ -19,6 +19,7 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
     if($dlast=='0000.00.00'){
         $dlast = '';
     }
+
 	
 	while (($dlast != $dnext or $dnext < date(DATEFORMAT, strtotime("+1 day"))) and $dnext < date(DATEFORMAT, strtotime('+2 year')))  //legfeljebb a következő 2 évre keressük ütemezhetőséget
 	{
@@ -26,7 +27,11 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
 		$dlast = $dnext;
 		$dnext = null;
 		$dlast = getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $cciklho, $cciklhet, $cciklnap);
-		$dnext = validnextdate($dlast, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d);
+		if($dlast<0){
+            $dlast = '000.00.00';
+        }
+        $dnext = validnextdate($dlast, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d);
+
 		$lstart = true; //ha elsőnek kiszámolt esedékesség érvénytelen, újrakezdjük esedékesség számítását mai naptól
 		if ($i == 100) //ha végtelen ciklusba keveredne
 		{
@@ -52,10 +57,9 @@ function validnextdate($dnext, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cveg
 	kommentekben: tárgyév kifejezés azt az évet jelenti, amelyik m.daktkezd_d-ben van */
 
 	//$nev = date("Y", strtotime($dnext)); // Ez magyar dátum formátumnál sajnos nem jó
-	$date = DateTime::createFromFormat(DATEFORMAT, $dnext);
+	$date = DateTime::createFromFormat(DATEFORMAT, '0000.00.00');
 	$nev = $date->format("Y");
 
-	
 	if ($nidoszakos == 0) //folyamatos ütemezés
 	{
 		//+1, mert mára nem ütemezhet
@@ -132,6 +136,7 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 	, ez után visszakapott dátumról még el kell dönteni, hogy beleesik-e intervallumba
 	dlast: dátum ami UTÁN a legközelebbi esedékességet keressük
 	*/
+
 	if ($lstart)
 	{
 		/*
@@ -163,6 +168,7 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 	}
 	else
 	{
+
 		//ütemezéskori következő esedékesség számítása
 		$command = 'getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
 			. $nciklszorz
@@ -184,6 +190,7 @@ function getnextdate_l( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 
 function getnextdate_d1 ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 {
+
 	$returnvalue = dateadd ($dlast, $nciklszorz, 0, 0);
 	return $returnvalue;
 }
@@ -326,10 +333,11 @@ function dowtodate ( $nev,  $nho, $nhet, $nnap)
 
 function dateadd ($stringdate, $days, $months, $years)
 {
+    
 	//print "dateadd: ".$stringdate;
 	$date = DateTime::createFromFormat(DATEFORMAT, $stringdate);
 	$originalDate = DateTime::createFromFormat(DATEFORMAT, $stringdate);
-	
+
 	if ($days > 0)
 	{
 		$date->add(new DateInterval('P'.$days.'D'));
@@ -383,7 +391,7 @@ function dateadd ($stringdate, $days, $months, $years)
 			$date->modify( 'last day of -1 month' );
 		}		
 	}		
-	
+
 	$returnvalue = $date->format(DATEFORMAT);
 	//print " -> ".$returnvalue." <BR>";
 	return $returnvalue;
