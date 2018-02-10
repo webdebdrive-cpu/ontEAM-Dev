@@ -407,7 +407,7 @@ require_once('selectek.php');
 
         $json_sor = array();
         foreach($sor as $kulcs => $elem){
-            $json_sor[$kulcs] = nl2(str_replace(array("\r\n", "'"), array("#UJSOR#", "#APOSZTROF#"), $elem));
+            $json_sor[$kulcs] = str_replace(array("\r\n", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
         }
         $szamla_html .= nl2('
                         <script>

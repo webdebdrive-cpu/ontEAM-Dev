@@ -4,7 +4,8 @@ require_once('../weblap.php');
 // Bejelentések archiválása
 // Ha bejelentés Elutasítva státuszban van, archiválunk.
 $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_ELUTASITVA."'");
-bejelentesek_archival( adatbazis2tomb($bejelentesek, 'recid') );
+$bejelentesek = adatbazis2tomb($bejelentesek, 'recid');
+bejelentesek_archival( $bejelentesek );
 
 // Ha Lezárt státuszban van, megnézzük munkalapjait, ha minden munkalapja Lezárt státuszban van, akkor archiváljuk bejelentést, munkalapokat, mindkettő gyerektábláit bejelentésenként egy tranzakcióban.
 $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_LEZART."'");
@@ -20,8 +21,20 @@ if($bejelentesek){
     }
 }
 
+// Ha munkalapnak nincs bejelentése és Lezárt státuszban van, archiválunk
+$munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_LEZART."'");
+foreach($munkalapok as $munkalap){
+    if( count($adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'"))==0 ) {
+        munkalapok_archival($munkalap['recid']);
+    }
+}
+
+
+
+
+
 // Bejelentések archiválása
-function bejelentesek_archival($idk, $munkalap_is){
+function bejelentesek_archival($idk, $munkalap_is) {
     
     global $adatbazis_kapcsolat;
     global $db_kapcs;
@@ -131,7 +144,7 @@ function bejelentesek_archival($idk, $munkalap_is){
 
 
 // Munkalapok archiválása
-function munkalapok_archival($idk, $tranzakcio_nelkul){
+function munkalapok_archival($idk, $tranzakcio_nelkul) {
     
     global $adatbazis_kapcsolat;
     global $db_kapcs;
@@ -140,7 +153,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul){
     if(is_numeric($idk) ){
         $idk = array($idk);
     }
-    
+
     // Bejárás
     foreach($idk as $recid) {
         
@@ -178,7 +191,25 @@ function munkalapok_archival($idk, $tranzakcio_nelkul){
         
         $sql = $adatbazis_kapcsolat->i('munkalap_arch', $mezok, $ertekek);
         if( $sql === false ) { $db_error = true; }
-        
+
+        // Anyagok
+        $anyagok = $adatbazis_kapcsolat->s('*', 'munkalap_anyag', "`munkalap_id`='{$recid}'");
+        if( $anyagok === false ) { $db_error = true; }
+        foreach($anyagok as $anyag){
+            $mezok   = array();
+            $ertekek = array();
+            foreach($anyag as $kulcs => $ertek){
+                array_push($mezok, $kulcs);
+                array_push($ertekek, $anyag[$kulcs]);
+            }
+            $telephely_txt = getErtek('nev', 'telephely', 'id', $anyag['telephely_id']);
+            array_push($mezok,   'telephely_txt');
+            array_push($ertekek, $telephely_txt );
+            
+            $sql = $adatbazis_kapcsolat->i('munkalap_anyag_arch', $mezok, $ertekek);
+            if( $sql === false ) { $db_error = true; }
+        }
+
         // Dokumentumok
         $doksik = $adatbazis_kapcsolat->s('*', 'munkalap_dok', "`munkalap_id`='{$recid}'");
         if( $doksik === false ) { $db_error = true; }
@@ -190,6 +221,57 @@ function munkalapok_archival($idk, $tranzakcio_nelkul){
                 array_push($ertekek, $doksi[$kulcs]);
             }
             $sql = $adatbazis_kapcsolat->i('munkalap_dok_arch', $mezok, $ertekek);
+            if( $sql === false ) { $db_error = true; }
+        }
+
+        // Feladat
+        $feladatok = $adatbazis_kapcsolat->s('*', 'munkalap_feladat', "`munkalap_id`='{$recid}'");
+        if( $feladatok === false ) { $db_error = true; }
+        foreach($feladatok as $feladat){
+            $mezok   = array();
+            $ertekek = array();
+            foreach($feladat as $kulcs => $ertek){
+                array_push($mezok, $kulcs);
+                array_push($ertekek, $feladat[$kulcs]);
+            }
+            $erteklista_txt = erteklista(ERTEKLISTA_ELV_FELAD, $feladat['erteklista_id']);
+            array_push($mezok,   'erteklista_txt');
+            array_push($ertekek, $erteklista_txt );
+
+            $sql = $adatbazis_kapcsolat->i('munkalap_feladat_arch', $mezok, $ertekek);
+            if( $sql === false ) { $db_error = true; }
+        }
+
+        // Kapcsolatok bejelentésekkel
+        $kapcsok = $adatbazis_kapcsolat->s('*', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
+        if( $kapcsok === false ) { $db_error = true; }
+        foreach($kapcsok as $kapcs){
+            $mezok   = array();
+            $ertekek = array();
+            foreach($kapcs as $kulcs => $ertek){
+                array_push($mezok, $kulcs);
+                array_push($ertekek, $kapcs[$kulcs]);
+            }
+            
+            $sql = $adatbazis_kapcsolat->i('munkalap_kapcs_arch', $mezok, $ertekek);
+            if( $sql === false ) { $db_error = true; }
+        }
+        
+        // Munkaidő
+        $munkaidok = $adatbazis_kapcsolat->s('*', 'munkalap_munkaido', "`munkalap_id`='{$recid}'");
+        if( $munkaidok === false ) { $db_error = true; }
+        foreach($munkaidok as $ido){
+            $mezok   = array();
+            $ertekek = array();
+            foreach($ido as $kulcs => $ertek){
+                array_push($mezok, $kulcs);
+                array_push($ertekek, $ido[$kulcs]);
+            }
+            $login_txt = getErtek('nev', 'login', 'recid', $ido['login_id']);
+            array_push($mezok,   'login_txt');
+            array_push($ertekek, $login_txt );
+            
+            $sql = $adatbazis_kapcsolat->i('munkalap_munkaido_arch', $mezok, $ertekek);
             if( $sql === false ) { $db_error = true; }
         }
         
@@ -213,13 +295,41 @@ function munkalapok_archival($idk, $tranzakcio_nelkul){
             if( $sql === false ) { $db_error = true; }
         }
         
+        // Tétel
+        $tetelek = $adatbazis_kapcsolat->s('*', 'munkalap_tetel', "`munkalap_id`='{$recid}'");
+        if( $tetelek === false ) { $db_error = true; }
+        foreach($tetelek as $tetel){
+            $mezok   = array();
+            $ertekek = array();
+            foreach($tetel as $kulcs => $ertek){
+                array_push($mezok, $kulcs);
+                array_push($ertekek, $tetel[$kulcs]);
+            }
+            
+            $erteklista_txt = erteklista(ERTEKLISTA_ATADAS_OKA, $tetel['erteklista_id']);
+            array_push($mezok,   'erteklista_txt' );
+            array_push($ertekek, $erteklista_txt  );
+            
+            $sql = $adatbazis_kapcsolat->i('munkalap_tetel_arch', $mezok, $ertekek);
+            if( $sql === false ) { $db_error = true; }
+        }
         
         // Eredeti táblák törlése
         $sql = $adatbazis_kapcsolat->d('munkalap', "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
+        $sql = $adatbazis_kapcsolat->d('munkalap_anyag', "`munkalap_id`='{$recid}'");
+        if( $sql === false ) { $db_error = true; }
         $sql = $adatbazis_kapcsolat->d('munkalap_dok', "`munkalap_id`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
+        $sql = $adatbazis_kapcsolat->d('munkalap_feladat', "`munkalap_id`='{$recid}'");
+        if( $sql === false ) { $db_error = true; }
+        $sql = $adatbazis_kapcsolat->d('munkalap_kapcs', "`munkalap_id`='{$recid}'");
+        if( $sql === false ) { $db_error = true; }
+        $sql = $adatbazis_kapcsolat->d('munkalap_munkaido', "`munkalap_id`='{$recid}'");
+        if( $sql === false ) { $db_error = true; }
         $sql = $adatbazis_kapcsolat->d('munkalap_statusz', "`munkalap_recid`='{$recid}'");
+        if( $sql === false ) { $db_error = true; }
+        $sql = $adatbazis_kapcsolat->d('munkalap_tetel', "`munkalap_id`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
     }
     

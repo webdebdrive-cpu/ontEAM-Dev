@@ -3498,7 +3498,7 @@ if( isset($_POST['szukseges_anyagok_listaja']) ) {
 if( isset($_POST['atadasDiszpecsernek']) ) {
     $recid          = $_POST['recid'];
     $erteklista_id  = $_POST['erteklista_id'];
-    $memo           = erteklista(7, $erteklista_id)."\r\n".$_POST['memo'];
+    $memo           = erteklista(ERTEKLISTA_ATADAS_OKA, $erteklista_id)."\r\n".$_POST['memo'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -5405,7 +5405,7 @@ require('selectek.php');
 
         $json_sor = array();
         foreach($sor as $kulcs => $elem){
-            $json_sor[$kulcs] = nl2(str_replace(array("\r\n", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem));
+            $json_sor[$kulcs] = str_replace(array("\r\n", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
         }
 
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';

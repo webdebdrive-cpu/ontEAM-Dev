@@ -1176,7 +1176,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
         }
         echo json_encode(array(
             'hiba' => nl2('
-                            Jóváhagyásra váró érték: '.number_format($ertek, 0, ',', ' ').' '. erteklista(21, $igeny['kcs_21']).'
+                            Jóváhagyásra váró érték: '.number_format($ertek, 0, ',', ' ').' '.get_penznem().'
                             <br>Folytatja?
                         '),
             'gomb' => '<input class="gomb zold" value="Igen" onclick="anyagigenyles_mind_jovahagy();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
@@ -2394,7 +2394,7 @@ require_once('selectek.php');
 
         $json_sor = array();
         foreach($sor as $kulcs => $elem){
-            $json_sor[$kulcs] = nl2(str_replace(array("\r\n", "'"), array("#UJSOR#", "#APOSZTROF#"), $elem));
+            $json_sor[$kulcs] = str_replace(array("\r\n", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 

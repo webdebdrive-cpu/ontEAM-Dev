@@ -983,6 +983,13 @@ if( basename(self())=='anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL)){
 if( basename(self())=='anyagigenyles.php' && isset($_GET['anyagrend'])){
     $uj = $duplikal = '';
 }
+if( basename(self()) == 'anyagigenyles.php' && !isset($_GET['megjegyzesek']) && !_jog(JOG_ANYAGIGENYLES_KEZEL) ) {
+    $duplikal = nl2('
+        <a class="duplikal" title="Duplikálás" onclick="javascript: alert2(\'Önnek nincs jogosultsága anyagigénylést duplikálni!\', \'\', \'Hiba\'); void(0);">
+            <i class="material-icons">queue</i>
+        </a>
+        ');
+}
 
 if(basename(self())=='bejelentes.php' && (!_jog(JOG_BEJELENTES_KEZEL)) && !_jog(JOG_BEJELENTES_MAS_NEVEBEN)){
     $uj = $duplikal = '';

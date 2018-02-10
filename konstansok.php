@@ -260,9 +260,11 @@ define('ERT_ELFELEJTETT_JELSZO',        11);
 
 define('HIBA_ADJON_FELADAT',           ' kérjük adjon hozzá egy elvégzett feladatot!');
 
-define('ERTEKLISTA_BEJ_HIBA',  4);
-define('ERTEKLISTA_BEOSZTAS', 18);
-define('ERTEKLISTA_RESZLEG',  17);
+define('ERTEKLISTA_BEJ_HIBA',   4);
+define('ERTEKLISTA_ELV_FELAD',  5);
+define('ERTEKLISTA_ATADAS_OKA', 7);
+define('ERTEKLISTA_BEOSZTAS',  18);
+define('ERTEKLISTA_RESZLEG',   17);
 //1 Állapot
 //19 Szakterület
 //2 Gépfajta
@@ -276,7 +278,6 @@ define('ERTEKLISTA_RESZLEG',  17);
 //36 Projektigénylés prioritás
 //37 Projektigénylés megtérülési terület
 //38 Bejelentés nem igazolás oka
-//5 Elvégzett feladat
 //6 Munkalap típus
-//7 Átadás oka
+
 ?>

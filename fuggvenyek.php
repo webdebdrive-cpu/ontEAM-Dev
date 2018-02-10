@@ -5950,7 +5950,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
 
         case 'bejelentesElutasit':
             $esemeny =  'bejelentés elutasításakor';
-            $targy   =  'ontEAM bejelentett hiba elutasítva';
+            $targy   =  get_nev().' bejelentett hiba elutasítva';
             $uzi     =  'Az Ön által bejelentett hiba elutasításra került.
                         <br>'.
                         $uzi.
@@ -5959,7 +5959,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
 
         case 'bejelentesReklElutasit':
             $esemeny =  'bejelentés reklamáció elutasításakor';
-            $targy   =  'ontEAM hibabejelentés lezárásra került';
+            $targy   =  get_nev().' hibabejelentés lezárásra került';
             $uzi     =  'Az Ön által bejelentett reklamáció elutasításra került.
                         <br>'.
                         $uzi.
@@ -5968,7 +5968,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
 
         case 'bejelentesIgazolElutasit':
             $esemeny =  'bejelentés igazolásának elutasításakor';
-            $targy   =  'ontEAM hibabejelenés vizsgálatra vár';
+            $targy   =  get_nev().' hibabejelentés vizsgálatra vár';
             $uzi     =  'A bejelentés vizsgálatra vár.
                         <br>'.
                         $uzi.
@@ -5985,14 +5985,14 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
 
         case 'elfelejtettJelszoKuld':
             $esemeny =  'elfelejtett jelszó kiküldésekor';
-            $targy   =  'ontEAM elfelejtett jelszó';
+            $targy   =  get_nev().' elfelejtett jelszó';
             $uzi     =  $uzi.
                         fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
         case 'munkalapKeszre':
             $esemeny =  'munkalap készre jelentéskor';
-            $targy   =  'ontEAM bejelentett hiba javítása elkészült';
+            $targy   =  get_nev().' bejelentett hiba javítása elkészült';
             $uzi     =  'Az Ön által bejelentett hiba javítása sikeresen befejeződött.
                         <br>'.
                         $uzi.
@@ -6001,7 +6001,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
 
         case 'munkalapKeszreKulso':
             $esemeny =  'munkalap készre jelentéskor';
-            $targy   =  'ontEAM bejelentett hiba javítása igazolásra vár';
+            $targy   =  get_nev().' bejelentett hiba javítása igazolásra vár';
             $uzi     =  'A bejelentett hiba javítása befejeződött.
                         <br>'.
                         $uzi.
@@ -6010,7 +6010,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
 
         case 'munkalapElutasit':
             $esemeny =  'munkalap lezárásakor';
-            $targy   =  'ontEAM hibabejelentés lezárásra került';
+            $targy   =  get_nev().' hibabejelentés lezárásra került';
             $uzi     =  'Az Ön által bejelentett reklamáció elutasításra került.
                         <br>'.
                         $uzi.
@@ -6019,7 +6019,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
 
         case 'anyagigenylesJovahagy':
             $esemeny =  'anyagigénylés elküldése jóváhagyásrakor';
-            $targy   =  'ontEAM anyagigénylések jóváhagyásra várnak';
+            $targy   =  get_nev().' anyagigénylések jóváhagyásra várnak';
             $uzi     =  'Anyagigénylések várnak az Ön jóváhagyására.
                         <br>'.
                         fajlbol_olvas('../sablon/admin/mail/alairas.html');

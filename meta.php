@@ -4,7 +4,7 @@ function get_title(){
 
     global $adatbazis_kapcsolat;
 
-	$title = 'ontEAM - ';
+	$title = get_nev().' - ';
 	//global $tartalom_tomb; Ha tartalom többől generálunk ki tartalmat
 
 	switch(basename(self())){
