@@ -2160,7 +2160,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             if( $_SESSION[get_db_tabla().'szemelyzet_id']==MOBILCSOPORT ){
                 $login = $adatbazis_kapcsolat->s2('mobil', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
                 if($login['mobil']){
-                    $where .= "`".get_db_tabla().$tabla."`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}') AND `mobil`='{$login['mobil']}'";
+                    $where .= "`".get_db_tabla().$tabla."`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}') AND `mobil`='{$login['mobil']}' AND ";
                 // Ha nincs mobilcsoportom, akkor nem látok munkalapokat
                 }else{
                     $where .= ' FALSE AND ';
@@ -5241,7 +5241,6 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
         // Lekérjük az az éppen aktuális státuszt
         $akt_statusz = $adatbazis_kapcsolat->s2('recid stat_id insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid desc', '1');
         if( $sql === false ) { $db_error = true; }
-
         // Ha új státusz, vagy munkalap előkészítés alatt státusz (tehát ez jöhet többször egymás után is)
         if( $akt_statusz && ( $akt_statusz['stat_id']!=$stat_id || $akt_statusz['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
 
@@ -5260,12 +5259,11 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
             }
 
             // Összesített státuszidő
-            $elso_akt_stat = $adatbazis_kapcsolat->s('recid insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}' AND `stat_id`='$stat_id'", 'recid asc', '1');
+            $elso_akt_stat = $adatbazis_kapcsolat->s2('recid insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}' AND `stat_id`='$stat_id'", 'recid asc', '1');
             if( $elso_akt_stat === false ) { $db_error = true; }
 
             $ossz_statido = '';
             if( $elso_akt_stat ) {
-                $elso_akt_stat = $elso_akt_stat[0];
 
                 $ossz_statido = round( time() - strtotime($elso_akt_stat['insert_dt']) );
                 $ossz_statido = getStatuszIdo( $ossz_statido );
@@ -5290,7 +5288,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
                                                 array($recid,                $stat_id,  $erteklista_recid,  $memo,   'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
                                             );
             if( $sql === false ) { $db_error = true; }
-            
+//echo $adatbazis_kapcsolat->gp() . '<br>';
             // Ha van memó, akkor azt az előző státuszhoz írjuk be: MÉGSEM, a friss sorba kerül be
 //            $sql = $adatbazis_kapcsolat -> u($tabla, array('text' ), array($memo), "`recid`='{$akt_statusz['recid']}'");
 //            if( $sql === false ) { $db_error = true; }
@@ -5298,6 +5296,8 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
             // Az alap tábla státusz oszlopát is karban tartjuk
             $sql = $adatbazis_kapcsolat->u($kulso_kulcs, array('stat_id'), array($stat_id), "`recid`='$recid'");
             if( $sql === false ) { $db_error = true; }
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//exit;
 
             // Projektigénylés elutasításakor archiválunk
             if($alap_tabla=='projektigenyles' && $stat_id==PRIGENY_STAT_ELUTASITVA){
@@ -5686,7 +5686,7 @@ function get_props($props, $mezo){
     }
 }
 
-/* Tröténet fül tartalma */
+// Történet fül tartalma
 function get_tortenet($megnevezes){
 
     global $adatbazis_kapcsolat;
@@ -5710,6 +5710,7 @@ function get_tortenet($megnevezes){
         $tabla      = $megnevezes.'_statusz_arch';
     }
     $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido text', $tabla, "`{$megnevezes}_recid` = '".$_GET['id']."'", 'recid desc');
+//echo $adatbazis_kapcsolat->gp() . '<br>';
     if( $sorok ) {
         foreach($sorok as $sor) {
 

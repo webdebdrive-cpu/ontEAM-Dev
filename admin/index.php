@@ -18,6 +18,32 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
+// Loginról értesítő levelek küldése
+if (isset($_GET['login_ertesit'])) {
+
+    $heliasok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='1040'");
+    $heliasok = adatbazis2tomb($heliasok, 'nev');
+    if($heliasok){
+        $loginok = $adatbazis_kapcsolat->s('teljes_nev nev usermail', 'login', "`aktiv`>0 AND `virtual`<1 AND `usermail`!='' AND LENGTH(`nev`)>=8 AND `szemelyzet_id`='".HIBABEJELENTO."' AND `nev` IN ('".implode('\', \'', $heliasok)."')");
+        foreach( $loginok as $login ){
+echo $login['nev'] . '<br>';
+$uzi = '
+[Teszt]
+<br>
+<br>Tisztelt '.$login['teljes_nev'].'!
+<br>
+<br>Az ontEAM rendszer 2018.02.13 kedd reggel 7:00 időpontban indul a Hélia szállodában.
+<br>
+<br>Kérjük, hogy ettől az időponttól hibabejelentéseiket az ontEAM rendszerben tegyék meg.
+<br>
+<br>'. fajlbol_olvas('../sablon/admin/mail/alairas.html');
+            level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], '[Teszt] ontEAM rendszer indítása Hélia szállodában', $uzi);
+        }
+    }
+    exit;
+}
+
+
 if (isset($_GET['trans'])) {
 
 
@@ -39,7 +65,7 @@ if (isset($_GET['trans'])) {
     }
 }
 
-//Ha egy tálbának utólag adsz egy loginnev nevű oszlopnevet
+// Ha egy tálbának utólag adsz egy loginnev nevű oszlopnevet
 if (isset($_GET['loginnev_gyart'])) {
 
     $tabla = 'munkalap';
@@ -56,7 +82,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
     exit;
 }
 
-//Anyagigénylés speciálisabb volt
+// Anyagigénylés speciálisabb volt
 if (isset($_GET['loginnev_gyart_anyagigenyles'])) {
 
     $tabla = 'anyagigenyles';
@@ -73,7 +99,7 @@ if (isset($_GET['loginnev_gyart_anyagigenyles'])) {
 }
 
 
-//Státusz feltöltés, ha csak az adott bejegyzés státusza volna kitöltve és tröténet tábla még nem
+// Státusz feltöltés, ha csak az adott bejegyzés státusza volna kitöltve és tröténet tábla még nem
 if (isset($_GET['statusz_fetlolt'])) {
     $tabla = 'anyagigenyles';
     $anyagok = $adatbazis_kapcsolat->s('recid stat_id', $tabla);

@@ -1549,7 +1549,6 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
 
                 $marerkmen = $anyagigenyles['erkmen'];
                 $rndmen    = $anyagigenyles['rndmen'];
-
                 // Ha marerkmen+erkmen=0 ÉS nemfogerk=1 AKKOR statid=CIKKIGN_STAT_NEM_ERKEZETT
                 if( ($marerkmen+$erkmen==0 || $marerkmen+$erkmen==0.00) && $nemfogerk){
                     $statusz = addStatusz( 'anyagigenyles_statusz', $id, CIKKIGN_STAT_NEM_ERKEZETT );
@@ -1585,7 +1584,11 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
         }
 
         // Ciklus után minden esetben átírjuk cikkrndfej tábla statidet mysql procedúrával: call setcikkrndfejstatid(aparecid,loginuser.nev);
-        $sql = mysqli_query($db_kapcs, 'call setcikkrndfejstatid('.$anyagigenyles['aparecid'].', \''.$_SESSION[get_db_tabla().'teljes_nev'].'\')');
+        $procedura_nev = 'setcikkrndfejstatid';
+        if( get_db_tabla()=='onteam_teszt_' ){
+            $procedura_nev = 'teszt_setcikkrndfejstatid';
+        }
+        $sql = mysqli_query($db_kapcs, 'call '.$procedura_nev.'('.$anyagigenyles['aparecid'].', \''.$_SESSION[get_db_tabla().'teljes_nev'].'\')');
         if( $sql === false ) { $db_error = true; }
 
         //Archiválás egy lépésben törétnik, ha minden anyagigénylés sor státusza > 35
@@ -2531,7 +2534,7 @@ require_once('selectek.php');
 
 	// Történet
     }elseif(isset($_GET['tortenet'])) {
-        
+
         $szamla_html .= get_tortenet($megnevezes);
         
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban

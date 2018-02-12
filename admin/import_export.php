@@ -337,7 +337,7 @@ require_once('header.php');
 				while (($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE) {
 					$akt_tomb = array();
 
-					//Első oszlop a fejlécek
+					// Első oszlop a fejlécek
 					if($k == 0) {
 
 						foreach($sor as $key => $value) {
@@ -359,7 +359,7 @@ require_once('header.php');
 
 							$key_kicsi = trim(mb_strtolower($key, 'UTF-8'));
 
-							//Azonosítás fejléc nevekkel
+							// Azonosítás fejléc nevekkel
 							switch($key_kicsi) {
 
 								case 'szemelyzet_id'    : $szemelyzet_id    = trim($akt_tomb[$key]);  break;
@@ -395,7 +395,7 @@ require_once('header.php');
 				fclose($csv_fajl);
 			}
 
-			//Ha volt log, akkor azt kiíratjuk
+			// Ha volt log, akkor azt kiíratjuk
 			$filename = 'csv/log.txt';
 			if(is_file($filename) && filesize($filename)){
 				$handle = fopen($filename, 'r');

@@ -3847,7 +3847,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                         alert2(response.hiba, response.gomb, 'Hiba');
                         return false;
                     }
-                    alert2();
+                    location.reload();
                 }
                 popupZar();
             }

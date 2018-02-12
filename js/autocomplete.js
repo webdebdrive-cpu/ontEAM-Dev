@@ -442,6 +442,7 @@
                                         tag  = $(this).prop('tagName');
 
                                     /* Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is */
+                                    /* Ezt azért vettük ki, mert pl. anyagigénylés popup-ban autocopletet elemet leenterezve (kiválasztva egy értéket) kétszer urgott a következő inputba, mintha két entert nomtunk volna
                                     if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
 
                                         if( type == 'checkbox' || tag == 'SELECT' ) {
@@ -453,7 +454,7 @@
                                         }
 
                                         return false;
-                                    }
+                                    }*/
 
                                     if( name == mezo_nev ) {
                                         stop = true;
