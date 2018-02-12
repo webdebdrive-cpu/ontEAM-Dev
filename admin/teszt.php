@@ -1,6 +1,6 @@
 <?php
 include('../weblap.php');
-include('../html2pdf/mpdf.php');
+include('../mpdf/mpdf.php');
 
 // HTML, amiből PDF-et készítünk
 $html = fajlbol_olvas('teszt.html');
