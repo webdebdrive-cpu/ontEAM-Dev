@@ -49,15 +49,18 @@ $footer_stamp  = 'teszt 2018.02.01 15:04:20';
 
 
 
-$mpdf = new mPDF('utf-8','A4','','','15','15','28','28');
+$mpdf = new mPDF('utf-8','A4','','','10','10','28','25');
 
 
 
 
 
 
-$header = '<div style="padding-bottom: 10px;height150px;">
-                <table class="full" style="margin_bottom:20px;">
+$header = '
+
+
+            <div style="height:150px;">
+                <table class="full" style="">
                     <tr>
                         <td style="width: 33%; padding-left: 10px">
                             <table class="full">
@@ -71,19 +74,20 @@ $header = '<div style="padding-bottom: 10px;height150px;">
                         <td class="r" style="font-size: 11px; width: 33%; padding-right: 10px"> <span class="szamlalo"></span>{PAGENO} {nbpg}</td>
                     </tr>
                 </table>
-            </div><div style="padding-bottom: 10px;></div>';
+            </div>';
 
 $footer = '<div class="footer">
                 <div class="dtc padd"> </div>
                 <div class="dtc r padd" style="font-size: 7px">'.$footer_stamp.'</div>
-            </div>';
+            </div><pagebreak>';
 
 
 $mpdf ->nbpgPrefix = '/ ';
-$mpdf ->SetHTMLHeader( $header);
+$mpdf ->SetHTMLHeader( $header, '', true);
 $mpdf ->SetHTMLFooter( $footer);
 
-$mpdf ->WriteHTML( $html);
+
+$mpdf ->WriteHTML($html, 0);
 
 // PDF fájlba mentése
 $mpdf -> Output( 'teszt.pdf', 'F' );

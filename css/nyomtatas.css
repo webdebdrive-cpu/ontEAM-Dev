@@ -2,11 +2,19 @@
     size: A4;
 }
 
-@media print {    
-    
+@media print {
+
     .nyomtat_dn{
         display: none !important;
     }
+
+    table, tr, td {
+        border: 1px solid #ddd;
+        font-size: 11px;
+        padding: 3px 0.5rem;
+        vertical-align: top;
+    }
+
 }
 
 body{
