@@ -23,11 +23,11 @@ if (isset($_GET['szall'])) {
         $tetelek_html = '
                             <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px;border-collapse: collapse;">
                             <tr style="border-collapse: collapse;border: 1px solid #ddd;">
-                                <th class="l" style="border-collapse: collapse;border: 1px solid #ddd;">Név</th>
-                                <th style="width: 20px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;" class="r">Mee</th>
-                                <th style="width: 20px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;" class="r">Rendelt mennyi- ség</th>
-                                <th style="width: 20px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;" class="r">Nettó rendelési egységár</th>
-                                <th style="width: 60px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;" class="r">Nettó összesen ('.$penznem['info'].')</th>
+                                <th class="l" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;">Név</th>
+                                <th style="width: 20px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;" class="r">Mee</th>
+                                <th style="width: 20px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;" class="r">Rendelt mennyi- ség</th>
+                                <th style="width: 20px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;" class="r">Nettó rendelési egységár</th>
+                                <th style="width: 60px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;" class="r">Nettó összesen ('.$penznem['info'].')</th>
                             </tr>
                         ';
 
@@ -101,6 +101,10 @@ if (isset($_GET['szall'])) {
 
     $keret = get_keret($sorszam.' Megrendelés a szállítónak');
     $html = str_replace('{TARTALOM}', $tartalom, $keret);
+
+if ($_GET['teszt_nyomtat']) {
+     echo nl2($html);
+}
 // echo nl2($html);
 
     // error_reporting(0); //Így tudod kikapcsolni a warningokat és hibaüzeneteket
@@ -494,15 +498,19 @@ function get_alairasok(){
                     <td class="l">
                         ......................................................................
                         <div class="c" style="padding-right: 60px">
+                        <center>
                             Kővágó Levente
                             <br>Diszpécser központ vezető
+                        </center>
                         </div>
                     </td>
                     <td class="r">
                         ......................................................................
                         <div class="c" style="padding-left: 60px">
+                        <center>
                             Sánta Zoltán
                             <br>Diszpécser központ vezető helyettes
+                        </center>
                         </div>
                     </td>
                 </tr>
