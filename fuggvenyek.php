@@ -23,6 +23,11 @@
 function i_u($type, $tabla, $tomb) {
 	global $adatbazis_kapcsolat;
 	global $db_kapcs;
+    
+    // Archiv táblába biztosan nem írunk
+    if( substr($tabla, strlen($tabla)-5) == '_arch' ){
+        return false;
+    }
    
     // Tranzakció indul
     $db_error = false;
@@ -2081,8 +2086,8 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
         // Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
         // Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
-        if($tabla == 'bejelentes'){
-            $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla()."bejelentes`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        if($tabla == 'bejelentes' || $tabla == 'bejelentes_arch'){
+            $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla().$tabla."`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
             // Ha csak a saját részleget láthat, akkor tovább szűrünk részlegre is
             $felh = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
             if(_jog(JOG_BEJELENTES_SAJAT_RESZL) && !_jog(JOG_BEJELENTES_MEGTEKINT)){
@@ -2146,16 +2151,16 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $where = "`".get_db_tabla()."rendszeres_karbantartas`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
 
-        if($tabla == 'munkalap'){
+        if($tabla == 'munkalap' || $tabla == 'munkalap_arch'){
 
             // Ki-ki csak a saját szállodáit láthatja, ez alap
-            $where = "`".get_db_tabla()."munkalap`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+            $where = "`".get_db_tabla().$tabla."`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
             
             // Ha mobilcsopotos felhasználó vagyok csak azokat a munkalapokat látom, amik mobilhoz vannak rendelve és a hozzárendelt személy üres vagy én vagyok.
             if( $_SESSION[get_db_tabla().'szemelyzet_id']==MOBILCSOPORT ){
                 $login = $adatbazis_kapcsolat->s2('mobil', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
                 if($login['mobil']){
-                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}') AND `mobil`='{$login['mobil']}'";
+                    $where .= "`".get_db_tabla().$tabla."`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND (`mobil_loginnev`='' OR `mobil_loginnev`='{$_SESSION[get_db_tabla().'user']}') AND `mobil`='{$login['mobil']}'";
                 // Ha nincs mobilcsoportom, akkor nem látok munkalapokat
                 }else{
                     $where .= ' FALSE AND ';
@@ -2167,7 +2172,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 // Saját szem. tip. megtekintése: saját szállodák + hozzárendelt személyzet: tehát tovább szűrünk hozzárendelt személyzetre, amit a felhasználókon, majd személyezeten át kapunk meg
                 if(_jog(JOG_MUNKALAP_MEGTEKINT)){
                     // Hozzárendelt személyzet megállapítása. Ez egyenlő a Személyzet beosztásával.
-                    $where .= "`".get_db_tabla()."munkalap`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND ";
+                    $where .= "`".get_db_tabla().$tabla."`.`szemelyzet_id`='{$_SESSION[get_db_tabla().'szemelyzet_id']}' AND ";
                     if(!$_SESSION[get_db_tabla().'szemelyzet_id']){
                         $where .= ' FALSE AND ';
                     }
@@ -2200,7 +2205,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 
                 // Szűrés azokra a státuszokra, amiket láthat
                 if($statuszra_szures){
-                    $where .= "`".get_db_tabla()."munkalap`.`stat_id` IN (".implode(',', $statuszra_szures).") AND ";
+                    $where .= "`".get_db_tabla().$tabla."`.`stat_id` IN (".implode(',', $statuszra_szures).") AND ";
                 // Ha egyiket sem láthatja, akkor legyen üres a lista
                 }else{
                     $where .= ' FALSE AND ';
@@ -2394,7 +2399,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Bejelentéseknél a rendezés külön problémakör:
-        if($tabla=='bejelentes'){
+        if($tabla=='bejelentes' || $tabla=='bejelentes_arch'){
 
             $order = '';
 
@@ -2448,12 +2453,12 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Rendezés munkalap esetén külön problémakör:
-        if($tabla=='munkalap'){
+        if( $tabla=='munkalap' || $tabla=='munkalap_arch' ){
 
             $order = '';
             // Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
             if(_jog(JOG_MUNKALAP_KESZITHET)){
-                $order .= '`'.get_db_tabla().$tabla.'_csoport`.`nev`, ';
+                $order .= '`'.get_db_tabla().'munkalap_csoport`.`nev`, '; // <= itt fixen munkalap kell, nem a $tabla
             }
 
             $irany_ikt_szam  = '';
@@ -2542,13 +2547,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
 
         // Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
-        if($tabla=='bejelentes'){
+        if($tabla=='bejelentes' || $tabla=='bejelentes_arch'){
             $sql_kieg .= nl2('
                                 JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'erteklista`.`csoport`=4 AND `'.get_db_tabla().$tabla.'`.`hiba_id`=`'.get_db_tabla().'erteklista`.`recid`)
                                 LEFT OUTER JOIN `'.get_db_tabla().'bejelentes_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'bejelentes_csoport`.`recid`
                             ');
         }
-        if($tabla=='munkalap'){
+        if($tabla=='munkalap' || $tabla=='munkalap_arch'){
             $sql_kieg .= nl2('
                                 LEFT OUTER JOIN `'.get_db_tabla().'munkalap_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'munkalap_csoport`.`recid`
                             ');
@@ -2557,7 +2562,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if ($_GET['mezo']=='megjegyzes') {
             $sql_kieg .= ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
-        if($tabla!='munkalap' && strpos($select, 'obj_id')!==false){
+        if($tabla!='munkalap' && $tabla!='munkalap_arch' && strpos($select, 'obj_id')!==false){
             $sql_kieg .= ' JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid` ';
         }
         $mivel = 'JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`'.$sql_kieg.' WHERE';
@@ -2635,6 +2640,7 @@ if(isset($_GET['debug'])) {
                 $html = anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'bejelentes':
+            case 'bejelentes_arch':
                 $html = bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'bejovo_szamlak':
@@ -2683,6 +2689,7 @@ if(isset($_GET['debug'])) {
                 $html = loginLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'munkalap':
+            case 'munkalap_arch':
                 $html = munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'rendszeres_karbantartas':
@@ -2784,8 +2791,8 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     if( $csoportSor ) {
                         $csoportSor = $csoportSor[0];
 
-                        /* Van e sürgős */
-                        $surgos_e = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`csoport_id` = '{$aktCsoport}' AND `surgos` > 0", '', '1');
+                        // Van e sürgős
+                        $surgos_e = $adatbazis_kapcsolat->s('recid', $tabla, "`csoport_id` = '{$aktCsoport}' AND `surgos` > 0", '', '1');
                         $surgos_icon = '';
                         if( $surgos_e ) {
                             $surgos_icon = nl2('
@@ -2795,7 +2802,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             ');
                         }
 
-                        //Ha egy csoport elemén vagyunk, akkor a ki-be nyitó ikon "-"-on legyen
+                        // Ha egy csoport elemén vagyunk, akkor a ki-be nyitó ikon "-"-on legyen
                         $csoport_bej = $adatbazis_kapcsolat->s('recid', $tabla, "`csoport_id` = '{$aktCsoport}'");
                         $csoport_active = '';
                         if( $csoport_bej ) {
@@ -2807,7 +2814,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
 
                         $bold = '';
-                        $bejelentes = $adatbazis_kapcsolat->s2('recid telephely_id', 'bejelentes', "`csoport_id` = '{$aktCsoport}' AND `stat_id`='".BEJELENTES_STAT_NYITOTT."'", '', '1');
+                        $bejelentes = $adatbazis_kapcsolat->s2('recid telephely_id', $tabla, "`csoport_id` = '{$aktCsoport}' AND `stat_id`='".BEJELENTES_STAT_NYITOTT."'", '', '1');
                         // Ha van legalább egy nyitott eleme, akkor biztosan nyitott a csoport is (elvégre a csoport státusza csak eygszerre mozoghat)
                         if($bejelentes){
                             $bold = ' b';
@@ -2872,9 +2879,15 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             $dok_icon = '';
-            $is_dok   = $adatbazis_kapcsolat->s2('recid utvonal', $tabla.'_dok', "`{$tabla}_id` = '".$bsz['recid']."'", '', '1');
+            $dok_tabla = $tabla.'_dok';
+            $tabla_origi = $tabla;
+            if( substr($tabla, strlen($tabla)-5) == '_arch' ){
+                $dok_tabla   = substr($tabla, 0, strlen($tabla)-5).'_dok_arch';
+                $tabla_origi = substr($tabla, 0, strlen($tabla)-5);
+            }
+            $is_dok   = $adatbazis_kapcsolat->s2('recid utvonal', $dok_tabla, "`{$tabla_origi}_id` = '".$bsz['recid']."'", '', '1');
             if( $is_dok ) {
-                if( is_file('../'.get_utvonal().$tabla.'/'.$is_dok['utvonal']) ) {
+                if( is_file('../'.get_utvonal().$tabla_origi.'/'.$is_dok['utvonal']) ) {
                     $dok_icon = nl2('
                         <span class="icon">
                             <i class="material-icons">attach_file</i>
@@ -2903,7 +2916,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if( $bsz['csoport_id'] && _jog(JOG_MUNKALAP_KESZITHET) ) {
                 $csoport_class = ' behuz dn';
 
-                $akt_csoport = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` = '{$_GET['id']}'", '', '1');
+                $akt_csoport = $adatbazis_kapcsolat->s('csoport_id', $tabla, "`recid` = '{$_GET['id']}'", '', '1');
 
                 if( $akt_csoport ) {
                     $akt_csoport = $akt_csoport[0];
@@ -3030,7 +3043,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             $statusz = '';
             if( $bsz['stat_id'] ) {
-                $statusz = getStatText('munkalap', $bsz['stat_id']);
+                $statusz = getStatText($tabla, $bsz['stat_id']);
             }
 
             $active = '';
@@ -3077,9 +3090,15 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             $dok_icon = '';
-            $is_dok   = $adatbazis_kapcsolat->s2('recid utvonal', $tabla.'_dok', "`{$tabla}_id` = '".$bsz['recid']."'", '', '1');
+            $dok_tabla = $tabla.'_dok';
+            $tabla_origi = $tabla;
+            if( substr($tabla, strlen($tabla)-5) == '_arch' ){
+                $dok_tabla   = substr($tabla, 0, strlen($tabla)-5).'_dok_arch';
+                $tabla_origi = substr($tabla, 0, strlen($tabla)-5);
+            }
+            $is_dok = $adatbazis_kapcsolat->s2('recid utvonal', $dok_tabla, "`{$tabla_origi}_id` = '".$bsz['recid']."'", '', '1');
             if( $is_dok ) {
-                if( is_file('../'.get_utvonal().$tabla.'/'.$is_dok['utvonal']) ) {
+                if( is_file('../'.get_utvonal().$tabla_origi.'/'.$is_dok['utvonal']) ) {
                     $dok_icon = nl2('
                         <span class="icon">
                             <i class="material-icons">attach_file</i>
@@ -4959,10 +4978,10 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     );
 
     // Néhol át kell írni az általános mezőneveket (pl. loginnál a nev nem Név, hanem Login név)
-    if( basename(self()) == 'bejelentes.php' ) {
+    if( basename(self()) == 'bejelentes.php' || basename(self()) == 'bejelentes_arch.php' ) {
         $oszlopNevek['surgos'] = 'Státusz';
     }
-    if( basename(self()) == 'bejelentes.php' && $oszlop == 'nev' ) {
+    if( (basename(self()) == 'bejelentes.php' || basename(self()) == 'bejelentes_arch.php') && $oszlop == 'nev' ) {
         $oszlopNevek['nev'] = 'Helyiség';
     }
     if( basename(self()) == 'login.php' ) {
@@ -5406,19 +5425,19 @@ function get_akt_tomb($megn){
     global $torzsadat_tomb;
 
     switch($megn){
-        case 'anyagigenyles'        : $akt_tomb = $anyagigenyles_tomb;          break;
-        case 'bejelentes'           : $akt_tomb = $bejelentes_tomb;             break;
-        case 'beosztas'             : $akt_tomb = $beosztas_tomb;               break;
-        case 'cikktorzs'            : $akt_tomb = $cikktorzs_tomb;              break;
-        case 'eloterj_fb'           : $akt_tomb = $eloterj_fb_tomb;             break;
-        case 'eloterj_bod'          : $akt_tomb = $eloterj_bod_tomb;            break;
-        case 'eszkozkezeles'        : $akt_tomb = $eszkozkezeles_tomb;          break;
-        case 'felmeresi_terv'       : $akt_tomb = $felmeresi_terv_tomb;         break;
-        case 'login'                : $akt_tomb = $login_tomb;                  break;
-        case 'munkalap'             : $akt_tomb = $munkalap_tomb;               break;
-        case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
-        case 'projektigenyles'      : $akt_tomb = $projektigenyles_tomb;        break;
-        case 'torzsadat'            : $akt_tomb = $torzsadat_tomb;              break;
+        case 'anyagigenyles'        : case 'anyagigenyles_arch'        : $akt_tomb = $anyagigenyles_tomb;          break;
+        case 'bejelentes'           : case 'bejelentes_arch'           : $akt_tomb = $bejelentes_tomb;             break;
+        case 'beosztas'             : case 'beosztas_arch'             : $akt_tomb = $beosztas_tomb;               break;
+        case 'cikktorzs'            : case 'cikktorzs_arch'            : $akt_tomb = $cikktorzs_tomb;              break;
+        case 'eloterj_fb'           : case 'eloterj_fb_arch'           : $akt_tomb = $eloterj_fb_tomb;             break;
+        case 'eloterj_bod'          : case 'eloterj_bod_arch'          : $akt_tomb = $eloterj_bod_tomb;            break;
+        case 'eszkozkezeles'        : case 'eszkozkezeles_arch'        : $akt_tomb = $eszkozkezeles_tomb;          break;
+        case 'felmeresi_terv'       : case 'felmeresi_terv_arch'       : $akt_tomb = $felmeresi_terv_tomb;         break;
+        case 'login'                : case 'login_arch'                : $akt_tomb = $login_tomb;                  break;
+        case 'munkalap'             : case 'munkalap_arch'             : $akt_tomb = $munkalap_tomb;               break;
+        case 'utemezett_feladatok'  : case 'utemezett_feladatok_arch'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
+        case 'projektigenyles'      : case 'projektigenyles_arch'      : $akt_tomb = $projektigenyles_tomb;        break;
+        case 'torzsadat'            : case 'torzsadat_arch'            : $akt_tomb = $torzsadat_tomb;              break;
     }
     
     // Beállítjuk mindenhol a megn_szurobe értéket, mert ez alapján fogjuk rendezni
@@ -5684,7 +5703,13 @@ function get_tortenet($megnevezes){
             </div>
     ');
 
-    $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido text', $megnevezes.'_statusz', "`{$megnevezes}_recid` = '".$_GET['id']."'", 'recid desc');
+    // Archivum táblák esetére
+    $tabla = $megnevezes.'_statusz';
+    if( substr($megnevezes, strlen($megnevezes)-5) == '_arch' ){
+        $megnevezes = substr($megnevezes, 0, strlen($megnevezes)-5);
+        $tabla      = $megnevezes.'_statusz_arch';
+    }
+    $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido text', $tabla, "`{$megnevezes}_recid` = '".$_GET['id']."'", 'recid desc');
     if( $sorok ) {
         foreach($sorok as $sor) {
 

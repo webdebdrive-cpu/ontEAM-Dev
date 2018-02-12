@@ -13,7 +13,13 @@
 
 require_once('../class/html/class.Img.php');
 
-$tobbkep_tablanev = str_replace('.php', '', basename($_SERVER['PHP_SELF'])).'_dok';
+$php_tablanev     = str_replace('.php', '', basename($_SERVER['PHP_SELF']));
+$tobbkep_tablanev = $php_tablanev.'_dok';
+$archivum = false;
+if( substr($php_tablanev, strlen($php_tablanev)-5) == '_arch' ){
+    $tobbkep_tablanev = substr($megnevezes, 0, strlen($megnevezes)-5).'_dok_arch';
+    $archivum = true;
+}
 if( $_POST['tabla'] ) {
     $tobbkep_tablanev = $_POST['tabla'].'_dok';
 }
@@ -25,7 +31,7 @@ if(basename($_SERVER['PHP_SELF']) == 'eszkozkezeles.php' && isset($_GET['engedel
 // echo $tobbkep_tablanev; exit;
 
 // Képfeltöltés
-if(isset($_POST['session_name'])){
+if( isset($_POST['session_name']) && !$archivum ){
 
     // Ha a megnevezés csak annyi, hogy javaslattetel_popup, akkor munkalap javaslattétel popuján töltünk fel képet, ekkor másképp kell eljárni
     if($_POST['megnevezes']=='javaslattetel_popup'){
@@ -169,7 +175,7 @@ if(isset($_POST['session_name'])){
 require_once('../weblap.php');
 
 // Kép törlése
-if(isset($_POST['tobbkep_torol'])){
+if( isset($_POST['tobbkep_torol']) && !$archivum ){
 
     $kepnev = mysqli_query($db_kapcs, 'SELECT `utvonal` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['tobbkep_torol'].'\'');
     $kepnev = mysqli_fetch_assoc($kepnev);
@@ -221,11 +227,12 @@ $sorrend_ujkep_mit   = array('{GOMB_NEVE}', '{MEGN}',  '{PHP_FAJL}',            
 $sorrend_ujkep_mivel = array($gomb_neve,    $megn,     'tobb_kep.php'/*self() nem jó!*/, $eng_kit,     $parameterek,    $minden_kesz       );
 
 $tobbkep_html  = '';
-$tobbkep_html .= str_replace($sorrend_ujkep_mit, $sorrend_ujkep_mivel, $sorrend_ujkep);
+if(!$archivum){
+    $tobbkep_html .= str_replace($sorrend_ujkep_mit, $sorrend_ujkep_mivel, $sorrend_ujkep);
+}
 
 $i     = 0;
 $kepek = $adatbazis_kapcsolat -> s('*', $tobbkep_tablanev, get_tobbkep_oszlopnev().'='.$_GET['id'], 'sor');
-
 // Eszközkezelés engedélyeknél dátumot is kiírunk
 $mellek = 'dokumentumok';
 if(basename(self()) == 'eszkozkezeles.php' && isset($_GET['engedelyek'])){
@@ -261,6 +268,8 @@ $szamla_html .= $tobbkep_html;
 // A több képe thumbnailját hozza létre, egy adatbázis sorból
 function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
 
+    global $archivum;
+    
     $javaslattetel = '';
     if($_POST['megnevezes']=='javaslattetel_popup'){
         $tabla = 'munkalap_dok';
@@ -271,7 +280,11 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
     $tobbkep_html = '';
     
     $sor_kepek['utvonal'] = stripslashes(htmlspecialchars_decode($sor_kepek['utvonal']));
-    $kep_utvonal = '../'.get_utvonal().csonkit($_SESSION['fajl']['tabla'], 4).'/'.$sor_kepek['utvonal'];
+    $csonkit = 4;
+    if($archivum){
+        $csonkit = 9;
+    }
+    $kep_utvonal = '../'.get_utvonal().csonkit($_SESSION['fajl']['tabla'], $csonkit).'/'.$sor_kepek['utvonal'];
     if(is_file($kep_utvonal)){
 
         $felirat = utf8(stripslashes($sor_kepek['fajlnev']));
@@ -301,13 +314,13 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
         
         $azon    = 'kep'.$sor_kepek['recid'];
 
-        // Csak az törölheti, aki feltöltötte
+        // Csak az törölheti, aki feltöltötte (ha archivum, akkor meg más senki)
         $torles = '';
         $betolt = 'dokumentumok';
         if( isset($_GET['engedelyek']) ){
             $betolt = 'engedelyek';
         }
-        if( $sor_kepek['loginnev'] == $_SESSION[get_db_tabla().'user']  ){
+        if( $sor_kepek['loginnev'] == $_SESSION[get_db_tabla().'user'] && !$archivum ){
             $torles = '
                         <script>
                             dok_torol_gomb_'.$sor_kepek['recid'].' = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\''.$tabla.'\\\', \\\''.$betolt.'\\\', \\\''.$javaslattetel.'\\\', \\\''.$sor_kepek['recid'].'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';

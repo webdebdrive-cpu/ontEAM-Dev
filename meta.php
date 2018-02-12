@@ -23,7 +23,8 @@ function get_title(){
                 $title .= 'Anyagok / Anyagigénylések';
             }
         break;
-        case 'bejelentes.php'               : $title .= 'Bejelentések';                                 break;
+        case 'bejelentes.php'               : $title .= 'Bejelentések / Bejelentések';                  break;
+        case 'bejelentes_arch.php'          : $title .= 'Bejelentések / Archív bejelentések';           break;
         case 'beosztas.php'                 : $title .= 'Személyzet / Beosztások';                      break;
         case 'cash_flow.php'                : $title .= 'Projektek / Cash Flow';                        break;
         case 'cikktorzs.php'                : $title .= 'Anyagok / Cikktörzs';                          break;
@@ -40,6 +41,7 @@ function get_title(){
         case 'ktgnem.php'                   : $title .= 'Rendszer / Költségnemek';                      break;
         case 'login.php'                    : $title .= 'Rendszer / Felhasználók';                      break;
         case 'munkalap.php'                 : $title .= 'Munkák / Munkalapok';                          break;
+        case 'munkalap_arch.php'            : $title .= 'Munkák / Archív munkalapok';                   break;
         case 'mobil_hozzarendel.php'        : $title .= 'Munkák / Munkalapok / Mobil hozzárendelé';     break;
         case 'utemezett_feladatok.php'      : $title .= 'Munkák / Ütemzett feladatok';                  break;
         case 'uzemeltetesi_naplo.php'       : $title .= 'Munkák / Üzemeltetési napló';                  break;
@@ -60,7 +62,7 @@ function get_title(){
 	return $title;
 }
 
-//Az oldal leírása
+// Az oldal leírása
 function get_description(){
 
     global $adatbazis_kapcsolat;
@@ -153,10 +155,10 @@ function get_keywords(){
 }
 
 
-//Canonical URL
+// Canonical URL
 function get_canonical(){
 
-//Teszteléshez: ha pretty URL-eket használunk, akkor így láthatjuk, hogy mi is a valódi PHP fájl, és milyen GET-eink vannak
+// Teszteléshez: ha pretty URL-eket használunk, akkor így láthatjuk, hogy mi is a valódi PHP fájl, és milyen GET-eink vannak
 if (isset($_GET['canon'])) {
     echo '<pre style="font-size: 1.4rem">';
     echo self();
@@ -166,7 +168,7 @@ if (isset($_GET['canon'])) {
 
 	global $adatbazis_kapcsolat;
 
-    $domain = 'http://'.get_domain();
+    $domain = get_http().get_domain();
 
 	switch(basename(self())){
 
@@ -194,7 +196,7 @@ if (isset($_GET['canon'])) {
 	}
 }
 
-//Közösségioldalak metatagjai
+// Közösségioldalak metatagjai
 function get_og(){
 
     global $adatbazis_kapcsolat;
@@ -213,7 +215,7 @@ function get_og(){
 
     $og_meta .= '<meta property="og:title" content="'.$title.'">';
     $og_meta .= '<meta property="og:description" content="'.$desc.'">';
-    $og_meta .= '<meta property="og:url" content="http://'.str_replace('&', '&amp;', $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] ).'">';
+    $og_meta .= '<meta property="og:url" content="'.get_http().str_replace('&', '&amp;', $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] ).'">';
     $og_meta .= '<meta property="og:type" content="company">';
 
     //Google plus: HTML5 alatt ez sem valid
@@ -223,7 +225,7 @@ function get_og(){
 
 	switch(basename(self())){
 //		case 'index.php':
-//            $kep = 'http://'.get_domain().'/elemek/valami.png';
+//            $kep = get_http().get_domain().'/elemek/valami.png';
 //            $og_meta .= '<meta property="og:image" content="'.$kep.'">';
 //            $og_meta .= '<link rel="image_src" href="'.$kep.'">';
 //            $og_meta .= '<meta itemprop="image" content="'.$kep.'">';

@@ -123,12 +123,20 @@ if( _jog(JOG_BEJELENTES_MEGTEKINT) || _jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     $menu_nev_kis    = 'bejelentések';
     $menu_nev_tobbes = 'Bejelentések';
     $megn            = 'bejelentes';
-    $aloldalak       = array($megn.'.php');
+    
+    $menu_nev2        = 'Archív bejelentések';
+    $menu_nev_kis2    = 'bejelentések';
+    $menu_nev_tobbes2 = 'Bejelentések';
+    $megn2            = 'bejelentes_arch';
+    $aloldalak       = array($megn.'.php', $megn2.'.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
     //if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = 'Új bejelentés feltöltése'; }
-    if(basename(self())==$megn.'.php'){ $oldalNev = '<span id="rekord_neve">'.$menu_nev.'</span><span class="dn" id="rekord_neve_egyes">bejelentés</span><span class="dn" id="rekord_neve_targy">bejelentést</span>'; }
+    if(basename(self())==$megn.'.php') { $oldalNev = 'Bejelentések / <span id="rekord_neve">'.$menu_nev.'</span><span class="dn" id="rekord_neve_egyes">bejelentés</span><span class="dn" id="rekord_neve_targy">bejelentést</span>'; }
+    if(basename(self())==$megn2.'.php'){ $oldalNev = 'Bejelentések / <span id="rekord_neve">'.$menu_nev2.'</span><span class="dn" id="rekord_neve_egyes">archív bejelentés</span><span class="dn" id="rekord_neve_targy">archív bejelentést</span>'; }
 
     $aktmenuk  = '';
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], $menu_nev), $almenu_sablon );
+    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Archív '.$menu_nev_kis), $almenu_sablon );
     $style = '';
     if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
         $style = ' class="hover{STYLE_KIEG}"';
@@ -146,7 +154,7 @@ if( _jog(JOG_BEJELENTES_MEGTEKINT) || _jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
         }
     }
 
-    $menuk .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+    $menuk .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
 
 // Munkák
@@ -155,15 +163,22 @@ if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(J
     $menu_nev_kis    = 'munkák';
     $menu_nev_tobbes = 'Munkák';
     $megn            = 'munkalap';
+    
+    $menu_nev2        = 'Archív munkalapok';
+    $menu_nev_kis2    = 'archív munkalapok';
+    $menu_nev_tobbes2 = 'Archív munkalapok';
+    $megn2            = 'munkalap_arch';
     $aloldalak = array(
                 $megn.'.php',
                 'utemezett_feladatok.php',
                 'rendszeres_karbantartas.php',
                 'eseti_fenntartas.php',
                 'uzemeltetesi_naplo.php',
+                $megn2.'.php',
     );
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
     if(basename(self())=='munkalap.php')                { $oldalNev = 'Munkák / <span id="rekord_neve">Munkalapok</span><span class="dn" id="rekord_neve_egyes">munkalap</span><span class="dn" id="rekord_neve_targy">munkalapot</span>';                                              }
+    if(basename(self())=='munkalap_arch.php')           { $oldalNev = 'Munkák / <span id="rekord_neve">Archív munkalapok</span><span class="dn" id="rekord_neve_egyes">archív munkalap</span><span class="dn" id="rekord_neve_targy">archív munkalapot</span>';                                              }
     if(basename(self())=='mobil_hozzarendel.php')       { $oldalNev = 'Munkák / <span id="rekord_neve">Mobil hozzárendelés</span><span class="dn" id="rekord_neve_egyes">hozzárendelés</span><span class="dn" id="rekord_neve_targy">hozzárendelést</span>';       }
     if(basename(self())=='utemezett_feladatok.php')     { $oldalNev = 'Munkák / <span id="rekord_neve">Ütemezett feladatok</span><span class="dn" id="rekord_neve_egyes">ütmezett feladat</span><span class="dn" id="rekord_neve_targy">ütemezett feladatot</span>';                     }
     if(basename(self())=='rendszeres_karbantartas.php') { $oldalNev = 'Munkák / <span id="rekord_neve">Rendszeres karbantartás</span><span class="dn" id="rekord_neve_egyes">rendszeres karbantartás</span><span class="dn" id="rekord_neve_targy">rendszeres karbantartást</span>';    }
@@ -173,6 +188,7 @@ if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(J
     $aktmenuk  = '';
     if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Munkalapok'                                                             ), $almenu_sablon );
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['5'], 'Archív munkalapok'                                                             ), $almenu_sablon );
     }
     if( _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( 'mobil_hozzarendel.php', 'Mobil hozzárendelés'                                            ), $almenu_sablon );
@@ -704,11 +720,11 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
             }
 
             $kieg_text = '';
-            if( basename(self()) == 'bejelentes.php' ) {
+            if( basename(self()) == 'bejelentes.php' || basename(self()) == 'bejelentes_arch.php' ) {
                 $kieg_text = 'Bejelentés';
-            } else if( basename(self()) == 'munkalap.php' ) {
+            } else if( basename(self()) == 'munkalap.php' || basename(self()) == 'munkalap_arch.php' ) {
                 $kieg_text = 'Munkalap';
-            } else if( basename(self()) == 'anyagigenyles.php' ) {
+            } else if( basename(self()) == 'anyagigenyles.php' || basename(self()) == 'anyagigenyles_arch.php' ) {
                 if (isset($_GET['anyagrend'])) {
                     $kieg_text = 'Anyagrendelés';
                 }else{
@@ -974,6 +990,12 @@ $duplikal  = nl2('
             <i class="material-icons">queue</i>
         </a>
     ');
+
+// Archiv táblákat nem lehet törölni, újat feltölteni
+$tabla_nev = basename(self());
+if( substr($tabla_nev, strlen($tabla_nev)-9) == '_arch.php' ){
+    $uj = $duplikal = $torles_icon = '';
+}
 
 if( basename(self())=='anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL)){
     $torles_icon    = '';

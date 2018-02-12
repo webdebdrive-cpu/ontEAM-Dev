@@ -1,0 +1,16 @@
+<div class="dtr">
+    <div class="dtc">
+        <div class="dt full" id="form_arch">
+            {MEZOK}
+        </div>
+    </div>
+</div>
+<script>
+    /* Minden input tiltása */
+    $('#form_arch input[type="checkbox"]').each(function() {
+        $('label[for="'+$(this).attr('id')+'"]').attr('readonly', true);
+    });
+
+    $('#form_arch input, #form_arch textarea, #form_arch select').attr('readonly', true);
+    $('.obj_gen').remove();
+</script>

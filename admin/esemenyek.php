@@ -13,6 +13,7 @@ if (isset($_GET['modosit'])) {
 $_SESSION['ketHasabos'] = array(
     'anyagigenyles.php',
     'bejelentes.php',
+    'bejelentes_arch.php',
     'bejovo_szamlak.php',
     'beosztas.php',
     'cash_flow.php',
@@ -30,6 +31,7 @@ $_SESSION['ketHasabos'] = array(
     'ktgnem.php',
     'login.php',
     'munkalap.php',
+    'munkalap_arch.php',
     'projektkezeles.php',
     'projektigenyles.php',
     'raktar.php',
@@ -138,6 +140,7 @@ switch($tabla) {
         }
     break;
     case 'bejelentes.php':
+    case 'bejelentes_arch.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = nl2('
                                 `'.get_db_tabla().$tabla_nophp.'`.`recid`,
@@ -436,6 +439,7 @@ switch($tabla) {
         }
     break;
     case 'munkalap.php':
+    case 'munkalap_arch.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = nl2('
                                 `'.get_db_tabla().$tabla_nophp.'`.`recid`,
@@ -931,6 +935,9 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 // Bejelentés
 $megnevezes = 'bejelentes';
+if( basename(self())=='bejelentes_arch.php' ){
+    $megnevezes = 'bejelentes_arch';
+}
 
 // Felhasználó lekérdezése a bejelentés táblához
 // Új feltöltésnél ha van get bejelentőm
@@ -997,7 +1004,7 @@ if( isset($_GET['bejelento']) ) {
 }
 
 // Bejelentések
-$bejelentes_tomb = $akt_tomb = array(
+$bejelentes_tomb = $bejelentes_arch_tomb = $akt_tomb = array(
     array('type' => 'statusz',         'megn' => 'Státusz:',            'name' => 'stat_id',    'szuro' => 1,  'oldal' => $megnevezes),
 	array('type' => 'text',            'megn' => 'Bejelentés szám:',    'name' => 'ikt_szam',   'szuro' => 1,  'disabled' => true,              'maxlength' => 250, 'osszevon' => 1, 'pre' => '<div class="dib">', 'post' => '</div><span style="margin-right: 4rem"></span>'),
     array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',     'szuro' => 1,  'disabled' => $surgos_disabled,  'class' => 'check', 'onclick' => $surgos_onclick),
@@ -1058,11 +1065,15 @@ $bejelentes_dok_tomb = $akt_tomb = array(
 
 
 // Munkalap tömb
+$megnevezes = 'munkalap';
+if( basename(self())=='munkalap_arch.php' ){
+    $megnevezes = 'munkalap_arch';
+}
 $surgos_disabled = '';
 $surgos_onclick  = '';
 if(isset($_GET['modosit'])){
 
-    $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev stat_id mobil', 'munkalap', "`recid`='{$_GET['id']}'");
+    $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev stat_id mobil', $megnevezes, "`recid`='{$_GET['id']}'");
     $hozrend_mobilnev = '';
     if($munkalap['szemelyzet_id']==MOBILCSOPORT && $munkalap['mobil_loginnev']){
         $torzsadat = $adatbazis_kapcsolat->s2('nev', 'torzsadat', "`felh_loginnev`='{$munkalap['mobil_loginnev']}'");
@@ -1091,8 +1102,8 @@ if(isset($_GET['ujkent_bejelentes'])) {
     $ub_disabled = true;
     $obj_post    = '';
 }
-$megnevezes = 'munkalap';
-$munkalap_tomb = $akt_tomb = array(
+
+$munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
     array('type' => 'statusz',                  'megn' => 'Státusz:',                   'name' => 'stat_id',            'szuro' => 1,           'oldal' => $megnevezes),
     array('type' => 'text',                     'megn' => 'Munkalap szám:',             'name' => 'ikt_szam',           'szuro' => 1, 'disabled' => 1,        'maxlength' => 250,  'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
     array('type' => 'checkbox',                 'megn' => 'Sürgős:',                    'name' => 'surgos',             'szuro' => 1, 'disabled' => $surgos_disabled,   'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>', 'onclick' => $surgos_onclick),
@@ -3556,7 +3567,7 @@ if( !$_GET['epo'] )         { $_GET['epo'] = 50;    }
 if( !isset($_GET['oldal'])) { $_GET['oldal']=0;     }
 
 
-//ESEMÉNYEK
+// ESEMÉNYEK
 // Flashfáljok törlése
 if(isset($_POST['fajl_torol'])){
     
@@ -3866,6 +3877,11 @@ foreach($postok as $ertek){
 
 	// Törlés, töröl
 	if(isset($_GET[$ertek['torid']])){
+        
+        // Archiv táblából biztosan nem törlünk
+        if( substr($ertek['tabla'], strlen($ertek['tabla'])-5) == '_arch' ){
+            $weblap -> leallit(); exit;
+        }
 
         // Jogosultságkezelés
         if($ertek['tabla']=='anyagigenyles' && !_jog(JOG_ANYAGIGENYLES_KEZEL)){
