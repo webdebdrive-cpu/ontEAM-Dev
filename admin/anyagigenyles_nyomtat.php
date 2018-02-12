@@ -21,13 +21,13 @@ if (isset($_GET['szall'])) {
 
         //Cikkenkénti összesítés
         $tetelek_html = '
-                            <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px">
-                            <tr>
-                                <th class="l">Név</th>
-                                <th style="width: 20px" class="r">Mee</th>
-                                <th style="width: 20px" class="r">Rendelt mennyi- ség</th>
-                                <th style="width: 20px" class="r">Nettó rendelési egységár</th>
-                                <th style="width: 60px" class="r">Nettó összesen ('.$penznem['info'].')</th>
+                            <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px;border-collapse: collapse;">
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                <th class="l" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;">Név</th>
+                                <th style="width: 20px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;" class="r">Mee</th>
+                                <th style="width: 20px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;" class="r">Rendelt mennyi- ség</th>
+                                <th style="width: 20px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;" class="r">Nettó rendelési egységár</th>
+                                <th style="width: 60px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;" class="r">Nettó összesen ('.$penznem['info'].')</th>
                             </tr>
                         ';
 
@@ -44,12 +44,12 @@ if (isset($_GET['szall'])) {
             }
 
             $tetelek_html .= '
-                            <tr>
-                                <td class="b">'.$a_lek['nev'].'</td>
-                                <td class="c">'.$a_lek['cikkmee'].'</td>
-                                <td class="r" style="white-space: nowrap;">'.number_format($rndmen, 2, ',', ' ').'</td>
-                                <td class="r" style="white-space: nowrap;">'.number_format($a_lek['rndear'], 2, ',', ' ').'</td>
-                                <td class="r" style="white-space: nowrap;">'.number_format($rndmen*$a_lek['rndear'], 0, ',', ' ').'</td>
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                <td class="b" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">'.$a_lek['nev'].'</td>
+                                <td class="c" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">'.$a_lek['cikkmee'].'</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">'.number_format($rndmen, 2, ',', ' ').'</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">'.number_format($a_lek['rndear'], 2, ',', ' ').'</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">'.number_format($rndmen*$a_lek['rndear'], 0, ',', ' ').'</td>
                             </tr>
                             ';
             $ossz += $rndmen*$a_lek['rndear'];
@@ -58,8 +58,8 @@ if (isset($_GET['szall'])) {
                         <tr>
                             <td style="border: 0"></td>
                             <td style="border: 0"></td>
-                            <td style="border: 0" class="r b" colspan="2">Mindösszesen:</td>
-                            <td style="border: 0; white-space: nowrap;" class="r b">'.number_format($ossz, 0, ',', ' ').'</td>
+                            <td style="border: 0; padding: 5px;" class="r b" colspan="2">Mindösszesen:</td>
+                            <td style="border: 0;padding: 5px; white-space: nowrap;" class="r b">'.number_format($ossz, 0, ',', ' ').'</td>
                         </tr>
                         </table>
                         ';
@@ -69,7 +69,7 @@ if (isset($_GET['szall'])) {
 
     // Lényegi tartalom
     $tartalom = '
-        '.get_fejlec_top($sorszam, 'lapszámmal').'
+
         <div class="padd minh">
 
                 '.get_fejlec($szallito).'
@@ -101,6 +101,10 @@ if (isset($_GET['szall'])) {
 
     $keret = get_keret($sorszam.' Megrendelés a szállítónak');
     $html = str_replace('{TARTALOM}', $tartalom, $keret);
+
+if ($_GET['teszt_nyomtat']) {
+     echo nl2($html);
+}
 // echo nl2($html);
 
     // error_reporting(0); //Így tudod kikapcsolni a warningokat és hibaüzeneteket
@@ -109,7 +113,19 @@ if (isset($_GET['szall'])) {
     $mit = array('<script src="../js/jquery.js"></script>', '<link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">');
     $html = str_replace($mit, '', $html);
 
+
+
     $mpdf = new mPDF('utf-8');
+
+
+    $mpdf ->nbpgPrefix = '/ ';
+    $header = get_fejlec_top($sorszam, 'lapszámmal');
+    $footer = '<div class="dtc r padd" style="font-size: 7px">
+        '.$_SESSION[get_db_tabla().'user'].'
+        '.date('Y.m.d H:i:s').'
+    </div>';
+    $mpdf ->SetHTMLHeader( $header, '', true);
+    $mpdf ->SetHTMLFooter( $footer, '', true);
 
     $mpdf -> WriteHTML( $html );
     // Így tudod egy PDF fájlba elmenteni a generált tartalmat
@@ -222,7 +238,7 @@ if (isset($_GET['cim'])) {
 
 // Oracle cikkszám nyomtatási kép
 if (isset($_GET['oracle'])) {
-    
+
     $keret = get_keret($sorszam.' Oracle cikkszámonkénti összesítés');
     $telephelyek = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
     foreach($telephelyek as $telephely){
@@ -300,7 +316,9 @@ if (isset($_GET['oracle'])) {
 function get_fejlec_top($sorszam, $lapszammal){
 
     if($lapszammal){
-        $lapszammal = '<span class="szamlalo"></span>/';
+        $lapszammal = '<span class="">{PAGENO} {nbpg}</span>';
+    }else {
+        $lapszammal = '1. lap';
     }
 
     return '
@@ -325,7 +343,7 @@ function get_fejlec_top($sorszam, $lapszammal){
                     Megrendelés sz.: '.$sorszam.'
                 </td>
                 <td class="r" style="font-size: 11px; width: 33%; padding-right: 10px">
-                    '.$lapszammal.'1. lap
+                    '.$lapszammal.'
                 </td>
             </tr>
             </table>
@@ -357,7 +375,7 @@ function get_fejlec($szallito){
                 </tr>
                 </table>
 
-                <table class="border full" style="margin: auto; margin-top: 0;">
+                <table class="border full" style="margin: auto; margin-top: 0;border-collapse: collapse;border: 1px solid #ddd;">
                 <tr>
                     <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">
                         Név: '.$szallito['nev'].'
@@ -387,12 +405,12 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
 
     //Szállítási címenkénti összesítés
     $szallcim_html = '
-                        <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px">
+                        <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px;border-collapse: collapse;">
                     ';
 
     // Van egy fix cím
     $telephely = $adatbazis_kapcsolat->s2('nev props', 'telephely', "`id`='".NYOMTATAS_FIX_CIM."'");
-    
+
     $szn = get_props($telephely['props'], 'SZN');
     $cim = get_props($telephely['props'], 'cim');
     $fix_cim  = $szn.' '.$cim;
@@ -423,18 +441,18 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                     $szall_cim .= $fix_cim;
                 break;
                 case 3:
-                    $szall_cim .= 'Danubius fuvar';
+                    $szall_cim .= 'MSzK fuvar';
                 break;
             }
             $szallcim_html .= '
-                            <tr>
-                                <td class="b" style="border: 1px solid #ddd;">
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                <td class="b" style="border: 1px solid #ddd; padding: 5px;">
                                     Szállítási cím:
                                     <br>Számlázási cím:
                                     <br>Adószám:
                                     <br>Számlaküldési cím:
                                 </td>
-                                <td style="border: 1px solid #ddd;" colspan="2">
+                                <td style="border: 1px solid #ddd; padding: 5px;" colspan="2">
                                     '.$szall_cim.'
                                     <br>'.$szl.' '.$cim.'
                                     <br>'.NYOMTATAS_ADOSZAM.'
@@ -455,17 +473,17 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                 }
 
                 $szallcim_html .= '
-                                <tr>
-                                    <td class="vat c" style="border: 1px solid #ddd;">'.number_format($rndmen, 2, ',', '.').' '.$a_lek_db['cikkmee'].'</td>
-                                    <td class="vat" style="border: 1px solid #ddd;">'.$a_lek_db['nev'].'</td>
-                                    <td class="vat" style="border: 1px solid #ddd;">'. htmlspecialchars_decode(nl2br2($a_lek_db['igleir'])) .'</td>
+                                <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                    <td class="vat c" style="border: 1px solid #ddd; padding: 5px;">'.number_format($rndmen, 2, ',', '.').' '.$a_lek_db['cikkmee'].'</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;">'.$a_lek_db['nev'].'</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;">'. htmlspecialchars_decode(nl2br2($a_lek_db['igleir'])) .'</td>
                                 </tr>
                                 ';
             }
 
             //Telephelyek után egy kis elválasztó
             $szallcim_html .= '
-                            <tr>
+                            <tr >
                                 <td colspan="3" style="border: 1px solid #ddd; padding: 7px; border-left: 0; border-right: 0; border-bottom: 0"></td>
                             </tr>
                             ';
@@ -485,15 +503,19 @@ function get_alairasok(){
                     <td class="l">
                         ......................................................................
                         <div class="c" style="padding-right: 60px">
+                        <center>
                             Kővágó Levente
                             <br>Diszpécser központ vezető
+                        </center>
                         </div>
                     </td>
                     <td class="r">
                         ......................................................................
                         <div class="c" style="padding-left: 60px">
+                        <center>
                             Sánta Zoltán
                             <br>Diszpécser központ vezető helyettes
+                        </center>
                         </div>
                     </td>
                 </tr>
@@ -502,30 +524,55 @@ function get_alairasok(){
 }
 
 function get_keret($title){
-    
-    return '
-<head>
-    <title>'.$title.'</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
-    <link href="../css/admin.css" rel="stylesheet" type="text/css">
-    <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
-    <script src="../js/jquery.js"></script>
-    <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
-</head>
-<body>
-    <div class="a4_allo">
-        {TARTALOM}
-        <div class="footer">
-            <div class="dtc padd">
-            </div>
-            <div class="dtc r padd" style="font-size: 7px">
-                '.$_SESSION[get_db_tabla().'user'].'
-                '.date('Y.m.d H:i:s').'
-            </div>
-        </div>
-    </div>
-<body>
-        ';
+    if (isset($_GET['szall'])) {
+        return '
+                <head>
+                    <title>'.$title.'</title>
+                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                    <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
+                    <link href="../css/admin.css" rel="stylesheet" type="text/css">
+                    <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
+                    <script src="../js/jquery.js"></script>
+                    <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
+                </head>
+                <body>
+                    <div class="a4_allo">
+                        {TARTALOM}
+                        <div class="footer">
+                            <div class="dtc padd">
+                            </div>
+
+                        </div>
+                    </div>
+                <body>
+                    ';
+    }else {
+        return '
+                <head>
+                    <title>'.$title.'</title>
+                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                    <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
+                    <link href="../css/admin.css" rel="stylesheet" type="text/css">
+                    <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
+                    <script src="../js/jquery.js"></script>
+                    <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
+                </head>
+                <body>
+                    <div class="a4_allo">
+                        {TARTALOM}
+                        <div class="footer">
+                            <div class="dtc padd">
+                            </div>
+                            <div class="dtc r padd" style="font-size: 7px">
+                                '.$_SESSION[get_db_tabla().'user'].'
+                                '.date('Y.m.d H:i:s').'
+                            </div>
+                        </div>
+                    </div>
+                <body>
+            ';
+    }
+
+
 }
 ?>
