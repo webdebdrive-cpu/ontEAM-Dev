@@ -104,7 +104,7 @@ if (isset($_GET['szall'])) {
 // echo nl2($html);
 
     // error_reporting(0); //Így tudod kikapcsolni a warningokat és hibaüzeneteket
-    include('../html2pdf/mpdf.php');
+    include('../mpdf/mpdf.php');
 
     $mit = array('<script src="../js/jquery.js"></script>', '<link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">');
     $html = str_replace($mit, '', $html);
