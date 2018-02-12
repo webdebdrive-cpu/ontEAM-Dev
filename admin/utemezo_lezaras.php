@@ -11,7 +11,7 @@ echo 'b'. $bejelentes['recid'] . '<br>';
     }
 }
 
-$munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_IGAZOLASRA_VAR."'");
+$munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id` IN ('".MUNKALAP_STAT_IGAZOLASRA_VAR."', '".MUNKALAP_STAT_LEZARASRA_VAR."')");
 foreach($munkalapok as $munkalap){
     $statusz = $adatbazis_kapcsolat->s2('insert_dt', 'munkalap_statusz', "`munkalap_recid`='{$munkalap['recid']}'", 'recid desc', '1');
     if($statusz['insert_dt']<date('Y-m-d H:i:s', time()-60*60*48)){

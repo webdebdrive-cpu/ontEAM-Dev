@@ -9,14 +9,12 @@ bejelentesek_archival( $bejelentesek );
 
 // Ha Lezárt státuszban van, megnézzük munkalapjait, ha minden munkalapja Lezárt státuszban van, akkor archiváljuk bejelentést, munkalapokat, mindkettő gyerektábláit bejelentésenként egy tranzakcióban.
 $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_LEZART."'");
-$bejelentesek = adatbazis2tomb($bejelentesek, 'recid');
-if($bejelentesek){
-    $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id` IN (".implode(', ', $bejelentesek).")");
+foreach($bejelentesek as $bejelentes){
+    $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bejelentes['recid']}'");
     $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
     if($munkalapok){
-        $adatbazis_kapcsolat->s('recid', 'munkalap', "`recid` IN (".implode(', ', $munkalapok).") AND `stat_id`!='".MUNKALAP_STAT_LEZART."'");
         if( count($adatbazis_kapcsolat->s('recid', 'munkalap', "`recid` IN (".implode(', ', $munkalapok).") AND `stat_id`!='".MUNKALAP_STAT_LEZART."'"))==0 ){
-            bejelentesek_archival( $bejelentesek, 'munkalapokat is' );
+            bejelentesek_archival( $bejelentes['recid'], 'munkalapokat is' );
         }
     }
 }
@@ -24,6 +22,7 @@ if($bejelentesek){
 // Ha munkalapnak nincs bejelentése és Lezárt státuszban van, archiválunk
 $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_LEZART."'");
 foreach($munkalapok as $munkalap){
+$adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'");
     if( count($adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'"))==0 ) {
         munkalapok_archival($munkalap['recid']);
     }
@@ -78,6 +77,7 @@ function bejelentesek_archival($idk, $munkalap_is) {
         array_push($ertekek, $telephely_txt,  $csoport_txt,  $hiba_txt,  $obj_txt,  $gep_txt,  $stat_txt,  $usr_beosztas_txt,  $usr_reszleg_txt,  $usr_man_beosztas_txt,  $usr_man_reszleg_txt);
         
         $sql = $adatbazis_kapcsolat->i('bejelentes_arch', $mezok, $ertekek);
+echo $adatbazis_kapcsolat->gp() . '<br>';
         if( $sql === false ) { $db_error = true; }
         
         // Dokumentumok
@@ -130,7 +130,7 @@ function bejelentesek_archival($idk, $munkalap_is) {
                 $db_error = true;
             }
         }
-        
+
         // Tranzakció kommitolása, vagy rollback-ezése
         if( !$db_error ) {
             mysqli_commit($db_kapcs);

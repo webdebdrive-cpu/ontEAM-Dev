@@ -26,18 +26,19 @@ if (isset($_GET['login_ertesit'])) {
     if($heliasok){
         $loginok = $adatbazis_kapcsolat->s('teljes_nev nev usermail', 'login', "`aktiv`>0 AND `virtual`<1 AND `usermail`!='' AND LENGTH(`nev`)>=8 AND `szemelyzet_id`='".HIBABEJELENTO."' AND `nev` IN ('".implode('\', \'', $heliasok)."')");
         foreach( $loginok as $login ){
-echo $login['nev'] . '<br>';
 $uzi = '
-[Teszt]
-<br>
-<br>Tisztelt '.$login['teljes_nev'].'!
+Tisztelt '.$login['teljes_nev'].'!
 <br>
 <br>Az ontEAM rendszer 2018.02.13 kedd reggel 7:00 időpontban indul a Hélia szállodában.
 <br>
 <br>Kérjük, hogy ettől az időponttól hibabejelentéseiket az ontEAM rendszerben tegyék meg.
 <br>
-<br>'. fajlbol_olvas('../sablon/admin/mail/alairas.html');
-            level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], '[Teszt] ontEAM rendszer indítása Hélia szállodában', $uzi);
+<br>Loginneve az új rendszerben: '.$login['nev'].'
+<br>
+<br>Telefonos segítség: Handari Tamás 70-210-1312
+'. fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
+            //var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása Hélia szállodában', $uzi) );
         }
     }
     exit;

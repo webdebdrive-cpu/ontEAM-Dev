@@ -524,7 +524,7 @@ if( isset($_POST['arazas']) ) {
                                 <input class="check" name="pop_dbf" id="pop_dbf" type="checkbox"'.$dbf_checked.' onclick="if( $(this).prop(\'checked\') ){ $(\'#pop_erkcimid\').val(\'\'); $(\'#pop_erkcimid\').attr(\'readonly\', 1); }else{ $(\'#pop_erkcimid\').removeAttr(\'readonly\'); }">
                                 <label for="pop_dbf"></label>
                             </div>
-                            Danubius fuvar
+                            MSzK fuvar
                         </td>
                     </tr>
                     <tr>

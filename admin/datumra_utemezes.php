@@ -14,6 +14,9 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
     if($cciklaltip==0){
         $cciklaltip = '';
     }
+    if($ccikltip=='w'){
+        $cciklaltip = '';
+    }
     /* Hasonlóan a $dlast értéke ha csupa 0, akkor cseréljük le üres stringre
      */
     if($dlast=='0000.00.00'){
@@ -27,11 +30,12 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
 		$dlast = $dnext;
 		$dnext = null;
 		$dlast = getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $cciklho, $cciklhet, $cciklnap);
+
 		if($dlast<0){
             $dlast = '000.00.00';
         }
-        $dnext = validnextdate($dlast, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d);
 
+        $dnext = validnextdate($dlast, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d);
 		$lstart = true; //ha elsőnek kiszámolt esedékesség érvénytelen, újrakezdjük esedékesség számítását mai naptól
 		if ($i == 100) //ha végtelen ciklusba keveredne
 		{
@@ -177,7 +181,6 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 			. ',"' . $cciklnap . '"'
 			. ',"' . (empty($dlast) ? date(DATEFORMAT, time()) : $dlast) . '");';
 		eval('$returnvalue = '.$command);
-		
 		return $returnvalue;
 	}
 	
@@ -443,6 +446,9 @@ function getcimke_aktidoszak ( $nidoszakos, $daktkezd_d, $daktvege_d)
 
 function getcimke ( $ccikltip, $cciklaltip, $nciklszorz, $cciklho, $cciklhet, $cciklnap, $desnap_d)
 {
+    if($ccikltip=='w'){
+        $cciklaltip = '';
+    }
 	$command = 'getcimke_' . trim($ccikltip) . trim($cciklaltip) . '('
 	. '"' . $nciklszorz . '"'
 	. ',"' . $cciklho . '"'
