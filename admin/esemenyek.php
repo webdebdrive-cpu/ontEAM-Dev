@@ -1695,12 +1695,12 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 if (isset($_GET['anyagrend'])) {
     $anyagigenyles_tomb = $akt_tomb = array(
         array('type' => 'statusz',                  'megn' => 'Státusz:',                       'name' => 'stat_id',        'szuro' => 1,   'oldal' => $megnevezes),
-        array('type' => 'text',                     'megn' => 'Rendelés szám:',                 'name' => 'rndid',          'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 6.6rem'),
-        array('type' => 'text',                     'megn' => 'Rendelés dátum:',                'name' => 'rnd_dt',         'szuro' => 1,   'disabled' => 1,   'style' => 'width: 7.4rem'),
+        array('type' => 'text',                     'megn' => 'Rendelés szám:',                 'name' => 'rndid',          'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 6.8rem'),
+        array('type' => 'text',                     'megn' => 'Rendelés dátum:',                'name' => 'rnd_dt',         'szuro' => 1,   'disabled' => 1,   'style' => 'width: 7.8rem'),
         array('type' => 'text',                     'megn' => 'Rendelés érték:',                'name' => 'rndertek',       'szuro' => 1,   'disabled' => 1,   'style' => 'width: 7.3rem; text-align: right', 'osszevon' => 1, 'post' => ' '.get_penznem().'<span style="margin-left: 4.5rem"></span>'),
         array('type' => 'checkbox',                 'megn' => 'Készpénzes:',                    'name' => 'keszpenz',       'szuro' => 1,   'disabled' => 1),
         array('type' => 'autocomplete',             'megn' => 'Szállító:',                      'name' => 'szallito_id',    'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'id_kiir' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
-        array('type' => 'text',                     'megn' => 'Képfájl:',                       'name' => 'kepfajl',        'szuro' => 0,   'disabled' => 1,   'style' => 'width: 17rem;'),
+        array('type' => 'text',                     'megn' => 'Képfájl:',                       'name' => 'kepfajl',        'szuro' => 0,   'disabled' => 1,   'style' => 'width: 18rem;'),
     );
 }
 
@@ -2185,14 +2185,14 @@ if( isset($_GET['getBejBejelentok']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sql = $telep_kapcsok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id` = '{$telephely_id}'");
-    if( $sql === false ) { $db_error = true; }
+    $telep_kapcsok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id` = '{$telephely_id}'");
+    if( $telep_kapcsok === false ) { $db_error = true; }
 
     if( $telep_kapcsok ) {
         $telep_kapcsok = adatbazis2tomb($telep_kapcsok, 'nev');
 
         // Felhasználók lekérdezése
-        $sql = $loginok = $adatbazis_kapcsolat->s('nev teljes_nev reszleg_id beosztas_id szemelyzet_id', 'login', "`nev` IN ('".implode('\' , \'', $telep_kapcsok)."') AND `aktiv` > '0'");
+        $sql = $loginok = $adatbazis_kapcsolat->s('nev teljes_nev reszleg_id beosztas_id szemelyzet_id', 'login', "`nev` IN ('".implode('\' , \'', $telep_kapcsok)."') AND `aktiv` > '0' AND `szemelyzet_id`!=0");
         if( $sql === false ) { $db_error = true; }
 
         if( $loginok ) {

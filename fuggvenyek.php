@@ -5912,7 +5912,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
         // Elfelejtett jelszó küldése
         case 'elfelejtettJelszoKuld':
             
-            $domain     = get_http().get_domain();
+            $domain     = get_http().$_SERVER['HTTP_HOST'];
             $domain     = '<a href="'.$domain.'" target="_blank">'.$domain.'</a>';
             $mit        = array('{DOMAIN}'  );
             $mivel      = array($domain     );

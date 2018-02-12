@@ -38,7 +38,7 @@ Tisztelt '.$login['teljes_nev'].'!
 <br>Telefonos segítség: Handari Tamás 70-210-1312
 '. fajlbol_olvas('../sablon/admin/mail/alairas.html');
 
-            //var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása Hélia szállodában', $uzi) );
+            var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása Hélia szállodában', $uzi) );
         }
     }
     exit;

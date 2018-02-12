@@ -21,12 +21,9 @@ require_once 'konstansok.php';
 //Adatbázis
 date_default_timezone_set('Europe/Budapest');
 
-function get_db_tabla()   {                                     //Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
-    switch($_SERVER['HTTP_HOST']){
-        case 'teszt.onteam.hu'  : return 'onteam_teszt_';
-        default                 : return 'onteam_';
-    }
-}
+ // Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
+function get_db_tabla()   {     return 'onteam_';      }
+
 
 function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ? 'localhost'    : 'localhost'       );  } //Host
 function get_db()         {
@@ -36,7 +33,7 @@ function get_db()         {
         case 'demo.szinvatrend.hu'  : return 'szinvatrendhu1';
         case 'www.onteam.hu'        : return 'onteam_live';
         case 'onteam.hu'            : return 'onteam_live';
-        case 'teszt.onteam.hu'	    : return 'onteam_live';
+        case 'teszt.onteam.hu'	    : return 'onteam_teszt';
     }
 }
 function get_db_user() {
@@ -46,7 +43,7 @@ function get_db_user() {
         case 'demo.szinvatrend.hu'  : return 'szinvatrendhu';
         case 'www.onteam.hu'        : return 'onteam_live';
         case 'onteam.hu'            : return 'onteam_live';
-        case 'teszt.onteam.hu'      : return 'onteam_live' ;
+        case 'teszt.onteam.hu'      : return 'onteam_teszt' ;
     }
 }
 function get_db_pass() {
@@ -56,7 +53,7 @@ function get_db_pass() {
         case 'demo.szinvatrend.hu'  : return 'vikike';
         case 'www.onteam.hu'        : return 'HMERDQgx0JHp124U';
         case 'onteam.hu'            : return 'HMERDQgx0JHp124U';
-        case 'teszt.onteam.hu'	    : return 'HMERDQgx0JHp124U';
+        case 'teszt.onteam.hu'	    : return 'iChtTeSbI4GXIlXg';
     }
 }
 

@@ -353,12 +353,9 @@
             });
 
             $(this).keydown(function(e) {
-                var aktiv  = $('#autocomplete ul li.aktiv');
+                var aktiv   = $('#autocomplete ul li.aktiv');
                 var first   = $('#autocomplete ul li:first-child');
-                var last    = $('#autocomplete ul li:last-child');
-
-
-                if(e.keyCode==40) {
+                if( e.keyCode==KEY_DOWN ) {
                     if(!$('#autocomplete ul li').hasClass('aktiv')) {
                         first.addClass('aktiv');
 
@@ -375,6 +372,12 @@
                     var scrollHeight = $('#autocomplete').prop('scrollHeight');
                     $('#autocomplete').scrollTop($('#autocomplete').scrollTop() + $('#autocomplete ul li.aktiv').position().top - 20);
                 }
+            });
+            $(this).keyup(function(e) {
+                var aktiv   = $('#autocomplete ul li.aktiv');
+                var first   = $('#autocomplete ul li:first-child');
+                var last    = $('#autocomplete ul li:last-child');
+
                 if(e.keyCode==38) {
                     if(!$('#autocomplete ul li').hasClass('aktiv')) {
                         last.addClass('aktiv');
@@ -442,7 +445,6 @@
                                         tag  = $(this).prop('tagName');
 
                                     /* Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is */
-                                    /* Ezt azért vettük ki, mert pl. anyagigénylés popup-ban autocopletet elemet leenterezve (kiválasztva egy értéket) kétszer urgott a következő inputba, mintha két entert nomtunk volna
                                     if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
 
                                         if( type == 'checkbox' || tag == 'SELECT' ) {
@@ -454,7 +456,7 @@
                                         }
 
                                         return false;
-                                    }*/
+                                    }
 
                                     if( name == mezo_nev ) {
                                         stop = true;

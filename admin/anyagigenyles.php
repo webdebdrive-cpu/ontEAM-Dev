@@ -1584,11 +1584,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
         }
 
         // Ciklus után minden esetben átírjuk cikkrndfej tábla statidet mysql procedúrával: call setcikkrndfejstatid(aparecid,loginuser.nev);
-        $procedura_nev = 'setcikkrndfejstatid';
-        if( get_db_tabla()=='onteam_teszt_' ){
-            $procedura_nev = 'teszt_setcikkrndfejstatid';
-        }
-        $sql = mysqli_query($db_kapcs, 'call '.$procedura_nev.'('.$anyagigenyles['aparecid'].', \''.$_SESSION[get_db_tabla().'teljes_nev'].'\')');
+        $sql = mysqli_query($db_kapcs, 'call setcikkrndfejstatid('.$anyagigenyles['aparecid'].', \''.$_SESSION[get_db_tabla().'teljes_nev'].'\')');
         if( $sql === false ) { $db_error = true; }
 
         //Archiválás egy lépésben törétnik, ha minden anyagigénylés sor státusza > 35
