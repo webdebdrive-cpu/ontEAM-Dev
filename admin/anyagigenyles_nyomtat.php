@@ -120,7 +120,12 @@ if ($_GET['teszt_nyomtat']) {
 
     $mpdf ->nbpgPrefix = '/ ';
     $header = get_fejlec_top($sorszam, 'lapszámmal');
+    $footer = '<div class="dtc r padd" style="font-size: 7px">
+        '.$_SESSION[get_db_tabla().'user'].'
+        '.date('Y.m.d H:i:s').'
+    </div>';
     $mpdf ->SetHTMLHeader( $header, '', true);
+    $mpdf ->SetHTMLFooter( $footer, '', true);
 
     $mpdf -> WriteHTML( $html );
     // Így tudod egy PDF fájlba elmenteni a generált tartalmat
@@ -436,7 +441,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                     $szall_cim .= $fix_cim;
                 break;
                 case 3:
-                    $szall_cim .= 'Danubius fuvar';
+                    $szall_cim .= 'MSzK fuvar';
                 break;
             }
             $szallcim_html .= '
@@ -519,30 +524,55 @@ function get_alairasok(){
 }
 
 function get_keret($title){
+    if (isset($_GET['szall'])) {
+        return '
+                <head>
+                    <title>'.$title.'</title>
+                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                    <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
+                    <link href="../css/admin.css" rel="stylesheet" type="text/css">
+                    <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
+                    <script src="../js/jquery.js"></script>
+                    <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
+                </head>
+                <body>
+                    <div class="a4_allo">
+                        {TARTALOM}
+                        <div class="footer">
+                            <div class="dtc padd">
+                            </div>
 
-    return '
-<head>
-    <title>'.$title.'</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
-    <link href="../css/admin.css" rel="stylesheet" type="text/css">
-    <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
-    <script src="../js/jquery.js"></script>
-    <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
-</head>
-<body>
-    <div class="a4_allo">
-        {TARTALOM}
-        <div class="footer">
-            <div class="dtc padd">
-            </div>
-            <div class="dtc r padd" style="font-size: 7px">
-                '.$_SESSION[get_db_tabla().'user'].'
-                '.date('Y.m.d H:i:s').'
-            </div>
-        </div>
-    </div>
-<body>
-        ';
+                        </div>
+                    </div>
+                <body>
+                    ';
+    }else {
+        return '
+                <head>
+                    <title>'.$title.'</title>
+                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                    <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
+                    <link href="../css/admin.css" rel="stylesheet" type="text/css">
+                    <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
+                    <script src="../js/jquery.js"></script>
+                    <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
+                </head>
+                <body>
+                    <div class="a4_allo">
+                        {TARTALOM}
+                        <div class="footer">
+                            <div class="dtc padd">
+                            </div>
+                            <div class="dtc r padd" style="font-size: 7px">
+                                '.$_SESSION[get_db_tabla().'user'].'
+                                '.date('Y.m.d H:i:s').'
+                            </div>
+                        </div>
+                    </div>
+                <body>
+            ';
+    }
+
+
 }
 ?>
