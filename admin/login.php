@@ -469,21 +469,35 @@ require_once('selectek.php');
         if (isset($_GET['foglalt_nev'])) {
             $navi = '<span class="piros">Ez a loginnév már foglalt!</span>';
         }
+        
 
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
-
+        
 	    // HIBAüZENETEK
 	    require_once('info.php');
 
 	    // FORM
-		if(isset($_GET['ujkent'])){
-			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
+		if($_GET['ujkent']) {
+            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
+            if( $sor ) {
+
+                foreach($akt_tomb as $ertek) {
+                    if( $ertek['name'] != 'szallito_id' && $ertek['name'] != 'van_jelszo' ) {
+                        $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
+                    }else{
+                        $_SESSION[$ertek['name']] = '';
+                    }
+    			}
+            }
+
+            foreach($akt_tomb as $ertek) {
+				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
 		}
+
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
         // Ckeditort csak akkor húzzuk be, ha kell
@@ -578,6 +592,14 @@ require_once('selectek.php');
             $json_sor[$kulcs] = str_replace(array("\r\n", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
         }
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
+        
+        // Duplikáláskor feltett kérdés
+        $szamla_html .= nl2('
+            <script>
+                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                duplikaKerdes = \'Név: '.$sor['teljes_nev'].'<br>Biztos, hogy duplikálja?\';
+            </script>
+        ');
 
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;

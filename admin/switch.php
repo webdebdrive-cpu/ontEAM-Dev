@@ -1229,7 +1229,7 @@ foreach($akt_tomb as $ertek){
             }
 
             // Új feltöltésnél biztosan ne legyen hozzárendelt személy
-            if (isset($_GET['uj'])) {
+            if (isset($_GET['uj']) && !isset($_GET['ujkent'])) {
                 $sor['szemelyzet_id'] = 0;
             }
             $input = new Select($select_szemelyzet, $sor['szemelyzet_id']);

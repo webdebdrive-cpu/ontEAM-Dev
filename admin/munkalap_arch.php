@@ -266,24 +266,7 @@ require('selectek.php');
         $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
         $telephely = $telephely[0]['nev'];
 
-        $munkalap_kapcs = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id` = '".$sor['recid']."'", '', '');
-
-        // Duplákáláskor feltett kérdés
-        if(!_jog(JOG_MUNKALAP_KESZITHET)){
-            $szamla_html .= nl2('
-                <script>
-                    duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Ok\" onclick=\"alert2()\"></p>";
-                    duplikaKerdes = \'Önnek nincs joga új munkalapot létrehozni!\';
-                </script>
-            ');
-        }else{
-            $szamla_html .= nl2('
-                <script>
-                    duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                    duplikaKerdes = \'Iktatószám: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Ez a munkalap '.count($munkalap_kapcs).' db bejelentésből készült. <br>Ezek a bejelentések az új munkalaphoz is hozzá lesznek rendelve. <br>Biztos, hogy duplikálja?\';
-                </script>
-            ');
-        }
+        $munkalap_kapcs = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id` = '".$sor['recid']."'");
 
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;

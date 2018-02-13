@@ -5415,7 +5415,7 @@ require('selectek.php');
 
         $munkalap_kapcs = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id` = '".$sor['recid']."'", '', '');
 
-        // Duplákáláskor feltett kérdés
+        // Duplikáláskor feltett kérdés
         if(!_jog(JOG_MUNKALAP_KESZITHET)){
             $szamla_html .= nl2('
                 <script>
