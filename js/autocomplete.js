@@ -37,14 +37,20 @@
                 arazas_beallit  : '',
                 szemelyzet_id   : '',                   /* Munkaidő ráfodítás név hozzáadásánál kell */
                 csoport         : 0,
-                szuros          : ''                    /* Ha a szűrőben hívtuk meg, akkor azt ezen keresztül tudjuk jelezni */
-            };
+                szuros          : '',                   /* Ha a szűrőben hívtuk meg, akkor azt ezen keresztül tudjuk jelezni */
+                };
 
             var van_uj_erteke = false;
             var options = $.extend(defaults, options);
 
             $(this).attr('data-origin-val', $(this).val());
             $(this).addClass('autocomp'); /* Ettől lesz nyíl ikon az input végén, látszik, hogy egy autocompletes input. */
+            
+            /* Szállítóknál legyen placeholder, illetve itt 3 karakter kell a listázáshoz */
+            if( defaults.tabla=='szallito' && defaults.oszlop_keres=='nev' ){
+                $(this).attr('placeholder', '3 betűt üssön le listához');
+                defaults.karaktertol = 3;
+            }
 
             $(this).keyup(function(e) {
 

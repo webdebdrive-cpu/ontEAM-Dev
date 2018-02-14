@@ -994,7 +994,7 @@ require_once('selectek.php');
         $szamla_html .= nl2('
             <div class="dt naplo kijCont" data-tabla="munkalap_kapcs" data-mellek="munkalapok">
                 <div class="dtr nFejlec">
-                    <div class="dtc">Bejelentés szám</div>
+                    <div class="dtc">Munkalap szám</div>
                     <div class="dtc">Szálloda</div>
                     <div class="dtc">Létrehozva</div>
                     <div class="dtc">Státusz</div>

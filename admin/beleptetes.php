@@ -62,6 +62,12 @@ if(isset($_POST['jelszo_csere'])) {
                         $_SESSION[get_db_tabla().'ertesites']       = str_split($felhasznalo['flags_ert']);
                         $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
 
+                        $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].')  jelszót választott';
+                        $adatbazis_kapcsolat -> i('log',
+                                                    array( 'felh_id',                               'nev',      'ip'                    ),
+                                                    array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $_SERVER['REMOTE_ADDR'] )
+                                                );
+                        
                         // Nincs jelszó változók törlése
                         $_SESSION['nincs_jelsz_felhid'] = false;
                         $_SESSION['nincs_jelsz']        = false;
@@ -91,21 +97,49 @@ if(isset($_POST['jelszo_csere'])) {
                     }
                     
                 } else {
+                    
+                    $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].')  eltérő jelszavakat adott meg. Elutasítva.';
+                    $adatbazis_kapcsolat -> i('log',
+                                                array( 'felh_id',                               'nev',      'ip'                    ),
+                                                array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $_SERVER['REMOTE_ADDR'] )
+                                            );
+                    
                     header('Location: index.php?jelszonemazonos');
                     exit();
                 }
                 
             } else {
+                
+                $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].')  gyenge jelszót választott. Elutasítva.';
+                $adatbazis_kapcsolat -> i('log',
+                                            array( 'felh_id',                               'nev',      'ip'                    ),
+                                            array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $_SERVER['REMOTE_ADDR'] )
+                                        );
+                
                 header('Location: index.php?betuszam');
                 exit();
             }
             
         } else {
+            
+            $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].')  túl rövid/hosszú jelszót választott. Elutasítva.';
+            $adatbazis_kapcsolat -> i('log',
+                                        array( 'felh_id',                               'nev',      'ip'                    ),
+                                        array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $_SERVER['REMOTE_ADDR'] )
+                                    );
+            
             header('Location: index.php?jelszohossz');
             exit();
         }
         
     } else {
+        
+        $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].')  üres jelszót választott. Elutasítva.';
+        $adatbazis_kapcsolat -> i('log',
+                                    array( 'felh_id',                               'nev',      'ip'                    ),
+                                    array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $_SERVER['REMOTE_ADDR'] )
+                                );
+        
         header('Location: index.php?jelszoures');
         exit();
     }
@@ -113,6 +147,13 @@ if(isset($_POST['jelszo_csere'])) {
 
 // Jelszó csere mégsem
 if(isset($_POST['megsem'])) {
+    
+    $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') mégsem választott jelszót';
+    $adatbazis_kapcsolat -> i('log',
+                                array( 'felh_id',                               'nev',      'ip'                    ),
+                                array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $_SERVER['REMOTE_ADDR'] )
+                            );
+    
     $_SESSION['nincs_jelsz_felhid'] = false;
     $_SESSION['nincs_jelsz']        = false;
 
@@ -132,7 +173,6 @@ if(isset($_POST['login'])) {
         }
 
         $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'");
-
         if( $felhasznalo ) {
 
             if( $felhasznalo['van_jelszo'] ) {
@@ -151,7 +191,13 @@ if(isset($_POST['login'])) {
 //                        $_SESSION['kert_url'] = get_domain().'/'.get_admin();
 //                    }
 
+                    // Logolások
+                    $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') bejelentkezett';
                     $adatbazis_kapcsolat -> u('login', array('login_dt'), array(date('Y-m-d H:i:s')), '`recid` = \''.$felhasznalo['recid'].'\'');
+                    $adatbazis_kapcsolat -> i('log',
+                                                array( 'felh_id',                               'nev',      'ip'                    ),
+                                                array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $_SERVER['REMOTE_ADDR'] )
+                                            );
 
                     // Vizsgáljuk, hogy csak bejelentés joga van-e. Ha igen, akkor bejelentések menüopntra visszük egyből
                     $i = 0;
@@ -245,7 +291,13 @@ if(isset($_POST['login'])) {
 
 // Kiléptetés
 if(isset($_GET['kilep'])){
+    
     $adatbazis_kapcsolat -> u('login', array('logout_dt'), array(date('Y-m-d H:i:s')), '`recid` = \''.$_SESSION[get_db_tabla().'login_recid'].'\'');
+    $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') kilépett.';
+    $adatbazis_kapcsolat -> i('log',
+                                array( 'felh_id',                               'nev',      'ip'                    ),
+                                array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $_SERVER['REMOTE_ADDR'] )
+                            );
 
     unset($_SESSION[get_db_tabla().'user']);
     unset($_SESSION[get_db_tabla().'login_recid']);

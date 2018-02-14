@@ -50,7 +50,14 @@
                 elfelejtett_jelszo  : Date.now()
             },
             success: function(response){
-                alert2('Kérése feldolgozás alatt, értesítést fog kapni új jelszaváról!', '', 'Információ');
+                if(response){
+                    response = JSON.parse(response);
+                }
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, 'Hiba');
+                }else{
+                    alert2('Kérése feldolgozás alatt, értesítést fog kapni új jelszaváról!', '', 'Információ');
+                }
             }
         });
 

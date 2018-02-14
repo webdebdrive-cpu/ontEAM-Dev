@@ -29,9 +29,9 @@ if (isset($_GET['login_ertesit'])) {
 $uzi = '
 Tisztelt '.$login['teljes_nev'].'!
 <br>
-<br>Az ontEAM rendszer 2018.02.13 kedd reggel 7:00 időpontban indul a Hélia szállodában.
+<br>Az '.get_nev().' rendszer 2018.02.13 kedd reggel 7:00 időpontban indul a Hélia szállodában.
 <br>
-<br>Kérjük, hogy ettől az időponttól hibabejelentéseiket az ontEAM rendszerben tegyék meg.
+<br>Kérjük, hogy ettől az időponttól hibabejelentéseiket az '.get_nev().' rendszerben tegyék meg.
 <br>
 <br>Loginneve az új rendszerben: '.$login['nev'].'
 <br>

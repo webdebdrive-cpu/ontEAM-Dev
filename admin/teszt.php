@@ -29,7 +29,7 @@ $header = '
                             <table class="full">
                                 <tr>
                                     <td style="padding: 4px 4px 0 0"> <img src="../elemek/dh_logo.png" alt="Logo" width="50"> </td>
-                                    <td style="font-size: 11px"> Danubius Zrt. <br>Műszaki Szolgáltató Központ <br>ontEAM </td>
+                                    <td style="font-size: 11px"> Danubius Zrt. <br>Műszaki Szolgáltató Központ <br>'.get_nev().' </td>
                                 </tr>
                             </table>
                         </td>

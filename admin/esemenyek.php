@@ -2124,7 +2124,12 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 if (isset($_POST['elfelejtett_jelszo'])) {
     
     $login = $adatbazis_kapcsolat->s2('recid', 'login', "`nev`='{$_POST['nev']}'");
-    level_felkeszit_es_kuld('login', $login['recid'], ERT_ELFELEJTETT_JELSZO, 'elfelejtettJelszo', 'elfelejtettJelszo');
+    $hiba  = level_felkeszit_es_kuld('login', $login['recid'], ERT_ELFELEJTETT_JELSZO, 'elfelejtettJelszo', 'elfelejtettJelszo');
+    if($hiba){
+        echo json_encode(array(
+            'hiba' => $hiba
+        ));
+    }
     
     $weblap->leallit();
     exit();
@@ -3058,8 +3063,8 @@ if( isset($_POST['mellekTorol']) ) {
 
                         // Logoljuk
                         $sql = $adatbazis_kapcsolat -> i('log',
-                            array('felh_id',                                'nev', 'valtozas'),
-                            array($_SESSION[get_db_tabla().'login_recid'],  $mit,  $valtozas )
+                            array('felh_id',                                'nev', 'valtozas', 'ip'                     ),
+                            array($_SESSION[get_db_tabla().'login_recid'],  $mit,  $valtozas,  $_SERVER['REMOTE_ADDR']  )
                         );
                         if( $sql === false ) { $db_error = true; }
                     }
@@ -4063,8 +4068,8 @@ foreach($postok as $ertek){
 
             $sql = $adatbazis_kapcsolat -> i(
                 'log',
-                array( 'felh_id',                               'nev',       'valtozas'),
-                array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $valtozas )
+                array( 'felh_id',                               'nev',       'valtozas', 'ip'                   ),
+                array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $valtozas,  $_SERVER['REMOTE_ADDR'])
             );
             if( $sql === false ) { $db_error = true; }
 

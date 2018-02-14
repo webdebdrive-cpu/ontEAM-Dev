@@ -232,7 +232,7 @@ input.gomb.border{
     min-height: 5rem;
     padding: 1.5rem 1rem 1.3rem 1rem;
     position: fixed;
-    bottom: 0rem;
+    bottom: -1rem;
     right: 0rem;
     text-align: center;
     width: 100%;

@@ -32,8 +32,8 @@ if( isset($_GET['szerkeszt']) && $_GET['id'] ) {
 
         $adatbazis_kapcsolat -> i(
             'log',
-            array( 'felh_id',                               'nev',       'valtozas'),
-            array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $valtozas )
+            array( 'felh_id',                               'nev',       'valtozas', 'ip'                   ),
+            array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $valtozas,  $_SERVER['REMOTE_ADDR'])
         );
     }
 }

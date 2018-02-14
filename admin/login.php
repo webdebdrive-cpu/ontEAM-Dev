@@ -485,7 +485,7 @@ require_once('selectek.php');
             if( $sor ) {
 
                 foreach($akt_tomb as $ertek) {
-                    if( $ertek['name'] != 'szallito_id' && $ertek['name'] != 'van_jelszo' ) {
+                    if( $ertek['name'] != 'nev' && $ertek['name'] != 'van_jelszo' ) {
                         $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
                     }else{
                         $_SESSION[$ertek['name']] = '';
@@ -591,13 +591,16 @@ require_once('selectek.php');
         foreach($sor as $kulcs => $elem){
             $json_sor[$kulcs] = str_replace(array("\r\n", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
         }
-        $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
+        $szamla_html .= '<script>formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
+        
+        // Még egy technikai JS az e-mail cím ellenőrzéséhez
+        $szamla_html .= '<script>var nincs_mailcim_mehet = false;</script>';
         
         // Duplikáláskor feltett kérdés
         $szamla_html .= nl2('
             <script>
                 duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
-                duplikaKerdes = \'Név: '.$sor['teljes_nev'].'<br>Biztos, hogy duplikálja?\';
+                duplikaKerdes = \'Név: '.$sor['teljes_nev'].'<br>Szerepkör: '.getErtek('nev', 'szerepkor', 'recid', $sor['szemelyzet_id']).'<br><br>Biztos, hogy duplikálja?\';
             </script>
         ');
 
@@ -609,21 +612,16 @@ require_once('selectek.php');
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel  = array( $navi,             '',         $gyk2 );
-        //echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
+        // echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
         require_once('info.php');
 
-	    //FORM
+	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
-		//Form actionja
+		// Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
-
-        //Ckeditort csak akkor húzzuk be, ha kell
-        if(is_file($ckeditor_js)){
-            $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
-        }
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');

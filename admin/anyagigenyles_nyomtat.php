@@ -334,7 +334,7 @@ function get_fejlec_top($sorszam, $lapszammal){
                         <td style="font-size: 11px">
                             Danubius Zrt.
                             <br>Műszaki Szolgáltató Központ
-                            <br>ontEAM
+                            <br>'.get_nev().'
                         </td>
                     </tr>
                     </table>

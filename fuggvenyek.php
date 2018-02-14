@@ -792,8 +792,8 @@ function i_u($type, $tabla, $tomb) {
 
         $sql = $adatbazis_kapcsolat -> i(
                                             'log',
-                                            array( 'felh_id',                               'nev',       'valtozas'),
-                                            array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $valtozas )
+                                            array( 'felh_id',                               'nev',       'valtozas', 'ip'                   ),
+                                            array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $valtozas,  $_SERVER['REMOTE_ADDR'])
                                         );
         if( $sql === false ) { $db_error = true; }
 
@@ -864,8 +864,8 @@ function i_u($type, $tabla, $tomb) {
 
             $sql = $adatbazis_kapcsolat -> i(
                 'log',
-                array( 'felh_id',                               'nev',       'valtozas'),
-                array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,   $valtozas )
+                array( 'felh_id',                               'nev',       'valtozas', 'ip'                   ),
+                array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $valtozas,  $_SERVER['REMOTE_ADDR'])
             );
             if( $sql === false ) { $db_error = true; }
         }
@@ -1412,8 +1412,18 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
     // Új felhasználó feltöltésekor a szállodát is ki kell választani
     if( basename(self())=='login.php' && isset($_GET['uj']) ){
         $ret .= nl2('
-            if(!$(\'#szallodak_hidden\').val() || $(\'#szallodak_hidden\').val()==\'{}\'){
+            if( !$(\'#szallodak_hidden\').val() || $(\'#szallodak_hidden\').val()==\'{}\' ){
                 alert2(\'Mentés előtt válasszon szállodát!\', \'<input type="button" class="gomb" value="Ok" onclick="kapcsolodoSzerkeszt(\\\'szallodak\\\'); alert2();">\', \'Hiba\');
+                return false;
+            }
+        ');
+    }
+
+    // Ha épp most vettük ki a pipát a "Jelszóval rendelkezik" mezőből, akkor ellenőrizzük, hogy van-e egyáltalán mailcím.
+    if( basename(self())=='login.php' && isset($_GET['modosit']) ){
+        $ret .= nl2('
+            if( !nincs_mailcim_mehet && $(\'#van_jelszo\').prop(\'checked\')==false && $(\'#van_jelszo\').hasClass(\'mod\') && !$(\'#usermail\').val() ){
+                alert2( $(\'#teljes_nev\').val()+\' felhasználónak nincs e-mail címe,<br>'.get_nev().' nem tud értesítő emailt küldeni új jelszóról.<br><br>Folytatja?\', \'<input type="button" class="gomb zold" value="Igen" onclick="nincs_mailcim_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2();">\');
                 return false;
             }
         ');
@@ -5896,6 +5906,9 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
         case 'elfelejtettJelszo':
             
             $login      = $adatbazis_kapcsolat->s2('nev teljes_nev beosztas_id reszleg_id usertel usermail', 'login', "`recid`='{$recid}'");
+            if(!$login){
+                return 'Nem ismert felhasználói név!<br>Kérését így nem tudjuk továbbítani!';
+            }
             $beosztas   = erteklista(18, $login['beosztas_id']);
             $reszleg    = erteklista(17, $login['reszleg_id']);
             $mit        = array('{LOGINNEV}',  '{TELJES_NEV}',        '{BEOSZTAS}', '{RESZLEG}',    '{TELEFON}',       '{EMAIL}'          );
@@ -5997,23 +6010,20 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
             $targy   =  get_nev().' hibabejelentés vizsgálatra vár';
             $uzi     =  'A bejelentés vizsgálatra vár.
                         <br>'.
-                        $uzi.
-                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+                        $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
         case 'elfelejtettJelszo':
             $login   = $adatbazis_kapcsolat->s2('teljes_nev', 'login', "`recid`='{$recid}'");
             $esemeny =  'elfelejtett jelszó igénylésekor';
             $targy   =  $login['teljes_nev'].' új jelszót kér '.get_nev().' rendszerhez';
-            $uzi     =  $uzi.
-                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+            $uzi     =  $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
         case 'elfelejtettJelszoKuld':
             $esemeny =  'elfelejtett jelszó kiküldésekor';
             $targy   =  get_nev().' elfelejtett jelszó';
-            $uzi     =  $uzi.
-                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+            $uzi     =  $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
         case 'munkalapKeszre':
@@ -6021,8 +6031,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
             $targy   =  get_nev().' bejelentett hiba javítása elkészült';
             $uzi     =  'Az Ön által bejelentett hiba javítása sikeresen befejeződött.
                         <br>'.
-                        $uzi.
-                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+                        $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
         case 'munkalapKeszreKulso':
@@ -6030,8 +6039,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
             $targy   =  get_nev().' bejelentett hiba javítása igazolásra vár';
             $uzi     =  'A bejelentett hiba javítása befejeződött.
                         <br>'.
-                        $uzi.
-                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+                        $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
         case 'munkalapElutasit':
@@ -6039,19 +6047,20 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
             $targy   =  get_nev().' hibabejelentés lezárásra került';
             $uzi     =  'Az Ön által bejelentett reklamáció elutasításra került.
                         <br>'.
-                        $uzi.
-                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+                        $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
         case 'anyagigenylesJovahagy':
             $esemeny =  'anyagigénylés elküldése jóváhagyásrakor';
             $targy   =  get_nev().' anyagigénylések jóváhagyásra várnak';
             $uzi     =  'Anyagigénylések várnak az Ön jóváhagyására.
-                        <br>'.
-                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
     }
+    
+    // Aláírásban a {GET_NEV} még át kell íni
+    $uzi = str_replace('{GET_NEV}', get_nev(), $uzi);
 
     // Levélküldés
     $megj = '';
@@ -6112,6 +6121,11 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
             $megj .= 'E-mail elküldve '.$cimzett['teljes_nev'].' '.$szerepkor.' felhasználónak '.$esemeny.'<br><br>';
 
         }
+    }
+    
+    // Ha nincs e-mail cím, akkor ezt a megjegyzésbe is írjuk bele
+    if(!$cimzett['usermail']){
+        $megj = 'A felhasználónak nincs e-mail címe, ezért a következő esemény nem következett be:<br>'.$megj;
     }
     // Megjegyzés hozzáadása
     addMegj($tabla, $recid, $megj);
