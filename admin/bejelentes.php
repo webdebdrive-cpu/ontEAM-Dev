@@ -658,9 +658,12 @@ require_once('selectek.php');
 
         // Nyitott státuszú bejelentés elutasítása
         if( $sor['stat_id']==BEJELENTES_STAT_NYITOTT && _jog(JOG_BEJELENTES_ELUTASIT) ) {
+//Korábban rákérdeztünk, de ez kivéve 2018.02.14 velentin napkor :)
+//<script> gomb_b_elut = \'<input type="button" class="gomb zold" onclick="csoportMuvelet(\\\'elutasitas\\\');" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
+//<input type="button" class="gomb modositaskor_rejt" value="Bejelentés elutasítása" title="Bejelentés elutasítása" onclick="alert2(\'Biztosan elutasítja a bejelentést?\', gomb_b_elut);">
+                            
             $gombok .= nl2('
-                            <script> gomb_b_elut = \'<input type="button" class="gomb zold" onclick="csoportMuvelet(\\\'elutasitas\\\');" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\';</script>
-                            <input type="button" class="gomb modositaskor_rejt" value="Bejelentés elutasítása" title="Bejelentés elutasítása" onclick="alert2(\'Biztosan elutasítja a bejelentést?\', gomb_b_elut);">
+                            <input type="button" class="gomb modositaskor_rejt" value="Bejelentés elutasítása" title="Bejelentés elutasítása" onclick="csoportMuvelet(\'elutasitas\');">
                         ');
         }
 

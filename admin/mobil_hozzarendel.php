@@ -80,13 +80,14 @@ if (isset($_POST['beosztas_veglegesit'])) {
     $csoportok = array('a', 'b', 'cn', 'd');
     foreach($csoportok as $csoport){
         if($_POST[$csoport.'_csop']){
-            $idk = explode($csoport, trim($_POST[$csoport.'_csop'], ','));
+            $idk = explode(',', trim($_POST[$csoport.'_csop'], ','));
             foreach($idk as $id){
                 if(addStatusz('munkalap_statusz', $id, MUNKALAP_STAT_FOLYAMATBAN)===false){
                     $db_error = true;
                 }
                 $sql = $adatbazis_kapcsolat->u('munkalap', array('mobil', 'szemelyzet_id'), array($csoport, MOBILCSOPORT), "`recid`='{$id}'");
                 if($sql === false){ $db_error = true; }
+
             }
         }
     }
@@ -303,11 +304,11 @@ require_once('selectek.php');
                         <div class="dtc latszik" style="width: 10.2rem">
                             Szálloda
                         </div>
-                        <div class="dtc latszik" style="width: 23rem">
-                            Bejelentett hiba
-                        </div>
                         <div class="dtc" style="width: 12rem">
                             Helyiség
+                        </div>
+                        <div class="dtc latszik" style="width: 23rem">
+                            Bejelentett hiba
                         </div>
                         <div class="dtc c" style="width: 7rem">
                             Sürgős
@@ -348,11 +349,11 @@ require_once('selectek.php');
                             <div class="dtc c latszik c szalloda" style="width: 10rem">
                                 '.getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
                             </div>
-                            <div class="dtc c latszik hiba" style="width: 23rem">
-                                '.$hiba.'
-                            </div>
                             <div class="dtc c" style="width: 12rem">
                                 '.getErtek('nev', 'obj', 'recid', $munkalap['obj_id']).'
+                            </div>
+                            <div class="dtc c latszik hiba" style="width: 23rem">
+                                '.$hiba.'
                             </div>
                             <div class="dtc c" style="width: 6rem">
                                 '.$surgos.'
@@ -376,16 +377,17 @@ require_once('selectek.php');
         $munkalapok = $adatbazis_kapcsolat->s('recid telephely_id', 'munkalap', "`szemelyzet_id`='".MOBILCSOPORT."' AND `telephely_id` IN (".$sajat_szallodak.") AND `mobil`='{$mobil}' AND `stat_id`='".MUNKALAP_STAT_FOLYAMATBAN."'", 'ikt_szam');
         foreach($munkalapok as $munkalap){
             $kapcsolat  = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'", '', '0,1');
-            $bejelentes = $adatbazis_kapcsolat->s2('hiba_id', 'bejelentes', "`recid`='{$kapcsolat['bejelentes_id']}'");
+            $bejelentes = $adatbazis_kapcsolat->s2('hiba_id hiba_text', 'bejelentes', "`recid`='{$kapcsolat['bejelentes_id']}'");
             $hiba       = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
             $szalloda   = getErtek('nev',  'telephely',  'id', $munkalap['telephely_id']);
             $folyamatban[$mobil] .= '
                 <tr class="link" ondblclick="window.open(\'munkalap.php?id='.$munkalap['recid'].'&amp;modosit&amp;szures_vege\', \'uj_tab\')">
-                    <td>
+                    <td class="vat">
                         '.$szalloda.'
                     </td>
-                    <td title="'.$hiba.'">
-                        '.resz_string($hiba, 30).'
+                    <td class="vat">
+                        '.$hiba.'
+                        <div class="f9">'.nl2br2($bejelentes['hiba_text']).'</div>
                     </td>
                 </tr>';
         }

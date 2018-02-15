@@ -4979,16 +4979,7 @@ require('selectek.php');
                 <input type="button" class="gomb" value="Munka felvétele" onclick="alert2(munkalapFelveszKerdes, munkalapFelvetelGomb);">
             ');
         }
-
-        // Felvéve státusz + kezelés jog
-        $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
-        if(
-                ( $sor['stat_id']==MUNKALAP_STAT_FOLYAMATBAN && $sor['szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
-                ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog )
-           ){
-            $gombok .= '<input type="button" class="gomb" value="Készre jelentés" onclick="munkalapKeszre(\'csak kérdezünk még\');"> ';
-        }
-
+        
         // Felvéve, kész, vizsgálat státusz + kezelés jog (vizsgálat státusznál vízsgálat jog) bármelyike alatti gombok
         $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
         if(
@@ -4998,6 +4989,15 @@ require('selectek.php');
             ( $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR   && $kezeles_jog )
             ) {
             $gombok .= nl2('<input type="button" class="gomb" value="Elvégzett feladat hozzáadása" onclick="csoportMuvelet(\'feladatHozzaad\')"> ');
+        }
+
+        // Felvéve státusz + kezelés jog
+        $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
+        if(
+                ( $sor['stat_id']==MUNKALAP_STAT_FOLYAMATBAN && $sor['szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
+                ( $sor['stat_id']==MUNKALAP_STAT_FELVEVE && in_array($sor['szemelyzet_id'], $felvehetik) && $kezeles_jog )
+           ){
+            $gombok .= '<input type="button" class="gomb zold" value="Készre jelentés" onclick="munkalapKeszre(\'csak kérdezünk még\');"> ';
         }
 
         // Felvéve, kész, vizsgálat státusz + kezelés jog (vizsgálat státusznál vízsgálat jog) bármelyike alatti gombok
@@ -5020,7 +5020,7 @@ require('selectek.php');
             (($sor['stat_id']==MUNKALAP_STAT_FELVEVE || $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR) && $kezeles_jog ) ||
             ($sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) )
             ){
-            $gombok .= '<input type="button" class="gomb" value="Munkaidő hozzáad" onclick="csoportMuvelet(\'munkaidoHozzaad\');"> ';
+            $gombok .= '<input type="button" class="gomb" value="További munkaidő" onclick="csoportMuvelet(\'munkaidoHozzaad\');"> ';
         }
 
         // Előkészítés státusz és külsős előkészítés jog kell hozzá
@@ -5217,7 +5217,7 @@ require('selectek.php');
             ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT  && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id'] && _jog( JOG_MUNKALAP_KULSOS_ELOKESZIT )  ) ||
             ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT    && _jog(JOG_MUNKALAP_VIZSGALAT)         )
            ){
-            $gombok .= '<input type="button" class="gomb" value="Visszaadás" onclick="csoportMuvelet(\'atadasDiszpecsernek\');"> ';
+            $gombok .= '<input type="button" class="gomb piros" value="Visszaadás" onclick="csoportMuvelet(\'atadasDiszpecsernek\');"> ';
         }
 
         // Döntés alatt státusz alatt

@@ -749,12 +749,40 @@ function i_u($type, $tabla, $tomb) {
                                                     array($id,           $_POST['ujkentSzerkBejelentesbol'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
                                                 );
                 if( $sql === false ) { $db_error = true; }
+                
+                // Ekkor a csatolt fájlokat is átmásoljuk
+                $doksik = $adatbazis_kapcsolat->s('utvonal fajlnev loginnev', 'bejelentes_dok', "`bejelentes_id`='{$_POST['ujkentSzerkBejelentesbol']}'");
+                if( $doksik === false ) { $db_error = true; }
+                foreach($doksik as $doc){
+                    $utvonal      = '../'.get_utvonal().'munkalap/';
+                    $utvonal_regi = '../'.get_utvonal().'bejelentes/';
+                    $konytarak = explode('/', $doc['utvonal']);
+                    $i  = 0;
+
+                    $db = count($konytarak)-1;
+                    foreach($konytarak as $konyvtar){
+                        if($i<$db){
+                            if(!is_dir($utvonal.$konyvtar)){
+                                mkdir($utvonal.$konyvtar);
+                            }
+                        }
+                        $i++;
+                    }
+                    
+                    // Fájl másolása
+                    copy($utvonal_regi.$doc['utvonal'], $utvonal.$doc['utvonal']);
+
+                    $sql = $adatbazis_kapcsolat->i('munkalap_dok',  array('munkalap_id', 'utvonal',       'fajlnev',       'loginnev',      'insert_dt',    'insert_usr',                              'update_usr'                             ),
+                                                                    array($id,           $doc['utvonal'], $doc['fajlnev'], $doc['loginnev'],'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+                                                    );
+                    if( $sql === false ) { $db_error = true; }
+                }
             }
 
             // Felvesszük az első státuszt
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
                                                 array($tabla.'_recid', 'stat_id',                 'insert_dt',    'insert_usr',                              'update_usr'                          ),
-                                                array($id,              MUNKALAP_STAT_NYITOTT,     'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($id,              MUNKALAP_STAT_NYITOTT,    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(MUNKALAP_STAT_NYITOTT), "`recid`='$id'");
@@ -881,6 +909,7 @@ function i_u($type, $tabla, $tomb) {
             
             // Ha változott a szerepkör, akkor a jogokat frissítjük
             $login = $adatbazis_kapcsolat->s2('szemelyzet_id van_jelszo', 'login', "`recid`='{$_GET['id']}'");
+            $van_jelszo = $login['van_jelszo']; // Ez később  acommit után kell
             if( $login['szemelyzet_id'] != $_POST['szemelyzet_id'] ) {
                 $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', "`recid`='{$_POST['szemelyzet_id']}'", '', '1');
                 if( $szerepkor === false ) { $db_error = true; }
@@ -891,10 +920,6 @@ function i_u($type, $tabla, $tomb) {
                 }
             }
 
-            // Ha most vették ki a Jelszóval rendelkezik pipát, akkor e-mail értesítés küldése
-            if( $login['van_jelszo'] && !$_POST['van_jelszo'] ) {
-                level_felkeszit_es_kuld('login', $_GET['id'], '', 'elfelejtettJelszoKuld', 'elfelejtettJelszoKuld');
-            }
         }
 
         // Projektigényléseknél egy-több szállodás váltás lekezelése
@@ -1063,9 +1088,21 @@ function i_u($type, $tabla, $tomb) {
     // Tranzakció kommitolása, vagy rollback-ezése
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
+        
+        // Login jelszó küldést commitután küldünkű
+        
+        if( $tabla == 'login' ) {
+            // Ha most vették ki a Jelszóval rendelkezik pipát, akkor e-mail értesítés küldése
+            if( $van_jelszo && !$_POST['van_jelszo'] ){
+                level_felkeszit_es_kuld('login', $_GET['id'], '', 'elfelejtettJelszoKuld', 'elfelejtettJelszoKuld');
+            }
+        }
+        
     } else {
         mysqli_rollback($db_kapcs);
     }
+    
+    
     
 // Szinvatrendes teszt üzemmód
 //if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett_feladatok.php') {
@@ -5870,6 +5907,7 @@ function valos_datum_e($datum){
 function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
     
     global $adatbazis_kapcsolat;
+    global $db_kapcs;
     $cimzett_mail = '';
     $cimzett_nev  = '';
 
@@ -5905,9 +5943,12 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
         // Elfelejtett jelszó kérése
         case 'elfelejtettJelszo':
             
-            $login      = $adatbazis_kapcsolat->s2('nev teljes_nev beosztas_id reszleg_id usertel usermail', 'login', "`recid`='{$recid}'");
+            $login      = $adatbazis_kapcsolat->s2('nev teljes_nev beosztas_id reszleg_id usertel usermail aktiv', 'login', "`recid`='{$recid}'");
             if(!$login){
                 return 'Nem ismert felhasználói név!<br>Kérését így nem tudjuk továbbítani!';
+            }
+            if(!$login['aktiv']){
+                return 'Inaktív felhasználói név!<br>Kérését így nem tudjuk továbbítani!';
             }
             $beosztas   = erteklista(18, $login['beosztas_id']);
             $reszleg    = erteklista(17, $login['reszleg_id']);
@@ -6133,7 +6174,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
     if($munkalap_kapcs){
         addMegj('munkalap', $munkalap_kapcs['munkalap_id'], $megj);
     }
-
+    mysqli_commit($db_kapcs);
     // Hibaüzenettel is visszatérhetünk
     if($hiba){
         return $hiba;

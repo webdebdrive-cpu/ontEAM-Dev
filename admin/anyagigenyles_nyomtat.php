@@ -356,8 +356,7 @@ function get_fejlec($szallito){
     global $adatbazis_kapcsolat;
 
     $tel_kieg = '';
-    $login = $adatbazis_kapcsolat->s('usertel', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
-    $login = $login[0];
+    $login = $adatbazis_kapcsolat->s2('usertel', 'login', "`recid`='{$_SESSION[get_db_tabla().'login_recid']}'");
     if($login['usertel']){
         $tel_kieg = '<br>Tel.: '.$login['usertel'];
     }
@@ -385,7 +384,7 @@ function get_fejlec($szallito){
                         <br>Cím.: '.$szallito['isz'].' '.$szallito['varos'].', '.$szallito['utca'].'
                     </td>
                     <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">
-                        Név: Műszaki szolgáltató központ
+                        Név: Danubius Zrt. Műszaki szolgáltató központ
                         <br>Üi.: '.$_SESSION[get_db_tabla().'teljes_nev'].'
                         '.$tel_kieg.'
                     </td>
