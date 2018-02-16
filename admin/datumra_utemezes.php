@@ -7,7 +7,6 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
 	$dnext = $dlast;
 	$dlast = null;
 	$i = 0;
-
     /* Mivel nincs olyan függvény, hogy valami_0, ezért ha az altipus értéke 0,
      * akkor az értékéből üres stinget készítünk, hogy ne jelenjen meg a függvény nevében.
      */
@@ -24,7 +23,7 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
     }
 
 	
-	while (($dlast != $dnext or $dnext < date(DATEFORMAT, strtotime("+1 day"))) and $dnext < date(DATEFORMAT, strtotime('+2 year')))  //legfeljebb a következő 2 évre keressük ütemezhetőséget
+	while (($dlast != $dnext or $dnext < date(DATEFORMAT, strtotime("+1 day"))) and $dnext < date(DATEFORMAT, strtotime('+10 year')))  //legfeljebb a következő 2 évre keressük ütemezhetőséget
 	{
 		$i = $i + 1;
 		$dlast = $dnext;
@@ -159,6 +158,7 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 			/*
 			ütemezés a legközelebbi dátumtól "1" ciklusszorzóval:
 			, legközelebbi jövőbeni dátumra fog esni*/
+
 			$command = 'getnextdate_' . trim($ccikltip) . trim($cciklaltip) . '('
 				. '1' . ',"' . $cciklho . '","' . $cciklhet . '","' . $cciklnap . '"'
 				. ',"' . $dnext . '");';
@@ -200,6 +200,7 @@ function getnextdate_d1 ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 
 function getnextdate_d2 ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 {
+
 	$dlast = dateadd ($dlast, 1, 0, 0); //kell ide, hogy a következő első ütemezhető napot vizsgáljuk
 	$ndow = dowFormStringdate($dlast);
 	return ( $ndow > 5 ?

@@ -25,6 +25,14 @@ foreach($munkalapok as $munkalap){
         $db_error = true;
     }
     
+    // Munkalaphoz tartozó bejelentések (igaz, csak egy van, de megírtuk általánosan) folyamatbanra váltanak
+    $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'");
+    foreach($bejelentesek as $bejelentes){
+        if( addStatusz( 'bejelentes_statusz', $bejelentes['bejelentes_id'], BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
+            $db_error = true;
+        }
+    }
+    
     // Tranzakció kommitolása, vagy rollback-ezése
     if( !$db_error ) {
         mysqli_commit($db_kapcs);

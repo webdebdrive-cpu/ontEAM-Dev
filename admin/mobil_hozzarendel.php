@@ -310,6 +310,9 @@ require_once('selectek.php');
                         <div class="dtc latszik" style="width: 23rem">
                             Bejelentett hiba
                         </div>
+                        <div class="dtc latszik" style="width: 24.1rem">
+                            Hiba leírása
+                        </div>
                         <div class="dtc c" style="width: 7rem">
                             Sürgős
                         </div>
@@ -329,7 +332,7 @@ require_once('selectek.php');
     foreach($munkalapok as $munkalap){
         
         $kapcsolat  = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'", '', '0,1');
-        $bejelentes = $adatbazis_kapcsolat->s2('hiba_id', 'bejelentes', "`recid`='{$kapcsolat['bejelentes_id']}'");
+        $bejelentes = $adatbazis_kapcsolat->s2('hiba_id hiba_text', 'bejelentes', "`recid`='{$kapcsolat['bejelentes_id']}'");
         $hiba       = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
         
         $surgos = '';
@@ -354,6 +357,9 @@ require_once('selectek.php');
                             </div>
                             <div class="dtc c latszik hiba" style="width: 23rem">
                                 '.$hiba.'
+                            </div>
+                            <div class="dtc c hiba" style="width: 24.1rem">
+                                '.htmlspecialchars_decode( nl2br2($bejelentes['hiba_text'])).'
                             </div>
                             <div class="dtc c" style="width: 6rem">
                                 '.$surgos.'

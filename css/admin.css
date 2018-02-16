@@ -3068,6 +3068,7 @@ table.csoportok tr.teruletek{
 }
 table.csoportok tr.teruletek ul {
     border: 0;
+    max-width: 27.3rem;
 }
 
 .csoportok ul.dropItem li .dtc, ul.dropItem li.ui-sortable-helper .dtc{
@@ -3106,6 +3107,7 @@ ul.dropItem {
 ul.dropItem li {
     border: 0.2rem dotted #BBCEFF;
     cursor: move;
+    font-size: 1.1rem;
     height: 2.6rem;
     overflow: hidden;
     padding: 0.5rem 0rem 0.5rem 0rem;

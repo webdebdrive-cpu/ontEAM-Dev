@@ -751,32 +751,10 @@ function i_u($type, $tabla, $tomb) {
                 if( $sql === false ) { $db_error = true; }
                 
                 // Ekkor a csatolt fájlokat is átmásoljuk
-                $doksik = $adatbazis_kapcsolat->s('utvonal fajlnev loginnev', 'bejelentes_dok', "`bejelentes_id`='{$_POST['ujkentSzerkBejelentesbol']}'");
-                if( $doksik === false ) { $db_error = true; }
-                foreach($doksik as $doc){
-                    $utvonal      = '../'.get_utvonal().'munkalap/';
-                    $utvonal_regi = '../'.get_utvonal().'bejelentes/';
-                    $konytarak = explode('/', $doc['utvonal']);
-                    $i  = 0;
-
-                    $db = count($konytarak)-1;
-                    foreach($konytarak as $konyvtar){
-                        if($i<$db){
-                            if(!is_dir($utvonal.$konyvtar)){
-                                mkdir($utvonal.$konyvtar);
-                            }
-                        }
-                        $i++;
-                    }
-                    
-                    // Fájl másolása
-                    copy($utvonal_regi.$doc['utvonal'], $utvonal.$doc['utvonal']);
-
-                    $sql = $adatbazis_kapcsolat->i('munkalap_dok',  array('munkalap_id', 'utvonal',       'fajlnev',       'loginnev',      'insert_dt',    'insert_usr',                              'update_usr'                             ),
-                                                                    array($id,           $doc['utvonal'], $doc['fajlnev'], $doc['loginnev'],'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
-                                                    );
-                    if( $sql === false ) { $db_error = true; }
+                if( bejelentes_dok_munkalapba_masol($_POST['ujkentSzerkBejelentesbol'], $id) === false ){
+                    $db_error = true;
                 }
+
             }
 
             // Felvesszük az első státuszt
@@ -995,7 +973,7 @@ function i_u($type, $tabla, $tomb) {
         }
         
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
-//echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
+// echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
         if( $id === false ) { $db_error = true; }
 
         if( $id ) {
@@ -1654,7 +1632,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
 
                     $.ajax({
-                        url : \'utemezett_feladatok.php\',
+                        url : \''.self().'\',
                         type: \'GET\',
                         data: {
                             id              : \''.$_GET['id'].'\',
@@ -5463,28 +5441,32 @@ function get_akt_tomb($megn){
     global $cikktorzs_tomb;
     global $eloterj_fb_tomb;
     global $eloterj_bod_tomb;
+    global $eseti_fenntartas_tomb;
     global $eszkozkezeles_tomb;
     global $felmeresi_terv_tomb;
     global $login_tomb;
     global $munkalap_tomb;
     global $utemezett_feladatok_tomb;
     global $projektigenyles_tomb;
+    global $rendszeres_karbantartas_tomb;
     global $torzsadat_tomb;
 
     switch($megn){
-        case 'anyagigenyles'        : case 'anyagigenyles_arch'        : $akt_tomb = $anyagigenyles_tomb;          break;
-        case 'bejelentes'           : case 'bejelentes_arch'           : $akt_tomb = $bejelentes_tomb;             break;
-        case 'beosztas'             : case 'beosztas_arch'             : $akt_tomb = $beosztas_tomb;               break;
-        case 'cikktorzs'            : case 'cikktorzs_arch'            : $akt_tomb = $cikktorzs_tomb;              break;
-        case 'eloterj_fb'           : case 'eloterj_fb_arch'           : $akt_tomb = $eloterj_fb_tomb;             break;
-        case 'eloterj_bod'          : case 'eloterj_bod_arch'          : $akt_tomb = $eloterj_bod_tomb;            break;
-        case 'eszkozkezeles'        : case 'eszkozkezeles_arch'        : $akt_tomb = $eszkozkezeles_tomb;          break;
-        case 'felmeresi_terv'       : case 'felmeresi_terv_arch'       : $akt_tomb = $felmeresi_terv_tomb;         break;
-        case 'login'                : case 'login_arch'                : $akt_tomb = $login_tomb;                  break;
-        case 'munkalap'             : case 'munkalap_arch'             : $akt_tomb = $munkalap_tomb;               break;
-        case 'utemezett_feladatok'  : case 'utemezett_feladatok_arch'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
-        case 'projektigenyles'      : case 'projektigenyles_arch'      : $akt_tomb = $projektigenyles_tomb;        break;
-        case 'torzsadat'            : case 'torzsadat_arch'            : $akt_tomb = $torzsadat_tomb;              break;
+        case 'anyagigenyles'            : case 'anyagigenyles_arch'             : $akt_tomb = $anyagigenyles_tomb;          break;
+        case 'bejelentes'               : case 'bejelentes_arch'                : $akt_tomb = $bejelentes_tomb;             break;
+        case 'beosztas'                 : case 'beosztas_arch'                  : $akt_tomb = $beosztas_tomb;               break;
+        case 'cikktorzs'                : case 'cikktorzs_arch'                 : $akt_tomb = $cikktorzs_tomb;              break;
+        case 'eloterj_fb'               : case 'eloterj_fb_arch'                : $akt_tomb = $eloterj_fb_tomb;             break;
+        case 'eloterj_bod'              : case 'eloterj_bod_arch'               : $akt_tomb = $eloterj_bod_tomb;            break;
+        case 'eseti_fenntartas'         : case 'eseti_fenntartas_arch'          : $akt_tomb = $eseti_fenntartas_tomb;       break;
+        case 'eszkozkezeles'            : case 'eszkozkezeles_arch'             : $akt_tomb = $eszkozkezeles_tomb;          break;
+        case 'felmeresi_terv'           : case 'felmeresi_terv_arch'            : $akt_tomb = $felmeresi_terv_tomb;         break;
+        case 'login'                    : case 'login_arch'                     : $akt_tomb = $login_tomb;                  break;
+        case 'munkalap'                 : case 'munkalap_arch'                  : $akt_tomb = $munkalap_tomb;               break;
+        case 'utemezett_feladatok'      : case 'utemezett_feladatok_arch'       : $akt_tomb = $utemezett_feladatok_tomb;    break;
+        case 'projektigenyles'          : case 'projektigenyles_arch'           : $akt_tomb = $projektigenyles_tomb;        break;
+        case 'rendszeres_karbantartas'  : case 'rendszeres_karbantartas_arch'   : $akt_tomb = $rendszeres_karbantartas_tomb;break;
+        case 'torzsadat'                : case 'torzsadat_arch'                 : $akt_tomb = $torzsadat_tomb;              break;
     }
     
     // Beállítjuk mindenhol a megn_szurobe értéket, mert ez alapján fogjuk rendezni
@@ -5903,6 +5885,83 @@ function valos_datum_e($datum){
     return checkdate($ho, $nap, $ev);
 }
 
+
+// Többdimenziós tömb rendezése kulcs alapján
+function tobbdim_tomb_kulcs_rendez($array, $on, $order=SORT_ASC){
+
+    $new_array = array();
+    $sortable_array = array();
+
+    if (count($array) > 0) {
+        foreach ($array as $k => $v) {
+            if (is_array($v)) {
+                foreach ($v as $k2 => $v2) {
+                    if ($k2 == $on) {
+                        $sortable_array[$k] = $v2;
+                    }
+                }
+            } else {
+                $sortable_array[$k] = $v;
+            }
+        }
+
+        switch ($order) {
+            case SORT_ASC:
+                asort($sortable_array);
+                break;
+            case SORT_DESC:
+                arsort($sortable_array);
+                break;
+        }
+
+        foreach ($sortable_array as $k => $v) {
+            $new_array[$k] = $array[$k];
+        }
+    }
+
+    return $new_array;
+}
+
+// Bejelentések dokumentumainak másolása munkalapra
+function bejelentes_dok_munkalapba_masol($bejelentes_id, $munkalap_id){
+    
+    global $adatbazis_kapcsolat;
+    $db_error = false;
+    
+    $doksik = $adatbazis_kapcsolat->s('utvonal fajlnev loginnev', 'bejelentes_dok', "`bejelentes_id`='{$bejelentes_id}'");
+    if( $doksik === false ) { $db_error = true; }
+    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam', 'munkalap', "`recid`='{$munkalap_id}'");
+    if( $munkalap === false ) { $db_error = true; }
+    foreach($doksik as $doc){
+        $utvonal      = '../'.get_utvonal().'munkalap/'.$munkalap['ikt_szam'].'/';
+        $utvonal_regi = '../'.get_utvonal().'bejelentes/';
+        $fajlnev      = basename($doc['utvonal']);
+
+        $konytarak = explode('/', $utvonal);
+        $akt_utvonal = '';
+        foreach($konytarak as $konyvtar){
+            $akt_utvonal .= $konyvtar.'/';
+            if(!is_dir($akt_utvonal)){
+                mkdir($akt_utvonal);
+            }
+        }
+
+        // Fájl másolása
+        copy($utvonal_regi.$doc['utvonal'], $utvonal.$fajlnev);
+
+        $sql = $adatbazis_kapcsolat->i('munkalap_dok',  array('munkalap_id', 'utvonal',                          'fajlnev',       'loginnev',      'insert_dt',    'insert_usr',                              'update_usr'                             ),
+                                                        array($munkalap_id,  $munkalap['ikt_szam'].'/'.$fajlnev, $doc['fajlnev'], $doc['loginnev'],'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+                                        );
+        if( $sql === false ) { $db_error = true; }
+    }
+    
+    if($db_error){
+        return false;
+    }else{
+        return true;
+    }
+}
+
 // Levélküldés előtt jogot, értesítés pipát vizsgálunk, levél tartlamát és címzetteket kiszámoljuk
 function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
     
@@ -6180,40 +6239,4 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
         return $hiba;
     }
 
-}
-
-// Többdimenziós tömb rendezése kulcs alapján
-function tobbdim_tomb_kulcs_rendez($array, $on, $order=SORT_ASC){
-
-    $new_array = array();
-    $sortable_array = array();
-
-    if (count($array) > 0) {
-        foreach ($array as $k => $v) {
-            if (is_array($v)) {
-                foreach ($v as $k2 => $v2) {
-                    if ($k2 == $on) {
-                        $sortable_array[$k] = $v2;
-                    }
-                }
-            } else {
-                $sortable_array[$k] = $v;
-            }
-        }
-
-        switch ($order) {
-            case SORT_ASC:
-                asort($sortable_array);
-                break;
-            case SORT_DESC:
-                arsort($sortable_array);
-                break;
-        }
-
-        foreach ($sortable_array as $k => $v) {
-            $new_array[$k] = $array[$k];
-        }
-    }
-
-    return $new_array;
 }

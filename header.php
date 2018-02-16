@@ -8,14 +8,14 @@ if($_GET['o'])    { $_GET['o']     = sql_ertek($_GET['o']);     }
 if($_GET['lh'])   { $_GET['lh']    = sql_ertek($_GET['lh']);    }
 if($_GET['ksz'])  { $_GET['ksz']   = sql_ertek($_GET['ksz']);   }
 
-//Itt hívjuk meg a Cron függvényt, ami a lefuttatandó webcímeket íratja ki (& helyett &amp;-al elválasztva a paramétereket). 
-//Ezt a footerben lévő ajax hívja meg és ez alapján nyitja meg az egyes hivatkozásokat.
+// Itt hívjuk meg a Cron függvényt, ami a lefuttatandó webcímeket íratja ki (& helyett &amp;-al elválasztva a paramétereket). 
+// Ezt a footerben lévő ajax hívja meg és ez alapján nyitja meg az egyes hivatkozásokat.
 if (isset($_GET['cron_futtat'])) {
     echo cron();
     exit;
 }
 
-//A HTML kód előállítása (<head>)
+// A HTML kód előállítása (<head>)
 $head = $weblap -> head_keszit();
 
 $head -> title_hossz        = get_title_hossz();

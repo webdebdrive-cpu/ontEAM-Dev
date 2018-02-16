@@ -16,7 +16,17 @@ if (isset($_POST['f_szuro_mezo'])) {
     if($_POST['selected']=='lt'     ){ $selected_lt     = ' selected'; }
     if($_POST['selected']=='not_eq' ){ $selected_not_eq = ' selected'; }
     
-    $selectek = array('select_pri_tipus', 'select_pri_besorol', 'select_szemelyzet');
+    // A tömbben előforduló selectek tömbje. Innen tudjuk hogy csak két operátor tartozhat hozzá
+    $selectek = array(
+        'select_cikltip',
+        'select_felh_telephely',
+        'select_ho_ism',
+        'select_ho_soran',
+        'select_honapjan',
+        'select_szemelyzet',
+        'select_pri_tipus',
+        'select_pri_besorol',
+        );
     
     $operator = '';
     // Feltétel összerakása tömbből

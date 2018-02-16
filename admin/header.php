@@ -1050,6 +1050,14 @@ if(basename(self())=='erteklista.php' && !_jog(JOG_SZEREPKOR_KEZEL)){
     $uj = $duplikal = '';
 }
 
+// Eseti fenntartás
+if(basename(self())=='eseti_fenntartas.php' && !_jog(JOG_ESETI_FENN_KEZEL) ){
+    $uj = $duplikal = '';
+}
+if(basename(self())=='eseti_fenntartas.php' && !_jog(JOG_ESETI_FENN_TOROL) ){
+    $torles_icon    = '';
+}
+
 if(basename(self())=='eszkozkezeles.php' && !_jog(JOG_ESZKOZ_KEZEL)){
     $torles_icon    = '';
     $uj = $duplikal = '';
@@ -1073,8 +1081,10 @@ if(basename(self())=='munkalap.php'){
 
 // Ütemezett feladatok 
 if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_UTFEL_KEZEL) ){
-    $torles_icon    = '';
     $uj = $duplikal = '';
+}
+if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_UTFEL_TOROL) ){
+    $torles_icon    = '';
 }
 
 if( basename(self())=='projektigenyles.php' && !_jog(JOG_PRIGENY_S_KEZEL) && !_jog(JOG_PRIGENY_T_KEZEL) && !_jog(JOG_PRIGENY_B_KEZEL) && !_jog(JOG_PRIGENY_F_KEZEL) && !_jog(JOG_PRIGENY_SZ_KEZEL)){
@@ -1090,6 +1100,15 @@ if( basename(self())=='projektkezeles.php' && !_jog(JOG_PRKEZEL_KEZEL) ){
 if( basename(self())=='raktar.php' && !_jog(JOG_RAKTAR_KEZEL)){
     $torles_icon    = '';
     $uj = $duplikal = '';
+}
+
+// Rendszeres karbantartás 
+if(basename(self())=='rendszeres_karbantartas.php' && !_jog(JOG_RENDSZ_KARB_KEZEL) ){
+    $uj = $duplikal = '';
+}
+// Rendszeres karbantartás 
+if(basename(self())=='rendszeres_karbantartas.php' && !_jog(JOG_RENDSZ_KARB_TOROL) ){
+    $torles_icon    = '';
 }
 
 // Szerepkör alatt semmi értelme az új és törlés ikonoknak

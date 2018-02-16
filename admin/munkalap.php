@@ -210,11 +210,11 @@ if( isset($_POST['munkalapKeszit']) ) {
             $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
 
             // Ellenőrizzük a szállodákat is
-            $telephely_id = $adatbazis_kapcsolat->s('telephely_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '1');
+            $telephely_id = $adatbazis_kapcsolat->s2('telephely_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '1');
             if( $telephely_id === false ) { $db_error = true; }
 
             if( $telephely_id ) {
-                $telephely_id = $telephely_id[0]['telephely_id'];
+                $telephely_id = $telephely_id['telephely_id'];
             }
 
             // Munkalap beszúrása
@@ -224,13 +224,18 @@ if( isset($_POST['munkalapKeszit']) ) {
                                             );
             if( $recid === false ) { $db_error = true; }
 
-            // Hozzákapcsoljuk a bejelentéseket
+            // Hozzákapcsoljuk a bejelentéseket (valójában nincs is olyan eset, hogy több bejelentés egy munkalap, csak egy bejelentéshez tartozhat több munkalap is), de azért meghagytuk a régi ciklust
             foreach($idk as $id) {
                 $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
                                                     array('munkalap_id', 'bejelentes_id',  'update_usr',                            'insert_dt',    'insert_usr',                           ),
                                                     array($recid,        $id,              $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
                                                 );
                 if( $sql === false ) { $db_error = true; }
+                
+                // Ekkor a csatolt fájlokat is átmásoljuk
+                if( bejelentes_dok_munkalapba_masol($id, $recid)===false ){
+                    $db_error = true;
+                }
 
             }
 
@@ -2196,7 +2201,7 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                         }
                     }
                 } else {
-                    /* Megnézzük a további munkalapokat, hogy lezártak e */
+                    // Megnézzük a további munkalapokat, hogy lezártak e
                     $tm_db = count($tobbimunkalap);
                     $tm_lezart_db = 0;
 
@@ -2344,7 +2349,7 @@ if( isset($_POST['diszKozpVezLezaras']) ) {
                             }
                         }
                     } else {
-                        /* Megnézzük a további munkalapokat, hogy lezártak e */
+                        // Megnézzük a további munkalapokat, hogy lezártak e
                         $tm_db = count($tobbimunkalap);
                         $tm_lezart_db = 0;
 
@@ -2499,51 +2504,62 @@ if( isset($_POST['getMunkalapFeladatok']) ) {
             exit();
         }
 
-        $akt_tetel = $adatbazis_kapcsolat->s2('recid', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
+        $akt_tetel = $adatbazis_kapcsolat->s2('recid atadta_dt', 'munkalap_tetel', "`munkalap_id` = '{$recid}'", 'recid desc', '1');
         if( $akt_tetel === false ) { $db_error = true; }
+        
+        // Ha az utolsó tétel még nyitott, tehát az átadta dátum még üres: ez is feltétel
+        $utolso_tetel_nyitott = false;
+        if( $akt_tetel['atadta_dt']=='0000-00-00 00:00:00' ){
+            $utolso_tetel_nyitott = true;
+        }
+        
+        // Ha a munkalap vizsgálat vagy lezárásra vár státusz alatt van, vagy ha nyitott az utolsó tétele, akkor mutatjuk meg popupban az utolsó tétel feladatait.
+        if( $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT || $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR || $utolso_tetel_nyitott ){
+            
+            $munkalap_feladatok = $adatbazis_kapcsolat->s('recid erteklista_id memo', 'munkalap_feladat', "`munkalap_id` = '{$recid}' AND `tetel_id` = '".$akt_tetel['recid']."'");
+            if( $munkalap_feladatok === false ) { $db_error = true; }
 
-        $munkalap_feladatok = $adatbazis_kapcsolat->s('recid erteklista_id memo', 'munkalap_feladat', "`munkalap_id` = '{$recid}' AND `tetel_id` = '".$akt_tetel['recid']."'");
-        if( $munkalap_feladatok === false ) { $db_error = true; }
+            if( $munkalap_feladatok ) {
+                $sorok = '';
+                foreach($munkalap_feladatok as $munkalap_f) {
+                    $sorok .= nl2('
+                        <tr class="feladat_sor_'.$munkalap_f['recid'].'">
+                            <td>'.erteklista(ERTEKLISTA_ELV_FELAD, $munkalap_f['erteklista_id']).'<input type="hidden" name="addCikkID[]" value="'.$munkalap_f['cikk_id'].'"><input type="hidden" name="addCikkUj[]" value="0"></td>
+                            <td>'.nl2br($munkalap_f['memo']).'</td>
+                            <td><a id="feladat_id_'.$munkalap_f['recid'].'" onclick="munkFeladatTorol( \''.$munkalap_f['recid'].'\', \'feladat_id_'.$munkalap_f['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a></td>
+                        </tr>
+                    ');
+                }
 
-        if( $munkalap_feladatok ) {
-            $sorok = '';
-            foreach($munkalap_feladatok as $munkalap_f) {
-                $sorok .= nl2('
-                    <tr class="feladat_sor_'.$munkalap_f['recid'].'">
-                        <td>'.erteklista(5, $munkalap_f['erteklista_id']).'<input type="hidden" name="addCikkID[]" value="'.$munkalap_f['cikk_id'].'"><input type="hidden" name="addCikkUj[]" value="0"></td>
-                        <td>'.nl2br($munkalap_f['memo']).'</td>
-                        <td><a id="feladat_id_'.$munkalap_f['recid'].'" onclick="munkFeladatTorol( \''.$munkalap_f['recid'].'\', \'feladat_id_'.$munkalap_f['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a></td>
-                    </tr>
+                $html = nl2('
+                    <table class="csikos">
+                        <tr>
+                            <th>Elvégzett feladat</th>
+                            <th>Leírás</th>
+                            <th class="torles"></th>
+                        </tr>
+                        '.$sorok.'
+                    </table>
                 ');
-            }
 
-            $html = nl2('
-                <table class="csikos">
-                    <tr>
-                        <th>Elvégzett feladat</th>
-                        <th>Leírás</th>
-                        <th class="torles"></th>
-                    </tr>
-                    '.$sorok.'
-                </table>
-            ');
+                if( !$db_error ) {
+                    mysqli_commit($db_kapcs);
 
-            if( !$db_error ) {
-                mysqli_commit($db_kapcs);
+                    echo json_encode(array(
+                        'statusz' => 'siker',
+                        'html'    => $html
+                    ));
+                } else {
+                    mysqli_rollback($db_kapcs);
 
-                echo json_encode(array(
-                    'statusz' => 'siker',
-                    'html'    => $html
-                ));
-            } else {
-                mysqli_rollback($db_kapcs);
-
-                echo json_encode(array(
-                    'hiba'  => tranzakcioHiba(),
-                    'title' => 'Hiba',
-                ));
+                    echo json_encode(array(
+                        'hiba'  => tranzakcioHiba(),
+                        'title' => 'Hiba',
+                    ));
+                }
             }
         }
+        
     }
 
     $weblap->leallit();
@@ -5601,8 +5617,10 @@ require('selectek.php');
             }
 
             $atadta = '';
+            $tetel_nyitott = true;
             if( $sor['atadta_dt'] != '0000-00-00 00:00:00' ) {
                 $atadta = date('Y.m.d H:i', strtotime($sor['atadta_dt']));
+                $tetel_nyitott = false;
             }
 
             $atadas_oka = erteklista(7, $sor['erteklista_id']);
@@ -5644,7 +5662,7 @@ require('selectek.php');
                             <th></th>
                         </tr>
                 ');
-
+                
                 $kezeles_jog = get_kezeles_jog($munkalap['szemelyzet_id']);
                 foreach($feladatok as $feladat) {
 
@@ -5653,8 +5671,8 @@ require('selectek.php');
                     if(
                             $i==0 &&
                             (
-                                ( $munkalap['stat_id']==MUNKALAP_STAT_FOLYAMATBAN     && $munkalap['szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
-                                ( $munkalap['stat_id']==MUNKALAP_STAT_FELVEVE         && in_array($munkalap['szemelyzet_id'], $felvehetik) && $kezeles_jog )  ||
+                                ( $munkalap['stat_id']==MUNKALAP_STAT_FOLYAMATBAN     && $munkalap['szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) && $tetel_nyitott ) ||
+                                ( $munkalap['stat_id']==MUNKALAP_STAT_FELVEVE         && in_array($munkalap['szemelyzet_id'], $felvehetik) && $kezeles_jog && $tetel_nyitott )  ||
                                 ( $munkalap['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) ) ||
                                 ( $munkalap['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR   && $kezeles_jog )
                             )
@@ -5662,6 +5680,7 @@ require('selectek.php');
                         ){
                         $torles = '<a class="link" id="feladat2_id_'.$feladat['recid'].'" onclick="munkFeladatTorol( \''.$feladat['recid'].'\', \'feladat2_id_'.$feladat['recid'].'\' );"><span class="icon"><i class="material-icons">delete</i></span></a>';
                     }
+                    
                     $szamla_html .= nl2('
                         <tr class="feladat_sor_'.$feladat['recid'].'">
                             <td id="elv_feladat_nev_'.$feladat['recid'].'">'.erteklista(5, $feladat['erteklista_id']).'</td>

@@ -47,12 +47,18 @@ foreach($rkat as $rkat_sor){
 
 // Select tömb Ütemezés típushoz
 $select_cikltip = array();
-array_push($select_cikltip, array('name' => '- Válasszon -', 'value' => '' ));
-array_push($select_cikltip, array('name'  => 'Határidős',  'value' => 'l'));
-array_push($select_cikltip, array('name'  => 'Naponta',    'value' => 'd'));
-array_push($select_cikltip, array('name'  => 'Hetente',    'value' => 'w'));
-array_push($select_cikltip, array('name'  => 'Havonta',    'value' => 'm'));
-array_push($select_cikltip, array('name'  => 'Évente',     'value' => 'y'));
+if( basename(self())!='eseti_fenntartas.php' ){
+    array_push($select_cikltip, array('name' => '- Válasszon -', 'value' => '' ));
+}
+if( basename(self())!='utemezett_feladatok.php' && basename(self())!='rendszeres_karbantartas.php' ){
+    array_push($select_cikltip, array('name'  => 'Határidős',  'value' => 'l'));
+}
+if( basename(self())!='eseti_fenntartas.php' ){
+    array_push($select_cikltip, array('name'  => 'Naponta',    'value' => 'd'));
+    array_push($select_cikltip, array('name'  => 'Hetente',    'value' => 'w'));
+    array_push($select_cikltip, array('name'  => 'Havonta',    'value' => 'm'));
+    array_push($select_cikltip, array('name'  => 'Évente',     'value' => 'y'));
+}
 
 // Select tömb Ütemezés típushoz
 $select_honapjan = array();
