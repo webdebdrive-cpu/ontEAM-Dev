@@ -5992,7 +5992,9 @@ function munkalapKeszit(csak_kerdezunk) {
                             return false;
                         }
 
-                        location.href = 'munkalap.php?id=' + response.recid + '&modosit';
+                        /* 2018.02.19 Kérték, hogy ne létessük át a munkalpara, maradunk a bejelentésnél.
+                         * location.href = 'munkalap.php?id=' + response.recid + '&modosit';*/
+                        alert2();
 
                         kijelolesEltavolit();
                         popupZar();

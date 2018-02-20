@@ -21,44 +21,44 @@ function get_title(){
         break;
         case 'anyagigenyles.php':
             if (isset($_GET['anyagrend'])) {
-                $title .= 'Anyagok / Anyagrendelések';
+                $title .= 'Anyagrendelések';
             }else{
-                $title .= 'Anyagok / Anyagigénylések';
+                $title .= 'Anyagigénylések';
             }
         break;
-        case 'bejelentes.php'               : $title .= 'Bejelentések / Bejelentések';                  break;
-        case 'bejelentes_arch.php'          : $title .= 'Bejelentések / Archív bejelentések';           break;
-        case 'beosztas.php'                 : $title .= 'Személyzet / Beosztások';                      break;
-        case 'cash_flow.php'                : $title .= 'Projektek / Cash Flow';                        break;
-        case 'cikktorzs.php'                : $title .= 'Anyagok / Cikktörzs';                          break;
-        case 'dokumentumtar.php'            : $title .= 'Dokumentumok / Dokumentumtár';                 break;
-        case 'eloterj_fb.php'               : $title .= 'Projektek / Előterjesztés/ FB előterjesztés';  break;
-        case 'eloterj_bod.php'              : $title .= 'Projektek / Előterjesztés/ BoD előterjesztés'; break;
-        case 'energia.php'                  : $title .= 'Energia';                                      break;
-        case 'erteklista.php'               : $title .= 'Rendszer / Értéklisták';                       break;
-        case 'eseti_fenntartas.php'         : $title .= 'Munkák / Eseti fenntartás';                    break;
-        case 'eszkozkezeles.php'            : $title .= 'Eszközök / Eszközkezelés';                     break;
-        case 'felmeresi_terv.php'           : $title .= 'Eszközök / Felmérési tervek';                  break;
-        case 'fenntartasi_szerzodes.php'    : $title .= 'Dokumentumok / Fenntartási szerződések';       break;
-        case 'ktghely.php'                  : $title .= 'Rendszer / Költséghelyek';                     break;
-        case 'ktgnem.php'                   : $title .= 'Rendszer / Költségnemek';                      break;
-        case 'login.php'                    : $title .= 'Rendszer / Felhasználók';                      break;
-        case 'munkalap.php'                 : $title .= 'Munkák / Munkalapok';                          break;
-        case 'munkalap_arch.php'            : $title .= 'Munkák / Archív munkalapok';                   break;
-        case 'mobil_hozzarendel.php'        : $title .= 'Munkák / Munkalapok / Mobil hozzárendelé';     break;
-        case 'utemezett_feladatok.php'      : $title .= 'Munkák / Ütemzett feladatok';                  break;
-        case 'uzemeltetesi_naplo.php'       : $title .= 'Munkák / Üzemeltetési napló';                  break;
-        case 'projektigenyles.php'          : $title .= 'Projektek / Projektigénylések';                break;
-        case 'projektkezeles.php'           : $title .= 'Projektek / Projektek';                        break;
-        case 'raktar.php'                   : $title .= 'Anyagok / Raktár';                             break;
-        case 'rendszeres_karbantartas.php'  : $title .= 'Munkák / Rendszeres karbantartás';             break;
-        case 'szabadsagigeny.php'           : $title .= 'Személyzet / Szabadságigények';                break;
-        case 'szerepkor.php'                : $title .= 'Rendszer / Szerepkörök';                       break;
-        case 'szerepkor_jog.php'            : $title .= 'Rendszer / Szerepkörök jogai';                 break;
-        case 'szamla.php'                   : $title .= 'Dokumentumok / Számlák';                       break;
-        case 'szallito.php'                 : $title .= 'Dokumentumok / Partnertörzs';                  break;
-        case 'tervezes.php'                 : $title .= 'Tervezés';                                     break;
-        case 'torzsadat.php'                : $title .= 'Személyzet / Törzsadatok';                     break;
+        case 'bejelentes.php'               : $title .= 'Bejelentések';             break;
+        case 'bejelentes_arch.php'          : $title .= 'Archív bejelentések';      break;
+        case 'beosztas.php'                 : $title .= 'Beosztások';               break;
+        case 'cash_flow.php'                : $title .= 'Cash Flow';                break;
+        case 'cikktorzs.php'                : $title .= 'Cikktörzs';                break;
+        case 'dokumentumtar.php'            : $title .= 'Dokumentumtár';            break;
+        case 'eloterj_fb.php'               : $title .= 'FB előterjesztés';         break;
+        case 'eloterj_bod.php'              : $title .= 'BoD előterjesztés';        break;
+        case 'energia.php'                  : $title .= 'Energia';                  break;
+        case 'erteklista.php'               : $title .= 'Értéklisták';              break;
+        case 'eseti_fenntartas.php'         : $title .= 'Eseti fenntartás';         break;
+        case 'eszkozkezeles.php'            : $title .= 'Eszközkezelés';            break;
+        case 'felmeresi_terv.php'           : $title .= 'Felmérési tervek';         break;
+        case 'fenntartasi_szerzodes.php'    : $title .= 'Fenntartási szerződések';  break;
+        case 'ktghely.php'                  : $title .= 'Költséghelyek';            break;
+        case 'ktgnem.php'                   : $title .= 'Költségnemek';             break;
+        case 'login.php'                    : $title .= 'Felhasználók';             break;
+        case 'munkalap.php'                 : $title .= 'Munkalapok';               break;
+        case 'munkalap_arch.php'            : $title .= 'Archív munkalapok';        break;
+        case 'mobil_hozzarendel.php'        : $title .= 'Mobil hozzárendelés';      break;
+        case 'utemezett_feladatok.php'      : $title .= 'Ütemzett feladatok';       break;
+        case 'uzemeltetesi_naplo.php'       : $title .= 'Üzemeltetési napló';       break;
+        case 'projektigenyles.php'          : $title .= 'Projektigénylések';        break;
+        case 'projektkezeles.php'           : $title .= 'Projektek';                break;
+        case 'raktar.php'                   : $title .= 'Raktár';                   break;
+        case 'rendszeres_karbantartas.php'  : $title .= 'Rendszeres karbantartás';  break;
+        case 'szabadsagigeny.php'           : $title .= 'Szabadságigények';         break;
+        case 'szerepkor.php'                : $title .= 'Szerepkörök';              break;
+        case 'szerepkor_jog.php'            : $title .= 'Szerepkörök jogai';        break;
+        case 'szamla.php'                   : $title .= 'Számlák';                  break;
+        case 'szallito.php'                 : $title .= 'Partnertörzs';             break;
+        case 'tervezes.php'                 : $title .= 'Tervezés';                 break;
+        case 'torzsadat.php'                : $title .= 'Törzsadatok';              break;
 
 	}
 

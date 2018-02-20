@@ -9,7 +9,8 @@ if (isset($_GET['nyomtat'])) {
 
     // Szállító kiszámítása
     $szallito = $adatbazis_kapcsolat->s2('szallito_id kcs_21', 'anyagigenyles', "`recid`='{$idk[1]}'");
-    $penznem = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=21 AND `id`='{$szallito['kcs_21']}'");
+    $kcs_21   = $szallito['kcs_21'];
+    $penznem  = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=21 AND `id`='{$kcs_21}'");
     $szallito = $adatbazis_kapcsolat->s2('id nev knev tel tel2 isz varos utca', 'szallito', "`id`='{$szallito['szallito_id']}'");
 
 }
@@ -35,10 +36,17 @@ if (isset($_GET['szall'])) {
         $ossz     = 0;
         $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
 //echo $adatbazis_kapcsolat->gp() . '<br>';
+        
+        $egysegar_mezo  = 'rndear';
+        $egysegar_tized = 0;
+        if($kcs_21!=KCS_21_HUF){
+            $egysegar_mezo  = 'vrndear';
+            $egysegar_tized = 2;
+        }
         foreach($anyagok as $anyag){
 
             $rndmen = 0;
-            $anyag_lek = $adatbazis_kapcsolat->s('nev cikkmee rndmen rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `cikk_id`='{$anyag['cikk_id']}'");
+            $anyag_lek = $adatbazis_kapcsolat->s('nev cikkmee rndmen '.$egysegar_mezo, 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `cikk_id`='{$anyag['cikk_id']}'");
             foreach($anyag_lek as $a_lek){
                 $rndmen += $a_lek['rndmen'];
             }
@@ -48,18 +56,18 @@ if (isset($_GET['szall'])) {
                                 <td class="b" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">'.$a_lek['nev'].'</td>
                                 <td class="c" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">'.$a_lek['cikkmee'].'</td>
                                 <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">'.number_format($rndmen, 2, ',', ' ').'</td>
-                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">'.number_format($a_lek['rndear'], 2, ',', ' ').'</td>
-                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">'.number_format($rndmen*$a_lek['rndear'], 0, ',', ' ').'</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">'.number_format($a_lek[$egysegar_mezo], 2, ',', ' ').'</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">'.number_format($rndmen*$a_lek[$egysegar_mezo], $egysegar_tized, ',', ' ').'</td>
                             </tr>
                             ';
-            $ossz += $rndmen*$a_lek['rndear'];
+            $ossz += $rndmen*$a_lek[$egysegar_mezo];
         }
         $tetelek_html .= '
                         <tr>
                             <td style="border: 0"></td>
                             <td style="border: 0"></td>
                             <td style="border: 0; padding: 5px;" class="r b" colspan="2">Mindösszesen:</td>
-                            <td style="border: 0;padding: 5px; white-space: nowrap;" class="r b">'.number_format($ossz, 0, ',', ' ').'</td>
+                            <td style="border: 0;padding: 5px; white-space: nowrap;" class="r b">'.number_format($ossz, $egysegar_tized, ',', ' ').'</td>
                         </tr>
                         </table>
                         ';

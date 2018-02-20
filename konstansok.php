@@ -260,6 +260,11 @@ define('ERT_ELFELEJTETT_JELSZO',        11);
 
 define('HIBA_ADJON_FELADAT',           ' kérjük adjon hozzá egy elvégzett feladatot!');
 
+// Pénznem értéklistánál a HUF értéklista ID-ja
+define('KCS_21_HUF',           5);
+
+
+
 define('ERTEKLISTA_BEJ_HIBA',   4);
 define('ERTEKLISTA_ELV_FELAD',  5);
 define('ERTEKLISTA_ATADAS_OKA', 7);

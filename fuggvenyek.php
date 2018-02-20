@@ -2467,7 +2467,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam`';
 
             // Helyiség név szerinti rendezés
-            }elseif($_GET['rend']=='nev'){
+            }elseif($_GET['rend']=='obj_id'){
                 $order .= '`'.get_db_tabla().'obj`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].'';
 
             // Alapértelmezett rendezettség a sürgős, azon belül telephely
@@ -2525,6 +2525,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             }elseif($_GET['rend']=='ikt_szam'){
                 
                 $order .= '`'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
+                
+            // Helyiség név szerinti rendezés
+            }elseif($_GET['rend']=='obj_id'){
+                $order .= '`'.get_db_tabla().'obj`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].'';
                 
             // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             }elseif($_GET['rend']=='telephely_id'){
@@ -2587,7 +2591,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if ($_GET['mezo']=='megjegyzes') {
             $sql_kieg .= ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
-        if($tabla!='munkalap' && $tabla!='munkalap_arch' && strpos($select, 'obj_id')!==false){
+        if(strpos($select, 'obj_id')!==false){
             $sql_kieg .= ' JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid` ';
         }
         $mivel = 'JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`'.$sql_kieg.' WHERE';
@@ -2651,7 +2655,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
     }
 
     // Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
-    if(!isset($_GET['szamlaSorFrissit'])){
+    if(!isset($_GET['szamlaSorFrissit']) && $tabla!='esemenyek'){
         $_SESSION['akt_sql'] = $sql;
     }
 
@@ -3112,6 +3116,10 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     }
                 }
                 
+            }
+            // Mobilcsoport esetén látszódjon a betűjel is
+            if($bsz['szemelyzet_id']==MOBILCSOPORT){
+                $szemelyzet .= ' ('.strtoupper($bsz['mobil']).')';
             }
 
             $dok_icon = '';
@@ -4988,6 +4996,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'id'            => 'Kód',
         'ikt_szam'      => $kieg_nev.' szám',
         'nev'           => 'Név',
+        'obj_id'        => 'Helyiség',
         'rndid'         => 'Rendelés száma',
         'rnd_dt'        => 'Rendelés dátum',
         'recid'         => 'Rendszer ID',
@@ -5005,9 +5014,6 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     // Néhol át kell írni az általános mezőneveket (pl. loginnál a nev nem Név, hanem Login név)
     if( basename(self()) == 'bejelentes.php' || basename(self()) == 'bejelentes_arch.php' ) {
         $oszlopNevek['surgos'] = 'Státusz';
-    }
-    if( (basename(self()) == 'bejelentes.php' || basename(self()) == 'bejelentes_arch.php') && $oszlop == 'nev' ) {
-        $oszlopNevek['nev'] = 'Helyiség';
     }
     if( basename(self()) == 'login.php' ) {
         $oszlopNevek['nev'] = 'Login név';

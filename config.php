@@ -18,7 +18,7 @@ error_reporting(E_ERROR);                       //Csak a hibákat írja ki
 
 require_once 'konstansok.php';
 
-//Adatbázis
+// Időzóna beállítása
 date_default_timezone_set('Europe/Budapest');
 
  // Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály

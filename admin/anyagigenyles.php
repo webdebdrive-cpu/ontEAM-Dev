@@ -582,7 +582,6 @@ if( isset($_POST['arazas']) ) {
                             $(\'#pop_arfolyam\').attr(\'readonly\', 1).val(\'0,00000\');
                             $(\'#pop_vrndear\').attr(\'readonly\', 1).val(\'0,0000\');
                             $(\'#pop_atvaltva_d\').attr(\'readonly\', 1).val(\'').'    .  .  '.nl2('\');
-
                             rend_osszeg = rndmen*rndear;
                             $(\'#rend_osszeg\').html(ezresek(rend_osszeg, 4, \',\', \' \'));
 
@@ -594,7 +593,7 @@ if( isset($_POST['arazas']) ) {
                             $(\'#pop_atvaltva_d\').removeAttr(\'readonly\').addClass(\'csillag\');
                             $(\'#pop_rndear\').attr(\'readonly\', 1);
 
-                            rend_osszeg = rndmen*arfolyam*arfolyam;
+                            rend_osszeg = rndmen*arfolyam*vrndear;
                             $(\'#pop_rndear\').val( ezresek(arfolyam*vrndear, 4, \',\', \' \') );
                             $(\'#rend_osszeg\').html(ezresek(rend_osszeg, 4, \',\', \' \'));
                             $(\'#rend_osszeg2\').html(ezresek(rndmen*vrndear, 4, \',\', \' \')+\' \'+$(\'#pop_kcs_21_autocomp\').val());
@@ -1657,9 +1656,20 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
     // Rendelés ID formázása
     $rndid = 'R'.date('y').'/'.sprintf('%04d', $sorszam);
     
+    // Számoljuk ki a rendelés értékét
+    $rndertek = 0;
+    $anyagok = json_decode( $_POST['anyagok'], 1 );
+    foreach($anyagok as $anyag){
+        if($anyag['cikkszam']){
+            $anyag['menny'] = str_replace(array(',', ' '), array('.', ''), $anyag['menny']);
+            $anyag['ear']   = str_replace(array(',', ' '), array('.', ''), $anyag['ear']);
+            $rndertek += ($anyag['menny']*$anyag['ear']);
+        }
+    }
+    
     // Létrehozunk egy új rendelésfej bejegyzést
-    $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('keszpenz', 'stat_id',               'rndid', 'rnd_dt',  'kepfajl',   'szallito_id',         'insert_dt',    'insert_usr',                           'update_usr'                            ),
-                                                                array(1,          CIKKIGN_STAT_BEERKEZETT, $rndid,  'NOW()',   '',          $_POST['szallito_id'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
+    $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('keszpenz', 'stat_id',               'rndid', 'rndertek', 'rnd_dt',  'kepfajl',   'szallito_id',         'insert_dt',    'insert_usr',                           'update_usr'                            ),
+                                                                array(1,          CIKKIGN_STAT_BEERKEZETT, $rndid,  $rndertek,  'NOW()',   '',          $_POST['szallito_id'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
                                                 );
     if( $cikkrendfej_id === false ) { $db_error = true; }
 
@@ -1820,8 +1830,13 @@ if (isset($_GET['csv'])) {
     }
     fclose($open);
 
+    $megnevezes_csv = $megnevezes;
+    if(isset($_GET['anyagrend'])){
+        $megnevezes_csv = 'anyagrendeles';
+    }
+    
     header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=$megnevezes.csv");
+    header("Content-Disposition: attachment; filename=$megnevezes_csv.csv");
     header("Pragma: no-cache");
     header("Expires: 0");
 
@@ -2048,6 +2063,7 @@ require_once('selectek.php');
             }else{
                 $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt az anyagrendelést?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
             }
+            
         // Anyagigénylénél pedig kezelés jog
         }else{
             if(!_jog(JOG_ANYAGIGENYLES_KEZEL)){
@@ -2491,14 +2507,14 @@ require_once('selectek.php');
                     foreach($sorok as $sor) {
                         $szamla_html .= nl2('
                             <tr >
-                                <td class="l">'.getErtek('nev', 'telephely', 'id', $sor['telephely_id']).'</td>
+                                <td class="l nowrap">'.getErtek('nev', 'telephely', 'id', $sor['telephely_id']).'</td>
                                 <td class="l">'.$sor['cikk_id'].'</td>
                                 <td class="l">'.htmlspecialchars_decode($sor['nev']).'</td>
-                                <td class="r">'.$sor['rndmen'].'</td>
+                                <td class="r nowrap">'.$sor['rndmen'].'</td>
                                 <td>'.$sor['cikkmee'].'</td>
-                                <td class="r">'.number_format($sor['rndear'], 4, ',', ' ').'</td>
-                                <td class="r">'.number_format($sor['vrndear'], 4, ',', ' ').'</td>
-                                <td class="r">'.number_format($sor['erkmen'], 2, ',', ' ').'</td>
+                                <td class="r nowrap">'.number_format($sor['rndear'], 2, ',', ' ').'</td>
+                                <td class="r nowrap">'.number_format($sor['vrndear'], 4, ',', ' ').'</td>
+                                <td class="r nowrap">'.number_format($sor['erkmen'], 2, ',', ' ').'</td>
                                 <td class="r">'.erteklista(21, $sor['kcs_21']).'</td>
                                 <td class="r">'.getStatText('anyagigenyles', $sor['stat_id']).'</td>
                             </tr>

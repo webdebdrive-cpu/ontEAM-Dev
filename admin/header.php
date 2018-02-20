@@ -709,7 +709,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     // Rendezés
     $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
     $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
-
+    
     $rendezes = '';
     $i = 1;
     foreach($rend_mezok as $rend_mezo) {

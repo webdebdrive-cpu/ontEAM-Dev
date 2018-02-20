@@ -91,17 +91,21 @@ if (isset($_GET['csv'])) {
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
         $sql = 'SELECT
-                `stat_id` as \'Státusz\',
+                `'.get_db_tabla().$megnevezes.'`.`recid` as \'Id\',
+                `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
+                `obj_id` as \'Helyiség\',
                 `ikt_szam` as \'Munkalap szám\',
+                `'.get_db_tabla().$megnevezes.'`.`update_dt` as \'Bejelentett hiba\',
+                `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\',
                 `surgos` as \'Sürgős\',
                 `visszaadva` as \'Visszaadva\',
                 `text` as \'Leírás\',
-                `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
-                `obj_id` as \'Helyiség\',
                 `gep_id` as \'Gépnév\',
                 `tipus_id` as \'Típus\',
                 `szallito_id` as \'Külső kivitelező\',
-                `szemelyzet_id` as \'Hozzárendelt személyzet\'
+                `szemelyzet_id` as \'Hozzárendelt személyzet\',
+                `ig_el_id` as \'Igényelt elvégzés\',
+                `varh_erk` as \'Várható érkezés\'
                 '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);
@@ -110,28 +114,64 @@ if (isset($_GET['csv'])) {
         while($fejlec_nevek = mysqli_fetch_field($query)){
             $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
         }
+        unset($csvhead[0]);
         fputcsv($open, $csvhead, ';');
 
         while( $sorok = mysqli_fetch_assoc($query) ){
             $csvcont = array();
+
+            $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs_arch', "`munkalap_id`='{$sorok['Id']}'");
+            $bejelentes = $adatbazis_kapcsolat->s2('hiba_id insert_dt', 'bejelentes_arch', "`recid`='{$bejelentes['bejelentes_id']}'");
             foreach( $sorok as $kulcs => $sor ) {
+                
+                if($kulcs=='Id'){
+                    continue;
+                }
                 if($kulcs=='Szálloda'){
                     $sor = getErtek('nev', 'telephely', 'id', $sor);
                 }
                 if($kulcs=='Bejelentett hiba'){
-                    $sor = getErtek('info', 'erteklista', 'recid', $sor);
+                    $sor = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
+                }
+                if($kulcs=='Bejelentés dátuma'){
+                    $sor = $bejelentes['insert_dt'];
+                }
+                if($kulcs=='Gépnév'){
+                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
                 }
                 if($kulcs=='Helyiség'){
                     $sor = getErtek('nev', 'obj', 'recid', $sor);
                 }
-                if($kulcs=='Gépnév'){
-                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
+                if($kulcs=='Hozzárendelt személyzet'){
+                    $sor = getErtek('nev', 'szerepkor', 'recid', $sor);
+                }
+                if($kulcs=='Igényelt elvégzés' || $kulcs=='Várható érkezés'){
+                    if($sor=='0000-00-00 00:00:00'){
+                        $sor = '';
+                    }
+                }
+                if($kulcs=='Külső kivitelező'){
+                    $sor = getErtek('nev', 'szallito', 'id', $sor);
                 }
                 if($kulcs=='Típus'){
                     $sor = erteklista(6, $sor);
                 }
                 if($kulcs=='Státusz'){
-                    $sor = getStatText($megnevezes, $sor);
+                    $sor = getStatText('munkalap', $sor);
+                }
+                if($kulcs=='Sürgős'){
+                    if($sor){
+                        $sor = 'igen';
+                    }else{
+                        $sor = 'nem';
+                    }
+                }
+                if($kulcs=='Visszaadva'){
+                    if($sor){
+                        $sor = 'igen';
+                    }else{
+                        $sor = 'nem';
+                    }
                 }
 
                 $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );

@@ -30,7 +30,8 @@
                         </tr>
                         <tr>
                             <td colspan="2" class="p c">
-                                <input class="gombb zold" type="submit" name="jelszo_csere" value="Mentés" style="margin-right: 0.2rem">
+                                <input class="gomb" type="button" name="jelszo_csere" value="Mégsem" onclick="megsem()" style="margin-right: 0.2rem">
+                                <input class="gombb zold" type="submit" name="jelszo_csere" value="Mentés">
                             </td>
                         </tr>
                     </table>
@@ -61,6 +62,19 @@
             }
             
             return true;
+        }
+        
+        function megsem(){
+            $.ajax({
+                url : 'beleptetes.php',
+                type: 'POST',
+                data: {
+                    megsem   : Date.now()
+                },
+                success: function(response){
+                    location.reload();
+                }
+            });
         }
     </script>
 </body>

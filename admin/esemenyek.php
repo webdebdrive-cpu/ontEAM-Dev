@@ -159,7 +159,7 @@ switch($tabla) {
                                 ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'telephely_id',  'nev'   );
+        $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'telephely_id',  'obj_id');
         $_OPTS['iranyok']   = array('desc',    'asc',      'asc',           'asc'   );
 
         // Default rendezés
@@ -453,12 +453,14 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`gep_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`szemelyzet_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`mobil`,
+                                `'.get_db_tabla().'obj`.`nev`,
                                 `'.get_db_tabla().'munkalap_csoport`.`nev`
                             ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id', 'stat_id');
-        $_OPTS['iranyok']   = array('asc',      'asc',          'desc'   );
+        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id', 'stat_id', 'obj_id');
+        $_OPTS['iranyok']   = array('asc',      'asc',          'desc',    'asc');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -1113,7 +1115,8 @@ $munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'oriasi disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'onclick' => 'szallodaVane( this );', 'post' => $obj_post),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id', 'alert' => 'Kérjük adja meg a tipust!'),
-    array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => 1,                  'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
+    array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => 1,                  'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'style' => 'width: 30rem'),
+    array('type' => 'text',                     'megn' => 'Jóváhagyott érték:',         'name' => 'jh_ert',             'szuro' => 1, 'disabled' => 1, 'style' => 'width: 8rem; text-align: right;', 'post' => ' '.get_penznem()),
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'szuro' => 1, 'disabled' => 1,                  'class' => 'disableNav',        'post'  => ' '.$hozrend_mobilnev),
     array('type' => 'text',                     'megn' => 'Igényelt elvégzés:',         'name' => 'ig_el_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker', 'maxlength' => 16),
     array('type' => 'text',                     'megn' => 'Várható érkezés:',           'name' => 'varh_erk',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker', 'maxlength' => 16),
