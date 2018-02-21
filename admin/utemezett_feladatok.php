@@ -441,13 +441,6 @@ require_once('selectek.php');
             $sor['ciklho2'] = $sor['ciklszorz'];
         }
 
-        if( $sor['datetime'] ) {
-            $_SESSION['formMod'] = array(
-                'datetime' => $sor['update_dt'],
-                'oldal'    => basename(self())
-            );
-        }
-
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
                 
@@ -553,8 +546,8 @@ if(isset($_GET['ut_teszt'])) {
         $jobb_oldal = '';
 
 	    $szamla_html .= str_replace(
-            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}'    ),
-            array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok       ),
+            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{UPDATE_DT}'     ),
+            array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $sor['update_dt'] ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
         

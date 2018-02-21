@@ -21,12 +21,27 @@
 *	@return array: első része a $errnum második pedig a beszúrt vagy módosított sor id-je
 */
 function i_u($type, $tabla, $tomb) {
+    
 	global $adatbazis_kapcsolat;
 	global $db_kapcs;
     
     // Archiv táblába biztosan nem írunk
     if( substr($tabla, strlen($tabla)-5) == '_arch' ){
         return false;
+    }
+    
+    // Ha már valaki rámentett az adatlapomra, akkor hibaüzenet
+    if($type == 'update') {
+        $update_dt = $adatbazis_kapcsolat->s2('update_dt', $tabla, "`recid`='{$_GET['id']}'");
+        if( $update_dt['update_dt'] > $_POST['update_dt'] ){
+            echo json_encode(array(
+                'hiba' => 'A rekordot egy másik felhasználó időközben módosította.<br>A változásokat nem lehet menteni, próbálja újra!',
+                'gomb' => '<input type="button" value="Ok" class="gomb zold" onclick="formModositva=false; location.reload();">'
+            ));
+
+            $weblap -> leallit();
+            exit();
+        }
     }
    
     // Tranzakció indul
@@ -834,18 +849,6 @@ function i_u($type, $tabla, $tomb) {
         $record = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
         if( $record === false ) { $db_error = true; }
         if( $record ) {
-            if( $record[0]['datetime'] ) {
-                if( $_SESSION['formMod']['oldal'] == basename(self()) ) {
-                    if( $_SESSION['formMod']['datetime'] != $record[0]['update_dt'] ) {
-                        echo json_encode(array(
-                            'hiba' => 'Ezt a bejegyzést valaki más már módosította, <br>kérlek kezd előről a szerkesztést!'
-                        ));
-
-                        $weblap -> leallit();
-                        exit();
-                    }
-                }
-            }
 
             // Kezdeményezett művelet
             $muvelet = 'A(z) '.$tabla.' '.$_GET['id'].'. recordját módosította.';
@@ -935,7 +938,7 @@ function i_u($type, $tabla, $tomb) {
             // Ha igény rögzítéséről van szó, akkor státuszt léptetünk, illetve iktatószámot is ekkor kap
             if ($_POST['igeny_rogzites']) {
                 if( addStatusz( 'projektigenyles_statusz', $_GET['id'], PRIGENY_STAT_NYITOTT ) === false ) { $db_error = true; }
-                /* Megnézzük, hogy az adott évszámmal létezik e bejegyzés */
+                // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
                 $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = '{$tabla}' AND `ev` = '".date('y')."'");
                 if( $ikt_seq === false ) { $db_error = true; }
                 if( $ikt_seq ) {
@@ -973,7 +976,6 @@ function i_u($type, $tabla, $tomb) {
         }
         
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
-// echo $adatbazis_kapcsolat->gp() . '<br>'; exit;
         if( $id === false ) { $db_error = true; }
 
         if( $id ) {
@@ -1026,13 +1028,11 @@ function i_u($type, $tabla, $tomb) {
 
                 }
                 
-// Ha nem Szinvatrendes teszt üzemmód
-//if ( !($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett_feladatok.php') ) {
                 echo json_encode(array(
                     'statusz' => 'siker',
                     'adatok'  => $sor[0]
                 ));
-//}
+
             }
         }
 	}
@@ -1067,8 +1067,7 @@ function i_u($type, $tabla, $tomb) {
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         
-        // Login jelszó küldést commitután küldünkű
-        
+        // Login jelszó küldést commitután küldünk
         if( $tabla == 'login' ) {
             // Ha most vették ki a Jelszóval rendelkezik pipát, akkor e-mail értesítés küldése
             if( $van_jelszo && !$_POST['van_jelszo'] ){
@@ -1079,93 +1078,6 @@ function i_u($type, $tabla, $tomb) {
     } else {
         mysqli_rollback($db_kapcs);
     }
-    
-    
-    
-// Szinvatrendes teszt üzemmód
-//if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu' && basename(self())=='utemezett_feladatok.php') {
-//
-//    $sor = $adatbazis_kapcsolat->s2('*', 'utemezett_feladatok', "`recid`='$id'");
-//    $utemezes = 'Folyamatos';
-//    if($sor['idoszakos']){
-//        if($sor['aktkezd_d']>'0000-00-00' && $sor['aktkezd_d']>'0000-00-00'){
-//            $utemezes = $sor['aktkezd_d'].'-'.$sor['aktvege_d'];
-//            if($sor['aktvege_d']<date('Y-m-d')){
-//                $utemezes = $sor['aktvege_d'].' után nincsenek további ütemezések.';
-//                $kell_lista = false;
-//            }
-//        }else{
-//            require_once 'selectek.php';
-//            $kezdho = '';
-//            foreach($select_honapok as $honap){
-//                if($honap['value']==$sor['kezdho']){
-//                    $kezdho = $honap['name'];
-//                    break;
-//                }
-//            }
-//            $vegeho = '';
-//            foreach($select_honapok as $honap){
-//                if($honap['value']==$sor['vegeho']){
-//                    $vegeho = $honap['name'];
-//                    break;
-//                }
-//            }
-//            $utemezes = $kezdho.' '.$sor['kezdnap'].'. - '.$vegeho.' '.$sor['vegenap'].'.';
-//        }
-//    }
-//
-//    include('datumra_utemezes.php');
-//    if(!$sor['esem_d'] || $sor['esem_d']=='0000-00-00'){
-//        $sor['esem_d'] = date('Y-m-d');
-//    }
-//
-//    $esem_d     = substr(str_replace('-', '.', $sor['esem_d']), 0, 10);
-//    $esnap_d    = str_replace('-', '.', $sor['esnap_d']);
-//    $aktkezd_d  = str_replace('-', '.', $sor['aktkezd_d']);
-//    $aktvege_d  = str_replace('-', '.', $sor['aktvege_d']);
-//    
-//    // 0-ék helyett használjunk üres stringet
-//    foreach($sor as $kulcs => $ertek){
-//        if(!$sor[$kulcs]){
-//            $sor[$kulcs] = '';
-//        }
-//    }
-//
-//    $kiir .=  "
-//        <div class='dtc vat'>
-//            esemd: $esem_d
-//            <br>cikltip: $sor[cikltip]
-//            <br>ciklaltip: $sor[ciklaltip]
-//            <br>ciklszorz: $sor[ciklszorz]
-//            <br>ciklho: $sor[ciklho]
-//            <br>ciklhet: $sor[ciklhet]
-//            <br>ciklnap: $sor[ciklnap]
-//            <br>idoszakos: $sor[idoszakos]
-//            <br>kezdho: $sor[kezdho]
-//            <br>kezdnap: $sor[kezdnap]
-//            <br>vegeho: $sor[vegeho]
-//            <br>vegenap: $sor[vegenap]
-//            <br>aktkezd_d: $aktkezd_d
-//            <br>aktvege_d: $aktvege_d";
-//
-//    $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
-//
-//    $kiir .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate).'<br><br>';
-//    $kiir .= '<hr>Ütemezés: ' . $utemezes;
-//    $kiir .= '<hr>Esedékes: ' . $sor['esnap_d'].' '.het_napja_txt($sor['esnap_d']);
-//    $kiir .= '<hr>Utolsó végrehajtás: ' . $esnap_d .' '.het_napja_txt($esnap_d);
-//    $kiir .= '<br>Következő: ' . $getnextvaliddate.' '.het_napja_txt($getnextvaliddate);
-//    $kiir .= '</div><div class="dtc vat">';
-//    $kiir .= '<br>Következő 10 iteráció:<br>';
-//    for($i=0; $i<10; $i++){
-//        $getnextvaliddate = getnextvaliddate(false, $getnextvaliddate, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
-//        $kiir .= $getnextvaliddate . '<br>';
-//    }
-//    $kiir .= '</div>';
-//
-//    echo json_encode( array('hiba' => $kiir) );
-//    exit;
-//}
 
 	return array('', $id);
 }
@@ -1315,6 +1227,9 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
             }
         }
     }
+    
+    // Update_dt is kerüljön bele
+    $param .= 'update_dt=\'+$(\'#update_dt\').val()+\'&amp;';
 
 
     // Egyedi hibaüzenetek
@@ -2296,6 +2211,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
         // Ha van öszetettt szűrés feltétel
         if($_SESSION['o_szuro_feltetel']){
+
             // Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
             if($where){
                 $where = '('.csonkit($where, 5).') AND ';
@@ -2325,7 +2241,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
     }else{
         $frissit = true;
     }
-
+    
     // Lapozás előkészítése
     require_once('../class/class.Lapozo.php');
 
@@ -2587,6 +2503,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                                 LEFT OUTER JOIN `'.get_db_tabla().'munkalap_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'munkalap_csoport`.`recid`
                             ');
         }
+        
         // Szűréskor megjegyzés JOIN
         if ($_GET['mezo']=='megjegyzes') {
             $sql_kieg .= ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
@@ -2645,8 +2562,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if ($_GET['mezo']=='megjegyzes') {
             $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
-        if ($tabla=='login' && $_GET['mezo']=='szalloda') {
+        if ( $tabla=='login' && ($_GET['mezo']=='szalloda' || strpos($_SESSION['o_szuro_feltetel'], 'szalloda')!==false ) ) {
             $join = ' JOIN `'.get_db_tabla().'telephely_kapcs` ON `'.get_db_tabla().'login`.`nev`=`'.get_db_tabla().'telephely_kapcs`.`nev`';
+        }
+        
+        // Ha csak egy konkrét rekordot frissítünk a bal navpanelben, akkor a limit 1 legyen. Join esetén többször ugyanaz is kijöhet, ezért lényeges limitálni.
+        if( isset($_GET['szamlaSorFrissit']) ){
+            $limit = 1;
         }
 
         $bejegyzesek = $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit, '', '', $join);
@@ -3119,7 +3041,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
             // Mobilcsoport esetén látszódjon a betűjel is
             if($bsz['szemelyzet_id']==MOBILCSOPORT){
-                $szemelyzet .= ' ('.strtoupper($bsz['mobil']).')';
+                $szemelyzet .= ' '.strtoupper($bsz['mobil']).'';
             }
 
             $dok_icon = '';
@@ -3451,7 +3373,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     if( $bejegyzesek ) {
 
-        // Anyagrendelés esetén más listát generálunk ki
+        // Anyagrendelés esetén más listát generálunk ki (rndid alapján group by-oztuk)
         if(isset($_GET['anyagrend'])){
             
             $jClass = '';
@@ -5259,13 +5181,19 @@ function getStatuszIdo( $time ) {
 }
 
 // Státusz hozzáadása
-function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklista_recid = 0, $memo = '' ) {
+function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklista_recid = 0, $memo = '', $rendszer_a_user = false ) {
     
     global $adatbazis_kapcsolat;
     global $db_kapcs;
 
     $db_error = false;
     $kulso_kulcs = str_replace('_statusz', '', $tabla);
+    
+    // Ütemezők esetén is legyen teljes_nev, amit be tudunk írni
+    $teljes_nev = $_SESSION[get_db_tabla().'teljes_nev'];
+    if($rendszer_a_user){
+        $teljes_nev = get_nev();
+    }
 
     if( $tabla && $recid && $stat_id ) {
         
@@ -5276,47 +5204,47 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
         if( $akt_statusz && ( $akt_statusz['stat_id']!=$stat_id || $akt_statusz['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
 
             // Megállapítjuk a státusz idejét
-            $statusz_ido = round( time() - strtotime($akt_statusz['insert_dt']) );
-            $statusz_ido = getStatuszIdo( $statusz_ido );
+            $statusz_ido_s = round( time() - strtotime($akt_statusz['insert_dt']) );
+            $statusz_ido   = getStatuszIdo( $statusz_ido_s );
 
             // Göngyölt státuszidő
-            $elso_statusz = $adatbazis_kapcsolat->s('insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid asc', '1');
+            $elso_statusz = $adatbazis_kapcsolat->s2('insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid asc', '1');
             if( $elso_statusz === false ) { $db_error = true; }
             if( $elso_statusz ) {
-                $elso_statusz = $elso_statusz[0];
-
-                $gongyolt_statido = round( time() - strtotime($elso_statusz['insert_dt']) );
-                $gongyolt_statido = getStatuszIdo( $gongyolt_statido );
+                $gongyolt_statido_s = round( time() - strtotime($elso_statusz['insert_dt']) );
+                $gongyolt_statido   = getStatuszIdo( $gongyolt_statido_s );
             }
 
             // Összesített státuszidő
-            $elso_akt_stat = $adatbazis_kapcsolat->s2('recid insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}' AND `stat_id`='$stat_id'", 'recid asc', '1');
+            $elso_akt_stat = $adatbazis_kapcsolat->s2('recid insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}' AND `stat_id`='{$stat_id}'", 'recid asc', '1');
             if( $elso_akt_stat === false ) { $db_error = true; }
 
             $ossz_statido = '';
             if( $elso_akt_stat ) {
 
-                $ossz_statido = round( time() - strtotime($elso_akt_stat['insert_dt']) );
-                $ossz_statido = getStatuszIdo( $ossz_statido );
+                $ossz_statido_s = round( time() - strtotime($elso_akt_stat['insert_dt']) );
+                $ossz_statido   = getStatuszIdo( $ossz_statido_s );
 
                 // Frissítjük a sort
-                $sql = $adatbazis_kapcsolat -> u($tabla, array('ossz_statido'), array($ossz_statido ), "`{$kulso_kulcs}_recid`='{$recid}' AND `stat_id`='$stat_id'"
+                $sql = $adatbazis_kapcsolat -> u($tabla,    array('ossz_statido', 'ossz_statido_s'),
+                                                            array($ossz_statido,  $ossz_statido_s ),
+                                                       "`{$kulso_kulcs}_recid`='{$recid}' AND `stat_id`='{$stat_id}'"
                                             );
                 if( $sql === false ) { $db_error = true; }
             }
 
             // Frissítjük a sort
             $sql = $adatbazis_kapcsolat -> u($tabla,
-                                                array('end_dt',             'statido',    'gongyolt_statido'),
-                                                array( date('Y-m-d H:i:s'), $statusz_ido, $gongyolt_statido ),
+                                                array('end_dt',             'statido',    'statido_s',    'gongyolt_statido', 'gongyolt_statido_s'),
+                                                array( date('Y-m-d H:i:s'), $statusz_ido, $statusz_ido_s, $gongyolt_statido,  $gongyolt_statido_s ),
                                                 "`recid`='{$akt_statusz['recid']}'"
                                             );
             if( $sql === false ) { $db_error = true; }
             
             // Beszúrjuk az újat
             $sql = $adatbazis_kapcsolat -> i($tabla,
-                                                array($kulso_kulcs.'_recid', 'stat_id', 'erteklista_recid', 'text',  'insert_dt',   'insert_usr',                              'update_usr'                         ),
-                                                array($recid,                $stat_id,  $erteklista_recid,  $memo,   'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'])
+                                                array($kulso_kulcs.'_recid', 'stat_id', 'erteklista_recid', 'text',  'insert_dt',   'insert_usr',  'update_usr' ),
+                                                array($recid,                $stat_id,  $erteklista_recid,  $memo,   'NOW()',       $teljes_nev,   $teljes_nev  )
                                             );
             if( $sql === false ) { $db_error = true; }
 //echo $adatbazis_kapcsolat->gp() . '<br>';
@@ -5327,8 +5255,6 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
             // Az alap tábla státusz oszlopát is karban tartjuk
             $sql = $adatbazis_kapcsolat->u($kulso_kulcs, array('stat_id'), array($stat_id), "`recid`='$recid'");
             if( $sql === false ) { $db_error = true; }
-//echo $adatbazis_kapcsolat->gp() . '<br>';
-//exit;
 
             // Projektigénylés elutasításakor archiválunk
             if($alap_tabla=='projektigenyles' && $stat_id==PRIGENY_STAT_ELUTASITVA){
@@ -5601,7 +5527,7 @@ function beosztas_naptar($beosztas_id){
     return $html;
 }
 
-//A kapott mező, operátor és feltétel alapján előállítja a where feltétel kiegészítését
+// A kapott mező, operátor és feltétel alapján előállítja a where feltétel kiegészítését
 function get_szures_where_kieg($mezo, $op, $felt, $tabla){
 
     $mezo = sql_ertek($mezo);
@@ -5627,9 +5553,9 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         break;
     }
 
-//echo $mezo.' - '.$op.' - '.$felt;exit;
-    //Külső táblák kapcsolása
-    //A szamla_lista() függvényben is állítsd be a JOIN-okat
+// echo $mezo.' - '.$op.' - '.$felt;exit;
+    // Külső táblák kapcsolása
+    // A szamla_lista() függvényben is állítsd be a JOIN-okat
     if($mezo=='megjegyzes'){
         return '`'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().'megjegyzes`.`megj` LIKE \''.$felt.'\'';
     }elseif( $op_origi != 'empty' && ($tabla=='anyagigenyles' && $mezo=='nev') ){
@@ -5649,15 +5575,15 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
     }else{
 
-        //Mezőnevek pontosítása
+        // Mezőnevek pontosítása
         if( $tabla=='anyagigenyles' && $mezo=='nev' ){
             $mezo = get_db_tabla().'anyagigenyles`.`'.$mezo;
         }
-        return '`'.$mezo.'`'.$op.'\''.$felt.'\'';
+        return '`'.get_db_tabla().$tabla.'`.`'.$mezo.'`'.$op.'\''.$felt.'\'';
     }
 
 }
-//Összetett szűrés SQL-jét állítja elő egy stringből.
+// Összetett szűrés SQL-jét állítja elő egy stringből.
 function get_o_szures_where_kieg($feltetel, $tabla){
 
     $sql = '';
@@ -5703,7 +5629,7 @@ function get_o_szures_where_kieg($feltetel, $tabla){
     return csonkit( $sql, 5 );
 }
 
-/* Az adatbázisba letárolt props stringből visszaadja azt a mezőértéket, amire szükségünk van */
+// Az adatbázisba letárolt props stringből visszaadja azt a mezőértéket, amire szükségünk van
 function get_props($props, $mezo){
     $props = htmlspecialchars_decode($props);
     $props = explode("\n", $props);
@@ -5745,7 +5671,7 @@ function get_tortenet($megnevezes){
         $tabla      = $megnevezes.'_statusz_arch';
     }
     $sorok = $adatbazis_kapcsolat->s('stat_id insert_dt insert_usr statido gongyolt_statido ossz_statido text', $tabla, "`{$megnevezes}_recid` = '".$_GET['id']."'", 'recid desc');
-//echo $adatbazis_kapcsolat->gp() . '<br>';
+// echo $adatbazis_kapcsolat->gp() . '<br>';
     if( $sorok ) {
         foreach($sorok as $sor) {
 
@@ -5758,7 +5684,7 @@ function get_tortenet($megnevezes){
                 $szinkod = ' style="background: '.$statusz['szinkod'].';"';
             }
 
-            //Adatbázisba eleinte szóköz nélkül került be a nap, ezért biztonság kedvéért egy szóközt még beszúrunk, illetve a 0nap-ot is kiszűrjük (bár ez egy adatbázis frissítés után már felesleges)
+            // Adatbázisba eleinte szóköz nélkül került be a nap, ezért biztonság kedvéért egy szóközt még beszúrunk, illetve a 0nap-ot is kiszűrjük (bár ez egy adatbázis frissítés után már felesleges)
             $sor['statido']          = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['statido']);
             $sor['gongyolt_statido'] = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['gongyolt_statido']);
             $sor['ossz_statido']     = str_replace(array('0nap', 'nap'), array('', ' nap'), $sor['ossz_statido']);
@@ -5792,17 +5718,17 @@ function get_iktatoszam_sorszam($tabla){
     if( $ikt_seq ) {
         $ikt_seq = $ikt_seq[0];
 
-        /* Sorszám */
+        // Sorszám
         $sorszam = $ikt_seq['sorszam'];
 
-        /* Sorszám növelés */
+        // Sorszám növelés
         $sorszam++;
 
-        /* Letároljuk az új sorszámot */
+        // Letároljuk az új sorszámot
         $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla`='$tabla' AND `ev`='".date('y')."'");
         if( $sql === false ) { $db_error = true; }
     } else {
-        /* Sorszám */
+        // Sorszám
         $sorszam = 1;
 
         $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
@@ -5968,6 +5894,16 @@ function bejelentes_dok_munkalapba_masol($bejelentes_id, $munkalap_id){
     }
 }
 
+// Státusz időt, ami szövegesen van eltárolva, másodpercekké alakítja
+function statido_to_sec($string){
+    list($napok, $opmp) = explode('nap', $string);
+    $napok = trim($napok);
+    
+    list($ora, $perc, $mp) = explode(':', trim($opmp));
+    
+    return (60*60*24*$napok)+($ora*60*60)+($perc*60)+$mp;
+}
+
 // Levélküldés előtt jogot, értesítés pipát vizsgálunk, levél tartlamát és címzetteket kiszámoljuk
 function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
     
@@ -6050,7 +5986,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
             $bejelentes     = $adatbazis_kapcsolat->s2('ikt_szam usr_nev usr_email usr_telefon stat_id telephely_id obj_id loginnev insert_dt hiba_id', $tabla, "`recid`='{$recid}'");
             $mit            = array('{IKT_SZAM}',            '{SZALLODA}',                                                    '{INS_DT}',                '{HIBA}',                                                        '{OBJ}'                                                 );
             $mivel          = array($bejelentes['ikt_szam'], getErtek('nev', 'telephely', 'id', $bejelentes['telephely_id']),  $bejelentes['insert_dt'], getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']), getErtek('nev', 'obj', 'recid', $bejelentes['obj_id'])  );
-            $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/bejelentonek.html') );
+            $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/bejelento.html') );
 
             // Több címzett is van
             $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "substr(`flags`, ".(JOG_BEJELENTES_VIZSGAL+1).", 1)=1 AND substr(`flags_ert`, ".($ert_pipa+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0");

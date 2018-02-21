@@ -87,7 +87,9 @@ if($weblap -> db_prefix){
 // Kiléptetés, ha nem él a SESSION és nem az index.php-n vagyunk és nem is egy ütemezőn, nem is elfelejtett jelszót kérünk le.
 if( !$_SESSION[get_db_tabla().'user'] && !$_POST['elfelejtett_jelszo'] && basename( $_SERVER['PHP_SELF'] )!='index.php' && substr(basename( $_SERVER['PHP_SELF'] ), 0, 8)!='utemezo_' && basename( $_SERVER['PHP_SELF'] )!='beleptetes.php' ){
     echo 'SESKIL<script>document.body.innerHTML = \'\'; location.href=\'index.php\'</script>';
+    exit;
 }
+
     
 // Jogosultságok karbantartása
 if( $_SESSION[get_db_tabla().'user'] ) {

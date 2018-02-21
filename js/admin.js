@@ -2165,7 +2165,6 @@ function varolistabolKivetel(csak_kerdezunk) {
 function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
     if(balnav_kijelol_ell()){
 
-
         szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
         if( szamlaSorok.length ) {
 
@@ -2202,7 +2201,7 @@ function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
                                 return false;
                             }
 
-                            location.href = 'anyagigenyles.php?tablazat';
+                            location.href = 'anyagigenyles.php?tablazat&id='+idk[1];
                             /* navpanel frissítése (minden kijelölt sort)
                             szamlaSorok.each(function() {
                                 szamlaSorFrissit(page, $(this).attr('data-recid'));

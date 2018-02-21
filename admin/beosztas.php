@@ -488,13 +488,6 @@ require_once('selectek.php');
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
-        if( $sor['datetime'] ) {
-            $_SESSION['formMod'] = array(
-                'datetime' => $sor['update_dt'],
-                'oldal'    => basename(self())
-            );
-        }
-
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
 
@@ -550,8 +543,8 @@ require_once('selectek.php');
         $action = 'javascript:beosztas_naptar_hozzaad()';
 
 	    $szamla_html .= str_replace(
-            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}'    ),
-            array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok       ),
+            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{UPDATE_DT}'     ),
+            array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $sor['update_dt'] ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
 
@@ -585,8 +578,8 @@ require_once('selectek.php');
 
 	    $szamla_html .=
             str_replace(
-                array('{JS}', '{ACTION}', '{JS_SUBMIT_ELOTT}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'),
-                array( $js,    $action,   $js_submit_elott,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style   ),
+                array('{JS}', '{ACTION}', '{JS_SUBMIT_ELOTT}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}', '{UPDATE_DT}'      ),
+                array( $js,    $action,   $js_submit_elott,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $muv_style,    $sor['update_dt']  ),
                 fajlbol_olvas('../sablon/admin/form_modosit.html', true)
             ).'<script>$(document).ready(function () { $(\'#szerk_form div.dt\').hide(); });</script>';
 

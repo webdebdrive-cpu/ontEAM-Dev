@@ -392,7 +392,7 @@ function get_fejlec($szallito){
                         <br>Cím.: '.$szallito['isz'].' '.$szallito['varos'].', '.$szallito['utca'].'
                     </td>
                     <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">
-                        Név: Danubius Zrt. Műszaki szolgáltató központ
+                        Név: Danubius Zrt. Műszaki Szolgáltató Központ
                         <br>Üi.: '.$_SESSION[get_db_tabla().'teljes_nev'].'
                         '.$tel_kieg.'
                     </td>

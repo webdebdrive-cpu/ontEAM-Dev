@@ -412,7 +412,7 @@ require_once('selectek.php');
             echo $szamla_html;
         }
 
-	// Termék módosítása
+	// Rendszeres karbantartás módosítása
 	}elseif(isset($_GET['modosit'])) {
 
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
@@ -420,8 +420,7 @@ require_once('selectek.php');
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> select('*', $megnevezes, 'recid='.$_GET['id']);
-		$sor = $sor[0];
+	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
         // Régi adatbázisól jövő adatok miatt szükséges:
         if($sor['cikltip']=='d'){
@@ -432,13 +431,6 @@ require_once('selectek.php');
         }
         if($sor['cikltip']=='m' && $sor['ciklaltip']=='2'){
             $sor['ciklho2'] = $sor['ciklszorz'];
-        }
-//echo $adatbazis_kapcsolat->gp() . '<br>';
-        if( $sor['datetime'] ) {
-            $_SESSION['formMod'] = array(
-                'datetime' => $sor['update_dt'],
-                'oldal'    => basename(self())
-            );
         }
 
         foreach($akt_tomb as $tomb) {
@@ -501,8 +493,8 @@ require_once('selectek.php');
         $jobb_oldal = '';
 
 	    $szamla_html .= str_replace(
-            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}'    ),
-            array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok       ),
+            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{UPDATE_DT}'     ),
+            array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $sor['update_dt'] ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
 

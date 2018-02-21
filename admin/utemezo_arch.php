@@ -1,14 +1,20 @@
 <?php
 require_once('../weblap.php');
 
+$log = '';
+
 // Bejelentések archiválása
 // Ha bejelentés Elutasítva státuszban van, archiválunk.
 $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_ELUTASITVA."'");
 $bejelentesek = adatbazis2tomb($bejelentesek, 'recid');
+$log .= $adatbazis_kapcsolat->gp() . '
+';
 bejelentesek_archival( $bejelentesek );
 
 // Ha Lezárt státuszban van, megnézzük munkalapjait, ha minden munkalapja Lezárt státuszban van, akkor archiváljuk bejelentést, munkalapokat, mindkettő gyerektábláit bejelentésenként egy tranzakcióban.
 $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_LEZART."'");
+$log .= $adatbazis_kapcsolat->gp() . '
+';
 foreach($bejelentesek as $bejelentes){
     $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bejelentes['recid']}'");
     $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
@@ -21,15 +27,17 @@ foreach($bejelentesek as $bejelentes){
 
 // Ha munkalapnak nincs bejelentése és Lezárt státuszban van, archiválunk
 $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_LEZART."'");
+$log .= $adatbazis_kapcsolat->gp() . '
+';
 foreach($munkalapok as $munkalap){
-$adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'");
     if( count($adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'"))==0 ) {
         munkalapok_archival($munkalap['recid']);
     }
 }
 
 
-
+// A lefutást is eltároljuk
+$adatbazis_kapcsolat->i('utemezo_log', array('utemezo', 'log'), array(basename(self()), $log));
 
 
 // Bejelentések archiválása
@@ -37,11 +45,15 @@ function bejelentesek_archival($idk, $munkalap_is) {
     
     global $adatbazis_kapcsolat;
     global $db_kapcs;
+    global $log;
     
     // Ha csak egy ID-t kaptunk volna
     if(is_numeric($idk) ){
         $idk = array($idk);
     }
+    
+    $log .= 'Bejelentések archiválása (recidk): '.implode(', ', $idk).'
+';
     
     // Bejárás
     foreach($idk as $recid) {
@@ -77,8 +89,14 @@ function bejelentesek_archival($idk, $munkalap_is) {
         array_push($ertekek, $telephely_txt,  $csoport_txt,  $hiba_txt,  $obj_txt,  $gep_txt,  $stat_txt,  $usr_beosztas_txt,  $usr_reszleg_txt,  $usr_man_beosztas_txt,  $usr_man_reszleg_txt);
         
         $sql = $adatbazis_kapcsolat->i('bejelentes_arch', $mezok, $ertekek);
-echo $adatbazis_kapcsolat->gp() . '<br>';
-        if( $sql === false ) { $db_error = true; }
+        if( $sql === false ) { 
+            $db_error = true;
+            $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log .= $adatbazis_kapcsolat->gp() . '
+';
+        }
         
         // Dokumentumok
         $doksik = $adatbazis_kapcsolat->s('*', 'bejelentes_dok', "`bejelentes_id`='{$recid}'");
@@ -91,7 +109,14 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                 array_push($ertekek, $doksi[$kulcs]);
             }
             $sql = $adatbazis_kapcsolat->i('bejelentes_dok_arch', $mezok, $ertekek);
-            if( $sql === false ) { $db_error = true; }
+            if( $sql === false ) {
+                $db_error = true;
+                $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+            }else{
+                $log .= $adatbazis_kapcsolat->gp() . '
+';
+            }
         }
         
         // Státuszok
@@ -111,17 +136,45 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
             array_push($ertekek, $stat_txt,    $erteklista_txt);
             
             $sql = $adatbazis_kapcsolat->i('bejelentes_statusz_arch', $mezok, $ertekek);
-            if( $sql === false ) { $db_error = true; }
+            if( $sql === false ) {
+                $db_error = true;
+                $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+            }else{
+                $log .= $adatbazis_kapcsolat->gp() . '
+';
+            }
         }
         
         // Eredeti táblák törlése
         $sql = $adatbazis_kapcsolat->d('bejelentes', "`recid`='{$recid}'");
-        if( $sql === false ) { $db_error = true; }
+        if( $sql === false ) {
+            $db_error = true;
+            $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log .= $adatbazis_kapcsolat->gp() . '
+';
+        }
         $sql = $adatbazis_kapcsolat->d('bejelentes_dok', "`bejelentes_id`='{$recid}'");
-        if( $sql === false ) { $db_error = true; }
+        if( $sql === false ) {
+            $db_error = true;
+            $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log .= $adatbazis_kapcsolat->gp() . '
+';
+        }
         $sql = $adatbazis_kapcsolat->d('bejelentes_statusz', "`bejelentes_recid`='{$recid}'");
-        if( $sql === false ) { $db_error = true; }
-        
+        if( $sql === false ) {
+            $db_error = true;
+            $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log .= $adatbazis_kapcsolat->gp() . '
+';
+        }
+
         // Ha kell akkor egy tranzakcióban archiváljuk a munkalapokat is
         if( $munkalap_is ){
             $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$recid}'");
@@ -148,11 +201,15 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
     
     global $adatbazis_kapcsolat;
     global $db_kapcs;
+    global $log;
     
     // Ha csak egy ID-t kaptunk volna
     if(is_numeric($idk) ){
         $idk = array($idk);
     }
+    
+    $log .= 'Munkalapok archiválása (recidk): '.implode(', ', $idk).'
+';
 
     // Bejárás
     foreach($idk as $recid) {
@@ -190,8 +247,14 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         array_push($ertekek, $csoport_txt,  $szemelyzet_txt,  $szallito_txt,  $telephely_txt,  $stat_txt,  $obj_txt,  $gep_txt,  $tipus_txt,  $jh1_szerep_txt,  $jh2_szerep_txt );
         
         $sql = $adatbazis_kapcsolat->i('munkalap_arch', $mezok, $ertekek);
-        if( $sql === false ) { $db_error = true; }
-
+        if( $sql === false ) {
+            $db_error = true;
+            $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log .= $adatbazis_kapcsolat->gp() . '
+';
+        }
         // Anyagok
         $anyagok = $adatbazis_kapcsolat->s('*', 'munkalap_anyag', "`munkalap_id`='{$recid}'");
         if( $anyagok === false ) { $db_error = true; }
@@ -207,7 +270,14 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             array_push($ertekek, $telephely_txt );
             
             $sql = $adatbazis_kapcsolat->i('munkalap_anyag_arch', $mezok, $ertekek);
-            if( $sql === false ) { $db_error = true; }
+            if( $sql === false ) {
+                $db_error = true;
+                $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+            }else{
+                $log .= $adatbazis_kapcsolat->gp() . '
+';
+            }
         }
 
         // Dokumentumok
@@ -221,7 +291,14 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
                 array_push($ertekek, $doksi[$kulcs]);
             }
             $sql = $adatbazis_kapcsolat->i('munkalap_dok_arch', $mezok, $ertekek);
-            if( $sql === false ) { $db_error = true; }
+            if( $sql === false ) {
+                $db_error = true;
+                $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+            }else{
+                $log .= $adatbazis_kapcsolat->gp() . '
+';
+            }
         }
 
         // Feladat
@@ -239,7 +316,14 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             array_push($ertekek, $erteklista_txt );
 
             $sql = $adatbazis_kapcsolat->i('munkalap_feladat_arch', $mezok, $ertekek);
-            if( $sql === false ) { $db_error = true; }
+            if( $sql === false ) {
+                $db_error = true;
+                $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+            }else{
+                $log .= $adatbazis_kapcsolat->gp() . '
+';
+            }
         }
 
         // Kapcsolatok bejelentésekkel
@@ -254,7 +338,14 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             }
             
             $sql = $adatbazis_kapcsolat->i('munkalap_kapcs_arch', $mezok, $ertekek);
-            if( $sql === false ) { $db_error = true; }
+            if( $sql === false ) {
+                $db_error = true;
+                $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+            }else{
+                $log .= $adatbazis_kapcsolat->gp() . '
+';
+            }
         }
         
         // Munkaidő
@@ -272,7 +363,14 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             array_push($ertekek, $login_txt );
             
             $sql = $adatbazis_kapcsolat->i('munkalap_munkaido_arch', $mezok, $ertekek);
-            if( $sql === false ) { $db_error = true; }
+            if( $sql === false ) {
+                $db_error = true;
+                $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+            }else{
+                $log .= $adatbazis_kapcsolat->gp() . '
+';
+            }
         }
         
         // Státuszok
@@ -292,9 +390,16 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             array_push($ertekek, $stat_txt,    $erteklista_txt);
             
             $sql = $adatbazis_kapcsolat->i('munkalap_statusz_arch', $mezok, $ertekek);
-            if( $sql === false ) { $db_error = true; }
+            if( $sql === false ) {
+                $db_error = true;
+                $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+            }else{
+                $log .= $adatbazis_kapcsolat->gp() . '
+';
+            }
         }
-        
+
         // Tétel
         $tetelek = $adatbazis_kapcsolat->s('*', 'munkalap_tetel', "`munkalap_id`='{$recid}'");
         if( $tetelek === false ) { $db_error = true; }
@@ -311,28 +416,91 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             array_push($ertekek, $erteklista_txt  );
             
             $sql = $adatbazis_kapcsolat->i('munkalap_tetel_arch', $mezok, $ertekek);
-            if( $sql === false ) { $db_error = true; }
+            if( $sql === false ) {
+                $db_error = true;
+                $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+            }else{
+                $log .= $adatbazis_kapcsolat->gp() . '
+';
+            }
         }
-        
+
         // Eredeti táblák törlése
         $sql = $adatbazis_kapcsolat->d('munkalap', "`recid`='{$recid}'");
-        if( $sql === false ) { $db_error = true; }
+        if( $sql === false ) {
+            $db_error = true;
+            $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log .= $adatbazis_kapcsolat->gp() . '
+';
+        }
         $sql = $adatbazis_kapcsolat->d('munkalap_anyag', "`munkalap_id`='{$recid}'");
-        if( $sql === false ) { $db_error = true; }
+        if( $sql === false ) {
+            $db_error = true;
+            $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log .= $adatbazis_kapcsolat->gp() . '
+';
+        }
         $sql = $adatbazis_kapcsolat->d('munkalap_dok', "`munkalap_id`='{$recid}'");
-        if( $sql === false ) { $db_error = true; }
+        if( $sql === false ) {
+            $db_error = true;
+            $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log .= $adatbazis_kapcsolat->gp() . '
+';
+        }
         $sql = $adatbazis_kapcsolat->d('munkalap_feladat', "`munkalap_id`='{$recid}'");
-        if( $sql === false ) { $db_error = true; }
+        if( $sql === false ) {
+            $db_error = true;
+            $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log .= $adatbazis_kapcsolat->gp() . '
+';
+        }
         $sql = $adatbazis_kapcsolat->d('munkalap_kapcs', "`munkalap_id`='{$recid}'");
-        if( $sql === false ) { $db_error = true; }
+        if( $sql === false ) {
+            $db_error = true;
+            $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log .= $adatbazis_kapcsolat->gp() . '
+';
+        }
         $sql = $adatbazis_kapcsolat->d('munkalap_munkaido', "`munkalap_id`='{$recid}'");
-        if( $sql === false ) { $db_error = true; }
+        if( $sql === false ) {
+            $db_error = true;
+            $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log .= $adatbazis_kapcsolat->gp() . '
+';
+        }
         $sql = $adatbazis_kapcsolat->d('munkalap_statusz', "`munkalap_recid`='{$recid}'");
-        if( $sql === false ) { $db_error = true; }
+        if( $sql === false ) {
+            $db_error = true;
+            $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log .= $adatbazis_kapcsolat->gp() . '
+';
+        }
         $sql = $adatbazis_kapcsolat->d('munkalap_tetel', "`munkalap_id`='{$recid}'");
-        if( $sql === false ) { $db_error = true; }
+        if( $sql === false ) {
+            $db_error = true;
+            $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log .= $adatbazis_kapcsolat->gp() . '
+';
+        }
     }
-    
+
     // Tranzakció kommitolása, vagy rollback-ezése
     // Vagy ha nem tranzakciózunk, akkor retun false- legyen, hogy a bejelentésekből meghívva ott tudjunk rollback-ezni
     if( !$db_error ) {

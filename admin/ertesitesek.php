@@ -22,7 +22,7 @@ $ertesitesek = array(
     2  => array('nev' => 'Bejelentés reklamáció elutasításakor',                                        'kat' => 0, 'sor' => 2, 'i' => 'lezárt'         ),
     3  => array('nev' => 'Bejelentés igazolás elutasításakor',                                          'kat' => 0, 'sor' => 3, 'i' => 'vizsgálat alatt' ),
 
-    4  => array('nev' => 'Munkalap készrejelentésekor, ha hozzárendelt személyzet mobil vagy külsős',   'kat' => 1, 'sor' => 1, 'i' => 'igazolásra vár'     ),
+    4  => array('nev' => 'Munkalap készrejelentésekor,<br>ha hozzárendelt személyzet mobil vagy külsős',   'kat' => 1, 'sor' => 1, 'i' => 'igazolásra vár'     ),
     5  => array('nev' => 'Munkalap vizsgálat utáni lezárása után',                                      'kat' => 1, 'sor' => 2, 'i' => 'lezárt'             ),
     6  => array('nev' => 'Munkalap igazolás elutasítása után',                                          'kat' => 1, 'sor' => 3, 'i' => 'vizsgálat alatt'    ),
     7  => array('nev' => 'Külső kivitelező előkészítésekor',                                            'kat' => 1, 'sor' => 4, 'i' => 'előkészítés alatt'  ),
@@ -31,6 +31,6 @@ $ertesitesek = array(
 
     10  => array('nev' => 'Igénylés jóváhagyása előtt',                                                 'kat' => 2, 'sor' => 1, 'i' => 'árazva'),
 
-    11  => array('nev' => 'Értesítés, amikor egy felhasználó elfelejti a jelszavát.',                   'kat' => 3, 'sor' => 1),
+    11  => array('nev' => 'Amikor egy felhasználó elfelejti a jelszavát',                               'kat' => 3, 'sor' => 1),
 );
  

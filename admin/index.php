@@ -18,6 +18,22 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
+
+// Státusz idők rendbetétele
+if (isset($_GET['stat_ido'])) {
+    $tablak = array('anyagigenyles_statusz', 'bejelentes_statusz', 'bejelentes_statusz_arch', 'cikkrendfej_statusz', 'eloterj_bod_statusz', 'eloterj_fb_statusz', 'munkalap_statusz', 'munkalap_statusz_arch', 'projektigenyles_statusz', 'projektigenyles_statusz_arch', 'projektkezeles_statusz');
+    foreach($tablak as $tabla){
+        $statuszok = $adatbazis_kapcsolat->s('recid statido, gongyolt_statido, ossz_statido', $tabla, "`statido`!=''");
+        foreach($statuszok as $stat){
+            $adatbazis_kapcsolat->u($tabla,
+                                    array('statido_s',                      'gongyolt_statido_s',                       'ossz_statido_s'                     ),
+                                    array(statido_to_sec($stat['statido']), statido_to_sec($stat['gongyolt_statido']),  statido_to_sec($stat['ossz_statido'])),
+                            "`recid`='{$stat['recid']}'");
+        }
+    }
+    echo 'f';
+}
+
 // Loginról értesítő levelek küldése
 if (isset($_GET['login_ertesit'])) {
 

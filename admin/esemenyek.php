@@ -1055,6 +1055,7 @@ $bejelentes_tomb = $bejelentes_arch_tomb = $akt_tomb = array(
     array('type' => 'checkbox',        'megn' => '',   'megn_szurobe' => 'Telefonon bejelentve',    'name' => 'telefon',      'szuro' => 1,  'class' => 'check', 'post' => ' közvetlenül telepített karbantartónak telefonon bejelentve'),
     array('type' => 'nosql',           'name' => '',   'megn_szurobe' => 'Bejelentés dátuma',       'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datetimepicker'),
     array('type' => 'nosql',           'name' => 'masnevebenFeltolt'),
+   
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 if (isset($_GET['uj'])) {
@@ -1115,7 +1116,7 @@ $munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'oriasi disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'onclick' => 'szallodaVane( this );', 'post' => $obj_post),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 6, 'id_kiir' => 'id', 'alert' => 'Kérjük adja meg a tipust!'),
-    array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => 1,                  'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'style' => 'width: 30rem'),
+    array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => 1,                  'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'style' => 'width: 30rem', 'post' => '<span style="margin-right: 3rem"></span>', 'osszevon' => true),
     array('type' => 'text',                     'megn' => 'Jóváhagyott érték:',         'name' => 'jh_ert',             'szuro' => 1, 'disabled' => 1, 'style' => 'width: 8rem; text-align: right;', 'post' => ' '.get_penznem()),
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'szuro' => 1, 'disabled' => 1,                  'class' => 'disableNav',        'post'  => ' '.$hozrend_mobilnev),
     array('type' => 'text',                     'megn' => 'Igényelt elvégzés:',         'name' => 'ig_el_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker', 'maxlength' => 16),
@@ -2263,10 +2264,14 @@ if (isset($_POST['o_szures'])) {
     $weblap->leallit();
     exit();
 }
-// Összetett szűrés SQL-é alaktíása
+// Összetett szűrés SQL-é alakítása
 if (isset($_POST['f_o_szures_submit'])) {
 
-    $sql = 'SELECT * FROM `'.get_db_tabla().$_POST['tabla'].'` WHERE '.get_o_szures_where_kieg($_POST['feltetel'], $_POST['tabla']);
+    $join = '';
+    if($_POST['tabla']=='login' && strpos($_POST['feltetel'], 'szalloda')!==false ){
+        $join = ' JOIN `'.get_db_tabla().'telephely_kapcs` ON `'.get_db_tabla().$_POST['tabla'].'`.`nev`=`'.get_db_tabla().'telephely_kapcs`.`nev` ';
+    }
+    $sql = 'SELECT * FROM `'.get_db_tabla().$_POST['tabla'].'`'.$join.' WHERE '.get_o_szures_where_kieg($_POST['feltetel'], $_POST['tabla']);
     if(mysqli_query($db_kapcs, $sql)){
         $_SESSION['o_szuro_feltetel'] = $_POST['feltetel'];
         $_SESSION['o_szuro_html']     = $_POST['html'];
@@ -2304,7 +2309,7 @@ if( isset($_GET['getBejBejelentok']) ) {
         $telep_kapcsok = adatbazis2tomb($telep_kapcsok, 'nev');
 
         // Felhasználók lekérdezése
-        $sql = $loginok = $adatbazis_kapcsolat->s('nev teljes_nev reszleg_id beosztas_id szemelyzet_id', 'login', "`nev` IN ('".implode('\' , \'', $telep_kapcsok)."') AND `aktiv` > '0' AND `szemelyzet_id`!=0");
+        $sql = $loginok = $adatbazis_kapcsolat->s('nev teljes_nev reszleg_id beosztas_id szemelyzet_id', 'login', "`nev` IN ('".implode('\' , \'', $telep_kapcsok)."') AND `aktiv` > '0' AND `szemelyzet_id`!=0", 'teljes_nev');
         if( $sql === false ) { $db_error = true; }
 
         if( $loginok ) {
@@ -3104,7 +3109,8 @@ if( isset($_POST['mellekTorol']) ) {
                 }
                 
                 // Megejgyzést is adunk hozzá
-                $bejelentes = $adatbazis_kapcsolat->s2('ikt_szam', 'bejelentes', "`recid`='$id'");
+                $bejelentes = $adatbazis_kapcsolat->s2('ikt_szam', 'bejelentes', "`recid`='{$id}'");
+                $munkalap   = $adatbazis_kapcsolat->s2('ikt_szam', 'munkalap', "`recid`='{$id}'");
                 if(addMegj('munkalap', $recid, $bejelentes['ikt_szam'].' bejelentést töröltem a munkalapról')===false){
                     $db_error = true;
                 }
@@ -3120,7 +3126,7 @@ if( isset($_POST['mellekTorol']) ) {
                 // Ha a bejelentés nem szerepel más munkalapon, akkor státusza nyitott lesz
                 $szerepel_mas_munkalapon = $adatbazis_kapcsolat->s('recid', $tabla, "`bejelentes_id`='{$id}'");
                 if(!$szerepel_mas_munkalapon){
-                    if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_NYITOTT ) === false ) {
+                    if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_NYITOTT, '', $munkalap['ikt_szam'].' munkalapról levéve' ) === false ) {
                         $db_error = true;
                     }
                 }
@@ -3602,6 +3608,7 @@ if( isset($_GET['ertekFoglalt']) ) {
     exit();
 }
 
+// Bal oldali navpanel egy sorának frissítése
 if( isset($_GET['szamlaSorFrissit']) ) {
     $tabla = $_GET['tabla'];
     $recid = $_GET['recid'];

@@ -1139,7 +1139,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
             
             // Ha postban kaptunk volna ide értéket, akkor azzal számolunk
             if($jhmenek[$igeny['recid']]){
-                $igeny['jhmen'] = $jhmenek[$igeny['recid']];
+                $igeny['jhmen'] = str_replace( array(',', ' '), array('.', ''), $jhmenek[$igeny['recid']]);
             }
             
             if($igeny['jhmen']==0.00 ){
@@ -1168,7 +1168,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
                 $weblap->leallit();
                 exit();
             }
-
+            
             $ertek += $igeny['jhmen']*$igeny['rndear'];
             
             $i++;
@@ -1786,46 +1786,88 @@ if (isset($_GET['csv'])) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
-        $sql = 'SELECT
-                `'.get_db_tabla().'anyagigenyles`.`ikt_szam` as \'Anyagigénylés szám\',
-                `'.get_db_tabla().'anyagigenyles`.`cikk_id` as \'Cikk szám\',
-                `'.get_db_tabla().'anyagigenyles`.`nev` as \'Cikk név\',
-                `'.get_db_tabla().'anyagigenyles`.`stat_id` as \'Státusz\'
-                '.$lekerdezes_fromtol;
+        // Anyagrendelés. FONTOS: itt az SQL egy rndid alapján "group by"-ozott lekérdezés. Viszont ezt rendelésenként be kell járni.
+        // De azért indulunk ki az eredeti SQL-ből (és nem kezdjük a cikkrndfej tálbát bejárni) mert így lesznek a kíávnt rekordok az exportban is.
+        if(isset($_GET['anyagrend'])){
+            $sql = 'SELECT
+                    `'.get_db_tabla().'anyagigenyles`.`rndid` as \'Rendelés szám\',
+                    `'.get_db_tabla().'anyagigenyles`.`ikt_szam` as \'Anyagigénylés szám\',
+                    `'.get_db_tabla().'anyagigenyles`.`cikk_id` as \'Cikk szám\',
+                    `'.get_db_tabla().'anyagigenyles`.`nev` as \'Cikk név\',
+                    `'.get_db_tabla().'anyagigenyles`.`stat_id` as \'Státusz\'
+                    '.$lekerdezes_fromtol;
 
-        $query      = mysqli_query($db_kapcs, $sql);
+            $query      = mysqli_query($db_kapcs, $sql);
 
-        $csvhead    = array();
-        while($fejlec_nevek = mysqli_fetch_field($query)){
-            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
-        }
-        fputcsv($open, $csvhead, ';');
-
-        while( $sorok = mysqli_fetch_assoc($query) ){
-            $csvcont = array();
-            foreach( $sorok as $kulcs => $sor ) {
-                if($kulcs=='Szálloda'){
-                    $sor = getErtek('nev', 'telephely', 'id', $sor);
-                }
-                if($kulcs=='Bejelentett hiba'){
-                    $sor = getErtek('info', 'erteklista', 'recid', $sor);
-                }
-                if($kulcs=='Helyiség'){
-                    $sor = getErtek('nev', 'obj', 'recid', $sor);
-                }
-                if($kulcs=='Gépnév'){
-                    $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
-                }
-                if($kulcs=='Típus'){
-                    $sor = erteklista(6, $sor);
-                }
-                if($kulcs=='Státusz'){
-                    $sor = getStatText('anyagigenyles', $sor);
-                }
-
-                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+            $csvhead    = array();
+            while($fejlec_nevek = mysqli_fetch_field($query)){
+                $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
             }
-            fputcsv($open, $csvcont, ';');
+            fputcsv($open, $csvhead, ';');
+            while( $sorok = mysqli_fetch_assoc($query) ){
+                
+                // rndid alapján annyi sora lesz egy rendelés fejnek, ahány igénylés ahhoz tartozik
+                $rendeles = $adatbazis_kapcsolat->s2('recid', 'cikkrendfej', "`rndid`='{$sorok['Rendelés szám']}'");
+                $anyagigenylesek = $adatbazis_kapcsolat->s('rndid ikt_szam cikk_id nev stat_id', $megnevezes, "`rndid`='{$sorok['Rendelés szám']}'", 'insert_dt desc');
+                foreach($anyagigenylesek as $anyagigenyles){
+                    
+                    $csvcont = array();
+
+                    // Itt legyünk összhangban a fejléccel
+                    $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $anyagigenyles['rndid'] ) ) );
+                    $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $anyagigenyles['ikt_szam'] ) ) );
+                    $csvcont[] = (string)iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $anyagigenyles['cikk_id'] ) ) );
+                    $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $anyagigenyles['nev'] ) ) );
+                    $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( getStatText('anyagigenyles', $anyagigenyles['stat_id']) ) ) );
+                    fputcsv($open, $csvcont, ';');
+                    
+                }
+            }
+        
+        // Anyagigénylés
+        }else{
+            
+            $sql = 'SELECT
+                    `'.get_db_tabla().'anyagigenyles`.`ikt_szam` as \'Anyagigénylés szám\',
+                    `'.get_db_tabla().'anyagigenyles`.`cikk_id` as \'Cikk szám\',
+                    `'.get_db_tabla().'anyagigenyles`.`nev` as \'Cikk név\',
+                    `'.get_db_tabla().'anyagigenyles`.`stat_id` as \'Státusz\'
+                    '.$lekerdezes_fromtol;
+
+            $query      = mysqli_query($db_kapcs, $sql);
+
+            $csvhead    = array();
+            while($fejlec_nevek = mysqli_fetch_field($query)){
+                $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+            }
+            fputcsv($open, $csvhead, ';');
+
+            while( $sorok = mysqli_fetch_assoc($query) ){
+                $csvcont = array();
+                foreach( $sorok as $kulcs => $sor ) {
+                    if($kulcs=='Szálloda'){
+                        $sor = getErtek('nev', 'telephely', 'id', $sor);
+                    }
+                    if($kulcs=='Bejelentett hiba'){
+                        $sor = getErtek('info', 'erteklista', 'recid', $sor);
+                    }
+                    if($kulcs=='Helyiség'){
+                        $sor = getErtek('nev', 'obj', 'recid', $sor);
+                    }
+                    if($kulcs=='Gépnév'){
+                        $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
+                    }
+                    if($kulcs=='Típus'){
+                        $sor = erteklista(6, $sor);
+                    }
+                    if($kulcs=='Státusz'){
+                        $sor = getStatText('anyagigenyles', $sor);
+                    }
+
+                    $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+                }
+                fputcsv($open, $csvcont, ';');
+            }
         }
     }
     fclose($open);
@@ -2378,13 +2420,6 @@ require_once('selectek.php');
         
         $sor['rnd_dt'] = str_replace('-', '.', $sor['rnd_dt']);
 
-        if( $sor['datetime'] ) {
-            $_SESSION['formMod'] = array(
-                'datetime'  => $sor['update_dt'],
-                'oldal'     => basename(self())
-            );
-        }
-
         foreach($akt_tomb as $tomb) {
 
             // Autocomplete lekezelése
@@ -2466,8 +2501,8 @@ require_once('selectek.php');
         $jobb_oldal = '';
 
         $szamla_html .= str_replace(
-            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}'    ),
-            array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok       ),
+            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{UPDATE_DT}'     ),
+            array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $sor['update_dt'] ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
 

@@ -1369,7 +1369,7 @@ if( isset($_POST['munkalapReklamacioElfogad']) ) {
 // Munkalap reklamáció elutasítása
 if( isset($_POST['munkalapReklamacioElutasit']) ) {
     $recid = $_POST['recid'];
-    $memo  = $_POST['memo'];
+    $memo  = 'Reklamáció elutasítva'."\r\n".$_POST['memo'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -1782,6 +1782,13 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                                                         array($szallitoid,   $jh_ert,  $varh_erk,     ''              ),
                                                 "`recid` = '{$recid}'");
             if( $sql === false ) { $db_error = true; }
+            
+            
+            // Megjegyzés hozzáadása
+            $megj = 'Javasolt kivitelező: '. getErtek('nev', 'szallito', 'id', $szallitoid).'<br>Érték: '. number_format($jh_ert, 0, '', ' ').' '.get_penznem().'<br>Érkezés: '.str_replace('-', '.', $varh_erk);
+            addMegj('munkalap', $recid, $megj);
+            
+            // Státusz léptetés
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_DONTESRE_VAR ) ) {
                 $db_error = true;
             }
@@ -3538,7 +3545,7 @@ if( isset($_POST['szukseges_anyagok_listaja']) ) {
 if( isset($_POST['atadasDiszpecsernek']) ) {
     $recid          = $_POST['recid'];
     $erteklista_id  = $_POST['erteklista_id'];
-    $memo           = erteklista(ERTEKLISTA_ATADAS_OKA, $erteklista_id)."\r\n".$_POST['memo'];
+    $memo           = 'Reklamáció elfogadva'."\r\n".erteklista(ERTEKLISTA_ATADAS_OKA, $erteklista_id)."\r\n".$_POST['memo'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -3626,10 +3633,10 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
             if( $sql === false ) { $db_error = true; }
         }
 
-        // Frissítjuk a munkalap visszaadva sorát, ürítjük a személyzeteket
+        // Frissítjuk a munkalap visszaadva sorát, ürítjük a személyzeteket és egyéb adatokat
         $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                            array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'mobil',  'update_usr'                           ),
-                                            array( 1,            0,              '',                0,            '',       $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                            array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'mobil', 'jh_ert', 'varh_erk',            'update_usr'                           ),
+                                            array( 1,            0,              '',                0,            '',      '',       '0000-00-00 00:00:00', $_SESSION[get_db_tabla().'teljes_nev'] ),
                                             "`recid` = '{$recid}'"
                                         );
         if( $sql === false ) { $db_error = true; }
@@ -4708,7 +4715,7 @@ if (isset($_GET['csv'])) {
         mkdir('export/csv');
     }
 
-    //Régi fájlok törlése
+    // Régi fájlok törlése
     $utvonal = 'export/csv/';
     $fajlok = konyvtar_bejar($utvonal);
     foreach($fajlok as $fajl){
@@ -4731,6 +4738,7 @@ if (isset($_GET['csv'])) {
                 `'.get_db_tabla().$megnevezes.'`.`update_dt` as \'Bejelentett hiba\',
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\',
                 `surgos` as \'Sürgős\',
+                `stat_id` as \'Státusz\',
                 `visszaadva` as \'Visszaadva\',
                 `text` as \'Leírás\',
                 `gep_id` as \'Gépnév\',
@@ -5269,25 +5277,6 @@ require('selectek.php');
 
         }
 
-        // Vizsgálat státusz + Vizsgálat jog
-        /*if( $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT && _jog(JOG_MUNKALAP_VIZSGALAT) && $_SESSION[get_db_tabla().'szemelyzet_id']!=MUSZAKI_VEZETO ){
-            
-            $gombok .= nl2('
-                <div class="kijeloltek_muv">
-                    <input type="button" class="gomb foGomb" value="Átadás...">
-                    <div class="muv">
-                        <ul>
-                            <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO].'>
-                                <script> gomb_musz = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
-                                <a onclick="alert2(\'Biztosan átadja a Műszaki vezetőnek?\', gomb_musz)">Műszaki vezetőnek</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            ');
-
-        }*/
-
         // Visszaadás Diszpécsernek
         $felvehetik = array(TELEPITETT_SZEMELYZET, MOBILCSOPORT);
         if( 
@@ -5461,13 +5450,6 @@ require('selectek.php');
         // Jóváhagyott érték legyen formázva, úgy is csak ki van írva
         $sor['jh_ert'] = number_format($sor['jh_ert'], 0, '', ' ');
 
-        if( $sor['datetime'] ) {
-            $_SESSION['formMod'] = array(
-                'datetime' => $sor['update_dt'],
-                'oldal'    => basename(self())
-            );
-        }
-
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
 
@@ -5550,8 +5532,8 @@ require('selectek.php');
         $mezok .= '<input type="hidden" id="ujkentSzerkID" name="ujkentSzerkID" value="'.$_GET['ujkent'].'">';
 
 	    $szamla_html .= str_replace(
-            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}'    ),
-            array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok       ),
+            array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{KEP}',     '{CK_EDITOR}', '{GOMBOK}', '{UPDATE_DT}'     ),
+            array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $sor['update_dt'] ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
 

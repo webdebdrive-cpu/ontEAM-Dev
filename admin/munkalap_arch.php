@@ -75,7 +75,7 @@ if (isset($_GET['csv'])) {
         mkdir('export/csv');
     }
 
-    //Régi fájlok törlése
+    // Régi fájlok törlése
     $utvonal = 'export/csv/';
     $fajlok = konyvtar_bejar($utvonal);
     foreach($fajlok as $fajl){
@@ -98,6 +98,7 @@ if (isset($_GET['csv'])) {
                 `'.get_db_tabla().$megnevezes.'`.`update_dt` as \'Bejelentett hiba\',
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\',
                 `surgos` as \'Sürgős\',
+                `stat_id` as \'Státusz\',
                 `visszaadva` as \'Visszaadva\',
                 `text` as \'Leírás\',
                 `gep_id` as \'Gépnév\',
@@ -269,13 +270,6 @@ require('selectek.php');
         // Ha Gyorskeresőből érkeznénk ide, akkor az ID-t valójában az id_hidden tartalmazza majd
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
-        }
-
-        if( $sor['datetime'] ) {
-            $_SESSION['formMod'] = array(
-                'datetime' => $sor['update_dt'],
-                'oldal'    => basename(self())
-            );
         }
 
         foreach($akt_tomb as $tomb) {
