@@ -328,6 +328,11 @@ require_once('selectek.php');
         $bejelentes = $adatbazis_kapcsolat->s2('hiba_id hiba_text', 'bejelentes', "`recid`='{$kapcsolat['bejelentes_id']}'");
         $hiba       = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
         
+        // ha ütemezett feladat a munkalap típusa, táblázat bejelentett hiba oszlopába kerüljön munkalap leírás tartalma
+        if($munkalap['uf_szam']){
+            $hiba .= $munkalap['text'];
+        }
+        
         $surgos = '';
         if($munkalap['surgos']){
             $surgos = '<span class="icon piros"> <i class="material-icons">error</i> </span>';

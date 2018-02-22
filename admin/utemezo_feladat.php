@@ -22,7 +22,7 @@ foreach($ut_feladatok as $ut_feladat){
     $log .= 'Recid: '.$ut_feladat['recid'].' Feladatszám: '.$ut_feladat['id'].' elindult
 ';
 
-    $text = $ut_feladat['id'].' feladatot ütemezte '.$ut_feladat['insert_usr']."\r\n".$ut_feladat['nev']."\r\n".$ut_feladat['leiras'];
+    $text = /*$ut_feladat['id'].' feladatot ütemezte '.$ut_feladat['insert_usr']."\r\n".*/$ut_feladat['nev']."\r\n".$ut_feladat['leiras'];
 
     // Feladatszám kiszámítása
     // Megnézzük, hogy az adott évszámmal létezik e bejegyzés

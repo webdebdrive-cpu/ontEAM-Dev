@@ -1174,8 +1174,8 @@ if( isset($_POST['munkalapKulsosElutasit']) ) {
         }
 
         // Visszaadva pipa bepipálása, személyzetek ésjóváhagyók kiszedése
-        $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'szallito_id',  'szemelyzet_id',  'jh1_login', 'jh1_datum',           'jh1_szerep' ),
-                                                    array(1,            '',             '',               '',          '0000-00-00 00:00:00', 0            ),
+        $sql = $adatbazis_kapcsolat->u('munkalap',  array('visszaadva', 'szallito_id', 'jh_ert', 'varh_erk',            'szemelyzet_id',  'jh1_login', 'jh1_datum',           'jh1_szerep' ),
+                                                    array(1,            '',            0,        '0000-00-00 00:00:00', '',               '',          '0000-00-00 00:00:00', 0            ),
                                                     "`recid`='{$recid}'");
         if( $sql === false ) { $db_error = true; }
 
