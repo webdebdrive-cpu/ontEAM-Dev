@@ -1066,6 +1066,7 @@ $(function() {
             });
         } else {
             if( !request_in_process ) {
+                $('#szamlaList li.szamla_sor').removeClass('kijelolve akt');
                 $('#szamla-' + _get('id')).addClass('akt kijelolve');
             }
         }
