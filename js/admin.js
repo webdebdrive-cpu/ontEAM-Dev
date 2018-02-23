@@ -749,7 +749,7 @@ $(function() {
         /* Ha nem használtunk sem CTRL-t, sem SHIFT gombot, vagy ha a több sor kijelölése nem engedélyezett */
         if( (!e.ctrlKey && !e.shiftKey) || !kijelolheto ) {
 
-            if( !formModositva ) {
+            if( !formModositva && !request_in_process ) {
                 sorok.removeClass('akt').removeClass('kijelolve');
                 csoportok.removeClass('akt').removeClass('kijelolve');
                 $(this).addClass('akt kijelolve');
