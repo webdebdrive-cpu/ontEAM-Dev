@@ -4733,8 +4733,15 @@ function szallitoLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 ');
             }
 
+            // Szakterületek
+            $szakterulet_html = '';
+            $szakteruletek = $adatbazis_kapcsolat->s('szakter_id', 'szakter_kapcs', "`szallito_id`='{$bsz['recid']}'");
+            foreach($szakteruletek as $szakter){
+                $szakterulet_html .= getErtek('info', 'erteklista', 'recid', $szakter['szakter_id']).' - ';
+            }
+            $szakterulet_html = csonkit($szakterulet_html, 3);
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$aktiv.' '.$bsz['nev'].'</span>
+                            <span>'.$aktiv.' '.$bsz['nev'].' - '.$szakterulet_html.'</span>
                         </a>';
 
             // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
@@ -4942,6 +4949,9 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     }
     if( basename(self()) == 'projektigenyles.php' || basename(self()) == 'eloterj_fb.php' || basename(self()) == 'eloterj_bod.php' ) {
         $oszlopNevek['ikt_szam'] = 'Azonosító';
+    }
+    if( basename(self()) == 'szallito.php' ) {
+        $oszlopNevek['id'] = 'Szállító kód';
     }
     if( basename(self()) == 'utemezett_feladatok.php' ) {
         $oszlopNevek['id'] = 'Feladatszám';

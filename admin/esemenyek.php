@@ -866,11 +866,11 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 // Szállítók
 $megnevezes = 'szallito';
 $szallito_tomb = $akt_tomb = array(
+    array('type' => 'text',        'megn' => 'Szállító kód:',   'name' => 'id',     'disabled' => $disabled_szerk,  'maxlength' => 10, 'class' => 'kicsi',   'alert' => 'Kérem töltse ki az ID mezőt!', 'onkeyup' => 'ertekFoglalt({ID}this.value, \'szallito\', \'id\')', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
     array('type' => 'checkbox',    'megn' => 'Aktív:',          'name' => 'aktiv',  'show' => true, 'class' => 'check'),
-    array('type' => 'text',        'megn' => 'Szállító kód:',   'name' => 'id',     'disabled' => $disabled_szerk,  'maxlength' => 10, 'class' => 'kicsi',   'alert' => 'Kérem töltse ki az ID mezőt!', 'onkeyup' => 'ertekFoglalt({ID}this.value, \'szallito\', \'id\')'),
 	array('type' => 'text',        'megn' => 'Név:',            'name' => 'nev',    'disabled' => $disabled_szerk,  'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',      'show' => true),
-	array('type' => 'text',        'megn' => 'Irsz:',           'name' => 'isz',    'maxlength' => 250, 'class' => 'kicsi'),
-	array('type' => 'text',        'megn' => 'Város:',          'name' => 'varos',  'maxlength' => 250, 'class' => 'oriasi'),
+	array('type' => 'text',        'megn' => 'Irsz:',           'name' => 'isz',    'maxlength' => 250, 'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
+	array('type' => 'text',        'megn' => 'Város:',          'name' => 'varos',  'maxlength' => 250),
 	array('type' => 'text',        'megn' => 'Utca:',           'name' => 'utca',   'maxlength' => 250, 'class' => 'oriasi'),
 	array('type' => 'textarea',    'megn' => 'Lev.cím:',        'name' => 'lcim',                       'class' => 'oriasi', 'style' => 'height: 5.5rem'),
 	array('type' => 'text',        'megn' => 'Bankszámlaszám:', 'name' => 'bank',   'maxlength' => 250, 'class' => 'oriasi'),

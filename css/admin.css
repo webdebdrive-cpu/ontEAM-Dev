@@ -2991,6 +2991,7 @@ div.tetel_div{
 
 div.mobil_hozzarendel{
     border: 0.1rem solid #55A2FA;
+    max-width: 100rem;
 }
 
 div.mobilkeret div.dtr div.dtc {
@@ -3108,7 +3109,7 @@ ul.dropItem li {
     border: 0.2rem dotted #BBCEFF;
     cursor: move;
     font-size: 1.1rem;
-    height: 2.6rem;
+    /*height: 2.6rem;*/
     overflow: hidden;
     padding: 0.5rem 0rem 0.5rem 0rem;
     min-width: 21rem;
