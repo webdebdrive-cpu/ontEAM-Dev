@@ -5,7 +5,7 @@ require_once('datumra_utemezes.php');
 
 // Ütemezett feladatok lekérdezése, bejárása
 $log = '';
-$log_utvonal = get_ut_logfajl();
+$log_utvonal = str_replace('.php', '', basename(self())).'.err';
 unlink($log_utvonal);
 $ut_feladatok = $adatbazis_kapcsolat->s('*', 'utemezett_feladatok', "DATE_ADD(`esnap_d`, INTERVAL - `riaszt` DAY)<=CURDATE() AND `utnap_d`<CURDATE() AND `aktiv`=1");
 $log .= '*****************************

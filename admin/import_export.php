@@ -248,19 +248,33 @@ require_once('header.php');
                                 case 'bankszla'         : $bank         = trim($akt_tomb[$key]);  break;
                                 case 'p1nev'            : $knev         = trim($akt_tomb[$key]);  break;
                                 case 'p1email'          : $email        = trim($akt_tomb[$key]);  break;
+                                case 'p1tel'            : $tel          = trim($akt_tomb[$key]);  break;
+                                case 'levcim'           : $lcim         = trim($akt_tomb[$key]);  break;
 								case 'aktiv'            : $aktiv        = trim($akt_tomb[$key]);  break;
 
 							}
                             
 						}
+                        $id = sprintf('%05d', $id);
+                        if($id!='00000'){
+                            $update_dt = str_replace('.', '-', $update_dt);
+                            $insert_dt = str_replace('.', '-', $insert_dt);
 
-                        // Beszúrás
-                        $adatbazis_kapcsolat->i('szallito',
-                                                    array('recid', 'id', 'nev', 'bank', 'isz',  'cim', 'email', 'knev', 'tel', 'tel2', 'utca', 'varos', 'aktiv', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr'),
-                                                    array($recid,  $id,  $nev,  $bank,  $isz,   '',    $email,  $knev,  '',    '',     $utca,  $varos,  $aktiv,  $update_dt,  $update_usr,  $insert_dt,  $insert_usr )
-                                                );
-
-						echo $adatbazis_kapcsolat->gp() . '<br>';
+                            // Update vagy beszúrás
+                            if($adatbazis_kapcsolat->s('recid', 'szallito', "`id`='{$id}'")){
+                                $adatbazis_kapcsolat->u('szallito',
+                                                            array('recid', 'id', 'nev', 'bank', 'isz',  'lcim', 'email', 'knev', 'tel', 'utca', 'varos', 'aktiv', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr'),
+                                                            array($recid,  $id,  $nev,  $bank,  $isz,   $lcim,  $email,  $knev,  $tel,  $utca,  $varos,  $aktiv,  $update_dt,  $update_usr,  $insert_dt,  $insert_usr ),
+                                                            "`id`='{$id}'"
+                                                        );
+                            }else{
+                                $adatbazis_kapcsolat->i('szallito',
+                                                            array('recid', 'id', 'nev', 'bank', 'isz',  'lcim', 'email', 'knev', 'tel', 'utca', 'varos', 'aktiv', 'update_dt', 'update_usr', 'insert_dt', 'insert_usr'),
+                                                            array($recid,  $id,  $nev,  $bank,  $isz,   $lcim,  $email,  $knev,  $tel,  $utca,  $varos,  $aktiv,  $update_dt,  $update_usr,  $insert_dt,  $insert_usr )
+                                                        );
+                            }
+                            echo $adatbazis_kapcsolat->gp() . '<br>';
+                        }
 
 					}
 

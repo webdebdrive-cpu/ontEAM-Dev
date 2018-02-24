@@ -2,7 +2,8 @@
 require_once('../weblap.php');
 
 $log = '';
-
+$log_utvonal = str_replace('.php', '', basename(self())).'.err';
+unlink($log_utvonal);
 // Bejelentések archiválása
 // Ha bejelentés Elutasítva státuszban van, archiválunk.
 $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_ELUTASITVA."'");
@@ -37,6 +38,7 @@ foreach($munkalapok as $munkalap){
 
 
 // A lefutást is eltároljuk
+fajlba_mentes($log_utvonal, $log);
 $adatbazis_kapcsolat->i('utemezo_log', array('utemezo', 'log'), array(basename(self()), $log));
 
 

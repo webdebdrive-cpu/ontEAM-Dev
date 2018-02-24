@@ -174,7 +174,15 @@ switch($tabla) {
     break;
     case 'bejovo_szamlak.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
-        $_OPTS['select']    = 'recid ikt_szam szallito targy netto statusz erkezett';
+        $_OPTS['select']    = nl2('
+                                    `'.get_db_tabla().$tabla_nophp.'`.`recid`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`ikt_szam`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`szallito`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`targy`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`netto`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`statusz`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`erkezett`
+                                ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('erkezett', 'e-szamla', 'torolve', 'ikt_szam', 'statusz');
@@ -419,7 +427,7 @@ switch($tabla) {
     case 'login.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = nl2('
-                                    `'.get_db_tabla().$tabla_nophp.'`.`recid`,
+                                    DISTINCT `'.get_db_tabla().$tabla_nophp.'`.`recid`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`nev`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`teljes_nev`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`aktiv`
@@ -654,7 +662,7 @@ switch($tabla) {
     break;
     case 'szabadsagigeny.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
-        $_OPTS['select']    = 'recid ';
+        $_OPTS['select']    = '`'.get_db_tabla().$tabla_nophp.'`.`recid` ';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('recid');
@@ -671,7 +679,11 @@ switch($tabla) {
     break;
     case 'szallito.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
-        $_OPTS['select']    = 'recid nev aktiv';
+        $_OPTS['select']    = nl2('
+                                    `'.get_db_tabla().$tabla_nophp.'`.`recid`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`nev`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`aktiv`
+                                ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('nev', 'id');
@@ -866,21 +878,21 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 // Szállítók
 $megnevezes = 'szallito';
 $szallito_tomb = $akt_tomb = array(
-    array('type' => 'text',        'megn' => 'Szállító kód:',   'name' => 'id',     'disabled' => $disabled_szerk,  'maxlength' => 10, 'class' => 'kicsi',   'alert' => 'Kérem töltse ki az ID mezőt!', 'onkeyup' => 'ertekFoglalt({ID}this.value, \'szallito\', \'id\')', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
-    array('type' => 'checkbox',    'megn' => 'Aktív:',          'name' => 'aktiv',  'show' => true, 'class' => 'check'),
-	array('type' => 'text',        'megn' => 'Név:',            'name' => 'nev',    'disabled' => $disabled_szerk,  'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',      'show' => true),
-	array('type' => 'text',        'megn' => 'Irsz:',           'name' => 'isz',    'maxlength' => 250, 'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
-	array('type' => 'text',        'megn' => 'Város:',          'name' => 'varos',  'maxlength' => 250),
-	array('type' => 'text',        'megn' => 'Utca:',           'name' => 'utca',   'maxlength' => 250, 'class' => 'oriasi'),
-	array('type' => 'textarea',    'megn' => 'Lev.cím:',        'name' => 'lcim',                       'class' => 'oriasi', 'style' => 'height: 5.5rem'),
-	array('type' => 'text',        'megn' => 'Bankszámlaszám:', 'name' => 'bank',   'maxlength' => 250, 'class' => 'oriasi'),
-	array('type' => 'text',        'megn' => 'Kapcs.név:',      'name' => 'knev',   'maxlength' => 250, 'class' => 'oriasi'),
-	array('type' => 'text',        'megn' => 'Telefon:',        'name' => 'tel',    'maxlength' => 250, 'class' => 'oriasi'),
-	array('type' => 'text',        'megn' => 'Telefon2:',       'name' => 'tel2',   'maxlength' => 250, 'class' => 'oriasi'),
-	array('type' => 'text',        'megn' => 'Email:',          'name' => 'email',  'maxlength' => 250, 'class' => 'oriasi'),
-	array('type' => 'text',        'megn' => 'Adószám:',        'name' => 'adoszam','maxlength' => 250, 'class' => 'oriasi'),
-	array('type' => 'text',        'megn' => 'Cg:',             'name' => 'cg',     'maxlength' => 250, 'class' => 'kicsi'),
-	array('type' => 'textarea',    'megn' => 'Leírás:',         'name' => 'text',                       'class' => 'oriasi', 'style' => 'height: 5.5rem'),
+    array('type' => 'text',        'megn' => 'Szállító kód:',   'name' => 'id',     'szuro' => 1,     'disabled' => $disabled_szerk,  'maxlength' => 10, 'class' => 'kicsi',   'alert' => 'Kérem töltse ki az ID mezőt!', 'onkeyup' => 'ertekFoglalt({ID}this.value, \'szallito\', \'id\')', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
+    array('type' => 'checkbox',    'megn' => 'Aktív:',          'name' => 'aktiv',  'szuro' => 1,     'show' => true, 'class' => 'check'),
+	array('type' => 'text',        'megn' => 'Név:',            'name' => 'nev',    'szuro' => 1,     'disabled' => $disabled_szerk,  'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',      'show' => true),
+	array('type' => 'text',        'megn' => 'Irsz:',           'name' => 'isz',    'szuro' => 1,     'maxlength' => 250, 'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
+	array('type' => 'text',        'megn' => 'Város:',          'name' => 'varos',  'szuro' => 1,     'maxlength' => 250),
+	array('type' => 'text',        'megn' => 'Utca:',           'name' => 'utca',   'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
+	array('type' => 'textarea',    'megn' => 'Lev.cím:',        'name' => 'lcim',   'szuro' => 1,                         'class' => 'oriasi', 'style' => 'height: 5.5rem'),
+	array('type' => 'text',        'megn' => 'Bankszámlaszám:', 'name' => 'bank',   'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
+	array('type' => 'text',        'megn' => 'Kapcs.név:',      'name' => 'knev',   'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
+	array('type' => 'text',        'megn' => 'Telefon:',        'name' => 'tel',    'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
+	array('type' => 'text',        'megn' => 'Telefon2:',       'name' => 'tel2',   'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
+	array('type' => 'text',        'megn' => 'Email:',          'name' => 'email',  'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
+	array('type' => 'text',        'megn' => 'Adószám:',        'name' => 'adoszam','szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
+	array('type' => 'text',        'megn' => 'Cg:',             'name' => 'cg',     'szuro' => 1,     'maxlength' => 250, 'class' => 'kicsi'),
+	array('type' => 'textarea',    'megn' => 'Leírás:',         'name' => 'text',   'szuro' => 1,                         'class' => 'oriasi', 'style' => 'height: 5.5rem'),
 
 	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
@@ -2267,8 +2279,14 @@ if (isset($_POST['o_szures'])) {
 if (isset($_POST['f_o_szures_submit'])) {
 
     $join = '';
+    if(strpos($_POST['feltetel'], 'megjegyzes')!==false ){
+        $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$_POST['tabla'].'\' AND `'.get_db_tabla().$_POST['tabla'].'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id` ';
+    }
     if($_POST['tabla']=='login' && strpos($_POST['feltetel'], 'szalloda')!==false ){
         $join = ' JOIN `'.get_db_tabla().'telephely_kapcs` ON `'.get_db_tabla().$_POST['tabla'].'`.`nev`=`'.get_db_tabla().'telephely_kapcs`.`nev` ';
+    }
+    if($_POST['tabla']=='szallito' && strpos($_POST['feltetel'], 'szakterulet')!==false ){
+        $join = ' JOIN `'.get_db_tabla().'szakter_kapcs` ON `'.get_db_tabla().$_POST['tabla'].'`.`recid`=`'.get_db_tabla().'szakter_kapcs`.`szallito_id` ';
     }
     $sql = 'SELECT * FROM `'.get_db_tabla().$_POST['tabla'].'`'.$join.' WHERE '.get_o_szures_where_kieg($_POST['feltetel'], $_POST['tabla']);
     if(mysqli_query($db_kapcs, $sql)){
@@ -2278,8 +2296,12 @@ if (isset($_POST['f_o_szures_submit'])) {
             'mehet' => '1'
         ));
     }else{
+        $hiba_kieg = '';
+        if($_SERVER['HTTP_HOST']=='demo.webdeb.hu'){
+            $hiba_kieg = '<br>'.$sql;
+        }
         echo json_encode(array(
-            'hiba' => 'A megfogalmazott feltétel hibás, nem futtatható le!'
+            'hiba' => 'A megfogalmazott feltétel hibás, nem futtatható le!'.$hiba_kieg
         ));
     }
 

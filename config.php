@@ -68,7 +68,6 @@ function get_teszt_rendszer() {
 
 function get_db_charset() { return 'UTF8';                                      } // Karakterkódolás (Figyelem! UTF-8 helyett itt UTF8)
 function get_debug()      { return false;                                       } // Hibás adatbázislekérdezések megjelennek vagy sem
-function get_ut_logfajl() { return 'utemezo_feladat.err';                       } // Ütemező logfájlja
 
 // Weblap
 function get_admin()         { return 'admin/';                                 } // Admin könyvtár neve

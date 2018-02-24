@@ -2,7 +2,8 @@
 require_once('../weblap.php');
 
 $log = '';
-
+$log_utvonal = str_replace('.php', '', basename(self())).'.err';
+unlink($log_utvonal);
 // Bejelentéseknél és munkalapoknál is, ha több mint 48 órája igazolásra vár státuszban van, Lezárt státuszba tesszük
 $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_KESZ_IG."'");
 $log .= $adatbazis_kapcsolat->gp() . '
@@ -27,4 +28,5 @@ $log .= 'Munkalap lezárt státuszra léptetve (recid): '.$munkalap['recid'].'
 }
 
 // A lefutást is eltároljuk
+fajlba_mentes($log_utvonal, $log);
 $adatbazis_kapcsolat->i('utemezo_log', array('utemezo', 'log'), array(basename(self()), $log));

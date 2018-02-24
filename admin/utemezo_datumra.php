@@ -2,7 +2,8 @@
 require_once('../weblap.php');
 
 $log = '';
-
+$log_utvonal = str_replace('.php', '', basename(self())).'.err';
+unlink($log_utvonal);
 // Munkalapok ütemezett dátuma
 $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`esnap_d`<='".date('Y-m-d')."' AND `stat_id`='".MUNKALAP_STAT_VARAKOZO."'");
 if( $munkalapok === false ) { $db_error = true; }
@@ -47,4 +48,5 @@ foreach($munkalapok as $munkalap){
 }
 
 // A lefutást is eltároljuk
+fajlba_mentes($log_utvonal, $log);
 $adatbazis_kapcsolat->i('utemezo_log', array('utemezo', 'log'), array(basename(self()), $log));

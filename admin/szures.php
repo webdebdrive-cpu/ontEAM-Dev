@@ -96,6 +96,11 @@ if (isset($_POST['f_szuro_mezo'])) {
         $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
     }
     
+    // Szakterület esetén = operátor + autocomplete
+    if($_POST['mezo']=='szakterulet'){
+        $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+    }
+    
     // Jogosultságnál, Státusznál és Mobilcsoportnál csak =
     if($_POST['mezo']=='jogosultsag' || $_POST['mezo']=='stat_id' || ( $_POST['mezo']=='mobil' && $_POST['tabla'] == 'munkalap' ) ){
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
@@ -348,6 +353,86 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
         }
         
+        // Szakterület esetén = operátor + autocomplete
+        if($_POST['mezo']=='szakterulet'){
+
+            $ertek['tabla']                 = 'erteklista';
+            $ertek['oszlop_keres']          = 'recid';
+            $ertek['oszlop_keres_autocomp'] = 'info';
+            $ertek['listaz']                = 'info';
+            $ertek['csoport']               = ERTEKLISTA_SZAKTER;
+            
+            require_once('../class/html/class.Input.php');
+            $input = new Input('text');
+
+            $input -> value = $_POST['felt'];
+
+            // Onblurra a hidden mező is nullázódjon, ha üres volna a mező
+            $ertek['onblur'] .= 'if(!$(this).val()){ $(\'#'.$ertek['name'].'\').val(\'\'); }';
+
+            if($ertek['alert']){
+                $ertek['class'] .= ' csillag';
+            }
+
+            $input -> cssClass      = $ertek['class'].' f_felt';
+            $input -> data          = 'data-auto="1"';
+            $input -> id            = $ertek['name'].'_autocomp_szurobe';
+            $input -> name          = $ertek['name'].'_autocomp_szurobe';
+            $input -> placeholder   = $ertek['placeholder'];
+            $input -> autocomplete  = 'off';
+
+            $kulso_val = $input -> value;
+            if( !$kulso_val ) {
+                $kulso_val = 0;
+            }
+
+            $csoport_where = '';
+            if( $ertek['csoport'] ) {
+                $csoport_where = ' and csoport='.$ertek['csoport'];
+            }
+
+            // Lekérdezzük a külső tábla értékét
+            $kulso_ertek = $adatbazis_kapcsolat->s($ertek['listaz'], $ertek['tabla'], $ertek['oszlop_keres'].'='.$kulso_val.$csoport_where, '', '1');
+            if( $kulso_ertek ) {
+                $input -> value = $kulso_ertek[0][$ertek['listaz']];
+            }
+
+            $feltetel = $input -> getHtml().'<input type="hidden" name="'.$ertek['name'].'_szurobe" id="'.$ertek['name'].'_szurobe" value="'.$_POST['felt'].'">';
+
+            $rkat = 0;
+            if( $ertek['rkat'] ) {
+                $rkat = $ertek['rkat'];
+            }
+
+            $csoport = 0;
+            if( $ertek['csoport'] ) {
+                $csoport = $ertek['csoport'];
+            }
+
+            $id_kiir = 'recid';
+            if( $ertek['id_kiir'] ) {
+                $id_kiir = $ertek['id_kiir'];
+            }
+
+            $feltetel .= nl2('
+                <script>
+                    $(document).ready(function() {
+                        $(\'#'.$ertek['name'].'_autocomp_szurobe\').autocomplete({
+                            \'php_fajl\'        : \'../autocomplete.php\',
+                            \'tabla\'           : \''.$ertek['tabla'].'\',
+                            \'oszlop_keres\'    : \''.$ertek['oszlop_keres_autocomp'].'\',
+                            \'oszlop_listaz\'   : \''.$ertek['listaz'].'\',
+                            \'rkat\'            : '.$rkat.',
+                            \'csoport\'         : '.$csoport.',
+                            \'id_kiir\'         : \''.$id_kiir.'\',
+                            \'szuros\'          : \'Szűrőben hívtuk meg\'
+                        });
+                    });
+                </script>
+            ');
+
+        }
+        
         // Jogosultság esetén
         if($_POST['mezo']=='jogosultsag'){
 
@@ -418,7 +503,7 @@ foreach($akt_tomb_szures as $ertek){
     }
 }
 
-//Extra szűrő mezők
+// Kapcsolódó táblák szűrő mezői
 if($tabla == 'anyagigenyles'){
     $selected_megj  = '';
     if($_GET['mezo']=='megjegyzes'){
@@ -441,6 +526,18 @@ if($tabla == 'login'){
     }
     $sz_mezo .= '<option value="jogosultsag"'.$selected_jog.'>Jogosultság</option>';
     $sz_mezo .= '<option value="szalloda" data-tabla="telephely"'.$selected_szall.'>Szálloda</option>';
+    $sz_mezo .= '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>Megjegyzés</option>';
+}
+if($tabla == 'szallito'){
+    $selected_szakter   = '';
+    $selected_megj      = '';
+    if($_GET['mezo']=='szakterulet'){
+        $selected_szakter = ' selected';
+    }
+    if($_GET['mezo']=='megjegyzes'){
+        $selected_megj = ' selected';
+    }
+    $sz_mezo .= '<option value="szakterulet"'.$selected_szakter.'>Szakterület</option>';
     $sz_mezo .= '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>Megjegyzés</option>';
 }
 

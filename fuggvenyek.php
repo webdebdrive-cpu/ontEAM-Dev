@@ -2207,11 +2207,11 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             }
 
             $where .= get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla).' AND ';
+            
         }
 
         // Ha van öszetettt szűrés feltétel
         if($_SESSION['o_szuro_feltetel']){
-
             // Az eddigi Where-t egy nagy zárójelbe tesszük és ehhez vesszük hozzá az új feltételeket
             if($where){
                 $where = '('.csonkit($where, 5).') AND ';
@@ -2228,9 +2228,9 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if($tabla=='anyagigenyles'){
             // Jóváhagyva státuszig anyagigénylés, afelett rendelés
             if (isset($_GET['anyagrend'])) {
-                $where .= "`stat_id`>25";
+                $where .= "`stat_id`>".CIKKIGN_STAT_JOVAHAGYVA;
             }else{
-                $where .= "`stat_id`<=25";
+                $where .= "`stat_id`<=".CIKKIGN_STAT_JOVAHAGYVA;
             }
         }
 
@@ -2559,8 +2559,11 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
         // Szűréskor kell pár JOIN-olás a külső táblákhoz
         $join = '';
-        if ($_GET['mezo']=='megjegyzes') {
-            $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
+        if ($_GET['mezo']=='megjegyzes' || strpos($_SESSION['o_szuro_feltetel'], 'megjegyzes')!==false ) {
+            $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
+        }
+        if ( $tabla=='szallito' && ($_GET['mezo']=='szakterulet' || strpos($_SESSION['o_szuro_feltetel'], 'szakterulet')!==false ) ) {
+            $join = ' JOIN `'.get_db_tabla().'szakter_kapcs` ON `'.get_db_tabla().'szakter_kapcs`.`szallito_id`=`'.get_db_tabla().$tabla.'`.`recid`';
         }
         if ( $tabla=='login' && ($_GET['mezo']=='szalloda' || strpos($_SESSION['o_szuro_feltetel'], 'szalloda')!==false ) ) {
             $join = ' JOIN `'.get_db_tabla().'telephely_kapcs` ON `'.get_db_tabla().'login`.`nev`=`'.get_db_tabla().'telephely_kapcs`.`nev`';
@@ -5391,6 +5394,7 @@ function get_akt_tomb($megn){
     global $utemezett_feladatok_tomb;
     global $projektigenyles_tomb;
     global $rendszeres_karbantartas_tomb;
+    global $szallito_tomb;
     global $torzsadat_tomb;
 
     switch($megn){
@@ -5408,6 +5412,7 @@ function get_akt_tomb($megn){
         case 'utemezett_feladatok'      : case 'utemezett_feladatok_arch'       : $akt_tomb = $utemezett_feladatok_tomb;    break;
         case 'projektigenyles'          : case 'projektigenyles_arch'           : $akt_tomb = $projektigenyles_tomb;        break;
         case 'rendszeres_karbantartas'  : case 'rendszeres_karbantartas_arch'   : $akt_tomb = $rendszeres_karbantartas_tomb;break;
+        case 'szallito'                 : case 'szallito_arch'                  : $akt_tomb = $szallito_tomb;               break;
         case 'torzsadat'                : case 'torzsadat_arch'                 : $akt_tomb = $torzsadat_tomb;              break;
     }
 
@@ -5575,14 +5580,16 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     }elseif($tabla=='bejelentes' && $mezo=='insert_dt'){
         $felt = str_replace('.', '-', $felt);
         return '`'.get_db_tabla().'bejelentes`.`insert_dt`'.$op.'\''.$felt.'\'';
+    }elseif($tabla=='login' && $mezo=='jogosultsag'){
+        return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
     }elseif($tabla=='login' && $mezo=='szalloda'){
         return '`'.get_db_tabla().'telephely_kapcs`.`telephely_id`=\''.$felt.'\'';
     }elseif($tabla=='utemezett_feladatok' && $mezo=='telephely_id'){
         return '`'.get_db_tabla().'utemezett_feladatok`.`telephely_id`=\''.$felt.'\'';
     }elseif($tabla=='utemezett_feladatok' && $mezo=='id'){
         return '`'.get_db_tabla().'utemezett_feladatok`.`id`=\''.$felt.'\'';
-    }elseif($tabla=='login' && $mezo=='jogosultsag'){
-        return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
+    }elseif($tabla=='szallito' && $mezo=='szakterulet'){
+        return '`'.get_db_tabla().'szakter_kapcs`.`szakter_id`=\''.$felt.'\'';
     }else{
 
         // Mezőnevek pontosítása

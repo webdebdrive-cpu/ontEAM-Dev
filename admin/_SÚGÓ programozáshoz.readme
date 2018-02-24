@@ -51,10 +51,11 @@ BAL OLDALI NAVIGÁCIÓS PANEL TÉTELEINEK KISZÁMÍTÁSA (WHERE LEKÉRDEZÉS) + 
 - A rendezés select rendes feliratait a getOszlopNev() függvénynél állítható be (oszlolpnévhez kötött felirat)
 
 SZŰRÉS LEKEZELÉSE:
-- szures.php, amit header.php hív meg
+- szures.php, amit header.php hív meg. Ebben vannak beállítva a kapcsolódó táblák szűrő mezői (pl. Megjegyzés)
 - esemenyek.php-ban a tömböt egészítsd ki a 'szuro' => 1 paraméterrel.
 - fuggvenyek.php adott php fájlt visszadja-e a get_akt_tomb() függvénnyel?
-- SQL-t a get_szures_where_kieg() függvény számolja ki
+- SQL-t a get_szures_where_kieg() függvény számolja ki. Itt szintén be kell állítani a kapcsolódó táblákat
+- fuggvenyek.php-ben a kapcsolódó táblák miatt még itt állítsd be a működést: // Szűréskor kell pár JOIN-olás a külső táblákhoz
 
 SORREDEZÉS
 - Az A-Z és Z-A-t az admin.js bejegyzesekLista() függvény vége állítja. Illetve a header.php, maikor betölt az oldal.
