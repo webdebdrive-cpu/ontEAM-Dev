@@ -488,8 +488,9 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 // Melyik oldalon vagyunk: annak megfelelő tömbbel dolgozunk. Szűrhető mezők listája.
 $tabla = str_replace('.php', '', basename(self()));
 $akt_tomb_szures = get_akt_tomb($tabla);
-$sz_mezo = '';
-$akt_tomb_szures = tobbdim_tomb_kulcs_rendez($akt_tomb_szures, 'megn_szurobe', SORT_ASC);
+
+// A szűrési mezőket egy tömbbe vesszük fel, mert a 2. felében lesz az optionmegnevezése, ami alapján rendezzük a listát
+$sz_mezo = array();
 foreach($akt_tomb_szures as $ertek){
     if($ertek['szuro']){
         if($ertek['megn_szurobe']){
@@ -499,7 +500,7 @@ foreach($akt_tomb_szures as $ertek){
         if($ertek['name']==$_GET['mezo']){
             $selected = ' selected';
         }
-        $sz_mezo .= '<option value="'.$ertek['name'].'"'.$selected.'>'.trim($ertek['megn'], ':').'</option>';
+        array_push( $sz_mezo, array('eleje' => '<option value="'.$ertek['name'].'"'.$selected.'>', 'vege' => trim($ertek['megn'], ':').'</option>' ) );
     }
 }
 
@@ -509,7 +510,7 @@ if($tabla == 'anyagigenyles'){
     if($_GET['mezo']=='megjegyzes'){
         $selected_megj = ' selected';
     }
-    $sz_mezo .= '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>Megjegyzés</option>';
+    array_push( $sz_mezo, array('eleje' => '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>', 'vege' => 'Megjegyzés</option>' ) );
 }
 if($tabla == 'login'){
     $selected_jog   = '';
@@ -524,9 +525,9 @@ if($tabla == 'login'){
     if($_GET['mezo']=='megjegyzes'){
         $selected_megj = ' selected';
     }
-    $sz_mezo .= '<option value="jogosultsag"'.$selected_jog.'>Jogosultság</option>';
-    $sz_mezo .= '<option value="szalloda" data-tabla="telephely"'.$selected_szall.'>Szálloda</option>';
-    $sz_mezo .= '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>Megjegyzés</option>';
+    array_push( $sz_mezo, array('eleje' => '<option value="jogosultsag"'.$selected_jog.'>',                         'vege' => 'Jogosultság</option>'    ) );
+    array_push( $sz_mezo, array('eleje' => '<option value="szalloda" data-tabla="telephely"'.$selected_szall.'>',   'vege' => 'Szálloda</option>'       ) );
+    array_push( $sz_mezo, array('eleje' => '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>', 'vege' => 'Megjegyzés</option>'     ) );
 }
 if($tabla == 'szallito'){
     $selected_szakter   = '';
@@ -537,8 +538,8 @@ if($tabla == 'szallito'){
     if($_GET['mezo']=='megjegyzes'){
         $selected_megj = ' selected';
     }
-    $sz_mezo .= '<option value="szakterulet"'.$selected_szakter.'>Szakterület</option>';
-    $sz_mezo .= '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>Megjegyzés</option>';
+    array_push( $sz_mezo, array('eleje' => '<option value="szakterulet"'.$selected_szakter.'>',                     'vege' => 'Szakterület</option>') );
+    array_push( $sz_mezo, array('eleje' => '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>', 'vege' => 'Megjegyzés</option>' ) );
 }
 
 // HTML előlállítása
@@ -552,11 +553,18 @@ if(isset($_POST['o_szures'])){
     $prefix         = 'o_';
     $osszetett_link = '';
 }
+
+// Tehát a 'vege' alapján rendezzük az option-okat, így lesz a szűrés lista ABC-s rendben.
+$options = '';
+$sz_mezo = tobbdim_tomb_kulcs_rendez($sz_mezo, 'vege', SORT_ASC);
+foreach($sz_mezo as $mezo){
+    $options .= $mezo['eleje'].$mezo['vege'];
+}
 $szures = nl2('
         '.$osszetett_link.'
         <select id="'.$prefix.'szuro_mezo" class="f_szuro_mezo" data-tabla="'.$tabla.'">
             <option value="">- Szűrési mező -</option>
-           '.$sz_mezo.'
+           '.$options.'
         </select>
         <div id="'.$prefix.'operator" class="dib"></div>
         <div id="'.$prefix.'feltetel" class="dib"></div>

@@ -3,7 +3,12 @@ require_once('../weblap.php');
 
 $log = '';
 $log_utvonal = str_replace('.php', '', basename(self())).'.err';
-unlink($log_utvonal);
+// Adott méret felett felezzük a log fájlt
+if( filesize($log_utvonal)>get_logfile_max_meret() ){
+    $log_tmp = fajlbol_olvas($log_utvonal);
+    $log_tmp = mb_substr($log_tmp, round(mb_strlen($log_tmp, 'UTF-8')/2), NULL, 'UTF-8');
+    fajlba_mentes($log_utvonal, $log_tmp);
+}
 // Munkalapok ütemezett dátuma
 $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`esnap_d`<='".date('Y-m-d')."' AND `stat_id`='".MUNKALAP_STAT_VARAKOZO."'");
 if( $munkalapok === false ) { $db_error = true; }

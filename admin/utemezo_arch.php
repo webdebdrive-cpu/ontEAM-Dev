@@ -3,7 +3,11 @@ require_once('../weblap.php');
 
 $log = '';
 $log_utvonal = str_replace('.php', '', basename(self())).'.err';
-unlink($log_utvonal);
+if( filesize($log_utvonal)>get_logfile_max_meret() ){
+    $log_tmp = fajlbol_olvas($log_utvonal);
+    $log_tmp = mb_substr($log_tmp, round(mb_strlen($log_tmp, 'UTF-8')/2), NULL, 'UTF-8');
+    fajlba_mentes($log_utvonal, $log_tmp);
+}
 // Bejelentések archiválása
 // Ha bejelentés Elutasítva státuszban van, archiválunk.
 $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_ELUTASITVA."'");

@@ -85,6 +85,7 @@ function get_http()          {
         return 'http://';
     }
 }
+function get_logfile_max_meret(){ return 2097152; }
 function get_mail($kiir)     { return !$kiir ? 'noreply@onteam.hu' :
            mail_rejtes('<a href="mailto:'.get_mail().'">'.get_mail().'</a>');   }
 function get_megsz()         { return 'magaz';                                  }

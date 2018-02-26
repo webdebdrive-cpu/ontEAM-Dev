@@ -6,7 +6,12 @@ require_once('datumra_utemezes.php');
 // Ütemezett feladatok lekérdezése, bejárása
 $log = '';
 $log_utvonal = str_replace('.php', '', basename(self())).'.err';
-unlink($log_utvonal);
+// Adott méret felett felezzük a log fájlt
+if( filesize($log_utvonal)>get_logfile_max_meret() ){
+    $log_tmp = fajlbol_olvas($log_utvonal);
+    $log_tmp = mb_substr($log_tmp, round(mb_strlen($log_tmp, 'UTF-8')/2), NULL, 'UTF-8');
+    fajlba_mentes($log_utvonal, $log_tmp);
+}
 $ut_feladatok = $adatbazis_kapcsolat->s('*', 'utemezett_feladatok', "DATE_ADD(`esnap_d`, INTERVAL - `riaszt` DAY)<=CURDATE() AND `utnap_d`<CURDATE() AND `aktiv`=1");
 $log .= '*****************************
 '.date('Y.m.d H:i:s').' ütemezés indul
