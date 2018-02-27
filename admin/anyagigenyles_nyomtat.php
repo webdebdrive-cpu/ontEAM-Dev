@@ -19,7 +19,6 @@ if (isset($_GET['nyomtat'])) {
 if (isset($_GET['szall'])) {
 
     if($idk_impl){
-
         //Cikkenkénti összesítés
         $tetelek_html = '
                             <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px;border-collapse: collapse;">
@@ -36,7 +35,7 @@ if (isset($_GET['szall'])) {
         $ossz     = 0;
         $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
 //echo $adatbazis_kapcsolat->gp() . '<br>';
-        
+
         $egysegar_mezo  = 'rndear';
         $egysegar_tized = 0;
         if($kcs_21!=KCS_21_HUF){
@@ -169,7 +168,7 @@ if (isset($_GET['cim'])) {
         if($idk_impl){
 
             // Cikkenkénti összesítés
-            $tetelek_html = '
+            $tetelek_html = '   <pagebreak />
                                 <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px">
                                 <tr>
                                     <th>Cikk</th>

@@ -1,196 +1,256 @@
-<head>
-    <title>R18/0018 Megrendelés a szállítónak</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
-    <link href="../css/admin.css" rel="stylesheet" type="text/css">
-    <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
-    <script src="../js/jquery.js"></script> <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
-</head>
 
-<body>
-    <div class="a4_allo">
+                <head>
+                    <title>R18/0009 Megrendelés a szállítónak</title>
+                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+                    <link href="../css/nullaz.css" rel="stylesheet" type="text/css">
+                    <link href="../css/admin.css" rel="stylesheet" type="text/css">
+                    <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
+                    <script src="../js/jquery.js"></script>
+                    <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
+                </head>
+                <body>
+                    <div class="a4_allo">
+
 
         <div class="padd minh">
+
+
             <div style="padding: 0 15px 0 15px">
+                <table style="margin: auto; margin-top: 20px; width: 100%">
+                <tr>
+                    <td class="b" style="font-size: 13px; width: 50%; padding: 0 5px">
+                        Szállító:
+                    </td>
+                    <td class="b" style="font-size: 13px; width: 50%; padding: 0 5px">
+                        Megrendelő:
+                    </td>
+                </tr>
+                </table>
 
-                <table class="border full" style="margin: auto; margin-top: 20px; width: 100%;border-collapse: collapse;">
-                    <tr style="border: none;">
-                        <td class="b" style="font-size: 13px;"> Szállító: </td>
-                        <td class="b" style="font-size: 13px;"> Megrendelő: </td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; padding: 0 5px;border: 1px solid #ddd;"> Név: &quot; A HORDÓ &quot; KFT. <br>Kapcs.: <br>Tel.: <br>Fax.: <br>Cím.: , </td>
-                        <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; padding: 0 5px;border: 1px solid #ddd;"> Név: Műszaki szolgáltató központ <br>Üi.: Teszt Elek <br>Tel.: +36304509705 </td>
-                    </tr>
-                </table>
-                <div style="font-size: 14px; margin: 20px 0 3px 0;"> Tisztelt szállító! </div>
-                <div style="font-size: 12px; margin: 0 0 2px 0;"> <b>A szállító levelet vagy a számla másolatát minden esetben hagyja az árú átvevőjénél és a számlán tüntesse fel megrendelőnk számát, ellenkező esetben a számlát nem áll módunkban befogadni!</b> </div>
-                <div style="font-size: 13px; margin: 0 0 8px 0;">Megrendeljük Önöktől az alábbi anyagokat. </div>
-                <h3><div class="i" style="font-size: 13px">I. Cikkenkénti összesítés:</div></h3>
-                <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px;page-break-inside: avoid;border-collapse: collapse;border: 1px solid #ddd;">
-                    <tr style="border: 1px solid #ddd;">
-                        <th class="l" style="padding:5px;">Név</th>
-                        <th style="padding:5px;width: 20px; border: 1px solid #ddd;" class="r">Mee</th>
-                        <th style="padding:5px;width: 20px; border: 1px solid #ddd;" class="r">Rendelt mennyi- ség</th>
-                        <th style="padding:5px;width: 20px; border: 1px solid #ddd;" class="r">Nettó rendelési egységár</th>
-                        <th style="padding:5px;width: 60px; border: 1px solid #ddd;" class="r">Nettó összesen (HUF)</th>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px;border: 1px solid #ddd;">40 Tcc</td>
-                        <td class="c" style="padding:5px;border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap;border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap;border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap;border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px;border: 1px solid #ddd;">40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40</td>
-                        <td class="c" style="padding:5px;border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap;border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap;border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap;border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px;border: 1px solid #ddd;border: 1px solid #ddd;">40 Tcc</td>
-                        <td class="c" style="padding:5px;border: 1px solid #ddd;border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap;border: 1px solid #ddd;border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap;border: 1px solid #ddd;border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap;border: 1px solid #ddd;border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px;border: 1px solid #ddd;">40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40</td>
-                        <td class="c" style="padding:5px;border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px; border: 1px solid #ddd;">40 Tcc</td>
-                        <td class="c" style="padding:5px; border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px; border: 1px solid #ddd;">40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40</td>
-                        <td class="c" style="padding:5px; border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px; border: 1px solid #ddd;">40 Tcc</td>
-                        <td class="c" style="padding:5px; border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px; border: 1px solid #ddd;">40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40</td>
-                        <td class="c" style="padding:5px; border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px; border: 1px solid #ddd;">40 Tcc</td>
-                        <td class="c" style="padding:5px; border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px; border: 1px solid #ddd;">40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40</td>
-                        <td class="c" style="padding:5px; border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px; border: 1px solid #ddd;">40 Tcc</td>
-                        <td class="c" style="padding:5px; border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px; border: 1px solid #ddd;">40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40</td>
-                        <td class="c" style="padding:5px; border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px; border: 1px solid #ddd;">40 Tcc</td>
-                        <td class="c" style="padding:5px; border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px; border: 1px solid #ddd;">40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40 Tcc40</td>
-                        <td class="c" style="padding:5px; border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px; border: 1px solid #ddd;">40 Tcc</td>
-                        <td class="c" style="padding:5px; border: 1px solid #ddd;">db</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                        <td class="r" style="padding:5px;white-space: nowrap; border: 1px solid #ddd;">99 999 999</td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td style="padding:5px;border: none"></td>
-                        <td style="padding:5px;border: none"></td>
-                        <td style="padding:5px;border: 1px solid #ddd;" class="r b" colspan="2">Mindösszesen:</td>
-                        <td style="padding:5px;border: 1px solid #ddd; white-space: nowrap;" class="r b">99 999 999</td>
-                    </tr>
-                </table>
-                <h5><div class="i" style="font-size: 13px">II. Szállítási címenkénti összesítés:</div></h5>
-                <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px;page-break-inside: avoid;border-collapse: collapse;border: 1px solid #ddd;" >
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="b" style="padding:5px;border: 1px solid #ddd;"> Szállítási cím: <br>Számlázási cím: <br>Adószám: <br>Számlaküldési cím: </td>
-                        <td style="padding:5px;border: 1px solid #ddd;" colspan="2"> Danubius Hotel Arena 1148 Budapest, Ifjúság útja 1-3. <br>Danubius Zrt. Danubius Hotel Arena 1148 Budapest, Ifjúság útja 1-3. <br>10219522-2-44 <br>Danubius Zrt. Danubius Hotel Helia 1133 Budapest, Kárpát utca 62-64. </td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td class="vat c" style="padding:5px;border: 1px solid #ddd;">2,00 db</td>
-                        <td class="vat" style="padding:5px;border: 1px solid #ddd;border-right: none;">40 Tcc</td>
-                        <td class="vat" style="padding:5px;border: 1px solid #ddd;border-left: none;"></td>
-                    </tr>
-                    <tr style="border: 1px solid #ddd;">
-                        <td colspan="3" style="border: 1px solid #ddd; padding: 7px; border-left: 0; border-right: 0; border-bottom: 0"></td>
-                    </tr>
-                </table>
-                <div style="font-size: 12px; margin: 30px 0 3px 0;"> Üdvözlettel, <br>Budapest, 2018. február 1. </div>
-                <table class="full" style="font-size: 12px; margin-top: 80px;page-break-inside: avoid;">
-                    <tr >
-                        <td class="l"style="text-align: center;"> ......................................................................
-                            <div class="c" style="text-align: center;"><center> Kővágó Levente <br>Diszpécser központ vezető </center></div>
-                        </td>
-                        <td class="r"style="text-align: center;"> ......................................................................
-                            <div class="c" style="text-align: center;"><center> Sánta Zoltán <br>Diszpécser központ vezető helyettes</center> </div>
-                        </td>
-                    </tr>
+                <table class="border full" style="margin: auto; margin-top: 0;border-collapse: collapse;border: 1px solid #ddd;">
+                <tr>
+                    <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">
+                        Név: K-INVENT BT.
+                        <br>Kapcs.: Tóth Csaba
+                        <br>Tel.: toth.csaba@k-invent.hu
+Tel./Fax: 418 96 15,
+06/70 77-88100
+                        <br>Fax.:
+                        <br>Cím.: 1162 BUDAPEST, KASSAI U. 3.
+                    </td>
+                    <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">
+                        Név: Danubius Zrt. Műszaki Szolgáltató Központ
+                        <br>Üi.: Bódor Létesítm
+                        <br>Tel.: 70
+                    </td>
+                </tr>
                 </table>
 
 
+                <div style="font-size: 14px; margin: 20px 0 3px 0;">
+                    Tisztelt szállító!
+                </div>
+                <div style="font-size: 12px; margin: 0 0 2px 0;">
+                    <b>A szállító levelet vagy a számla másolatát minden esetben hagyja az árú átvevőjénél és a számlán tüntesse fel megrendelőnk számát, ellenkező esetben a számlát nem áll módunkban befogadni!</b>
+                </div>
+                <div style="font-size: 13px; margin: 0 0 8px 0;">
+                    Megrendeljük Önöktől az alábbi anyagokat.
+                </div>
+
+                <div class="i" style="font-size: 13px">I. Cikkenkénti összesítés:</div>
+
+                            <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px;border-collapse: collapse;">
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                <th class="l" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;">Név</th>
+                                <th style="width: 20px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;" class="r">Mee</th>
+                                <th style="width: 20px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;" class="r">Rendelt mennyi- ség</th>
+                                <th style="width: 20px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;" class="r">Nettó rendelési egységár</th>
+                                <th style="width: 60px;border-collapse: collapse;border: 1px solid #ddd; padding: 5px;vertical-align: top;" class="r">Nettó összesen (HUF)</th>
+                            </tr>
+
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                <td class="b" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">ELEM - GÓLIÁT 1,5 V</td>
+                                <td class="c" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">db</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">50,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">440,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">22 000</td>
+                            </tr>
+
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                <td class="b" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">KAPCSOLÓ FEDÉL</td>
+                                <td class="c" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">db</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">10,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">401,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">4 010</td>
+                            </tr>
+
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                <td class="b" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">IPARI DUGVILLA</td>
+                                <td class="c" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">db</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">5,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">1 620,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">8 100</td>
+                            </tr>
+
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                <td class="b" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">FOGLALAT   GU5.3, 12 V, Spot izzóhoz</td>
+                                <td class="c" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">db</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">10,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">170,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">1 700</td>
+                            </tr>
+
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                <td class="b" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">WAGO - hajlékony vezetékhez 2</td>
+                                <td class="c" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">db</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">100,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">75,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">7 500</td>
+                            </tr>
+
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                <td class="b" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">WAGO - hajlékony vezetékhez 3</td>
+                                <td class="c" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">db</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">100,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">85,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">8 500</td>
+                            </tr>
+
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                <td class="b" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">WAGO - hajlékony vezetékhez 5</td>
+                                <td class="c" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">db</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">100,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">135,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">13 500</td>
+                            </tr>
+
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                <td class="b" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">IZZÓ - Philips CorePro LED PLC 6,5W 830 4P G24q-2 ROT</td>
+                                <td class="c" style="border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">db</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">35,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">2 540,00</td>
+                                <td class="r" style="white-space: nowrap; border-collapse: collapse;border: 1px solid #ddd; padding: 5px;">88 900</td>
+                            </tr>
+                            <pagebreak />
+
+                        <tr>
+                            <td style="border: 0"></td>
+                            <td style="border: 0"></td>
+                            <td style="border: 0; padding: 5px;" class="r b" colspan="2">Mindösszesen:</td>
+                            <td style="border: 0;padding: 5px; white-space: nowrap;" class="r b">154 210</td>
+                        </tr>
+                        </table>
+                <pagebreak />
+                <div class="i" style="font-size: 13px">II. Szállítási címenkénti összesítés:</div>
+
+                        <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px;border-collapse: collapse;">
+
+                            <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                <td class="b" style="border: 1px solid #ddd; padding: 5px;">
+                                    Szállítási cím:
+                                    <br>Számlázási cím:
+                                    <br>Adószám:
+                                    <br>Számlaküldési cím:
+                                </td>
+                                <td style="border: 1px solid #ddd; padding: 5px;" colspan="2">
+                                    Danubius Zrt. Danubius Hotel Helia 1133 Budapest, Kárpát utca 62-64.
+                                    <br>Danubius Zrt. Danubius Hotel Helia 1133 Budapest, Kárpát utca 62-64.
+                                    <br>10219522-2-44
+                                    <br>Danubius Zrt. Danubius Hotel Helia 1133 Budapest, Kárpát utca 62-64.
+                                </td>
+                            </tr>
+
+                                <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                    <td class="vat c" style="border: 1px solid #ddd; padding: 5px;">35,00 db</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;">IZZÓ - Philips CorePro LED PLC 6,5W 830 4P G24q-2 ROT</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;"></td>
+                                </tr>
+
+                                <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                    <td class="vat c" style="border: 1px solid #ddd; padding: 5px;">10,00 db</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;">KAPCSOLÓ FEDÉL</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;">Legrand 777010</td>
+                                </tr>
+
+                                <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                    <td class="vat c" style="border: 1px solid #ddd; padding: 5px;">10,00 db</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;">FOGLALAT   GU5.3, 12 V, Spot izzóhoz</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;"></td>
+                                </tr>
+
+                                <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                    <td class="vat c" style="border: 1px solid #ddd; padding: 5px;">50,00 db</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;">ELEM - GÓLIÁT 1,5 V</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;">VARTA</td>
+                                </tr>
+
+                                <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                    <td class="vat c" style="border: 1px solid #ddd; padding: 5px;">100,00 db</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;">WAGO - hajlékony vezetékhez 2</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;"></td>
+                                </tr>
+
+                                <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                    <td class="vat c" style="border: 1px solid #ddd; padding: 5px;">100,00 db</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;">WAGO - hajlékony vezetékhez 3</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;"></td>
+                                </tr>
+
+                                <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                    <td class="vat c" style="border: 1px solid #ddd; padding: 5px;">100,00 db</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;">WAGO - hajlékony vezetékhez 5</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;"></td>
+                                </tr>
+
+                                <tr style="border-collapse: collapse;border: 1px solid #ddd;">
+                                    <td class="vat c" style="border: 1px solid #ddd; padding: 5px;">5,00 db</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;">IPARI DUGVILLA</td>
+                                    <td class="vat" style="border: 1px solid #ddd; padding: 5px;">32A 5P</td>
+                                </tr>
+
+                            <tr >
+                                <td colspan="3" style="border: 1px solid #ddd; padding: 7px; border-left: 0; border-right: 0; border-bottom: 0"></td>
+                            </tr>
+
+                        </table>
 
 
+                <div style="font-size: 12px; margin: 30px 0 3px 0;">
+                    Üdvözlettel,
+                    <br>Budapest, 2018. február 27.
+                </div>
 
 
-
-
-
-
-
+                <table class="full" style="font-size: 12px; margin-top: 80px">
+                <tr>
+                    <td class="l">
+                        ......................................................................
+                        <div class="c" style="padding-right: 60px">
+                        <center>
+                            Kővágó Levente
+                            <br>Diszpécser központ vezető
+                        </center>
+                        </div>
+                    </td>
+                    <td class="r">
+                        ......................................................................
+                        <div class="c" style="padding-left: 60px">
+                        <center>
+                            Sánta Zoltán
+                            <br>Diszpécser központ vezető helyettes
+                        </center>
+                        </div>
+                    </td>
+                </tr>
+                </table>
 
             </div>
         </div>
-        <!--<div class="footer">
-            <div class="dtc padd"> </div>
-            <div class="dtc r padd" style="font-size: 7px"> teszt 2018.02.01 15:04:20 </div>
-        </div>-->
-    </div>
 
-<body>
+                        <div class="footer">
+                            <div class="dtc padd">
+                            </div>
+
+                        </div>
+                    </div>
+                <body>
