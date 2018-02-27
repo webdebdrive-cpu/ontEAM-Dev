@@ -4,7 +4,8 @@ require_once('datumra_utemezes.php');
 
 
 // Ütemezett feladatok lekérdezése, bejárása
-$log = '';
+$log = date('Y.m.d H:i:s').' '.basename(self()).' elindult
+';
 $log_utvonal = str_replace('.php', '', basename(self())).'.err';
 // Adott méret felett felezzük a log fájlt
 if( filesize($log_utvonal)>get_logfile_max_meret() ){
@@ -147,8 +148,14 @@ foreach($ut_feladatok as $ut_feladat){
  
 }
 
-// Végső log (ha ez nincs a fájban, akkor  kifagyott az ütemező
-fajlba_mentes($log_utvonal, $log."\n\r".date('Y.m.d H:i:s').' ütemezés vége !utemezo sikeresen lefutott!'. "\r\n");
+// A lefutást is eltároljuk
+$log .= date('Y.m.d H:i:s').' ütemező sikeresen lefutott.
+
+
+
+
+';
+fajlba_mentes($log_utvonal, $log);
 echo htmlspecialchars($log) . '<br>';
 
 // A lefutást is eltároljuk

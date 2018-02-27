@@ -110,10 +110,9 @@ if (isset($_GET['szall'])) {
     $keret = get_keret($sorszam.' Megrendelés a szállítónak');
     $html = str_replace('{TARTALOM}', $tartalom, $keret);
 
-if ($_GET['teszt_nyomtat']) {
-     echo nl2($html);
+if (isset($_GET['html_mutat'])) {
+     echo $html;
 }
-// echo nl2($html);
 
     // error_reporting(0); //Így tudod kikapcsolni a warningokat és hibaüzeneteket
     include('../mpdf/mpdf.php');
@@ -149,8 +148,10 @@ if ($_GET['teszt_nyomtat']) {
     }
 
     $mpdf -> Output(iconv('UTF-8', 'Windows-1250', '../'.get_utvonal().'rendeles/'.date('y').'/'.$szallito['id'].'/'.str_replace('/', '_', $sorszam).'.pdf'), 'F');
-    //Így tudod megnyitni  a PDF-et (olyan mintha egy PDF kiterjesztésű fájlra hivatkoznál)
-    $mpdf -> Output();
+    // Így tudod megnyitni  a PDF-et (olyan mintha egy PDF kiterjesztésű fájlra hivatkoznál)
+    if (!isset($_GET['html_mutat'])) {
+        $mpdf -> Output();
+    }
 
     $weblap -> leallit();
     exit;

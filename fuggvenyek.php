@@ -3559,7 +3559,10 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             // A bal navpaneles listát is kirajzoljuk, mert léptetéshez, árazás popuphoz kell. Szóval ott lesz a forráskódban, de rejtve
             if( !$frissit ) {
                 //
-                $html .= '<ul id="szamlaList" class="szamla_cont rendszer kijelolheto csoport_nevre_kattintas" style="display: none">';
+                if (!isset($_GET['teszt'])) {
+                    $style = ' style="display: none"';
+                }
+                $html .= '<ul id="szamlaList" class="szamla_cont rendszer kijelolheto csoport_nevre_kattintas"'.$style.'>';
             }
 
             $i = 1;

@@ -5,6 +5,7 @@
 *.csv
 *.doc
 *.docx
+*.err
 *.exe
 *.flv
 *.log

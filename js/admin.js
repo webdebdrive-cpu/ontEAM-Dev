@@ -1066,7 +1066,7 @@ $(function() {
             });
         } else {
             if( !request_in_process ) {
-                $('#szamlaList li.szamla_sor').removeClass('kijelolve akt');
+                /* Ezt azért kellett kivenni, hogy anyagigénylések alatt több sort ki lehessen jelölni. Ez fontos! $('#szamlaList li.szamla_sor').removeClass('kijelolve akt');*/
                 $('#szamla-' + _get('id')).addClass('akt kijelolve');
             }
         }
