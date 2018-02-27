@@ -1,7 +1,9 @@
 <?php
 require_once('../weblap.php');
 
-$log = date('Y.m.d H:i:s').' '.basename(self()).' elindult
+$log = '
+*****************************
+'.date('Y.m.d H:i:s').' '.basename(self()).' elindult
 ';
 $log_utvonal = str_replace('.php', '', basename(self())).'.err';
 // Adott méret felett felezzük a log fájlt
