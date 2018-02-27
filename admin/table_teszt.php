@@ -1,3 +1,7 @@
+<?php
+    require_once('../weblap.php');
+?>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -97,50 +101,51 @@
                     widgets: ['zebra', 'filter', 'columns', 'resizable'],
                     widgetOptions: {
                         resizable: true,
-                        resizable_widths : [ '10%', '10%', '10%', '10%', '10%', '5%', '5%' ]
+                        resizable_widths : [ '20%', '20%', '20%', '20%', '20%', '20%' ]
                     }
                 });
             });
         </script>
     </head>
     <body>
-        <table class="tablesorter">
-            <caption>Student Grades</caption>
+        <table class="tablesorter" style="width: 120rem;">
             <thead>
                 <tr>
-                <th class="drag-enable">Name (0)</th> <!-- disable dragtable on this column -->
-                <th class="drag-enable">Major (1)</th>
-                <th class="drag-enable">Sex (2)</th>
-                <th class="drag-enable">English (3)</th>
-                <th class="drag-enable">Japanese (4)</th>
-                <th class="drag-enable">Calculus (5)</th>
-                <th class="drag-enable">Geometry (6)</th>
+                <th class="drag-enable">Teljes név</th> <!-- disable dragtable on this column -->
+                <th class="drag-enable">Telefon</th>
+                <th class="drag-enable">E-mail</th>
+                <th class="drag-enable">Beosztás</th>
+                <th class="drag-enable">Részleg</th>
+                <th class="drag-enable">Aktív</th>
                 </tr>
             </thead>
             <tfoot>
-                <tr><th>Name</th><th>Major</th><th>Sex</th><th>English</th><th>Japanese</th><th>Calculus</th><th>Geometry</th></tr>
+                <tr>
+                    <th>Teljes név</th>
+                    <th>Telefon</th>
+                    <th>E-mail</th>
+                    <th>Beosztás</th>
+                    <th>Részleg</th>
+                    <th>Aktív</th>
+                </tr>
             </tfoot>
             <tbody>
-                <tr><td>Student01 (0)</td><td>Languages (1)</td><td>male (2)</td><td>80 (3)</td><td>70 (4)</td><td>75 (5)</td><td>80 (6)</td></tr>
-                <tr><td>Student02</td><td>Mathematics</td><td>male</td><td>90</td><td>88</td><td>100</td><td>90</td></tr>
-                <tr><td>Student03</td><td>Languages</td><td>female</td><td>85</td><td>95</td><td>80</td><td>85</td></tr>
-                <tr><td>Student04</td><td>Languages</td><td>male</td><td>60</td><td>55</td><td>100</td><td>100</td></tr>
-                <tr><td>Student05</td><td>Languages</td><td>female</td><td>68</td><td>80</td><td>95</td><td>80</td></tr>
-                <tr><td>Student06</td><td>Mathematics</td><td>male</td><td>100</td><td>99</td><td>100</td><td>90</td></tr>
-                <tr><td>Student07</td><td>Mathematics</td><td>male</td><td>85</td><td>68</td><td>90</td><td>90</td></tr>
-                <tr><td>Student08</td><td>Languages</td><td>male</td><td>100</td><td>90</td><td>90</td><td>85</td></tr>
-                <tr><td>Student09</td><td>Mathematics</td><td>male</td><td>80</td><td>50</td><td>65</td><td>75</td></tr>
-                <tr><td>Student10</td><td>Languages</td><td>male</td><td>85</td><td>100</td><td>100</td><td>90</td></tr>
-                <tr><td>Student11</td><td>Languages</td><td>male</td><td>86</td><td>85</td><td>100</td><td>100</td></tr>
-                <tr><td>Student12</td><td>Mathematics</td><td>female</td><td>100</td><td>75</td><td>70</td><td>85</td></tr>
-                <tr><td>Student13</td><td>Languages</td><td>female</td><td>100</td><td>80</td><td>100</td><td>90</td></tr>
-                <tr><td>Student14</td><td>Languages</td><td>female</td><td>50</td><td>45</td><td>55</td><td>90</td></tr>
-                <tr><td>Student15</td><td>Languages</td><td>male</td><td>95</td><td>35</td><td>100</td><td>90</td></tr>
-                <tr><td>Student16</td><td>Languages</td><td>female</td><td>100</td><td>50</td><td>30</td><td>70</td></tr>
-                <tr><td>Student17</td><td>Languages</td><td>female</td><td>80</td><td>100</td><td>55</td><td>65</td></tr>
-                <tr><td>Student18</td><td>Mathematics</td><td>male</td><td>30</td><td>49</td><td>55</td><td>75</td></tr>
-                <tr><td>Student19</td><td>Languages</td><td>male</td><td>68</td><td>90</td><td>88</td><td>70</td></tr>
-                <tr><td>Student20</td><td>Mathematics</td><td>male</td><td>40</td><td>45</td><td>40</td><td>80</td></tr>
+                <?php
+                    $felhasznalok = $adatbazis_kapcsolat->s('*', 'login', '', '', '50');
+
+                    if( $felhasznalok ) {
+                        foreach($felhasznalok as $felhasznalo) {
+                            echo '<tr>
+                                <td>'.$felhasznalo['teljes_nev'].'</td>
+                                <td>'.$felhasznalo['usertel'].'</td>
+                                <td>'.$felhasznalo['usermail'].'</td>
+                                <td>'.erteklista(18, $felhasznalo['beosztas_id']).'</td>
+                                <td>'.erteklista(17, $felhasznalo['reszleg_id']).'</td>
+                                <td>'.($felhasznalo['aktiv'] ? 'igen' : 'nem').'</td>
+                            </tr>';
+                        }
+                    }
+                ?>
             </tbody>
         </table>
     </body>
