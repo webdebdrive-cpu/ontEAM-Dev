@@ -19,7 +19,7 @@ if (isset($_GET['nyomtat'])) {
 if (isset($_GET['szall'])) {
 
     if($idk_impl){
-        //Cikkenkénti összesítés
+        // Cikkenkénti összesítés
         $tetelek_html = '
                             <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px;border-collapse: collapse;">
                             <tr style="border-collapse: collapse;border: 1px solid #ddd;">
@@ -31,7 +31,7 @@ if (isset($_GET['szall'])) {
                             </tr>
                         ';
 
-        //Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
+        // Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
         $ossz     = 0;
         $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
 //echo $adatbazis_kapcsolat->gp() . '<br>';

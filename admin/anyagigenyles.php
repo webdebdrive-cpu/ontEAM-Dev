@@ -538,6 +538,7 @@ if( isset($_POST['arazas']) ) {
                         </td>
                     </tr>
                     </table>
+                    <input type="hidden" name="pop_update_dt" id="pop_update_dt" value="'.$igenyles['update_dt'].'">
                     <input type="hidden" name="idk" id="idk" value="'.trim($idk_inputba, ',').'">
                     <input type="hidden" name="pop_ig_menny" id="pop_ig_menny" value="'.number_format($ossz_ig_menny, 2, ',', ' ').'">
                 </div>
@@ -666,6 +667,19 @@ if ($_POST['arazas_ment']) {
     $idk = explode(',', $_POST['idk']);
 
     // Hibakezelés
+    foreach($idk as $id){
+        $anyagigenyles = $adatbazis_kapcsolat->s2('update_dt', 'anyagigenyles', "`recid`='{$id}'");
+        if($_POST['update_dt']<$anyagigenyles['update_dt']){
+            echo json_encode(
+                        array(
+                            'title'         => 'Hiba!',
+                            'hiba_alert'    => 'Anyagigénylés nem árazható, mert idő közben más már módosította az anyagigénylést!<br>Kérjük kezdje újra az árazást!',
+                        )
+                );
+            $weblap -> leallit();
+            exit();
+        }
+    }
     if(!$_POST['szallito_id']){
         echo json_encode(
                     array(
@@ -771,18 +785,18 @@ if ($_POST['arazas_ment']) {
 
     // Több sor esetén a rendelt mennyiséghez az igényelt mennyiséget írjuk be
     if(count($idk)>1){
-        foreach($idk as $id){            
+        foreach($idk as $id){
             $anyagig = $adatbazis_kapcsolat->s2('igmen', 'anyagigenyles', "`recid`='{$id}'");
             if( $anyagig === false ) { $db_error = true; }
-            $sql = $adatbazis_kapcsolat->u('anyagigenyles',     array('szallito_id',         'kcs_21',         'rndear',           'rndmen',            'vrndear',          'arfolyam',          'atvaltva_d',           'erkcimid'        ),
-                                                                array($_POST['szallito_id'], $_POST['kcs_21'], $_POST['rndear'],   $anyagig['igmen'],   $_POST['vrndear'],   $_POST['arfolyam'], $_POST['atvaltva_d'],   $_POST['erkcimid']),
+            $sql = $adatbazis_kapcsolat->u('anyagigenyles',     array('szallito_id',         'kcs_21',         'rndear',           'rndmen',            'vrndear',          'arfolyam',          'atvaltva_d',           'erkcimid',         'update_dt', 'update_usr'                          ),
+                                                                array($_POST['szallito_id'], $_POST['kcs_21'], $_POST['rndear'],   $anyagig['igmen'],   $_POST['vrndear'],   $_POST['arfolyam'], $_POST['atvaltva_d'],   $_POST['erkcimid'], 'NOW()',     $_SESSION[get_db_tabla().'teljes_nev']),
                                             "`recid` = '{$id}'");
         }
 
     // Egy sor esetén a rendelt mennyiséget is felülírjuk
     }else{
-        $sql = $adatbazis_kapcsolat->u('anyagigenyles',         array('szallito_id',         'kcs_21',         'rndear',           'rndmen',           'vrndear',          'arfolyam',          'atvaltva_d',         'erkcimid'        ),
-                                                                array($_POST['szallito_id'], $_POST['kcs_21'], $_POST['rndear'],   $_POST['rndmen'],   $_POST['vrndear'],   $_POST['arfolyam'], $_POST['atvaltva_d'], $_POST['erkcimid']),
+        $sql = $adatbazis_kapcsolat->u('anyagigenyles',         array('szallito_id',         'kcs_21',         'rndear',           'rndmen',           'vrndear',          'arfolyam',          'atvaltva_d',         'erkcimid',         'update_dt', 'update_usr'                         ),
+                                                                array($_POST['szallito_id'], $_POST['kcs_21'], $_POST['rndear'],   $_POST['rndmen'],   $_POST['vrndear'],   $_POST['arfolyam'], $_POST['atvaltva_d'], $_POST['erkcimid'], 'NOW()',     $_SESSION[get_db_tabla().'teljes_nev']),
                                         "`recid` IN (".$_POST['idk'].")");
     }
     if( $sql === false ) { $db_error = true; }
@@ -830,7 +844,8 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
 
                 if( count($csoport_db) != $kijelolt_db[$csu] ) {
                     echo json_encode(array(
-                        'hiba' => 'Csoportosított anyagigénylés önmagában nem küldhető jóváhagyásra. Előbb vegye ki a csoportból!'
+                        'title' => 'Hiba',
+                        'hiba'  => 'Csoportosított anyagigénylés önmagában nem küldhető jóváhagyásra. Előbb vegye ki a csoportból!'
                     ));
 
                     $weblap->leallit();
@@ -849,7 +864,8 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
 
                 if(  $statusz['stat_id']!=CIKKIGN_STAT_NYITOTT ) {
                     echo json_encode(array(
-                        'hiba' => 'Csak nyitott státuszú anyagigényléseket lehet jóváhagyásra küldeni!'
+                        'title' => 'Hiba',
+                        'hiba'  => 'Csak nyitott státuszú anyagigényléseket lehet jóváhagyásra küldeni!'
                     ));
 
                     $weblap->leallit();
@@ -860,7 +876,8 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
                 $igenyles = $adatbazis_kapcsolat->s2('szallito_id rndear rndmen kcs_21', 'anyagigenyles', "`recid`='$id'");
                 if(!$igenyles['szallito_id'] || $igenyles['rndear']==0.0000 || $igenyles['rndmen']==0.00 || !$igenyles['kcs_21']){
                     echo json_encode(array(
-                        'hiba' => 'Csak árazott anyagigényléseket lehet jóváhagyásra küldeni!'
+                        'title' => 'Hiba',
+                        'hiba'  => 'Csak árazott anyagigényléseket lehet jóváhagyásra küldeni!'
                     ));
 
                     $weblap->leallit();
@@ -869,7 +886,8 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
 
             } else {
                 echo json_encode(array(
-                    'hiba' => 'Státusz nem található!'
+                    'title' => 'Hiba',
+                    'hiba'  => 'Státusz nem található!'
                 ));
 
                 $weblap->leallit();
@@ -881,8 +899,8 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
-                'hiba' => 'Biztos jóváhagyásra küldi kijelölt anyagigényléseket?',
-                'gomb' => '<input class="gomb zold" value="Igen" onclick="anyagigenyles_kuldes_jovahagyasra();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
+                'hiba'  => 'Biztos jóváhagyásra küldi kijelölt anyagigényléseket?',
+                'gomb'  => '<input class="gomb zold" value="Igen" onclick="anyagigenyles_kuldes_jovahagyasra();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
             $weblap->leallit();
@@ -920,7 +938,8 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
         } else {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
-                'hiba' => tranzakcioHiba()
+                'title' => 'Hiba',
+                'hiba'  => tranzakcioHiba()
             ));
         }
     }
