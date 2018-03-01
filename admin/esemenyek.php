@@ -1334,8 +1334,8 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
                                                                         </div>
         ')),
 
-    array('type' => 'text',                     'megn' => 'Elvégzési idő:',     'name' => 'elv_ido_tol', 'class' => 'ora_perc', 'maxlength' => 5, 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
-    array('type' => 'text',                     'megn' => '',                   'name' => 'elv_ido_ig',  'class' => 'ora_perc', 'maxlength' => 5),
+    array('type' => 'text',                     'megn' => 'Elvégzési idő:',     'name' => 'elv_ido_tol', 'class' => 'ora_perc', 'maxlength' => 6, 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
+    array('type' => 'text',                     'megn' => '',                   'name' => 'elv_ido_ig',  'class' => 'ora_perc', 'maxlength' => 6),
 
 
     //array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
@@ -1544,8 +1544,8 @@ $rendszeres_karbantartas_tomb = $akt_tomb = array(
                                                                         </div>
         ')),
 
-    array('type' => 'text',                     'megn' => 'Elvégzési idő:',     'name' => 'elv_ido_tol', 'class' => 'ora_perc', 'maxlength' => 5, 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
-    array('type' => 'text',                     'megn' => '',                   'name' => 'elv_ido_ig',  'class' => 'ora_perc', 'maxlength' => 5),
+    array('type' => 'text',                     'megn' => 'Elvégzési idő:',     'name' => 'elv_ido_tol', 'class' => 'ora_perc', 'maxlength' => 6, 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
+    array('type' => 'text',                     'megn' => '',                   'name' => 'elv_ido_ig',  'class' => 'ora_perc', 'maxlength' => 6),
 
 
     //array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
@@ -1753,8 +1753,8 @@ $eseti_fenntartas_tomb = $akt_tomb = array(
 //                                                                        </div>
 //        ')),
 
-    array('type' => 'text',                     'megn' => 'Elvégzési idő:',     'name' => 'elv_ido_tol', 'class' => 'ora_perc', 'maxlength' => 5, 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
-    array('type' => 'text',                     'megn' => '',                   'name' => 'elv_ido_ig',  'class' => 'ora_perc', 'maxlength' => 5),
+    array('type' => 'text',                     'megn' => 'Elvégzési idő:',     'name' => 'elv_ido_tol', 'class' => 'ora_perc', 'maxlength' => 6, 'osszevon' => 1, 'post' => ' -', 'style' => 'margin-right: 0.5rem'),
+    array('type' => 'text',                     'megn' => '',                   'name' => 'elv_ido_ig',  'class' => 'ora_perc', 'maxlength' => 6),
 
 
     //array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),

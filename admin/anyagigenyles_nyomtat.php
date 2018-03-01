@@ -33,7 +33,7 @@ if (isset($_GET['szall'])) {
 
         // Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
         $ossz     = 0;
-        $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
+        $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id, rndear', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 
         $egysegar_mezo  = 'rndear';
@@ -42,10 +42,11 @@ if (isset($_GET['szall'])) {
             $egysegar_mezo  = 'vrndear';
             $egysegar_tized = 2;
         }
+        
         foreach($anyagok as $anyag){
 
             $rndmen = 0;
-            $anyag_lek = $adatbazis_kapcsolat->s('nev cikkmee rndmen '.$egysegar_mezo, 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `cikk_id`='{$anyag['cikk_id']}'");
+            $anyag_lek = $adatbazis_kapcsolat->s('nev cikkmee rndmen '.$egysegar_mezo, 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `cikk_id`='{$anyag['cikk_id']}' AND `rndear`='{$anyag['rndear']}'");
             foreach($anyag_lek as $a_lek){
                 $rndmen += $a_lek['rndmen'];
             }
@@ -76,8 +77,7 @@ if (isset($_GET['szall'])) {
 
     // Lényegi tartalom
     $tartalom = '
-
-        <div class="padd minh">
+        <div class="padd" style="padding-bottom: 0">
 
                 '.get_fejlec($szallito).'
 
@@ -91,20 +91,23 @@ if (isset($_GET['szall'])) {
                     Megrendeljük Önöktől az alábbi anyagokat.
                 </div>
 
-                <div class="i" style="font-size: 13px">I. Cikkenkénti összesítés:</div>
-                '.$tetelek_html.'
-                <div class="i" style="font-size: 13px">II. Szállítási címenkénti összesítés:</div>
-                '.szallitasi_cimenkenti_lista($idk_impl).'
-
-                <div style="font-size: 12px; margin: 30px 0 3px 0;">
-                    Üdvözlettel,
-                    <br>Budapest, '.date_formaz(date('Y-m-d')).'
+                <div style="page-break-inside: avoid;">
+                    <div class="i" style="font-size: 13px">I. Cikkenkénti összesítés:</div>
+                    '.$tetelek_html.'
                 </div>
+                <div style="page-break-inside: avoid;">
+                    <div class="i" style="font-size: 13px">II. Szállítási címenkénti összesítés:</div>
+                    '.szallitasi_cimenkenti_lista($idk_impl).'
 
-                '.get_alairasok().'
+                    <div style="font-size: 12px; margin: 30px 0 3px 0;">
+                        Üdvözlettel,
+                        <br>Budapest, '.date_formaz(date('Y-m-d')).'
+                    </div>
+                    '.get_alairasok().'
+                </div>
             </div>
         </div>
-            ';
+        ';
 
     $keret = get_keret($sorszam.' Megrendelés a szállítónak');
     $html = str_replace('{TARTALOM}', $tartalom, $keret);
@@ -123,10 +126,10 @@ if (isset($_GET['html_mutat'])) {
 
     $mpdf = new mPDF('utf-8');
 
-
-    $mpdf ->nbpgPrefix = '/ ';
+    $mpdf -> AddPage('P','','','','',10,10,25,0);
+    $mpdf -> nbpgPrefix = '/ ';
     $header = get_fejlec_top($sorszam, 'lapszámmal');
-    $footer = '<div class="dtc r padd" style="font-size: 7px">
+    $footer = '<div class="dtc r" style="font-size: 7px">
         '.$_SESSION[get_db_tabla().'user'].'
         '.date('Y.m.d H:i:s').'
     </div>';
@@ -546,9 +549,7 @@ function get_keret($title){
                     <div class="a4_allo">
                         {TARTALOM}
                         <div class="footer">
-                            <div class="dtc padd">
-                            </div>
-
+                            <div class="dtc"></div>
                         </div>
                     </div>
                 <body>

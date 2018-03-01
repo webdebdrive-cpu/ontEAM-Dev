@@ -650,7 +650,7 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 					}
 
 					if ($.type(options.mask) === 'string') {
-						/*Szóközös mmaszk miatt ezt inaktiváltuk
+						/*Szóközös maszk miatt ezt inaktiváltuk
                         if (!isValidValue(options.mask, input.val())) {
 							input.val(options.mask.replace(/[0-9]/g, '_'));
 						}
@@ -670,6 +670,7 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 					}
 				}
 				if (options.validateOnBlur) {
+
 					input
 						.off('blur.xdsoft')
 						.on('blur.xdsoft', function () {
@@ -1484,6 +1485,7 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 				.on('keydown.xdsoft', function (event) {
 					var val = this.value, elementSelector,
 						key = event.which;
+                        
 					if ([ENTER].indexOf(key) !== -1 && options.enterLikeTab) {
 						elementSelector = $("input:visible,textarea:visible");
 						datetimepicker.trigger('close.xdsoft');
@@ -1639,6 +1641,9 @@ function datum_formatumra_formaz(input) {
             }
         }
     }
+    if(!uj){
+        uj = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0';
+    }
     return uj.substring(0, 16);
 }
 
@@ -1646,7 +1651,7 @@ function datum_formatumra_formaz_ora(input) {
     input = input.replace(/:/gi,  '');
     n  = input.length;
     uj = '';
-    
+
     for (i = 0; i < n; i++) {
         if(!isNaN(parseFloat(input.substr(i, 1)))){
             switch (i) {
@@ -1660,6 +1665,9 @@ function datum_formatumra_formaz_ora(input) {
             }
         }
     }
-    
+
+    if(!uj){
+        uj = '\xa0\xa0:\xa0\xa0';
+    }
     return uj.substring(0, 5);
 }
