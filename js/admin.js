@@ -465,7 +465,7 @@ $(function() {
     $('select[readonly]')  .removeAttr('onclick').removeAttr('onblur');
     $('textarea[readonly]').removeAttr('onclick').removeAttr('onblur');
     $(document).on('mousedown', 'input[readonly], select[readonly], textarea[readonly]', function(e) {
-        $(this).blur();
+        $(this).select();
         return false;
     });
     $(document).on('click', 'label[readonly]', function(e) {
@@ -1065,8 +1065,13 @@ $(function() {
                 }
             });
         } else {
+            
+            /* Ha lefutott az ajax, akkor gondolskojunk róla, hogy csak egy sor legyen kijelölve a bal oldali nav panelben. */ 
             if( !request_in_process ) {
-                /* Ezt azért kellett kivenni, hogy anyagigénylések alatt több sort ki lehessen jelölni. Ez fontos! $('#szamlaList li.szamla_sor').removeClass('kijelolve akt');*/
+                /* Anyagigénylés alatt ezt mégsem tesszük meg, mert ott több sor kijelölése engedélyezett. Sőt ha engedélyezve lenne más menüpont alatt is a több kijelölés, csoportosítás, akkor azt szintén fel kellene venni itt kivételbe. */
+                if( baseName(location.href) != 'anyagigenyles' ){
+                    $('#szamlaList li.szamla_sor').removeClass('kijelolve akt');
+                }
                 $('#szamla-' + _get('id')).addClass('akt kijelolve');
             }
         }
@@ -2200,7 +2205,7 @@ function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
                             response = JSON.parse(response);
 
                             if( response.hiba ) {
-                                alert2(response.hiba, response.gomb, 'Hiba');
+                                alert2(response.hiba, response.gomb, response.title);
                                 return false;
                             }
 
@@ -3715,6 +3720,7 @@ function arazas_ment(){
             atvaltva_d  : $('#pop_atvaltva_d').val(),
             ig_menny    : $('#pop_ig_menny').val(),
             indok       : $('#pop_indoklas').val(),
+            update_dt   : $('#pop_update_dt').val(),
             erkcimid    : erkcimid,
             arazas_ment : new Date().getTime()
         },
@@ -3728,6 +3734,10 @@ function arazas_ment(){
                     if(response.focus){
                         $('#'+response.focus).select();
                     }
+                    return false;
+                }
+                if( response.hiba_alert ) {
+                    alert2(response.hiba_alert, response.gomb, response.title);
                     return false;
                 }
             }

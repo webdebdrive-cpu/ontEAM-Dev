@@ -4548,6 +4548,16 @@ if (isset($_POST['munkalapHIUtemez'])) {
             exit();
         }
         
+        // Dátum helyes-e?
+        if( !valos_datum_e($_POST['datum'])){
+            echo json_encode(array(
+                'hiba'  => 'Helytelen dátum! Kérjük válasszon egy érvényes időpontot!',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        
         $megj = 'Dátumra ütemezve: '.$_POST['datum'];
         if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_VARAKOZO, '', $megj ) === false ) {
             $db_error = true;
