@@ -72,28 +72,52 @@ tr{
 table td, table th {
     border: 0.1rem solid #CCC;
     font-size: 1.4rem;
-    padding: 0.5rem!important;
 }
 
 table.sar-table {
+    border-collapse: collapse;
+    table-layout: fixed;
     min-width: 100%;
+    width: 100%;
+}
+
+table.sar-table td {
+    overflow: hidden;
+    padding: 0.5rem;
+    word-wrap: break-word;
 }
 
 table.sar-table th {
     background:none repeat scroll 0 0 #FBF9EA;
     color:#000;
+    cursor: pointer;
     font-weight:normal;
     height: 2rem;
+    overflow: hidden;
     width: 10rem;
-    cursor: pointer;
 }
 
-table.sar-table th.nowrap {
+table.sar-table td.nowrap {
+    overflow: hidden;
+    max-width: 95%;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 table.sar-table th div.thKeret {
+    padding: 0.5rem;
     position: relative;
+}
+
+table.sar-table th div.thKeret div.grip {
+    background: transparent;
+    cursor: col-resize;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    right: 0rem;
+    width: 0.6rem;
 }
 
 table.sar-table th div.thKeret input {
@@ -125,8 +149,8 @@ table.sar-table th div.thKeret label span {
 table.sar-table th div.order {
     height: 1.2rem;
     position: absolute;
-    bottom: 4.7rem;
-    right: 0.3rem;
+    bottom: 3.2rem;
+    right: 0.8rem;
     width: 0.6rem;
 }
 

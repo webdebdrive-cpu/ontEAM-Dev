@@ -4,7 +4,6 @@
     echo '<style media="screen">'.fajlbol_olvas('../css/dragtable.css').'</style>';
 ?>
     <script type="text/javascript" src="../js/jquery.dragtable.js"></script>
-    <!-- <script type="text/javascript" src="../js/colResizable-1.6.min.js"></script> -->
     <script type="text/javascript">
         $(function() {
             var saveSticky;
@@ -70,7 +69,7 @@
                     index   = th.index();
 
                 table.find('tr').removeClass('dn');
-                
+
                 if( value ) {
                     table.find('td').filter(function() {
                         if( $(this).index() === index ) {
@@ -121,6 +120,12 @@
                         'max-width': width
                     });
 
+                    $(this).css({
+                        'min-width': width,
+                        'max-width': width,
+                        'width': width
+                    });
+
                     stickyWidth += width;
                 });
 
@@ -154,6 +159,60 @@
                     }
                 });
             });
+
+            /* Resize */
+            $('.sar-table').each(function() {
+                var th = $(this).find('thead:not(.sticky) th');
+
+                th.each(function(index, el) {
+                    $(this).find('.thKeret').append('<div class="grip"></div>');
+                });
+            });
+
+            var _click = false;
+            $(document).on('mousedown', '.grip', function(event) {
+                _click = true;
+                _resizeElement = {};
+
+                var th = $(this).parents('th');
+                _resizeElement.that  = th;
+                _resizeElement.width = th.outerWidth();
+
+                var gripPos = $(this).offset();
+                startCursor = {};
+
+                startCursor.x = (event.pageX - gripPos.left) + gripPos.left;
+                startCursor.y = (event.pageY - gripPos.top) + gripPos.top;
+
+                $(document).disableSelection();
+            });
+
+            $(document).on('mousemove', function(event) {
+                if( _click ) {
+                    var offsetCursor = {};
+
+                    offsetCursor.x = event.pageX - startCursor.x;
+                    offsetCursor.y = event.pageY - startCursor.y;
+
+                    _rew = _resizeElement.width + offsetCursor.x;
+
+                    if( _rew > 40 ) {
+                        _resizeElement.that.css({
+                            'min-width': _rew,
+                            'max-width': _rew,
+                            'width': _rew
+                        });
+                    }
+                }
+            });
+
+            $(document).on('mouseup', function() {
+                if( _click ) {
+                    _click = false;
+                    _resizeElement = null;
+                    $(document).enableSelection();
+                }
+            });
         });
     </script>
     <div class="tableCont">
@@ -166,10 +225,10 @@
                             <div class="order"></div>
                             Teljes név
                             <input type="text" name="tableSearch" value="">
-                            <label>
+                            <!-- <label>
                                 <input type="checkbox" name="nowrap" value="">
                                 <span>Ne tördelje</span>
-                            </label>
+                            </label> -->
                         </div>
                     </th>
                     <th>
@@ -178,10 +237,10 @@
                             <div class="order"></div>
                             Telefon
                             <input type="text" name="tableSearch" value="">
-                            <label>
+                            <!-- <label>
                                 <input type="checkbox" name="nowrap" value="">
                                 <span>Ne tördelje</span>
-                            </label>
+                            </label> -->
                         </div>
                     </th>
                     <th>
@@ -190,10 +249,10 @@
                             <div class="order"></div>
                             E-mail
                             <input type="text" name="tableSearch" value="">
-                            <label>
+                            <!-- <label>
                                 <input type="checkbox" name="nowrap" value="">
                                 <span>Ne tördelje</span>
-                            </label>
+                            </label> -->
                         </div>
                     </th>
                     <th>
@@ -202,10 +261,10 @@
                             <div class="order"></div>
                             Beosztás
                             <input type="text" name="tableSearch" value="">
-                            <label>
+                            <!-- <label>
                                 <input type="checkbox" name="nowrap" value="">
                                 <span>Ne tördelje</span>
-                            </label>
+                            </label> -->
                         </div>
                     </th>
                     <th>
@@ -214,10 +273,10 @@
                             <div class="order"></div>
                             Részleg
                             <input type="text" name="tableSearch" value="">
-                            <label>
+                            <!-- <label>
                                 <input type="checkbox" name="nowrap" value="">
                                 <span>Ne tördelje</span>
-                            </label>
+                            </label> -->
                         </div>
                     </th>
                     <th>
@@ -226,10 +285,10 @@
                             <div class="order"></div>
                             Aktív
                             <input type="text" name="tableSearch" value="">
-                            <label>
+                            <!-- <label>
                                 <input type="checkbox" name="nowrap" value="">
                                 <span>Ne tördelje</span>
-                            </label>
+                            </label> -->
                         </div>
                     </th>
                 </tr>
@@ -245,7 +304,7 @@
                                     <td>'.$felhasznalo['teljes_nev'].'</td>
                                     <td data-sort="'.sprintf("%02d", $i).'">'.sprintf("%02d", $i).'<br>'.$felhasznalo['usertel'].'</td>
                                     <td>'.$felhasznalo['usermail'].'</td>
-                                    <td>'.erteklista(18, $felhasznalo['beosztas_id']).'</td>
+                                    <td class="nowrap">'.erteklista(18, $felhasznalo['beosztas_id']).'</td>
                                     <td>'.erteklista(17, $felhasznalo['reszleg_id']).'</td>
                                     <td>'.($felhasznalo['aktiv'] ? 'igen' : 'nem').'</td>
                                 </tr>';

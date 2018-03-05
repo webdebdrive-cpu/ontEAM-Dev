@@ -289,43 +289,41 @@
     }
   });
 
-  var body_onselectstart_save = $(document.body).attr('onselectstart'),
-    body_unselectable_save = $(document.body).attr('unselectable');
+    var body_onselectstart_save = $(document.body).attr('onselectstart'),
+        body_unselectable_save = $(document.body).attr('unselectable');
 
 
 
-  function disableTextSelection() {
-
-    var $style = $('<style id="__dragtable_disable_text_selection__" type="text/css">body { -ms-user-select:none;-moz-user-select:-moz-none;-khtml-user-select:none;-webkit-user-select:none;user-select:none; }</style>');
-    $(document.head).append($style);
-    $(document.body).attr('onselectstart', 'return false;').attr('unselectable', 'on');
-    if (window.getSelection) {
-      window.getSelection().removeAllRanges();
-    } else {
-      document.selection.empty();
+    function disableTextSelection() {
+        var $style = $('<style id="__dragtable_disable_text_selection__" type="text/css">body { -ms-user-select:none;-moz-user-select:-moz-none;-khtml-user-select:none;-webkit-user-select:none;user-select:none; }</style>');
+        $(document.head).append($style);
+        $(document.body).attr('onselectstart', 'return false;').attr('unselectable', 'on');
+        if (window.getSelection) {
+        window.getSelection().removeAllRanges();
+        } else {
+        document.selection.empty();
+        }
     }
-  }
+    
+    function restoreTextSelection() {
+        $('#__dragtable_disable_text_selection__').remove();
+        if (body_onselectstart_save) {
+            $(document.body).attr('onselectstart', body_onselectstart_save);
+        } else {
+            $(document.body).removeAttr('onselectstart');
+        }
 
-
-
-  function restoreTextSelection() {
-    $('#__dragtable_disable_text_selection__').remove();
-    if (body_onselectstart_save) {
-      $(document.body).attr('onselectstart', body_onselectstart_save);
-    } else {
-      $(document.body).removeAttr('onselectstart');
+        if (body_unselectable_save) {
+            $(document.body).attr('unselectable', body_unselectable_save);
+        } else {
+            $(document.body).removeAttr('unselectable');
+        }
     }
-    if (body_unselectable_save) {
-      $(document.body).attr('unselectable', body_unselectable_save);
-    } else {
-      $(document.body).removeAttr('unselectable');
-    }
-  }
 
-  function swapNodes(a, b) {
-    var aparent = a.parentNode;
-    var asibling = a.nextSibling === b ? a : a.nextSibling;
-    b.parentNode.insertBefore(a, b);
-    aparent.insertBefore(b, asibling);
-  }
+    function swapNodes(a, b) {
+        var aparent = a.parentNode;
+        var asibling = a.nextSibling === b ? a : a.nextSibling;
+        b.parentNode.insertBefore(a, b);
+        aparent.insertBefore(b, asibling);
+    }
 })(jQuery);
