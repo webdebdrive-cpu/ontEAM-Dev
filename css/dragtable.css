@@ -1,0 +1,218 @@
+/* Dragtable css */
+input {
+    border:1px solid #A6A7B0;
+}
+
+h1#akottr-header, #pageWrap {
+    width:100rem;
+    padding:1.5rem 0.8rem;
+    border-right: 0.1rem solid #A6A7B0;
+    border-left: 0.1rem solid #A6A7B0;
+}
+
+#pageWrap {
+    border-bottom: 0.1rem solid #A6A7B0;
+}
+
+
+h1#akottr-header {
+    border-top: 0.1rem solid #A6A7B0;
+    height: 7rem;
+    margin: 0;
+    background-color: #EEEEEE;
+    background-image: url('../img/akottr.png');
+    background-position: 1rem 1rem;
+    background-repeat: no-repeat;
+}
+
+h4 {
+ padding-bottom: 0.3rem;
+}
+
+.intro {
+    padding: 0.8rem 0;
+}
+
+.sample {
+    padding: 0 0 2rem 0;
+}
+
+.sample .demo .demo-content {
+    padding: 0.3rem 0.2rem 0.3rem 0.2rem;
+    margin: 0.5rem 0;
+    border: 0.1rem solid #E2E1D5;
+}
+
+.code-snippet pre {
+    padding: 0.3rem 0.2rem 0.3rem 0.2rem;
+    margin: 0.5rem 0;
+    background-color: #FBF9EA;
+    border: 0.1rem solid #E2E1D5;
+}
+
+.sample .description {
+    padding: 0.5rem 0 0.5rem 0;
+}
+
+table {
+    font-size: 1rem;
+    border-collapse:collapse;
+    font-family:Tahoma,Helvetica,Arial,sans-serif;
+}
+td, th {
+    text-align:left;
+    vertical-align:top;
+}
+
+tr{
+    marging:0;
+    padding:0;
+}
+
+table td, table th {
+    border: 0.1rem solid #CCC;
+    font-size: 1.4rem;
+    padding: 0.5rem!important;
+}
+
+table.sar-table {
+    min-width: 100%;
+}
+
+table.sar-table th {
+    background:none repeat scroll 0 0 #FBF9EA;
+    color:#000;
+    font-weight:normal;
+    height: 2rem;
+    width: 10rem;
+    cursor: pointer;
+}
+
+table.sar-table th.nowrap {
+    white-space: nowrap;
+}
+
+table.sar-table th div.thKeret {
+    position: relative;
+}
+
+table.sar-table th div.thKeret input {
+    display: block;
+    margin: 0.5rem 0rem 0rem 0rem;
+    width: 100%;
+}
+
+table.sar-table th div.thKeret label {
+    cursor: pointer;
+    display: block;
+    margin: 0.5rem 0rem 0rem 0rem;
+}
+
+table.sar-table th div.thKeret label input {
+    display: inline-block;
+    margin: 0rem 0rem 0rem 0rem;
+    vertical-align: top;
+    width: auto;
+}
+
+table.sar-table th div.thKeret label span {
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+    top: -0.1rem;
+}
+
+table.sar-table th div.order {
+    height: 1.2rem;
+    position: absolute;
+    bottom: 4.7rem;
+    right: 0.3rem;
+    width: 0.6rem;
+}
+
+table.sar-table th div.order:before {
+    content: '';
+    border-style: solid;
+    border-width: 0 0.3rem 0.5rem 0.3rem;
+    border-color: transparent transparent #000 transparent;
+    height: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 0;
+}
+
+table.sar-table th div.order:after {
+    content: '';
+    border-style: solid;
+    border-width: 0.5rem 0.3rem 0 0.3rem;
+    border-color: #000 transparent transparent transparent;
+    height: 0;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+}
+
+table.sar-table th div.order.desc:before {
+    display: none;
+}
+
+table.sar-table th div.order.asc:after {
+    display: none;
+}
+
+#handlerTable th {
+    cursor:default;
+}
+
+.some-handle {
+    cursor:move;
+}
+
+#constrainTable th {
+    cursor:default;
+}
+
+#constrainTable th.accept {
+    cursor:move;
+}
+
+.some-handle {
+    background-image:url('../elemek/handle.png');
+    background-repeat:repeat-x;
+    height:1.8rem;
+    margin:0 0.1rem;
+}
+
+.dragtable-sortable {
+    list-style-type: none; margin: 0; padding: 0; -moz-user-select: none; z-index: 10;
+}
+.dragtable-sortable li {
+    margin: 0; padding: 0; float: left; font-size: 1rem; background: white;
+}
+
+.dragtable-sortable th, .dragtable-sortable td{
+    border-left: 0;
+}
+
+.dragtable-sortable li:first-child th, .dragtable-sortable li:first-child td {
+    border-left: 0.1rem solid #CCC;
+}
+
+.ui-sortable-helper {
+    opacity: 0.7;filter: alpha(opacity=70);
+}
+.ui-sortable-placeholder {
+    -moz-box-shadow: 0.4rem 0.5rem 0.4rem #C6C6C6 inset;
+    -webkit-box-shadow: 0.4rem 0.5rem 0.4rem #C6C6C6 inset;
+    box-shadow: 0.4rem 0.5rem 0.4rem #C6C6C6 inset;
+    border-bottom: 0.1rem solid #CCCCCC;
+    border-top: 0.1rem solid #CCCCCC;
+    visibility: visible !important;
+    background: #EFEFEF !important;
+    visibility: visible !important;
+}
+.ui-sortable-placeholder * {
+    opacity: 0.0!important; visibility: hidden!important;
+}
