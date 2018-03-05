@@ -11,7 +11,7 @@ if (isset($_GET['nyomtat'])) {
     $szallito = $adatbazis_kapcsolat->s2('szallito_id kcs_21', 'anyagigenyles', "`recid`='{$idk[1]}'");
     $kcs_21   = $szallito['kcs_21'];
     $penznem  = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=21 AND `id`='{$kcs_21}'");
-    $szallito = $adatbazis_kapcsolat->s2('id nev knev tel tel2 isz varos utca', 'szallito', "`id`='{$szallito['szallito_id']}'");
+    $szallito = $adatbazis_kapcsolat->s2('id nev knev tel tel2 email isz varos utca', 'szallito', "`id`='{$szallito['szallito_id']}'");
 
 }
 
@@ -392,6 +392,7 @@ function get_fejlec($szallito){
                         <br>Kapcs.: '.$szallito['knev'].'
                         <br>Tel.: '.$szallito['tel'].'
                         <br>Fax.: '.$szallito['tel2'].'
+                        <br>E-mail: '.$szallito['email'].'
                         <br>Cím.: '.$szallito['isz'].' '.$szallito['varos'].', '.$szallito['utca'].'
                     </td>
                     <td class="vat" style="font-size: 12px; width: 50%; padding: 5px; border: 1px solid #ddd;">

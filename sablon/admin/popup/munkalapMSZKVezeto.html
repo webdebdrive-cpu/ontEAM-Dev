@@ -1,4 +1,4 @@
-<h2>Átadás Műszaki igazgatónak</h2>
+<h2>Átadás MSZK Vezetőnek</h2>
 <form action="" id="elutasitasForm" class="popupForm" method="post">
     <div class="kozep">
         <div class="dt">
@@ -17,12 +17,6 @@
 </form>
 <script>
 function munkalapMSZKVezeto() {
-    
-    if(!$('#atadas_indok').val()){
-        $('#atadas_indok').addClass('hibas_ide_focus');
-        alert2('Kérjük indokolja meg az átadást!', '', 'Hiba');
-        return false;
-    }
 
     if(balnav_kijelol_ell()){
 
@@ -32,7 +26,7 @@ function munkalapMSZKVezeto() {
             data: {
                 indoklas            : $('#atadas_indok').val(),
                 recid               : _get('id'),
-                munkalapMSZKVezeto  : new Date().getTime()
+                munkalapDiszpKozp   : new Date().getTime()
             },
             success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
@@ -40,6 +34,9 @@ function munkalapMSZKVezeto() {
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
+                        if(response.focus){
+                            $('#'+response.focus).addClass('hibas_ide_focus');
+                        }
                         alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
