@@ -673,9 +673,10 @@ require_once('selectek.php');
         }
 
         // Törlés gomb hibaüzenetei
-        // Csak nyitott státuszú törölhető
-        if($sor['stat_id']!=BEJELENTES_STAT_NYITOTT) {
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak nyitott státuszú bejelentés törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        // Csak nyitott és folyamatban státusz törölhető
+        $torolheto_statuszok = array(BEJELENTES_STAT_NYITOTT, BEJELENTES_STAT_FOLYAMATBAN);
+        if( !in_array($sor['stat_id'], $torolheto_statuszok) ) {
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Ebben a státuszban nem törölhető a bejelentés!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         // Csak törlés joggal törölhető
         } else if( !_jog(JOG_BEJELENTES_TORLESE) ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga bejelentést törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';

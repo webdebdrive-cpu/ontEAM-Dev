@@ -79,6 +79,7 @@ switch($tabla) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`rnd_dt`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`erkmen`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`erkear`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`igleir`,
                                     `'.get_db_tabla().'szallito`.`nev`
                                 ');
 
@@ -235,10 +236,15 @@ switch($tabla) {
     break;
     case 'cikktorzs.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
-        $_OPTS['select']    = 'nev recid id';
+        $_OPTS['select']    = nl2('
+                                    `'.get_db_tabla().$tabla_nophp.'`.`recid`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`nev`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`id`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`szakter_id`
+                            ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('id', 'nev');
+        $_OPTS['rendezes']  = array('id', 'nev', 'szakter_id');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -2198,6 +2204,7 @@ $cikktorzs_tomb = $akt_tomb = array(
     array('type' => 'textarea',                 'megn' => 'Leírás:',                'name' => 'leiras',     'szuro' => 1,  'class' => 'oriasiTargy disableNav'),
     array('type' => 'checkbox',                 'megn' => 'Szerelési segédanyag:',  'name' => 'segedanyag', 'szuro' => 1,  'class' => 'check'),
     array('type' => 'checkbox',                 'megn' => 'Helyi beszerzésű:',      'name' => 'helyi',      'szuro' => 1,  'class' => 'check'),
+    array('type' => 'checkbox',                 'megn' => 'Aktív:',                 'name' => 'aktiv',      'szuro' => 1,  'class' => 'check'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -4128,6 +4135,62 @@ foreach($postok as $ertek){
 
             $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
+        }
+        
+        // Felmérési tervnél a Tervlap is tartalmaz egy dokumentumot
+        $fajl = $adatbazis_kapcsolat->s2('felm_terv', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
+        kep_torol('../'.get_utvonal().$fajl['felm_terv']);
+
+        // Bejelentések törlésekor több mindent is teszünk
+        if($ertek['tabla']=='bejelentes'){
+            
+            // Csak nyitott és folyamatban státusz törölhető
+            $bejelentes = $adatbazis_kapcsolat->s2('stat_id ikt_szam insert_dt obj_id helyiseg_text hiba_id hiba_text', 'bejelentes', "`recid`='{$_GET[$ertek['torid']]}'");
+            $torolheto_statuszok = array(BEJELENTES_STAT_NYITOTT, BEJELENTES_STAT_FOLYAMATBAN);
+            if( !in_array($bejelentes['stat_id'], $torolheto_statuszok) ) {
+                exit;
+            }
+            
+            // Csak olyan ID törölhető, amit láthatok. Tehát szomszéd egyébként nyitott/folyamatban levő bejelentése nem törölhető
+            szamla_lista('', '', '', 'csak SQL miatt');
+            $van_getid = false;
+            $akt_sql = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
+            while( $akt_sor = mysqli_fetch_assoc($akt_sql) ){
+                if( $akt_sor['recid']== $_GET[$ertek['torid']] ){
+                    $van_getid = true;
+                }
+            }
+            if(!$van_getid){
+                exit;
+            }
+            
+            // Munkalapokhoz megjegyzést írunk
+            $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_GET[$ertek['torid']]}'");
+            if( $munkalapok === false ) { $db_error = true; }
+            foreach($munkalapok as $munkalap){
+                
+                $helyiseg_txt = '';
+                if($bejelentes['helyiseg_text']){
+                    $helyiseg_txt = "\r\n".$bejelentes['helyiseg_text'];
+                }
+                $hiba_txt = '';
+                if($bejelentes['hiba_text']){
+                    $hiba_txt = "\r\n".$bejelentes['hiba_text'];
+                }
+                
+                $megj = $bejelentes['ikt_szam'].' hibabejelentést töröltem.
+Bejelentés dátuma: '.$bejelentes['insert_dt'].'
+Helyiség: '.getErtek('nev', 'obj', 'recid', $bejelentes['obj_id']).$helyiseg_txt.'
+Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_txt.'
+';
+                if( addMegj('munkalap', $munkalap['munkalap_id'], $megj) === false ){
+                    $db_error = true;
+                }
+            }
+            
+            // Levelet küldünk a központi diszpécser mailcímére
+            level_felkeszit_es_kuld('bejelentes', $_GET[$ertek['torid']], '', 'bejelentes_torolve', 'diszpecser_kozponti');
+            
         }
 
         // Felmérési tervnél a Tervlap is tartalmaz egy dokumentumot

@@ -2559,6 +2559,11 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
         // Szűréskor kell pár JOIN-olás a külső táblákhoz
         $join = '';
+        // Rendezés Cikktörzsnél: Ha szerepkör szerint rendezünk, akkor a JOIN-olt értéklista tábla info-ja szerint rendezünk, mert a szerepkör szöveges tartalma ez valójában
+        if($tabla=='cikktorzs' && $_GET['rend']=='szakter_id'){
+            $join = ' JOIN `'.get_db_tabla().'erteklista` ON `'.get_db_tabla().$tabla.'`.`szakter_id`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\''.ERTEKLISTA_SZAKTER.'\'';
+            $order = '`'.get_db_tabla().'erteklista`.`info` '.$_GET['irany'];
+        }
         if ($_GET['mezo']=='megjegyzes' || strpos($_SESSION['o_szuro_feltetel'], 'megjegyzes')!==false ) {
             $join = ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
@@ -2918,7 +2923,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
         $jClass         = '';
         if( _jog(JOG_MUNKALAP_VARAKOZTAT) && !isset($_GET['print']) ) {
-            //$jClass = ' kijelolheto'; //2017.11.16 - nem kell kijelölhetőek legyenek a munkalapok
+            // $jClass = ' kijelolheto'; //2017.11.16 - nem kell kijelölhetőek legyenek a munkalapok
             $jClass = ' csoport_nevre_kattintas';
         }
 
@@ -2929,7 +2934,29 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         }
 
         if( !$frissit ) {
-            $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            
+            $stat_select = '';
+            $statuszok_abc = array();
+            $statuszok = $adatbazis_kapcsolat->s('distinct stat_id', $tabla, "`stat_id`!=''");
+            $statuszok = adatbazis2tomb($statuszok, 'stat_id');
+            foreach($statuszok as $stat){
+                $text = getStatText($tabla, $stat);
+                if($text){
+                    array_push($statuszok_abc, array('id' => $stat, 'nev' => $text));
+                }
+            }
+            $statuszok_abc = tobbdim_tomb_kulcs_rendez($statuszok_abc, 'nev');
+            foreach($statuszok_abc as $stat){
+                $selected = '';
+                if($_GET['mezo']=='stat_id' && $_GET['felt']==$stat['id']){
+                    $selected = ' selected';
+                }
+                $stat_select .= '<option'.$selected.' value="'.$stat['id'].'">'.$stat['nev'].'</option>';
+            }
+            if($stat_select){
+                $stat_select = '<select onchange="if(this.value){ param = \'&amp;mezo=stat_id&amp;op=equal&amp;felt=\'+this.value; }else{ param = \'\'; } location.href=\''.self().get_get(array('mezo', 'op', 'felt')).'\'+param"><option value="">-Összes státusz-</option>'.$stat_select.'</select>';
+            }
+            $html = $stat_select.'<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
         }
 
         $i = 1;
@@ -3023,7 +3050,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', 'id='.$bsz['telephely_id'], '', '1');
             $hely      = $adatbazis_kapcsolat->s2('nev', 'obj', 'recid='.$bsz['obj_id'], '', '1');
             $gep       = $adatbazis_kapcsolat->s2('nev', 'eszkozkezeles', 'recid='.$bsz['gep_id'], '', '1');
-            $tipus     = erteklista(6, $bsz['tipus_id']);
+            $tipus     = erteklista(ERTEKLISTA_MUNKALAP_TIP, $bsz['tipus_id']);
 
             // Személyzettípus kiíratása
             require 'selectek.php';
@@ -3435,6 +3462,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 array('id' => 'anyag_tabla_szalloda',       'nev' => 'Szálloda'),
                 array('id' => 'anyag_tabla_cikkszam',       'nev' => 'Cikkszám'),
                 array('id' => 'anyag_tabla_cikknev' ,       'nev' => 'Cikk név'),
+                array('id' => 'anyag_tabla_igleir' ,        'nev' => 'Leírás'),
                 array('id' => 'anyag_tabla_szallito',       'nev' => 'Szállító'),
                 array('id' => 'anyag_tabla_ig_menny',       'nev' => 'Igényelt mennyiség'),
                 array('id' => 'anyag_tabla_mee',            'nev' => 'Mee'),
@@ -3518,6 +3546,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 <td class="c">'.$telephely['nev'].'</td>
                                 <td class="c">'.$bsz['cikk_id'].'</td>
                                 <td>'.$bsz['anyagigenyles_nev'].'</td>
+                                <td>'.htmlspecialchars_decode(nl2br2($bsz['igleir'])).'</td>
                                 <td>'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
                                 <td class="r nowrap">'.number_format($bsz['igmen'], 2, ',', ' ').'</td>
                                 <td class="c">'.$bsz['cikkmee'].'</td>
@@ -3526,7 +3555,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 <td class="r nowrap">'.number_format($bsz['rndmen'], 2, ',', ' ').'</td>
                                 <td class="r nowrap" id="td_rndear_'.$bsz['recid'].'">'.number_format($bsz['rndear'], 4, ',', ' ').'</td>
                                 <td class="r nowrap">'.number_format($bsz['vrndear'], 4, ',', ' ').'</td>
-                                <td class="c">'.erteklista(21, $bsz['kcs_21']).'</td>
+                                <td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>
                             </tr>
                             ';
                 $i++;
@@ -4241,9 +4270,11 @@ function cikktorzsLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
+            
+            $szakter = erteklista(ERTEKLISTA_SZAKTER, $bsz['szakter_id']);
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                            <span>'.$bsz['id'].' '.$bsz['nev'].'</span>
+                            <span>'.$bsz['id'].' '.$bsz['nev'].' - '.$szakter.'</span>
                         </a>';
 
             // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
@@ -4938,6 +4969,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'surgos'        => 'Sürgős',
         'statusz'       => 'Státusz',
         'stat_id'       => 'Státusz',
+        'szakter_id'    => 'Szakterület',
         'szallito_id'   => 'Szállító',
         'szerepkor_id'  => 'Szerepkör',
         'telephely_id'  => 'Szálloda',
@@ -5932,6 +5964,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
     $cimzett_mail = '';
     $cimzett_nev  = '';
 
+    
     // Kinek menjen a mail? Egy $cimzettek tömböt kell előállítani.
     // Illetve az üzenet törzse is itt kerül beállításra
     switch($cimzett){
@@ -5943,6 +5976,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
             $cimzett_nev    = $bejelentes['usr_nev'];
             $cimzett_mail   = $bejelentes['usr_email'];
             $telefon        = $bejelentes['usr_telefon'];
+            $bejelentes['insert_dt'] = str_replace('-', '.', $bejelentes['insert_dt']);
 
             $mit            = array('{IKT_SZAM}',            '{SZALLODA}',                                                    '{INS_DT}',                '{HIBA}',                                                        '{OBJ}'                                                 );
             $mivel          = array($bejelentes['ikt_szam'], getErtek('nev', 'telephely', 'id', $bejelentes['telephely_id']),  $bejelentes['insert_dt'], getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']), getErtek('nev', 'obj', 'recid', $bejelentes['obj_id'])  );
@@ -5959,6 +5993,27 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
             if(!$telefon)     { $telefon       = $login['usertel'];     }
 
             $cimzettek = array( array('nev' => $bejelentes['loginnev'], 'teljes_nev' => $cimzett_nev, 'usermail' => $cimzett_mail, 'szemelyzet_id' => $bejelentes['szemelyzet_id']) );
+        break;
+
+        // Diszpécserek központi címe
+        case 'diszpecser_kozponti':
+
+            $bejelentes     = $adatbazis_kapcsolat->s2('ikt_szam usr_nev usr_email usr_telefon stat_id telephely_id obj_id loginnev insert_dt hiba_id', $tabla, "`recid`='{$recid}'");
+            
+            $munkalapszamok = '';
+            $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$recid}'");
+            foreach($munkalapok as $munkalap){
+                $munkalap = $adatbazis_kapcsolat->s2('ikt_szam', 'munkalap', "`recid`='{$munkalap['munkalap_id']}'");
+                $munkalapszamok .= '<br>Munkalapszám: '.$munkalap['ikt_szam']."\r\n";
+            }
+            
+            $bejelentes['insert_dt'] = str_replace('-', '.', $bejelentes['insert_dt']);
+            
+            $mit            = array('{MUNKALAPSZAMOK}', '{IKT_SZAM}',            '{SZALLODA}',                                                    '{INS_DT}',                '{HIBA}',                                                        '{OBJ}'                                                 );
+            $mivel          = array($munkalapszamok,    $bejelentes['ikt_szam'], getErtek('nev', 'telephely', 'id', $bejelentes['telephely_id']),  $bejelentes['insert_dt'], getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']), getErtek('nev', 'obj', 'recid', $bejelentes['obj_id'])  );
+            $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$sablon.'.html') );
+
+            $cimzettek = array( array('nev' => 'htdiszp', 'teljes_nev' => 'Handari Tamás', 'usermail' => 'bk@webdeb.hu'/*'handari@szinvatrend.hu'*/, 'szemelyzet_id' => '10') );
         break;
 
         // Elfelejtett jelszó kérése
@@ -6075,6 +6130,15 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
                         $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
+        case 'bejelentes_torolve':
+            
+            $bejelentes = $adatbazis_kapcsolat->s2('ikt_szam', $tabla, "`recid`='{$recid}'");
+            
+            $esemeny =  'bejelentés törlésekor';
+            $targy   =  get_nev().' '.$bejelentes['ikt_szam'].' hibabejelentést törölték';
+            $uzi     =  $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        break;
+
         case 'elfelejtettJelszo':
             $login   = $adatbazis_kapcsolat->s2('teljes_nev', 'login', "`recid`='{$recid}'");
             $esemeny =  'elfelejtett jelszó igénylésekor';
@@ -6134,17 +6198,18 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
         $targy_kieg = '[Teszt email]';
         $uzi_kieg   = '[Teszt email]<br><br>';
     }
+    
 
-    foreach($cimzettek as $cimzett){
+    foreach($cimzettek as $akt_cimzett){
 // Teszteléshez
 //$tmp = $adatbazis_kapcsolat->s2('usermail', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
 //$cimzett['usermail'] = $tmp['usermail'];
 
-        // Mely tábláknál ellenőrizzünk szállodát is (saját szállodák)
+        // Mely tábláknál ellenőrizzünk szállodát is (saját szállodák). Kivéve, ha nem a Diszpécser köztponti mailcímre megy az értesítés
         $szallodat_ellenorizz = array('bejelentes', 'munkalap');
-        if(in_array($tabla, $szallodat_ellenorizz) ){
+        if( in_array($tabla, $szallodat_ellenorizz) && $cimzett!='diszpecser_kozponti' ){
             $szalloda = $adatbazis_kapcsolat->s2('telephely_id', $tabla, "`recid`='{$recid}'");
-            $sajat_szallodak = get_akt_login_szallodai('', '', $cimzett['nev']);
+            $sajat_szallodak = get_akt_login_szallodai('', '', $akt_cimzett['nev']);
 
             // Ha adott rekord szállodája a usernek nem saját szállodája, akkor nem küldünk levelet
             if( !in_array($szalloda['telephely_id'], $sajat_szallodak) ){
@@ -6152,19 +6217,19 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
             }
         }
 
-        $szerepkor = getErtek('nev', 'szerepkor', 'id', $cimzett['szemelyzet_id']);
+        $szerepkor = getErtek('nev', 'szerepkor', 'id', $akt_cimzett['szemelyzet_id']);
 
         $mit            = array('{NEV}');
-        $mivel          = array($cimzett['teljes_nev']);
+        $mivel          = array($akt_cimzett['teljes_nev']);
         $megszolitas    = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/megszolitas.html'));
 
         // Tényleges küldés
-        $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $cimzett['teljes_nev'], $cimzett['usermail'], $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
+        $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $akt_cimzett['teljes_nev'], $akt_cimzett['usermail'], $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);
 
         // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
         if( $sikeres_kuldes ){
 
-            $megj .= 'E-mail küldése nem sikerült '.$cimzett['teljes_nev'].' '.$szerepkor.' felhasználónak '.$esemeny.'('.$sikeres_kuldes.')<br><br>';
+            $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' felhasználónak '.$esemeny.'('.$sikeres_kuldes.')<br><br>';
 
             // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
             if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ){
@@ -6178,9 +6243,11 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
         // Sikeres levélküldés
         }else{
 
-            $adatbazis_kapcsolat->u($tabla, array('mail_ment'), array(1), "`recid`='{$recid}'");
-
-            $megj .= 'E-mail elküldve '.$cimzett['teljes_nev'].' '.$szerepkor.' felhasználónak '.$esemeny.'<br><br>';
+            // Ha a címzett nem a diszpécser köztponti mailcím, akkor van csak megjegyzés
+            if( $cimzett!='diszpecser_kozponti' ){
+                $adatbazis_kapcsolat->u($tabla, array('mail_ment'), array(1), "`recid`='{$recid}'");
+                $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' felhasználónak '.$esemeny.'<br><br>';
+            }
 
         }
     }
@@ -6189,11 +6256,15 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
     if(!$cimzett['usermail']){
         $megj = 'A felhasználónak nincs e-mail címe, ezért a következő esemény nem következett be:<br>'.$megj;
     }
-    // Megjegyzés hozzáadása
-    addMegj($tabla, $recid, $megj);
-    // Ha volt kapcsolódó munkalap, akkor oda is beírjuk a megjegyést
-    if($munkalap_kapcs){
-        addMegj('munkalap', $munkalap_kapcs['munkalap_id'], $megj);
+    
+    // Ha van megejgyzés, akkor azt hozzáadjuk
+    if($megj){
+        // Megjegyzés hozzáadása
+        addMegj($tabla, $recid, $megj);
+        // Ha volt kapcsolódó munkalap, akkor oda is beírjuk a megjegyést
+        if($munkalap_kapcs){
+            addMegj('munkalap', $munkalap_kapcs['munkalap_id'], $megj);
+        }
     }
     mysqli_commit($db_kapcs);
     // Hibaüzenettel is visszatérhetünk

@@ -496,7 +496,7 @@ if( isset($_POST['arazas']) ) {
                                     \'tabla\'           : \'erteklista\',
                                     \'oszlop_keres\'    : \'info\',
                                     \'oszlop_listaz\'   : \'info\',
-                                    \'csoport\'         : 21,
+                                    \'csoport\'         : '.ERTEKLISTA_PENZNEM.',
                                     \'id_kiir\'         : \'id\',
                                     \'popupba\'         : true,
                                     \'arazas_beallit\'  : true
@@ -1847,10 +1847,23 @@ if (isset($_GET['csv'])) {
         }else{
             
             $sql = 'SELECT
+                    `'.get_db_tabla().'anyagigenyles`.`stat_id` as \'Státusz\',
                     `'.get_db_tabla().'anyagigenyles`.`ikt_szam` as \'Anyagigénylés szám\',
+                    `'.get_db_tabla().'anyagigenyles`.`telephely_id` as \'Szálloda\',
                     `'.get_db_tabla().'anyagigenyles`.`cikk_id` as \'Cikk szám\',
                     `'.get_db_tabla().'anyagigenyles`.`nev` as \'Cikk név\',
-                    `'.get_db_tabla().'anyagigenyles`.`stat_id` as \'Státusz\'
+                    `'.get_db_tabla().'anyagigenyles`.`igleir` as \'Leírás\',
+                    `'.get_db_tabla().'anyagigenyles`.`szallito_id` as \'Szállító\',
+                    `'.get_db_tabla().'anyagigenyles`.`igmen` as \'Igényelt mennyiség\',
+                    `'.get_db_tabla().'anyagigenyles`.`cikkmee` as \'Mee\',
+                    `'.get_db_tabla().'anyagigenyles`.`insert_dt` as \'Igénylés dátuma\',
+                    `'.get_db_tabla().'anyagigenyles`.`jhmen` as \'Jóváhagyott mennyiség\',
+                    `'.get_db_tabla().'anyagigenyles`.`rndmen` as \'Rendelt mennyiség\',
+                    `'.get_db_tabla().'anyagigenyles`.`rndear` as \'Rendelési egységár ('.get_penznem().')\',
+                    `'.get_db_tabla().'anyagigenyles`.`vrndear` as \'Deviza rend. egységár\',
+                    `'.get_db_tabla().'anyagigenyles`.`kcs_21` as \'Pénznem\',
+                    `'.get_db_tabla().'anyagigenyles`.`kulsosnek` as \'RB-s anyag\',
+                    `'.get_db_tabla().'anyagigenyles`.`rndid` as \'Rendelés szám\'
                     '.$lekerdezes_fromtol;
 
             $query      = mysqli_query($db_kapcs, $sql);
@@ -1863,24 +1876,35 @@ if (isset($_GET['csv'])) {
 
             while( $sorok = mysqli_fetch_assoc($query) ){
                 $csvcont = array();
+                
+                // Dátum formázása
+                $sorok['insert_dt'] = str_replace('-', '.', $sorok['insert_dt']);
+                // Számok formázása
+                $szamok = array('Igényelt mennyiség', 'Jóváhagyott mennyiség', 'Rendelt mennyiség', 'Rendelési egységár ('.get_penznem().')', 'Deviza rend. egységár');
+                foreach($szamok as $szam){
+                    $sorok[$szam] = str_replace('.', ',', $sorok[$szam]);
+                }
+
                 foreach( $sorok as $kulcs => $sor ) {
+                    
+                    if($kulcs=='Pénznem'){
+                        $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
+                    }
+                    if($kulcs=='Szállító'){
+                        $sor = getErtek('nev', 'szallito', 'id', $sor);
+                    }
                     if($kulcs=='Szálloda'){
                         $sor = getErtek('nev', 'telephely', 'id', $sor);
                     }
-                    if($kulcs=='Bejelentett hiba'){
-                        $sor = getErtek('info', 'erteklista', 'recid', $sor);
-                    }
-                    if($kulcs=='Helyiség'){
-                        $sor = getErtek('nev', 'obj', 'recid', $sor);
-                    }
-                    if($kulcs=='Gépnév'){
-                        $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
-                    }
-                    if($kulcs=='Típus'){
-                        $sor = erteklista(6, $sor);
-                    }
                     if($kulcs=='Státusz'){
                         $sor = getStatText('anyagigenyles', $sor);
+                    }
+                    if($kulcs=='RB-s anyag'){
+                        if($sor){
+                            $sor = 'igen';
+                        }else{
+                            $sor = 'nem';
+                        }
                     }
 
                     $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
