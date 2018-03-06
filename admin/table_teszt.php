@@ -120,11 +120,11 @@
                         'max-width': width
                     });
 
-                    $(this).css({
+                    /*$(this).css({
                         'min-width': width,
                         'max-width': width,
                         'width': width
-                    });
+                    });*/
 
                     stickyWidth += width;
                 });
@@ -136,7 +136,6 @@
                 sticky.css({
                     'position'  : 'fixed',
                     'top'       : '0',
-                    'width'     : stickyWidth,
                     'z-index'   : '10'
                 });
 
@@ -211,6 +210,22 @@
                     _click = false;
                     _resizeElement = null;
                     $(document).enableSelection();
+
+                    $('.sar-table').each(function() {
+                        var th = $(this).find('thead:not(.sticky) th'),
+                            sticky = $(this).find('thead.sticky');
+
+                        th.each(function(index, el) {
+                            var th_width = $(this).outerWidth(),
+                                th_index = $(this).index();
+
+                            sticky.find('th').eq(th_index).css({
+                                'min-width': th_width,
+                                'max-width': th_width,
+                                'width': th_width
+                            });
+                        });
+                    });
                 }
             });
         });
