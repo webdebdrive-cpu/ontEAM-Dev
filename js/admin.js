@@ -480,7 +480,11 @@ $(function() {
 
     // Dátum mezőket elhagyva újraformázzuk
     $(document).on('blur keyup', '.datepicker, .datetimepicker', function(e) {
-        $(this).val( datum_formatumra_formaz($(this).val()) );
+        if($(this).hasClass('datetimepicker')){
+            $(this).val( datum_formatumra_formaz($(this).val(), 'Perc pontos') );
+        }else{
+            $(this).val( datum_formatumra_formaz($(this).val()) );
+        }
     });
     $(document).on('blur keyup', '.ora_perc', function(e) {
         $(this).val( datum_formatumra_formaz_ora($(this).val()) );
