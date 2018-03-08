@@ -275,6 +275,7 @@ $(function() {
                 $('.muveletek').css('width', 'calc(100% - ' + (Math.abs(nbWidth) + 16) + 'px)');
 
                 createCookie('csuszkaSzelesseg', Math.abs(nbWidth), 365);
+                $('#stat_gyors_szuro').css('width', Math.abs(nbWidth));
                 fulGombMeretez();
             }
         }
