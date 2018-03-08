@@ -2,9 +2,20 @@
     require_once('header.php');
 
     echo '<style media="screen">'.fajlbol_olvas('../css/dragtable.css').'</style>';
+    
+    if (isset($_GET['v2'])) {
+        echo '
+    <style type="text/css">
+        table.sar-table{
+            min-width: auto;
+            width: auto;
+        }
+    </style>
+            ';
+    }
 ?>
-    <script type="text/javascript" src="../js/jquery.dragtable.js"></script>
-    <script type="text/javascript">
+    <script src="../js/jquery.dragtable.js"></script>
+    <script>
         $(function() {
             var saveSticky;
             $('#dragTable').dragtable({
@@ -13,7 +24,6 @@
                 beforeStart     : function(table, sort) {
                     saveSticky = $(table.el[0]).find('thead.sticky');
                     $(table.el[0]).find('thead.sticky').remove();
-
                     setTimeout(function() {
                         $(table.el[0]).prepend(saveSticky);
                     }, 50);

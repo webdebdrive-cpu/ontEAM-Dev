@@ -4436,6 +4436,9 @@ if( isset($_POST['munkalapDiszpKozp']) ) {
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT, '', $indoklas ) === false ) {
                 $db_error = true;
             }
+            
+            addMegj('munkalap', $recid, 'MSzK vezetőnek átadás indoklása:'."\r\n".$indoklas);
+            
         }else{
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) === false ) {
                 $db_error = true;
@@ -4860,7 +4863,7 @@ if (isset($_GET['csv'])) {
     exit();
 }
 
-/** Tartalom */
+// Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
@@ -4923,10 +4926,15 @@ require('selectek.php');
     }
     
     $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+    
     // Hibaüzeneteknek készítünk két hidden inputot, ami midnig elérhető lesz
     $szamla_html .= '<div class="dn" id="ikt_szam_hibauzibe">'.$sor['ikt_szam'].'</div>';
     $szamla_html .= '<div class="dn" id="telephely_hibauzibe">'. getErtek('nev', 'telephely', 'id', $sor['telephely_id']).'</div>';
-                
+
+    // Gyors státusz szűrő szélességének beállítása
+    $szamla_html .= '<script>$(document).ready(function () { $(\'#stat_gyors_szuro\').css(\'width\', \''.($_COOKIE['csuszkaSzelesseg']/10).'rem\');  });</script>';
+
+    
     // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) ) {

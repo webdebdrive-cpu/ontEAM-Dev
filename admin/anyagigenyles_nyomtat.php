@@ -372,6 +372,10 @@ function get_fejlec($szallito){
         $tel_kieg = '<br>Tel.: '.$login['usertel'];
     }
 
+    $fax = '';
+    if($szallito['tel2']){
+        $fax = '<br>Fax.: '.$szallito['tel2'];
+    }
     return '
             <div style="padding: 0 15px 0 15px">
                 <table style="margin: auto; margin-top: 20px; width: 100%">
@@ -391,7 +395,7 @@ function get_fejlec($szallito){
                         Név: '.$szallito['nev'].'
                         <br>Kapcs.: '.$szallito['knev'].'
                         <br>Tel.: '.$szallito['tel'].'
-                        <br>Fax.: '.$szallito['tel2'].'
+                        '.$fax.'
                         <br>E-mail: '.$szallito['email'].'
                         <br>Cím.: '.$szallito['isz'].' '.$szallito['varos'].', '.$szallito['utca'].'
                     </td>

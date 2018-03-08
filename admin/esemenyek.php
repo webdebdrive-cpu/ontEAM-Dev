@@ -161,7 +161,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'telephely_id',  'obj_id');
-        $_OPTS['iranyok']   = array('desc',    'asc',      'asc',           'asc'   );
+        $_OPTS['iranyok']   = array('desc',    'desc',     'asc',           'asc'   );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -474,7 +474,7 @@ switch($tabla) {
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id', 'stat_id', 'obj_id');
-        $_OPTS['iranyok']   = array('asc',      'asc',          'desc',    'asc');
+        $_OPTS['iranyok']   = array('desc',     'asc',          'desc',    'asc');
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -894,7 +894,7 @@ $szallito_tomb = $akt_tomb = array(
 	array('type' => 'text',        'megn' => 'Bankszámlaszám:', 'name' => 'bank',   'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
 	array('type' => 'text',        'megn' => 'Kapcs.név:',      'name' => 'knev',   'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
 	array('type' => 'text',        'megn' => 'Telefon:',        'name' => 'tel',    'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
-	array('type' => 'text',        'megn' => 'Telefon2:',       'name' => 'tel2',   'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
+	array('type' => 'text',        'megn' => 'Fax:',            'name' => 'tel2',   'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
 	array('type' => 'text',        'megn' => 'Email:',          'name' => 'email',  'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
 	array('type' => 'text',        'megn' => 'Adószám:',        'name' => 'adoszam','szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
 	array('type' => 'text',        'megn' => 'Cg:',             'name' => 'cg',     'szuro' => 1,     'maxlength' => 250, 'class' => 'kicsi'),
@@ -2195,7 +2195,8 @@ if (isset($_GET['uj'])) {
 }
 $megnevezes = 'cikktorzs';
 $cikktorzs_tomb = $akt_tomb = array(
-	array('type' => 'text',                     'megn' => 'Cikkszám:',              'name' => 'id',         'szuro' => 1,  'maxlength' => 7,   'class' => 'oriasi', 'alert' => 'Kérem töltse ki az cikkszámot!', 'disabled' => 1),
+	array('type' => 'text',                     'megn' => 'Cikkszám:',              'name' => 'id',         'szuro' => 1,  'maxlength' => 7, 'class' => 'kicsi',   'alert' => 'Kérem töltse ki az cikkszámot!', 'disabled' => 1, 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
+    array('type' => 'checkbox',                 'megn' => 'Aktív:',                 'name' => 'aktiv',      'szuro' => 1,  'class' => 'check'),
     $cikkszam_hidden,
 	array('type' => 'text',                     'megn' => 'Név:',                   'name' => 'nev',        'szuro' => 1,  'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a nevet!'),
 	array('type' => 'select_oracikkid',         'megn' => 'Oracle cikkszám:',       'name' => 'oracikkid',  'szuro' => 1,  'maxlength' => 10,  'style' => 'width: 12rem',    'alert' => 'Kérem töltse ki az Oracle cikkszámot!'),
@@ -2204,7 +2205,6 @@ $cikktorzs_tomb = $akt_tomb = array(
     array('type' => 'textarea',                 'megn' => 'Leírás:',                'name' => 'leiras',     'szuro' => 1,  'class' => 'oriasiTargy disableNav'),
     array('type' => 'checkbox',                 'megn' => 'Szerelési segédanyag:',  'name' => 'segedanyag', 'szuro' => 1,  'class' => 'check'),
     array('type' => 'checkbox',                 'megn' => 'Helyi beszerzésű:',      'name' => 'helyi',      'szuro' => 1,  'class' => 'check'),
-    array('type' => 'checkbox',                 'megn' => 'Aktív:',                 'name' => 'aktiv',      'szuro' => 1,  'class' => 'check'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 

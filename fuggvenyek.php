@@ -2954,9 +2954,9 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $stat_select .= '<option'.$selected.' value="'.$stat['id'].'">'.$stat['nev'].'</option>';
             }
             if($stat_select){
-                $stat_select = '<select onchange="if(this.value){ param = \'&amp;mezo=stat_id&amp;op=equal&amp;felt=\'+this.value; }else{ param = \'\'; } location.href=\''.self().get_get(array('mezo', 'op', 'felt')).'\'+param"><option value="">-Összes státusz-</option>'.$stat_select.'</select>';
+                $stat_select = '<select id="stat_gyors_szuro" style="position: fixed" onchange="if(this.value){ param = \'&amp;mezo=stat_id&amp;op=equal&amp;felt=\'+this.value; }else{ param = \'\'; } location.href=\''.self().get_get(array('mezo', 'op', 'felt')).'\'+param"><option value="">-Összes státusz-</option>'.$stat_select.'</select>';
             }
-            $html = $stat_select.'<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+            $html = $stat_select.'<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'" style="margin-top: 2.1rem">';
         }
 
         $i = 1;
@@ -6013,7 +6013,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
             $mivel          = array($munkalapszamok,    $bejelentes['ikt_szam'], getErtek('nev', 'telephely', 'id', $bejelentes['telephely_id']),  $bejelentes['insert_dt'], getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']), getErtek('nev', 'obj', 'recid', $bejelentes['obj_id'])  );
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$sablon.'.html') );
 
-            $cimzettek = array( array('nev' => 'htdiszp', 'teljes_nev' => 'Handari Tamás', 'usermail' => 'bk@webdeb.hu'/*'handari@szinvatrend.hu'*/, 'szemelyzet_id' => '10') );
+            $cimzettek = array( array('nev' => 'htdiszp', 'teljes_nev' => 'Handari Tamás', 'usermail' => 'handari@szinvatrend.hu', 'szemelyzet_id' => '10') );
         break;
 
         // Elfelejtett jelszó kérése

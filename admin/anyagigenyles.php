@@ -1862,8 +1862,7 @@ if (isset($_GET['csv'])) {
                     `'.get_db_tabla().'anyagigenyles`.`rndear` as \'Rendelési egységár ('.get_penznem().')\',
                     `'.get_db_tabla().'anyagigenyles`.`vrndear` as \'Deviza rend. egységár\',
                     `'.get_db_tabla().'anyagigenyles`.`kcs_21` as \'Pénznem\',
-                    `'.get_db_tabla().'anyagigenyles`.`kulsosnek` as \'RB-s anyag\',
-                    `'.get_db_tabla().'anyagigenyles`.`rndid` as \'Rendelés szám\'
+                    `'.get_db_tabla().'anyagigenyles`.`kulsosnek` as \'RB-s anyag\'
                     '.$lekerdezes_fromtol;
 
             $query      = mysqli_query($db_kapcs, $sql);

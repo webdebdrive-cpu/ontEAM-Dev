@@ -663,6 +663,8 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
 						input.on('keydown.xdsoft', function (event) {
                             if( this.className.indexOf('ora_perc')>-1 ){
                                 this.value = datum_formatumra_formaz_ora(this.value);
+                            }else if( this.className.indexOf('datetimepicker')>-1 ){
+                                this.value = datum_formatumra_formaz(this.value, 'perc pontos');
                             }else{
                                 this.value = datum_formatumra_formaz(this.value);
                             }
@@ -1610,12 +1612,15 @@ Date.parseFunctions={count:0};Date.parseRegexes=[];Date.formatFunctions={count:0
 }());
 
 
-function datum_formatumra_formaz(input) {
+function datum_formatumra_formaz(input, perc_pontos) {
     
+    var eredeti_hossz = input.length;
+    var utolso_kar    = input.substr(eredeti_hossz-1, 1);
+
     input = input.replace(/\./gi,  '').replace(/ /gi,  '').replace(/:/gi,  '');
     n  = input.length;
     uj = '';
-    
+
     for (i = 0; i < n; i++) {
         if(!isNaN(parseFloat(input.substr(i, 1)))){
             switch (i) {
@@ -1641,13 +1646,44 @@ function datum_formatumra_formaz(input) {
             }
         }
     }
-    if(!uj){
-        uj = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0';
+
+    /* Legyen az a hatás, hogy ő írta be a pontot, kettőspontot */
+    if(
+        (eredeti_hossz==5 && utolso_kar=='.') ||
+        (eredeti_hossz==8 && utolso_kar=='.')
+    ){
+        uj += '.';
     }
-    return uj.substring(0, 16);
+    if(eredeti_hossz==11 && utolso_kar==' '){
+        uj += ' ';
+    }
+    if(
+        (eredeti_hossz==14 && utolso_kar==':') ||
+        (eredeti_hossz==18 && utolso_kar==':')
+    ){
+        uj += ':';
+    }
+
+    /* Ha üres az input értéke, akkor az alapértelmeeztt értéket írjuk bele */
+    if(!uj){
+        if(perc_pontos){
+            uj = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0';
+        }else{
+            uj = '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0';
+        }
+    }
+    if(perc_pontos){
+        return uj.substring(0, 16);
+    }else{
+        return uj.substring(0, 10);
+    }
 }
 
 function datum_formatumra_formaz_ora(input) {
+    
+    var eredeti_hossz = input.length;
+    var utolso_kar    = input.substr(eredeti_hossz-1, 1);
+    
     input = input.replace(/:/gi,  '');
     n  = input.length;
     uj = '';
@@ -1666,6 +1702,12 @@ function datum_formatumra_formaz_ora(input) {
         }
     }
 
+    /* Legyen az a hatás, hogy ő írta be a kettőspontot */
+    if(eredeti_hossz==3 && utolso_kar==':'){
+        uj += ':';
+    }
+
+    /* Ha üres az input értéke, akkor az alapértelmeeztt értéket írjuk bele */
     if(!uj){
         uj = '\xa0\xa0:\xa0\xa0';
     }
