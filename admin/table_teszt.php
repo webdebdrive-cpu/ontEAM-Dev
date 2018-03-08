@@ -112,7 +112,7 @@
                     stickyWidth = 0;
 
                 $(this).find('thead').find('th').each(function() {
-                    var width = $(this).outerWidth(),
+                    var width = $(this).outerWidth() + 40,
                         index = $(this).index();
 
                     sticky.find('th').eq(index).css({
@@ -120,11 +120,11 @@
                         'max-width': width
                     });
 
-                    /*$(this).css({
+                    $(this).css({
                         'min-width': width,
                         'max-width': width,
                         'width': width
-                    });*/
+                    });
 
                     stickyWidth += width;
                 });
