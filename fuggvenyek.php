@@ -208,25 +208,9 @@ function i_u($type, $tabla, $tomb) {
         // Anyagigénylés új bejegyzés esetén
         if( $tabla == 'anyagigenyles' ) {
 
-            // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
-            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
-            if( $ikt_seq === false ) { $db_error = true; }
-            if( $ikt_seq ) {
-
-                $sorszam = $ikt_seq['sorszam'];
-                $sorszam++;
-                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
-                if( $sql === false ) { $db_error = true; }
-
-            } else {
-
-                $sorszam = 1;
-                $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
-                if( $sql === false ) { $db_error = true; }
-
-            }
-
-            // Iktatószám formázása
+            // Iktatószám kiszámítása
+            $sorszam  = get_iktatoszam_sorszam($tabla);
+            if($sorszam===false){ $db_error = true; }
             $ikt_szam = date('y').'/'.sprintf('%04d', $sorszam);
 
             // Miután a $_POST['nev']-et felvettük cikkid-nak, csak utána írjuk felül
@@ -272,28 +256,11 @@ function i_u($type, $tabla, $tomb) {
         // Bejelentések  új bejegyzés esetén
         } else if( $tabla == 'bejelentes' ) {
 
-            // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
-            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
-            if( $ikt_seq === false ) { $db_error = true; }
-            if( $ikt_seq ) {
-
-                $sorszam = $ikt_seq['sorszam'];
-                $sorszam++;
-
-                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
-                if( $sql === false ) { $db_error = true; }
-
-            } else {
-
-                $sorszam = 1;
-
-                $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
-                if( $sql === false ) { $db_error = true; }
-
-            }
-
-            // Iktatószám formázása
+            // Iktatószám kiszámítása
+            $sorszam  = get_iktatoszam_sorszam($tabla);
+            if($sorszam===false){ $db_error = true; }
             $ikt_szam = date('y').'/'.sprintf('%07d', $sorszam);
+            
             // Felvesszük az értékek közé
             $i = 0;
             foreach($oszlopok as $oszl){
@@ -318,25 +285,9 @@ function i_u($type, $tabla, $tomb) {
         // FB Előterjesztés új bejegyzés esetén
         } else if( $tabla == 'eloterj_fb' ) {
 
-            // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
-            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
-            if( $ikt_seq === false ) { $db_error = true; }
-            if( $ikt_seq ) {
-
-                $sorszam = $ikt_seq['sorszam'];
-                $sorszam++;
-                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
-                if( $sql === false ) { $db_error = true; }
-
-            } else {
-
-                $sorszam = 1;
-                $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
-                if( $sql === false ) { $db_error = true; }
-
-            }
-
-            // Iktatószám formázása
+            // Iktatószám kiszámítása
+            $sorszam  = get_iktatoszam_sorszam($tabla);
+            if($sorszam===false){ $db_error = true; }
             $ikt_szam = 'ELFB'.date('y').'/'.sprintf('%07d', $sorszam);
 
             // Felvesszük az értékek közé
@@ -352,25 +303,9 @@ function i_u($type, $tabla, $tomb) {
         // BOD Előterjesztés új bejegyzés esetén
         } else if( $tabla == 'eloterj_fb' ) {
 
-            // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
-            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla`='{$tabla}' AND `ev`='".date('y')."'");
-            if( $ikt_seq === false ) { $db_error = true; }
-            if( $ikt_seq ) {
-
-                $sorszam = $ikt_seq['sorszam'];
-                $sorszam++;
-                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.date('y'));
-                if( $sql === false ) { $db_error = true; }
-
-            } else {
-
-                $sorszam = 1;
-                $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), $tabla));
-                if( $sql === false ) { $db_error = true; }
-
-            }
-
-            // Iktatószám formázása
+            // Iktatószám kiszámítása
+            $sorszam  = get_iktatoszam_sorszam($tabla);
+            if($sorszam===false){ $db_error = true; }
             $ikt_szam = 'ELBO'.date('y').'/'.sprintf('%07d', $sorszam);
 
             // Felvesszük az értékek közé
@@ -404,23 +339,9 @@ function i_u($type, $tabla, $tomb) {
             $szalloda   = $adatbazis_kapcsolat->s('azon', 'telephely', "`id`='{$_POST['telephely_id']}'");
             $szalloda   = $szalloda[0]['azon'];
 
-            // Megnézzük, hogy az adott hotel nevével létezik e bejegyzés
-            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.$szalloda);
-            if( $ikt_seq === false ) { $db_error = true; }
-            if( $ikt_seq ) {
-
-                $sorszam = $ikt_seq['sorszam'];
-                $sorszam++;
-                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.$szalloda);
-                if( $sql === false ) { $db_error = true; }
-
-            } else {
-
-                $sorszam = 1;
-                $id = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, $szalloda, $tabla));
-                if( $id === false ) { $db_error = true; }
-
-            }
+            // Iktatószám kiszámítása
+            $sorszam  = get_iktatoszam_sorszam($tabla);
+            if($sorszam===false){ $db_error = true; }
             $id = $szalloda.sprintf('%04d', $sorszam);
 
             // Felvesszük az értékek közé
@@ -488,25 +409,9 @@ function i_u($type, $tabla, $tomb) {
         // Munkalap új bejegyzés esetén
         } else if( $tabla == 'munkalap' ) {
 
-            // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
-            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = '{$tabla}' AND `ev` = '".date('y')."'");
-            if( $ikt_seq === false ) { $db_error = true; }
-            if( $ikt_seq ) {
-
-                $sorszam = $ikt_seq['sorszam'];
-                $sorszam++;
-                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = '{$tabla}' AND `ev` = '".date('y')."'");
-                if( $sql === false ) { $db_error = true; }
-
-            } else {
-
-                $sorszam = 1;
-                $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam',    'ev',       'tabla'),
-                                                                array($sorszam,     date('y'), $tabla));
-                if( $sql === false ) { $db_error = true; }
-            }
-
-            // Iktatószám formázása
+            // Iktatószám kiszámítása
+            $sorszam  = get_iktatoszam_sorszam($tabla);
+            if($sorszam===false){ $db_error = true; }
             $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
 
             // Felvesszük az értékek közé
@@ -529,23 +434,9 @@ function i_u($type, $tabla, $tomb) {
             $szalloda   = $adatbazis_kapcsolat->s('azon', 'telephely', "`id`='{$_POST['telephely_id']}'");
             $szalloda   = $szalloda[0]['azon'];
 
-            // Megnézzük, hogy az adott hotel nevével létezik e bejegyzés
-            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.$szalloda, '', '');
-            if( $ikt_seq === false ) { $db_error = true; }
-            if( $ikt_seq ) {
-
-                $sorszam = $ikt_seq['sorszam'];
-                $sorszam++;
-                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.$szalloda);
-                if( $sql === false ) { $db_error = true; }
-
-            } else {
-
-                $sorszam = 1;
-                $id = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, $szalloda, $tabla));
-                if( $id === false ) { $db_error = true; }
-
-            }
+            // Iktatószám kiszámítása
+            $sorszam  = get_iktatoszam_sorszam($tabla);
+            if($sorszam===false){ $db_error = true; }
             $id = $szalloda.sprintf('%04d', $sorszam);
 
             // Felvesszük az értékek közé
@@ -575,23 +466,9 @@ function i_u($type, $tabla, $tomb) {
             $szalloda   = $adatbazis_kapcsolat->s('azon', 'telephely', "`id`='{$_POST['telephely_id']}'");
             $szalloda   = $szalloda[0]['azon'];
 
-            /* Megnézzük, hogy az adott hotel nevével létezik e bejegyzés */
-            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', 'tabla='.$tabla.' and ev='.$szalloda);
-            if( $ikt_seq === false ) { $db_error = true; }
-            if( $ikt_seq ) {
-
-                $sorszam = $ikt_seq['sorszam'];
-                $sorszam++;
-                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), 'tabla='.$tabla.' and ev='.$szalloda);
-                if( $sql === false ) { $db_error = true; }
-
-            } else {
-
-                $sorszam = 1;
-                $id = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, $szalloda, $tabla));
-                if( $id === false ) { $db_error = true; }
-
-            }
+            // Iktatószám kiszámítása
+            $sorszam  = get_iktatoszam_sorszam($tabla);
+            if($sorszam===false){ $db_error = true; }
             $id = $szalloda.sprintf('%04d', $sorszam);
 
             // Felvesszük az értékek közé
@@ -652,25 +529,9 @@ function i_u($type, $tabla, $tomb) {
                 // Egyszállodás modell VAGY ha a "telefonon bejelentve" pipa be van pipálva, így rögtön munkalapot generálunk belőle
                 if( !$telephely['modell'] || $_POST['telefon'] ) {
 
-                    // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
-                    $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
-                    if( $ikt_seq === false ) { $db_error = true; }
-                    if( $ikt_seq ) {
-
-                        $sorszam = $ikt_seq['sorszam'];
-                        $sorszam++;
-                        $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
-                        if( $sql === false ) { $db_error = true; }
-
-                    } else {
-
-                        $sorszam = 1;
-                        $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), 'munkalap'));
-                        if( $sql === false ) { $db_error = true; }
-
-                    }
-
-                    // Iktatószám formázása
+                    // Iktatószám kiszámítása
+                    $sorszam  = get_iktatoszam_sorszam('munkalap');
+                    if($sorszam===false){ $db_error = true; }
                     $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
 
                     // Munkalap beszúrása
@@ -938,25 +799,9 @@ function i_u($type, $tabla, $tomb) {
             // Ha igény rögzítéséről van szó, akkor státuszt léptetünk, illetve iktatószámot is ekkor kap
             if ($_POST['igeny_rogzites']) {
                 if( addStatusz( 'projektigenyles_statusz', $_GET['id'], PRIGENY_STAT_NYITOTT ) === false ) { $db_error = true; }
-                // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
-                $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = '{$tabla}' AND `ev` = '".date('y')."'");
-                if( $ikt_seq === false ) { $db_error = true; }
-                if( $ikt_seq ) {
-
-                    $sorszam = $ikt_seq['sorszam'];
-                    $sorszam++;
-                    $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = '{$tabla}' AND `ev` = '".date('y')."'");
-                    if( $sql === false ) { $db_error = true; }
-
-                } else {
-
-                    $sorszam = 1;
-                    $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam',    'ev',       'tabla'),
-                                                                    array($sorszam,     date('y'), $tabla));
-                    if( $sql === false ) { $db_error = true; }
-                }
-
-                // Iktatószám formázása
+                // Iktatószám kiszámítása
+                $sorszam  = get_iktatoszam_sorszam($tabla);
+                if($sorszam===false){ $db_error = true; }
                 $ikt_szam = 'PI'.date('y').'/'.sprintf('%07d', $sorszam);
 
                 array_push($oszlopok,  'ikt_szam');

@@ -1157,7 +1157,7 @@ function jelszot_keszit($hossz = 10, $karakterek = '1234567890qwertyuiopasdfghjk
 	}
 	return $jelszo;
 }
-$wdbk = array('dWguYmVkYmV3Lm9tZWQ', 'dWguZG5lcnRhdm5penMub21lZA', 'dWgubWFldG5v');
+$wdbk = array('dWguYmVkYmV3Lm9tZWQ', 'dWguZG5lcnRhdm5penMub21lZA', 'dWgubWFldG5v', 'dWgubWFldG5vLnR6c2V0');
 require_once('config.php');
 $ell_fajl = 'class/html/class.B.php';
 if( basename( dirname(self()) ).'/' == get_admin()){

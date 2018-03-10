@@ -266,6 +266,27 @@ if( isset($_POST['munkalapKeszit']) ) {
     exit();
 }
 
+// Új munkalap létrehozása bejelentésből
+if ($_GET['ujkent_bejelentes']) {
+    $bejelentes = $adatbazis_kapcsolat -> s2('*', 'bejelentes', "`recid`='{$_GET['ujkent_bejelentes']}'");
+    
+    // Iktatószám generálása
+    $sorszam = get_iktatoszam_sorszam('munkalap');
+    $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
+    
+    $uj_id = $adatbazis_kapcsolat->i('munkalap', 
+                                                array('ikt_szam', 'surgos',              'text',                   'telephely_id',              'obj_id',              'gep_id',                'tipus_id'  ),
+                                                array($ikt_szam,  $bejelentes['surgos'], $bejelentes['hiba_text'], $bejelentes['telephely_id'], $bejelentes['obj_id'], $bejelentes['gep_id'],   1           )
+                                    );
+    $adatbazis_kapcsolat->i('munkalap_kapcs',   array('munkalap_id',  'bejelentes_id'           ),
+                                                array($uj_id,         $_GET['ujkent_bejelentes'])
+                            );
+    
+    header('Location:munkalap.php?modosit&id='.$uj_id);
+    
+    $weblap->leallit();
+    exit();
+}
 
 // Munkalap átadás mobil csoportnak
 if( isset($_POST['munkalapMobil']) ) {
@@ -5403,16 +5424,6 @@ require('selectek.php');
             foreach($akt_tomb as $ertek) {
 				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
-		}
-        // Munkalap újként szerkesztése, de az adatokat a bejelentésből töltjük fel
-		if($_GET['ujkent_bejelentes']) {
-            $bejelentes = $adatbazis_kapcsolat -> s2('*', 'bejelentes', "`recid`='{$_GET['ujkent_bejelentes']}'");
-            $_SESSION['surgos']      = $bejelentes['surgos'];
-            $_SESSION['text']        = $bejelentes['hiba_text'];
-            $_SESSION['telephely_id']= $bejelentes['telephely_id'];
-            $_SESSION['obj_id']      = $bejelentes['obj_id'];
-            $_SESSION['gep_id']      = $bejelentes['gep_id'];
-            $_SESSION['tipus_id']    = '1';
 		}
 
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
