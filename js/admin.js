@@ -269,13 +269,13 @@ $(function() {
             var cmLeft = event.pageX - mLeft,
                 nbWidth = cbWidth + cmLeft;
 
-            if( nbWidth > 150 && nbWidth < 800 ) {
+            if( nbWidth > 170 && nbWidth < 800 ) {
                 $('#tartalomBal').css('width', nbWidth);
                 $('#tartalomJobb').css('width', 'calc(100% - ' + (Math.abs(nbWidth) + 16) + 'px)');
                 $('.muveletek').css('width', 'calc(100% - ' + (Math.abs(nbWidth) + 16) + 'px)');
 
                 createCookie('csuszkaSzelesseg', Math.abs(nbWidth), 365);
-                $('#stat_gyors_szuro').css('width', Math.abs(nbWidth));
+                $('#stat_gyors_szuro_div').css('width', Math.abs(nbWidth-17));
                 fulGombMeretez();
             }
         }

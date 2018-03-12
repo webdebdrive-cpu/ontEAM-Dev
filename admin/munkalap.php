@@ -5117,10 +5117,9 @@ require('selectek.php');
     // Hibaüzeneteknek készítünk két hidden inputot, ami midnig elérhető lesz
     $szamla_html .= '<div class="dn" id="ikt_szam_hibauzibe">'.$sor['ikt_szam'].'</div>';
     $szamla_html .= '<div class="dn" id="telephely_hibauzibe">'. getErtek('nev', 'telephely', 'id', $sor['telephely_id']).'</div>';
-
+    
     // Gyors státusz szűrő szélességének beállítása
-    $szamla_html .= '<script>$(document).ready(function () { $(\'#stat_gyors_szuro\').css(\'width\', \''.($_COOKIE['csuszkaSzelesseg']/10).'rem\');  });</script>';
-
+    $szamla_html .= '<script>$(document).ready(function () { $(\'#stat_gyors_szuro_div\').css(\'width\', \''.(($_COOKIE['csuszkaSzelesseg']/10)-1.7).'rem\');  });</script>';
     
     // Gombok kirajzolása minden oldalra
     $gombok = '';

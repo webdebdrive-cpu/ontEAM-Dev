@@ -1850,7 +1850,14 @@ div.szamlaKereses input.datepicker {
     width: 9.6rem;
 }
 
-div.szamlaKereses select {
+#stat_gyors_szuro_div{
+    background: #fff;
+    border-bottom: 0.1rem solid #D6D6D6;
+    padding: 0.2rem 0rem;
+    position: fixed;
+}
+
+div.szamlaKereses select, #stat_gyors_szuro {
     appearance: none;
     background: #f5f7f6;
     border: 0.1rem solid #ccdeec;
@@ -1858,6 +1865,11 @@ div.szamlaKereses select {
     height: 2.6rem;
     padding: 0.3rem 3.5rem 0.5rem 1.5rem;
 }
+
+#stat_gyors_szuro{
+    width: 14rem;
+}
+
 
 div.szamlaKereses div.ilb {
     display: inline-block;
