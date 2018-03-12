@@ -2,7 +2,7 @@
     require_once('header.php');
 
     echo '<style media="screen">'.fajlbol_olvas('../css/dragtable.css').'</style>';
-    
+
     if (isset($_GET['v2'])) {
         echo '
     <style type="text/css">
@@ -127,7 +127,8 @@
 
                     sticky.find('th').eq(index).css({
                         'min-width': width,
-                        'max-width': width
+                        'max-width': width,
+                        'width': width
                     });
 
                     $(this).css({
@@ -141,6 +142,7 @@
 
                 sticky.find('th').each(function() {
                     $(this).find('.some-handle').remove();
+                    $(this).find('span').css('padding-left', '0');
                 });
 
                 sticky.css({
@@ -248,7 +250,7 @@
                         <div class="thKeret">
                             <div class="some-handle"></div>
                             <div class="order"></div>
-                            Teljes név
+                            <span>Teljes név</span>
                             <input type="text" name="tableSearch" value="">
                             <!-- <label>
                                 <input type="checkbox" name="nowrap" value="">
@@ -260,7 +262,7 @@
                         <div class="thKeret">
                             <div class="some-handle"></div>
                             <div class="order"></div>
-                            Telefon
+                            <span>Telefon</span>
                             <input type="text" name="tableSearch" value="">
                             <!-- <label>
                                 <input type="checkbox" name="nowrap" value="">
@@ -272,7 +274,7 @@
                         <div class="thKeret">
                             <div class="some-handle"></div>
                             <div class="order"></div>
-                            E-mail
+                            <span>E-mail</span>
                             <input type="text" name="tableSearch" value="">
                             <!-- <label>
                                 <input type="checkbox" name="nowrap" value="">
@@ -284,7 +286,7 @@
                         <div class="thKeret">
                             <div class="some-handle"></div>
                             <div class="order"></div>
-                            Beosztás
+                            <span>Beosztás</span>
                             <input type="text" name="tableSearch" value="">
                             <!-- <label>
                                 <input type="checkbox" name="nowrap" value="">
@@ -296,7 +298,7 @@
                         <div class="thKeret">
                             <div class="some-handle"></div>
                             <div class="order"></div>
-                            Részleg
+                            <span>Részleg</span>
                             <input type="text" name="tableSearch" value="">
                             <!-- <label>
                                 <input type="checkbox" name="nowrap" value="">
@@ -308,7 +310,7 @@
                         <div class="thKeret">
                             <div class="some-handle"></div>
                             <div class="order"></div>
-                            Aktív
+                            <span>Aktív</span>
                             <input type="text" name="tableSearch" value="">
                             <!-- <label>
                                 <input type="checkbox" name="nowrap" value="">
