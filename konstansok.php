@@ -61,7 +61,7 @@ define('MUNKALAP_STAT_FOLYAMATBAN',         '02');
 define('MUNKALAP_STAT_ELUTASITVA',          '03');
 define('MUNKALAP_STAT_HOZZARENDELT',        '05');
 define('MUNKALAP_STAT_TOROLT',              '06');
-define('MUNKALAP_STAT_VARAKOZO',            '07');
+define('MUNKALAP_STAT_HATIDO_UTEMEZETT',    '07');
 define('MUNKALAP_STAT_FELVEVE',             '08');
 define('MUNKALAP_STAT_ANYAGRAVAR',          '09');
 define('MUNKALAP_STAT_LEZARASRA_VAR',       '10');
@@ -74,6 +74,7 @@ define('MUNKALAP_STAT_IGAZOLASRA_VAR',      '16');
 define('MUNKALAP_STAT_VIZSGALAT_ALATT',     '17');
 define('MUNKALAP_STAT_BEOSZTAS_NELKUL',     '18');
 define('MUNKALAP_STAT_SZTORNO',             '19');
+define('MUNKALAP_STAT_VARAKOZO',            '20');
 
 // Projektigénylés státuszok
 define('PRIGENY_STAT_NYITOTT',              '01' );
@@ -191,7 +192,8 @@ define('JOG_MUNKALAP_MEGTEKINT',        3 );
 define('JOG_MUNKALAP_MEGTEKINT_SZALL',  4 );
 define('JOG_MUNKALAP_MEGTEKINT_FELADAT',79);
 define('JOG_MUNKALAP_UJ_LETREHOZ',      5 );
-define('JOG_MUNKALAP_VARAKOZTAT',       21);
+define('JOG_MUNKALAP_HATIDO_UTEMEZ',    21);
+define('JOG_MUNKALAP_VARAKOZTAT',       83);
 define('JOG_MUNKALAP_SAJAT_KEZEL',      22);
 define('JOG_MUNKALAP_SAJAT_SZALL_KEZEL',69);
 define('JOG_MUNKALAP_KEZEL_TELEPITETT', 76);

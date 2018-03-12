@@ -4624,7 +4624,7 @@ if (isset($_POST['munkalapHIUtemez'])) {
         }
         
         $megj = 'Dátumra ütemezve: '.$_POST['datum'];
-        if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_VARAKOZO, '', $megj ) === false ) {
+        if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HATIDO_UTEMEZETT, '', $megj ) === false ) {
             $db_error = true;
         }
         
@@ -4688,7 +4688,7 @@ if (isset($_POST['munkalapVisszaNyitott'])) {
 
         $hataridore_utemezett = '';
         if($munkalapok){
-            $hataridore_utemezett = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_VARAKOZO."' AND `recid` IN (".implode(',', $munkalapok).")");
+            $hataridore_utemezett = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_HATIDO_UTEMEZETT."' AND `recid` IN (".implode(',', $munkalapok).")");
             if( $hataridore_utemezett === false ) { $db_error = true; }
         }
 
@@ -4759,6 +4759,174 @@ if (isset($_POST['munkalapVisszavetel'])) {
                                         array('',            '',              ''     ),
                                     "`recid` = '{$recid}'");
     
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Munkalap várakoztatása
+if (isset($_POST['munkalapVarakoztat'])) {
+    
+    $recid = $_POST['recid'];
+    $memo  = trim($_POST['memo']);
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    if(!$memo){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => 'Kérjük indokolja a várakoztatást!',
+            'title' => 'Hiba',
+            'focus' => 'sztorno_memo',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='{$recid}'");
+    if( $munkalap === false ) { $db_error = true; }
+
+    // Státusz ellenőrzése
+    if( $sor['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT ) {
+        echo json_encode(array(
+            'hiba'  => 'Ebben a státuszban nem várakoztatható a munkalap!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+
+    // Jog ellenőrzése
+    if( 
+        !(
+            _jog(JOG_MUNKALAP_VARAKOZTAT) && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id']  
+        )
+    ) {
+        echo json_encode(array(
+            'hiba'  => 'Nincs joga várakoztatáshoz!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Státusz léptetés
+    $statusz = addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_VARAKOZO, '', $memo);
+    if( $statusz === false ) { $db_error = true; }
+    
+    // Megjegyzés
+    $megj = addMegj('munkalap', $recid, "Várakoztatás oka\r\n".$memo);
+    if( $megj === false ) { $db_error = true; }
+    
+    // Ha van bejelentés a munkalaphoz, akkor a bejelentőt értesítjük
+    $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
+    if( $bejelentes === false ) { $db_error = true; }
+    if($bejelentes){
+        $bejelentes = $adatbazis_kapcsolat->s2('recid', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
+        if( $bejelentes === false ) { $db_error = true; }
+        
+        level_felkeszit_es_kuld('bejelentes', $bejelentes['recid'], '', 'munkalapVarakoztat', 'bejelento', nl2br2($memo));
+
+    }
+
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Munkalap várakoztatásának vége
+if (isset($_POST['munkalapVarakoztatVege'])) {
+    
+    $recid = $_POST['recid'];
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id', 'munkalap', "`recid`='{$recid}'");
+    if( $munkalap === false ) { $db_error = true; }
+
+    // Státusz ellenőrzése
+    if( $sor['stat_id'] != MUNKALAP_STAT_VARAKOZO ) {
+        echo json_encode(array(
+            'hiba'  => 'A munkalap státusza nem várakozó!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+
+    // Jog ellenőrzése
+    if( 
+        !(
+            _jog(JOG_MUNKALAP_VARAKOZTAT) && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id']  
+        )
+    ) {
+        echo json_encode(array(
+            'hiba'  => 'Nincs joga várakoztatás befejezéséhez!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Státusz léptetés
+    $statusz = addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT);
+    if( $statusz === false ) { $db_error = true; }
+    
+    // Ha van bejelentés a munkalaphoz, akkor azt folyamatban státuszra léptetjük, DE csak akkor, ha a bejelentés más munkapajai között nincs várakozó
+    $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
+    if( $bejelentes === false ) { $db_error = true; }
+    if($bejelentes){
+        
+        $van_varakozo_munkalap = false;
+        $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bejelentes['bejelentes_id']}'");
+        foreach($munkalapok as $munkalap){
+            
+            $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid`='{$munkalap['munkalap_id']}'");
+
+            if($munkalap['stat_id']==MUNKALAP_STAT_VARAKOZO){
+                $van_varakozo_munkalap = true;
+                break;
+            }
+        }
+
+        // Ha a bejelentéshze nem tartozik olyan munkalap, aminek a státusza várakozó, akkor a bejelentést visszatesszük folyamatban státuszba
+        if(!$van_varakozo_munkalap){
+            $statusz = addStatusz( 'bejelentes_statusz', $bejelentes['bejelentes_id'], BEJELENTES_STAT_FOLYAMATBAN);
+            if( $statusz === false ) { $db_error = true; }
+        }
+    }
+
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode(array(
@@ -5241,7 +5409,7 @@ require('selectek.php');
 
 
         // Kijelöltekkel való művelet gombok
-        if( ($sor['stat_id']==MUNKALAP_STAT_NYITOTT) && _jog(JOG_MUNKALAP_VARAKOZTAT) ) {
+        if( ($sor['stat_id']==MUNKALAP_STAT_NYITOTT) && _jog(JOG_MUNKALAP_HATIDO_UTEMEZ) ) {
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Határidőre ütemezés" onclick="csoportMuvelet(\'munkalapHIUtemez\');"> ';
 //            $gombok .= nl2('
 //                <div id="kmCont">
@@ -5263,7 +5431,7 @@ require('selectek.php');
         }
         
         // Ha határidőre ütemezett a munkalap
-        if( ($sor['stat_id']==MUNKALAP_STAT_VARAKOZO) && _jog(JOG_MUNKALAP_VARAKOZTAT) ) {
+        if( ($sor['stat_id']==MUNKALAP_STAT_HATIDO_UTEMEZETT) && _jog(JOG_MUNKALAP_HATIDO_UTEMEZ) ) {
             $gombok .= '<input type="button" class="gomb" value="Vissza a nyitottak közé" onclick="munkalapVisszaNyitott(\''.$_GET['id'].'\')"> ';
         }
 
@@ -5525,6 +5693,20 @@ require('selectek.php');
         if( $sor['stat_id']==MUNKALAP_STAT_IGAZOLASRA_VAR && _jog(JOG_MUNKALAP_IGAZOLAS) ){
             $gombok .= '<input type="button" class="gomb" value="Igazolás" onclick="munkalapIgazol(\'csak kérdezünk még\');"> ';
             $gombok .= '<input type="button" class="gomb" value="Igazolás elutasítása" onclick="csoportMuvelet(\'munkalapIgenylesElutasit\');"> ';
+        }
+                
+        
+        // Várakoztatás: Előkészítés alatt státusz + várakoztatás jog
+        if( $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT && _jog(JOG_MUNKALAP_VARAKOZTAT) && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id'] ){
+            $gombok .= '<input type="button" class="gomb" value="Várakoztatás" onclick="csoportMuvelet(\'munkalapVarakoztat\');"> ';
+        }
+        
+        // Várakoztatás vége: Várakozó státusz + várakoztatás jog
+        if( $sor['stat_id']==MUNKALAP_STAT_VARAKOZO && _jog(JOG_MUNKALAP_VARAKOZTAT) && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id'] ){
+            $gombok .= nl2('
+                        <script> gomb_varakoztat_vege = \'<input type="button" class="gomb zold" onclick="munkalapVarakoztatVege()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
+                        <input type="button" class="gomb" value="Várakoztatás vége" onclick="alert2(\'Biztosan visszateszi a munkalapot előkészítés alatt státuszba?\', gomb_varakoztat_vege);">
+                        ');
         }
 
         // Lezárás: Vizsgálat alatt + Vizsgálat jog

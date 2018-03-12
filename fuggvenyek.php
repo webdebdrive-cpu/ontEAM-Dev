@@ -2264,7 +2264,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $i = 0;
                 // Nem nyitott státuszú, azon belül sürgősek majd iktatószám
                 // A státuszoknak is van egy sorrendje
-                $statuszok = array_reverse( array( MUNKALAP_STAT_BEOSZTAS_NELKUL, MUNKALAP_STAT_FOLYAMATBAN, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_TOROLT ) );
+                $statuszok = array_reverse( array( MUNKALAP_STAT_BEOSZTAS_NELKUL, MUNKALAP_STAT_FOLYAMATBAN, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_HATIDO_UTEMEZETT, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_TOROLT ) );
                 foreach($statuszok as $stat){
                     $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='$stat'", '`surgos`, `ikt_szam`');
                     foreach($munkalapok as $munkalap){
@@ -2767,7 +2767,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
 
         $jClass         = '';
-        if( _jog(JOG_MUNKALAP_VARAKOZTAT) && !isset($_GET['print']) ) {
+        if( _jog(JOG_MUNKALAP_HATIDO_UTEMEZ) && !isset($_GET['print']) ) {
             // $jClass = ' kijelolheto'; //2017.11.16 - nem kell kijelölhetőek legyenek a munkalapok
             $jClass = ' csoport_nevre_kattintas';
         }
@@ -2806,7 +2806,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
         $i = 1;
         foreach($bejegyzesek as $bsz) {
-            if( false/* Csoportra bontás kikapcsolva 2017.12.11 */ && !$frissit && $tabla && _jog(JOG_MUNKALAP_VARAKOZTAT) && !isset($_GET['print']) ) {
+            if( false/* Csoportra bontás kikapcsolva 2017.12.11 */ && !$frissit && $tabla && _jog(JOG_MUNKALAP_HATIDO_UTEMEZ) && !isset($_GET['print']) ) {
                 $aktCsoport = $bsz['csoport_id'];
 
                 if( $i == 1 || $csoport != $aktCsoport ) {
@@ -2957,7 +2957,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             $csoport_class = '';
             $csoport_data  = '';
-            if( $bsz['csoport_id'] && _jog(JOG_MUNKALAP_VARAKOZTAT) && !isset($_GET['print']) ) {
+            if( $bsz['csoport_id'] && _jog(JOG_MUNKALAP_HATIDO_UTEMEZ) && !isset($_GET['print']) ) {
                 $csoport_class = ' behuz';
                 if(!$frissit){
                     $csoport_class .= ' dn';
@@ -5802,7 +5802,7 @@ function statido_to_sec($string){
 }
 
 // Levélküldés előtt jogot, értesítés pipát vizsgálunk, levél tartlamát és címzetteket kiszámoljuk
-function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
+function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $extra_szoveg){
 
     global $adatbazis_kapcsolat;
     global $db_kapcs;
@@ -6019,6 +6019,19 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
             $uzi     =  'Az Ön által bejelentett reklamáció elutasításra került.
                         <br>'.
                         $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        break;
+
+        case 'munkalapVarakoztat':
+            $esemeny =  'munkalap várakoztatásakor';
+            $targy   =  get_nev().' hibabejelentése várakozik';
+            $uzi     =  'Az Ön által bejelentett hiba javítása várakozik.
+                        <br>'.
+                        $uzi.'
+                        <br>
+                        <br>Várakoztatja: '.$_SESSION[get_db_tabla().'teljes_nev'].' '. getErtek('nev', 'szerepkor', $_SESSION[get_db_tabla().'szemelyzet_id']).'
+                        <br>Várakoztatás indoka:
+                        <br>'.$extra_szoveg.'
+                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 
         case 'anyagigenylesJovahagy':

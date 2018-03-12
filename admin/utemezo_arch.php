@@ -19,7 +19,7 @@ $log .= $adatbazis_kapcsolat->gp() . '
 ';
 bejelentesek_archival( $bejelentesek );
 
-// Ha Lezárt státuszban van, megnézzük munkalapjait, ha minden munkalapja Lezárt státuszban van, akkor archiváljuk bejelentést, munkalapokat, mindkettő gyerektábláit bejelentésenként egy tranzakcióban.
+// Ha Lezárt státuszban van, megnézzük munkalapjait, ha minden munkalapja Lezárt vagy Sztornó státuszban van, akkor archiváljuk bejelentést, munkalapokat, mindkettő gyerektábláit bejelentésenként egy tranzakcióban.
 $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_LEZART."'");
 $log .= $adatbazis_kapcsolat->gp() . '
 ';
@@ -27,7 +27,7 @@ foreach($bejelentesek as $bejelentes){
     $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bejelentes['recid']}'");
     $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
     if($munkalapok){
-        if( count($adatbazis_kapcsolat->s('recid', 'munkalap', "`recid` IN (".implode(', ', $munkalapok).") AND `stat_id`!='".MUNKALAP_STAT_LEZART."'"))==0 ){
+        if( count($adatbazis_kapcsolat->s('recid', 'munkalap', "`recid` IN (".implode(', ', $munkalapok).") AND `stat_id`!='".MUNKALAP_STAT_LEZART."' AND `stat_id`!='".MUNKALAP_STAT_SZTORNO."'"))==0 ){
             bejelentesek_archival( $bejelentes['recid'], 'munkalapokat is' );
         }
     }

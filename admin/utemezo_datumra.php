@@ -13,7 +13,7 @@ if( filesize($log_utvonal)>get_logfile_max_meret() ){
     fajlba_mentes($log_utvonal, $log_tmp);
 }
 // Munkalapok ütemezett dátuma
-$munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`esnap_d`<='".date('Y-m-d')."' AND `stat_id`='".MUNKALAP_STAT_VARAKOZO."'");
+$munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`esnap_d`<='".date('Y-m-d')."' AND `stat_id`='".MUNKALAP_STAT_HATIDO_UTEMEZETT."'");
 if( $munkalapok === false ) { $db_error = true; }
 $log .= $adatbazis_kapcsolat->gp() . '
 ';

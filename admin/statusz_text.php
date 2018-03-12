@@ -52,7 +52,7 @@ $_stat_text = array(
         MUNKALAP_STAT_ELUTASITVA            => array('nev' => 'Elutasítva',                         'szinkod' => '#C44B4B'),
         MUNKALAP_STAT_FELVEVE               => array('nev' => 'Felvéve',                            'szinkod' => '#82aa90'),
         MUNKALAP_STAT_FOLYAMATBAN           => array('nev' => 'Folyamatban',                        'szinkod' => '#f5a56c'),
-        MUNKALAP_STAT_VARAKOZO              => array('nev' => 'Határidőre ütemezett',               'szinkod' => '#4dcde9'),
+        MUNKALAP_STAT_HATIDO_UTEMEZETT      => array('nev' => 'Határidőre ütemezett',               'szinkod' => '#4dcde9'),
         MUNKALAP_STAT_HOZZARENDELT          => array('nev' => 'Hozzárendelt',                       'szinkod' => '#4ee489'),
         MUNKALAP_STAT_IGAZOLASRA_VAR        => array('nev' => 'Igazolásra vár',                     'szinkod' => ''),
         MUNKALAP_STAT_IGAZOLT               => array('nev' => 'Igazolt, lezárható',                 'szinkod' => '#61616c'),
@@ -64,6 +64,7 @@ $_stat_text = array(
         MUNKALAP_STAT_TOROLT                => array('nev' => 'Törölt',                             'szinkod' => '#fff'),
         MUNKALAP_STAT_VIZSGALAT_ALATT       => array('nev' => 'Vizsgálat alatt',                    'szinkod' => ''),
         MUNKALAP_STAT_SZTORNO               => array('nev' => 'Sztornó',                            'szinkod' => '#D73F37'),
+        MUNKALAP_STAT_VARAKOZO              => array('nev' => 'Várakozó',                           'szinkod' => ''),
     ),
     'projektigenyles' => array(
         PRIGENY_STAT_BOD_TERJESZT_VAR       => array('nev' => 'BoD előterjesztés alatt',            'szinkod' => ''),

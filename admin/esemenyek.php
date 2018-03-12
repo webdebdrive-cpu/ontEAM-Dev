@@ -2462,7 +2462,7 @@ if( isset($_GET['munkalapSelect']) ) {
             if( $munkalap_statusz ) {
                 $munkalap_statusz = $munkalap_statusz[0];
 
-                if( in_array($munkalap_statusz['stat_id'], array(MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_FOLYAMATBAN, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_ANYAGRAVAR)) ) {
+                if( in_array($munkalap_statusz['stat_id'], array(MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_FOLYAMATBAN, MUNKALAP_STAT_HATIDO_UTEMEZETT, MUNKALAP_STAT_ANYAGRAVAR)) ) {
                     $html .= '<option value="'.$munkalap['recid'].'">'.$munkalap['ikt_szam'].'</option>';
                 }
             }
@@ -2522,7 +2522,7 @@ if($page=='anyagigenyles'){
 if($page=='munkalap'){
     $hibauzi_szoveg         = 'munkalap';
     $hibauzi_szoveg_targy   = 'munkalapot';
-    $varakozo_statid        = MUNKALAP_STAT_VARAKOZO;
+    $varakozo_statid        = MUNKALAP_STAT_HATIDO_UTEMEZETT;
 }
 
 // Várólistából kivétel
@@ -2938,7 +2938,7 @@ if( isset($_POST['csoportbaRendez']) ) {
                 foreach($idk as $id) {
 
                     // Státusz léptetés
-                    $statusz = addStatusz( $page.'_statusz', $id, MUNKALAP_STAT_VARAKOZO );
+                    $statusz = addStatusz( $page.'_statusz', $id, MUNKALAP_STAT_HATIDO_UTEMEZETT );
                     if( $statusz === false ) { $db_error = true; }
 
                     // Munkalap update

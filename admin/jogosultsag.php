@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 82-es ID-nál járunk
+ * 83-es ID-nál járunk
  * 11 -es kategória ID-nál járunk
 \*                                                  */
 
@@ -41,7 +41,7 @@ $jogosultsagok = array(
     2  => array('nev' => 'Munkalapot készíthet bejelentésből',              'kat' => 1, 'sor' => 5  ),
     31 => array('nev' => 'Nyitottak kezelése',                              'kat' => 1, 'sor' => 6  ),
     74 => array('nev' => 'Sürgősség megváltoztatása',                       'kat' => 1, 'sor' => 7  ),
-    21 => array('nev' => 'Várakoztatás',                                    'kat' => 1, 'sor' => 8  ),
+    21 => array('nev' => 'Határidőre ütemezés',                             'kat' => 1, 'sor' => 8  ),
     68 => array('nev' => 'Munkalap törlése',                                'kat' => 1, 'sor' => 9  ),
     22 => array('nev' => 'Saját szerepkör kezelése',                        'kat' => 1, 'sor' => 10 ),
     69 => array('nev' => 'Saját szállodák kezelése',                        'kat' => 1, 'sor' => 11, 'nincs_pipa' => 1, 'i' => 'Műszaki vezető, Területi felelős' ),
@@ -51,8 +51,9 @@ $jogosultsagok = array(
     23 => array('nev' => 'Igazolás',                                        'kat' => 1, 'sor' => 15 ),
     24 => array('nev' => 'Vizsgálat',                                       'kat' => 1, 'sor' => 16 ),
     37 => array('nev' => 'Külsős: előkészítés',                             'kat' => 1, 'sor' => 17 ),
-    34 => array('nev' => 'Külsős jóváhagyás',                               'kat' => 1, 'sor' => 18 ),
-    67 => array('nev' => 'Külsős: megrendelés készítése',                   'kat' => 1, 'sor' => 19 ),
+    83 => array('nev' => 'Várakoztatás',                                    'kat' => 1, 'sor' => 18  ),
+    34 => array('nev' => 'Külsős jóváhagyás',                               'kat' => 1, 'sor' => 19 ),
+    67 => array('nev' => 'Külsős: megrendelés készítése',                   'kat' => 1, 'sor' => 20 ),
     
     6  => array('nev' => 'Felhasználók megtekintése',   'kat' => 2, 'sor' => 6),
     7  => array('nev' => 'Felhasználók kezelése',       'kat' => 2, 'sor' => 7),
