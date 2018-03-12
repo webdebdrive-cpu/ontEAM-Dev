@@ -268,7 +268,12 @@ if( isset($_POST['munkalapKeszit']) ) {
 
 // Új munkalap létrehozása bejelentésből
 if ($_GET['ujkent_bejelentes']) {
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
     $bejelentes = $adatbazis_kapcsolat -> s2('*', 'bejelentes', "`recid`='{$_GET['ujkent_bejelentes']}'");
+    if( $bejelentes === false ) { $db_error = true; }
     
     // Iktatószám generálása
     $sorszam = get_iktatoszam_sorszam('munkalap');
@@ -278,11 +283,30 @@ if ($_GET['ujkent_bejelentes']) {
                                                 array('ikt_szam', 'surgos',              'text',                   'telephely_id',              'obj_id',              'gep_id',                'tipus_id'  ),
                                                 array($ikt_szam,  $bejelentes['surgos'], $bejelentes['hiba_text'], $bejelentes['telephely_id'], $bejelentes['obj_id'], $bejelentes['gep_id'],   1           )
                                     );
-    $adatbazis_kapcsolat->i('munkalap_kapcs',   array('munkalap_id',  'bejelentes_id'           ),
-                                                array($uj_id,         $_GET['ujkent_bejelentes'])
-                            );
+    if( $uj_id === false ) { $db_error = true; }
     
-    header('Location:munkalap.php?modosit&id='.$uj_id);
+    // Felvesszük az első státuszt
+    $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
+                                        array('munkalap_recid', 'stat_id',                 'insert_dt',    'insert_usr',                              'update_usr'                          ),
+                                        array($uj_id,            MUNKALAP_STAT_NYITOTT,    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+                                    );
+    if( $sql === false ) { $db_error = true; }
+    $sql = $adatbazis_kapcsolat->u('munkalap', array('stat_id'), array(MUNKALAP_STAT_NYITOTT), "`recid`='{$uj_id}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Bejelentés hozzákapcsolása
+    $sql = $adatbazis_kapcsolat->i('munkalap_kapcs',   array('munkalap_id',  'bejelentes_id'           ),
+                                                       array($uj_id,         $_GET['ujkent_bejelentes'])
+                                    );
+    if( $sql === false ) { $db_error = true; }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        header('Location:munkalap.php?modosit&id='.$uj_id);
+    } else {
+        mysqli_rollback($db_kapcs);
+    }
+    
     
     $weblap->leallit();
     exit();
