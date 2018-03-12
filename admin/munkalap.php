@@ -4752,6 +4752,148 @@ if (isset($_POST['munkalapVisszavetel'])) {
     exit();
 }
 
+// Munkalap sztornózása
+if (isset($_POST['munkalapSztornoz'])) {
+    
+    $recid = $_POST['recid'];
+    $memo  = trim($_POST['memo']);
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    if(!$memo){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => 'Kérjük indokolja a sztornózást!',
+            'title' => 'Hiba',
+            'focus' => 'sztorno_memo',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Nézzük meg, hogy a munkalaphoz tartozó bejelentésnek hány munkalapja van
+    $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
+    if( $bejelentes === false ) { $db_error = true; }
+    $bejelentes_recid = $bejelentes['bejelentes_id'];
+    $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bejelentes_recid}'");
+    if( $munkalapok === false ) { $db_error = true; }
+    
+
+    // Ha a munkalapnak nincs bejelentése, akkor sztornó státuszba kerül
+    if(!$bejelentes){
+        if( addStatusz('munkalap_statusz', $recid, MUNKALAP_STAT_SZTORNO, '', $memo) === false ) {
+            $db_error = true;
+        }
+        if( addMegj('munkalap', $recid, $memo) === false ){
+            $db_error = true;
+        }
+    }
+    
+    // Ha bejelentésének ez az egyetlen munkalapja, kérdezünk
+    if( count($munkalapok)==1 ){
+        
+        // Ha már tudjuk, hogy melyik státuszba mehet, akkor abba a státuszba léptetjük
+        if($_POST['mehet']){
+            
+            // Munkalapot sztornózzuk
+            if( addStatusz('munkalap_statusz', $recid, MUNKALAP_STAT_SZTORNO, '', $memo) === false ) {
+                $db_error = true;
+            }
+            if( addMegj('munkalap', $recid, $memo) === false ){
+                $db_error = true;
+            }
+            
+            // A hozzá tartozó egyetlen bejegyzés státuszát a kért státuszba léptetjük
+            if($_POST['mehet']=='nyitott'){
+                if( addStatusz('bejelentes_statusz', $bejelentes_recid, BEJELENTES_STAT_NYITOTT, '', $memo) === false ) {
+                    $db_error = true;
+                }
+            }
+            if($_POST['mehet']=='elutasit'){
+                if( addStatusz('bejelentes_statusz', $bejelentes_recid, BEJELENTES_STAT_ELUTASITVA, '', $memo) === false ) {
+                    $db_error = true;
+                }
+            }
+            
+            // Indoklás bekerül a bejelentéshez is
+            $munkalap = $adatbazis_kapcsolat->s2('ikt_szam', 'munkalap', "`recid`='{$recid}'");
+            if( addMegj('bejelentes', $bejelentes_recid, $munkalap['ikt_szam'].' munkalap sztornózva') === false ){
+                $db_error = true;
+            }
+            
+            
+        // Egyébként kérdezünk
+        }else{
+            echo json_encode(array(
+                'hiba'  => 'A munkalaphoz tartozó bejelentést nyitott státuszba helyezi vagy elutasítja?',
+                'gomb'  => '<input type="button" class="gomb zold" value="Nyitott státuszba" onclick="munkalapSztornoz(\'nyitott\')"><input type="button" class="gomb piros" value="Elutasítás" onclick="munkalapSztornoz(\'elutasit\')">',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        
+    }
+    
+    // Ha a munkalapnak több bejelentése is van
+    if( count($munkalapok)>1 ){
+        
+        // Munkalapot sztornózzuk
+        if( addStatusz('munkalap_statusz', $recid, MUNKALAP_STAT_SZTORNO, '', $memo) === false ) {
+            $db_error = true;
+        }
+        if( addMegj('munkalap', $recid, $memo) === false ){
+            $db_error = true;
+        }
+        // Ha a munkalap ezen státuszok valamelyikében van, akkor a bejelentés igazolásra vár státuszt kap
+        $ig_var_statuszos = true;
+        $ig_var_statuszok = array(MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_SZTORNO);
+        foreach ($munkalapok as $munkalap){
+            $munkalap = $adatbazis_kapcsolat->s2('recid stat_id', 'munkalap', "`recid`='{$munkalap['munkalap_id']}'");
+            if($munkalap['recid']!=$recid){
+                if( !in_array($munkalap['stat_id'], $ig_var_statuszok) ){
+                    $ig_var_statuszos = false;
+                }
+            }
+        }
+
+        // Ha van olyan munkalap, ami nem az igazolásra vár státuszt kapta akkor a bejelentés folyamatban státuszra kerül, egyébként igazolásra vár státuszt
+        if(!$ig_var_statuszos){
+            if( addStatusz('bejelentes_statusz', $bejelentes_recid, BEJELENTES_STAT_FOLYAMATBAN, '', $memo) === false ) {
+                $db_error = true;
+            }
+        // Ha minden munkalap az említett státuszban vannak, akkor a bejelentés igazolásra vár státuszt kap
+        }else{
+            if( addStatusz('bejelentes_statusz', $bejelentes_recid, BEJELENTES_STAT_KESZ_IG, '', $memo) === false ) {
+                $db_error = true;
+            }
+        }
+        
+        // Indoklás bekerül a bejelentéshez is
+        $munkalap = $adatbazis_kapcsolat->s2('ikt_szam', 'munkalap', "`recid`='{$recid}'");
+        if( addMegj('bejelentes', $bejelentes_recid, $munkalap['ikt_szam'].' munkalap sztornózva') === false ){
+            $db_error = true;
+        }
+        
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
 // CSV generálása
 if (isset($_GET['csv'])) {
 
@@ -5370,6 +5512,11 @@ require('selectek.php');
         // Lezárás2: Kész státusz + kezelés jog
         if( $sor['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR && $kezeles_jog ){
             $gombok .= '<input type="button" class="gomb" value="Lezárás" onclick="munkalapRogzit(\'csak kérdezünk még\');"> ';
+        }
+        
+        // Sztornó: Nyitott státusz + nyitottak kezelése jog
+        if( $sor['stat_id']==MUNKALAP_STAT_NYITOTT && _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ){
+            $gombok .= '<input type="button" class="gomb piros" value="Sztornó" onclick="csoportMuvelet(\'munkalapSztornoz\');"> ';
         }
 
         // Megrendelés alatt

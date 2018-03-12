@@ -73,6 +73,7 @@ define('MUNKALAP_STAT_HOZREND_MEGREND_VAR', '15');
 define('MUNKALAP_STAT_IGAZOLASRA_VAR',      '16');
 define('MUNKALAP_STAT_VIZSGALAT_ALATT',     '17');
 define('MUNKALAP_STAT_BEOSZTAS_NELKUL',     '18');
+define('MUNKALAP_STAT_SZTORNO',             '19');
 
 // Projektigénylés státuszok
 define('PRIGENY_STAT_NYITOTT',              '01' );

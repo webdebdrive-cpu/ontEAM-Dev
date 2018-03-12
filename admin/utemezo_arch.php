@@ -33,8 +33,8 @@ foreach($bejelentesek as $bejelentes){
     }
 }
 
-// Ha munkalapnak nincs bejelentése és Lezárt státuszban van, archiválunk
-$munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_LEZART."'");
+// Ha munkalapnak nincs bejelentése és Lezárt vagy Sztornó státuszban van, archiválunk
+$munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`stat_id`='".MUNKALAP_STAT_LEZART."' OR `stat_id`='".MUNKALAP_STAT_SZTORNO."'");
 $log .= $adatbazis_kapcsolat->gp() . '
 ';
 foreach($munkalapok as $munkalap){

@@ -1,0 +1,49 @@
+<h2>Munkalap sztornózása</h2>
+<form action="" class="popupForm" method="post" onsubmit="return munkalapSztornoz();">
+    <div class="kozep">
+        <div class="dt">
+            <div class="dtr">
+                <div class="dtc form_bal">Indoklás</div>
+                <div class="dtc form_jobb">
+                    <textarea name="sztorno_memo" id="sztorno_memo" class="csillag" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+	function munkalapSztornoz(mehet){
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid               : _get('id'),
+                memo                : $('#sztorno_memo').val(),
+                mehet               : mehet,
+                munkalapSztornoz    : new Date().getTime()
+            },
+            success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        if(response.focus){
+                            $('#'+response.focus).addClass('hibas_ide_focus');
+                        }
+                        return false;
+                    }
+
+                    location.href = get_get();
+                }
+            }
+        });
+
+        return false;
+    }
+</script>
