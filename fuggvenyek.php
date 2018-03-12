@@ -912,7 +912,7 @@ function i_u($type, $tabla, $tomb) {
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
 
-        // Login jelszó küldést commitután küldünk
+        // Login jelszó küldést commit után küldünk
         if( $tabla == 'login' ) {
             // Ha most vették ki a Jelszóval rendelkezik pipát, akkor e-mail értesítés küldése
             if( $van_jelszo && !$_POST['van_jelszo'] ){
@@ -6044,7 +6044,6 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
         $uzi_kieg   = '[Teszt email]<br><br>';
     }
     
-
     foreach($cimzettek as $akt_cimzett){
 // Teszteléshez
 //$tmp = $adatbazis_kapcsolat->s2('usermail', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
@@ -6098,7 +6097,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett){
     }
 
     // Ha nincs e-mail cím, akkor ezt a megjegyzésbe is írjuk bele
-    if(!$cimzett['usermail']){
+    if(!$akt_cimzett['usermail']){
         $megj = 'A felhasználónak nincs e-mail címe, ezért a következő esemény nem következett be:<br>'.$megj;
     }
     
