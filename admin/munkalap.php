@@ -4840,7 +4840,7 @@ if (isset($_POST['munkalapVarakoztat'])) {
         $bejelentes = $adatbazis_kapcsolat->s2('recid', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
         if( $bejelentes === false ) { $db_error = true; }
         
-        level_felkeszit_es_kuld('bejelentes', $bejelentes['recid'], '', 'munkalapVarakoztat', 'bejelento', nl2br2($memo));
+        level_felkeszit_es_kuld('bejelentes', $bejelentes['recid'], ERT_KESZRE_JELENTESKOR, 'munkalapVarakoztat', 'bejelento', nl2br2($memo));
 
     }
 

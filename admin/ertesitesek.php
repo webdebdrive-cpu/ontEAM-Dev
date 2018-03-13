@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 11-es ID-nál járunk
+ * 12-es ID-nál járunk
  * 3 -es kategória ID-nál járunk
 \*                                                  */
 
@@ -20,14 +20,15 @@ $ertesitesek = array(
     0  => array('nev' => 'Bejelentés készrejelentésekor',                                               'kat' => 0, 'sor' => 0, 'i' => 'igazolásra vár' ),
     1  => array('nev' => 'Bejelentés elutasításakor',                                                   'kat' => 0, 'sor' => 1, 'i' => 'elutasítva'     ),
     2  => array('nev' => 'Bejelentés reklamáció elutasításakor',                                        'kat' => 0, 'sor' => 2, 'i' => 'lezárt'         ),
-    3  => array('nev' => 'Bejelentés igazolás elutasításakor',                                          'kat' => 0, 'sor' => 3, 'i' => 'vizsgálat alatt' ),
+    3  => array('nev' => 'Bejelentés igazolás elutasításakor',                                          'kat' => 0, 'sor' => 3, 'i' => 'vizsgálat alatt'),
 
-    4  => array('nev' => 'Munkalap készrejelentésekor,<br>ha hozzárendelt személyzet mobil vagy külsős',   'kat' => 1, 'sor' => 1, 'i' => 'igazolásra vár'     ),
+    4  => array('nev' => 'Munkalap készrejelentésekor,<br>ha hozzárendelt személyzet mobil vagy külsős','kat' => 1, 'sor' => 1, 'i' => 'igazolásra vár'     ),
     5  => array('nev' => 'Munkalap vizsgálat utáni lezárása után',                                      'kat' => 1, 'sor' => 2, 'i' => 'lezárt'             ),
     6  => array('nev' => 'Munkalap igazolás elutasítása után',                                          'kat' => 1, 'sor' => 3, 'i' => 'vizsgálat alatt'    ),
     7  => array('nev' => 'Külső kivitelező előkészítésekor',                                            'kat' => 1, 'sor' => 4, 'i' => 'előkészítés alatt'  ),
     8  => array('nev' => 'Külső kivitelező javaslattétel után',                                         'kat' => 1, 'sor' => 5, 'i' => 'döntésre vár'       ),
     9  => array('nev' => 'Külső kivitelező jóváhagyás után',                                            'kat' => 1, 'sor' => 6, 'i' => 'megrendelésre vár'  ),
+    12 => array('nev' => 'Több, mint 14 napja várakozó munkalapok',                                     'kat' => 1, 'sor' => 7),
 
     10  => array('nev' => 'Igénylés jóváhagyása előtt',                                                 'kat' => 2, 'sor' => 1, 'i' => 'árazva'),
 

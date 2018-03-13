@@ -259,6 +259,7 @@ define('ERT_MUNK_ELUTASIT_UTAN',         5);
 
 define('ERT_ANYAGIG_JOVAHAGYAS',        10);
 define('ERT_ELFELEJTETT_JELSZO',        11);
+define('ERT_14_NAPJA_VARO_ML',          12);
 
 
 define('HIBA_ADJON_FELADAT',           ' kérjük adjon hozzá egy elvégzett feladatot!');
