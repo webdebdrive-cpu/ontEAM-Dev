@@ -3143,3 +3143,8 @@ ul.dropItem .highlight {
 ul.dropItem li.ui-sortable-helper {
     border: 0.2rem dotted #BBCEFF;
 }
+
+div.tableCont {
+    overflow-x: auto;
+    width: 98rem;
+}
