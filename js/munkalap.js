@@ -848,3 +848,37 @@ function munkalapVarakoztatVege(){
         }
     });
 }
+
+/* Munkalap személyzet előkészítése  */
+function munkalapElokeszit(szemelyzet_id) {
+
+    if(balnav_kijelol_ell()){
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid               : _get('id'),
+                szemelyzet_id       : szemelyzet_id,
+                munkalapElokeszit   : new Date().getTime()
+            },
+            success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    popupZar();
+                }
+            }
+        });
+
+    }
+
+    return false;
+}

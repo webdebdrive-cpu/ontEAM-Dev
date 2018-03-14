@@ -3582,33 +3582,6 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                     }
                 break;
 
-                case 'munkalap_kulso':
-                    $('#popupTart').html(data);
-
-                    $.ajax({
-                        url : 'munkalap.php',
-                        type: 'POST',
-                        data: {
-                            recid               : _get('id'),
-                            munkalap_kulsoSelect: new Date().getTime()
-                        },
-                        success: function(response) {
-                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                            if(response) {
-                                response = JSON.parse(response);
-
-                                if( response.hiba ) {
-                                    alert2(response.hiba, response.gomb, response.title);
-                                    return false;
-                                }
-
-                                $('#hozzRendSelect').html(response.select);
-                                popupNyit();
-                            }
-                        }
-                    });
-                break;
-
                 default:
                     $('#popupTart').html(data);
                     popupNyit();
