@@ -300,6 +300,15 @@ if ($_GET['ujkent_bejelentes']) {
                                     );
     if( $sql === false ) { $db_error = true; }
     
+    // Logolás
+    $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' új munkalapot hozott létre a '.$bejelentes['ikt_szam'].' bejelentésből.';
+    $sql = $adatbazis_kapcsolat -> i(
+                                        'log',
+                                        array( 'felh_id',                               'nev',       'valtozas', 'ip'                   ),
+                                        array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $muvelet,   $_SERVER['REMOTE_ADDR'])
+                                    );
+    if( $sql === false ) { $db_error = true; }
+    
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         header('Location:munkalap.php?modosit&id='.$uj_id);
