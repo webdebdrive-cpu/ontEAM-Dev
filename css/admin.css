@@ -282,6 +282,34 @@ div.kijeloltek_muv.active div.muv {
 
 div.kijeloltek_muv div.muv li {
     padding: 0rem 1rem 0rem 1rem;
+    position: relative;
+}
+
+div.kijeloltek_muv div.muv li > ul {
+    background: #f0f0f0;
+    border: 0.1rem solid #989898;
+    border-radius: 0.3rem;
+    display: none;
+    padding: 0rem 0rem 0rem 0rem;
+    position: absolute;
+    bottom: 0;
+    left: 100%;
+}
+
+div.kijeloltek_muv div.muv li:hover > ul {
+    display: block;
+}
+
+div.kijeloltek_muv div.muv li > ul > li {
+    color: #242424;
+    cursor: pointer;
+    border-bottom: 0.1rem solid #CECECE;
+    display: block;
+    font-size: 1.4rem;
+    font-weight: 700;
+    padding: 1.2rem 1rem 1.2rem 1rem;
+    text-align: left;
+    white-space: nowrap;
 }
 
 div.kijeloltek_muv div.muv li a {
