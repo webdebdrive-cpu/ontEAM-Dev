@@ -4838,14 +4838,19 @@ if (isset($_POST['munkalapVarakoztat'])) {
     $megj = addMegj('munkalap', $recid, "Várakoztatás oka\r\n".$memo);
     if( $megj === false ) { $db_error = true; }
     
-    // Ha van bejelentés a munkalaphoz, akkor a bejelentőt értesítjük
+    // Ha van bejelentés a munkalaphoz, akkor annak a státuszát is léptetjük, plusz a bejelentőt értesítjük
     $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
     if( $bejelentes === false ) { $db_error = true; }
     if($bejelentes){
+        
+        // Státusz léptetés
+        $statusz = addStatusz( 'bejelentes_statusz', $bejelentes['bejelentes_id'], BEJELENTES_STAT_VARAKOZO, '', $memo);
+        if( $statusz === false ) { $db_error = true; }
+        
         $bejelentes = $adatbazis_kapcsolat->s2('recid', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
         if( $bejelentes === false ) { $db_error = true; }
         
-        level_felkeszit_es_kuld('bejelentes', $bejelentes['recid'], ERT_KESZRE_JELENTESKOR, 'munkalapVarakoztat', 'bejelento', nl2br2($memo));
+        level_felkeszit_es_kuld('bejelentes', $bejelentes['recid'], ERT_BEJ_VARAKOZTATKOR, 'munkalapVarakoztat', 'bejelento', nl2br2($memo));
 
     }
 
@@ -4969,6 +4974,40 @@ if (isset($_POST['munkalapSztornoz'])) {
         exit();
     }
     
+    // Anyagfelhasználás ellenőrzése
+    $van_felh_anyag = $adatbazis_kapcsolat->s('recid', 'munkalap_anyag', "`munkalap_id`='{$recid}'", '', '1');
+    if($van_felh_anyag){
+        echo json_encode(array(
+            'hiba'  => 'Ehhez a munkalaphoz rögzítettek anyagfelhasználást.<br>Nem lehet sztornózni!',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'");
+    if( $munkalap === false ) { $db_error = true; }
+
+    // Státusz ellenőrzése
+    if( $munkalap['stat_id'] != MUNKALAP_STAT_NYITOTT ) {
+        echo json_encode(array(
+            'hiba'  => 'Csak nyitott státuszú munkalapokat lehet sztornózni!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if(!_jog(JOG_MUNKALAP_NYITOTT_KEZEL)){
+        echo json_encode(array(
+            'hiba'  => 'Nincs joga munkalapot sztornózni!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+            
     // Nézzük meg, hogy a munkalaphoz tartozó bejelentésnek hány munkalapja van
     $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
     if( $bejelentes === false ) { $db_error = true; }
@@ -5531,7 +5570,7 @@ require('selectek.php');
                     <div class="muv">
                         <ul>
                             <li'.$szemelyzet_id_rejt[KULSO_KIVITELEZO].'>
-                                <a>Előkészítés</a>
+                                <a class="tovabbi_menu">Előkészítés</a>
                                 <ul>
                                     '.$szemelyzet_tipusok.'
                                 </ul>
@@ -5739,7 +5778,12 @@ require('selectek.php');
         
         // Sztornó: Nyitott státusz + nyitottak kezelése jog
         if( $sor['stat_id']==MUNKALAP_STAT_NYITOTT && _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ){
-            $gombok .= '<input type="button" class="gomb piros" value="Sztornó" onclick="csoportMuvelet(\'munkalapSztornoz\');"> ';
+            $onclick = 'csoportMuvelet(\'munkalapSztornoz\');';
+            $van_felh_anyag = $adatbazis_kapcsolat->s('recid', 'munkalap_anyag', "`munkalap_id`='{$_GET['id']}'", '', '1');
+            if($van_felh_anyag){
+                $onclick = 'alert2(\''.$sor['ikt_szam'].'<br>Ehhez a munkalaphoz rögzítettek anyagfelhasználást.<br>Nem lehet sztornózni!\', \'\', \'Hiba\');';
+            }
+            $gombok .= '<input type="button" class="gomb piros" value="Sztornó" onclick="'.$onclick.'"> ';
         }
 
         // Megrendelés alatt

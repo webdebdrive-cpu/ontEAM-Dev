@@ -336,6 +336,19 @@ div.kijeloltek_muv div.muv li a:hover {
     text-decoration: none;
 }
 
+div.kijeloltek_muv div.muv li a.tovabbi_menu:after {
+    border: 0.1rem solid #3e484a;
+    border-bottom: 0;
+    border-left: 0;
+    content: '';
+    height: 0.6rem;
+    position: absolute;
+    transform: rotate(45deg);
+    top: 1.6rem;
+    right: 1rem;
+    width: 0.6rem;
+}
+
 #kmCont {
     display: inline-block;
     margin: 0 -0.2rem 0 0;

@@ -49,9 +49,9 @@ $jogosultsagok = array(
     77 => array('nev' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mobil',      'kat' => 1, 'sor' => 13 ),
     78 => array('nev' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Külsős',     'kat' => 1, 'sor' => 14 ),
     23 => array('nev' => 'Igazolás',                                        'kat' => 1, 'sor' => 15 ),
-    24 => array('nev' => 'Vizsgálat',                                       'kat' => 1, 'sor' => 16 ),
-    37 => array('nev' => 'Külsős: előkészítés',                             'kat' => 1, 'sor' => 17 ),
-    83 => array('nev' => 'Várakoztatás',                                    'kat' => 1, 'sor' => 18  ),
+    83 => array('nev' => 'Várakoztatás',                                    'kat' => 1, 'sor' => 16  ),
+    24 => array('nev' => 'Vizsgálat',                                       'kat' => 1, 'sor' => 17 ),
+    37 => array('nev' => 'Külsős: előkészítés',                             'kat' => 1, 'sor' => 18 ),
     34 => array('nev' => 'Külsős jóváhagyás',                               'kat' => 1, 'sor' => 19 ),
     67 => array('nev' => 'Külsős: megrendelés készítése',                   'kat' => 1, 'sor' => 20 ),
     

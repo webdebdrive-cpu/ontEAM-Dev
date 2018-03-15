@@ -21,6 +21,7 @@ $ertesitesek = array(
     1  => array('nev' => 'Bejelentés elutasításakor',                                                   'kat' => 0, 'sor' => 1, 'i' => 'elutasítva'     ),
     2  => array('nev' => 'Bejelentés reklamáció elutasításakor',                                        'kat' => 0, 'sor' => 2, 'i' => 'lezárt'         ),
     3  => array('nev' => 'Bejelentés igazolás elutasításakor',                                          'kat' => 0, 'sor' => 3, 'i' => 'vizsgálat alatt'),
+    13 => array('nev' => 'Bejelentés várakoztatásakor',                                                 'kat' => 0, 'sor' => 4, 'i' => 'várakozó'),
 
     4  => array('nev' => 'Munkalap készrejelentésekor,<br>ha hozzárendelt személyzet mobil vagy külsős','kat' => 1, 'sor' => 1, 'i' => 'igazolásra vár'     ),
     5  => array('nev' => 'Munkalap vizsgálat utáni lezárása után',                                      'kat' => 1, 'sor' => 2, 'i' => 'lezárt'             ),
