@@ -124,7 +124,7 @@ if (isset($_GET['csv'])) {
             $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs_arch', "`munkalap_id`='{$sorok['Id']}'");
             $bejelentes = $adatbazis_kapcsolat->s2('hiba_id insert_dt', 'bejelentes_arch', "`recid`='{$bejelentes['bejelentes_id']}'");
             foreach( $sorok as $kulcs => $sor ) {
-                
+
                 if($kulcs=='Id'){
                     continue;
                 }
@@ -254,12 +254,12 @@ require('selectek.php');
             fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
         );
     }
-    
+
     $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     // Hibaüzeneteknek készítünk két hidden inputot, ami midnig elérhető lesz
     $szamla_html .= '<div class="dn" id="ikt_szam_hibauzibe">'.$sor['ikt_szam'].'</div>';
     $szamla_html .= '<div class="dn" id="telephely_hibauzibe">'. getErtek('nev', 'telephely', 'id', $sor['telephely_id']).'</div>';
-                
+
     // Gombok nincsenek
     $gombok = '';
 
@@ -596,6 +596,11 @@ require('selectek.php');
 
         $szamla_html .= get_tortenet($megnevezes);
 
+        // Műveletek box
+        $gombok = nl2('
+            <div class="muveletek"></div>
+        ');
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html.$gombok
@@ -738,7 +743,7 @@ if( !$_GET['ajax'] ) {
 // Kezelés jogot visszaadó függvény (felvéve státusz alatt)
 function get_kezeles_jog($szemelyzet_id){
     $kezeles_jog = false;
-    if( 
+    if(
             ( _jog(JOG_MUNKALAP_SAJAT_KEZEL)        && $szemelyzet_id == $_SESSION[get_db_tabla().'szemelyzet_id'] ) ||
             ( _jog(JOG_MUNKALAP_KEZEL_TELEPITETT)   && $szemelyzet_id == TELEPITETT_SZEMELYZET )                     ||
             ( _jog(JOG_MUNKALAP_KEZEL_MOBIL)        && $szemelyzet_id == MOBILCSOPORT          )                     ||

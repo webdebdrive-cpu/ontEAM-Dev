@@ -146,7 +146,7 @@
                 });
 
                 sticky.css({
-                    'position'  : 'fixed',
+                    'position'  : 'absolute',
                     'top'       : '0',
                     'z-index'   : '10'
                 });
@@ -163,7 +163,7 @@
 
                     if( scrollTop > parentOffset.top ) {
                         $(this).find('thead.sticky').removeClass('dn').css({
-                            'top': '0'
+                            'top': scrollTop - parentOffset.top
                         });
                     } else {
                         $(this).find('thead.sticky').addClass('dn');

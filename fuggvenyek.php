@@ -260,7 +260,7 @@ function i_u($type, $tabla, $tomb) {
             $sorszam  = get_iktatoszam_sorszam($tabla);
             if($sorszam===false){ $db_error = true; }
             $ikt_szam = date('y').'/'.sprintf('%07d', $sorszam);
-            
+
             // Felvesszük az értékek közé
             $i = 0;
             foreach($oszlopok as $oszl){
@@ -2052,7 +2052,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             }
 
             $where .= get_szures_where_kieg($_GET['mezo'], $_GET['op'], $_GET['felt'], $tabla).' AND ';
-            
+
         }
 
         // Ha van öszetettt szűrés feltétel
@@ -2779,7 +2779,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         }
 
         if( !$frissit ) {
-            
+
             $stat_select = '';
             $statuszok_abc = array();
             $statuszok = $adatbazis_kapcsolat->s('distinct stat_id', $tabla, "`stat_id`!=''");
@@ -4115,7 +4115,7 @@ function cikktorzsLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
-            
+
             $szakter = erteklista(ERTEKLISTA_SZAKTER, $bsz['szakter_id']);
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -5809,7 +5809,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
     $cimzett_mail = '';
     $cimzett_nev  = '';
 
-    
+
     // Kinek menjen a mail? Egy $cimzettek tömböt kell előállítani.
     // Illetve az üzenet törzse is itt kerül beállításra
     switch($cimzett){
@@ -5844,16 +5844,16 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         case 'diszpecser_kozponti':
 
             $bejelentes     = $adatbazis_kapcsolat->s2('ikt_szam usr_nev usr_email usr_telefon stat_id telephely_id obj_id loginnev insert_dt hiba_id', $tabla, "`recid`='{$recid}'");
-            
+
             $munkalapszamok = '';
             $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$recid}'");
             foreach($munkalapok as $munkalap){
                 $munkalap = $adatbazis_kapcsolat->s2('ikt_szam', 'munkalap', "`recid`='{$munkalap['munkalap_id']}'");
                 $munkalapszamok .= '<br>Munkalapszám: '.$munkalap['ikt_szam']."\r\n";
             }
-            
+
             $bejelentes['insert_dt'] = str_replace('-', '.', $bejelentes['insert_dt']);
-            
+
             $mit            = array('{MUNKALAPSZAMOK}', '{IKT_SZAM}',            '{SZALLODA}',                                                    '{INS_DT}',                '{HIBA}',                                                        '{OBJ}'                                                 );
             $mivel          = array($munkalapszamok,    $bejelentes['ikt_szam'], getErtek('nev', 'telephely', 'id', $bejelentes['telephely_id']),  $bejelentes['insert_dt'], getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']), getErtek('nev', 'obj', 'recid', $bejelentes['obj_id'])  );
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$sablon.'.html') );
@@ -5976,9 +5976,9 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         break;
 
         case 'bejelentes_torolve':
-            
+
             $bejelentes = $adatbazis_kapcsolat->s2('ikt_szam', $tabla, "`recid`='{$recid}'");
-            
+
             $esemeny =  'bejelentés törlésekor';
             $targy   =  get_nev().' '.$bejelentes['ikt_szam'].' hibabejelentést törölték';
             $uzi     =  $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
@@ -6056,7 +6056,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         $targy_kieg = '[Teszt email]';
         $uzi_kieg   = '[Teszt email]<br><br>';
     }
-    
+
     foreach($cimzettek as $akt_cimzett){
 // Teszteléshez
 //$tmp = $adatbazis_kapcsolat->s2('usermail', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
@@ -6113,7 +6113,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
     if(!$akt_cimzett['usermail']){
         $megj = 'A felhasználónak nincs e-mail címe, ezért a következő esemény nem következett be:<br>'.$megj;
     }
-    
+
     // Ha van megejgyzés, akkor azt hozzáadjuk
     if($megj){
         // Megjegyzés hozzáadása

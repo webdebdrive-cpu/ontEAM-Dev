@@ -1070,8 +1070,8 @@ $(function() {
                 }
             });
         } else {
-            
-            /* Ha lefutott az ajax, akkor gondolskojunk róla, hogy csak egy sor legyen kijelölve a bal oldali nav panelben. */ 
+
+            /* Ha lefutott az ajax, akkor gondolskojunk róla, hogy csak egy sor legyen kijelölve a bal oldali nav panelben. */
             if( !request_in_process ) {
                 /* Anyagigénylés alatt ezt mégsem tesszük meg, mert ott több sor kijelölése engedélyezett. Sőt ha engedélyezve lenne más menüpont alatt is a több kijelölés, csoportosítás, akkor azt szintén fel kellene venni itt kivételbe. */
                 if( baseName(location.href) != 'anyagigenyles' ){
@@ -1543,6 +1543,62 @@ $(function() {
         fulGombMeretez();
     });
 });
+
+function sendMail( that, file ) {
+    szamlaSorok = $('.szamla_cont_tabla tr.kijelolve');
+
+    idk = {};
+
+    var i = 1;
+    szamlaSorok.each(function() {
+        var id = $(this).attr('data-recid');
+
+        idk[i] = id;
+        i++;
+    });
+
+    if( file ) {
+        var onclick, hiba = false;
+
+        getMailto = $.ajax({
+         	url : 'esemenyek.php',
+         	type: 'GET',
+            async: false,
+         	data: {
+                idk         : JSON.stringify(idk),
+                file        : file,
+                id          : _get('id'),
+                sendMail    : new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+         			response = JSON.parse(response);
+
+         			if( response.hiba ) {
+         				alert2(response.hiba);
+                        hiba = true;
+         				return false;
+         			}
+
+                    var mailto_link = 'mailto: ?subject=' + response.subject + '&body=' + response.html;
+                    $(that).attr('href', mailto_link);
+
+                    onclick = $(that).attr('onclick');
+                    $(that).removeAttr('onclick');
+         		}
+         	}
+        });
+
+        $.when(getMailto).then(function() {
+            if( !hiba ) {
+                $(that)[0].click();
+                $(that).attr('onclick', onclick).removeAttr('href');
+            }
+        });
+    }
+
+    return false;
+}
 
 function fulGombMeretez() {
     if( $('div.muveletek').length ) {

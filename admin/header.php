@@ -123,7 +123,7 @@ if( _jog(JOG_BEJELENTES_MEGTEKINT) || _jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     $menu_nev_kis    = 'bejelentések';
     $menu_nev_tobbes = 'Bejelentések';
     $megn            = 'bejelentes';
-    
+
     $menu_nev2        = 'Archív bejelentések';
     $menu_nev_kis2    = 'bejelentések';
     $menu_nev_tobbes2 = 'Bejelentések';
@@ -163,7 +163,7 @@ if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(J
     $menu_nev_kis    = 'munkák';
     $menu_nev_tobbes = 'Munkák';
     $megn            = 'munkalap';
-    
+
     $menu_nev2        = 'Archív munkalapok';
     $menu_nev_kis2    = 'archív munkalapok';
     $menu_nev_tobbes2 = 'Archív munkalapok';
@@ -709,7 +709,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     // Rendezés
     $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
     $rend_mezok = adatbazis2tomb($rend_mezok, 'column_name');
-    
+
     $rendezes = '';
     $i = 1;
     foreach($rend_mezok as $rend_mezo) {
@@ -787,7 +787,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
         exit;
     }
 
-    // Új ikonra kattintva mi történik 
+    // Új ikonra kattintva mi történik
     // FONTOS! Az admin.js-ben is be kell állítani, hogy az ajaxos frissítések után is működjenek ezek a beállítások, ne csak hard betöltéskor.
     $keresodn = '';
     if( isset($_GET['szakterulet']) ) {
@@ -949,7 +949,7 @@ if( isset($_GET['uj']) ) {
     $uj_dis = ' disabled';
 }
 
-$belepve = nl2(' 
+$belepve = nl2('
     <div class="dtc link f25" style="border-right: 0.1rem solid #e9e9e9; padding-right: 1rem; padding-left: 1rem" onclick="window.open(\'../'.get_utvonal().'Hibabejelentes_az_ontEAM_rendszerben.pdf\')">
         ?
     </div>
@@ -991,6 +991,15 @@ $duplikal  = nl2('
         </a>
     ');
 
+$mail = '';
+if( (basename(self())=='munkalap.php' && _jog(JOG_MUNKALAP_NYITOTT_KEZEL)) || (basename(self())=='anyagigenyles.php' && _jog(JOG_ANYAGREND_KESZIT)) ) {
+    $mail  = nl2('
+            <a id="sendMail" onclick="sendMail( this, \''.basename(self()).'\' );" class="mail" title="E-mail">
+                <i class="material-icons">mail</i>
+            </a>
+        ');
+}
+
 // Archiv táblákat nem lehet törölni, újat feltölteni
 $tabla_nev = basename(self());
 if( substr($tabla_nev, strlen($tabla_nev)-9) == '_arch.php' ){
@@ -1016,6 +1025,7 @@ if( basename(self()) == 'anyagigenyles.php' && !isset($_GET['megjegyzesek']) && 
 if(basename(self())=='bejelentes.php' && (!_jog(JOG_BEJELENTES_KEZEL)) && !_jog(JOG_BEJELENTES_MAS_NEVEBEN)){
     $uj = $duplikal = '';
 }
+
 if(basename(self())=='bejelentes.php' && !_jog(JOG_BEJELENTES_TORLESE)){
     $torles_icon    = '';
 }
@@ -1079,7 +1089,7 @@ if(basename(self())=='munkalap.php'){
     }
 }
 
-// Ütemezett feladatok 
+// Ütemezett feladatok
 if(basename(self())=='utemezett_feladatok.php' && !_jog(JOG_UTFEL_KEZEL) ){
     $uj = $duplikal = '';
 }
@@ -1102,11 +1112,11 @@ if( basename(self())=='raktar.php' && !_jog(JOG_RAKTAR_KEZEL)){
     $uj = $duplikal = '';
 }
 
-// Rendszeres karbantartás 
+// Rendszeres karbantartás
 if(basename(self())=='rendszeres_karbantartas.php' && !_jog(JOG_RENDSZ_KARB_KEZEL) ){
     $uj = $duplikal = '';
 }
-// Rendszeres karbantartás 
+// Rendszeres karbantartás
 if(basename(self())=='rendszeres_karbantartas.php' && !_jog(JOG_RENDSZ_KARB_TOROL) ){
     $torles_icon    = '';
 }
@@ -1189,8 +1199,8 @@ $get_get = get_get(array('pdf'));
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CACHE}',        '{CSS}', '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{UJ}', '{DUPLIKAL}', '{TORLES}',   '{CSUSZKADN}', '{RENDEZES_REJT}' ),
-    array('?cache='.time(), $css,     get_nev(),  $menuk,   $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $uj,    $duplikal,    $torles_icon, $csuszkadn,    $rendezes_rejt    ),
+    array('{CACHE}',        '{CSS}', '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{UJ}', '{DUPLIKAL}', '{TORLES}',   '{CSUSZKADN}', '{RENDEZES_REJT}', '{MAIL}' ),
+    array('?cache='.time(),  $css,    get_nev(),  $menuk,    $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $uj,    $duplikal,    $torles_icon, $csuszkadn,    $rendezes_rejt,    $mail   ),
     $header_sablon
 );
 
@@ -1222,7 +1232,7 @@ $header_html .= nl2('
 echo $header_html.fajlbol_olvas('../sablon/admin/js_beagyazasok.html', true);
 
 if( $_SESSION[get_db_tabla().'login_recid'] ) {
-    
+
     $felirat = '<h1 style="font-size: 2rem">Bejelentkezés</h1>';
 
     echo str_replace(
@@ -1232,7 +1242,7 @@ if( $_SESSION[get_db_tabla().'login_recid'] ) {
     );
 
     echo fajlbol_olvas('../sablon/admin/popup.html');
-    
+
 } elseif( $_SESSION['nincs_jelsz'] && $_SESSION['nincs_jelsz_felhid'] ) {
 
     $_SESSION['kert_url'] = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
@@ -1253,9 +1263,9 @@ if( $_SESSION[get_db_tabla().'login_recid'] ) {
     $mit   = array('{FELIRAT}', '{SELF}'        );
     $mivel = array( $felirat,   'beleptetes.php');
     echo str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/nincs_jelszo.html', 1));
-    
+
 } else {
-    
+
     $_SESSION['kert_url'] = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 
     $felirat = '';

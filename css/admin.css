@@ -2257,6 +2257,10 @@ div.navGombok a.pdf .material-icons {
     font-size: 1.8rem;
 }
 
+div.navGombok a.mail .material-icons {
+    font-size: 1.8rem;
+}
+
 div.navGombok a.nyomtat .material-icons {
     font-size: 1.8rem;
 }
@@ -3187,5 +3191,6 @@ ul.dropItem li.ui-sortable-helper {
 
 div.tableCont {
     overflow-x: auto;
+    position: relative;
     width: 98rem;
 }
