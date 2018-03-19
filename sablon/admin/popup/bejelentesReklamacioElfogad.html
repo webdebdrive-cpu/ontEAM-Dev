@@ -1,0 +1,88 @@
+<h2>Reklamáció elfogadása</h2>
+<div class="kozep">
+    <div id="rekl_elfogad_ml_ok"></div>
+</div>
+<div class="kuldes" style="padding: 0.5rem 1rem 0.0rem 1rem">
+    <input type="button" class="gomb zold" value="Új munkalap nyitása" onclick="bejelentesReklamacioElfogad();">
+    <input type="button" class="gomb zold" value="Munkalapok folytatása" onclick="munkalapokFolytat();">
+    <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
+</div>
+<script>
+$(document).ready(function(){
+    $.ajax({
+        url : 'bejelentes.php',
+        type: 'POST',
+        data: {
+            recid               : _get('id'),
+            rekl_elfogad_ml_ok  : Date.now()
+        },
+        success: function(response){
+            $('#rekl_elfogad_ml_ok').html(response);
+        }
+    });
+});
+
+
+/* Bejelentés reklamáció elfogadása */
+function bejelentesReklamacioElfogad(csak_kerdezunk) {
+
+    if(balnav_kijelol_ell()){
+
+        alert2();
+
+        $.ajax({
+            url : 'bejelentes.php',
+            type: 'POST',
+            data: {
+                recid                       : _get('id'),
+                csak_kerdezunk              : csak_kerdezunk,
+                bejelentesReklamacioElfogad : new Date().getTime()
+            },
+            success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaSorFrissit('bejelentes', _get('id'));
+                    betoltve = szamlaBetolt(_get('id'), 'bejelentes.php', 'modosit');
+                    $.when(betoltve).then(function() {
+                        /*alert2('Kíván új munkalapot nyitni?', '<input type="button" class="gomb zold" value="Igen" onclick="munkalapKeszit()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');*/
+                        munkalapKeszit();
+                    });
+                }
+            }
+        });
+
+    }
+    return false;
+}
+
+/* Munkalapok folytatása státusz mentéssel */
+function munkalapokFolytat(){
+    
+    /* Munkalap ID és státuszok összeszedése egy tömbbe */
+    var ml_statok = {};
+    $('.rekl_elfogad_ml_stat').each(function() {
+        ml_statok[$(this).attr('data-id')] = $(this).val();
+    });
+    
+    $.ajax({
+        url : 'bejelentes.php',
+        type: 'POST',
+        data: {
+            recid               : _get('id'),
+            ml_statok           : JSON.stringify(ml_statok),
+            munkalapokFolytat   : Date.now()
+        },
+        success: function(response){
+            
+        }
+    });
+
+}
+</script>

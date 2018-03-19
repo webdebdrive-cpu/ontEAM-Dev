@@ -5136,8 +5136,8 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 
             // Beszúrjuk az újat
             $sql = $adatbazis_kapcsolat -> i($tabla,
-                                                array($kulso_kulcs.'_recid', 'stat_id', 'erteklista_recid', 'text',  'insert_dt',   'insert_usr',  'update_usr' ),
-                                                array($recid,                $stat_id,  $erteklista_recid,  $memo,   'NOW()',       $teljes_nev,   $teljes_nev  )
+                                                array($kulso_kulcs.'_recid', 'stat_id', 'erteklista_recid', 'text',  'login',                           'insert_dt',   'insert_usr',  'update_usr' ),
+                                                array($recid,                $stat_id,  $erteklista_recid,  $memo,   $_SESSION[get_db_tabla().'user'],  'NOW()',       $teljes_nev,   $teljes_nev  )
                                             );
             if( $sql === false ) { $db_error = true; }
 //echo $adatbazis_kapcsolat->gp() . '<br>';

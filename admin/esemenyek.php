@@ -2243,6 +2243,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 //{KOVETKEZO_TOMB}
 
 
+// Mailto tartalmának kigenerálása a felső ikonsorhoz.
 if( isset($_GET['sendMail']) ) {
     $file = $_GET['file'];
     $id   = $_GET['id'];
@@ -2253,104 +2254,110 @@ if( isset($_GET['sendMail']) ) {
 
         switch($file) {
             case 'munkalap.php':
-                $subject = 'Munkalap #'.$id;
+                
+                if( _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ){
+                    $subject = 'Munkalap #'.$id;
 
-                if( $munkalap = $adatbazis_kapcsolat->s2('*', 'munkalap', "`recid` = '{$id}'", '', '') ) {
-                    foreach($munkalap_tomb as $tomb) {
-                        $return .= $tomb['megn'];
+                    if( $munkalap = $adatbazis_kapcsolat->s2('*', 'munkalap', "`recid` = '{$id}'") ) {
+                        foreach($munkalap_tomb as $tomb) {
+                            $return .= $tomb['megn'];
 
-                        switch($tomb['name']) {
-                            case 'stat_id':
-                                $statusz_sor = $adatbazis_kapcsolat->s2('stat_id', $tabla, "`recid` = '{$id}'");
+                            switch($tomb['name']) {
+                                case 'stat_id':
+                                    $statusz_sor = $adatbazis_kapcsolat->s2('stat_id', $tabla, "`recid` = '{$id}'");
 
-                                $statusz = getStatText($tomb['oldal'], $statusz_sor['stat_id']);
-                                $munkalap[$tomb['name']] = $statusz;
-                            break;
+                                    $statusz = getStatText($tomb['oldal'], $statusz_sor['stat_id']);
+                                    $munkalap[$tomb['name']] = $statusz;
+                                break;
 
-                            case 'surgos':
-                            case 'visszaadva':
-                                if( $munkalap[$tomb['name']] ) {
-                                    $munkalap[$tomb['name']] = 'igen';
-                                } else {
-                                    $munkalap[$tomb['name']] = 'nem';
-                                }
-                            break;
+                                case 'surgos':
+                                case 'visszaadva':
+                                    if( $munkalap[$tomb['name']] ) {
+                                        $munkalap[$tomb['name']] = 'igen';
+                                    } else {
+                                        $munkalap[$tomb['name']] = 'nem';
+                                    }
+                                break;
 
-                            case 'telephely_id':
-                                $munkalap[$tomb['name']] = getErtek('nev', 'telephely', 'id', $munkalap[$tomb['name']]);
-                            break;
+                                case 'telephely_id':
+                                    $munkalap[$tomb['name']] = getErtek('nev', 'telephely', 'id', $munkalap[$tomb['name']]);
+                                break;
 
-                            case 'obj_id':
-                                $munkalap[$tomb['name']] = getErtek('nev', 'obj', 'recid', $munkalap[$tomb['name']]);
-                            break;
+                                case 'obj_id':
+                                    $munkalap[$tomb['name']] = getErtek('nev', 'obj', 'recid', $munkalap[$tomb['name']]);
+                                break;
 
-                            case 'gep_id':
-                                $munkalap[$tomb['name']] = getErtek('nev', 'eszkozkezeles', 'recid', $munkalap[$tomb['name']]);
-                            break;
+                                case 'gep_id':
+                                    $munkalap[$tomb['name']] = getErtek('nev', 'eszkozkezeles', 'recid', $munkalap[$tomb['name']]);
+                                break;
 
-                            case 'tipus_id':
-                                $munkalap[$tomb['name']] = erteklista(ERTEKLISTA_MUNKALAP_TIP, $munkalap[$tomb['name']]);
-                            break;
+                                case 'tipus_id':
+                                    $munkalap[$tomb['name']] = erteklista(ERTEKLISTA_MUNKALAP_TIP, $munkalap[$tomb['name']]);
+                                break;
 
-                            case 'szallito_id':
-                                $munkalap[$tomb['name']] = getErtek('nev', 'szallito', 'recid', $munkalap[$tomb['name']]);
-                            break;
+                                case 'szallito_id':
+                                    $munkalap[$tomb['name']] = getErtek('nev', 'szallito', 'recid', $munkalap[$tomb['name']]);
+                                break;
 
-                            case 'szemelyzet_id':
-                                $munkalap[$tomb['name']] = getErtek('nev', 'szerepkor', 'recid', $munkalap[$tomb['name']]);
-                            break;
+                                case 'szemelyzet_id':
+                                    $munkalap[$tomb['name']] = getErtek('nev', 'szerepkor', 'recid', $munkalap[$tomb['name']]);
+                                break;
+                            }
+
+                            $return .= ' '.$munkalap[$tomb['name']].'%0D%0A';
                         }
-
-                        $return .= ' '.$munkalap[$tomb['name']].'%0D%0A';
                     }
                 }
             break;
 
             case 'anyagigenyles.php':
-                $subject = 'Anyagigénylések';
+                if( _jog(JOG_ANYAGREND_KESZIT) ){
+                    $subject = 'Anyagigénylések';
 
-                $idk = json_decode($_GET['idk'], true);
+                    $idk = json_decode($_GET['idk'], true);
 
-                if( count($idk) ) {
-                    foreach($idk as $id) {
-                        if( $angyagigenyles = $adatbazis_kapcsolat->s2('*', 'anyagigenyles', "`recid` = '{$id}'", '', '') ) {
-                            foreach($anyagigenyles_tomb as $tomb) {
-                                $return .= strip_tags($tomb['megn']);
+                    if( count($idk) ) {
+                        foreach($idk as $id) {
+                            if( $angyagigenyles = $adatbazis_kapcsolat->s2('*', 'anyagigenyles', "`recid` = '{$id}'") ) {
+                                foreach($anyagigenyles_tomb as $tomb) {
+                                    $return .= strip_tags($tomb['megn']);
 
-                                switch($tomb['name']) {
-                                    case 'stat_id':
-                                        $statusz_sor = $adatbazis_kapcsolat->s2('stat_id', $tabla, "`recid` = '{$id}'");
+                                    switch($tomb['name']) {
+                                        case 'stat_id':
+                                            $statusz_sor = $adatbazis_kapcsolat->s2('stat_id', $tabla, "`recid` = '{$id}'");
 
-                                        $statusz = getStatText($tomb['oldal'], $statusz_sor['stat_id']);
-                                        $angyagigenyles[$tomb['name']] = $statusz;
-                                    break;
+                                            $statusz = getStatText($tomb['oldal'], $statusz_sor['stat_id']);
+                                            $angyagigenyles[$tomb['name']] = $statusz;
+                                        break;
 
-                                    case 'telephely_id':
-                                        $angyagigenyles[$tomb['name']] = getErtek('nev', 'telephely', 'id', $angyagigenyles[$tomb['name']]);
-                                    break;
+                                        case 'telephely_id':
+                                            $angyagigenyles[$tomb['name']] = getErtek('nev', 'telephely', 'id', $angyagigenyles[$tomb['name']]);
+                                        break;
 
-                                    case 'kcs_21':
-                                        $angyagigenyles[$tomb['name']] = erteklista(21, $angyagigenyles[$tomb['name']]);
-                                    break;
+                                        case 'kcs_21':
+                                            $angyagigenyles[$tomb['name']] = erteklista(21, $angyagigenyles[$tomb['name']]);
+                                        break;
 
-                                    case 'szallito_id':
-                                        $angyagigenyles[$tomb['name']] = getErtek('nev', 'szallito', 'id', $angyagigenyles[$tomb['name']]);
-                                    break;
+                                        case 'szallito_id':
+                                            $angyagigenyles[$tomb['name']] = getErtek('nev', 'szallito', 'id', $angyagigenyles[$tomb['name']]);
+                                        break;
+                                    }
+
+                                    $return .= ' '.$angyagigenyles[$tomb['name']].'%0D%0A';
                                 }
-
-                                $return .= ' '.$angyagigenyles[$tomb['name']].'%0D%0A';
                             }
+
+                            $return .= '%0D%0A';
                         }
+                    } else {
+                        echo json_encode(array(
+                            'hiba'  => 'Kérem jelöljön ki sorokat!',
+                            'title' => 'Hiba',
+                        ));
 
-                        $return .= '%0D%0A';
+                        $weblap->leallit();
+                        exit();
                     }
-                } else {
-                    echo json_encode(array(
-                        'hiba' => 'Kérem jelöljön ki sorokat!'
-                    ));
-
-                    $weblap->leallit();
-                    exit();
                 }
             break;
         }

@@ -18,7 +18,7 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
-
+/*
 // Státusz idők rendbetétele
 if (isset($_GET['stat_ido'])) {
     $tablak = array('anyagigenyles_statusz', 'bejelentes_statusz', 'bejelentes_statusz_arch', 'cikkrendfej_statusz', 'eloterj_bod_statusz', 'eloterj_fb_statusz', 'munkalap_statusz', 'munkalap_statusz_arch', 'projektigenyles_statusz', 'projektigenyles_statusz_arch', 'projektkezeles_statusz');
@@ -32,8 +32,9 @@ if (isset($_GET['stat_ido'])) {
         }
     }
     echo 'f';
-}
+}*/
 
+/*
 // Loginról értesítő levelek küldése
 if (isset($_GET['login_ertesit'])) {
 
@@ -59,8 +60,9 @@ Tisztelt '.$login['teljes_nev'].'!
     }
     exit;
 }
+*/
 
-
+/*
 if (isset($_GET['trans'])) {
 
 
@@ -81,24 +83,34 @@ if (isset($_GET['trans'])) {
         $eredmen = mysqli_query($db_kapcs, 'COMMIT');
     }
 }
+*/
 
 // Ha egy tálbának utólag adsz egy loginnev nevű oszlopnevet
 if (isset($_GET['loginnev_gyart'])) {
 
-    $tabla = 'munkalap';
+    // $tabla = 'munkalap';
+    // Több táblát is bejárunk
+    $tablak = array('anyagigenyles_statusz', 'bejelentes_statusz', 'bejelentes_statusz_arch', 'cikkrendfej_statusz', 'eloterj_bod_statusz', 'eloterj_fb_statusz', 'munkalap_statusz', 'munkalap_statusz_arch', 'projektigenyles_statusz', 'projektigenyles_statusz_arch', 'projektkezeles_statusz');
+    foreach($tablak as $tabla){
+        
+        $sorok = $adatbazis_kapcsolat->s('recid insert_usr', $tabla, "`login`=''");
+        foreach($sorok as $sor){
 
-    $sorok = $adatbazis_kapcsolat->s('recid insert_usr', $tabla);
-    foreach($sorok as $sor){
-        $loginnev = $adatbazis_kapcsolat->s('nev', 'login', "`teljes_nev`='{$sor['insert_usr']}'");
-        $loginnev = $loginnev[0]['nev'];
+            $loginnev = $adatbazis_kapcsolat->s2('nev', 'login', "`teljes_nev`='{$sor['insert_usr']}'");
+            $loginnev = $loginnev['nev'];
 
-        $adatbazis_kapcsolat->u($tabla, array('loginnev'), array($loginnev), "`recid`='{$sor['recid']}'");
+            $adatbazis_kapcsolat->u($tabla, array('login'),
+                                            array($loginnev),
+                                        "`recid`='{$sor['recid']}'");
 echo $adatbazis_kapcsolat->gp() . '<br>';
+        }
+        
     }
 
     exit;
 }
 
+/*
 // Anyagigénylés speciálisabb volt
 if (isset($_GET['loginnev_gyart_anyagigenyles'])) {
 
@@ -114,8 +126,9 @@ if (isset($_GET['loginnev_gyart_anyagigenyles'])) {
 
     exit;
 }
+*/
 
-
+/*
 // Státusz feltöltés, ha csak az adott bejegyzés státusza volna kitöltve és tröténet tábla még nem
 if (isset($_GET['statusz_fetlolt'])) {
     $tabla = 'anyagigenyles';
@@ -128,7 +141,9 @@ if (isset($_GET['statusz_fetlolt'])) {
 
     exit;
 }
+*/
 
+/*
 // Felhasználókból karbantartjuk a törzsadatokat
 if (isset($_GET['felh2torzs'])) {
     //Felhasználóból személyzet gyártása
@@ -164,7 +179,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
         }
     }
 }
-
+*/
 
 require_once('header.php');
 require_once('footer.php');

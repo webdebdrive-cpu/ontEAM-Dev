@@ -20,18 +20,18 @@ mysqli_query($db_kapcs, 'TRUNCATE '. get_db_tabla().'munkalap_14var;');
 $log .= 'TRUNCATE '. get_db_tabla().'munkalap_14var;'."\r\n";
 
 // 15 napja várakozó munkalapok kiszámítása és letárolása egy ideiglenes táblába
-$varakozok = $adatbazis_kapcsolat->s('munkalap_recid text insert_dt insert_usr', 'munkalap_statusz', "`stat_id`='".MUNKALAP_STAT_VARAKOZO."' AND `insert_dt`<'".date('Y-m-d H:i:s', time()-60*60*24*15)."'");
+$varakozok = $adatbazis_kapcsolat->s('munkalap_recid, text, login, insert_dt, insert_usr', 'munkalap_statusz', "`stat_id`='".MUNKALAP_STAT_VARAKOZO."' AND `insert_dt`<'".date('Y-m-d H:i:s', time()-60*60*24*15)."'");
 $log .= $adatbazis_kapcsolat->gp()."\r\n";
+
 foreach($varakozok as $varakozo){
-    
     $munkalap = $adatbazis_kapcsolat->s2('recid telephely_id', 'munkalap', "`recid`='{$varakozo['munkalap_recid']}'");
     $log .= $adatbazis_kapcsolat->gp()."\r\n";
 
         
     $szalloda_nev = getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']);
 
-    $adatbazis_kapcsolat->i('munkalap_14var',   array('munkalap_id',        'telephely_id',             'telephely_nev', 'stat_insert_dt',       'stat_insert_usr',         'indok',           'insert_dt',   'update_dt' ),
-                                                array($munkalap['recid'],   $munkalap['telephely_id'],  $szalloda_nev,   $varakozo['insert_dt'], $varakozo['insert_usr'],   $varakozo['text'], 'NOW()',       'NOW()'     )
+    $adatbazis_kapcsolat->i('munkalap_14var',   array('munkalap_id',        'telephely_id',             'stat_insert_login', 'telephely_nev', 'stat_insert_dt',       'stat_insert_usr',         'indok',           'insert_dt',   'update_dt' ),
+                                                array($munkalap['recid'],   $munkalap['telephely_id'],  $varakozo['login'],  $szalloda_nev,   $varakozo['insert_dt'], $varakozo['insert_usr'],   $varakozo['text'], 'NOW()',       'NOW()'     )
                             );
 
     $log .= $adatbazis_kapcsolat->gp()."\r\n";
@@ -63,11 +63,11 @@ foreach ($loginok as $login){
                 <br>';
         
         // Szálloda és bejelentő neve alapján csoportosítunk/rendezünk
-        $szalloda_bejelento = $adatbazis_kapcsolat->s('DISTINCT `telephely_nev` , `stat_insert_usr`', 'munkalap_14var', "`telephely_id` IN ('".implode('\', \'', $szallodak)."')", 'telephely_nev, stat_insert_usr');
+        $szalloda_bejelento = $adatbazis_kapcsolat->s('DISTINCT `telephely_nev`, `stat_insert_login`, `stat_insert_usr`', 'munkalap_14var', "`telephely_id` IN ('".implode('\', \'', $szallodak)."')", 'telephely_nev, stat_insert_usr');
         foreach($szalloda_bejelento as $szb){
             
-            $bejelento = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`teljes_nev`='{$szb['stat_insert_usr']}'");
-            $szerepkor = getErtek('nev', 'szerepkor', 'id', $bejelento['szemelyzet_id']);
+            $bejelento = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev`='{$szb['stat_insert_login']}'");
+            $szerepkor = getErtek('nev', 'szerepkor', 'recid', $bejelento['szemelyzet_id']);
             
             $uzi .= '<br>Telephely: '.$szb['telephely_nev'].'
                      <br>Várakoztatja: '.$szb['stat_insert_usr'].' '.$szerepkor.'

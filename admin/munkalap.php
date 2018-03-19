@@ -6057,7 +6057,7 @@ require('selectek.php');
                                 <br>'.erteklista(17, $sor['usr_reszleg_id']).'
                                 <br>'.$sor['usr_email'].'
                             </div>
-                            <div class="dtc">'.$sor['insert_dt'].'</div>
+                            <div class="dtc">'.str_replace('-', '.', $sor['insert_dt']).'</div>
                             <div class="dtc">'.getStatText('bejelentes', $sor['stat_id']).'</div>
                             <div class="dtc link">
                                 '.$torles.'

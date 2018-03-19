@@ -661,6 +661,8 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
                         }
 
 						input.on('keydown.xdsoft', function (event) {
+                            
+                            /* Mező tartalmának formázása */
                             if( this.className.indexOf('ora_perc')>-1 ){
                                 this.value = datum_formatumra_formaz_ora(this.value);
                             }else if( this.className.indexOf('datetimepicker')>-1 ){
@@ -668,6 +670,17 @@ Aktiválni az alábbi JS hívással tudod. Ezt a HTML kódban az inputok után h
                             }else{
                                 this.value = datum_formatumra_formaz(this.value);
                             }
+                            
+						});
+
+                        /* Ha kitöröltük egy input értékét, akkor a fenti kód beírja az alapértelmezett értéket, de utna ugorjunk vissza az első karakterre */
+						input.on('keyup.xdsoft', function (event) {
+                            
+                            var akt_input = this;
+                            if(this.value == ''){
+                                setTimeout(function(){ akt_input.setSelectionRange(0,0); }, 1);
+                            }
+                            
 						});
 					}
 				}

@@ -312,6 +312,55 @@ if( isset($_POST['bejelentesIgazolas']) ) {
     exit();
 }
 
+// Bejelentés reklamáció elfogadása előtt a munkalapok kilistázása
+if (isset($_POST['rekl_elfogad_ml_ok'])) {
+    
+    $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_POST['recid']}'");
+    $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
+    if($munkalapok){
+        
+        $html = nl2('
+                    <table class="csikos">
+                    <tr>
+                        <th>Munkalap szám</th>
+                        <th>Szálloda</th>
+                        <th>Létrehozva</th>
+                        <th>Státusz</th>
+                    </tr>
+                    ');
+        $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id stat_id', 'munkalap', "`recid` IN (".implode(', ', $munkalapok).")");
+        foreach($munkalapok as $munkalap){
+            
+            $statusz = '<select class="rekl_elfogad_ml_stat" data-id="'.$munkalap['recid'].'">';
+            foreach( $_stat_text['munkalap'] as $stat_id => $stat ){
+                $selected = '';
+                if( $stat_id==$munkalap['stat_id'] ){
+                    $selected = ' selected';
+                }
+                $statusz .= '<option value="'.$stat_id.'"'.$selected.'>'.$stat['nev'].'</option>';
+            }
+            $statusz .= '</select>';
+            
+            $html .= nl2('
+                        <tr>
+                            <td>'.$munkalap['ikt_szam'].'</td>
+                            <td>'.getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'</td>
+                            <td>'.getStatText('munkalap', $munkalap['stat_id']).'</td>
+                            <td>'.$statusz.'</td>
+                        </tr>
+                        ');
+        }
+        $html .= '</table>';
+        
+        echo $html;
+        
+    }
+    
+    
+    $weblap->leallit();
+    exit();
+}
+
 // Bejelentés reklamáció elfogadása
 if( isset($_POST['bejelentesReklamacioElfogad']) ) {
     $recid = $_POST['recid'];
@@ -380,6 +429,70 @@ if( isset($_POST['bejelentesReklamacioElfogad']) ) {
     exit();
 }
 
+// Bejelentés reklamáció elfogadásánál munkalapok folytatása
+if (isset($_POST['munkalapokFolytat'])) {
+    
+    $recid      = $_POST['recid'];
+    $ml_statok  = json_decode($_POST['ml_statok']);
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+    
+        // Státusz ellenőrzés
+        $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid` = '{$recid}'", '', '1');
+        if( $bejelentes === false ) { $db_error = true; }
+        if( $bejelentes['stat_id'] != BEJELENTES_STAT_VIZSG_ALATT ) {
+            echo json_encode(array(
+                'hiba'  => 'Csak igazolás alatti bejelentést lehet elfogadni!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Jog ellenőrzés
+        if( !_jog(JOG_BEJELENTES_VIZSGAL) ) {
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga reklamációt elfogadni!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+        
+        // Munkalapok státusz léptetései
+        foreach($ml_statok as $ml_recid => $stat){
+            if( !addStatusz( 'munkalap_statusz', $ml_recid, $stat ) ) {
+                $db_error = true;
+            }
+        }
+        
+        // Bejelentés státusz léptetése
+        if( !addStatusz( 'bejelentes_statusz', $recid, BEJELENTES_STAT_FOLYAMATBAN, '', 'Reklamáció elfogadva' ) ) {
+            $db_error = true;
+        }
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
 
 // Bejelentés reklamáció elutasítása
 if( isset($_POST['bejelentesReklamacioElutasit']) ) {
@@ -666,9 +779,9 @@ require_once('selectek.php');
                         ');
         }
 
-        // Reklamációk
+        // Reklamáció elfogad/utasít
         if( $sor['stat_id']==BEJELENTES_STAT_VIZSG_ALATT && _jog(JOG_BEJELENTES_VIZSGAL) ) {
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Reklamáció elfogadása" onclick="bejelentesReklamacioElfogad(\'csak kérdezünk még\');"> ';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Reklamáció elfogadása" onclick="csoportMuvelet(\'bejelentesReklamacioElfogad\');"> ';
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Reklamáció elutasítása" onclick="csoportMuvelet(\'bejelentesReklamacioElutasit\');"> ';
         }
 
@@ -1023,7 +1136,7 @@ require_once('selectek.php');
                         <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                             <div class="dtc">'.$ikt_szam.'</div>
                             <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
-                            <div class="dtc">'.$sor['insert_dt'].'</div>
+                            <div class="dtc">'.str_replace('-', '.', $sor['insert_dt']).'</div>
                             <div class="dtc">'.getStatText('munkalap', $sor['stat_id']).'</div>
                         </div>
                     ');

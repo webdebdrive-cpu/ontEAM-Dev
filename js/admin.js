@@ -1544,6 +1544,7 @@ $(function() {
     });
 });
 
+/* Mailto beállítása a felső ikonsor mail ikonjához */
 function sendMail( that, file ) {
     szamlaSorok = $('.szamla_cont_tabla tr.kijelolve');
 
@@ -1575,7 +1576,7 @@ function sendMail( that, file ) {
          			response = JSON.parse(response);
 
          			if( response.hiba ) {
-         				alert2(response.hiba);
+         				alert2(response.hiba, response.gomb, response.title);
                         hiba = true;
          				return false;
          			}
@@ -1941,44 +1942,6 @@ function bejelentesIgazolas( recid, csak_kerdezunk ) {
             });
         }
     }
-}
-
-/* Bejelentés reklamáció elfogadása */
-function bejelentesReklamacioElfogad(csak_kerdezunk) {
-
-    if(balnav_kijelol_ell()){
-
-        alert2();
-
-        $.ajax({
-            url : 'bejelentes.php',
-            type: 'POST',
-            data: {
-                recid                       : _get('id'),
-                csak_kerdezunk              : csak_kerdezunk,
-                bejelentesReklamacioElfogad : new Date().getTime()
-            },
-            success: function(response) {
-                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                if(response) {
-                    response = JSON.parse(response);
-
-                    if( response.hiba ) {
-                        alert2(response.hiba, response.gomb, response.title);
-                        return false;
-                    }
-
-                    szamlaSorFrissit('bejelentes', _get('id'));
-                    betoltve = szamlaBetolt(_get('id'), 'bejelentes.php', 'modosit');
-                    $.when(betoltve).then(function() {
-                        alert2('Kíván új munkalapot nyitni?', '<input type="button" class="gomb zold" value="Igen" onclick="munkalapKeszit()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
-                    });
-                }
-            }
-        });
-
-    }
-    return false;
 }
 
 function tobbBejegyzesTorol() {
@@ -6077,16 +6040,21 @@ function valid_date(that){
         that.val()!='0000.00.00 00:00:00' &&
         !Date.parse( that.val().replace(/\./gi, '-') )
         ){
-            alert2('Helytelen dátum!', '', 'Hiba');
+            if(that.hasClass('datepicker')){
+                alert2('Helytelen dátum: '+that.val()+'<br>Kérjük válasszon érvényes dátumot!', '', 'Hiba');
+            }
+            if(that.hasClass('datetimepicker')){
+                alert2('Helytelen dátumidő: '+that.val()+'<br>Kérjük válasszon érvényes dátumidőt!', '', 'Hiba');
+            }
             that.addClass('hibas_ide_focus');
             return false;
     }
 }
-
+/* Egy átadott elem értéke valid időpont-e? */
 function valid_ido(hibas_input){
     ora_perc = hibas_input.val().split(':');
     if(ora_perc[0]>24 || ora_perc[0]<0 || ora_perc[1]>60 || ora_perc[0]<0){
-        alert2('Érvénytelen időpont!', '', 'Hiba');
+        alert2('Érvénytelen időpont: '+hibas_input.val()+'<br>Kérjük válasszon érvényes időpontot!', '', 'Hiba');
         hibas_input.val('\xa0\xa0:\xa0\xa0');
         hibas_input.addClass('hibas_ide_focus');
         return false;
