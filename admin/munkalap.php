@@ -5558,7 +5558,8 @@ require('selectek.php');
         if($sor['stat_id']==MUNKALAP_STAT_NYITOTT && _jog(JOG_MUNKALAP_NYITOTT_KEZEL)){
             
             $szemelyzet_tipusok = '';
-            foreach($select_szemelyzet as $value) {
+            $select_szemelyzet_sorrend = tobbdim_tomb_kulcs_rendez($select_szemelyzet, 'hozzarendel_sor');
+            foreach($select_szemelyzet_sorrend as $value) {
                 if($value['kulsos']){
                     $szemelyzet_tipusok .= '<li onclick="munkalapElokeszit('.$value['value'].')">'.$value['name'].'</li>';
                 }
