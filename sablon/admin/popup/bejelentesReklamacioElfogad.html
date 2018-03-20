@@ -3,8 +3,8 @@
     <div id="rekl_elfogad_ml_ok"></div>
 </div>
 <div class="kuldes" style="padding: 0.5rem 1rem 0.0rem 1rem">
-    <input type="button" class="gomb zold" value="Új munkalap nyitása" onclick="bejelentesReklamacioElfogad();">
-    <input type="button" class="gomb zold" value="Munkalapok folytatása" onclick="munkalapokFolytat();">
+    <input type="button" class="gomb" value="Új munkalap nyitása" onclick="bejelentesReklamacioElfogad();" style="margin-right: 0.5rem">
+    <input type="button" class="gomb zold" value="Munkalapok folytatása" onclick="munkalapokFolytat();" style="margin-right: 0.5rem">
     <input type="button" class="gomb piros" value="Mégsem" onclick="popupZar();">
 </div>
 <script>
@@ -80,7 +80,17 @@ function munkalapokFolytat(){
             munkalapokFolytat   : Date.now()
         },
         success: function(response){
-            location.reload();
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }else{
+                    location.reload();
+                }
+            }
         }
     });
 

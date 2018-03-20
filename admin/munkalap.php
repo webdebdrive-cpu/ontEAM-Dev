@@ -4621,7 +4621,7 @@ if (isset($_POST['munkalapHIUtemez'])) {
         // Dátum helyes-e?
         if( !valos_datum_e($_POST['datum'])){
             echo json_encode(array(
-                'hiba'  => 'Helytelen dátum! Kérjük válasszon egy érvényes időpontot!',
+                'hiba'  => 'Helytelen dátum! Kérjük válasszon egy érvényes dátumot!',
                 'title' => 'Hiba',
             ));
             $weblap->leallit();
@@ -5071,36 +5071,36 @@ if (isset($_POST['munkalapSztornoz'])) {
         
     }
     
-    // Ha a munkalapnak több bejelentése is van
+    // Ha a bejelentésnek több munkalapja is van
     if( count($munkalapok)>1 ){
         
-        // Munkalapot sztornózzuk
+        // Munkalapot sztornózzuk + megjegyzés
         if( addStatusz('munkalap_statusz', $recid, MUNKALAP_STAT_SZTORNO, '', $memo) === false ) {
             $db_error = true;
         }
         if( addMegj('munkalap', $recid, $memo) === false ){
             $db_error = true;
         }
-        // Ha a munkalap ezen státuszok valamelyikében van, akkor a bejelentés igazolásra vár státuszt kap
-        $ig_var_statuszos = true;
-        $ig_var_statuszok = array(MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_SZTORNO);
-        foreach ($munkalapok as $munkalap){
-            $munkalap = $adatbazis_kapcsolat->s2('recid stat_id', 'munkalap', "`recid`='{$munkalap['munkalap_id']}'");
-            if($munkalap['recid']!=$recid){
-                if( !in_array($munkalap['stat_id'], $ig_var_statuszok) ){
-                    $ig_var_statuszos = false;
-                }
-            }
-        }
+        
+        // Mi a legkisebb státuszú munkalap?
+        $munkalapok_idk = adatbazis2tomb($munkalapok, 'munkalap_id');
+        $lk_munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid`!='{$recid}' AND `recid` IN (".implode(', ', $munkalapok_idk).")", 'stat_id', '1');
 
-        // Ha van olyan munkalap, ami nem az igazolásra vár státuszt kapta akkor a bejelentés folyamatban státuszra kerül, egyébként igazolásra vár státuszt
-        if(!$ig_var_statuszos){
+        // Ha a legkisebb státuszú munkalap ezen státuszok valamelyikében van, akkor a bejelentés folyamatban státuszt kap
+        $folyamatban_statuszok  = array(MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_VARAKOZO);
+        $ig_var_statuszok       = array(MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_LEZART);
+        if( in_array($lk_munkalap['stat_id'], $folyamatban_statuszok) ){
             if( addStatusz('bejelentes_statusz', $bejelentes_recid, BEJELENTES_STAT_FOLYAMATBAN, '', $memo) === false ) {
                 $db_error = true;
             }
-        // Ha minden munkalap az említett státuszban vannak, akkor a bejelentés igazolásra vár státuszt kap
-        }else{
+        // Ha legkisebb státuszú munkalapja igazolásra vár vagy lezárásra vár vagy lezárva státuszban van: bejelentés igazolásra vár státuszba kerül.
+        }elseif( in_array($lk_munkalap['stat_id'], $ig_var_statuszok) ){
             if( addStatusz('bejelentes_statusz', $bejelentes_recid, BEJELENTES_STAT_KESZ_IG, '', $memo) === false ) {
+                $db_error = true;
+            }
+        // Ha legkisebb státuszú munkalapja sztornózva státuszban van: bejelentés elutasított státuszba kerül.
+        }elseif( $lk_munkalap['stat_id']==MUNKALAP_STAT_SZTORNO ){
+            if( addStatusz('bejelentes_statusz', $bejelentes_recid, BEJELENTES_STAT_ELUTASITVA, '', $memo) === false ) {
                 $db_error = true;
             }
         }

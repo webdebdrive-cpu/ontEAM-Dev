@@ -469,12 +469,28 @@ if (isset($_POST['munkalapokFolytat'])) {
         }
         
         // Munkalapok státusz léptetései
+        $volt_stat_valtas = false;
         foreach($ml_statok as $ml_recid => $stat){
-            if( !addStatusz( 'munkalap_statusz', $ml_recid, $stat, '', 'Bejelentés reklamáció után új státusz: '. getStatText('munkalap', $stat) ) ) {
-                $db_error = true;
+            $akt_ml = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid`='{$ml_recid}'");
+            if( $akt_ml['stat_id']!=$stat ){
+                    $volt_stat_valtas = true;
+                if( !addStatusz( 'munkalap_statusz', $ml_recid, $stat, '', 'Bejelentés reklamáció után új státusz: '. getStatText('munkalap', $stat) ) ) {
+                    $db_error = true;
+                }
             }
         }
         
+        // Ha egyik munkalap státusza sem változott akkor hibaüzenet
+        if(!$volt_stat_valtas){
+            echo json_encode(array(
+                'hiba'  => 'Folytatáshoz legalább egy munkalap státuszát állítsa vissza!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
         // Bejelentés státusz léptetése
         if( !addStatusz( 'bejelentes_statusz', $recid, BEJELENTES_STAT_FOLYAMATBAN, '', 'Reklamáció elfogadva' ) ) {
             $db_error = true;
