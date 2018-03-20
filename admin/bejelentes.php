@@ -331,13 +331,17 @@ if (isset($_POST['rekl_elfogad_ml_ok'])) {
         $munkalapok = $adatbazis_kapcsolat->s('recid ikt_szam telephely_id stat_id', 'munkalap', "`recid` IN (".implode(', ', $munkalapok).")");
         foreach($munkalapok as $munkalap){
             
+            // Csak nyitott, folyamatban és az aktuális sátuszt kínáljuk fel
             $statusz = '<select class="rekl_elfogad_ml_stat" data-id="'.$munkalap['recid'].'">';
             foreach( $_stat_text['munkalap'] as $stat_id => $stat ){
-                $selected = '';
-                if( $stat_id==$munkalap['stat_id'] ){
-                    $selected = ' selected';
+                
+                if( in_array($stat_id, array($munkalap['stat_id'], MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_FOLYAMATBAN)) ){
+                    $selected = '';
+                    if( $stat_id==$munkalap['stat_id'] ){
+                        $selected = ' selected';
+                    }
+                    $statusz .= '<option value="'.$stat_id.'"'.$selected.'>'.$stat['nev'].'</option>';
                 }
-                $statusz .= '<option value="'.$stat_id.'"'.$selected.'>'.$stat['nev'].'</option>';
             }
             $statusz .= '</select>';
             
@@ -466,7 +470,7 @@ if (isset($_POST['munkalapokFolytat'])) {
         
         // Munkalapok státusz léptetései
         foreach($ml_statok as $ml_recid => $stat){
-            if( !addStatusz( 'munkalap_statusz', $ml_recid, $stat ) ) {
+            if( !addStatusz( 'munkalap_statusz', $ml_recid, $stat, '', 'Bejelentés reklamáció után új státusz: '. getStatText('munkalap', $stat) ) ) {
                 $db_error = true;
             }
         }

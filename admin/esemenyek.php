@@ -2256,9 +2256,11 @@ if( isset($_GET['sendMail']) ) {
             case 'munkalap.php':
                 
                 if( _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ){
-                    $subject = 'Munkalap #'.$id;
 
                     if( $munkalap = $adatbazis_kapcsolat->s2('*', 'munkalap', "`recid` = '{$id}'") ) {
+                        
+                        $subject = 'Munkalap '.$munkalap['ikt_szam'];
+                        
                         foreach($munkalap_tomb as $tomb) {
                             $return .= $tomb['megn'];
 

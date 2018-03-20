@@ -5962,7 +5962,7 @@ function pri_eloterj_statusz_mod(pri_eloterj_recidk, stat_id_eloterjek, rogzit){
 }
 
 /* Munkalap készítése FONTOS, hogy ne a munkalap.js-ben legyen, mert a bejelentesek.php-ben látni kell! */
-function munkalapKeszit(csak_kerdezunk) {
+function munkalapKeszit(csak_kerdezunk, kerdesek_nelkul) {
 
     if(balnav_kijelol_ell()){
 
@@ -5992,6 +5992,7 @@ function munkalapKeszit(csak_kerdezunk) {
                 data : {
                     idk             : JSON.stringify(idk),
                     csak_kerdezunk  : csak_kerdezunk,
+                    kerdesek_nelkul : kerdesek_nelkul,
                     munkalapKeszit  : new Date().getTime()
                 },
                 success: function(response) {
@@ -6004,7 +6005,7 @@ function munkalapKeszit(csak_kerdezunk) {
                             return false;
                         }
 
-                        /* 2018.02.19 Kérték, hogy ne létessük át a munkalpara, maradunk a bejelentésnél.
+                        /* 2018.02.19 Kérték, hogy ne léptessük át a munkalpara, maradunk a bejelentésnél.
                          * location.href = 'munkalap.php?id=' + response.recid + '&modosit';*/
                         alert2();
 

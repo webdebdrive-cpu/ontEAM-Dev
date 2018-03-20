@@ -153,7 +153,7 @@ if( isset($_POST['munkalapKeszit']) ) {
             $isMlap = $adatbazis_kapcsolat->s2('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id` = '{$id}'", '', '1');
             if( $isMlap === false ) { $db_error = true; }
 
-            if( $isMlap ) {
+            if( $isMlap && !$_POST['kerdesek_nelkul'] ) {
 
                 echo json_encode(array(
                     'hiba' => 'Ehhez a bejelentéshez már készült munkalap. <br>Készít még egy munkalapot?',
@@ -169,7 +169,7 @@ if( isset($_POST['munkalapKeszit']) ) {
         $bejelentes = $adatbazis_kapcsolat->s2('obj_id gep_id', 'bejelentes', "`recid`='$id'");
 
         // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
-        if(isset($_POST['csak_kerdezunk'])) {
+        if(isset($_POST['csak_kerdezunk']) && !$_POST['kerdesek_nelkul']) {
 
             echo json_encode(array(
                 'hiba' => 'Biztos munkalapot készít a kijelölt bejelentésből?',
@@ -5042,7 +5042,7 @@ if (isset($_POST['munkalapSztornoz'])) {
             
             // A hozzá tartozó egyetlen bejegyzés státuszát a kért státuszba léptetjük
             if($_POST['mehet']=='nyitott'){
-                if( addStatusz('bejelentes_statusz', $bejelentes_recid, BEJELENTES_STAT_NYITOTT, '', $memo) === false ) {
+                if( addStatusz('bejelentes_statusz', $bejelentes_recid, BEJELENTES_STAT_NYITOTT, '', $munkalap['ikt_szam'].' munkalap sztornózva') === false ) {
                     $db_error = true;
                 }
             }

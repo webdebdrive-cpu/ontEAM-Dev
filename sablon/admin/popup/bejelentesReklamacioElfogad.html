@@ -52,7 +52,7 @@ function bejelentesReklamacioElfogad(csak_kerdezunk) {
                     betoltve = szamlaBetolt(_get('id'), 'bejelentes.php', 'modosit');
                     $.when(betoltve).then(function() {
                         /*alert2('Kíván új munkalapot nyitni?', '<input type="button" class="gomb zold" value="Igen" onclick="munkalapKeszit()"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');*/
-                        munkalapKeszit();
+                        munkalapKeszit('', 'Kérdések nélkül');
                     });
                 }
             }
@@ -80,7 +80,7 @@ function munkalapokFolytat(){
             munkalapokFolytat   : Date.now()
         },
         success: function(response){
-            
+            location.reload();
         }
     });
 
