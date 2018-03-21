@@ -154,7 +154,7 @@ table.sar-table th div.thKeret label span {
 table.sar-table th div.order {
     height: 1.2rem;
     position: absolute;
-    bottom: 3.2rem;
+    top: 0.7rem;
     right: 0.8rem;
     width: 0.6rem;
 }

@@ -2062,6 +2062,7 @@ div.naplo div.nSor div.dtc {
 #szamlaBetolt {
     display: table;
     padding: 1.5rem 1.5rem 1.5rem 1.5rem;
+    position: relative;
     width: 100%;
 }
 

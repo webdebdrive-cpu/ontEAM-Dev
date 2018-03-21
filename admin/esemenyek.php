@@ -2242,6 +2242,12 @@ $felmeresi_terv_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 //{KOVETKEZO_TOMB}
 
+if( isset($_POST['tablaSorrend']) ) {
+    echo '<pre style="font-size: 1.4rem">', print_r($_POST), '</pre>';
+
+    $weblap->leallit();
+    exit();
+}
 
 // Mailto tartalmának kigenerálása a felső ikonsorhoz.
 if( isset($_GET['sendMail']) ) {
@@ -2254,13 +2260,13 @@ if( isset($_GET['sendMail']) ) {
 
         switch($file) {
             case 'munkalap.php':
-                
+
                 if( _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ){
 
                     if( $munkalap = $adatbazis_kapcsolat->s2('*', 'munkalap', "`recid` = '{$id}'") ) {
-                        
+
                         $subject = 'Munkalap '.$munkalap['ikt_szam'];
-                        
+
                         foreach($munkalap_tomb as $tomb) {
                             $return .= $tomb['megn'];
 

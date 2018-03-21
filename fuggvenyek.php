@@ -3326,27 +3326,40 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             if( !$frissit ) {
                 $html .= nl2('
-                        <table class="szamla_cont_tabla sortable'.$jClass.'">
+                        <table id="dragTable" class="sar-table szamla_cont_tabla'.$jClass.'">
                         <thead>
                             <tr>');
                 foreach($oszlopok as $oszl){
                     $class = '';
-                    if($oszl['id']==$_SESSION['anyagigenyles_tablazat_rendez']){
-                        if($_SESSION['anyagigenyles_tablazat_irany']=='desc'){
-                            $class = ' class="b sorttable_sorted_reverse"';
-                            $oszl['nev'] .= '<span id="sorttable_sortrevind">&nbsp;▴</span>';
-                        }else{
-                            $class = ' class="b sorttable_sorted"';
-                            $oszl['nev'] .= '<span id="sorttable_sortfwdind">&nbsp;▾</span>';
-                        }
-                    }
+                    // if($oszl['id']==$_SESSION['anyagigenyles_tablazat_rendez']){
+                    //     if($_SESSION['anyagigenyles_tablazat_irany']=='desc'){
+                    //         $class = ' class="b sorttable_sorted_reverse"';
+                    //         $oszl['nev'] .= '<span id="sorttable_sortrevind">&nbsp;▴</span>';
+                    //     }else{
+                    //         $class = ' class="b sorttable_sorted"';
+                    //         $oszl['nev'] .= '<span id="sorttable_sortfwdind">&nbsp;▾</span>';
+                    //     }
+                    // }
 
-                    $html .= '<th id="'.$oszl['id'].'"'.$class.'>'.$oszl['nev'].'</th>';
+                    $html .= nl2('
+                        <th id="'.$oszl['id'].'"'.$class.'>
+                            <div class="thKeret">
+                                <div class="some-handle"></div>
+                                <div class="order"></div>
+                                <span>'.$oszl['nev'].'</span>
+                                <!-- <input type="text" name="tableSearch" value="">
+                                <label>
+                                    <input type="checkbox" name="nowrap" value="">
+                                    <span>Ne tördelje</span>
+                                </label> -->
+                            </div>
+                        </th>
+                    ');
                 }
                 $html .= nl2('</tr>
                         </thead>
-                        <tbody>
-                        ');
+                    <tbody>
+                ');
             }
 
             $i = 1;
