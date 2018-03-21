@@ -162,7 +162,7 @@
           widthArr[0] -= difference;
       }
 
-      totalWidth += 2
+      totalWidth += 2;
 
       var sortableHtml = '<ul class="dragtable-sortable" style="position:absolute; width:' + totalWidth + 'px;">';
 

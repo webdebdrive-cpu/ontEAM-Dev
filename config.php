@@ -165,7 +165,7 @@ function get_jsfajlok_admin(){
                 $utvonal.'!js/datetimepicker.js',
                 $utvonal.'!js/admin.js',
                 $utvonal.'!js/admin_sorrendez.js',
-                // $utvonal.'!js/jquery.dragtable.js',
+                $utvonal.'!js/jquery.dragtable.js',
                 $utvonal.'js/fancybox.js',
                 $utvonal.'js/main.js',
                 $utvonal.'js/alert_admin.js',
