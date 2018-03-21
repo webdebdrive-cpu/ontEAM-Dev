@@ -1223,9 +1223,8 @@ foreach ($_SESSION[get_db_tabla().'rights'] as $jog){
     $jogok .= $jog;
 }
 $header_html .= nl2('
-<script>
-    var _jogok = \''.$jogok.'\';
-</script>
+<script>var _jogok = \''.$jogok.'\';</script>
+<script src="../js/jquery.dragtable.js"></script>
     ');
 
 

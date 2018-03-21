@@ -22,7 +22,7 @@ require_once 'konstansok.php';
 date_default_timezone_set('Europe/Budapest');
 
  // Alapértelmezetten '', de ha értéket adunk (pl.: tabla_), akkor létrehoz egy adatbázis kapcsolatot a 'Weblap' osztály
-function get_db_tabla()   {     return 'onteam_';      }
+function get_db_tabla()   {     return 'onteam_';      } 
 
 
 function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ? 'localhost'    : 'localhost'       );  } //Host
@@ -165,6 +165,7 @@ function get_jsfajlok_admin(){
                 $utvonal.'!js/datetimepicker.js',
                 $utvonal.'!js/admin.js',
                 $utvonal.'!js/admin_sorrendez.js',
+                // $utvonal.'!js/jquery.dragtable.js',
                 $utvonal.'js/fancybox.js',
                 $utvonal.'js/main.js',
                 $utvonal.'js/alert_admin.js',
@@ -173,7 +174,6 @@ function get_jsfajlok_admin(){
                 $utvonal.'js/feltolt.js',
                 $utvonal.'js/scrollto.js',
                 $utvonal.'js/jquery.easing.1.3.js',
-                $utvonal.'js/admin_sorrendez.js',
                 $utvonal.'js/moment.min.js',
                 $utvonal.'js/fullcalendar.min.js',
                 $utvonal.'js/hu.js',
