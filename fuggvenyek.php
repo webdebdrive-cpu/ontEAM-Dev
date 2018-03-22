@@ -3428,12 +3428,12 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     'anyag_tabla_cikknev'       => '<td>'.$bsz['anyagigenyles_nev'].'</td>',
                     'anyag_tabla_igleir'        => '<td>'.htmlspecialchars_decode(nl2br2($bsz['igleir'])).'</td>',
                     'anyag_tabla_szallito'      => '<td>'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>',
-                    'anyag_tabla_ig_menny'      => '<td class="r nowrap">'.number_format($bsz['igmen'], 2, ',', ' ').'</td>',
+                    'anyag_tabla_ig_menny'      => '<td class="r nowrap" data-sort="'.$bsz['igmen'].'">'.number_format($bsz['igmen'], 2, ',', ' ').'</td>',
                     'anyag_tabla_mee'           => '<td class="c">'.$bsz['cikkmee'].'</td>',
                     'anyag_tabla_ig_datum'      => '<td class="c">'.substr(str_replace('-', '.', $bsz['insert_dt']), 0, 10).'</td>',
-                    'anyag_tabla_jovah_menny'   => '<td class="r nowrap" id="td_jhmen_'.$bsz['recid'].'" sorttable_customkey="'.$bsz['jhmen'].'">'.$jhmen.'</td>',
-                    'anyag_tabla_rend_menny'    => '<td class="r nowrap">'.number_format($bsz['rndmen'], 2, ',', ' ').'</td>',
-                    'anyag_tabla_rend_egysegar' => '<td class="r nowrap" id="td_rndear_'.$bsz['recid'].'">'.number_format($bsz['rndear'], 4, ',', ' ').'</td>',
+                    'anyag_tabla_jovah_menny'   => '<td class="r nowrap" id="td_jhmen_'.$bsz['recid'].'" data-sort="'.$bsz['jhmen'].'">'.$jhmen.'</td>',
+                    'anyag_tabla_rend_menny'    => '<td class="r nowrap" data-sort="'.$bsz['rndmen'].'">'.number_format($bsz['rndmen'], 2, ',', ' ').'</td>',
+                    'anyag_tabla_rend_egysegar' => '<td class="r nowrap" id="td_rndear_'.$bsz['recid'].'" data-sort="'.$bsz['rndear'].'">'.number_format($bsz['rndear'], 4, ',', ' ').'</td>',
                     'anyag_tabla_dev_rend'      => '<td class="r nowrap">'.number_format($bsz['vrndear'], 4, ',', ' ').'</td>',
                     'anyag_tabla_penznem'       => '<td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>'
                 );
