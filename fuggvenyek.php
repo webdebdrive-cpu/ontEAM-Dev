@@ -3326,16 +3326,28 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             $sorrend = getErtek('tabla_sorrend', 'login', 'recid', $_SESSION[get_db_tabla().'login_recid']);
 
+            $oszlopok_sorrend = array();
             if( $sorrend ) {
                 $sorrend = json_decode(htmlspecialchars_decode($sorrend), true);
+
+                foreach($sorrend[$tabla] as $key => $value) {
+                    foreach($oszlopok as $key => $val) {
+                       if( $val['id'] === $value['id']) {
+                           $val['width'] = $value['width'];
+                           $oszlopok_sorrend[] = $val;
+                       }
+                   }
+                }
+
+                $oszlopok = $oszlopok_sorrend;
             }
-echo '<pre style="font-size: 1.4rem">', print_r($sorrend), '</pre>';
+
             if( !$frissit ) {
                 $html .= nl2('
                         <table id="dragTable" class="sar-table szamla_cont_tabla'.$jClass.'" data-tabla="'.$tabla.'">
                         <thead>
                             <tr>');
-                foreach($oszlopok as $oszl){
+                foreach($oszlopok as $oszl) {
                     $class = '';
                     // if($oszl['id']==$_SESSION['anyagigenyles_tablazat_rendez']){
                     //     if($_SESSION['anyagigenyles_tablazat_irany']=='desc'){
@@ -3347,8 +3359,13 @@ echo '<pre style="font-size: 1.4rem">', print_r($sorrend), '</pre>';
                     //     }
                     // }
 
+                    $width = '';
+                    if( $oszl['width'] ) {
+                        $width = ' style="min-width: '.$oszl['width'].'px; max-width: '.$oszl['width'].'px; width: '.$oszl['width'].'px;"';
+                    }
+
                     $html .= nl2('
-                        <th id="'.$oszl['id'].'"'.$class.'>
+                        <th id="'.$oszl['id'].'"'.$class.$width.'>
                             <div class="thKeret">
                                 <div class="some-handle"></div>
                                 <div class="order"></div>
@@ -3403,25 +3420,31 @@ echo '<pre style="font-size: 1.4rem">', print_r($sorrend), '</pre>';
                     // $active .= ' kijelolve';
                 }
 
-                $html .= '
-                    <tr class="'.$active.$bold.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click()" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
-                        <td class="c" sorttable_customkey="'.$bsz['stat_id'].'">'.getStatText('anyagigenyles', $bsz['stat_id']).'</td>
-                        <td class="c">'.$bsz['ikt_szam'].'</td>
-                        <td class="c">'.$telephely['nev'].'</td>
-                        <td class="c">'.$bsz['cikk_id'].'</td>
-                        <td>'.$bsz['anyagigenyles_nev'].'</td>
-                        <td>'.htmlspecialchars_decode(nl2br2($bsz['igleir'])).'</td>
-                        <td>'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
-                        <td class="r nowrap">'.number_format($bsz['igmen'], 2, ',', ' ').'</td>
-                        <td class="c">'.$bsz['cikkmee'].'</td>
-                        <td class="c">'.substr(str_replace('-', '.', $bsz['insert_dt']), 0, 10).'</td>
-                        <td class="r nowrap" id="td_jhmen_'.$bsz['recid'].'" sorttable_customkey="'.$bsz['jhmen'].'">'.$jhmen.'</td>
-                        <td class="r nowrap">'.number_format($bsz['rndmen'], 2, ',', ' ').'</td>
-                        <td class="r nowrap" id="td_rndear_'.$bsz['recid'].'">'.number_format($bsz['rndear'], 4, ',', ' ').'</td>
-                        <td class="r nowrap">'.number_format($bsz['vrndear'], 4, ',', ' ').'</td>
-                        <td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>
-                    </tr>
-                ';
+                $html .= '<tr class="'.$active.$bold.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click()" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">';
+
+                $sorok = array(
+                    'anyag_tabla_statusz'       => '<td class="c" sorttable_customkey="'.$bsz['stat_id'].'">'.getStatText('anyagigenyles', $bsz['stat_id']).'</td>',
+                    'anyag_tabla_ikt_szam'      => '<td class="c">'.$bsz['ikt_szam'].'</td>',
+                    'anyag_tabla_szalloda'      => '<td class="c">'.$telephely['nev'].'</td>',
+                    'anyag_tabla_cikkszam'      => '<td class="c">'.$bsz['cikk_id'].'</td>',
+                    'anyag_tabla_cikknev'       => '<td>'.$bsz['anyagigenyles_nev'].'</td>',
+                    'anyag_tabla_igleir'        => '<td>'.htmlspecialchars_decode(nl2br2($bsz['igleir'])).'</td>',
+                    'anyag_tabla_szallito'      => '<td>'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>',
+                    'anyag_tabla_ig_menny'      => '<td class="r nowrap">'.number_format($bsz['igmen'], 2, ',', ' ').'</td>',
+                    'anyag_tabla_mee'           => '<td class="c">'.$bsz['cikkmee'].'</td>',
+                    'anyag_tabla_ig_datum'      => '<td class="c">'.substr(str_replace('-', '.', $bsz['insert_dt']), 0, 10).'</td>',
+                    'anyag_tabla_jovah_menny'   => '<td class="r nowrap" id="td_jhmen_'.$bsz['recid'].'" sorttable_customkey="'.$bsz['jhmen'].'">'.$jhmen.'</td>',
+                    'anyag_tabla_rend_menny'    => '<td class="r nowrap">'.number_format($bsz['rndmen'], 2, ',', ' ').'</td>',
+                    'anyag_tabla_rend_egysegar' => '<td class="r nowrap" id="td_rndear_'.$bsz['recid'].'">'.number_format($bsz['rndear'], 4, ',', ' ').'</td>',
+                    'anyag_tabla_dev_rend'      => '<td class="r nowrap">'.number_format($bsz['vrndear'], 4, ',', ' ').'</td>',
+                    'anyag_tabla_penznem'       => '<td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>'
+                );
+
+                foreach($oszlopok as $oszl) {
+                    $html .= $sorok[$oszl['id']];
+                }
+
+                $html .= '</tr>';
 
                 $i++;
             }

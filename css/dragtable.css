@@ -21,31 +21,6 @@ h1#akottr-header {
     background-repeat: no-repeat;
 }
 
-.intro {
-    padding: 0.8rem 0;
-}
-
-.sample {
-    padding: 0 0 2rem 0;
-}
-
-.sample .demo .demo-content {
-    padding: 0.3rem 0.2rem 0.3rem 0.2rem;
-    margin: 0.5rem 0;
-    border: 0.1rem solid #E2E1D5;
-}
-
-.code-snippet pre {
-    padding: 0.3rem 0.2rem 0.3rem 0.2rem;
-    margin: 0.5rem 0;
-    background-color: #FBF9EA;
-    border: 0.1rem solid #E2E1D5;
-}
-
-.sample .description {
-    padding: 0.5rem 0 0.5rem 0;
-}
-
 table.sar-table {
     border-collapse: collapse;
     table-layout: fixed;
@@ -67,9 +42,10 @@ table.sar-table th {
     cursor: pointer;
     font-size: 1.4rem;
     font-weight:normal;
-    height: 2rem;
     text-align: left;
+    padding: 0rem 0rem 0rem 0rem;
     overflow: hidden;
+    vertical-align: top;
     width: 10rem;
 }
 
@@ -83,6 +59,7 @@ table.sar-table td.nowrap {
 
 table.sar-table th div.thKeret {
     padding: 0.5rem;
+    height: 100%;
     position: relative;
 }
 
@@ -94,7 +71,7 @@ table.sar-table th div.thKeret span {
 table.sar-table th div.thKeret div.grip {
     background: transparent;
     cursor: col-resize;
-    height: 100%;
+    height: 1000%;
     position: absolute;
     top: 0;
     right: 0rem;

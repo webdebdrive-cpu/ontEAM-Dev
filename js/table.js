@@ -31,6 +31,10 @@ $(function() {
             inverse = false;
         }
 
+        if( irany === undefined ) {
+            irany = 'asc';
+        }
+
         if( irany ) {
             order.removeClass('asc desc').addClass(irany);
         } else {
@@ -54,6 +58,19 @@ $(function() {
             return at > bt ? inverse ? -1 : 1 : inverse ? 1 : -1;
         }, function(){
             return this.parentNode;
+        });
+console.log(irany);
+        $.ajax({
+            url : baseName(location.href)+'.php',
+            type: 'POST',
+            data: {
+                oszlop: $(this).attr('id'),
+                irany : irany,
+                anyagigenyles_tablazat_rendez: Date.now()
+            },
+            success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            }
         });
     });
 
@@ -236,7 +253,7 @@ function tablaSorrend( table ) {
     var tabla   = $(table).attr('data-tabla'),
         sorrend = {};
 
-    table.find('th').each(function(i) {
+    table.find('thead').not('.sticky').find('th').each(function(i) {
         if(this.id != '') { sorrend[i] = {id: this.id, width: $(this).outerWidth()}; }
     });
 
