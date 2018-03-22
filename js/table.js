@@ -15,7 +15,7 @@ $(function() {
         }
     });
 
-    $(document).on('dblclick', 'table.sar-table th', function() {
+    $(document).on('dblclick', 'table.sar-table th', function(e) {
         var th      = $(this),
             table   = th.parents('table.sar-table'),
             order   = th.find('div.order'), irany,
@@ -31,15 +31,13 @@ $(function() {
             inverse = false;
         }
 
-        if( irany === undefined ) {
-            irany = 'asc';
-        }
-
         if( irany ) {
             order.removeClass('asc desc').addClass(irany);
         } else {
             table.find('div.order').removeClass('asc desc');
             order.addClass('asc');
+
+            irany = 'asc';
         }
 
         var index = th.index();
@@ -59,7 +57,7 @@ $(function() {
         }, function(){
             return this.parentNode;
         });
-console.log(irany);
+
         $.ajax({
             url : baseName(location.href)+'.php',
             type: 'POST',

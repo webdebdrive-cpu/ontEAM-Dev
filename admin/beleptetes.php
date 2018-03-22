@@ -172,9 +172,9 @@ if(isset($_POST['login'])) {
             $_POST['jelszo'] = sha1($_POST['jelszo']);
         }
 
-        $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'");
+        $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'");
         if( $felhasznalo ) {
-            
+
             if( $felhasznalo['van_jelszo'] ) {
 
                 if( $felhasznalo['jelszo'] == $_POST['jelszo'] && $felhasznalo['helyesseg'] == $helyesseg ) {
@@ -186,6 +186,16 @@ if(isset($_POST['login'])) {
                     $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
                     $_SESSION[get_db_tabla().'ertesites']       = str_split($felhasznalo['flags_ert']);
                     $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
+
+                    // Rendezés
+                    if( $felhasznalo['tabla_rendezes'] ) {
+                        $rendezes = json_decode(htmlspecialchars_decode($felhasznalo['tabla_rendezes']), true);
+
+                        foreach($rendezes as $key => $value) {
+                            $_SESSION[$key] = $value;
+                        }
+                    }
+
 
 //                    if(!$_SESSION['kert_url']){
 //                        $_SESSION['kert_url'] = get_domain().'/'.get_admin();

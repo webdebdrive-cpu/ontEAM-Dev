@@ -8,7 +8,7 @@
 });*/
 
 /* Oszlopnevekre kattintva azt is tároljuk le, hogy mi a sorrendezés és annak iránya */
-$(document).on('dblclick', '.szamla_cont_tabla th', function(e) {
+/*$(document).on('dblclick', '.szamla_cont_tabla th', function(e) {
 
     oszlop = $(this).attr('id');
     irany  = '';
@@ -31,7 +31,7 @@ $(document).on('dblclick', '.szamla_cont_tabla th', function(e) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
         }
     });
-});
+});*/
 
 /* Ayagigénylés táblázatban a jóváhagyott mennyiség értéke ha változik. A anyagig_eredeti_jhmen tömb a fuggvenyek.php-ban az anyagigenyleslista() résznél jön létre, ahol a táblázat HTML-je kigenerálódik */
 $(document).on('blur keyup', '.szamla_cont_tabla tbody input', function(e) {
@@ -41,7 +41,7 @@ $(document).on('blur keyup', '.szamla_cont_tabla tbody input', function(e) {
     }else{
         $(this).removeClass('mod');
     }
-    
+
 });
 
 /* Form modosítva változó beállítása: minden egyes billentyű leutésre mod classt keresünk. Ha találunk, akkor módosítva van a form */
@@ -52,7 +52,7 @@ $(document).on('keyup', '.szamla_cont_tabla input', function(e) {
     }else{
         formModositva = false;
     }
-    
+
 });
 
 /* Mező elhagyásakor */
@@ -76,7 +76,7 @@ $(document).on('blur', '.szamla_cont_tabla input', function(e) {
         osszeg += jhmen*rndear;
     });
     $('#rend_ertek').html( ezresek(osszeg, 0, '', ' ')+' Ft' );
-        
+
 });
 
 /* Anyagigénylés táblázat Ctrl+Shift kijelölése */
@@ -133,7 +133,7 @@ $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
                 $(this).removeClass('kijelolve');
                 /* A valódi, rejtett nav panelt is megjelöljük */
                 $('#szamla-'+$(this).attr('data-id')).removeClass('kijelolve');
-                
+
             } else {
                 $(this).addClass('kijelolve');
                 /* A valódi, rejtett nav panelt is megjelöljük */
@@ -151,7 +151,7 @@ $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
             });
 
         }, 10);
-        
+
     /* Ha nem egy kijelölhető táblázat, akkor csak a megnyomott sor legyen megjelölve */
     }else{
         $('.szamla_cont_tabla tbody tr').removeClass('kijelolve');

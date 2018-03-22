@@ -3348,16 +3348,14 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                         <thead>
                             <tr>');
                 foreach($oszlopok as $oszl) {
-                    $class = '';
-                    // if($oszl['id']==$_SESSION['anyagigenyles_tablazat_rendez']){
-                    //     if($_SESSION['anyagigenyles_tablazat_irany']=='desc'){
-                    //         $class = ' class="b sorttable_sorted_reverse"';
-                    //         $oszl['nev'] .= '<span id="sorttable_sortrevind">&nbsp;▴</span>';
-                    //     }else{
-                    //         $class = ' class="b sorttable_sorted"';
-                    //         $oszl['nev'] .= '<span id="sorttable_sortfwdind">&nbsp;▾</span>';
-                    //     }
-                    // }
+                    $order = '';
+                    if($oszl['id']==$_SESSION['anyagigenyles_tablazat_rendez']){
+                        if($_SESSION['anyagigenyles_tablazat_irany']=='desc'){
+                            $order = ' desc';
+                        }else{
+                            $order = ' asc';
+                        }
+                    }
 
                     $width = '';
                     if( $oszl['width'] ) {
@@ -3368,7 +3366,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                         <th id="'.$oszl['id'].'"'.$class.$width.'>
                             <div class="thKeret">
                                 <div class="some-handle"></div>
-                                <div class="order"></div>
+                                <div class="order'.$order.'"></div>
                                 <span>'.$oszl['nev'].'</span>
                                 <!-- <input type="text" name="tableSearch" value="">
                                 <label>
