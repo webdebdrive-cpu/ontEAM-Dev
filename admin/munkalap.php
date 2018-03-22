@@ -598,7 +598,8 @@ if( isset($_POST['munkalapKulso']) ) {
                                         );
         if( $sql === false ) { $db_error = true; }
 
-        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) ) {
+        $memo = 'Kivitelező: '.getErtek('nev', 'szallito', 'id', $szallito_id);
+        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN, '', $memo ) ) {
             $db_error = true;
         }
 
@@ -1579,7 +1580,7 @@ if( isset($_POST['munkalapKulsosMegrendelve']) ) {
 
     if( $recid ) {
 
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id szallito_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
         // Státusz ellenőrzés
@@ -1622,7 +1623,8 @@ if( isset($_POST['munkalapKulsosMegrendelve']) ) {
         if( $sql === false ) { $db_error = true; }
 
         // Státusz léptetés
-        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN ) ) {
+        $memo = 'Kivitelező: '.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']);
+        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_FOLYAMATBAN, '', $memo ) ) {
             $db_error = true;
         }
 

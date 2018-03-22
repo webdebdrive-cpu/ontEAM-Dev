@@ -367,7 +367,7 @@ $(function() {
 
                     $('.szamla_cont_tabla tbody tr:nth-of-type('+(kovSzamlaSor+1)+')').addClass('kijelolve');
 
-                    $('#szamla-'+$('.szamla_cont_tabla tr.kijelolve').data('id')).click();
+                    $('#anyagig-sor-'+$('.szamla_cont_tabla tr.kijelolve').attr('data-recid')).click();
 
                     return false;
 
