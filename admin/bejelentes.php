@@ -483,13 +483,15 @@ if (isset($_POST['munkalapokFolytat'])) {
                     
                     // Folyamatbanra állítva a személyzet telepített személyzet legyen
                     $szemelyzet_id = 0;
+                    $visszaadva    = 1;
                     if( $stat == MUNKALAP_STAT_FOLYAMATBAN ){
                         $szemelyzet_id = TELEPITETT_SZEMELYZET;
+                        $visszaadva    = 0;
                     }
                     
                     $sql = $adatbazis_kapcsolat -> u('munkalap',
                                                         array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'mobil', 'jh_ert', 'varh_erk',            'update_usr'                           ),
-                                                        array( 1,           $szemelyzet_id,  '',                0,            '',      '',       '0000-00-00 00:00:00', $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                        array( $visszaadva, $szemelyzet_id,  '',                0,            '',      '',       '0000-00-00 00:00:00', $_SESSION[get_db_tabla().'teljes_nev'] ),
                                                         "`recid` = '{$ml_recid}'"
                                                     );
                     if( $sql === false ) { $db_error = true; }
