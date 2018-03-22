@@ -473,9 +473,26 @@ if (isset($_POST['munkalapokFolytat'])) {
         foreach($ml_statok as $ml_recid => $stat){
             $akt_ml = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid`='{$ml_recid}'");
             if( $akt_ml['stat_id']!=$stat ){
-                    $volt_stat_valtas = true;
+                $volt_stat_valtas = true;
                 if( !addStatusz( 'munkalap_statusz', $ml_recid, $stat, '', 'Bejelentés reklamáció után új státusz: '. getStatText('munkalap', $stat) ) ) {
                     $db_error = true;
+                }
+                
+                // Ha nyitottra vagy folyamtbanra állítja a státuszt, akkor a mezők ürüljenek, ugyanúgy mint munkalap viszaadáskor
+                if( $stat == MUNKALAP_STAT_NYITOTT || $stat == MUNKALAP_STAT_FOLYAMATBAN ){
+                    
+                    // Folyamatbanra állítva a személyzet telepített személyzet legyen
+                    $szemelyzet_id = 0;
+                    if( $stat == MUNKALAP_STAT_FOLYAMATBAN ){
+                        $szemelyzet_id = TELEPITETT_SZEMELYZET;
+                    }
+                    
+                    $sql = $adatbazis_kapcsolat -> u('munkalap',
+                                                        array('visszaadva', 'szemelyzet_id', 'mobil_loginnev', 'szallito_id', 'mobil', 'jh_ert', 'varh_erk',            'update_usr'                           ),
+                                                        array( 1,           $szemelyzet_id,  '',                0,            '',      '',       '0000-00-00 00:00:00', $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                                        "`recid` = '{$ml_recid}'"
+                                                    );
+                    if( $sql === false ) { $db_error = true; }
                 }
             }
         }
