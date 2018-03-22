@@ -11,28 +11,7 @@ $(function() {
             }, 50);
         },
         persistState: function(table) {
-            table.el.find('th').each(function(i) {
-                if(this.id != '') { table.sortOrder[i] = this.id; }
-            });
-
-            $.ajax({
-             	url : 'esemenyek.php',
-             	type: 'POST',
-             	data: {
-                    sorrend : JSON.stringify(table.sortOrder),
-                    tablaSorrend: new Date().getTime()
-                },
-             	success: function(response) {
-             		if(response) {
-             			response = JSON.parse(response);
-
-             			if( response.hiba ) {
-             				alert2(response.hiba);
-             				return false;
-             			}
-             		}
-             	}
-            });
+            tablaSorrend( table.el );
         }
     });
 
@@ -229,6 +208,8 @@ $(function() {
     $(document).on('mouseup', function() {
         if( _click ) {
             _click = false;
+
+            tablaSorrend($(_resizeElement.that).parents('table'));
             _resizeElement = null;
             $(document).enableSelection();
 
@@ -250,3 +231,32 @@ $(function() {
         }
     });
 });
+
+function tablaSorrend( table ) {
+    var tabla   = $(table).attr('data-tabla'),
+        sorrend = {};
+
+    table.find('th').each(function(i) {
+        if(this.id != '') { sorrend[i] = {id: this.id, width: $(this).outerWidth()}; }
+    });
+
+    $.ajax({
+        url : 'esemenyek.php',
+        type: 'POST',
+        data: {
+            tabla        : tabla,
+            sorrend      : JSON.stringify(sorrend),
+            tablaSorrend : new Date().getTime()
+        },
+        success: function(response) {
+            if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    alert2(response.hiba);
+                    return false;
+                }
+            }
+        }
+    });
+}

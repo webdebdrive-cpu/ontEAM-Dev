@@ -2242,8 +2242,31 @@ $felmeresi_terv_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 //{KOVETKEZO_TOMB}
 
+// Táblázat sorrend mentés
 if( isset($_POST['tablaSorrend']) ) {
-    echo '<pre style="font-size: 1.4rem">', print_r($_POST), '</pre>';
+    $tabla   = $_POST['tabla'];
+
+    $sorrend = array();
+    if( $_POST['sorrend'] ) {
+        $sorrend[$tabla] = json_decode($_POST['sorrend'], true);
+    }
+
+    $mentett_adat = $adatbazis_kapcsolat->s2('recid tabla_sorrend', 'login', "`recid` = '".$_SESSION[get_db_tabla().'login_recid']."'", '', '1');
+
+    if( $mentett_adat ) {
+        if( !$mentett_adat['tabla_sorrend'] ) {
+            $adatbazis_kapcsolat -> u('login', array('tabla_sorrend'), array(json_encode($sorrend)), "`recid` = '".$_SESSION[get_db_tabla().'login_recid']."'");
+        } else {
+            $mentett_sorrend = json_decode(htmlspecialchars_decode($mentett_adat['tabla_sorrend']), true);
+            $mentett_sorrend[$tabla] = $sorrend[$tabla];
+
+            $adatbazis_kapcsolat -> u('login', array('tabla_sorrend'), array(json_encode($mentett_sorrend)), "`recid` = '".$_SESSION[get_db_tabla().'login_recid']."'");
+        }
+    }
+
+    echo json_encode(array(
+        'html' => 'ok'
+    ));
 
     $weblap->leallit();
     exit();

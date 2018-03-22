@@ -3324,9 +3324,15 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $jClass = ' kijelolheto';
             }
 
+            $sorrend = getErtek('tabla_sorrend', 'login', 'recid', $_SESSION[get_db_tabla().'login_recid']);
+
+            if( $sorrend ) {
+                $sorrend = json_decode(htmlspecialchars_decode($sorrend), true);
+            }
+echo '<pre style="font-size: 1.4rem">', print_r($sorrend), '</pre>';
             if( !$frissit ) {
                 $html .= nl2('
-                        <table id="dragTable" class="sar-table szamla_cont_tabla'.$jClass.'">
+                        <table id="dragTable" class="sar-table szamla_cont_tabla'.$jClass.'" data-tabla="'.$tabla.'">
                         <thead>
                             <tr>');
                 foreach($oszlopok as $oszl){
@@ -3398,24 +3404,25 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 }
 
                 $html .= '
-                            <tr class="'.$active.$bold.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click()" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
-                                <td class="c" sorttable_customkey="'.$bsz['stat_id'].'">'.getStatText('anyagigenyles', $bsz['stat_id']).'</td>
-                                <td class="c">'.$bsz['ikt_szam'].'</td>
-                                <td class="c">'.$telephely['nev'].'</td>
-                                <td class="c">'.$bsz['cikk_id'].'</td>
-                                <td>'.$bsz['anyagigenyles_nev'].'</td>
-                                <td>'.htmlspecialchars_decode(nl2br2($bsz['igleir'])).'</td>
-                                <td>'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
-                                <td class="r nowrap">'.number_format($bsz['igmen'], 2, ',', ' ').'</td>
-                                <td class="c">'.$bsz['cikkmee'].'</td>
-                                <td class="c">'.substr(str_replace('-', '.', $bsz['insert_dt']), 0, 10).'</td>
-                                <td class="r nowrap" id="td_jhmen_'.$bsz['recid'].'" sorttable_customkey="'.$bsz['jhmen'].'">'.$jhmen.'</td>
-                                <td class="r nowrap">'.number_format($bsz['rndmen'], 2, ',', ' ').'</td>
-                                <td class="r nowrap" id="td_rndear_'.$bsz['recid'].'">'.number_format($bsz['rndear'], 4, ',', ' ').'</td>
-                                <td class="r nowrap">'.number_format($bsz['vrndear'], 4, ',', ' ').'</td>
-                                <td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>
-                            </tr>
-                            ';
+                    <tr class="'.$active.$bold.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click()" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">
+                        <td class="c" sorttable_customkey="'.$bsz['stat_id'].'">'.getStatText('anyagigenyles', $bsz['stat_id']).'</td>
+                        <td class="c">'.$bsz['ikt_szam'].'</td>
+                        <td class="c">'.$telephely['nev'].'</td>
+                        <td class="c">'.$bsz['cikk_id'].'</td>
+                        <td>'.$bsz['anyagigenyles_nev'].'</td>
+                        <td>'.htmlspecialchars_decode(nl2br2($bsz['igleir'])).'</td>
+                        <td>'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>
+                        <td class="r nowrap">'.number_format($bsz['igmen'], 2, ',', ' ').'</td>
+                        <td class="c">'.$bsz['cikkmee'].'</td>
+                        <td class="c">'.substr(str_replace('-', '.', $bsz['insert_dt']), 0, 10).'</td>
+                        <td class="r nowrap" id="td_jhmen_'.$bsz['recid'].'" sorttable_customkey="'.$bsz['jhmen'].'">'.$jhmen.'</td>
+                        <td class="r nowrap">'.number_format($bsz['rndmen'], 2, ',', ' ').'</td>
+                        <td class="r nowrap" id="td_rndear_'.$bsz['recid'].'">'.number_format($bsz['rndear'], 4, ',', ' ').'</td>
+                        <td class="r nowrap">'.number_format($bsz['vrndear'], 4, ',', ' ').'</td>
+                        <td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>
+                    </tr>
+                ';
+
                 $i++;
             }
 
