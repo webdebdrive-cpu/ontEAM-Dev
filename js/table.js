@@ -53,7 +53,14 @@ $(function() {
                     bt = $(b).attr('data-sort');
             }
 
-            return at > bt ? inverse ? -1 : 1 : inverse ? 1 : -1;
+            if( isNumeric(at) && isNumeric(bt) ) {
+                at = parseInt(at);
+                bt = parseInt(bt);
+
+                return at > bt ? inverse ? -1 : 1 : inverse ? 1 : -1;
+            } else {
+                return inverse ? bt.localeCompare(at) : at.localeCompare(bt);
+            }
         }, function(){
             return this.parentNode;
         });
@@ -274,4 +281,8 @@ function tablaSorrend( table ) {
             }
         }
     });
+}
+
+function isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
 }
