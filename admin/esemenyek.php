@@ -2343,11 +2343,14 @@ if( isset($_GET['sendMail']) ) {
 
             case 'anyagigenyles.php':
                 if( _jog(JOG_ANYAGREND_KESZIT) ){
-                    $subject = 'Anyagigénylések';
+                    $subject = 'Árajánlatkérés ';
+                    $return .= 'Tisztelt Partnerünk,'."%0D%0A%0D%0A";
+                    $return .= 'Árajánlatot kérünk tárgyi szálloda igénye alapján az alábbi termékekre:'."%0D%0A%0D%0A";
 
                     $idk = json_decode($_GET['idk'], true);
 
                     if( count($idk) ) {
+                        
                         foreach($idk as $id) {
                             if( $angyagigenyles = $adatbazis_kapcsolat->s2('*', 'anyagigenyles', "`recid` = '{$id}'") ) {
                                 foreach($anyagigenyles_tomb as $tomb) {
@@ -2362,11 +2365,15 @@ if( isset($_GET['sendMail']) ) {
                                         break;
 
                                         case 'telephely_id':
-                                            $angyagigenyles[$tomb['name']] = getErtek('nev', 'telephely', 'id', $angyagigenyles[$tomb['name']]);
+                                            $szalloda = $adatbazis_kapcsolat->s2('nev props', 'telephely', "`id`='{$angyagigenyles[$tomb['name']]}'");
+                                            $szalloda_nev = $szalloda['nev'];
+                                            $szalloda_cim = get_props($szalloda['props'], 'SZN').'%0D%0A'.get_props($szalloda['props'], 'CIM');
+                                            $angyagigenyles[$tomb['name']] = $szalloda_nev;
+                                            $subject .= $szalloda_nev.', ';
                                         break;
 
                                         case 'kcs_21':
-                                            $angyagigenyles[$tomb['name']] = erteklista(21, $angyagigenyles[$tomb['name']]);
+                                            $angyagigenyles[$tomb['name']] = erteklista(ERTEKLISTA_PENZNEM, $angyagigenyles[$tomb['name']]);
                                         break;
 
                                         case 'szallito_id':
@@ -2378,8 +2385,14 @@ if( isset($_GET['sendMail']) ) {
                                 }
                             }
 
-                            $return .= '%0D%0A';
+                            $return .= '%0D%0ASzállítási cím:'.$szalloda_cim.'%0D%0A%0D%0A';
                         }
+                        
+                        // Utolsó vessző leszedése
+                        $subject = csonkit($subject, 2);
+                        
+                        $return .= '%0D%0A%0D%0AMielőbbi szíves árajánlatukat várva!%0D%0A%0D%0A';
+                        
                     } else {
                         echo json_encode(array(
                             'hiba'  => 'Kérem jelöljön ki sorokat!',
