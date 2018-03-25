@@ -183,7 +183,8 @@ $(function() {
 
     /* Resize */
     $('.sar-table').each(function() {
-        var thead = $(this).find('thead').not('.sticky');
+        /*var thead = $(this).find('thead').not('.sticky');*/
+        var thead = $(this).find('thead');
 
         thead.find('th').each(function(index, el) {
             $(this).find('.thKeret').append('<div class="grip"></div>');
@@ -195,10 +196,15 @@ $(function() {
         _click = true;
         _resizeElement = {};
 
+        sticky = $(this).parents('thead');
         var th = $(this).parents('th');
-        _resizeElement.that  = th;
-        _resizeElement.width = th.outerWidth();
 
+        _resizeElement.that   = th;
+        _resizeElement.width  = th.outerWidth();
+        _resizeElement.index  = th.index();
+        _resizeElement.sticky = sticky.hasClass('sticky');
+        _resizeElement.originalThead = $(this).parents('table').find('thead').not('.sticky');
+        
         var gripPos = $(this).offset();
         startCursor = {};
 
@@ -223,6 +229,16 @@ $(function() {
                     'max-width': _rew,
                     'width': _rew
                 });
+
+                if( _resizeElement.sticky ) {
+                    _originalTh = _resizeElement.originalThead.find('th').eq(_resizeElement.index);
+
+                    _originalTh.css({
+                        'min-width': _rew,
+                        'max-width': _rew,
+                        'width': _rew
+                    });
+                }
             }
         }
     });
@@ -232,6 +248,7 @@ $(function() {
             _click = false;
 
             tablaSorrend($(_resizeElement.that).parents('table'));
+
             _resizeElement = null;
             $(document).enableSelection();
 
