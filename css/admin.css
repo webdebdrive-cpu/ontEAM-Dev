@@ -2066,6 +2066,10 @@ div.naplo div.nSor div.dtc {
     width: 100%;
 }
 
+#szamlaBetolt.nopadd {
+    padding: 0rem 0rem 0rem 0rem;
+}
+
 #szamlaBetolt.dn {
     display: none;
 }

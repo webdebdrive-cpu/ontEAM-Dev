@@ -165,15 +165,17 @@ $(function() {
     });
 
     $('#tartalomJobb').scroll(function() {
-        var scrollTop = $(this).scrollTop();
+        var scrollTop  = $(this).scrollTop(),
+            scrollLeft = $(this).scrollLeft();
 
         $('.sar-table').each(function() {
             var tableParent  = $(this).parents('#tartalomJobb'),
                 parentOffset = tableParent.offset();
 
-            if( scrollTop > parentOffset.top ) {
+            if( scrollTop > 0 ) {
                 $(this).find('thead.sticky').removeClass('dn').css({
-                    'top': parentOffset.top
+                    'top'   : parentOffset.top,
+                    'left'  : -Math.abs(scrollLeft)
                 });
             } else {
                 $(this).find('thead.sticky').addClass('dn');
