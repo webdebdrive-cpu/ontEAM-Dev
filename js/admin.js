@@ -1,3 +1,4 @@
+var KEY_BACKSP =  8;
 var KEY_TAB    =  9;
 var KEY_ENTER  = 13;
 var KEY_ESCAPE = 27;
@@ -481,14 +482,22 @@ $(function() {
 
     // Dátum mezőket elhagyva újraformázzuk
     $(document).on('blur keyup', '.datepicker, .datetimepicker', function(e) {
+        
+        var cursor_poz = $(this).getCursorPosition();
         if($(this).hasClass('datetimepicker')){
             $(this).val( datum_formatumra_formaz($(this).val(), 'Perc pontos') );
         }else{
             $(this).val( datum_formatumra_formaz($(this).val()) );
         }
+        $(this).cursorTo( cursor_poz );
+        
+        
     });
+    
     $(document).on('blur keyup', '.ora_perc', function(e) {
+        var cursor_poz = $(this).getCursorPosition();
         $(this).val( datum_formatumra_formaz_ora($(this).val()) );
+        $(this).cursorTo( cursor_poz );
     });
     $(document).on('blur', '.datepicker', function(e) {
         if(!$(this).val().trim()){

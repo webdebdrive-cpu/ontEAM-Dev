@@ -1,3 +1,67 @@
+/* Jquery kiegészítés CursorTo */
+(function ($) {
+    
+    $.cursorTo = function (el, index) {
+        if (el.createTextRange) { 
+            var range = el.createTextRange(); 
+            range.move("character", index); 
+            range.select(); 
+        } else if (el.selectionStart != null) { 
+            el.focus(); 
+            el.setSelectionRange(index, index); 
+        }
+    };
+
+    $.fn.cursorTo = function (index, offset) {
+        return this.queue(function (next) {
+            if (isNaN(index)) {
+                var i = $(this).val().indexOf(index);
+                
+                if (offset === true) {
+                    i += index.length;
+                } else if (offset) {
+                    i += offset;
+                }
+                
+                $.cursorTo(this, i);
+            } else {
+                $.cursorTo(this, index);
+            }
+            
+            next();
+        });
+    };
+
+    $.fn.cursorToStart = function () {
+        return this.cursorTo(0);
+    };
+
+    $.fn.cursorToEnd = function () {
+        return this.queue(function (next) {
+            $.cursorTo(this, $(this).val().length);
+            next();
+        });
+    };
+}(jQuery));
+/* Curzor aktuális pozíciója */
+(function ($) {
+    $.fn.getCursorPosition = function () {
+        var input = this.get(0);
+        if (!input) return;
+        if ('selectionStart' in input) {
+            
+            return input.selectionStart;
+        } else if (document.selection) {
+            
+            input.focus();
+            var sel = document.selection.createRange();
+            var selLen = document.selection.createRange().text.length;
+            sel.moveStart('character', -input.value.length);
+            return sel.text.length - selLen;
+        }
+    }
+})(jQuery);
+
 /*
 *	adoszam_formaz()		Adószám megadásakor formázza a megadott számot
 *	checkbox_beallit()		Összes kijelölése/törlése-hez kell adminnál. A paraméterben megdott form del[] checkboxíit a paraméterként átadott értékre állítja (továbbfejleszthető lenne, hogy a del[] is param legyen)
