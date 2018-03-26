@@ -256,7 +256,11 @@ define('ERT_BEJ_REKL_ELUTASITKOR',       2);
 define('ERT_BEJ_IGAZOL_ELUTASITKOR',     3);
 define('ERT_BEJ_VARAKOZTATKOR',          13);
 define('ERT_MUNK_KESZRE_KULSO_MOBIL',    4);
-define('ERT_MUNK_ELUTASIT_UTAN',         5);
+define('ERT_MUNK_VIZSGALAT_UTAN',        5);
+define('ERT_MUNK_ELUTASIT_UTAN',         6);
+define('ERT_MUNK_KK_ELOKESZIT_KOR',      7);
+define('ERT_MUNK_KK_JT_UTAN',            8);
+define('ERT_MUNK_KK_JH_UTAN',            9);
 
 define('ERT_ANYAGIG_JOVAHAGYAS',        10);
 define('ERT_ELFELEJTETT_JELSZO',        11);

@@ -676,6 +676,22 @@ if( isset($_POST['munkalapElokeszit']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
+            
+            // Levélküldés
+            $hiba = '';
+            $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_KK_ELOKESZIT_KOR, 'munkalapElokeszit', '_jog'.JOG_MUNKALAP_KULSOS_ELOKESZIT);
+            if( substr($valasz, 0, 4)=='Hiba' ){
+                $hiba .= $valasz;
+            }
+            if($hiba){
+                echo json_encode(array(
+                    'hiba'  => $hiba,
+                    'title' => 'Hiba',
+                ));
+                $weblap->leallit();
+                exit();
+            }
+            
             echo json_encode(array(
                 'statusz' => 'siker'
             ));
@@ -820,6 +836,7 @@ if( isset($_POST['munkalapKeszre']) ) {
             $weblap->leallit();
             exit();
         }
+        
         // Ha a tételen nincs feladat, akkor hibaüzenet:
         $feladat = $adatbazis_kapcsolat->s2('recid', 'munkalap_feladat', "`tetel_id`='{$utolso_tetel['recid']}'", '', '1');
         if( !$feladat ) {
@@ -852,7 +869,6 @@ if( isset($_POST['munkalapKeszre']) ) {
         // Az utolsó tételnél frissítjük az átadta dátumot
         $sql = $adatbazis_kapcsolat->u('munkalap_tetel', array('atadta_dt'), array('NOW()'), "`recid`='{$utolso_tetel['recid']}'");
         if( $sql === false ) { $db_error = true; }
-
         // Kész vagy igazolásra vár státuszra léptetjük attól függően, hogy milyen személyzettípusról van szó
         $ig_var_statba_leptet = array(MOBILCSOPORT, KULSO_KIVITELEZO);
         if( in_array($munkalap['szemelyzet_id'], $ig_var_statba_leptet) ){
@@ -878,7 +894,7 @@ if( isset($_POST['munkalapKeszre']) ) {
             // Megnézzük, hogy van-e olyan munkalap, ahol ez a bejelentés szerepel
             $mashol_bej = $adatbazis_kapcsolat->s('munkalap_id bejelentes_id', 'munkalap_kapcs', "`bejelentes_id` = '".$bejelentesek[0]['bejelentes_id']."' AND `munkalap_id` != '{$recid}'");
             if( $mashol_bej === false ) { $db_error = true; }
-
+            
             // Ha szerepel
             if( $mashol_bej ) {
                 $osszes_munkalap = count($mashol_bej);
@@ -920,10 +936,14 @@ if( isset($_POST['munkalapKeszre']) ) {
                     }
                 }
             }
+           
+        // Ha a munkalapnak nincs bejelentése, akkor munkalap ID-ját adjunk át, de ezt egy "m" betűvel jelezzük is
+        }else{
+            array_push($mail_megy, 'm'.$recid);
         }
 
+
         if( !$db_error ) {
-            // mysqli_commit($db_kapcs);
 
             // Levélküldés
             foreach($mail_megy as $bejelentes_id){
@@ -1217,6 +1237,25 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
+            
+            // Ha már a 2. jóváhagyóról van szó, akkor levelet is küldünk
+            if( $munkalap['jh1_login'] ){
+                
+                $hiba = '';
+                $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_KK_JH_UTAN, 'munkalapKkJhUtan', '_jog'.JOG_MUNKALAP_KULSOS_MEGREND);
+                if( substr($valasz, 0, 4)=='Hiba' ){
+                    $hiba .= $valasz;
+                }
+                if($hiba){
+                    echo json_encode(array(
+                        'hiba'  => $hiba,
+                        'title' => 'Hiba',
+                    ));
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+            
             echo json_encode(array(
                 'statusz' => 'siker'
             ));
@@ -1372,6 +1411,22 @@ if( isset($_POST['munkalapIgazolElutasit']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
+            
+            // Levélküldés
+            $hiba = '';
+            $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_ELUTASIT_UTAN, 'munkalapElutasit', '_jog'.JOG_MUNKALAP_VIZSGALAT);
+            if( substr($valasz, 0, 4)=='Hiba' ){
+                $hiba .= $valasz;
+            }
+            if($hiba){
+                echo json_encode(array(
+                    'hiba'  => $hiba,
+                    'title' => 'Hiba',
+                ));
+                $weblap->leallit();
+                exit();
+            }
+            
             echo json_encode(array(
                 'statusz' => 'siker'
             ));
@@ -1540,7 +1595,7 @@ if( isset($_POST['munkalapReklamacioElutasit']) ) {
 
                 // Levélküldés
                 $hiba = '';
-                $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_ELUTASIT_UTAN, 'munkalapElutasit', '_jog'.JOG_MUNKALAP_IGAZOLAS);
+                $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_VIZSGALAT_UTAN, 'munkalapVizsgalatUtan', '_jog'.JOG_MUNKALAP_IGAZOLAS);
                 if( substr($valasz, 0, 4)=='Hiba' ){
                     $hiba .= $valasz;
                 }
@@ -1913,6 +1968,24 @@ if( isset($_POST['kulsokivHozzarend']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
+
+            // Javaslattételkor levélküldés
+            if(isset($_POST['javaslattetel'])) {
+                $hiba = '';
+                $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_KK_JT_UTAN, 'munkalapKkJtUtan', '_jog'.JOG_MUNKALAP_KULSOS_DONTES);
+                if( substr($valasz, 0, 4)=='Hiba' ){
+                    $hiba .= $valasz;
+                }
+                if($hiba){
+                    echo json_encode(array(
+                        'hiba'  => $hiba,
+                        'title' => 'Hiba',
+                    ));
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+            
             echo json_encode(array(
                 'statusz' => 'siker'
             ));
@@ -4042,6 +4115,24 @@ if( isset($_POST['munkalapTelepitett']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
+            
+            // Levélküldés
+            if($sor['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT){
+                $hiba = '';
+                $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_KK_ELOKESZIT_KOR, 'munkalapElokeszit', '_jog'.JOG_MUNKALAP_KULSOS_ELOKESZIT);
+                if( substr($valasz, 0, 4)=='Hiba' ){
+                    $hiba .= $valasz;
+                }
+                if($hiba){
+                    echo json_encode(array(
+                        'hiba'  => $hiba,
+                        'title' => 'Hiba',
+                    ));
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+            
             echo json_encode(array(
                 'statusz' => 'siker'
             ));
@@ -4137,6 +4228,24 @@ if( isset($_POST['munkalapTeruletiVezeto']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
+            
+            // Levélküldés
+            if( $munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT ){
+                $hiba = '';
+                $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_KK_ELOKESZIT_KOR, 'munkalapElokeszit', '_jog'.JOG_MUNKALAP_KULSOS_ELOKESZIT);
+                if( substr($valasz, 0, 4)=='Hiba' ){
+                    $hiba .= $valasz;
+                }
+                if($hiba){
+                    echo json_encode(array(
+                        'hiba'  => $hiba,
+                        'title' => 'Hiba',
+                    ));
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+            
             echo json_encode(array(
                 'statusz' => 'siker',
             ));
@@ -4247,6 +4356,24 @@ if( isset($_POST['munkalapMuszakiVezeto']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
+            
+            // Levélküldés
+            if($munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT){
+                $hiba = '';
+                $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_KK_ELOKESZIT_KOR, 'munkalapElokeszit', '_jog'.JOG_MUNKALAP_KULSOS_ELOKESZIT);
+                if( substr($valasz, 0, 4)=='Hiba' ){
+                    $hiba .= $valasz;
+                }
+                if($hiba){
+                    echo json_encode(array(
+                        'hiba'  => $hiba,
+                        'title' => 'Hiba',
+                    ));
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+            
             echo json_encode(array(
                 'statusz' => 'siker',
             ));
@@ -4411,6 +4538,24 @@ if( isset($_POST['munkalapAdminisztrator']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
+            
+            // Levélküldés
+            if( $munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT ){
+                $hiba = '';
+                $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_KK_ELOKESZIT_KOR, 'munkalapElokeszit', '_jog'.JOG_MUNKALAP_KULSOS_ELOKESZIT);
+                if( substr($valasz, 0, 4)=='Hiba' ){
+                    $hiba .= $valasz;
+                }
+                if($hiba){
+                    echo json_encode(array(
+                        'hiba'  => $hiba,
+                        'title' => 'Hiba',
+                    ));
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+            
             echo json_encode(array(
                 'statusz' => 'siker',
             ));
@@ -4499,6 +4644,24 @@ if( isset($_POST['munkalapDiszpKozp']) ) {
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
+            
+            // Levélküldés
+            if( $munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT ){
+                $hiba = '';
+                $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_KK_ELOKESZIT_KOR, 'munkalapElokeszit', '_jog'.JOG_MUNKALAP_KULSOS_ELOKESZIT);
+                if( substr($valasz, 0, 4)=='Hiba' ){
+                    $hiba .= $valasz;
+                }
+                if($hiba){
+                    echo json_encode(array(
+                        'hiba'  => $hiba,
+                        'title' => 'Hiba',
+                    ));
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+            
             echo json_encode(array(
                 'statusz' => 'siker',
             ));
