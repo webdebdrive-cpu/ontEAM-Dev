@@ -4378,6 +4378,19 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
                 ){
                 exit;
             }
+            
+            // Csak olyan ID törölhető, amit láthatok.
+            szamla_lista('', '', '', 'csak SQL miatt');
+            $van_getid = false;
+            $akt_sql = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
+            while( $akt_sor = mysqli_fetch_assoc($akt_sql) ){
+                if( $akt_sor['recid']== $_GET[$ertek['torid']] ){
+                    $van_getid = true;
+                }
+            }
+            if(!$van_getid){
+                exit;
+            }
         }
 
         // Felmérési tervnél a Tervlap is tartalmaz egy dokumentumot
