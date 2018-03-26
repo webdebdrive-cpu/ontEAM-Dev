@@ -4363,6 +4363,35 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             level_felkeszit_es_kuld('bejelentes', $_GET[$ertek['torid']], '', 'bejelentes_torolve', 'diszpecser_kozponti');
 
         }
+        
+        // Munkalap törlésének feltételei
+        if($ertek['tabla']=='munkalap'){
+            // Ha nincs megfelelő jog, akkor kilépünk
+            if( !_jog(JOG_MUNKALAP_TOROL) ){
+                exit;
+            }
+            
+            // Ha van még tétele vagy bejeletése, akkor nem törölhetjük
+            if( 
+                    $adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id`='{$_GET[$ertek['torid']]}'") ||
+                    $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id`='{$_GET[$ertek['torid']]}'")
+                ){
+                exit;
+            }
+            
+            // Csak olyan ID törölhető, amit láthatok.
+            szamla_lista('', '', '', 'csak SQL miatt');
+            $van_getid = false;
+            $akt_sql = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
+            while( $akt_sor = mysqli_fetch_assoc($akt_sql) ){
+                if( $akt_sor['recid']== $_GET[$ertek['torid']] ){
+                    $van_getid = true;
+                }
+            }
+            if(!$van_getid){
+                exit;
+            }
+        }
 
         // Felmérési tervnél a Tervlap is tartalmaz egy dokumentumot
         $fajl = $adatbazis_kapcsolat->s2('felm_terv', $ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
