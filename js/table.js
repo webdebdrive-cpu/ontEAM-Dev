@@ -156,7 +156,7 @@ $(function() {
         });
 
         sticky.css({
-            'position'  : 'absolute',
+            'position'  : 'fixed',
             'top'       : '0',
             'z-index'   : '10'
         });
@@ -173,7 +173,7 @@ $(function() {
 
             if( scrollTop > parentOffset.top ) {
                 $(this).find('thead.sticky').removeClass('dn').css({
-                    'top': scrollTop
+                    'top': parentOffset.top
                 });
             } else {
                 $(this).find('thead.sticky').addClass('dn');
@@ -204,7 +204,7 @@ $(function() {
         _resizeElement.index  = th.index();
         _resizeElement.sticky = sticky.hasClass('sticky');
         _resizeElement.originalThead = $(this).parents('table').find('thead').not('.sticky');
-        
+
         var gripPos = $(this).offset();
         startCursor = {};
 
