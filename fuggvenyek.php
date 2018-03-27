@@ -3329,7 +3329,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $oszlopok_sorrend = array();
             if( $sorrend ) {
                 $sorrend = json_decode(htmlspecialchars_decode($sorrend), true);
-
+                
                 foreach($sorrend[$tabla] as $key => $value) {
                     foreach($oszlopok as $key => $val) {
                        if( $val['id'] === $value['id']) {
@@ -5857,7 +5857,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
 
         // Bejelentőnek
         case 'bejelento':
-            
+
             if(substr($recid, 0, 1)=='m'){
                 $munkalap   = $adatbazis_kapcsolat->s2('text', 'munkalap', "`recid`='".substr($recid, 1)."'");
                 $hiba       = htmlspecialchars_decode( nl2br2( $munkalap['text'] ) );
@@ -5971,20 +5971,20 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $munkalap       = $adatbazis_kapcsolat->s2('ikt_szam telephely_id obj_id text szemelyzet_id szallito_id insert_dt', $tabla, "`recid`='{$recid}'");
             $munkalap_kapcs = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
             $bejelentes     = $adatbazis_kapcsolat->s2('hiba_id', 'bejelentes', "`recid`='{$munkalap_kapcs['bejelentes_id']}'");
-            
+
             // Ha nincs bejeletése, akkor más a hiba
             $hiba = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
             if(!$bejelentes){
                 $hiba = htmlspecialchars_decode( nl2br2( $munkalap['text'] ) );
             }
-            
+
             // Ha mobil jelentette készre, akkor felveszünk egy Készre jelentette: adatot is
             $keszre_jelentette = '';
             if( $sablon == 'munkalapKeszreKulso' && $_SESSION[get_db_tabla().'szemelyzet_id'] == MOBILCSOPORT ){
                 $login = $adatbazis_kapcsolat -> s2('mobil', 'login', "`nev` = '{$_SESSION[get_db_tabla().'user']}'");
                 $keszre_jelentette .= $_SESSION[get_db_tabla().'teljes_nev'].' '. getErtek('nev', 'szerepkor', 'recid', $_SESSION[get_db_tabla().'szemelyzet_id']).' '.$login['mobil'];
             }
-            
+
             // Ha külsős munkát jelentettek készre, alul jelenjen meg a Külső kivitelező
             if( $munkalap['szemelyzet_id']==KULSO_KIVITELEZO ){
                 $keszre_jelentette .= "\r\n".'<br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']);
@@ -6037,7 +6037,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             if($sablon=='munkalapElokeszit'){
                 $sql_kieg = "`szemelyzet_id`='{$munkalap['szemelyzet_id']}' AND ";
             }
-            
+
             // Több címzett is van
             $cimzettek = $adatbazis_kapcsolat->s('nev teljes_nev usermail aktiv virtual szemelyzet_id', 'login', "{$sql_kieg} substr(`flags`, ".(JOG_MUNKALAP_VIZSGALAT+1).", 1)=1 AND substr(`flags_ert`, ".($ert_pipa+1).", 1)=1 AND `aktiv`=1 AND `virtual`=0");
             if(!$cimzettek){

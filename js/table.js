@@ -4,14 +4,34 @@ $(function() {
         maxMovingRows   : 1,
         dragHandle      : '.some-handle',
         beforeStart     : function(table, sort) {
-            saveSticky = $(table.el[0]).find('thead.sticky');
-            $(table.el[0]).find('thead.sticky').remove();
-            setTimeout(function() {
-                $(table.el[0]).prepend(saveSticky);
-            }, 50);
+            $('#tartalomJobb').addClass('scrollFix');
+
+            if( $('#tartalomJobb').scrollTop() == 0 ) {
+                saveColgroup = $(table.el[0]).find('colgroup');
+                $(table.el[0]).find('colgroup').remove();
+            }
+        },
+        beforeStop      : function(table, sort) {
+            $('#tartalomJobb').removeClass('scrollFix');
         },
         persistState: function(table) {
             tablaSorrend( table.el );
+
+            $(table.el).each(function() {
+                var that = $(this);
+                var thead = that.find('thead');
+
+                thead.find('th').each(function(index, el) {
+                    var th_width = $(this).outerWidth(),
+                        th_index = $(this).index();
+console.log(th_width);
+                    $(that).find('col').eq(th_index).css({
+                        'min-width': th_width,
+                        'max-width': th_width,
+                        'width': th_width
+                    });
+                });
+            });
         }
     });
 
@@ -125,14 +145,14 @@ $(function() {
     });
 
     $('.sar-table').each(function() {
-        var sticky      = $(this).find('thead').clone().addClass('sticky dn'),
-            stickyWidth = 0;
+        var colgroup = $('<colgroup>');
 
         $(this).find('thead').find('th').each(function() {
             var width = $(this).outerWidth(),
                 index = $(this).index();
 
-            sticky.find('th').eq(index).css({
+            colgroup.append('<col>');
+            colgroup.find('col').eq(index).css({
                 'min-width': width,
                 'max-width': width,
                 'width': width
@@ -146,22 +166,9 @@ $(function() {
                     'width': width
                 });
             }, 1000);
-
-            stickyWidth += width;
         });
 
-        sticky.find('th').each(function() {
-            $(this).find('.some-handle').remove();
-            $(this).find('span').css('padding-left', '0');
-        });
-
-        sticky.css({
-            'position'  : 'fixed',
-            'top'       : '0',
-            'z-index'   : '10'
-        });
-
-        $(this).prepend(sticky);
+        $(this).prepend(colgroup)
     });
 
     $('#tartalomJobb').scroll(function() {
@@ -173,12 +180,19 @@ $(function() {
                 parentOffset = tableParent.offset();
 
             if( scrollTop > 0 ) {
-                $(this).find('thead.sticky').removeClass('dn').css({
-                    'top'   : parentOffset.top,
-                    'left'  : -Math.abs(scrollLeft)
+                $(this).find('thead').css({
+                    'position'  : 'fixed',
+                    'top'       : parentOffset.top,
+                    'left'      : -Math.abs(scrollLeft),
+                    'z-index'   : '10'
                 });
             } else {
-                $(this).find('thead.sticky').addClass('dn');
+                $(this).find('thead').css({
+                    'position'  : 'relative',
+                    'top'       : '0',
+                    'left'      : -Math.abs(scrollLeft),
+                    'z-index'   : '10'
+                });
             }
         });
     });
@@ -198,14 +212,12 @@ $(function() {
         _click = true;
         _resizeElement = {};
 
-        sticky = $(this).parents('thead');
         var th = $(this).parents('th');
 
-        _resizeElement.that   = th;
-        _resizeElement.width  = th.outerWidth();
-        _resizeElement.index  = th.index();
-        _resizeElement.sticky = sticky.hasClass('sticky');
-        _resizeElement.originalThead = $(this).parents('table').find('thead').not('.sticky');
+        _resizeElement.that     = th;
+        _resizeElement.width    = th.outerWidth();
+        _resizeElement.index    = th.index();
+        _resizeElement.colGroup = $(this).parents('table').find('colgroup');
 
         var gripPos = $(this).offset();
         startCursor = {};
@@ -232,15 +244,12 @@ $(function() {
                     'width': _rew
                 });
 
-                if( _resizeElement.sticky ) {
-                    _originalTh = _resizeElement.originalThead.find('th').eq(_resizeElement.index);
-
-                    _originalTh.css({
-                        'min-width': _rew,
-                        'max-width': _rew,
-                        'width': _rew
-                    });
-                }
+                _col = _resizeElement.colGroup.find('col').eq(_resizeElement.index);
+                _col.css({
+                    'min-width': _rew,
+                    'max-width': _rew,
+                    'width': _rew
+                });
             }
         }
     });
@@ -253,22 +262,6 @@ $(function() {
 
             _resizeElement = null;
             $(document).enableSelection();
-
-            $('.sar-table').each(function() {
-                var thead = $(this).find('thead').not('.sticky'),
-                    sticky = $(this).find('thead.sticky');
-
-                thead.find('th').each(function(index, el) {
-                    var th_width = $(this).outerWidth(),
-                        th_index = $(this).index();
-
-                    sticky.find('th').eq(th_index).css({
-                        'min-width': th_width,
-                        'max-width': th_width,
-                        'width': th_width
-                    });
-                });
-            });
         }
     });
 });

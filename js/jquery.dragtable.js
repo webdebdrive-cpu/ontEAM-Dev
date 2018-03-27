@@ -164,7 +164,8 @@
 
       totalWidth += 2;
 
-      var sortableHtml = '<ul class="dragtable-sortable" style="position:absolute; width:' + totalWidth + 'px;">';
+      var scrollTop = $('#tartalomJobb').scrollTop();
+      var sortableHtml = '<ul class="dragtable-sortable" style="position:absolute; width:' + totalWidth + 'px; top: ' + scrollTop + 'px;">';
 
       thtb.find('> tr > th').each(function(i, v) {
         var width_li = $(this).is(':visible') ? $(this).outerWidth() : 0;
@@ -304,7 +305,7 @@
         document.selection.empty();
         }
     }
-    
+
     function restoreTextSelection() {
         $('#__dragtable_disable_text_selection__').remove();
         if (body_onselectstart_save) {
