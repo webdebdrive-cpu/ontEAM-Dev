@@ -692,6 +692,8 @@ if( isset($_POST['munkalapElokeszit']) ) {
                 exit();
             }
             
+            mysqli_commit($db_kapcs);
+            
             echo json_encode(array(
                 'statusz' => 'siker'
             ));
@@ -3670,7 +3672,7 @@ if( isset($_POST['szukseges_anyagok_listaja']) ) {
 if( isset($_POST['atadasDiszpecsernek']) ) {
     $recid          = $_POST['recid'];
     $erteklista_id  = $_POST['erteklista_id'];
-    $memo           = 'Reklamáció elfogadva'."\r\n".erteklista(ERTEKLISTA_ATADAS_OKA, $erteklista_id)."\r\n".$_POST['memo'];
+    $memo           = erteklista(ERTEKLISTA_ATADAS_OKA, $erteklista_id)."\r\n".$_POST['memo'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -3769,6 +3771,10 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
 
         // Vizsgálat alatt a bejegyzéseket folyamatbanra állítjuk
         if($munkalap['stat_id'] == MUNKALAP_STAT_VIZSGALAT_ALATT){
+            
+            // Ekkor a memo-t is megtoldjuk
+            $memo = 'Reklamáció elfogadva'."\r\n".$memo;
+            
             $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
             if( $sql === false ) { $db_error = true; }
             if($bejelentes['bejelentes_id']){
@@ -3777,7 +3783,6 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
                 }
             }
         }
-
 
         // Nyitott státuszra állítjuk a munkalapot
         if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_NYITOTT, $erteklista_id, $memo ) ) {
