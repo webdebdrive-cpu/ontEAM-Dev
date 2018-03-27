@@ -320,10 +320,10 @@ function i_u($type, $tabla, $tomb) {
 
         // Értéklista új bejegyzés esetén
         } else if( $tabla == 'erteklista' ) {
-            $ertek = $adatbazis_kapcsolat->s('id', 'erteklista', "`csoport` = '".$_POST['csoport']."'", '', '');
-
+            $ertek = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport` = '".$_POST['csoport']."'", 'id desc');
+            
             if( $ertek ) {
-                $ertek_id = count($ertek) + 1;
+                $ertek_id = $ertek['id'] + 1;
             } else {
                 $ertek_id = 1;
             }
@@ -6127,8 +6127,13 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         break;
 
         case 'bejelentesReklElutasit':
-            $esemeny =  'bejelentés reklamáció elutasításakor';
-            $targy   =  get_nev().' hibabejelentés lezárásra került';
+            if( $tabla == 'bejelentes' ){
+                $esemeny =  'bejelentés reklamáció elutasításakor';
+                $targy   =  get_nev().' hibabejelentés lezárásra került';
+            }elseif( $tabla == 'munkalap' ){
+                $esemeny =  'munkalap lezárásakor';
+                $targy   =  get_nev().' munkalap lezárásra került';
+            }
             $uzi     =  'Az Ön által bejelentett reklamáció elutasításra került.
                         <br>'.
                         $uzi.
