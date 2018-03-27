@@ -7,7 +7,6 @@ $(function() {
             $('#tartalomJobb').addClass('scrollFix');
 
             if( $('#tartalomJobb').scrollTop() == 0 ) {
-                saveColgroup = $(table.el[0]).find('colgroup');
                 $(table.el[0]).find('colgroup').remove();
             }
         },
@@ -17,21 +16,43 @@ $(function() {
         persistState: function(table) {
             tablaSorrend( table.el );
 
-            $(table.el).each(function() {
-                var that = $(this);
-                var thead = that.find('thead');
+            var colgroup = $('<colgroup>');
 
-                thead.find('th').each(function(index, el) {
-                    var th_width = $(this).outerWidth(),
-                        th_index = $(this).index();
-console.log(th_width);
-                    $(that).find('col').eq(th_index).css({
-                        'min-width': th_width,
-                        'max-width': th_width,
-                        'width': th_width
+            if( $('#tartalomJobb').scrollTop() == 0 ) {
+                $(table.el).each(function() {
+                    var thead = $(this).find('thead');
+
+                    thead.find('th').each(function() {
+                        var width = $(this).outerWidth(),
+                            index = $(this).index();
+
+                        colgroup.append('<col>');
+                        colgroup.find('col').eq(index).css({
+                            'min-width': width,
+                            'max-width': width,
+                            'width': width
+                        });
                     });
                 });
-            });
+
+                $(table.el).prepend(colgroup);
+            } else {
+                $(table.el).each(function() {
+                    var that = $(this);
+                    var thead = that.find('thead');
+
+                    thead.find('th').each(function(index, el) {
+                        var th_width = $(this).outerWidth(),
+                            th_index = $(this).index();
+
+                        $(that).find('col').eq(th_index).css({
+                            'min-width': th_width,
+                            'max-width': th_width,
+                            'width': th_width
+                        });
+                    });
+                });
+            }
         }
     });
 
@@ -168,7 +189,7 @@ console.log(th_width);
             }, 1000);
         });
 
-        $(this).prepend(colgroup)
+        $(this).prepend(colgroup);
     });
 
     $('#tartalomJobb').scroll(function() {
@@ -190,7 +211,7 @@ console.log(th_width);
                 $(this).find('thead').css({
                     'position'  : 'relative',
                     'top'       : '0',
-                    'left'      : -Math.abs(scrollLeft),
+                    'left'      : '0',
                     'z-index'   : '10'
                 });
             }
