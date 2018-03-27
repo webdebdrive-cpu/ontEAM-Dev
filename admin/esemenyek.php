@@ -2347,51 +2347,71 @@ if( isset($_GET['sendMail']) ) {
                     $return .= 'Tisztelt Partnerünk,'."%0D%0A%0D%0A";
                     $return .= 'Árajánlatot kérünk tárgyi szálloda igénye alapján az alábbi termékekre:'."%0D%0A%0D%0A";
 
+                    $anyagigenyles_mailba = array(
+                        array('megn' => 'Megnevezés',           'name' => 'nev'),
+                        array('megn' => 'Leírás',               'name' => 'igleir'),
+                        array('megn' => 'Mennyiség',            'name' => 'jhmen'),
+                        array('megn' => 'Mennyiségi egység',    'name' => 'cikkmee'),
+                        array('megn' => 'Egységár',             'name' => 'rndear'),
+                    );
+                    
                     $idk = json_decode($_GET['idk'], true);
 
                     if( count($idk) ) {
                         
-                        foreach($idk as $id) {
-                            if( $angyagigenyles = $adatbazis_kapcsolat->s2('*', 'anyagigenyles', "`recid` = '{$id}'") ) {
-                                foreach($anyagigenyles_tomb as $tomb) {
-                                    $return .= strip_tags($tomb['megn']);
+                        $idk_impl = implode(', ', $idk);
+                        $szallodak = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
+                        foreach ($szallodak as $szall){
+                            
+                            $szalloda     = $adatbazis_kapcsolat->s2('nev props', 'telephely', "`id`='{$szall['telephely_id']}'");
+                            $szalloda_nev = $szalloda['nev'];
+                            $szalloda_cim = get_props($szalloda['props'], 'SZN').' '.get_props($szalloda['props'], 'CIM');
+                            
+                            $subject .= $szalloda_nev.', ';
+                            $return  .= 'Szálloda: '.$szalloda_nev.'%0D%0ASzállítási cím: '.$szalloda_cim.'%0D%0A%0D%0ATételek:%0D%0A';
+                            
+                            $angyagigenyles = $adatbazis_kapcsolat->s('*', 'anyagigenyles', "`telephely_id`='{$szall['telephely_id']}' AND `recid` IN (".$idk_impl.")");
+                            foreach($angyagigenyles as $anyagi){
+                                
+                                foreach($anyagigenyles_mailba as $tomb) {
+                                    /*$return .= $tomb['megn'];*/
 
                                     switch($tomb['name']) {
                                         case 'stat_id':
                                             $statusz_sor = $adatbazis_kapcsolat->s2('stat_id', $tabla, "`recid` = '{$id}'");
 
                                             $statusz = getStatText($tomb['oldal'], $statusz_sor['stat_id']);
-                                            $angyagigenyles[$tomb['name']] = $statusz;
+                                            $anyagi[$tomb['name']] = $statusz;
                                         break;
 
                                         case 'telephely_id':
-                                            $szalloda = $adatbazis_kapcsolat->s2('nev props', 'telephely', "`id`='{$angyagigenyles[$tomb['name']]}'");
-                                            $szalloda_nev = $szalloda['nev'];
-                                            $szalloda_cim = get_props($szalloda['props'], 'SZN').'%0D%0A'.get_props($szalloda['props'], 'CIM');
-                                            $angyagigenyles[$tomb['name']] = $szalloda_nev;
-                                            $subject .= $szalloda_nev.', ';
+                                            $anyagi[$tomb['name']] = $szalloda_nev;
                                         break;
 
                                         case 'kcs_21':
-                                            $angyagigenyles[$tomb['name']] = erteklista(ERTEKLISTA_PENZNEM, $angyagigenyles[$tomb['name']]);
+                                            $anyagi[$tomb['name']] = erteklista(ERTEKLISTA_PENZNEM, $anyagi[$tomb['name']]);
                                         break;
 
                                         case 'szallito_id':
-                                            $angyagigenyles[$tomb['name']] = getErtek('nev', 'szallito', 'id', $angyagigenyles[$tomb['name']]);
+                                            $anyagi[$tomb['name']] = getErtek('nev', 'szallito', 'id', $anyagi[$tomb['name']]);
                                         break;
                                     }
 
-                                    $return .= ' '.$angyagigenyles[$tomb['name']].'%0D%0A';
+                                    $return .= ' '. htmlspecialchars_decode( nl2($anyagi[$tomb['name']]) ).' | ';
                                 }
+                                // Újsor az anyagigénylés tételei között
+                                $return  = csonkit($return, 3);
+                                $return .= '%0D%0A';
                             }
-
-                            $return .= '%0D%0ASzállítási cím:'.$szalloda_cim.'%0D%0A%0D%0A';
+                            
+                            // Újsor szálloda váltáskor
+                            $return .= '%0D%0A%0D%0A%0D%0A';
                         }
                         
                         // Utolsó vessző leszedése
                         $subject = csonkit($subject, 2);
                         
-                        $return .= '%0D%0A%0D%0AMielőbbi szíves árajánlatukat várva!%0D%0A%0D%0A';
+                        $return .= 'Mielőbbi szíves árajánlatukat várva!%0D%0A%0D%0A';
                         
                     } else {
                         echo json_encode(array(
