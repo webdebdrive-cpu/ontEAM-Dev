@@ -58,14 +58,13 @@ table.sar-table td.nowrap {
 }
 
 table.sar-table th div.thKeret {
-    padding: 0.5rem;
+    padding: 1.5rem 0.5rem 0.5rem 0.5rem;
     height: 100%;
     position: relative;
 }
 
 table.sar-table th div.thKeret span {
     display: inline-block;
-    padding: 0rem 0rem 0rem 2rem;
 }
 
 table.sar-table th div.thKeret div.grip {
@@ -163,7 +162,7 @@ table.sar-table th div.order.asc:after {
 .some-handle {
     height: 1rem;
     position: absolute;
-    top: 0.9rem;
+    top: 0.5rem;
     left: 0.5rem;
     width: 1.6rem;
 }
@@ -193,7 +192,7 @@ table.sar-table th div.order.asc:after {
 }
 
 .dragtable-sortable {
-    list-style-type: none; margin: 0; padding: 0; -moz-user-select: none; z-index: 10;
+    list-style-type: none; margin: 0; padding: 0; -moz-user-select: none; z-index: 11;
 }
 .dragtable-sortable li {
     margin: 0; padding: 0; float: left; font-size: 1rem; background: white;

@@ -96,6 +96,11 @@ div.szamlaKereses {
     width: calc(100% - 41.6rem);
 }
 
+
+#tartalomJobb.scrollFix {
+    overflow: hidden!important;
+}
+
 .sor.kethasabos div.jobb div.bborder {
     background: transparent;
     cursor: col-resize;
