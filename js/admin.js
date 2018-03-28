@@ -1080,7 +1080,7 @@ $(function() {
             });
         } else {
 
-            /* Ha lefutott az ajax, akkor gondolskojunk róla, hogy csak egy sor legyen kijelölve a bal oldali nav panelben. */
+            /* Ha lefutott az ajax, akkor gondoskodjunk róla, hogy csak egy sor legyen kijelölve a bal oldali nav panelben. */
             if( !request_in_process ) {
                 /* Anyagigénylés alatt ezt mégsem tesszük meg, mert ott több sor kijelölése engedélyezett. Sőt ha engedélyezve lenne más menüpont alatt is a több kijelölés, csoportosítás, akkor azt szintén fel kellene venni itt kivételbe. */
                 if( baseName(location.href) != 'anyagigenyles' ){

@@ -102,10 +102,12 @@ $(function() {
             } else {
                 return inverse ? bt.localeCompare(at) : at.localeCompare(bt);
             }
+            
         }, function(){
             return this.parentNode;
         });
 
+        ujra_sorszamoz_uj();
         $.ajax({
             url : baseName(location.href)+'.php',
             type: 'POST',
@@ -318,4 +320,17 @@ function tablaSorrend( table ) {
 
 function isNumeric(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+function ujra_sorszamoz_uj(){
+    
+    /* Hagyjuk időt az átrendezésnek */
+    setTimeout(function(){
+        var i = 1;
+        $('.szamla_cont_tabla tbody tr').each(function () {
+            $(this).attr('data-i', i);
+            i++;
+        });
+    }, 1);
+
 }

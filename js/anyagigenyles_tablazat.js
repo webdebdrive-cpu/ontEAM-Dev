@@ -8,34 +8,10 @@
 });*/
 
 /* Oszlopnevekre kattintva azt is tároljuk le, hogy mi a sorrendezés és annak iránya */
-/*$(document).on('dblclick', '.szamla_cont_tabla th', function(e) {
-
-    oszlop = $(this).attr('id');
-    irany  = '';
-    if( $('#sorttable_sortfwdind').length ){
-        irany = 'asc';
-    }
-    if( $('#sorttable_sortrevind').length ){
-        irany = 'desc';
-    }
-
-    $.ajax({
-        url : baseName(location.href)+'.php',
-        type: 'POST',
-        data: {
-            oszlop: oszlop,
-            irany : irany,
-            anyagigenyles_tablazat_rendez: Date.now()
-        },
-        success: function (response) {
-            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-        }
-    });
-});*/
 
 /* Ayagigénylés táblázatban a jóváhagyott mennyiség értéke ha változik. A anyagig_eredeti_jhmen tömb a fuggvenyek.php-ban az anyagigenyleslista() résznél jön létre, ahol a táblázat HTML-je kigenerálódik */
 $(document).on('blur keyup', '.szamla_cont_tabla tbody input', function(e) {
-    if( anyagig_eredeti_jhmen[$(this).attr('id')] != $(this).val() ){
+    if( anyagig_eredeti_jhmen[$(this).attr('recid')] != $(this).val() ){
         $(this).addClass('mod');
         formModositva = true;
     }else{
@@ -107,7 +83,7 @@ $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
                         if( !$('.szamla_cont_tabla tr[data-i="' + i + '"]').hasClass('kijelolve') ) {
                             $('.szamla_cont_tabla tr[data-i="' + i + '"]').addClass('kijelolve');
                             /* A valódi, rejtett nav panelt is megjelöljük */
-                            $('#szamla-'+$('.szamla_cont_tabla tr[data-i="' + i + '"]').attr('data-id')).addClass('kijelolve');
+                            $('#szamla-'+$('.szamla_cont_tabla tr[data-i="' + i + '"]').attr('data-recid')).addClass('kijelolve');
                         }
                     }
                 } else {
@@ -115,7 +91,7 @@ $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
                         if( !$('.szamla_cont_tabla tbody tr[data-i="' + i + '"]').hasClass('kijelolve') ) {
                             $('.szamla_cont_tabla tbody tr[data-i="' + i + '"]').addClass('kijelolve');
                             /* A valódi, rejtett nav panelt is megjelöljük */
-                            $('#szamla-'+$('.szamla_cont_tabla tr[data-i="' + i + '"]').attr('data-id')).addClass('kijelolve');
+                            $('#szamla-'+$('.szamla_cont_tabla tr[data-i="' + i + '"]').attr('data-recid')).addClass('kijelolve');
                         }
                     }
                 }
@@ -132,12 +108,12 @@ $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
             if( $(this).hasClass('kijelolve') ) {
                 $(this).removeClass('kijelolve');
                 /* A valódi, rejtett nav panelt is megjelöljük */
-                $('#szamla-'+$(this).attr('data-id')).removeClass('kijelolve');
+                $('#szamla-'+$(this).attr('data-recid')).removeClass('kijelolve');
 
             } else {
                 $(this).addClass('kijelolve');
                 /* A valódi, rejtett nav panelt is megjelöljük */
-                $('#szamla-'+$(this).attr('data-id')).addClass('kijelolve');
+                $('#szamla-'+$(this).attr('data-recid')).addClass('kijelolve');
             }
 
         }

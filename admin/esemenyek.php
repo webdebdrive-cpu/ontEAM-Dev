@@ -2352,7 +2352,7 @@ if( isset($_GET['sendMail']) ) {
                     $anyagigenyles_mailba = array(
                         array('megn' => 'Megnevezés',           'name' => 'nev',    'szep' => 0),
                         array('megn' => 'Leírás',               'name' => 'igleir', 'szep' => 1),
-                        array('megn' => 'Mennyiség',            'name' => 'jhmen',  'szep' => 0),
+                        array('megn' => 'Mennyiség',            'name' => 'igmen',  'szep' => 0),
                         array('megn' => 'Mennyiségi egység',    'name' => 'cikkmee','szep' => 1),
                     );
                     
@@ -2377,18 +2377,8 @@ if( isset($_GET['sendMail']) ) {
                                 $subject .= $szalloda_nev.', ';
                                 $return  .= 'Szálloda: '.$szalloda_nev.'%0D%0ASzállítási cím: '.$szalloda_cim.'%0D%0A%0D%0ATételek:%0D%0A';
 
-                                $cikk_idk = $adatbazis_kapcsolat->s('distinct cikk_id', 'anyagigenyles', "`telephely_id`='{$szall['telephely_id']}' AND `recid` IN (".$idk_impl.")");
-                                foreach($cikk_idk as $cikk_id){
-
-                                    $jhmen  = 0;
-                                    $igleir = '';
-                                    $angyagigenyles = $adatbazis_kapcsolat->s('*', 'anyagigenyles', "`telephely_id`='{$szall['telephely_id']}' AND `cikk_id`='{$cikk_id['cikk_id']}' AND `recid` IN (".$idk_impl.")");
-                                    foreach($angyagigenyles as $anyagi){
-                                        $jhmen  += $anyagi['jhmen'];
-                                        $igleir .= $anyagi['igleir'].' ';
-                                    }
-                                    $anyagi['jhmen']  = $jhmen;
-                                    $anyagi['igleir'] = $igleir;
+                                $angyagigenyles = $adatbazis_kapcsolat->s('*', 'anyagigenyles', "`telephely_id`='{$szall['telephely_id']}' AND `recid` IN (".$idk_impl.")");
+                                foreach($angyagigenyles as $anyagi){
 
                                     foreach($anyagigenyles_mailba as $tomb) {
                                         /*$return .= $tomb['megn'];*/
