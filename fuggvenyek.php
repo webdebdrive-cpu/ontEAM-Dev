@@ -321,7 +321,7 @@ function i_u($type, $tabla, $tomb) {
         // Értéklista új bejegyzés esetén
         } else if( $tabla == 'erteklista' ) {
             $ertek = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport` = '".$_POST['csoport']."'", 'id desc');
-            
+
             if( $ertek ) {
                 $ertek_id = $ertek['id'] + 1;
             } else {
@@ -3248,58 +3248,58 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     if( $bejegyzesek ) {
 
-        // Anyagrendelés esetén más listát generálunk ki (rndid alapján group by-oztuk)
-        if(isset($_GET['anyagrend'])){
-
-            $jClass = '';
-            // Anyagrendelés készíthet jöghöz van kötve a többszörös kijelölés (Anyagrend alatt is?)
-            if( _jog(JOG_ANYAGREND_KESZIT) ) {
-                $jClass = ' kijelolheto csoport_nevre_kattintas';
-            }
-
-            if( !$frissit ) {
-                $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
-            }
-
-            $i = 1;
-            foreach($bejegyzesek as $bsz) {
-
-                $active = '';
-                if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
-                    $active = ' kijelolve';
-                }
-
-                $azon = $bsz['ikt_szam'];
-                if (isset($_GET['anyagrend'])) {
-                    $azon = $bsz['rndid'];
-                }
-
-                $bold = '';
-                if( $bsz['stat_id'] == CIKKIGN_STAT_NYITOTT ){
-                    $bold = ' class="b"';
-                }
-
-                $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
-                                <span'.$bold.'>'.$azon.' - '.str_replace('-', '.', $bsz['rnd_dt']).'</span>
-                                <span'.$bold.'>'.getStatText('anyagigenyles', $bsz['stat_id']).'</span>
-                            </a>';
-
-                // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
-                if($frissit){
-                    // $active .= ' kijelolve';
-                }
-                $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
-
-
-                $i++;
-            }
-
-            if( !$frissit ) {
-                $html .= '</ul>';
-            }
+        // Anyagrendelés esetén más listát generálunk ki (rndid alapján group by-oztuk) Anyagrend mod: 2018.04
+        // if(isset($_GET['anyagrend'])){
+        //
+        //     $jClass = '';
+        //     // Anyagrendelés készíthet jöghöz van kötve a többszörös kijelölés (Anyagrend alatt is?)
+        //     if( _jog(JOG_ANYAGREND_KESZIT) ) {
+        //         $jClass = ' kijelolheto csoport_nevre_kattintas';
+        //     }
+        //
+        //     if( !$frissit ) {
+        //         $html = '<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'">';
+        //     }
+        //
+        //     $i = 1;
+        //     foreach($bejegyzesek as $bsz) {
+        //
+        //         $active = '';
+        //         if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
+        //             $active = ' kijelolve';
+        //         }
+        //
+        //         $azon = $bsz['ikt_szam'];
+        //         if (isset($_GET['anyagrend'])) {
+        //             $azon = $bsz['rndid'];
+        //         }
+        //
+        //         $bold = '';
+        //         if( $bsz['stat_id'] == CIKKIGN_STAT_NYITOTT ){
+        //             $bold = ' class="b"';
+        //         }
+        //
+        //         $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+        //                         <span'.$bold.'>'.$azon.' - '.str_replace('-', '.', $bsz['rnd_dt']).'</span>
+        //                         <span'.$bold.'>'.getStatText('anyagigenyles', $bsz['stat_id']).'</span>
+        //                     </a>';
+        //
+        //         // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+        //         if($frissit){
+        //             // $active .= ' kijelolve';
+        //         }
+        //         $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+        //
+        //
+        //         $i++;
+        //     }
+        //
+        //     if( !$frissit ) {
+        //         $html .= '</ul>';
+        //     }
 
         // Anyagigényléseknél egy táblázatot rajzolunk ki
-        }else{
+        // }else{
 
             $oszlopok = array(
                 array('id' => 'anyag_tabla_statusz',        'nev' => 'Státusz'),
@@ -3329,7 +3329,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $oszlopok_sorrend = array();
             if( $sorrend ) {
                 $sorrend = json_decode(htmlspecialchars_decode($sorrend), true);
-                
+
                 foreach($sorrend[$tabla] as $key => $value) {
                     foreach($oszlopok as $key => $val) {
                        if( $val['id'] === $value['id']) {
@@ -3509,7 +3509,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $html .= '</ul>';
             }
 
-        }
+        // }
 
         return nl2($html);
     }
@@ -6284,7 +6284,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         $mit            = array('{NEV}');
         $mivel          = array($akt_cimzett['teljes_nev']);
         $megszolitas    = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/megszolitas.html'));
-        
+
         // Tényleges küldés
         if($akt_cimzett['usermail']){
             $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $akt_cimzett['teljes_nev'], $akt_cimzett['usermail'], $targy_kieg.$targy, $uzi_kieg.$megszolitas.$uzi);

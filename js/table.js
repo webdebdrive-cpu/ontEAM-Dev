@@ -199,7 +199,7 @@ $(function() {
         $('.sar-table').each(function() {
             var tableParent  = $(this).parents('#tartalomJobb'),
                 parentOffset = tableParent.offset();
-
+                
             if( scrollTop > 0 ) {
                 $(this).find('thead').css({
                     'position'  : 'fixed',

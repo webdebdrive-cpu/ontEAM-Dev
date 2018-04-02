@@ -2003,8 +2003,12 @@ require_once('selectek.php');
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
 
-            // Anyagrendelés alatt Anyagignylés fül nem kell
-            if( !(isset($_GET['anyagrend']) && $key=='tablazat') ){
+            // Anyagrendelés alatt Anyagignylés fül nem kell Anyagrend mod: 2018.04
+            // if( !(isset($_GET['anyagrend']) && $key=='tablazat') ){
+
+                if( $key=='tablazat' && isset($_GET['anyagrend']) ) {
+                    $value = 'Anyagrendelés';
+                }
 
                 $active = 'active';
                 if( isset($_GET[$key]) ) {
@@ -2026,7 +2030,7 @@ require_once('selectek.php');
                     $fulek .= '<a href="javascript: szamlaBetolt(\''.$id_betolteshez.'\', \''.basename(self()).'\', \''.$key.'\', \'\', \'\', \'Mindenképp tölsön be\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
                 }
 
-            }
+            // }
         }
 
         $szamla_html .= str_replace(
