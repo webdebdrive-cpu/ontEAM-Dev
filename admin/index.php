@@ -34,19 +34,20 @@ if (isset($_GET['stat_ido'])) {
     echo 'f';
 }*/
 
-/*
+
 // Loginról értesítő levelek küldése
 if (isset($_GET['login_ertesit'])) {
 
-    $heliasok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='1040'");
+    $heliasok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='2032'");
     $heliasok = adatbazis2tomb($heliasok, 'nev');
     if($heliasok){
-        $loginok = $adatbazis_kapcsolat->s('teljes_nev nev usermail', 'login', "`aktiv`>0 AND `virtual`<1 AND `usermail`!='' AND LENGTH(`nev`)>=8 AND `szemelyzet_id`='".HIBABEJELENTO."' AND `nev` IN ('".implode('\', \'', $heliasok)."')");
+        $loginok = $adatbazis_kapcsolat->s('teljes_nev nev usermail', 'login', "`aktiv`>0 AND `virtual`<1 AND `usermail`!='' AND `szemelyzet_id`='".HIBABEJELENTO."' AND `nev` IN ('".implode('\', \'', $heliasok)."')");
         foreach( $loginok as $login ){
+            echo $login['nev'] . '<br>';
 $uzi = '
 Tisztelt '.$login['teljes_nev'].'!
 <br>
-<br>Az '.get_nev().' rendszer 2018.02.13 kedd reggel 7:00 időpontban indul a Hélia szállodában.
+<br>Az '.get_nev().' rendszer 2018.04.05 csütörtök reggel 7:00 időpontban indul a Béke szállodában.
 <br>
 <br>Kérjük, hogy ettől az időponttól hibabejelentéseiket az '.get_nev().' rendszerben tegyék meg.
 <br>
@@ -55,12 +56,12 @@ Tisztelt '.$login['teljes_nev'].'!
 <br>Telefonos segítség: Handari Tamás 70-210-1312
 '. fajlbol_olvas('../sablon/admin/mail/alairas.html');
 
-            var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása Hélia szállodában', $uzi) );
+            // var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása Béke szállodában', $uzi) );
         }
     }
     exit;
 }
-*/
+
 
 /*
 if (isset($_GET['trans'])) {

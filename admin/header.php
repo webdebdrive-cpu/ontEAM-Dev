@@ -957,8 +957,13 @@ $belepve = nl2('
         <a href="javascript: felh_valt( true ); void(0);">'.$felh_nev.'</a>
         <br><span class="f11">'.$reszleg.'</span>
     </div>
-    <div class="dtc nav kilep">
+    <div class="dtc nav kilep dn" id="eta_ikon">
         <a href="beleptetes.php?kilep"><i class="material-icons">exit_to_app</i></a>
+        <script>
+        $(document).ready(function () {
+            $(\'#eta_ikon\').removeClass(\'dn\');
+        });
+        </script>
     </div>
 ');
 
