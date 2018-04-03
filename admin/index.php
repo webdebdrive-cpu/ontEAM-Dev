@@ -41,7 +41,7 @@ if (isset($_GET['login_ertesit'])) {
     $heliasok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='2032'");
     $heliasok = adatbazis2tomb($heliasok, 'nev');
     if($heliasok){
-        $loginok = $adatbazis_kapcsolat->s('teljes_nev nev usermail', 'login', "`aktiv`>0 AND `virtual`<1 AND `usermail`!='' AND `szemelyzet_id`='".HIBABEJELENTO."' AND `nev` IN ('".implode('\', \'', $heliasok)."')");
+        $loginok = $adatbazis_kapcsolat->s('teljes_nev nev usermail', 'login', "`aktiv`>0 AND `virtual`<1 AND `usermail`!='' AND (`szemelyzet_id`='".HIBABEJELENTO."' OR `szemelyzet_id`='".SZALLODA_IGAZGATO."') AND `nev` IN ('".implode('\', \'', $heliasok)."')");
         foreach( $loginok as $login ){
             echo $login['nev'] . '<br>';
 $uzi = '
