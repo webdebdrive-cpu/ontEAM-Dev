@@ -236,7 +236,7 @@ $(function() {
     setTimeout(function() {
 
         /* Anyagigénylésnél nem a bal navpanelre kattintunk, hanem a táblázat első sorára */
-        if( baseName(location.href)=='anyagigenyles' && !_get('anyagrend') ){
+        if( baseName(location.href)=='anyagigenyles' ){ /* && !_get('anyagrend') */
             if( !$('table.szamla_cont_tabla tr.kijelolve').length ){
                 $('table.szamla_cont_tabla tbody tr:first-of-type').addClass('kijelolve').click();
             }
@@ -482,7 +482,7 @@ $(function() {
 
     // Dátum mezőket elhagyva újraformázzuk
     $(document).on('blur keyup', '.datepicker, .datetimepicker', function(e) {
-        
+
         var cursor_poz = $(this).getCursorPosition();
         if($(this).hasClass('datetimepicker')){
             $(this).val( datum_formatumra_formaz($(this).val(), 'Perc pontos') );
@@ -490,10 +490,10 @@ $(function() {
             $(this).val( datum_formatumra_formaz($(this).val()) );
         }
         $(this).cursorTo( cursor_poz );
-        
-        
+
+
     });
-    
+
     $(document).on('blur keyup', '.ora_perc', function(e) {
         var cursor_poz = $(this).getCursorPosition();
         $(this).val( datum_formatumra_formaz_ora($(this).val()) );

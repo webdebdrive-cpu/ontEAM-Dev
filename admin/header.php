@@ -232,7 +232,7 @@ if(_jog(JOG_ANYAIGENLES_MEGTEKINT) || _jog(JOG_ANYAGREND_MEGTEKINT) || _jog(JOG_
     $menu_nev_kis    = 'anyagok';
     $menu_nev_tobbes = 'Anyagok';
     $megn            = 'anyagok';
-    $aloldalak       = array('cikktorzs.php', 'anyagigenyles.php?tablazat', 'anyagigenyles.php?anyagrend=1', 'raktar.php');
+    $aloldalak       = array('cikktorzs.php', 'anyagigenyles.php?tablazat', 'anyagigenyles.php?anyagrend=1&tablazat', 'raktar.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
     if(basename(self())=='cikktorzs.php')           { $oldalNev = 'Anyagok / <span id="rekord_neve">Cikktörzs</span><span class="dn" id="rekord_neve_egyes">cikktörzs</span><span class="dn" id="rekord_neve_targy">cikktörzset</span>';        }
     if(basename(self())=='anyagigenyles.php')       {
@@ -688,8 +688,8 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     $csuszkadn  = '';
 }
 
-// Anyagigénylésnél a bal navpanelt elrejtük, itt helyette egy táblázatos fül van
-if(basename(self())=='anyagigenyles.php' && !isset($_GET['anyagrend'])){
+// Anyagigénylésnél a bal navpanelt elrejtük, itt helyette egy táblázatos fül van Anyagrend mod: 2018.04
+if(basename(self())=='anyagigenyles.php' /*&& !isset($_GET['anyagrend'])*/){
     $tbalw  = ' style="width: 0px;"';
     $tjobbw = ' style="width: 100%"';
 }
@@ -776,9 +776,9 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     }
 
     $tartBal = '';
-    // Anyagigénylésnél nincs bal nev panel (de anyagrendnél már igen!)
+    // Anyagigénylésnél nincs bal nev panel (de anyagrendnél már igen!) Anyagrend mod: 2018.04
     if(basename(self())!='anyagigenyles.php' || isset($_GET['anyagrend'])){
-        $tartBal = szamla_lista();
+        // $tartBal = szamla_lista();
     }
 
     if (isset($_GET['gyorskereso_ajax'])) {
