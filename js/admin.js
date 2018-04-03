@@ -5113,6 +5113,15 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     /* URL mod */
                     window.history.pushState("", "", getHost() + param );
 
+                    /* Táblázatnál le kel venni a paddingot */
+                    if(page=='anyagigenyles.php') {
+                        if( _get('tablazat') ) {
+                            $('#szamlaBetolt').addClass('nopadd');
+                        } else {
+                            $('#szamlaBetolt').removeClass('nopadd');
+                        }
+                    }
+
                     /* Új ikonra kattintva mi történik */
                     if( _get('szakterulet') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'szakterulet\'); void(0);');

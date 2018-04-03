@@ -1776,7 +1776,7 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 
 // Központi SQL előállítása a bal oldali navpanel elemeinek kiszámításához (where feltétel, rendezés)
 function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = false ) {
-
+    
     global $adatbazis_kapcsolat;
     global $db_kapcs;
     global $_OPTS;

@@ -1960,7 +1960,12 @@ if( !$_GET['ajax'] ) {
 require_once('selectek.php');
 
     if( !$_GET['ajax'] ) {
-        echo '<div id="szamlaBetolt" class="nopadd" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
+        $class = '';
+        if( isset($_GET['tablazat']) ) {
+            $class = ' class="nopadd"';
+        }
+
+        echo '<div id="szamlaBetolt"'.$class.' data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
     // Megjegyzések darabszáma

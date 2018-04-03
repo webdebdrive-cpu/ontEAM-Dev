@@ -102,7 +102,7 @@ $(function() {
             } else {
                 return inverse ? bt.localeCompare(at) : at.localeCompare(bt);
             }
-            
+
         }, function(){
             return this.parentNode;
         });
@@ -201,7 +201,7 @@ $(function() {
         $('.sar-table').each(function() {
             var tableParent  = $(this).parents('#tartalomJobb'),
                 parentOffset = tableParent.offset();
-                
+
             if( scrollTop > 0 ) {
                 $(this).find('thead').css({
                     'position'  : 'fixed',
@@ -237,7 +237,9 @@ $(function() {
 
         var th = $(this).parents('th');
 
-        _resizeElement.that     = th;
+        _resizeElement.th       = th;
+        _resizeElement.that     = $(this).parents('thead');
+        _resizeElement.tbody    = $(this).parents('table').find('tbody');
         _resizeElement.width    = th.outerWidth();
         _resizeElement.index    = th.index();
         _resizeElement.colGroup = $(this).parents('table').find('colgroup');
@@ -261,10 +263,21 @@ $(function() {
             _rew = _resizeElement.width + offsetCursor.x;
 
             if( _rew > 40 ) {
-                _resizeElement.that.css({
+                _resizeElement.th.css({
                     'min-width': _rew,
                     'max-width': _rew,
                     'width': _rew
+                });
+
+                _resizeElement.tbody.find('tr:first-child td').each(function() {
+                    var index = $(this).index(),
+                        width = $(this).outerWidth();
+
+                    _resizeElement.that.find('th').eq(index).css({
+                        'min-width': width,
+                        'max-width': width,
+                        'width': width
+                    });
                 });
 
                 _col = _resizeElement.colGroup.find('col').eq(_resizeElement.index);
@@ -323,7 +336,7 @@ function isNumeric(n) {
 }
 
 function ujra_sorszamoz_uj(){
-    
+
     /* Hagyjuk időt az átrendezésnek */
     setTimeout(function(){
         var i = 1;
