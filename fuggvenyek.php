@@ -3319,7 +3319,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 array('id' => 'anyag_tabla_penznem',        'nev' => 'Pénzn'),
             );
 
-            // Anyagrendelés készíthet jöghöz van kötve a többszörös kijelölés
+            // Anyagrendelés készíthet joghoz van kötve a többszörös kijelölés
             if( _jog(JOG_ANYAGREND_KESZIT) && !_jog(JOG_ANYAGIGENYLES_JOVAHAGY) ) {
                 $jClass = ' kijelolheto';
             }
@@ -3363,7 +3363,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     }
 
                     $html .= nl2('
-                        <th id="'.$oszl['id'].'"'.$class.$width.'>
+                        <th id="'.$oszl['id'].'"'.$width.'>
                             <div class="thKeret">
                                 <div class="some-handle"></div>
                                 <div class="order'.$order.'"></div>
@@ -3435,7 +3435,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     'anyag_tabla_rend_menny'    => '<td class="r nowrap" data-sort="'.$bsz['rndmen'].'">'.number_format($bsz['rndmen'], 2, ',', ' ').'</td>',
                     'anyag_tabla_rend_egysegar' => '<td class="r nowrap" id="td_rndear_'.$bsz['recid'].'" data-sort="'.$bsz['rndear'].'">'.number_format($bsz['rndear'], 4, ',', ' ').'</td>',
                     'anyag_tabla_dev_rend'      => '<td class="r nowrap">'.number_format($bsz['vrndear'], 4, ',', ' ').'</td>',
-                    'anyag_tabla_penznem'       => '<td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>'
+                    'anyag_tabla_penznem'       => '<td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>',
                 );
 
                 foreach($oszlopok as $oszl) {
