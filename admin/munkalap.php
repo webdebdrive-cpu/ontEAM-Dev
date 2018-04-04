@@ -637,7 +637,7 @@ if( isset($_POST['munkalapElokeszit']) ) {
 
     if( $recid && $szemelyzet_id ) {
 
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '{$recid}'");
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id telephely_id', 'munkalap', "`recid` = '{$recid}'");
         if( $munkalap === false ) { $db_error = true; }
 
         // Státusz ellenőrzése
@@ -655,6 +655,25 @@ if( isset($_POST['munkalapElokeszit']) ) {
         if( !_jog(JOG_MUNKALAP_NYITOTT_KEZEL) ) {
             echo json_encode(array(
                 'hiba'  => 'Nincs joga az előkészítéshez!',
+                'title' => 'Hiba',
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+        
+        // van-e felhasználó, aki adott szerepkörben és szállodára rendelkezik az előkészítés joggal és be van neki pipálva értesítés
+        $van_felh = false;
+        $loginnevek = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$munkalap['telephely_id']}'");
+        $loginnevek = adatbazis2tomb($loginnevek, 'nev');
+        if($loginnevek){
+            if( $adatbazis_kapcsolat->s('recid', 'login', "`szemelyzet_id`='{$szemelyzet_id}' AND `nev` IN ('". implode("', '", $loginnevek)."') AND SUBSTR( `flags`, ".(JOG_MUNKALAP_KULSOS_ELOKESZIT+1).", 1 )=1 AND SUBSTR( `flags_ert`, ".(ERT_MUNK_KK_ELOKESZIT_KOR+1).", 1 )=1") ){
+                $van_felh = true;
+            }
+        }
+        if(!$van_felh){
+            echo json_encode(array(
+                'hiba'  => 'A választott személyzetnek nincs joga Külsős munkát előkészíteni.',
                 'title' => 'Hiba',
             ));
 
