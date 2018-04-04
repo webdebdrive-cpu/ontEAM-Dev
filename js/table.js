@@ -307,6 +307,7 @@ function tablaSorrend( table ) {
         sorrend = {};
 
     table.find('thead').not('.sticky').find('th').each(function(i) {
+        console.log(this.id);
         if(this.id != '') { sorrend[i] = {id: this.id, width: $(this).outerWidth()}; }
     });
 

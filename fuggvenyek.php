@@ -1776,7 +1776,7 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 
 // Központi SQL előállítása a bal oldali navpanel elemeinek kiszámításához (where feltétel, rendezés)
 function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = false ) {
-    
+
     global $adatbazis_kapcsolat;
     global $db_kapcs;
     global $_OPTS;
@@ -3301,6 +3301,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         // Anyagigényléseknél egy táblázatot rajzolunk ki
         // }else{
 
+
             $oszlopok = array(
                 array('id' => 'anyag_tabla_statusz',        'nev' => 'Státusz'),
                 array('id' => 'anyag_tabla_ikt_szam',       'nev' => 'Anyagig. szám'),
@@ -3319,9 +3320,22 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 array('id' => 'anyag_tabla_penznem',        'nev' => 'Pénzn'),
             );
 
+            if(isset($_GET['anyagrend'])) {
+                array_push($oszlopok,
+                    array('id' => 'anyag_tabla_rndid',    'nev' => 'Rendelés szám'),
+                    array('id' => 'anyag_tabla_rnd_dt',   'nev' => 'Rendelés dátum'),
+                    array('id' => 'anyag_tabla_rndertek', 'nev' => 'Rendelés érték')
+                );
+            }
+
             // Anyagrendelés készíthet joghoz van kötve a többszörös kijelölés
             if( _jog(JOG_ANYAGREND_KESZIT) && !_jog(JOG_ANYAGIGENYLES_JOVAHAGY) ) {
                 $jClass = ' kijelolheto';
+            }
+
+            $data_tabla = $tabla;
+            if(isset($_GET['anyagrend'])) {
+                $data_tabla = 'anyagrendeles';
             }
 
             $sorrend = getErtek('tabla_sorrend', 'login', 'recid', $_SESSION[get_db_tabla().'login_recid']);
@@ -3330,21 +3344,23 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if( $sorrend ) {
                 $sorrend = json_decode(htmlspecialchars_decode($sorrend), true);
 
-                foreach($sorrend[$tabla] as $key => $value) {
-                    foreach($oszlopok as $key => $val) {
-                       if( $val['id'] === $value['id']) {
-                           $val['width'] = $value['width'];
-                           $oszlopok_sorrend[] = $val;
+                if( $sorrend[$data_tabla] ) {
+                    foreach($sorrend[$data_tabla] as $key => $value) {
+                        foreach($oszlopok as $key => $val) {
+                           if( $val['id'] === $value['id']) {
+                               $val['width'] = $value['width'];
+                               $oszlopok_sorrend[] = $val;
+                           }
                        }
-                   }
-                }
+                    }
 
-                $oszlopok = $oszlopok_sorrend;
+                    $oszlopok = $oszlopok_sorrend;
+                }
             }
 
             if( !$frissit ) {
                 $html .= nl2('
-                        <table id="dragTable" class="sar-table szamla_cont_tabla'.$jClass.'" data-tabla="'.$tabla.'">
+                        <table id="dragTable" class="sar-table szamla_cont_tabla'.$jClass.'" data-tabla="'.$data_tabla.'">
                         <thead>
                             <tr>');
                 foreach($oszlopok as $oszl) {
@@ -3418,6 +3434,8 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     // $active .= ' kijelolve';
                 }
 
+                $rndertek = getErtek('rndertek', 'cikkrendfej', 'rndid', $bsz['rndid']);
+
                 $html .= '<tr class="'.$active.$bold.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click()" data-recid="'.$bsz['recid'].'" data-i="'.$i.'" id="anyagig-sor-'.$bsz['recid'].'">';
 
                 $sorok = array(
@@ -3425,7 +3443,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     'anyag_tabla_ikt_szam'      => '<td class="c">'.$bsz['ikt_szam'].'</td>',
                     'anyag_tabla_szalloda'      => '<td class="c">'.$telephely['nev'].'</td>',
                     'anyag_tabla_cikkszam'      => '<td class="c">'.$bsz['cikk_id'].'</td>',
-                    'anyag_tabla_cikknev'       => '<td>'.$bsz['anyagigenyles_nev'].'</td>',
+                    'anyag_tabla_cikknev'       => '<td>'.htmlspecialchars_decode($bsz['anyagigenyles_nev']).'</td>',
                     'anyag_tabla_igleir'        => '<td>'.htmlspecialchars_decode(nl2br2($bsz['igleir'])).'</td>',
                     'anyag_tabla_szallito'      => '<td>'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>',
                     'anyag_tabla_ig_menny'      => '<td class="r nowrap" data-sort="'.$bsz['igmen'].'">'.number_format($bsz['igmen'], 2, ',', ' ').'</td>',
@@ -3435,8 +3453,14 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     'anyag_tabla_rend_menny'    => '<td class="r nowrap" data-sort="'.$bsz['rndmen'].'">'.number_format($bsz['rndmen'], 2, ',', ' ').'</td>',
                     'anyag_tabla_rend_egysegar' => '<td class="r nowrap" id="td_rndear_'.$bsz['recid'].'" data-sort="'.$bsz['rndear'].'">'.number_format($bsz['rndear'], 4, ',', ' ').'</td>',
                     'anyag_tabla_dev_rend'      => '<td class="r nowrap">'.number_format($bsz['vrndear'], 4, ',', ' ').'</td>',
-                    'anyag_tabla_penznem'       => '<td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>',
+                    'anyag_tabla_penznem'       => '<td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>'
                 );
+
+                if(isset($_GET['anyagrend'])) {
+                    $sorok['anyag_tabla_rndid']     = '<td class="c">'.$bsz['rndid'].'</td>';
+                    $sorok['anyag_tabla_rnd_dt']    = '<td class="c">'.substr(str_replace('-', '.', $bsz['rnd_dt']), 0, 10).'</td>';
+                    $sorok['anyag_tabla_rndertek']  = '<td class="c" data-sort="'.$rndertek.'">'.number_format($rndertek, 0, ',', ' ').' '.get_penznem().'</td>';
+                }
 
                 foreach($oszlopok as $oszl) {
                     $html .= $sorok[$oszl['id']];
