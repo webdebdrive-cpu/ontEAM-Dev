@@ -102,7 +102,7 @@ class Head{
 		$head .= $this -> og_meta;
         $head .= '<meta name="description" content="'.$this -> desc.'">';
 		$head .= '<meta name="keywords" content="'.$this -> keywords.'">';
-		$head .= '<meta name="robots" content="All, Index, Follow">';
+		$head .= '<meta name="robots" content="noindex, nofollow">';
 		$head .= '<meta name="rating" content="General">';
 		$head .= '<meta name="format-detection" content="telephone=no">';
 		$head .= '<meta name="dcterms.audience" content="Global">';
