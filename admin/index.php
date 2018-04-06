@@ -35,7 +35,7 @@ if (isset($_GET['stat_ido'])) {
 }*/
 
 
-// Loginról értesítő levelek küldése
+/*// Loginról értesítő levelek küldése
 if (isset($_GET['login_ertesit'])) {
 
     $heliasok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='2032'");
@@ -60,7 +60,7 @@ Tisztelt '.$login['teljes_nev'].'!
         }
     }
     exit;
-}
+}*/
 
 
 /*
@@ -86,7 +86,7 @@ if (isset($_GET['trans'])) {
 }
 */
 
-// Ha egy tálbának utólag adsz egy loginnev nevű oszlopnevet
+/*// Ha egy tálbának utólag adsz egy loginnev nevű oszlopnevet
 if (isset($_GET['loginnev_gyart'])) {
 
     // $tabla = 'munkalap';
@@ -108,6 +108,88 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
         
     }
 
+    exit;
+}*/
+
+
+// Logginnév átnevezése
+if (isset($_GET['teszt'])) {
+    
+    $regi_nev = $_GET['regi'];
+    $uj_nev   = $_GET['uj'];
+    
+    if( !$adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$regi_nev}'") ){
+        echo 'A '.$regi_nev.' loginnév nem található a rendszerben!';
+        exit;
+    }
+    if($adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$uj_nev}'")){
+        echo 'A '.$uj_nev.' loginnév már foglalt!';
+        exit;
+    }
+    
+    $tablak_oszlopok = array(
+                            array('tabla' => 'anyagigenyles',           'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'anyagigenyles_dok',       'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'anyagigenyles_statusz',   'oszlop' => 'login'         ),
+                            array('tabla' => 'bejelentes',              'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'bejelentes_arch',         'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'bejelentes_doc',          'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'bejelentes_doc_arch',     'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'bejelentes_statusz',      'oszlop' => 'login'         ),
+                            array('tabla' => 'bejelentes_statusz_arch', 'oszlop' => 'login'         ),
+                            array('tabla' => 'beosztas',                'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'beosztas_naptar',         'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'cash_flow',               'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'cikkrendfej_statusz',     'oszlop' => 'login'         ),
+                            array('tabla' => 'eloterj_bod_dok',         'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'eloterj_bod_statusz',     'oszlop' => 'login'         ),
+                            array('tabla' => 'eloterj_fb_dok',          'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'eloterj_fb_statusz',      'oszlop' => 'login'         ),
+                            array('tabla' => 'eseti_fenntartas',        'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'eseti_fenntartas_doc',    'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'eszkozkezeles_dok',       'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'eszkozkezeles_eng_dok',   'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'ktghely',                 'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'ktgnem',                  'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'login',                   'oszlop' => 'nev'           ),
+                            array('tabla' => 'megjegyzes',              'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'megjegyzes_arch',         'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'munkalap',                'oszlop' => 'mobil_loginnev'),
+                            array('tabla' => 'munkalap',                'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'munkalap',                'oszlop' => 'jh1_login'     ),
+                            array('tabla' => 'munkalap',                'oszlop' => 'jh2_login'     ),
+                            array('tabla' => 'munkalap_14var',          'oszlop' => 'stat_insert_login'),
+                            array('tabla' => 'munkalap_arch',           'oszlop' => 'mobil_loginnev'),
+                            array('tabla' => 'munkalap_arch',           'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'munkalap_arch',           'oszlop' => 'jh1_login'     ),
+                            array('tabla' => 'munkalap_arch',           'oszlop' => 'jh2_login'     ),
+                            array('tabla' => 'munkalap_dok',            'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'munkalap_dok_arch',       'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'munkalap_statusz',        'oszlop' => 'login'         ),
+                            array('tabla' => 'munkalap_statusz_arch',   'oszlop' => 'login'         ),
+                            array('tabla' => 'munkalap_tetel',          'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'munkalap_tetel_arch',     'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'projektigenyles',         'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'projektigenyles_arch',    'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'projektigenyles_doc',     'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'projektigenyles_doc_arch','oszlop' => 'loginnev'      ),
+                            array('tabla' => 'projektigenyles_eloterj', 'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'projektigenyles_eloterj_arch', 'oszlop' => 'loginnev' ),
+                            array('tabla' => 'projektigenyles_kapcs',   'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'projektigenyles_statusz', 'oszlop' => 'login'         ),
+                            array('tabla' => 'rendszeres_karbantartas', 'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'rendszeres_karbantartas_doc', 'oszlop' => 'loginnev'  ),
+                            array('tabla' => 'telephely_kapcs',         'oszlop' => 'nev'           ),
+                            array('tabla' => 'torzsadat',               'oszlop' => 'felh_loginnev' ),
+                            array('tabla' => 'utemezett_feladatok',     'oszlop' => 'loginnev'      ),
+                            array('tabla' => 'utemezett_feladatok_doc', 'oszlop' => 'loginnev'      ),
+        
+                        );
+    foreach ( $tablak_oszlopok as $to ){
+        $adatbazis_kapcsolat->u($to['tabla'], array($to['oszlop']), array($uj_nev), "`{$to['oszlop']}`='{$regi_nev}'");
+        echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    
     exit;
 }
 
