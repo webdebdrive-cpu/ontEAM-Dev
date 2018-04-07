@@ -113,17 +113,21 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 
 
 // Logginnév átnevezése
-if (isset($_GET['teszt'])) {
+if (isset($_GET['loginnev_csere'])) {
     
-    $regi_nev = $_GET['regi'];
-    $uj_nev   = $_GET['uj'];
+    $regi_nev = trim($_GET['regi']);
+    $uj_nev   = trim($_GET['uj']);
     
+    if(!$regi_nev || !$uj_nev){
+        echo 'Nem adatad meg a régi vagy új loginnevet!';
+        exit;
+    }
     if( !$adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$regi_nev}'") ){
-        echo 'A '.$regi_nev.' loginnév nem található a rendszerben!';
+        echo ucfirst(a_az($regi_nev)).' '.$regi_nev.' loginnév nem található a rendszerben!';
         exit;
     }
     if($adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$uj_nev}'")){
-        echo 'A '.$uj_nev.' loginnév már foglalt!';
+        echo ucfirst(a_az($uj_nev)).' '.$uj_nev.' loginnév már foglalt!';
         exit;
     }
     
