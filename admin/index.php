@@ -194,6 +194,8 @@ if (isset($_GET['loginnev_csere'])) {
         echo $adatbazis_kapcsolat->gp() . '<br>';
     }
     
+    $adatbazis_kapcsolat->u('login', array('van_jelszo'), array(0), "`nev`='{$uj_nev}'");
+    
     exit;
 }
 
