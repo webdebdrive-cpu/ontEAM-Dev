@@ -2073,9 +2073,9 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if($tabla=='anyagigenyles'){
             // Jóváhagyva státuszig anyagigénylés, afelett rendelés
             if (isset($_GET['anyagrend'])) {
-                $where .= "`stat_id`>".CIKKIGN_STAT_JOVAHAGYVA;
+                $where .= "`".get_db_tabla()."anyagigenyles`.`stat_id`>".CIKKIGN_STAT_JOVAHAGYVA;
             }else{
-                $where .= "`stat_id`<=".CIKKIGN_STAT_JOVAHAGYVA;
+                $where .= "`".get_db_tabla()."anyagigenyles`.`stat_id`<=".CIKKIGN_STAT_JOVAHAGYVA;
             }
         }
 
@@ -2165,7 +2165,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
                 case 'anyag_tabla_rndid'        : $order = '`'.get_db_tabla().'anyagigenyles`.`rndid`';     break;
                 case 'anyag_tabla_rnd_dt'       : $order = '`'.get_db_tabla().'anyagigenyles`.`rnd_dt`';    break;
-                // case 'anyag_tabla_rndertek'     : $order = '`'.get_db_tabla().'anyagigenyles`.`rndertek`';  break;
+                case 'anyag_tabla_rndertek'     : $order = '`'.get_db_tabla().'cikkrendfej`.`rndertek`';   break;
             }
             $order .= ' '.$_SESSION['anyagigenyles_tablazat_irany'];
         }
@@ -2337,6 +2337,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $sql_kieg .= nl2('
                                 LEFT JOIN `'.get_db_tabla().'szallito` ON (`'.get_db_tabla().'anyagigenyles`.`szallito_id`=`'.get_db_tabla().'szallito`.`id`)
                                 LEFT JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'anyagigenyles`.`kcs_21`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\'21\')
+                                LEFT JOIN `'.get_db_tabla().'cikkrendfej` ON (`'.get_db_tabla().'anyagigenyles`.`rndid`=`'.get_db_tabla().'cikkrendfej`.`rndid`)
                             ');
         }
 
