@@ -2162,6 +2162,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 case 'anyag_tabla_dev_rend'     : $order = '`'.get_db_tabla().'anyagigenyles`.`vrndear`';   break;
                 case 'anyag_tabla_dev_beerk'    : $order = '`'.get_db_tabla().'anyagigenyles`.`erkear`';    break;
                 case 'anyag_tabla_statusz'      : $order = '`'.get_db_tabla().'anyagigenyles`.`stat_id`';   break;
+
+                case 'anyag_tabla_rndid'        : $order = '`'.get_db_tabla().'anyagigenyles`.`rndid`';     break;
+                case 'anyag_tabla_rnd_dt'       : $order = '`'.get_db_tabla().'anyagigenyles`.`rnd_dt`';    break;
+                // case 'anyag_tabla_rndertek'     : $order = '`'.get_db_tabla().'anyagigenyles`.`rndertek`';  break;
             }
             $order .= ' '.$_SESSION['anyagigenyles_tablazat_irany'];
         }
