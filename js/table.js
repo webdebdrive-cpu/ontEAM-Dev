@@ -173,7 +173,7 @@ $(function() {
         var height = $(this).find('thead').find('th:first-child').outerHeight();
         $(this).find('tr.fake td').css('height', height);
 
-        $(this).find('thead').find('th').each(function() {
+        $(this).find('thead').find('th').each(function(i) {
             var width = $(this).outerWidth(),
                 index = $(this).index();
 
@@ -184,6 +184,10 @@ $(function() {
                 'width': width
             });
 
+            if( i == 0 ) {
+                width = width - 1;
+            }
+
             var that = $(this);
             setTimeout(function() {
                 that.css({
@@ -191,7 +195,7 @@ $(function() {
                     'max-width': width,
                     'width': width
                 });
-            }, 1000);
+            }, 500);
         });
 
         $(this).prepend(colgroup);
@@ -228,12 +232,9 @@ $(function() {
                     'z-index'   : '10'
                 });
             } else {
-                /*$(this).find('thead').css({
-                    'position'  : 'relative',
-                    'top'       : '0',
-                    'left'      : '0',
-                    'z-index'   : '10'
-                });*/
+                $(this).find('thead').css({
+                    'left'      : -Math.abs(scrollLeft)
+                });
             }
         });
     });
