@@ -2447,7 +2447,7 @@ require_once('selectek.php');
 
 	// Táblázat
     } elseif(isset($_GET['tablazat'])) {
-
+        
         // A füle CSS-ét itt felülírjuk, illetve a táblázat rendezőt és egyés ide vonatkozós JS-t is meghívunk
         $szamla_html .= nl2('
                 <style type="text/css">
