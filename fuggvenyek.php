@@ -2358,15 +2358,15 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $sql_kieg .= ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
         if(strpos($select, 'obj_id')!==false){
-            $sql_kieg .= ' JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid` ';
+            $sql_kieg .= ' LEFT JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid` ';
         }
         $mivel = 'JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`'.$sql_kieg.' WHERE';
         $sql = $adatbazis_kapcsolat->gp();
 
         // Anyagrendelések miatt
-        if( basename(self()) == 'anyagigenyles.php' && isset($_GET['anyagrend']) ) {
-            $sql = str_replace('ORDER BY', ' GROUP BY `'.get_db_tabla().'anyagigenyles`.`rndid` ORDER BY', $sql);
-        }
+//        if( basename(self()) == 'anyagigenyles.php' && isset($_GET['anyagrend']) ) {
+//            $sql = str_replace('ORDER BY', ' GROUP BY `'.get_db_tabla().'anyagigenyles`.`rndid` ORDER BY', $sql);
+//        }
 
         // Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elá kell beszúrni a JOIN-t
         if(strpos($sql, 'WHERE')===false){
