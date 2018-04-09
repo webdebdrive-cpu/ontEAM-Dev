@@ -2555,7 +2555,7 @@ if( isset($_GET['getBejBejelentok']) ) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $telep_kapcsok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id` = '{$telephely_id}'");
+    $telep_kapcsok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id` = '{$telephely_id}' AND `nev`!='{$_SESSION[get_db_tabla().'user']}'");
     if( $telep_kapcsok === false ) { $db_error = true; }
 
     if( $telep_kapcsok ) {

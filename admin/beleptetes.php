@@ -196,7 +196,6 @@ if(isset($_POST['login'])) {
                         }
                     }
 
-
 //                    if(!$_SESSION['kert_url']){
 //                        $_SESSION['kert_url'] = get_domain().'/'.get_admin();
 //                    }

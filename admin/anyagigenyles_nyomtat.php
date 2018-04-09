@@ -477,12 +477,13 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                             ';
 
 
-            //Szedjük össze az azonos cikkeket, ami adott telephelyhez tartozik, majd számoljuk ki, hány darab kell belőle
-            $anyag_lek = $adatbazis_kapcsolat->s('distinct cikk_id', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$anyag['telephely_id']}'");
+            // Szedjük össze az azonos cikkeket, ami adott telephelyhez tartozik, majd számoljuk ki, hány darab kell belőle
+            $anyag_lek = $adatbazis_kapcsolat->s('DISTINCT `cikk_id`, `igleir`', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$anyag['telephely_id']}'");
             foreach($anyag_lek as $a_lek){
 
                 $rndmen = 0;
-                $anyag_lek_db = $adatbazis_kapcsolat->s('nev cikkmee rndmen rndear igleir', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$anyag['telephely_id']}' AND `cikk_id`='{$a_lek['cikk_id']}'");
+                $a_lek['igleir'] = addslashes($a_lek['igleir']);
+                $anyag_lek_db = $adatbazis_kapcsolat->s('nev cikkmee rndmen rndear igleir', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$anyag['telephely_id']}' AND `cikk_id`='{$a_lek['cikk_id']}' AND `igleir`='{$a_lek['igleir']}'");
                 foreach($anyag_lek_db as $a_lek_db){
                     $rndmen += $a_lek_db['rndmen'];
                 }

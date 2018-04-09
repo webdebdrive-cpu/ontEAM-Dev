@@ -3199,3 +3199,8 @@ div.tableCont {
     position: relative;
     width: 98rem;
 }
+
+.gomb.elf{
+    font-size: 1.1rem;
+    padding: 0.2rem 0.4rem;
+}

@@ -1551,7 +1551,6 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
 
     // Anyagigénylés érkeztetésének feldolgozása
     if($_POST['idk']){
-
         // Tranzakció indul
         $db_error = false;
         mysqli_autocommit($db_kapcs, false);
@@ -1602,8 +1601,12 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
         }
 
         // Ciklus után minden esetben átírjuk cikkrndfej tábla statidet mysql procedúrával: call setcikkrndfejstatid(aparecid,loginuser.nev);
-        $sql = mysqli_query($db_kapcs, 'call setcikkrndfejstatid('.$anyagigenyles['aparecid'].', \''.$_SESSION[get_db_tabla().'teljes_nev'].'\')');
-        if( $sql === false ) { $db_error = true; }
+        // WebDeb adatbázisban nem futott le rendesen, itt kiagyjuk
+        if($_SERVER['HTTP_HOST']!='demo.webdeb.hu'){
+            $sql = mysqli_query($db_kapcs, 'call setcikkrndfejstatid('.$anyagigenyles['aparecid'].', \''.$_SESSION[get_db_tabla().'teljes_nev'].'\')');
+            if( $sql === false ) { $db_error = true; }
+        }
+
 
         //Archiválás egy lépésben törétnik, ha minden anyagigénylés sor státusza > 35
 //        if($marerkmen+$erkmen>=$rndmen || $nemfogerk){
