@@ -83,7 +83,7 @@ $(function() {
 
         var index = th.index();
 
-        table.find('tbody td').filter(function() {
+        table.find('tbody tr').not('.fake').find('td').filter(function() {
             return $(this).index() === index;
         }).sortElements(function(a, b) {
             var at = $.text([a]),
@@ -170,6 +170,9 @@ $(function() {
     $('.sar-table').each(function() {
         var colgroup = $('<colgroup>');
 
+        var height = $(this).find('thead').find('th:first-child').outerHeight();
+        $(this).find('tr.fake td').css('height', height);
+
         $(this).find('thead').find('th').each(function() {
             var width = $(this).outerWidth(),
                 index = $(this).index();
@@ -192,6 +195,21 @@ $(function() {
         });
 
         $(this).prepend(colgroup);
+
+
+
+        var scrollTop  = $('#tartalomJobb').scrollTop(),
+            scrollLeft = $('#tartalomJobb').scrollLeft();
+
+        var tableParent  = $(this).parents('#tartalomJobb'),
+            parentOffset = tableParent.offset();
+
+        $(this).find('thead').css({
+            'position'  : 'fixed',
+            'top'       : parentOffset.top,
+            'left'      : -Math.abs(scrollLeft),
+            'z-index'   : '10'
+        });
     });
 
     $('#tartalomJobb').scroll(function() {
@@ -210,12 +228,12 @@ $(function() {
                     'z-index'   : '10'
                 });
             } else {
-                $(this).find('thead').css({
+                /*$(this).find('thead').css({
                     'position'  : 'relative',
                     'top'       : '0',
                     'left'      : '0',
                     'z-index'   : '10'
-                });
+                });*/
             }
         });
     });
@@ -269,7 +287,7 @@ $(function() {
                     'width': _rew
                 });
 
-                _resizeElement.tbody.find('tr:first-child td').each(function() {
+                /*_resizeElement.tbody.find('tr:first-child td').each(function() {
                     var index = $(this).index(),
                         width = $(this).outerWidth();
 
@@ -278,7 +296,7 @@ $(function() {
                         'max-width': width,
                         'width': width
                     });
-                });
+                });*/
 
                 _col = _resizeElement.colGroup.find('col').eq(_resizeElement.index);
                 _col.css({

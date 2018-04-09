@@ -2137,8 +2137,8 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
         }
 
-        // Rendezés anyagigényléskor
-        if($tabla=='anyagigenyles' && !isset($_GET['anyagrend'])){
+        // Rendezés anyagigényléskor Anyagrend mod: 2018.04
+        if($tabla=='anyagigenyles' /*&& !isset($_GET['anyagrend'])*/){
 
             // Táblázatos rendezés miatt itt másképp kell a rendezést megoldani
             // Alapértelmezett irány beállítása
@@ -3397,6 +3397,11 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                         </thead>
                     <tbody>
                 ');
+                $html .= nl2('<tr class="fake">');
+                foreach($oszlopok as $oszl) {
+                    $html .= nl2('<td></td>');
+                }
+                $html .= nl2('</tr>');
             }
 
             $i = 1;
