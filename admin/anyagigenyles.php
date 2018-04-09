@@ -1825,8 +1825,7 @@ if (isset($_GET['csv'])) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
-        // Anyagrendelés. FONTOS: itt az SQL egy rndid alapján "group by"-ozott lekérdezés. Viszont ezt rendelésenként be kell járni.
-        // De azért indulunk ki az eredeti SQL-ből (és nem kezdjük a cikkrndfej tálbát bejárni) mert így lesznek a kíávnt rekordok az exportban is.
+        // De azért indulunk ki az eredeti SQL-ből (és nem kezdjük a cikkrndfej táblát bejárni) mert így lesznek a kívánt rekordok az exportban is.
         if(isset($_GET['anyagrend'])){
             $sql = 'SELECT
                     `'.get_db_tabla().'anyagigenyles`.`rndid` as \'Rendelés szám\',
@@ -2538,7 +2537,7 @@ require_once('selectek.php');
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
 
-        // Duplákáláskor feltett kérdés
+        // Duplikáláskor feltett kérdés
         $szamla_html .= nl2('
             <script>
                 duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
@@ -2583,6 +2582,7 @@ require_once('selectek.php');
                                 ');
         }
 
+        /* 2018.04.09 mégsem
         // AnyagRendelés esetén az anygigényléseket még fel kell sorolni egy táblázatba
         if (isset($_GET['anyagrend'])) {
 
@@ -2631,7 +2631,7 @@ require_once('selectek.php');
                 }
             }
 
-        }
+        }*/
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
         $szamla_html .= '<div class="dn">'.szamla_lista().'</div>';

@@ -1818,13 +1818,26 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 // Anyagrendeléskor más az űrlap
 if (isset($_GET['anyagrend'])) {
-    $anyagigenyles_tomb = $akt_tomb = array(
+        $anyagigenyles_tomb = $akt_tomb = array(
         array('type' => 'statusz',                  'megn' => 'Státusz:',                       'name' => 'stat_id',        'szuro' => 1,   'oldal' => $megnevezes),
+        array('type' => 'text',                     'megn' => 'Anyagigénylés szám:',            'name' => 'ikt_szam',       'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 8rem'),
+        array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                      'name' => 'telephely_id',   'szuro' => 1,   'disabled' => 1,   'class' => 'disableNav',   'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+        array('type' => 'text',                     'megn' => 'Cikkszám:',                      'name' => 'cikk_id',        'szuro' => 1,   'disabled' => 1),
+        array('type' => 'text',                     'megn' => 'Cikk név:',                      'name' => 'nev',            'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'cikktorzs', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
+        array('type' => 'text',                     'megn' => 'Igényelt mennyiség:',            'name' => 'igmen',          'szuro' => 1,   'disabled' => 1,   'class' => 'f_num', 'post' => ' '.$cikkmee.'<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
+        array('type' => 'checkbox',                 'megn' => 'RB-s anyag:',                    'name' => 'kulsosnek',      'szuro' => 1,   'disabled' => 1),
+        array('type' => 'text',                     'megn' => 'Jóváhagyott mennyiség:',         'name' => 'jhmen',          'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'post' => ' '.$cikkmee.'<span style="margin-left: 2rem"></span>', 'osszevon' => 1, 'style' => $style),
+        array('type' => 'text',                     'megn' => $tav_4.'Rendelés szám:',          'name' => 'rndid',          'szuro' => 1,   'disabled' => 1,   'style' => 'width: 9rem'),
+        array('type' => 'text',                     'megn' => 'Rendelt mennyiség:',             'name' => 'rndmen',         'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="2"',   'post' => ' '.$cikkmee.'<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
+        array('type' => 'text',                     'megn' => $tav_12.'Rendelési egységár:',    'name' => 'rndear',         'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="4"',   'post' => ' '.  get_penznem()),
+        array('type' => 'autocomplete',             'megn' => 'Pénznem:',                       'name' => 'kcs_21',         'szuro' => 1,   'disabled' => 1,   'class' => 'disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 21, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a pénznemet!', 'style' => 'width: 5rem'),
+        array('type' => 'autocomplete',             'megn' => 'Szállító:',                      'name' => 'szallito_id',    'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'id_kiir' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
+        array('type' => 'textarea',                 'megn' => 'Leírás:',                        'name' => 'igleir',         'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'style' => 'height: 4rem'),
+        
         array('type' => 'text',                     'megn' => 'Rendelés szám:',                 'name' => 'rndid',          'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 6.8rem'),
         array('type' => 'text',                     'megn' => 'Rendelés dátum:',                'name' => 'rnd_dt',         'szuro' => 1,   'disabled' => 1,   'style' => 'width: 7.8rem'),
         array('type' => 'text',                     'megn' => 'Rendelés érték:',                'name' => 'rndertek',       'szuro' => 1,   'disabled' => 1,   'style' => 'width: 7.3rem; text-align: right', 'osszevon' => 1, 'post' => ' '.get_penznem().'<span style="margin-left: 4.5rem"></span>'),
         array('type' => 'checkbox',                 'megn' => 'Készpénzes:',                    'name' => 'keszpenz',       'szuro' => 1,   'disabled' => 1),
-        array('type' => 'autocomplete',             'megn' => 'Szállító:',                      'name' => 'szallito_id',    'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'id_kiir' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
         array('type' => 'text',                     'megn' => 'Képfájl:',                       'name' => 'kepfajl',        'szuro' => 0,   'disabled' => 1,   'style' => 'width: 18rem;'),
     );
 }

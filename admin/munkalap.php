@@ -672,8 +672,9 @@ if( isset($_POST['munkalapElokeszit']) ) {
             }
         }
         if(!$van_felh){
+            $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$munkalap['telephely_id']}'");
             echo json_encode(array(
-                'hiba'  => 'A választott személyzetnek nincs joga Külsős munkát előkészíteni.',
+                'hiba'  => a_az($telephely['nev'], 'nagybetű').' '.$telephely['nev'].' szálloda nem rendelkezdik a választott személyzettel!',
                 'title' => 'Hiba',
             ));
 
