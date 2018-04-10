@@ -2345,6 +2345,9 @@ require_once('selectek.php');
                     // Azon belül anyagonként járjuk be
                     $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`!='".DISZPNAG_STAT_VAN_ANYAG."' AND `telephely_id`='{$telephely['telephely_id']}'".$anyag_sql);
                     foreach($anyagok as $anyag){
+                        
+                        $anyag = $adatbazis_kapcsolat->s2('recid id', 'cikktorzs', "`id`='{$anyag['cikk_id']}'");
+                        $anyag['cikk_id'] = $anyag['id'];
 
                         $recid_egyedi_azon = $telephely['telephely_id'].'_'.$anyag['cikk_id'];
 
@@ -2405,7 +2408,7 @@ require_once('selectek.php');
                                             <td class="r zold">'.number_format($folyamatban, 2, ',', ' ').'</td>
                                             <td id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'_mee">'.$akt_anyag['cikk_mee'].'</td>
                                             <td><input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$akt_munkalapok.'\')"></td>
-                                            <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$anyag['cikk_id'].'"></td>
+                                            <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$anyag['recid'].'"></td>
                                             <td>'.$mar_igenyelve.'</td>
                                             <td><input type="button" value="Anyag rendelkezésre áll" class="gomb f_anyag_rendelkezesre_all" data-telephely_id="'.$telephely['telephely_id'].'" data-cikkid_origi="'.$anyag['cikk_id'].'" data-cikk_id="'.$anyag['cikk_id'].'"></td>
                                         </tr>
