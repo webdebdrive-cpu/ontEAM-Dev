@@ -4451,7 +4451,26 @@ function naviTorles() {
 
 /* Bal oldali navpanelben kijelölt sor magasságában legyen a scroll */
 function scrollLeptet() {
-    if($('.szamla_cont_tabla').length){
+    if( $('.sar-table').length ) {
+
+        var active_top      = $('.szamla_cont_tabla tr.kijelolve').position().top,
+            activeHeight    = $('.szamla_cont_tabla tr.kijelolve').outerHeight(),
+            tartBalHeight   = $('#tartalomJobb').outerHeight();
+
+        /* Összeadjuk az active elem magasságát és a felső eltolását */
+        var aTopH = active_top + activeHeight;
+
+        if( (aTopH - activeHeight) < 0 ) {
+            $('#tartalomJobb').scrollTop(0);
+            aTop = $('.szamla_cont_tabla tr.kijelolve').position().top;
+            $('#tartalomJobb').scrollTop(aTop - 250);
+        } else {
+            $('#tartalomJobb').scrollTop(0);
+            aTop = $('.szamla_cont_tabla tr.kijelolve').position().top;
+            $('#tartalomJobb').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
+        }
+
+    } else if($('.szamla_cont_tabla').length){
 
         var active_top      = $('.szamla_cont_tabla tr.kijelolve').position().top,
             activeHeight    = $('.szamla_cont_tabla tr.kijelolve').outerHeight(),
