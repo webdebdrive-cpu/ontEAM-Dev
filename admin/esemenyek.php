@@ -2687,7 +2687,7 @@ if( isset($_GET['munkalapSelect']) ) {
             if( $munkalap_statusz ) {
                 $munkalap_statusz = $munkalap_statusz[0];
 
-                if( in_array($munkalap_statusz['stat_id'], array(MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_FOLYAMATBAN, MUNKALAP_STAT_HATIDO_UTEMEZETT, MUNKALAP_STAT_ANYAGRAVAR)) ) {
+                if( in_array($munkalap_statusz['stat_id'], array(MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_HATIDO_UTEMEZETT, MUNKALAP_STAT_ANYAGRAVAR)) ) {
                     $html .= '<option value="'.$munkalap['recid'].'">'.$munkalap['ikt_szam'].'</option>';
                 }
             }
