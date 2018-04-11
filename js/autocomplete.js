@@ -45,7 +45,7 @@
 
             $(this).attr('data-origin-val', $(this).val());
             $(this).addClass('autocomp'); /* Ettől lesz nyíl ikon az input végén, látszik, hogy egy autocompletes input. */
-            
+
             /* Szállítóknál legyen placeholder, illetve itt 3 karakter kell a listázáshoz */
             if( defaults.tabla=='szallito' && defaults.oszlop_keres=='nev' ){
                 $(this).attr('placeholder', '3 betűt üssön le listához');
@@ -236,7 +236,6 @@
 
             /* Klikkelve kiválasztva egy sor */
             $(document).on('click', '#autocomplete ul li', function(e) {
-
                 var link   = $('#autocomplete ul li.aktiv').attr('data-href'),
                     recid  = $('#autocomplete ul li.aktiv').attr('data-recid'),
                     cikkid = $('#autocomplete ul li.aktiv').attr('data-cikkid');
@@ -280,31 +279,33 @@
                             form = $('#alert2');
                         }
 
-                        /* Autcomplete után a következő inputra fókusz */
-                        stop = false;
-                        form.find('input:not([readonly]), select:not([readonly]), textarea:not([readonly])').filter(':not(:disabled)').filter(":not([type='file'])").each(function() {
-                            var name = $(this).attr('name'),
-                                type = $(this).attr('type'),
-                                tag  = $(this).prop('tagName');
+                        setTimeout(function() {
+                            /* Autcomplete után a következő inputra fókusz */
+                            stop = false;
+                            form.find('input:not([readonly]), select:not([readonly]), textarea:not([readonly])').filter(':not(:disabled)').filter(":not([type='file'])").each(function() {
+                                var name = $(this).attr('name'),
+                                    type = $(this).attr('type'),
+                                    tag  = $(this).prop('tagName');
 
-                            /* Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is */
-                            if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
+                                /* Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is */
+                                if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
 
-                                if( type == 'checkbox' || tag == 'SELECT' ) {
-                                    document.getElementById(name).focus();
-                                } else {
-                                    if($('#' + name).length){
-                                        document.getElementById(name).select();
+                                    if( type == 'checkbox' || tag == 'SELECT' ) {
+                                        document.getElementById(name).focus();
+                                    } else {
+                                        if($('#' + name).length){
+                                            document.getElementById(name).select();
+                                        }
                                     }
+
+                                    return false;
                                 }
 
-                                return false;
-                            }
-
-                            if( name == mezo_nev ) {
-                                stop = true;
-                            }
-                        });
+                                if( name == mezo_nev ) {
+                                    stop = true;
+                                }
+                            });
+                        }, 50);
                     }
 
                     /* Árazás popuphoz */
@@ -444,30 +445,32 @@
 
                                 var form = $('input[name="' + mezo_nev + '"]').parents('form');
 
-                                stop = false;
-                                form.find('input, select, textarea').filter(':not(:disabled)').filter(":not([readonly='readonly'])").filter(":not([type='file'])").each(function() {
-                                    var name = $(this).attr('name'),
-                                        type = $(this).attr('type'),
-                                        tag  = $(this).prop('tagName');
+                                setTimeout(function() {
+                                    stop = false;
+                                    form.find('input, select, textarea').filter(':not(:disabled)').filter(":not([readonly='readonly'])").filter(":not([type='file'])").each(function() {
+                                        var name = $(this).attr('name'),
+                                            type = $(this).attr('type'),
+                                            tag  = $(this).prop('tagName');
 
-                                    /* Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is */
-                                    if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
+                                        /* Autocomplete hidden inputjai miatt csak arra fókuszálunk, ami látszik is */
+                                        if( name !== undefined && (stop && type == 'checkbox') || (stop && $(this).is(':visible')) ) {
 
-                                        if( type == 'checkbox' || tag == 'SELECT' ) {
-                                            document.getElementById(name).focus();
-                                        } else {
-                                            if($('#' + name).length){
-                                                document.getElementById(name).select();
+                                            if( type == 'checkbox' || tag == 'SELECT' ) {
+                                                document.getElementById(name).focus();
+                                            } else {
+                                                if($('#' + name).length){
+                                                    document.getElementById(name).select();
+                                                }
                                             }
+
+                                            return false;
                                         }
 
-                                        return false;
-                                    }
-
-                                    if( name == mezo_nev ) {
-                                        stop = true;
-                                    }
-                                });
+                                        if( name == mezo_nev ) {
+                                            stop = true;
+                                        }
+                                    });
+                                }, 50);
                             }
 
                             /* Árazás popuphoz */
