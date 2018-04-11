@@ -481,8 +481,7 @@ $(function() {
     });
 
     // Dátum mezőket elhagyva újraformázzuk
-    $(document).on('blur keyup', '.datepicker, .datetimepicker', function(e) {
-
+    $(document).on('keyup', '.datepicker, .datetimepicker', function(e) {
         var cursor_poz = $(this).getCursorPosition();
         if($(this).hasClass('datetimepicker')){
             $(this).val( datum_formatumra_formaz($(this).val(), 'Perc pontos') );
@@ -490,8 +489,15 @@ $(function() {
             $(this).val( datum_formatumra_formaz($(this).val()) );
         }
         $(this).cursorTo( cursor_poz );
+    });
 
-
+    $(document).on('blur', '.datepicker, .datetimepicker', function(e) {
+        var cursor_poz = $(this).getCursorPosition();
+        if($(this).hasClass('datetimepicker')){
+            $(this).val( datum_formatumra_formaz($(this).val(), 'Perc pontos') );
+        }else{
+            $(this).val( datum_formatumra_formaz($(this).val()) );
+        }
     });
 
     $(document).on('blur keyup', '.ora_perc', function(e) {
