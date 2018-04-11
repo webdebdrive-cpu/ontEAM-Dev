@@ -111,10 +111,199 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
     exit;
 }*/
 
-// Kötött fejléc nevű CSV feldolgozása
+// Kötött fejléc nevű CSV feldolgozása (login_import.csv legyen a fájl neve)
 if (isset($_GET['loginnev_import'])) {
     
+    header('Content-Type: text/html; charset='. get_web_charset());
     
+    $fajlnev = 'csv/login_import.csv';
+    setlocale(LC_ALL,'hu_HU');
+
+    $k = 0;
+    if (($csv_fajl = fopen($fajlnev, 'r')) !== FALSE) {
+        while (($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE) {
+
+            $akt_tomb = array();
+            // Első oszlop a fejlécek
+            if($k == 0) {
+
+                foreach($sor as $key => $value) {
+                    $_SESSION['sor_fejlec'][] = $value;
+                }
+
+            // Adatok feldolgozása
+            } else {
+
+                foreach($sor as $key => $value) {
+                    $akt_tomb[$_SESSION['sor_fejlec'][$key]] = $value;
+                }
+
+                foreach($akt_tomb as $key => $value) {
+                    $akt_tomb[$key] = utf8($akt_tomb[$key]);
+                }
+
+                $szemelyzet_id = '';
+                foreach($akt_tomb as $key => $value) {
+                    
+                    switch( utf8($key) ) {
+
+                        case 'Státusz':
+                            $statusz = $akt_tomb[$key];
+                            if( $statusz == 'Szállodai bejelentő' ){
+                                $szemelyzet_id = HIBABEJELENTO;
+                            }
+                            if( $statusz == 'Telepített karbantartó' ){
+                                $szemelyzet_id = TELEPITETT_SZEMELYZET;
+                            }
+//                            if( $statusz == 'Gazdasági vezető' ){
+//                                $szemelyzet_id = MUSZAKI_VEZETO;
+//                            }
+                        break;
+
+
+                        case 'PPM 2 Login név':
+                            $regi_nev = $akt_tomb[$key];
+                        break;
+
+
+                        case 'Név':
+                            $teljes_nev = $akt_tomb[$key];
+                        break;
+
+
+                        case 'ontEAM login':
+                            $login_nev = $akt_tomb[$key];
+                        break;
+
+
+                        case 'Részleg':
+                            $reszleg = $akt_tomb[$key];
+                        break;
+
+
+                        case 'Beosztás':
+                            $beosztas = $akt_tomb[$key];
+                        break;
+
+
+                        case 'Email':
+                            $email = $akt_tomb[$key];
+                        break;
+
+
+                        case 'Telefon':
+                            $telefon = $akt_tomb[$key];
+                        break;
+
+
+                        case 'Értesítés':
+                            $ertesites = $akt_tomb[$key];
+                        break;
+
+
+                        case 'Szálloda':
+                            $szalloda = $akt_tomb[$key];
+                        break;
+                    }
+                }
+
+                if($szemelyzet_id){
+                    if($login_nev){
+                        if(!$adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$login_nev}'")){
+                            $reszleg_sql = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_RESZLEG."' AND `info`='{$reszleg}'");
+                            if(!$reszleg || $reszleg_sql){
+                                
+                                $beosztas_sql = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_BEOSZTAS."' AND `info`='{$beosztas}'");
+                                if(!$beosztas || $beosztas_sql){
+                                
+                                    $mezok   = array('nev',      'szemelyzet_id', 'teljes_nev', 'reszleg_id',        'beosztas_id',       'usertel', 'usermail', 'aktiv', 'virtual' );
+                                    $ertekek = array($login_nev, $szemelyzet_id,  $teljes_nev,  $reszleg_sql['id'],  $beosztas_sql['id'], $telefon,  $email,     '1',     '0'       );
+                                    
+                                    if($ertesites){
+                                        array_push($mezok,   'flags_ert');
+                                        array_push($ertekek, '11100000000001');
+                                    }
+                                    
+                                    $adatok  = ' | Státusz: '.$statusz.' | PP2 loginnév: '. $regi_nev.' | Teljes név: '.$teljes_nev.' | ontEAM név: '.$login_nev. ' | Részleg: '.$reszleg.' | Beosztás: '.$beosztas.' | E-mail: '.$email.' | Telefon: '.$telefon.' |';
+                                    // Már létező logint átnevezünk
+                                    if($regi_nev){
+                                        if($adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$regi_nev}'")){
+                                            $adatbazis_kapcsolat->u('login', $mezok, $ertekek, "`nev`='{$regi_nev}'");
+echo $adatbazis_kapcsolat->gp() . '<br>';
+                                            echo 'Felhasználó frissítve: '.$adatok.'<br>';
+                                        }else{
+                                            if(!$adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$login_nev}'")){
+                                                $adatbazis_kapcsolat->i('login', $mezok, $ertekek);
+echo $adatbazis_kapcsolat->gp() . '<br>';
+                                                echo '<b style="color: #FFA201">Nem található a régi PP2-es loginnév, ezért új felhasználó létrehozva: '.$adatok.'</b><br>';
+                                            }else{
+                                                echo 'ontEAM Felhasználó név már foglalt: '.$adatok.'<br>';
+                                            }
+                                        }
+                                        
+                                    // Ha nincs régi loginnév, csak új
+                                    }else{
+                                        
+                                        // Ha már létezik, akkor 
+                                        if(!$adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$login_nev}'")){
+                                            $adatbazis_kapcsolat->i('login', $mezok, $ertekek);
+echo $adatbazis_kapcsolat->gp() . '<br>';
+                                            echo 'Felhasználó létrehozva: '.$adatok.'<br>';
+                                        }else{
+                                            echo 'ontEAM Felhasználó név már foglalt: '.$adatok.'<br>';
+                                        }
+                                    }
+                                    
+                                    // Szállodához rendelés
+                                    switch($szalloda){
+                                        case 'GH':
+                                            if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='1012'")){
+                                                $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, '1012'));
+echo $adatbazis_kapcsolat->gp() . '<br>';
+                                            }
+                                        break;
+                                        case 'TH': break;
+                                            if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='1013'")){
+                                                $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, '1013'));
+echo $adatbazis_kapcsolat->gp() . '<br>';
+                                            }
+                                        default  :
+                                            if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='1012'")){
+                                                $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, '1012'));
+echo $adatbazis_kapcsolat->gp() . '<br>';
+                                            }
+                                            if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='1013'")){
+                                                $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, '1013'));
+echo $adatbazis_kapcsolat->gp() . '<br>';
+                                            }
+                                        break;
+                                    }
+                                    
+                                }else{
+                                    echo '<b style="color: #f00">Nem ismert beosztás: '. $beosztas.' ('.$regi_nev.' - '.$teljes_nev.' - '.$login_nev. ')</b><br>';
+                                }
+                                
+                            }else{
+                                echo '<b style="color: #f00">Nem ismert részleg: '. $reszleg.' ('.$regi_nev.' - '.$teljes_nev.' - '.$login_nev. ')</b><br>';
+                            }
+                            
+                        }else{
+                            echo '<b style="color: #f00">Foglalt loginnév! '. $regi_nev.' - '.$teljes_nev.' - '.$login_nev. '</b><br>';
+                        }
+                    }else{
+                        echo '<b style="color: #f00">Hiányzó loginnév! '. $regi_nev.' - '.$teljes_nev.' - '.$login_nev. '</b><br>';
+                    }
+                }else{
+                    echo '<b style="color: #f00">Nem ismert személyzettípus! '. $regi_nev.' - '.$teljes_nev.' - '.$login_nev. '</b><br>';
+                }
+                // Adott sor feldolgozása, SQL előállítása
+            }
+            $k++;
+        }
+        fclose($csv_fajl);
+    }else{
+        echo 'Fájl nem található';
+    }
     
     exit;
 }
