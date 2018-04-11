@@ -1874,6 +1874,7 @@ div.szamlaKereses input {
 div.szamlaKereses input[type="button"] {
     background: #4E77A6;
     border: none;
+    margin-bottom: 0rem;
 }
 
 div.szamlaKereses input[type="button"]:hover {
