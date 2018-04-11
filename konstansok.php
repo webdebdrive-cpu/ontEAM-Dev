@@ -57,9 +57,9 @@ define('ELOT_BOD_STAT_DONT_ROG',            '03');
 
 // Munkalap státuszok
 define('MUNKALAP_STAT_NYITOTT',             '01');
-define('MUNKALAP_STAT_FOLYAMATBAN',         '02');
+define('MUNKALAP_STAT_HOZZARENDELT',        '02');
 define('MUNKALAP_STAT_ELUTASITVA',          '03');
-define('MUNKALAP_STAT_HOZZARENDELT',        '05');
+// define('MUNKALAP_STAT_HOZZARENDELT<=korábban volt egy ilyen, de nem volt használatban, és a Folyamatban státusz kapta  meg ezt a nevet',        '05');
 define('MUNKALAP_STAT_TOROLT',              '06');
 define('MUNKALAP_STAT_HATIDO_UTEMEZETT',    '07');
 define('MUNKALAP_STAT_FELVEVE',             '08');

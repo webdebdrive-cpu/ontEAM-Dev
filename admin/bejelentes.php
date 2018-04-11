@@ -335,7 +335,7 @@ if (isset($_POST['rekl_elfogad_ml_ok'])) {
             $statusz = '<select class="rekl_elfogad_ml_stat" data-id="'.$munkalap['recid'].'">';
             foreach( $_stat_text['munkalap'] as $stat_id => $stat ){
 
-                if( in_array($stat_id, array($munkalap['stat_id'], MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_FOLYAMATBAN)) ){
+                if( in_array($stat_id, array($munkalap['stat_id'], MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_HOZZARENDELT)) ){
                     $selected = '';
                     if( $stat_id==$munkalap['stat_id'] ){
                         $selected = ' selected';
@@ -479,12 +479,12 @@ if (isset($_POST['munkalapokFolytat'])) {
                 }
 
                 // Ha nyitottra vagy folyamtbanra állítja a státuszt, akkor a mezők ürüljenek, ugyanúgy mint munkalap viszaadáskor
-                if( $stat == MUNKALAP_STAT_NYITOTT || $stat == MUNKALAP_STAT_FOLYAMATBAN ){
+                if( $stat == MUNKALAP_STAT_NYITOTT || $stat == MUNKALAP_STAT_HOZZARENDELT ){
 
                     // Folyamatbanra állítva a személyzet telepített személyzet legyen
                     $szemelyzet_id = 0;
                     $visszaadva    = 1;
-                    if( $stat == MUNKALAP_STAT_FOLYAMATBAN ){
+                    if( $stat == MUNKALAP_STAT_HOZZARENDELT ){
                         $szemelyzet_id = TELEPITETT_SZEMELYZET;
                         $visszaadva    = 0;
                     }

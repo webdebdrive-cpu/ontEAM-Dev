@@ -82,7 +82,7 @@ if (isset($_POST['beosztas_veglegesit'])) {
         if($_POST[$csoport.'_csop']){
             $idk = explode(',', trim($_POST[$csoport.'_csop'], ','));
             foreach($idk as $id){
-                if(addStatusz('munkalap_statusz', $id, MUNKALAP_STAT_FOLYAMATBAN)===false){
+                if(addStatusz('munkalap_statusz', $id, MUNKALAP_STAT_HOZZARENDELT)===false){
                     $db_error = true;
                 }
                 $sql = $adatbazis_kapcsolat->u('munkalap', array('mobil', 'szemelyzet_id'), array($csoport, MOBILCSOPORT), "`recid`='{$id}'");
@@ -378,7 +378,7 @@ require_once('selectek.php');
     $folyamatban_db = array();
     foreach($mobilok as $mobil){
 
-        $munkalapok = $adatbazis_kapcsolat->s('recid telephely_id', 'munkalap', "`szemelyzet_id`='".MOBILCSOPORT."' AND `telephely_id` IN (".$sajat_szallodak.") AND `mobil`='{$mobil}' AND `stat_id`='".MUNKALAP_STAT_FOLYAMATBAN."'", 'ikt_szam');
+        $munkalapok = $adatbazis_kapcsolat->s('recid telephely_id', 'munkalap', "`szemelyzet_id`='".MOBILCSOPORT."' AND `telephely_id` IN (".$sajat_szallodak.") AND `mobil`='{$mobil}' AND `stat_id`='".MUNKALAP_STAT_HOZZARENDELT."'", 'ikt_szam');
         foreach($munkalapok as $munkalap){
             $kapcsolat  = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'", '', '0,1');
             $bejelentes = $adatbazis_kapcsolat->s2('hiba_id hiba_text', 'bejelentes', "`recid`='{$kapcsolat['bejelentes_id']}'");
