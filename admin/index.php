@@ -111,6 +111,13 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
     exit;
 }*/
 
+// Kötött fejléc nevű CSV feldolgozása
+if (isset($_GET['loginnev_import'])) {
+    
+    
+    
+    exit;
+}
 
 // Logginnév átnevezése
 if (isset($_GET['loginnev_csere'])) {
