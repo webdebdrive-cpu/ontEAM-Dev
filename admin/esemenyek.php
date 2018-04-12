@@ -26,6 +26,7 @@ $_SESSION['ketHasabos'] = array(
     'eseti_fenntartas.php',
     'eszkozkezeles.php',
     'felmeresi_terv.php',
+    'fenntartasi_terv.php',
     'fenntartasi_szerzodes.php',
     'ktghely.php',
     'ktgnem.php',
@@ -378,6 +379,20 @@ switch($tabla) {
         if( !$_GET['irany'] ) {
             $_GET['irany'] = 'desc';
         }
+    break;
+    case 'fenntartasi_terv.php':
+        // Ezeket a tábla oszlopokat kérdezzük le baloldalra
+        $_OPTS['select']    = 'recid, ikt_szam, ev, stat_id';
+
+        // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
+        $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'ev'     );
+        $_OPTS['iranyok']   = array('desc',    'desc',     'asc'    );
+
+        // Default rendezés
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'ikt_szam';
+        }
+
     break;
     case 'fenntartasi_szerzodes.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
@@ -2085,7 +2100,7 @@ array('type' => 'html',                     'megn' => nl2('
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
-//Cash-flow
+// Cash-flow
 $megnevezes = 'cash_flow';
 $cash_flow_tomb = $akt_tomb = array(
 
@@ -2093,7 +2108,7 @@ $cash_flow_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
-//FB előterjesztés
+// FB előterjesztés
 if (isset($_GET['modosit'])) {
     $ossz_kolts = '';
     $prik = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_fb_kapcs', "`eloterj_recid`='{$_GET['id']}'");
@@ -2128,7 +2143,7 @@ $eloterj_fb_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
-//BoD előterjesztés
+// BoD előterjesztés
 if (isset($_GET['modosit'])) {
     $ossz_kolts = '';
     $prik = $adatbazis_kapcsolat->s('projektigenyles_recid', 'eloterj_bod_kapcs', "`eloterj_recid`='{$_GET['id']}'");
@@ -2163,7 +2178,7 @@ $eloterj_bod_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
-//Energia
+// Energia
 $megnevezes = 'energia';
 $energia_tomb = $akt_tomb = array(
 
@@ -2172,7 +2187,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 
-//Energia
+// Üzemeltetési napló
 $megnevezes = 'uzemeltetesi_naplo';
 $uzemeltetesi_naplo_tomb = $akt_tomb = array(
 
@@ -2182,7 +2197,19 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 
-//Fenntartási szerződés
+// Fenntartási terv
+$megnevezes = 'fenntartasi_terv';
+$fenntartasi_terv_tomb = $akt_tomb = array(
+    array('type' => 'statusz',              'megn' => 'Státusz:',   'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
+    array('type' => 'text',                 'megn' => 'Tervszám:',  'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1,     'class' => 'normal', 'style' => 'width: 11.5rem'),
+    array('type' => 'text',                 'megn' => 'Tervező év:','name' => 'ev',             'szuro' => 1,                       'class' => 'normal f_csakszam', 'style' => 'width: 4rem', 'maxlength' => 4),
+    array('type' => 'textarea',             'megn' => 'Leírás:',    'name' => 'text',           'szuro' => 1,                       'class' => 'oriasi disableNav', 'style' => 'height: 4rem'),
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
+
+
+// Fenntartási szerződés
 $megnevezes = 'fenntartasi_szerzodes';
 $fenntartasi_szerzodes_tomb = $akt_tomb = array(
 
@@ -4284,6 +4311,9 @@ foreach($postok as $ertek){
             $weblap -> leallit(); exit;
         }
         if($ertek['tabla']=='felmeresi_terv' && !_jog(JOG_FT_KEZEL)){
+            $weblap -> leallit(); exit;
+        }
+        if($ertek['tabla']=='fenntartasi_terv' && !_jog(JOG_FENNTT_KEZEL)){
             $weblap -> leallit(); exit;
         }
         // Login egyáltalán nem törölhető

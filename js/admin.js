@@ -231,6 +231,11 @@ function felh_valt( valt ) {
 }
 
 $(function() {
+    
+    /* Csak számokat elfogadó mező */
+    $(document).on('keyup blur', '.f_csakszam', function(){
+        onlyNumbers($(this));
+    });
 
     /* Ha nincs kjelölve a bal navpanelben egy sor sem, akkor az első kijelöltjük */
     setTimeout(function() {
@@ -5077,6 +5082,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         'beosztasok',
                         'cash_flow',
                         'dokumentumok',
+                        'egysegarak',
                         'elszamolas',
                         'engedelyek',
                         'esemenyek',

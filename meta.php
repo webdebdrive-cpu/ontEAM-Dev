@@ -40,6 +40,7 @@ function get_title(){
         case 'eszkozkezeles.php'            : $title .= 'Eszközkezelés';            break;
         case 'felmeresi_terv.php'           : $title .= 'Felmérési tervek';         break;
         case 'fenntartasi_szerzodes.php'    : $title .= 'Fenntartási szerződések';  break;
+        case 'fenntartasi_terv.php'         : $title .= 'Fenntartási terv';         break;
         case 'ktghely.php'                  : $title .= 'Költséghelyek';            break;
         case 'ktgnem.php'                   : $title .= 'Költségnemek';             break;
         case 'login.php'                    : $title .= 'Felhasználók';             break;
