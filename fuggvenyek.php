@@ -746,12 +746,12 @@ function i_u($type, $tabla, $tomb) {
             array_push($ertekek,  $_SESSION[get_db_tabla().'teljes_nev']);
         }
 
-        // Loginnál szerepkörök lekezelése +  Jelszóval rendelkezik pipa kiszedése esetén e-mail értesítés küldése
+        // Loginnál szerepkörök lekezelése + Jelszóval rendelkezik pipa kiszedése esetén e-mail értesítés küldése
         if( $tabla == 'login' ) {
 
             // Ha változott a szerepkör, akkor a jogokat frissítjük
             $login = $adatbazis_kapcsolat->s2('szemelyzet_id van_jelszo', 'login', "`recid`='{$_GET['id']}'");
-            $van_jelszo = $login['van_jelszo']; // Ez később  acommit után kell
+            $van_jelszo = $login['van_jelszo']; // Ez később a commit után kell
             if( $login['szemelyzet_id'] != $_POST['szemelyzet_id'] ) {
                 $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', "`recid`='{$_POST['szemelyzet_id']}'", '', '1');
                 if( $szerepkor === false ) { $db_error = true; }

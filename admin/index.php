@@ -35,19 +35,22 @@ if (isset($_GET['stat_ido'])) {
 }*/
 
 
-/*// Loginról értesítő levelek küldése
+// Loginról értesítő levelek küldése
 if (isset($_GET['login_ertesit'])) {
+    
+    $szalloda_nev = 'MSZ GH';
+    $szalloda_id  = '1012';
 
-    $heliasok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='2032'");
+    $heliasok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$szalloda_id}'");
     $heliasok = adatbazis2tomb($heliasok, 'nev');
     if($heliasok){
-        $loginok = $adatbazis_kapcsolat->s('teljes_nev nev usermail', 'login', "`aktiv`>0 AND `virtual`<1 AND `usermail`!='' AND (`szemelyzet_id`='".HIBABEJELENTO."' OR `szemelyzet_id`='".SZALLODA_IGAZGATO."') AND `nev` IN ('".implode('\', \'', $heliasok)."')");
+        $loginok = $adatbazis_kapcsolat->s('teljes_nev nev usermail', 'login', "`aktiv`>0 AND `virtual`<1 AND `usermail`!='' AND (`szemelyzet_id`='".HIBABEJELENTO."' OR `szemelyzet_id`='".TELEPITETT_SZEMELYZET."' OR `szemelyzet_id`='".MUSZAKI_VEZETO."' OR `szemelyzet_id`='".SZALLODA_IGAZGATO."') AND `nev` IN ('".implode('\', \'', $heliasok)."')");
         foreach( $loginok as $login ){
             echo $login['nev'] . '<br>';
 $uzi = '
 Tisztelt '.$login['teljes_nev'].'!
 <br>
-<br>Az '.get_nev().' rendszer 2018.04.05 csütörtök reggel 7:00 időpontban indul a Béke szállodában.
+<br>Az '.get_nev().' rendszer 2018.04.12 csütörtök reggel 7:00 időpontban indul a '.$szalloda_nev.' szállodában.
 <br>
 <br>Kérjük, hogy ettől az időponttól hibabejelentéseiket az '.get_nev().' rendszerben tegyék meg.
 <br>
@@ -56,11 +59,41 @@ Tisztelt '.$login['teljes_nev'].'!
 <br>Telefonos segítség: Handari Tamás 70-210-1312
 '. fajlbol_olvas('../sablon/admin/mail/alairas.html');
 
-            // var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása Béke szállodában', $uzi) );
+            // var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
+//            var_dump( level_kuldes(get_nev(), get_mail(), 'Handrai Tamás', 'handari@szinvatrend.hu', 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
+//            exit;
+        }
+    }
+    
+}
+if (isset($_GET['login_ertesit'])) {
+
+    $szalloda_nev = 'MSZ TH';
+    $szalloda_id  = '1013';
+    
+    $heliasok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$szalloda_id}'");
+    $heliasok = adatbazis2tomb($heliasok, 'nev');
+    if($heliasok){
+        $loginok = $adatbazis_kapcsolat->s('teljes_nev nev usermail', 'login', "`aktiv`>0 AND `virtual`<1 AND `usermail`!='' AND (`szemelyzet_id`='".HIBABEJELENTO."' OR `szemelyzet_id`='".TELEPITETT_SZEMELYZET."' OR `szemelyzet_id`='".MUSZAKI_VEZETO."' OR `szemelyzet_id`='".SZALLODA_IGAZGATO."') AND `nev` IN ('".implode('\', \'', $heliasok)."')");
+        foreach( $loginok as $login ){
+            echo $login['nev'] . '<br>';
+$uzi = '
+Tisztelt '.$login['teljes_nev'].'!
+<br>
+<br>Az '.get_nev().' rendszer 2018.04.12 csütörtök reggel 7:00 időpontban indul a '.$szalloda_nev.' szállodában.
+<br>
+<br>Kérjük, hogy ettől az időponttól hibabejelentéseiket az '.get_nev().' rendszerben tegyék meg.
+<br>
+<br>Loginneve az új rendszerben: '.$login['nev'].'
+<br>
+<br>Telefonos segítség: Handari Tamás 70-210-1312
+'. fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
+            // var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
         }
     }
     exit;
-}*/
+}
 
 
 /*
@@ -155,9 +188,15 @@ if (isset($_GET['loginnev_import'])) {
                             if( $statusz == 'Telepített karbantartó' ){
                                 $szemelyzet_id = TELEPITETT_SZEMELYZET;
                             }
-//                            if( $statusz == 'Gazdasági vezető' ){
-//                                $szemelyzet_id = MUSZAKI_VEZETO;
-//                            }
+                            if( $statusz == 'Gazdasági vezető' ){
+                                $szemelyzet_id = HIBABEJELENTO;
+                            }
+                            if( $statusz == 'Szálloda igazgató 1' || $statusz == 'Szálloda igazgató 2' ){
+                                $szemelyzet_id = SZALLODA_IGAZGATO;
+                            }
+                            if( $statusz == 'Létesítmény főmérnök' ){
+                                $szemelyzet_id = MUSZAKI_VEZETO;
+                            }
                         break;
 
 
@@ -209,19 +248,44 @@ if (isset($_GET['loginnev_import'])) {
 
                 if($szemelyzet_id){
                     if($login_nev){
+                        
+                        // Ha foglalt a loginnév, de inaktív, akkor töröljük, egyébként hibaüzi
+                        $mehet = false;
                         if(!$adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$login_nev}'")){
+                            $mehet = true;
+                        }elseif( $adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$login_nev}' AND `aktiv`=0") ){
+                            $adatbazis_kapcsolat->d('login', "`nev`='{$login_nev}'");
+                            echo '<b style="color: #f00">'.$login_nev.' törölve</b><br>';
+                            $mehet = true;
+                        }
+                        if($mehet){
                             $reszleg_sql = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_RESZLEG."' AND `info`='{$reszleg}'");
-                            if(!$reszleg || $reszleg_sql){
+                            // if(!$reszleg || $reszleg_sql){
                                 
                                 $beosztas_sql = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_BEOSZTAS."' AND `info`='{$beosztas}'");
-                                if(!$beosztas || $beosztas_sql){
+                                // if(!$beosztas || $beosztas_sql){
                                 
-                                    $mezok   = array('nev',      'szemelyzet_id', 'teljes_nev', 'reszleg_id',        'beosztas_id',       'usertel', 'usermail', 'aktiv', 'virtual' );
-                                    $ertekek = array($login_nev, $szemelyzet_id,  $teljes_nev,  $reszleg_sql['id'],  $beosztas_sql['id'], $telefon,  $email,     '1',     '0'       );
+                                    $mezok   = array('nev',      'szemelyzet_id', 'teljes_nev', 'usertel', 'usermail', 'aktiv', 'virtual', 'van_jelszo'   );
+                                    $ertekek = array($login_nev, $szemelyzet_id,  $teljes_nev,  $telefon,  $email,     '1',     '0',       '0'            );
+                                    
+                                    if($reszleg_sql['id']){
+                                        array_push($mezok,   'reszleg_id');
+                                        array_push($ertekek, $reszleg_sql['id']);
+                                    }
+                                    if($reszleg_sql['id']){
+                                        array_push($mezok,   'beosztas_id');
+                                        array_push($ertekek, $beosztas_sql['id']);
+                                    }
                                     
                                     if($ertesites){
                                         array_push($mezok,   'flags_ert');
                                         array_push($ertekek, '11100000000001');
+                                    }
+                                    
+                                    $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', "`recid`='{$szemelyzet_id}'", '', '1');
+                                    if( $szerepkor['flags'] ) {
+                                        array_push($mezok,     'flags'            );
+                                        array_push($ertekek,   $szerepkor['flags']);
                                     }
                                     
                                     $adatok  = ' | Státusz: '.$statusz.' | PP2 loginnév: '. $regi_nev.' | Teljes név: '.$teljes_nev.' | ontEAM név: '.$login_nev. ' | Részleg: '.$reszleg.' | Beosztás: '.$beosztas.' | E-mail: '.$email.' | Telefon: '.$telefon.' |';
@@ -229,29 +293,27 @@ if (isset($_GET['loginnev_import'])) {
                                     if($regi_nev){
                                         if($adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$regi_nev}'")){
                                             $adatbazis_kapcsolat->u('login', $mezok, $ertekek, "`nev`='{$regi_nev}'");
-echo $adatbazis_kapcsolat->gp() . '<br>';
+if (isset($_GET['teszt'])) {
+    echo $adatbazis_kapcsolat->gp() . '<br>';
+}
                                             echo 'Felhasználó frissítve: '.$adatok.'<br>';
                                         }else{
-                                            if(!$adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$login_nev}'")){
-                                                $adatbazis_kapcsolat->i('login', $mezok, $ertekek);
+                                            $adatbazis_kapcsolat->i('login', $mezok, $ertekek);
+if (isset($_GET['teszt'])) {
 echo $adatbazis_kapcsolat->gp() . '<br>';
-                                                echo '<b style="color: #FFA201">Nem található a régi PP2-es loginnév, ezért új felhasználó létrehozva: '.$adatok.'</b><br>';
-                                            }else{
-                                                echo 'ontEAM Felhasználó név már foglalt: '.$adatok.'<br>';
-                                            }
+}
+                                            echo '<b style="color: #FFA201">Nem található a régi PP2-es loginnév, ezért új felhasználó létrehozva: '.$adatok.'</b><br>';
                                         }
                                         
                                     // Ha nincs régi loginnév, csak új
                                     }else{
                                         
                                         // Ha már létezik, akkor 
-                                        if(!$adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$login_nev}'")){
-                                            $adatbazis_kapcsolat->i('login', $mezok, $ertekek);
+                                        $adatbazis_kapcsolat->i('login', $mezok, $ertekek);
+if (isset($_GET['teszt'])) {
 echo $adatbazis_kapcsolat->gp() . '<br>';
-                                            echo 'Felhasználó létrehozva: '.$adatok.'<br>';
-                                        }else{
-                                            echo 'ontEAM Felhasználó név már foglalt: '.$adatok.'<br>';
-                                        }
+}
+                                        echo 'Felhasználó létrehozva: '.$adatok.'<br>';
                                     }
                                     
                                     // Szállodához rendelés
@@ -259,33 +321,42 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                         case 'GH':
                                             if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='1012'")){
                                                 $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, '1012'));
-echo $adatbazis_kapcsolat->gp() . '<br>';
+if (isset($_GET['teszt'])) {
+    echo $adatbazis_kapcsolat->gp() . '<br>';
+}
                                             }
                                         break;
-                                        case 'TH': break;
+                                        case 'TH': 
                                             if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='1013'")){
                                                 $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, '1013'));
-echo $adatbazis_kapcsolat->gp() . '<br>';
+if (isset($_GET['teszt'])) {
+    echo $adatbazis_kapcsolat->gp() . '<br>';
+}
                                             }
+                                        break;
                                         default  :
                                             if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='1012'")){
                                                 $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, '1012'));
-echo $adatbazis_kapcsolat->gp() . '<br>';
+if (isset($_GET['teszt'])) {
+    echo $adatbazis_kapcsolat->gp() . '<br>';
+}
                                             }
                                             if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='1013'")){
                                                 $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, '1013'));
-echo $adatbazis_kapcsolat->gp() . '<br>';
+if (isset($_GET['teszt'])) {
+    echo $adatbazis_kapcsolat->gp() . '<br>';
+}
                                             }
                                         break;
                                     }
                                     
-                                }else{
-                                    echo '<b style="color: #f00">Nem ismert beosztás: '. $beosztas.' ('.$regi_nev.' - '.$teljes_nev.' - '.$login_nev. ')</b><br>';
-                                }
+//                                }else{
+//                                    echo '<b style="color: #f00">Nem ismert beosztás: '. $beosztas.' ('.$regi_nev.' - '.$teljes_nev.' - '.$login_nev. ')</b><br>';
+//                                }
                                 
-                            }else{
-                                echo '<b style="color: #f00">Nem ismert részleg: '. $reszleg.' ('.$regi_nev.' - '.$teljes_nev.' - '.$login_nev. ')</b><br>';
-                            }
+//                            }else{
+//                                echo '<b style="color: #f00">Nem ismert részleg: '. $reszleg.' ('.$regi_nev.' - '.$teljes_nev.' - '.$login_nev. ')</b><br>';
+//                            }
                             
                         }else{
                             echo '<b style="color: #f00">Foglalt loginnév! '. $regi_nev.' - '.$teljes_nev.' - '.$login_nev. '</b><br>';
@@ -294,7 +365,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                         echo '<b style="color: #f00">Hiányzó loginnév! '. $regi_nev.' - '.$teljes_nev.' - '.$login_nev. '</b><br>';
                     }
                 }else{
-                    echo '<b style="color: #f00">Nem ismert személyzettípus! '. $regi_nev.' - '.$teljes_nev.' - '.$login_nev. '</b><br>';
+                    echo '<b style="color: #f00">Nem ismert személyzettípus! '. $statusz .' | '. $regi_nev.' | '.$teljes_nev.' | '.$login_nev. '</b><br>';
                 }
                 // Adott sor feldolgozása, SQL előállítása
             }
