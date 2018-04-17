@@ -140,7 +140,7 @@ if (isset($_GET['loginnev_import'])) {
 
             // Adatok feldolgozása
             } else {
-
+                
                 foreach($sor as $key => $value) {
                     $akt_tomb[$_SESSION['sor_fejlec'][$key]] = $value;
                 }
@@ -184,7 +184,7 @@ if (isset($_GET['loginnev_import'])) {
                         break;
 
 
-                        case 'ontEAM login':
+                        case 'ontEAM login név':
                             $login_nev = trim($akt_tomb[$key]);
                         break;
 
@@ -233,13 +233,13 @@ if (isset($_GET['loginnev_import'])) {
                             $mehet = true;
                         }
                         if($mehet){
-                            $reszleg_sql = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_RESZLEG."' AND `info`='{$reszleg}'");
+                            $reszleg_sql = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_RESZLEG."' AND `info`='".htmlspecialchars($reszleg)."'");
                             if(!$reszleg_sql){
                                 $reszleg = 'NEM ISMERT RÉSZLEG: '.$reszleg;
                             }
                             // if(!$reszleg || $reszleg_sql){
                                 
-                                $beosztas_sql = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_BEOSZTAS."' AND `info`='{$beosztas}'");
+                                $beosztas_sql = $adatbazis_kapcsolat->s2('id', 'erteklista', "`csoport`='".ERTEKLISTA_BEOSZTAS."' AND `info`='".htmlspecialchars($beosztas)."'");
                                 if(!$beosztas_sql){
                                     $beosztas = 'NEM ISMERT BEOSZTÁS: '.$beosztas;
                                 }
@@ -297,12 +297,13 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                     }
                                     
                                     // Szállodához rendelés
-                                    if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='1013'")){
-                                        $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, '1013'));
+                                    if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='2110'")){
+                                        $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, '2110'));
 if (isset($_GET['teszt'])) {
 echo $adatbazis_kapcsolat->gp() . '<br>';
 }
                                     }
+
 
                                     
 //                                }else{
@@ -429,6 +430,52 @@ if (isset($_GET['loginnev_csere'])) {
     
     exit;
 }
+
+/*
+// Bejelentések törlése, hogy a gyakorló felület ne legyen tele adatokkal
+if (isset($_GET['bejelentes_del'])) {
+    
+    // Lzártak törlése
+    $lezartak = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_LEZART."'");
+    foreach($lezartak as $lezart){
+        bejelentes_torol($lezart['recid']);
+    }
+    
+    // Nyitott / Folyamatban státuszúakat is töröljük
+    $nyitott_folyamatban = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id` IN ('01', '02')", 'recid desc', '5, 99999');
+    foreach($nyitott_folyamatban as $nyf){
+        bejelentes_torol($nyf['recid']);
+    }
+    
+}
+function bejelentes_torol($recid, $tabla = 'bejelentes'){
+    
+    global $adatbazis_kapcsolat;
+    
+    $adatbazis_kapcsolat->d($tabla, "`recid`='{$recid}'");
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    // Kapcsolódó táblák törlése
+    $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='{$tabla}' AND `id`='{$recid}'");
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    $adatbazis_kapcsolat->d($tabla.'_statusz', "`{$tabla}_recid`='{$recid}'");
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    
+    $fajlok = $adatbazis_kapcsolat->s('*', $tabla.'_dok ', "`{$tabla}_id`='{$recid}'");
+    foreach($fajlok as $fajl){
+        kep_torol('../'.get_utvonal().$tabla.'/'.$fajl['utvonal']);
+        $adatbazis_kapcsolat->d($tabla.'_dok', "`{$tabla}_id`='{$recid}'");
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    
+    if($tabla!='munkalap'){
+        $munkalapok = $adatbazis_kapcsolat->s('recid munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$recid}'");
+        foreach($munkalapok as $ml){
+            $adatbazis_kapcsolat->d('munkalap_kapcs', "`recid`='{$ml['recid']}'");
+echo $adatbazis_kapcsolat->gp() . '<br>';
+            bejelentes_torol($ml['recid'], 'munkalap');
+        }
+    }
+}*/
 
 /*
 // Anyagigénylés speciálisabb volt

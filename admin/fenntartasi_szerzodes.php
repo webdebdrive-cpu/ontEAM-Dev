@@ -3,7 +3,7 @@ require_once('../weblap.php');
 // Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
-$akt_tomb               = $fenntartasi_terv_tomb;
+$akt_tomb               = $fenntartasi_szerzodes_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'szerződést';         // Hibaüzenetkor: Biztosan törlöd a $szoveg?
 

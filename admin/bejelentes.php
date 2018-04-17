@@ -11,6 +11,32 @@ Játékszabályok:
 */
 require_once('../weblap.php');
 
+/*// Manuális értesítés küldés
+if (isset($_GET['teszt_123'])) {
+    //level_felkeszit_es_kuld_TMP('bejelentes', 1475, ERT_BEJ_ELUTASITKOR, 'bejelentesElutasit', 'bejelento');
+    
+    $targy = 'ontEAM bejelentett hiba elutasítva';
+    $uzi = '
+Tisztelt Váradi Márk!
+<br>
+<br>
+Az Ön által bejelentett hiba elutasításra került.
+<br>
+<br>A bejelentés adatai a következők:
+<br>Bejelentés szám: 18/0001475
+<br>Szálloda: MSZ GH
+<br>Bejelentés dátuma: 2018.04.13 11:28:57
+<br>Hiba: Zár hiba
+<br>Hiba helye: Gösser söröző<br>
+<br>Üdvözlettel:
+<br><img src="../elemek/logo.png" alt="ontEAM"> csapat
+        ';
+    //Váradi Márk mark.varadi@danubiushotels.com
+    var_dump(level_kuldes(get_nev(), get_mail(), 'Váradi Márk', 'mark.varadi@danubiushotels.com', $targy, $uzi));
+    
+    //E-mail elküldve Váradi Márk Hibabejelentő felhasználónak bejelentés elutasításakor<br><br>
+    exit;
+}*/
 
 if( !_jog(JOG_BEJELENTES_MEGTEKINT) && !_jog(JOG_BEJELENTES_SAJAT_RESZL) ) {
     if(!$_SESSION[get_db_tabla().'user']){

@@ -3233,6 +3233,12 @@ if( isset($_POST['van_e_feladat']) ) {
         }
         if($_POST['atadas_diszp']){
             $szo = 'Visszaadáshoz';
+            
+            // Ha a diszpécsernek átadásakor a telephely egyszállodás, akkor a szó Átadáshoz lesz
+            $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
+            if(!$telephely['modell']){
+                $szo = 'Átadáshoz';
+            }
         }
 
         // Nyitott státusznál az is feltétel, hogy a tétel is nyitott-e, azaz nincs átadta dátum kitöltve. Egyébként csak a feltétel, hogy létezzen utolsó tétel.
@@ -3717,7 +3723,10 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
                 ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT       && $sor['szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) ) ||
                 ( $telephely['modell'] && $sor['stat_id']==MUNKALAP_STAT_ANYAGRAVAR         && _jog(JOG_MUNKALAP_ANYAG_ERKEZTET)    ) ||
                 ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT  && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id'] && _jog( JOG_MUNKALAP_KULSOS_ELOKESZIT )  ) ||
-                ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT    && _jog(JOG_MUNKALAP_VIZSGALAT)         )
+                ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT    && _jog(JOG_MUNKALAP_VIZSGALAT)         ) ||
+                    
+                /* Egyszállodás modell esetén az Átadás Diszpécsernek gomb joga */
+                ( !$telephely['modell'] && $sor['stat_id']==MUNKALAP_STAT_FELVEVE && $kezeles_jog )
             )
            ){
             echo json_encode(array(
@@ -5248,7 +5257,6 @@ if (isset($_POST['munkalapSztornoz'])) {
                 $db_error = true;
             }
 
-
         // Egyébként kérdezünk
         }else{
             echo json_encode(array(
@@ -5866,6 +5874,9 @@ require('selectek.php');
                             <li'.$szemelyzet_id_rejt[MUSZAKI_VEZETO].'>
                                 <script> gomb_musz = \'<input type="button" class="gomb zold" onclick="munkalapMuszakiVezeto()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
                                 <a onclick="'.$alert_musz_vez.'">Műszaki vezetőnek</a>
+                            </li>
+                            <li'.$szemelyzet_id_rejt[DISZPECSER].'>
+                                <a onclick="csoportMuvelet(\'atadasDiszpecsernek\');">Diszpécsernek</a>
                             </li>
                         </ul>
                     </div>

@@ -116,12 +116,12 @@ $jogosultsagok = array(
     52 => array('nev' => 'Projektek megtekintése',                  'kat' => 10, 'sor' => 9),
     53 => array('nev' => 'Projektek kezelése',                      'kat' => 10, 'sor' => 10),
 
-    42 => array('nev' => 'Eszközök olvasása',               'kat' => 8, 'sor' => 1),
-    43 => array('nev' => 'Eszközök kezelése',               'kat' => 8, 'sor' => 2),
+    42 => array('nev' => 'Eszközök olvasása',                       'kat' => 8, 'sor' => 1),
+    43 => array('nev' => 'Eszközök kezelése',                       'kat' => 8, 'sor' => 2),
     
-    44 => array('nev' => 'Felmérési tervek olvasása',         'kat' => 11, 'sor' => 1),
-    45 => array('nev' => 'Felmérési tervek kezelése',         'kat' => 11, 'sor' => 2),
+    44 => array('nev' => 'Felmérési tervek olvasása',               'kat' => 11, 'sor' => 1),
+    45 => array('nev' => 'Felmérési tervek kezelése',               'kat' => 11, 'sor' => 2),
     
-    84 => array('nev' => 'Fenntartási tervek olvasása',       'kat' => 12, 'sor' => 1),
-    85 => array('nev' => 'Fenntartási tervek kezelése',       'kat' => 12, 'sor' => 2),
+    84 => array('nev' => 'Energia tervek olvasása',                 'kat' => 12, 'sor' => 1),
+    85 => array('nev' => 'Energia tervek kezelése',                 'kat' => 12, 'sor' => 2),
 );

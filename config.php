@@ -1,19 +1,12 @@
 <?php
-//WebDeb Engine v2.7 2016.12.22 Ádám
-
-/*                                                                                                                          *\
-  Tudnivalók
-  Ide írj fel általános tudnivalóka az oldallal kapcsolatosan. Pl. ha árösszehasonlító oldalakra vagy számlázó programhoz
-  készült szinkron fájl, akkor melyik PHP felel érte, milyen gyakran kell futtatni.
-\*                                                                                                                          */
-
+// WebDeb Engine v2.7 2016.12.22
 
 $weblap_indul = microtime(true);
 
 ini_set('log_errors',       '1'             );
-ini_set('error_log',        '!Errors.txt'   );  //Melyik fájlba íródjanak a hibaüzik
+ini_set('error_log',        '!Errors.txt'   );  // Melyik fájlba íródjanak a hibaüzik
 ini_set('display_errors' ,  '0'             );
-error_reporting(E_ERROR);                       //Csak a hibákat írja ki
+error_reporting(E_ERROR);                       // Csak a hibákat írja ki
 
 
 require_once 'konstansok.php';

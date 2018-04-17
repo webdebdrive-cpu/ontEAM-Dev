@@ -2486,8 +2486,8 @@ if(isset($_GET['debug'])) {
             case 'fenntartasi_szerzodes':
                 $html = fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
-            case 'fenntartasi_terv':
-                $html = fenntartasi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
+            case 'energia_terv':
+                $html = energia_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'ktghely':
                 $html = ktghelyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
@@ -3249,7 +3249,7 @@ function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek
     return false;
 }
 
-function fenntartasi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
+function energia_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     global $adatbazis_kapcsolat;
 
     if( $bejegyzesek ) {
@@ -3270,7 +3270,7 @@ function fenntartasi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             <tr>
                                 <td style="width: 7rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 3.6rem">'.$bsz['ev'].'</td>
-                                <td>'.getStatText('fenntartasi_terv', $bsz['stat_id']).'</td>
+                                <td>'.getStatText('energia_terv', $bsz['stat_id']).'</td>
                             </tr>
                             </table>
                         </a>';
@@ -4955,7 +4955,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     if( basename(self()) == 'projektigenyles.php' || basename(self()) == 'eloterj_fb.php' || basename(self()) == 'eloterj_bod.php' ) {
         $oszlopNevek['ikt_szam'] = 'Azonosító';
     }
-    if( basename(self()) == 'fenntartasi_terv.php' ) {
+    if( basename(self()) == 'energia_terv.php' ) {
         $oszlopNevek['ikt_szam'] = 'Tervszám';
     }
     if( basename(self()) == 'szallito.php' ) {
@@ -5391,10 +5391,10 @@ function get_akt_tomb($megn){
     global $cikktorzs_tomb;
     global $eloterj_fb_tomb;
     global $eloterj_bod_tomb;
+    global $energia_terv_tomb;
     global $eseti_fenntartas_tomb;
     global $eszkozkezeles_tomb;
     global $felmeresi_terv_tomb;
-    global $fenntartasi_terv_tomb;
     global $login_tomb;
     global $munkalap_tomb;
     global $utemezett_feladatok_tomb;
@@ -5410,10 +5410,10 @@ function get_akt_tomb($megn){
         case 'cikktorzs'                : case 'cikktorzs_arch'                 : $akt_tomb = $cikktorzs_tomb;              break;
         case 'eloterj_fb'               : case 'eloterj_fb_arch'                : $akt_tomb = $eloterj_fb_tomb;             break;
         case 'eloterj_bod'              : case 'eloterj_bod_arch'               : $akt_tomb = $eloterj_bod_tomb;            break;
+        case 'energia_terv'             : case 'energia_terv_arch'              : $akt_tomb = $energia_terv_tomb;       break;
         case 'eseti_fenntartas'         : case 'eseti_fenntartas_arch'          : $akt_tomb = $eseti_fenntartas_tomb;       break;
         case 'eszkozkezeles'            : case 'eszkozkezeles_arch'             : $akt_tomb = $eszkozkezeles_tomb;          break;
         case 'felmeresi_terv'           : case 'felmeresi_terv_arch'            : $akt_tomb = $felmeresi_terv_tomb;         break;
-        case 'fenntartasi_terv'         : case 'fenntartasi_terv_arch'          : $akt_tomb = $fenntartasi_terv_tomb;       break;
         case 'login'                    : case 'login_arch'                     : $akt_tomb = $login_tomb;                  break;
         case 'munkalap'                 : case 'munkalap_arch'                  : $akt_tomb = $munkalap_tomb;               break;
         case 'utemezett_feladatok'      : case 'utemezett_feladatok_arch'       : $akt_tomb = $utemezett_feladatok_tomb;    break;

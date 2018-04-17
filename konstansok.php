@@ -91,9 +91,9 @@ define('PRIGENY_STAT_VARAKOZO',             '11' );
 define('PRIGENY_STAT_JOVAHAGYVA',           '12' );
 
 // Fenntartási terv státuszok
-define('FTERV_STAT_MUNKAKOZI',  '05');
-define('FTERV_STAT_KESZ',       '10');
-define('FTERV_STAT_ELES',       '15');
+define('ENERGIATERV_STAT_MUNKAKOZI',  '05');
+define('ENERGIATERV_STAT_KESZ',       '10');
+define('ENERGIATERV_STAT_ELES',       '15');
 
 
 // Menteni, csak ezekben a státuszokban lehet
@@ -254,8 +254,8 @@ define('JOG_ESZKOZ_MEGTEKINT',          42);
 define('JOG_ESZKOZ_KEZEL',              43);
 define('JOG_FT_MEGTEKINT',              44);
 define('JOG_FT_KEZEL',                  45);
-define('JOG_FENNTT_MEGTEKINT',          84);
-define('JOG_FENNTT_KEZEL',              85);
+define('JOG_ENERGIATERV_MEGTEKINT',     84);
+define('JOG_ENERGIATERV_KEZEL',         85);
 
 // ÉRTESÍTÉSEK
 define('ERT_KESZRE_JELENTESKOR',         0);

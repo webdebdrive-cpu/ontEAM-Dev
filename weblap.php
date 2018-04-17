@@ -49,7 +49,7 @@ if($weblap -> db_prefix){
     $adatbazis_kapcsolat = $weblap -> adatbazis;
 	$adatbazis_kapcsolat -> csatlakozas(get_db_host(), get_db_user(), get_db_pass(), get_db());
 	$adatbazis_kapcsolat -> setCharset(get_db_charset());
-	$adatbazis_kapcsolat -> debug = get_debug();             //Ez nem kötelező. Ha igaz, akkor sikertelen lekérdezés esetén kiírja a parancsot
+	$adatbazis_kapcsolat -> debug = get_debug();             // Ez nem kötelező. Ha igaz, akkor sikertelen lekérdezés esetén kiírja a parancsot
     $db_kapcs = $adatbazis_kapcsolat -> adatbazis_kapcsolat; // mysqli_query-hez (ha megkell adni magát a kapcsolatot is)
 
     //SQL injection ellen
@@ -60,8 +60,8 @@ if($weblap -> db_prefix){
         $_POST[$kulcs] = sql_ertek($_POST[$kulcs]);
     }
 }
-//Majd a weblap indulhat, ekkor tölthető ki a meta (később már lesz kimenet)
-    require_once('esemenyek.php');	//Ezt ne töröld, még ha üres is, kell, mert különben az admin nem működik
+// Majd a weblap indulhat, ekkor tölthető ki a meta (később már lesz kimenet)
+    require_once('esemenyek.php');	// Ezt ne töröld, még ha üres is, kell, mert különben az admin nem működik
     require_once('meta.php');
     require_once('tartalom.php');
 

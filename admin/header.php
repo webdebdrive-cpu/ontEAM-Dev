@@ -324,14 +324,14 @@ if(!$_SESSION['bejelento_menu_rejt']){
     $menu_nev        = 'Tervezés';
     $menu_nev_kis    = 'tervezés';
     $menu_nev_tobbes = 'Tervezés';
-    $megn            = 'fenntartasi_terv';
+    $megn            = 'energia_terv';
     $aloldalak       = array($megn.'.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-    if(basename(self())==$megn.'.php'){ $oldalNev = $oldalNev = 'Tervezés / <span id="rekord_neve">Fenntartási terv</span><span class="dn" id="rekord_neve_egyes">fenntartási terv</span><span class="dn" id="rekord_neve_targy">fenntartási tervet</span>';; }
+    if(basename(self())==$megn.'.php'){ $oldalNev = $oldalNev = 'Tervezés / <span id="rekord_neve">Energia terv</span><span class="dn" id="rekord_neve_egyes">energia terv</span><span class="dn" id="rekord_neve_targy">energia tervet</span>';; }
 
     $aktmenuk  = '';
-    if(_jog(JOG_FENNTT_MEGTEKINT)){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Fenntartási terv'  ), $almenu_sablon );
+    if(_jog(JOG_ENERGIATERV_MEGTEKINT)){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Energia terv'  ), $almenu_sablon );
     }
 
     $style = '';
@@ -1085,8 +1085,11 @@ if(basename(self())=='felmeresi_terv.php' && !_jog(JOG_FT_KEZEL)){
     $uj = $duplikal = '';
 }
 
-if(basename(self())=='login.php' && !_jog(JOG_FELHASZNALOK_KEZEL)){
+// Felhasználóknál a törlés gomb sosem látszik.
+if(basename(self())=='login.php'){
     $torles_icon    = '';
+}
+if(basename(self())=='login.php' && !_jog(JOG_FELHASZNALOK_KEZEL)){
     $uj = $duplikal = '';
 }
 

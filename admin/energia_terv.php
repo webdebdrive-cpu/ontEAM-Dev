@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(JOG_FENNTT_MEGTEKINT) ) {
+if( !_jog(JOG_ENERGIATERV_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -15,7 +15,7 @@ if( !_jog(JOG_FENNTT_MEGTEKINT) ) {
 // Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
-$akt_tomb               = $fenntartasi_terv_tomb;
+$akt_tomb               = $energia_terv_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'tervet';             // Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
@@ -89,7 +89,7 @@ require_once('selectek.php');
     if( isset($_GET['modosit']) || isset($_GET['egysegarak']) ) {
         // Számla fülek
         $ful_tomb = array(
-            'modosit'       => 'Adatlap',
+            'modosit'       => 'Tervek',
             'egysegarak'    => 'Egységárak',
         );
         $fulek = '';
@@ -145,15 +145,15 @@ require_once('selectek.php');
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         // Jogosutságkezelés: csak az törölheti, aki létrehozta
-        if(!_jog(JOG_FENNTT_KEZEL)){
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága törölni ezt a '.$szoveg.'!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-        }elseif( $sor['stat_id']==FTERV_STAT_ELES ){
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A fenntartási terv éles, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        if(!_jog(JOG_ENERGIATERV_KEZEL)){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága '.$szoveg.' törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        }elseif( $sor['stat_id']==ENERGIATERV_STAT_ELES ){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A '.$sor['ikt_szam'].' tervszámú energia terv státusza ÉLES, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }else{
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
 
-        if( _jog(JOG_FENNTT_KEZEL) ){
+        if( _jog(JOG_ENERGIATERV_KEZEL) ){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">

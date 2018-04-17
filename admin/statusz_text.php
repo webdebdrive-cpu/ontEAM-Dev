@@ -45,10 +45,10 @@ $_stat_text = array(
         ELOT_BOD_STAT_DONT_ROG              => array('nev' => 'Döntés rögzítve',                    'szinkod' => ''),
         ELOT_BOD_STAT_VEGLEGESITVE          => array('nev' => 'Véglegesítve',                       'szinkod' => ''),
     ),
-    'fenntartasi_terv' => array(
-        FTERV_STAT_MUNKAKOZI                => array('nev' => 'Munkaközi',                          'szinkod' => ''),
-        FTERV_STAT_KESZ                     => array('nev' => 'Kész',                               'szinkod' => ''),
-        FTERV_STAT_ELES                     => array('nev' => 'Éles',                               'szinkod' => ''),
+    'energia_terv' => array(
+        ENERGIATERV_STAT_MUNKAKOZI          => array('nev' => 'Munkaközi',                          'szinkod' => ''),
+        ENERGIATERV_STAT_KESZ               => array('nev' => 'Kész',                               'szinkod' => ''),
+        ENERGIATERV_STAT_ELES               => array('nev' => 'Éles',                               'szinkod' => ''),
     ),
     'munkalap' => array(
         MUNKALAP_STAT_ANYAGRAVAR            => array('nev' => 'Anyagra vár',                        'szinkod' => '#677b70'),
