@@ -891,9 +891,15 @@ require_once('selectek.php');
         }
 
         // Szerkeszthető egy bejelentés, ha nyitott és van kezelés jogunk
+        $felh = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
         if( isset($_GET['modosit'])                                         &&  // Más fülek alatt ne legyen mentés gomb
             $sor['stat_id']==BEJELENTES_STAT_NYITOTT                        &&  // Nyitott
-            (_jog(JOG_BEJELENTES_KEZEL) || _jog(JOG_BEJELENTES_MAS_NEVEBEN))    // Ki-ki úgy is csak a saját listáját látja majd
+            (
+                (   _jog(JOG_BEJELENTES_KEZEL) &&                               // Ha saját néven tudok bejelenteni
+                    $sor['usr_reszleg_id'] == $felh['reszleg_id']               // És a saját részlegemhez tartozik
+                )                                                           ||  
+                _jog(JOG_BEJELENTES_MAS_NEVEBEN)                                // Vagy ha más nevében is tudok bejelenteni
+            )
         ) {
                 $gombok = nl2('
                     <div class="form_kuldes">

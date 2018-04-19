@@ -20,25 +20,26 @@
         if(typeof readonly_e === typeof undefined || readonly_e === false){
 
             var defaults = {
-                karaktertol     : 0,                    /* Hány karaktertől induljon a keresés          */
-                limit           : 10,                   /* Hány tételt listázzon ki                     */
-                szel            : 'auto',               /* Lista szélessége                             */
-                php_fajl        : 'autocomplete.php',   /* PHP fájl, amit meghívunk                     */
-                tabla           : '',                   /* Adatbázis tábla, amiben keresünk             */
-                oszlop_keres    : '',                   /* Adatbázis tábla oszlopa, amiben keresünk     */
-                oszlop_listaz   : '',                   /* Adatbázis tábla oszlopa, amiket listázunk    */
-                rkat            : 0,                    /* Rendszer kategóriára szűrünk                 */
-                id_kiir         : '',
-                recid           : '',                   /* Az aktuális űrlap reid-ja. Néha szükség van rá */
-                mezo            : '',                   /* Szűréssel kapcsolatos GET-ek */
-                op              : '',
-                felt            : '',
-                popupba         : '',
                 arazas_beallit  : '',
-                szemelyzet_id   : '',                   /* Munkaidő ráfodítás név hozzáadásánál kell */
                 csoport         : 0,
-                szuros          : '',                   /* Ha a szűrőben hívtuk meg, akkor azt ezen keresztül tudjuk jelezni */
-                };
+                felt            : '',
+                id_kiir         : '',
+                karaktertol     : 0,                    /* Hány karaktertől induljon a keresés                              */
+                limit           : 10,                   /* Hány tételt listázzon ki                                         */
+                mezo            : '',                   /* Szűréssel kapcsolatos GET-ek                                     */
+                op              : '',
+                oszlop_keres    : '',                   /* Adatbázis tábla oszlopa, amiben keresünk                         */
+                oszlop_listaz   : '',                   /* Adatbázis tábla oszlopa, amiket listázunk                        */
+                php_fajl        : 'autocomplete.php',   /* PHP fájl, amit meghívunk                                         */
+                popupba         : '',
+                props           : '',                   /* Pl. ktgnem keresésnél a feltétel kiegészül még egy props oszlopban való kereséssel */
+                recid           : '',                   /* Az aktuális űrlap reid-ja. Néha szükség van rá                   */
+                rkat            : 0,                    /* Rendszer kategóriára szűrünk                                     */
+                szel            : 'auto',               /* Lista szélessége                                                 */
+                szemelyzet_id   : '',                   /* Munkaidő ráfodítás név hozzáadásánál kell                        */
+                szuros          : '',                   /* Ha a szűrőben hívtuk meg, akkor azt ezen keresztül tudjuk jelezni*/
+                tabla           : '',                   /* Adatbázis tábla, amiben keresünk                                 */
+            };
 
             var van_uj_erteke = false;
             var options = $.extend(defaults, options);
@@ -112,11 +113,11 @@
                          *  ami adott szállodához tartozik, ezért átküldünk egy telephely_id értékete is */
                         telephely_id = '';
                         if( !options.szuros && (
-                            baseName(location.href) == 'bejelentes' ||
-                            baseName(location.href) == 'utemezett_feladatok' ||
-                            baseName(location.href) == 'rendszeres_karbantartas' ||
-                            baseName(location.href) == 'munkalap' ||
-                            baseName(location.href) == 'eszkozkezeles' ||
+                            baseName(location.href) == 'bejelentes'                 ||
+                            baseName(location.href) == 'utemezett_feladatok'        ||
+                            baseName(location.href) == 'rendszeres_karbantartas'    ||
+                            baseName(location.href) == 'munkalap'                   ||
+                            baseName(location.href) == 'eszkozkezeles'              ||
                             baseName(location.href) == 'felmeresi_terv'
                             )
                         ) {
@@ -125,12 +126,12 @@
 
                         obj_id = '';
                         if( !options.szuros && (
-                                                baseName(location.href) == 'bejelentes' ||
-                                                baseName(location.href) == 'eszkozkezeles' ||
-                                                baseName(location.href) == 'eseti_fenntartas' ||
-                                                baseName(location.href) == 'felmeresi_terv' ||
-                                                baseName(location.href) == 'munkalap' ||
-                                                baseName(location.href) == 'utemezett_feladatok' ||
+                                                baseName(location.href) == 'bejelentes'             ||
+                                                baseName(location.href) == 'eszkozkezeles'          ||
+                                                baseName(location.href) == 'eseti_fenntartas'       ||
+                                                baseName(location.href) == 'felmeresi_terv'         ||
+                                                baseName(location.href) == 'munkalap'               ||
+                                                baseName(location.href) == 'utemezett_feladatok'    ||
                                                 baseName(location.href) == 'rendszeres_karbantartas'
                                                 )
                         ) {
@@ -143,21 +144,22 @@
                                 url     : options.php_fajl,
                                 type    : 'GET',
                                 data: {
-                                    value           : val,
+                                    csoport         : options.csoport,
+                                    felt            : options.felt,
+                                    id_kiir         : options.id_kiir,
                                     limit           : options.limit,
-                                    tabla           : options.tabla,
+                                    mezo            : options.mezo,
+                                    obj_id          : obj_id,
+                                    op              : options.op,
                                     oszlop_keres    : options.oszlop_keres,
                                     oszlop_listaz   : options.oszlop_listaz,
-                                    rkat            : options.rkat,
-                                    id_kiir         : options.id_kiir,
-                                    csoport         : options.csoport,
+                                    props           : options.props,
                                     recid           : options.recid,
-                                    mezo            : options.mezo,
-                                    op              : options.op,
-                                    felt            : options.felt,
+                                    rkat            : options.rkat,
                                     szemelyzet_id   : options.szemelyzet_id,
+                                    tabla           : options.tabla,
                                     telephely_id    : telephely_id,
-                                    obj_id          : obj_id
+                                    value           : val
                                 },
                                 success: function(msg) {
                                     if(msg.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
@@ -328,18 +330,18 @@
             $(this).keypress(function(e) {
                 if($(this).val() == '') {
                     if(e.keyCode==KEY_ENTER) {
-/*                        $("#autocomplete").css({'display':'none'}).html('');*/
+                        /* $("#autocomplete").css({'display':'none'}).html(''); */
                         return false;
                     }
                 } else if($('#autocomplete').css('display') == 'block') {
                     if(e.keyCode==KEY_ENTER) {
-                        /*$("#autocomplete").css({'display':'none'}).html('');*/
+                        /* $("#autocomplete").css({'display':'none'}).html(''); */
                         return false;
                     }
                 }
             });
 
-            /* Bárhova kattintva az oldalon, vagy Entert nyomva, az autocomplete záródjon be  */
+            /* Bárhova kattintva az oldalon, vagy Entert nyomva, az autocomplete záródjon be */
             that = $(this);
             $(document).click(function() {
                 $('#autocomplete').css({'display':'none'}).html('');

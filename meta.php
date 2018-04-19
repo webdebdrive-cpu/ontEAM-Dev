@@ -35,7 +35,7 @@ function get_title(){
         case 'eloterj_fb.php'               : $title .= 'FB előterjesztés';         break;
         case 'eloterj_bod.php'              : $title .= 'BoD előterjesztés';        break;
         case 'energia.php'                  : $title .= 'Energia';                  break;
-        case 'energia_terv.php'             : $title .= 'Energia terv';             break;
+        case 'energia_terv.php'             : $title .= 'Energia egységárak';       break;
         case 'erteklista.php'               : $title .= 'Értéklisták';              break;
         case 'eseti_fenntartas.php'         : $title .= 'Eseti fenntartás';         break;
         case 'eszkozkezeles.php'            : $title .= 'Eszközkezelés';            break;

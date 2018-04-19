@@ -92,7 +92,7 @@ if(isset($_POST['jelszo_csere'])) {
                         }
 
                         $adatbazis_kapcsolat -> bezar();
-                        header('Location: http://'.$_SESSION['kert_url']);
+                        header('Location: '.get_http().$_SESSION['kert_url']);
                         exit();
                     }
 
@@ -236,9 +236,9 @@ if(isset($_POST['login'])) {
                     } else {
 
                         if($bejelento){
-                            header('Location: http://'.$_SERVER['HTTP_HOST'].'/'.get_admin().'bejelentes.php');
+                            header('Location: '.get_http().$_SERVER['HTTP_HOST'].'/'.get_admin().'bejelentes.php');
                         }else{
-                            header('Location: http://'.$_SESSION['kert_url']);
+                            header('Location: '.get_http().$_SESSION['kert_url']);
                         }
                         $adatbazis_kapcsolat -> bezar();
                         exit();

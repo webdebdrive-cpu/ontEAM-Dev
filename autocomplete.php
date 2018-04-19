@@ -69,6 +69,18 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             }
         }
 
+        // Energia egységár esetén ha díjelem nevét kérjük le, akkor keressük meg az éppen éles tervet, és annak egységár soraiból hozzunk készítsünk listát
+        if( $_GET['tabla'] == 'energia_terv_ear' ) {
+            // Egy éles terv van mindig, ennek díjelemeit listázzuk ki
+            $eles_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`stat_id`='".ENERGIATERV_STAT_ELES."'");
+            if( $where_sql ) {
+                $where_sql .= " AND `energia_terv_id` = '".$eles_terv['recid']."'";
+            } else {
+                $where_sql .= " WHERE `energia_terv_id` = '".$eles_terv['recid']."'";
+            }
+            // A találatokon legyen egy distinct
+        }
+
         // Objektm id
         if( $_GET['tabla'] == 'eszkozkezeles' && $_GET['obj_id'] ) {
             if( $where_sql ) {
@@ -104,6 +116,15 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
                 $where_sql .= " WHERE `szulo`=0";
             }
         }
+        
+        // Props oszlopban is keresünk
+        if( $_GET['props'] ){
+            if( $where_sql ) {
+                $where_sql .= " AND `props` LIKE '%{$_GET['props']}%'";
+            } else {
+                $where_sql .= " WHERE `props` LIKE '%{$_GET['props']}%'";
+            }
+        }
 
         // DL lista elemeinek előállítása
         $return = '<ul>';
@@ -137,8 +158,13 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         }
         
 
+        // Energia terv egységárnál a nem fontos a recid, de nagyon fontos, hogy az értékek DISTINCT-elve legyenek
+        if( $_GET['tabla'] == 'energia_terv_ear' ) {
+            $lekerdez = mysqli_query($db_kapcs, 'SELECT DISTINCT `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
+        }else{
 // echo 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`'; exit;
-        $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
+            $lekerdez = mysqli_query($db_kapcs, 'SELECT `recid`,'.$select_kieg.' `'.implode('`, `', $oszlop_listaz).'` FROM `'.get_db_tabla().$_GET['tabla'].'`'.$where_sql.' ORDER BY `'.$oszlop_keres[0].'`') or die(mysqli_error($db_kapcs));
+        }
         while( $sor = mysqli_fetch_array($lekerdez) ) {
 
             $cikkmee_attr = '';

@@ -23,11 +23,6 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');           
 
 $szamla_html = '';
 
-if( $_POST ) {
-    echo '<pre style="font-size: 1.4rem">', print_r($_POST), '</pre>';
-    exit();
-}
-
 // Több kép menedzseléséhez
 $tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){

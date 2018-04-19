@@ -53,7 +53,7 @@ function i_u($type, $tabla, $tomb) {
     $oszlopok = array();
     $ertekek  = array();
 
-    // értékek párosítása
+    // Értékek párosítása
 	$i = 0;
 	foreach($tomb as $ertek) {
         if( $ertek['type'] != 'nosql' ) {
@@ -563,6 +563,17 @@ function i_u($type, $tabla, $tomb) {
                 }
             }
 
+        }
+        
+        // Energia terv státusz beszúrása
+        if( $tabla == 'energia_terv' ) {
+            $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
+                                                array($tabla.'_recid', 'stat_id',                   'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                array($id,             ENERGIATERV_STAT_MUNKAKOZI,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            );
+            if( $sql === false ) { $db_error = true; }
+            $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(ENERGIATERV_STAT_MUNKAKOZI), "`recid`='$id'");
+            if( $sql === false ) { $db_error = true; }
         }
 
         // Előterjesztés (FB) státusz beszúrása
@@ -2471,6 +2482,9 @@ if(isset($_GET['debug'])) {
             case 'energia':
                 $html = energiaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
+            case 'energia_terv':
+                $html = energia_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
+            break;
             case 'erteklista':
                 $html = erteklistaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
@@ -2485,9 +2499,6 @@ if(isset($_GET['debug'])) {
             break;
             case 'fenntartasi_szerzodes':
                 $html = fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
-            break;
-            case 'energia_terv':
-                $html = energia_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
             case 'ktghely':
                 $html = ktghelyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );

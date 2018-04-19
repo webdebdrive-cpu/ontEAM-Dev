@@ -327,11 +327,11 @@ if(!$_SESSION['bejelento_menu_rejt']){
     $megn            = 'energia_terv';
     $aloldalak       = array($megn.'.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
-    if(basename(self())==$megn.'.php'){ $oldalNev = $oldalNev = 'Tervezés / <span id="rekord_neve">Energia terv</span><span class="dn" id="rekord_neve_egyes">energia terv</span><span class="dn" id="rekord_neve_targy">energia tervet</span>';; }
+    if(basename(self())==$megn.'.php'){ $oldalNev = $oldalNev = 'Tervezés / <span id="rekord_neve">Energia egységárak</span><span class="dn" id="rekord_neve_egyes">energia egységár</span><span class="dn" id="rekord_neve_targy">energia egységárat</span>'; }
 
     $aktmenuk  = '';
     if(_jog(JOG_ENERGIATERV_MEGTEKINT)){
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Energia terv'  ), $almenu_sablon );
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Energia egységárak'  ), $almenu_sablon );
     }
 
     $style = '';
@@ -550,7 +550,7 @@ if(!$_SESSION['bejelento_menu_rejt']){
         'szerepkor_jog.php?jogosultsag'
     );
 
-    /* Rendszer katgória lekérdezése */
+    // Rendszer kategória lekérdezése
     $rkat = '';
     if( $_GET['rkat'] || $_SESSION['rendszerkat'] ) {
         if( $_GET['rkat'] ) {
@@ -577,8 +577,8 @@ if(!$_SESSION['bejelento_menu_rejt']){
     if(basename(self())=='ktgnem.php')                          { $oldalNev = 'Rendszer / <span id="rekord_neve">Költségnemek</span><span class="dn" id="rekord_neve_egyes">költségnem</span><span class="dn" id="rekord_neve_targy">költségnemek</span>';              }
 
     $aktmenuk  = '';
-    //$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Áfa' ), $almenu_sablon );
-    //$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Beosztás' ), $almenu_sablon );
+    // $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Áfa' ), $almenu_sablon );
+    // $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Beosztás' ), $almenu_sablon );
     if(_jog(JOG_ERTEKLISTAK_MEGTEKINT)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Költséghelyek' ), $almenu_sablon );
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['4'], 'Költségnemek' ), $almenu_sablon );
@@ -614,12 +614,12 @@ if(!$_SESSION['bejelento_menu_rejt']){
 }
 
 
-/** További telepítések figyelése, menedzselése egy külön fájlban*/
+// További telepítések figyelése, menedzselése egy külön fájlban
 if(is_file('!telepitesek.php')){
     require_once('!telepitesek.php');
 }
 
-/** Tényleges tartalom */
+// Tényleges tartalom
 $header_html = '';
 $head = $weblap -> head_keszit();
 
@@ -635,11 +635,6 @@ $head -> language      = 'hu';
 $head -> js_css        = get_jsfajlok_admin();
 $head -> extrak        = '<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">';
 $head -> extrak       .= '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">';
-
-// Munkalapokkal kapcsolatos JS-eket külön fájlba szedjük össze
-if(basename(self())=='munkalap.php'){
-    $head -> extrak       .= '<script src="../js/munkalap.js?cache='.time().'"></script>';
-}
 
 $header_html .= $head -> getHtml();
 
@@ -848,6 +843,9 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     } elseif( basename(self()) == 'energia.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
+
+    } elseif( basename(self()) == 'energia_terv.php' ) {
+        $uj_link = 'javascript: csoportMuvelet(\'terv_keszites_jellemzoi\'); void(0);';
 
     } elseif( basename(self()) == 'eseti_fenntartas.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
@@ -1214,6 +1212,14 @@ $header_html .= str_replace(
     $header_sablon
 );
 
+// Munkalapokkal kapcsolatos JS-eket külön fájlba szedjük össze
+if(basename(self())=='munkalap.php'){
+    $header_html .= '<script src="../js/munkalap.js?cache='.time().'"></script>';
+}
+// Energia terv JS behúzva
+if(basename(self())=='energia_terv.php'){
+    $header_html .= '<script src="../js/energia_terv.js?cache='.time().'"></script>';
+}
 
 // Nyomtatási popup
 $header_html .= nl2('

@@ -1819,15 +1819,6 @@ table.szamla_cont_tabla {
     user-select: none;
 }
 /* Azért adunk egy fix szélességet a névnek, hogy kereséskor, se nagyon változzon meg a táblázat szerkezete, ha egy olyan találat volna, ami túl rövid nevű */
-table.szamla_cont_tabla th:nth-of-type(5){
-    min-width: 36rem;
-}
-table.szamla_cont_tabla th:nth-of-type(6){
-    min-width: 30rem;
-}
-table.szamla_cont_tabla th:nth-of-type(7){
-    min-width: 15rem;
-}
 table.szamla_cont_tabla tr{
     border-bottom: 0.1rem solid #D6D6D6;
     cursor: pointer;

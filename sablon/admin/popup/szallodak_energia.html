@@ -1,0 +1,51 @@
+<h2>Szálloda kiválasztása</h2>
+<form action="" id="addSzallodaForm" class="popupForm" method="post">
+    <div class="kozep" style="min-height: 26rem">
+        <div class="dt szalloda_hozzaad">
+            <div class="dtr">
+                <div class="dtc">
+                    <h3>Gombok:</h3>
+
+                    <input type="button" name="megsem" class="gomb" value="Pesti szállodák" onclick="szallodakJelol( 'pesti' );" style="width: 12rem">
+                    <input type="button" name="megsem" class="gomb" value="Vidéki szállodák" onclick="szallodakJelol( 'videki' );" style="width: 12rem">
+                    <input type="button" name="megsem" class="gomb" value="Mind jelölése" onclick="szallodakJelol( 'mind' );" style="width: 12rem">
+                    <input type="button" name="megsem" class="gomb" value="Mind ürítése" onclick="szallodakJelol( 'urit' );" style="width: 12rem">
+                </div>
+                <div class="dtc form_jobb">
+                    <h3>Szállodák:</h3>
+
+                    <div class="szallodak_keret">
+                        <div id="addSzallodak" class="dt szallodak"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    
+    var kijelolt_egysegar = $('.szamla_cont_tabla .kijelolve').attr('data-recid');
+    
+    $.ajax({
+        url : 'energia_terv.php',
+        type: 'POST',
+        data: {
+            recid           : kijelolt_egysegar,
+            getSzallodak    : new Date().getTime()
+        },
+        success: function(response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response) {
+                $('#addSzallodak').html(response);
+            }
+        }
+    });
+
+    $('#addSzallodaForm').attr('onsubmit', 'return addSzallodaEnergia(\'' + kijelolt_egysegar + '\', this);');
+});
+</script>

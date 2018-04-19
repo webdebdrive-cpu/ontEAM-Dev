@@ -318,6 +318,7 @@ $(function() {
                 'eloterj_bod',
                 'eloterj_fb',
                 'energia',
+                'energia_terv',
                 'erteklista',
                 'eseti_fenntartas',
                 'eszkozkezeles',
@@ -4301,9 +4302,11 @@ function kapcsolodoSzerkeszt( oldal ) {
                 $('#addProjektTeam').attr('onsubmit', 'return addProjektTeam(\'' + _get('id') + '\', this);');
 
             break;
+            
             case 'szakterulet':
                 $('#addSzakterForm').attr('onsubmit', 'return addSzakterulet(\'' + _get('id') + '\', this);');
             break;
+            
             case 'szallodak':
                 $.ajax({
                  	url : 'login.php',
@@ -4322,8 +4325,8 @@ function kapcsolodoSzerkeszt( oldal ) {
 
 
                 $('#addSzallodaForm').attr('onsubmit', 'return addSzalloda(\'' + _get('id') + '\', this);');
-
             break;
+            
             case 'velemenyezok':
                 $('#addVelemenyezokForm').attr('onsubmit', 'return addVelemenyezoFg(\'' + _get('id') + '\', this);');
                 $.ajax({
@@ -5183,6 +5186,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
 
                     } else if( baseName(location.href) == 'cikktorzs' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+
+                    } else if( baseName(location.href) == 'energia_terv' ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: csoportMuvelet(\'terv_keszites_jellemzoi\'); void(0);');
 
                     } else if( baseName(location.href) == 'eloterj_fb' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');

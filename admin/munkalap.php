@@ -5256,6 +5256,9 @@ if (isset($_POST['munkalapSztornoz'])) {
             if( addMegj('bejelentes', $bejelentes_recid, $munkalap['ikt_szam'].' munkalap sztornózva') === false ){
                 $db_error = true;
             }
+            
+            // E-mail értesítés a bejelentőnek
+            level_felkeszit_es_kuld('bejelentes', $bejelentes_recid, ERT_BEJ_ELUTASITKOR, 'bejelentesElutasit', 'bejelento');
 
         // Egyébként kérdezünk
         }else{

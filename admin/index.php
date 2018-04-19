@@ -38,8 +38,8 @@ if (isset($_GET['stat_ido'])) {
 // Loginról értesítő levelek küldése
 if (isset($_GET['login_ertesit'])) {
     
-    $szalloda_nev = 'MSZ GH';
-    $szalloda_id  = '1012';
+    $szalloda_nev = 'BUDAPEST';
+    $szalloda_id  = '2110';
 
     $heliasok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$szalloda_id}'");
     $heliasok = adatbazis2tomb($heliasok, 'nev');
@@ -50,7 +50,7 @@ if (isset($_GET['login_ertesit'])) {
 $uzi = '
 Tisztelt '.$login['teljes_nev'].'!
 <br>
-<br>Az '.get_nev().' rendszer 2018.04.12 csütörtök reggel 7:00 időpontban indul a '.$szalloda_nev.' szállodában.
+<br>Az '.get_nev().' rendszer 2018.04.19 csütörtök reggel 7:00 időpontban indul a '.$szalloda_nev.' szállodában.
 <br>
 <br>Kérjük, hogy ettől az időponttól hibabejelentéseiket az '.get_nev().' rendszerben tegyék meg.
 <br>
@@ -59,7 +59,7 @@ Tisztelt '.$login['teljes_nev'].'!
 <br>Telefonos segítség: Handari Tamás 70-210-1312
 '. fajlbol_olvas('../sablon/admin/mail/alairas.html');
 
-            // var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
+            //var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
 //            var_dump( level_kuldes(get_nev(), get_mail(), 'Handrai Tamás', 'handari@szinvatrend.hu', 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
 
         }

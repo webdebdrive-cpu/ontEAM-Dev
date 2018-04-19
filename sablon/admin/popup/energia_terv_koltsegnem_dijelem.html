@@ -1,0 +1,128 @@
+<h2>Költségnem és díjelem</h2>
+<form action="" class="popupForm" method="post" onsubmit="energia_terv_koltsegnem_dijelem(); return false;">
+    <div class="kozep" style="min-height: 26rem">
+        <div class="dt">
+            <div class="dtr"> 
+                <div class="dtc form_bal">Költségnem:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" autocomplete="off" class="oriasi disableNav csillag focus" name="ktgnem_id_autocomp" id="ktgnem_id_autocomp" onblur="if(!$(this).val()){ $('#ktgnem_id').val(''); }" value="">
+                    <input type="hidden" name="ktgnem_id" id="ktgnem_id" value="">
+                    <script>
+                        $(document).ready(function() {
+                            $('#ktgnem_id_autocomp').autocomplete({
+                                'php_fajl'      : '../autocomplete.php',
+                                'tabla'         : 'ktgnem',
+                                'oszlop_keres'  : 'nev',
+                                'oszlop_listaz' : 'nev',
+                                'props'         : '<HELY>7020</>',
+                                'id_kiir'       : 'recid'
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Díjelem neve:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="dijelem_autocomp" id="dijelem_autocomp" value="">
+                    <script>
+                        $(document).ready(function() {
+                            $('#dijelem_autocomp').autocomplete({
+                                'php_fajl'      : '../autocomplete.php',
+                                'tabla'         : 'energia_terv_ear',
+                                'oszlop_keres'  : 'dijelem',
+                                'oszlop_listaz' : 'dijelem'
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Mennyiségi egység:</div>
+                <div class="dtc form_jobb">
+                    <input type="text" class="oriasi disableNav csillag" name="popup_mee" id="popup_mee" value="" style="min-width: 10rem; width: 10rem;" maxlength="20">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+$(document).ready(function(){
+    
+    var kijelolt_egysegar = $('.szamla_cont_tabla .kijelolve').attr('data-recid');
+    if(!kijelolt_egysegar){
+        
+        alert2('Költségnem és díjelem beállításához kérjük válasszon egy egységár sort!');
+        setTimeout(function(){ popupZar(); }, 10);
+        
+    }else{
+        
+        $.ajax({
+            url : 'energia_terv.php',
+            type: 'POST',
+            data: {
+                recid               : $('.szamla_cont_tabla .kijelolve').attr('data-recid'),
+                get_egysegar_adatok : Date.now()
+            },
+            success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response) {
+                    response = JSON.parse(response);
+                    $('#ktgnem_id_autocomp').val( response.ktgnem_id_autocomp );
+                    $('#ktgnem_id')         .val( response.ktgnem_id );
+                    $('#dijelem_autocomp')  .val( response.dijelem_autocomp );
+                    $('#popup_mee')         .val( response.popup_mee );
+                }
+            }
+        });
+        
+    }
+    
+});
+    
+function energia_terv_koltsegnem_dijelem(){
+
+    var egysegar_id = $('.szamla_cont_tabla .kijelolve').attr('data-recid');
+
+    $.ajax({
+        url : 'energia_terv.php',
+        type: 'POST',
+        data: {
+            terv_id                         : _get('id'),
+            terv_ea_id                      : egysegar_id,
+            ktgnem_id                       : $('#ktgnem_id').val(),
+            dijelem                         : $('#dijelem_autocomp').val(),
+            mee                             : $('#popup_mee').val(),
+            energia_terv_koltsegnem_dijelem : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response) {
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }else{
+                    
+                    var betoltve = szamlaBetolt(_get('id'), 'energia_terv.php', 'egysegarak');
+                    
+                    $.when(betoltve).then(function() {
+                        $('.szamla_cont_tabla tbody tr.kijelolve').removeClass('kijelolve');
+                        $('.szamla_cont_tabla tbody tr[data-recid="'+egysegar_id+'"]').addClass('kijelolve');
+                    });
+                    
+                    
+                    popupZar();
+                }
+
+            }
+        }
+    });
+
+    return false;
+}
+</script>

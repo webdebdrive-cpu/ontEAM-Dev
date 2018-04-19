@@ -4476,6 +4476,11 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
                 exit;
             }
         }
+        
+        // Energia tervkor tranzakcióban töröljük az egységár sorait
+        if($ertek['tabla']=='energia_terv'){
+            // egységár tábla sorait
+        }
 
         // Előterjesztéskor a kapcsolódó táblák és projektigénylés előterjesztés tábla törlése
         if($ertek['tabla']=='eloterj_fb'){
