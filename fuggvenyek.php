@@ -3492,7 +3492,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 // Anyagigénylés jog és Árazva státusz esetén a jóváhagyott mennyiség helyben szerkeszthető
                 $jhmen = number_format($bsz['jhmen'], 2, ',', ' ');
                 if ( $bsz['stat_id']==CIKKIGN_STAT_ARAZVA && _jog(JOG_ANYAGIGENYLES_JOVAHAGY)) {
-                    $jhmen = '<input class="r f_num" data-tort="2" data-recid="'.$bsz['recid'].'" type="text" id="jhmen_'.$bsz['recid'].'" value="'.number_format($bsz['rndmen'], 2, ',', ' ').'" style="width: 7rem; font-size: 1.4rem;" onclick="select()">';
+                    $jhmen = '<input class="r f_num mod" data-tort="2" data-recid="'.$bsz['recid'].'" type="text" id="jhmen_'.$bsz['recid'].'" value="'.number_format($bsz['rndmen'], 2, ',', ' ').'" style="width: 7rem; font-size: 1.4rem;" onclick="select()">';
                 }
                 $eredeti_ertekek['jhmen_'.$bsz['recid']] = number_format($bsz['rndmen'], 2, ',', ' ');
 
@@ -3518,8 +3518,8 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     'anyag_tabla_ig_datum'      => '<td class="c">'.substr(str_replace('-', '.', $bsz['insert_dt']), 0, 10).'</td>',
                     'anyag_tabla_jovah_menny'   => '<td class="r nowrap" id="td_jhmen_'.$bsz['recid'].'" data-sort="'.$bsz['jhmen'].'">'.$jhmen.'</td>',
                     'anyag_tabla_rend_menny'    => '<td class="r nowrap" data-sort="'.$bsz['rndmen'].'">'.number_format($bsz['rndmen'], 2, ',', ' ').'</td>',
-                    'anyag_tabla_rend_egysegar' => '<td class="r nowrap" id="td_rndear_'.$bsz['recid'].'" data-sort="'.$bsz['rndear'].'">'.number_format($bsz['rndear'], 4, ',', ' ').'</td>',
-                    'anyag_tabla_dev_rend'      => '<td class="r nowrap">'.number_format($bsz['vrndear'], 4, ',', ' ').'</td>',
+                    'anyag_tabla_rend_egysegar' => '<td class="r nowrap" id="td_rndear_'.$bsz['recid'].'" data-sort="'.$bsz['rndear'].'">'.number_format($bsz['rndear'], 2, ',', ' ').'</td>',
+                    'anyag_tabla_dev_rend'      => '<td class="r nowrap">'.number_format($bsz['vrndear'], 2, ',', ' ').'</td>',
                     'anyag_tabla_penznem'       => '<td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>'
                 );
 

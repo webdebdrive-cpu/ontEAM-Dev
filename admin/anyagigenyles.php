@@ -983,7 +983,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
             }
 
             // Jóváhagyott mennyiség ellenőrzése
-            $igenyles = $adatbazis_kapcsolat->s2('rndmen rndear cikkmee kcs_21', 'anyagigenyles', "`recid`='{$id}'");
+            $igenyles = $adatbazis_kapcsolat->s2('nev cikk_id rndmen rndear cikkmee kcs_21 igmen', 'anyagigenyles', "`recid`='{$id}'");
             if($_POST['jhmen']==0 || $_POST['jhmen']==0.00){
                 echo json_encode(array(
                     'hiba'  => 'A jóváhagyott mennyiség nem lehet 0 '.$igenyles['cikkmee'].'!<script>$(\'#jhmen_'.$id.'\').addClass(\'hibas_ide_focus\')</script>',
@@ -1016,7 +1016,14 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
-                'hiba' => 'Jóváhagyott érték: '. number_format($_POST['jhmen']*$igenyles['rndear'], 0, '', ' ').' '. get_penznem()/*Igen ide a Ft-kell és enm az utolsó tétel pénzneme */.'<br>Biztosan jóváhagyja az anyagigénylést?',
+                'hiba' => nl2('
+                            Cikkszám: '.$igenyles['cikk_id'].'
+                            <br>Cikk név: '.$igenyles['nev'].'
+                            <br>Mennyiség: '.number_format($igenyles['igmen'], 2, ',', ' ').' '.$igenyles['cikkmee'].'
+                            <br>Jóváhagyott érték: '. number_format($_POST['jhmen']*$igenyles['rndear'], 0, '', ' ').' '. get_penznem()/*Igen ide a Ft-kell és nem az utolsó tétel pénzneme */.'
+                            <br>
+                            <br>Biztosan jóváhagyja az anyagigénylést?
+                            '),
                 'gomb' => '<input class="gomb zold" value="Igen" onclick="anyagigenyles_jovahagy();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
