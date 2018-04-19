@@ -4986,7 +4986,9 @@ function _get( ertek ) {
 var request_in_process = false;
 function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigenylesnel_is ) {
 
-    alert2('');
+    /*alert2(''); Ez arra az esetre volt itt, ha szerkesztett mező esetén feljött a popup, az záródjon be. 
+     * Vszont ez gondot okozott árellenőrzésnél, amikor árazott sorok inputjai között nem lehetett lépkedni
+     * Ezért ez átkerült később, ahol minden lefutott, ott nyomjuk ki az alert-et */
     if( formModositva && !kerdes_nelkul ) {
 
         var a_az = 'a';
@@ -5283,6 +5285,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     });
 
                     $('#szamlaHidden').html('').addClass('dn').removeClass('csoport');
+
+                    /* Arra az esetre, ha lett volna kérdés, hogy biztosan elhagyom-e az űrlapot, mert van szerkesztett mező. */
+                    alert2('');
 
                     request_in_process = false;
          		} else {
