@@ -22,9 +22,13 @@ $(function() {
                 $(table.el).each(function() {
                     var thead = $(this).find('thead');
 
-                    thead.find('th').each(function() {
+                    thead.find('th').each(function(i) {
                         var width = $(this).outerWidth(),
                             index = $(this).index();
+
+                        if( i == 0 ) {
+                            $(this).width($(this).outerWidth() - 1);
+                        }
 
                         colgroup.append('<col>');
                         colgroup.find('col').eq(index).css({
@@ -44,6 +48,10 @@ $(function() {
                     thead.find('th').each(function(index, el) {
                         var th_width = $(this).outerWidth(),
                             th_index = $(this).index();
+
+                        if( i == 0 ) {
+                            width = width - 1;
+                        }
 
                         $(that).find('col').eq(th_index).css({
                             'min-width': th_width,
@@ -174,6 +182,7 @@ $(function() {
         $(this).find('tr.fake td').css('height', height);
 
         $(this).find('thead').find('th').each(function(i) {
+            /*parseInt(window.getComputedStyle(document.getElementById(this.id), null).getPropertyValue("width"))*/
             var width = $(this).outerWidth(),
                 index = $(this).index();
 
@@ -288,7 +297,7 @@ $(function() {
                     'width': _rew
                 });
 
-                /*_resizeElement.tbody.find('tr:first-child td').each(function() {
+                _resizeElement.tbody.find('tr:first-child td').each(function() {
                     var index = $(this).index(),
                         width = $(this).outerWidth();
 
@@ -297,7 +306,7 @@ $(function() {
                         'max-width': width,
                         'width': width
                     });
-                });*/
+                });
 
                 _col = _resizeElement.colGroup.find('col').eq(_resizeElement.index);
                 _col.css({
@@ -313,6 +322,21 @@ $(function() {
         if( _click ) {
             _click = false;
 
+            /*_resizeElement.tbody.find('tr:first-child td').each(function(i) {
+                var index = $(this).index(),
+                    width = $(this).outerWidth();
+
+                if( i == 0 ) {
+                    width = width - 1;
+                }
+
+                _resizeElement.that.find('th').eq(index).css({
+                    'min-width': width,
+                    'max-width': width,
+                    'width': width
+                });
+            });*/
+
             tablaSorrend($(_resizeElement.that).parents('table'));
 
             _resizeElement = null;
@@ -326,7 +350,6 @@ function tablaSorrend( table ) {
         sorrend = {};
 
     table.find('thead').not('.sticky').find('th').each(function(i) {
-        console.log(this.id);
         if(this.id != '') { sorrend[i] = {id: this.id, width: $(this).outerWidth()}; }
     });
 

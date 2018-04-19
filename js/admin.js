@@ -231,7 +231,7 @@ function felh_valt( valt ) {
 }
 
 $(function() {
-    
+
     /* Csak számokat elfogadó mező */
     $(document).on('keyup blur', '.f_csakszam', function(){
         onlyNumbers($(this));
@@ -4302,11 +4302,11 @@ function kapcsolodoSzerkeszt( oldal ) {
                 $('#addProjektTeam').attr('onsubmit', 'return addProjektTeam(\'' + _get('id') + '\', this);');
 
             break;
-            
+
             case 'szakterulet':
                 $('#addSzakterForm').attr('onsubmit', 'return addSzakterulet(\'' + _get('id') + '\', this);');
             break;
-            
+
             case 'szallodak':
                 $.ajax({
                  	url : 'login.php',
@@ -4326,7 +4326,7 @@ function kapcsolodoSzerkeszt( oldal ) {
 
                 $('#addSzallodaForm').attr('onsubmit', 'return addSzalloda(\'' + _get('id') + '\', this);');
             break;
-            
+
             case 'velemenyezok':
                 $('#addVelemenyezokForm').attr('onsubmit', 'return addVelemenyezoFg(\'' + _get('id') + '\', this);');
                 $.ajax({

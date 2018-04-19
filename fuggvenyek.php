@@ -564,7 +564,7 @@ function i_u($type, $tabla, $tomb) {
             }
 
         }
-        
+
         // Energia terv státusz beszúrása
         if( $tabla == 'energia_terv' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
