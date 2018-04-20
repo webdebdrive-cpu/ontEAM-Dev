@@ -3,12 +3,13 @@ $(function() {
     $('#dragTable').dragtable({
         maxMovingRows   : 1,
         dragHandle      : '.some-handle',
+        excludeFooter   : true,
         beforeStart     : function(table, sort) {
             $('#tartalomJobb').addClass('scrollFix');
 
-            if( $('#tartalomJobb').scrollTop() == 0 ) {
+            /*if( $('#tartalomJobb').scrollTop() == 0 ) {
                 $(table.el[0]).find('colgroup').remove();
-            }
+            }*/
         },
         beforeStop      : function(table, sort) {
             $('#tartalomJobb').removeClass('scrollFix');
@@ -16,7 +17,27 @@ $(function() {
         persistState: function(table) {
             tablaSorrend( table.el );
 
-            var colgroup = $('<colgroup>');
+            $(table.el).each(function() {
+                var that = $(this);
+                var colgroup = that.find('colgroup');
+
+                colgroup.find('col').each(function(index, el) {
+                    var width = $(this).outerWidth(),
+                        index = $(this).index();
+
+                    if( index == 0 ) {
+                        width = width - 1;
+                    }
+
+                    $(that).find('th').eq(index).css({
+                        'min-width': width,
+                        'max-width': width,
+                        'width': width
+                    });
+                });
+            });
+
+            /*var colgroup = $('<colgroup>');
 
             if( $('#tartalomJobb').scrollTop() == 0 ) {
                 $(table.el).each(function() {
@@ -60,7 +81,7 @@ $(function() {
                         });
                     });
                 });
-            }
+            }*/
         }
     });
 
@@ -297,6 +318,12 @@ $(function() {
                     'width': _rew
                 });
 
+                var maxHeight = Math.max.apply(null, $(_resizeElement.th).map(function () {
+                    return $(this).height();
+                }).get());
+
+                _resizeElement.tbody.find('tr.fake td').css('height', maxHeight);
+
                 _resizeElement.tbody.find('tr:first-child td').each(function() {
                     var index = $(this).index(),
                         width = $(this).outerWidth();
@@ -348,7 +375,7 @@ $(function() {
 function tablaSorrend( table ) {
     var tabla   = $(table).attr('data-tabla'),
         sorrend = {};
-
+return false;
     table.find('thead').not('.sticky').find('th').each(function(i) {
         if(this.id != '') { sorrend[i] = {id: this.id, width: $(this).outerWidth()}; }
     });

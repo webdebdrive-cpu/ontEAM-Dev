@@ -4986,7 +4986,7 @@ function _get( ertek ) {
 var request_in_process = false;
 function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigenylesnel_is ) {
 
-    /*alert2(''); Ez arra az esetre volt itt, ha szerkesztett mező esetén feljött a popup, az záródjon be. 
+    /*alert2(''); Ez arra az esetre volt itt, ha szerkesztett mező esetén feljött a popup, az záródjon be.
      * Vszont ez gondot okozott árellenőrzésnél, amikor árazott sorok inputjai között nem lehetett lépkedni
      * Ezért ez átkerült később, ahol minden lefutott, ott nyomjuk ki az alert-et */
     if( formModositva && !kerdes_nelkul ) {
