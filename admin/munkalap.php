@@ -1184,7 +1184,7 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
     if( $recid ) {
 
         // Adatok lekérdezése
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id, szallito_id, jh1_login, jh2_login', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id, telephely_id, szallito_id, jh1_login, jh2_login, ikt_szam', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
         // Státusz ellenőrzése
@@ -1211,7 +1211,11 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
-                'hiba' => 'Biztosan jóváhagyja?',
+                'hiba' => nl2(' Munkalap szám: '.$munkalap['ikt_szam'].'
+                                <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
+                                <br>
+                                <br>Biztosan jóváhagyja?
+                               '),
                 'gomb' => '<input class="gomb zold" value="Igen" onclick="munkalapKulsosJovahagy();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
@@ -1289,6 +1293,20 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
             ));
         }
     }
+
+    $weblap->leallit();
+    exit();
+}
+
+// Popup tartalmába kiírjuk a ML adatait
+if( isset($_POST['get_ml_adatok']) ) {
+    
+    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam telephely_id', 'munkalap', "`recid`='{$_POST['recid']}'");
+    
+    echo json_encode(array(
+        'html'  => 'Munkalap szám: '.$munkalap['ikt_szam'].'<br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id'])
+    ));
+    
 
     $weblap->leallit();
     exit();

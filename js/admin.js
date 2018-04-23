@@ -4472,7 +4472,7 @@ function scrollLeptet() {
             tartBalHeight   = $('#tartalomJobb').outerHeight();
 
         /* Összeadjuk az active elem magasságát és a felső eltolását */
-        var aTopH = active_top + activeHeight;
+        var aTopH = active_top + activeHeight; 
 
         if( (aTopH - activeHeight) < 0 ) {
             $('#tartalomJobb').scrollTop(0);
@@ -4986,9 +4986,11 @@ function _get( ertek ) {
 var request_in_process = false;
 function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigenylesnel_is ) {
 
-    /*alert2(''); Ez arra az esetre volt itt, ha szerkesztett mező esetén feljött a popup, az záródjon be.
-     * Vszont ez gondot okozott árellenőrzésnél, amikor árazott sorok inputjai között nem lehetett lépkedni
-     * Ezért ez átkerült később, ahol minden lefutott, ott nyomjuk ki az alert-et */
+    focused = false; /* Ezt azért kell hamisra állítani, mert alert2 bezárásakor az utoljára fókuszált elemre visszatesszük a fókuszt. 
+                        Viszont ezt az anyagigénylések táblázatánál gondot okozott: nem lehetett kilépni az árazva sorok inputjaiból.
+                        */
+    alert2('');
+    
     if( formModositva && !kerdes_nelkul ) {
 
         var a_az = 'a';
@@ -5285,9 +5287,6 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     });
 
                     $('#szamlaHidden').html('').addClass('dn').removeClass('csoport');
-
-                    /* Arra az esetre, ha lett volna kérdés, hogy biztosan elhagyom-e az űrlapot, mert van szerkesztett mező. */
-                    alert2('');
 
                     request_in_process = false;
          		} else {

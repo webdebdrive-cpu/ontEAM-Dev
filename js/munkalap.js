@@ -355,7 +355,7 @@ function munkalapRogzit(csak_kerdezunk) {
     return false;
 }
 
-/* Munkalap külsős jóváahgyása */
+/* Munkalap külsős jóváhagyása */
 function munkalapKulsosJovahagy(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
