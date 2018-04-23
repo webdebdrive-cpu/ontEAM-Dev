@@ -651,7 +651,6 @@ if( isset($_POST['bejelentesReklamacioElutasit']) ) {
 // CSV generálása
 if (isset($_GET['csv'])) {
 
-
     header("Content-type: text/csv");
     header("Content-Disposition: attachment; filename=$megnevezes.csv");
     header("Pragma: no-cache");
@@ -677,15 +676,15 @@ if (isset($_GET['csv'])) {
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
         $sql = 'SELECT
-                                                    `ikt_szam` as \'Bejelentés szám\',
-                                                    `'.get_db_tabla().'bejelentes`.`telephely_id` as \'Szálloda\',
-                                                    `hiba_id` as \'Bejelentett hiba\',
-                                                    `hiba_text` as \'Hiba leírása\',
-                                                    `obj_id` as \'Helyiség\',
-                                                    `helyiseg_text` as \'Hely leírása\',
-                                                    `gep_id` as \'Gépnév\',
-                                                    `stat_id` as \'Státusz\'
-                                                    '.$lekerdezes_fromtol;
+                    `ikt_szam` as \'Bejelentés szám\',
+                    `'.get_db_tabla().'bejelentes`.`telephely_id` as \'Szálloda\',
+                    `hiba_id` as \'Bejelentett hiba\',
+                    `hiba_text` as \'Hiba leírása\',
+                    `obj_id` as \'Helyiség\',
+                    `helyiseg_text` as \'Hely leírása\',
+                    `gep_id` as \'Gépnév\',
+                    `stat_id` as \'Státusz\'
+                    '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);
 

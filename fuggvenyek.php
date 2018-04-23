@@ -2442,7 +2442,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         $sql = $adatbazis_kapcsolat->gp();
 
     }
-
     // Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
     if(!isset($_GET['szamlaSorFrissit']) && $tabla!='esemenyek'){
         $_SESSION['akt_sql'] = $sql;
@@ -2761,8 +2760,14 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     $style = ' style="background: '.$szinkod.';"';
                 }
             }
+            
+            // Ha sürgős, akkor legyen piros a sora
+            $surgos_class = '';
+            if($bsz['surgos']){
+                $surgos_class = ' surgos';
+            }
 
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.$style.'>'.$li_tart.'</li>';
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.$surgos_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.$style.'>'.$li_tart.'</li>';
 
             $i++;
         }

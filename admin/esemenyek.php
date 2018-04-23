@@ -1166,7 +1166,7 @@ $ho_rejt  = 'dn ';
 $utolso_vegrehajtas = '';
 if(basename(self())=='utemezett_feladatok.php'){
 
-    $uf = $adatbazis_kapcsolat->s2('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d szemelyzet_id', 'utemezett_feladatok', "`recid`='{$_GET['id']}'");
+    $uf = $adatbazis_kapcsolat->s2('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d szemelyzet_id insert_usr update_usr', 'utemezett_feladatok', "`recid`='{$_GET['id']}'");
 
     $utolso_vegrehajtas = str_replace('-', '.', $uf['esem_d']);
     $uf['aktkezd_d']    = str_replace('-', '.', $uf['aktkezd_d']);
@@ -1229,7 +1229,7 @@ if(basename(self())=='utemezett_feladatok.php'){
 $megnevezes = 'utemezett_feladatok';
 $utemezett_feladatok_tomb = $akt_tomb = array(
     array('type' => 'text',                     'megn' => 'Feladatszám:',       'name' => 'id',             'szuro' => 1,  'disabled' => true,       'maxlength' => 10, 'style' => 'width: 6rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'checkbox',                 'megn' => 'Aktív',              'name' => 'aktiv',          'szuro' => 1,  'class' => 'check'),
+    array('type' => 'checkbox',                 'megn' => 'Aktív',              'name' => 'aktiv',          'szuro' => 1,  'class' => 'check',       'post' => '<span style="margin-right: 4rem"></span>Létrehozta: <b style="margin-right: 4rem">'.$uf['insert_usr'].'</b> Szerkesztette: <b>'.$uf['update_usr'].'</b>'),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',          'name' => 'telephely_id',   'szuro' => 1,  'class' => 'disableNav',  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this ); $(\'#obj_id_autocomp\').val(\'\'); $(\'#obj_id\').val(\'\'); $(\'#gep_id_autocomp\').val(\'\'); $(\'#gep_id\').val(\'\');'),
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',          'name' => 'obj_id',         'szuro' => 1,  'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid'/*, 'alert' => 'Kérem adja meg a Helyiséget!'*/, 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">format_list_bulleted</i></a>', 'oninput' => '$(\'#gep_id_autocomp\').val(\'\'); $(\'#gep_id\').val(\'\');'),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',            'name' => 'gep_id',         'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
@@ -1240,7 +1240,7 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
     array('type' => 'text',                     'megn' => 'Utolsó esedékesség:','name' => 'utesnap_d',      'szuro' => 1,  'class' => 'datepicker'),
     array('type' => 'text',                     'megn' => 'Riasztás:',          'name' => 'riaszt',         'szuro' => 1,  'maxlength' => 250, 'style' => 'width: 3.5rem', 'post' => ' nappal az esedékesség előtt'),
     array('type' => 'textarea',                 'megn' => 'Leírás:',            'name' => 'leiras',         'szuro' => 1,  'disabled' => $disabled,    'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images', 'width' => '100%', 'height' => '150'),
-    array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',  'name' => 'szemelyzet_id', 'szuro' => 1, 'class' => 'disableNav', 'post' => ' Utoljára végrehajtva: <b>'.$utolso_vegrehajtas.'</b>' , 'alert' => 'Kérjük adja meg a hozzárendelt személyzetet!', 'onchange' => 'ut_kulso_kivitlezo_beallit();'),
+    array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',  'name' => 'szemelyzet_id', 'szuro' => 1, 'class' => 'disableNav', 'post' => ' Utoljára végrehajtva: <b>'.$utolso_vegrehajtas.'</b>', 'alert' => 'Kérjük adja meg a hozzárendelt személyzetet!', 'onchange' => 'ut_kulso_kivitlezo_beallit();'),
     array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',   'name' => 'szallito_id',   'szuro' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id'),
 
     array('type' => 'html',                     'megn' => nl2('
@@ -1370,7 +1370,7 @@ $het_rejt = 'dn ';
 $ho_rejt  = 'dn ';
 $utolso_vegrehajtas = '';
 if(basename(self())=='rendszeres_karbantartas.php'){
-    $uf = $adatbazis_kapcsolat->s2('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d szemelyzet_id', 'rendszeres_karbantartas', "`recid`='{$_GET['id']}'");
+    $uf = $adatbazis_kapcsolat->s2('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d szemelyzet_id insert_usr update_usr', 'rendszeres_karbantartas', "`recid`='{$_GET['id']}'");
 
     $utolso_vegrehajtas = $uf['esem_d'];
     $uf['aktkezd_d'] = str_replace('-', '.', $uf['aktkezd_d']);
@@ -1439,7 +1439,7 @@ if(basename(self())=='rendszeres_karbantartas.php'){
 $megnevezes = 'rendszeres_karbantartas';
 $rendszeres_karbantartas_tomb = $akt_tomb = array(
     array('type' => 'text',                     'megn' => 'Feladatszám:',       'name' => 'id',             'szuro' => 1,  'disabled' => true,       'maxlength' => 10, 'style' => 'width: 6rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'checkbox',                 'megn' => 'Aktív',              'name' => 'aktiv',          'szuro' => 1,  'class' => 'check'),
+    array('type' => 'checkbox',                 'megn' => 'Aktív',              'name' => 'aktiv',          'szuro' => 1,  'class' => 'check',       'post' => '<span style="margin-right: 4rem"></span>Létrehozta: <b style="margin-right: 4rem">'.$uf['insert_usr'].'</b> Szerkesztette: <b>'.$uf['update_usr'].'</b>'),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',          'name' => 'telephely_id',   'szuro' => 1,  'class' => 'disableNav',  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this ); $(\'#obj_id_autocomp\').val(\'\'); $(\'#obj_id\').val(\'\'); $(\'#gep_id_autocomp\').val(\'\'); $(\'#gep_id\').val(\'\');'),
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',          'name' => 'obj_id',         'szuro' => 1,  'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid'/*, 'alert' => 'Kérem adja meg a Helyiséget!'*/, 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">format_list_bulleted</i></a>', 'oninput' => '$(\'#gep_id_autocomp\').val(\'\'); $(\'#gep_id\').val(\'\');'),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',            'name' => 'gep_id',         'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
@@ -1579,7 +1579,7 @@ $het_rejt = 'dn ';
 $ho_rejt  = 'dn ';
 $utolso_vegrehajtas = '';
 if(basename(self())=='eseti_fenntartas.php'){
-    $uf = $adatbazis_kapcsolat->s2('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d', 'eseti_fenntartas', "`recid`='{$_GET['id']}'");
+    $uf = $adatbazis_kapcsolat->s2('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d update_usr insert_usr', 'eseti_fenntartas', "`recid`='{$_GET['id']}'");
 
     $utolso_vegrehajtas = $uf['esem_d'];
     $uf['aktkezd_d'] = str_replace('-', '.', $uf['aktkezd_d']);
@@ -1647,7 +1647,7 @@ if(basename(self())=='eseti_fenntartas.php'){
 $megnevezes = 'eseti_fenntartas';
 $eseti_fenntartas_tomb = $akt_tomb = array(
     array('type' => 'text',                     'megn' => 'Feladatszám:',       'name' => 'id',             'szuro' => 1,  'disabled' => true,       'maxlength' => 10, 'style' => 'width: 6rem', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'checkbox',                 'megn' => 'Aktív',              'name' => 'aktiv',          'szuro' => 1,  'class' => 'check'),
+    array('type' => 'checkbox',                 'megn' => 'Aktív',              'name' => 'aktiv',          'szuro' => 1,  'class' => 'check',       'post' => '<span style="margin-right: 4rem"></span>Létrehozta: <b style="margin-right: 4rem">'.$uf['insert_usr'].'</b> Szerkesztette: <b>'.$uf['update_usr'].'</b>'),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',          'name' => 'telephely_id',   'szuro' => 1,  'class' => 'disableNav',  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this ); $(\'#obj_id_autocomp\').val(\'\'); $(\'#obj_id\').val(\'\'); $(\'#gep_id_autocomp\').val(\'\'); $(\'#gep_id\').val(\'\');'),
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',          'name' => 'obj_id',         'szuro' => 1,  'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid'/*, 'alert' => 'Kérem adja meg a Helyiséget!'*/, 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">format_list_bulleted</i></a>', 'oninput' => '$(\'#gep_id_autocomp\').val(\'\'); $(\'#gep_id\').val(\'\');'),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',            'name' => 'gep_id',         'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
