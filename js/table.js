@@ -7,17 +7,40 @@ $(function() {
         beforeStart     : function(table, sort) {
             $('#tartalomJobb').addClass('scrollFix');
 
-            /*if( $('#tartalomJobb').scrollTop() == 0 ) {
-                $(table.el[0]).find('colgroup').remove();
-            }*/
+            sorrend = {};
+            $(table.el).find('thead').not('.sticky').find('th').each(function(i) {
+                if(this.id != '') { sorrend[this.id] = $(this).outerWidth(); }
+            });
         },
         beforeStop      : function(table, sort) {
             $('#tartalomJobb').removeClass('scrollFix');
         },
         persistState: function(table) {
+            $(table.el).find('thead').not('.sticky').find('th').each(function(i) {
+                var width  = col_width = sorrend[$(this).attr('id')],
+                    index  = $(this).index(),
+                    parent = $(this).parents('table');
+
+                if( i == 0 ) {
+                    width = width - 1;
+                }
+
+                $(this).css({
+                    'min-width': width,
+                    'max-width': width,
+                    'width': width
+                });
+
+                parent.find('col').eq(index).css({
+                    'min-width': col_width,
+                    'max-width': col_width,
+                    'width': col_width
+                });
+            });
+
             tablaSorrend( table.el );
 
-            $(table.el).each(function() {
+            /*$(table.el).each(function() {
                 var that = $(this);
                 var colgroup = that.find('colgroup');
 
@@ -35,53 +58,7 @@ $(function() {
                         'width': width
                     });
                 });
-            });
-
-            /*var colgroup = $('<colgroup>');
-
-            if( $('#tartalomJobb').scrollTop() == 0 ) {
-                $(table.el).each(function() {
-                    var thead = $(this).find('thead');
-
-                    thead.find('th').each(function(i) {
-                        var width = $(this).outerWidth(),
-                            index = $(this).index();
-
-                        if( i == 0 ) {
-                            $(this).width($(this).outerWidth() - 1);
-                        }
-
-                        colgroup.append('<col>');
-                        colgroup.find('col').eq(index).css({
-                            'min-width': width,
-                            'max-width': width,
-                            'width': width
-                        });
-                    });
-                });
-
-                $(table.el).prepend(colgroup);
-            } else {
-                $(table.el).each(function() {
-                    var that = $(this);
-                    var thead = that.find('thead');
-
-                    thead.find('th').each(function(index, el) {
-                        var th_width = $(this).outerWidth(),
-                            th_index = $(this).index();
-
-                        if( i == 0 ) {
-                            width = width - 1;
-                        }
-
-                        $(that).find('col').eq(th_index).css({
-                            'min-width': th_width,
-                            'max-width': th_width,
-                            'width': th_width
-                        });
-                    });
-                });
-            }*/
+            });*/
         }
     });
 
