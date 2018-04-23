@@ -2992,7 +2992,14 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if($frissit){
                 // $active .= ' kijelolve';
             }
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
+            
+            // Ha sürgős, akkor legyen piros a sora
+            $surgos_class = '';
+            if($bsz['surgos']){
+                $surgos_class = ' surgos';
+            }
+            
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.$surgos_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
 
             $i++;
         }

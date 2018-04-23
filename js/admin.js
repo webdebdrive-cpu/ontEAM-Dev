@@ -6260,9 +6260,12 @@ function munkAnyagHozzaad( formID, igenyles ) {
         sz_td = '<td class="c">' + szuk_menny.val() + '<input type="hidden" name="addCikkSzukMenny[]" value="' + szuk_menny.val() + '"></td>';
     }
 
+    /* A cikktörzs a cikkszámot is tartalmazza. Az első kötőjelig ezért eldobjuk a cikk nevét, mert az a cikkszám. */
+    csak_cikknev = cikknev.val();
+    csak_cikknev = csak_cikknev.substr(csak_cikknev.indexOf(' - ')+1);
     var table_sor = '<tr class="anyag_sor_'+id_tmp+'">' +
                         '<td id="anyag_cikkid_'+id_tmp+'">' + cikkid_origi.val() + '<input type="hidden" name="addCikkID[]" value="' + cikkid_origi.val() + '"><input type="hidden" name="addCikkUj[]" value="1"></td>' +
-                        '<td id="anyag_nev_'+id_tmp+'">' + cikknev.val() + '</td>' +
+                        '<td id="anyag_nev_'+id_tmp+'">' + csak_cikknev + '</td>' +
                         '<td class="c">' + felh_menny.val() + '<input type="hidden" name="addCikkFelhMenny[]" value="' + felh_menny.val() + '"></td>' +
                         sz_td +
                         '<td>' + cikkmee + '</td>' +

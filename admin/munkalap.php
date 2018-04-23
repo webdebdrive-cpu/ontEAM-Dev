@@ -1025,7 +1025,7 @@ if( isset($_POST['munkalapRogzit']) ) {
 
     if( $recid ) {
 
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id', 'munkalap', "`recid` = '{$recid}'");
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id ikt_szam szemelyzet_id telephely_id', 'munkalap', "`recid` = '{$recid}'");
         if( $munkalap === false ) { $db_error = true; }
 
         $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
@@ -1069,7 +1069,12 @@ if( isset($_POST['munkalapRogzit']) ) {
         if (isset($_POST['csak_kerdezunk'])) {
 
             echo json_encode(array(
-                'hiba' => 'Biztosan lezárja a munkalapot?',
+                'hiba' => nl2('
+                                Munkalap szám: '.$munkalap['ikt_szam'].'
+                                <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
+                                <br>
+                                <br>Biztosan lezárja a munkalapot?
+                                '),
                 'gomb' => '<input class="gomb zold" value="Igen" onclick="munkalapRogzit();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
