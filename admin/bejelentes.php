@@ -9,8 +9,8 @@ Játékszabályok:
 - Csoportot lehessen egyben visszatenni nyitottnak, de ekkor nem bomlik fel a csoport.
 
 */
-require_once('../weblap.php');
 
+require_once('../weblap.php');
 /*// Manuális értesítés küldés
 if (isset($_GET['teszt_123'])) {
     //level_felkeszit_es_kuld_TMP('bejelentes', 1475, ERT_BEJ_ELUTASITKOR, 'bejelentesElutasit', 'bejelento');
@@ -650,7 +650,10 @@ if( isset($_POST['bejelentesReklamacioElutasit']) ) {
 
 // CSV generálása
 if (isset($_GET['csv'])) {
-
+if(isset($_GET['teszt2'])){
+    echo $_SESSION['valami'];
+    exit;
+}
     header("Content-type: text/csv");
     header("Content-Disposition: attachment; filename=$megnevezes.csv");
     header("Pragma: no-cache");
@@ -1282,7 +1285,7 @@ require_once('selectek.php');
     if( !$_GET['ajax'] ) {
         echo '</div>';
     }
-    
+
 if( !$_GET['ajax'] ) {
     require_once('footer.php');
 }

@@ -2490,15 +2490,20 @@ require_once('selectek.php');
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
-
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
+
         // Anyagrendeléskor a cikkrendfej táblából dolgozunk.
         if (isset($_GET['anyagrend'])) {
-            $sor = $adatbazis_kapcsolat -> s2('*', 'cikkrendfej', "`rndid`='{$sor['rndid']}'");
+            $sor_rnd = $adatbazis_kapcsolat -> s2('*', 'cikkrendfej', "`rndid`='{$sor['rndid']}'");
 
-            $sor['rndertek'] = number_format($sor['rndertek'], 0, '', ' ');
-            $kepfajl_original  = $sor['kepfajl'];
-            $sor['kepfajl'] = str_replace('rendeles/', '', $sor['kepfajl']);
+            $sor_rnd['rndertek'] = number_format($sor_rnd['rndertek'], 0, '', ' ');
+            $kepfajl_original   = $sor_rnd['kepfajl'];
+            $sor_rnd['kepfajl'] = str_replace('rendeles/', '', $sor_rnd['kepfajl']);
+            
+            foreach($sor_rnd as $kulcs => $ertek){
+                $sor[$kulcs] = $sor_rnd[$kulcs];
+            }
+            
         }
 
         $sor['rnd_dt'] = str_replace('-', '.', $sor['rnd_dt']);

@@ -31,11 +31,10 @@ $(document).on('keyup', '.szamla_cont_tabla input', function(e) {
 
 });
 
-/* Mező elhagyásakor */
+/* Árazva státuszú sorokban található mező elhagyásakor */
 $(document).on('blur', '.szamla_cont_tabla input', function(e) {
-    /* Enterre újraszámoljuk a táblázat alatti összesítsét */
-    osszeg = 0;
 
+    osszeg = 0;
     $('.szamla_cont_tabla tbody tr').each(function () {
         id = $(this).attr('data-recid');
 
@@ -53,6 +52,13 @@ $(document).on('blur', '.szamla_cont_tabla input', function(e) {
     });
     $('#rend_ertek').html( ezresek(osszeg, 0, '', ' ')+' Ft' );
 
+});
+
+/* Árazva státuszú sorokban található mezőből ha TAB-al kilépünk */
+$(document).on('keyup', '.szamla_cont_tabla input', function(e) {
+    if( e.keyCode == KEY_TAB ) {
+        $('.szamla_cont_tabla input:focus').closest('tr').click();
+    }
 });
 
 /* Anyagigénylés táblázat Ctrl+Shift kijelölése */

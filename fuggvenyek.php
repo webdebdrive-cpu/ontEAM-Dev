@@ -2442,8 +2442,9 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         $sql = $adatbazis_kapcsolat->gp();
 
     }
+    
     // Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
-    if(!isset($_GET['szamlaSorFrissit']) && $tabla!='esemenyek'){
+    if(!isset($_GET['szamlaSorFrissit']) && !$csak_sql_miatt && $tabla!='esemenyek'){
         $_SESSION['akt_sql'] = $sql;
     }
 

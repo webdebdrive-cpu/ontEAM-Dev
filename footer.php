@@ -9,4 +9,6 @@ $mivel = array($ev_nev,     $nyelv      );
 echo sablon_gyar('footer.html', $mit, $mivel);
 
 $weblap -> leallit();
+
+
 ?>

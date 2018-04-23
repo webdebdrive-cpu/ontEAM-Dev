@@ -44,6 +44,8 @@ $weblap -> mail_charset    = get_mail_charset();
 
 $weblap -> indit();
 
+//echo session_id();
+//echo $_SESSION['akt_sql']; exit;
 // Ha $db_prefix nem üres (tehát használunk adatbázist), akkor a következők végrehajtás kötelező
 if($weblap -> db_prefix){
     $adatbazis_kapcsolat = $weblap -> adatbazis;

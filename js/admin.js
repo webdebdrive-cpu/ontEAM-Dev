@@ -1254,6 +1254,7 @@ $(function() {
             if(get_get(['mezo', 'op', 'felt']).indexOf('?')<0){
                 kerdo_es = '?';
             }
+            
             location.href=get_get(['mezo', 'op', 'felt'])+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt;
         }
     });
@@ -4542,10 +4543,11 @@ function scrollLeptet() {
             active_ct = 0;
         }
         
-        if( active_ct < 100 ) {
+        offset = 25;
+        if( active_ct < offset ) {
             $('#tartalomJobb').scrollTop( $('#tartalomJobb').scrollTop() - activeHeight - 100 );
-        } else if( (active_ct + activeHeight + theadHeight) > (tartBalHeight - 100) ) {
-            $('#tartalomJobb').scrollTop( $('#tartalomJobb').scrollTop() + activeHeight + 100 );
+        } else if( (active_ct + activeHeight + theadHeight) > (tartBalHeight - offset) ) {
+            $('#tartalomJobb').scrollTop( $('#tartalomJobb').scrollTop() + activeHeight + offset );
         }
 
         /* Összeadjuk az active elem magasságát és a felső eltolását */
