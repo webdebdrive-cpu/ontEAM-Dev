@@ -189,7 +189,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
 
                 // Az utolsó után nem kell <br>
                 if( $i != $size ) {
-                    $return .= '<br>';
+                    $return .= ' - ';
                 }
 
             }

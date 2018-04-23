@@ -58,8 +58,8 @@
                             $('#cikk_id_autocomp').autocomplete({
                                 'php_fajl'      : '../autocomplete.php',
                                 'tabla'         : 'cikktorzs',
-                                'oszlop_keres'  : 'nev',
-                                'oszlop_listaz' : 'nev',
+                                'oszlop_keres'  : 'id, nev',
+                                'oszlop_listaz' : 'id, nev',
                                 'id_kiir'       : 'recid'
                             });
                         });
@@ -260,10 +260,12 @@ function munkAnyagKPHozzaad( formID ) {
     
     id_tmp = new Date().getTime();
 
+    csak_cikknev = $('#cikk_id_autocomp').val()
+    csak_cikknev = csak_cikknev.substr(csak_cikknev.indexOf('-')+1);
     var table_sor = '<tr class="sor_kp_igeny_'+id_tmp+'">' +
                         '<td>' + $('#pop_telephely_id option:selected').text() + '<input type="hidden" name="add_telephely_id[]" value="' + $('#pop_telephely_id').val() + '"></td>' +
                         '<td>' + $('#cikkid_origi').val() + '<input type="hidden" name="addCikkID[]" value="' + $('#cikkid_origi').val() + '"></td>' +
-                        '<td>' + $('#cikk_id_autocomp').val() + '</td>' +
+                        '<td>' + csak_cikknev + '</td>' +
                         '<td class="rb">' + rbs + '</td>' +
 
                         '<td class="r pop_menny">' + $('#pop_menny').val() + '</td>' +
