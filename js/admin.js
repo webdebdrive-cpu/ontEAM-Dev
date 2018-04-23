@@ -6,6 +6,43 @@ var KEY_SPACE  = 32;
 var KEY_UP     = 38;
 var KEY_DOWN   = 40;
 
+var keys = {37: 1, 38: 1, 39: 1, 40: 1};
+
+function preventDefault(e) {
+    e = e || window.event;
+    if (e.preventDefault) {
+        e.preventDefault();
+    }
+    e.returnValue = false;
+}
+
+function preventDefaultForScrollKeys(e) {
+    if (keys[e.keyCode]) {
+        preventDefault(e);
+        return false;
+    }
+}
+
+function disableScroll() {
+    if (window.addEventListener) {
+        window.addEventListener('DOMMouseScroll', preventDefault, false);
+    }
+    window.onwheel = preventDefault;
+    window.onmousewheel = document.onmousewheel = preventDefault;
+    window.ontouchmove  = preventDefault;
+    document.onkeydown  = preventDefaultForScrollKeys;
+}
+
+function enableScroll() {
+    if (window.removeEventListener) {
+        window.removeEventListener('DOMMouseScroll', preventDefault, false);
+    }
+    window.onmousewheel = document.onmousewheel = null;
+    window.onwheel = null;
+    window.ontouchmove = null;
+    document.onkeydown = null;
+}
+
 /**
 *	Töröl
 *	Adminban a listából való törlésre
@@ -349,7 +386,10 @@ $(function() {
             kijelolesEltavolit();
 
             if( inArray(baseName(location.href), ketHasabos) ) {
+                disableScroll();
+
                 tabla = baseName(location.href);
+                elso_utolso = false;
 
                 /* Anyagigénylésnél használt táblázat esetén valójában a táblázat következő sorára kell ugrani, ami a helyben rendezetség miatt nem ugyanaz, mint a bal oldali navpanelé */
                 if( $('.szamla_cont_tabla').length && _get('tablazat') ){
@@ -358,17 +398,28 @@ $(function() {
                         szamlaDb = $('.szamla_cont_tabla tbody tr').length - 1;
                         $('.szamla_cont_tabla tr').removeClass('kijelolve');
 
+                    ugras = 0;
+                    if( $('.szamla_cont_tabla tbody tr.fake').length ) {
+                        ugras = 1;
+                    }
+
                     if( e.keyCode == KEY_UP ) {
                         kovSzamlaSor = active - 1;
 
-                        if( kovSzamlaSor < 0 ) {
+                        if( kovSzamlaSor < ugras ) {
                             kovSzamlaSor = szamlaDb;
+                            elso_utolso  = true;
+
+                            $('#tartalomJobb').scrollTop($('#tartalomJobb').prop('scrollHeight'));
                         }
                     } else if( e.keyCode == KEY_DOWN ) {
                         kovSzamlaSor = active + 1;
 
                         if( kovSzamlaSor > szamlaDb ) {
-                            kovSzamlaSor = 0;
+                            kovSzamlaSor = ugras;
+                            elso_utolso  = true;
+
+                            $('#tartalomJobb').scrollTop(0);
                         }
                     }
 
@@ -393,12 +444,16 @@ $(function() {
 
                         if( kovSzamlaSor < 0 ) {
                             kovSzamlaSor = szamlaDb;
+                            elso_utolso  = true;
+
+
                         }
                     } else if( e.keyCode == KEY_DOWN ) {
                         kovSzamlaSor = active + 1;
 
                         if( kovSzamlaSor > szamlaDb ) {
                             kovSzamlaSor = 0;
+                            elso_utolso  = true;
                         }
                     }
 
@@ -427,8 +482,12 @@ $(function() {
 
                 szamlaBetolt( szamlaID, tabla + '.php', mellek );
 
-                scrollLeptet();
+                if( !elso_utolso ) {
+                    scrollLeptet();
+                }
+
                 e.preventDefault();
+                e.stopPropagation();
             }
         }
     });
@@ -1026,6 +1085,11 @@ $(function() {
         active_top = $('.szamla_sor.kijelolve').position().top;
         $('#tartalomBal').scrollTop(active_top - 250);
     }
+
+    /* Scroll elindása görgetésre */
+    $(document).on('mousewheel', function(event) {
+        enableScroll();
+    });
 
     $('img.f_svg').each(function(){
         var $img     = jQuery(this);
@@ -4497,7 +4561,7 @@ function scrollLeptet() {
             $('#tartalomJobb').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
         }*/
 
-    } else if($('.szamla_cont_tabla').length){
+    } else if($('.szamla_cont_tabla').length) {
 
         var active_top      = $('.szamla_cont_tabla tr.kijelolve').position().top,
             activeHeight    = $('.szamla_cont_tabla tr.kijelolve').outerHeight(),
@@ -4516,7 +4580,7 @@ function scrollLeptet() {
             $('#szamlaBetolt').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
         }
 
-    }else{
+    } else {
         if( $('.szamla_sor').hasClass('kijelolve') ) {
             var active_top      = $('.szamla_sor.kijelolve').position().top,
                 activeHeight    = $('.szamla_sor.kijelolve').outerHeight(),

@@ -349,7 +349,7 @@ $(function() {
         if( _click ) {
             _click = false;
 
-            /*_resizeElement.tbody.find('tr:first-child td').each(function(i) {
+            _resizeElement.tbody.find('tr:first-child td').each(function(i) {
                 var index = $(this).index(),
                     width = $(this).outerWidth();
 
@@ -362,7 +362,7 @@ $(function() {
                     'max-width': width,
                     'width': width
                 });
-            });*/
+            });
 
             tablaSorrend($(_resizeElement.that).parents('table'));
 
@@ -375,7 +375,7 @@ $(function() {
 function tablaSorrend( table ) {
     var tabla   = $(table).attr('data-tabla'),
         sorrend = {};
-return false;
+
     table.find('thead').not('.sticky').find('th').each(function(i) {
         if(this.id != '') { sorrend[i] = {id: this.id, width: $(this).outerWidth()}; }
     });
