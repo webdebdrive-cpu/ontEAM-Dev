@@ -1,6 +1,7 @@
 <h2>Adja meg az elutasítás okát</h2>
 <form action="" id="elutasitasForm" class="popupForm" method="post" onsubmit="return munkalapKulsosElutasit();">
     <div class="kozep">
+        <div id="pop_ml_adatok" style="margin-bottom: 1rem"></div>
         <div class="dt">
             <div class="dtr">
                 <div class="dtc form_bal">Elutasítás oka:</div>
@@ -16,6 +17,24 @@
     </div>
 </form>
 <script>
+$(document).ready(function(){
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid           : _get('id'),
+            get_ml_adatok   : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response) {
+                response = JSON.parse(response);
+                $('#pop_ml_adatok').html(response.html);
+            }
+        }
+    });
+});
+    
 /* Munkalap külsős elutasítása */
 function munkalapKulsosElutasit() {
 

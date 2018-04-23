@@ -1175,6 +1175,9 @@ if(basename(self())=='anyagigenyles.php'){
                         var text = $(this).text().replace(/\s+/g, \' \').toLowerCase();
                         return !~text.indexOf(val);
                     }).hide();
+                    
+                    /* A fiktív sor legyen mindig látható */
+                    $(\'table.szamla_cont_tabla tr.fake\').show();
                 }
             </script>
             ');
