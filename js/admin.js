@@ -4541,10 +4541,10 @@ function scrollLeptet() {
         if( active_ct < 0 ) {
             active_ct = 0;
         }
-
+        
         if( active_ct < 100 ) {
             $('#tartalomJobb').scrollTop( $('#tartalomJobb').scrollTop() - activeHeight - 100 );
-        } else if( (active_ct + activeHeight) > (tartBalHeight - 100) ) {
+        } else if( (active_ct + activeHeight + theadHeight) > (tartBalHeight - 100) ) {
             $('#tartalomJobb').scrollTop( $('#tartalomJobb').scrollTop() + activeHeight + 100 );
         }
 
