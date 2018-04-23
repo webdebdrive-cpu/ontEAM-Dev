@@ -800,7 +800,7 @@ $(function() {
                 }
             }
 
-            scrollLeptet();
+            /*scrollLeptet();*/
             e.preventDefault();
             e.stopPropagation();
 
@@ -4467,12 +4467,25 @@ function naviTorles() {
 function scrollLeptet() {
     if( $('.sar-table').length ) {
 
-        var active_top      = parseInt($('.szamla_cont_tabla tr.kijelolve').position().top),
+        var active_top      = $('.szamla_cont_tabla tr.kijelolve').position().top,
             activeHeight    = $('.szamla_cont_tabla tr.kijelolve').outerHeight(),
             tartBalHeight   = $('#tartalomJobb').outerHeight();
-            
+
+        var theadHeight = $('.szamla_cont_tabla tr.kijelolve').parents('.sar-table').find('thead').outerHeight(),
+            active_ct   = active_top - $('#tartalomJobb').scrollTop() - theadHeight;
+
+        if( active_ct < 0 ) {
+            active_ct = 0;
+        }
+
+        if( active_ct < 100 ) {
+            $('#tartalomJobb').scrollTop( $('#tartalomJobb').scrollTop() - activeHeight - 100 );
+        } else if( (active_ct + activeHeight) > (tartBalHeight - 100) ) {
+            $('#tartalomJobb').scrollTop( $('#tartalomJobb').scrollTop() + activeHeight + 100 );
+        }
+
         /* Összeadjuk az active elem magasságát és a felső eltolását */
-        var aTopH = active_top + activeHeight; 
+        /*var aTopH = active_top + activeHeight;
 
         if( (aTopH - activeHeight) < 0 ) {
             $('#tartalomJobb').scrollTop(0);
@@ -4482,7 +4495,7 @@ function scrollLeptet() {
             $('#tartalomJobb').scrollTop(0);
             aTop = $('.szamla_cont_tabla tr.kijelolve').position().top;
             $('#tartalomJobb').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
-        }
+        }*/
 
     } else if($('.szamla_cont_tabla').length){
 
@@ -4986,11 +4999,11 @@ function _get( ertek ) {
 var request_in_process = false;
 function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigenylesnel_is ) {
 
-    focused = false; /* Ezt azért kell hamisra állítani, mert alert2 bezárásakor az utoljára fókuszált elemre visszatesszük a fókuszt. 
+    focused = false; /* Ezt azért kell hamisra állítani, mert alert2 bezárásakor az utoljára fókuszált elemre visszatesszük a fókuszt.
                         Viszont ezt az anyagigénylések táblázatánál gondot okozott: nem lehetett kilépni az árazva sorok inputjaiból.
                         */
     alert2('');
-    
+
     if( formModositva && !kerdes_nelkul ) {
 
         var a_az = 'a';
@@ -5299,6 +5312,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
         return $.when(szamla, dfrd1).done(function() {
             formModositva = false;
             gombokRejt();
+            scrollLeptet();
             fulGombMeretez();
         }).promise();
     }
