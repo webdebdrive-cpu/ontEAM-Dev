@@ -4470,7 +4470,7 @@ function scrollLeptet() {
         var active_top      = parseInt($('.szamla_cont_tabla tr.kijelolve').position().top),
             activeHeight    = $('.szamla_cont_tabla tr.kijelolve').outerHeight(),
             tartBalHeight   = $('#tartalomJobb').outerHeight();
-
+            
         /* Összeadjuk az active elem magasságát és a felső eltolását */
         var aTopH = active_top + activeHeight; 
 
