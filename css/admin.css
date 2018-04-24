@@ -1815,13 +1815,11 @@ ul.szamla_cont li.kijelolve a:not(.nohover) {
 }
 
 ul.szamla_cont li.surgos a {
-    background: #FFE8E7;
+    color: #D80000;
 }
-ul.szamla_cont li.surgos:hover a {
-    background: #FFD7D7;
-}
+
 ul.szamla_cont li.kijelolve.surgos a:not(.nohover) {
-    background: #FF6363;
+    color: #FFD3D3;
 }
 
 table.szamla_cont_tabla {

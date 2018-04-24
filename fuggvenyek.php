@@ -6378,7 +6378,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
 //$cimzett['usermail'] = $tmp['usermail'];
 
         // Mely tábláknál ellenőrizzünk szállodát is (saját szállodák). Kivéve, ha nem a Diszpécser köztponti mailcímre megy az értesítés
-        $szallodat_ellenorizz = array('bejelentes', 'munkalap');
+        $szallodat_ellenorizz = array('bejelentes', 'munkalap', 'anyagigenyles');
         if( in_array($tabla, $szallodat_ellenorizz) && $cimzett!='diszpecser_kozponti' ){
             $szalloda = $adatbazis_kapcsolat->s2('telephely_id', $tabla, "`recid`='{$recid}'");
             $sajat_szallodak = get_akt_login_szallodai('', '', $akt_cimzett['nev']);

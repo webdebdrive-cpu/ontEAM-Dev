@@ -35,7 +35,7 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');   //Azok a
 
 $szamla_html = '';
 
-// Az $idk- tömböt és a $page változót innen kaptjuk
+// Az $id-k tömböt és a $page változót innen kaptjuk
 require_once 'anyagigenyles_nyomtat.php';
 
 // Már igényelve gomb feldolgozás
@@ -916,6 +916,7 @@ if( isset($_POST['kuldes_jovahagyasra']) ) {
             mysqli_commit($db_kapcs);
 
             $hiba = '';
+
             foreach($idk as $id) {
                 $valasz = level_felkeszit_es_kuld($page, $id, ERT_ANYAGIG_JOVAHAGYAS, 'anyagigenylesJovahagy', '_jog'.JOG_ANYAGIGENYLES_JOVAHAGY);
                 if( substr($valasz, 0, 4)=='Hiba' ){
