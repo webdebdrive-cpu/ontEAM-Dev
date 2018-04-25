@@ -4442,7 +4442,11 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
                     $db_error = true;
                 }
             }
-
+            
+            // A munkalapos kapcsolatot is törölni kell
+            $sql = $adatbazis_kapcsolat->d('munkalap_kapcs', "`bejelentes_id`='{$_GET[$ertek['torid']]}'");
+            if( $sql === false ) { $db_error = true; }
+            
             // Levelet küldünk a központi diszpécser mailcímére
             level_felkeszit_es_kuld('bejelentes', $_GET[$ertek['torid']], '', 'bejelentes_torolve', 'diszpecser_kozponti');
 
@@ -4475,6 +4479,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             if(!$van_getid){
                 exit;
             }
+            
         }
         
         // Energia tervkor tranzakcióban töröljük az egységár sorait

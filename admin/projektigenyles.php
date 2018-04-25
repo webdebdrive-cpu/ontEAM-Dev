@@ -399,8 +399,8 @@ if (isset($_POST['pri_statusz_leptet'])) {
 
         // Státusz táblába is beszúrunk
         $sql = $adatbazis_kapcsolat -> i('projektkezeles_statusz',
-                                            array('projektkezeles_recid', 'stat_id',              'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                            array($prk_id,                 PRKEZEL_STAT_NYITOTT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            array('projektkezeles_recid', 'stat_id',             'login',                           'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                            array($prk_id,                 PRKEZEL_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                         );
         if( $sql === false ) { $db_error = true; }
     }

@@ -353,6 +353,8 @@ function tablaSorrend( table ) {
     var tabla   = $(table).attr('data-tabla'),
         sorrend = {};
 
+    jovahagyasra_varo_igazit();
+
     table.find('thead').not('.sticky').find('th').each(function(i) {
         if(this.id != '') { sorrend[i] = {id: this.id, width: $(this).outerWidth()}; }
     });
@@ -393,4 +395,12 @@ function ujra_sorszamoz_uj(){
         });
     }, 1);
 
+}
+
+/* Anyagigénylés táblázat alján található Jóváhagyásra váró érték pozícionálásához */
+function jovahagyasra_varo_igazit(){
+    /* Kiszámoljuk, hogy a anyag_tabla_jovah_ertek ID-jú oszlop hol van, és annak az Y koordinátáját és szélességét kivonjuk a táblázat szélességéből */
+    jovah_ertek_poz = $('#anyag_tabla_jovah_ertek').position();
+    padding = $('#rend_ertek_td').outerWidth() - jovah_ertek_poz.left - $('#anyag_tabla_jovah_ertek').outerWidth();
+    $('#rend_ertek_td').css('padding-right',  padding);
 }

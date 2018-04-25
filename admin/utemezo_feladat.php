@@ -71,8 +71,8 @@ foreach($ut_feladatok as $ut_feladat){
     $log .= 'Iktatószám létrehozva: '.$ikt_szam.'
 ';
     
-    $ujrecid = $adatbazis_kapcsolat->i('munkalap',  array('ikt_szam', 'uf_szam',         'stat_id',              'text', 'szemelyzet_id',                'telephely_id',               'obj_id',               'gep_id',               'tipus_id', 'esnap_d',              'insert_usr',               'insert_dt'    ),
-                                                    array($ikt_szam,  $ut_feladat['id'], MUNKALAP_STAT_NYITOTT,  $text,  $ut_feladat['szemelyzet_id'],   $ut_feladat['telephely_id'],  $ut_feladat['obj_id'],  $ut_feladat['gep_id'],  3/*Ütemezett feladat a tipusa*/,    $ut_feladat['esnap_d'], $ut_feladat['insert_usr'],  'NOW()',       )
+    $ujrecid = $adatbazis_kapcsolat->i('munkalap',  array('ikt_szam', 'uf_szam',         'stat_id',              'text', 'szemelyzet_id',                'telephely_id',               'obj_id',               'gep_id',               'tipus_id',                      'esnap_d',              'loginnev',                         'update_usr',                           'insert_dt',    'insert_usr'                             ),
+                                                    array($ikt_szam,  $ut_feladat['id'], MUNKALAP_STAT_NYITOTT,  $text,  $ut_feladat['szemelyzet_id'],   $ut_feladat['telephely_id'],  $ut_feladat['obj_id'],  $ut_feladat['gep_id'],  3/*Ütemezett feladat a tipusa*/, $ut_feladat['esnap_d'], $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']   )
                                    );
     if( $ujrecid === false ) {
         $db_error = true;
@@ -84,8 +84,8 @@ foreach($ut_feladatok as $ut_feladat){
     }
 
     $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
-                                        array('munkalap_recid', 'stat_id',                 'insert_dt',    'insert_usr',                'update_usr'                ),
-                                        array($ujrecid,         MUNKALAP_STAT_NYITOTT,     'NOW()',        $ut_feladat['insert_usr'],   $ut_feladat['update_usr']   )
+                                        array('munkalap_recid', 'stat_id',             'login',                             'insert_dt',    'insert_usr',                'update_usr'                ),
+                                        array($ujrecid,         MUNKALAP_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'],    'NOW()',        $ut_feladat['insert_usr'],   $ut_feladat['update_usr']   )
                                     );
     if( $sql === false ) {
         $db_error = true;

@@ -1428,8 +1428,8 @@ if( isset($_POST['rendeles_keszit']) ) {
 
         // Felvesszük az első státuszt
         $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
-                                            array('cikkrendfej_recid',  'stat_id',                  'insert_dt',    'insert_usr',                              'update_usr'                          ),
-                                            array($cikkrendfej_id,      CIKKIGN_STAT_MEGRENDELVE,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            array('cikkrendfej_recid',  'stat_id',                'login',                          'insert_dt',    'insert_usr',                              'update_usr'                          ),
+                                            array($cikkrendfej_id,      CIKKIGN_STAT_MEGRENDELVE, $_SESSION[get_db_tabla().'user'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
                                         );
         if( $sql === false ) { $db_error = true; }
 
@@ -1705,8 +1705,8 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
 
     // Felvesszük az első státuszt
     $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
-                                        array('cikkrendfej_recid',  'stat_id',                 'insert_dt',    'insert_usr',                              'update_usr'                             ),
-                                        array($cikkrendfej_id,      CIKKIGN_STAT_BEERKEZETT,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+                                        array('cikkrendfej_recid',  'stat_id',                'login',                          'insert_dt',    'insert_usr',                              'update_usr'                             ),
+                                        array($cikkrendfej_id,      CIKKIGN_STAT_BEERKEZETT,  $_SESSION[get_db_tabla().'user'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
                                     );
     if( $sql === false ) { $db_error = true; }
 
@@ -1735,8 +1735,8 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
             if( $anyagigenyles === false ) { $db_error = true; }
 
             $sql = $adatbazis_kapcsolat -> i('anyagigenyles_statusz',
-                                                array('anyagigenyles_recid',    'stat_id',              'insert_dt',    'insert_usr',                              'update_usr'                             ),
-                                                array($anyagigenyles,           CIKKIGN_STAT_NYITOTT,   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+                                                array('anyagigenyles_recid',    'stat_id',            'login',                           'insert_dt',    'insert_usr',                              'update_usr'                             ),
+                                                array($anyagigenyles,           CIKKIGN_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
                                             );
             if( $sql === false ) { $db_error = true; }
 

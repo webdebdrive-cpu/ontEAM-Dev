@@ -189,6 +189,17 @@ function bejelentesek_archival($idk, $munkalap_is) {
             $log .= $adatbazis_kapcsolat->gp() . '
 ';
         }
+        
+        // Bejelentés törlésekor a munkalap kapcsolatát is töröljük
+        $sql = $adatbazis_kapcsolat->d('munkalap_kapcs', "`bejelentes_id`='{$recid}'");
+        if( $sql === false ) {
+            $db_error = true;
+            $log .= 'NEM FUTOTT LE: '.$adatbazis_kapcsolat->gp() . '
+';
+        }else{
+            $log .= $adatbazis_kapcsolat->gp() . '
+';
+        }
 
         // Ha kell akkor egy tranzakcióban archiváljuk a munkalapokat is
         if( $munkalap_is ){

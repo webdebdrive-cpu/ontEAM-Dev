@@ -1858,6 +1858,10 @@ table.szamla_cont_tabla tr.kijelolve, table.szamla_cont_tabla tr.kijelolve:hover
     color: #fff;
 }
 
+table.szamla_cont_tabla tr.fake.kijelolve, table.szamla_cont_tabla tr.fake.kijelolve:hover{
+    background: #F1EFF0;
+}
+
 div.szamlaKereses {
     background: #fffffd;
     position: relative;
