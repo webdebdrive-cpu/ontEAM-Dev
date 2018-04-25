@@ -187,6 +187,7 @@ function get_jsfajlok_admin(){
                 $utvonal.'css/feltolt.css',
                 $utvonal.'css/tooltip.css',
                 $utvonal.'css/dragtable.css',
+                $utvonal.'css/responsive.css',
                 //{KOVETKEZO_ADMIN_CSS}
 		);
 

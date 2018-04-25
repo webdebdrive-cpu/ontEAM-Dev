@@ -28,6 +28,10 @@ table.sar-table {
     width: calc(100% - 4rem);
 }
 
+table.sar-table thead {
+    position: fixed;
+}
+
 table.sar-table td {
     border: 0.1rem solid #CCC;
     overflow: hidden;

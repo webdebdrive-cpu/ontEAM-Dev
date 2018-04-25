@@ -1,0 +1,30 @@
+@media only screen and (max-width: 1024px) {
+    body {
+        font-size: 1.2rem;
+    }
+
+    table.sar-table th {
+        font-size: 1.2rem;
+    }
+
+    table.szamla_cont_tabla tfoot tr td {
+        font-size: 1.4rem;
+    }
+
+    #sddm li a {
+        font-size: 1.4rem;
+        padding: 0.8rem 0.6rem;
+    }
+
+    input.gomb {
+        font-size: 1.2rem;
+    }
+
+    div.szamlaKereses div.feltetelSzures {
+        width: calc(100% - 19.8rem);
+    }
+
+    div.szamlaKereses div.navGombok {
+        padding: 1rem 0rem 0rem 0rem;
+    }
+}
