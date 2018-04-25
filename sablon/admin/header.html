@@ -26,22 +26,24 @@
 </div>
 
 <div class="szamlaKereses clearFix{KERESODN}">
-    <div class="ilb rendezes">
-        <div class="dtc vat keres">
-            {KERESO}
+    <div class="rendBal clearFix">
+        <div class="ilb rendezes">
+            <div class="dtc vat keres">
+                {KERESO}
+            </div>
+            <div class="dtc vat{RENDEZES_REJT}" style="border-left: 0.1rem solid #e6e6e6; padding-left: 1rem">
+                <select id="rendezesSelect" class="" name="" onchange="{REND_CHANGE}" data-tabla="{TABLA}">
+                    {RENDEZES}
+                </select>
+            </div>
+            <div class="dtc vat irany{RENDEZES_REJT}">
+                {REND_IRANY}
+            </div>
         </div>
-        <div class="dtc vat{RENDEZES_REJT}" style="border-left: 0.1rem solid #e6e6e6; padding-left: 1rem">
-            <select id="rendezesSelect" class="" name="" onchange="{REND_CHANGE}" data-tabla="{TABLA}">
-                {RENDEZES}
-            </select>
-        </div>
-        <div class="dtc vat irany{RENDEZES_REJT}">
-            {REND_IRANY}
-        </div>
-    </div>
 
-    <div class="ilb feltetelSzures" style="border-left: 0.1rem solid #e6e6e6; padding-left: 1rem">
-        {SZURES}
+        <div class="ilb feltetelSzures" style="border-left: 0.1rem solid #e6e6e6; padding-left: 1rem">
+            {SZURES}
+        </div>
     </div>
 
     <div id="navGombok" class="navGombok clearFix">

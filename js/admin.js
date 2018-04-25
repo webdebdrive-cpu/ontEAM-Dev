@@ -1254,7 +1254,7 @@ $(function() {
             if(get_get(['mezo', 'op', 'felt']).indexOf('?')<0){
                 kerdo_es = '?';
             }
-            
+
             location.href=get_get(['mezo', 'op', 'felt'])+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt;
         }
     });
@@ -1691,7 +1691,7 @@ function fulGombMeretez() {
     if( $('div.muveletek').length ) {
         var muvHeight   = parseInt($('div.muveletek').outerHeight());
         var fulekHeight = parseInt($('#szamlaFulek').outerHeight());
-
+        
         if( muvHeight > 102 ) {
             muvHeight += 65;
         } else {
@@ -4542,7 +4542,7 @@ function scrollLeptet() {
         if( active_ct < 0 ) {
             active_ct = 0;
         }
-        
+
         offset = 25;
         if( active_ct < offset ) {
             $('#tartalomJobb').scrollTop( $('#tartalomJobb').scrollTop() - activeHeight - 100 );

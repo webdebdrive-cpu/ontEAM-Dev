@@ -20,11 +20,15 @@
         font-size: 1.2rem;
     }
 
-    div.szamlaKereses div.feltetelSzures {
-        width: calc(100% - 19.8rem);
-    }
-
     div.szamlaKereses div.navGombok {
         padding: 1rem 0rem 0rem 0rem;
+    }
+
+    #sddm div {
+        top: 3.2rem;
+    }
+
+    div.rendBal {
+        display: block;
     }
 }
