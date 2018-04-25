@@ -502,8 +502,8 @@ function i_u($type, $tabla, $tomb) {
         // Anyagigénylés státusz beszúrása
         if( $tabla == 'anyagigenyles' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',             'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                array($id,             CIKKIGN_STAT_NYITOTT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',               'login',                            'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                array($id,             CIKKIGN_STAT_NYITOTT,    $_SESSION[get_db_tabla().'user'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(CIKKIGN_STAT_NYITOTT), "`recid`='$id'");
@@ -515,8 +515,8 @@ function i_u($type, $tabla, $tomb) {
 
             // Kezdőstátusz beállítása
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                            array($tabla.'_recid',   'stat_id',                  'insert_dt', 'insert_usr',                              'update_usr'                          ),
-                                            array($id,               BEJELENTES_STAT_NYITOTT,    'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                            array($tabla.'_recid',   'stat_id',               'login',                          'insert_dt', 'insert_usr',                              'update_usr'                          ),
+                                            array($id,               BEJELENTES_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'], 'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                         );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(BEJELENTES_STAT_NYITOTT), "`recid`='$id'");
@@ -543,8 +543,8 @@ function i_u($type, $tabla, $tomb) {
 
                     // Felvesszük az első státuszt
                     $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
-                                                        array('munkalap_recid', 'stat_id',              'insert_dt',    'insert_usr',                              'update_usr'                           ),
-                                                        array($recid,           MUNKALAP_STAT_NYITOTT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                        array('munkalap_recid', 'stat_id',             'login',                             'insert_dt',    'insert_usr',                              'update_usr'                           ),
+                                                        array($recid,           MUNKALAP_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
                                                     );
                     if( $sql === false ) { $db_error = true; }
 
@@ -568,8 +568,8 @@ function i_u($type, $tabla, $tomb) {
         // Energia terv státusz beszúrása
         if( $tabla == 'energia_terv' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',                   'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                array($id,             ENERGIATERV_STAT_MUNKAKOZI,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',                  'login',                          'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                array($id,             ENERGIATERV_STAT_MUNKAKOZI, $_SESSION[get_db_tabla().'user'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(ENERGIATERV_STAT_MUNKAKOZI), "`recid`='$id'");
@@ -579,8 +579,8 @@ function i_u($type, $tabla, $tomb) {
         // Előterjesztés (FB) státusz beszúrása
         if( $tabla == 'eloterj_fb' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',             'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                array($id,             ELOT_FB_STAT_NYITOTT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',            'login',                           'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                array($id,             ELOT_FB_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(ELOT_FB_STAT_NYITOTT), "`recid`='$id'");
@@ -590,8 +590,8 @@ function i_u($type, $tabla, $tomb) {
         // Előterjesztés (BoD) státusz beszúrása
         if( $tabla == 'eloterj_bod' ) {
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',              'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                array($id,             ELOT_BOD_STAT_NYITOTT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',             'login',                          'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                array($id,             ELOT_BOD_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(ELOT_BOD_STAT_NYITOTT), "`recid`='$id'");
@@ -646,8 +646,8 @@ function i_u($type, $tabla, $tomb) {
 
             // Felvesszük az első státuszt
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',                 'insert_dt',    'insert_usr',                              'update_usr'                          ),
-                                                array($id,              MUNKALAP_STAT_NYITOTT,    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',               'login',                           'insert_dt',    'insert_usr',                              'update_usr'                          ),
+                                                array($id,              MUNKALAP_STAT_NYITOTT,  $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(MUNKALAP_STAT_NYITOTT), "`recid`='$id'");
@@ -658,8 +658,8 @@ function i_u($type, $tabla, $tomb) {
         if( $tabla == 'projektigenyles' ) {
 
             $sql = $adatbazis_kapcsolat -> i($tabla.'_statusz',
-                                                array($tabla.'_recid', 'stat_id',                   'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                array($id,             PRIGENY_STAT_LETRE_ALATT,    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array($tabla.'_recid', 'stat_id',                'login',                           'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                array($id,             PRIGENY_STAT_LETRE_ALATT, $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(PRIGENY_STAT_LETRE_ALATT), "`recid`='$id'");
@@ -2443,8 +2443,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
     }
     
+    // Weblap.php elején vizsgáljuk, hogy a kért ID-t egyáltlán láthatjuk-e vagy sem. Ekkor elég ha kapunk egy SQL-t
+    if($csak_sql_miatt){
+        return $sql;
+    }
+    
     // Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
-    if(!isset($_GET['szamlaSorFrissit']) && !$csak_sql_miatt && $tabla!='esemenyek'){
+    if(!isset($_GET['szamlaSorFrissit']) && $tabla!='esemenyek'){
         $_SESSION['akt_sql'] = $sql;
     }
 
@@ -3389,6 +3394,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 array('id' => 'anyag_tabla_mee',            'nev' => 'Mee'),
                 array('id' => 'anyag_tabla_ig_datum',       'nev' => 'Igénylés dátuma'),
                 array('id' => 'anyag_tabla_jovah_menny',    'nev' => 'Jóváhagyott mennyiség'),
+                array('id' => 'anyag_tabla_jovah_ertek',    'nev' => 'Jóváhagyásra váró érték'),
                 array('id' => 'anyag_tabla_rend_menny',     'nev' => 'Rendelt mennyiség'),
                 array('id' => 'anyag_tabla_rend_egysegar',  'nev' => 'Rendelési egységár ('.get_penznem().')'),
                 array('id' => 'anyag_tabla_dev_rend',       'nev' => 'Deviza rend. egységár'),
@@ -3513,6 +3519,9 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 if($frissit){
                     // $active .= ' kijelolve';
                 }
+                
+                // Jóváhagyásra váró érték
+                $jh_ert = $bsz['rndear']*$bsz['jhmen'];
 
                 $rndertek = getErtek('rndertek', 'cikkrendfej', 'rndid', $bsz['rndid']);
 
@@ -3530,6 +3539,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     'anyag_tabla_mee'           => '<td class="c">'.$bsz['cikkmee'].'</td>',
                     'anyag_tabla_ig_datum'      => '<td class="c">'.substr(str_replace('-', '.', $bsz['insert_dt']), 0, 10).'</td>',
                     'anyag_tabla_jovah_menny'   => '<td class="r nowrap" id="td_jhmen_'.$bsz['recid'].'" data-sort="'.$bsz['jhmen'].'">'.$jhmen.'</td>',
+                    'anyag_tabla_jovah_ertek'   => '<td class="r nowrap" data-sort="'.$jh_ert.'">'.number_format($jh_ert, 2, ',', ' ').' '.get_penznem().'</td>',
                     'anyag_tabla_rend_menny'    => '<td class="r nowrap" data-sort="'.$bsz['rndmen'].'">'.number_format($bsz['rndmen'], 2, ',', ' ').'</td>',
                     'anyag_tabla_rend_egysegar' => '<td class="r nowrap" id="td_rndear_'.$bsz['recid'].'" data-sort="'.$bsz['rndear'].'">'.number_format($bsz['rndear'], 2, ',', ' ').'</td>',
                     'anyag_tabla_dev_rend'      => '<td class="r nowrap">'.number_format($bsz['vrndear'], 2, ',', ' ').'</td>',
@@ -3559,10 +3569,10 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     $html .= nl2('
                             <tfoot>
                             <tr>
-                                <td colspan="8"></td>
-                                <td colspan="3" class="r b">Jóváhagyásra váró érték:</td>
-                                <td class="r b" id="rend_ertek" style="white-space: nowrap;">'.number_format($rendelesi_ertek, 0, ',', ' ').' '. get_penznem().'</td>
-                                <td colspan="3" class="r"></td>
+                                <td class="b r" colspan="'.count($sorok).'" id="rend_ertek_td">
+                                    Jóváhagyásra váró érték:
+                                    <span id="rend_ertek" class="nowrap" style="margin-left: 2rem">'.number_format($rendelesi_ertek, 0, ',', ' ').' '. get_penznem().'</span>
+                                </td>
                             </tr>
                             </tfoot>
                                 ');
@@ -3572,7 +3582,12 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 </tbody>
                                 </table>
                             ');
-                $html .= '<script> anyagig_eredeti_jhmen = JSON.parse(\''.json_encode($eredeti_ertekek).'\'); </script>';
+                $html .= nl2('
+                            <script>
+                                anyagig_eredeti_jhmen = JSON.parse(\''.json_encode($eredeti_ertekek).'\');
+                                jovahagyasra_varo_igazit();
+                            </script>
+                            ');
             }
 
             // A bal navpaneles listát is kirajzoljuk, mert léptetéshez, árazás popuphoz kell. Szóval ott lesz a forráskódban, de rejtve
@@ -5952,7 +5967,7 @@ function statido_to_sec($string){
     return (60*60*24*$napok)+($ora*60*60)+($perc*60)+$mp;
 }
 
-// Levélküldés előtt jogot, értesítés pipát vizsgálunk, levél tartlamát és címzetteket kiszámoljuk
+// Levélküldés előtt jogot, értesítés pipát vizsgálunk, levél tartalmát és címzetteket kiszámoljuk
 function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $extra_szoveg){
 
     global $adatbazis_kapcsolat;
@@ -5967,7 +5982,6 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
     switch($cimzett){
         // Bejelentőnek
         case 'bejelento':
-
             if(substr($recid, 0, 1)=='m'){
                 $munkalap   = $adatbazis_kapcsolat->s2('text', 'munkalap', "`recid`='".substr($recid, 1)."'");
                 $hiba       = htmlspecialchars_decode( nl2br2( $munkalap['text'] ) );
@@ -6371,11 +6385,15 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         $targy_kieg = '[Teszt email] ';
         $uzi_kieg   = '[Teszt email]<br><br>';
     }
+    
+//echo '<pre style="font-size: 1.4rem">';
+//print_r($cimzettek);
+//echo '</pre>';
+//echo $targy_kieg.$targy . '<br>';
+//echo $uzi_kieg.$uzi . '<br>';
+//exit;
 
     foreach($cimzettek as $akt_cimzett){
-// Teszteléshez
-//$tmp = $adatbazis_kapcsolat->s2('usermail', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
-//$cimzett['usermail'] = $tmp['usermail'];
 
         // Mely tábláknál ellenőrizzünk szállodát is (saját szállodák). Kivéve, ha nem a Diszpécser köztponti mailcímre megy az értesítés
         $szallodat_ellenorizz = array('bejelentes', 'munkalap', 'anyagigenyles');

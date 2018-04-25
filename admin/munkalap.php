@@ -241,8 +241,8 @@ if( isset($_POST['munkalapKeszit']) ) {
 
             // Felvesszük az első státuszt
             $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
-                                                array('munkalap_recid', 'stat_id',              'insert_dt',    'insert_usr',                              'update_usr'                           ),
-                                                array($recid,           MUNKALAP_STAT_NYITOTT,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                array('munkalap_recid', 'stat_id',             'login',                           'insert_dt',    'insert_usr',                              'update_usr'                           ),
+                                                array($recid,           MUNKALAP_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
                                             );
             if( $sql === false ) { $db_error = true; }
         }
@@ -280,15 +280,15 @@ if ($_GET['ujkent_bejelentes']) {
     $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
 
     $uj_id = $adatbazis_kapcsolat->i('munkalap',
-                                                array('ikt_szam', 'surgos',              'text',                   'telephely_id',              'obj_id',              'gep_id',                'tipus_id'  ),
-                                                array($ikt_szam,  $bejelentes['surgos'], $bejelentes['hiba_text'], $bejelentes['telephely_id'], $bejelentes['obj_id'], $bejelentes['gep_id'],   1           )
+                                                array('ikt_szam', 'surgos',              'text',                   'telephely_id',              'obj_id',              'gep_id',                'tipus_id', 'loginnev',                         'update_usr',                           'insert_dt',    'insert_usr'                            ),
+                                                array($ikt_szam,  $bejelentes['surgos'], $bejelentes['hiba_text'], $bejelentes['telephely_id'], $bejelentes['obj_id'], $bejelentes['gep_id'],   1,          $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
                                     );
     if( $uj_id === false ) { $db_error = true; }
 
     // Felvesszük az első státuszt
     $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
-                                        array('munkalap_recid', 'stat_id',                 'insert_dt',    'insert_usr',                              'update_usr'                          ),
-                                        array($uj_id,            MUNKALAP_STAT_NYITOTT,    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        array('munkalap_recid', 'stat_id',               'login',                           'insert_dt',    'insert_usr',                              'update_usr'                          ),
+                                        array($uj_id,            MUNKALAP_STAT_NYITOTT,  $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
                                     );
     if( $sql === false ) { $db_error = true; }
     $sql = $adatbazis_kapcsolat->u('munkalap', array('stat_id'), array(MUNKALAP_STAT_NYITOTT), "`recid`='{$uj_id}'");
@@ -927,7 +927,7 @@ if( isset($_POST['munkalapKeszre']) ) {
 
                     $munkalap = $adatbazis_kapcsolat->s2('stat_id', 'munkalap', "`recid` = '".$mbej['munkalap_id']."'");
                     if( $munkalap ) {
-                        $minimumkesz_statuszok = array(MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_LEZART);
+                        $minimumkesz_statuszok = array(MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_SZTORNO, MUNKALAP_STAT_LEZART);
                         if( in_array($munkalap['stat_id'], $minimumkesz_statuszok) ) {
                             $elkeszult_munkalapok++;
                         }
@@ -6685,7 +6685,7 @@ require('selectek.php');
                     <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                         <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
                         <div class="dtc">'.$sor['insert_usr'].' '.$szerepkor.'</div>
-                        <div class="dtc">'.$sor['insert_dt'].'</div>
+                        <div class="dtc">'.str_replace('-', '.', substr($sor['insert_dt'], 0, 16)).'</div>
                     </div>
                 ');
 

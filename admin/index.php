@@ -34,7 +34,6 @@ if (isset($_GET['stat_ido'])) {
     echo 'f';
 }*/
 
-
 // Loginról értesítő levelek küldése
 if (isset($_GET['login_ertesit'])) {
     
@@ -67,55 +66,16 @@ Tisztelt '.$login['teljes_nev'].'!
     exit;
 }
 
-
-
-/*
-if (isset($_GET['trans'])) {
-
-
-        $eredmen = mysqli_query($db_kapcs, 'SET AUTOCOMMIT=0');
-        $eredmen = mysqli_query($db_kapcs, 'SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
-        $eredmen = mysqli_query($db_kapcs, 'START TRANSACTION');
-        $eredmen = mysqli_query($db_kapcs, 'SELECT `sorszam`+1 FROM `onteam_iktszam_seq` WHERE `tabla`=\'anyagigenyles\' AND `ev`=\'17\' FOR UPDATE;');
-        $eredmen = mysqli_fetch_assoc($eredmen);
-        var_dump($eredmen);
-
-    if(isset($_GET['irok'])){
-        mysqli_query($db_kapcs, 'UPDATE `onteam_iktszam_seq` SET `sorszam`=`sorszam`+1 WHERE `tabla`=\'anyagigenyles\' AND `ev`=\'17\';');
-        $eredmen = mysqli_query($db_kapcs, 'SELECT `sorszam` FROM `onteam_iktszam_seq` WHERE `tabla`=\'anyagigenyles\' AND `ev`=\'17\' FOR UPDATE;');
-        $eredmen = mysqli_fetch_assoc($eredmen);
-        var_dump($eredmen);
+if (isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
+    
+    $loginok = $adatbazis_kapcsolat->s('recid tabla_sorrend', 'login');
+    foreach( $loginok as $login ){
+        $login['tabla_sorrend'] = str_replace('{&quot;id&quot;:&quot;anyag_tabla_jovah_menny', '{&quot;id&quot;:&quot;anyag_tabla_jovah_ertek&quot;,&quot;width&quot;:118},{&quot;id&quot;:&quot;anyag_tabla_jovah_menny', $login['tabla_sorrend']);
+        $adatbazis_kapcsolat->u('login', array('tabla_sorrend'), array($login['tabla_sorrend']), "`recid`='{$login['recid']}'");
     }
-    if (isset($_GET['comm'])) {
-        $eredmen = mysqli_query($db_kapcs, 'COMMIT');
-    }
-}
-*/
-
-/*// Ha egy tálbának utólag adsz egy loginnev nevű oszlopnevet
-if (isset($_GET['loginnev_gyart'])) {
-
-    // $tabla = 'munkalap';
-    // Több táblát is bejárunk
-    $tablak = array('anyagigenyles_statusz', 'bejelentes_statusz', 'bejelentes_statusz_arch', 'cikkrendfej_statusz', 'eloterj_bod_statusz', 'eloterj_fb_statusz', 'munkalap_statusz', 'munkalap_statusz_arch', 'projektigenyles_statusz', 'projektigenyles_statusz_arch', 'projektkezeles_statusz');
-    foreach($tablak as $tabla){
-        
-        $sorok = $adatbazis_kapcsolat->s('recid insert_usr', $tabla, "`login`=''");
-        foreach($sorok as $sor){
-
-            $loginnev = $adatbazis_kapcsolat->s2('nev', 'login', "`teljes_nev`='{$sor['insert_usr']}'");
-            $loginnev = $loginnev['nev'];
-
-            $adatbazis_kapcsolat->u($tabla, array('login'),
-                                            array($loginnev),
-                                        "`recid`='{$sor['recid']}'");
-echo $adatbazis_kapcsolat->gp() . '<br>';
-        }
-        
-    }
-
+    
     exit;
-}*/
+}
 
 // Kötött fejléc nevű CSV feldolgozása (login_import.csv legyen a fájl neve)
 if (isset($_GET['loginnev_import'])) {
@@ -496,21 +456,6 @@ if (isset($_GET['loginnev_gyart_anyagigenyles'])) {
 */
 
 /*
-// Státusz feltöltés, ha csak az adott bejegyzés státusza volna kitöltve és tröténet tábla még nem
-if (isset($_GET['statusz_fetlolt'])) {
-    $tabla = 'anyagigenyles';
-    $anyagok = $adatbazis_kapcsolat->s('recid stat_id', $tabla);
-    foreach($anyagok as $anyag){
-        $adatbazis_kapcsolat->i($tabla.'_statusz',  array('stat_id',        $tabla.'_recid'     ),
-                                                    array($anyag['stat_id'], $anyag['recid']     )
-                                );
-    }
-
-    exit;
-}
-*/
-
-/*
 // Felhasználókból karbantartjuk a törzsadatokat
 if (isset($_GET['felh2torzs'])) {
     //Felhasználóból személyzet gyártása
@@ -548,6 +493,216 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 }
 */
 
+// Adathelyesség ellenőrzése Mukalap és hozzá tartozó Bejelentés státusza között.
+// Van-e olyan bejelentés, ami Folyamatban van vagy Nyitott, de a munkalapjai már mind Lezárt és Sztornó
+if (isset($_GET['munkalap_bejelentes_statusz_kapcs_ell'])) {
+    $bejelentesek = $adatbazis_kapcsolat->s('recid ikt_szam', 'bejelentes', "`stat_id` IN ('".BEJELENTES_STAT_NYITOTT."', '".BEJELENTES_STAT_FOLYAMATBAN."')");
+    foreach($bejelentesek as $bejelentes){
+        $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bejelentes['recid']}'");
+        $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
+        
+        $munkalap = $adatbazis_kapcsolat->s2('recid ikt_szam', 'munkalap', "`recid` IN (".implode(',', $munkalapok).") AND `stat_id` IN ('".MUNKALAP_STAT_LEZART."', '".MUNKALAP_STAT_LEZARASRA_VAR."', '".MUNKALAP_STAT_SZTORNO."')");
+        if($munkalap){
+            echo $bejelentes['recid'].' - '.$bejelentes['ikt_szam'] . '<br>';
+        }
+        
+    }
+}
+
 require_once('header.php');
 require_once('footer.php');
+
+
+
+
+
+
+// Státusz hozzáadása manuálisan, adott felhasználóval, adott időpontban
+if (isset($_GET['statusz_add'])) {
+    //addStatuszManual('bejelentes_statusz', '2159', BEJELENTES_STAT_KESZ_IG, 0, '', false, 'kg', '2018.04.24 18:25:00');
+}
+function addStatuszManual( $tabla = false, $recid = false, $stat_id = false, $erteklista_recid = 0, $memo = '', $rendszer_a_user = false, $user, $idopont ) {
+
+    global $adatbazis_kapcsolat;
+    global $db_kapcs;
+    
+    if(!$user){
+        echo 'Add meg, hogy ki legyen a hozzáadó user!';
+        exit;
+    }else{
+        $login = $adatbazis_kapcsolat->s2('*', 'login', "`nev`='{$user}'");
+        if(!$login){
+            echo 'Nem ismert felhasználó: '.$user.'!';
+            exit;
+        }
+    }
+    if(!$idopont){
+        echo 'Add meg, hogy mikori legyen a státusz hozzáadás!';
+        exit;
+    }else{
+        $idopont = str_replace('.', '-', $idopont);
+        $idopont_int = strtotime($idopont);
+    }
+        
+    $db_error = false;
+    $kulso_kulcs = str_replace('_statusz', '', $tabla);
+
+    // Ütemezők esetén is legyen teljes_nev, amit be tudunk írni
+    $teljes_nev = $login['teljes_nev'];
+    if($rendszer_a_user){
+        $teljes_nev = get_nev();
+    }
+
+    if( $tabla && $recid && $stat_id ) {
+
+        // Lekérjük az az éppen aktuális státuszt
+        $akt_statusz = $adatbazis_kapcsolat->s2('recid stat_id insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid desc', '1');
+        if( $sql === false ) { $db_error = true; }
+        // Ha új státusz, vagy munkalap előkészítés alatt státusz (tehát ez jöhet többször egymás után is)
+        if( $akt_statusz && ( $akt_statusz['stat_id']!=$stat_id || $akt_statusz['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
+            // Megállapítjuk a státusz idejét
+            $statusz_ido_s = round( $idopont_int - strtotime($akt_statusz['insert_dt']) );
+            $statusz_ido   = getStatuszIdo( $statusz_ido_s );
+
+            // Göngyölt státuszidő
+            $elso_statusz = $adatbazis_kapcsolat->s2('insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid asc', '1');
+            if( $elso_statusz === false ) { $db_error = true; }
+            if( $elso_statusz ) {
+                $gongyolt_statido_s = round( $idopont_int - strtotime($elso_statusz['insert_dt']) );
+                $gongyolt_statido   = getStatuszIdo( $gongyolt_statido_s );
+            }
+
+            // Összesített státuszidő
+            $elso_akt_stat = $adatbazis_kapcsolat->s2('recid insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}' AND `stat_id`='{$stat_id}'", 'recid asc', '1');
+            if( $elso_akt_stat === false ) { $db_error = true; }
+
+            $ossz_statido = '';
+            if( $elso_akt_stat ) {
+
+                $ossz_statido_s = round( $idopont_int - strtotime($elso_akt_stat['insert_dt']) );
+                $ossz_statido   = getStatuszIdo( $ossz_statido_s );
+
+                // Frissítjük a sort
+                $sql = $adatbazis_kapcsolat -> u($tabla,    array('ossz_statido', 'ossz_statido_s'),
+                                                            array($ossz_statido,  $ossz_statido_s ),
+                                                       "`{$kulso_kulcs}_recid`='{$recid}' AND `stat_id`='{$stat_id}'"
+                                            );
+                if( $sql === false ) { $db_error = true; }
+            }
+
+            // Frissítjük a sort
+            $sql = $adatbazis_kapcsolat -> u($tabla,
+                                                array('end_dt',      'statido',    'statido_s',    'gongyolt_statido', 'gongyolt_statido_s'),
+                                                array( $idopont_int, $statusz_ido, $statusz_ido_s, $gongyolt_statido,  $gongyolt_statido_s ),
+                                                "`recid`='{$akt_statusz['recid']}'"
+                                            );
+            if( $sql === false ) { $db_error = true; }
+
+            // Beszúrjuk az újat
+            $sql = $adatbazis_kapcsolat -> i($tabla,
+                                                array($kulso_kulcs.'_recid', 'stat_id', 'erteklista_recid', 'text',  'login',   'insert_dt',   'insert_usr',  'update_usr' ),
+                                                array($recid,                $stat_id,  $erteklista_recid,  $memo,   $user,     $idopont,       $teljes_nev,   $teljes_nev  )
+                                            );
+            if( $sql === false ) { $db_error = true; }
+echo $adatbazis_kapcsolat->gp() . '<br>';
+            // Ha van memó, akkor azt az előző státuszhoz írjuk be: MÉGSEM, a friss sorba kerül be
+//            $sql = $adatbazis_kapcsolat -> u($tabla, array('text' ), array($memo), "`recid`='{$akt_statusz['recid']}'");
+//            if( $sql === false ) { $db_error = true; }
+
+            // Az alap tábla státusz oszlopát is karban tartjuk
+            $sql = $adatbazis_kapcsolat->u($kulso_kulcs, array('stat_id'), array($stat_id), "`recid`='$recid'");
+            if( $sql === false ) { $db_error = true; }
+
+            // Projektigénylés elutasításakor archiválunk
+            if($alap_tabla=='projektigenyles' && $stat_id==PRIGENY_STAT_ELUTASITVA){
+                $pri = $adatbazis_kapcsolat->s2('*', 'projektigenyles', "`recid`='$recid'");
+                if( $pri === false ) { $db_error = true; }
+
+                // Mivel tranzakcióban vagyunk, ezért az új értéket itt felülírom
+                $pri['stat_id'] = $stat_id;
+
+                $oszlopok = array();
+                foreach($pri as $kulcs => $mezok){
+                    array_push($oszlopok, $kulcs);
+                }
+
+                // További oszlopok (ID-k címkéjét is letároljuk)
+                $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$pri['telephely_id']}'");
+                array_push($oszlopok, 'telephely_cimk');
+                array_push($pri,      $telephely['nev']);
+
+                require_once 'selectek.php';
+                $tipus_cimk = '';
+                foreach ($select_pri_tipus as $tipus){
+                    if($pri['tipus']==$tipus['value']){
+                        $tipus_cimk = $tipus['name'];
+                    }
+                }
+                array_push($oszlopok, 'tipus_cimk');
+                array_push($pri,      $tipus_cimk);
+
+                $besorol_cimk = '';
+                foreach ($select_pri_besorol as $besorol){
+                    if($pri['besorol']==$besorol['value']){
+                        $besorol_cimk = $besorol['name'];
+                    }
+                }
+                array_push($oszlopok, 'besorol_cimk');
+                array_push($pri,      $besorol_cimk);
+
+                $statusz_cimk = getStatText('projektigenyles', $stat_id);
+                array_push($oszlopok, 'stat_cimk'   );
+                array_push($pri,      $statusz_cimk );
+
+                $sql = $adatbazis_kapcsolat->i('projektigenyles_arch', $oszlopok, $pri);
+                if( $sql === false ) { $db_error = true; }
+
+                $sql = $adatbazis_kapcsolat->d('projektigenyles', "`recid`='$recid'");
+                if( $sql === false ) { $db_error = true; }
+
+                // Megjegyzés archiválása
+                $sql = 'INSERT `'.get_db_tabla().'megjegyzes_arch` SELECT * FROM `'.get_db_tabla().'megjegyzes` WHERE `tabla`=\'projektigenyles\' AND `id`=\''.$pri['recid'].'\'';
+                if(!mysqli_query($db_kapcs, $sql)){
+                    $db_error = true;
+                }
+
+                $sql = $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='projektigenyles' AND `id`='{$pri['recid']}'");
+                if( $sql === false ) { $db_error = true; }
+
+                // További kapcsolódó táblák archiválása
+                $tablak = array(
+                                array('tabla' => 'projektigenyles_dok',     'kulcs' => 'projektigenyles_id'     ),
+                                array('tabla' => 'projektigenyles_eloterj', 'kulcs' => 'recid'                  ),
+                                array('tabla' => 'projektigenyles_kapcs',   'kulcs' => 'projektigenyles_recid'  ),
+                                array('tabla' => 'projektigenyles_megter',  'kulcs' => 'projektigenyles_recid'  ),
+                                array('tabla' => 'projektigenyles_statusz', 'kulcs' => 'projektigenyles_recid'  ),
+                                array('tabla' => 'projektigenyles_velemeny','kulcs' => 'projektigenyles_recid'  ),
+                                );
+
+                foreach($tablak as $tabla){
+                    $sql = 'INSERT `'.get_db_tabla().$tabla['tabla'].'_arch` SELECT * FROM `'.get_db_tabla().$tabla['tabla'].'` WHERE `'.$tabla['kulcs'].'`=\''.$pri['recid'].'\'';
+                    if(!mysqli_query($db_kapcs, $sql)){
+                        $db_error = true;
+                    }
+                    $sql = $adatbazis_kapcsolat->d($tabla['tabla'], "`{$tabla['kulcs']}`='{$pri['recid']}'");
+                    if( $sql === false ) { $db_error = true; }
+                }
+
+            }
+
+            if( !$db_error ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        // Ha azonos a státusz mint ahová léptetünk akkor is true-val térünk vissza
+        if($akt_statusz['stat_id']==$stat_id){
+            return true;
+        }
+    }else{
+        echo 'Nem adtad meg a státuszt, recid-t vagy a táblát!';
+    }
+}
 ?>

@@ -121,8 +121,8 @@ if (isset($_POST['terv_keszit'])) {
     
     // Kezdőstátusz beállítása
     $sql = $adatbazis_kapcsolat -> i('energia_terv_statusz',
-                                        array('energia_terv_recid', 'stat_id',                  'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                        array($uj_id,               ENERGIATERV_STAT_MUNKAKOZI, 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        array('energia_terv_recid', 'stat_id',                   'login',                           'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                        array($uj_id,               ENERGIATERV_STAT_MUNKAKOZI,  $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                     );
     if( $sql === false ) { $db_error = true; }
     $sql = $adatbazis_kapcsolat->u('energia_terv', array('stat_id'), array(ENERGIATERV_STAT_MUNKAKOZI), "`recid`='{$uj_id}'");
