@@ -143,8 +143,10 @@ function bejelentesek_archival($idk, $munkalap_is) {
             $mezok   = array();
             $ertekek = array();
             foreach($statusz as $kulcs => $ertek){
-                array_push($mezok, $kulcs);
-                array_push($ertekek, $statusz[$kulcs]);
+                if( $kulcs!='recid' ){
+                    array_push($mezok, $kulcs);
+                    array_push($ertekek, $statusz[$kulcs]);
+                }
             }
             
             $stat_txt       = getStatText('bejelentes', $statusz['stat_id']);
@@ -290,8 +292,10 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $mezok   = array();
             $ertekek = array();
             foreach($anyag as $kulcs => $ertek){
-                array_push($mezok, $kulcs);
-                array_push($ertekek, $anyag[$kulcs]);
+                if( $kulcs!='recid' ){
+                    array_push($mezok, $kulcs);
+                    array_push($ertekek, $anyag[$kulcs]);
+                }
             }
             $telephely_txt = getErtek('nev', 'telephely', 'id', $anyag['telephely_id']);
             array_push($mezok,   'telephely_txt');
@@ -315,8 +319,10 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $mezok   = array();
             $ertekek = array();
             foreach($doksi as $kulcs => $ertek){
-                array_push($mezok, $kulcs);
-                array_push($ertekek, $doksi[$kulcs]);
+                if( $kulcs!='recid' ){
+                    array_push($mezok, $kulcs);
+                    array_push($ertekek, $doksi[$kulcs]);
+                }
             }
             $sql = $adatbazis_kapcsolat->i('munkalap_dok_arch', $mezok, $ertekek);
             if( $sql === false ) {
@@ -336,8 +342,10 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $mezok   = array();
             $ertekek = array();
             foreach($feladat as $kulcs => $ertek){
-                array_push($mezok, $kulcs);
-                array_push($ertekek, $feladat[$kulcs]);
+                if( $kulcs!='recid' ){
+                    array_push($mezok, $kulcs);
+                    array_push($ertekek, $feladat[$kulcs]);
+                }
             }
             $erteklista_txt = erteklista(ERTEKLISTA_ELV_FELAD, $feladat['erteklista_id']);
             array_push($mezok,   'erteklista_txt');
@@ -361,8 +369,10 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $mezok   = array();
             $ertekek = array();
             foreach($kapcs as $kulcs => $ertek){
-                array_push($mezok, $kulcs);
-                array_push($ertekek, $kapcs[$kulcs]);
+                if( $kulcs!='recid' ){
+                    array_push($mezok, $kulcs);
+                    array_push($ertekek, $kapcs[$kulcs]);
+                }
             }
             
             $sql = $adatbazis_kapcsolat->i('munkalap_kapcs_arch', $mezok, $ertekek);
@@ -383,8 +393,10 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $mezok   = array();
             $ertekek = array();
             foreach($ido as $kulcs => $ertek){
-                array_push($mezok, $kulcs);
-                array_push($ertekek, $ido[$kulcs]);
+                if( $kulcs!='recid' ){
+                    array_push($mezok, $kulcs);
+                    array_push($ertekek, $ido[$kulcs]);
+                }
             }
             $login_txt = getErtek('nev', 'login', 'recid', $ido['login_id']);
             array_push($mezok,   'login_txt');
@@ -408,8 +420,10 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             $mezok   = array();
             $ertekek = array();
             foreach($statusz as $kulcs => $ertek){
-                array_push($mezok, $kulcs);
-                array_push($ertekek, $statusz[$kulcs]);
+                if( $kulcs!='recid' ){
+                    array_push($mezok, $kulcs);
+                    array_push($ertekek, $statusz[$kulcs]);
+                }
             }
             
             $stat_txt       = getStatText('munkalap', $statusz['stat_id']);

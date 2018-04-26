@@ -36,7 +36,7 @@ $formazatlan_szam       = array();          //Azok az oszlopneveket sorold fel, 
 
 $szamla_html = '';
 
-// Több kép menedzse$léséhez
+// Több kép menedzseléséhez
 $tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;         } // Maximum hány kép tallózható be
