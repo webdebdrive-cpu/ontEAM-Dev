@@ -1,3 +1,62 @@
+@media only screen and (max-width: 1280px) {
+    div.navGombok a {
+        margin: 0rem 0rem 0rem 0rem;
+    }
+
+    div.szamlaKereses select, #stat_gyors_szuro {
+        padding: 0.3rem 0.5rem 0.5rem 1.5rem;
+    }
+
+    div.szamlaKereses input:not([type="button"]) {
+        padding: 0.5rem 0.5rem 0.4rem 0.5rem;
+    }
+
+    div.szamlaKereses input[type="button"] {
+        padding: 0.5rem 1rem 0.4rem 1rem;
+    }
+
+    div.szamlaKereses select, #stat_gyors_szuro {
+        padding: 0.3rem 0.5rem 0.5rem 0.5rem;
+    }
+
+    div.szamlaKereses .f_szuro_mezo_operator {
+        padding: 0.3rem 1rem 0.5rem 1rem;
+        width: 5rem;
+    }
+
+    div.szamlaKereses input[type="text"] {
+        max-width: 10rem!important;
+    }
+
+    div.szamlaKereses .f_szuro_mezo {
+        width: 10rem;
+    }
+
+    #rendezesKeres {
+        width: 10rem;
+    }
+
+    #rendezesSelect {
+        width: 10rem;
+    }
+
+    div.szamlaKereses {
+        padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+    }
+
+    div.szamlaKereses div.rendezes div.keres {
+        padding: 0rem 0.5rem 0rem 0rem;
+    }
+
+    div.feltetelSzures {
+        padding-left: 0.5rem!important;
+    }
+
+    div.szamlaKereses div.ilb div.dtc:nth-child(2) {
+        padding-left: 0.5rem!important;
+    }
+}
+
 @media only screen and (max-width: 1024px) {
     body {
         font-size: 1.2rem;
@@ -20,15 +79,7 @@
         font-size: 1.2rem;
     }
 
-    div.szamlaKereses div.navGombok {
-        padding: 1rem 0rem 0rem 0rem;
-    }
-
     #sddm div {
         top: 3.2rem;
-    }
-
-    div.rendBal {
-        display: block;
     }
 }
