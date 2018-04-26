@@ -187,10 +187,26 @@ if (isset($_POST['anyagigenylesLeirasHozzaadas'])) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
+    
+    if( !_jog(JOG_ANYAGREND_KESZIT) ) {
+        echo json_encode(array(
+            'hiba'  => 'Nincs joga leírást hozzáadni!',
+            'title' => 'Hiba'
+        ));
+        $weblap->leallit();
+        exit();
+    }
 
     if( is_array($idk) ) {
         $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('igleir'), array($_POST['indok']), "`recid`='{$idk[1]}'");
         if( $sql === false ) { $db_error = true; }
+    }else{
+        echo json_encode(array(
+            'hiba'  => 'Kérjük válassza ki a szerkeszteni kívánt sort!',
+            'title' => 'Hiba'
+        ));
+        $weblap->leallit();
+        exit();
     }
 
     if( !$db_error ) {
@@ -201,7 +217,8 @@ if (isset($_POST['anyagigenylesLeirasHozzaadas'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
         ));
     }
 
@@ -281,7 +298,8 @@ if( isset($_POST['varolistahozAdas']) ) {
         } else {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
-                'hiba' => tranzakcioHiba()
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba'
             ));
         }
     }
@@ -648,7 +666,8 @@ if( isset($_POST['arazas']) ) {
             mysqli_rollback($db_kapcs);
 
             echo json_encode(array(
-                'hiba' => tranzakcioHiba()
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba'
             ));
         }
     }
@@ -672,7 +691,7 @@ if ($_POST['arazas_ment']) {
         if($_POST['update_dt']<$anyagigenyles['update_dt']){
             echo json_encode(
                         array(
-                            'title'         => 'Hiba!',
+                            'title'         => 'Hiba',
                             'hiba_alert'    => 'Anyagigénylés nem árazható, mert idő közben más már módosította az anyagigénylést!<br>Kérjük kezdje újra az árazást!',
                         )
                 );
@@ -1051,7 +1070,8 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
         } else {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
-                'hiba' => tranzakcioHiba()
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba'
             ));
         }
     }
@@ -1130,7 +1150,8 @@ if( isset($_POST['anyagigenyles_elutasitas']) ) {
         } else {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
-                'hiba' => tranzakcioHiba()
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba'
             ));
         }
     }
@@ -1232,7 +1253,8 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
         ));
     }
 
@@ -1453,7 +1475,8 @@ if( isset($_POST['rendeles_keszit']) ) {
         } else {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
-                'hiba' => tranzakcioHiba()
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba'
             ));
         }
     }
@@ -1661,7 +1684,8 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
         } else {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
-                'hiba' => tranzakcioHiba()
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba'
             ));
         }
 
@@ -1764,7 +1788,8 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
         ));
     }
 
@@ -2166,6 +2191,14 @@ require_once('selectek.php');
                     '.$kuld_jovahagy.'
                     '.$rend_keszit.'
                 ');
+                
+            // Anyagrendelés alatt csak a Leírás hozzáadása gomb látszik
+            }else{
+                $gombok .= nl2('
+                            <div class="kijeloltek_muv">
+                                <input type="button" class="gomb" value="Leírás hozzáadása" title="Leírás hozzáadása" onclick="csoportMuvelet(\'anyagigenylesLeirasHozzaadas\')">
+                            </div>
+                            ');
             }
         }
 

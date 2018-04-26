@@ -403,4 +403,4 @@ function jovahagyasra_varo_igazit(){
     jovah_ertek_poz = $('#anyag_tabla_jovah_ertek').position();
     padding = $('#rend_ertek_td').outerWidth() - jovah_ertek_poz.left - $('#anyag_tabla_jovah_ertek').outerWidth();
     $('#rend_ertek_td').css('padding-right',  padding);
-}
+} 

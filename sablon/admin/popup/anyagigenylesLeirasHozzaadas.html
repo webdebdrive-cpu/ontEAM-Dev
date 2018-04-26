@@ -20,26 +20,33 @@
 
 /* Tartalom betöltés */
 $(document).ready(function(){
-    $.ajax({
-        url : 'anyagigenyles.php',
-        type: 'POST',
-        data: {
-            id          : _get('id'),
-            get_leiras  : Date.now()
-        },
-        success: function(response){
-            if(response){
-                response = JSON.parse(response);
+    
+    if(!_get['id']){
+        alert2('Kérjük válassza ki a szerkeszteni kívánt sort!', '', 'Hiba');
+        setTimeout(function(){ popupZar(); }, 100);
+    }else{
+    
+        $.ajax({
+            url : 'anyagigenyles.php',
+            type: 'POST',
+            data: {
+                id          : _get('id'),
+                get_leiras  : Date.now()
+            },
+            success: function(response){
+                if(response){
+                    response = JSON.parse(response);
 
-                if( response.hiba ) {
-                    alert2(response.hiba, response.gomb, 'Hiba');
-                    return false;
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, 'Hiba');
+                        return false;
+                    }
+
+                    $('#anyagigenyles_leiras').val(response.txt);
                 }
-                
-                $('#anyagigenyles_leiras').val(response.txt);
             }
-        }
-    });
+        });
+    }
 });
 /* Anyagigénylés leírás hozzáadása */
 function anyagigenylesLeirasHozzaadas() {

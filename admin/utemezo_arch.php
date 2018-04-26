@@ -120,8 +120,10 @@ function bejelentesek_archival($idk, $munkalap_is) {
             $mezok   = array();
             $ertekek = array();
             foreach($doksi as $kulcs => $ertek){
-                array_push($mezok, $kulcs);
-                array_push($ertekek, $doksi[$kulcs]);
+                if( $kulcs!='recid' ){
+                    array_push($mezok, $kulcs);
+                    array_push($ertekek, $doksi[$kulcs]);
+                }
             }
             $sql = $adatbazis_kapcsolat->i('bejelentes_dok_arch', $mezok, $ertekek);
             if( $sql === false ) {

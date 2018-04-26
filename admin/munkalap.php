@@ -472,7 +472,7 @@ if( isset($_POST['munkalapMobil']) ) {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
                 'hiba'  => tranzakcioHiba(),
-                'title' => 'Hiba'.$db_error,
+                'title' => 'Hiba',
             ));
         }
     }
@@ -545,7 +545,7 @@ if( isset($_POST['munkalapMobil_sima']) ) {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
                 'hiba'  => tranzakcioHiba(),
-                'title' => 'Hiba'.$db_error,
+                'title' => 'Hiba',
             ));
         }
     }

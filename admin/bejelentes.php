@@ -116,7 +116,8 @@ if( isset($_POST['bejSzallodaValaszt']) ) {
         } else {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
-                'hiba' => tranzakcioHiba()
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba'
             ));
         }
     }
@@ -271,7 +272,8 @@ if( isset($_POST['bejelentesElutasit']) ) {
             } else {
                 mysqli_rollback($db_kapcs);
                 echo json_encode(array(
-                    'hiba' => tranzakcioHiba()
+                    'hiba'  => tranzakcioHiba(),
+                    'title' => 'Hiba'
                 ));
             }
         }
@@ -328,7 +330,8 @@ if( isset($_POST['bejelentesIgazolas']) ) {
             } else {
                 mysqli_rollback($db_kapcs);
                 echo json_encode(array(
-                    'hiba' => tranzakcioHiba()
+                    'hiba'  => tranzakcioHiba(),
+                    'title' => 'Hiba'
                 ));
             }
         }
