@@ -24,9 +24,9 @@ h1#akottr-header {
 table.sar-table {
     border-collapse: collapse;
     table-layout: fixed;
-    /*min-width: calc(100% - 4rem);
-    width: calc(100% - 4rem);*/
-    width: auto;
+    min-width: calc(100% - 4rem);
+    width: calc(100% - 4rem);
+    /* width: 100%; */
 }
 
 table.sar-table thead {
@@ -209,6 +209,10 @@ table.sar-table th div.order.asc:after {
 
 .dragtable-sortable li:first-child th, .dragtable-sortable li:first-child td {
     border-left: 0.1rem solid #CCC;
+}
+
+.dragtable-sortable table.sar-table thead {
+    position: relative;
 }
 
 .ui-sortable-helper {

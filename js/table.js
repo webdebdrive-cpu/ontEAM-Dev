@@ -183,13 +183,13 @@ $(function() {
             /*parseInt(window.getComputedStyle(document.getElementById(this.id), null).getPropertyValue("width"))*/
             var width = $(this).outerWidth(),
                 index = $(this).index();
-                
+
                 class_nev = '';
                 if( $(this).attr('class') ){
                     class_nev = ' class="'+$(this).attr('class')+'"';
                 }
-                
-                
+
+
             colgroup.append('<col'+class_nev+'>');
             colgroup.find('col').eq(index).css({
                 'min-width': width,
