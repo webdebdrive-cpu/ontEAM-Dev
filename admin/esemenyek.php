@@ -4301,7 +4301,7 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='eloterj_fb' && !_jog(JOG_ELOTERJ_KEZEL)){
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='energia_terv' && !_jog(JOG_ENERGIATERV_KEZEL)){
+        if($ertek['tabla']=='energia_terv' && !_jog(JOG_ENERGIATERV_TORLES)){
             $weblap -> leallit(); exit;
         }
         if($ertek['tabla']=='erteklista' && !_jog(JOG_ERTEKLISTAK_KEZEL)){

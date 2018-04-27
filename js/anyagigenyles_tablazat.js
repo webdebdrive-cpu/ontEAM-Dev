@@ -36,19 +36,23 @@ $(document).on('blur', '.szamla_cont_tabla input', function(e) {
 
     osszeg = 0;
     $('.szamla_cont_tabla tbody tr').each(function () {
-        id = $(this).attr('data-recid');
+        if( !$(this).hasClass('fake') ){
+            id = $(this).attr('data-recid');
+            /* Ha van input, akkor annak az értéke */
+            if( $('#jhmen_'+id).length ){
+                jhmen = Number( $('#jhmen_'+id).val().replace(',', '.').replace(' ', '') );
 
-        /* Ha van input, akkor annak az értéke */
-        if( $('#jhmen_'+id).length ){
-            jhmen = Number( $('#jhmen_'+id).val().replace(',', '.').replace(' ', '') );
+            /* Ha nincs input, akkor a TD értéke */
+            }else{
+                jhmen = Number( $('#td_jhmen_'+id).html().replace(',', '.').replace(' ', ''));
+            }
 
-        /* Ha nincs input, akkor a TD értéke */
-        }else{
-            jhmen = Number( $('#td_jhmen_'+id).html().replace(',', '.').replace(' ', ''));
+            rndear  = Number( $('#td_rndear_'+id).html().replace(',', '.').replace(' ', ''));
+            osszeg += jhmen*rndear;
+            
+            /* Soronként is beállítjuk */
+            $('#jovah_ertek_sor_'+id).html( ezresek(jhmen*rndear, 0, '', ' ') );
         }
-
-        rndear  = Number( $('#td_rndear_'+id).html().replace(',', '.').replace(' ', ''));
-        osszeg += jhmen*rndear;
     });
     $('#rend_ertek').html( ezresek(osszeg, 0, '', ' ')+' Ft' );
 

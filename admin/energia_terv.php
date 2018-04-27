@@ -36,17 +36,16 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');           
 $szamla_html = '';
 
 // Több kép menedzseléséhez
-$tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
+$tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
-    function get_tobbkep_darab()    { return 10;         } // Maximum hány kép tallózható be
-    function get_tobbkep_csakkep()  { return '.jpg,.png';} // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
-    function get_tobbkep_kepmeret() { return 10;         } // MB-ban
-    function get_tobbkep_oszlopnev(){                      // Melyik oszloppal kötjük össze a két táblát
+    function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
+    function get_tobbkep_csakkep()  { return '';        } // Milyen kiterjesztéseket engedünk meg (ha mindenet, legyen üres)
+    function get_tobbkep_kepmeret() { return 10;        } // MB-ban
+    function get_tobbkep_oszlopnev(){                     // Melyik oszloppal kötjük össze a két táblát
         global $megnevezes;
         return $megnevezes.'_id';
     }
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
-
 }
 
 // Új terv létrehozása
@@ -368,16 +367,16 @@ require_once('selectek.php');
         echo '<div id="szamlaBetolt">';
     }
 
-    /*// Megjegyzések darabszáma
+    // Megjegyzések darabszáma
     $megj_db = '';
-    $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
+    $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'");
     if( $megj_sorok ) {
         $megj_db = ' ('.count($megj_sorok).')';
     }
 
     // Dokumentumok darabszáma
     $dok_db = '';
-    $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
+    $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'");
     if( $dok_sorok ) {
         $dok_db = 0;
 
@@ -388,13 +387,15 @@ require_once('selectek.php');
         }
 
         $dok_db = ' ('.$dok_db.')';
-    }*/
+    }
 
-    if( isset($_GET['modosit']) || isset($_GET['egysegarak']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['egysegarak']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Tervek',
             'egysegarak'    => 'Egységárak',
+            'dokumentumok'  => 'Dokumentumok'.$dok_db,
+            'megjegyzesek'  => 'Megjegyzések'.$megj_db
         );
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
@@ -449,7 +450,7 @@ require_once('selectek.php');
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         // Jogosutságkezelés: csak az törölheti, aki létrehozta
-        if(!_jog(JOG_ENERGIATERV_KEZEL)){
+        if(!_jog(JOG_ENERGIATERV_TORLES)){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága '.$szoveg.' törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }elseif( $sor['stat_id']==ENERGIATERV_STAT_ELES ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A '.$sor['ikt_szam'].' tervszámú energia terv státusza ÉLES, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
@@ -770,7 +771,58 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
-	}
+    // Dokumentumok fül
+    }elseif(isset($_GET['dokumentumok'])) {
+
+        if( $tobb_kep ) {
+            require_once('tobb_kep.php');
+        }
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
+
+    // Megjegyzés
+    }elseif(isset($_GET['megjegyzesek'])) {
+
+        $szamla_html .= nl2('
+            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzesek">
+                <div class="dtr nFejlec">
+                    <div class="dtc">Megjegyzés</div>
+                    <div class="dtc">Hozzáadta</div>
+                    <div class="dtc">Hozzáadva</div>
+                </div>
+        ');
+
+        $sorok = $adatbazis_kapcsolat->s('recid megj szerepkor insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc');
+        if( $sorok ) {
+            $i = 1;
+            foreach($sorok as $sor) {
+                $szerepkor = getErtek('nev', 'szerepkor', 'recid', $sor['szerepkor']);
+                $szamla_html .= nl2('
+                    <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
+                        <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
+                        <div class="dtc">'.$sor['insert_usr'].' '.$szerepkor.'</div>
+                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
+                    </div>
+                ');
+
+                $i++;
+            }
+        }
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
+    }
 
     if( !$_GET['ajax'] ) {
         echo '</div>';

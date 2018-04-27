@@ -256,6 +256,7 @@ define('JOG_FT_MEGTEKINT',              44);
 define('JOG_FT_KEZEL',                  45);
 define('JOG_ENERGIATERV_MEGTEKINT',     84);
 define('JOG_ENERGIATERV_KEZEL',         85);
+define('JOG_ENERGIATERV_TORLES',        86);
 
 // ÉRTESÍTÉSEK
 define('ERT_KESZRE_JELENTESKOR',         0);

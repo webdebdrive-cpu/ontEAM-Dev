@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 85-es ID-nál járunk
+ * 86-es ID-nál járunk
  * 12 -es kategória ID-nál járunk
 \*                                                  */
 
@@ -122,6 +122,7 @@ $jogosultsagok = array(
     44 => array('nev' => 'Felmérési tervek olvasása',               'kat' => 11, 'sor' => 1),
     45 => array('nev' => 'Felmérési tervek kezelése',               'kat' => 11, 'sor' => 2),
     
-    84 => array('nev' => 'Energia tervek olvasása',                 'kat' => 12, 'sor' => 1),
-    85 => array('nev' => 'Energia tervek kezelése',                 'kat' => 12, 'sor' => 2),
+    84 => array('nev' => 'Energia egységárak olvasása',             'kat' => 12, 'sor' => 1),
+    85 => array('nev' => 'Energia egységárak kezelése',             'kat' => 12, 'sor' => 2),
+    86 => array('nev' => 'Energia egységárak törlése',              'kat' => 12, 'sor' => 3),
 );

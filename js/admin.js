@@ -4035,9 +4035,15 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
             mellek        = 'modosit';
             mellekre_valt = 'cash_flow';
         }
+        
+        if(mellek=='megjegyzesek'){
+            mellek          = 'megjegyzesek';
+            mellekre_valt   = 'megjegyzesek';
+            szoveg          = 'megjegyzéseket';
+        }
 
         if(tabla=='cash_flow' || _get('cash_flow')){
-            szoveg = 'cash-flow-kat';
+            
             /* Ha nincs minden kezelés joga, akkor nem törölheti */
             if( _jogok[39]=='0' && _jogok[60]=='0' && _jogok[59]=='0' && _jogok[62]=='0' && _jogok[49]=='0' && _jogok[47]=='0' && _jogok[64]=='0' ){
                 torolhet = false;
@@ -5268,6 +5274,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', 'javascript: bejSzallodaValaszt(); void(0);');
 
                     } else if( baseName(location.href) == 'cikktorzs' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+
+                    } else if( baseName(location.href) == 'energia_terv' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
                     } else if( baseName(location.href) == 'energia_terv' ) {
