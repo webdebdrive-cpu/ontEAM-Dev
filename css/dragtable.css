@@ -24,8 +24,9 @@ h1#akottr-header {
 table.sar-table {
     border-collapse: collapse;
     table-layout: fixed;
-    min-width: calc(100% - 4rem);
-    width: calc(100% - 4rem);
+    /*min-width: calc(100% - 4rem);
+    width: calc(100% - 4rem);*/
+    width: auto;
 }
 
 table.sar-table thead {

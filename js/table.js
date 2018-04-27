@@ -28,13 +28,13 @@ $(function() {
                 $(this).css({
                     'min-width': width,
                     'max-width': width,
-                    'width': width
+                    'width'    : width
                 });
 
                 parent.find('col').eq(index).css({
                     'min-width': col_width,
                     'max-width': col_width,
-                    'width': col_width
+                    'width'    : col_width
                 });
             });
 
@@ -183,12 +183,18 @@ $(function() {
             /*parseInt(window.getComputedStyle(document.getElementById(this.id), null).getPropertyValue("width"))*/
             var width = $(this).outerWidth(),
                 index = $(this).index();
-
-            colgroup.append('<col>');
+                
+                class_nev = '';
+                if( $(this).attr('class') ){
+                    class_nev = ' class="'+$(this).attr('class')+'"';
+                }
+                
+                
+            colgroup.append('<col'+class_nev+'>');
             colgroup.find('col').eq(index).css({
                 'min-width': width,
                 'max-width': width,
-                'width': width
+                'width'    : width
             });
 
             if( i == 0 ) {
@@ -200,7 +206,7 @@ $(function() {
                 that.css({
                     'min-width': width,
                     'max-width': width,
-                    'width': width
+                    'width'    : width
                 });
             }, 500);
         });
@@ -292,7 +298,7 @@ $(function() {
                 _resizeElement.th.css({
                     'min-width': _rew,
                     'max-width': _rew,
-                    'width': _rew
+                    'width'    : _rew
                 });
 
                 var maxHeight = Math.max.apply(null, $(_resizeElement.th).map(function () {
@@ -308,7 +314,7 @@ $(function() {
                     _resizeElement.that.find('th').eq(index).css({
                         'min-width': width,
                         'max-width': width,
-                        'width': width
+                        'width'    : width
                     });
                 });
 
@@ -316,7 +322,7 @@ $(function() {
                 _col.css({
                     'min-width': _rew,
                     'max-width': _rew,
-                    'width': _rew
+                    'width'    : _rew
                 });
             }
         }
@@ -337,7 +343,7 @@ $(function() {
                 _resizeElement.that.find('th').eq(index).css({
                     'min-width': width,
                     'max-width': width,
-                    'width': width
+                    'width'    : width
                 });
             });
 
@@ -356,7 +362,14 @@ function tablaSorrend( table ) {
     jovahagyasra_varo_igazit();
 
     table.find('thead').not('.sticky').find('th').each(function(i) {
-        if(this.id != '') { sorrend[i] = {id: this.id, width: $(this).outerWidth()}; }
+        if( this.id != '') {
+            /* Rejtett oszlop esetén nem a látható szélessége, hanem a style attribútumba írt szélességére van szükségünk */
+            if( $(this).hasClass('dn') ){
+                sorrend[i] = {id: this.id, width: $(this)[0].style.width };
+            }else{
+                sorrend[i] = {id: this.id, width: $(this).outerWidth()};
+            }
+        }
     });
 
     $.ajax({

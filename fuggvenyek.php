@@ -3381,7 +3381,12 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         // Anyagigényléseknél egy táblázatot rajzolunk ki
         // }else{
 
-
+            // Anyagigénylés jóváhagyás jog (Igazgatók) esetén látszik csak a jóváhagyási érték
+            $jhertek_latszik = ' dn';
+            if (_jog(JOG_ANYAGIGENYLES_JOVAHAGY)) {
+                $jhertek_latszik = '';
+            }
+        
             $oszlopok = array(
                 array('id' => 'anyag_tabla_statusz',        'nev' => 'Státusz'),
                 array('id' => 'anyag_tabla_ikt_szam',       'nev' => 'Anyagig. szám'),
@@ -3394,7 +3399,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 array('id' => 'anyag_tabla_mee',            'nev' => 'Mee'),
                 array('id' => 'anyag_tabla_ig_datum',       'nev' => 'Igénylés dátuma'),
                 array('id' => 'anyag_tabla_jovah_menny',    'nev' => 'Jóváhagyott mennyiség'),
-                array('id' => 'anyag_tabla_jovah_ertek',    'nev' => 'Jóváhagyásra váró érték'),
+                array('id' => 'anyag_tabla_jovah_ertek',    'nev' => 'Jóváhagyásra váró érték', 'class' => $jhertek_latszik),
                 array('id' => 'anyag_tabla_rend_menny',     'nev' => 'Rendelt mennyiség'),
                 array('id' => 'anyag_tabla_rend_egysegar',  'nev' => 'Rendelési egységár ('.get_penznem().')'),
                 array('id' => 'anyag_tabla_dev_rend',       'nev' => 'Deviza rend. egységár'),
@@ -3459,8 +3464,14 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                         $width = ' style="min-width: '.$oszl['width'].'px; max-width: '.$oszl['width'].'px; width: '.$oszl['width'].'px;"';
                     }
 
+                    // Class hozzáadása
+                    $class = '';
+                    if($oszl['class']){
+                        $class = ' class="'.$oszl['class'].'"';
+                    }
+                    
                     $html .= nl2('
-                        <th id="'.$oszl['id'].'"'.$width.'>
+                        <th id="'.$oszl['id'].'"'.$class.$width.'>
                             <div class="thKeret">
                                 <div class="some-handle"></div>
                                 <div class="order'.$order.'"></div>
@@ -3480,7 +3491,12 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 ');
                 $html .= nl2('<tr class="fake">');
                 foreach($oszlopok as $oszl) {
-                    $html .= nl2('<td></td>');
+                    // Class hozzáadása
+                    $class = '';
+                    if($oszl['class']){
+                        $class = ' class="'.$oszl['class'].'"';
+                    }
+                    $html .= nl2('<td'.$class.'></td>');
                 }
                 $html .= nl2('</tr>');
             }
@@ -3539,7 +3555,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     'anyag_tabla_mee'           => '<td class="c">'.$bsz['cikkmee'].'</td>',
                     'anyag_tabla_ig_datum'      => '<td class="c">'.substr(str_replace('-', '.', $bsz['insert_dt']), 0, 10).'</td>',
                     'anyag_tabla_jovah_menny'   => '<td class="r nowrap" id="td_jhmen_'.$bsz['recid'].'" data-sort="'.$bsz['jhmen'].'">'.$jhmen.'</td>',
-                    'anyag_tabla_jovah_ertek'   => '<td class="r nowrap" data-sort="'.$jh_ert.'">'.number_format($jh_ert, 2, ',', ' ').' '.get_penznem().'</td>',
+                    'anyag_tabla_jovah_ertek'   => '<td class="r nowrap'.$jhertek_latszik.'" data-sort="'.$jh_ert.'">'.number_format($jh_ert, 2, ',', ' ').' '.get_penznem().'</td>',
                     'anyag_tabla_rend_menny'    => '<td class="r nowrap" data-sort="'.$bsz['rndmen'].'">'.number_format($bsz['rndmen'], 2, ',', ' ').'</td>',
                     'anyag_tabla_rend_egysegar' => '<td class="r nowrap" id="td_rndear_'.$bsz['recid'].'" data-sort="'.$bsz['rndear'].'">'.number_format($bsz['rndear'], 2, ',', ' ').'</td>',
                     'anyag_tabla_dev_rend'      => '<td class="r nowrap">'.number_format($bsz['vrndear'], 2, ',', ' ').'</td>',
@@ -3563,7 +3579,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             if( !$frissit ) {
 
-                // Anyagigénylés jóváhagyás jog esetén a rendelési egységár alatt
+                // Anyagigénylés jóváhagyás jog (Igazgatók) esetén a rendelési egységár alatt
                 if (_jog(JOG_ANYAGIGENYLES_JOVAHAGY)) {
 
                     $html .= nl2('
