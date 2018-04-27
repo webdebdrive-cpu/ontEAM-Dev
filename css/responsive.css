@@ -55,6 +55,36 @@
     div.szamlaKereses div.ilb div.dtc:nth-child(2) {
         padding-left: 0.5rem!important;
     }
+
+    div.szamlaFulek {
+        margin: -4.1rem 0rem 0rem -1.5rem;
+    }
+
+    div.szamlaFulek a {
+        padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+    }
+
+    .form_bal, .form_bal .link {
+        font-size: 1.2rem;
+    }
+
+    div.naplo div.nSor div.dtc {
+        font-size: 1.2rem;
+        padding: 0.5rem 0.5rem 0.5rem 0.5rem;
+    }
+
+    input[name="szallito_id_autocomp"],
+    input[name="tipus_id_autocomp"] {
+        width: 20rem!important;
+    }
+
+    table.csikos th {
+        font-size: 1.2rem;
+    }
+
+    table.csikos td {
+        font-size: 1.2rem;
+    }
 }
 
 @media only screen and (max-width: 1024px) {
