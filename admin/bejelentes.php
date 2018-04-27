@@ -653,10 +653,7 @@ if( isset($_POST['bejelentesReklamacioElutasit']) ) {
 
 // CSV generálása
 if (isset($_GET['csv'])) {
-if(isset($_GET['teszt2'])){
-    echo $_SESSION['valami'];
-    exit;
-}
+
     header("Content-type: text/csv");
     header("Content-Disposition: attachment; filename=$megnevezes.csv");
     header("Pragma: no-cache");
@@ -689,7 +686,8 @@ if(isset($_GET['teszt2'])){
                     `obj_id` as \'Helyiség\',
                     `helyiseg_text` as \'Hely leírása\',
                     `gep_id` as \'Gépnév\',
-                    `stat_id` as \'Státusz\'
+                    `stat_id` as \'Státusz\',
+                    `'.get_db_tabla().'bejelentes`.`insert_dt` as \'Bejelentés dátuma\'
                     '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);
@@ -720,6 +718,12 @@ if(isset($_GET['teszt2'])){
                 if($kulcs=='Gépnév'){
                     $sor = $adatbazis_kapcsolat->s('nev', 'eszkozkezeles', "`recid`='{$sor}'");
                     $sor = $sor[0]['nev'];
+                }
+                if($kulcs=='Státusz'){
+                    $sor = getStatText('bejelentes', $sor);
+                }
+                if($kulcs=='Bejelentés dátuma'){
+                    $sor = datum_kiir($sor);
                 }
                 $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
             }
@@ -1212,7 +1216,7 @@ require_once('selectek.php');
                         <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                             <div class="dtc">'.$ikt_szam.'</div>
                             <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
-                            <div class="dtc">'.str_replace('-', '.', $sor['insert_dt']).'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                             <div class="dtc">'.getStatText('munkalap', $sor['stat_id']).'</div>
                         </div>
                     ');
@@ -1268,7 +1272,7 @@ require_once('selectek.php');
                     <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                         <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
                         <div class="dtc">'.$sor['insert_usr'].' '.$szerepkor.'</div>
-                        <div class="dtc">'.str_replace('-', '.', substr($sor['insert_dt'], 0, 16)).'</div>
+                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                     </div>
                 ');
 

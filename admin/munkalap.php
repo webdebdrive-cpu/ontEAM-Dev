@@ -35,7 +35,7 @@ $formazatlan_szam       = array();          //Azok az oszlopneveket sorold fel, 
 
 $szamla_html = '';
 
-// Több kép menedzse$léséhez
+// Több kép menedzseléséhez
 $tobb_kep = true; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;         } // Maximum hány kép tallózható be
@@ -1218,6 +1218,7 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
             echo json_encode(array(
                 'hiba' => nl2(' Munkalap szám: '.$munkalap['ikt_szam'].'
                                 <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
+                                <br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
                                 <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert'], 0, '', ' ').' '. get_penznem().'
                                 <br>
                                 <br>Biztosan jóváhagyja?
@@ -1307,13 +1308,16 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
 // Popup tartalmába kiírjuk a ML adatait
 if( isset($_POST['get_ml_adatok']) ) {
     
-    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam telephely_id jh_ert', 'munkalap', "`recid`='{$_POST['recid']}'");
+    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam telephely_id jh_ert szallito_id', 'munkalap', "`recid`='{$_POST['recid']}'");
     
     echo json_encode(array(
         'html'  => nl2('
-                    Munkalap szám: '.$munkalap['ikt_szam'].'
-                    <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
-                    <br>Jóváhagyott érték: '.number_format($munkalap['jh_ert'], 0, '', ' ').' '. get_penznem()
+                    <b style="line-height: 2.3rem">
+                        Munkalap szám: '.$munkalap['ikt_szam'].'
+                        <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
+                        <br>Külső kivitelező: '.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
+                        <br>Jóváhagyott érték: '.number_format($munkalap['jh_ert'], 0, '', ' ').' '. get_penznem().'
+                    </b>'
                 )
     ));
     
@@ -6312,12 +6316,12 @@ require('selectek.php');
                             <div class="dtc">'.nl2br2($sor['hiba_text']).'</div>
                             <div class="dtc">
                                 '.$sor['usr_nev'].'
-                                <br>'.erteklista(18, $sor['usr_beosztas_id']).'
+                                <br>'.erteklista(ERTEKLISTA_BEOSZTAS, $sor['usr_beosztas_id']).'
                                 <br>'.$sor['usr_telefon'].'
-                                <br>'.erteklista(17, $sor['usr_reszleg_id']).'
+                                <br>'.erteklista(ERTEKLISTA_RESZLEG, $sor['usr_reszleg_id']).'
                                 <br>'.$sor['usr_email'].'
                             </div>
-                            <div class="dtc">'.str_replace('-', '.', $sor['insert_dt']).'</div>
+                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                             <div class="dtc">'.getStatText('bejelentes', $sor['stat_id']).'</div>
                             <div class="dtc link">
                                 '.$torles.'
@@ -6685,7 +6689,7 @@ require('selectek.php');
                     <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                         <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
                         <div class="dtc">'.$sor['insert_usr'].' '.$szerepkor.'</div>
-                        <div class="dtc">'.str_replace('-', '.', substr($sor['insert_dt'], 0, 16)).'</div>
+                        <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                     </div>
                 ');
 

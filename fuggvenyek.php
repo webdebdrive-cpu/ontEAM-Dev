@@ -3584,8 +3584,10 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             ');
                 $html .= nl2('
                             <script>
-                                anyagig_eredeti_jhmen = JSON.parse(\''.json_encode($eredeti_ertekek).'\');
-                                jovahagyasra_varo_igazit();
+                                $(document).ready(function () {
+                                    anyagig_eredeti_jhmen = JSON.parse(\''.json_encode($eredeti_ertekek).'\');
+                                    jovahagyasra_varo_igazit();
+                                });
                             </script>
                             ');
             }
@@ -6464,4 +6466,9 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         return $hiba;
     }
 
+}
+
+// Egységes dátum kiíráshoz (másodperc nem kell, kötőjel helyett pont)
+function datum_kiir($datum){
+    return str_replace('-', '.', substr($datum, 0, 16));
 }

@@ -151,8 +151,10 @@ function bejelentesek_archival($idk, $munkalap_is) {
             
             $stat_txt       = getStatText('bejelentes', $statusz['stat_id']);
             $erteklista_txt = getErtek('info', 'erteklista', 'recid', $statusz['erteklista_recid']);
-            array_push($mezok,   'stat_txt',   'erteklista_txt');
-            array_push($ertekek, $stat_txt,    $erteklista_txt);
+            if( $kulcs!='recid' ){
+                array_push($mezok,   'stat_txt',   'erteklista_txt');
+                array_push($ertekek, $stat_txt,    $erteklista_txt);
+            }
             
             $sql = $adatbazis_kapcsolat->i('bejelentes_statusz_arch', $mezok, $ertekek);
             if( $sql === false ) {
@@ -428,8 +430,10 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
             
             $stat_txt       = getStatText('munkalap', $statusz['stat_id']);
             $erteklista_txt = getErtek('info', 'erteklista', 'recid', $statusz['erteklista_recid']);
-            array_push($mezok,   'stat_txt',   'erteklista_txt');
-            array_push($ertekek, $stat_txt,    $erteklista_txt);
+            if( $kulcs!='recid' ){
+                array_push($mezok,   'stat_txt',   'erteklista_txt');
+                array_push($ertekek, $stat_txt,    $erteklista_txt);
+            }
             
             $sql = $adatbazis_kapcsolat->i('munkalap_statusz_arch', $mezok, $ertekek);
             if( $sql === false ) {
