@@ -273,7 +273,7 @@ div.kijeloltek_muv div.muv {
     padding: 0rem 0rem 0rem 0rem;
     position: absolute;
     bottom: 4.3rem;
-    left: 0;
+    right: 0;
 }
 
 div.kijeloltek_muv.active div.muv {
