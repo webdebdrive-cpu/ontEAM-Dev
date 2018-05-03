@@ -15,7 +15,7 @@
 
     div.szamlaKereses select, #stat_gyors_szuro {
         height: 2rem;
-        padding: 0.3rem 0.5rem 0.5rem 0.5rem;
+        padding: 0rem 0.5rem 0rem 0.5rem;
     }
 
     div.szamlaKereses .f_szuro_mezo_operator {
