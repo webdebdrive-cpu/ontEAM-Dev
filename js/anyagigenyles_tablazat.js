@@ -7,7 +7,10 @@
   }
 });*/
 
-/* Oszlopnevekre kattintva azt is tároljuk le, hogy mi a sorrendezés és annak iránya */
+/* Az első "jóváhagyott mennyiség" inputba kattintsunk */
+$(document).ready(function () {
+    $('.szamla_cont_tabla tbody tr:nth-of-type(2) input.f_num').click();
+});
 
 /* Ayagigénylés táblázatban a jóváhagyott mennyiség értéke ha változik. A anyagig_eredeti_jhmen tömb a fuggvenyek.php-ban az anyagigenyleslista() résznél jön létre, ahol a táblázat HTML-je kigenerálódik */
 $(document).on('blur keyup', '.szamla_cont_tabla tbody input', function(e) {

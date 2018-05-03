@@ -662,12 +662,12 @@ if( isset($_POST['munkalapElokeszit']) ) {
             exit();
         }
         
-        // van-e felhasználó, aki adott szerepkörben és szállodára rendelkezik az előkészítés joggal és be van neki pipálva értesítés
+        // van-e felhasználó, aki adott szerepkörben és szállodára rendelkezik az előkészítés joggal
         $van_felh = false;
         $loginnevek = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$munkalap['telephely_id']}'");
         $loginnevek = adatbazis2tomb($loginnevek, 'nev');
         if($loginnevek){
-            if( $adatbazis_kapcsolat->s('recid', 'login', "`szemelyzet_id`='{$szemelyzet_id}' AND `nev` IN ('". implode("', '", $loginnevek)."') AND SUBSTR( `flags`, ".(JOG_MUNKALAP_KULSOS_ELOKESZIT+1).", 1 )=1 AND SUBSTR( `flags_ert`, ".(ERT_MUNK_KK_ELOKESZIT_KOR+1).", 1 )=1") ){
+            if( $adatbazis_kapcsolat->s('recid', 'login', "`szemelyzet_id`='{$szemelyzet_id}' AND `nev` IN ('". implode("', '", $loginnevek)."') AND SUBSTR( `flags`, ".(JOG_MUNKALAP_KULSOS_ELOKESZIT+1).", 1 )=1") ){
                 $van_felh = true;
             }
         }

@@ -3537,7 +3537,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 }
                 
                 // Jóváhagyásra váró érték
-                $jh_ert = $bsz['rndear']*$bsz['jhmen'];
+                $jh_ert = $bsz['rndear']*$bsz['rndmen'];
 
                 $rndertek = getErtek('rndertek', 'cikkrendfej', 'rndid', $bsz['rndid']);
 

@@ -91,6 +91,11 @@
     body {
         font-size: 1.2rem;
     }
+    
+    div.figy div.tart{
+        line-height: 1.8rem;
+        font-size: 1.2rem;
+    }
 
     input {
         padding: 0.2rem 0.2rem 0.2rem 0.2rem;

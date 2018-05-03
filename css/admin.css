@@ -2079,10 +2079,10 @@ div.naplo div.nSor div.dtc {
 }
 
 #ajaxfedo {
-    /*background: rgba(255, 255, 255, 0.8);
-    height: 100%;*/
+    background: rgba(255, 255, 255, 0.3);
+    height: 100%;
     position: fixed;
-    /*top: 0;*/
+    top: 0;
     top: 1.2rem;
     left: 0;
     width: 100%;
@@ -2097,7 +2097,7 @@ div.naplo div.nSor div.dtc {
     height: 1.6rem;
     font-size: 1.1rem;
     position: absolute;
-    top: 50%;
+    top: 0%;
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
     width: 8.2rem;

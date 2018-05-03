@@ -2612,11 +2612,6 @@ require_once('selectek.php');
         // Form actionja
         $action = self().get_get(array('errnum','kephiba','siker'));
 
-        // Ckeditort csak akkor húzzuk be, ha kell
-        if(is_file($ckeditor_js)){
-            $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
-        }
-
         // Ez elkészíti a $mezok változót
         require('switch.php');
 
