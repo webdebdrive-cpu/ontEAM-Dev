@@ -7,12 +7,14 @@
   }
 });*/
 
-/* Az első sorra kattintás (fake soron felül, tehát a 2-ra) */
+/* Az első sorra kattintás (fake soron felül, tehát a 2-ra), ha nincs épp aktív sor megjelölve */
 $(document).ready(function () {
-    $('.szamla_cont_tabla tbody tr:nth-of-type(2)').click();
+    if( !$('.szamla_cont_tabla tbody tr.kijelolve').length ){
+        $('.szamla_cont_tabla tbody tr:nth-of-type(2)').click();
+    }
 });
 
-/* Ayagigénylés táblázatban a jóváhagyott mennyiség értéke ha változik. A anyagig_eredeti_jhmen tömb a fuggvenyek.php-ban az anyagigenyleslista() résznél jön létre, ahol a táblázat HTML-je kigenerálódik */
+/* Anyagigénylés táblázatban a jóváhagyott mennyiség értéke ha változik. A anyagig_eredeti_jhmen tömb a fuggvenyek.php-ban az anyagigenyleslista() résznél jön létre, ahol a táblázat HTML-je kigenerálódik */
 $(document).on('blur keyup', '.szamla_cont_tabla tbody input', function(e) {
     if( anyagig_eredeti_jhmen[$(this).attr('recid')] != $(this).val() ){
         $(this).addClass('mod');

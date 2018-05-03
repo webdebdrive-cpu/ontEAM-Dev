@@ -40,6 +40,7 @@ $(document).ready(function(){
                 get_leiras  : Date.now()
             },
             success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response){
                     response = JSON.parse(response);
 
@@ -92,6 +93,9 @@ function anyagigenylesLeirasHozzaadas() {
                                 alert2(response.hiba, response.gomb, 'Hiba');
                                 return false;
                             }
+                            
+                            /* Leírás szövég cseréljük a táblázatban is. */
+                            $('#td_igleir_'+_get('id')).html(response.leir_html);
 
                             /*kijelolesEltavolit();*/
                             if( _get('modosit') ){

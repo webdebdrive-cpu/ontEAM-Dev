@@ -5108,7 +5108,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
         /* Ha létezik az anyagrend GET, akkor ezt tovább kell adni */
         anyagrend = '';
         if(_get('anyagrend')){
-            anyagrend = 'anyagrend&amp;';
+            anyagrend = 'anyagrend=1&amp;';
         }
 
         /* Anyagigénylés alatt a művelet ha táblázat, nem frissítjük újra az egész oldal tartalmát (táblázat sorain lépkedve ne frissüljenek az adatok)

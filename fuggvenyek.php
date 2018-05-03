@@ -3549,7 +3549,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     'anyag_tabla_szalloda'      => '<td class="c">'.$telephely['nev'].'</td>',
                     'anyag_tabla_cikkszam'      => '<td class="c">'.$bsz['cikk_id'].'</td>',
                     'anyag_tabla_cikknev'       => '<td>'.htmlspecialchars_decode($bsz['anyagigenyles_nev']).'</td>',
-                    'anyag_tabla_igleir'        => '<td>'.htmlspecialchars_decode(nl2br2($bsz['igleir'])).'</td>',
+                    'anyag_tabla_igleir'        => '<td id="td_igleir_'.$bsz['recid'].'">'.htmlspecialchars_decode(nl2br2($bsz['igleir'])).'</td>',
                     'anyag_tabla_szallito'      => '<td>'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>',
                     'anyag_tabla_ig_menny'      => '<td class="r nowrap" data-sort="'.$bsz['igmen'].'">'.number_format($bsz['igmen'], 2, ',', ' ').'</td>',
                     'anyag_tabla_mee'           => '<td class="c">'.$bsz['cikkmee'].'</td>',

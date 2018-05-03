@@ -187,12 +187,13 @@ if (isset($_POST['anyagigenylesLeirasHozzaadas'])) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-    
-    $sor = $adatbazis_kapcsolat->s2('stat_id', 'anyagigenyles', "`recid`='{$_POST['id']}'");
+
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'anyagigenyles', "`recid`='{$idk[1]}'");
     if( $sor === false ) { $db_error = true; }
 
+
     // Státusz ellenőrzése
-    if(  $sor['stat_id']!=CIKKIGN_STAT_ELUTASITVA ) {
+    if(  $sor['stat_id']==CIKKIGN_STAT_ELUTASITVA ) {
         echo json_encode(array(
             'title' => 'Hiba',
             'hiba'  => 'Elutasított státuszú anyagigényléshez nem lehet leírást hozzáadni!'
@@ -212,13 +213,23 @@ if (isset($_POST['anyagigenylesLeirasHozzaadas'])) {
         exit();
     }
 
-    $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('igleir'), array($_POST['indok']), "`recid`='{$_POST['id']}'");
-    if( $sql === false ) { $db_error = true; }
+    if( is_array($idk) ) {
+        $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('igleir'), array($_POST['indok']), "`recid`='{$idk[1]}'");
+        if( $sql === false ) { $db_error = true; }
+    }else{
+        echo json_encode(array(
+            'hiba'  => 'Kérjük válassza ki a szerkeszteni kívánt sort!',
+            'title' => 'Hiba'
+        ));
+        $weblap->leallit();
+        exit();
+    }
 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode(array(
-            'statusz' => 'siker'
+            'statusz'    => 'siker',
+            'leir_html'  => nl2br2($_POST['indok']),
         ));
     } else {
         mysqli_rollback($db_kapcs);
