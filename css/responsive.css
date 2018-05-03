@@ -1,10 +1,8 @@
 @media only screen and (max-width: 1280px) {
     div.navGombok a {
         margin: 0rem 0rem 0rem 0rem;
-    }
-
-    div.szamlaKereses select, #stat_gyors_szuro {
-        padding: 0.3rem 0.5rem 0.5rem 1.5rem;
+        height: 2rem;
+        width: 2rem;
     }
 
     div.szamlaKereses input:not([type="button"]) {
@@ -16,7 +14,8 @@
     }
 
     div.szamlaKereses select, #stat_gyors_szuro {
-        padding: 0.3rem 0.5rem 0.5rem 0.5rem;
+        height: 2rem;
+        padding: 0rem 0.5rem 0rem 0.5rem;
     }
 
     div.szamlaKereses .f_szuro_mezo_operator {
@@ -61,6 +60,7 @@
     }
 
     div.szamlaFulek a {
+        font-size: 1rem;
         padding: 0.5rem 0.5rem 0.5rem 0.5rem;
     }
 
@@ -69,7 +69,7 @@
     }
 
     div.naplo div.nSor div.dtc {
-        font-size: 1.2rem;
+        font-size: 1rem;
         padding: 0.5rem 0.5rem 0.5rem 0.5rem;
     }
 
@@ -79,7 +79,7 @@
     }
 
     table.csikos th {
-        font-size: 1.2rem;
+        font-size: 1rem;
     }
 
     table.csikos td {
@@ -97,8 +97,17 @@
         font-size: 1.2rem;
     }
 
+    select {
+        font-size: 1rem;
+    }
+
     input {
         padding: 0.2rem 0.2rem 0.2rem 0.2rem;
+        font-size: 1rem;
+    }
+
+    textarea {
+        font-size: 1rem;
     }
 
     table.sar-table th {
@@ -114,24 +123,24 @@
     }
 
     div.szamlaFulek {
-        margin: -3.2rem 0rem 0rem -0.5rem;
+        margin: -2.9rem 0rem 0rem -0.5rem;
     }
 
     div.menu {
-        height: 4.1rem;
+        height: 3.9rem;
     }
 
     #sddm li a {
-        font-size: 1.4rem;
+        font-size: 1rem;
         padding: 0.8rem 0.6rem;
     }
 
     input.gomb {
-        font-size: 1.2rem;
+        font-size: 1rem;
     }
 
     #sddm div {
-        top: 3.2rem;
+        top: 2.8rem;
     }
 
     ul.szamla_cont li a {
@@ -151,5 +160,13 @@
     div.header div.dtc.bejelent span {
         font-size: 1.2rem;
         line-height: 1.4rem;
+    }
+
+    div.naplo div.nFejlec div.dtc {
+        padding: 0.2rem 0.5rem 0.2rem 0.5rem;
+    }
+
+    .form_jobb {
+        padding: 0.1rem 0rem 0rem 0rem;
     }
 }
