@@ -169,4 +169,12 @@
     .form_jobb {
         padding: 0.1rem 0rem 0rem 0rem;
     }
+
+    input.gomb.zold, input.gombb {
+        font-size: 1rem;
+    }
+
+    div.kijeloltek_muv div.muv li a {
+        font-size: 1.2rem;
+    }
 }

@@ -4040,7 +4040,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
             mellek        = 'modosit';
             mellekre_valt = 'cash_flow';
         }
-        
+
         if(mellek=='megjegyzesek'){
             mellek          = 'megjegyzesek';
             mellekre_valt   = 'megjegyzesek';
@@ -4048,7 +4048,7 @@ function kijeloltSzamlal( sorok, reszleg, tabla, mellek ) {
         }
 
         if(tabla=='cash_flow' || _get('cash_flow')){
-            
+
             /* Ha nincs minden kezelés joga, akkor nem törölheti */
             if( _jogok[39]=='0' && _jogok[60]=='0' && _jogok[59]=='0' && _jogok[62]=='0' && _jogok[49]=='0' && _jogok[47]=='0' && _jogok[64]=='0' ){
                 torolhet = false;
