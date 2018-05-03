@@ -3008,7 +3008,12 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
 
                     szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
                     if( szamlaSorok.length>1 ) {
-                        alert2('Leírást egyszerre csak egy anyagigényléshez lehet hozzáadni!');
+                        
+                        oldal_nev = 'anyagigényléshez';
+                        if( _get('anyagrend') ){
+                            oldal_nev = 'anyagrendeléshez';
+                        }
+                        alert2('Leírást egyszerre csak egy '+oldal_nev+' lehet hozzáadni!');
                         return false;
                     }else{
                         $('#popupTart').html(data);

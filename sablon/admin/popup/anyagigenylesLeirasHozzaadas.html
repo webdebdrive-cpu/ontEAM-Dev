@@ -21,8 +21,14 @@
 /* Tartalom betöltés */
 $(document).ready(function(){
     
-    if(!_get['id']){
-        alert2('Kérjük válassza ki a szerkeszteni kívánt sort!', '', 'Hiba');
+    if(!_get('id')){
+        
+        oldal_nev = 'anyagigénylést';
+        if( _get('anyagrend') ){
+            oldal_nev = 'anyagrendelést';
+        }
+        
+        alert2('Kérjük válassza ki a szerkeszteni kívánt '+oldal_nev+'!', '', 'Hiba');
         setTimeout(function(){ popupZar(); }, 100);
     }else{
     

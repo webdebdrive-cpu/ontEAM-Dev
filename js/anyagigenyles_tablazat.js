@@ -7,9 +7,9 @@
   }
 });*/
 
-/* Az első "jóváhagyott mennyiség" inputba kattintsunk */
+/* Az első sorra kattintás (fake soron felül, tehát a 2-ra) */
 $(document).ready(function () {
-    $('.szamla_cont_tabla tbody tr:nth-of-type(2) input.f_num').click();
+    $('.szamla_cont_tabla tbody tr:nth-of-type(2)').click();
 });
 
 /* Ayagigénylés táblázatban a jóváhagyott mennyiség értéke ha változik. A anyagig_eredeti_jhmen tömb a fuggvenyek.php-ban az anyagigenyleslista() résznél jön létre, ahol a táblázat HTML-je kigenerálódik */

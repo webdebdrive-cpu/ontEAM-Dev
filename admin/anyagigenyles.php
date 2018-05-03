@@ -188,6 +188,21 @@ if (isset($_POST['anyagigenylesLeirasHozzaadas'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'anyagigenyles', "`recid`='{$_POST['id']}'");
+    if( $sor === false ) { $db_error = true; }
+
+    // Státusz ellenőrzése
+    if(  $sor['stat_id']!=CIKKIGN_STAT_ELUTASITVA ) {
+        echo json_encode(array(
+            'title' => 'Hiba',
+            'hiba'  => 'Elutasított státuszú anyagigényléshez nem lehet leírást hozzáadni!'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
     if( !_jog(JOG_ANYAGREND_KESZIT) ) {
         echo json_encode(array(
             'hiba'  => 'Nincs joga leírást hozzáadni!',
@@ -197,17 +212,8 @@ if (isset($_POST['anyagigenylesLeirasHozzaadas'])) {
         exit();
     }
 
-    if( is_array($idk) ) {
-        $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('igleir'), array($_POST['indok']), "`recid`='{$idk[1]}'");
-        if( $sql === false ) { $db_error = true; }
-    }else{
-        echo json_encode(array(
-            'hiba'  => 'Kérjük válassza ki a szerkeszteni kívánt sort!',
-            'title' => 'Hiba'
-        ));
-        $weblap->leallit();
-        exit();
-    }
+    $sql = $adatbazis_kapcsolat->u('anyagigenyles', array('igleir'), array($_POST['indok']), "`recid`='{$_POST['id']}'");
+    if( $sql === false ) { $db_error = true; }
 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
@@ -2177,8 +2183,15 @@ require_once('selectek.php');
                 }
 
                 $gombok .= nl2('
-                    <div class="kijeloltek_muv">
-                        <input type="button" class="gomb" value="Leírás hozzáadása" title="Leírás hozzáadása" onclick="csoportMuvelet(\'anyagigenylesLeirasHozzaadas\')">
+                            <div class="kijeloltek_muv">
+                            ');
+                
+                // Elutasított státusz alatt nincs Leírás hozzáadása gomb
+                if( $sor['stat_id']!=CIKKIGN_STAT_ELUTASITVA ){
+                    $gombok .= '<input type="button" class="gomb" value="Leírás hozzáadása" title="Leírás hozzáadása" onclick="csoportMuvelet(\'anyagigenylesLeirasHozzaadas\')"> ';
+                }
+                
+                $gombok .= nl2('
                         <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
                         <div class="muv">
                             <ul>
@@ -2194,11 +2207,19 @@ require_once('selectek.php');
                 
             // Anyagrendelés alatt csak a Leírás hozzáadása gomb látszik
             }else{
-                $gombok .= nl2('
-                            <div class="kijeloltek_muv">
-                                <input type="button" class="gomb" value="Leírás hozzáadása" title="Leírás hozzáadása" onclick="csoportMuvelet(\'anyagigenylesLeirasHozzaadas\')">
-                            </div>
-                            ');
+                
+                if( $sor['stat_id']!=CIKKIGN_STAT_ELUTASITVA ){
+                    $gombok .= nl2('
+                                    <div class="kijeloltek_muv">
+                                ');
+                    // Elutasított státusz alatt nincs Leírás hozzáadása gomb
+                    if( $sor['stat_id']!=CIKKIGN_STAT_ELUTASITVA ){
+                        $gombok .= '<input type="button" class="gomb" value="Leírás hozzáadása" title="Leírás hozzáadása" onclick="csoportMuvelet(\'anyagigenylesLeirasHozzaadas\')"> ';
+                    }
+                    $gombok .= nl2('
+                                    </div>
+                                ');
+                }
             }
         }
 
