@@ -131,7 +131,8 @@ if (isset($_POST['terv_keszit'])) {
         mysqli_commit($db_kapcs);
         echo json_encode(array(
             'statusz'   => 'siker',
-            'html'      => $html
+            'html'      => $html,
+            'id'        => $uj_id,
         ));
     } else {
         mysqli_rollback($db_kapcs);
@@ -389,11 +390,12 @@ require_once('selectek.php');
         $dok_db = ' ('.$dok_db.')';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['egysegarak']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
+    if( isset($_GET['modosit']) || isset($_GET['egysegarak']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Tervek',
             'egysegarak'    => 'Egységárak',
+            'tortenet'      => 'Történet',
             'dokumentumok'  => 'Dokumentumok'.$dok_db,
             'megjegyzesek'  => 'Megjegyzések'.$megj_db
         );
@@ -639,13 +641,13 @@ require_once('selectek.php');
 	}elseif(isset($_GET['egysegarak'])){
 
         $szamla_html .= '
-            <table class="szamla_cont_tabla">
+            <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
             <thead>
             <tr>
                 <th><span>Szállodák</span></th>
                 <th><span>Díjelem</span></th>
-                <th><span>Költségnem</span></th>
-                <th><span>Költségnem</span></th>
+                <th><span>Költségnem kód</span></th>
+                <th><span>Költségnem név</span></th>
                 <th><span>Mee</span></th>
                 <th><span>Egységár Január</span></th>
                 <th><span>Devizanem Január</span></th>
@@ -771,6 +773,19 @@ require_once('selectek.php');
             echo $szamla_html.$gombok;
         }
 
+	// Történet fül
+    }elseif(isset($_GET['tortenet'])) {
+
+        $szamla_html .= get_tortenet($megnevezes);
+
+        if( $_GET['ajax'] ) {
+            echo json_encode(array(
+                'tartalom' => $szamla_html.$gombok
+            ));
+        } else {
+            echo $szamla_html.$gombok;
+        }
+        
     // Dokumentumok fül
     }elseif(isset($_GET['dokumentumok'])) {
 

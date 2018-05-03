@@ -111,7 +111,7 @@ if( isset($_POST['bejSzallodaValaszt']) ) {
             mysqli_commit($db_kapcs);
             echo json_encode(array(
                 'statusz' => 'siker',
-                'html' => $html
+                'html'    => $html
             ));
         } else {
             mysqli_rollback($db_kapcs);

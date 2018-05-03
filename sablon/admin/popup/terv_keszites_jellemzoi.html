@@ -34,9 +34,10 @@
                 response = JSON.parse(response);
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
+                    $('#popup_ev').select();
                     return false;
                 }else{
-                    location.reload();
+                    location.href='energia_terv.php?modosit&id='+response.id;
                 }
             }
         });

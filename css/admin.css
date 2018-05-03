@@ -1845,6 +1845,18 @@ table.szamla_cont_tabla th{
     font-weight: normal;
     padding: 1rem 0.1rem;
 }
+table.szamla_cont_tabla.nolink th{
+    cursor: default;
+}
+table.szamla_cont_tabla.fejlec_padd th{
+    padding: 1rem 0.4rem;
+}
+table.szamla_cont_tabla.szep_csikos th, table.szamla_cont_tabla.szep_csikos td{
+    border: 0.1rem solid #ccc;
+}
+table.szamla_cont_tabla.kisbetu th, table.szamla_cont_tabla.kisbetu td{
+    font-size: 1.1rem;
+}
 
 table.szamla_cont_tabla tr td{
     padding: 0.1rem 0.2rem;

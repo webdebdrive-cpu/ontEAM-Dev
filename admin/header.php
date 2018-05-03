@@ -1201,6 +1201,16 @@ if(basename(self())=='anyagigenyles.php'){
                 }
             </script>
             ');
+    // Felhasználók esetén a keresés mezőbe kerüljön a fókusz
+    if( basename(self())=='login.php' ){
+        $kereso .= nl2('
+            <script>
+                $(document).ready(function () {
+                    $(\'#rendezesKeres\').focus();
+                });
+            </script>
+                    ');
+    }
 }
 
 // Teszt rendszer felirat
