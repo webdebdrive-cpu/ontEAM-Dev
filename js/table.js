@@ -173,31 +173,32 @@ $(function() {
         });
     });
 
+    /*parseInt(window.getComputedStyle(document.getElementById(this.id), null).getPropertyValue("width"))*/
     $('.sar-table').each(function() {
         var colgroup = $('<colgroup>');
 
         var height = $(this).find('thead').find('th:first-child').outerHeight();
         $(this).find('tr.fake td').css('height', height);
 
+
+
         $(this).find('thead').find('th').each(function(i) {
-            /*parseInt(window.getComputedStyle(document.getElementById(this.id), null).getPropertyValue("width"))*/
             var width = $(this).outerWidth(),
                 index = $(this).index();
 
-                class_nev = '';
-                if( $(this).attr('class') ){
-                    class_nev = ' class="'+$(this).attr('class')+'"';
-                }
+            class_nev = '';
+            if( $(this).attr('class') ){
+                class_nev = ' class="' + $(this).attr('class') + '"';
+            }
 
-
-            colgroup.append('<col'+class_nev+'>');
+            colgroup.append('<col' + class_nev + '>');
             colgroup.find('col').eq(index).css({
                 'min-width': width,
                 'max-width': width,
                 'width'    : width
             });
 
-            if( i == 0 ) {
+            /*if( i == 0 ) {
                 width = width - 1;
             }
 
@@ -208,12 +209,10 @@ $(function() {
                     'max-width': width,
                     'width'    : width
                 });
-            }, 500);
+            }, 500);*/
         });
 
         $(this).prepend(colgroup);
-
-
 
         var scrollTop  = $('#tartalomJobb').scrollTop(),
             scrollLeft = $('#tartalomJobb').scrollLeft();
@@ -353,6 +352,12 @@ $(function() {
             $(document).enableSelection();
         }
     });
+
+    fejlec_igazit($('.sar-table'));
+    $(window).resize(function() {
+        fejlec_igazit($('.sar-table'));
+        tablaSorrend($('.sar-table'));
+    });
 });
 
 function tablaSorrend( table ) {
@@ -416,4 +421,21 @@ function jovahagyasra_varo_igazit(){
     jovah_ertek_poz = $('#anyag_tabla_jovah_ertek').position();
     padding = $('#rend_ertek_td').outerWidth() - jovah_ertek_poz.left - $('#anyag_tabla_jovah_ertek').outerWidth();
     $('#rend_ertek_td').css('padding-right',  padding);
+}
+
+function fejlec_igazit( table ) {
+    table.find('tbody').find('tr:first-child td').each(function(i) {
+        var index = $(this).index(),
+            width = $(this).outerWidth();
+
+        if( i == 0 ) {
+            width = width - 1;
+        }
+
+        $(this).parents('.sar-table').find('th').eq(index).css({
+            'min-width': width,
+            'max-width': width,
+            'width'    : width
+        });
+    });
 }
