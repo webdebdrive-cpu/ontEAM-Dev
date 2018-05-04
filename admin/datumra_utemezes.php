@@ -21,6 +21,9 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
     if($dlast=='0000.00.00'){
         $dlast = '';
     }
+    if($dnext=='0000.00.00'){
+        $dnext = '';
+    }
 
 	
 	while (($dlast != $dnext or $dnext < date(DATEFORMAT, strtotime("+1 day"))) and $dnext < date(DATEFORMAT, strtotime('+10 year')))  //legfeljebb a következő 2 évre keressük ütemezhetőséget
@@ -33,7 +36,6 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
 		if($dlast<0){
             $dlast = '000.00.00';
         }
-
         $dnext = validnextdate($dlast, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d);
 		$lstart = true; //ha elsőnek kiszámolt esedékesség érvénytelen, újrakezdjük esedékesség számítását mai naptól
 		if ($i == 100) //ha végtelen ciklusba keveredne
@@ -139,7 +141,6 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 	, ez után visszakapott dátumról még el kell dönteni, hogy beleesik-e intervallumba
 	dlast: dátum ami UTÁN a legközelebbi esedékességet keressük
 	*/
-
 	if ($lstart)
 	{
 		/*
@@ -337,8 +338,7 @@ function dowtodate ( $nev,  $nho, $nhet, $nnap)
 
 function dateadd ($stringdate, $days, $months, $years)
 {
-    
-	//print "dateadd: ".$stringdate;
+
 	$date = DateTime::createFromFormat(DATEFORMAT, $stringdate);
 	$originalDate = DateTime::createFromFormat(DATEFORMAT, $stringdate);
 

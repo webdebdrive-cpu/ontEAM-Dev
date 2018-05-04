@@ -418,9 +418,11 @@ function ujra_sorszamoz_uj(){
 /* Anyagigénylés táblázat alján található Jóváhagyásra váró érték pozícionálásához */
 function jovahagyasra_varo_igazit(){
     /* Kiszámoljuk, hogy a anyag_tabla_jovah_ertek ID-jú oszlop hol van, és annak az Y koordinátáját és szélességét kivonjuk a táblázat szélességéből */
-    jovah_ertek_poz = $('#anyag_tabla_jovah_ertek').position();
-    padding = $('#rend_ertek_td').outerWidth() - jovah_ertek_poz.left - $('#anyag_tabla_jovah_ertek').outerWidth();
-    $('#rend_ertek_td').css('padding-right',  padding);
+    if( $('#anyag_tabla_jovah_ertek').length ){
+        jovah_ertek_poz = $('#anyag_tabla_jovah_ertek').position();
+        padding = $('#rend_ertek_td').outerWidth() - jovah_ertek_poz.left - $('#anyag_tabla_jovah_ertek').outerWidth();
+        $('#rend_ertek_td').css('padding-right',  padding);
+    }
 }
 
 function fejlec_igazit( table ) {

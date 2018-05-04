@@ -12,6 +12,7 @@ if( filesize($log_utvonal)>get_logfile_max_meret() ){
     $log_tmp = mb_substr($log_tmp, round(mb_strlen($log_tmp, 'UTF-8')/2), NULL, 'UTF-8');
     fajlba_mentes($log_utvonal, $log_tmp);
 }
+
 // Bejelentéseknél és munkalapoknál is, ha több mint 48 órája igazolásra vár státuszban van, Lezárt státuszba tesszük
 $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJELENTES_STAT_KESZ_IG."'");
 $log .= $adatbazis_kapcsolat->gp() . '
@@ -42,5 +43,5 @@ $log .= date('Y.m.d H:i:s').' ütemező sikeresen lefutott.
 
 
 ';
-fajlba_mentes($log_utvonal, $log);
+fajlba_mentes($log_utvonal, fajlbol_olvas($log_utvonal).$log);
 $adatbazis_kapcsolat->i('utemezo_log', array('utemezo', 'log'), array(basename(self()), $log));

@@ -130,6 +130,65 @@ function uj_egysegar_szallodak(that){
     return false;
 }
 
+/* Egységár sor törlése */
+function egysegar_sor_torol(mehet){
+    
+    // Ha nincs kijelölve sor, hibaüzi
+    var kijelolt_egysegar = $('.szamla_cont_tabla .kijelolve').attr('data-recid');
+    if(!kijelolt_egysegar){
+        alert2('Előbb jelölje ki a törölni kívánt sort!', '', 'Hiba');
+        return false;
+    }else if(!mehet){
+        alert2('Biztosan törli a kijelölt egységár sort?', '<input type="button" class="gomb zold" value="Igen" onclick="egysegar_sor_torol(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+    $.ajax({
+        url : 'energia_terv.php',
+        type: 'POST',
+        data: {
+            egysegar_recid      : kijelolt_egysegar,
+            egysegar_sor_torol  : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                location.reload();
+            }
+        }
+    });
+}
+
+/* Energiaterv véglegesítése */
+function energiaterv_veglegesit(mehet){
+    
+    if(!mehet){
+        alert2('Biztosan véglegesíti a tervet?', '<input type="button" class="gomb zold" value="Igen" onclick="energiaterv_veglegesit(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+    
+    $.ajax({
+        url : 'energia_terv.php',
+        type: 'POST',
+        data: {
+            recid                   : _get('id'),
+            energiaterv_veglegesit  : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                
+                response = JSON.parse(response);
+                
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                
+                location.reload();
+            }
+        }
+    });
+}
 
 /* Egységárak táblázat */
 $(document).ready(function () {

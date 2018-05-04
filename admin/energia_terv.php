@@ -131,7 +131,6 @@ if (isset($_POST['terv_keszit'])) {
         mysqli_commit($db_kapcs);
         echo json_encode(array(
             'statusz'   => 'siker',
-            'html'      => $html,
             'id'        => $uj_id,
         ));
     } else {
@@ -215,8 +214,7 @@ if (isset($_POST['terv_elesites'])) {
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode(array(
-            'statusz' => 'siker',
-            'html' => $html
+            'statusz' => 'siker'
         ));
     } else {
         mysqli_rollback($db_kapcs);
@@ -348,8 +346,7 @@ if ($_POST['energia_terv_koltsegnem_dijelem']) {
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode(array(
-            'statusz' => 'siker',
-            'html' => $html
+            'statusz' => 'siker'
         ));
     } else {
         mysqli_rollback($db_kapcs);
@@ -394,8 +391,83 @@ if (isset($_POST['uj_egysegar'])) {
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode(array(
-            'statusz' => 'siker',
-            'html' => $html
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Egységár sor törlése
+if (isset($_POST['egysegar_sor_torol'])) {
+    
+    $egysegar_recid = $_POST['egysegar_recid'];
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $sql = $adatbazis_kapcsolat->d('energia_terv_ear', "`recid`='{$egysegar_recid}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Energiaterv véglegesítése
+if (isset($_POST['energiaterv_veglegesit'])) {
+    
+    $recid = $_POST['recid'];
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $sor = $adatbazis_kapcsolat->s2('ikt_szam', 'energia_terv', "`recid`='{$recid}'");
+    if( $sor === false ) { $db_error = true; }
+    
+    // Ha már van iktató szám, akkor hibaüzenet
+    if($sor['ikt_szam']){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => 'Az energia tervnek már van iktató száma ('.$sor['ikt_szam'].'), így nem véglegesíthető!',
+            'title' => 'Hiba'
+        ));
+        
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Ha nem WebDeb szerveren vagyunk, akkor lefuttatjuk a ftervear_updatetrigger()-t
+    if($_SERVER['HTTP_HOST']!='demo.webdeb.hu'){
+        $sql = mysqli_query($db_kapcs, 'call ftervear_updatetrigger()');
+        if( $sql === false ) { $db_error = true; }
+    }
+    
+    if( !addStatusz( 'energia_terv_statusz', $recid, ENERGIATERV_STAT_KESZ ) ) {
+        $db_error = true;
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker'
         ));
     } else {
         mysqli_rollback($db_kapcs);
@@ -517,8 +589,8 @@ require_once('selectek.php');
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Szálloda" onclick="kapcsolodoSzerkeszt(\'szallodak_energia\');"> ';
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Költségnem és díjelem" onclick="kapcsolodoSzerkeszt(\'energia_terv_koltsegnem_dijelem\');"> ';
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Egységárak" onclick=""> ';
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Sor törlése" onclick=""> ';
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick=""> ';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Sor törlése" onclick="egysegar_sor_torol()"> ';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="energiaterv_veglegesit()"> ';
         // Tervek fül
         }else{
             // Élesítés gomb
