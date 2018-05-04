@@ -2442,12 +2442,12 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         $sql = $adatbazis_kapcsolat->gp();
 
     }
-    
+
     // Weblap.php elején vizsgáljuk, hogy a kért ID-t egyáltlán láthatjuk-e vagy sem. Ekkor elég ha kapunk egy SQL-t
     if($csak_sql_miatt){
         return $sql;
     }
-    
+
     // Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
     if(!isset($_GET['szamlaSorFrissit']) && $tabla!='esemenyek'){
         $_SESSION['akt_sql'] = $sql;
@@ -2725,7 +2725,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$bsz['hiba_text'].'">
                             <table'.$bold.'>
                             <tr>
-                                <td rowspan="2" style="width: 5rem">'.$kesz.$dok_icon.$surgos.'</td>
+                                <td rowspan="2" style="width: 4rem">'.$kesz.$dok_icon.$surgos.'</td>
                                 <td style="width: 9rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem">'.getStatText($tabla, $bsz['stat_id']).'</td>
                                 <td style="width: 7rem">'.str_replace('-', '.', substr($bsz['insert_dt'], 0, 16) ).'</td>
@@ -2766,7 +2766,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     $style = ' style="background: '.$szinkod.';"';
                 }
             }
-            
+
             // Ha sürgős, akkor legyen piros a sora
             $surgos_class = '';
             if($bsz['surgos']){
@@ -3003,13 +3003,13 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if($frissit){
                 // $active .= ' kijelolve';
             }
-            
+
             // Ha sürgős, akkor legyen piros a sora
             $surgos_class = '';
             if($bsz['surgos']){
                 $surgos_class = ' surgos';
             }
-            
+
             $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.$surgos_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
 
             $i++;
@@ -3386,7 +3386,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if (_jog(JOG_ANYAGIGENYLES_JOVAHAGY)) {
                 $jhertek_latszik = '';
             }
-        
+
             $oszlopok = array(
                 array('id' => 'anyag_tabla_statusz',        'nev' => 'Státusz'),
                 array('id' => 'anyag_tabla_ikt_szam',       'nev' => 'Anyagig. szám'),
@@ -3469,7 +3469,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     if($oszl['class']){
                         $class = ' class="'.$oszl['class'].'"';
                     }
-                    
+
                     $html .= nl2('
                         <th id="'.$oszl['id'].'"'.$class.$width.'>
                             <div class="thKeret">
@@ -3535,7 +3535,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 if($frissit){
                     // $active .= ' kijelolve';
                 }
-                
+
                 // Jóváhagyásra váró érték
                 $jh_ert = $bsz['rndear']*$bsz['rndmen'];
 
@@ -6403,7 +6403,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         $targy_kieg = '[Teszt email] ';
         $uzi_kieg   = '[Teszt email]<br><br>';
     }
-    
+
 //echo '<pre style="font-size: 1.4rem">';
 //print_r($cimzettek);
 //echo '</pre>';
