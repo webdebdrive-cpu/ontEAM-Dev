@@ -473,16 +473,9 @@ function anyagigenylesKPBeszerez(csak_kerdezünk){
             if(response){
                 response = JSON.parse(response);
 
-                /*if( response.hiba ) {
-                    alert2(response.hiba, response.gomb, 'Hiba');
-                    return false;
-                }*/
-
                 if( response.alert ) {
-                    alert2(response.alert, response.gomb);
+                    alert2(response.alert, response.gomb, response.title);
                 }
-
-                /*popupZar();*/
             }
         }
     });

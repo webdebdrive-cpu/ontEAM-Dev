@@ -1801,6 +1801,7 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
             'statusz' => 'siker',
             'alert'   => 'Az Ön által feldolgozott számla rendelésszáma:<br>'.$rndid.'<br>Kérem, írja rá a számlára!',
             'gomb'    => '<input type="button" class="gomb" value="Ok" onclick="location.href=\'anyagigenyles.php?anyagrend&amp;id='.$anyagigenyles.'&amp;modosit\'">',
+            'title'   => 'Üzenet',
         ));
     } else {
         mysqli_rollback($db_kapcs);
@@ -2481,7 +2482,7 @@ require_once('selectek.php');
                                             <td class="r zold">'.number_format($folyamatban, 2, ',', ' ').'</td>
                                             <td id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'_mee">'.$akt_anyag['cikk_mee'].'</td>
                                             <td><input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$akt_munkalapok.'\')"></td>
-                                            <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$anyag['recid'].'"></td>
+                                            <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$anyag['recid'].'" data-cikk_id2="'.$anyag['cikk_id'].'"></td>
                                             <td>'.$mar_igenyelve.'</td>
                                             <td><input type="button" value="Anyag rendelkezésre áll" class="gomb f_anyag_rendelkezesre_all" data-telephely_id="'.$telephely['telephely_id'].'" data-cikkid_origi="'.$anyag['cikk_id'].'" data-cikk_id="'.$anyag['cikk_id'].'"></td>
                                         </tr>
@@ -2572,7 +2573,8 @@ require_once('selectek.php');
             
         }
 
-        $sor['rnd_dt'] = str_replace('-', '.', $sor['rnd_dt']);
+        $sor['rnd_dt']  = str_replace('-', '.', $sor['rnd_dt']);
+        $sor['vrndear'] = number_format($sor['vrndear'], 2, ',', ' ');
 
         foreach($akt_tomb as $tomb) {
 

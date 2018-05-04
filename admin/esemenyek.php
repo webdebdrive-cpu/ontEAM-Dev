@@ -483,6 +483,7 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`szemelyzet_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`mobil`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`,
                                 `'.get_db_tabla().'obj`.`nev`,
                                 `'.get_db_tabla().'munkalap_csoport`.`nev`
                             ');
@@ -1845,7 +1846,8 @@ if (isset($_GET['anyagrend'])) {
         array('type' => 'text',                     'megn' => $tav_4.'Rendelés szám:',          'name' => 'rndid',          'szuro' => 1,   'disabled' => 1,   'style' => 'width: 9rem'),
         array('type' => 'text',                     'megn' => 'Rendelt mennyiség:',             'name' => 'rndmen',         'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="2"',   'post' => ' '.$cikkmee.'<span style="margin-left: 2rem"></span>', 'osszevon' => 1),
         array('type' => 'text',                     'megn' => $tav_12.'Rendelési egységár:',    'name' => 'rndear',         'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="4"',   'post' => ' '.  get_penznem()),
-        array('type' => 'autocomplete',             'megn' => 'Pénznem:',                       'name' => 'kcs_21',         'szuro' => 1,   'disabled' => 1,   'class' => 'disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 21, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a pénznemet!', 'style' => 'width: 5rem'),
+        array('type' => 'text',                     'megn' => 'Deviza rendelési egységár:',     'name' => 'vrndear',        'szuro' => 1,   'disabled' => 1,   'class' => 'f_num',   'data' => 'data-tort="2"', 'osszevon' => 1),
+        array('type' => 'autocomplete',             'megn' => $tav_12.'Pénznem:',               'name' => 'kcs_21',         'szuro' => 1,   'disabled' => 1,   'class' => 'disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 21, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a pénznemet!', 'style' => 'width: 5rem'),
         array('type' => 'autocomplete',             'megn' => 'Szállító:',                      'name' => 'szallito_id',    'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'id_kiir' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
         array('type' => 'textarea',                 'megn' => 'Leírás:',                        'name' => 'igleir',         'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'style' => 'height: 4rem'),
         

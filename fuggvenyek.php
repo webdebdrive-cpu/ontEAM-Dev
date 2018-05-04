@@ -2977,7 +2977,8 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 <td>'.$hely['nev'].' - '.$gep['nev'].'</td>
                             </tr>
                             <tr>
-                                <td colspan="3">'.$tipus.'</td>
+                                <td>'.$tipus.'</td>
+                                <td colspan="2">'.datum_kiir($bsz['insert_dt']).'</td>
                                 <td>'.$szemelyzet.'</td>
                             </tr>
                             </table>

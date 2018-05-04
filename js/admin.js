@@ -1449,8 +1449,9 @@ $(function() {
         recid_egyedi_azon   = $(this).attr('data-recid_egyedi_azon');
         telephely_id        = $(this).attr('data-telephely_id');
         cikk_id             = $(this).attr('data-cikk_id');
+        cikk_id2            = $(this).attr('data-cikk_id2');
         nev_autocompl       = $('#cikk_nev_'+recid_egyedi_azon).html();
-        igmen               = $('#th'+telephely_id+'a'+cikk_id).html();
+        igmen               = $('#th'+telephely_id+'a'+cikk_id2).html();
         mee                 = $('#th'+telephely_id+'a'+cikk_id+'_mee').html();
 
         $('#telephely_id')  .val(telephely_id).addClass('mod');

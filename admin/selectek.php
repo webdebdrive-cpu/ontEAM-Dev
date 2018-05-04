@@ -135,7 +135,7 @@ array_push($select_honapok, array('name' => 'október',      'value' => '10'));
 array_push($select_honapok, array('name' => 'november',     'value' => '11'));
 array_push($select_honapok, array('name' => 'december',     'value' => '12'));
 
-// Ütemezés típushoz - A 'kulsos' paraméterrrel az szabályozható, hogy Külsős átadáskor, melyik személyzettípus jelenjen meg
+// Ütemezés típushoz - A 'kulsos' paraméterrel az szabályozható, hogy Külsős átadáskor, melyik személyzettípus jelenjen meg
 $szerepkorok = $adatbazis_kapcsolat->s('recid nev', 'szerepkor', "", 'recid');
 
 $kiveteles_oldalak = array('utemezett_feladatok.php', 'rendszeres_karbantartas.php');
@@ -146,10 +146,21 @@ if( !in_array(basename(self()), $kiveteles_oldalak) ){
 }
 
 array_push($select_szemelyzet, array('name' => $szerepkorok[TELEPITETT_SZEMELYZET-1]['nev'],  'value' => TELEPITETT_SZEMELYZET,   'szin' => '#CBE3FF', 'kulsos' => 0 ));
-array_push($select_szemelyzet, array('name' => $szerepkorok[MOBILCSOPORT-1]['nev'],           'value' => MOBILCSOPORT,            'szin' => '#CCFFCB', 'kulsos' => 0 ));
 array_push($select_szemelyzet, array('name' => $szerepkorok[KULSO_KIVITELEZO-1]['nev'],       'value' => KULSO_KIVITELEZO,        'szin' => '#FCFFCB', 'kulsos' => 0 ));
 
+// Ha a kivételes oldalakon vagyunk, és a szálloda egyszállodás, akkor ne legyen benne a mobilcsoport, de többszállodás esetén igen
+if( in_array(basename(self()), $kiveteles_oldalak) ){
+    if ($_GET['id']) {
+        $telephely = $adatbazis_kapcsolat->s2('telephely_id', csonkit(basename(self()), 4), "`recid`='{$_GET['id']}'");
+        $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$telephely['telephely_id']}'");
+    }
+    if($telephely['modell']){
+        array_push($select_szemelyzet, array('name' => $szerepkorok[MOBILCSOPORT-1]['nev'],           'value' => MOBILCSOPORT,            'szin' => '#CCFFCB', 'kulsos' => 0 ));
+    }
+}
+
 if( !in_array(basename(self()), $kiveteles_oldalak) ){
+    array_push($select_szemelyzet, array('name' => $szerepkorok[MOBILCSOPORT-1]['nev'],              'value' => MOBILCSOPORT,            'szin' => '#CCFFCB', 'kulsos' => 0 ));
     array_push($select_szemelyzet, array('name' => $szerepkorok[MUSZAKI_VEZETO_HELYETTES-1]['nev'],  'value' => MUSZAKI_VEZETO_HELYETTES,'szin' => '#FFCBF1', 'kulsos' => 0 ));
     array_push($select_szemelyzet, array('name' => $szerepkorok[MUSZAKI_VEZETO-1]['nev'],            'value' => MUSZAKI_VEZETO,          'szin' => '#FFCBCB', 'kulsos' => 1, 'hozzarendel_sor' => 4 ));
     array_push($select_szemelyzet, array('name' => $szerepkorok[TERULETI_FELELOS-1]['nev'],          'value' => TERULETI_FELELOS,        'szin' => '#E0CBFF', 'kulsos' => 1, 'hozzarendel_sor' => 2 ));
