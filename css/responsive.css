@@ -127,7 +127,7 @@
     }
 
     div.menu {
-        height: 3.9rem;
+        height: 3.2rem;
     }
 
     #sddm li a {
@@ -141,7 +141,7 @@
     }
 
     #sddm div {
-        top: 2.8rem;
+        top: 2.2rem;
     }
 
     ul.szamla_cont li a {
@@ -154,13 +154,13 @@
     }
 
     div.teszt_rendszer {
-        font-size: 1.6rem;
+        font-size: 1.2rem;
         letter-spacing: 0.8rem;
     }
 
     div.header div.dtc.bejelent span {
-        font-size: 1.2rem;
-        line-height: 1.4rem;
+        font-size: 1rem;
+        line-height: 1.2rem;
     }
 
     div.naplo div.nFejlec div.dtc {
@@ -237,5 +237,72 @@
 
     .form_jobb a.obj_gen .material-icons {
         font-size: 1.6rem;
+    }
+
+    div.header {
+        height: 4rem;
+    }
+
+    div.header div.dtc {
+        height: 4rem;
+    }
+
+    div.header div.dtc.nav a {
+        font-size: 1rem;
+    }
+
+    div.header div.dtc.nav span {
+        font-size: 1rem;
+    }
+
+    div.header div.dtc.logo a {
+        height: 2.4rem;
+        width: 8.4rem;
+    }
+
+    div.header div.dtc.logo div {
+        font-size: 1rem;
+    }
+
+    #sddm li a {
+        padding: 0.5rem 0.3rem;
+    }
+
+    #sddm li.home a {
+        padding: 0rem 0.2rem 0rem 0.2rem;
+    }
+
+    #sddm li.home a i {
+        font-size: 2rem;
+    }
+
+    div.jsff .uzenet {
+        font-size: 1rem;
+    }
+
+    div.jsff {
+        padding: 0.5rem 1rem;
+    }
+
+    div.jsff .uzenet .f15 {
+        font-size: 1rem;
+    }
+
+    div.jsff div.talloz div {
+        font-size: 1rem;
+    }
+
+    #sorrendezes li div.kep, #feltoltott_fajl li div.kep, #sorrendezes_album li div.kep, #sorrendezes_tobbkep li div.kep, #sorrendezes_bejegyzes li div.kep {
+        height: 2rem;
+        font-size: 1rem;
+    }
+
+    #sorrendezes li div.felirat, #feltoltott_fajl li div.felirat, #sorrendezes_album li div.felirat, #sorrendezes_tobbkep li div.felirat, #sorrendezes_bejegyzes li div.felirat {
+        height: 2rem;
+        font-size: 1rem;
+    }
+
+    .form_jobb.statusz div.text {
+        font-size: 1.4rem;
     }
 }
