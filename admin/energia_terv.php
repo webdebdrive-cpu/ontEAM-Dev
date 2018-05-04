@@ -278,6 +278,7 @@ if (isset($_GET['addSzallodaEnergia'])) {
     
     $egysegar_id    = $_GET['recid'];
     $szallIDs       = json_decode($_GET['szallIDs'], true);
+    sort($szallIDs);
 
     if( $egysegar_id && count($szallIDs) ) {
 
@@ -321,6 +322,9 @@ if ($_POST['energia_terv_koltsegnem_dijelem']) {
     $dijelem    = $_POST['dijelem'];
     $mee        = $_POST['mee'];
     
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
     $egysegar = $adatbazis_kapcsolat->s2('telephely_idk', 'energia_terv_ear', "`recid`='{$terv_ea_id}'");
     
     // Szálloda+költségnem+díjelem terven belüli egyediség ellenőrzése
@@ -354,6 +358,52 @@ if ($_POST['energia_terv_koltsegnem_dijelem']) {
         ));
     }
 
+    $weblap->leallit();
+    exit();
+}
+
+// Új egységár sor hozzáadása
+if (isset($_POST['uj_egysegar'])) {
+    
+    $terv_recid     = $_POST['terv_recid'];
+    $egysegar_recid = $_POST['egysegar_recid'];
+    $szalloda_idk   = json_decode($_POST['szalloda_idk'], true);
+    sort($szalloda_idk);
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    // Ha kaptunk szállodákat, akkor azzal...
+    if( $szalloda_idk ){
+        $uj_egysegar_recid = $adatbazis_kapcsolat->i('energia_terv_ear', array('energia_terv_id', 'telephely_idk'            ),
+                                                                         array($terv_recid,       implode(',', $szalloda_idk))
+                                                    );
+        if( $uj_egysegar_recid === false ) { $db_error = true; }
+        
+    // Ha nem kaptunk szállodát csak egységárrecid-t, akkor meg azok szállodáival hozzuk létre az új sort
+    }else{
+        $telephelyek = $adatbazis_kapcsolat->s2('telephely_idk', 'energia_terv_ear', "`recid`='{$egysegar_recid}'");
+        if( $telephelyek === false ) { $db_error = true; }
+        
+        $uj_egysegar_recid = $adatbazis_kapcsolat->i('energia_terv_ear', array('energia_terv_id', 'telephely_idk'               ),
+                                                                         array($terv_recid,       $telephelyek['telephely_idk'] )
+                                                    );
+        if( $uj_egysegar_recid === false ) { $db_error = true; }
+    }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'html' => $html
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
+    }
+    
     $weblap->leallit();
     exit();
 }
@@ -463,7 +513,7 @@ require_once('selectek.php');
         
         // Egységárak fül
         if( isset($_GET['egysegarak']) ){
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Új sor" onclick=""> ';
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Új sor" onclick="uj_egysegar()"> ';
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Szálloda" onclick="kapcsolodoSzerkeszt(\'szallodak_energia\');"> ';
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Költségnem és díjelem" onclick="kapcsolodoSzerkeszt(\'energia_terv_koltsegnem_dijelem\');"> ';
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Egységárak" onclick=""> ';
@@ -706,7 +756,7 @@ require_once('selectek.php');
             $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`recid`='{$egysegar['ktgnem_id']}'");
             
             $szamla_html .= '
-                <tr data-recid="'.$egysegar['recid'].'">
+                <tr id="tr_ear_'.$egysegar['recid'].'" data-recid="'.$egysegar['recid'].'">
                     <td>'.$szalloda_html.'</td>
                     <td>'.$egysegar['dijelem'].'</td>
                     <td>'.$ktgnem['id'].'</td>
@@ -752,15 +802,28 @@ require_once('selectek.php');
                 ';
         }
         
-        $szamla_html .= '
-                </tbody>
-            </table>
-            <script>
-                if( !$(\'.szamla_cont_tabla .kijelolve\').length ){
-                    $(\'.szamla_cont_tabla tbody tr:first-of-type\').addClass(\'kijelolve\');
-                }
-            </script>
-            ';
+        $szamla_html .= nl2('
+                            </tbody>
+                        </table>
+                        ');
+        
+        // Ha van a get-ben ear id, akkor azt a sort jelöljük meg
+        if( isset($_GET['ear'])){
+            $szamla_html .= nl2('
+                            <script>
+                                $(\'#tr_ear_'.$_GET['ear'].'\').addClass(\'kijelolve\'); 
+                            </script>
+                            ');
+        }
+        
+        // Ha nincs megjelölt sor, akkor az első legyen az
+        $szamla_html .= nl2('
+                        <script>
+                            if( !$(\'.szamla_cont_tabla .kijelolve\').length ){
+                                $(\'.szamla_cont_tabla tbody tr:first-of-type\').addClass(\'kijelolve\');
+                            }
+                        </script>
+                        ');
 
         $szamla_html = nl2($szamla_html);
         

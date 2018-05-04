@@ -71,14 +71,13 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
 
         // Energia egységár esetén ha díjelem nevét kérjük le, akkor keressük meg az éppen éles tervet, és annak egységár soraiból hozzunk készítsünk listát
         if( $_GET['tabla'] == 'energia_terv_ear' ) {
-            // Egy éles terv van mindig, ennek díjelemeit listázzuk ki
-            $eles_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`stat_id`='".ENERGIATERV_STAT_ELES."'");
+            // Egy éles terv van mindig, ennek díjelemeit listázzuk ki. Az éles státuszúak közül a legnagyobb évszámút.
+            $eles_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`stat_id`='".ENERGIATERV_STAT_ELES."'", 'ev desc', '1');
             if( $where_sql ) {
                 $where_sql .= " AND `energia_terv_id` = '".$eles_terv['recid']."'";
             } else {
                 $where_sql .= " WHERE `energia_terv_id` = '".$eles_terv['recid']."'";
             }
-            // A találatokon legyen egy distinct
         }
 
         // Objektm id

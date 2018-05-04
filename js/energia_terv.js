@@ -24,7 +24,7 @@ function addSzallodaEnergia( recid, that ) {
                         return false;
                     }
 
-                    popupZar();
+                    location.href='energia_terv.php?egysegarak&id='+_get('id')+'&ear='+recid;
          		}
          	}
         });
@@ -67,6 +67,69 @@ function terv_elesites(mehet) {
 
     return false;
 }
+
+/* Új egységár sor feltöltése */
+function uj_egysegar(){
+    
+    // Ha nincs kijelölve sor, akkor csak szálloda választó jön fel, a sor meg üres adatokkal jön létre.
+    var kijelolt_egysegar = $('.szamla_cont_tabla .kijelolve').attr('data-recid');
+    if(!kijelolt_egysegar){
+        kapcsolodoSzerkeszt('szallodak_energia_uj_hozzaad');
+        
+    // Ha van aktív sok, akkor a szállodákat átmásolva, minden más adatot üresen hagyva hozunk létre új sort
+    }else{
+        $.ajax({
+            url : 'energia_terv.php',
+            type: 'POST',
+            data: {
+                terv_recid      : _get('id'),
+                egysegar_recid  : kijelolt_egysegar,
+                uj_egysegar     : Date.now()
+            },
+            success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if (response) {
+                    location.reload();
+                }
+            }
+        });
+    }
+    return false;
+}
+
+function uj_egysegar_szallodak(that){
+    var szallID = $(that).find('input[name="addSzall"]').val();
+
+    var telephelyek = $(that).find('input[name="telephely[]"]:checked');
+    var data = {};
+    telephelyek.each(function(i) {
+        var value = $(this).val();
+        data[i] = value;
+    });
+    
+    if( objLength(data) ) {
+        $.ajax({
+            url : 'energia_terv.php',
+            type: 'POST',
+            data: {
+                terv_recid      : _get('id'),
+                szalloda_idk    : JSON.stringify(data),
+                uj_egysegar     : Date.now()
+            },
+            success: function (response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if (response) {
+                    location.reload();
+                }
+            }
+        });
+    }else{
+        alert2('Kérjük válasszon szállodát!', '', 'Hiba');
+    }
+
+    return false;
+}
+
 
 /* Egységárak táblázat */
 $(document).ready(function () {
