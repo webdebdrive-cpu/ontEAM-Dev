@@ -6302,7 +6302,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         case 'elfelejtettJelszo':
             $login   = $adatbazis_kapcsolat->s2('teljes_nev', 'login', "`recid`='{$recid}'");
             $esemeny =  'elfelejtett jelszó igénylésekor';
-            $targy   =  $login['teljes_nev'].' új jelszót kér '.get_nev().' rendszerhez';
+            $targy   =  $login['teljes_nev'].' jelszava törlését kéri '.get_nev().' rendszerhez';
             $uzi     =  $uzi.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 

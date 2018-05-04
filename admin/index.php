@@ -125,7 +125,7 @@ if (isset($_GET['loginnev_import'])) {
                             if( $statusz == 'Gazdasági vezető' ){
                                 $szemelyzet_id = HIBABEJELENTO;
                             }
-                            if( $statusz == 'Szálloda igazgató 1' || $statusz == 'Szálloda igazgató 2' ){
+                            if( $statusz == 'Szálloda igazgató' || $statusz == 'Szálloda igazgató 1' || $statusz == 'Szálloda igazgató 2' ){
                                 $szemelyzet_id = SZALLODA_IGAZGATO;
                             }
                             if( $statusz == 'Létesítmény főmérnök' ){
@@ -144,7 +144,7 @@ if (isset($_GET['loginnev_import'])) {
                         break;
 
 
-                        case 'ontEAM login név':
+                        case 'ontEAM login':
                             $login_nev = trim($akt_tomb[$key]);
                         break;
 

@@ -1416,14 +1416,24 @@ $(function() {
     $(document).on('keyup', '.f_num', function(e) {
         onlyNumbers($(this));
     });
-
+    
     $(document).on('blur', '.f_num', function(e) {
-        tort = 2;
-        if($(this).attr('data-tort')){
-            tort = $(this).attr('data-tort');
+        /* Blur esetén csinálunk egy újabb focus-blur -ozást. De hogy ez ne történjen meg végtelenszer, ezért egy class nevet ráteszünk, amit focuszkor veszünk majd le. */
+        if( !$(this).hasClass('nincs_tobb_blurozas') ){
+            tort = 2;
+            if($(this).attr('data-tort')){
+                tort = $(this).attr('data-tort');
+            }
+            $(this).val( ezresek($(this).val().replace(/ /g, '').replace('.', '').replace(',', '.'), tort, ',', ' ') );
+
+            /* Ez azért kell, hogy ha 0 volt az értéke, kitörlöm üresnek, akkor az ezresek 0-át vissza teszi bele, tehát a mezőről le kellene venni a 'mod' class-t, és ezt egy focus-blur-al oldom meg */
+            $(this).addClass('nincs_tobb_blurozas');
+            $(this).focus().blur();
         }
-        $(this).val( ezresek($(this).val().replace(/ /g, '').replace('.', '').replace(',', '.'), tort, ',', ' ') );
-        $(this).focus().blur(); /* Ez azért kell, hogy ha 0 volt az értéke, kitörlöm üresnek, akkor az ezresek 0-át vissza teszi bele, tehát a mezőről le kellene venni a 'mod' class-t, és ezt egy focus-blur-al oldom meg */
+        
+    });
+    $(document).on('focus', '.f_num', function(e) {
+        $(this).removeClass('nincs_tobb_blurozas');
     });
 
     /* Anyagigénylésnél a mennyiség mező kitöltése szálloda + anyag ismerete alapján */
