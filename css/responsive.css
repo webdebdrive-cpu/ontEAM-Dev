@@ -83,18 +83,19 @@
     }
 
     table.csikos td {
-        font-size: 1.2rem;
+        font-size: 1rem;
     }
 }
 
 @media only screen and (max-width: 1024px) {
     body {
-        font-size: 1.2rem;
+        font-size: 1rem;
     }
 
     div.figy div.tart{
-        line-height: 1.8rem;
-        font-size: 1.2rem;
+        line-height: 1.2rem;
+        font-size: 1rem;
+        padding: 1rem 1rem 1rem 1rem;
     }
 
     select {
@@ -177,25 +178,29 @@
         padding: 0.5rem;
     }
 
+    div.kijeloltek_muv div.muv {
+        bottom: 3.3rem;
+    }
+
     div.kijeloltek_muv div.muv li a {
         font-size: 1.2rem;
         padding: 0.7rem 0.5rem 0.7rem 0.5rem;
     }
 
     #popup div.popup_tart {
-        padding: 4rem 0rem 0rem 0rem;
+        padding: 3.5rem 0rem 0rem 0rem;
     }
 
     #popup div.popup_tart h2 {
-        font-size: 1.6rem;
-        height: 4rem;
+        font-size: 1.2rem;
+        height: 3.5rem;
         padding: 1.1rem 0rem 0.5rem 1.5rem;
-        width: calc(100% - 3.8rem);
+        width: calc(100% - 3.5rem);
     }
 
     #popup div.popup_kont div.bezar, #alert2 div.bezar {
-        height: 4rem;
-        width: 4rem;
+        height: 3.5rem;
+        width: 3.5rem;
     }
 
     #popup div.popup_tart div.kuldes {
@@ -203,7 +208,12 @@
     }
 
     #popup div.popup_tart div.kozep {
+        font-size: 1rem;
         padding: 1rem 1rem 1rem 1rem;
+    }
+
+    #popup div.popup_tart div.kozep b {
+        line-height: 1.2rem!important;
     }
 
     .form_jobb span.formText {
@@ -280,6 +290,10 @@
         font-size: 1rem;
     }
 
+    div.jsff .uzenet br {
+        display: none;
+    }
+
     div.jsff {
         padding: 0.5rem 1rem;
     }
@@ -303,6 +317,109 @@
     }
 
     .form_jobb.statusz div.text {
+        font-size: 1rem;
+    }
+
+    .sor.kethasabos {
+        height: calc(100% - 11rem);
+    }
+
+    input.gombb_alert {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+    }
+
+    #popup div.popup_tart button, #popup div.popup_tart input[type="submit"] {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+    }
+
+    div.figy div.header {
+        font-size: 1.2rem;
+        height: 3.5rem;
+        padding: 1.1rem 0rem 0.5rem 1.5rem;
+    }
+
+    #alert2 .gomb {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+    }
+
+    div.figy div.f_footer {
+        padding: 0.8rem 0rem 0.2rem 0rem;
+    }
+
+    #popup div.popup_tart p {
+        font-size: 1rem;
+    }
+
+    div.kijeloltek_muv div.muv li a.tovabbi_menu:after {
+        top: 1rem;
+    }
+
+    div.kijeloltek_muv div.muv li >ul >li {
+        font-size: 1.2rem;
+        padding: 0.7rem 0.5rem 0.7rem 0.5rem;
+    }
+
+    table.csikos span.icon .material-icons {
+        font-size: 1.6rem;
+    }
+
+    #jovahagy_ertek div {
+        font-size: 1rem!important;
+    }
+
+    table.sar-table th {
+        font-size: 1rem;
+    }
+
+    table.szamla_cont_tabla tfoot tr td {
+        font-size: 1rem;
+    }
+
+    ul.szamla_cont.rendszer li a span {
+        font-size: 1rem;
+        padding: 0.1rem 0rem 0.1rem 0rem;
+    }
+
+    table.szamla_cont_tabla.kisbetu th, table.szamla_cont_tabla.kisbetu td {
+        font-size: 1rem;
+    }
+
+    #sddm ul.alalmenu_cont>a:after {
+        height: 0.4rem;
+        top: 0.9rem;
+        right: 0.6rem;
+        width: 0.4rem;
+    }
+
+    div.naplo a.torles {
+        background-size: 1.6rem 1.6rem;
+        height: 1.8rem;
+        1.8rem;
+    }
+
+    table.csikos th.szerepkor_jog {
+        font-size: 1rem;
+    }
+
+    div.mobilkeret div.dtr div.dtc {
+        font-size: 1rem;
+    }
+
+    table.folyamatban tr:first-of-type td {
+        font-size: 1rem;
+    }
+
+    ul.dropItem li {
+        font-size: 1rem;
+    }
+
+    table.csoportok tr:first-of-type td .f18 {
         font-size: 1.4rem;
     }
 }

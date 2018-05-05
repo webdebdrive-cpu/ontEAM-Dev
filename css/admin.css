@@ -2366,6 +2366,7 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
 
 #popup div.popup_tart h2 {
     background: #54a2f9;
+    border-top-left-radius: 0.6rem;
     color: #fff;
     font-size: 2rem;
     font-weight: 400;
