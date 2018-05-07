@@ -178,6 +178,9 @@ if (isset($_GET['loginnev_import'])) {
 
                         case 'Beosztás':
                             $beosztas = trim($akt_tomb[$key]);
+                            if( $beosztas == 'Karbantartó' ){
+                                $beosztas = 'Telepített karbantartó';
+                            }
                         break;
 
 
@@ -279,13 +282,21 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                     }
                                     
                                     // Szállodához rendelés
-                                    if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='2110'")){
-                                        $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, '2110'));
+                                    $szallodak = explode(',', $szalloda);
+                                    foreach( $szallodak as $szall ){
+                                        $szall = trim($szall);
+                                        $szall_id = $adatbazis_kapcsolat->s2('id', 'telephely', "`nev`='{$szall}'");
+                                        if(!$szall_id){
+                                            $log_csv .= 'Nem ismert szálloda (ez még az előző sorhoz tartozik): '.$szall;
+                                        }
+                                        if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='{$szall_id['id']}'")){
+                                            $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, $szall_id['id']));
 if (isset($_GET['teszt'])) {
 echo $adatbazis_kapcsolat->gp() . '<br>';
 }
-                                    }
 
+                                        }
+                                    }
 
                                     
 //                                }else{
