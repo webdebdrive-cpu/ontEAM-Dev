@@ -34,6 +34,28 @@ if (isset($_GET['stat_ido'])) {
     echo 'f';
 }*/
 
+if (isset($_GET['tesztx'])) {
+    $fajlnev = 'x.txt';
+    for($i=0; $i<20; $i++){
+        
+        $handle = @fopen($fajlnev, "r");
+        $ret = fread($handle, filesize($fajlnev));
+        fclose($handle);
+        
+        
+        if (!$handle = @fopen($fajlnev, "w+")) {
+             return 'A(z) '.$fajlnev.' fájl létrehozása nem sikerült!';
+        }
+
+        if (fwrite($handle, $ret.$i.' ') === FALSE) {
+            return 'Nem sikerült írni a(z) '.$fajlnev.' fájlba!';
+        }
+        fclose($handle);
+
+    }
+    exit;
+}
+
 // Loginról értesítő levelek küldése
 if (isset($_GET['login_ertesit'])) {
     
