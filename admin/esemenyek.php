@@ -1158,7 +1158,9 @@ $munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
 	array('type' => 'nosql',                    'megn' => 'Mobilcsoport:',              'name' => 'mobil', 'szuro' => 1),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
-
+if (isset($_GET['uj'])) {
+    array_push($munkalap_tomb, array('type' => 'jsfile', 'megn' => 'Dokumentumok<br>hozzáadása:',  'name' => 'termek_kep',  'tabla' => $megnevezes,  'oszlop' => 'munkalapUjFeltoltes',   'algoritmus' => 'fajlnev',   'meret' => 31457280, 'csakkep'  => false, 'sablon_post'  => '_munkalap') );
+}
 
 // Ütemezett feladatok
 $nap_rejt = 'dn ';
@@ -1850,7 +1852,7 @@ if (isset($_GET['anyagrend'])) {
         array('type' => 'autocomplete',             'megn' => $tav_12.'Pénznem:',               'name' => 'kcs_21',         'szuro' => 1,   'disabled' => 1,   'class' => 'disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 21, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a pénznemet!', 'style' => 'width: 5rem'),
         array('type' => 'autocomplete',             'megn' => 'Szállító:',                      'name' => 'szallito_id',    'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'id_kiir' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev'),
         array('type' => 'textarea',                 'megn' => 'Leírás:',                        'name' => 'igleir',         'szuro' => 1,   'disabled' => 1,   'class' => 'oriasi disableNav', 'style' => 'height: 4rem'),
-        
+
         //array('type' => 'text',                     'megn' => 'Rendelés szám:',                 'name' => 'rndid',          'szuro' => 1,   'disabled' => 1,   'class' => 'normal', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>', 'style' => 'width: 6.8rem'),
         array('type' => 'text',                     'megn' => 'Rendelés dátum:',                'name' => 'rnd_dt',         'szuro' => 1,   'disabled' => 1,   'style' => 'width: 7.8rem'),
         array('type' => 'text',                     'megn' => 'Rendelés érték:',                'name' => 'rndertek',       'szuro' => 1,   'disabled' => 1,   'style' => 'width: 7.3rem; text-align: right', 'osszevon' => 1, 'post' => ' '.get_penznem().'<span style="margin-left: 4.5rem"></span>'),
@@ -2324,7 +2326,7 @@ if( isset($_GET['sendMail']) ) {
         $tabla  = str_replace('.php', '', $file);
 
         $hiba = '';
-        
+
         switch($file) {
             case 'munkalap.php':
 
@@ -2397,18 +2399,18 @@ if( isset($_GET['sendMail']) ) {
                         array('megn' => 'Mennyiség',            'name' => 'igmen',  'szep' => 0),
                         array('megn' => 'Mennyiségi egység',    'name' => 'cikkmee','szep' => 1),
                     );
-                    
+
                     $idk = json_decode($_GET['idk'], true);
 
                     if( count($idk) ) {
-                        
+
                         $idk_impl = implode(', ', $idk);
-                        
+
                         $szallitok = $adatbazis_kapcsolat->s('distinct szallito_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
                         if( count($szallitok)==1 ){
-                            
-                        
-                        
+
+
+
                             $szallodak = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
                             foreach ($szallodak as $szall){
 
@@ -2459,7 +2461,7 @@ if( isset($_GET['sendMail']) ) {
                                 // Újsor szálloda váltáskor
                                 $return .= '%0D%0A%0D%0A%0D%0A';
                             }
-                            
+
                         // Több szállítót nem engedünk meg kijelölni
                         }else{
                             echo json_encode(array(
@@ -2470,12 +2472,12 @@ if( isset($_GET['sendMail']) ) {
                             $weblap->leallit();
                             exit();
                         }
-                        
+
                         // Utolsó vessző leszedése
                         $subject = csonkit($subject, 2);
-                        
+
                         $return .= 'Mielőbbi szíves árajánlatukat várva!%0D%0A%0D%0A';
-                        
+
                     } else {
                         echo json_encode(array(
                             'hiba'  => 'Kérem jelöljön ki sorokat!',
@@ -4378,7 +4380,7 @@ foreach($postok as $ertek){
             $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
         }
-        
+
         // Dokumentumok törlése
         $torolt_fajlok = '';
         $dokos_oldalak = array('anyagigenyles', 'bejelentes', 'eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'munkalap', 'utemezett_feladatok', 'projektigenyles', 'rendszeres_karbantartas');
@@ -4444,31 +4446,31 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
                     $db_error = true;
                 }
             }
-            
+
             // A munkalapos kapcsolatot is törölni kell
             $sql = $adatbazis_kapcsolat->d('munkalap_kapcs', "`bejelentes_id`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
-            
+
             // Levelet küldünk a központi diszpécser mailcímére
             level_felkeszit_es_kuld('bejelentes', $_GET[$ertek['torid']], '', 'bejelentes_torolve', 'diszpecser_kozponti');
 
         }
-        
+
         // Munkalap törlésének feltételei
         if($ertek['tabla']=='munkalap'){
             // Ha nincs megfelelő jog, akkor kilépünk
             if( !_jog(JOG_MUNKALAP_TOROL) ){
                 exit;
             }
-            
+
             // Ha van még tétele vagy bejeletése, akkor nem törölhetjük
-            if( 
+            if(
                     $adatbazis_kapcsolat->s('recid', 'munkalap_tetel', "`munkalap_id`='{$_GET[$ertek['torid']]}'") ||
                     $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id`='{$_GET[$ertek['torid']]}'")
                 ){
                 exit;
             }
-            
+
             // Csak olyan ID törölhető, amit láthatok.
             szamla_lista('', '', '', 'csak SQL miatt');
             $van_getid = false;
@@ -4481,9 +4483,9 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             if(!$van_getid){
                 exit;
             }
-            
+
         }
-        
+
         // Energia tervkor tranzakcióban töröljük az egységár sorait
         if($ertek['tabla']=='energia_terv'){
             // egységár tábla sorait
@@ -4533,7 +4535,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         if($ertek['tabla']=='login'){
             $sikeres_torles = $adatbazis_kapcsolat -> u($ertek['tabla'], array('torolve'), array(1), "`recid`='{$_GET[$ertek['torid']]}'");
         }else{
-            
+
             // Kezdeményezett művelet
             $muvelet = 'A(z) '.$ertek['tabla'].'-ból recordot törölt a következő azonosítóval: '.$_GET[$ertek['torid']].'.';
 
@@ -4655,7 +4657,24 @@ if(isset($_GET['modosit'])){
             $adatbazis_kapcsolat->i('bejelentes_dok',   array('bejelentes_id', 'utvonal',             'fajlnev',  'loginnev',                       'update_dt',  'update_usr',                           'insert_dt', 'insert_usr'                            ),
                                                         array($_GET['id'],     $alkonyvtar.$fajlnev2, $fajlnev2,  $_SESSION[get_db_tabla().'user'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']  )
                                     );
+        // Ha az oszlop a munkalapUjFeltoltes, akkor bejelentések új feltötlésekor hozzáadott dokumentumról van szó
+        // Ezt másoljuk be a dokumentumok füle alá
+        } else if($oszlop=='munkalapUjFeltoltes') {
+            $munkalap = $adatbazis_kapcsolat->s2('ikt_szam', $tabla, "`recid`='{$_GET['id']}'");
+            $alkonyvtar = str_replace('/', '_', $munkalap['ikt_szam']).'/';
+            $akt_utvonal .= $alkonyvtar;
+            if(!is_dir($akt_utvonal)){
+                mkdir($akt_utvonal, 0777);
+            }
 
+            copy  ($akt_fajl, $akt_utvonal.$fajlnev2);
+            unlink($akt_fajl);
+
+            $fajlnev2 = addslashes($fajlnev2);
+            $adatbazis_kapcsolat->i('munkalap_dok',
+                array('munkalap_id', 'utvonal',             'fajlnev',  'loginnev',                       'update_dt',  'update_usr',                           'insert_dt', 'insert_usr'                            ),
+                array($_GET['id'],   $alkonyvtar.$fajlnev2, $fajlnev2,  $_SESSION[get_db_tabla().'user'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']  )
+            );
         // Általános eset
         }else{
 
