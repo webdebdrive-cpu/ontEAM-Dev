@@ -34,28 +34,6 @@ if (isset($_GET['stat_ido'])) {
     echo 'f';
 }*/
 
-if (isset($_GET['tesztx'])) {
-    $fajlnev = 'x.txt';
-    for($i=0; $i<20; $i++){
-        
-        $handle = @fopen($fajlnev, "r");
-        $ret = fread($handle, filesize($fajlnev));
-        fclose($handle);
-        
-        
-        if (!$handle = @fopen($fajlnev, "w+")) {
-             return 'A(z) '.$fajlnev.' fájl létrehozása nem sikerült!';
-        }
-
-        if (fwrite($handle, $ret.$i.' ') === FALSE) {
-            return 'Nem sikerült írni a(z) '.$fajlnev.' fájlba!';
-        }
-        fclose($handle);
-
-    }
-    exit;
-}
-
 // Loginról értesítő levelek küldése
 if (isset($_GET['login_ertesit'])) {
     
@@ -420,6 +398,42 @@ if (isset($_GET['loginnev_csere'])) {
     }
     
     $adatbazis_kapcsolat->u('login', array('van_jelszo'), array(0), "`nev`='{$uj_nev}'");
+    
+    exit;
+}
+
+// Jog beállítás
+if (isset($_GET['jog_beallit'])) {
+    
+    $felhok = $adatbazis_kapcsolat->s('recid flags nev', 'login', "`recid` IN (9710, 9715, 9104, 9110, 9728, 9732, 9511, 9738, 9754, 9763, 9776, 9502)");
+    foreach($felhok as $felh){
+//        $tol       = 0;
+//        $uj_erteke = 0;
+//        $eleje = substr($felh['flags'], 0, $tol);
+//        $vege  = substr($felh['flags'], $tol+1);
+//        $felh['flags'] = $eleje.$uj_erteke.$vege;
+//        
+//        $tol       = 57;
+//        $uj_erteke = 1;
+//        $eleje = substr($felh['flags'], 0, $tol);
+//        $vege  = substr($felh['flags'], $tol+1);
+//        $felh['flags'] = $eleje.$uj_erteke.$vege;
+        
+        $tol       = 3;
+        $uj_erteke = 0;
+        $eleje = substr($felh['flags'], 0, $tol);
+        $vege  = substr($felh['flags'], $tol+1);
+        $felh['flags'] = $eleje.$uj_erteke.$vege;
+        
+        $tol       = 4;
+        $uj_erteke = 1;
+        $eleje = substr($felh['flags'], 0, $tol);
+        $vege  = substr($felh['flags'], $tol+1);
+        $felh['flags'] = $eleje.$uj_erteke.$vege;
+        
+        $adatbazis_kapcsolat->u('login', array('flags'), array($felh['flags']), "`recid`='{$felh['recid']}'");
+echo $felh['nev'] . ', ';
+    }
     
     exit;
 }
