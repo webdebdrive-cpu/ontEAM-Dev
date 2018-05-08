@@ -289,6 +289,9 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
 
         $felirat = utf8(stripslashes($sor_kepek['fajlnev']));
         $kep     = new Img($kep_utvonal, $felirat, 200, 200);
+        
+        // A fájl linkjében a szóközöket %20-ra cseréljük, hogy dupla szóközös fájllal is működjön.
+        $kep_utvonal = str_replace(' ', '%20', htmlspecialchars($kep_utvonal));
 
         if( !$felirat ) {
             $felirat = '<span class="i link">- Nincs leírás -</span>';
@@ -329,13 +332,12 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
                 ';
         }
         
-
         $tobbkep_html .= nl2('
             <li id="'.$azon.'" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'">
                 <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
                 <div class="kep">
                     <div>
-                        <a href="'.htmlspecialchars($kep_utvonal).'" target="_blank" title="Letöltés">
+                        <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
                             '.$kep -> getHtml().'
                         </a>
                     </div>
