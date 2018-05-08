@@ -181,7 +181,7 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
         $csakkep = 0;
     }
 
-    // Ha új feltöltés, akkor a képet ideiglenesen lementjük, míg a bejegyzés el nem készül hozzá
+    // Ha új feltöltés, akkor a fájlt ideiglenesen lementjük, míg a rekord el nem készül hozzá
     if($_POST['uj_feltolt']){
 
         if($algoritmus=='fajlnev'){
@@ -190,20 +190,19 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
             $fajlnev = 'get_id';
         }
         
-        // Nézzük meg, hogy van-e SESSION id kezdetű fájl a könyvtárban
-        /*$utvonal = get_utvonal().'cache/jsfajlok/'.session_id().'*';
-        $session_kezdetu_fajlok = glob($utvonal); //Ha több ilyen is van az azért lehet, mert több fájlfeltöltés input is volt a tömbben
-        foreach($session_kezdetu_fajlok as $akt_fajl){
-            unlink($akt_fajl);
-        }*/
-        
         // A fájl sorszáma pedig a SESSION id-ja, ezzel azonosítva az aktuális munkafolymatot
         // majd #két sharp közt# az oszlop neve, hogy tudjuk, az adatbázisban melyik oszlopba kell beírni
         // majd a következő #két sharp közt# a fájl végleges neve (ezt persze csak akkor tudjuk ha fájlnév vagy ID alapján mentjük el)
         // végül a timestamp, hogy biztosan egyedi legyen
-        $sor_id     = session_id().'|||'.$fajl_oszlop.'|||'.$fajlnev.'|||'.$_FILES[$megnevezes]['name'].'|||'.time();
-        $algoritmus = 'id';             // Az algoritmus tehát ID szerinti, hogy ne legyen adatbázis művelet
         $tabla      = 'cache/jsfajlok'; // A tartalom mappán belül a 'cache' könyvtárba mentjük majd el ideiglenesen
+        $sor_id     = session_id().'|||'.$fajl_oszlop.'|||'.$fajlnev.'|||'.$_FILES[$megnevezes]['name'].'|||';
+        if( glob(get_utvonal().$tabla.'/'.$sor_id.'*') ){
+            echo 'Hiba!A fájl név már foglalt!<br>Kérjük előbb törölje a már feltölött fájlt, vagy nevezze át az újat!';
+            $weblap -> leallit();
+            exit;
+        }
+        $sor_id    .= time();
+        $algoritmus = 'id';             // Az algoritmus tehát ID szerinti, hogy ne legyen adatbázis művelet
     }
 
 	switch($algoritmus){
@@ -260,15 +259,6 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
                 if(!is_dir($utvonal.$tabla.'/'.$alkonyvtar)){
                     mkdir($utvonal.$tabla.'/'.$alkonyvtar, 0777);
                 }
-                
-//				$i     = 1;
-//				$ujnev = $kepnev.'_1';
-//				//DE! megnézzük, hogy ez a '_1' nem foglalt-e. Ha az, keresünk szabad számot
-//                while( glob($utvonal.$tabla.'/'.$alkonyvtar.'/'.$ujnev.'*') ){
-//					$i++;
-//					$ujnev = $kepnev.'_'.$i;
-//				}
-//				$kepnev = fajlnev_keszit($ujnev).'.'.$kit;
 
                 $overwrite = true;
 
@@ -322,7 +312,7 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
 			$overwrite  = true;     // Sorid esetén mindig töröljük az előzőt (pl. 'sorid'.jpg-t)
 		break;
 	}
-
+    
     return web_ftp($megnevezes, $tabla.'/'.$alkonyvtar.'/'.$kepnev, $meret, $overwrite, $csakkep, $tabla, $fajl_oszlop, $sor_id, true);
 
 }

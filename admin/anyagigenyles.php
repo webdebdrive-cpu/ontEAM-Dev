@@ -1056,7 +1056,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
                 'hiba' => nl2('
                             Cikkszám: '.$igenyles['cikk_id'].'
                             <br>Cikk név: '.$igenyles['nev'].'
-                            <br>Mennyiség: '.number_format($igenyles['igmen'], 2, ',', ' ').' '.$igenyles['cikkmee'].'
+                            <br>Mennyiség: '.number_format($_POST['jhmen'], 2, ',', ' ').' '.$igenyles['cikkmee'].'
                             <br>Jóváhagyott érték: '. number_format($_POST['jhmen']*$igenyles['rndear'], 0, '', ' ').' '. get_penznem()/*Igen ide a Ft-kell és nem az utolsó tétel pénzneme */.'
                             <br>
                             <br>Biztosan jóváhagyja az anyagigénylést?
@@ -1070,7 +1070,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
 
         foreach($idk as $id) {
 
-            //Státusz léptetés jóváhagyvára
+            // Státusz léptetés jóváhagyvára
             $statusz = addStatusz( $page.'_statusz', $id, CIKKIGN_STAT_JOVAHAGYVA );
             if( $statusz === false ) { $db_error = true; }
 
@@ -2574,7 +2574,8 @@ require_once('selectek.php');
         }
 
         $sor['rnd_dt']  = str_replace('-', '.', $sor['rnd_dt']);
-        $sor['vrndear'] = number_format($sor['vrndear'], 2, ',', ' ');
+        $sor['vrndear'] = number_format( $sor['vrndear'], 2, ',', ' ');
+        $sor['rndear']  = number_format( $sor['rndear'],  2, ',', ' ');
 
         foreach($akt_tomb as $tomb) {
 
@@ -2597,6 +2598,10 @@ require_once('selectek.php');
             }
 
         }
+        
+        // A két számot visszaállítjuk
+        $sor['vrndear'] = str_replace( array(' ', ','), array('', '.'), $sor['vrndear'] );
+        $sor['rndear']  = str_replace( array(' ', ','), array('', '.'), $sor['rndear'] );
 
         $json_sor = array();
         foreach($sor as $kulcs => $elem){

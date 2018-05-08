@@ -364,38 +364,40 @@ function tablaSorrend( table ) {
     var tabla   = $(table).attr('data-tabla'),
         sorrend = {};
 
-    jovahagyasra_varo_igazit();
+    if(tabla){
+        jovahagyasra_varo_igazit();
 
-    table.find('thead').not('.sticky').find('th').each(function(i) {
-        if( this.id != '') {
-            /* Rejtett oszlop esetén nem a látható szélessége, hanem a style attribútumba írt szélességére van szükségünk */
-            if( $(this).hasClass('dn') ){
-                sorrend[i] = {id: this.id, width: $(this)[0].style.width };
-            }else{
-                sorrend[i] = {id: this.id, width: $(this).outerWidth()};
-            }
-        }
-    });
-
-    $.ajax({
-        url : 'esemenyek.php',
-        type: 'POST',
-        data: {
-            tabla        : tabla,
-            sorrend      : JSON.stringify(sorrend),
-            tablaSorrend : new Date().getTime()
-        },
-        success: function(response) {
-            if(response) {
-                response = JSON.parse(response);
-
-                if( response.hiba ) {
-                    alert2(response.hiba);
-                    return false;
+        table.find('thead').not('.sticky').find('th').each(function(i) {
+            if( this.id != '') {
+                /* Rejtett oszlop esetén nem a látható szélessége, hanem a style attribútumba írt szélességére van szükségünk */
+                if( $(this).hasClass('dn') ){
+                    sorrend[i] = {id: this.id, width: $(this)[0].style.width };
+                }else{
+                    sorrend[i] = {id: this.id, width: $(this).outerWidth()};
                 }
             }
-        }
-    });
+        });
+
+        $.ajax({
+            url : 'esemenyek.php',
+            type: 'POST',
+            data: {
+                tabla        : tabla,
+                sorrend      : JSON.stringify(sorrend),
+                tablaSorrend : new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba);
+                        return false;
+                    }
+                }
+            }
+        });
+    }
 }
 
 function isNumeric(n) {

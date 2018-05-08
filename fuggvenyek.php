@@ -1638,15 +1638,17 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 
     global $adatbazis_kapcsolat;
     global $db_kapcs;
+    
+    $kepnev = str_replace('//', '/', $kepnev);
 
-    //Hogy ne csak admin alól tudjuk használni
+    // Hogy ne csak admin alól tudjuk használni
 	if(basename( dirname( self() ) ).'/' == get_admin() ){
         $utvonal = '../'.get_utvonal();
     }else{
         $utvonal = get_utvonal();
     }
 
-    //Ha túllépi a méretlimitet: hiba1
+    // Ha túllépi a méretlimitet: hiba1
 	if($_FILES[$valtozo]['size'] > $size){
 		return array($kepnev, 'k1');
 	}

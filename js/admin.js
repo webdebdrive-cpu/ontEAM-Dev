@@ -1060,7 +1060,7 @@ $(function() {
                 val = '';
             }
 
-/*console.log(name+' db:'+taroltVal+'|itt:'+val);*/
+console.log(name+' db:'+taroltVal+'|itt:'+val);
             if( taroltVal != val ) {
                 $(this).addClass('mod');
             } else {
