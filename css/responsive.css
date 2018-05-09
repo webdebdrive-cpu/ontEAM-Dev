@@ -422,4 +422,8 @@
     table.csoportok tr:first-of-type td .f18 {
         font-size: 1.4rem;
     }
+
+    .szamla .ikonok {
+        width: 4rem!important;
+    }
 }

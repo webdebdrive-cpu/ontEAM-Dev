@@ -1638,7 +1638,7 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 
     global $adatbazis_kapcsolat;
     global $db_kapcs;
-    
+
     $kepnev = str_replace('//', '/', $kepnev);
 
     // Hogy ne csak admin alól tudjuk használni
@@ -2727,7 +2727,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$bsz['hiba_text'].'">
                             <table'.$bold.'>
                             <tr>
-                                <td rowspan="2" style="width: 4rem">'.$kesz.$dok_icon.$surgos.'</td>
+                                <td class="ikonok" rowspan="2" style="width: 4rem">'.$kesz.$dok_icon.$surgos.'</td>
                                 <td style="width: 9rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem">'.getStatText($tabla, $bsz['stat_id']).'</td>
                                 <td style="width: 7rem">'.str_replace('-', '.', substr($bsz['insert_dt'], 0, 16) ).'</td>
@@ -2970,7 +2970,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
                             <tr>
-                                <td rowspan="2" style="width: 5rem; white-space: nowrap;">
+                                <td class="ikonok" rowspan="2" style="width: 5rem; white-space: nowrap;">
                                     <br>'.$kesz.$dok_icon.$surgos.'&nbsp;
                                 </td>
                                 <td style="width: 9rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
@@ -3866,7 +3866,7 @@ function projektigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
                             <tr>
-                                <td rowspan="2" style="width: 2rem; text-align: center;">'.$tipus.'</td>
+                                <td class="ikonok" rowspan="2" style="width: 2rem; text-align: center;">'.$tipus.'</td>
                                 <td style="width: 15rem;">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 17rem; text-align: left">'.$telephely['nev'].'</td>
                                 <td style="text-align: left">'.$statusz.'</td>
