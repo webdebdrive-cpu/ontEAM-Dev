@@ -2098,7 +2098,7 @@ div.naplo div.nSor div.dtc {
     top: 1.2rem;
     left: 0;
     width: 100%;
-    z-index: 1000;
+    z-index: 20000;
 }
 
 #ajaxfedo.dn {

@@ -360,7 +360,7 @@ function munkalapKulsosJovahagy(csak_kerdezunk) {
 
     if(balnav_kijelol_ell()){
 
-        alert2();
+        /*alert2();*/
 
         $.ajax({
             url : 'munkalap.php',
@@ -380,7 +380,7 @@ function munkalapKulsosJovahagy(csak_kerdezunk) {
                         return false;
                     }
 
-                    location.href = get_get();
+                    /*location.href = get_get();*/
                 }
             }
         });
