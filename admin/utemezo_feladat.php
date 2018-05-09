@@ -70,20 +70,15 @@ foreach($ut_feladatok as $ut_feladat){
     $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
     $log .= 'Iktatószám létrehozva: '.$ikt_szam.'
 ';
+    // Szállodának mi a modellje
+    $szalloda = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$ut_feladat['telephely_id']}'");
+    
     // Új munkalap státsza mi legyen. Alapból nyitott
     $stat_id = MUNKALAP_STAT_NYITOTT;
-    // A munkalap automatikusan hozzárendelt státuszban jön létre, ha telepített a hozzárendelt személyzet
-    if( $ut_feladat['szemelyzet_id']==TELEPITETT_SZEMELYZET ){
-        $stat_id = MUNKALAP_STAT_HOZZARENDELT;
-    }
-    // előkészítés alatt státuszban jön létre, ha külső kivitelező a hozzárendelt személyzet
-    if( $ut_feladat['szemelyzet_id']==KULSO_KIVITELEZO ){
-        $stat_id = MUNKALAP_STAT_ELOKESZITES_ALATT;
-    }
-    
-    $ujrecid = $adatbazis_kapcsolat->i('munkalap',  array('ikt_szam', 'uf_szam',         'stat_id', 'text', 'szemelyzet_id',                'telephely_id',               'obj_id',               'gep_id',               'tipus_id',                      'esnap_d',              'loginnev',                         'update_usr',                           'insert_dt',    'insert_usr'                             ),
-                                                    array($ikt_szam,  $ut_feladat['id'], $stat_id,  $text,  $ut_feladat['szemelyzet_id'],   $ut_feladat['telephely_id'],  $ut_feladat['obj_id'],  $ut_feladat['gep_id'],  3/*Ütemezett feladat a tipusa*/, $ut_feladat['esnap_d'], $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']   )
+    $ujrecid = $adatbazis_kapcsolat->i('munkalap',  array('ikt_szam', 'uf_szam',         'stat_id',             'text', 'szemelyzet_id',                'telephely_id',               'obj_id',               'gep_id',               'tipus_id',                      'esnap_d',              'loginnev',                         'update_usr',                           'insert_dt',    'insert_usr'                             ),
+                                                    array($ikt_szam,  $ut_feladat['id'], MUNKALAP_STAT_NYITOTT,  $text,  $ut_feladat['szemelyzet_id'],   $ut_feladat['telephely_id'],  $ut_feladat['obj_id'],  $ut_feladat['gep_id'],  3/*Ütemezett feladat a tipusa*/, $ut_feladat['esnap_d'], $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']   )
                                    );
+    
     if( $ujrecid === false ) {
         $db_error = true;
         $log .= 'NEM SIKERÜLT új munkalapot létrehozni: '.$adatbazis_kapcsolat->gp().'
@@ -93,6 +88,7 @@ foreach($ut_feladatok as $ut_feladat){
 ';
     }
 
+    // Kezdő státusz beállítása
     $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
                                         array('munkalap_recid', 'stat_id',             'login',                             'insert_dt',    'insert_usr',                'update_usr'                ),
                                         array($ujrecid,         MUNKALAP_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'],    'NOW()',        $ut_feladat['insert_usr'],   $ut_feladat['update_usr']   )
@@ -104,6 +100,23 @@ foreach($ut_feladatok as $ut_feladat){
     }else{
         $log .= 'Munkalap státusz beszúrva: '.$adatbazis_kapcsolat->gp().'
 ';
+    }
+    
+    // Egyszállodás modell esetén a munkalap automatikusan hozzárendelt státuszban jön létre, ha telepített a hozzárendelt személyzet
+    if( !$szalloda['modell'] && $ut_feladat['szemelyzet_id']==TELEPITETT_SZEMELYZET ){
+        if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_HOZZARENDELT)===false ){
+            $db_error = true;
+            $log .= 'NEM SIKERÜLT munkalap státuszt léptetni hozzárendeltre: '.$adatbazis_kapcsolat->gp().'
+';
+        }
+    }
+    // előkészítés alatt státuszban jön létre, ha külső kivitelező a hozzárendelt személyzet
+    if( !$szalloda['modell'] && $ut_feladat['szemelyzet_id']==KULSO_KIVITELEZO ){
+        if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_ELOKESZITES_ALATT)===false ){
+            $db_error = true;
+            $log .= 'NEM SIKERÜLT munkalap státuszt léptetni előkészítés alatt-ra: '.$adatbazis_kapcsolat->gp().'
+';
+        }
     }
     
     // Feladat adatainak frissítése

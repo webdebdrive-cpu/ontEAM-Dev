@@ -1007,10 +1007,14 @@ if (isset($_GET['modosit'])) {
 
     $surgos_disabled = true;
 
-    $bejelentes = $adatbazis_kapcsolat->s2('stat_id', 'bejelentes', "`recid`='{$_GET['id']}'");
+    $bejelentes = $adatbazis_kapcsolat->s2('stat_id loginnev', 'bejelentes', "`recid`='{$_GET['id']}'");
     if( $bejelentes['stat_id']==BEJELENTES_STAT_NYITOTT && ( _jog(JOG_BEJELENTES_KEZEL) || _jog(JOG_BEJELENTES_MAS_NEVEBEN) ) ) {
         $surgos_disabled = false;
-        $surgos_onclick  = 'csoportMuvelet(\'surgosseg_indoklas\')';
+        
+        // Induklást csak akkor kérünk, ha nem saját maga hozta létre
+        if( $bejelentes['loginnev']!=$_SESSION[get_db_tabla().'user'] ){
+            $surgos_onclick  = 'csoportMuvelet(\'surgosseg_indoklas\')';
+        }
     }
 }
 

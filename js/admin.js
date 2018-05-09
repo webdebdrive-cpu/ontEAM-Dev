@@ -6339,8 +6339,17 @@ function felmeresi_terv_csatolva(recid){
 function ut_kulso_kivitlezo_beallit(){
     if($('#szemelyzet_id').val()==3){
         $('#szallito_id_autocomp').addClass('csillag').removeAttr('readonly');
+        $('#szallito_id_autocomp').autocomplete({
+            'php_fajl'        : '../autocomplete.php',
+            'tabla'           : 'szallito',
+            'oszlop_keres'    : 'nev',
+            'oszlop_listaz'   : 'nev',
+            'rkat'            : '0',
+            'csoport'         : '0',
+            'id_kiir'         : 'id'
+        });
     }else{
-        $('#szallito_id_autocomp').removeClass('csillag').attr('readonly', true).val('');
+        $('#szallito_id_autocomp').removeClass('csillag').removeClass('mod').attr('readonly', true).val('');
         $('#szallito_id').val('');
     }
 }

@@ -37,7 +37,7 @@ if (isset($_GET['stat_ido'])) {
 // Loginról értesítő levelek küldése
 if (isset($_GET['login_ertesit'])) {
     
-    $szalloda_nev = 'BUDAPEST';
+    $szalloda_nev = 'BUDAPEST'; // Most gellér, astória, erzsébet. Utóbbi kettőnek más lesz a telefonos segítség Gályász Bence  + telója, visszakeresni
     $szalloda_id  = '2110';
 
     $heliasok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$szalloda_id}'");
@@ -49,7 +49,7 @@ if (isset($_GET['login_ertesit'])) {
 $uzi = '
 Tisztelt '.$login['teljes_nev'].'!
 <br>
-<br>Az '.get_nev().' rendszer 2018.04.19 csütörtök reggel 7:00 időpontban indul a '.$szalloda_nev.' szállodában.
+<br>Az '.get_nev().' rendszer 2018.05.10 csütörtök reggel 7:00 időpontban indul a '.$szalloda_nev.' szállodában.
 <br>
 <br>Kérjük, hogy ettől az időponttól hibabejelentéseiket az '.get_nev().' rendszerben tegyék meg.
 <br>
