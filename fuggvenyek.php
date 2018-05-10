@@ -2832,7 +2832,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if($stat_select){
                 $stat_select = '<div id="stat_gyors_szuro_div"><select id="stat_gyors_szuro" style="margin: 0.2rem 0 0 0.2rem;" onchange="if(this.value){ param = \'&amp;mezo=stat_id&amp;op=equal&amp;felt=\'+this.value; }else{ param = \'\'; } location.href=\''.self().get_get(array('mezo', 'op', 'felt')).'\'+param"><option value="">-Összes státusz-</option>'.$stat_select.'</select></div>';
             }
-            $html = $stat_select.'<ul id="szamlaList" class="szamla_cont rendszer'.$jClass.'" style="margin-top: 3.2rem; backgorund: #F4F6F5">';
+            $html = $stat_select.'<ul id="szamlaList" class="szamla_cont nobehuzas rendszer'.$jClass.'" style="margin-top: 3.2rem; backgorund: #F4F6F5">';
         }
 
         $i = 1;
@@ -2971,7 +2971,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
                             <tr>
-                                <td class="ikonok" rowspan="2" style="width: 5rem; white-space: nowrap;">
+                                <td class="ikonok" rowspan="2" style="width: 4rem; white-space: nowrap;">
                                     <br>'.$kesz.$dok_icon.$surgos.'&nbsp;
                                 </td>
                                 <td style="width: 9rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
