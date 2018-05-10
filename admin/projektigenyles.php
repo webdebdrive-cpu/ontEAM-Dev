@@ -1076,7 +1076,7 @@ require('selectek.php');
         if(_jog(JOG_PRIGENY_B_KEZEL) || _jog(JOG_PRIGENY_EGY_KEZEL) || _jog(JOG_PRIGENY_F_KEZEL) || _jog(JOG_PRIGENY_SZ_KEZEL) || _jog(JOG_PRIGENY_S_KEZEL) || _jog(JOG_PRIGENY_TOBB_KEZEL) || _jog(JOG_PRIGENY_T_KEZEL) ){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
                     <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; history.back();">
                 </div>
             ');
@@ -1132,7 +1132,7 @@ require('selectek.php');
             // Ha a prigény létrehozás alatt van, akkor érhető el csak az Igénylés rögzítése gomb
             if($sor['stat_id']==PRIGENY_STAT_LETRE_ALATT){
                 if (isset($_GET['modosit'])) {
-                    $gombok .= ' <input type="button" class="gomb foGomb" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="$(\'#igeny_rogzit\').val(1); $(\'#szerk_form\').submit();">';
+                    $gombok .= ' <input type="button" class="gomb foGomb" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="$(\'#igeny_rogzit\').val(1); szurkit(); $(\'#szerk_form\').submit();">';
                 }else{
                     $gombok .= ' <input type="button" class="gomb foGomb" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="location.href=\''.self().'?id='.$_GET['id'].'&amp;modosit&amp;rogzit\'">';
                 }
@@ -1189,7 +1189,7 @@ require('selectek.php');
                     }
                     $gombok = nl2('
                         <div class="form_kuldes">
-                            <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="'.$gomb_kieg.'$(\'#szerk_form\').submit()">
+                            <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); '.$gomb_kieg.'$(\'#szerk_form\').submit()">
                             <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
                         </div>
                     ').$gombok;

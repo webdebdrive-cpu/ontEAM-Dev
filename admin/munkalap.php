@@ -1223,7 +1223,7 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
                                 <br>
                                 <br>Biztosan jóváhagyja?
                                '),
-                'gomb' => '<input class="gomb zold" value="Igen" onclick="munkalapKulsosJovahagy();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="szurkit(); munkalapKulsosJovahagy();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
             $weblap->leallit();
@@ -5608,7 +5608,7 @@ require('selectek.php');
         // Gombok
         $gombok = nl2('
             <div class="form_kuldes">
-                <input type="button" class="gombb'.$class.' mentes_gomb" name="mehet_gomb" id="mehet_gomb"'.$disabled.' value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                <input type="button" class="gombb'.$class.' mentes_gomb" name="mehet_gomb" id="mehet_gomb"'.$disabled.' value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; history.back();">
             </div>
         ');
@@ -5693,7 +5693,7 @@ require('selectek.php');
             if( isset($_GET['modosit']) && in_array($sor['stat_id'], array(MUNKALAP_STAT_NYITOTT, MUNKALAP_STAT_HOZZARENDELT)) ) {
                 $gombok = nl2('
                     <div class="form_kuldes">
-                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
                         <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
                     </div>
                 ').$gombok;
@@ -5705,7 +5705,7 @@ require('selectek.php');
         if( isset($_GET['modosit']) && $sor['stat_id']==MUNKALAP_STAT_NYITOTT && _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ) {
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
                     <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
                 </div>
             ').$gombok;

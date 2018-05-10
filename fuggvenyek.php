@@ -1133,6 +1133,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
                             return false;
                         }
                         if( response.siker ) {
+                            szurkit();
                             bejelentes_mehet = true;
                             $(\'#szerk_form\').submit();
                         }

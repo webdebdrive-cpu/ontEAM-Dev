@@ -1136,6 +1136,7 @@ console.log(name+' db:'+taroltVal+'|itt:'+val);
         }
     });
 
+    /* Oldal töltésekor megjelenítjük az ajaxfedőt hogy semmi másra ne lehessen kattintani. */
     $(document).ajaxSend(function(event, xhr, options) {
         if( baseName(options.url) != 'kapcs_autocomplete' && baseName(options.url) != 'szakter_autocomplete' && baseName(options.url) != 'autocomplete' ) {
             $('#ajaxfedo').removeClass('dn');
@@ -1765,7 +1766,7 @@ function bejBejelentok( value ) {
 
 /* Bejelentés saját vagy más nevében? */
 function bejSajatMasneven() {
-    alert2('Saját nevében jelent be hibát?', '<input class="gomb" value="Bejelentés saját néven" onclick="location.href=\'bejelentes.php?uj\'" type="button"><input class="gomb piros" value="Bejelentés más nevében" onclick="bejSzallodaValaszt()" type="button">');
+    alert2('Saját nevében jelent be hibát?', '<input class="gomb" value="Bejelentés saját néven" onclick="szurkit(); location.href=\'bejelentes.php?uj\'" type="button"><input class="gomb piros" value="Bejelentés más nevében" onclick="szurkit(); bejSzallodaValaszt()" type="button">');
 }
 
 /* Új bejelentés feltöltés: első lépés, hogy telephelyet választunk */
@@ -1773,7 +1774,7 @@ function bejSzallodaValaszt() {
 
     /* Bejelentéseknél ha módosítva van egy adatlap, és újat szeretnénk feltölteni, akkor is egyből rákérdezünk, hogy biztosan elhagyja-e */
     if( formModositva ) {
-        alert2('Biztosan elhagyja ezt a '+$('#rekord_neve_targy').html()+' mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="formModositva = false; bejSzallodaValaszt();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
+        alert2('Biztosan elhagyja ezt a '+$('#rekord_neve_targy').html()+' mentés nélkül?', '<input class="gomb zold" value="Igen" onclick="szurkit(); formModositva = false; bejSzallodaValaszt();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">');
         return false;
     }
 
@@ -2493,7 +2494,7 @@ function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
                             }
 
                             /* Anyagigénylés táblázat esetén frissítjük az oldalt, egyébként adatlapra ugrunk */
-                            if(_get('tablazat')){
+                            /*if(_get('tablazat')){
                                 location.reload();
                             }else{
                                 szamlaBetolt(_get('id'), baseName(location.href) + '.php');
@@ -2504,6 +2505,8 @@ function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
                             }
 
                             alert2();
+                            */
+                           location.href='anyagigenyles.php?tablazat';
                         }
                     }
                 });
@@ -6477,4 +6480,12 @@ function gombok_valt(mod){
 
         formModositva = false;
     }
+}
+
+/* Betöltéskor leszürkítünk mindent, hogy ne lehessen gombokat újra megnyomni. */
+function szurkit(){
+    $('#ajaxfedo').removeClass('dn');
+}
+function szurkit_zar(){
+    $('#ajaxfedo').addClass('dn');
 }

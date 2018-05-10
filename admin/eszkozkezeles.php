@@ -328,7 +328,7 @@ require_once('selectek.php');
         if(_jog(JOG_ESZKOZ_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
                     <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; history.back();">
                 </div>
             ');
@@ -358,7 +358,7 @@ require_once('selectek.php');
         if(!$nem_szerkesztheti && (isset($_GET['modosit']) || isset($_GET['obj'])) && _jog(JOG_ESZKOZ_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
                     <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
                 </div>
             ').$gombok;
@@ -410,6 +410,7 @@ require_once('selectek.php');
                 uj_form_ajax
             ).then(function() {
                 if(mehet_e){
+                    szurkit();
                     $(\'#szerk_form\').attr(\'onsubmit\', \'return form_ell_admin()\');
                     $(\'#szerk_form\').submit();
                 }else{
@@ -421,6 +422,7 @@ require_once('selectek.php');
         ';
     } else {
         $js_submit_elott = '
+            szurkit();
             $(\'#szerk_form\').attr(\'onsubmit\', \'return form_ell_admin()\');
             $(\'#szerk_form\').submit();
 

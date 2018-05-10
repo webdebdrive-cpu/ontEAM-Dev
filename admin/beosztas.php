@@ -330,7 +330,7 @@ require_once('selectek.php');
         // Gombok
         $gombok = nl2('
             <div class="form_kuldes">
-                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; history.back();">
             </div>
         ');
@@ -358,7 +358,7 @@ require_once('selectek.php');
             $gombok = nl2('
                 <div class="muveletek" style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);">
                     <div class="form_kuldes">
-                        <input type="button" class="gombb mentes_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                        <input type="button" class="gombb mentes_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
                         <input type="button" class="gombb gombb_alert" id="mehet_gomb_kivesz" disabled value="Naptárból kivesz" onclick="naptar_torol_kerdez()">
                         <input type="hidden" name="naptar_torol_id" id="naptar_torol_id" value="">
                         <input type="hidden" name="get_id" id="get_id" value="'.$_GET['id'].'">
@@ -394,7 +394,7 @@ require_once('selectek.php');
         if(_jog(JOG_BEOSZTASOK_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
                     <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
                 </div>
             ').$gombok;

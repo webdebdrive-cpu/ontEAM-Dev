@@ -141,7 +141,7 @@ if( isset($_GET['folyamatban_munkak']) ) {
     }
 
     $bejelentesek = $adatbazis_kapcsolat->s('ikt_szam surgos telephely_id obj_id hiba_id hiba_text', 'bejelentes', "`telephely_id` = '{$telephely_id}' AND `obj_id` = '{$obj_id}'".$where);
-    if( $bejelentesek ) {
+    if( $bejelentesek && !$mod ) {
         $html = nl2('
             <div class="mobilkeret">
                 <table class="csikos">
@@ -192,7 +192,7 @@ if( isset($_GET['folyamatban_munkak']) ) {
 
         echo json_encode(array(
             'hiba' => 'Folyamatban lévő munkák listája'.$html.'Folytatja a hibabejelentést?',
-            'gomb' => '<p class="c"><input class="gomb zold" type="button" value="Igen" onclick="bejelentes_mehet = true; $(\'#szerk_form\').submit();"><input class="gomb piros" type="button" value="Nem" onclick="alert2()"></p>'
+            'gomb' => '<p class="c"><input class="gomb zold" type="button" value="Igen" onclick="szurkit(); bejelentes_mehet = true; $(\'#szerk_form\').submit();"><input class="gomb piros" type="button" value="Nem" onclick="alert2()"></p>'
         ));
 
         $weblap->leallit();
@@ -815,7 +815,7 @@ require_once('selectek.php');
         // Gombok
         $gombok .= nl2('
             <div class="form_kuldes">
-                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; history.back();">
             </div>
         ');
@@ -912,7 +912,7 @@ require_once('selectek.php');
         ) {
                 $gombok = nl2('
                     <div class="form_kuldes">
-                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
                         <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
                     </div>
                 ').$gombok;

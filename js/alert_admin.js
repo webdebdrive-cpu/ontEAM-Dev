@@ -1,6 +1,9 @@
 focused = false;
 function alert2(uzi, ok_gomb, cim) {
-
+    
+    /* Ha feljöün egy új hibaüzenet, akkor a szürkítést kapcsoljuk le, ez fontos, mert különben nem lehet majd a figylemeztetést kikapcsolni. */
+    szurkit_zar();
+    
     if( !uzi && focused ) {
         focused.focus();
     } else {

@@ -248,7 +248,7 @@ if(isset($_GET['modosit_ules'])){
         
         $gombok = nl2('
             <div class="form_kuldes">
-                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
             </div>
         ');
 
@@ -339,7 +339,7 @@ if(isset($_GET['modosit_ules'])){
         if(isset($_GET['modosit']) && _jog(JOG_ELOTERJ_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
                 </div>
             ').$gombok;
         }

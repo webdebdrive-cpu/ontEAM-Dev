@@ -310,7 +310,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
             }
         // Egyébként az insertDt
         }else{
-            $datum .= substr( str_replace('-', '.', $sor_kepek['insert_dt']), 0, 10 );
+            $datum .= datum_kiir($sor_kepek['insert_dt']);
         }
         
         $sor_kepek['fajlnev'] = htmlspecialchars($sor_kepek['fajlnev']);

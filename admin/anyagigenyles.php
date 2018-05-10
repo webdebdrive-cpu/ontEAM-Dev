@@ -1061,7 +1061,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
                             <br>
                             <br>Biztosan jóváhagyja az anyagigénylést?
                             '),
-                'gomb' => '<input class="gomb zold" value="Igen" onclick="anyagigenyles_jovahagy();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="szurkit(); anyagigenyles_jovahagy();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 
             $weblap->leallit();
@@ -2106,7 +2106,7 @@ require_once('selectek.php');
         if(_jog(JOG_ANYAGIGENYLES_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="$(\'#szerk_form\').submit()">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="szurkit(); $(\'#szerk_form\').submit()">
                     <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; history.back();">
                 </div>
             ');
@@ -2314,7 +2314,7 @@ require_once('selectek.php');
             if(!$nem_szerkesztheti && isset($_GET['modosit'])){
                 $gombok = nl2('
                     <div class="form_kuldes">
-                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="$(\'#szerk_form\').submit()">
+                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="szurkit(); $(\'#szerk_form\').submit()">
                         <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
                     </div>
                 ').$gombok;

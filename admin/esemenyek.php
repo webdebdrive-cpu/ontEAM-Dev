@@ -1084,7 +1084,7 @@ $bejelentes_tomb = $bejelentes_arch_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',    'megn' => 'Bejelentett hiba:',   'name' => 'hiba_id',      'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'erteklista', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 4, 'alert' => 'Kérem adja meg a bejelentett hibát!'),
     array('type' => 'textarea',        'megn' => 'Hiba leírása:',       'name' => 'hiba_text',    'szuro' => 1,  'disabled' => $disabled,    'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images', 'width' => '100%', 'height' => '150'),
 
-    array('type' => 'autocomplete',    'megn' => 'Helyiség:',           'name' => 'obj_id',       'szuro' => 1,  'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid'/*, 'alert' => 'Kérem adja meg a Helyiséget!'*/, 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">reorder</i></a>'),
+    array('type' => 'autocomplete',    'megn' => 'Helyiség:',           'name' => 'obj_id',       'szuro' => 1,  'class' => 'disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'alert' => 'Kérem adja meg a Helyiséget!', 'onclick' => 'szallodaVane( this );', 'post' => '<a href="javascript: obj_gen(); void(0);" class="obj_gen"><i class="material-icons">reorder</i></a>'),
 
     array('type' => 'textarea',        'megn' => 'Hely leírása:',       'name' => 'helyiseg_text','szuro' => 1,  'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images', 'width' => '100%', 'height' => '150'),
     array('type' => 'autocomplete',    'megn' => 'Gépnév:',             'name' => 'gep_id',       'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
@@ -2657,7 +2657,7 @@ if( isset($_GET['getBejBejelentok']) ) {
 
             echo json_encode(array(
                 'hiba'  => 'Válasszon hibabejelentőt a(z) '.getErtek('nev', 'telephely', 'id', $telephely_id).' szállodából!'.$html,
-                'gomb'  => '<p class="c"><input id="diszpFeltolt" class="gomb zold" disabled type="button" value="Tovább" onclick="bejBejValaszt( '.$telephely_id.' );"><input class="gomb zold" type="button" value="Manuálisan" onclick="bejBejManualis( '.$telephely_id.' );"><input class="gomb piros" type="button" value="Mégsem" onclick="alert2()"></p>',
+                'gomb'  => '<p class="c"><input id="diszpFeltolt" class="gomb zold" disabled type="button" value="Tovább" onclick="szurkit(); bejBejValaszt( '.$telephely_id.' );"><input class="gomb zold" type="button" value="Manuálisan" onclick="szurkit(); bejBejManualis( '.$telephely_id.' );"><input class="gomb piros" type="button" value="Mégsem" onclick="alert2()"></p>',
                 'title' => 'Bejelentés más nevében',
             ));
 
