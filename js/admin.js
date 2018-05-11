@@ -541,9 +541,7 @@ $(function() {
     });
 
     // Általánosan igaz, hogy inputokon Enter-t ütve tabozzunk. Ehhez be kell állítani a tabndexeket
-    $(':input[type!="hidden"]').each(function (i) {
-        $(this).attr('tabindex', i + 1);
-    });
+    tabindex_beallit();
 
     // Dátum mezőket elhagyva újraformázzuk
     $(document).on('keyup', '.datepicker, .datetimepicker', function(e) {
@@ -6377,6 +6375,9 @@ function ut_kulso_kivitlezo_beallit(){
         $('#szallito_id_autocomp').removeClass('csillag').removeClass('mod').attr('readonly', true).val('');
         $('#szallito_id').val('');
     }
+    
+    /* Ütemezett feladatoknál ha külső kiviteleőt választottunk ki, akkor szerkeszthetővé válik az eddig disabled külső kivitelező input, amit újra kell tabindxelni, hogy jó legyen a TAB-ozás */
+    tabindex_beallit();
 }
 
 /* Mobilcsoport beosztás véglegesítése */
@@ -6512,4 +6513,11 @@ function szurkit(){
 }
 function szurkit_zar(){
     $('#ajaxfedo').addClass('dn');
+}
+
+/* Tabindex számozása */
+function tabindex_beallit(){
+    $(':input[type!="hidden"]').each(function (i) {
+        $(this).attr('tabindex', i + 1);
+    });
 }
