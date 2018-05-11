@@ -24,6 +24,7 @@ function addSzallodaEnergia( recid, that ) {
                         return false;
                     }
 
+                    szurkit();
                     location.href='energia_terv.php?egysegarak&id='+_get('id')+'&ear='+recid;
          		}
          	}
@@ -55,7 +56,7 @@ function terv_elesites(mehet) {
                         alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
-                    
+                    szurkit();
                     location.reload();
                     /*szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                     popupZar();*/
@@ -89,6 +90,7 @@ function uj_egysegar(){
             success: function (response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if (response) {
+                    szurkit();
                     location.reload();
                 }
             }
@@ -119,6 +121,7 @@ function uj_egysegar_szallodak(that){
             success: function (response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if (response) {
+                    szurkit();
                     location.reload();
                 }
             }
@@ -152,6 +155,7 @@ function egysegar_sor_torol(mehet){
         success: function (response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
+                szurkit();
                 location.reload();
             }
         }
@@ -183,7 +187,7 @@ function energiaterv_veglegesit(mehet){
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
                 }
-                
+                szurkit();
                 location.reload();
             }
         }

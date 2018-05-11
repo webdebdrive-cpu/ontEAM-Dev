@@ -107,9 +107,9 @@ require_once('selectek.php');
 
         //NAVIGÁCIÓ
         $gombok = '';
-	    //$gombok = '<input type="button" class="gombb" onclick="location.href=\''.self().'?lista\'" value="Lista" title="Lista megtekintése">';
+	    //$gombok = '<input type="button" class="gombb" onclick="szurkit(); location.href=\''.self().'?lista\'" value="Lista" title="Lista megtekintése">';
         //$gombok .= ' <input type="button" id="visszavonas_gomb" disabled="disabled" class="gombb" onclick="szamlaBetolt(\'1\', \''.basename(self()).'\', \'uj\', true);" value="Visszavonás" title="Visszavonás">';
-        //$gombok .= ' <input type="button" id="kilepes_gomb" class="gombb_alert" onclick="location.href = \''.basename(self()).'\';" value="Kilépés" title="Kilépés">';
+        //$gombok .= ' <input type="button" id="kilepes_gomb" class="gombb_alert" onclick="szurkit(); location.href = \''.basename(self()).'\';" value="Kilépés" title="Kilépés">';
 
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
@@ -220,15 +220,15 @@ require_once('selectek.php');
            $gombok .= ' <input type="button" class="gombb" onclick="window.open(\''.$elonezet.'\')" value="Előnézet" title="Előnézet">';
         }
         if($sorrendezes){
-            $gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().'?sorrend\'" value="Sorrend" title="Sorrendezés">';
+            $gombok .= ' <input type="button" class="gombb" onclick="szurkit(); location.href=\''.self().'?sorrend\'" value="Sorrend" title="Sorrendezés">';
         }
         if($ujkent_szerkesztheto && !$csak_szerkesztheto){
             //$gombok .= ' <input type="button" class="gombb" onclick="document.getElementById(\''.$megnevezes.'ujkent_szerk\').value=\'1\'; document.getElementById(\'szerk_form\').submit()" title="Újként szerkeszt" value="Újként">';
         }
         if(!$csak_szerkesztheto){
-            //$gombok .= ' <input type="button" id="rocordUj" class="gombb dn" onclick="location.href=\''.self().'?uj\'" value="Új" title="Új feltöltés">';
+            //$gombok .= ' <input type="button" id="rocordUj" class="gombb dn" onclick="szurkit(); location.href=\''.self().'?uj\'" value="Új" title="Új feltöltés">';
         }
-        //$gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().get_get(array('modosit','errnum','kephiba','siker','id', 'szerkeszt', 'ajax')).'&amp;lista\'" value="Lista" title="Lista megtekintése">';
+        //$gombok .= ' <input type="button" class="gombb" onclick="szurkit(); location.href=\''.self().get_get(array('modosit','errnum','kephiba','siker','id', 'szerkeszt', 'ajax')).'&amp;lista\'" value="Lista" title="Lista megtekintése">';
         //$gombok .= ' <input type="button" id="visszavonas_gomb" disabled="disabled" class="gombb" onclick="szamlaBetolt(\''.$sor['recid'].'\', \''.basename(self()).'\', \'modosit\', true);" value="Visszavonás" title="Visszavonás">';
 
         if( !$csak_szerkesztheto ) {
@@ -274,7 +274,7 @@ require_once('selectek.php');
         $gombok = nl2('
             <div class="form_kuldes">
                 <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
-                <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
+                <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(); formModositva=false; location.reload();">
             </div>
         ').$gombok;
 

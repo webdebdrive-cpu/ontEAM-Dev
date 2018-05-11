@@ -663,6 +663,17 @@ $header_html .= '<body'.$body_class;
 
 $header_html .='>';
 
+// Diszpécsereknél az ajaxfedő legyen teljesen átlátszó
+if( $_SESSION[get_db_tabla().'szemelyzet_id'] == DISZPECSER ){
+    $header_html .= nl2('
+                    <style type="text/css">
+                        #ajaxfedo {
+                            background: rgba(0, 0, 0, 0);
+                        }
+                    </style>
+                ');
+}
+
 // A form körüli keretete a lista nézetben nem jelenítjük meg
 $css = '';
 if( !isset($_GET['lista']) && basename(self())!='index.php' ) {

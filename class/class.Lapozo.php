@@ -294,7 +294,7 @@ class Lapozo{
 		}
 
 		$class    = 'lapozas';
-		$onchange = 'location.href=\''.$this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this->oldal_var.'=1&amp;'.$this->epo_var.'=\'+this.value';
+		$onchange = 'szurkit(); location.href=\''.$this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this->oldal_var.'=1&amp;'.$this->epo_var.'=\'+this.value';
 
 		$select_mivel = array($class, $onchange, $options);
 		return str_replace($select_mit,$select_mivel,$select_sablon);
@@ -329,7 +329,7 @@ class Lapozo{
 	        }
 
 			$class    = 'lapozas';
-			$onchange = 'location.href=\''.$this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this->oldal_var.'=\'+this.value+\'&amp;'.$this->epo_var.'='.$this->elem_per_oldal.'\'';
+			$onchange = 'szurkit(); location.href=\''.$this -> fajl.get_get(array($this -> oldal_var, $this -> epo_var, 'unset', 'szamlaLista', 'tabla')).'&amp;'.$this->oldal_var.'=\'+this.value+\'&amp;'.$this->epo_var.'='.$this->elem_per_oldal.'\'';
 
 			$select_mivel = array($class, $onchange, $options);
 			return str_replace($select_mit,$select_mivel,$select_sablon);

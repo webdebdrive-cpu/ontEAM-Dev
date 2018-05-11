@@ -220,7 +220,8 @@ function munkalapMobil( that ) {
                             return false;
                         }
 
-                        location.href = get_get();
+                        szurkit();
+                        location.reload();
                     }
                 }
             });
@@ -312,7 +313,8 @@ function munkalapKeszre(csak_kerdezunk) {
                         return false;
                     }
 
-                    location.href = get_get();
+                    szurkit();
+                    location.reload();
                 }
             }
         });
@@ -346,7 +348,8 @@ function munkalapRogzit(csak_kerdezunk) {
                         return false;
                     }
 
-                    location.href = get_get();
+                    szurkit();
+                    location.reload();
                 }
             }
         });
@@ -380,7 +383,10 @@ function munkalapKulsosJovahagy(csak_kerdezunk) {
                         return false;
                     }
 
-                    /*location.href = get_get();*/
+                    /*
+                    szurkit();
+                    location.reload();
+                     */
                 }
             }
         });
@@ -413,8 +419,9 @@ function munkalapIgazol(csak_kerdezunk) {
                         alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
-
-                    location.href = get_get();
+                    
+                    szurkit();
+                    location.reload();
                 }
             }
         });
@@ -448,7 +455,8 @@ function munkalapReklamacioElfogad(csak_kerdezunk) {
                         return false;
                     }
 
-                    location.href = get_get();
+                    szurkit();
+                    location.reload();
                 }
             }
         });
@@ -482,7 +490,8 @@ function munkalapKulsosMegrendelve(csak_kerdezunk) {
                         return false;
                     }
 
-                    location.href = get_get();
+                    szurkit();
+                    location.reload();
                 }
             }
         });
@@ -516,7 +525,8 @@ function munkalapLezaras(csak_kerdezunk) {
                         return false;
                     }
 
-                    location.href = get_get();
+                    szurkit();
+                    location.reload();
                 }
             }
         });
@@ -650,6 +660,7 @@ function munkalaphozAdas(csak_kerdezunk) {
                             if(csak_kerdezunk) {
                                 csoportMuvelet('munkalaphoz_adas');
                             } else {
+                                szurkit();
                                 location.href = 'munkalap.php?id=' + response.recid + '&modosit';
 
                                 kijelolesEltavolit();
@@ -793,7 +804,8 @@ function munkalapVisszaNyitott(recid, mehet){
                 alert2(response.hiba, response.gomb, response.title);
                 return false;
             }
-            location.href = get_get();
+            szurkit();
+            location.reload();
         }
     });
 }
@@ -821,7 +833,8 @@ function munkalapVisszavetel(recid, mehet){
                     return false;
                 }
             }
-            location.href = get_get();
+            szurkit();
+            location.reload();
         }
     });
 }
@@ -844,7 +857,8 @@ function munkalapVarakoztatVege(){
                     return false;
                 }
             }
-            location.href = get_get();
+            szurkit();
+            location.reload();
         }
     });
 }

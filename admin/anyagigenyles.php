@@ -1800,7 +1800,7 @@ if (isset($_POST['anyagigenylesKPBeszerez'])) {
         echo json_encode(array(
             'statusz' => 'siker',
             'alert'   => 'Az Ön által feldolgozott számla rendelésszáma:<br>'.$rndid.'<br>Kérem, írja rá a számlára!',
-            'gomb'    => '<input type="button" class="gomb" value="Ok" onclick="location.href=\'anyagigenyles.php?anyagrend&amp;id='.$anyagigenyles.'&amp;modosit\'">',
+            'gomb'    => '<input type="button" class="gomb" value="Ok" onclick="szurkit(); location.href=\'anyagigenyles.php?anyagrend&amp;id='.$anyagigenyles.'&amp;modosit\'">',
             'title'   => 'Üzenet',
         ));
     } else {
@@ -2631,7 +2631,7 @@ require_once('selectek.php');
         // Duplikáláskor feltett kérdés
         $szamla_html .= nl2('
             <script>
-                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                 duplikaKerdes = \'Név: '.$sor['nev'].'<br><br>Biztos, hogy duplikálja?\';
             </script>
         ');

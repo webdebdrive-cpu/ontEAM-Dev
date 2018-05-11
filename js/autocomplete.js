@@ -258,6 +258,7 @@
                 }
 
                 if(link){
+                    szurkit();
                     location.href = link;
                 }else{
                     var li_val = $('#autocomplete ul li.aktiv').html();
@@ -429,6 +430,7 @@
                         }
 
                         if(link){
+                            szurkit();
                             location.href = link;
                         }else{
                             var li_val = $('#autocomplete ul li.aktiv').html();

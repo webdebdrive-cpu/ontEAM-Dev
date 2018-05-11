@@ -104,7 +104,7 @@ function get_gomb_mindent(){
 
 /* Kibontásnál a töröl gomb HTML-je. Hogy valid legyen kiveszem JS-be. */
 function get_kibont_torol(self, torles, get_id){
-    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="location.href=\'' + self + '?lista&amp;' + torles + '=' + get_id + '\'">  <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';
+    return '<p class="c" style="margin-top: 0.5rem"><input class="gomb zold" type="button" value="Igen" onclick="szurkit(); location.href=\'' + self + '?lista&amp;' + torles + '=' + get_id + '\'">  <input class="gomb piros" type="button" value="Nem" onclick="alert2()">';
 }
 
 /* Kibontásnál címlap kép törlés HTML-je. Hogy valid legyen kiveszem JS-be. */
@@ -1256,6 +1256,7 @@ console.log(name+' db:'+taroltVal+'|itt:'+val);
                 kerdo_es = '?';
             }
 
+            szurkit();
             location.href=get_get(['mezo', 'op', 'felt'])+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt;
         }
     });
@@ -1382,6 +1383,7 @@ console.log(name+' db:'+taroltVal+'|itt:'+val);
                     alert2(response.hiba, response.gomb, 'Hiba');
                 }
                 if( response.mehet ) {
+                    szurkit(); 
                     location.reload();
                 }
             }
@@ -1398,6 +1400,7 @@ console.log(name+' db:'+taroltVal+'|itt:'+val);
             },
             success: function (response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                szurkit(); 
                 location.reload();
             }
         });
@@ -1831,7 +1834,8 @@ function munkalapMegrendelve( recid, csak_kerdezunk ) {
 
                         return false;
                     }
-
+                    
+                    szurkit();
                     location.href = baseName(location.href) + '.php';
          		}
          	}
@@ -1868,6 +1872,7 @@ function kuldesJovahagyasra( recid, csak_kerdezunk ) {
                         return false;
                     }
 
+                    szurkit();
                     location.href = baseName(location.href) + '.php';
          		}
          	}
@@ -1904,6 +1909,7 @@ function diszKozpVezAtadas( that ) {
                         return false;
                     }
 
+                    szurkit();
                     location.href = 'munkalap.php';
          		}
          	}
@@ -2272,6 +2278,7 @@ function varolistabolKivetel(csak_kerdezunk) {
                                 return false;
                             }
 
+                            szurkit(); 
                             location.reload();
                             /*kijelolesEltavolit();
                             szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
@@ -2330,7 +2337,8 @@ function anyagigenyles_kuldes_jovahagyasra(csak_kerdezunk) {
                                 alert2(response.hiba, response.gomb, response.title);
                                 return false;
                             }
-
+                            
+                            szurkit();
                             location.href = 'anyagigenyles.php?tablazat&id='+idk[1];
                             /* navpanel frissítése (minden kijelölt sort)
                             szamlaSorok.each(function() {
@@ -2401,6 +2409,7 @@ function anyagigenyles_rendeles_keszit(csak_kerdezunk) {
                             /* Ha mehet, akkor anyagrendelésre ugrunk át */
                             if(mehet){
 
+                                szurkit();
                                 location.href = 'anyagigenyles.php?id='+_get('id')+'&modosit&anyagrend';
 
                             }else{
@@ -2495,6 +2504,7 @@ function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
 
                             /* Anyagigénylés táblázat esetén frissítjük az oldalt, egyébként adatlapra ugrunk */
                             /*if(_get('tablazat')){
+                                szurkit(); 
                                 location.reload();
                             }else{
                                 szamlaBetolt(_get('id'), baseName(location.href) + '.php');
@@ -2506,6 +2516,7 @@ function anyagigenyles_jovahagy(csak_kerdezunk, jhmen) {
 
                             alert2();
                             */
+                           szurkit();
                            location.href='anyagigenyles.php?tablazat';
                         }
                     }
@@ -2581,6 +2592,7 @@ function anyagigenyles_elutasitas(csak_kerdezunk) {
                             }
 
                             /* Anyagigénylés táblázat esetén frissítjük az oldalt, egyébként adatlapra ugrunk */
+                            szurkit(); 
                             location.reload();
 
                             alert2();
@@ -2650,6 +2662,7 @@ function anyagigenyles_mind_jovahagy(csak_kerdezunk) {
                             }
 
                             /* Anyagigénylés táblázat esetén frissítjük az oldalt, egyébként adatlapra ugrunk */
+                            szurkit();
                             location.reload();
 
                             /* navpanel frissítése (minden kijelölt sort) */
@@ -2690,6 +2703,7 @@ function anyagigenyles_mar_igenyelve(cikk_id, telephely_id, ig_alatt, ig_foly, c
                     return false;
                 }
             }
+            szurkit();
             location.reload();
         }
     });
@@ -2779,9 +2793,11 @@ function bejegyzesElutasitas( that, csak_memo ) {
                         if( response.kieg ) {
                             alert2(response.kieg, response.gomb, 'Hiba');
                         }
-
+                        
+                        szurkit();
                         /* Projektigényléskor megszűnne bal oldali bejegyzés, ezért frissítjük az egész oldalt */
                         if(baseName(location.href)=='projektigenyles'){
+                            szurkit();
                             location.reload();
                         }else{
                             kijelolesEltavolit();
@@ -2932,7 +2948,8 @@ function csoportbaRendez( that ) {
 
                                 kijelolesEltavolit();
                                 bejegyzesekLista('#rendezesSelect', 'asc');
-                                location.href = get_get();
+                                szurkit();
+                                location.reload();
                                 popupZar();
                             }
                         }
@@ -3845,6 +3862,7 @@ function arazas_ment(){
             }
 
             /* Lista frissítése */
+            szurkit();
             location.reload();
             /* 2do: sorokat befrissíteni
             idk = $('#idk').val().split(",");
@@ -3961,6 +3979,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
                         alert2(response.hiba, response.gomb, 'Hiba');
                         return false;
                     }
+                    szurkit();
                     location.reload();
                 }
                 popupZar();
@@ -4495,6 +4514,7 @@ function popupZar() {
     /* Anyagvételezés meg igénylésnél újratöltjük, mert összeakad a kettő */
     if($('#munkAnyagAnyagigenyles').length || $('#munkAnyagVetelezForm').length){
         /*Korábban itt újratöltöttük az oldalt, hogy a popup tartalma biztosan ürüljön
+         * szurkit();
          * location.reload();
          * */
         $('#popupTart').html('');
@@ -4759,6 +4779,7 @@ function felhValt( that ) {
 
                     if( html.statusz == 'hiba' ) {
                         if( html.link ) {
+                            szurkit();
                             location.href = html.link;
                             return false;
                         }
@@ -4768,6 +4789,7 @@ function felhValt( that ) {
                     }
 
                     /* Bejelentőket egyből oda is léptetjük */
+                    szurkit();
                     if( html.statusz == 'bejelento' ) {
                         location.href = 'bejelentes.php';
                     }else{
@@ -5737,7 +5759,7 @@ function szuro_ertek_mezo_gen(that, felt){
                         kieg = '?szures_torol';
                     }
                     $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb f_szures_submit" value="Szűrés">'+
-                                                        '<input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl" onclick="location.href=\''+tabla+'.php'+kieg+'\'">'
+                                                        '<input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl" onclick="szurkit(); location.href=\''+tabla+'.php'+kieg+'\'">'
                                                     );
                 }
 
@@ -6426,6 +6448,7 @@ function beosztas_veglegesit(mehet){
             if(response.hiba){
                 alert2(response.hiba, '', 'Hiba');
             }else{
+                szurkit();
                 location.reload();
             }
         }
@@ -6456,6 +6479,7 @@ function munkalapok_nyitottak_koze(mehet){
         },
         success: function (response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            szurkit();
             location.reload();
         }
     });

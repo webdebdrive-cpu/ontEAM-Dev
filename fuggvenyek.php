@@ -36,7 +36,7 @@ function i_u($type, $tabla, $tomb) {
         if( $update_dt['update_dt'] > $_POST['update_dt'] ){
             echo json_encode(array(
                 'hiba' => 'A rekordot egy másik felhasználó időközben módosította.<br>A változásokat nem lehet menteni, próbálja újra!',
-                'gomb' => '<input type="button" value="Ok" class="gomb zold" onclick="formModositva=false; location.reload();">'
+                'gomb' => '<input type="button" value="Ok" class="gomb zold" onclick="szurkit(); formModositva=false; location.reload();">'
             ));
 
             $weblap -> leallit();
@@ -2830,7 +2830,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $stat_select .= '<option'.$selected.' value="'.$stat['id'].'">'.$stat['nev'].'</option>';
             }
             if($stat_select){
-                $stat_select = '<div id="stat_gyors_szuro_div"><select id="stat_gyors_szuro" style="margin: 0.2rem 0 0 0.2rem;" onchange="if(this.value){ param = \'&amp;mezo=stat_id&amp;op=equal&amp;felt=\'+this.value; }else{ param = \'\'; } location.href=\''.self().get_get(array('mezo', 'op', 'felt')).'\'+param"><option value="">-Összes státusz-</option>'.$stat_select.'</select></div>';
+                $stat_select = '<div id="stat_gyors_szuro_div"><select id="stat_gyors_szuro" style="margin: 0.2rem 0 0 0.2rem;" onchange="if(this.value){ param = \'&amp;mezo=stat_id&amp;op=equal&amp;felt=\'+this.value; }else{ param = \'\'; } szurkit(); location.href=\''.self().get_get(array('mezo', 'op', 'felt')).'\'+param"><option value="">-Összes státusz-</option>'.$stat_select.'</select></div>';
             }
             $html = $stat_select.'<ul id="szamlaList" class="szamla_cont nobehuzas rendszer'.$jClass.'" style="margin-top: 3.2rem; backgorund: #F4F6F5">';
         }

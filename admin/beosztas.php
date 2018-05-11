@@ -379,7 +379,7 @@ require_once('selectek.php');
            $gombok .= ' <input type="button" class="gombb" onclick="window.open(\''.$elonezet.'\')" value="Előnézet" title="Előnézet">';
         }
         if($sorrendezes){
-            $gombok .= ' <input type="button" class="gombb" onclick="location.href=\''.self().'?sorrend\'" value="Sorrend" title="Sorrendezés">';
+            $gombok .= ' <input type="button" class="gombb" onclick="szurkit(); location.href=\''.self().'?sorrend\'" value="Sorrend" title="Sorrendezés">';
         }
 
         if( !$csak_szerkesztheto ) {
@@ -395,7 +395,7 @@ require_once('selectek.php');
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
-                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(); formModositva=false; location.reload();">
                 </div>
             ').$gombok;
         }

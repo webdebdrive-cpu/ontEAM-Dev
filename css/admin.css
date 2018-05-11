@@ -2092,6 +2092,7 @@ div.naplo div.nSor div.dtc {
 
 #ajaxfedo {
     background: rgba(255, 255, 255, 0.3);
+    cursor: wait;
     height: 100%;
     position: fixed;
     top: 0;

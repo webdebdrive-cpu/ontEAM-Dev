@@ -913,7 +913,7 @@ require_once('selectek.php');
                 $gombok = nl2('
                     <div class="form_kuldes">
                         <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
-                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
+                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(); formModositva=false; location.reload();">
                     </div>
                 ').$gombok;
         }
@@ -1119,7 +1119,7 @@ require_once('selectek.php');
         $telephely = $telephely[0]['nev'];
         $szamla_html .= nl2('
             <script>
-                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                 duplikaKerdes = \'Azonosító: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Biztos, hogy duplikálja?\';
             </script>
         ');

@@ -1134,7 +1134,7 @@ require('selectek.php');
                 if (isset($_GET['modosit'])) {
                     $gombok .= ' <input type="button" class="gomb foGomb" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="$(\'#igeny_rogzit\').val(1); szurkit(); $(\'#szerk_form\').submit();">';
                 }else{
-                    $gombok .= ' <input type="button" class="gomb foGomb" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="location.href=\''.self().'?id='.$_GET['id'].'&amp;modosit&amp;rogzit\'">';
+                    $gombok .= ' <input type="button" class="gomb foGomb" value="Igénylés rögzítése" title="Igénylés rögzítése" id="igenyles_rogzit_gomb" onclick="szurkit(); location.href=\''.self().'?id='.$_GET['id'].'&amp;modosit&amp;rogzit\'">';
                 }
             }
             // Rejtett, technikai input, viszont ez legyen mindig elérhető (pl. nyitott státuszkor mentésné is kell)
@@ -1190,7 +1190,7 @@ require('selectek.php');
                     $gombok = nl2('
                         <div class="form_kuldes">
                             <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); '.$gomb_kieg.'$(\'#szerk_form\').submit()">
-                            <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
+                            <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(); formModositva=false; location.reload();">
                         </div>
                     ').$gombok;
                 }
@@ -1455,7 +1455,7 @@ require('selectek.php');
         $telephely = $telephely[0]['nev'];
         $szamla_html .= nl2('
             <script>
-                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                 duplikaKerdes = \'Azonosító: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Biztos, hogy duplikálja?\';
             </script>
         ');

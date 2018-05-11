@@ -2444,7 +2444,7 @@ function szukites($akt_tomb, $megnevezes, $felirat = 'Szűkítés', $where = '',
 				if($ertek['szukit']){
                     
                     $return .= $ertek['megn'].' ';
-				    $return .= '<select name="'.$ertek['name'].'" onchange="location.href=\''.self().get_get(array($ertek['name'], 'unset')).'&amp;'.$ertek['name'].'=\'+this.value"><option value="">-Összes-</option>';
+				    $return .= '<select name="'.$ertek['name'].'" onchange="szurkit(); location.href=\''.self().get_get(array($ertek['name'], 'unset')).'&amp;'.$ertek['name'].'=\'+this.value"><option value="">-Összes-</option>';
 					
                     if($ertek['szukit_tabla']){
                         list($tabla, $oszlop) = explode('|', $ertek['szukit_tabla']);

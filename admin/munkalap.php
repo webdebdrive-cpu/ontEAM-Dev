@@ -157,7 +157,7 @@ if( isset($_POST['munkalapKeszit']) ) {
 
                 echo json_encode(array(
                     'hiba' => 'Ehhez a bejelentéshez már készült munkalap. <br>Készít még egy munkalapot?',
-                    'gomb' => '<input class="gomb zold" value="Igen" onclick="location.href = \'munkalap.php?uj&ujkent_bejelentes='.$id.'\';" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
+                    'gomb' => '<input class="gomb zold" value="Igen" onclick="szurkit(); location.href = \'munkalap.php?uj&ujkent_bejelentes='.$id.'\';" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
                 ));
 
                 $weblap->leallit();
@@ -5694,7 +5694,7 @@ require('selectek.php');
                 $gombok = nl2('
                     <div class="form_kuldes">
                         <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
-                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
+                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(); formModositva=false; location.reload();">
                     </div>
                 ').$gombok;
             }
@@ -5706,7 +5706,7 @@ require('selectek.php');
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(); $(\'#szerk_form\').submit()">
-                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="formModositva=false; location.reload();">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(); formModositva=false; location.reload();">
                 </div>
             ').$gombok;
         }
@@ -6215,7 +6215,7 @@ require('selectek.php');
         }else{
             $szamla_html .= nl2('
                 <script>
-                    duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                    duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
                     duplikaKerdes = \'Iktatószám: '.$sor['ikt_szam'].'<br>Szálloda: '.$telephely.'<br><br>Ez a munkalap '.count($munkalap_kapcs).' db bejelentésből készült. <br>Ezek a bejelentések az új munkalaphoz is hozzá lesznek rendelve. <br>Biztos, hogy duplikálja?\';
                 </script>
             ');
