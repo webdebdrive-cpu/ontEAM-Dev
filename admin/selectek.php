@@ -150,16 +150,19 @@ array_push($select_szemelyzet, array('name' => $szerepkorok[KULSO_KIVITELEZO-1][
 
 // Ha a kivételes oldalakon vagyunk, és a szálloda egyszállodás, akkor ne legyen benne a mobilcsoport, de többszállodás esetén igen
 if( in_array(basename(self()), $kiveteles_oldalak) ){
-    if ($_GET['id']) {
+    if($_GET['id']) {
         $telephely = $adatbazis_kapcsolat->s2('telephely_id', csonkit(basename(self()), 4), "`recid`='{$_GET['id']}'");
         $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$telephely['telephely_id']}'");
-    }
-    if($telephely['modell']){
-        array_push($select_szemelyzet, array('name' => $szerepkorok[MOBILCSOPORT-1]['nev'],           'value' => MOBILCSOPORT,            'szin' => '#CCFFCB', 'kulsos' => 0 ));
+
+        if($telephely['modell']) {
+            array_push($select_szemelyzet, array('name' => $szerepkorok[MOBILCSOPORT-1]['nev'],           'value' => MOBILCSOPORT,            'szin' => '#CCFFCB', 'kulsos' => 0 ));
+        }
+    } else {
+        array_push($select_szemelyzet, array('name' => $szerepkorok[MOBILCSOPORT-1]['nev'],           'value' => MOBILCSOPORT,            'szin' => '#CCFFCB', 'kulsos' => 0, 'id' => 'mobilcsoport_opt', 'class' => 'dn' ));
     }
 }
 
-if( !in_array(basename(self()), $kiveteles_oldalak) ){
+if( !in_array(basename(self()), $kiveteles_oldalak) ) {
     array_push($select_szemelyzet, array('name' => $szerepkorok[MOBILCSOPORT-1]['nev'],              'value' => MOBILCSOPORT,            'szin' => '#CCFFCB', 'kulsos' => 0 ));
     array_push($select_szemelyzet, array('name' => $szerepkorok[MUSZAKI_VEZETO_HELYETTES-1]['nev'],  'value' => MUSZAKI_VEZETO_HELYETTES,'szin' => '#FFCBF1', 'kulsos' => 0 ));
     array_push($select_szemelyzet, array('name' => $szerepkorok[MUSZAKI_VEZETO-1]['nev'],            'value' => MUSZAKI_VEZETO,          'szin' => '#FFCBCB', 'kulsos' => 1, 'hozzarendel_sor' => 4 ));
