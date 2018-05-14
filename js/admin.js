@@ -1,10 +1,11 @@
-var KEY_BACKSP =  8;
-var KEY_TAB    =  9;
-var KEY_ENTER  = 13;
-var KEY_ESCAPE = 27;
-var KEY_SPACE  = 32;
-var KEY_UP     = 38;
-var KEY_DOWN   = 40;
+var KEY_BACKSP =   8;
+var KEY_TAB    =   9;
+var KEY_ENTER  =  13;
+var KEY_ESCAPE =  27;
+var KEY_SPACE  =  32;
+var KEY_UP     =  38;
+var KEY_DOWN   =  40;
+var KEY_F5     = 116;
 
 var keys = {37: 1, 38: 1, 39: 1, 40: 1};
 
@@ -330,9 +331,15 @@ $(function() {
         $('body').removeClass('noselect');
     });
 
-    /* Léptetés lefele nyíllal, lépkedve le fel */
+    /* Billentyű leütés figyelés */
     $(document).on('keyup', function(e) {
 
+        /* F5 esetén a szürkítést felhozzuk */
+        if( e.keyCode == KEY_F5 ) {
+            szurkit('mentés mégsem gombot is rejtsd el');
+        }
+
+        /* Léptetés lefele nyíllal, lépkedve le fel */
         if( e.keyCode == KEY_UP || e.keyCode == KEY_DOWN ) {
 
             var className = e.target.className;
@@ -6508,8 +6515,12 @@ function gombok_valt(mod){
 }
 
 /* Betöltéskor leszürkítünk mindent, hogy ne lehessen gombokat újra megnyomni. */
-function szurkit(){
+function szurkit( mehet_megsem_rejt ){
     $('#ajaxfedo').removeClass('dn');
+    /* Mehet/Mégsem gombot el is rejtjük, ha azokra lett kattintva */
+    if(mehet_megsem_rejt){
+        $('#mehet_gomb, #megsem_gomb').attr('disabled', 1);
+    }
 }
 function szurkit_zar(){
     $('#ajaxfedo').addClass('dn');
