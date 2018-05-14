@@ -123,7 +123,7 @@ foreach($akt_tomb as $ertek){
                     // Az autocomplete tulajdonságot egy kis timeout után adjuk rá, hogy az utólagosan rátett readonly biztosan rajta legyen már
                     '<script>
                     $(document).ready(function() {
-                        setTimeout(function(){ 
+                        setTimeout(function(){
                             $(\'#'.$ertek['name'].'_autocomp\').autocomplete({
                                 \'php_fajl\'        : \'../autocomplete.php\',
                                 \'tabla\'           : \''.$ertek['tabla'].'\',
@@ -273,7 +273,7 @@ foreach($akt_tomb as $ertek){
             if($ertek['value']){
                 $ertek['megn'] = $ertek['value'];
             }
-            
+
             // Anyagrendelések alatt a cikkrendfej-ből kell már dolgozni
             if($ertek['oldal']=='anyagigenyles' && isset($_GET['anyagrend'])){
                 $anyag       = $adatbazis_kapcsolat->s2('rndid', $ertek['oldal'], "`recid` = '".$_GET['id']."'");
@@ -487,8 +487,8 @@ foreach($akt_tomb as $ertek){
 
             $mit   = array('{MEGN}', '{PHP_FAJL}',          '{ENG_KIT}',        '{MERET}',  '{MINDEN_KESZ}',     '{PARAMETEREK}', '{FAJL}'      );
             $mivel = array($megn,    $ertek['php_fajl'],    $ertek['eng_kit'],  $meret,     $minden_kesz,        $parameterek,    $fajl_thumb   );
-            
-            
+
+
             $html  = str_replace($mit, $mivel, fajlbol_olvas('../sablon/admin/jsfile'.$ertek['sablon_post'].'.html', true));
 
             // Összevonások lekezelése és tartalom összefűzése
@@ -677,7 +677,7 @@ foreach($akt_tomb as $ertek){
             }
             $where .= " AND `inaktiv`=0";
 
-            $telephelyek = $adatbazis_kapcsolat -> select('id recid nev', 'telephely', $where, 'nev');
+            $telephelyek = $adatbazis_kapcsolat -> select('id recid nev modell', 'telephely', $where, 'nev');
             foreach($telephelyek as $telephely) {
                 // Ha csak egy szálloda van, akkor a seletből csak az az egy értékváélasztható ki, ezt meg is tesszük, selectet így disabled-re téve.
                 // Mindezet csak akkor, ha új feltöltés üzemmódban vagyunk
@@ -687,7 +687,7 @@ foreach($akt_tomb as $ertek){
                     $ertek['post'] .= '<input type="hidden" name="telephely_id" id="telephely_id" value="'.$sor['telephely_id'].'">';
                 }
 
-                array_push($select_felh_telephely, array('name' => $telephely['nev'], 'value' => $telephely['id'] ));
+                array_push($select_felh_telephely, array('name' => $telephely['nev'], 'value' => $telephely['id'], 'data-modell' => $telephely['modell'] ));
             }
 
             if( $ertek['alert'] ) {
@@ -702,6 +702,8 @@ foreach($akt_tomb as $ertek){
             if($ertek['alert']){
                 $ertek['class'] .= ' csillag';
             }
+
+            $ertek['onchange'] = ($ertek['onchange'] ? $ertek['onchange'].' ' : '').'szalloda_modell( this );';
 
             $input = new Select($select_felh_telephely, $selected);
             $input -> cssClass = $ertek['class'];
