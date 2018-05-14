@@ -146,12 +146,12 @@ if (isset($_GET['loginnev_import'])) {
                         break;
 
 
-                        case 'Név':
+                        case 'Teljes név':
                             $teljes_nev = trim($akt_tomb[$key]);
                         break;
 
 
-                        case 'ontEAM login':
+                        case 'ontEAM név':
                             $login_nev = trim($akt_tomb[$key]);
                         break;
 
@@ -169,7 +169,7 @@ if (isset($_GET['loginnev_import'])) {
                         break;
 
 
-                        case 'Email':
+                        case 'E-mail':
                             $email = trim($akt_tomb[$key]);
                         break;
 
@@ -191,8 +191,20 @@ if (isset($_GET['loginnev_import'])) {
                 }
 
                 if($szemelyzet_id){
-                    if($login_nev){
+                    //if($login_nev){
                         
+                        // Mégis megengedett a hiányzó loginnév, ekkor a teljesn név első 8 karkateréből gyártunk
+                        if( !$login_nev ){
+                            $login_nev = str_replace('-', '', fajlnev_keszit($teljes_nev));
+                            $login_nev = substr($login_nev, 0, 8);
+                            $sorszam   = '';
+                            while($adatbazis_kapcsolat->s('recid', 'login', "`nev`='".($login_nev.$sorszam)."'")){
+                                $sorszam++;
+                            }
+                            $login_nev .= $sorszam;
+                            $log_csv .= 'Nem volt megadva loginnév, így a nevéből generáva: '.$login_nev;
+                        }
+                    
                         // Ha foglalt a loginnév, de inaktív, akkor töröljük, egyébként hibaüzi
                         $mehet = false;
                         if(!$adatbazis_kapcsolat->s('recid', 'login', "`nev`='{$login_nev}'")){
@@ -258,12 +270,15 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                     // Ha nincs régi loginnév, csak új
                                     }else{
                                         
-                                        // Ha már létezik, akkor 
-                                        $adatbazis_kapcsolat->i('login', $mezok, $ertekek);
+                                        if( isset($_GET['mehet']) ){
+                                            $adatbazis_kapcsolat->i('login', $mezok, $ertekek);
 if (isset($_GET['teszt'])) {
 echo $adatbazis_kapcsolat->gp() . '<br>';
 }
-                                        $log_csv .= 'Felhasználó LÉTREHOZVA;'.$adatok;
+                                            $log_csv .= 'Felhasználó LÉTREHOZVA;'.$adatok;
+                                        }else{
+                                            $log_csv .= ';'.$adatok;
+                                        }
                                     }
                                     
                                     // Szállodához rendelés
@@ -274,12 +289,15 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                         if(!$szall_id){
                                             $log_csv .= 'Nem ismert szálloda (ez még az előző sorhoz tartozik): '.$szall;
                                         }
-                                        if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='{$szall_id['id']}'")){
-                                            $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, $szall_id['id']));
+                                        
+                                        if( isset($_GET['mehet']) ){
+                                            if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='{$szall_id['id']}'")){
+                                                $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, $szall_id['id']));
 if (isset($_GET['teszt'])) {
 echo $adatbazis_kapcsolat->gp() . '<br>';
 }
 
+                                            }
                                         }
                                     }
 
@@ -295,9 +313,9 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                         }else{
                             $log_csv .= 'FOGLALT LOGINNÉV!;'.csv_ellenorzes_letolt($statusz).';'.csv_ellenorzes_letolt($regi_nev).';'.csv_ellenorzes_letolt($teljes_nev).';'.csv_ellenorzes_letolt($login_nev)."\r\n";
                         }
-                    }else{
-                        $log_csv .= 'HIÁNYZÓ LOGINNÉV!;'.csv_ellenorzes_letolt($statusz).';'.csv_ellenorzes_letolt($regi_nev).';'.csv_ellenorzes_letolt($teljes_nev).';'.csv_ellenorzes_letolt($login_nev)."\r\n";
-                    }
+//                    }else{
+//                        $log_csv .= 'HIÁNYZÓ LOGINNÉV!;'.csv_ellenorzes_letolt($statusz).';'.csv_ellenorzes_letolt($regi_nev).';'.csv_ellenorzes_letolt($teljes_nev).';'.csv_ellenorzes_letolt($login_nev)."\r\n";
+//                    }
                 }else{
                     // Ha az egész sor üres, ne írjunk bele a logba, hogy nem sikerült felismerni
                     if($teljes_nev || $login_nev){
