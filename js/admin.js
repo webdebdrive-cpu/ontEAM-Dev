@@ -4481,6 +4481,36 @@ function kapcsolodoSzerkeszt( oldal ) {
                     }
                 });
             break;
+
+            case 'egysegarak':
+                var id = $('.szamla_cont_tabla tr.kijelolve').attr('data-recid');
+
+                if( id ) {
+                    $.ajax({
+                     	url : 'energia_terv.php',
+                     	type: 'POST',
+                        data: {
+                            id: id,
+                            get_egysegarak: new Date().getTime()
+                        },
+                     	success: function(response) {
+                     		if(response) {
+                     			response = JSON.parse(response);
+
+                     			if( response.hiba ) {
+                     				notice(response.hiba);
+                     				return false;
+                     			}
+                                
+                                $('#setEgysegarTablazat').html(response.html);
+                     		}
+                     	}
+                    });
+                } else {
+                    alert2('Egységárak megadásához válasszon ki egy sort!');
+                    return false;
+                }
+            break;
         }
 
         popupNyit();
