@@ -195,11 +195,19 @@ if (isset($_GET['loginnev_import'])) {
                         
                         // Mégis megengedett a hiányzó loginnév, ekkor a teljesn név első 8 karkateréből gyártunk
                         if( !$login_nev ){
+                            $hossz = 8;
                             $login_nev = str_replace('-', '', fajlnev_keszit($teljes_nev));
-                            $login_nev = substr($login_nev, 0, 8);
+                            $login_nev = substr($login_nev, 0, $hossz);
                             $sorszam   = '';
+                            $elozo_login_nev = $login_nev;
                             while($adatbazis_kapcsolat->s('recid', 'login', "`nev`='".($login_nev.$sorszam)."'")){
-                                $sorszam++;
+                                $hossz++;
+                                $login_nev = str_replace('-', '', fajlnev_keszit($teljes_nev));
+                                $login_nev = substr($login_nev, 0, $hossz).$sorszam;
+                                if( $elozo_login_nev == $login_nev || strlen($login_nev)>20 ){
+                                    $sorszam++;
+                                }
+                                $elozo_login_nev = $login_nev;
                             }
                             $login_nev .= $sorszam;
                             $log_csv .= 'Nem volt megadva loginnév, így a nevéből generáva: '.$login_nev;
