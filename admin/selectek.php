@@ -155,7 +155,7 @@ if( in_array(basename(self()), $kiveteles_oldalak) ){
         $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$telephely['telephely_id']}'");
 
         if($telephely['modell']) {
-            array_push($select_szemelyzet, array('name' => $szerepkorok[MOBILCSOPORT-1]['nev'],           'value' => MOBILCSOPORT,            'szin' => '#CCFFCB', 'kulsos' => 0 ));
+            array_push($select_szemelyzet, array('name' => $szerepkorok[MOBILCSOPORT-1]['nev'],           'value' => MOBILCSOPORT,            'szin' => '#CCFFCB', 'kulsos' => 0, 'id' => 'mobilcsoport_opt', 'class' => 'dn' ));
         }
     } else {
         array_push($select_szemelyzet, array('name' => $szerepkorok[MOBILCSOPORT-1]['nev'],           'value' => MOBILCSOPORT,            'szin' => '#CCFFCB', 'kulsos' => 0, 'id' => 'mobilcsoport_opt', 'class' => 'dn' ));

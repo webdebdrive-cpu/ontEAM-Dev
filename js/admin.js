@@ -6537,10 +6537,14 @@ function szalloda_modell( that ) {
     var modell = parseInt($(that).find(":selected").attr('data-modell'));
 
     if( $('#mobilcsoport_opt').length ) {
+        
         if( modell ) {
             $('#mobilcsoport_opt').removeClass('dn');
         } else {
             $('#mobilcsoport_opt').addClass('dn');
+            if( $('#szemelyzet_id').val()=='2' ){
+                $('#szemelyzet_id').val(0);
+            }
         }
     }
 }
