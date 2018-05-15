@@ -1065,7 +1065,7 @@ $(function() {
                 val = '';
             }
 
-console.log(name+' db:'+taroltVal+'|itt:'+val);
+/*console.log(name+' db:'+taroltVal+'|itt:'+val);*/
             if( taroltVal != val ) {
                 $(this).addClass('mod');
             } else {
@@ -6408,12 +6408,13 @@ function ut_kulso_kivitlezo_beallit(){
             'csoport'         : '0',
             'id_kiir'         : 'id'
         });
+        $('#szallito_id_autocomp').focus();
     }else{
         $('#szallito_id_autocomp').removeClass('csillag').removeClass('mod').attr('readonly', true).val('');
         $('#szallito_id').val('');
     }
 
-    /* Ütemezett feladatoknál ha külső kiviteleőt választottunk ki, akkor szerkeszthetővé válik az eddig disabled külső kivitelező input, amit újra kell tabindxelni, hogy jó legyen a TAB-ozás */
+    /* Ütemezett feladatoknál ha külső kivitelezőt választottunk ki, akkor szerkeszthetővé válik az eddig disabled külső kivitelező input, amit újra kell tabindxelni, hogy jó legyen a TAB-ozás */
     tabindex_beallit();
 }
 
@@ -6552,15 +6553,19 @@ function szurkit( mehet_megsem_rejt ){
         $('#mehet_gomb, #megsem_gomb').attr('disabled', 1);
     }
 }
-function szurkit_zar(){
+function szurkit_zar( mehet_megsem_mutat ){
     $('#ajaxfedo').addClass('dn');
+    if(mehet_megsem_mutat){
+        $('#mehet_gomb, #megsem_gomb').removeAttr ('disabled');
+    }
 }
 
 /* Tabindex számozása */
 function tabindex_beallit(){
-    $(':input[type!="hidden"]').each(function (i) {
+    $(':input[type!="hidden"]:not([readonly])').each(function (i) {
         $(this).attr('tabindex', i + 1);
     });
+    $(':input[type="hidden"], input[readonly]').attr('tabindex', '-1');
 }
 
 function szalloda_modell( that ) {

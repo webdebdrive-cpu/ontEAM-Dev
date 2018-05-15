@@ -1301,7 +1301,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
                 /* Gép és helyiség is üresen maradt figyelmeztetés */
                 if(!$(\'#gep_id\').val() && !$(\'#obj_id\').val() && !helyiseg_gep_mehet){
-                    uf_gomb = \'<div class="c"><input type="button" class="gomb zold" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()"></div>\';
+                    uf_gomb = \'<div class="c"><input type="button" class="gomb zold" value="Igen" onclick="helyiseg_gep_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2(); szurkit_zar(\\\'Mehet_mégsem_mutat\\\');"></div>\';
                     alert2(\'Nem adott meg sem helyiséget sem gépet a feladathoz.<br>Folytatja?\', uf_gomb);
                     return false;
                 }
