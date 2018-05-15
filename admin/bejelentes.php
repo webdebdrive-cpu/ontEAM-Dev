@@ -141,7 +141,8 @@ if( isset($_GET['folyamatban_munkak']) ) {
     }
 
     $bejelentesek = $adatbazis_kapcsolat->s('ikt_szam surgos telephely_id obj_id hiba_id hiba_text', 'bejelentes', "`telephely_id` = '{$telephely_id}' AND `obj_id` = '{$obj_id}'".$where);
-    if( $bejelentesek && !$mod ) {
+    // Ha azonos Szálloda és Helységben történik bejelentés, és nem módosításról van szó, akkor jön fel a popup (2018.05.10-én kérték, hogy csak új feltöltéskor jöjjön fel, módosításkor már ne)
+    if( $bejelentesek && $mod=='false' ) {
         $html = nl2('
             <div class="mobilkeret">
                 <table class="csikos">
