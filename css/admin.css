@@ -2448,6 +2448,12 @@ input.autocomp, input.autocomp.mod, input.autocomp:focus{
     width: 100%;
 }
 
+#popup div.popup_tart div.dt div.dtc input[type="text"].f_num {
+    text-align: right;
+    min-width: inherit;
+    width: 9rem;
+}
+
 #popup div.popup_tart div.dt div.dtc select {
     width: 100%;
 }
