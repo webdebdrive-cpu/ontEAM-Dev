@@ -1219,7 +1219,7 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
                 'hiba' => nl2(' Munkalap szám: '.$munkalap['ikt_szam'].'
                                 <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
                                 <br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
-                                <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert'], 0, '', ' ').' '. get_penznem().'
+                                <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert'], 0, '', ' ').' '. get_penznem().' + Áfa
                                 <br>
                                 <br>Biztosan jóváhagyja?
                                '),
@@ -1316,7 +1316,7 @@ if( isset($_POST['get_ml_adatok']) ) {
                         Munkalap szám: '.$munkalap['ikt_szam'].'
                         <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
                         <br>Külső kivitelező: '.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
-                        <br>Jóváhagyott érték: '.number_format($munkalap['jh_ert'], 0, '', ' ').' '. get_penznem().'
+                        <br>Jóváhagyott érték: '.number_format($munkalap['jh_ert'], 0, '', ' ').' '. get_penznem().' + Áfa
                     </b>'
                 )
     ));
@@ -1933,7 +1933,8 @@ if( isset($_POST['kulsokivHozzarend']) ) {
         // Jog ellenőrzése (javaslattétel esetén külsős előkészítés jog
         if(
             !(
-                $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id']
+                ( $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id'] ) ||
+                ( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && $sor['szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) ) )
             )
         ) {
             echo json_encode(array(
@@ -5805,7 +5806,10 @@ require('selectek.php');
         }
 
         // Előkészítés státusz és külsős előkészítés jog kell hozzá
-        if( $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id'] ){
+        if( 
+             ( $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id'] ) ||
+             ( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && $sor['szemelyzet_id']==KULSO_KIVITELEZO && ( _jog(JOG_MUNKALAP_KEZEL_KULSO) || ( _jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==KULSO_KIVITELEZO ) )  )
+            ){
             $gombok .= '<input type="button" class="gomb foGomb" value="Javaslattétel" onclick="csoportMuvelet(\'kulsokivHozzarend\');"> ';
         }
 

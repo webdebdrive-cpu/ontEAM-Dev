@@ -3902,7 +3902,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
             erkmen      = $(this).val().replace(',', '.').replace(' ', '');
             nem_tobb    = $('#nem_tobb_'+id).prop('checked');
             mee         = $('#mee_'+id).html();
-            szurkit     = $('#erkeztet_sor_'+id).hasClass('erkeztet_szurkit');
+            szurkit_    = $('#erkeztet_sor_'+id).hasClass('erkeztet_szurkit');
 
             if(nem_tobb){
                 nem_tobb = '1';
@@ -3932,7 +3932,7 @@ function anyagigenyles_erkeztet( ures_men_ek_pipa0_kesz, ures_men_ek_pipa1_kesz,
             }
 
             /* NEM Pipált sorokra, ha üres marerkmen és erkmen is */
-            if(!szurkit && nem_tobb==0 && (!erkmen || erkmen==0.00) && (!marerkmen || marerkmen==0.00)){
+            if(!szurkit_ && nem_tobb==0 && (!erkmen || erkmen==0.00) && (!marerkmen || marerkmen==0.00)){
                 ures_men_ek_pipa0 += szalloda+' '+cikkid+' '+cikknev+'<br>';
             }
 
