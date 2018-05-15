@@ -1379,9 +1379,9 @@ $utolso_vegrehajtas = '';
 if(basename(self())=='rendszeres_karbantartas.php'){
     $uf = $adatbazis_kapcsolat->s2('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d szemelyzet_id insert_usr update_usr', 'rendszeres_karbantartas', "`recid`='{$_GET['id']}'");
 
-    $utolso_vegrehajtas = $uf['esem_d'];
-    $uf['aktkezd_d'] = str_replace('-', '.', $uf['aktkezd_d']);
-    $uf['aktvege_d'] = str_replace('-', '.', $uf['aktvege_d']);
+    $utolso_vegrehajtas = str_replace('-', '.', $uf['esem_d']);
+    $uf['aktkezd_d']    = str_replace('-', '.', $uf['aktkezd_d']);
+    $uf['aktvege_d']    = str_replace('-', '.', $uf['aktvege_d']);
 
     switch($uf['cikltip']){
         case 'd':
@@ -1580,7 +1580,7 @@ $rendszeres_karbantartas_tomb = $akt_tomb = array(
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
-//Eseti fenntartás
+// Eseti fenntartás
 $nap_rejt = 'dn ';
 $het_rejt = 'dn ';
 $ho_rejt  = 'dn ';
@@ -1588,9 +1588,9 @@ $utolso_vegrehajtas = '';
 if(basename(self())=='eseti_fenntartas.php'){
     $uf = $adatbazis_kapcsolat->s2('cikltip ciklaltip ciklnap ciklszorz aktkezd_d aktvege_d idoszakos kezdho kezdnap vegeho vegenap esem_d update_usr insert_usr', 'eseti_fenntartas', "`recid`='{$_GET['id']}'");
 
-    $utolso_vegrehajtas = $uf['esem_d'];
-    $uf['aktkezd_d'] = str_replace('-', '.', $uf['aktkezd_d']);
-    $uf['aktvege_d'] = str_replace('-', '.', $uf['aktvege_d']);
+    $utolso_vegrehajtas = str_replace('-', '.', $uf['esem_d']);
+    $uf['aktkezd_d']    = str_replace('-', '.', $uf['aktkezd_d']);
+    $uf['aktvege_d']    = str_replace('-', '.', $uf['aktvege_d']);
 
     switch($uf['cikltip']){
         case 'd':
@@ -1660,9 +1660,9 @@ $eseti_fenntartas_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',            'name' => 'gep_id',         'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
     array('type' => 'text',                     'megn' => 'Feladat:',           'name' => 'nev',            'szuro' => 1,  'maxlength' => 250, 'class' => 'oriasi'),
     array('type' => 'checkbox',                 'megn' => 'Hatósági:',          'name' => 'hatosagi',       'szuro' => 1,  'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'text',                     'megn' => 'Utoljára ütemezve:', 'name' => 'utnap_d',        'szuro' => 1,  'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
-    array('type' => 'text',                     'megn' => 'Hatályos:',          'name' => 'hataly_d',       'szuro' => 1,  'class' => 'datepicker'),
-    array('type' => 'text',                     'megn' => 'Utolsó esedékesség:','name' => 'utesnap_d',      'szuro' => 1,  'class' => 'datepicker'),
+    // array('type' => 'text',                     'megn' => 'Utoljára ütemezve:', 'name' => 'utnap_d',        'szuro' => 1,  'class' => 'datepicker', 'osszevon' => 1, 'post' => '<span style="margin-left: 2rem"></span>'),
+    // array('type' => 'text',                     'megn' => 'Hatályos:',          'name' => 'hataly_d',       'szuro' => 1,  'class' => 'datepicker'),
+    // array('type' => 'text',                     'megn' => 'Utolsó esedékesség:','name' => 'utesnap_d',      'szuro' => 1,  'class' => 'datepicker'),
     array('type' => 'text',                     'megn' => 'Riasztás:',          'name' => 'riaszt',         'szuro' => 1,  'maxlength' => 250, 'style' => 'width: 3.5rem', 'post' => ' nappal az esedékesség előtt'),
     array('type' => 'textarea',                 'megn' => 'Leírás:',            'name' => 'leiras',         'szuro' => 1,  'disabled' => $disabled,    'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images', 'width' => '100%', 'height' => '150'),
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',  'name' => 'szemelyzet_id', 'szuro' => 1, 'class' => 'disableNav', 'post' => ' Utoljára végrehajtva: <b>'.$utolso_vegrehajtas.'</b>' , 'alert' => 'Kérjük adja meg a hozzárendelt személyzetet!', 'onchange' => 'ut_kulso_kivitlezo_beallit();'),
@@ -1678,7 +1678,7 @@ $eseti_fenntartas_tomb = $akt_tomb = array(
     array('type' => 'html',                     'megn' => '<div class="dtc form_jobb" style="padding: 0rem 0 0rem 1rem">'),
         array('type' => 'select_cikltip',       'megn' => '', 'megn_szurobe' => 'Ütemezés típus:',    'name' => 'cikltip', 'class' => 'f_cikltip disableNav', 'szuro' => 1, 'style' => 'margin-left: -1.2rem'  ),
     array('type' => 'html',                     'megn' => '<fieldset style="width: auto; margin-top: 0.2rem; margin-left: -0.5rem;">'),
-        array('type' => 'text',                     'megn' => '<span style="margin-left: 0.5rem"></span>Esedékes:',         'name' => 'esnap_d', 'szuro' => 1,     'class' => 'datepicker'),
+        array('type' => 'text',                     'megn' => '<span style="margin-left: 0.5rem"></span>Esedékes:',         'name' => 'esnap_d', 'szuro' => 1,     'class' => 'datepicker', 'alert' => 'Kérjük adja meg az esedékességet!'),
 
         // Naponta
         array('type' => 'html',                     'megn' => nl2('<div id="tipus_d" style="padding: 0" class="'.$nap_rejt.'cikltip">')),

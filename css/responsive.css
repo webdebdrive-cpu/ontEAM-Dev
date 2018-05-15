@@ -64,7 +64,7 @@
         padding: 0.5rem 0.5rem 0.5rem 0.5rem;
     }
 
-    .form_bal, .form_bal .link {
+    .form_bal, .form_bal .link, .form_jobb {
         font-size: 1rem;
     }
     .form_bal .f12 {
@@ -76,10 +76,10 @@
         padding: 0.5rem 0.5rem 0.5rem 0.5rem;
     }
 
-    input[name="szallito_id_autocomp"],
-    input[name="tipus_id_autocomp"] {
+    /* Ez miért kellett? Mert az Eseti fenntartásnál problémát okozott, hogy túl rövid volt az input
+    input[name="szallito_id_autocomp"], input[name="tipus_id_autocomp"] {
         width: 20rem!important;
-    }
+    }*/
 
     table.csikos th {
         font-size: 1rem;
@@ -87,6 +87,41 @@
 
     table.csikos td {
         font-size: 1rem;
+    }
+    
+    select {
+        font-size: 1rem;
+    }
+
+    input {
+        padding: 0.2rem 0.2rem 0.2rem 0.2rem;
+        font-size: 1rem;
+    }
+
+    textarea {
+        font-size: 1rem;
+    }
+    
+    input.gomb {
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+    
+    input.gomb.zold, input.gombb {
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+    
+    input.gombb_alert {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+    }
+
+    #popup div.popup_tart button, #popup div.popup_tart input[type="submit"] {
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
     }
 }
 
@@ -99,19 +134,6 @@
         line-height: 1.2rem;
         font-size: 1rem;
         padding: 1rem 1rem 1rem 1rem;
-    }
-
-    select {
-        font-size: 1rem;
-    }
-
-    input {
-        padding: 0.2rem 0.2rem 0.2rem 0.2rem;
-        font-size: 1rem;
-    }
-
-    textarea {
-        font-size: 1rem;
     }
 
     table.sar-table th {
@@ -137,11 +159,6 @@
     #sddm li a {
         font-size: 1rem;
         padding: 0.8rem 0.6rem;
-    }
-
-    input.gomb {
-        font-size: 1rem;
-        padding: 0.5rem;
     }
 
     #sddm div {
@@ -174,11 +191,6 @@
     .form_jobb {
         font-size: 1rem;
         padding: 0.1rem 0rem 0rem 0rem;
-    }
-
-    input.gomb.zold, input.gombb {
-        font-size: 1rem;
-        padding: 0.5rem;
     }
 
     div.kijeloltek_muv div.muv {
@@ -327,18 +339,6 @@
         height: calc(100% - 11rem);
     }
 
-    input.gombb_alert {
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
-        padding: 0.5rem;
-    }
-
-    #popup div.popup_tart button, #popup div.popup_tart input[type="submit"] {
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
-        padding: 0.5rem;
-    }
-
     div.figy div.header {
         font-size: 1.2rem;
         height: 3.5rem;
@@ -403,7 +403,6 @@
     div.naplo a.torles {
         background-size: 1.6rem 1.6rem;
         height: 1.8rem;
-        1.8rem;
     }
 
     table.csikos th.szerepkor_jog {

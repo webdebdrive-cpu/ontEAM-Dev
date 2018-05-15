@@ -1891,6 +1891,9 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $where .= "`usr_reszleg_id`='{$felh['reszleg_id']}'";
             }
         }
+        if($tabla == 'eseti_fenntartas'){
+            $where = "`".get_db_tabla()."eseti_fenntartas`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
         if($tabla == 'eszkozkezeles'){
             $where = "`".get_db_tabla()."eszkozkezeles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
