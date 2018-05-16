@@ -1921,9 +1921,9 @@ if( isset($_POST['kulsokivHozzarend']) ) {
         if( $telephely === false ) { $db_error = true; }
 
         // Státusz ellenőrzése
-        if( $munkalap['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT ) {
+        if( $munkalap['stat_id'] != MUNKALAP_STAT_ELOKESZITES_ALATT && $munkalap['stat_id'] != MUNKALAP_STAT_HOZZARENDELT ) {
             echo json_encode(array(
-                'hiba'  => 'Csak Előkészítés alatt státuszban lehet szállítót választani!',
+                'hiba'  => 'Csak Előkészítés alatt vagy Hozzárendelt státuszban lehet szállítót választani!',
                 'title' => 'Hiba',
             ));
             $weblap->leallit();
