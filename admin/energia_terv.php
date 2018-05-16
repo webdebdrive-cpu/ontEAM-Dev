@@ -71,12 +71,36 @@ if (isset($_POST['get_egysegarak'])) {
             ');
 
             foreach($honapok as $key => $honap) {
+                $sorszam = sprintf('%02d', $key + 1);
+
+                $kulso_val = $egysegar['dnem'.$sorszam];
+                if( !$kulso_val ) {
+                    $kulso_val = 0;
+                }
+
+                $kulso_ertek = $adatbazis_kapcsolat->s2('info', 'erteklista', '`id`=\''.$kulso_val.'\' and `csoport` = \'21\'', '', '1');
+
                 $html .= nl2('
                     <div class="dtr">
                         <div class="dtc">'.$honap.'</div>
-                        <div class="dtc">'.$egysegar['ear'.sprintf('%02d', $key + 1)].'</div>
-                        <div class="dtc">'.$egysegar['dnem'.sprintf('%02d', $key + 1)].'</div>
-                        <div class="dtc">'.$egysegar['arf'.sprintf('%02d', $key + 1)].'</div>
+                        <div class="dtc"><input type="text" name="ear'.$sorszam.'" id="ear'.$sorszam.'" class="f_num" data-tort="3" value="'.str_replace('.', ',', $egysegar['ear'.$sorszam]).'"></div>
+                        <div class="dtc">
+                            <input type="text" autocomplete="off" class="csillag autocomp" name="dnem'.$sorszam.'_autocomp" id="dnem'.$sorszam.'_autocomp" style="min-width: inherit; width: 5rem;" value="'.$kulso_ertek['info'].'" data-origin-val="'.$kulso_ertek['info'].'">
+                            <script>
+                                $(document).ready(function() {
+                                    $(\'#dnem'.$sorszam.'_autocomp\').autocomplete({
+                                        \'php_fajl\'        : \'../autocomplete.php\',
+                                        \'tabla\'           : \'erteklista\',
+                                        \'oszlop_keres\'    : \'info\',
+                                        \'oszlop_listaz\'   : \'info\',
+                                        \'csoport\'         : 21,
+                                        \'id_kiir\'         : \'id\',
+                                        \'popupba\'         : true
+                                    });
+                                });
+                            </script>
+                        </div>
+                        <div class="dtc"><input type="text" name="arf'.$sorszam.'" id="arf'.$sorszam.'" class="f_num" data-tort="5" value="'.str_replace('.', ',', $egysegar['arf'.$sorszam]).'"></div>
                     </div>
                 ');
             }
