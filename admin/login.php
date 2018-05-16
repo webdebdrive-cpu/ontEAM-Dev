@@ -56,6 +56,9 @@ if( isset($_POST['jogokhozzaad']) ) {
     // Kitöröljük a nem kívánatos POST elemeket
     unset($_POST['id']);
     unset($_POST['jogokhozzaad']);
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
 
     // Tömb sorrendezése
     $jogok      = array();
@@ -73,7 +76,21 @@ if( isset($_POST['jogokhozzaad']) ) {
 
     ksort($jogok);
 
-    $adatbazis_kapcsolat -> u('login',  array('flags'), array(implode('', $jogok)), "`recid`='{$id}'");
+    // Log tartalmának beállítása
+    $flags = $adatbazis_kapcsolat->s2('flags', 'login', "`recid`='{$id}'");
+    if( $flags === false ) { $db_error = true; }
+    $log = 'Előző jogok: '.$flags['flags'].'. Új jogok: '.implode('', $jogok);
+    
+    // Új jogok letárolása
+    $sql = $adatbazis_kapcsolat -> u('login',  array('flags'), array(implode('', $jogok)), "`recid`='{$id}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Logba is eltároljuk
+    $sql = $adatbazis_kapcsolat -> i('log',
+                                array( 'felh_id',                               'nev',                                                                                    'valtozas',    'ip'                    ),
+                                array( $_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' módosította '.$id.' felhasználó jogosultságait', $log,          $_SERVER['REMOTE_ADDR'] )
+                            );
+    if( $sql === false ) { $db_error = true; }
     
     // A formAdatok JS változoiót frissíteni kell
     require_once('jogosultsag.php');
@@ -88,7 +105,15 @@ if( isset($_POST['jogokhozzaad']) ) {
 
         $i++;
     }
-    echo json_encode($jogEll);
+    
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode($jogEll);
+    } else {
+        mysqli_rollback($db_kapcs);
+    }
+    
 
     $weblap->leallit();
     exit();
@@ -101,6 +126,9 @@ if( isset($_POST['ertekhozzaad']) ) {
     // Kitöröljük a nem kívánatos POST elemeket
     unset($_POST['id']);
     unset($_POST['ertekhozzaad']);
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
 
     // Tömb sorrendezése
     $ertek      = array();
@@ -118,7 +146,22 @@ if( isset($_POST['ertekhozzaad']) ) {
 
     ksort($ertek);
 
-    $adatbazis_kapcsolat -> u('login',  array('flags_ert'), array(implode('', $ertek)), "`recid`='{$id}'");
+    
+    // Log tartalmának beállítása
+    $flags = $adatbazis_kapcsolat->s2('flags_ert', 'login', "`recid`='{$id}'");
+    if( $flags === false ) { $db_error = true; }
+    $log = 'Előző értesítések: '.$flags['flags_ert'].'. Új értesítések: '.implode('', $ertek);
+    
+    // Új értesítések letárolása
+    $sql = $adatbazis_kapcsolat -> u('login',  array('flags_ert'), array(implode('', $ertek)), "`recid`='{$id}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    // Logba is eltároljuk
+    $sql = $adatbazis_kapcsolat -> i('log',
+                                array( 'felh_id',                               'nev',                                                                                  'valtozas',    'ip'                    ),
+                                array( $_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' módosította '.$id.' felhasználó értesítéseit', $log,          $_SERVER['REMOTE_ADDR'] )
+                            );
+    if( $sql === false ) { $db_error = true; }
     
     // A formAdatok JS változoiót frissíteni kell
     require_once('ertesitesek.php');
@@ -133,7 +176,13 @@ if( isset($_POST['ertekhozzaad']) ) {
 
         $i++;
     }
-    echo json_encode($ertEll);
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode($ertEll);
+    } else {
+        mysqli_rollback($db_kapcs);
+    }
 
     $weblap->leallit();
     exit();

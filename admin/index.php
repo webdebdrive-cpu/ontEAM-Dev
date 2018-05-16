@@ -37,9 +37,9 @@ if (isset($_GET['stat_ido'])) {
 // Loginról értesítő levelek küldése
 if (isset($_GET['login_ertesit'])) {
     
-    $szalloda_nev  = 'ARENA';   // HUNGARIA
-    $szalloda_id   = '2090';    // 2120
-    $galyasz_bence = true;
+    $szalloda_nev  = 'HUNGARIA';
+    $szalloda_id   = '2120';
+    $galyasz_bence = false;
 
     $heliasok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$szalloda_id}'");
     $heliasok = adatbazis2tomb($heliasok, 'nev');
@@ -50,7 +50,7 @@ if (isset($_GET['login_ertesit'])) {
 $uzi = '
 Tisztelt '.$login['teljes_nev'].'!
 <br>
-<br>Az '.get_nev().' rendszer 2018.05.10 csütörtök reggel 7:00 időpontban indul a '.$szalloda_nev.' szállodában.
+<br>Az '.get_nev().' rendszer 2018.05.16 csütörtök reggel 7:00 időpontban indul a '.$szalloda_nev.' szállodában.
 <br>
 <br>Kérjük, hogy ettől az időponttól hibabejelentéseiket az '.get_nev().' rendszerben tegyék meg.
 <br>
@@ -79,7 +79,6 @@ $uzi .= fajlbol_olvas('../sablon/admin/mail/alairas.html');
 
 
             //var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
-//            var_dump( level_kuldes(get_nev(), get_mail(), 'Handrai Tamás', 'handari@szinvatrend.hu', 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
 
         }
     }
@@ -148,7 +147,7 @@ if (isset($_GET['loginnev_import'])) {
                             if( $statusz == 'Szálloda igazgató' || $statusz == 'Szálloda igazgató 1' || $statusz == 'Szálloda igazgató 2' ){
                                 $szemelyzet_id = SZALLODA_IGAZGATO;
                             }
-                            if( $statusz == 'Létesítmény főmérnök' ){
+                            if( $statusz == 'Létesítmény főmérnök' || $statusz == 'Létesítmény felelős' ){
                                 $szemelyzet_id = MUSZAKI_VEZETO;
                             }
                         break;
@@ -313,7 +312,9 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                         
                                         if( isset($_GET['mehet']) ){
                                             if(!$adatbazis_kapcsolat->s('recid', 'telephely_kapcs', "`nev`='{$login_nev}' AND `telephely_id`='{$szall_id['id']}'")){
-                                                $adatbazis_kapcsolat->i('telephely_kapcs', array('nev', 'telephely_id'), array($login_nev, $szall_id['id']));
+                                                $adatbazis_kapcsolat->i('telephely_kapcs',  array('nev',        'telephely_id',  'insert_dt', 'insert_usr', 'update_usr'),
+                                                                                            array($login_nev,   $szall_id['id'], 'NOW()',     get_nev(),    get_nev()   )
+                                                                        );
 if (isset($_GET['teszt'])) {
 echo $adatbazis_kapcsolat->gp() . '<br>';
 }
@@ -485,18 +486,43 @@ echo $felh['nev'] . ', ';
 }
 
 // 
-if (isset($_GET['munkalap_kapcs_javit'])) {
-    $kapcsolatok = $adatbazis_kapcsolat->s('*', 'munkalap_kapcs');
-    foreach ($kapcsolatok as $kapcs){
-        $bejelentes = $adatbazis_kapcsolat->s2('surgos', 'bejelentes', "`recid`='{$kapcs['bejelentes_id']}'");
-        $munkalap   = $adatbazis_kapcsolat->s2('surgos', 'munkalap',   "`recid`='{$kapcs['munkalap_id']}'");
-        if($bejelentes['surgos'] != $munkalap['surgos']){
-            $adatbazis_kapcsolat->u('munkalap', array('surgos'), array($bejelentes['surgos']), "`recid`='{$kapcs['munkalap_id']}'");
-            echo $adatbazis_kapcsolat->gp() . '<br>';
+if (isset($_GET['login_szall_kapcs'])) {
+    
+    $log = 'Login név;Telephely ID;Kapcsolat recid;Login insert_dt;Kapcsolat insert_dt'."\r\n";
+    $loginok = $adatbazis_kapcsolat->s('nev insert_dt', 'login');
+    foreach( $loginok as $login ){
+        
+        $kapcsok = $adatbazis_kapcsolat->s('recid insert_dt telephely_id', 'telephely_kapcs', "`nev`='{$login['nev']}'");
+        if( count($kapcsok)>1 ){
+            
+            foreach ( $kapcsok as $kapcs ){
+                if($kapcs['insert_dt']<$login['insert_dt']){
+                    $log .= $login['nev'].';'.$kapcs['telephely_id'].';'.$kapcs['recid'].';'.$login['insert_dt'].';'.$kapcs['insert_dt']."\r\n";
+                }
+            }
         }
+        
     }
+    
+    echo $log . '<br>';
+    
     exit;
 }
+
+
+// Munkalap kapcsolat javítás
+//if (isset($_GET['munkalap_kapcs_javit'])) {
+//    $kapcsolatok = $adatbazis_kapcsolat->s('*', 'munkalap_kapcs');
+//    foreach ($kapcsolatok as $kapcs){
+//        $bejelentes = $adatbazis_kapcsolat->s2('surgos', 'bejelentes', "`recid`='{$kapcs['bejelentes_id']}'");
+//        $munkalap   = $adatbazis_kapcsolat->s2('surgos', 'munkalap',   "`recid`='{$kapcs['munkalap_id']}'");
+//        if($bejelentes['surgos'] != $munkalap['surgos']){
+//            $adatbazis_kapcsolat->u('munkalap', array('surgos'), array($bejelentes['surgos']), "`recid`='{$kapcs['munkalap_id']}'");
+//            echo $adatbazis_kapcsolat->gp() . '<br>';
+//        }
+//    }
+//    exit;
+//}
 
 /*
 // Bejelentések törlése, hogy a gyakorló felület ne legyen tele adatokkal

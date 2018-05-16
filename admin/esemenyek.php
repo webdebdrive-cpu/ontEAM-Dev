@@ -3839,14 +3839,26 @@ if (isset($_POST['surgosseg_allit'])) {
 // Szálloda hozzáadása felhasználóhoz ajaxosan
 if( isset($_GET['addSzalloda']) ) {
 
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
     $loginID  = $_GET['loginID'];
     $szallIDs = json_decode($_GET['szallIDs'], true);
 
     if( $loginID && count($szallIDs) ) {
-        $felh = $adatbazis_kapcsolat->s2('nev', 'login', 'recid='.$loginID, '', '1');
-
+        
+        $felh = $adatbazis_kapcsolat->s2('nev', 'login', "`recid`='{$loginID}'");
         if( $felh ) {
-            $adatbazis_kapcsolat -> d('telephely_kapcs', "`nev` = '".$felh['nev']."'");
+            
+            $log = '';
+            $akt_szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$felh['nev']}'");
+            if( $akt_szallodak === false ) { $db_error = true; }
+            $akt_szallodak = adatbazis2tomb($akt_szallodak, 'telephely_id');
+            
+            $log .= 'Aktuális szállodák: '.implode(', ', $akt_szallodak).'. Új szállodák: '.implode(', ', $szallIDs);
+            
+            $sql = $adatbazis_kapcsolat -> d('telephely_kapcs', "`nev`='{$felh['nev']}'");
+            if( $sql === false ) { $db_error = true; }
 
             // Hozzáadjuk a szállodákat
             foreach($szallIDs as $key => $szallID) {
@@ -3854,17 +3866,34 @@ if( isset($_GET['addSzalloda']) ) {
                     array('nev',        'telephely_id', 'insert_dt',    'insert_usr',                           'update_usr'                            ),
                     array($felh['nev'], $szallID,       'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
                 );
+                if( $kapcsID === false ) { $db_error = true; }
             }
+            
+            // Logba is eltároljuk
+            $sql = $adatbazis_kapcsolat -> i('log',
+                                        array( 'felh_id',                               'nev',                                                               'valtozas',    'ip'                    ),
+                                        array( $_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' módosította a szállodákat', $log,          $_SERVER['REMOTE_ADDR'] )
+                                    );
+            if( $sql === false ) { $db_error = true; }
 
-            echo json_encode(array(
-                'statusz' => 'siker',
-                'kapcsID' => $kapcsID,
-                'uzi'     => ''
-            ));
+            if( !$db_error ) {
+                mysqli_commit($db_kapcs);
+                echo json_encode(array(
+                    'statusz' => 'siker',
+                    'kapcsID' => $kapcsID,
+                    'uzi'     => ''
+                ));
+            } else {
+                mysqli_rollback($db_kapcs);
+                echo json_encode(array(
+                    'hiba' => tranzakcioHiba()
+                ));
+            }
+            
         } else {
             echo json_encode(array(
                 'statusz' => 'hiba',
-                'uzi'     => 'Ez a szálloda már hozzáadásra került!'
+                'uzi'     => 'Felhasználó azonosítása nem sikerült!'
             ));
         }
     }
