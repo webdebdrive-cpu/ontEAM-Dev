@@ -6271,6 +6271,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $targy   =  get_nev().' bejelentett hiba elutasítva';
             $uzi     =  'Az Ön által bejelentett hiba elutasításra került.
                         <br>'.
+                        $extra_szoveg.
                         $uzi.
                         fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;

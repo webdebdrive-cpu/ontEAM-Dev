@@ -452,8 +452,6 @@ $(function() {
                         if( kovSzamlaSor < 0 ) {
                             kovSzamlaSor = szamlaDb;
                             elso_utolso  = true;
-
-
                         }
                     } else if( e.keyCode == KEY_DOWN ) {
                         kovSzamlaSor = active + 1;

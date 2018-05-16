@@ -123,6 +123,10 @@
         margin-bottom: 0.5rem;
         padding: 0.5rem;
     }
+    
+    .form_jobb.statusz div.text span {
+        font-size: 1rem;
+    }
 }
 
 @media only screen and (max-width: 1024px) {

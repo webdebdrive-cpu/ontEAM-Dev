@@ -138,7 +138,7 @@
                             obj_id = $('#obj_id').val();
                         }
 
-                        if(e.keyCode!=40 && e.keyCode!=38 && e.keyCode!=KEY_ENTER) {
+                        if(e.keyCode!=KEY_DOWN && e.keyCode!=KEY_UP && e.keyCode!=KEY_ENTER) {
 
                             $.ajax({
                                 url     : options.php_fajl,
@@ -388,7 +388,7 @@
                 var first   = $('#autocomplete ul li:first-child');
                 var last    = $('#autocomplete ul li:last-child');
 
-                if(e.keyCode==38) {
+                if(e.keyCode==KEY_UP) {
                     if(!$('#autocomplete ul li').hasClass('aktiv')) {
                         last.addClass('aktiv');
                     } else {

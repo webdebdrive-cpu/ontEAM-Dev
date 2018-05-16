@@ -497,7 +497,8 @@ require_once('selectek.php');
                                         return false;
                                     }else{
                                         login_mehet = true;
-                                        return form_ell_admin();
+                                        $(\'#szerk_form\').submit();
+                                        /*return form_ell_admin();*/
                                     }
                                     
                                 });

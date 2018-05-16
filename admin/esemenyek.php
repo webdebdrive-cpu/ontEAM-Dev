@@ -2905,7 +2905,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
     $tabla          = $_POST['tabla'];
     $elutasitas_id  = $_POST['elutasitas_id'];
     $erteklista     = $adatbazis_kapcsolat->s2('info', 'erteklista', "`recid`='{$elutasitas_id}'");
-    $memo           = $erteklista['info']."\r\n".$_POST['memo'];
+    $memo           = 'Elutasítás oka:'."\r\n".$erteklista['info']."\r\n".$_POST['memo'];
     $csak_memo      = $_POST['csak_memo'];
     $idk            = json_decode($_POST['idk'], true);
 
@@ -2948,9 +2948,10 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
                 exit();
             }
 
-            $statusz     = BEJELENTES_STAT_ELUTASITVA;
-            $level_tabla = 'bejelentes';
-            $level_jog   = ERT_BEJ_ELUTASITKOR;
+            $statusz        = BEJELENTES_STAT_ELUTASITVA;
+            $level_tabla    = 'bejelentes';
+            $level_jog      = ERT_BEJ_ELUTASITKOR;
+            $extra_szoveg   = '<br>Elutasítás oka: '.$erteklista['info'].'<br>';
         break;
         case 'projektigenyles':
             $statusz = PRIGENY_STAT_ELUTASITVA;
@@ -3013,7 +3014,7 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
 
                 $hiba = '';
                 foreach($idk as $id){
-                    $valasz = level_felkeszit_es_kuld($level_tabla, $id, $level_jog, 'bejelentesElutasit', 'bejelento');
+                    $valasz = level_felkeszit_es_kuld($level_tabla, $id, $level_jog, 'bejelentesElutasit', 'bejelento', $extra_szoveg);
                     if( substr($valasz, 0, 4)=='Hiba' ){
                         $hiba .= $valasz;
                     }
@@ -3261,7 +3262,7 @@ if( isset($_GET['addCsoport']) ) {
                                         );
         if( $uj_csopid === false ) { $db_error = true; }
 
-        /* Select előállítása */
+        // Select előállítása
         $html = '<select id="csoportID" name="csoportID"><option value="">- Válasszon -</option>';
 
         $csoportok = $adatbazis_kapcsolat->s('recid nev', $page.'_csoport', '', 'nev', '');
@@ -4408,7 +4409,7 @@ foreach($postok as $ertek){
         $sql = $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='{$ertek['tabla']}' AND `id`='{$_GET[$ertek['torid']]}'");
         if( $sql === false ) { $db_error = true; }
         // Státusz tábla törlése, hacsak nem kivételes
-        $kivetelek = array('cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'felmeresi_terv', 'utemezett_feladatok', 'rendszeres_karbantartas', 'szerepkor');
+        $kivetelek = array('cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'ktgnem', 'ktghely', 'utemezett_feladatok', 'rendszeres_karbantartas', 'szerepkor');
         if( !in_array($ertek['tabla'], $kivetelek) ){
             $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }

@@ -284,16 +284,21 @@ foreach($akt_tomb as $ertek){
 
             $statusz = '';
 
-            if( $statusz_sor ) {
+            if( $statusz_sor )  {
 
-                // Státusz kiegészítés - Korábban ki kellett írni az értéklistát, az eludtasítás indoklás miatt? Mot már nem kell
-                /*$statusz_text = '';
-                if( $statusz_sor['erteklista_recid'] ) {
-                    $erteklista = $adatbazis_kapcsolat->s2('info', 'erteklista', 'recid='.$statusz_sor['erteklista_recid'], '', '1');
-                    if( $ertek ) {
-                        $statusz_text = '<p>'.$erteklista['info'].'</p>';
+                // Státusz kiegészítés - Korábban ki kellett írni az értéklistát, az eludtasítás indoklás miatt? Most már nem kell
+                $statusz_text = '';
+                if( 
+                    ($ertek['oldal']=='bejelentes' && $statusz_sor['stat_id']==BEJELENTES_STAT_ELUTASITVA )
+                ){
+                    $statusz = $adatbazis_kapcsolat->s2('erteklista_recid', $ertek['oldal'].'_statusz', "`{$ertek['oldal']}_recid`='{$_GET['id']}'", 'recid desc', '1');
+                    if( $statusz['erteklista_recid'] ) {
+                        $erteklista = $adatbazis_kapcsolat->s2('info', 'erteklista', 'recid='.$statusz['erteklista_recid']);
+                        if( $ertek ) {
+                            $statusz_text = $erteklista['info'];
+                        }
                     }
-                }*/
+                }
 
                 // Státusz neve
                 $statusz = getStatText($ertek['oldal'], $statusz_sor['stat_id']);
@@ -308,8 +313,7 @@ foreach($akt_tomb as $ertek){
                 <div class="dtr">
                     <div class="dtc form_bal"><span>'.$ertek['megn'].'</span></div>
                     <div class="dtc form_jobb statusz">
-                        <div class="text"'.$text_color.'>'.$statusz.'</div>
-                        '.$statusz_text.'
+                        <div class="text"'.$text_color.'>'.$statusz.' <span>'.$statusz_text.'</span></div>
                     </div>
                 </div>
             ');
