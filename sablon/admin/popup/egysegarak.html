@@ -1,7 +1,79 @@
 <h2>Egységárak</h2>
-<form action="" id="egysegarakForm" class="popupForm" method="post">
+<form action="" id="egysegarakForm" class="popupForm" method="post" onsubmit="return egysegarMentes( this );">
     <div id="setEgysegarTablazat" class="kozep" style="min-height: 26rem; width: 50rem"></div>
+    <div class="dt egysegarMuv">
+        <div class="dtr">
+            <div class="dtc">
+                Minden
+                <select name="egysk_ciklus">
+                    <option value="1">havi</option>
+                    <option value="2">2 havi</option>
+                    <option value="3">negyedév</option>
+                    <option value="6">félév</option>
+                </select>
+            </div>
+            <div class="dtc">
+                legyen
+                <input type="text" name="egysk_ertek" class="f_num" data-tort="3" value="0,000">
+            </div>
+            <div class="dtc">
+                Kezdő hónap:
+                <select name="egysk_honap">
+                    <option value="01">Január</option>
+                    <option value="02">Február</option>
+                    <option value="03">Március</option>
+                    <option value="04">Április</option>
+                    <option value="05">Május</option>
+                    <option value="06">Június</option>
+                    <option value="07">Július</option>
+                    <option value="08">Augusztus</option>
+                    <option value="09">Szeptember</option>
+                    <option value="10">Október</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+            <div class="dtc">
+                <input type="button" name="" class="gomb" value="Kitölt" onclick="egysegarMuv( 'egysk_', 'kitolt' );">
+            </div>
+        </div>
+        <div class="dtr">
+            <div class="dtc">
+                <input type="text" name="egysv_ertek" class="f_num" data-tort="3" value="0,000">
+            </div>
+            <div class="dtc">
+                legyen visszaosztva
+                <select name="egysv_ciklus">
+                    <option value="1">havonta</option>
+                    <option value="2">2 havonta</option>
+                    <option value="3">negyedévente</option>
+                    <option value="6">félévente</option>
+                </select>
+            </div>
+            <div class="dtc">
+                Kezdő hónap:
+                <select name="egysv_honap">
+                    <option value="01">Január</option>
+                    <option value="02">Február</option>
+                    <option value="03">Március</option>
+                    <option value="04">Április</option>
+                    <option value="05">Május</option>
+                    <option value="06">Június</option>
+                    <option value="07">Július</option>
+                    <option value="08">Augusztus</option>
+                    <option value="09">Szeptember</option>
+                    <option value="10">Október</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+            <div class="dtc">
+                <input type="button" name="" class="gomb" value="Visszaosztás" onclick="egysegarMuv( 'egysv_', 'visszaoszt' );">
+            </div>
+        </div>
+    </div>
     <div class="kuldes">
+        <input type="hidden" name="egysegarsor_id" id="egysegarsor_id" value="">
         <input type="submit" name="elkuld" value="Mentés">
         <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
     </div>

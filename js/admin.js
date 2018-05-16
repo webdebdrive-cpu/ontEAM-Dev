@@ -1650,6 +1650,60 @@ $(function() {
     });
 });
 
+function egysegarMuv( pre, muvelet ) {
+    var ciklus  = parseInt($('select[name="' + pre + 'ciklus"]').val()),
+        ertek   = $('input[name="' + pre + 'ertek"]').val(),
+        honap   = $('select[name="' + pre + 'honap"]').val();
+
+    var inputok = $('#setEgysegarTablazat').find('input[name^="ear"]');
+
+    inputok.each(function(index, el) {
+        index++;
+        var sorszam = ('0' + index).slice(-2);
+
+        if( sorszam == honap ) {
+            if( muvelet == 'kitolt' ) {
+                for(var i = index; i <= 12; i += ciklus) {
+                    var uj_sorszam = ('0' + i).slice(-2);
+                    $('input[name="ear' + uj_sorszam + '"]').val(ertek);
+                }
+            } else if( muvelet == 'visszaoszt' ) {
+                for(var i = index; i >= 1; i -= ciklus) {
+                    var uj_sorszam = ('0' + i).slice(-2);
+                    $('input[name="ear' + uj_sorszam + '"]').val(ertek);
+                }
+            }
+
+            return false;
+        }
+    });
+}
+
+function egysegarMentes( that ) {
+    if( $(that).length ) {
+        $.ajax({
+         	url : 'energia_terv.php',
+         	type: 'POST',
+         	data: $(that).serialize() + '&egysegarMentes=' + new Date().getTime(),
+         	success: function(response) {
+         		if(response) {
+         			response = JSON.parse(response);
+
+         			if( response.hiba ) {
+         				alert2(response.hiba);
+         				return false;
+         			}
+
+                    popupZar();
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'egysegarak');
+         		}
+         	}
+        });
+    }
+
+    return false;
+}
+
 /* Mailto beállítása a felső ikonsor mail ikonjához */
 function sendMail( that, file ) {
     szamlaSorok = $('.szamla_cont_tabla tr.kijelolve');
@@ -4501,7 +4555,8 @@ function kapcsolodoSzerkeszt( oldal ) {
                      				notice(response.hiba);
                      				return false;
                      			}
-                                
+
+                                $('#egysegarsor_id').val(id);
                                 $('#setEgysegarTablazat').html(response.html);
                      		}
                      	}
@@ -6572,7 +6627,7 @@ function szalloda_modell( that ) {
     var modell = parseInt($(that).find(":selected").attr('data-modell'));
 
     if( $('#mobilcsoport_opt').length ) {
-        
+
         if( modell ) {
             $('#mobilcsoport_opt').removeClass('dn');
         } else {

@@ -49,6 +49,38 @@ if($tobb_kep){
 }
 
 // Egységárak lekérdezése
+if (isset($_POST['egysegarMentes'])) {
+    $mit = array();
+    $mire = array();
+
+    for($i = 1; $i <= 12; $i++) {
+        $sorszam = sprintf('%02d', $i);
+
+        // Egységára
+        array_push($mit,    'ear'.$sorszam);
+        array_push($mire,   str_replace(',', '.', $_POST['ear'.$sorszam]));
+
+        // Deviza
+        array_push($mit,    'dnem'.$sorszam);
+        array_push($mire,   $_POST['dnem'.$sorszam]);
+
+        // Árfolyam
+        array_push($mit,    'arf'.$sorszam);
+        array_push($mire,   str_replace(',', '.', $_POST['arf'.$sorszam]));
+    }
+
+    // Frissítés
+    $adatbazis_kapcsolat -> u('energia_terv_ear', $mit, $mire, 'recid='.$_POST['egysegarsor_id']);
+
+    echo json_encode(array(
+        'statusz' => 'OK'
+    ));
+
+    $weblap->leallit();
+    exit();
+}
+
+// Egységárak lekérdezése
 if (isset($_POST['get_egysegarak'])) {
     $id = $_POST['id'];
 
@@ -78,7 +110,7 @@ if (isset($_POST['get_egysegarak'])) {
                     $kulso_val = 0;
                 }
 
-                $kulso_ertek = $adatbazis_kapcsolat->s2('info', 'erteklista', '`id`=\''.$kulso_val.'\' and `csoport` = \'21\'', '', '1');
+                $kulso_ertek = $adatbazis_kapcsolat->s2('id info', 'erteklista', '`id`=\''.$kulso_val.'\' and `csoport` = \'21\'', '', '1');
 
                 $html .= nl2('
                     <div class="dtr">
@@ -86,6 +118,7 @@ if (isset($_POST['get_egysegarak'])) {
                         <div class="dtc"><input type="text" name="ear'.$sorszam.'" id="ear'.$sorszam.'" class="f_num" data-tort="3" value="'.str_replace('.', ',', $egysegar['ear'.$sorszam]).'"></div>
                         <div class="dtc">
                             <input type="text" autocomplete="off" class="csillag autocomp" name="dnem'.$sorszam.'_autocomp" id="dnem'.$sorszam.'_autocomp" style="min-width: inherit; width: 5rem;" value="'.$kulso_ertek['info'].'" data-origin-val="'.$kulso_ertek['info'].'">
+                            <input type="hidden" name="dnem'.$sorszam.'" id="dnem'.$sorszam.'" value="'.$kulso_ertek['id'].'">
                             <script>
                                 $(document).ready(function() {
                                     $(\'#dnem'.$sorszam.'_autocomp\').autocomplete({
@@ -909,40 +942,40 @@ require_once('selectek.php');
                     <td>'.$ktgnem['nev'].'</td>
                     <td>'.$egysegar['mee'].'</td>
                     <td>'.$egysegar['ear01'].'</td>
-                    <td>'.$egysegar['dnem01'].'</td>
+                    <td>'.erteklista(21, $egysegar['dnem01']).'</td>
                     <td>'.$egysegar['arf01'].'</td>
                     <td>'.$egysegar['ear02'].'</td>
-                    <td>'.$egysegar['dnem02'].'</td>
+                    <td>'.erteklista(21, $egysegar['dnem02']).'</td>
                     <td>'.$egysegar['arf02'].'</td>
                     <td>'.$egysegar['ear03'].'</td>
-                    <td>'.$egysegar['dnem03'].'</td>
+                    <td>'.erteklista(21, $egysegar['dnem03']).'</td>
                     <td>'.$egysegar['arf03'].'</td>
                     <td>'.$egysegar['ear04'].'</td>
-                    <td>'.$egysegar['dnem04'].'</td>
+                    <td>'.erteklista(21, $egysegar['dnem04']).'</td>
                     <td>'.$egysegar['arf04'].'</td>
                     <td>'.$egysegar['ear05'].'</td>
-                    <td>'.$egysegar['dnem05'].'</td>
+                    <td>'.erteklista(21, $egysegar['dnem05']).'</td>
                     <td>'.$egysegar['arf05'].'</td>
                     <td>'.$egysegar['ear06'].'</td>
-                    <td>'.$egysegar['dnem06'].'</td>
+                    <td>'.erteklista(21, $egysegar['dnem06']).'</td>
                     <td>'.$egysegar['arf06'].'</td>
                     <td>'.$egysegar['ear07'].'</td>
-                    <td>'.$egysegar['dnem07'].'</td>
+                    <td>'.erteklista(21, $egysegar['dnem07']).'</td>
                     <td>'.$egysegar['arf07'].'</td>
                     <td>'.$egysegar['ear08'].'</td>
-                    <td>'.$egysegar['dnem08'].'</td>
+                    <td>'.erteklista(21, $egysegar['dnem08']).'</td>
                     <td>'.$egysegar['arf08'].'</td>
                     <td>'.$egysegar['ear09'].'</td>
-                    <td>'.$egysegar['dnem09'].'</td>
+                    <td>'.erteklista(21, $egysegar['dnem09']).'</td>
                     <td>'.$egysegar['arf09'].'</td>
                     <td>'.$egysegar['ear10'].'</td>
-                    <td>'.$egysegar['dnem10'].'</td>
+                    <td>'.erteklista(21, $egysegar['dnem10']).'</td>
                     <td>'.$egysegar['arf10'].'</td>
                     <td>'.$egysegar['ear11'].'</td>
-                    <td>'.$egysegar['dnem11'].'</td>
+                    <td>'.erteklista(21, $egysegar['dnem11']).'</td>
                     <td>'.$egysegar['arf11'].'</td>
                     <td>'.$egysegar['ear12'].'</td>
-                    <td>'.$egysegar['dnem12'].'</td>
+                    <td>'.erteklista(21, $egysegar['dnem12']).'</td>
                     <td>'.$egysegar['arf12'].'</td>
                 </tr>
                 ';

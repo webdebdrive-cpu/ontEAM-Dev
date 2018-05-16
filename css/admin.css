@@ -3232,3 +3232,19 @@ div.tableCont {
 div.rendBal {
     display: inline-flex;
 }
+
+.egysegarMuv {
+    margin: 1rem 0rem 1rem 0rem;
+}
+
+.egysegarMuv .dtc {
+    padding: .5rem 1rem .5rem 1rem;
+    vertical-align: middle;
+}
+#popup div.popup_tart div.dt.egysegarMuv div.dtc input[type="text"] {
+    min-width: inherit;
+}
+
+.egysegarMuv .dtc .gomb {
+    margin: 0rem 0rem 0rem 0rem;
+}
