@@ -37,8 +37,9 @@ if (isset($_GET['stat_ido'])) {
 // Loginról értesítő levelek küldése
 if (isset($_GET['login_ertesit'])) {
     
-    $szalloda_nev = 'GELLÉRT'; // Most gellér, astória, erzsébet. Utóbbi kettőnek más lesz a telefonos segítség Gályász Bence  + telója, visszakeresni
-    $szalloda_id  = '1050';
+    $szalloda_nev  = 'ARENA';   // HUNGARIA
+    $szalloda_id   = '2090';    // 2120
+    $galyasz_bence = true;
 
     $heliasok = $adatbazis_kapcsolat->s('nev', 'telephely_kapcs', "`telephely_id`='{$szalloda_id}'");
     $heliasok = adatbazis2tomb($heliasok, 'nev');
@@ -55,15 +56,27 @@ Tisztelt '.$login['teljes_nev'].'!
 <br>
 <br>Loginneve az új rendszerben: '.$login['nev'].'
 <br>
-<br>Telefonos segítség: Handari Tamás 70-210-1312
-'. fajlbol_olvas('../sablon/admin/mail/alairas.html');
 
-// B változat szöveg:
-//<br>Az éles indítás napján Gályász Bence (tel: 30-960-9677) '.get_nev().' oktató a szállodában tartózkodik.
-//<br>
-//<br>Kérdés vagy probléma esetén forduljanak hozzá bizalommal.
-//<br>
-//<br>További telefonos segítség: Handari Tamás 70-210-1312
+';
+
+// A levél tartalma eltérő, ha $galyasz_bence igaz vagy hamis
+if($galyasz_bence){
+    $uzi .= '
+<br>Az éles indítás napján Gályász Bence (tel: 30-960-9677) '.get_nev().' oktató a szállodában tartózkodik.
+<br>
+<br>Kérdés vagy probléma esetén forduljanak hozzá bizalommal.
+<br>
+<br>További telefonos segítség: Handari Tamás 70-210-1312
+        ';
+}else{
+    $uzi .= '
+<br>Telefonos segítség: Handari Tamás 70-210-1312
+';
+}
+
+$uzi .= fajlbol_olvas('../sablon/admin/mail/alairas.html');
+
+
 
             //var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
 //            var_dump( level_kuldes(get_nev(), get_mail(), 'Handrai Tamás', 'handari@szinvatrend.hu', 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
