@@ -286,18 +286,27 @@ foreach($akt_tomb as $ertek){
 
             if( $statusz_sor )  {
 
-                // Státusz kiegészítés - Korábban ki kellett írni az értéklistát, az eludtasítás indoklás miatt? Most már nem kell
+                // Státusz kiegészítés bejelentés elutasított státusz esetén
                 $statusz_text = '';
-                if( 
-                    ($ertek['oldal']=='bejelentes' && $statusz_sor['stat_id']==BEJELENTES_STAT_ELUTASITVA )
-                ){
-                    $statusz = $adatbazis_kapcsolat->s2('erteklista_recid', $ertek['oldal'].'_statusz', "`{$ertek['oldal']}_recid`='{$_GET['id']}'", 'recid desc', '1');
+                if($ertek['oldal']=='bejelentes' && $statusz_sor['stat_id']==BEJELENTES_STAT_ELUTASITVA ){
+                    $statusz = $adatbazis_kapcsolat->s2('erteklista_recid text', $ertek['oldal'].'_statusz', "`{$ertek['oldal']}_recid`='{$_GET['id']}'", 'recid desc', '1');
                     if( $statusz['erteklista_recid'] ) {
                         $erteklista = $adatbazis_kapcsolat->s2('info', 'erteklista', 'recid='.$statusz['erteklista_recid']);
                         if( $ertek ) {
-                            $statusz_text = $erteklista['info'];
+                            $statusz_text .= $erteklista['info'];
                         }
+                    }else{
+                        $statusz_text .= $statusz['text'];
                     }
+                }
+                // Státusz kiegészítés bejelentés lezárt státusz esetén
+                // Státusz kiegészítés munkalap lezárt státusz esetén
+                if(
+                    ( $ertek['oldal']=='bejelentes' && $statusz_sor['stat_id']==BEJELENTES_STAT_LEZART  ) ||
+                    ( $ertek['oldal']=='munkalap'   && $statusz_sor['stat_id']==MUNKALAP_STAT_LEZART    )
+                    ){
+                    $statusz = $adatbazis_kapcsolat->s2('text', $ertek['oldal'].'_statusz', "`{$ertek['oldal']}_recid`='{$_GET['id']}'", 'recid desc', '1');
+                    $statusz_text .= $statusz['text'];
                 }
 
                 // Státusz neve

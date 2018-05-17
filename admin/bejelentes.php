@@ -566,7 +566,7 @@ if (isset($_POST['munkalapokFolytat'])) {
 // Bejelentés reklamáció elutasítása
 if( isset($_POST['bejelentesReklamacioElutasit']) ) {
     $recid = $_POST['recid'];
-    $memo  = 'Reklamáció elutasítva'."\r\n".$_POST['memo'];
+    $memo  = 'Reklamáció elutasítva:'."\r\n".$_POST['memo'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -623,7 +623,7 @@ if( isset($_POST['bejelentesReklamacioElutasit']) ) {
             mysqli_commit($db_kapcs);
 
             $hiba = '';
-            $valasz = level_felkeszit_es_kuld('bejelentes', $recid, ERT_BEJ_REKL_ELUTASITKOR, 'bejelentesReklElutasit', 'bejelento');
+            $valasz = level_felkeszit_es_kuld('bejelentes', $recid, ERT_BEJ_REKL_ELUTASITKOR, 'bejelentesReklElutasit', 'bejelento', '<br>'.nl2br2($memo).'<br>');
             if( substr($valasz, 0, 4)=='Hiba' ){
                 $hiba .= $valasz;
             }

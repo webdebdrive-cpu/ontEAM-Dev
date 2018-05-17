@@ -6243,6 +6243,8 @@ function munkalapKeszit(csak_kerdezunk, kerdesek_nelkul) {
 
     if(balnav_kijelol_ell()){
 
+        szurkit();
+
         idk = {};
 
         szamlaSorok = $('#szamlaList li.szamla_sor.kijelolve');
@@ -6279,15 +6281,18 @@ function munkalapKeszit(csak_kerdezunk, kerdesek_nelkul) {
 
                         if( response.hiba ) {
                             alert2(response.hiba, response.gomb, response.title);
+                            szurkit_zar();
                             return false;
                         }
 
                         /* 2018.02.19 Kérték, hogy ne léptessük át a munkalpara, maradunk a bejelentésnél.
                          * location.href = 'munkalap.php?id=' + response.recid + '&modosit';*/
-                        alert2();
+                        /*alert2();
 
                         kijelolesEltavolit();
-                        popupZar();
+                        popupZar();*/
+                        /* Inkább frissítsünk be mindent */
+                        location.reload();
                     }
                 }
             });
@@ -6623,7 +6628,6 @@ function tabindex_beallit(){
 
 function szalloda_modell( that ) {
     var modell = parseInt($(that).find(":selected").attr('data-modell'));
-
     if( $('#mobilcsoport_opt').length ) {
 
         if( modell ) {

@@ -1585,7 +1585,7 @@ if( isset($_POST['munkalapReklamacioElfogad']) ) {
 // Munkalap reklamáció elutasítása
 if( isset($_POST['munkalapReklamacioElutasit']) ) {
     $recid = $_POST['recid'];
-    $memo  = 'Reklamáció elutasítva'."\r\n".$_POST['memo'];
+    $memo  = 'Reklamáció elutasítva:'."\r\n".$_POST['memo'];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -1649,7 +1649,7 @@ if( isset($_POST['munkalapReklamacioElutasit']) ) {
 
                 // Levélküldés
                 $hiba = '';
-                $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_VIZSGALAT_UTAN, 'munkalapVizsgalatUtan', '_jog'.JOG_MUNKALAP_IGAZOLAS);
+                $valasz = level_felkeszit_es_kuld('munkalap', $recid, ERT_MUNK_VIZSGALAT_UTAN, 'munkalapVizsgalatUtan', '_jog'.JOG_MUNKALAP_IGAZOLAS, '<br>'.nl2br2($memo).'<br>');
                 if( substr($valasz, 0, 4)=='Hiba' ){
                     $hiba .= $valasz;
                 }
@@ -5278,7 +5278,7 @@ if (isset($_POST['munkalapSztornoz'])) {
                     $db_error = true;
                 }
             }
-            if($_POST['mehet']=='elutasit'){
+            if($_POST['mehet']=='elutasit'){ 
                 if( addStatusz('bejelentes_statusz', $bejelentes_recid, BEJELENTES_STAT_ELUTASITVA, '', $memo) === false ) {
                     $db_error = true;
                 }
@@ -5291,7 +5291,7 @@ if (isset($_POST['munkalapSztornoz'])) {
             }
             
             // E-mail értesítés a bejelentőnek
-            level_felkeszit_es_kuld('bejelentes', $bejelentes_recid, ERT_BEJ_ELUTASITKOR, 'bejelentesElutasit', 'bejelento');
+            level_felkeszit_es_kuld('bejelentes', $bejelentes_recid, ERT_BEJ_ELUTASITKOR, 'bejelentesElutasit', 'bejelento', '<br>'.nl2br2($memo).'<br>');
 
         // Egyébként kérdezünk
         }else{

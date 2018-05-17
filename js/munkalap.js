@@ -383,10 +383,8 @@ function munkalapKulsosJovahagy(csak_kerdezunk) {
                         return false;
                     }
 
-                    /*
                     szurkit();
                     location.reload();
-                     */
                 }
             }
         });

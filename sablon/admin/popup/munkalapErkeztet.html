@@ -38,6 +38,7 @@
             }
         });
 
+        szurkit();
         $.ajax({
             url : 'munkalap.php',
             type: 'POST',
@@ -51,11 +52,13 @@
                     response = JSON.parse(response);
                     if( response.hiba ) {
                         alert2(response.hiba, response.gomb, response.title);
+                        szurkit_zar();
                         return false;
                     }
                 }
-                location.href = get_get();
-                popupZar();
+                szurkit();
+                location.reload();
+
             }
         });
     }

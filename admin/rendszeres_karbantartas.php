@@ -344,7 +344,7 @@ require_once('selectek.php');
     
     $js_submit_elott = 'return form_ell_admin();';
 
-	// Új termék felvitele
+	// Új karbantartás felvitele
 	if( isset($_GET['uj']) && _jog(JOG_RENDSZ_KARB_KEZEL) ){
 
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
@@ -352,16 +352,31 @@ require_once('selectek.php');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
 	    require_once('info.php');
 
-	    //FORM
-		if(isset($_GET['ujkent'])){
+	    // FORM
+		if($_GET['ujkent']){
+            $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
+            if( $sor ) {
+                foreach($akt_tomb as $ertek) {
+                    if( $ertek['name'] != 'ikt_szam' ) {
+                        $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
+                    } else {
+                        $_SESSION[$ertek['name']] = '';
+                    }
+    			}
+            }
+
 			foreach($akt_tomb as $ertek){
-				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
+				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
+            
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
+        
+        // Mobilcsoport választható-e vagy sem?
+        $szamla_html .= '<script>$(document).ready(function () { szalloda_modell( $(\'#telephely_id\') ); }); </script>';
 
         // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
@@ -466,6 +481,17 @@ require_once('selectek.php');
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
+        
+        // Duplikáláskor feltett kérdés
+        $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
+        $telephely = $telephely[0]['nev'];
+        $szamla_html .= nl2('
+            <script>
+                duplikalGomb  = "<p class=\"c\"><input class=\"gomb zold\" type=\"button\" value=\"Igen\" onclick=\"szurkit(); location.href = \''.basename(self()).'?uj&amp;ujkent='.$_GET['id'].'\'; \"><input class=\"gomb piros\" type=\"button\" value=\"Nem\" onclick=\"alert2()\"></p>";
+                duplikaKerdes = \'Azonosító: '.$sor['id'].'<br>Szálloda: '.$telephely.'<br><br>Biztos, hogy duplikálja?\';
+            </script>
+        ');
+        $szamla_html .= '<script>$(document).ready(function () { szalloda_modell( $(\'#telephely_id\') ); }); </script>';
 
         // NAVIGÁCIÓ
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);

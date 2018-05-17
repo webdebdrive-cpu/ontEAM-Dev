@@ -495,7 +495,7 @@ echo $felh['nev'] . ', ';
 // 
 if (isset($_GET['login_szall_kapcs'])) {
     
-    $log = 'Login név;Teljes név;Telephely ID;Telephely név;Kapcsolat recid;Login insert_dt;Kapcsolat insert_dt'."\r\n";
+    $log = 'Login név;Teljes név;Login létrejötte;Telephely ID;Telephely név;Kapcsolat létrejötte;'."\r\n";
     $loginok = $adatbazis_kapcsolat->s('nev teljes_nev insert_dt', 'login');
     foreach( $loginok as $login ){
         
@@ -503,9 +503,21 @@ if (isset($_GET['login_szall_kapcs'])) {
         if( count($kapcsok)>1 ){
             
             foreach ( $kapcsok as $kapcs ){
-                if($kapcs['insert_dt']<$login['insert_dt']){
+                if($kapcs['insert_dt']<'2018-02-15 00:00:00'){
+                    $megj = '';
+                    $akt_login = $adatbazis_kapcsolat->s2('virtual aktiv', 'login', "`nev`='{$login['nev']}'");
+                    if(!$akt_login){
+                        $megj .= 'Ilyen loginnév nem is létezik!';
+                    }else{
+                        if($akt_login['virtual']){
+                            $megj .= 'Virtuális felhasználó!';
+                        }
+                        if(!$akt_login['aktiv']){
+                            $megj .= 'Nem aktív felhasználó!';
+                        }
+                    }
                     $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$kapcs['telephely_id']}'");
-                    $log .= $login['nev'].';'.$login['teljes_nev'].';'.$kapcs['telephely_id'].';'.$telephely['nev'].';'.$kapcs['recid'].';'.$login['insert_dt'].';'.$kapcs['insert_dt']."\r\n";
+                    $log .= $login['nev'].';'.$login['teljes_nev'].';'.$login['insert_dt'].';'.$kapcs['telephely_id'].';'.$telephely['nev'].';'.$kapcs['insert_dt'].';'.$megj."\r\n";
                 }
             }
         }
