@@ -3,11 +3,13 @@ require_once('../weblap.php');
 
 header('Content-Type: text/html; charset='.get_web_charset());
 
-$log = '
+$log_utvonal = str_replace('.php', '', basename(self())).'.err';
+$log_tmp = $log = '
 *****************************
 '.date('Y.m.d H:i:s').' '.basename(self()).' elindult
 ';
-$log_utvonal = str_replace('.php', '', basename(self())).'.err';
+file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+
 // Adott méret felett felezzük a log fájlt
 if( filesize($log_utvonal)>get_logfile_max_meret() ){
     $log_tmp = fajlbol_olvas($log_utvonal);
@@ -17,15 +19,21 @@ if( filesize($log_utvonal)>get_logfile_max_meret() ){
 
 // Tábla ürítése
 mysqli_query($db_kapcs, 'TRUNCATE '. get_db_tabla().'munkalap_14var;');
-$log .= 'TRUNCATE '. get_db_tabla().'munkalap_14var;'."\r\n";
+$log_tmp = 'TRUNCATE '. get_db_tabla().'munkalap_14var;'."\r\n";
+$log .= $log_tmp;
+file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
 
 // 15 napja várakozó munkalapok kiszámítása és letárolása egy ideiglenes táblába
 $varakozok = $adatbazis_kapcsolat->s('munkalap_recid, text, login, insert_dt, insert_usr', 'munkalap_statusz', "`stat_id`='".MUNKALAP_STAT_VARAKOZO."' AND `insert_dt`<'".date('Y-m-d H:i:s', time()-60*60*24*15)."'");
-$log .= $adatbazis_kapcsolat->gp()."\r\n";
+$log_tmp = $adatbazis_kapcsolat->gp()."\r\n";
+$log .= $log_tmp;
+file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
 
 foreach($varakozok as $varakozo){
     $munkalap = $adatbazis_kapcsolat->s2('recid telephely_id', 'munkalap', "`recid`='{$varakozo['munkalap_recid']}'");
-    $log .= $adatbazis_kapcsolat->gp()."\r\n";
+    $log_tmp = $adatbazis_kapcsolat->gp()."\r\n";
+    $log .= $log_tmp;
+    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
 
         
     $szalloda_nev = getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']);
@@ -34,7 +42,9 @@ foreach($varakozok as $varakozo){
                                                 array($munkalap['recid'],   $munkalap['telephely_id'],  $varakozo['login'],  $szalloda_nev,   $varakozo['insert_dt'], $varakozo['insert_usr'],   $varakozo['text'], 'NOW()',       'NOW()'     )
                             );
 
-    $log .= $adatbazis_kapcsolat->gp()."\r\n";
+    $log_tmp = $adatbazis_kapcsolat->gp()."\r\n";
+    $log .= $log_tmp;
+    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
     
 }
 
@@ -50,11 +60,17 @@ foreach ($loginok as $login){
     $szallodak = get_akt_login_szallodai(false, false, $login['nev']);
     
     if(!$login['usermail']){
-        $log .= $login['teljes_nev'].' '.$login_szerepkor.' felhasználónak nincs mailcíme, így nem küldtünk neki levelet.'."\r\n";
+        $log_tmp = $login['teljes_nev'].' '.$login_szerepkor.' felhasználónak nincs mailcíme, így nem küldtünk neki levelet.'."\r\n";
         echo $login['teljes_nev'].' '.$login_szerepkor.' felhasználónak nincs mailcíme, így nem küldtünk neki levelet.<hr>';
+    
+        $log .= $log_tmp;
+        file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
     }elseif(!$szallodak){
-        $log .= $login['teljes_nev'].' '.$login_szerepkor.' felhasználónak egyetlen olyan szállodája sincs, amiben 14 napnál régebbi várakozó munkalapok volnának, ezért nem küldtünk neki levelet.'."\r\n";
+        $log_tmp = $login['teljes_nev'].' '.$login_szerepkor.' felhasználónak egyetlen olyan szállodája sincs, amiben 14 napnál régebbi várakozó munkalapok volnának, ezért nem küldtünk neki levelet.'."\r\n";
         echo $login['teljes_nev'].' '.$login_szerepkor.' felhasználónak  egyetlen olyan szállodája sincs, amiben 14 napnál régebbi várakozó munkalapok volnának, ezért nem küldtünk neki levelet.<hr>';
+    
+        $log .= $log_tmp;
+        file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
     }else{
         
         $uzi = 'Tisztelt '.$login['teljes_nev'].'!
@@ -105,10 +121,12 @@ foreach ($loginok as $login){
         
         $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], get_nev().' több mint két hete várakozó munkalapok', $uzi);
         if($sikeres_kuldes){
-            $log .= 'E-mail elküldve '.$login['teljes_nev'].' ('.$login['usermail'].') '.$login_szerepkor.' felhasználónak: '.$uzi."\r\n";
+            $log_tmp = 'E-mail elküldve '.$login['teljes_nev'].' ('.$login['usermail'].') '.$login_szerepkor.' felhasználónak: '.$uzi."\r\n";
         }else{
-            $log .= 'E-mail küldése nem sikerült '.$login['teljes_nev'].' ('.$login['usermail'].') '.$login_szerepkor.' felhasználónak: '.$uzi."\r\n";
+            $log_tmp = 'E-mail küldése nem sikerült '.$login['teljes_nev'].' ('.$login['usermail'].') '.$login_szerepkor.' felhasználónak: '.$uzi."\r\n";
         }
+        $log .= $log_tmp;
+        file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
 
         echo $login['usermail'].' címre küldve:<br>'.$uzi.'<hr>';
     }
@@ -116,11 +134,13 @@ foreach ($loginok as $login){
 }
 
 // A lefutást is eltároljuk
-$log .= date('Y.m.d H:i:s').' ütemező sikeresen lefutott.
+$log_tmp = date('Y.m.d H:i:s').' ütemező sikeresen lefutott.
 
 
 
 
 ';
-fajlba_mentes($log_utvonal, $log);
+$log .= $log_tmp;
+file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+
 $adatbazis_kapcsolat->i('utemezo_log', array('utemezo', 'log'), array(basename(self()), $log));

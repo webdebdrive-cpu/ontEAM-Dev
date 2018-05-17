@@ -4,11 +4,13 @@ require_once('datumra_utemezes.php');
 
 
 // Ütemezett feladatok lekérdezése, bejárása
-$log = '
+$log_utvonal = str_replace('.php', '', basename(self())).'.err';
+
+$log_tmp = $log = '
 *****************************
 '.date('Y.m.d H:i:s').' '.basename(self()).' elindult
 ';
-$log_utvonal = str_replace('.php', '', basename(self())).'.err';
+file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
 // Adott méret felett felezzük a log fájlt
 if( filesize($log_utvonal)>get_logfile_max_meret() ){
     $log_tmp = fajlbol_olvas($log_utvonal);
@@ -16,8 +18,10 @@ if( filesize($log_utvonal)>get_logfile_max_meret() ){
     fajlba_mentes($log_utvonal, $log_tmp);
 }
 $ut_feladatok = $adatbazis_kapcsolat->s('*', 'utemezett_feladatok', "DATE_ADD(`esnap_d`, INTERVAL - `riaszt` DAY)<=CURDATE() AND `utnap_d`<CURDATE() AND `aktiv`=1");
-$log .= $adatbazis_kapcsolat->gp().'
+$log_tmp = $adatbazis_kapcsolat->gp().'
 ';
+$log .= $log_tmp;
+file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
 
 foreach($ut_feladatok as $ut_feladat){
     
@@ -26,8 +30,10 @@ foreach($ut_feladatok as $ut_feladat){
     mysqli_autocommit($db_kapcs, false);
     
     // logolás
-    $log .= 'Recid: '.$ut_feladat['recid'].' Feladatszám: '.$ut_feladat['id'].' elindult
+    $log_tmp = 'Recid: '.$ut_feladat['recid'].' Feladatszám: '.$ut_feladat['id'].' elindult
 ';
+    $log .= $log_tmp;
+    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
 
     $text = /*$ut_feladat['id'].' feladatot ütemezte '.$ut_feladat['insert_usr']."\r\n".*/$ut_feladat['nev']."\r\n".$ut_feladat['leiras'];
 
@@ -42,12 +48,11 @@ foreach($ut_feladatok as $ut_feladat){
         $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
         if( $sql === false ) {
             $db_error = true;
-            $log .= 'NEM SIKERÜLT iktatószám szekveciát frissíteni: '.$adatbazis_kapcsolat->gp().'
+            $log_tmp = 'NEM SIKERÜLT iktatószám szekveciát frissíteni: '.$adatbazis_kapcsolat->gp().'
 ';
         }else{
-            $log .= 'Iktatószám szekvecia frissítve: '.$adatbazis_kapcsolat->gp().'
+            $log_tmp = 'Iktatószám szekvecia frissítve: '.$adatbazis_kapcsolat->gp().'
 ';
-            
         }
  
     } else {
@@ -58,18 +63,22 @@ foreach($ut_feladatok as $ut_feladat){
                                         );
         if( $sql === false ) {
             $db_error = true;
-            $log .= 'NEM SIKERÜLT új iktatószámot létrehozni: '.$adatbazis_kapcsolat->gp().'
+            $log_tmp = 'NEM SIKERÜLT új iktatószámot létrehozni: '.$adatbazis_kapcsolat->gp().'
 ';
         }else{
-            $log .= 'Új iktatószám szekvencia bejegyzés létrehozva: '.$adatbazis_kapcsolat->gp().'
+            $log_tmp = 'Új iktatószám szekvencia bejegyzés létrehozva: '.$adatbazis_kapcsolat->gp().'
 ';
         }
     }
+    $log .= $log_tmp;
+    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
  
     // Iktatószám formázása
     $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
-    $log .= 'Iktatószám létrehozva: '.$ikt_szam.'
+    $log_tmp = 'Iktatószám létrehozva: '.$ikt_szam.'
 ';
+    $log .= $log_tmp;
+    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
     // Szállodának mi a modellje
     $szalloda = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$ut_feladat['telephely_id']}'");
     
@@ -81,12 +90,14 @@ foreach($ut_feladatok as $ut_feladat){
     
     if( $ujrecid === false ) {
         $db_error = true;
-        $log .= 'NEM SIKERÜLT új munkalapot létrehozni: '.$adatbazis_kapcsolat->gp().'
+        $log_tmp = 'NEM SIKERÜLT új munkalapot létrehozni: '.$adatbazis_kapcsolat->gp().'
 ';
     }else{
-        $log .= 'Munkalap létrehozva: '.$adatbazis_kapcsolat->gp().'
+        $log_tmp = 'Munkalap létrehozva: '.$adatbazis_kapcsolat->gp().'
 ';
     }
+    $log .= $log_tmp;
+    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
 
     // Kezdő státusz beállítása
     $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
@@ -95,18 +106,20 @@ foreach($ut_feladatok as $ut_feladat){
                                     );
     if( $sql === false ) {
         $db_error = true;
-        $log .= 'NEM SIKERÜLT munkalap státuszt beszúrni: '.$adatbazis_kapcsolat->gp().'
+        $log_tmp = 'NEM SIKERÜLT munkalap státuszt beszúrni: '.$adatbazis_kapcsolat->gp().'
 ';
     }else{
-        $log .= 'Munkalap státusz beszúrva: '.$adatbazis_kapcsolat->gp().'
+        $log_tmp = 'Munkalap státusz beszúrva: '.$adatbazis_kapcsolat->gp().'
 ';
     }
+    $log .= $log_tmp;
+    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
     
     // Egyszállodás modell esetén a munkalap automatikusan hozzárendelt státuszban jön létre, ha telepített a hozzárendelt személyzet
     if( !$szalloda['modell'] && $ut_feladat['szemelyzet_id']==TELEPITETT_SZEMELYZET ){
         if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_HOZZARENDELT)===false ){
             $db_error = true;
-            $log .= 'NEM SIKERÜLT munkalap státuszt léptetni hozzárendeltre: '.$adatbazis_kapcsolat->gp().'
+            $log_tmp = 'NEM SIKERÜLT munkalap státuszt léptetni hozzárendeltre: '.$adatbazis_kapcsolat->gp().'
 ';
         }
     }
@@ -114,10 +127,12 @@ foreach($ut_feladatok as $ut_feladat){
     if( !$szalloda['modell'] && $ut_feladat['szemelyzet_id']==KULSO_KIVITELEZO ){
         if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_ELOKESZITES_ALATT)===false ){
             $db_error = true;
-            $log .= 'NEM SIKERÜLT munkalap státuszt léptetni előkészítés alatt-ra: '.$adatbazis_kapcsolat->gp().'
+            $log_tmp = 'NEM SIKERÜLT munkalap státuszt léptetni előkészítés alatt-ra: '.$adatbazis_kapcsolat->gp().'
 ';
         }
     }
+    $log .= $log_tmp;
+    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
     
     // Feladat adatainak frissítése
     $oszlopok = array('utnap_d',        'utesnap_d'             );
@@ -131,7 +146,9 @@ foreach($ut_feladatok as $ut_feladat){
         $aktvege_d  = str_replace('-', '.', $ut_feladat['aktvege_d']);
 
         // logolás
-        $log .= "recid:$ut_feladat[recid] getnextvaliddate(false, $esem_d, $ut_feladat[cikltip], $ut_feladat[ciklaltip], $ut_feladat[ciklszorz], $ut_feladat[ciklho], $ut_feladat[ciklhet], $ut_feladat[ciklnap], $ut_feladat[idoszakos], $ut_feladat[kezdho], $ut_feladat[kezdnap], $ut_feladat[vegeho], $ut_feladat[vegenap], $aktkezd_d, $aktvege_d) \r\n";
+        $log_tmp = "recid:$ut_feladat[recid] getnextvaliddate(false, $esem_d, $ut_feladat[cikltip], $ut_feladat[ciklaltip], $ut_feladat[ciklszorz], $ut_feladat[ciklho], $ut_feladat[ciklhet], $ut_feladat[ciklnap], $ut_feladat[idoszakos], $ut_feladat[kezdho], $ut_feladat[kezdnap], $ut_feladat[vegeho], $ut_feladat[vegenap], $aktkezd_d, $aktvege_d) \r\n";
+        $log .= $log_tmp;
+        file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
  //echo $esnap_d . "recid:$ut_feladat[recid] getnextvaliddate(false, $esem_d, $ut_feladat[cikltip], $ut_feladat[ciklaltip], $ut_feladat[ciklszorz], $ut_feladat[ciklho], $ut_feladat[ciklhet], $ut_feladat[ciklnap], $ut_feladat[idoszakos], $ut_feladat[kezdho], $ut_feladat[kezdnap], $ut_feladat[vegeho], $ut_feladat[vegenap], $aktkezd_d, $aktvege_d) <br><br>";
 
         $esnap_d = getnextvaliddate(false, $esem_d, $ut_feladat['cikltip'], $ut_feladat['ciklaltip'], $ut_feladat['ciklszorz'], $ut_feladat['ciklho'], $ut_feladat['ciklhet'], $ut_feladat['ciklnap'], $ut_feladat['idoszakos'], $ut_feladat['kezdho'], $ut_feladat['kezdnap'], $ut_feladat['vegeho'], $ut_feladat['vegenap'], $aktkezd_d, $aktvege_d);
@@ -156,12 +173,14 @@ foreach($ut_feladatok as $ut_feladat){
     $sql = $adatbazis_kapcsolat->u('utemezett_feladatok',  $oszlopok, $ertekek, "`recid`='{$ut_feladat['recid']}'");
     if( $sql === false ) { 
         $db_error = true;
-        $log .= 'NEM SIKERÜLT ütemezett feladatot módosítani: '.$adatbazis_kapcsolat->gp().'
+        $log_tmp = 'NEM SIKERÜLT ütemezett feladatot módosítani: '.$adatbazis_kapcsolat->gp().'
 ';
     }else{
-        $log .= 'Ütemezett feladat módosítva: '.$adatbazis_kapcsolat->gp().'
+        $log_tmp = 'Ütemezett feladat módosítva: '.$adatbazis_kapcsolat->gp().'
 ';
     }
+    $log .= $log_tmp;
+    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
 
 
     // Tranzakció kommitolása, vagy rollback-ezése
@@ -174,13 +193,14 @@ foreach($ut_feladatok as $ut_feladat){
 }
 
 // A lefutást is eltároljuk
-$log .= date('Y.m.d H:i:s').' ütemező sikeresen lefutott.
+$log_tmp = date('Y.m.d H:i:s').' ütemező sikeresen lefutott.
 
 
 
 
 ';
-fajlba_mentes($log_utvonal, fajlbol_olvas($log_utvonal).$log);
+$log .= $log_tmp;
+file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
 echo htmlspecialchars($log) . '<br>';
 
 // A lefutást is eltároljuk

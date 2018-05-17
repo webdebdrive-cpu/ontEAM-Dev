@@ -1,11 +1,13 @@
 <?php
 require_once('../weblap.php');
 
-$log = '
+$log_utvonal = str_replace('.php', '', basename(self())).'.err';
+$log = $log_tmp = '
 *****************************
 '.date('Y.m.d H:i:s').' '.basename(self()).' elindult
 ';
-$log_utvonal = str_replace('.php', '', basename(self())).'.err';
+file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+        
 // Adott méret felett felezzük a log fájlt
 if( filesize($log_utvonal)>get_logfile_max_meret() ){
     $log_tmp = fajlbol_olvas($log_utvonal);
@@ -16,8 +18,11 @@ if( filesize($log_utvonal)>get_logfile_max_meret() ){
 // Munkalapok ütemezett dátuma
 $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`esnap_d`<='".date('Y-m-d')."' AND `stat_id`='".MUNKALAP_STAT_HATIDO_UTEMEZETT."'");
 if( $munkalapok === false ) { $db_error = true; }
-$log .= $adatbazis_kapcsolat->gp() . '
+$log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
+$log .= $log_tmp;
+file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+
 foreach($munkalapok as $munkalap){
     
     // Tranzakciót indítunk
@@ -27,24 +32,28 @@ foreach($munkalapok as $munkalap){
     // Nyitott státuszt kapnak
     if( addStatusz( 'munkalap_statusz', $munkalap['recid'], MUNKALAP_STAT_NYITOTT, '', '', 'a rendszer a user' ) === false ) {
         $db_error = true;
-        $log .= 'NEM SIKERÜLT Munkalapok nyitott státuszra léptetni (recid): '.$munkalap['recid'].'
+        $log_tmp = 'NEM SIKERÜLT Munkalapok nyitott státuszra léptetni (recid): '.$munkalap['recid'].'
 ';
     }else{
-        $log .= 'Munkalap nyitott státuszra léptetve (recid): '.$munkalap['recid'].'
+        $log_tmp = 'Munkalap nyitott státuszra léptetve (recid): '.$munkalap['recid'].'
 ';
     }
+    $log .= $log_tmp;
+    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
     
     // Munkalaphoz tartozó bejelentések (igaz, csak egy van, de megírtuk általánosan) folyamatbanra váltanak
     $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'");
     foreach($bejelentesek as $bejelentes){
         if( addStatusz( 'bejelentes_statusz', $bejelentes['bejelentes_id'], BEJELENTES_STAT_FOLYAMATBAN, '', '', 'a rendszer a user' ) === false ) {
             $db_error = true;
-            $log .= 'NEM SIKERÜLT Munkalaphoz tartozó bejelentést folyamatban státuszra léptetni (recid): '.$munkalap['recid'].'
+            $log_tmp = 'NEM SIKERÜLT Munkalaphoz tartozó bejelentést folyamatban státuszra léptetni (recid): '.$munkalap['recid'].'
 ';
         }else{
-            $log .= 'Munkalaphoz tartozó bejelentés folyamatban státuszra léptetve (recid): '.$bejelentes['bejelentes_id'].'
+            $log_tmp = 'Munkalaphoz tartozó bejelentés folyamatban státuszra léptetve (recid): '.$bejelentes['bejelentes_id'].'
 ';
         }
+        $log .= $log_tmp;
+        file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
     }
     
     // Tranzakció kommitolása, vagy rollback-ezése
@@ -57,11 +66,13 @@ foreach($munkalapok as $munkalap){
 }
 
 // A lefutást is eltároljuk
-$log .= date('Y.m.d H:i:s').' ütemező sikeresen lefutott.
+$log_tmp = date('Y.m.d H:i:s').' ütemező sikeresen lefutott.
 
 
 
 
 ';
-fajlba_mentes($log_utvonal, fajlbol_olvas($log_utvonal).$log);
+$log .= $log_tmp;
+file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+
 $adatbazis_kapcsolat->i('utemezo_log', array('utemezo', 'log'), array(basename(self()), $log));
