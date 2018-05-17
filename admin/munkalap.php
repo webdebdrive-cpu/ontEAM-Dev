@@ -5592,7 +5592,7 @@ require('selectek.php');
     $szamla_html .= '<div class="dn" id="telephely_hibauzibe">'. getErtek('nev', 'telephely', 'id', $sor['telephely_id']).'</div>';
 
     // Gyors státusz szűrő szélességének beállítása
-    $szamla_html .= '<script>$(document).ready(function () { $(\'#stat_gyors_szuro_div\').css(\'width\', \''.(($_COOKIE['csuszkaSzelesseg']/10)-1.7).'rem\');  });</script>';
+    $szamla_html .= '<script>$(document).ready(function () { $(\'#stat_gyors_szuro_div\').css(\'width\', $(\'#tartalomBal\').width()-17 );  });</script>';
 
     // Gombok kirajzolása minden oldalra
     $gombok = '';
