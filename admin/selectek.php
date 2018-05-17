@@ -158,7 +158,7 @@ if( !in_array(basename(self()), $kiveteles_oldalak) ) {
     array_push($select_szemelyzet, array('name' => $szerepkorok[MUSZAKI_VEZETO_HELYETTES-1]['nev'],  'value' => MUSZAKI_VEZETO_HELYETTES,'szin' => '#FFCBF1', 'kulsos' => 0 ));
     array_push($select_szemelyzet, array('name' => $szerepkorok[MUSZAKI_VEZETO-1]['nev'],            'value' => MUSZAKI_VEZETO,          'szin' => '#FFCBCB', 'kulsos' => 1, 'hozzarendel_sor' => 4 ));
     array_push($select_szemelyzet, array('name' => $szerepkorok[TERULETI_FELELOS-1]['nev'],          'value' => TERULETI_FELELOS,        'szin' => '#E0CBFF', 'kulsos' => 1, 'hozzarendel_sor' => 2 ));
-    array_push($select_szemelyzet, array('name' => $szerepkorok[MUSZAKI_ADMINISZTRATOR-1]['nev'],    'value' => MUSZAKI_ADMINISZTRATOR,  'szin' => '#E0CBFF', 'kulsos' => 1, 'hozzarendel_sor' => 3 ));
+    array_push($select_szemelyzet, array('name' => $szerepkorok[MUSZAKI_ADMINISZTRATOR-1]['nev'],    'value' => MUSZAKI_ADMINISZTRATOR,  'szin' => '#E0CBFF', 'kulsos' => 1/*, 'hozzarendel_sor' => 3*/ ));
     array_push($select_szemelyzet, array('name' => $szerepkorok[DISZPECSER-1]['nev'],                'value' => DISZPECSER,              'szin' => '#FFEBCB', 'kulsos' => 0 ));
     array_push($select_szemelyzet, array('name' => $szerepkorok[MSZK_VEZETO-1]['nev'],               'value' => MSZK_VEZETO,             'szin' => '#FFEBCB', 'kulsos' => 1, 'hozzarendel_sor' => 1 ));
     array_push($select_szemelyzet, array('name' => $szerepkorok[MUSZAKI_IGAZGATO-1]['nev'],          'value' => MUSZAKI_IGAZGATO,        'szin' => '#E0CBFF', 'kulsos' => 0 ));

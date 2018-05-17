@@ -1,8 +1,8 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 86-es ID-nál járunk
- * 12 -es kategória ID-nál járunk
+ * 89-es ID-nál járunk
+ * 13-as kategória ID-nál járunk
 \*                                                  */
 
 $jogosultsagKatok = array(
@@ -19,6 +19,7 @@ $jogosultsagKatok = array(
    11 => array('nev' => 'Felmérési tervek',         'sor' => 10),
     8 => array('nev' => 'Eszközök',                 'sor' => 11),
    12 => array('nev' => 'Fenntartási terv',         'sor' => 12),
+   13 => array('nev' => 'Dokumentumok',             'sor' => 13),
 );
 
 $jogosultsagok = array(
@@ -125,4 +126,8 @@ $jogosultsagok = array(
     84 => array('nev' => 'Energia egységárak olvasása',             'kat' => 12, 'sor' => 1),
     85 => array('nev' => 'Energia egységárak kezelése',             'kat' => 12, 'sor' => 2),
     86 => array('nev' => 'Energia egységárak törlése',              'kat' => 12, 'sor' => 3),
+    
+    87 => array('nev' => 'Dokumentumok olvasása',                   'kat' => 13, 'sor' => 1),
+    88 => array('nev' => 'Dokumentumok írása',                      'kat' => 13, 'sor' => 2),
+    89 => array('nev' => 'Dokumentumok törlése',                    'kat' => 13, 'sor' => 3),
 );

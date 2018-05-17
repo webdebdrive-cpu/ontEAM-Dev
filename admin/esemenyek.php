@@ -898,11 +898,16 @@ $log_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 // Szállítók
+$nev_disabled = $disabled_szerk;
+// Dokumentum írás joggal mégis szerkeszthető a szállító neve
+if( _jog( JOG_DOKUMENTUM_IR ) ){
+    $nev_disabled = 0;
+}
 $megnevezes = 'szallito';
 $szallito_tomb = $akt_tomb = array(
     array('type' => 'text',        'megn' => 'Szállító kód:',   'name' => 'id',     'szuro' => 1,     'disabled' => $disabled_szerk,  'maxlength' => 10, 'class' => 'kicsi',   'alert' => 'Kérem töltse ki az ID mezőt!', 'onkeyup' => 'ertekFoglalt({ID}this.value, \'szallito\', \'id\')', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
     array('type' => 'checkbox',    'megn' => 'Aktív:',          'name' => 'aktiv',  'szuro' => 1,     'show' => true, 'class' => 'check'),
-	array('type' => 'text',        'megn' => 'Név:',            'name' => 'nev',    'szuro' => 1,     'disabled' => $disabled_szerk,  'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',      'show' => true),
+	array('type' => 'text',        'megn' => 'Név:',            'name' => 'nev',    'szuro' => 1,     'disabled' => $nev_disabled,  'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',      'show' => true),
 	array('type' => 'text',        'megn' => 'Irsz:',           'name' => 'isz',    'szuro' => 1,     'maxlength' => 250, 'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
 	array('type' => 'text',        'megn' => 'Város:',          'name' => 'varos',  'szuro' => 1,     'maxlength' => 250),
 	array('type' => 'text',        'megn' => 'Utca:',           'name' => 'utca',   'szuro' => 1,     'maxlength' => 250, 'class' => 'oriasi'),
@@ -2412,8 +2417,6 @@ if( isset($_GET['sendMail']) ) {
 
                         $szallitok = $adatbazis_kapcsolat->s('distinct szallito_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
                         if( count($szallitok)==1 ){
-
-
 
                             $szallodak = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")");
                             foreach ($szallodak as $szall){

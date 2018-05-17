@@ -309,6 +309,12 @@ require_once('selectek.php');
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
+            
+            // Dokumentum fül rejtése, ha nincs hozzá jog
+            if( $key=='dokumentumok' && !_jog(JOG_DOKUMENTUM_OLVAS) ){
+                continue;
+            }
+            
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -608,7 +614,7 @@ require_once('selectek.php');
         }
 
 	// Dokumentumok
-	}elseif(isset($_GET['dokumentumok'])){
+	}elseif( isset($_GET['dokumentumok']) && _jog(JOG_DOKUMENTUM_OLVAS) ) {
 
         $szamla_html .= 'Dokumentumok felülete';
 

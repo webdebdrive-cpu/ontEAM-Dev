@@ -795,11 +795,17 @@ require_once('selectek.php');
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
+            
+            // Dokumentum fül rejtése, ha nincs hozzá jog
+            if( $key=='dokumentumok' && !_jog(JOG_DOKUMENTUM_OLVAS) ){
+                continue;
+            }
+            
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
             }
-
+            
             $fulek .= '<a href="javascript: szamlaBetolt(\''.$_GET['id'].'\', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
         }
 
@@ -1238,7 +1244,7 @@ require_once('selectek.php');
 
 
     // Dokumentumok fül
-    }elseif(isset($_GET['dokumentumok'])) {
+    }elseif( isset($_GET['dokumentumok']) && _jog(JOG_DOKUMENTUM_OLVAS) ) {
 
         if( $tobb_kep ) {
             require_once('tobb_kep.php');

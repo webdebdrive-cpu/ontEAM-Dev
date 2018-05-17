@@ -31,7 +31,7 @@ if(basename($_SERVER['PHP_SELF']) == 'eszkozkezeles.php' && isset($_GET['engedel
 // echo $tobbkep_tablanev; exit;
 
 // Képfeltöltés
-if( isset($_POST['session_name']) && !$archivum ){
+if( isset($_POST['session_name']) && !$archivum && _jog(JOG_DOKUMENTUM_IR) ){
 
     // Ha a megnevezés csak annyi, hogy javaslattetel_popup, akkor munkalap javaslattétel popuján töltünk fel képet, ekkor másképp kell eljárni
     if($_POST['megnevezes']=='javaslattetel_popup'){
@@ -175,7 +175,7 @@ if( isset($_POST['session_name']) && !$archivum ){
 require_once('../weblap.php');
 
 // Kép törlése
-if( isset($_POST['tobbkep_torol']) && !$archivum ){
+if( isset($_POST['tobbkep_torol']) && !$archivum && _jog(JOG_DOKUMENTUM_TOROL) ){
 
     $kepnev = mysqli_query($db_kapcs, 'SELECT `utvonal` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['tobbkep_torol'].'\'');
     $kepnev = mysqli_fetch_assoc($kepnev);
@@ -223,11 +223,11 @@ if($tobbkep_tablanev=='eszkozkezeles_eng_dok'){
 }
 
 $sorrend_ujkep       = fajlbol_olvas('../sablon/admin/tobbkep_ujkep.html', true);
-$sorrend_ujkep_mit   = array('{GOMB_NEVE}', '{MEGN}',  '{PHP_FAJL}',                     '{ENG_KIT}', '{PARAMETEREK}', '{MINDEN_KESZ}'    );
-$sorrend_ujkep_mivel = array($gomb_neve,    $megn,     'tobb_kep.php'/*self() nem jó!*/, $eng_kit,     $parameterek,    $minden_kesz       );
+$sorrend_ujkep_mit   = array('{GOMB_NEVE}', '{MEGN}',  '{PHP_FAJL}',                     '{ENG_KIT}', '{PARAMETEREK}', '{MINDEN_KESZ}'  );
+$sorrend_ujkep_mivel = array($gomb_neve,    $megn,     'tobb_kep.php'/*self() nem jó!*/, $eng_kit,     $parameterek,    $minden_kesz    );
 
 $tobbkep_html  = '';
-if(!$archivum){
+if( !$archivum && _jog(JOG_DOKUMENTUM_IR) ){
     $tobbkep_html .= str_replace($sorrend_ujkep_mit, $sorrend_ujkep_mivel, $sorrend_ujkep);
 }
 
@@ -319,17 +319,19 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
 
         // Csak az törölheti, aki feltöltötte (ha archivum, akkor meg más senki)
         $torles = '';
-        $betolt = 'dokumentumok';
-        if( isset($_GET['engedelyek']) ){
-            $betolt = 'engedelyek';
-        }
-        if( $sor_kepek['loginnev'] == $_SESSION[get_db_tabla().'user'] && !$archivum ){
-            $torles = '
-                        <script>
-                            dok_torol_gomb_'.$sor_kepek['recid'].' = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\''.$tabla.'\\\', \\\''.$betolt.'\\\', \\\''.$javaslattetel.'\\\', \\\''.$sor_kepek['recid'].'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
-                        </script>
-                        <span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy törli a(z) '.$sor_kepek['fajlnev'].' dokumentumot?\', dok_torol_gomb_'.$sor_kepek['recid'].');"><i class="material-icons" style="font-size: 2rem">delete</i></span>
-                ';
+        if( _jog(JOG_DOKUMENTUM_TOROL) ){
+            $betolt = 'dokumentumok';
+            if( isset($_GET['engedelyek']) ){
+                $betolt = 'engedelyek';
+            }
+            if( $sor_kepek['loginnev'] == $_SESSION[get_db_tabla().'user'] && !$archivum ){
+                $torles = '
+                            <script>
+                                dok_torol_gomb_'.$sor_kepek['recid'].' = \'<input type="button" class="gomb zold" value="Igen" onclick="mellekTorol(\\\''.$tabla.'\\\', \\\''.$betolt.'\\\', \\\''.$javaslattetel.'\\\', \\\''.$sor_kepek['recid'].'\\\');"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'.torles_elott\\\').removeClass(\\\'torles_elott\\\').removeClass(\\\'kijelolve\\\');">\';
+                            </script>
+                            <span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy törli a(z) '.$sor_kepek['fajlnev'].' dokumentumot?\', dok_torol_gomb_'.$sor_kepek['recid'].');"><i class="material-icons" style="font-size: 2rem">delete</i></span>
+                    ';
+            }
         }
         
         $tobbkep_html .= nl2('
