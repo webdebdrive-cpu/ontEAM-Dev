@@ -364,7 +364,7 @@ function munkalapKulsosJovahagy(csak_kerdezunk) {
     if(balnav_kijelol_ell()){
 
         alert2();
-
+        szurkit();
         $.ajax({
             url : 'munkalap.php',
             type: 'POST',
@@ -378,13 +378,16 @@ function munkalapKulsosJovahagy(csak_kerdezunk) {
                 if(response) {
                     response = JSON.parse(response);
 
+                    szurkit_zar();
+                    
                     if( response.hiba ) {
                         alert2(response.hiba, response.gomb, response.title);
+                        
                         return false;
                     }
 
-                    szurkit();
-                    location.reload();
+                    szamlaBetolt( _get('id'), 'munkalap.php', 'modosit' );
+                    
                 }
             }
         });

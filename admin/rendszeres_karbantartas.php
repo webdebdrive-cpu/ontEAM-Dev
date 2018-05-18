@@ -49,7 +49,6 @@ if($tobb_kep){
 
 }
 
-
 // Mentés előtt popupban megmutatjuk, mi lesz az ütemezés
 if (isset($_GET['datumra_utemezes'])) {
     
@@ -373,12 +372,62 @@ require_once('selectek.php');
 				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
             
-            // Újként szerkesztésnél az ütemezés tipust beállítani, meglegyen az onchange
+            // Újként szerkesztésnél az ütemezés tipust beállítani, meglegyen az onchange + adatok beállítása
+            $checkboxok = '';
+            if($sor['cikltip']=='d' && $sor['ciklaltip']==2){
+                $checkboxok .= '$(\'#hetkoz_kent\').prop(\'checked\', true);';
+            }
+            if($sor['cikltip']=='w' && $sor['ciklszorz']){
+                $sor['ism_het'] = $sor['ciklszorz'];
+            }
+            if($sor['cikltip']=='m' && $sor['ciklszorz']){
+                $sor['ciklho'] = $sor['ciklszorz'];
+            }
+            if($sor['cikltip']=='m' && $sor['ciklho2']){
+                $sor['ciklho'] = '';
+            }
+            
+            if($sor['cikltip']=='w'){
+                if(strpos($sor['ciklnap'], '1')!==false){
+                    $checkboxok .= '$(\'#h\').prop(\'checked\', true);';
+                }
+                if(strpos($sor['ciklnap'], '2')!==false){
+                    $checkboxok .= '$(\'#k\').prop(\'checked\', true);';
+                }
+                if(strpos($sor['ciklnap'], '3')!==false){
+                    $checkboxok .= '$(\'#s\').prop(\'checked\', true);';
+                }
+                if(strpos($sor['ciklnap'], '4')!==false){
+                    $checkboxok .= '$(\'#cs\').prop(\'checked\', true);';
+                }
+                if(strpos($sor['ciklnap'], '5')!==false){
+                    $checkboxok .= '$(\'#p\').prop(\'checked\', true);';
+                }
+                if(strpos($sor['ciklnap'], '6')!==false){
+                    $checkboxok .= '$(\'#sz\').prop(\'checked\', true);';
+                }
+                if(strpos($sor['ciklnap'], '7')!==false){
+                    $checkboxok .= '$(\'#v\').prop(\'checked\', true);';
+                }
+            }
             $szamla_html .= nl2('
                     <script>
                         $(document).ready(function () {
                             $(\'#cikltip\').val(\'0\').change();
                             $(\'#cikltip\').val(\''.$sor['cikltip'].'\').change();
+                            
+                            $(\'#esnap_d\').val(\''.str_replace('-', '.', $sor['esnap_d']).'\');
+                            $(\'#ciklho\').val(\''.$sor['ciklho'].'\');
+                            $(\'#honapjan\').val(\''.$sor['honapjan'].'\');
+                            $(\'#ciklho2\').val(\''.$sor['ciklho2'].'\');
+                            $(\'#ciklhet\').val(\''.$sor['ciklhet'].'\');
+                            $(\'#ciklszorz\').val(\''.$sor['ciklszorz'].'\');
+                            $(\'#ho_rendsz_het\').val(\''.$sor['ho_rendsz_het'].'\');
+                            $(\'#ciklnap\').val(\''.$sor['ciklnap'].'\');
+                            $(\'#ism_het\').val(\''.$sor['ism_het'].'\');
+                            
+                            '.$checkboxok.'
+                            
                         });
                     </script>
                     ');

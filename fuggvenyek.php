@@ -109,14 +109,14 @@ function i_u($type, $tabla, $tomb) {
             array_push($ertekek,  ''                );
         }
         // Napi cilus, X naponként ismétlődik
-        if($_POST['ciklnap']){
+        if($_POST['ciklnap'] && $_POST['cikltip']!='m' && $_POST['cikltip']!='w'){
             array_push($oszlopok, 'ciklaltip'       );
             array_push($ertekek,  '1'               );
 
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  $_POST['ciklnap'] );
-
         }
+        
         // Napi ciklus, hétköznaponként ismétlődik
         $hetkoz_kent = '';
         if($type == 'insert') {
@@ -194,11 +194,17 @@ function i_u($type, $tabla, $tomb) {
         array_push($oszlopok, 'kezdho',        'kezdnap',           'vegeho',           'vegenap',          'aktkezd_d',            'aktvege_d'           );
         array_push($ertekek, $_POST['kezdho'], $_POST['kezdnap'],   $_POST['vegeho'],   $_POST['vegenap'],  $_POST['aktkezd_d'],    $_POST['aktvege_d']   );
 
+//echo '<pre style="font-size: 1.4rem">';
+//print_r($oszlopok);
+//echo '</pre>';
+//echo '<pre style="font-size: 1.4rem">';
+//print_r($ertekek);
+//echo '</pre>';
+//exit;
     }
 
     // Új bejegyzés esetén több mindent is le kell kezelni (iktatószám kizsámolás, plusz oszlopok beállítása
 	if($type == 'insert') {
-
         // Insert DT és USR lekezelése általánosan
         if( in_array($tabla.'.php', $_SESSION['ketHasabos']) ) {
             array_push($oszlopok, 'insert_dt',  'insert_usr'                          );
@@ -465,7 +471,6 @@ function i_u($type, $tabla, $tomb) {
             // Szálloda azonosító
             $szalloda   = $adatbazis_kapcsolat->s('azon', 'telephely', "`id`='{$_POST['telephely_id']}'");
             $szalloda   = $szalloda[0]['azon'];
-
             // Iktatószám kiszámítása
             $sorszam  = get_iktatoszam_sorszam($tabla);
             if($sorszam===false){ $db_error = true; }
@@ -489,10 +494,10 @@ function i_u($type, $tabla, $tomb) {
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
         if( $id === false ) { $db_error = true; }
 
-
 //echo '<pre style="font-size: 1.4rem">';
 //echo $adatbazis_kapcsolat->gp() . '<br>';
 //echo '</pre>';
+//exit;
 //mysqli_commit($db_kapcs);
 //exit;
 
@@ -5802,10 +5807,9 @@ function get_iktatoszam_sorszam($tabla){
 
     $db_error = false;
 
-    $ikt_seq = $adatbazis_kapcsolat->s('ev sorszam', 'iktszam_seq', "`tabla`='$tabla' AND `ev`='".date('y')."'");
+    $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla`='$tabla' AND `ev`='".date('y')."'");
     if( $ikt_seq === false ) { $db_error = true; }
     if( $ikt_seq ) {
-        $ikt_seq = $ikt_seq[0];
 
         // Sorszám
         $sorszam = $ikt_seq['sorszam'];

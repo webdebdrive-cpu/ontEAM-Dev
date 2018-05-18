@@ -6,7 +6,7 @@
             <div class="dtr">
                 <div class="dtc form_bal b">Elutasítás oka:</div>
                 <div class="dtc form_jobb">
-                    <textarea name="elutasitas_memo" id="elutasitas_memo" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
+                    <textarea name="elutasitas_memo" class="csillag" id="elutasitas_memo" onkeyup="if( $(this).val().trim()=='' ){ $(this).val(''); }"></textarea>
                 </div>
             </div>
         </div>
@@ -38,6 +38,7 @@ $(document).ready(function(){
 /* Munkalap külsős elutasítása */
 function munkalapKulsosElutasit() {
 
+    szurkit();
     /* Megjegyzés kötelező */
     if(!$('#elutasitas_memo').val()){
         $('#popup input, #popup textarea, #popup select').removeClass('hibas_ide_focus');
@@ -59,12 +60,14 @@ function munkalapKulsosElutasit() {
             if(response) {
                 response = JSON.parse(response);
 
+                szurkit_zar();
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
                 }
-
-                location.href = get_get();
+                
+                popupZar();
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
             }
         }
     });

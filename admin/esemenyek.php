@@ -1204,7 +1204,7 @@ if(basename(self())=='utemezett_feladatok.php'){
             $het_rejt = '';
 
             $ciklszorz_w = $uf['ciklszorz'];
-            // Kipiált hetek beállítása
+            // Kipipált hetek beállítása
             for($i=0; $i<strlen($uf['ciklnap']); $i++){
                 switch($uf['ciklnap'][$i]){
                     case 1: $h_checked  = ' checked'; break;
@@ -1341,7 +1341,7 @@ $utemezett_feladatok_tomb = $akt_tomb = array(
                                             ')),
         array('type' => 'html',                     'megn' => nl2('</div>')),
 
-        //Havonta
+        // Havonta
         array('type' => 'html',                     'megn' => nl2('<div id="tipus_m" style="padding: 0" class="'.$ho_rejt.'cikltip">')),
         array('type' => 'text',                     'megn' => '',                   'name' => 'ciklho',     'pre' => 'Ismétlődik ', 'post' => ' havonta a hónap ', 'style' => 'width: 4rem', 'maxlength' => 2, 'onkeyup' => 'onlyNumbers( $(this) ); $(\'#ciklho2\').val(\'\'); $(\'#ciklhet\').val(\'\'); $(\'#ho_rendsz_het\').val(\'\');', 'osszevon' => 1, 'value' => $ciklnap_honap),
         array('type' => 'select_honapjan',          'megn' => '',                   'name' => 'honapjan',                           'post' => ' napján', 'class' => 'disableNav'),
@@ -5009,4 +5009,5 @@ function kep_menedzser($megnevezes, $tomb, $tabla, $sor_id, $uj_lista, $meret, $
 	}
 
 }
+
 ?>
