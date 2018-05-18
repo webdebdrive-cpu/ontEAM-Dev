@@ -230,11 +230,6 @@ if(isset($_GET['modosit_ules'])){
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
             
-            // Dokumentum fül rejtése, ha nincs hozzá jog
-            if( $key=='dokumentumok' && !_jog(JOG_DOKUMENTUM_OLVAS) ){
-                continue;
-            }
-            
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -661,7 +656,7 @@ if(isset($_GET['modosit_ules'])){
         }
 
 	// Dokumentumok
-	}elseif( isset($_GET['dokumentumok']) && _jog(JOG_DOKUMENTUM_OLVAS) ) {
+	}elseif( isset($_GET['dokumentumok']) ) {
         
         if( $tobb_kep ) {
             require_once('tobb_kep.php');

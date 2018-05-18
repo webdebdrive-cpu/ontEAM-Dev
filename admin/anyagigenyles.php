@@ -2055,20 +2055,11 @@ require_once('selectek.php');
 
         $kivetelek = array('ajax', 'uj');
         foreach($ful_tomb as $key => $value){
-            // Dokumentum fül rejtése, ha nincs hozzá jog
-            if( $key=='dokumentumok' && !_jog(JOG_DOKUMENTUM_OLVAS) ){
-                continue;
-            }
             array_push($kivetelek, $key);
         }
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
-
-            // Dokumentum fül rejtése, ha nincs hozzá jog
-            if( $key=='dokumentumok' && !_jog(JOG_DOKUMENTUM_OLVAS) ){
-                continue;
-            }
             
             // Anyagrendelés alatt Anyagignylés fül nem kell Anyagrend mod: 2018.04
             // if( !(isset($_GET['anyagrend']) && $key=='tablazat') ){
@@ -2762,7 +2753,7 @@ require_once('selectek.php');
         }
 
 	// Dokumentumok
-	}elseif( isset($_GET['dokumentumok']) && _jog(JOG_DOKUMENTUM_OLVAS) ) {
+	}elseif( isset($_GET['dokumentumok']) ) {
 
         if( $tobb_kep ) {
             require_once('tobb_kep.php');

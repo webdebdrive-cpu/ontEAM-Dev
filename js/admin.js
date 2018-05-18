@@ -1181,7 +1181,7 @@ $(function() {
     /* Ciklus tipus váltásakor megfelelő div megjelenítése */
     $(document).on('change', '.f_cikltip', function() {
 
-        /* VÁltáskor a ciklnap tárolt értéket nullázzuk, mert az új felületen minden üres */
+        /* Váltáskor a ciklnap tárolt értéket nullázzuk, mert az új felületen minden üres */
         formAdatok.ciklhet          = '';
         formAdatok.ciklho           = '';
         formAdatok.ciklho2          = '';
@@ -6287,12 +6287,13 @@ function munkalapKeszit(csak_kerdezunk, kerdesek_nelkul) {
 
                         /* 2018.02.19 Kérték, hogy ne léptessük át a munkalpara, maradunk a bejelentésnél.
                          * location.href = 'munkalap.php?id=' + response.recid + '&modosit';*/
-                        /*alert2();
 
+                        alert2();
                         kijelolesEltavolit();
-                        popupZar();*/
-                        /* Inkább frissítsünk be mindent */
-                        location.reload();
+                        popupZar();
+                        szurkit_zar();
+                        szamlaBetolt( idk[1], 'bejelentes.php', 'modosit' );
+
                     }
                 }
             });

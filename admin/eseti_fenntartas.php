@@ -200,11 +200,6 @@ require_once('selectek.php');
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
             
-            // Dokumentum fül rejtése, ha nincs hozzá jog
-            if( $key=='dokumentumok' && !_jog(JOG_DOKUMENTUM_OLVAS) ){
-                continue;
-            }
-            
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -317,7 +312,7 @@ require_once('selectek.php');
             $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['ujkent']);
             if( $sor ) {
                 foreach($akt_tomb as $ertek) {
-                    if( $ertek['name'] != 'ikt_szam' ) {
+                    if( $ertek['name'] != 'id' ) {
                         $_SESSION[$ertek['name']] = stripslashes( $sor[$ertek['name']] );
                     } else {
                         $_SESSION[$ertek['name']] = '';
@@ -537,7 +532,7 @@ require_once('selectek.php');
         }
 
     // Dokumentumok
-    }elseif( isset($_GET['dokumentumok']) && _jog(JOG_DOKUMENTUM_OLVAS) ) {
+    }elseif( isset($_GET['dokumentumok']) ) {
 
         if( $tobb_kep ) {
             require_once('tobb_kep.php');

@@ -5229,10 +5229,6 @@ function het_napja($nap){
 // Jogosultásg gyors lekérdezése
 function _jog( $value ) {
     
-    if( in_array($value, array(JOG_DOKUMENTUM_OLVAS, JOG_DOKUMENTUM_IR, JOG_DOKUMENTUM_TOROL)) ){
-        return 1;
-    }
-    
     if( $_SESSION[get_db_tabla().'rights'][$value] ) {
         return $_SESSION[get_db_tabla().'rights'][$value];
     }
