@@ -107,10 +107,16 @@ if (isset($_POST['get_egysegarak'])) {
 
                 $kulso_val = $egysegar['dnem'.$sorszam];
                 if( !$kulso_val ) {
-                    $kulso_val = 0;
+                    $kulso_val = 5;
                 }
 
                 $kulso_ertek = $adatbazis_kapcsolat->s2('id info', 'erteklista', '`id`=\''.$kulso_val.'\' and `csoport` = \'21\'', '', '1');
+
+                // Árfolyam
+                $arfolyam = str_replace('.', ',', $egysegar['arf'.$sorszam]);
+                if( $arfolyam == '0,00000' ) {
+                    $arfolyam = '1,00000';
+                }
 
                 $html .= nl2('
                     <div class="dtr">
@@ -133,7 +139,7 @@ if (isset($_POST['get_egysegarak'])) {
                                 });
                             </script>
                         </div>
-                        <div class="dtc"><input type="text" name="arf'.$sorszam.'" id="arf'.$sorszam.'" class="f_num" data-tort="5" value="'.str_replace('.', ',', $egysegar['arf'.$sorszam]).'"></div>
+                        <div class="dtc"><input type="text" name="arf'.$sorszam.'" id="arf'.$sorszam.'" class="f_num" data-tort="5" value="'.$arfolyam.'"></div>
                     </div>
                 ');
             }
