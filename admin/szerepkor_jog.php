@@ -172,7 +172,7 @@ require_once('selectek.php');
 
     $json_sor = array();
     foreach($sor as $kulcs => $elem){
-        $json_sor[$kulcs] = str_replace(array("\r\n", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
+        $json_sor[$kulcs] = str_replace(array("\r\n", "\r", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
     }
     $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
@@ -333,7 +333,7 @@ require_once('selectek.php');
                 </div>
                 ');
     foreach($sor as $kulcs => $elem){
-        $json_sor[$kulcs] = str_replace(array("\r\n", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
+        $json_sor[$kulcs] = str_replace(array("\r\n", "\r", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
     }
     $html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
     
