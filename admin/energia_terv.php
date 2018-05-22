@@ -636,7 +636,7 @@ require_once('selectek.php');
         );
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
-            
+
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -880,46 +880,46 @@ require_once('selectek.php');
             <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
             <thead>
             <tr>
-                <th><span>Szállodák</span></th>
-                <th><span>Díjelem</span></th>
+                <th class="egys_szall"><span>Szállodák</span></th>
+                <th class="egys_szall"><span>Díjelem</span></th>
                 <th><span>Költségnem kód</span></th>
                 <th><span>Költségnem név</span></th>
                 <th><span>Mee</span></th>
                 <th><span>Egységár Január</span></th>
-                <th><span>Devizanem Január</span></th>
+                <th class="egys_dev"><span>Dev. Jan.</span></th>
                 <th><span>Árfolyam Január</span></th>
                 <th><span>Egységár Február</span></th>
-                <th><span>Devizanem Február</span></th>
+                <th class="egys_dev"><span>Dev. Feb</span></th>
                 <th><span>Árfolyam Február</span></th>
                 <th><span>Egységár Március</span></th>
-                <th><span>Devizanem Március</span></th>
+                <th class="egys_dev"><span>Dev. Márc.</span></th>
                 <th><span>Árfolyam Március</span></th>
                 <th><span>Egységár Április</span></th>
-                <th><span>Devizanem Április</span></th>
+                <th class="egys_dev"><span>Dev. Ápr.</span></th>
                 <th><span>Árfolyam Április</span></th>
                 <th><span>Egységár Május</span></th>
-                <th><span>Devizanem Május</span></th>
+                <th class="egys_dev"><span>Dev. Máj.</span></th>
                 <th><span>Árfolyam Május</span></th>
                 <th><span>Egységár Június</span></th>
-                <th><span>Devizanem Június</span></th>
+                <th class="egys_dev"><span>Dev. Jún.</span></th>
                 <th><span>Árfolyam Június</span></th>
                 <th><span>Egységár Július</span></th>
-                <th><span>Devizanem Július</span></th>
+                <th class="egys_dev"><span>Dev. Júl.</span></th>
                 <th><span>Árfolyam Július</span></th>
                 <th><span>Egységár Augusztus</span></th>
-                <th><span>Devizanem Augusztus</span></th>
+                <th class="egys_dev"><span>Dev. Aug.</span></th>
                 <th><span>Árfolyam Augusztus</span></th>
                 <th><span>Egységár Szeptember</span></th>
-                <th><span>Devizanem Szeptember</span></th>
+                <th class="egys_dev"><span>Dev. Szept.</span></th>
                 <th><span>Árfolyam Szeptember</span></th>
                 <th><span>Egységár Október</span></th>
-                <th><span>Devizanem Október</span></th>
+                <th class="egys_dev"><span>Dev. Okt.</span></th>
                 <th><span>Árfolyam Október</span></th>
                 <th><span>Egységár November</span></th>
-                <th><span>Devizanem November</span></th>
+                <th class="egys_dev"><span>Dev. Nov.</span></th>
                 <th><span>Árfolyam November</span></th>
                 <th><span>Egységár December</span></th>
-                <th><span>Devizanem December</span></th>
+                <th class="egys_dev"><span>Dev. Dec</span></th>
                 <th><span>Árfolyam December</span></th>
             </tr>
             </thead>
@@ -950,40 +950,40 @@ require_once('selectek.php');
                     <td>'.$egysegar['mee'].'</td>
                     <td>'.$egysegar['ear01'].'</td>
                     <td>'.erteklista(21, $egysegar['dnem01']).'</td>
-                    <td>'.$egysegar['arf01'].'</td>
+                    <td class="r">'.$egysegar['arf01'].'</td>
                     <td>'.$egysegar['ear02'].'</td>
                     <td>'.erteklista(21, $egysegar['dnem02']).'</td>
-                    <td>'.$egysegar['arf02'].'</td>
+                    <td class="r">'.$egysegar['arf02'].'</td>
                     <td>'.$egysegar['ear03'].'</td>
                     <td>'.erteklista(21, $egysegar['dnem03']).'</td>
-                    <td>'.$egysegar['arf03'].'</td>
+                    <td class="r">'.$egysegar['arf03'].'</td>
                     <td>'.$egysegar['ear04'].'</td>
                     <td>'.erteklista(21, $egysegar['dnem04']).'</td>
-                    <td>'.$egysegar['arf04'].'</td>
+                    <td class="r">'.$egysegar['arf04'].'</td>
                     <td>'.$egysegar['ear05'].'</td>
                     <td>'.erteklista(21, $egysegar['dnem05']).'</td>
-                    <td>'.$egysegar['arf05'].'</td>
+                    <td class="r">'.$egysegar['arf05'].'</td>
                     <td>'.$egysegar['ear06'].'</td>
                     <td>'.erteklista(21, $egysegar['dnem06']).'</td>
-                    <td>'.$egysegar['arf06'].'</td>
+                    <td class="r">'.$egysegar['arf06'].'</td>
                     <td>'.$egysegar['ear07'].'</td>
                     <td>'.erteklista(21, $egysegar['dnem07']).'</td>
-                    <td>'.$egysegar['arf07'].'</td>
+                    <td class="r">'.$egysegar['arf07'].'</td>
                     <td>'.$egysegar['ear08'].'</td>
                     <td>'.erteklista(21, $egysegar['dnem08']).'</td>
-                    <td>'.$egysegar['arf08'].'</td>
+                    <td class="r">'.$egysegar['arf08'].'</td>
                     <td>'.$egysegar['ear09'].'</td>
                     <td>'.erteklista(21, $egysegar['dnem09']).'</td>
-                    <td>'.$egysegar['arf09'].'</td>
+                    <td class="r">'.$egysegar['arf09'].'</td>
                     <td>'.$egysegar['ear10'].'</td>
                     <td>'.erteklista(21, $egysegar['dnem10']).'</td>
-                    <td>'.$egysegar['arf10'].'</td>
+                    <td class="r">'.$egysegar['arf10'].'</td>
                     <td>'.$egysegar['ear11'].'</td>
                     <td>'.erteklista(21, $egysegar['dnem11']).'</td>
-                    <td>'.$egysegar['arf11'].'</td>
+                    <td class="r">'.$egysegar['arf11'].'</td>
                     <td>'.$egysegar['ear12'].'</td>
                     <td>'.erteklista(21, $egysegar['dnem12']).'</td>
-                    <td>'.$egysegar['arf12'].'</td>
+                    <td class="r">'.$egysegar['arf12'].'</td>
                 </tr>
                 ';
         }

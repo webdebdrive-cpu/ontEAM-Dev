@@ -3252,3 +3252,13 @@ div.rendBal {
 .egysegarMuv .dtc .gomb {
     margin: 0rem 0rem 0rem 0rem;
 }
+
+th.egys_szall {
+    min-width: 20rem;
+    width: 20rem;
+}
+
+th.egys_dev {
+    min-width: 3rem;
+    width: 3rem;
+}
