@@ -54,173 +54,178 @@
             }
 
             $(this).keyup(function(e) {
+                that  = $(this);
 
-                /* Tabbal érkezve egy autocomplete mezőbe ne jöjjön fel a lista */
-                if(e.which!=KEY_TAB){
-
-                    var that    = $(this);
-
-                    var width   = $(this).outerWidth();
-                    var height  = $(this).outerHeight();
-                    var left    = $(this).offset().left;
-                    var top     = $(this).offset().top;
-
-                    var length  = $(this).val().length;
-                    var val     = $(this).val();
-                    mezo        = $(this);
-                    setting     = options;
-
-                    if(length >= options.karaktertol) {
-                        var cont_id = $(this).attr('id') + '_cont',
-                            current_cont_id = $('#autocomplete').attr('data-cont');
-
-                        if( !$('#' + cont_id).length ) {
-                            $(this).before('<div id="' + cont_id + '" class="autocomp_cont"></div>');
-                        }
-
-                        if( current_cont_id === undefined ) {
-                            $('#' + cont_id).html('<div id="autocomplete" data-cont="' + cont_id + '"></div>');
-                        } else if( cont_id != current_cont_id ) {
-                            $('#autocomplete').remove();
-                            $('#' + cont_id).html('<div id="autocomplete" data-cont="' + cont_id + '"></div>');
-                        }
-
-                        if($('#popup').css('display') == 'block'){
-                            $('#autocomplete').addClass('popupba');
-                        } else {
-                            $('#autocomplete').removeClass('popupba');
-                        }
-
-                        if( $('#autocomplete').css('display') != 'block' ) {
-                            if(options.szel == 'auto') {
-                                $('#' + cont_id).css({ 'width': width });
-                                $('#autocomplete').css({
-                                    'display'   : 'block',
-                                    'max-height': '30rem',
-                                    'width'     : width
-                                });
-                            } else {
-                                $('#' + cont_id).css({ 'width': options.szel });
-                                $('#autocomplete').css({
-                                    'display'   : 'block',
-                                    'max-height': '30rem',
-                                    'width'     : options.szel
-                                });
-                            }
-                        }
-
-                        /* Ha nem a szűrőben van az autocomplete, akkor csak azokat a helyiségeket listázza ki,
-                         *  ami adott szállodához tartozik, ezért átküldünk egy telephely_id értékete is */
-                        telephely_id = '';
-                        if( !options.szuros && (
-                            baseName(location.href) == 'bejelentes'                 ||
-                            baseName(location.href) == 'utemezett_feladatok'        ||
-                            baseName(location.href) == 'rendszeres_karbantartas'    ||
-                            baseName(location.href) == 'munkalap'                   ||
-                            baseName(location.href) == 'eszkozkezeles'              ||
-                            baseName(location.href) == 'felmeresi_terv'
-                            )
-                        ) {
-                            telephely_id = $('#telephely_id').val();
-                        }
-
-                        obj_id = '';
-                        if( !options.szuros && (
-                                                baseName(location.href) == 'bejelentes'             ||
-                                                baseName(location.href) == 'eszkozkezeles'          ||
-                                                baseName(location.href) == 'eseti_fenntartas'       ||
-                                                baseName(location.href) == 'felmeresi_terv'         ||
-                                                baseName(location.href) == 'munkalap'               ||
-                                                baseName(location.href) == 'utemezett_feladatok'    ||
-                                                baseName(location.href) == 'rendszeres_karbantartas'
-                                                )
-                        ) {
-                            obj_id = $('#obj_id').val();
-                        }
-
-                        if(e.keyCode!=KEY_DOWN && e.keyCode!=KEY_UP && e.keyCode!=KEY_ENTER) {
-
-                            $.ajax({
-                                url     : options.php_fajl,
-                                type    : 'GET',
-                                data: {
-                                    csoport         : options.csoport,
-                                    felt            : options.felt,
-                                    id_kiir         : options.id_kiir,
-                                    limit           : options.limit,
-                                    mezo            : options.mezo,
-                                    obj_id          : obj_id,
-                                    op              : options.op,
-                                    oszlop_keres    : options.oszlop_keres,
-                                    oszlop_listaz   : options.oszlop_listaz,
-                                    props           : options.props,
-                                    recid           : options.recid,
-                                    rkat            : options.rkat,
-                                    szemelyzet_id   : options.szemelyzet_id,
-                                    tabla           : options.tabla,
-                                    telephely_id    : telephely_id,
-                                    value           : val
-                                },
-                                success: function(msg) {
-                                    if(msg.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                                    $('div#autocomplete').html(msg);
-
-                                    /* Ha kilógna a képernyőről */
-                                    var offsetTop       = $(that).offset().top,
-                                        documentHeight  = $(document).outerHeight(),
-                                        documentHalf    = documentHeight / 2;
-
-                                    var autocompHeight  = $('#autocomplete ul').outerHeight(),
-                                        autocompleteTop = height;
-
-                                    if( autocompHeight > 300 ) {
-                                        autocompHeight = 300;
-                                    }
-
-                                    /* Ha az input elhagyta a documentum felét */
-                                    if( offsetTop > documentHalf ) {
-                                        var maradekHely = documentHeight - (offsetTop + height);
-
-                                        autocompleteTop = -Math.abs(autocompHeight);
-                                        var posTop = $(that).position().top;
-
-                                        if( autocompHeight > posTop ) {
-                                            autocompleteTop = -Math.abs(posTop);
-                                            autocompHeight  = posTop;
-                                        }
-
-                                        if($('#popup').css('display') == 'block') {
-                                            var popupHeight = $('div.popup_kont').outerHeight();
-
-                                            autocompHeight = popupHeight - posTop - 70;
-                                        }
-
-                                        $('#autocomplete').css({
-                                            'top': autocompleteTop,
-                                            'max-height': autocompHeight
-                                        });
-                                    } else {
-                                        var posTop = $(that).position().top;
-
-                                        if($('#popup').css('display') == 'block') {
-                                            var popupHeight = $('div.popup_kont').outerHeight();
-                                            autocompHeight = popupHeight - height - posTop - parseInt($('#popup div.popup_tart div.kuldes').outerHeight());
-                                        }
-
-                                        $('#autocomplete').css({
-                                            'top'       : height,
-                                            'max-height': autocompHeight
-                                        });
-                                    }
-                                }
-                            });
-
-                        }
-
-                    } else {
-                        $('#autocomplete').css({'display' : 'none'}).html('');
-                    }
+                kesleltetes = 500;
+                if( e.which == undefined ) {
+                    kesleltetes = 0;
                 }
+
+                delay(function() {
+                    /* Tabbal érkezve egy autocomplete mezőbe ne jöjjön fel a lista */
+                    if(e.which!=KEY_TAB){
+                        var width   = $(that).outerWidth();
+                        var height  = $(that).outerHeight();
+                        var left    = $(that).offset().left;
+                        var top     = $(that).offset().top;
+
+                        var length  = $(that).val().length;
+                        var val     = $(that).val();
+                        mezo        = $(that);
+                        setting     = options;
+
+                        if(length >= options.karaktertol) {
+                            var cont_id = $(that).attr('id') + '_cont',
+                                current_cont_id = $('#autocomplete').attr('data-cont');
+
+                            if( !$('#' + cont_id).length ) {
+                                $(that).before('<div id="' + cont_id + '" class="autocomp_cont"></div>');
+                            }
+
+                            if( current_cont_id === undefined ) {
+                                $('#' + cont_id).html('<div id="autocomplete" data-cont="' + cont_id + '"></div>');
+                            } else if( cont_id != current_cont_id ) {
+                                $('#autocomplete').remove();
+                                $('#' + cont_id).html('<div id="autocomplete" data-cont="' + cont_id + '"></div>');
+                            }
+
+                            if($('#popup').css('display') == 'block'){
+                                $('#autocomplete').addClass('popupba');
+                            } else {
+                                $('#autocomplete').removeClass('popupba');
+                            }
+
+                            if( $('#autocomplete').css('display') != 'block' ) {
+                                if(options.szel == 'auto') {
+                                    $('#' + cont_id).css({ 'width': width });
+                                    $('#autocomplete').css({
+                                        'display'   : 'block',
+                                        'max-height': '30rem',
+                                        'width'     : width
+                                    });
+                                } else {
+                                    $('#' + cont_id).css({ 'width': options.szel });
+                                    $('#autocomplete').css({
+                                        'display'   : 'block',
+                                        'max-height': '30rem',
+                                        'width'     : options.szel
+                                    });
+                                }
+                            }
+
+                            /* Ha nem a szűrőben van az autocomplete, akkor csak azokat a helyiségeket listázza ki,
+                             *  ami adott szállodához tartozik, ezért átküldünk egy telephely_id értékete is */
+                            telephely_id = '';
+                            if( !options.szuros && (
+                                baseName(location.href) == 'bejelentes'                 ||
+                                baseName(location.href) == 'utemezett_feladatok'        ||
+                                baseName(location.href) == 'rendszeres_karbantartas'    ||
+                                baseName(location.href) == 'munkalap'                   ||
+                                baseName(location.href) == 'eszkozkezeles'              ||
+                                baseName(location.href) == 'felmeresi_terv'
+                                )
+                            ) {
+                                telephely_id = $('#telephely_id').val();
+                            }
+
+                            obj_id = '';
+                            if( !options.szuros && (
+                                                    baseName(location.href) == 'bejelentes'             ||
+                                                    baseName(location.href) == 'eszkozkezeles'          ||
+                                                    baseName(location.href) == 'eseti_fenntartas'       ||
+                                                    baseName(location.href) == 'felmeresi_terv'         ||
+                                                    baseName(location.href) == 'munkalap'               ||
+                                                    baseName(location.href) == 'utemezett_feladatok'    ||
+                                                    baseName(location.href) == 'rendszeres_karbantartas'
+                                                    )
+                            ) {
+                                obj_id = $('#obj_id').val();
+                            }
+
+                            if(e.keyCode!=KEY_DOWN && e.keyCode!=KEY_UP && e.keyCode!=KEY_ENTER) {
+
+                                $.ajax({
+                                    url     : options.php_fajl,
+                                    type    : 'GET',
+                                    data: {
+                                        csoport         : options.csoport,
+                                        felt            : options.felt,
+                                        id_kiir         : options.id_kiir,
+                                        limit           : options.limit,
+                                        mezo            : options.mezo,
+                                        obj_id          : obj_id,
+                                        op              : options.op,
+                                        oszlop_keres    : options.oszlop_keres,
+                                        oszlop_listaz   : options.oszlop_listaz,
+                                        props           : options.props,
+                                        recid           : options.recid,
+                                        rkat            : options.rkat,
+                                        szemelyzet_id   : options.szemelyzet_id,
+                                        tabla           : options.tabla,
+                                        telephely_id    : telephely_id,
+                                        value           : val
+                                    },
+                                    success: function(msg) {
+                                        if(msg.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                                        $('div#autocomplete').html(msg);
+
+                                        /* Ha kilógna a képernyőről */
+                                        var offsetTop       = $(that).offset().top,
+                                            documentHeight  = $(document).outerHeight(),
+                                            documentHalf    = documentHeight / 2;
+
+                                        var autocompHeight  = $('#autocomplete ul').outerHeight(),
+                                            autocompleteTop = height;
+
+                                        if( autocompHeight > 300 ) {
+                                            autocompHeight = 300;
+                                        }
+
+                                        /* Ha az input elhagyta a documentum felét */
+                                        if( offsetTop > documentHalf ) {
+                                            var maradekHely = documentHeight - (offsetTop + height);
+
+                                            autocompleteTop = -Math.abs(autocompHeight);
+                                            var posTop = $(that).position().top;
+
+                                            if( autocompHeight > posTop ) {
+                                                autocompleteTop = -Math.abs(posTop);
+                                                autocompHeight  = posTop;
+                                            }
+
+                                            if($('#popup').css('display') == 'block') {
+                                                var popupHeight = $('div.popup_kont').outerHeight();
+
+                                                autocompHeight = popupHeight - posTop - 70;
+                                            }
+
+                                            $('#autocomplete').css({
+                                                'top': autocompleteTop,
+                                                'max-height': autocompHeight
+                                            });
+                                        } else {
+                                            var posTop = $(that).position().top;
+
+                                            if($('#popup').css('display') == 'block') {
+                                                var popupHeight = $('div.popup_kont').outerHeight();
+                                                autocompHeight = popupHeight - height - posTop - parseInt($('#popup div.popup_tart div.kuldes').outerHeight());
+                                            }
+
+                                            $('#autocomplete').css({
+                                                'top'       : height,
+                                                'max-height': autocompHeight
+                                            });
+                                        }
+                                    }
+                                });
+
+                            }
+
+                        } else {
+                            $('#autocomplete').css({'display' : 'none'}).html('');
+                        }
+                    }
+                }, kesleltetes);
             });
 
             $(document).on('mouseover', '#autocomplete ul li', function() {
