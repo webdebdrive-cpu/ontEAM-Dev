@@ -6,7 +6,7 @@ $log = $log_tmp = '
 *****************************
 '.date('Y.m.d H:i:s').' '.basename(self()).' elindult
 ';
-file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 // Adott méret felett felezzük a log fájlt
 if( filesize($log_utvonal)>get_logfile_max_meret() ){
     $log_tmp = fajlbol_olvas($log_utvonal);
@@ -19,7 +19,7 @@ $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes', "`stat_id`='".BEJ
 $log_tmp = $adatbazis_kapcsolat->gp() . '
 ';
 $log .= $log_tmp;
-file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
 foreach($bejelentesek as $bejelentes){
     $statusz = $adatbazis_kapcsolat->s2('insert_dt', 'bejelentes_statusz', "`bejelentes_recid`='{$bejelentes['recid']}'", 'recid desc', '1');
@@ -28,7 +28,7 @@ foreach($bejelentesek as $bejelentes){
 $log_tmp = 'Bejelentés lezárt státuszra léptetve (recid): '.$bejelentes['recid'].'
 ';
 $log .= $log_tmp;
-file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
     }
 }
 
@@ -40,7 +40,7 @@ foreach($munkalapok as $munkalap){
 $log_tmp = 'Munkalap lezárt státuszra léptetve (recid): '.$munkalap['recid'].'
 ';
 $log .= $log_tmp;
-file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
     }
 }
 
@@ -52,6 +52,6 @@ $log_tmp = date('Y.m.d H:i:s').' ütemező sikeresen lefutott.
 
 ';
 $log .= $log_tmp;
-file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
 $adatbazis_kapcsolat->i('utemezo_log', array('utemezo', 'log'), array(basename(self()), $log));

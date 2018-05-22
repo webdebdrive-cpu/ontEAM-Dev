@@ -10,7 +10,7 @@ $log_tmp = $log = '
 *****************************
 '.date('Y.m.d H:i:s').' '.basename(self()).' elindult
 ';
-file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 // Adott méret felett felezzük a log fájlt
 if( filesize($log_utvonal)>get_logfile_max_meret() ){
     $log_tmp = fajlbol_olvas($log_utvonal);
@@ -21,7 +21,7 @@ $ut_feladatok = $adatbazis_kapcsolat->s('*', 'utemezett_feladatok', "DATE_ADD(`e
 $log_tmp = $adatbazis_kapcsolat->gp().'
 ';
 $log .= $log_tmp;
-file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
 foreach($ut_feladatok as $ut_feladat){
     
@@ -33,7 +33,7 @@ foreach($ut_feladatok as $ut_feladat){
     $log_tmp = 'Recid: '.$ut_feladat['recid'].' Feladatszám: '.$ut_feladat['id'].' elindult
 ';
     $log .= $log_tmp;
-    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+    file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
     $text = /*$ut_feladat['id'].' feladatot ütemezte '.$ut_feladat['insert_usr']."\r\n".*/$ut_feladat['nev']."\r\n".$ut_feladat['leiras'];
 
@@ -71,14 +71,14 @@ foreach($ut_feladatok as $ut_feladat){
         }
     }
     $log .= $log_tmp;
-    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+    file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
  
     // Iktatószám formázása
     $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
     $log_tmp = 'Iktatószám létrehozva: '.$ikt_szam.'
 ';
     $log .= $log_tmp;
-    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+    file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
     // Szállodának mi a modellje
     $szalloda = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$ut_feladat['telephely_id']}'");
     
@@ -97,7 +97,7 @@ foreach($ut_feladatok as $ut_feladat){
 ';
     }
     $log .= $log_tmp;
-    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+    file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
     // Kezdő státusz beállítása
     $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
@@ -113,7 +113,7 @@ foreach($ut_feladatok as $ut_feladat){
 ';
     }
     $log .= $log_tmp;
-    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+    file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
     
     // Egyszállodás modell esetén a munkalap automatikusan hozzárendelt státuszban jön létre, ha telepített a hozzárendelt személyzet
     if( !$szalloda['modell'] && $ut_feladat['szemelyzet_id']==TELEPITETT_SZEMELYZET ){
@@ -132,7 +132,7 @@ foreach($ut_feladatok as $ut_feladat){
         }
     }
     $log .= $log_tmp;
-    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+    file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
     
     // Feladat adatainak frissítése
     $oszlopok = array('utnap_d',        'utesnap_d'             );
@@ -148,7 +148,7 @@ foreach($ut_feladatok as $ut_feladat){
         // logolás
         $log_tmp = "recid:$ut_feladat[recid] getnextvaliddate(false, $esem_d, $ut_feladat[cikltip], $ut_feladat[ciklaltip], $ut_feladat[ciklszorz], $ut_feladat[ciklho], $ut_feladat[ciklhet], $ut_feladat[ciklnap], $ut_feladat[idoszakos], $ut_feladat[kezdho], $ut_feladat[kezdnap], $ut_feladat[vegeho], $ut_feladat[vegenap], $aktkezd_d, $aktvege_d) \r\n";
         $log .= $log_tmp;
-        file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+        file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
  //echo $esnap_d . "recid:$ut_feladat[recid] getnextvaliddate(false, $esem_d, $ut_feladat[cikltip], $ut_feladat[ciklaltip], $ut_feladat[ciklszorz], $ut_feladat[ciklho], $ut_feladat[ciklhet], $ut_feladat[ciklnap], $ut_feladat[idoszakos], $ut_feladat[kezdho], $ut_feladat[kezdnap], $ut_feladat[vegeho], $ut_feladat[vegenap], $aktkezd_d, $aktvege_d) <br><br>";
 
         $esnap_d = getnextvaliddate(false, $esem_d, $ut_feladat['cikltip'], $ut_feladat['ciklaltip'], $ut_feladat['ciklszorz'], $ut_feladat['ciklho'], $ut_feladat['ciklhet'], $ut_feladat['ciklnap'], $ut_feladat['idoszakos'], $ut_feladat['kezdho'], $ut_feladat['kezdnap'], $ut_feladat['vegeho'], $ut_feladat['vegenap'], $aktkezd_d, $aktvege_d);
@@ -180,7 +180,7 @@ foreach($ut_feladatok as $ut_feladat){
 ';
     }
     $log .= $log_tmp;
-    file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+    file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
 
     // Tranzakció kommitolása, vagy rollback-ezése
@@ -200,7 +200,7 @@ $log_tmp = date('Y.m.d H:i:s').' ütemező sikeresen lefutott.
 
 ';
 $log .= $log_tmp;
-file_put_contents($log_utvonal, $log_tmp.PHP_EOL, FILE_APPEND | LOCK_EX);
+file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 echo htmlspecialchars($log) . '<br>';
 
 // A lefutást is eltároljuk
