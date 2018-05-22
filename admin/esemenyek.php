@@ -4357,6 +4357,9 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='felmeresi_terv' && !_jog(JOG_FT_KEZEL)){
             $weblap -> leallit(); exit;
         }
+        if($ertek['tabla']=='fenntartasi_szerzodes' && !_jog(JOG_FENNTARTASI_TOROL)){
+            $weblap -> leallit(); exit;
+        }
         // Login egyáltalán nem törölhető
         if($ertek['tabla']=='login'){
             $weblap -> leallit(); exit;
@@ -4368,6 +4371,12 @@ foreach($postok as $ertek){
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla']=='raktar' && !_jog(JOG_RAKTAR_KEZEL)){
+            $weblap -> leallit(); exit;
+        }
+        if( $ertek['tabla']=='szamla' && !_jog(JOG_SZAMLAK_TOROL)){
+            $weblap -> leallit(); exit;
+        }
+        if( $ertek['tabla']=='szallito' && !_jog(JOG_PARTNERTORZS_TOROL)){
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla']=='szabadsagigeny' && !_jog(JOG_SZABADSAGIG_KEZEL)){
@@ -4412,7 +4421,7 @@ foreach($postok as $ertek){
         $sql = $adatbazis_kapcsolat->d('megjegyzes', "`tabla`='{$ertek['tabla']}' AND `id`='{$_GET[$ertek['torid']]}'");
         if( $sql === false ) { $db_error = true; }
         // Státusz tábla törlése, hacsak nem kivételes
-        $kivetelek = array('cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'ktgnem', 'ktghely', 'utemezett_feladatok', 'rendszeres_karbantartas', 'szerepkor');
+        $kivetelek = array('cikktorzs', 'eseti_fenntartas', 'eszkozkezeles', 'erteklista', 'felmeresi_terv', 'ktgnem', 'ktghely', 'utemezett_feladatok', 'rendszeres_karbantartas', 'szallito', 'szerepkor');
         if( !in_array($ertek['tabla'], $kivetelek) ){
             $sql = $adatbazis_kapcsolat->d($ertek['tabla'].'_statusz', "`{$ertek['tabla']}_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }

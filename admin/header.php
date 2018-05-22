@@ -445,9 +445,8 @@ if(_jog(JOG_PRIGENY_S_KEZEL) ||_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGEN
 }
 
 
-// Csak bejelentő elől rejtve
-if(!$_SESSION['bejelento_menu_rejt']){
-    // Továbbiak
+if( !$_SESSION['bejelento_menu_rejt'] /* Bejelentő elől rejtve */ && (_jog(JOG_FENNTARTASI_OLVAS) || _jog(JOG_SZAMLAK_OLVAS) || _jog(JOG_PARTNERTORZS_OLVAS) || _jog(JOG_DOKUMENTUMTAR_OLVAS) ) ){
+    // Továbbiak 
     $menu_nev        = 'Dokumentumok';
     $menu_nev_kis    = 'dokumentumok';
     $menu_nev_tobbes = 'Dokumentumok';
@@ -460,10 +459,18 @@ if(!$_SESSION['bejelento_menu_rejt']){
     if(basename(self())=='dokumentumtar.php')           { $oldalNev = 'Dokumentumok / <span id="rekord_neve">Dokumentumtár</span><span class="dn" id="rekord_neve_egyes">dokumentumtár</span><span class="dn" id="rekord_neve_targy">dokumentumtárat</span>';                           }
 
     $aktmenuk  = '';
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Fenntartási szerződések'), $almenu_sablon );
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Számlák'                ), $almenu_sablon );
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Partnertörzs'           ), $almenu_sablon );
-    $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Dokumentumtár'          ), $almenu_sablon );
+    if( _jog(JOG_FENNTARTASI_OLVAS) ){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Fenntartási szerződések'), $almenu_sablon );
+    }
+    if( _jog(JOG_SZAMLAK_OLVAS) ){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Számlák'                ), $almenu_sablon );
+    }
+    if( _jog(JOG_PARTNERTORZS_OLVAS) ){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['2'], 'Partnertörzs'           ), $almenu_sablon );
+    }
+    if( _jog(JOG_DOKUMENTUMTAR_OLVAS) ){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['3'], 'Dokumentumtár'          ), $almenu_sablon );
+    }
 
     $style = '';
     if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
@@ -1059,6 +1066,11 @@ if( basename(self())=='cikktorzs.php' && !_jog(JOG_CIKKTORZS_KEZEL)){
     $uj = $duplikal = '';
 }
 
+if( basename(self())=='dokumentumtar.php' && !_jog(JOG_DOKUMENTUMTAR_KEZEL)){
+    $torles_icon    = '';
+    $uj = $duplikal = '';
+}
+
 if(basename(self())=='eloterj_bod.php' && !_jog(JOG_ELOTERJ_KEZEL)){
     $torles_icon    = '';
     $uj = $duplikal = '';
@@ -1095,6 +1107,13 @@ if(basename(self())=='eszkozkezeles.php' && !_jog(JOG_ESZKOZ_KEZEL)){
 if(basename(self())=='felmeresi_terv.php' && !_jog(JOG_FT_KEZEL)){
     $torles_icon    = '';
     $uj = $duplikal = '';
+}
+
+if(basename(self())=='fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_KEZEL)){
+    $uj = $duplikal = '';
+}
+if(basename(self())=='fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_TOROL)){
+    $torles_icon    = '';
 }
 
 // Felhasználóknál a törlés gomb sosem látszik.
@@ -1142,6 +1161,25 @@ if(basename(self())=='rendszeres_karbantartas.php' && !_jog(JOG_RENDSZ_KARB_KEZE
 if(basename(self())=='rendszeres_karbantartas.php' && !_jog(JOG_RENDSZ_KARB_TOROL) ){
     $torles_icon    = '';
 }
+// Szállító
+if( basename(self())=='szallito.php' && !_jog(JOG_PARTNERTORZS_KEZEL)){
+    $uj = $duplikal = '';
+}
+if( basename(self())=='szallito.php' && !_jog(JOG_PARTNERTORZS_TOROL)){
+    $torles_icon    = '';
+}
+// Számlák
+if( basename(self())=='szamla.php' && !_jog(JOG_SZAMLAK_KEZEL)){
+    $uj = $duplikal = '';
+}
+if( basename(self())=='szamla.php' && !_jog(JOG_SZAMLAK_TOROL)){
+    $torles_icon    = '';
+}
+// Szabadságigény
+if( basename(self())=='szabadsagigeny.php' && !_jog(JOG_SZABADSAGIG_KEZEL)){
+    $torles_icon    = '';
+    $uj = $duplikal = '';
+}
 
 // Szerepkör alatt semmi értelme az új és törlés ikonoknak
 if( basename(self())=='szerepkor.php'){
@@ -1151,11 +1189,6 @@ if( basename(self())=='szerepkor.php'){
 
 // Szerepkör jogoknál semmi értelme az új és törlés ikonoknak
 if( basename(self())=='szerepkor_jog.php'){
-    $torles_icon    = '';
-    $uj = $duplikal = '';
-}
-
-if( basename(self())=='szabadsagigeny.php' && !_jog(JOG_SZABADSAGIG_KEZEL)){
     $torles_icon    = '';
     $uj = $duplikal = '';
 }

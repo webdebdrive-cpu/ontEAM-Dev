@@ -57,7 +57,7 @@ if( basename(self())!='eseti_fenntartas.php' ){
     array_push($select_cikltip, array('name'  => 'Naponta',    'value' => 'd'));
     array_push($select_cikltip, array('name'  => 'Hetente',    'value' => 'w'));
     array_push($select_cikltip, array('name'  => 'Havonta',    'value' => 'm'));
-    array_push($select_cikltip, array('name'  => 'Évente',     'value' => 'y'));
+    //array_push($select_cikltip, array('name'  => 'Évente',     'value' => 'y'));
 }
 
 // Select tömb Ütemezés típushoz

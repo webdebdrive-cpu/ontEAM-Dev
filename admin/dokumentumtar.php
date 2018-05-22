@@ -1,13 +1,26 @@
 <?php
 require_once('../weblap.php');
-//Config
+
+if( !_jog(JOG_DOKUMENTUMTAR_OLVAS) ) {
+    if(!$_SESSION[get_db_tabla().'user']){
+        $weblap -> leallit();
+        header('Location: index.php');
+        exit;
+    }
+    header('Content-Type: text/html; charset=utf-8');
+    $weblap -> leallit();
+    exit('Nincs megfelelő jogosultság az oldal eléréséhez!');
+}
+
+
+// Config
 $megnevezes             = pathinfo(self());
 $megnevezes             = $megnevezes['filename'];
-$akt_tomb               = $szamlak_tomb;
+$akt_tomb               = $szamla_tomb;
 $torles                 = $megnevezes.'tid';
 $szoveg                 = 'dokumentumot';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 
-//Változók beállítása
+// Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
 $fajloszlop             = 'kep';                //Kép (vagy kivételes esetekben más fájl) oszlopneve.
@@ -23,7 +36,7 @@ $formazatlan_szam       = array('nev', 'csz', 'tel', 'fax', 'mobil');          /
 
 $szamla_html = '';
 
-//Több kép menedzseléséhez
+// Több kép menedzseléséhez
 $tobb_kep = false; // Ha true, akkor js/jquery-ui.js, js/admin_sorrendez.js aktivál és minify!, admin/tobb_kep.php aktivál
 if($tobb_kep){
     function get_tobbkep_darab()    { return 10;        } // Maximum hány kép tallózható be
@@ -37,7 +50,7 @@ if($tobb_kep){
 
 }
 
-/** Tartalom */
+// Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
@@ -49,7 +62,7 @@ require_once('selectek.php');
 
 
     if( isset($_GET['modosit']) || isset($_GET['szamlak']) || isset($_GET['dokumentumok']) ) {
-        /* Számla fülek */
+        // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'szamlak'       => 'Számlatételek',
@@ -74,14 +87,15 @@ require_once('selectek.php');
         );
     }
 
-	//Új termék felvitele
+	// Új termék felvitele
 	if(isset($_GET['konyvtar'])){
 
         $fajlok_html = '';
         list($tabla, $konyvtar) = explode('/', $_GET['konyvtar']);
         $post   = '_dok';
         $apa_id = $tabla.'_id';
-        //Projektigénylés véleményél nincs _dok postfix
+        
+        // Projektigénylés véleményél nincs _dok postfix
         if($tabla=='projektigenyles_velemeny'){
             $post   = '';
             $apa_id = 'projektigenyles_recid';
@@ -100,7 +114,7 @@ require_once('selectek.php');
                 }
 
                 $azon    = 'kep'.$fajl['recid'];
-                //$megj_szerkesztes_onclick = ' onclick="window.open(\''.$kep_utvonal.'\')"';
+                // $megj_szerkesztes_onclick = ' onclick="window.open(\''.$kep_utvonal.'\')"';
                 $link = $tabla.'.php?id='.$fajl[$apa_id].'&amp;dokumentumok';
                 if($tabla=='projektigenyles_velemeny'){
                     $link = 'projektigenyles.php?id='.$fajl[$apa_id].'&amp;velemenyezok';

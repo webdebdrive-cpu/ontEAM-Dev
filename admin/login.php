@@ -795,7 +795,6 @@ require_once('selectek.php');
 
                 $jogSorok = getJogSorRendez( $jogKat['id'],  $jogosultsagok);
                 usort($jogSorok, 'sortByOrder');
-
                 foreach($jogSorok as $jogSor) {
 
                     $checked = '';

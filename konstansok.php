@@ -257,9 +257,18 @@ define('JOG_FT_KEZEL',                  45);
 define('JOG_ENERGIATERV_MEGTEKINT',     84);
 define('JOG_ENERGIATERV_KEZEL',         85);
 define('JOG_ENERGIATERV_TORLES',        86);
-define('JOG_DOKUMENTUM_OLVAS',          87);
-define('JOG_DOKUMENTUM_IR',             88);
-define('JOG_DOKUMENTUM_TOROL',          89);
+define('JOG_FENNTARTASI_OLVAS',         87);
+define('JOG_FENNTARTASI_KEZEL',         88);
+define('JOG_FENNTARTASI_TOROL',         89);
+define('JOG_SZAMLAK_OLVAS',             90);
+define('JOG_SZAMLAK_KEZEL',             91);
+define('JOG_SZAMLAK_TOROL',             92);
+define('JOG_PARTNERTORZS_OLVAS',        93);
+define('JOG_PARTNERTORZS_KEZEL',        94);
+define('JOG_PARTNERTORZS_TOROL',        95);
+define('JOG_DOKUMENTUMTAR_OLVAS',       96);
+define('JOG_DOKUMENTUMTAR_KEZEL',       97);
+define('JOG_DOKUMENTUMTAR_TOROL',       98);
 
 // ÉRTESÍTÉSEK
 define('ERT_KESZRE_JELENTESKOR',         0);
