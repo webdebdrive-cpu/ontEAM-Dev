@@ -686,11 +686,16 @@ function filesize2($utvonal, $tizedesek = 2){
 function fk($string){
     return fajlnev_keszit($string);
 }
-function fajlnev_keszit($string){
+function fajlnev_keszit($string, $ekezet_marad = false){
 	
-	$mit   = array( 'í', 'Í', 'á', 'Á', 'é', 'É', 'ö', 'Ö', 'ü', 'Ü', 'ó', 'Ó', 'ő', 'Ő', 'ú', 'Ú', 'ű', 'Ű', "'", '"', '`', '”', '„', '.', ',', ' ' );
-	$mivel = array( 'i', 'i', 'a', 'a', 'e', 'e', 'o', 'o', 'u', 'u', 'o', 'o', 'o', 'o', 'u', 'u', 'u', 'u', '',  '',  '',  '',  '', '',  '',  '-' );
+	$mit   = array( "'", '"', '`', '”', '„', '.', ',', ' ' );
+	$mivel = array( '',  '',  '',  '',  '', '',  '',  '-' );
 	
+    if(!$ekezet_marad){
+        array_push($mit,   'í', 'Í', 'á', 'Á', 'é', 'É', 'ö', 'Ö', 'ü', 'Ü', 'ó', 'Ó', 'ő', 'Ő', 'ú', 'Ú', 'ű', 'Ű');
+        array_push($mivel, 'i', 'i', 'a', 'a', 'e', 'e', 'o', 'o', 'u', 'u', 'o', 'o', 'o', 'o', 'u', 'u', 'u', 'u');
+    }
+    
 	$string = strip_tags(htmlspecialchars_decode2($string));
 	$string = str_replace($mit, $mivel, $string);
 	

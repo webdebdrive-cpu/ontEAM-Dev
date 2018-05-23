@@ -4783,6 +4783,16 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
         if(_get('anyagrend')){
             param_kieg += '&amp;anyagrend=';
         }
+        // Szűrés ne felejtődjön el
+        if( _get('mezo') ){
+            param_kieg += '&amp;mezo='+_get('mezo');
+        }
+        if( _get('op') ){
+            param_kieg += '&amp;op='+_get('op');
+        }
+        if( _get('felt') ){
+            param_kieg += '&amp;felt='+_get('felt');
+        }
         lista = $.ajax({
             url : 'esemenyek.php',
             type: 'GET',
@@ -6632,9 +6642,9 @@ function szalloda_modell( that ) {
     if( $('#mobilcsoport_opt').length ) {
 
         if( modell ) {
-            $('#mobilcsoport_opt').removeClass('dn');
+            $('#mobilcsoport_opt').removeClass('dn').removeAttr('disabled');
         } else {
-            $('#mobilcsoport_opt').addClass('dn');
+            $('#mobilcsoport_opt').addClass('dn').attr('disabled', true);
             if( $('#szemelyzet_id').val()=='2' ){
                 $('#szemelyzet_id').val(0);
             }

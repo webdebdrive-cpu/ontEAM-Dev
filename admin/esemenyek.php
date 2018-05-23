@@ -3945,7 +3945,7 @@ if( isset($_GET['szamlaSorFrissit']) ) {
 
 if( isset($_GET['szamlaLista']) ) {
 
-    $szamla_lista = szamla_lista('', $_GET['tabla'], $_GET['kijeloltek']);
+    $szamla_lista = szamla_lista('', $_GET['tabla'], $_GET['kijeloltek'], '', $_GET);
 
     if( $szamla_lista ) {
         echo '<div class="szamlaLapozas fent clearFix">'.$lapozas.'</div>'.$szamla_lista.'<div class="szamlaLapozas clearFix">'.$lapozas.'</div>';

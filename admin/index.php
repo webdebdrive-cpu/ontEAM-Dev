@@ -37,8 +37,12 @@ if (isset($_GET['stat_ido'])) {
 // Loginról értesítő levelek küldése
 if (isset($_GET['login_ertesit'])) {
     
-    $szalloda_nev  = 'HUNGARIA';    // ARENA HUNGARIA
-    $galyasz_bence = false;       // true  false
+    $szalloda_nev   = 'HILTON';
+    $galyasz_bence  = false;
+    $datum          = date('Y.m.d', strtotime(' +1 day'));
+    $napok          = array('vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat');
+    $nap_neve       = date('w', strtotime( str_replace('.', '-', $datum) ));
+    $nap_neve       = $napok[$nap_neve];
     
     $szalloda_id = $adatbazis_kapcsolat->s2('id', 'telephely', "`nev`='{$szalloda_nev}'");
     $szalloda_id = $szalloda_id['id'];
@@ -52,7 +56,7 @@ if (isset($_GET['login_ertesit'])) {
 $uzi = '
 Tisztelt '.$login['teljes_nev'].'!
 <br>
-<br>Az '.get_nev().' rendszer '.date('Y.m.d', strtotime(' +1 day')).' csütörtök reggel 7:00 időpontban indul a '.$szalloda_nev.' szállodában.
+<br>Az '.get_nev().' rendszer '.$datum.' '.$nap_neve.' reggel 7:00 időpontban indul a '.$szalloda_nev.' szállodában.
 <br>
 <br>Kérjük, hogy ettől az időponttól hibabejelentéseiket az '.get_nev().' rendszerben tegyék meg.
 <br>
@@ -151,7 +155,7 @@ if (isset($_GET['loginnev_import'])) {
                             if( $statusz == 'Szálloda igazgató' || $statusz == 'Szálloda igazgató 1' || $statusz == 'Szálloda igazgató 2' ){
                                 $szemelyzet_id = SZALLODA_IGAZGATO;
                             }
-                            if( $statusz == 'Létesítmény főmérnök' || $statusz == 'Létesítmény felelős' ){
+                            if( $statusz == 'Létesítmény főmérnök' || $statusz == 'Létesítményi Főmérnök' || $statusz == 'Létesítmény felelős' ){
                                 $szemelyzet_id = MUSZAKI_VEZETO;
                             }
                         break;
@@ -216,7 +220,7 @@ if (isset($_GET['loginnev_import'])) {
                         // Mégis megengedett a hiányzó loginnév, ekkor a teljesn név első 8 karkateréből gyártunk
                         if( !$login_nev ){
                             $hossz = 8;
-                            $login_nev = str_replace('-', '', fajlnev_keszit($teljes_nev));
+                            $login_nev = str_replace('-', '', fajlnev_keszit($teljes_nev, 'ékezet marad'));
                             $login_nev = substr($login_nev, 0, $hossz);
                             
                             $sorszam   = '';
@@ -228,7 +232,7 @@ if (isset($_GET['loginnev_import'])) {
                             $elozo_login_nev = $login_nev;
                             while($adatbazis_kapcsolat->s('recid', 'login', "`nev`='".($login_nev.$sorszam)."'") || in_array($login_nev.$sorszam, $loginnevek)){
                                 $hossz++;
-                                $login_nev = str_replace('-', '', fajlnev_keszit($teljes_nev));
+                                $login_nev = str_replace('-', '', fajlnev_keszit($teljes_nev, 'ékezet marad'));
                                 $login_nev = substr($login_nev, 0, $hossz).$sorszam;
                                 if( $elozo_login_nev == $login_nev || strlen($login_nev)>20 ){
                                     $sorszam++;

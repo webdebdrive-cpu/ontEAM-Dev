@@ -1738,7 +1738,7 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 
 	}
 
-	//Ha szükséges, akkor adunk neki kiterjesztést is (képek esetén), vagy visszaadjuk az eredetit ha nem kép volt
+	// Ha szükséges, akkor adunk neki kiterjesztést is (képek esetén), vagy visszaadjuk az eredetit ha nem kép volt
 	if($_FILES[$valtozo]['type']=='image/pjpeg' || $_FILES[$valtozo]['type']=='image/jpeg') { $kit='.jpg'; }
 	if($_FILES[$valtozo]['type']=='image/gif')                                              { $kit='.gif'; }
 	if($_FILES[$valtozo]['type']=='image/png' || $_FILES[$valtozo]['type']=='image/x-png')  { $kit='.png'; }
@@ -1753,20 +1753,20 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 	if(move_uploaded_file($_FILES[$valtozo]['tmp_name'], $utvonal.$kepnev)){
 		if($sor_id) {
 
-            //Még a tálba levét se tároljuk le, azt is felesleges.
+            // Még a tálba levét se tároljuk le, azt is felesleges.
             $kepnev = str_replace($tabla.'/', '', $kepnev);
 
 			if(!$adatbazis_kapcsolat -> u($tabla, array($oszlop), array($kepnev), 'recid='.$sor_id)){
-				return(array($kepnev,'k5'));//Sikertelen táblamod => hiba5
+				return(array($kepnev,'k5'));// Sikertelen táblamod => hiba5
 			}
 		}
 		if($flashfeltoltes){
-            //Flash alapú fájlfeltöltéskor kell egy kimenet, ha minden rendben volt.
-            //Akkor ez már legyen az útvonal, mert JS-el feldolgozva ezt ki is tudjuk íratni.
+            // Flash alapú fájlfeltöltéskor kell egy kimenet, ha minden rendben volt.
+            // Akkor ez már legyen az útvonal, mert JS-el feldolgozva ezt ki is tudjuk íratni.
             echo $utvonal.$kepnev;
         }
 
-        //A képeket progresszívvá alakítjuk
+        // A képeket progresszívvá alakítjuk
         if( in_array($kit, array('.jpg'/*, '.png' PNG tömörítéssel gondok voltak, erre más megoldás kell */))  ){
             $data       = fread(fopen($utvonal.$kepnev, 'rb'), filesize($utvonal.$kepnev));
             $src_img    = @imagecreatefromstring($data);
@@ -1792,11 +1792,18 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 }
 
 // Központi SQL előállítása a bal oldali navpanel elemeinek kiszámításához (where feltétel, rendezés)
-function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = false ) {
+function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = false, $getek = false ) {
 
     global $adatbazis_kapcsolat;
     global $db_kapcs;
     global $_OPTS;
+    
+    // Van, hogy pár GET-et is át szeretnénk adni
+    if($getek){
+        foreach($getek as $kulcs => $get){
+            $_GET[$kulcs] = $get;
+        }
+    }
 
     if( $kijeloltek !== false ) {
         $kijeloltek = json_decode($kijeloltek, true);
