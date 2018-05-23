@@ -94,7 +94,7 @@ array_push($select_honapjan, array('name' => '27',      'value' => '27'));
 array_push($select_honapjan, array('name' => '28',      'value' => '28'));
 array_push($select_honapjan, array('name' => '29',      'value' => '29'));
 array_push($select_honapjan, array('name' => '30',      'value' => '30'));
-array_push($select_honapjan, array('name' => '31',      'value' => '31'));
+// Ez felesleges bele. array_push($select_honapjan, array('name' => '31',      'value' => '31'));
 array_push($select_honapjan, array('name' => 'Utolsó',  'value' => '31'));
 
 // Select tömb Ütemezés típushoz

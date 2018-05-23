@@ -351,6 +351,10 @@
             that = $(this);
             $(document).click(function() {
                 $('#autocomplete').css({'display':'none'}).html('');
+                /* Új anyagigénylés feltötésénél, elleőrizzük, hogy valós érték van-e az inputban, mert ha nincs, akkor a mee-t is tüntessük el. */
+                if( defaults.tabla == 'cikktorzs' && _get('uj') && $('.insertMee').length && !$('#nev').val() ){
+                    $('.insertMee').html('');
+                }
             });
 
             $(document).keyup(function(e) {

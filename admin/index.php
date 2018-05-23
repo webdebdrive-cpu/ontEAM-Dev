@@ -108,6 +108,7 @@ if (isset($_GET['loginnev_import'])) {
     setlocale(LC_ALL,'hu_HU');
 
     $k = 0;
+    $loginnevek = array();
     $log_csv = 'Esemény;Státusz;PP2 loginnév;Teljes név;ontEAM név;Részleg;Beosztás;E-mail;Telefon;'."\r\n";
     if (($csv_fajl = fopen($fajlnev, 'r')) !== FALSE) {
         while (($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE) {
@@ -161,12 +162,12 @@ if (isset($_GET['loginnev_import'])) {
                         break;
 
 
-                        case 'Teljes név':
+                        case 'Név':
                             $teljes_nev = trim($akt_tomb[$key]);
                         break;
 
 
-                        case 'ontEAM név':
+                        case 'ontEAM login név':
                             $login_nev = trim($akt_tomb[$key]);
                         break;
 
@@ -188,7 +189,7 @@ if (isset($_GET['loginnev_import'])) {
                         break;
 
 
-                        case 'E-mail':
+                        case 'Email':
                             $email = trim($akt_tomb[$key]);
                         break;
 
@@ -217,9 +218,15 @@ if (isset($_GET['loginnev_import'])) {
                             $hossz = 8;
                             $login_nev = str_replace('-', '', fajlnev_keszit($teljes_nev));
                             $login_nev = substr($login_nev, 0, $hossz);
+                            
                             $sorszam   = '';
+                            while(strlen($login_nev.$sorszam)<$hossz){
+                                $login_nev .= '1';
+                                $sorszam   .= '1';
+                            }
+                            
                             $elozo_login_nev = $login_nev;
-                            while($adatbazis_kapcsolat->s('recid', 'login', "`nev`='".($login_nev.$sorszam)."'")){
+                            while($adatbazis_kapcsolat->s('recid', 'login', "`nev`='".($login_nev.$sorszam)."'") || in_array($login_nev.$sorszam, $loginnevek)){
                                 $hossz++;
                                 $login_nev = str_replace('-', '', fajlnev_keszit($teljes_nev));
                                 $login_nev = substr($login_nev, 0, $hossz).$sorszam;
@@ -230,7 +237,12 @@ if (isset($_GET['loginnev_import'])) {
                             }
                             $login_nev .= $sorszam;
                             $log_csv .= 'Nem volt megadva loginnév, így a nevéből generáva: '.$login_nev;
+                        }else{
+                            $log_csv .= 'ELŐRE MEGADOTT LOGINNÉV alapján a következő adatok beállítva: '.$login_nev;
                         }
+                        
+                        // Jegyezzük meg, hogy milyen loginnevek voltak
+                        array_push($loginnevek, $login_nev);
                     
                         // Ha foglalt a loginnév, de inaktív, akkor töröljük, egyébként hibaüzi
                         $mehet = false;
