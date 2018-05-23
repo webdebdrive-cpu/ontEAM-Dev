@@ -1,0 +1,76 @@
+<h2>Jóváhagyott érték módosítása</h2>
+
+<div class="kozep">
+
+    <strong>Jóváhagyott érték:</strong>
+    <br><input type="text" style="margin: 0.2rem 0 0.8rem 0" autocomplete="off" data-tort="0" class="oriasi disableNav csillag f_num" name="pop_jh_ert" id="pop_jh_ert"> Ft + Áfa
+
+</div>
+<div class="kuldes">
+    <input type="button" name="elkuld" class="gomb zold" value="Mentés" onclick="munkalapJovahagyottErtekModositasa();">
+    <input type="button" name="megsem" class="gomb piros" value="Mégsem" onclick="popupZar();">
+</div>
+
+<script>
+$(document).ready(function(){
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            recid          : _get('id'),
+            get_jh_ertek   : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response) {
+                response = JSON.parse(response);
+                $('#pop_jh_ert').val(response.ertek).select();
+            }
+        }
+    });
+});
+    
+function munkalapJovahagyottErtekModositasa() {
+    
+    szurkit();
+    
+    if(!$('#pop_jh_ert').val() || $('#pop_jh_ert').val()==0 ){
+        $('#pop_jh_ert').addClass('hibas_ide_focus');
+        alert2('Kérjük adja meg a jóváhagyott értéket!', '', 'Hiba');
+        szurkit_zar();
+        return false;
+    }
+
+    if(balnav_kijelol_ell()){
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                pop_jh_ert                          : $('#pop_jh_ert').val(),
+                recid                               : _get('id'),
+                munkalapJovahagyottErtekModositasa  : new Date().getTime()
+            },
+            success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response) {
+                    response = JSON.parse(response);
+                    
+                    szurkit_zar();
+                    
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    popupZar();
+                }
+            }
+        });
+
+    }
+
+    return false;
+}
+</script>

@@ -2057,6 +2057,81 @@ if( isset($_POST['kulsokivHozzarend']) ) {
     exit();
 }
 
+// Jóváhagyott érték módosítás előtt, kiolvassuk az értékét
+if (isset($_POST['get_jh_ertek'])) {
+    
+    $munkalap = $adatbazis_kapcsolat->s2('jh_ert', 'munkalap', "`recid`='{$_POST['recid']}'");
+    
+    echo json_encode(array(
+        'ertek' => number_format($munkalap['jh_ert'], 0, '', ' ')
+    ));
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Jóváhagyott érték módosítás előtt, kiolvassuk az értékét
+if (isset($_POST['munkalapJovahagyottErtekModositasa'])) {
+    
+    $jh_ert = str_replace(' ', '', $_POST['pop_jh_ert']);
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $munkalap = $adatbazis_kapcsolat->s2('stat_id, jh1_login, jh2_login', 'munkalap', "`recid`='{$_POST['recid']}'");
+    if( $munkalap === false ) { $db_error = true; }
+    
+    // Státusz ellenőrzése
+    if( $munkalap['stat_id']!=MUNKALAP_STAT_DONTESRE_VAR ){
+        echo json_encode(array(
+            'hiba'  => 'Ebben a státuszban nem módosítható a jóváhagyott érték!'.$munkalap['stat_id'],
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ){
+        echo json_encode(array(
+            'hiba'  => 'Nincs jogosultsága jóváhagyott értéket módosítani!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Volt-e már jóváhagyás?
+    if( $munkalap['jh1_login'] || $munkalap['jh2_login'] ){
+        echo json_encode(array(
+            'hiba'  => 'A munkalapot már jóváhagyta legalább egy szereplő, így a jóvhagyott érték nem módosítható!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jóváhagyott érték felülírása
+    $sql = $adatbazis_kapcsolat->u('munkalap', array('jh_ert'), array($jh_ert), "`recid`='{$_POST['recid']}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
 // Munkalap lezárás
 if( isset($_POST['munkalapLezaras']) ) {
     $recid = $_POST['recid'];
@@ -6004,7 +6079,12 @@ require('selectek.php');
             $gombok .= '<input type="button" class="gomb piros" value="Visszaadás" onclick="csoportMuvelet(\'atadasDiszpecsernek\');"> ';
         }
 
-        // Döntés alatt státusz alatt
+        // "Döntés alatt" státuszkor, ha még egy jóváhagyás sem történt és van jogunk, akkor a jóváhagyott értéket szerkeszteni lehet
+        if( $sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $sor['jh1_login']=='' && $sor['jh2_login']=='' ){
+            $gombok .= '<input type="button" class="gomb" value="Jóváhagyott érték módosítása" onclick="csoportMuvelet(\'munkalapJovahagyottErtekModositasa\')"> ';
+        }
+
+        // "Döntés alatt" státusz
         if( $sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_DONTES) && $sor['jh1_login']!=$_SESSION[get_db_tabla().'user'] && $sor['jh2_login']!=$_SESSION[get_db_tabla().'user'] ){
             $gombok .= '<input type="button" class="gomb" value="Külsős jóváhagyása" onclick="munkalapKulsosJovahagy(\'csak kérdezünk még\');"> ';
             $gombok .= '<input type="button" class="gomb" value="Külsős elutasítása" onclick="csoportMuvelet(\'munkalapKulsosElutasit\')"> ';

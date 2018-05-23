@@ -1545,7 +1545,7 @@ $(function() {
         if( event.keyCode == KEY_TAB ) {
             var elementID = $(this).attr('id');
 
-            if( elementID.indexOf('_autocomp') !== -1 ) {
+            if( elementID.indexOf('_autocomp') !== -1 && !$(this).hasAttr('readonly') && !$(this).hasAttr('disabled') ) {
                 var originVal = $(this).attr('data-origin-val');
                 var ertekID = $(this).val();
 

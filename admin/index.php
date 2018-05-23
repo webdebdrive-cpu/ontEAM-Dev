@@ -277,6 +277,9 @@ if (isset($_GET['loginnev_import'])) {
                                         array_push($ertekek,   $szerepkor['flags']);
                                     }
                                     
+                                    array_push($mezok,     'insert_dt', 'insert_usr',         'update_usr'        );
+                                    array_push($ertekek,   'NOW()',     get_nev().' import',  get_nev().' import' );
+                                    
                                     $adatok  = csv_ellenorzes_letolt($statusz).';'.csv_ellenorzes_letolt($regi_nev).';'.csv_ellenorzes_letolt($teljes_nev).';'.csv_ellenorzes_letolt($login_nev). ';'.csv_ellenorzes_letolt($reszleg).';'.csv_ellenorzes_letolt($beosztas).';'.csv_ellenorzes_letolt($email).';'.csv_ellenorzes_letolt($telefon)."\r\n";
                                     // Már létező logint átnevezünk
                                     if($regi_nev){
@@ -452,6 +455,81 @@ if (isset($_GET['loginnev_csere'])) {
     }
     
     $adatbazis_kapcsolat->u('login', array('van_jelszo'), array(0), "`nev`='{$uj_nev}'");
+    
+    exit;
+}
+
+// Objektumok importja
+if (isset($_GET['objektum_import'])) {
+    
+    $telephely_id = 1060;
+    
+    $adatbazis_kapcsolat->d('obj', "`telephely_id`='$telephely_id'");
+    
+    header('Content-Type: text/html; charset='. get_web_charset());
+    
+    $fajlnev = 'csv/obj_import.csv';
+    setlocale(LC_ALL,'hu_HU');
+
+    $k = 0;
+    if (($csv_fajl = fopen($fajlnev, 'r')) !== FALSE) {
+        while (($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE) {
+
+            $akt_tomb = array();
+            // Első oszlop a fejlécek
+            if($k == 0) {
+
+                foreach($sor as $key => $value) {
+                    $_SESSION['sor_fejlec'][] = $value;
+                }
+
+            // Adatok feldolgozása
+            } else {
+                
+                foreach($sor as $key => $value) {
+                    $akt_tomb[$_SESSION['sor_fejlec'][$key]] = $value;
+                }
+
+                foreach($akt_tomb as $key => $value) {
+                    $akt_tomb[$key] = utf8($akt_tomb[$key]);
+                }
+
+                $szemelyzet_id = '';
+                foreach($akt_tomb as $key => $value) {
+                    
+                    switch( utf8($key) ) {
+
+                        case 'Név':
+                            $nev = $akt_tomb[$key];
+                        break;
+
+
+                        case 'Szint':
+                            $szint = trim($akt_tomb[$key]);
+                        break;
+
+                    }
+                }
+                
+                // Ha szint, akkor a szülője 0, és megjegyezzük az insert id-ját
+                if($szint){
+                    $szint_id = $adatbazis_kapcsolat->i('obj',  array('telephely_id', 'szulo', 'nev', 'insert_dt', 'insert_usr',        'update_usr'           ),
+                                                                array($telephely_id,  0,       $nev,  'NOW()',     get_nev().' import',  get_nev().' import'   )
+                                                        );
+                }else{
+                    $adatbazis_kapcsolat->i('obj',  array('telephely_id', 'szulo',      'nev', 'insert_dt', 'insert_usr',         'update_usr'          ),
+                                                    array($telephely_id,  $szint_id,    $nev,  'NOW()',     get_nev().' import',  get_nev().' import'   )
+                                            );
+                }
+echo $adatbazis_kapcsolat->gp() . '<br>';
+
+            }
+            $k++;
+        }
+        fclose($csv_fajl);
+    }else{
+        echo 'Fájl nem található';
+    }
     
     exit;
 }
