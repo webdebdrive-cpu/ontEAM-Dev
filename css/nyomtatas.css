@@ -76,3 +76,10 @@ table.border td, table.border th{
     padding: 3px 0.5rem 0px 0.5rem;
     vertical-align: top;
 }
+
+ul.szamla_cont li a td{
+    font-size: 1.4rem
+}
+#stat_gyors_szuro{
+    display: none;
+}

@@ -4700,9 +4700,10 @@ if(isset($_GET['modosit'])){
             unlink($akt_fajl);
 
             $fajlnev2 = addslashes($fajlnev2);
-            $adatbazis_kapcsolat->i('bejelentes_dok',   array('bejelentes_id', 'utvonal',             'fajlnev',  'loginnev',                       'update_dt',  'update_usr',                           'insert_dt', 'insert_usr'                            ),
-                                                        array($_GET['id'],     $alkonyvtar.$fajlnev2, $fajlnev2,  $_SESSION[get_db_tabla().'user'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']  )
-                                    );
+            $adatbazis_kapcsolat->i('bejelentes_dok',   
+                    array('bejelentes_id', 'utvonal',             'fajlnev',  'loginnev',                       'update_dt',  'update_usr',                           'insert_dt', 'insert_usr'                            ),
+                    array($_GET['id'],     $alkonyvtar.$fajlnev2, $fajlnev2,  $_SESSION[get_db_tabla().'user'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']  )
+            );
         // Ha az oszlop a munkalapUjFeltoltes, akkor bejelentések új feltötlésekor hozzáadott dokumentumról van szó
         // Ezt másoljuk be a dokumentumok füle alá
         } else if($oszlop=='munkalapUjFeltoltes') {

@@ -5965,7 +5965,7 @@ function bejelentes_dok_munkalapba_masol($bejelentes_id, $munkalap_id){
     $munkalap = $adatbazis_kapcsolat->s2('ikt_szam', 'munkalap', "`recid`='{$munkalap_id}'");
     if( $munkalap === false ) { $db_error = true; }
     foreach($doksik as $doc){
-        $utvonal      = '../'.get_utvonal().'munkalap/'.$munkalap['ikt_szam'].'/';
+        $utvonal      = '../'.get_utvonal().'munkalap/'.str_replace('/', '_', $munkalap['ikt_szam']).'/';
         $utvonal_regi = '../'.get_utvonal().'bejelentes/';
         $fajlnev      = basename($doc['utvonal']);
 
@@ -5981,8 +5981,8 @@ function bejelentes_dok_munkalapba_masol($bejelentes_id, $munkalap_id){
         // Fájl másolása
         copy($utvonal_regi.$doc['utvonal'], $utvonal.$fajlnev);
 
-        $sql = $adatbazis_kapcsolat->i('munkalap_dok',  array('munkalap_id', 'utvonal',                          'fajlnev',       'loginnev',      'insert_dt',    'insert_usr',                              'update_usr'                             ),
-                                                        array($munkalap_id,  $munkalap['ikt_szam'].'/'.$fajlnev, $doc['fajlnev'], $doc['loginnev'],'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
+        $sql = $adatbazis_kapcsolat->i('munkalap_dok',  array('munkalap_id', 'utvonal',                                                 'fajlnev',       'loginnev',      'insert_dt',    'insert_usr',                              'update_usr'                             ),
+                                                        array($munkalap_id,  str_replace('/', '_', $munkalap['ikt_szam']).'/'.$fajlnev, $doc['fajlnev'], $doc['loginnev'],'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev']   )
                                         );
         if( $sql === false ) { $db_error = true; }
     }
