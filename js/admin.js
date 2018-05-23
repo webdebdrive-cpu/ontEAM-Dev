@@ -1653,6 +1653,8 @@ function egysegarMuv( pre, muvelet ) {
         ertek   = $('input[name="' + pre + 'ertek"]').val(),
         honap   = $('select[name="' + pre + 'honap"]').val();
 
+    ertek = ertek.replace(' ', '');
+
     var inputok = $('#setEgysegarTablazat').find('input[name^="ear"]');
 
     inputok.each(function(index, el) {
@@ -1666,7 +1668,11 @@ function egysegarMuv( pre, muvelet ) {
                     $('input[name="ear' + uj_sorszam + '"]').val(ertek);
                 }
             } else if( muvelet == 'visszaoszt' ) {
-                for(var i = index; i >= 1; i -= ciklus) {
+                oszto = 12 - parseInt(honap) + 1;
+
+                ertek = (ertek.replace(',', '.') / (oszto / ciklus)).toFixed(3);
+
+                for(var i = index; i <= 12; i += ciklus) {
                     var uj_sorszam = ('0' + i).slice(-2);
                     $('input[name="ear' + uj_sorszam + '"]').val(ertek);
                 }
