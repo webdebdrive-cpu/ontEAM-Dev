@@ -497,7 +497,7 @@ $(function() {
         }
     });
 
-    var delay = (function() {
+    delay = (function() {
         var timer = 0;
         return function(callback, ms) {
             clearTimeout(timer);
