@@ -1204,6 +1204,8 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
         $ret .= nl2('
             if( !$(\'#szallodak_hidden\').val() || $(\'#szallodak_hidden\').val()==\'{}\' ){
                 alert2(\'Mentés előtt válasszon szállodát!\', \'<input type="button" class="gomb" value="Ok" onclick="kapcsolodoSzerkeszt(\\\'szallodak\\\'); alert2();">\', \'Hiba\');
+                $(\'#mehet_gomb\').removeAttr(\'disabled\').addClass(\'gombb_alert\');
+                $(\'#megsem_gomb\').removeAttr(\'disabled\');
                 return false;
             }
         ');

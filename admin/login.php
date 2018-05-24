@@ -463,7 +463,7 @@ require_once('selectek.php');
         
         // Módosításnál figyeljük, hogy a szerepkör megváltozott-e
         $js_submit_elott .= nl2('
-            
+
                                 formModositva = false;
                                 if( $(\'#nev\').val().length<8 ){
                                     alert2(\'A Login név hossza nem lehet kevesebb mint 8 karakter!\');
@@ -471,6 +471,7 @@ require_once('selectek.php');
                                     return false;
                                 }
                                 
+                                var login_dfrd = $.Deferred();
                                 var letezik = false;
                                 login_letezik = $.ajax({
                                     url : \'login.php\',
@@ -484,13 +485,14 @@ require_once('selectek.php');
                                             if( response.hiba ) {
                                                 letezik = response.hiba;
                                             }
+                                            login_dfrd.resolve();
                                             
                                         }
                                         return false;
                                     }
                                 });
 
-                                $.when( login_letezik ).then(function() {
+                                $.when( login_dfrd ).then(function() {
 
                                     if(letezik){
                                         alert2(letezik, \'\', \'Hiba\');
@@ -498,15 +500,14 @@ require_once('selectek.php');
                                         return false;
                                     }else{
                                         login_mehet = true;
-                                        $(\'#szerk_form\').submit();
-                                        /*return form_ell_admin();*/
+                                        /*$(\'#szerk_form\').submit();*/
+                                        return form_ell_admin();
+                                        return false;
                                     }
                                     
                                 });
                                 
-                                if(!login_mehet){
-                                    return false;
-                                }
+                                return form_ell_admin();
 
                                 ');
 
