@@ -1,6 +1,6 @@
 <?php
 require_once('../weblap.php');
-
+    
 if( !_jog(JOG_FELHASZNALOK_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();

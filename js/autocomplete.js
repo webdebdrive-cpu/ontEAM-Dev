@@ -241,6 +241,17 @@
                 $(this).removeClass('aktiv');
             });
 
+            $(this).on('blur', function(e) {
+                if( mezo.attr('name').indexOf('_autocomp') !== -1 && mezo !== undefined ) {
+                    var mezo_nev = mezo.attr('name').replace('_autocomp', ''),
+                        value    = $('input[name="' + mezo_nev + '"]').val();
+
+                    if( !value ) {
+                        mezo.val('');
+                    }
+                }
+            });
+
             /* Klikkelve kiválasztva egy sor */
             $(document).on('click', '#autocomplete ul li', function(e) {
                 var link   = $('#autocomplete ul li.aktiv').attr('data-href'),
@@ -451,6 +462,7 @@
                             mezo.val( li_val ).change();
                             van_uj_erteke = true;
 
+                            mezo.attr('data-origin-val', mezo.val());
                             mezo.attr('data-origin-val', mezo.val());
                             if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                                 mezo_nev = mezo.attr('name').replace('_autocomp', '');

@@ -3246,6 +3246,7 @@ div.rendBal {
     vertical-align: middle;
 }
 #popup div.popup_tart div.dt.egysegarMuv div.dtc input[type="text"] {
+    height: 2.2rem;
     min-width: inherit;
 }
 

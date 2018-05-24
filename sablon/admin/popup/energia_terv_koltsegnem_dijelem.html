@@ -2,7 +2,7 @@
 <form action="" class="popupForm" method="post" onsubmit="energia_terv_koltsegnem_dijelem(); return false;">
     <div class="kozep" style="min-height: 26rem">
         <div class="dt">
-            <div class="dtr"> 
+            <div class="dtr">
                 <div class="dtc form_bal">Költségnem:</div>
                 <div class="dtc form_jobb">
                     <input type="text" autocomplete="off" class="oriasi disableNav csillag focus" name="ktgnem_id_autocomp" id="ktgnem_id_autocomp" onblur="if(!$(this).val()){ $('#ktgnem_id').val(''); }" value="">
@@ -52,15 +52,15 @@
 </form>
 <script>
 $(document).ready(function(){
-    
+
     var kijelolt_egysegar = $('.szamla_cont_tabla .kijelolve').attr('data-recid');
     if(!kijelolt_egysegar){
-        
-        alert2('Költségnem és díjelem beállításához kérjük válasszon egy egységár sort!');
+
+        alert2(EGYSEGAR_VALASZT, '', 'Üzenet');
         setTimeout(function(){ popupZar(); }, 10);
-        
+
     }else{
-        
+
         $.ajax({
             url : 'energia_terv.php',
             type: 'POST',
@@ -79,11 +79,11 @@ $(document).ready(function(){
                 }
             }
         });
-        
+
     }
-    
+
 });
-    
+
 function energia_terv_koltsegnem_dijelem(){
 
     var egysegar_id = $('.szamla_cont_tabla .kijelolve').attr('data-recid');
@@ -107,15 +107,15 @@ function energia_terv_koltsegnem_dijelem(){
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
                 }else{
-                    
+
                     var betoltve = szamlaBetolt(_get('id'), 'energia_terv.php', 'egysegarak');
-                    
+
                     $.when(betoltve).then(function() {
                         $('.szamla_cont_tabla tbody tr.kijelolve').removeClass('kijelolve');
                         $('.szamla_cont_tabla tbody tr[data-recid="'+egysegar_id+'"]').addClass('kijelolve');
                     });
-                    
-                    
+
+
                     popupZar();
                 }
 

@@ -1015,7 +1015,7 @@ if (isset($_GET['modosit'])) {
     $bejelentes = $adatbazis_kapcsolat->s2('stat_id loginnev', 'bejelentes', "`recid`='{$_GET['id']}'");
     if( $bejelentes['stat_id']==BEJELENTES_STAT_NYITOTT && ( _jog(JOG_BEJELENTES_KEZEL) || _jog(JOG_BEJELENTES_MAS_NEVEBEN) ) ) {
         $surgos_disabled = false;
-        
+
         // Induklást csak akkor kérünk, ha nem saját maga hozta létre
         if( $bejelentes['loginnev']!=$_SESSION[get_db_tabla().'user'] ){
             $surgos_onclick  = 'csoportMuvelet(\'surgosseg_indoklas\')';
@@ -2215,8 +2215,8 @@ $megnevezes = 'energia_terv';
 $energia_terv_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',   'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
     array('type' => 'text',                 'megn' => 'Tervszám:',  'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1,     'class' => 'normal', 'style' => 'width: 11.5rem'),
-    array('type' => 'text',                 'megn' => 'Tervező év:','name' => 'ev',             'szuro' => 1,                       'class' => 'normal f_csakszam', 'style' => 'width: 4rem', 'maxlength' => 4),
-    array('type' => 'textarea',             'megn' => 'Leírás:',    'name' => 'text',           'szuro' => 1,                       'class' => 'oriasi disableNav', 'style' => 'height: 4rem'),
+    array('type' => 'text',                 'megn' => 'Tervező év:','name' => 'ev',             'szuro' => 1,                       'class' => 'normal f_csakszam', 'style' => 'width: 6rem', 'maxlength' => 4),
+    array('type' => 'textarea',             'megn' => 'Leírás:',    'name' => 'text',           'szuro' => 1,                       'class' => 'oriasi disableNav', 'style' => 'height: 10rem'),
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -3845,22 +3845,22 @@ if( isset($_GET['addSzalloda']) ) {
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-    
+
     $loginID  = $_GET['loginID'];
     $szallIDs = json_decode($_GET['szallIDs'], true);
 
     if( $loginID && count($szallIDs) ) {
-        
+
         $felh = $adatbazis_kapcsolat->s2('nev', 'login', "`recid`='{$loginID}'");
         if( $felh ) {
-            
+
             $log = '';
             $akt_szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$felh['nev']}'");
             if( $akt_szallodak === false ) { $db_error = true; }
             $akt_szallodak = adatbazis2tomb($akt_szallodak, 'telephely_id');
-            
+
             $log .= 'Aktuális szállodák: '.implode(', ', $akt_szallodak).'. Új szállodák: '.implode(', ', $szallIDs);
-            
+
             $sql = $adatbazis_kapcsolat -> d('telephely_kapcs', "`nev`='{$felh['nev']}'");
             if( $sql === false ) { $db_error = true; }
 
@@ -3872,7 +3872,7 @@ if( isset($_GET['addSzalloda']) ) {
                 );
                 if( $kapcsID === false ) { $db_error = true; }
             }
-            
+
             // Logba is eltároljuk
             $sql = $adatbazis_kapcsolat -> i('log',
                                         array( 'felh_id',                               'nev',                                                               'valtozas',    'ip'                    ),
@@ -3893,7 +3893,7 @@ if( isset($_GET['addSzalloda']) ) {
                     'hiba' => tranzakcioHiba()
                 ));
             }
-            
+
         } else {
             echo json_encode(array(
                 'statusz' => 'hiba',
@@ -4700,7 +4700,7 @@ if(isset($_GET['modosit'])){
             unlink($akt_fajl);
 
             $fajlnev2 = addslashes($fajlnev2);
-            $adatbazis_kapcsolat->i('bejelentes_dok',   
+            $adatbazis_kapcsolat->i('bejelentes_dok',
                     array('bejelentes_id', 'utvonal',             'fajlnev',  'loginnev',                       'update_dt',  'update_usr',                           'insert_dt', 'insert_usr'                            ),
                     array($_GET['id'],     $alkonyvtar.$fajlnev2, $fajlnev2,  $_SESSION[get_db_tabla().'user'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']  )
             );

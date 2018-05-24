@@ -7,6 +7,8 @@ var KEY_UP     =  38;
 var KEY_DOWN   =  40;
 var KEY_F5     = 116;
 
+var EGYSEGAR_VALASZT = 'Kérjük válasszon egységár sort!';
+
 var keys = {37: 1, 38: 1, 39: 1, 40: 1};
 
 function preventDefault(e) {
@@ -4566,7 +4568,7 @@ function kapcsolodoSzerkeszt( oldal ) {
                      	}
                     });
                 } else {
-                    alert2('Egységárak megadásához válasszon ki egy sort!');
+                    alert2(EGYSEGAR_VALASZT, '', 'Üzenet');
                     return false;
                 }
             break;
