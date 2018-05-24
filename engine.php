@@ -699,7 +699,7 @@ function fajlnev_keszit($string, $ekezet_marad = false){
 	$string = strip_tags(htmlspecialchars_decode2($string));
 	$string = str_replace($mit, $mivel, $string);
 	
-	//És most UTF-8 helyett ANSI-val is cseréljük le
+	// És most UTF-8 helyett ANSI-val is cseréljük le
 	$i = 0;
 	foreach($mit as $betu){
         $betu = iconv('UTF-8', 'ISO-8859-2', $betu);
@@ -710,19 +710,21 @@ function fajlnev_keszit($string, $ekezet_marad = false){
 	$string = str_replace($mit, $mivel, $string);
 	
 	if(strrpos($string,'.')){
-		$kit    = mb_strtolower( mb_substr($string, mb_strrpos($string,'.'), mb_strlen($string)) );	//Elmentjük a kiterjesztést ha van
-		$string = mb_strtolower( mb_substr($string, 0, mb_strrpos($string,'.')) );				//Levesszük a kiterjesztést ha van
+		$kit    = mb_strtolower( mb_substr($string, mb_strrpos($string,'.'), mb_strlen($string)) );	// Elmentjük a kiterjesztést ha van
+		$string = mb_strtolower( mb_substr($string, 0, mb_strrpos($string,'.')) );                  // Levesszük a kiterjesztést ha van
 	}else{
-		$kit    = '';	                  //Nincs kiterjesztés
-		$string = mb_strtolower( $string );  //Levesszük a kiterjesztést ha van
+		$kit    = '';                           // Nincs kiterjesztés
+		$string = mb_strtolower( $string );     // Levesszük a kiterjesztést ha van
 	}
 	
-	$string = preg_replace('/[^a-zA-Z0-9_-]/','',$string);
+    if(!$ekezet_marad){
+        $string = preg_replace('/[^a-zA-Z0-9_-]/','',$string);
+    }
 	if(!$string){
 		$string = 'noname';
 	}
     
-    //A fájl neve ne tartalmazzon még véletlen sem dupla "--"-et, mert az adatbázisba íráskor gondot fog okozni
+    // A fájl neve ne tartalmazzon még véletlen sem dupla "--"-et, mert az adatbázisba íráskor gondot fog okozni
     while(strpos($string, '--')!==false){
         $string = str_replace('--', '-', $string);
     }

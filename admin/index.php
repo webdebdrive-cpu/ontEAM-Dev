@@ -221,10 +221,10 @@ if (isset($_GET['loginnev_import'])) {
                         if( !$login_nev ){
                             $hossz = 8;
                             $login_nev = str_replace('-', '', fajlnev_keszit($teljes_nev, 'ékezet marad'));
-                            $login_nev = substr($login_nev, 0, $hossz);
+                            $login_nev = mb_substr($login_nev, 0, $hossz);
                             
                             $sorszam   = '';
-                            while(strlen($login_nev.$sorszam)<$hossz){
+                            while(mb_strlen($login_nev.$sorszam)<$hossz){
                                 $login_nev .= '1';
                                 $sorszam   .= '1';
                             }
@@ -233,8 +233,8 @@ if (isset($_GET['loginnev_import'])) {
                             while($adatbazis_kapcsolat->s('recid', 'login', "`nev`='".($login_nev.$sorszam)."'") || in_array($login_nev.$sorszam, $loginnevek)){
                                 $hossz++;
                                 $login_nev = str_replace('-', '', fajlnev_keszit($teljes_nev, 'ékezet marad'));
-                                $login_nev = substr($login_nev, 0, $hossz).$sorszam;
-                                if( $elozo_login_nev == $login_nev || strlen($login_nev)>20 ){
+                                $login_nev = mb_substr($login_nev, 0, $hossz).$sorszam;
+                                if( $elozo_login_nev == $login_nev || mb_strlen($login_nev)>20 ){
                                     $sorszam++;
                                 }
                                 $elozo_login_nev = $login_nev;
@@ -244,7 +244,7 @@ if (isset($_GET['loginnev_import'])) {
                         }else{
                             $log_csv .= 'ELŐRE MEGADOTT LOGINNÉV alapján a következő adatok beállítva: '.$login_nev;
                         }
-                        
+
                         // Jegyezzük meg, hogy milyen loginnevek voltak
                         array_push($loginnevek, $login_nev);
                     
@@ -378,7 +378,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
     }else{
         echo 'Fájl nem található';
     }
-    
+
     header("Content-type: text/csv");
     header("Content-Disposition: attachment; filename=felhasznalo_import_log.csv");
     header("Pragma: no-cache");

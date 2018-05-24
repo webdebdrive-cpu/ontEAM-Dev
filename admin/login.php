@@ -499,7 +499,6 @@ require_once('selectek.php');
                                         $(\'#nev\').addClass(\'hibas_ide_focus\');
                                         return false;
                                     }else{
-                                        login_mehet = true;
                                         /*$(\'#szerk_form\').submit();*/
                                         return form_ell_admin();
                                         return false;
