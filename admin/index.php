@@ -84,9 +84,9 @@ $uzi .= fajlbol_olvas('../sablon/admin/mail/alairas.html');
 
 
 
-            //var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
+            var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
             //var_dump( level_kuldes(get_nev(), get_mail(), 'Handrai Tamás', 'handari@szinvatrend.hu', 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) ); exit;
-
+            //var_dump( level_kuldes(get_nev(), get_mail(), 'BK', 'bk@webdeb.hu', 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) ); exit;
         }
     }
     exit;
@@ -222,22 +222,20 @@ if (isset($_GET['loginnev_import'])) {
                             $hossz = 8;
                             $login_nev = str_replace('-', '', fajlnev_keszit($teljes_nev, 'ékezet marad'));
                             $login_nev = mb_substr($login_nev, 0, $hossz);
-                            
                             $sorszam   = '';
                             while(mb_strlen($login_nev.$sorszam)<$hossz){
-                                $login_nev .= '1';
                                 $sorszam   .= '1';
                             }
                             
-                            $elozo_login_nev = $login_nev;
+                            $elozo_login_nev = $login_nev.$sorszam;
                             while($adatbazis_kapcsolat->s('recid', 'login', "`nev`='".($login_nev.$sorszam)."'") || in_array($login_nev.$sorszam, $loginnevek)){
                                 $hossz++;
                                 $login_nev = str_replace('-', '', fajlnev_keszit($teljes_nev, 'ékezet marad'));
-                                $login_nev = mb_substr($login_nev, 0, $hossz).$sorszam;
-                                if( $elozo_login_nev == $login_nev || mb_strlen($login_nev)>20 ){
+                                $login_nev = mb_substr($login_nev.$sorszam, 0, $hossz);
+                                if( $elozo_login_nev == $login_nev ){
                                     $sorszam++;
                                 }
-                                $elozo_login_nev = $login_nev;
+                                $elozo_login_nev = $login_nev.$sorszam;
                             }
                             $login_nev .= $sorszam;
                             $log_csv .= 'Nem volt megadva loginnév, így a nevéből generáva: '.$login_nev;
