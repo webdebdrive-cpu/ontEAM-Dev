@@ -56,14 +56,14 @@ if( isset($_POST['jogokhozzaad']) ) {
     // Kitöröljük a nem kívánatos POST elemeket
     unset($_POST['id']);
     unset($_POST['jogokhozzaad']);
-    
+
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
     // Tömb sorrendezése
     $jogok      = array();
     foreach($_POST as $key => $value) {
-        
+
         if( strpos($key, 'jog-')!==false ){
             $kulcs = str_replace('jog-', '', $key);
             if($value=='true'){
@@ -80,18 +80,18 @@ if( isset($_POST['jogokhozzaad']) ) {
     $flags = $adatbazis_kapcsolat->s2('flags', 'login', "`recid`='{$id}'");
     if( $flags === false ) { $db_error = true; }
     $log = 'Előző jogok: '.$flags['flags'].'. Új jogok: '.implode('', $jogok);
-    
+
     // Új jogok letárolása
     $sql = $adatbazis_kapcsolat -> u('login',  array('flags'), array(implode('', $jogok)), "`recid`='{$id}'");
     if( $sql === false ) { $db_error = true; }
-    
+
     // Logba is eltároljuk
     $sql = $adatbazis_kapcsolat -> i('log',
                                 array( 'felh_id',                               'nev',                                                                                    'valtozas',    'ip'                    ),
                                 array( $_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' módosította '.$id.' felhasználó jogosultságait', $log,          $_SERVER['REMOTE_ADDR'] )
                             );
     if( $sql === false ) { $db_error = true; }
-    
+
     // A formAdatok JS változoiót frissíteni kell
     require_once('jogosultsag.php');
     $i      = 0;
@@ -105,15 +105,15 @@ if( isset($_POST['jogokhozzaad']) ) {
 
         $i++;
     }
-    
-    
+
+
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode($jogEll);
     } else {
         mysqli_rollback($db_kapcs);
     }
-    
+
 
     $weblap->leallit();
     exit();
@@ -126,14 +126,14 @@ if( isset($_POST['ertekhozzaad']) ) {
     // Kitöröljük a nem kívánatos POST elemeket
     unset($_POST['id']);
     unset($_POST['ertekhozzaad']);
-    
+
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
     // Tömb sorrendezése
     $ertek      = array();
     foreach($_POST as $key => $value) {
-        
+
         if( strpos($key, 'ert-')!==false ){
             $kulcs = str_replace('ert-', '', $key);
             if($value=='true'){
@@ -146,23 +146,23 @@ if( isset($_POST['ertekhozzaad']) ) {
 
     ksort($ertek);
 
-    
+
     // Log tartalmának beállítása
     $flags = $adatbazis_kapcsolat->s2('flags_ert', 'login', "`recid`='{$id}'");
     if( $flags === false ) { $db_error = true; }
     $log = 'Előző értesítések: '.$flags['flags_ert'].'. Új értesítések: '.implode('', $ertek);
-    
+
     // Új értesítések letárolása
     $sql = $adatbazis_kapcsolat -> u('login',  array('flags_ert'), array(implode('', $ertek)), "`recid`='{$id}'");
     if( $sql === false ) { $db_error = true; }
-    
+
     // Logba is eltároljuk
     $sql = $adatbazis_kapcsolat -> i('log',
                                 array( 'felh_id',                               'nev',                                                                                  'valtozas',    'ip'                    ),
                                 array( $_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' módosította '.$id.' felhasználó értesítéseit', $log,          $_SERVER['REMOTE_ADDR'] )
                             );
     if( $sql === false ) { $db_error = true; }
-    
+
     // A formAdatok JS változoiót frissíteni kell
     require_once('ertesitesek.php');
     $i      = 0;
@@ -176,7 +176,7 @@ if( isset($_POST['ertekhozzaad']) ) {
 
         $i++;
     }
-    
+
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode($ertEll);
@@ -196,14 +196,14 @@ if( isset($_POST['login_letezik']) ) {
             'hiba' => 'Ez a loginnév már foglalt!'
         ));
     }
-    
+
     $weblap->leallit();
     exit();
 }
 
 // Szálloda választó popup
 if( isset($_POST['getSzallodak']) ) {
-    
+
     // Szálloda lekérdezése
     $telephelyek = $adatbazis_kapcsolat->s('id nev recid modell', 'telephely', "`inaktiv`='0'", 'nev');
 
@@ -255,7 +255,7 @@ if( isset($_POST['getLoginok']) ) {
     if( !$login_team ) {
         $login_team = array();
     }
-    
+
     // Felhasználók lekérdezése
     $loginok = $adatbazis_kapcsolat->s('recid, nev, teljes_nev, beosztas_id', 'login', "", 'nev');
 
@@ -403,7 +403,7 @@ require_once('selectek.php');
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
-            
+
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -443,7 +443,7 @@ require_once('selectek.php');
             ').$gombok;
         }
     }
-    
+
     $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
     if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
         if( $_COOKIE['csuszkaSzelesseg'] ) {
@@ -460,7 +460,7 @@ require_once('selectek.php');
 
 	// Új felhasználó felvitele
 	if(isset($_GET['uj']) && _jog(JOG_FELHASZNALOK_KEZEL)){
-        
+
         // Módosításnál figyeljük, hogy a szerepkör megváltozott-e
         $js_submit_elott .= nl2('
 
@@ -470,8 +470,7 @@ require_once('selectek.php');
                                     $(\'#nev\').addClass(\'hibas_ide_focus\');
                                     return false;
                                 }
-                                
-                                var login_dfrd = $.Deferred();
+
                                 var letezik = false;
                                 login_letezik = $.ajax({
                                     url : \'login.php\',
@@ -485,14 +484,13 @@ require_once('selectek.php');
                                             if( response.hiba ) {
                                                 letezik = response.hiba;
                                             }
-                                            login_dfrd.resolve();
-                                            
+
                                         }
                                         return false;
                                     }
                                 });
 
-                                $.when( login_dfrd ).then(function() {
+                                $.when( login_letezik ).then(function() {
 
                                     if(letezik){
                                         alert2(letezik, \'\', \'Hiba\');
@@ -500,14 +498,15 @@ require_once('selectek.php');
                                         return false;
                                     }else{
                                         login_mehet = true;
-                                        /*$(\'#szerk_form\').submit();*/
-                                        return form_ell_admin();
-                                        return false;
+                                        $(\'#szerk_form\').submit();
+                                        /*return form_ell_admin();*/
                                     }
-                                    
+
                                 });
-                                
-                                return form_ell_admin();
+
+                                if(!login_mehet){
+                                    return false;
+                                }
 
                                 ');
 
@@ -521,13 +520,13 @@ require_once('selectek.php');
         if (isset($_GET['foglalt_nev'])) {
             $navi = '<span class="piros">Ez a loginnév már foglalt!</span>';
         }
-        
+
 
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
-        
+
 	    // HIBAüZENETEK
 	    require_once('info.php');
 
@@ -596,7 +595,7 @@ require_once('selectek.php');
 
 	// Felhasználók módosítása
 	}elseif(isset($_GET['modosit'])) {
-        
+
         // Módosításnál figyeljük, hogy a szerepkör megváltozott-e
         $js_submit_elott = nl2('
                                 if($(\'#szemelyzet_id\').hasClass(\'mod\')){
@@ -617,7 +616,7 @@ require_once('selectek.php');
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                
+
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
@@ -637,10 +636,10 @@ require_once('selectek.php');
             $json_sor[$kulcs] = str_replace(array("\r\n", "\r", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
         }
         $szamla_html .= '<script>formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
-        
+
         // Még egy technikai JS az e-mail cím ellenőrzéséhez
         $szamla_html .= '<script>var nincs_mailcim_mehet = false;</script>';
-        
+
         // Duplikáláskor feltett kérdés
         $szamla_html .= nl2('
             <script>
@@ -696,7 +695,7 @@ require_once('selectek.php');
 
 	// Jogosultság
     }elseif(isset($_GET['jogosultsag'])) {
-        
+
         require_once('jogosultsag.php');
 
         $login = $adatbazis_kapcsolat->s2('flags', 'login', "`recid`='{$_GET['id']}'", '', '1');
@@ -705,7 +704,7 @@ require_once('selectek.php');
             // Jogosultságok feldarabolás
             $flags  = str_split($login['flags']     );
 
-            // Ellenőrzéshez 
+            // Ellenőrzéshez
             $jogEll = array();
             $i = 0;
             foreach($jogosultsagok as $jog) {
@@ -745,7 +744,7 @@ require_once('selectek.php');
                                         $(\'input[type="checkbox"]\').each(function () {
                                             param += $(this).attr(\'name\')+\'=\'+$(this).is(\':checked\')+\'&amp;\';
                                         });
-                                        
+
                                         $.ajax({
                                             url    : \''.self().'\',
                                             type   : \'POST\',
@@ -757,8 +756,8 @@ require_once('selectek.php');
                                                 formModositva = false;
                                                 $(\'.mentes_gomb\').attr(\'disabled\', true);
                                                 $(\'#megsem_gomb\').attr(\'disabled\', true);
-                                                
-                                                formAdatok = JSON.parse(response); 
+
+                                                formAdatok = JSON.parse(response);
                                             }
                                         });
                                         return false;
@@ -851,7 +850,7 @@ require_once('selectek.php');
                     if($jogSor['torolve']){
                         $dn = ' dn';
                     }
-                    
+
                     // Van ahol a pipát kell elrejteni
                     $dn_pipa  = '';
                     $dn_pipac = '';
@@ -926,7 +925,7 @@ require_once('selectek.php');
 
 	// Értesítések
     }elseif(isset($_GET['ertesites'])) {
-        
+
         require_once('ertesitesek.php');
 
         $login = $adatbazis_kapcsolat->s2('flags_ert', 'login', "`recid`='{$_GET['id']}'", '', '1');
@@ -935,7 +934,7 @@ require_once('selectek.php');
             // Értesítések feldarabolás
             $flags = str_split($login['flags_ert']);
 
-            // Ellenőrzéshez 
+            // Ellenőrzéshez
             $ertEll = array();
             $i = 0;
             foreach($ertesitesek as $ert) {
@@ -975,7 +974,7 @@ require_once('selectek.php');
                                         $(\'input[type="checkbox"]\').each(function () {
                                             param += $(this).attr(\'name\')+\'=\'+$(this).is(\':checked\')+\'&amp;\';
                                         });
-                                        
+
                                         $.ajax({
                                             url    : \''.self().'\',
                                             type   : \'POST\',
@@ -987,8 +986,8 @@ require_once('selectek.php');
                                                 formModositva = false;
                                                 $(\'.mentes_gomb\').attr(\'disabled\', true);
                                                 $(\'#megsem_gomb\').attr(\'disabled\', true);
-                                                
-                                                formAdatok = JSON.parse(response); 
+
+                                                formAdatok = JSON.parse(response);
                                             }
                                         });
                                         return false;
@@ -1077,7 +1076,7 @@ require_once('selectek.php');
                     if($ertSor['torolve']){
                         $dn = ' dn';
                     }
-                    
+
                     // Van ahol a pipát kell elrejteni
                     $dn_pipa  = '';
                     $dn_pipac = '';
@@ -1148,7 +1147,7 @@ require_once('selectek.php');
             $sorok = $adatbazis_kapcsolat->s('recid telephely_id', 'telephely_kapcs', '`nev`=\''.$felh['nev'].'\'');
             $szamla_html .= '<div id="tablazatBeszur">';
             if( $sorok ) {
-                
+
                 // Fejlécek
                 $szamla_html .= nl2('
                     <div class="dt naplo szakter kijCont" data-tabla="telephely_kapcs" data-mellek="szallodak">
