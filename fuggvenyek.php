@@ -2989,7 +2989,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 <td class="ikonok" rowspan="2" style="width: 4rem; white-space: nowrap;">
                                     <br>'.$kesz.$dok_icon.$surgos.'&nbsp;
                                 </td>
-                                <td style="width: 9rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 11rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem;">'.getStatText($tabla, $bsz['stat_id']).'</td>
                                 <td style="width: 7rem;">'.$telephely['nev'].'</td>
                                 <td>'.$hely['nev'].' - '.$gep['nev'].'</td>
