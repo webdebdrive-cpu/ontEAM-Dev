@@ -63,7 +63,7 @@
 
                 delay(function() {
                     /* Tabbal érkezve egy autocomplete mezőbe ne jöjjön fel a lista */
-                    if(e.which!=KEY_TAB){
+                    if(e.which != KEY_TAB){
                         var width   = $(that).outerWidth();
                         var height  = $(that).outerHeight();
                         var left    = $(that).offset().left;
@@ -73,7 +73,7 @@
                         var val     = $(that).val();
                         mezo        = $(that);
                         setting     = options;
-
+                        
                         if(length >= options.karaktertol) {
                             var cont_id = $(that).attr('id') + '_cont',
                                 current_cont_id = $('#autocomplete').attr('data-cont');
@@ -242,7 +242,7 @@
             });
 
             $(this).on('blur', function(e) {
-                if( mezo.attr('name').indexOf('_autocomp') !== -1 && mezo !== undefined ) {
+                if( mezo !== undefined && mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                     var mezo_nev = mezo.attr('name').replace('_autocomp', ''),
                         value    = $('input[name="' + mezo_nev + '"]').val();
 
