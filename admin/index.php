@@ -35,7 +35,7 @@ if (isset($_GET['stat_ido'])) {
 }*/
 
 // Loginról értesítő levelek küldése
-if (isset($_GET['login_ertesit'])) {
+if (false && isset($_GET['login_ertesit'])) {
     
     $szalloda_nev   = 'HILTON';
     $galyasz_bence  = false;
@@ -92,7 +92,7 @@ $uzi .= fajlbol_olvas('../sablon/admin/mail/alairas.html');
     exit;
 }
 
-if (isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
+if (false && isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
     
     $loginok = $adatbazis_kapcsolat->s('recid tabla_sorrend', 'login');
     foreach( $loginok as $login ){
@@ -104,7 +104,7 @@ if (isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
 }
 
 // Kötött fejléc nevű CSV feldolgozása (login_import.csv legyen a fájl neve)
-if (isset($_GET['loginnev_import'])) {
+if (false && isset($_GET['loginnev_import'])) {
     
     header('Content-Type: text/html; charset='. get_web_charset());
     
@@ -387,7 +387,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 }
 
 // Logginnév átnevezése
-if (isset($_GET['loginnev_csere'])) {
+if (false && isset($_GET['loginnev_csere'])) {
     
     $regi_nev = trim($_GET['regi']);
     $uj_nev   = trim($_GET['uj']);
@@ -474,7 +474,7 @@ if (isset($_GET['loginnev_csere'])) {
 }
 
 // Objektumok importja
-if (isset($_GET['objektum_import'])) {
+if (false && isset($_GET['objektum_import'])) {
     
     $telephely_id = 1060;
     
@@ -549,7 +549,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 }
 
 // Jog beállítás
-if (isset($_GET['jog_beallit'])) {
+if (false && isset($_GET['jog_beallit'])) {
     
     $felhok = $adatbazis_kapcsolat->s('recid flags nev', 'login', "`recid` IN (9710, 9715, 9104, 9110, 9728, 9732, 9511, 9738, 9754, 9763, 9776, 9502)");
     foreach($felhok as $felh){
@@ -585,7 +585,7 @@ echo $felh['nev'] . ', ';
 }
 
 // 
-if (isset($_GET['login_szall_kapcs'])) {
+if (false && isset($_GET['login_szall_kapcs'])) {
     
     $log = 'Login név;Teljes név;Login létrejötte;Telephely ID;Telephely név;Kapcsolat létrejötte;'."\r\n";
     $loginok = $adatbazis_kapcsolat->s('nev teljes_nev insert_dt', 'login');

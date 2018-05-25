@@ -386,7 +386,11 @@ function munkalapKulsosJovahagy(csak_kerdezunk) {
                         return false;
                     }
 
-                    szamlaBetolt( _get('id'), 'munkalap.php', 'modosit' );
+                    if(response.masodik_jovahagyo=='1'){
+                        $('#szamlaList li:first-of-type').click();
+                    }else{
+                        szamlaBetolt( _get('id'), 'munkalap.php', 'modosit' );
+                    }
                     
                 }
             }

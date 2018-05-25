@@ -1231,6 +1231,7 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
         }
 
         // Ha még nincs meg az első jóváhagyó, akkor csak annyit teszünk, hogy rögzítjük az elsőt.
+        $masodik_jovahagyo = '';
         if( !$munkalap['jh1_login'] ){
 
             // JH1 kitöltése
@@ -1248,6 +1249,8 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
         // Ha már a 2. jóváhagyásról van szó, akkor státuszt is léptetünk
         }else{
 
+            $masodik_jovahagyo = '1';
+            
             // JH2 kitöltése
             $sql = $adatbazis_kapcsolat->u('munkalap',
                                                     array('jh2_login',                      'jh2_datum', 'jh2_szerep'                               ),
@@ -1281,8 +1284,8 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
                 }
                 if($hiba){
                     echo json_encode(array(
-                        'hiba'  => $hiba,
-                        'title' => 'Hiba',
+                        'hiba'              => $hiba,
+                        'title'             => 'Hiba',
                     ));
                     $weblap->leallit();
                     exit();
@@ -1290,7 +1293,8 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
             }
 
             echo json_encode(array(
-                'statusz' => 'siker'
+                'statusz'           => 'siker',
+                'masodik_jovahagyo' => $masodik_jovahagyo,
             ));
         } else {
             mysqli_rollback($db_kapcs);
