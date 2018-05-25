@@ -3875,11 +3875,11 @@ if( isset($_GET['addSzalloda']) ) {
 
             // Logba is eltároljuk
             $sql = $adatbazis_kapcsolat -> i('log',
-                                        array( 'felh_id',                               'nev',                                                               'valtozas',    'ip'                    ),
-                                        array( $_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' módosította a szállodákat', $log,          $_SERVER['REMOTE_ADDR'] )
+                                        array( 'felh_id',                               'nev',                                                                              'valtozas',    'ip'                    ),
+                                        array( $_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' módosította '.$felh['nev'].' szállodáit',  $log,          $_SERVER['REMOTE_ADDR'] )
                                     );
             if( $sql === false ) { $db_error = true; }
-
+//echo $adatbazis_kapcsolat->gp() . '<br>';
             if( !$db_error ) {
                 mysqli_commit($db_kapcs);
                 echo json_encode(array(
