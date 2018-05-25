@@ -634,12 +634,12 @@ $(function() {
             }
         }
     });
-    
+
     /* Readonly-s selectet le se lehessen nyitni */
     $(document).on('focus', 'select[readonly]', function(e) {
         $(this).blur();
     });
-    
+
 
     $(document).on('keyup', 'input, select', function(e) {
         if (e.which == KEY_ENTER && !$('#alert2').is(':visible') ) {
@@ -1533,7 +1533,7 @@ $(function() {
 
             if( ev !== false && id != '' && id !== undefined && id.indexOf('_autocomp') === -1 ) {
                 var elementID = ev.target.id;
-
+                
                 if( elementID.indexOf('_autocomp') !== -1 && !ev.target.attributes['readonly'] ) {
                     var originVal = $('#' + elementID).attr('data-origin-val');
                     var ertekID = $('#' + elementID.replace('_autocomp', '')).val();
