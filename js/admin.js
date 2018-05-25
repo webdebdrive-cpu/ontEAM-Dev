@@ -5363,9 +5363,9 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     if( muvelet != 'uj' ) {
 
                         if( param.indexOf('?') !== -1 ) {
-                            param += '&id=' + recid + '&' + esamp2es(muvelet);
+                            param += '&id=' + recid + ( esamp2es(muvelet) ? '&' + esamp2es(muvelet) : '' );
                         } else {
-                            param = '?id=' + recid + '&' + esamp2es(muvelet);
+                            param = '?id=' + recid + ( esamp2es(muvelet) ? '&' + esamp2es(muvelet) : '' );
                         }
 
                         if( szerkeszt ) {

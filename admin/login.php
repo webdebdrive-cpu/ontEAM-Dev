@@ -1,6 +1,6 @@
 <?php
 require_once('../weblap.php');
-    
+
 if( !_jog(JOG_FELHASZNALOK_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
@@ -338,6 +338,13 @@ if (isset($_GET['csv'])) {
                 if($kulcs=='Beosztás' || $kulcs=='Részleg'){
                     $sor = $adatbazis_kapcsolat->s('info', 'erteklista', "`id`='{$sor}'");
                     $sor = $sor[0]['info'];
+                }
+                if($kulcs=='Virtuális' || $kulcs=='Törölve' || $kulcs=='Aktiv'){
+                    if( $sor ) {
+                        $sor = 'igen';
+                    } else {
+                        $sor = 'nem';
+                    }
                 }
                 $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
             }

@@ -104,7 +104,9 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
 //        case 'beosztas'             : $akt_tomb = $beosztas_tomb;               break;
 //        case 'cikktorzs'            : $akt_tomb = $cikktorzs_tomb;              break;
 //        case 'eszkozkezeles'        : $akt_tomb = $eszkozkezeles_tomb;          break;
-//        case 'login'                : $akt_tomb = $login_tomb;                  break;
+        case 'login'                : $sorok_html = loginLista( $sorok, $tabla ); $akt_tomb = $login_tomb;  break;
+        case 'ktghely'              : $sorok_html = ktghelyLista( $sorok, $tabla );         break;
+        case 'ktgnem'               : $sorok_html = ktgnemLista( $sorok, $tabla );          break;
         case 'eloterj_fb'           : $sorok_html = eloterj_fbLista( $sorok, $tabla );      break;
         case 'eloterj_bod'          : $sorok_html = eloterj_bodLista( $sorok, $tabla );     break;
         case 'munkalap'             : $sorok_html = munkalapLista( $sorok, $tabla );        break;

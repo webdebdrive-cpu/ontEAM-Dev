@@ -1,14 +1,14 @@
 /* Jquery kiegészítés CursorTo */
 (function ($) {
-    
+
     $.cursorTo = function (el, index) {
-        if (el.createTextRange) { 
-            var range = el.createTextRange(); 
-            range.move("character", index); 
-            range.select(); 
-        } else if (el.selectionStart != null) { 
-            el.focus(); 
-            el.setSelectionRange(index, index); 
+        if (el.createTextRange) {
+            var range = el.createTextRange();
+            range.move("character", index);
+            range.select();
+        } else if (el.selectionStart != null) {
+            el.focus();
+            el.setSelectionRange(index, index);
         }
     };
 
@@ -16,18 +16,18 @@
         return this.queue(function (next) {
             if (isNaN(index)) {
                 var i = $(this).val().indexOf(index);
-                
+
                 if (offset === true) {
                     i += index.length;
                 } else if (offset) {
                     i += offset;
                 }
-                
+
                 $.cursorTo(this, i);
             } else {
                 $.cursorTo(this, index);
             }
-            
+
             next();
         });
     };
@@ -49,10 +49,10 @@
         var input = this.get(0);
         if (!input) return;
         if ('selectionStart' in input) {
-            
+
             return input.selectionStart;
         } else if (document.selection) {
-            
+
             input.focus();
             var sel = document.selection.createRange();
             var selLen = document.selection.createRange().text.length;
@@ -278,8 +278,12 @@ function email(nev,mail){
 */
 /* Esamp2ES függvény */
 function esamp2es(string){
-    string = string.replace(/&/g, '!ES!').replace(/\+/g, '!PLUSZ!').replace(/#/g, '!SHARP!');
-    return string.replace(/!ES!amp;/g, '&');
+    if( string !== undefined ) {
+        string = string.replace(/&/g, '!ES!').replace(/\+/g, '!PLUSZ!').replace(/#/g, '!SHARP!');
+        return string.replace(/!ES!amp;/g, '&');
+    }
+
+    return '';
 }
 
 /**
@@ -913,7 +917,7 @@ function mobilszam(szam) {
 *	@param html input elem
 */
 function onlyNumbers(that){
-    
+
     if(that){
         value = that.val();
         ki = '';
@@ -1092,14 +1096,14 @@ function textarea_limit(textid, limit, infodiv){
 }
 
 function baseName(str) {
-    
+
     var base = new String(str);
-    
+
     if(base.indexOf('?') != -1){
         base = base.substring(0, base.lastIndexOf('?'));
     }
     base = base.substring(base.lastIndexOf('/') + 1);
-    
+
     if(base.indexOf(".") != -1) {
         base = base.substring(0, base.indexOf("."));
     }

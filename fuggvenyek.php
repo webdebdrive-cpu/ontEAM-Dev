@@ -116,7 +116,7 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok, 'ciklszorz'       );
             array_push($ertekek,  $_POST['ciklnap'] );
         }
-        
+
         // Napi ciklus, hétköznaponként ismétlődik
         $hetkoz_kent = '';
         if($type == 'insert') {
@@ -1799,7 +1799,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
     global $adatbazis_kapcsolat;
     global $db_kapcs;
     global $_OPTS;
-    
+
     // Van, hogy pár GET-et is át szeretnénk adni
     if($getek){
         foreach($getek as $kulcs => $get){
@@ -4722,7 +4722,7 @@ function loginLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         if( !$frissit ) {
             $html .= '</ul>';
         }
-
+        
         return nl2($html);
     }
 
@@ -5242,7 +5242,7 @@ function het_napja($nap){
 
 // Jogosultásg gyors lekérdezése
 function _jog( $value ) {
-    
+
     if( $_SESSION[get_db_tabla().'rights'][$value] ) {
         return $_SESSION[get_db_tabla().'rights'][$value];
     }
