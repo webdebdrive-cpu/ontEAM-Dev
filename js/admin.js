@@ -634,6 +634,12 @@ $(function() {
             }
         }
     });
+    
+    /* Readonly-s selectet le se lehessen nyitni */
+    $(document).on('focus', 'select[readonly]', function(e) {
+        $(this).blur();
+    });
+    
 
     $(document).on('keyup', 'input, select', function(e) {
         if (e.which == KEY_ENTER && !$('#alert2').is(':visible') ) {
@@ -1547,7 +1553,7 @@ $(function() {
         if( event.keyCode == KEY_TAB ) {
             var elementID = $(this).attr('id');
 
-            if( elementID.indexOf('_autocomp') !== -1 && !$(this).hasAttr('readonly') && !$(this).hasAttr('disabled') ) {
+            if( elementID.indexOf('_autocomp') !== -1 && !$(this).attr('readonly') && !$(this).attr('disabled') ) {
                 var originVal = $(this).attr('data-origin-val');
                 var ertekID = $(this).val();
 
