@@ -4,6 +4,13 @@
     <div class="dt egysegarMuv">
         <div class="dtr">
             <div class="dtc">
+                <select class="eltol" name="egysk_oszlop" onchange="egysegarOszlop( 'egysk_', this.value );">
+                    <option value="ear">Egységár</option>
+                    <option value="dnem">Deviza</option>
+                    <option value="arf">Árfolyam</option>
+                </select>
+            </div>
+            <div class="dtc">
                 Minden<br>
                 <select name="egysk_ciklus">
                     <option value="1">havi</option>
@@ -14,7 +21,29 @@
             </div>
             <div class="dtc">
                 legyen<br>
-                <input type="text" name="egysk_ertek" class="f_num" data-tort="3" value="0,000">
+                <div class="egysk_box">
+                    <input type="text" name="egysk_ear" class="f_num" data-tort="3" value="0,000">
+                </div>
+                <div class="egysk_box dn">
+                    <input type="text" autocomplete="off" class="csillag autocomp" name="egysk_dnem_autocomp" id="egysk_dnem_autocomp" style="min-width: inherit; width: 5rem;" value="" data-origin-val="">
+                    <input type="hidden" name="egysk_dnem" id="egysk_dnem" value="">
+                    <script>
+                        $(document).ready(function() {
+                            $('#egysk_dnem_autocomp').autocomplete({
+                                'php_fajl'        : '../autocomplete.php',
+                                'tabla'           : 'erteklista',
+                                'oszlop_keres'    : 'info',
+                                'oszlop_listaz'   : 'info',
+                                'csoport'         : 21,
+                                'id_kiir'         : 'id',
+                                'popupba'         : true
+                            });
+                        });
+                    </script>
+                </div>
+                <div class="egysk_box dn">
+                    <input type="text" name="egysk_arf" class="f_num" data-tort="5" value="1,00000">
+                </div>
             </div>
             <div class="dtc">
                 Kezdő hónap:<br>
@@ -39,7 +68,18 @@
         </div>
         <div class="dtr">
             <div class="dtc">
-                <input type="text" name="egysv_ertek" class="f_num" data-tort="3" value="0,000" style="margin-top: 1.6rem;">
+                <select class="eltol" name="egysv_oszlop" onchange="egysegarOszlop( 'egysv_', this.value );">
+                    <option value="ear">Egységár</option>
+                    <option value="arf">Árfolyam</option>
+                </select>
+            </div>
+            <div class="dtc">
+                <div class="egysv_box">
+                    <input type="text" name="egysv_ear" class="f_num eltol" data-tort="3" value="0,000">
+                </div>
+                <div class="egysv_box dn">
+                    <input type="text" name="egysv_arf" class="f_num eltol" data-tort="5" value="1,00000">
+                </div>
             </div>
             <div class="dtc">
                 legyen visszaosztva<br>

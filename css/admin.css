@@ -3245,13 +3245,18 @@ div.rendBal {
     padding: .5rem 1rem .5rem 1rem;
     vertical-align: middle;
 }
+
 #popup div.popup_tart div.dt.egysegarMuv div.dtc input[type="text"] {
     height: 2.2rem;
     min-width: inherit;
 }
 
 .egysegarMuv .dtc .gomb {
-    margin: 0rem 0rem 0rem 0rem;
+    margin: 1rem 0rem 0rem 0rem;
+}
+
+.egysegarMuv .dtc .eltol {
+    margin-top: 1.8rem;
 }
 
 th.egys_szall {

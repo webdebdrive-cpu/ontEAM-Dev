@@ -1533,7 +1533,7 @@ $(function() {
 
             if( ev !== false && id != '' && id !== undefined && id.indexOf('_autocomp') === -1 ) {
                 var elementID = ev.target.id;
-                
+
                 if( elementID.indexOf('_autocomp') !== -1 && !ev.target.attributes['readonly'] ) {
                     var originVal = $('#' + elementID).attr('data-origin-val');
                     var ertekID = $('#' + elementID.replace('_autocomp', '')).val();
@@ -1658,12 +1658,17 @@ $(function() {
 
 function egysegarMuv( pre, muvelet ) {
     var ciklus  = parseInt($('select[name="' + pre + 'ciklus"]').val()),
-        ertek   = $('input[name="' + pre + 'ertek"]').val(),
+        oszlop  = $('select[name="' + pre + 'oszlop"]').val(),
+        ertek   = $('input[name="' + pre + oszlop + '"]').val(),
         honap   = $('select[name="' + pre + 'honap"]').val();
+
+    if( oszlop == 'dnem' ) {
+        dnemText = $('input[name="' + pre + oszlop + '_autocomp"]').val();
+    }
 
     ertek = ertek.replace(' ', '');
 
-    var inputok = $('#setEgysegarTablazat').find('input[name^="ear"]');
+    var inputok = $('#setEgysegarTablazat').find('input[name^="' + oszlop + '"]');
 
     inputok.each(function(index, el) {
         index++;
@@ -1673,22 +1678,37 @@ function egysegarMuv( pre, muvelet ) {
             if( muvelet == 'kitolt' ) {
                 for(var i = index; i <= 12; i += ciklus) {
                     var uj_sorszam = ('0' + i).slice(-2);
-                    $('input[name="ear' + uj_sorszam + '"]').val(ertek);
+                    $('input[name="' + oszlop + uj_sorszam + '"]').val(ertek);
+
+                    if( oszlop == 'dnem' ) {
+                        $('input[name="' + oszlop + uj_sorszam + '_autocomp"]').val(dnemText);
+                    }
                 }
             } else if( muvelet == 'visszaoszt' ) {
                 oszto = 12 - parseInt(honap) + 1;
 
-                ertek = (ertek.replace(',', '.') / (oszto / ciklus)).toFixed(3);
+                ertek = (ertek.replace(',', '.') / (oszto / ciklus));
+
+                if( oszlop == 'ear' ) {
+                    ertek = ertek.toFixed(3);
+                } else {
+                    ertek = ertek.toFixed(5);
+                }
 
                 for(var i = index; i <= 12; i += ciklus) {
                     var uj_sorszam = ('0' + i).slice(-2);
-                    $('input[name="ear' + uj_sorszam + '"]').val(ertek);
+                    $('input[name="' + oszlop + uj_sorszam + '"]').val(ertek);
                 }
             }
 
             return false;
         }
     });
+}
+
+function egysegarOszlop( pre, value ) {
+    $('.' + pre + 'box').addClass('dn');
+    $('.egysegarMuv input[name="' + pre + value + '"]').parents('.' + pre + 'box').removeClass('dn');
 }
 
 function egysegarMentes( that ) {
