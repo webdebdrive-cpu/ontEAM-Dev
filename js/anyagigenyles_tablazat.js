@@ -15,17 +15,16 @@ $(document).ready(function () {
 });
 
 /* Anyagigénylés táblázatban a jóváhagyott mennyiség értéke ha változik. A anyagig_eredeti_jhmen tömb a fuggvenyek.php-ban az anyagigenyleslista() résznél jön létre, ahol a táblázat HTML-je kigenerálódik */
-$(document).on('blur keyup', '.szamla_cont_tabla tbody input', function(e) {
+/*$(document).on('blur keyup', '.szamla_cont_tabla tbody input', function(e) {
     if( anyagig_eredeti_jhmen[$(this).attr('recid')] != $(this).val() ){
         $(this).addClass('mod');
         formModositva = true;
     }else{
         $(this).removeClass('mod');
     }
+});*/
 
-});
-
-/* Form modosítva változó beállítása: minden egyes billentyű leutésre mod classt keresünk. Ha találunk, akkor módosítva van a form */
+/* Form modosítva változó beállítása: minden egyes billentyű leütésre mod classt keresünk. Ha találunk, akkor módosítva van a form */
 $(document).on('keyup', '.szamla_cont_tabla input', function(e) {
 
     if( $('.szamla_cont_tabla input.mod').length ){
@@ -72,7 +71,7 @@ $(document).on('keyup', '.szamla_cont_tabla input', function(e) {
 
 /* Anyagigénylés táblázat Ctrl+Shift kijelölése */
 $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
-
+    
     if($('.szamla_cont_tabla').hasClass('kijelolheto')){
 
         var sorok = $('.szamla_cont_tabla tbody tr');
@@ -135,7 +134,6 @@ $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
 
         /* Kijelölt sorok átmásolása az eredeti navpanelbe */
         setTimeout(function(){
-
             $('#szamlaList li').removeClass('kijelolve');
             $('.szamla_cont_tabla tbody tr.kijelolve').each(function () {
                 $('#szamla-'+$(this).attr('data-recid')).addClass('kijelolve');
@@ -158,6 +156,5 @@ $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
         $('.szamla_cont_tabla tr').removeClass('kijelolve');
         $(this).addClass('kijelolve');
     }
-
 
 });

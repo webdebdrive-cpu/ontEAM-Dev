@@ -98,8 +98,8 @@ if($_POST['megnevezes']=='velemeny'){
                 if(move_uploaded_file($_FILES[$_POST['megnevezes']]['tmp_name'], $kepnev)){
 
                     // Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
-                    $id = $adatbazis_kapcsolat -> i( 'projektigenyles_velemeny', array('projektigenyles_recid',         'login_recid',                            'utvonal',                                                            'fajlnev'                               ),
-                                                                                 array($_POST['projektigenyles_recid'], $_SESSION[get_db_tabla().'login_recid'],   str_replace(get_utvonal().'projektigenyles_velemeny/', '', $kepnev), $_FILES[$_POST['megnevezes']]['name']   )
+                    $id = $adatbazis_kapcsolat -> i( 'projektigenyles_velemeny', array('projektigenyles_recid',         'login_recid',                            'utvonal',                                                            'fajlnev',                              'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                                                 array($_POST['projektigenyles_recid'], $_SESSION[get_db_tabla().'login_recid'],   str_replace(get_utvonal().'projektigenyles_velemeny/', '', $kepnev), $_FILES[$_POST['megnevezes']]['name'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                                     );
 
                 }

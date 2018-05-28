@@ -38,8 +38,8 @@ foreach($varakozok as $varakozo){
         
     $szalloda_nev = getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']);
 
-    $adatbazis_kapcsolat->i('munkalap_14var',   array('munkalap_id',        'telephely_id',             'stat_insert_login', 'telephely_nev', 'stat_insert_dt',       'stat_insert_usr',         'indok',           'insert_dt',   'update_dt' ),
-                                                array($munkalap['recid'],   $munkalap['telephely_id'],  $varakozo['login'],  $szalloda_nev,   $varakozo['insert_dt'], $varakozo['insert_usr'],   $varakozo['text'], 'NOW()',       'NOW()'     )
+    $adatbazis_kapcsolat->i('munkalap_14var',   array('munkalap_id',        'telephely_id',             'stat_insert_login', 'telephely_nev', 'stat_insert_dt',       'stat_insert_usr',         'indok',           'insert_dt',   'update_dt',    'insert_usr',                             'update_usr'                           ),
+                                                array($munkalap['recid'],   $munkalap['telephely_id'],  $varakozo['login'],  $szalloda_nev,   $varakozo['insert_dt'], $varakozo['insert_usr'],   $varakozo['text'], 'NOW()',       'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                             );
 
     $log_tmp = $adatbazis_kapcsolat->gp()."\r\n";

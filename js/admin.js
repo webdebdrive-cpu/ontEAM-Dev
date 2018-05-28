@@ -433,7 +433,8 @@ $(function() {
                     }
 
                     $('.szamla_cont_tabla tbody tr:nth-of-type('+(kovSzamlaSor+1)+')').addClass('kijelolve');
-
+                    
+                    $('#szamlaList li').removeClass('kijelolve');
                     $('#anyagig-sor-'+$('.szamla_cont_tabla tr.kijelolve').attr('data-recid')).click();
 
                     return false;
@@ -6678,10 +6679,10 @@ function szalloda_modell( that ) {
         if( modell ) {
             $('#mobilcsoport_opt').removeClass('dn').removeAttr('disabled');
         } else {
-            $('#mobilcsoport_opt').addClass('dn').attr('disabled', true);
             if( $('#szemelyzet_id').val()=='2' ){
                 $('#szemelyzet_id').val(0);
             }
+            $('#mobilcsoport_opt').addClass('dn').attr('disabled', true);
         }
     }
 }
