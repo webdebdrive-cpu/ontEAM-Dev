@@ -475,7 +475,6 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`ikt_szam`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`stat_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
-                                `'.get_db_tabla().$tabla_nophp.'`.`csoport_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`surgos`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`tipus_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`obj_id`,
@@ -484,8 +483,7 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`mobil`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`,
-                                `'.get_db_tabla().'obj`.`nev`,
-                                `'.get_db_tabla().'munkalap_csoport`.`nev`
+                                `'.get_db_tabla().'obj`.`nev`
                             ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
@@ -2822,11 +2820,10 @@ if( isset($_POST['varolistabolKivetel']) ) {
 
         // Ellenőrizzük a státuszokat is
         foreach($idk as $id) {
-            $statusz = $adatbazis_kapcsolat->s('recid stat_id insert_dt', $page.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
+            $statusz = $adatbazis_kapcsolat->s2('recid stat_id insert_dt', $page.'_statusz', "`{$page}_recid`='$id'", 'recid desc', '1');
             if( $statusz === false ) { $db_error = true; }
 
             if( $statusz ) {
-                $statusz = $statusz[0];
 
                 if( $statusz['stat_id'] != $varakozo_statid ) {
                     echo json_encode(array(
@@ -3935,7 +3932,7 @@ if( isset($_GET['szamlaSorFrissit']) ) {
     $recid = $_GET['recid'];
     if( $tabla && $recid ) {
         $szamla_lista = szamla_lista("`".get_db_tabla().$tabla."`.`recid` = '{$recid}'", $tabla);
-
+        $szamla_lista = $szamla_lista[0];
         echo $szamla_lista;
     }
 
@@ -3946,6 +3943,7 @@ if( isset($_GET['szamlaSorFrissit']) ) {
 if( isset($_GET['szamlaLista']) ) {
 
     $szamla_lista = szamla_lista('', $_GET['tabla'], $_GET['kijeloltek'], '', $_GET);
+    $szamla_lista = $szamla_lista[0];
 
     if( $szamla_lista ) {
         echo '<div class="szamlaLapozas fent clearFix">'.$lapozas.'</div>'.$szamla_lista.'<div class="szamlaLapozas clearFix">'.$lapozas.'</div>';
@@ -4516,7 +4514,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
                 ){
                 exit;
             }
-
+            
             // Csak olyan ID törölhető, amit láthatok.
             szamla_lista('', '', '', 'csak SQL miatt');
             $van_getid = false;

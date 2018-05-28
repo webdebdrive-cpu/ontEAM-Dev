@@ -236,12 +236,12 @@ if( isset($_POST['bejelentesElutasit']) ) {
             $weblap->leallit();
             exit();
         }
-
         // Elutasítás
         if( $bejelentes ) {
             if( !addStatusz( 'bejelentes_statusz', $recid, BEJELENTES_STAT_VIZSG_ALATT, $elutasitas_id, $memo ) ) {
                 $db_error = true;
             }
+
             if($memo){
                 if( addMegj('bejelentes', $recid, $memo) === false ) {
                     $db_error = true;

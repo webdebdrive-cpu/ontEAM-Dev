@@ -1531,7 +1531,7 @@ $(function() {
         if( ev ) {
             var id = event.target.id;
 
-            if( ev !== false && id != '' && id !== undefined && id.indexOf('_autocomp') === -1 ) {
+            if( ev !== false && id.indexOf('_autocomp') === -1 /*id != '' && id !== undefined && Ez miért kellett? Popupban levő autocomplete-nél gond volt belőle, mert ha olyan elemre kattintottunk, aminke nem volt ID-ja, akkor nme íródott vissza az origin-val */ ) {
                 var elementID = ev.target.id;
 
                 if( elementID.indexOf('_autocomp') !== -1 && !ev.target.attributes['readonly'] ) {
@@ -2111,9 +2111,9 @@ function bejelentesIgazolas( recid, csak_kerdezunk ) {
                 url : 'bejelentes.php',
                 type: 'POST',
                 data: {
-                    recid: recid,
-                    csak_kerdezunk: csak_kerdezunk,
-                    bejelentesIgazolas: new Date().getTime()
+                    recid               : recid,
+                    csak_kerdezunk      : csak_kerdezunk,
+                    bejelentesIgazolas  : new Date().getTime()
                 },
                 success: function(response) {
                     if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }

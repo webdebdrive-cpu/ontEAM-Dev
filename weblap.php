@@ -106,18 +106,14 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 }
 
 // Ha olyan $_GET['id']-t akarnék megnézni, ami az aktuális SQL-nek nem is eredménye, akkor kinullázzuk: ne lehessen leskelődni
+// Ehhez a nav panel kiszámításakor a recid-kat is kiszámoljuk egy tömbbe, hogy többet egy ilyen bonyolult SQL-t ne kelljen lefuttatni
+// Ezt viszont nem tesszük meg, ha van $_POST-olt adat, mert azok ajax hívások, ott meg feleslegesen szintén ne számolgassuk ki a bonyolult SQL-t.
+// Ugyanígy az autocomplete.php esetén sem hívjuk meg
+if( empty($_POST) && basename(self())!='autocomplete.php' ){
+    list($balNavPanelHTMLje, $balNavPanelRECIDk) = szamla_lista(); // Ezt azért futtatjuk le, hogy az aktuális oldalnak megfelelő $_SESSION['akt_sql'] jöjjön létre, hogy tudjunk ID-t ellenőrizni.
+}
 if( $_GET['id'] ){
-    $akt_lekerdezes = szamla_lista('', '', '', 'csak SQL miatt'); // Ezt azért futtatjuk le, hogy az aktuális oldalnak megfelelő $_SESSION['akt_sql'] jöjjön létre, hogy tudjunk ID-t ellenőrizni.
-    $van_getid = false;
-//echo $akt_lekerdezes . '<br>';
-    $akt_sql = mysqli_query($db_kapcs, $akt_lekerdezes);
-    while( $akt_sor = mysqli_fetch_assoc($akt_sql) ){
-        if( $akt_sor['recid']== $_GET['id'] ){
-            $van_getid = true;
-        }
-    }
-
-    if(!$van_getid){
+    if(!in_array($_GET['id'], $balNavPanelRECIDk)){
         $_GET['id'] = '';
     }
 }

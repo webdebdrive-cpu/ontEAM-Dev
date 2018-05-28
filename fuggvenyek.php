@@ -1794,6 +1794,13 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 }
 
 // Központi SQL előállítása a bal oldali navpanel elemeinek kiszámításához (where feltétel, rendezés)
+/**
+ * @param $where:  Pl. egy konkrét recid kiszámolásához át tudunk adni egy Where feltételt.
+ * @param $tabla: Épp melyik adatbázison dolgozunk? Ha nincs megadva, akkor a self()-ből számolódik ki.
+ * @param $kijeloltek: kijelölt sorok recid-jai  a navpanelban
+ * @param $csak_sql_miatt: Ha nem akarjuk a bal navpenalt kiszámolni, csak a lekérdezés SQL-e kell
+ * @param $getek: néha szükség van arra, hogy a GET-eket átadjuk, mert ez kell az adatok kiszámításhoz.
+ *  */
 function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = false, $getek = false ) {
 
     global $adatbazis_kapcsolat;
@@ -2276,9 +2283,11 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
             $order = '';
             // Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
-            if(_jog(JOG_MUNKALAP_KESZITHET)){
-                $order .= '`'.get_db_tabla().'munkalap_csoport`.`nev`, '; // <= itt fixen munkalap kell, nem a $tabla
-            }
+            
+            // Már nincs csoportosítás
+//            if(_jog(JOG_MUNKALAP_KESZITHET)){
+//                $order .= '`'.get_db_tabla().'munkalap_csoport`.`nev`, '; // <= itt fixen munkalap kell, nem a $tabla
+//            }
 
             $irany_ikt_szam  = '';
             $irany_telephely = '';
@@ -2365,7 +2374,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if($tabla=='anyagigenyles'){
             $sql_kieg .= nl2('
                                 LEFT JOIN `'.get_db_tabla().'szallito` ON (`'.get_db_tabla().'anyagigenyles`.`szallito_id`=`'.get_db_tabla().'szallito`.`id`)
-                                LEFT JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'anyagigenyles`.`kcs_21`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\'21\')
+                                LEFT JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'anyagigenyles`.`kcs_21`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`='.ERTEKLISTA_PENZNEM.'\')
                                 LEFT JOIN `'.get_db_tabla().'cikkrendfej` ON (`'.get_db_tabla().'anyagigenyles`.`rndid`=`'.get_db_tabla().'cikkrendfej`.`rndid`)
                             ');
         }
@@ -2373,15 +2382,19 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         // Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
         if($tabla=='bejelentes' || $tabla=='bejelentes_arch'){
             $sql_kieg .= nl2('
-                                JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'erteklista`.`csoport`=4 AND `'.get_db_tabla().$tabla.'`.`hiba_id`=`'.get_db_tabla().'erteklista`.`recid`)
-                                LEFT OUTER JOIN `'.get_db_tabla().'bejelentes_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'bejelentes_csoport`.`recid`
+                                JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'erteklista`.`csoport`='.ERTEKLISTA_BEJ_HIBA.' AND `'.get_db_tabla().$tabla.'`.`hiba_id`=`'.get_db_tabla().'erteklista`.`recid`)
                             ');
+            // Már nem használunk csoportot, de az SQL-el pedig csínján kell bánni, ezért kivéve 2018.05.28
+//            $sql_kieg .= nl2('
+//                                LEFT OUTER JOIN `'.get_db_tabla().'bejelentes_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'bejelentes_csoport`.`recid`
+//                            ');
         }
-        if($tabla=='munkalap' || $tabla=='munkalap_arch'){
-            $sql_kieg .= nl2('
-                                LEFT OUTER JOIN `'.get_db_tabla().'munkalap_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'munkalap_csoport`.`recid`
-                            ');
-        }
+        // Már nem használunk csoportot, de az SQL-el pedig csínján kell bánni, ezért kivéve 2018.05.28
+//        if($tabla=='munkalap' || $tabla=='munkalap_arch'){
+//            $sql_kieg .= nl2('
+//                                LEFT OUTER JOIN `'.get_db_tabla().'munkalap_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'munkalap_csoport`.`recid`
+//                            ');
+//        }
 
         // Szűréskor megjegyzés JOIN
         if ($_GET['mezo']=='megjegyzes') {
@@ -2606,7 +2619,7 @@ if(isset($_GET['debug'])) {
                 </script>';
     }
 
-    return nl2($html);
+    return array(nl2($html), adatbazis2tomb($bejegyzesek, 'recid'));
 
 }
 
@@ -2715,7 +2728,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $helyseg = $helyseg['nev'];
 
             // Hiba
-            $hiba = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=4 AND `recid`='{$bsz['hiba_id']}'");
+            $hiba = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=".ERTEKLISTA_BEJ_HIBA." AND `recid`='{$bsz['hiba_id']}'");
 
             // Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
             $bold = '';

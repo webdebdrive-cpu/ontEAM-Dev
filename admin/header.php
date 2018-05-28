@@ -791,9 +791,10 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     }
 
     $tartBal = '';
-    // Anyagigénylésnél nincs bal nev panel (de anyagrendnél már igen!) Anyagrend mod: 2018.04
-    if(basename(self())!='anyagigenyles.php'){ /* || isset($_GET['anyagrend']) */
-        $tartBal = szamla_lista();
+    // Anyagigénylésnél nincs bal nev panel 
+    if(basename(self())!='anyagigenyles.php'){
+        //$tartBal = szamla_lista();
+        $tartBal = $balNavPanelHTMLje;
     }
 
     if (isset($_GET['gyorskereso_ajax'])) {
