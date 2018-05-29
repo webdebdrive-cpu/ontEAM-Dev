@@ -24,6 +24,7 @@ function i_u($type, $tabla, $tomb) {
 
 	global $adatbazis_kapcsolat;
 	global $db_kapcs;
+	global $weblap;
 
     // Archiv táblába biztosan nem írunk
     if( substr($tabla, strlen($tabla)-5) == '_arch' ){

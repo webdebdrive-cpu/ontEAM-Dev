@@ -146,13 +146,13 @@ if (false && isset($_GET['loginnev_import'])) {
                             if( $statusz == 'Szállodai bejelentő' ){
                                 $szemelyzet_id = HIBABEJELENTO;
                             }
-                            if( $statusz == 'Telepített karbantartó' ){
+                            if( $statusz == 'Telepített karbantartó' || $statusz == 'telepített karbantartó' ){
                                 $szemelyzet_id = TELEPITETT_SZEMELYZET;
                             }
                             if( $statusz == 'Gazdasági vezető' ){
                                 $szemelyzet_id = HIBABEJELENTO;
                             }
-                            if( $statusz == 'Szálloda igazgató' || $statusz == 'Szálloda igazgató 1' || $statusz == 'Szálloda igazgató 2' ){
+                            if( $statusz == 'Szálloda igazgató' || $statusz == 'Szálloda Igazgató' || $statusz == 'Szálloda igazgató 1' || $statusz == 'Szálloda igazgató 2' ){
                                 $szemelyzet_id = SZALLODA_IGAZGATO;
                             }
                             if( $statusz == 'Létesítmény főmérnök' || $statusz == 'Létesítményi Főmérnök' || $statusz == 'Létesítmény felelős' ){
@@ -535,6 +535,94 @@ if (false && isset($_GET['objektum_import'])) {
                                                     array($telephely_id,  $szint_id,    $nev,  'NOW()',     get_nev().' import',  get_nev().' import'   )
                                             );
                 }
+echo $adatbazis_kapcsolat->gp() . '<br>';
+
+            }
+            $k++;
+        }
+        fclose($csv_fajl);
+    }else{
+        echo 'Fájl nem található';
+    }
+    
+    exit;
+}
+
+// Objektumok importja PPM-ből
+if (false && isset($_GET['objektum_import_ppm'])) {
+    
+    $telephely_id = 5411;
+    
+    $adatbazis_kapcsolat->d('obj', "`telephely_id`='$telephely_id'");
+    
+    header('Content-Type: text/html; charset='. get_web_charset());
+    
+    $fajlnev = 'csv/obj_import_ppm.csv';
+    setlocale(LC_ALL,'hu_HU');
+
+    $k = 0;
+    if (($csv_fajl = fopen($fajlnev, 'r')) !== FALSE) {
+        while (($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE) {
+
+            $akt_tomb = array();
+            // Első oszlop a fejlécek
+            if($k == 0) {
+
+                foreach($sor as $key => $value) {
+                    $_SESSION['sor_fejlec'][] = $value;
+                }
+
+            // Adatok feldolgozása
+            } else {
+                
+                foreach($sor as $key => $value) {
+                    $akt_tomb[$_SESSION['sor_fejlec'][$key]] = $value;
+                }
+
+                foreach($akt_tomb as $key => $value) {
+                    $akt_tomb[$key] = utf8($akt_tomb[$key]);
+                }
+                $szemelyzet_id = '';
+                foreach($akt_tomb as $key => $value) {
+                    
+                    switch( utf8($key) ) {
+
+                        case 'Szint':
+                            $szint = trim($akt_tomb[$key]);
+                        break;
+
+                        case 'Név':
+                            $nev = $akt_tomb[$key];
+                        break;
+
+
+                    }
+                }
+
+                switch( strlen($szint) ){
+
+                    // Emelet
+                    case 2:
+                        $szint_id = $adatbazis_kapcsolat->i('obj',  array('telephely_id', 'szulo', 'nev', 'insert_dt', 'insert_usr',        'update_usr'           ),
+                                                                    array($telephely_id,  0,       $nev,  'NOW()',     get_nev().' import',  get_nev().' import'   )
+                                                            );
+                    break;
+                
+                    // Helyiség
+                    case 6:
+                        $helyiseg = $adatbazis_kapcsolat->i('obj',  array('telephely_id', 'szulo',      'nev', 'insert_dt', 'insert_usr',         'update_usr'          ),
+                                                                    array($telephely_id,  $szint_id,    $nev,  'NOW()',     get_nev().' import',  get_nev().' import'   )
+                                                            );
+                    break;
+                
+                    // Gép
+                    case 10:
+                        $adatbazis_kapcsolat->i('eszkozkezeles',    array('telephely_id', 'obj_id',     'nev', 'insert_dt', 'insert_usr',         'update_usr'          ),
+                                                                    array($telephely_id,  $helyiseg,    $nev,  'NOW()',     get_nev().' import',  get_nev().' import'   )
+                                                );
+                    break;
+                }
+                
 echo $adatbazis_kapcsolat->gp() . '<br>';
 
             }
