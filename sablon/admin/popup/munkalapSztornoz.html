@@ -17,6 +17,9 @@
 </form>
 <script>
 	function munkalapSztornoz(mehet){
+        
+        szurkit();
+        
         $.ajax({
             url : 'munkalap.php',
             type: 'POST',
@@ -29,6 +32,8 @@
             success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
+                    
+                    
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
@@ -39,7 +44,11 @@
                         return false;
                     }
 
-                    location.href = get_get();
+                    /* Ajax lefutott, de a szürkítés vissza kell tenni a reload miatt */
+                    setTimeout(function(){ szurkit(); }, 100);
+                    szamlaBetolt(_get('id'), 'munkalap.php', 'modosit').done(function() {
+                        popupZar();
+                    });
                 }
             }
         });

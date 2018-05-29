@@ -63,12 +63,13 @@ if (isset($_GET['szures_vege'])) {
 // Munkalap készítése
 if( isset($_POST['munkalapKeszit']) ) {
     $idk = json_decode($_POST['idk'], true);
+    $id  = $idk[1];
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
     if( is_array($idk) ) {
-        // Ellenőrizzük a csoportokat
+        /*// Ellenőrizzük a csoportokat
         $csoportok = $adatbazis_kapcsolat->s('csoport_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")");
         if( $csoportok === false ) { $db_error = true; }
 
@@ -102,28 +103,18 @@ if( isset($_POST['munkalapKeszit']) ) {
                     exit();
                 }
             }
-        }
+        }*/
 
         // Ellenőrizzük a szállodákat is
-        $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '');
-        if( $szallodak === false ) { $db_error = true; }
-
-        $szallodak = adatbazis2tomb($szallodak, 'telephely_id');
-        $szallodak_unique = array_unique($szallodak);
-
-        if( count($szallodak_unique) > 1 ) {
-            echo json_encode(array(
-                'hiba'  => 'Csak azonos szállodával rendelkező bejegyzéseket lehet munkalappá alakítani!',
-                'title' => 'Hiba',
-            ));
-
-            $weblap->leallit();
-            exit();
-        }
+        $bejelentes = $adatbazis_kapcsolat->s2('telephely_id ikt_szam obj_id gep_id hiba_id', 'bejelentes', "`recid`='{$id}'");
+        if( $bejelentes === false ) { $db_error = true; }
+        
+        $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$bejelentes['telephely_id']}'", '', '1');
+        if( $telephely === false ) { $db_error = true; }
 
         // Ellenőrizzük a státuszokat is
         foreach($idk as $id) {
-            $statusz = $adatbazis_kapcsolat->s2('recid stat_id insert_dt', 'bejelentes_statusz', "`bejelentes_recid`='$id'", 'recid desc', '1');
+            $statusz = $adatbazis_kapcsolat->s2('recid stat_id insert_dt', 'bejelentes_statusz', "`bejelentes_recid`='{$id}'", 'recid desc', '1');
             if( $statusz === false ) { $db_error = true; }
 
             if( $statusz ) {
@@ -156,7 +147,13 @@ if( isset($_POST['munkalapKeszit']) ) {
             if( $isMlap && !$_POST['kerdesek_nelkul'] ) {
 
                 echo json_encode(array(
-                    'hiba' => 'Ehhez a bejelentéshez már készült munkalap. <br>Készít még egy munkalapot?',
+                    'hiba' => nl2('
+                                Bejelentés szám: '.$bejelentes['ikt_szam'].'
+                                <br>Hiba helye: '.$telephely['nev'].'
+                                <br>Bejelentett hiba: '. getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).'
+                                <br>
+                                <br>Ehhez a bejelentéshez már készült munkalap. <br>Készít még egy munkalapot?
+                                    '),
                     'gomb' => '<input class="gomb zold" value="Igen" onclick="szurkit(); location.href = \'munkalap.php?uj&ujkent_bejelentes='.$id.'\';" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
                 ));
 
@@ -165,14 +162,16 @@ if( isset($_POST['munkalapKeszit']) ) {
             }
         }
 
-        // Vegyünk egy bejelentést (úgy is scak egy lesz, újabban csak egy bejelentés több munkalap kapcsolat van)
-        $bejelentes = $adatbazis_kapcsolat->s2('obj_id gep_id', 'bejelentes', "`recid`='$id'");
-
         // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
         if(isset($_POST['csak_kerdezunk']) && !$_POST['kerdesek_nelkul']) {
 
             echo json_encode(array(
-                'hiba' => 'Biztos munkalapot készít a kijelölt bejelentésből?',
+                'hiba' => nl2( 'Bejelentés szám: '.$bejelentes['ikt_szam'].'
+                                <br>Hiba helye: '.$telephely['nev'].'
+                                <br>Bejelentett hiba: '. getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).'
+                                <br>
+                                <br>Biztos munkalapot készít a kijelölt bejelentésből?
+                            '),
                 'gomb' => '<input class="gomb zold" value="Igen" onclick="munkalapKeszit();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
             ));
 

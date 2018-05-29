@@ -2646,10 +2646,9 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $aktCsoport = $bsz['csoport_id'];
 
                 if( $i == 1 || $csoport != $aktCsoport ) {
-                    $csoportSor = $adatbazis_kapcsolat->s('nev', 'bejelentes_csoport', 'recid='.$aktCsoport, '', '1');
+                    $csoportSor = $adatbazis_kapcsolat->s2('nev', 'bejelentes_csoport', 'recid='.$aktCsoport, '', '1');
 
                     if( $csoportSor ) {
-                        $csoportSor = $csoportSor[0];
 
                         // Van e sürgős
                         $surgos_e = $adatbazis_kapcsolat->s('recid', $tabla, "`csoport_id` = '{$aktCsoport}' AND `surgos` > 0", '', '1');
