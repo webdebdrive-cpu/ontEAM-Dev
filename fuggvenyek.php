@@ -6026,6 +6026,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
     global $db_kapcs;
     $cimzett_mail = '';
     $cimzett_nev  = '';
+    $felhasznalonak_szo = 'felhasználónak';
 
 
     // Kinek menjen a mail? Egy $cimzettek tömböt kell előállítani.
@@ -6034,6 +6035,9 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
     switch($cimzett){
         // Bejelentőnek
         case 'bejelento':
+            
+            $felhasznalonak_szo = 'bejelentőnek';
+            
             if(substr($recid, 0, 1)=='m'){
                 $munkalap   = $adatbazis_kapcsolat->s2('text', 'munkalap', "`recid`='".substr($recid, 1)."'");
                 $hiba       = htmlspecialchars_decode( nl2br2( $munkalap['text'] ) );
@@ -6068,6 +6072,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         // Diszpécserek központi címe
         case 'diszpecser_kozponti':
 
+            $felhasznalonak_szo = 'központi diszpécsernek';
             $bejelentes     = $adatbazis_kapcsolat->s2('ikt_szam usr_nev usr_email usr_telefon stat_id telephely_id obj_id loginnev insert_dt hiba_id', $tabla, "`recid`='{$recid}'");
 
             $munkalapszamok = '';
@@ -6165,6 +6170,8 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             if( $munkalap['szemelyzet_id']==KULSO_KIVITELEZO ){
                 $keszre_jelentette .= "\r\n".'<br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']);
             }
+            
+            $felhasznalonak_szo = 'munkalap igazolónak';
 
             $mit            = array('{IKT_SZAM}',          '{SZALLODA}',                                                   '{INS_DT}',             '{HIBA}',    '{OBJ}',                                              '{KESZRE_JELENTETTE}' );
             $mivel          = array($munkalap['ikt_szam'], getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']),  $munkalap['insert_dt'], $hiba,       getErtek('nev', 'obj', 'recid', $munkalap['obj_id']), $keszre_jelentette    );
@@ -6476,7 +6483,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         // Ha van értéke, az egy hibaüzenet, akkor sikerült küldeni, ha nincs visszatérési érték
         if( $sikeres_kuldes ){
 
-            $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' felhasználónak '.$esemeny.'('.$sikeres_kuldes.')<br><br>';
+            $megj .= 'E-mail küldése nem sikerült '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'('.$sikeres_kuldes.')<br><br>';
 
             // Popupos hibaüzenet csak MSZK vezetőnek és Diszpécsernek megy
             if( $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO || $_SESSION[get_db_tabla().'szemelyzet_id']==DISZPECSER ){
@@ -6493,7 +6500,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             // Ha a címzett nem a diszpécser köztponti mailcím, akkor van csak megjegyzés
             if( $cimzett!='diszpecser_kozponti' ){
                 $adatbazis_kapcsolat->u($tabla, array('mail_ment'), array(1), "`recid`='{$recid}'");
-                $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' felhasználónak '.$esemeny.'<br><br>';
+                $megj .= 'E-mail elküldve '.$akt_cimzett['teljes_nev'].' '.$szerepkor.' '.$felhasznalonak_szo.' '.$esemeny.'<br><br>';
             }
 
         }
