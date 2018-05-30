@@ -2238,6 +2238,8 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 if( !$_GET['irany'] ) {
                     $_GET['irany'] = 'desc';
                 }
+                
+                $sorrend_idk = array();
 
                 // Ha státusz szerint rendezünk, akkor beállítunk egy aktuális sorrendet, és a sorrend oszlop szerint rendezünk
                 // Fontos! A rendezési sorrendet fordítva számítjuk ki, mert az irány alapból DESC az iktatószám csökkenősorrendje miatt.
@@ -2252,6 +2254,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                     foreach($bejelentesek as $bejelentes){
                         $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
                         $i++;
+                        array_push($sorrend_idk, $bejelentes['recid']);
                     }
                 }
 
@@ -2260,9 +2263,15 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 foreach($bejelentesek as $bejelentes){
                     $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$bejelentes['recid']}'");
                     $i++;
+                    array_push($sorrend_idk, $bejelentes['recid']);
+                }
+                
+                // Fordított sorrendben a recid-kat is megfordítjuk
+                if($_GET['irany']=='desc'){
+                    $sorrend_idk = array_reverse($sorrend_idk);
                 }
 
-                $order .= '`'.get_db_tabla().$tabla.'`.`sor` '.$_GET['irany'];
+                // $order .= 'FIELD(`'.get_db_tabla().'bejelentes`.`recid`, \''.implode('\', \'', $sorrend_idk).'\') '.$_GET['irany'];
 
             // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             }elseif($_GET['rend']=='telephely_id'){
@@ -2270,7 +2279,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
             // Helyiség név szerinti rendezés
             }elseif($_GET['rend']=='obj_id'){
-                $order .= '`'.get_db_tabla().'obj`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].'';
+                $order .= '`'.get_db_tabla().'obj`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
 
             // Alapértelmezett rendezettség a sürgős, azon belül telephely
             }elseif($_GET['rend']=='ikt_szam'){
@@ -2299,6 +2308,8 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 if( !$_GET['irany'] ) {
                     $_GET['irany'] = 'desc';
                 }
+                
+                $sorrend_idk = array();
 
                 // Ha státusz szerint rendezünk, akkor beállítunk egy aktuális sorrendet, és a sorrend oszlop szerint rendezünk
                 // Fontos! A rendezési sorrendet fordítva számítjuk ki, mert az irány alapból DESC az iktatószám csökkenősorrendje miatt.
@@ -2311,19 +2322,27 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 foreach($statuszok as $stat){
                     $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='$stat'", '`surgos`, `ikt_szam`');
                     foreach($munkalapok as $munkalap){
-                        $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
-                        $i++;
+//                        $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
+//                        $i++;
+                        array_push($sorrend_idk, $munkalap['recid']);
                     }
                 }
 
                 // Nyitott státuszú, azon belül sürgősek majd iktatószám
                 $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='".MUNKALAP_STAT_NYITOTT."'", '`surgos`, `ikt_szam`');
                 foreach($munkalapok as $munkalap){
-                    $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
-                    $i++;
+//                    $adatbazis_kapcsolat->u($tabla, array('sor'), array($i), "`recid`='{$munkalap['recid']}'");
+//                    $i++;
+                    array_push($sorrend_idk, $munkalap['recid']);
+                }
+                
+                // Fordított sorrendben a recid-kat is megfordítjuk
+                if($_GET['irany']=='desc'){
+                    $sorrend_idk = array_reverse($sorrend_idk);
                 }
 
-                $order .= '`'.get_db_tabla().$tabla.'`.`sor` '.$_GET['irany'].'';
+                //$order .= '`'.get_db_tabla().$tabla.'`.`sor` '.$_GET['irany'].'';
+                // $order .= 'FIELD(`'.get_db_tabla().'munkalap`.`recid`, \''.implode('\', \'', $sorrend_idk).'\') '.$_GET['irany'];
 
             // Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             }elseif($_GET['rend']=='ikt_szam'){
@@ -2498,7 +2517,7 @@ if(isset($_GET['debug'])) {
             break;
             case 'bejelentes':
             case 'bejelentes_arch':
-                $html = bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
+                $html = bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk );
             break;
             case 'bejovo_szamlak':
                 $html = bejovoSzamlaLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
@@ -2550,7 +2569,7 @@ if(isset($_GET['debug'])) {
             break;
             case 'munkalap':
             case 'munkalap_arch':
-                $html = munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
+                $html = munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk);
             break;
             case 'rendszeres_karbantartas':
                 $html = rendszeres_karbantartasLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
@@ -2625,8 +2644,15 @@ if(isset($_GET['debug'])) {
 
 }
 
-function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
+function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk ) {
     global $adatbazis_kapcsolat;
+
+    // Legyen-e JS rendezés, vagy sem?
+    // Csak akkor van, ha nincs megadva rendezés, vagy ha az a stat_id, ÉS FONTOS, hogy nem egy sort frissítünk
+    $js_rendezes = false;
+    if( $sorrend_idk && (!$_GET['rend'] || $_GET['rend']=='stat_id') && !$_GET['szamlaSorFrissit'] ){
+        $js_rendezes = true;
+    }
 
     if( $bejegyzesek ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
@@ -2806,8 +2832,14 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if($bsz['surgos']){
                 $surgos_class = ' surgos';
             }
-
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.$surgos_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.$style.'>'.$li_tart.'</li>';
+            
+            // Ha van kívánt sorrend információnk is, akkor ezt tegyük be egy data-sorrend tag-be
+            $sorrend = '';
+            if($js_rendezes){
+                $sorrend = ' data-sort="'.array_search($bsz['recid'], $sorrend_idk).'"';
+            }
+            
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.$surgos_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'"'.$sorrend.' data-i="'.$i.'"'.$csoport_data.$style.'>'.$li_tart.'</li>';
 
             $i++;
         }
@@ -2816,15 +2848,63 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             $html .= '</ul>';
         }
 
+        // Ha kaptunk sorrendiséget, akkor JS-el állítjuk be a sorrendet, hogy ne az SQL-t terheljük
+        if($js_rendezes){
+            $html .= nl2('
+                <script>
+                    $(document).ready(function () {
+                        var inverse = false;
+
+                        $(\'#szamlaList li\').sortElements(function(a, b) {
+                            var at = $.text([a]),
+                                bt = $.text([b]);
+
+                            if( $(a).attr(\'data-sort\') !== undefined ) {
+                                var at = $(a).attr(\'data-sort\'),
+                                    bt = $(b).attr(\'data-sort\');
+                            }
+
+                            if( isNumeric(at) && isNumeric(bt) ) {
+                                at = parseInt(at);
+                                bt = parseInt(bt);
+
+                                return at > bt ? inverse ? -1 : 1 : inverse ? 1 : -1;
+                            } else {
+                                return inverse ? bt.localeCompare(at) : at.localeCompare(bt);
+                            }
+                        });
+
+                        function isNumeric(n) {
+                            return !isNaN(parseFloat(n)) && isFinite(n);
+                        }
+                        
+                        /* data-i újraszámozása */
+                        var data_i = 1;
+                        $(\'#szamlaList li\').each(function () {
+                            $(this).attr(\'data-i\', data_i);
+                            data_i++;
+                        });
+
+                    });
+                </script>
+                ');
+        }
+        
         return nl2($html);
     }
 
     return false;
 }
 
-function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
+function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk) {
     global $adatbazis_kapcsolat;
 
+    // Legyen-e JS rendezés, vagy sem?
+    $js_rendezes = false;
+    if( $sorrend_idk && (!$_GET['rend'] || $_GET['rend']=='stat_id') && !$_GET['szamlaSorFrissit'] ){
+        $js_rendezes = true;
+    }
+    
     if( $bejegyzesek ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
 
@@ -3044,14 +3124,62 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if($bsz['surgos']){
                 $surgos_class = ' surgos';
             }
+            
+            // Ha van kívánt sorrend információnk is, akkor ezt tegyük be egy data-sorrend tag-be
+            $sorrend = '';
+            if($js_rendezes){
+                $sorrend = ' data-sort="'.array_search($bsz['recid'], $sorrend_idk).'"';
+            }
 
-            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.$surgos_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'" data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.$csoport_class.$surgos_class.'" data-recid="'.$bsz['recid'].'" data-telephely_id="'.$bsz['telephely_id'].'"'.$sorrend.' data-i="'.$i.'"'.$csoport_data.'>'.$li_tart.'</li>';
 
             $i++;
         }
 
         if( !$frissit ) {
             $html .= '</ul>';
+        }
+        
+        // Ha kaptunk sorrendiséget, akkor JS-el állítjuk be a sorrendet, hogy ne az SQL-t terheljük
+        if($js_rendezes){
+            $html .= nl2('
+                <script>
+                    $(document).ready(function () {
+                        var inverse = false;
+
+                        $(\'#szamlaList li\').sortElements(function(a, b) {
+                            var at = $.text([a]),
+                                bt = $.text([b]);
+
+                            if( $(a).attr(\'data-sort\') !== undefined ) {
+                                var at = $(a).attr(\'data-sort\'),
+                                    bt = $(b).attr(\'data-sort\');
+                            }
+
+                            if( isNumeric(at) && isNumeric(bt) ) {
+                                at = parseInt(at);
+                                bt = parseInt(bt);
+
+                                return at > bt ? inverse ? -1 : 1 : inverse ? 1 : -1;
+                            } else {
+                                return inverse ? bt.localeCompare(at) : at.localeCompare(bt);
+                            }
+                        });
+
+                        function isNumeric(n) {
+                            return !isNaN(parseFloat(n)) && isFinite(n);
+                        }
+                        
+                        /* data-i újraszámozása */
+                        var data_i = 1;
+                        $(\'#szamlaList li\').each(function () {
+                            $(this).attr(\'data-i\', data_i);
+                            data_i++;
+                        });
+
+                    });
+                </script>
+                ');
         }
 
         return nl2($html);

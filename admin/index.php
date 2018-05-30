@@ -35,9 +35,9 @@ if (isset($_GET['stat_ido'])) {
 }*/
 
 // Loginról értesítő levelek küldése
-if (false && isset($_GET['login_ertesit'])) {
+if (isset($_GET['login_ertesit'])) {
     
-    $szalloda_nev   = 'HILTON';
+    $szalloda_nev   = 'GUNDEL';
     $galyasz_bence  = false;
     $datum          = date('Y.m.d', strtotime(' +1 day'));
     $napok          = array('vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat');

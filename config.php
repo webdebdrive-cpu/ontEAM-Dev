@@ -21,7 +21,7 @@ function get_db_tabla()   {     return 'onteam_';      }
 function get_db_host()    { return ( $_SERVER['HTTP_HOST'] == 'demo.webdeb.hu' ? 'localhost'    : 'localhost'       );  } //Host
 function get_db()         {
     switch($_SERVER['HTTP_HOST']){
-        case 'localhost'            : return 'szinvatrendhu1';
+        case 'localhost'            : return 'wdbtesthu';
         case 'demo.webdeb.hu'       : return 'wdbtesthu';
         case 'demo.szinvatrend.hu'  : return 'szinvatrendhu1';
         case 'www.onteam.hu'        : return 'onteam_live';
@@ -31,7 +31,7 @@ function get_db()         {
 }
 function get_db_user() {
     switch($_SERVER['HTTP_HOST']){
-        case 'localhost'            : return 'szinvatrendhu';
+        case 'localhost'            : return 'krixx';
         case 'demo.webdeb.hu'       : return 'wdbtestdb';
         case 'demo.szinvatrend.hu'  : return 'szinvatrendhu';
         case 'www.onteam.hu'        : return 'onteam_live';
@@ -41,7 +41,7 @@ function get_db_user() {
 }
 function get_db_pass() {
     switch($_SERVER['HTTP_HOST']){
-        case 'localhost'            : return 'vikike';
+        case 'localhost'            : return 'e8zfZWdYO1ew';
         case 'demo.webdeb.hu'       : return 'oelohvah';
         case 'demo.szinvatrend.hu'  : return 'vikike';
         case 'www.onteam.hu'        : return 'HMERDQgx0JHp124U';

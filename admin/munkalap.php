@@ -1188,7 +1188,7 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
     if( $recid ) {
 
         // Adatok lekérdezése
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id, telephely_id, szallito_id, jh1_login, jh2_login, ikt_szam, jh_ert', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id, telephely_id, szallito_id, jh1_login, jh1_szerep, jh2_login, ikt_szam, jh_ert', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
         // Státusz ellenőrzése
@@ -1247,6 +1247,26 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
 
         // Ha már a 2. jóváhagyásról van szó, akkor státuszt is léptetünk
         }else{
+            
+            // MSZK vezető és Szálloda igazgatónak is jóvá kell hagynia
+            if( $munkalap['jh1_szerep'] == MSZK_VEZETO && $_SESSION[get_db_tabla().'szemelyzet_id'] == MSZK_VEZETO ){
+                echo json_encode(array(
+                    'hiba' => nl2('MSZK vezetőként már jóvá lett hagyva a munkalap!'),
+                    'title' => 'Hiba',
+               ));
+
+                $weblap->leallit();
+                exit();
+            }
+            if( $munkalap['jh1_szerep'] == SZALLODA_IGAZGATO && $_SESSION[get_db_tabla().'szemelyzet_id'] == SZALLODA_IGAZGATO ){
+                echo json_encode(array(
+                    'hiba' => nl2('Szálloda igazgatóként már jóvá lett hagyva a munkalap!'),
+                    'title' => 'Hiba',
+               ));
+
+                $weblap->leallit();
+                exit();
+            }
 
             $masodik_jovahagyo = '1';
             
@@ -5689,7 +5709,7 @@ require('selectek.php');
         $gombok = nl2('
             <div class="form_kuldes">
                 <input type="button" class="gombb'.$class.' mentes_gomb" name="mehet_gomb" id="mehet_gomb"'.$disabled.' value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
-                <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; history.back();">
+                <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
             </div>
         ');
 
@@ -5774,7 +5794,7 @@ require('selectek.php');
                 $gombok = nl2('
                     <div class="form_kuldes">
                         <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
-                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; location.reload();">
+                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt(\''.$_GET['id'].'\', \''.$megnevezes.'.php\');">
                     </div>
                 ').$gombok;
             }
@@ -5786,7 +5806,7 @@ require('selectek.php');
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
-                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; location.reload();">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt(\''.$_GET['id'].'\', \''.$megnevezes.'.php\');">
                 </div>
             ').$gombok;
         }

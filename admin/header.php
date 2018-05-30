@@ -565,9 +565,7 @@ if(!$_SESSION['bejelento_menu_rejt']){
         }
 
         $rendszerKat = $adatbazis_kapcsolat->s('recid nev', 'rendszer_kat', 'recid='.$_SESSION['rendszerkat'], '', '1');
-
         if( $rendszerKat ) {
-            $rendszerKat = $rendszerKat[0];
             $oldalNev = $rendszerKat['nev'];
         }
     }

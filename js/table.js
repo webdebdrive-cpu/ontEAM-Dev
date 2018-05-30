@@ -443,3 +443,4 @@ function fejlec_igazit( table ) {
         });
     });
 }
+
