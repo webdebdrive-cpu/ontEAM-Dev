@@ -104,7 +104,7 @@ if (false && isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
 }
 
 // Kötött fejléc nevű CSV feldolgozása (login_import.csv legyen a fájl neve)
-if (false && isset($_GET['loginnev_import'])) {
+if (isset($_GET['loginnev_import'])) {
     
     header('Content-Type: text/html; charset='. get_web_charset());
     

@@ -3932,7 +3932,7 @@ if( isset($_GET['szamlaSorFrissit']) ) {
     $recid = $_GET['recid'];
     if( $tabla && $recid ) {
         $szamla_lista = szamla_lista("`".get_db_tabla().$tabla."`.`recid` = '{$recid}'", $tabla);
-        $szamla_lista = $szamla_lista[0];
+        // $szamla_lista = $szamla_lista[0];
         echo $szamla_lista;
     }
 
@@ -3943,7 +3943,7 @@ if( isset($_GET['szamlaSorFrissit']) ) {
 if( isset($_GET['szamlaLista']) ) {
 
     $szamla_lista = szamla_lista('', $_GET['tabla'], $_GET['kijeloltek'], '', $_GET);
-    $szamla_lista = $szamla_lista[0];
+    // $szamla_lista = $szamla_lista[0];
 
     if( $szamla_lista ) {
         echo '<div class="szamlaLapozas fent clearFix">'.$lapozas.'</div>'.$szamla_lista.'<div class="szamlaLapozas clearFix">'.$lapozas.'</div>';
@@ -4455,6 +4455,7 @@ foreach($postok as $ertek){
             }
 
             // Csak olyan ID törölhető, amit láthatok. Tehát szomszéd egyébként nyitott/folyamatban levő bejelentése nem törölhető
+            // $_SESSION['akt_sql']-t a szamla_lista() függvény hozza létre
             szamla_lista('', '', '', 'csak SQL miatt');
             $van_getid = false;
             $akt_sql = mysqli_query($db_kapcs, $_SESSION['akt_sql']);
@@ -4516,6 +4517,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             }
             
             // Csak olyan ID törölhető, amit láthatok.
+            // $_SESSION['akt_sql']-t a szamla_lista() függvény hozza létre
             szamla_lista('', '', '', 'csak SQL miatt');
             $van_getid = false;
             $akt_sql = mysqli_query($db_kapcs, $_SESSION['akt_sql']);

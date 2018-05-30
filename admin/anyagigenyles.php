@@ -2538,7 +2538,8 @@ require_once('selectek.php');
                 <script src="../js/anyagigenyles_tablazat.js"></script>
         ');
 
-        $szamla_html .= $balNavPanelHTMLje;
+        // $szamla_html .= $balNavPanelHTMLje;
+        $szamla_html .= szamla_lista();
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -2720,7 +2721,8 @@ require_once('selectek.php');
         }*/
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
-        $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        //$szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        $szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -2742,7 +2744,8 @@ require_once('selectek.php');
         $szamla_html .= get_tortenet($megnevezes);
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
-        $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        //$szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        $szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -2760,7 +2763,8 @@ require_once('selectek.php');
         }
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
-        $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        //$szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        $szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -2801,7 +2805,8 @@ require_once('selectek.php');
         }
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
-        $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        //$szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        $szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

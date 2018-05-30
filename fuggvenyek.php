@@ -2620,7 +2620,8 @@ if(isset($_GET['debug'])) {
                 </script>';
     }
 
-    return array(nl2($html), adatbazis2tomb($bejegyzesek, 'recid'));
+    // return array(nl2($html), adatbazis2tomb($bejegyzesek, 'recid'));
+    return nl2($html);
 
 }
 

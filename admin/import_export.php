@@ -2201,13 +2201,19 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 //                                        array($terv['recid'], $terv['tszam'],   $terv['statid'], $terv['tev'], $terv['tervleir'],   $terv['update_dt'], $terv['update_usr'], $terv['insert_dt'], $terv['insert_usr'])
 //                                    );
 //        }
-        $tervek = mysqli_query($db_kapcs, 'SELECT * FROM `tervear`');
-        while( $t = mysqli_fetch_assoc($tervek) ){
-            $adatbazis_kapcsolat->i('energia_terv_ear',
-                                        array('recid',     'energia_terv_id', 'telephely_idk', 'dijelem',     'ktgnem_id',      'mee',     'ear01',     'ear02',     'ear03',     'ear04',     'ear05',     'ear06',    'ear07',     'ear08',      'ear09',     'ear10',     'ear11',     'ear12',    'dnem01', 'dnem02', 'dnem03', 'dnem04', 'dnem05', 'dnem06', 'dnem07', 'dnem08', 'dnem09', 'dnem10', 'dnem11', 'dnem12', 'arf01',     'arf02',     'arf03',     'arf04',     'arf05',     'arf06',     'arf07',     'arf08',     'arf09',     'arf10',     'arf11',     'arf12',     'update_dt',     'update_usr',     'insert_dt',     'insert_usr',    'sorid'      ),
-                                        array($t['recid'], $t['aparecid'],    $t['telepsor'],  $t['dijelem'], $t['ktgnemid'],   $t['mee'], $t['ear01'], $t['ear02'], $t['ear03'], $t['ear04'], $t['ear05'], $t['ear06'], $t['ear07'], $t['ear08'], $t['ear09'], $t['ear10'], $t['ear11'], $t['ear12'],'05',     '05',     '05',     '05',     '05',     '05',     '05',     '05',     '05',     '05',     '05',     '05',     $t['arf01'], $t['arf02'], $t['arf03'], $t['arf04'], $t['arf05'], $t['arf06'], $t['arf07'], $t['arf08'], $t['arf09'], $t['arf10'], $t['arf11'], $t['arf12'], $t['update_dt'], $t['update_usr'], $t['insert_dt'], $t['insert_usr'], $t['sorid'] )
-                                    );
-echo $adatbazis_kapcsolat->gp() . '<br>';
+//        $tervek = mysqli_query($db_kapcs, 'SELECT * FROM `tervear`');
+//        while( $t = mysqli_fetch_assoc($tervek) ){
+//            $adatbazis_kapcsolat->i('energia_terv_ear',
+//                                        array('recid',     'energia_terv_id', 'telephely_idk', 'dijelem',     'ktgnem_id',      'mee',     'ear01',     'ear02',     'ear03',     'ear04',     'ear05',     'ear06',    'ear07',     'ear08',      'ear09',     'ear10',     'ear11',     'ear12',    'dnem01', 'dnem02', 'dnem03', 'dnem04', 'dnem05', 'dnem06', 'dnem07', 'dnem08', 'dnem09', 'dnem10', 'dnem11', 'dnem12', 'arf01',     'arf02',     'arf03',     'arf04',     'arf05',     'arf06',     'arf07',     'arf08',     'arf09',     'arf10',     'arf11',     'arf12',     'update_dt',     'update_usr',     'insert_dt',     'insert_usr',    'sorid'      ),
+//                                        array($t['recid'], $t['aparecid'],    $t['telepsor'],  $t['dijelem'], $t['ktgnemid'],   $t['mee'], $t['ear01'], $t['ear02'], $t['ear03'], $t['ear04'], $t['ear05'], $t['ear06'], $t['ear07'], $t['ear08'], $t['ear09'], $t['ear10'], $t['ear11'], $t['ear12'],'05',     '05',     '05',     '05',     '05',     '05',     '05',     '05',     '05',     '05',     '05',     '05',     $t['arf01'], $t['arf02'], $t['arf03'], $t['arf04'], $t['arf05'], $t['arf06'], $t['arf07'], $t['arf08'], $t['arf09'], $t['arf10'], $t['arf11'], $t['arf12'], $t['update_dt'], $t['update_usr'], $t['insert_dt'], $t['insert_usr'], $t['sorid'] )
+//                                    );
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//        }
+        
+        $eneria_ear = $adatbazis_kapcsolat->s('recid ktgnem_id', 'energia_terv_ear');
+        foreach($eneria_ear as $ear) {
+            $ujid = $adatbazis_kapcsolat->s2('recid', 'ktgnem', "`id`='{$ear['ktgnem_id']}'");
+            $adatbazis_kapcsolat->u('energia_terv_ear', array('ktgnem_id'), array($ujid['recid']), "`recid`='{$ear['recid']}'");
         }
         
 	}
