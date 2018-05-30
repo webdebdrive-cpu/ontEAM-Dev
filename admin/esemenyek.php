@@ -143,6 +143,12 @@ switch($tabla) {
     break;
     case 'bejelentes.php':
     case 'bejelentes_arch.php':
+        
+        $arch = '';
+        if($tabla=='bejelentes_arch.php'){
+            $arch = '_arch';
+        }
+        
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = nl2('
                                 `'.get_db_tabla().$tabla_nophp.'`.`recid`,
@@ -155,8 +161,9 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`hiba_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`hiba_text`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`,
-                                `'.get_db_tabla().'telephely`.`nev`,
-                                `'.get_db_tabla().'obj`.`nev`,
+                                `'.get_db_tabla().'telephely`.`nev` as `telephely_nev`,
+                                `'.get_db_tabla().'obj`.`nev` as `obj_nev`,
+                                `'.get_db_tabla().'bejelentes_dok'.$arch.'`.`utvonal` as `bejelentes_dok_utvonal`,
                                 `'.get_db_tabla().'erteklista`.`info`
                                 ');
 
@@ -330,12 +337,12 @@ switch($tabla) {
 
     break;
     case 'erteklista.php':
-        $_OPTS['select'] = 'info'; //Függvényeknél, szamla_lista()-nál is van vele varia beállítva
+        $_OPTS['select'] = 'info'; // Függvényeknél, szamla_lista()-nál is van vele varia beállítva
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('csoport');
 
-        // Default rendezés //Függvényeknél, szamla_lista()-nál beállítva
+        // Default rendezés // Függvényeknél, szamla_lista()-nál beállítva
 
     break;
     case 'eseti_fenntartas.php':
@@ -469,6 +476,12 @@ switch($tabla) {
     break;
     case 'munkalap.php':
     case 'munkalap_arch.php':
+        
+        $arch = '';
+        if($tabla=='munkalap_arch.php'){
+            $arch = '_arch';
+        }
+        
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = nl2('
                                 `'.get_db_tabla().$tabla_nophp.'`.`recid`,
@@ -483,7 +496,10 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`mobil`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`,
-                                `'.get_db_tabla().'obj`.`nev`
+                                `'.get_db_tabla().'munkalap_dok'.$arch.'`.`utvonal` as `munkalap_dok_utvonal`,
+                                `'.get_db_tabla().'obj`.`nev` as `obj_nev`,
+                                `'.get_db_tabla().'eszkozkezeles`.`nev` as `eszkozkezeles_nev`,
+                                `'.get_db_tabla().'erteklista`.`info` as `erteklista_info`
                             ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
@@ -3932,7 +3948,7 @@ if( isset($_GET['szamlaSorFrissit']) ) {
     $recid = $_GET['recid'];
     if( $tabla && $recid ) {
         $szamla_lista = szamla_lista("`".get_db_tabla().$tabla."`.`recid` = '{$recid}'", $tabla);
-        // $szamla_lista = $szamla_lista[0];
+        $szamla_lista = $szamla_lista[0];
         echo $szamla_lista;
     }
 
@@ -3943,7 +3959,7 @@ if( isset($_GET['szamlaSorFrissit']) ) {
 if( isset($_GET['szamlaLista']) ) {
 
     $szamla_lista = szamla_lista('', $_GET['tabla'], $_GET['kijeloltek'], '', $_GET);
-    // $szamla_lista = $szamla_lista[0];
+    $szamla_lista = $szamla_lista[0];
 
     if( $szamla_lista ) {
         echo '<div class="szamlaLapozas fent clearFix">'.$lapozas.'</div>'.$szamla_lista.'<div class="szamlaLapozas clearFix">'.$lapozas.'</div>';

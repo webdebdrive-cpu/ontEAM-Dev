@@ -2107,7 +2107,7 @@ require_once('selectek.php');
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
-                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'\');">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
                 </div>
             ');
 
@@ -2538,8 +2538,8 @@ require_once('selectek.php');
                 <script src="../js/anyagigenyles_tablazat.js"></script>
         ');
 
-        // $szamla_html .= $balNavPanelHTMLje;
-        $szamla_html .= szamla_lista();
+        $szamla_html .= $balNavPanelHTMLje;
+        // $szamla_html .= szamla_lista();
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -2721,8 +2721,8 @@ require_once('selectek.php');
         }*/
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
-        //$szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
-        $szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
+        $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        //$szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -2744,8 +2744,8 @@ require_once('selectek.php');
         $szamla_html .= get_tortenet($megnevezes);
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
-        //$szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
-        $szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
+        $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        //$szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -2763,8 +2763,8 @@ require_once('selectek.php');
         }
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
-        //$szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
-        $szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
+        $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        //$szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -2805,8 +2805,8 @@ require_once('selectek.php');
         }
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
-        //$szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
-        $szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
+        $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
+        //$szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

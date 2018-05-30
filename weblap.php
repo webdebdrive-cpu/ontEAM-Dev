@@ -109,16 +109,16 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 // Ehhez a nav panel kiszámításakor a recid-kat is kiszámoljuk egy tömbbe, hogy többet egy ilyen bonyolult SQL-t ne kelljen lefuttatni
 // Ezt viszont nem tesszük meg, ha van $_POST-olt adat, mert azok ajax hívások, ott meg feleslegesen szintén ne számolgassuk ki a bonyolult SQL-t.
 // Ugyanígy az autocomplete.php esetén sem hívjuk meg
-/*if( empty($_POST) && basename(self())!='autocomplete.php' ){
+if( empty($_POST) && basename(self())!='autocomplete.php' ){
     list($balNavPanelHTMLje, $balNavPanelRECIDk) = szamla_lista(); // Ezt azért futtatjuk le, hogy az aktuális oldalnak megfelelő $_SESSION['akt_sql'] jöjjön létre, hogy tudjunk ID-t ellenőrizni.
 }
 if( $_GET['id'] ){
     if(!in_array($_GET['id'], $balNavPanelRECIDk)){
         $_GET['id'] = '';
     }
-}*/
+}
 
-if( $_GET['id'] ){
+/*if( $_GET['id'] ){
     $akt_lekerdezes = szamla_lista('', '', '', 'csak SQL miatt'); // Ezt azért futtatjuk le, hogy az aktuális oldalnak megfelelő $_SESSION['akt_sql'] jöjjön létre, hogy tudjunk ID-t ellenőrizni.
     $van_getid = false;
 //echo $akt_lekerdezes . '<br>';
@@ -132,7 +132,7 @@ if( $_GET['id'] ){
     if(!$van_getid){
         $_GET['id'] = '';
     }
-}
+}*/
 
 // Ha jóváhagyás joggal léptünk az anyagigénylésekhez, és nem módosítottunk még a szűrésen, akkor alapból leszűrünk az árazva státuszra. 
 // Viszont emiatt kell egy get szűrés töröl is, hogy tudjuk mikor kapcsolták ki szándékosan.
