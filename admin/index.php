@@ -20,6 +20,25 @@ require_once('../weblap.php');
 
 
 if (isset($_GET['dok_megj'])) {
+    
+    $tabla = 'bejelentes';
+    $bejelentesek = $adatbazis_kapcsolat->s('recid, obj_id', $tabla);
+    foreach($bejelentesek as $bejelentes){
+        
+        $obj_txt = $adatbazis_kapcsolat->s2('nev', 'obj', "`recid`='{$bejelentes['obj_id']}'");
+        $adatbazis_kapcsolat->u($tabla, array('obj_txt'), array($obj_txt['nev']), "`recid`='{$bejelentes['recid']}'");
+        
+    }
+    $tabla = 'munkalap';
+    $bejelentesek = $adatbazis_kapcsolat->s('recid, obj_id', $tabla);
+    foreach($bejelentesek as $bejelentes){
+        
+        $obj_txt = $adatbazis_kapcsolat->s2('nev', 'obj', "`recid`='{$bejelentes['obj_id']}'");
+        $adatbazis_kapcsolat->u($tabla, array('obj_txt'), array($obj_txt['nev']), "`recid`='{$bejelentes['recid']}'");
+        
+    }
+
+    
 //    $tabla = 'bejelentes';
 //    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla);
 //    foreach($bejelentesek as $bejelentes){
@@ -47,18 +66,18 @@ if (isset($_GET['dok_megj'])) {
 //        $adatbazis_kapcsolat->u($tabla, array('megj_db', 'dok_db'), array(count($megj_ek), count($dok_ok)), "`recid`='{$bejelentes['recid']}'");
 //    }
 //    echo '<hr>KÉSZ';
+////    exit;
+//    $tabla = 'munkalap_arch';
+//    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla);
+//    foreach($bejelentesek as $bejelentes){
+//        $megj_ek = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='munkalap' AND `id`='{$bejelentes['recid']}'");
+//        $dok_ok = $adatbazis_kapcsolat->s('recid', $tabla.'_dok', "`munkalap_id`='{$bejelentes['recid']}'");
+//        $adatbazis_kapcsolat->u($tabla, array('megj_db', 'dok_db'), array(count($megj_ek), count($dok_ok)), "`recid`='{$bejelentes['recid']}'");
+//    }
+//    
+//    
+//    echo '<hr>KÉSZ';
 //    exit;
-    $tabla = 'munkalap_arch';
-    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla);
-    foreach($bejelentesek as $bejelentes){
-        $megj_ek = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='munkalap' AND `id`='{$bejelentes['recid']}'");
-        $dok_ok = $adatbazis_kapcsolat->s('recid', $tabla.'_dok', "`munkalap_id`='{$bejelentes['recid']}'");
-        $adatbazis_kapcsolat->u($tabla, array('megj_db', 'dok_db'), array(count($megj_ek), count($dok_ok)), "`recid`='{$bejelentes['recid']}'");
-    }
-    
-    
-    echo '<hr>KÉSZ';
-    exit;
 }
 
 /*

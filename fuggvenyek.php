@@ -53,6 +53,13 @@ function i_u($type, $tabla, $tomb) {
 
     $oszlopok = array();
     $ertekek  = array();
+    
+    // Bejelentés és munkalap esetén az obj_id mellé a címkét is letároljuk
+    if($tabla=='bejelentes' || $tabla=='munkalap' ){
+        $obj_txt = getErtek('nev', 'obj', 'recid', $_POST['obj_id']);
+        array_push($oszlopok, 'obj_txt');
+        array_push($ertekek,  $obj_txt);
+    }
 
     // Értékek párosítása
 	$i = 0;
@@ -704,7 +711,7 @@ function i_u($type, $tabla, $tomb) {
         // Csak nyitott státuszú bejelentést lehet szerkeszteni
         if( $tabla == 'bejelentes' ) {
 
-            $akt_statusz = $adatbazis_kapcsolat->s2('stat_id', $tabla.'_statusz', "`{$tabla}_recid`='{$_GET['id']}'", 'recid desc', '1');
+            $akt_statusz = $adatbazis_kapcsolat->s2('stat_id', $tabla, "`recid`='{$_GET['id']}'");
             if( $akt_statusz === false ) { $db_error = true; }
 
             if( $akt_statusz ) {
@@ -2277,8 +2284,8 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam`';
 
             // Helyiség név szerinti rendezés
-            }elseif($_GET['rend']=='obj_id'){
-                $order .= '`'.get_db_tabla().'obj`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
+            }elseif($_GET['rend']=='obj_txt'){
+                $order .= '`'.get_db_tabla().$tabla.'`.`obj_txt` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'];
 
             // Alapértelmezett rendezettség a sürgős, azon belül telephely
             }elseif($_GET['rend']=='ikt_szam'){
@@ -2350,7 +2357,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
             // Helyiség név szerinti rendezés
             }elseif($_GET['rend']=='obj_id'){
-                $order .= '`'.get_db_tabla().'obj`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].'';
+                $order .= '`'.get_db_tabla().$tabla.'`.`obj_txt` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].'';
 
             // Ha telephely szerint rendezünk, akkor pedig ezt a szempontot kell előre venni, és az irány is erre vonatkozik
             }elseif($_GET['rend']=='telephely_id'){
@@ -2398,8 +2405,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
         // Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
         if($tabla=='bejelentes' || $tabla=='bejelentes_arch'){
-            $sql_kieg .= 'JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'erteklista`.`csoport`='.ERTEKLISTA_BEJ_HIBA.' AND `'.get_db_tabla().$tabla.'`.`hiba_id`=`'.get_db_tabla().'erteklista`.`recid`)';
-            
             // Státusz szerinti rendezésnél nem JOIN-oljuk a telephelyeket, egyébként mindig
             if($_GET['rend']!='stat_id'){
                 $sql_kieg .= ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
@@ -2408,7 +2413,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         // Már nem használunk csoportot, de az SQL-el pedig csínján kell bánni, ezért kivéve 2018.05.28
         if($tabla=='munkalap' || $tabla=='munkalap_arch'){
             $sql_kieg .= ' LEFT JOIN `'.get_db_tabla().'eszkozkezeles` ON `'.get_db_tabla().$tabla.'`.`gep_id`=`'.get_db_tabla().'eszkozkezeles`.`recid`';
-            $sql_kieg .= ' LEFT JOIN `'.get_db_tabla().'erteklista` ON `'.get_db_tabla().$tabla.'`.`tipus_id`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\''.ERTEKLISTA_MUNKALAP_TIP.'\'';
             
             // Státusz szerinti rendezésnél nem JOIN-oljuk a telephelyeket, egyébként mindig
             if($_GET['rend']!='stat_id'){
@@ -2420,8 +2424,15 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if ($_GET['mezo']=='megjegyzes') {
             $sql_kieg .= ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
-        if(strpos($select, 'obj_id')!==false){
+        
+        // A bejelentések és munkalapoknál már megvan oldva, hogy ne használjunk obj JOIN-t, de a többi tálbára még nincs megoldva
+        $kivetelek = array('bejelentes', 'bejelentes_arch', 'munkalap', 'munkalap_arch');
+        if( (strpos($select, 'obj_id')!==false && !in_array($tabla, $kivetelek)) ){
             $sql_kieg .= ' LEFT JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid` ';
+        }
+        // Sőt a Telephely JOIN sincs még megoldva
+        if(!in_array($tabla, $kivetelek)){
+            $sql_kieg .= ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
         }
 
         
@@ -2765,10 +2776,10 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                                 <td style="width: 9rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem">'.getStatText($tabla, $bsz['stat_id']).'</td>
                                 <td style="width: 7rem">'.str_replace('-', '.', substr($bsz['insert_dt'], 0, 16) ).'</td>
-                                <td>'.getSzallodaNev($bsz['telephely_id']).' - '.$bsz['obj_nev'].'</td>
+                                <td>'.getSzallodaNev($bsz['telephely_id']).' - '.$bsz['obj_txt'].'</td>
                             </tr>
                             <tr>
-                                <td colspan="4">'.$bsz['info'].'</td>
+                                <td colspan="4">'.getErtekLista($bsz['hiba_id']).'</td>
                             </tr>
                             </table>
                          </a>';
@@ -3054,10 +3065,10 @@ if (!isset($_GET['teszt'])) {
                                 <td style="width: 11rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem;">'.getStatText($tabla, $bsz['stat_id']).'</td>
                                 <td style="width: 7rem;">'.getSzallodaNev($bsz['telephely_id']).'</td>
-                                <td>'.$bsz['obj_nev'].' - '.$bsz['eszkozkezeles_nev'].'</td>
+                                <td>'.$bsz['obj_txt'].' - '.$bsz['eszkozkezeles_nev'].'</td>
                             </tr>
                             <tr>
-                                <td>'.$bsz['erteklista_info'].'</td>
+                                <td>'.getErtekLista(ERTEKLISTA_MUNKALAP_TIP, $bsz['tipus_id']).'</td>
                                 <td colspan="2">'.datum_kiir($bsz['insert_dt']).'</td>
                                 <td>'.$szemelyzet.'</td>
                             </tr>
@@ -5119,6 +5130,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
         'ikt_szam'      => $kieg_nev.' szám',
         'nev'           => 'Név',
         'obj_id'        => 'Helyiség',
+        'obj_txt'       => 'Helyiség',
         'rndid'         => 'Rendelés száma',
         'rnd_dt'        => 'Rendelés dátum',
         'recid'         => 'Rendszer ID',
@@ -6004,6 +6016,25 @@ function getSzallodaNev($szalloda_id){
             return $telephely['nev'];
         }
     }
+}
+
+// Szállodák nevét ne DB-ből kérjük már le, vagyis csak egyszer, loginnál
+function getErtekLista($erteklista_csoport, $erteklista_id, $erteklista_recid){
+    if($erteklista_csoport){
+        foreach($_SESSION['erteklista'] as $erteklista){
+            if($erteklista['csoport']==$erteklista_csoport && $erteklista['id']==$erteklista_id){
+                return $erteklista['info'];
+            }
+        }
+    }
+    if($erteklista_recid){
+        foreach($_SESSION['erteklista'] as $erteklista){
+            if($erteklista['recid']==$erteklista_recid){
+                return $erteklista['info'];
+            }
+        }
+    }
+
 }
 
 // Minden véleményező ha töltött már véleményt, akkor nyitottra léptetjük a státuszt (hacsak nem abban van már eleve)

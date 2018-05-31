@@ -162,13 +162,12 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`hiba_text`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`dok_db`,
-                                `'.get_db_tabla().'obj`.`nev` as `obj_nev`,
-                                `'.get_db_tabla().'erteklista`.`info`
+                                `'.get_db_tabla().$tabla_nophp.'`.`obj_txt`
                                 ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'telephely_id',  'obj_id');
-        $_OPTS['iranyok']   = array('desc',    'desc',     'asc',           'asc'   );
+        $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'telephely_id',  'obj_txt');
+        $_OPTS['iranyok']   = array('desc',    'desc',     'asc',           'asc'    );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
@@ -496,14 +495,13 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`mobil`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`dok_db`,
-                                `'.get_db_tabla().'obj`.`nev` as `obj_nev`,
-                                `'.get_db_tabla().'eszkozkezeles`.`nev` as `eszkozkezeles_nev`,
-                                `'.get_db_tabla().'erteklista`.`info` as `erteklista_info`
+                                `'.get_db_tabla().$tabla_nophp.'`.`obj_txt`,
+                                `'.get_db_tabla().'eszkozkezeles`.`nev` as `eszkozkezeles_nev`
                             ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id', 'stat_id', 'obj_id');
-        $_OPTS['iranyok']   = array('desc',     'asc',          'desc',    'asc');
+        $_OPTS['rendezes']  = array('ikt_szam', 'telephely_id', 'stat_id', 'obj_txt');
+        $_OPTS['iranyok']   = array('desc',     'asc',          'desc',    'asc'    );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
