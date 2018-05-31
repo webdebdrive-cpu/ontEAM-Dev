@@ -143,12 +143,12 @@ switch($tabla) {
     break;
     case 'bejelentes.php':
     case 'bejelentes_arch.php':
-        
+
         $arch = '';
         if($tabla=='bejelentes_arch.php'){
             $arch = '_arch';
         }
-        
+
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = nl2('
                                 `'.get_db_tabla().$tabla_nophp.'`.`recid`,
@@ -473,12 +473,12 @@ switch($tabla) {
     break;
     case 'munkalap.php':
     case 'munkalap_arch.php':
-        
+
         $arch = '';
         if($tabla=='munkalap_arch.php'){
             $arch = '_arch';
         }
-        
+
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = nl2('
                                 `'.get_db_tabla().$tabla_nophp.'`.`recid`,
@@ -2225,7 +2225,7 @@ $megnevezes = 'energia_terv';
 $energia_terv_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',   'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
     array('type' => 'text',                 'megn' => 'Tervszám:',  'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1,     'class' => 'normal', 'style' => 'width: 11.5rem'),
-    array('type' => 'text',                 'megn' => 'Tervező év:','name' => 'ev',             'szuro' => 1,                       'class' => 'normal f_csakszam', 'style' => 'width: 6rem', 'maxlength' => 4),
+    array('type' => 'text',                 'megn' => 'Tervező év:','name' => 'ev',             'szuro' => 1,  'disabled' => 1,     'class' => 'normal f_csakszam', 'style' => 'width: 6rem', 'maxlength' => 4),
     array('type' => 'textarea',             'megn' => 'Leírás:',    'name' => 'text',           'szuro' => 1,                       'class' => 'oriasi disableNav', 'style' => 'height: 10rem'),
 
 );
@@ -3438,7 +3438,7 @@ if( isset($_POST['mellekTorol']) ) {
 
             $szulo_tabla  = csonkit($tabla, 4);
             $szulo_oszlop = $szulo_tabla.'_id';
-            
+
             $fajlok = $adatbazis_kapcsolat->s('recid utvonal '.$szulo_oszlop, $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`='{$_SESSION[get_db_tabla().'user']}'");
             if( $fajlok === false ) { $db_error = true; }
 
@@ -3470,12 +3470,12 @@ if( isset($_POST['mellekTorol']) ) {
                     array($_SESSION[get_db_tabla().'login_recid'],  $mit,  $valtozas,  $_SERVER['REMOTE_ADDR']  )
                 );
                 if( $sql === false ) { $db_error = true; }
-                
+
                 // Apa táblában a dok_db-t karbantartjuk
                 $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', $tabla, "`{$szulo_oszlop}`='{$fajl[$szulo_oszlop]}'") );
                 $sql = $adatbazis_kapcsolat->u($szulo_tabla, array('dok_db'), array($dokumentumok_szama), "`recid`='{$fajl[$szulo_oszlop]}'");
                 if( $sql === false ) { $db_error = true; }
-                
+
             }
 
         // Előterjesztésnél csak nyitott státuszban törölhető projektigénylés
@@ -3547,13 +3547,13 @@ if( isset($_POST['mellekTorol']) ) {
 
             $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
             if( $sql === false ) { $db_error = true; }
- 
+
             $megj_db = $adatbazis_kapcsolat->s('recid', $tabla, "`tabla`='{$megj['tabla']}' AND `id`='{$megj['id']}'");
             if( $megj_db === false ) { $db_error = true; }
 
             $sql = $adatbazis_kapcsolat->u($megj['tabla'], array('megj_db'), array(count($megj_db)), "`recid`='{$megj['id']}'");
             if( $sql === false ) { $db_error = true; }
-            
+
         // Általános eset
         } else {
             $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
@@ -4529,7 +4529,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
                 ){
                 exit;
             }
-            
+
             // Csak olyan ID törölhető, amit láthatok.
             // $_SESSION['akt_sql']-t a szamla_lista() függvény hozza létre
             szamla_lista('', '', '', 'csak SQL miatt');

@@ -446,7 +446,7 @@ if(_jog(JOG_PRIGENY_S_KEZEL) ||_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGEN
 
 
 if( !$_SESSION['bejelento_menu_rejt'] /* Bejelentő elől rejtve */ && (_jog(JOG_FENNTARTASI_OLVAS) || _jog(JOG_SZAMLAK_OLVAS) || _jog(JOG_PARTNERTORZS_OLVAS) || _jog(JOG_DOKUMENTUMTAR_OLVAS) ) ){
-    // Továbbiak 
+    // Továbbiak
     $menu_nev        = 'Dokumentumok';
     $menu_nev_kis    = 'dokumentumok';
     $menu_nev_tobbes = 'Dokumentumok';
@@ -789,7 +789,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     }
 
     $tartBal = '';
-    // Anyagigénylésnél nincs bal nev panel 
+    // Anyagigénylésnél nincs bal nev panel
     if(basename(self())!='anyagigenyles.php'){
         // $tartBal = szamla_lista();
         $tartBal = $balNavPanelHTMLje;
@@ -863,7 +863,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 
     } elseif( basename(self()) == 'energia_terv.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
-        
+
     } elseif( basename(self()) == 'energia_terv.php' ) {
         $uj_link = 'javascript: csoportMuvelet(\'terv_keszites_jellemzoi\'); void(0);';
 
@@ -1221,7 +1221,7 @@ if(basename(self())=='anyagigenyles.php'){
                         var text = $(this).text().replace(/\s+/g, \' \').toLowerCase();
                         return !~text.indexOf(val);
                     }).hide();
-                    
+
                     /* A fiktív sor legyen mindig látható */
                     $(\'table.szamla_cont_tabla tr.fake\').show();
                 }
@@ -1281,16 +1281,28 @@ if(basename(self())=='energia_terv.php'){
 }
 
 // Nyomtatási popup
-$header_html .= nl2('
-    <div class="dn">
-        <div id="nyomtatasi_nezet">
-            Nyomtatási nézet választás...
-            <br><a href="'.self().get_get('pdf').'&amp;print=lista{KSZ}" target="_blank">Listanézet</a>
-            <br><a href="#" target="_blank">B nézet</a>
-            <br><a href="#" target="_blank">C nézet</a>
+if( basename(self()) == 'energia_terv.php' ) {
+    $header_html .= nl2('
+        <div class="dn">
+            <div id="nyomtatasi_nezet">
+                Nyomtatási nézet választás...
+                <br><a href="'.self().get_get('pdf').'&amp;print=lista&amp;type=energia_terv_lista" target="_blank">Energia tervek listája</a>
+                <br><a href="'.self().get_get('pdf').'&amp;print=lista&amp;type=egysegarak_lista" target="_blank">Egységárak listája</a>
+            </div>
         </div>
-    </div>
-');
+    ');
+} else {
+    $header_html .= nl2('
+        <div class="dn">
+            <div id="nyomtatasi_nezet">
+                Nyomtatási nézet választás...
+                <br><a href="'.self().get_get('pdf').'&amp;print=lista{KSZ}" target="_blank">Listanézet</a>
+                <br><a href="#" target="_blank">B nézet</a>
+                <br><a href="#" target="_blank">C nézet</a>
+            </div>
+        </div>
+    ');
+}
 
 // Jogosultság tomb JS-be
 $jogok = '';
