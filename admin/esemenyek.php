@@ -161,7 +161,7 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`hiba_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`hiba_text`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`,
-                                `'.get_db_tabla().'telephely`.`nev` as `telephely_nev`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`dok_db`,
                                 `'.get_db_tabla().'obj`.`nev` as `obj_nev`,
                                 `'.get_db_tabla().'erteklista`.`info`
                                 ');
@@ -495,6 +495,7 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`mobil`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`dok_db`,
                                 `'.get_db_tabla().'obj`.`nev` as `obj_nev`,
                                 `'.get_db_tabla().'eszkozkezeles`.`nev` as `eszkozkezeles_nev`,
                                 `'.get_db_tabla().'erteklista`.`info` as `erteklista_info`
@@ -3438,65 +3439,52 @@ if( isset($_POST['mellekTorol']) ) {
         // Dokumentumok törlése
         } else if( strstr($tabla, '_dok') ) {
 
-            // Korábban számított, hogy csak nyitott státuszban lehessen törölni
-//            $statuszt_nem_kell_figyelni = array('eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'utemezett_feladatok', 'rendszeres_karbantartas'); //Ezeknél a dokumentumainál nem figyeljük, hogy az apa tábla státusza nyitott-e
-//            $apa_tabla = str_replace('_dok', '', $tabla);
-//            if(!in_array($apa_tabla, $statuszt_nem_kell_figyelni)){
-//                $sor = $adatbazis_kapcsolat->s2('stat_id', $apa_tabla, "`recid` = '{$recid}'");
-//                if( $sor === false ) { $db_error = true; }
-//                $statuszt_nem_kell_figyelni = false;
-//            }else{
-//                $statuszt_nem_kell_figyelni = true;
-//            }
+            $szulo_tabla  = csonkit($tabla, 4);
+            $szulo_oszlop = $szulo_tabla.'_id';
+            
+            $fajlok = $adatbazis_kapcsolat->s('recid utvonal '.$szulo_oszlop, $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`='{$_SESSION[get_db_tabla().'user']}'");
+            if( $fajlok === false ) { $db_error = true; }
 
-            //if( $sor || $statuszt_nem_kell_figyelni ) {
+            if( $fajlok ) {
+                $mit      = 'A(z) '.str_replace('_dok', '', $tabla).' '.$recid.'. recordját módosította.';
+                $valtozas = 'A következő fájlokat törölte: <br>';
 
-                //if( $sor['stat_id'] == '01' || $statuszt_nem_kell_figyelni ) {
-                    $fajlok = $adatbazis_kapcsolat->s('recid utvonal', $tabla, "`recid` IN (".implode(',', $idk).") AND `loginnev`='{$_SESSION[get_db_tabla().'user']}'");
-                    if( $fajlok === false ) { $db_error = true; }
+                foreach($fajlok as $fajl) {
+                    $utvonal = '../'.get_utvonal().csonkit($tabla, 4).'/'.$fajl['utvonal'];
 
-                    if( $fajlok ) {
-                        $mit      = 'A(z) '.str_replace('_dok', '', $tabla).' '.$recid.'. recordját módosította.';
-                        $valtozas = 'A következő fájlokat törölte: <br>';
+                    if( is_file($utvonal) ) {
 
-                        foreach($fajlok as $fajl) {
-                            $utvonal = '../'.get_utvonal().csonkit($tabla, 4).'/'.$fajl['utvonal'];
+                        // Töröljük a fájlt
+                        unlink($utvonal);
+                        remover('../'.get_utvonal().csonkit($tabla, 4).'/'.substr($fajl['utvonal'], 0, strrpos($fajl['utvonal'], '.')).'_*');
 
-                            if( is_file($utvonal) ) {
-
-                                // Töröljük a fájlt
-                                unlink($utvonal);
-                                remover('../'.get_utvonal().csonkit($tabla, 4).'/'.substr($fajl['utvonal'], 0, strrpos($fajl['utvonal'], '.')).'_*');
-
-                                // Töröljük a sort is
-                                $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` = '".$fajl['recid']."'");
-                                if( $sql === false ) { $db_error = true; }
-
-                                // Log változás
-                                $valtozas .= '<strong>'.$utvonal.'</strong><br>';
-                            }
-                        }
-
-                        // Logoljuk
-                        $sql = $adatbazis_kapcsolat -> i('log',
-                            array('felh_id',                                'nev', 'valtozas', 'ip'                     ),
-                            array($_SESSION[get_db_tabla().'login_recid'],  $mit,  $valtozas,  $_SERVER['REMOTE_ADDR']  )
-                        );
+                        // Töröljük a sort is
+                        $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` = '".$fajl['recid']."'");
                         if( $sql === false ) { $db_error = true; }
+
+                        // Log változás
+                        $valtozas .= '<strong>'.$utvonal.'</strong><br>';
                     }
-//                } else {
-//                    echo json_encode(array(
-//                        'hiba' => 'Csak nyitott státuszú bejegyzések dokumentumai törölhetőek!'
-//                    ));
-//                    $weblap->leallit();
-//                    exit();
-//                }
-            //}
+                }
+
+                // Logoljuk
+                $sql = $adatbazis_kapcsolat -> i('log',
+                    array('felh_id',                                'nev', 'valtozas', 'ip'                     ),
+                    array($_SESSION[get_db_tabla().'login_recid'],  $mit,  $valtozas,  $_SERVER['REMOTE_ADDR']  )
+                );
+                if( $sql === false ) { $db_error = true; }
+                
+                // Apa táblában a dok_db-t karbantartjuk
+                $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', $tabla, "`{$szulo_oszlop}`='{$fajl[$szulo_oszlop]}'") );
+                $sql = $adatbazis_kapcsolat->u($szulo_tabla, array('dok_db'), array($dokumentumok_szama), "`recid`='{$fajl[$szulo_oszlop]}'");
+                if( $sql === false ) { $db_error = true; }
+                
+            }
 
         // Előterjesztésnél csak nyitott státuszban törölhető projektigénylés
         } else if($tabla=='eloterj_fb_kapcs'){
 
-            //Vegyük az első kijelölést, ebből már vissza tudjuk számolni, hogy melyik előterjesztésről van szó
+            // Vegyük az első kijelölést, ebből már vissza tudjuk számolni, hogy melyik előterjesztésről van szó
             $eloterj = $adatbazis_kapcsolat->s2('eloterj_recid', 'eloterj_fb_kapcs', "`recid`='{$idk[1]}'");
             $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_fb', "`recid`='{$eloterj['eloterj_recid']}'");
             if($statusz['stat_id']!=ELOT_FB_STAT_NYITOTT){
@@ -3514,7 +3502,7 @@ if( isset($_POST['mellekTorol']) ) {
         // Előterjesztésnél csak nyitott státuszban törölhető projektigénylés
         } else if($tabla=='eloterj_bod_kapcs'){
 
-            //Vegyük az első kijelölést, ebből már vissza tudjuk számolni, hogy melyik előterjesztésről van szó
+            // Vegyük az első kijelölést, ebből már vissza tudjuk számolni, hogy melyik előterjesztésről van szó
             $eloterj = $adatbazis_kapcsolat->s2('eloterj_recid', 'eloterj_bod_kapcs', "`recid`='{$idk[1]}'");
             $statusz = $adatbazis_kapcsolat->s2('stat_id', 'eloterj_bod', "`recid`='{$eloterj['eloterj_recid']}'");
             if($statusz['stat_id']!=ELOT_BOD_STAT_NYITOTT){
@@ -3554,7 +3542,22 @@ if( isset($_POST['mellekTorol']) ) {
             // Ha ellenőrizzük, hogy a megmaradtaknak mindnek van-e már vélemények. Státuszt kell léptetni ha igen.
             prigeny_mindenki_velemenyezett_e($velemenyezo['projektigenyles_recid']);
 
-        //Általános eset
+        // Megjegyzéskor az apa tábla megj_db oszlopát karban kell tartani
+        } elseif($tabla=='megjegyzes'){
+
+            $megj = $adatbazis_kapcsolat->s2('id, tabla', 'megjegyzes', "`recid`='{$idk[1]}'");
+            if( $megj === false ) { $db_error = true; }
+
+            $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
+            if( $sql === false ) { $db_error = true; }
+ 
+            $megj_db = $adatbazis_kapcsolat->s('recid', $tabla, "`tabla`='{$megj['tabla']}' AND `id`='{$megj['id']}'");
+            if( $megj_db === false ) { $db_error = true; }
+
+            $sql = $adatbazis_kapcsolat->u($megj['tabla'], array('megj_db'), array(count($megj_db)), "`recid`='{$megj['id']}'");
+            if( $sql === false ) { $db_error = true; }
+            
+        // Általános eset
         } else {
             $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
             if( $sql === false ) { $db_error = true; }

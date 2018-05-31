@@ -155,7 +155,7 @@ class Adatbazis{
     * @param  string  join csatlakozás másik táblához. Ennek értéke egy szépen leírt JOIN legyen. Pl.  JOIN `'.get_db_tabla().'tabla_kulso` ON `'.get_db_tabla().'tabla_alap`.`nev`=`'.get_db_tabla().'tabla_kulso`.`nev`
     * @return array   A lekérdezett sorok, vagy hamis
     */
-    public function select($oszlopok, $tabla, $where = null, $order = null, $limit = null, $group_by = null, $num_rows = false, $join = false){
+    public function select($oszlopok, $tabla, $where = null, $order = null, $limit = null, $group_by = null, $num_rows = false, $join = false, $csak_stringet_allitson_elo = false){
 
         $this -> eredmeny = array();
 
@@ -198,6 +198,10 @@ class Adatbazis{
 
 		$select = str_replace('--', '', $select);
 		$this -> legutobbiParancs = $select;
+        
+        if($csak_stringet_allitson_elo){
+            return;
+        }
 
         if(!$lekerdezes = mysqli_query($this -> adatbazis_kapcsolat, $select)){
         	if($this -> debug){

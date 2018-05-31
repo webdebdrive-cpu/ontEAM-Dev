@@ -2377,19 +2377,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             }
         }
 
-        // Projektigénylésnél a telephey nevét átnevezzük, ne ütközzön a sima névvel
-        $sql_as = '';
-        if($tabla=='projektigenyles'){
-            $sql_as = ' as `teleph_nev`';
-        }
-        if($tabla=='munkalap' || $tabla=='munkalap_arch'){
-            $sql_as = ' as `telephely_nev`';
-        }
-
-        // Select-et is kiegészítjük a rendezni kívánt oszloppal
-        $select .= ', `'.get_db_tabla().'telephely`.`nev`'.$sql_as;
-        $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit); //Ez minek van itt?
-        $mit   = 'WHERE';
+        // Ez azért kell, hogy az SQL stringünk meglegyen. A WHERE szót le fogjuk még cserélni JOIN-okkal
+        $adatbazis_kapcsolat->s($select, $tabla, $where, $order, $limit, false, false, false, 'csak az SQL string-je kell');
+        $sql = $adatbazis_kapcsolat->gp();
+        $mit = 'WHERE';
 
         // Anyagigényléskor a szállítót vesszük még fel
         $sql_kieg = '';
@@ -2407,22 +2398,22 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
         // Bejelentésnél és csoportoknál még az értéklistát és csoportot is felvesszük
         if($tabla=='bejelentes' || $tabla=='bejelentes_arch'){
-            $sql_kieg .= nl2('
-                                JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'erteklista`.`csoport`='.ERTEKLISTA_BEJ_HIBA.' AND `'.get_db_tabla().$tabla.'`.`hiba_id`=`'.get_db_tabla().'erteklista`.`recid`)
-                            ');
-            $sql_kieg .= ' LEFT JOIN `'.get_db_tabla().'bejelentes_dok'.$arch.'` ON `'.get_db_tabla().$tabla.'`.`recid`=`'.get_db_tabla().'bejelentes_dok'.$arch.'`.`bejelentes_id`';
-            // Már nem használunk csoportot, de az SQL-el pedig csínján kell bánni, ezért kivéve 2018.05.28
-//            $sql_kieg .= nl2('
-//                                LEFT OUTER JOIN `'.get_db_tabla().'bejelentes_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'bejelentes_csoport`.`recid`
-//                            ');
+            $sql_kieg .= 'JOIN `'.get_db_tabla().'erteklista` ON (`'.get_db_tabla().'erteklista`.`csoport`='.ERTEKLISTA_BEJ_HIBA.' AND `'.get_db_tabla().$tabla.'`.`hiba_id`=`'.get_db_tabla().'erteklista`.`recid`)';
+            
+            // Státusz szerinti rendezésnél nem JOIN-oljuk a telephelyeket, egyébként mindig
+            if($_GET['rend']!='stat_id'){
+                $sql_kieg .= ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
+            }
         }
         // Már nem használunk csoportot, de az SQL-el pedig csínján kell bánni, ezért kivéve 2018.05.28
         if($tabla=='munkalap' || $tabla=='munkalap_arch'){
-//            $sql_kieg .= nl2('
-//                                LEFT OUTER JOIN `'.get_db_tabla().'munkalap_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'munkalap_csoport`.`recid`
-//                            ');
             $sql_kieg .= ' LEFT JOIN `'.get_db_tabla().'eszkozkezeles` ON `'.get_db_tabla().$tabla.'`.`gep_id`=`'.get_db_tabla().'eszkozkezeles`.`recid`';
             $sql_kieg .= ' LEFT JOIN `'.get_db_tabla().'erteklista` ON `'.get_db_tabla().$tabla.'`.`tipus_id`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\''.ERTEKLISTA_MUNKALAP_TIP.'\'';
+            
+            // Státusz szerinti rendezésnél nem JOIN-oljuk a telephelyeket, egyébként mindig
+            if($_GET['rend']!='stat_id'){
+                $sql_kieg .= ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
+            }
         }
 
         // Szűréskor megjegyzés JOIN
@@ -2433,17 +2424,11 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $sql_kieg .= ' LEFT JOIN `'.get_db_tabla().'obj` ON `'.get_db_tabla().$tabla.'`.`obj_id`=`'.get_db_tabla().'obj`.`recid` ';
         }
 
-        $mivel = 'JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`'.$sql_kieg.' WHERE';
-        $sql = $adatbazis_kapcsolat->gp();
-
-        // Anyagrendelések miatt
-//        if( basename(self()) == 'anyagigenyles.php' && isset($_GET['anyagrend']) ) {
-//            $sql = str_replace('ORDER BY', ' GROUP BY `'.get_db_tabla().'anyagigenyles`.`rndid` ORDER BY', $sql);
-//        }
-
-        // Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elá kell beszúrni a JOIN-t
+        
+        // Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elé kell beszúrni a JOIN-t
+        $mivel = $sql_kieg.' WHERE';
         if(strpos($sql, 'WHERE')===false){
-            $mit = 'ORDER BY';
+            $mit   = 'ORDER BY';
             $mivel = str_replace('WHERE', 'ORDER BY', $mivel);
         }
         $sql = str_replace($mit, $mivel, $sql);
@@ -2763,22 +2748,14 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                 $active .= ' nyitott_statuszu'; // Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
 
+            // Van-e csatolt dokumentuma
             $dok_icon = '';
-            $dok_tabla = $tabla.'_dok';
-            $tabla_origi = $tabla;
-            if( substr($tabla, strlen($tabla)-5) == '_arch' ){
-                $dok_tabla   = substr($tabla, 0, strlen($tabla)-5).'_dok_arch';
-                $tabla_origi = substr($tabla, 0, strlen($tabla)-5);
-            }
-            $is_dok   = $adatbazis_kapcsolat->s2('recid utvonal', $dok_tabla, "`{$tabla_origi}_id` = '".$bsz['recid']."'", '', '1');
-            if( $is_dok ) {
-                if( is_file('../'.get_utvonal().$tabla_origi.'/'.$is_dok['utvonal']) ) {
-                    $dok_icon = nl2('
-                        <span class="icon">
-                            <i class="material-icons">attach_file</i>
-                        </span>
-                    ');
-                }
+            if( $bsz['dok_db'] ) {
+                $dok_icon = nl2('
+                    <span class="icon">
+                        <i class="material-icons">attach_file</i>
+                    </span>
+                ');
             }
 
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$bsz['hiba_text'].'">
@@ -2788,7 +2765,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                                 <td style="width: 9rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem">'.getStatText($tabla, $bsz['stat_id']).'</td>
                                 <td style="width: 7rem">'.str_replace('-', '.', substr($bsz['insert_dt'], 0, 16) ).'</td>
-                                <td>'.$bsz['telephely_nev'].' - '.$bsz['obj_nev'].'</td>
+                                <td>'.getSzallodaNev($bsz['telephely_id']).' - '.$bsz['obj_nev'].'</td>
                             </tr>
                             <tr>
                                 <td colspan="4">'.$bsz['info'].'</td>
@@ -3058,22 +3035,14 @@ if (!isset($_GET['teszt'])) {
                 $szemelyzet .= ' '.strtoupper($bsz['mobil']).'';
             }
 
+            // Van-e csatolt dokumentuma
             $dok_icon = '';
-            $dok_tabla = $tabla.'_dok';
-            $tabla_origi = $tabla;
-            if( substr($tabla, strlen($tabla)-5) == '_arch' ){
-                $dok_tabla   = substr($tabla, 0, strlen($tabla)-5).'_dok_arch';
-                $tabla_origi = substr($tabla, 0, strlen($tabla)-5);
-            }
-            $is_dok = $adatbazis_kapcsolat->s2('recid utvonal', $dok_tabla, "`{$tabla_origi}_id` = '".$bsz['recid']."'", '', '1');
-            if( $is_dok ) {
-                if( is_file('../'.get_utvonal().$tabla_origi.'/'.$is_dok['utvonal']) ) {
-                    $dok_icon = nl2('
-                        <span class="icon">
-                            <i class="material-icons">attach_file</i>
-                        </span>
-                    ');
-                }
+            if( $bsz['dok_db'] ) {
+                $dok_icon = nl2('
+                    <span class="icon">
+                        <i class="material-icons">attach_file</i>
+                    </span>
+                ');
             }
 
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
@@ -3084,7 +3053,7 @@ if (!isset($_GET['teszt'])) {
                                 </td>
                                 <td style="width: 11rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem;">'.getStatText($tabla, $bsz['stat_id']).'</td>
-                                <td style="width: 7rem;">'.$bsz['telephely_nev'].'</td>
+                                <td style="width: 7rem;">'.getSzallodaNev($bsz['telephely_id']).'</td>
                                 <td>'.$bsz['obj_nev'].' - '.$bsz['eszkozkezeles_nev'].'</td>
                             </tr>
                             <tr>
@@ -5597,9 +5566,16 @@ function addMegj( $tabla, $id, $megj ) {
         $ins   = $adatbazis_kapcsolat->i('megjegyzes',  array('tabla', 'id', 'megj', 'loginnev',                       'szerepkor',                                 'szerepkor_txt',    'update_usr',                           'insert_dt', 'insert_usr'                           ),
                                                         array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'szemelyzet_id'],   $szerepkor,         $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'])
                                         );
-        if(!$ins){
-            return false;
-        }
+        if($ins===false){ return false; }
+        
+        // Adott tábla megj_db oszlop karban tartása
+        $megj_db = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='{$tabla}' AND `id`='{$id}'");
+        if($megj_db===flase){ return false; }
+
+        
+        $sql = $adatbazis_kapcsolat->u($tabla, array('megj_db'), array(count($megj_db)), "`recid`='{$id}'");
+        if($sql===flase){ return false; }
+        
     }
 }
 
@@ -6019,6 +5995,15 @@ function getSzerepkorNev($szerepkor_id){
                         'Hibabejelentő',                // 12
                     );
     return $szerepkorok[$szerepkor_id];
+}
+
+// Szállodák nevét ne DB-ből kérjük már le, vagyis csak egyszer, loginnál
+function getSzallodaNev($szalloda_id){
+    foreach($_SESSION['telephelyek'] as $telephely){
+        if($telephely['id']==$szalloda_id){
+            return $telephely['nev'];
+        }
+    }
 }
 
 // Minden véleményező ha töltött már véleményt, akkor nyitottra léptetjük a státuszt (hacsak nem abban van már eleve)

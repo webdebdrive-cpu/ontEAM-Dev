@@ -48,7 +48,7 @@ require_once('selectek.php');
     }
 
     if( isset($_GET['modosit']) || isset($_GET['naplo']) || isset($_GET['dokumentumok']) ) {
-        /* Számla fülek */
+        // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
             'naplo'         => 'Napló',

@@ -3,7 +3,6 @@
 include('weblap.php');
 
 if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'])){
-
     // Több oszlop is szerepelhet a $_GET['oszlop']-ban (minden oszlop értékét sortöréssel tesszük a találati listába)
     $oszlop_keres  = explode(',', str_replace(' ', '', $_GET['oszlop_keres']));
     $oszlop_listaz = explode(',', str_replace(' ', '', $_GET['oszlop_listaz']));

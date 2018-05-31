@@ -200,6 +200,9 @@ if(isset($_POST['login'])) {
                     $_SESSION[get_db_tabla().'rights']          = str_split($felhasznalo['flags']);
                     $_SESSION[get_db_tabla().'ertesites']       = str_split($felhasznalo['flags_ert']);
                     $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
+                    
+                    // Szállodanevek Session-be
+                    $_SESSION['telephelyek'] = $adatbazis_kapcsolat->s('id nev', 'telephely');
 
                     // Rendezés
                     if( $felhasznalo['tabla_rendezes'] ) {

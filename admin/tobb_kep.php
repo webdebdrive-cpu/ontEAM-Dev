@@ -52,8 +52,8 @@ if( isset($_POST['session_name']) && !$archivum ){
             $_FILES[ $_SESSION['fajl']['megnevezes'] ] = $_FILES['file'];
         }
         
-        $sor_kepek = 'munkalap';
-        $tobbkep_tablanev = 'munkalap_dok';
+        $sor_kepek          = 'munkalap';
+        $tobbkep_tablanev   = 'munkalap_dok';
         
     // Általános eset
     }else{
@@ -62,8 +62,9 @@ if( isset($_POST['session_name']) && !$archivum ){
         session_start();
         require_once('../weblap.php');
 
-        $konyvtar_db_nev = csonkit($_SESSION['fajl']['tabla'], 4);
-        $utvonal = '../'.get_utvonal().$konyvtar_db_nev; //utolsó 4 karakter a "_dok", ezt levesszük
+        // utolsó 4 karakter a "_dok", ezt levesszük
+        $konyvtar_db_nev = csonkit($_SESSION['fajl']['tabla'], 4); 
+        $utvonal = '../'.get_utvonal().$konyvtar_db_nev;
 
         if(!is_dir($utvonal)){
             mkdir($utvonal, 0777);
@@ -84,7 +85,7 @@ if( isset($_POST['session_name']) && !$archivum ){
     }
 
 
-	// Tiltott fájlformátumok kiszűrése, szitnén nincs feltöltés
+	// Tiltott fájlformátumok kiszűrése, szintén nincs feltöltés
 	$tiltott_fajlok = array('text/x-js', 'text/css', 'text/html', 'application/xhtml+xml', 'text/xml');
     if( in_array( $_FILES[ $_SESSION['fajl']['megnevezes'] ]['type'], $tiltott_fajlok ) ){
         echo 'Hiba!Ilyen formátumú fájl feltöltése tiltott, a fájlfeltöltés nem jött létre!';
@@ -146,7 +147,7 @@ if( isset($_POST['session_name']) && !$archivum ){
                         );
 
 
-                        $sor_kepek = $adatbazis_kapcsolat->s2('*', $_SESSION['fajl']['tabla'], 'recid='.$id);
+                        $sor_kepek = $adatbazis_kapcsolat->s2('*', $_SESSION['fajl']['tabla'], "`recid`='{$id}'");
 
                         $osszes_sor = $adatbazis_kapcsolat->s('recid', $_SESSION['fajl']['tabla'], '');
 
@@ -156,13 +157,18 @@ if( isset($_POST['session_name']) && !$archivum ){
 
                         if( !$sor_kep ) {
                             $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'],
-                                array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev',            'loginnev',                        'insert_dt',   'insert_usr',                            'update_usr'                            ),
-                                array($_SESSION['fajl']['termek_id'], $kep_tort,  $fajlnev.'.'.$kit,    $_SESSION[get_db_tabla().'user'],  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev']  )
-                            );
+                                                                array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev',            'loginnev',                        'insert_dt',   'insert_usr',                            'update_usr'                            ),
+                                                                array($_SESSION['fajl']['termek_id'], $kep_tort,  $fajlnev.'.'.$kit,    $_SESSION[get_db_tabla().'user'],  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                            );
                         }
 
                         echo 'frissit';
                     }
+                    
+                    // Végül a szülő táblában a dok_db karbantartása
+                    $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', $_SESSION['fajl']['tabla'], "`{$_SESSION['fajl']['oszlop']}`='{$_SESSION['fajl']['termek_id']}'") );
+                    $adatbazis_kapcsolat->u($konyvtar_db_nev, array('dok_db'), array($dokumentumok_szama), "`recid`='{$_SESSION['fajl']['termek_id']}'");
+                    
                 }
             }
         break;
@@ -174,20 +180,25 @@ if( isset($_POST['session_name']) && !$archivum ){
 
 require_once('../weblap.php');
 
-// Kép törlése
-if( isset($_POST['tobbkep_torol']) && !$archivum ){
-
-    $kepnev = mysqli_query($db_kapcs, 'SELECT `utvonal` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['tobbkep_torol'].'\'');
-    $kepnev = mysqli_fetch_assoc($kepnev);
-
-    $parancs = 'DELETE FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['tobbkep_torol'].'\'';
-    mysqli_query($db_kapcs, $parancs);
-
-    kep_torol('../'.get_utvonal().$kepnev['utvonal']);
-
-    $weblap -> leallit();
-    exit;
-}
+// Kép törlése - ez az esemenyek.php-ban van lekezelve
+//if( isset($_POST['tobbkep_torol']) && !$archivum ){
+//
+//    $szulo_oszlop = csonkit($tobbkep_tablanev, 4).'_id';
+//    
+//    $kepnev = mysqli_query($db_kapcs, 'SELECT `'.$szulo_oszlop.'`, `utvonal` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['tobbkep_torol'].'\'');
+//    $kepnev = mysqli_fetch_assoc($kepnev);
+//
+//    $parancs = 'DELETE FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['tobbkep_torol'].'\'';
+//    mysqli_query($db_kapcs, $parancs);
+//    
+//    $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', $tobbkep_tablanev, "`{$szulo_oszlop}`='{$kepnev[$szulo_oszlop]}'") );
+//    $adatbazis_kapcsolat->u(csonkit($tobbkep_tablanev, 4), array('dok_db'), array($dokumentumok_szama), "`recid`='{$kepnev[$szulo_oszlop]}'");
+//
+//    kep_torol('../'.get_utvonal().$kepnev['utvonal']);
+//
+//    $weblap -> leallit();
+//    exit;
+//}
 
 
 

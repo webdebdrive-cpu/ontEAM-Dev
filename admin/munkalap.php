@@ -1210,6 +1210,29 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
             $weblap->leallit();
             exit();
         }
+        
+        
+        // Ha a 2. jóváhagyásnál járunk, akkor azt is ellenőrizni kell, hogy két azonos szerepkörű ne tudja jóváhagyni
+        if( $munkalap['jh1_login'] ){
+            // MSZK vezető és Szálloda igazgatónak is jóvá kell hagynia
+            if( $munkalap['jh1_szerep'] == $_SESSION[get_db_tabla().'szemelyzet_id'] ){
+                echo json_encode(array(
+                    'hiba' => nl2('
+                                    Munkalap szám: '.$munkalap['ikt_szam'].'
+                                    <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
+                                    <br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
+                                    <br>Jóváhagyott érték: '. number_format($munkalap['jh_ert'], 0, '', ' ').' '. get_penznem().' + Áfa
+                                    <br>Szerepkör: '.getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']).'
+                                    <br>
+                                    <br>Ezzel a szerepkörrel már jóvá lett hagyva a munkalap!
+                                    '),
+                    'title' => 'Hiba',
+               ));
+
+                $weblap->leallit();
+                exit();
+            }
+        }
 
         // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
         if (isset($_POST['csak_kerdezunk'])) {
@@ -1247,26 +1270,6 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
 
         // Ha már a 2. jóváhagyásról van szó, akkor státuszt is léptetünk
         }else{
-            
-            // MSZK vezető és Szálloda igazgatónak is jóvá kell hagynia
-            if( $munkalap['jh1_szerep'] == MSZK_VEZETO && $_SESSION[get_db_tabla().'szemelyzet_id'] == MSZK_VEZETO ){
-                echo json_encode(array(
-                    'hiba' => nl2('MSZK vezetőként már jóvá lett hagyva a munkalap!'),
-                    'title' => 'Hiba',
-               ));
-
-                $weblap->leallit();
-                exit();
-            }
-            if( $munkalap['jh1_szerep'] == SZALLODA_IGAZGATO && $_SESSION[get_db_tabla().'szemelyzet_id'] == SZALLODA_IGAZGATO ){
-                echo json_encode(array(
-                    'hiba' => nl2('Szálloda igazgatóként már jóvá lett hagyva a munkalap!'),
-                    'title' => 'Hiba',
-               ));
-
-                $weblap->leallit();
-                exit();
-            }
 
             $masodik_jovahagyo = '1';
             
