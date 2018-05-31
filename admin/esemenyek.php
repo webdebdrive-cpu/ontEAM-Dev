@@ -163,7 +163,6 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`,
                                 `'.get_db_tabla().'telephely`.`nev` as `telephely_nev`,
                                 `'.get_db_tabla().'obj`.`nev` as `obj_nev`,
-                                `'.get_db_tabla().'bejelentes_dok'.$arch.'`.`utvonal` as `bejelentes_dok_utvonal`,
                                 `'.get_db_tabla().'erteklista`.`info`
                                 ');
 
@@ -496,7 +495,6 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`mobil`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`,
-                                `'.get_db_tabla().'munkalap_dok'.$arch.'`.`utvonal` as `munkalap_dok_utvonal`,
                                 `'.get_db_tabla().'obj`.`nev` as `obj_nev`,
                                 `'.get_db_tabla().'eszkozkezeles`.`nev` as `eszkozkezeles_nev`,
                                 `'.get_db_tabla().'erteklista`.`info` as `erteklista_info`

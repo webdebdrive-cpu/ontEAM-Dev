@@ -1,4 +1,9 @@
 <?php
+// Ütemezés típushoz - A 'kulsos' paraméterrel az szabályozható, hogy Külsős átadáskor, melyik személyzettípus jelenjen meg
+$szerepkorok = $adatbazis_kapcsolat->s('recid nev', 'szerepkor', "", 'recid');
+
+$kiveteles_oldalak = array('utemezett_feladatok.php', 'rendszeres_karbantartas.php');
+
 $select_szemelyzet = array();
 array_push($select_szemelyzet, array('name' => '- Válasszon -',                             'value' => '0' ));
 if( !in_array(basename(self()), $kiveteles_oldalak) ){

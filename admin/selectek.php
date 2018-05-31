@@ -135,11 +135,6 @@ array_push($select_honapok, array('name' => 'október',      'value' => '10'));
 array_push($select_honapok, array('name' => 'november',     'value' => '11'));
 array_push($select_honapok, array('name' => 'december',     'value' => '12'));
 
-// Ütemezés típushoz - A 'kulsos' paraméterrel az szabályozható, hogy Külsős átadáskor, melyik személyzettípus jelenjen meg
-$szerepkorok = $adatbazis_kapcsolat->s('recid nev', 'szerepkor', "", 'recid');
-
-$kiveteles_oldalak = array('utemezett_feladatok.php', 'rendszeres_karbantartas.php');
-
 require 'selectek_szemelyzet.php';
 
 // Projektigénylés tipus

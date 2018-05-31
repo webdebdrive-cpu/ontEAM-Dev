@@ -18,6 +18,24 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
+
+if (isset($_GET['teszt'])) {
+    
+    $lek = $adatbazis_kapcsolat->s(
+            '`onteam_munkalap`.`recid`, `onteam_munkalap`.`ikt_szam`, `onteam_munkalap`.`stat_id`, `onteam_munkalap`.`telephely_id`, `onteam_munkalap`.`surgos`, `onteam_munkalap`.`tipus_id`, `onteam_munkalap`.`obj_id`, `onteam_munkalap`.`gep_id`, `onteam_munkalap`.`szemelyzet_id`, `onteam_munkalap`.`szallito_id`, `onteam_munkalap`.`mobil`, `onteam_munkalap`.`insert_dt`, `onteam_munkalap_dok`.`utvonal` as `munkalap_dok_utvonal`, `onteam_obj`.`nev` as `obj_nev`, `onteam_eszkozkezeles`.`nev` as `eszkozkezeles_nev`, `onteam_erteklista`.`info` as `erteklista_info` , `onteam_telephely`.`nev` as `telephely_nev`',
+            '`onteam_munkalap` JOIN `onteam_telephely` ON `onteam_munkalap`.`telephely_id`=`onteam_telephely`.`id` LEFT JOIN `onteam_munkalap_dok` ON `onteam_munkalap`.`recid`=`onteam_munkalap_dok`.`munkalap_id` LEFT JOIN `onteam_eszkozkezeles` ON `onteam_munkalap`.`gep_id`=`onteam_eszkozkezeles`.`recid` LEFT JOIN `onteam_erteklista` ON `onteam_munkalap`.`tipus_id`=`onteam_erteklista`.`id` AND `onteam_erteklista`.`csoport`=\'6\' LEFT JOIN `onteam_obj` ON `onteam_munkalap`.`obj_id`=`onteam_obj`.`recid`',
+            "`onteam_munkalap`.`telephely_id` IN (1012,1013,1022,1023,1032,1033,1040,1050,1060,1106,2012,2022,2023,2032,2050,2060,2070,2080,2090,2100,2101,2110,2120,2130,3040,4101,4238,4241,4242,4301,5411)");
+    foreach($lek as $l){
+        echo $l['recid'] . '<br>';
+    }
+//    $lek = mysqli_query($db_kapcs, "SELECT  FROM  WHERE  ");
+//    while($sor = mysqli_fetch_assoc($lek)){
+//        var_dump($sor);
+//    }
+    exit;
+    
+}
+
 /*
 // Státusz idők rendbetétele
 if (isset($_GET['stat_ido'])) {

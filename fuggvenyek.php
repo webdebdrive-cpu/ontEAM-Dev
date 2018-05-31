@@ -2199,7 +2199,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 case 'anyag_tabla_dev_rend'     : $order = '`'.get_db_tabla().'anyagigenyles`.`vrndear`';   break;
                 case 'anyag_tabla_dev_beerk'    : $order = '`'.get_db_tabla().'anyagigenyles`.`erkear`';    break;
                 case 'anyag_tabla_statusz'      : $order = '`'.get_db_tabla().'anyagigenyles`.`stat_id`';   break;
-
                 case 'anyag_tabla_rndid'        : $order = '`'.get_db_tabla().'anyagigenyles`.`rndid`';     break;
                 case 'anyag_tabla_rnd_dt'       : $order = '`'.get_db_tabla().'anyagigenyles`.`rnd_dt`';    break;
                 case 'anyag_tabla_rndertek'     : $order = '`'.get_db_tabla().'cikkrendfej`.`rndertek`';   break;
@@ -2422,7 +2421,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 //            $sql_kieg .= nl2('
 //                                LEFT OUTER JOIN `'.get_db_tabla().'munkalap_csoport` ON `'.get_db_tabla().$tabla.'`.`csoport_id`=`'.get_db_tabla().'munkalap_csoport`.`recid`
 //                            ');
-            $sql_kieg .= ' LEFT JOIN `'.get_db_tabla().'munkalap_dok'.$arch.'` ON `'.get_db_tabla().$tabla.'`.`recid`=`'.get_db_tabla().'munkalap_dok'.$arch.'`.`munkalap_id`';
             $sql_kieg .= ' LEFT JOIN `'.get_db_tabla().'eszkozkezeles` ON `'.get_db_tabla().$tabla.'`.`gep_id`=`'.get_db_tabla().'eszkozkezeles`.`recid`';
             $sql_kieg .= ' LEFT JOIN `'.get_db_tabla().'erteklista` ON `'.get_db_tabla().$tabla.'`.`tipus_id`=`'.get_db_tabla().'erteklista`.`id` AND `'.get_db_tabla().'erteklista`.`csoport`=\''.ERTEKLISTA_MUNKALAP_TIP.'\'';
         }
@@ -2512,7 +2510,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
     if($csak_sql_miatt){
         return $sql;
     }
-
     // Excel exporthoz (lehet Nyomtatáshoz, PDF-hez is kell majd?)
     if(!isset($_GET['szamlaSorFrissit']) && $tabla!='esemenyek'){
         $_SESSION['akt_sql'] = $sql;
@@ -2630,7 +2627,7 @@ if(isset($_GET['debug'])) {
     }
 
     // Ha volt irány váltás, akkor még egy JS kódot kiíratunk, amivel a nyilat is megfordítjuk
-    if($volt_irany_valtas){
+    if($volt_irany_valtas && !isset($_GET['szamlaSorFrissit'])){
         if($_GET['irany']=='desc'){
 
             $js = '
@@ -2662,7 +2659,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
     // Legyen-e JS rendezés, vagy sem?
     // Csak akkor van, ha nincs megadva rendezés, vagy ha az a stat_id, ÉS FONTOS, hogy nem egy sort frissítünk
     $js_rendezes = false;
-    if( $sorrend_idk && (!$_GET['rend'] || $_GET['rend']=='stat_id') && !$_GET['szamlaSorFrissit'] ){
+    if( $sorrend_idk && (!$_GET['rend'] || $_GET['rend']=='stat_id') && !$_GET['szamlaSorFrissit'] && !$_GET['ajax'] ){
         $js_rendezes = true;
     }
 
@@ -2767,8 +2764,15 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
             }
 
             $dok_icon = '';
-            if( $bsz['munkalap_dok_utvonal'] ) {
-                if( is_file('../'.get_utvonal().$tabla.'/'.$bsz['bejelentes_dok_utvonal']) ) {
+            $dok_tabla = $tabla.'_dok';
+            $tabla_origi = $tabla;
+            if( substr($tabla, strlen($tabla)-5) == '_arch' ){
+                $dok_tabla   = substr($tabla, 0, strlen($tabla)-5).'_dok_arch';
+                $tabla_origi = substr($tabla, 0, strlen($tabla)-5);
+            }
+            $is_dok   = $adatbazis_kapcsolat->s2('recid utvonal', $dok_tabla, "`{$tabla_origi}_id` = '".$bsz['recid']."'", '', '1');
+            if( $is_dok ) {
+                if( is_file('../'.get_utvonal().$tabla_origi.'/'.$is_dok['utvonal']) ) {
                     $dok_icon = nl2('
                         <span class="icon">
                             <i class="material-icons">attach_file</i>
@@ -2815,6 +2819,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                 // $active .= ' kijelolve';
             }
 
+            $style = '';
             if( $bsz['stat_id'] == BEJELENTES_STAT_VARAKOZO ) {
                 if( $szinkod = getStatText('bejelentes', BEJELENTES_STAT_VARAKOZO, true) ) {
                     $style = ' style="background: '.$szinkod.';"';
@@ -2895,7 +2900,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
 
     // Legyen-e JS rendezés, vagy sem?
     $js_rendezes = false;
-    if( $sorrend_idk && (!$_GET['rend'] || $_GET['rend']=='stat_id') && !$_GET['szamlaSorFrissit'] ){
+    if( $sorrend_idk && (!$_GET['rend'] || $_GET['rend']=='stat_id') && !$_GET['szamlaSorFrissit'] && !$_GET['ajax'] ){
         $js_rendezes = true;
     }
     
@@ -2985,6 +2990,8 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
 //                }
 //            }
 
+if (!isset($_GET['teszt'])) {
+
             $surgos = '';
             if( $bsz['surgos'] ) {
                 $surgos = nl2('
@@ -3029,6 +3036,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
 
             // Személyzettípus kiíratása
             require 'selectek_szemelyzet.php';
+            
             $szemelyzet = '';
             if($bsz['szemelyzet_id']){
 
@@ -3051,8 +3059,15 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
             }
 
             $dok_icon = '';
-            if( $bsz['munkalap_dok_utvonal'] ) {
-                if( is_file('../'.get_utvonal().$tabla.'/'.$bsz['munkalap_dok_utvonal']) ) {
+            $dok_tabla = $tabla.'_dok';
+            $tabla_origi = $tabla;
+            if( substr($tabla, strlen($tabla)-5) == '_arch' ){
+                $dok_tabla   = substr($tabla, 0, strlen($tabla)-5).'_dok_arch';
+                $tabla_origi = substr($tabla, 0, strlen($tabla)-5);
+            }
+            $is_dok = $adatbazis_kapcsolat->s2('recid utvonal', $dok_tabla, "`{$tabla_origi}_id` = '".$bsz['recid']."'", '', '1');
+            if( $is_dok ) {
+                if( is_file('../'.get_utvonal().$tabla_origi.'/'.$is_dok['utvonal']) ) {
                     $dok_icon = nl2('
                         <span class="icon">
                             <i class="material-icons">attach_file</i>
@@ -3079,7 +3094,10 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                             </tr>
                             </table>
                          </a>';
-
+}
+if (isset($_GET['teszt']) || isset($_GET['teszt2'])) {
+    $li_tart = $bsz['recid'];
+}
 //            $csoport_class = '';
 //            $csoport_data  = '';
 //            if(false && $bsz['csoport_id'] && _jog(JOG_MUNKALAP_HATIDO_UTEMEZ) && !isset($_GET['print']) ) {
