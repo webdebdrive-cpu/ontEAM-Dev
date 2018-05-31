@@ -56,7 +56,7 @@ $(document).ready(function(){
     var kijelolt_egysegar = $('.szamla_cont_tabla .kijelolve').attr('data-recid');
     if(!kijelolt_egysegar){
 
-        alert2(EGYSEGAR_VALASZT, '', 'Üzenet');
+        alert2(EGYSEGAR_VALASZT, '', 'Hiba');
         setTimeout(function(){ popupZar(); }, 10);
 
     }else{
@@ -88,40 +88,48 @@ function energia_terv_koltsegnem_dijelem(){
 
     var egysegar_id = $('.szamla_cont_tabla .kijelolve').attr('data-recid');
 
-    $.ajax({
-        url : 'energia_terv.php',
-        type: 'POST',
-        data: {
-            terv_id                         : _get('id'),
-            terv_ea_id                      : egysegar_id,
-            ktgnem_id                       : $('#ktgnem_id').val(),
-            dijelem                         : $('#dijelem_autocomp').val(),
-            mee                             : $('#popup_mee').val(),
-            energia_terv_koltsegnem_dijelem : Date.now()
-        },
-        success: function(response){
-            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-            if(response) {
-                response = JSON.parse(response);
-                if( response.hiba ) {
-                    alert2(response.hiba, response.gomb, response.title);
-                    return false;
-                }else{
+    var ktgnem_id = $('#ktgnem_id').val(),
+        dijelem_autocomp = $('#dijelem_autocomp').val(),
+        popup_mee = $('#popup_mee').val();
 
-                    var betoltve = szamlaBetolt(_get('id'), 'energia_terv.php', 'egysegarak');
+    if( ktgnem_id && dijelem_autocomp && popup_mee ) {
+        $.ajax({
+            url : 'energia_terv.php',
+            type: 'POST',
+            data: {
+                terv_id                         : _get('id'),
+                terv_ea_id                      : egysegar_id,
+                ktgnem_id                       : $('#ktgnem_id').val(),
+                dijelem                         : $('#dijelem_autocomp').val(),
+                mee                             : $('#popup_mee').val(),
+                energia_terv_koltsegnem_dijelem : Date.now()
+            },
+            success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response) {
+                    response = JSON.parse(response);
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }else{
 
-                    $.when(betoltve).then(function() {
-                        $('.szamla_cont_tabla tbody tr.kijelolve').removeClass('kijelolve');
-                        $('.szamla_cont_tabla tbody tr[data-recid="'+egysegar_id+'"]').addClass('kijelolve');
-                    });
+                        var betoltve = szamlaBetolt(_get('id'), 'energia_terv.php', 'egysegarak');
+
+                        $.when(betoltve).then(function() {
+                            $('.szamla_cont_tabla tbody tr.kijelolve').removeClass('kijelolve');
+                            $('.szamla_cont_tabla tbody tr[data-recid="'+egysegar_id+'"]').addClass('kijelolve');
+                        });
 
 
-                    popupZar();
+                        popupZar();
+                    }
+    
                 }
-
             }
-        }
-    });
+        });
+    } else {
+        alert2('Minden mező kitöltése kötelező!', '', 'Hiba');
+    }
 
     return false;
 }

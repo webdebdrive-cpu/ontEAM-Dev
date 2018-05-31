@@ -433,7 +433,7 @@ $(function() {
                     }
 
                     $('.szamla_cont_tabla tbody tr:nth-of-type('+(kovSzamlaSor+1)+')').addClass('kijelolve');
-                    
+
                     $('#szamlaList li').removeClass('kijelolve');
                     $('#anyagig-sor-'+$('.szamla_cont_tabla tr.kijelolve').attr('data-recid')).click();
 
@@ -4595,7 +4595,7 @@ function kapcsolodoSzerkeszt( oldal ) {
                      	}
                     });
                 } else {
-                    alert2(EGYSEGAR_VALASZT, '', 'Üzenet');
+                    alert2(EGYSEGAR_VALASZT, '', 'Hiba');
                     return false;
                 }
             break;
@@ -5560,13 +5560,13 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                 }
          	}
         });
-        
+
         return $.when(szamla, dfrd1).done(function() {
             formModositva = false;
             gombokRejt();
             scrollLeptet();
             fulGombMeretez();
-            
+
             setTimeout(function(){ szurkit_zar(); }, 100);
         }).promise();
     }
