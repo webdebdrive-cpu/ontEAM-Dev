@@ -936,7 +936,7 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 
     if( $felhasznalo ) {
         $felh_nev = $felhasznalo['teljes_nev'];
-        $reszleg  = getErtek('nev', 'szerepkor', 'recid', $felhasznalo['szemelyzet_id']).' - '.erteklista(17, $felhasznalo['reszleg_id']);
+        $reszleg  = getSzerepkorNev($felhasznalo['szemelyzet_id']).' - '.erteklista(ERTEKLISTA_RESZLEG, $felhasznalo['reszleg_id']);
     }
 }
 

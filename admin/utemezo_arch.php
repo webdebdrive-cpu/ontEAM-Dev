@@ -295,15 +295,15 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         
         // Címkék kiszámítása és ezek felvétele a mezőkbe
         $csoport_txt            = getErtek('nev', 'munkalap_csoport', 'recid', $munkalap['csoport_id']  );
-        $szemelyzet_txt         = getErtek('nev', 'szerepkor', 'recid', $munkalap['szemelyzet_id']);
+        $szemelyzet_txt         = getSzerepkorNev($munkalap['szemelyzet_id']);
         $szallito_txt           = getErtek('nev', 'szallito', 'recid', $munkalap['szallito_id']);
         $telephely_txt          = getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']);
         $stat_txt               = getStatText('munkalap', $munkalap['stat_id']);
         $obj_txt                = getErtek('nev', 'obj', 'recid', $munkalap['obj_id']  );
         $gep_txt                = getErtek('nev', 'eszkozkezeles', 'recid', $munkalap['gep_id']  );
         $tipus_txt              = getErtek('info', 'erteklista', 'recid', $munkalap['tipus_id']  );
-        $jh1_szerep_txt         = getErtek('nev', 'szerepkor', 'recid', $munkalap['jh1_szerep']  );
-        $jh2_szerep_txt         = getErtek('nev', 'szerepkor', 'recid', $munkalap['jh2_szerep']  );
+        $jh1_szerep_txt         = getSzerepkorNev($munkalap['jh1_szerep']);
+        $jh2_szerep_txt         = getSzerepkorNev($munkalap['jh2_szerep']);
         
         array_push($mezok,   'csoport_txt', 'szemelyzet_txt', 'szallito_txt', 'telephely_txt', 'stat_txt', 'obj_txt', 'gep_txt', 'tipus_txt', 'jh1_szerep_txt', 'jh2_szerep_txt');
         array_push($ertekek, $csoport_txt,  $szemelyzet_txt,  $szallito_txt,  $telephely_txt,  $stat_txt,  $obj_txt,  $gep_txt,  $tipus_txt,  $jh1_szerep_txt,  $jh2_szerep_txt );

@@ -5573,6 +5573,7 @@ if (isset($_GET['csv'])) {
                 }
                 if($kulcs=='Hozzárendelt személyzet'){
                     $sor = getErtek('nev', 'szerepkor', 'recid', $sor);
+                    $sor = getSzerepkorNev($sor);
                 }
                 if($kulcs=='Igényelt elvégzés' || $kulcs=='Várható érkezés'){
                     if($sor=='0000-00-00 00:00:00'){
@@ -6514,9 +6515,9 @@ require('selectek.php');
             $szerepkor = '';
             if( $tetel_felh ) {
 
-                $szerepkor_sor = $adatbazis_kapcsolat->s2('nev', 'szerepkor', "`recid` = '".$tetel_felh['szerepkor_id']."'", '', '1');
+                $szerepkor_sor = getSzerepkorNev($tetel_felh['szerepkor_id']);
                 if( $szerepkor_sor ) {
-                    $szerepkor = '<br>('.$szerepkor_sor['nev'].')';
+                    $szerepkor = '<br>('.$szerepkor_sor.')';
                 }
             }
 
@@ -6792,11 +6793,10 @@ require('selectek.php');
         if( $sorok ) {
             $i = 1;
             foreach($sorok as $sor) {
-                $szerepkor = getErtek('nev', 'szerepkor', 'recid', $sor['szerepkor']);
                 $szamla_html .= nl2('
                     <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                         <div class="dtc">'.htmlspecialchars_decode( nl2br2($sor['megj']) ).'</div>
-                        <div class="dtc">'.$sor['insert_usr'].' '.$szerepkor.'</div>
+                        <div class="dtc">'.$sor['insert_usr'].' '.getSzerepkorNev($sor['szerepkor']).'</div>
                         <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
                     </div>
                 ');

@@ -332,8 +332,7 @@ if (isset($_GET['csv'])) {
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
                 if($kulcs=='Szerepkör'){
-                    $sor = $adatbazis_kapcsolat->s('nev', 'szerepkor', "`recid`='{$sor}'");
-                    $sor = $sor[0]['nev'];
+                    $sor = getSzerepkorNev($sor);
                 }
                 if($kulcs=='Beosztás' || $kulcs=='Részleg'){
                     $sor = $adatbazis_kapcsolat->s('info', 'erteklista', "`id`='{$sor}'");

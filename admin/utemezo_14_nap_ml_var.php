@@ -54,7 +54,7 @@ $loginok = $adatbazis_kapcsolat->s('nev teljes_nev usermail szemelyzet_id', 'log
 foreach ($loginok as $login){
     
     // Login szerepköre
-    $login_szerepkor = getErtek('nev', 'szerepkor', 'id', $login['szemelyzet_id']);
+    $login_szerepkor = getSzerepkorNev($login['szemelyzet_id']);
     
     // Lekérdezzük azokat a sorokat az ideiglenes táblából, ami adott felhasználó láthatóságába tartozik
     $szallodak = get_akt_login_szallodai(false, false, $login['nev']);
@@ -83,7 +83,7 @@ foreach ($loginok as $login){
         foreach($szalloda_bejelento as $szb){
             
             $bejelento = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev`='{$szb['stat_insert_login']}'");
-            $szerepkor = getErtek('nev', 'szerepkor', 'recid', $bejelento['szemelyzet_id']);
+            $szerepkor = getSzerepkorNev($bejelento['szemelyzet_id']);
             
             $uzi .= '<br>Telephely: '.$szb['telephely_nev'].'
                      <br>Várakoztatja: '.$szb['stat_insert_usr'].' '.$szerepkor.'

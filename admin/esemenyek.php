@@ -2398,7 +2398,7 @@ if( isset($_GET['sendMail']) ) {
                                 break;
 
                                 case 'szemelyzet_id':
-                                    $munkalap[$tomb['name']] = getErtek('nev', 'szerepkor', 'recid', $munkalap[$tomb['name']]);
+                                    $munkalap[$tomb['name']] = getSzerepkorNev($munkalap[$tomb['name']]);
                                 break;
                             }
 
@@ -2637,9 +2637,9 @@ if( isset($_GET['getBejBejelentok']) ) {
                 $html .= nl2('
                     <tr class="kijSor" data-nev="'.$login['nev'].'">
                         <td>'.$login['teljes_nev'].'</td>
-                        <td>'.erteklista(17, $login['reszleg_id']).'</td>
-                        <td>'.erteklista(18, $login['beosztas_id']).'</td>
-                        <td>'.getErtek('nev', 'szerepkor', 'recid', $login['szemelyzet_id']).'</td>
+                        <td>'.erteklista(ERTEKLISTA_RESZLEG, $login['reszleg_id']).'</td>
+                        <td>'.erteklista(ERTEKLISTA_BEOSZTAS, $login['beosztas_id']).'</td>
+                        <td>'.getSzerepkorNev($login['szemelyzet_id']).'</td>
                     </tr>
                 ');
             }

@@ -5593,9 +5593,9 @@ function addMegj( $tabla, $id, $megj ) {
     // Ha van egyáltalán megjegyzés
     if(trim($megj)){
         global $adatbazis_kapcsolat;
-        $szerepkor = getErtek('nev', 'szerepkor', 'recid', $_SESSION[get_db_tabla().'szemelyzet_id']);
+        $szerepkor = getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']);
         $ins   = $adatbazis_kapcsolat->i('megjegyzes',  array('tabla', 'id', 'megj', 'loginnev',                       'szerepkor',                                 'szerepkor_txt',    'update_usr',                           'insert_dt', 'insert_usr'                           ),
-                                                        array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'szemelyzet_id'],   $szerepkor,         $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                        array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'szemelyzet_id'],   $szerepkor,         $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'])
                                         );
         if(!$ins){
             return false;
@@ -6001,6 +6001,26 @@ function getStatText($tabla, $statid, $szinkod = false) {
     return '';
 }
 
+// Szerepkör címkéjét ne DB-ből kérjük már le, erre itt egy függvény
+function getSzerepkorNev($szerepkor_id){
+    $szerepkorok = array(
+                        '',
+                        'Telepített személyzet',        // 1
+                        'Mobilcsoport',                 // 2
+                        'Külső kivitelező',             // 3
+                        'MSZK vezető',                  // 4
+                        'Műszaki vezető',               // 5
+                        'Műszaki vezető helyettes',     // 6
+                        'Területi felelős',             // 7
+                        'Műszaki ügyintéző',            // 8
+                        'Műszaki igazgató',             // 9
+                        'Diszpécser',                   // 10
+                        'Szálloda igazgató',            // 11
+                        'Hibabejelentő',                // 12
+                    );
+    return $szerepkorok[$szerepkor_id];
+}
+
 // Minden véleményező ha töltött már véleményt, akkor nyitottra léptetjük a státuszt (hacsak nem abban van már eleve)
 function prigeny_mindenki_velemenyezett_e($prigen_recid){
 
@@ -6292,7 +6312,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $keszre_jelentette = '';
             if( $sablon == 'munkalapKeszreKulso' && $_SESSION[get_db_tabla().'szemelyzet_id'] == MOBILCSOPORT ){
                 $login = $adatbazis_kapcsolat -> s2('mobil', 'login', "`nev` = '{$_SESSION[get_db_tabla().'user']}'");
-                $keszre_jelentette .= $_SESSION[get_db_tabla().'teljes_nev'].' '. getErtek('nev', 'szerepkor', 'recid', $_SESSION[get_db_tabla().'szemelyzet_id']).' '.$login['mobil'];
+                $keszre_jelentette .= $_SESSION[get_db_tabla().'teljes_nev'].' '.getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']).' '.$login['mobil'];
             }
 
             // Ha külsős munkát jelentettek készre, alul jelenjen meg a Külső kivitelező
@@ -6548,7 +6568,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
                         <br>'.
                         $uzi.'
                         <br>
-                        <br>Várakoztatja: '.$_SESSION[get_db_tabla().'teljes_nev'].' '. getErtek('nev', 'szerepkor', $_SESSION[get_db_tabla().'szemelyzet_id']).'
+                        <br>Várakoztatja: '.$_SESSION[get_db_tabla().'teljes_nev'].' '.getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']).'
                         <br>Várakoztatás indoka:
                         <br>'.$extra_szoveg.'
                         <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
@@ -6598,7 +6618,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             }
         }
 
-        $szerepkor = getErtek('nev', 'szerepkor', 'id', $akt_cimzett['szemelyzet_id']);
+        $szerepkor = getSzerepkorNev($akt_cimzett['szemelyzet_id']);
 
         $mit            = array('{NEV}');
         $mivel          = array($akt_cimzett['teljes_nev']);
