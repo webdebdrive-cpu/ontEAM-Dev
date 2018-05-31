@@ -5323,7 +5323,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
         var szamla = $.ajax({
          	url : page,
          	type: 'GET',
-         	data: esamp2es('id=' + recid + '&amp;ajax=1&amp;' + szerk + anyagrend + muvelet_param + '=' + new Date().getTime()),
+         	data: esamp2es('id=' + recid + '&amp;ajax=1&amp;no_lista=1&amp;' + szerk + anyagrend + muvelet_param + '=' + new Date().getTime()),
          	success: function(html) {
                 if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(html) {

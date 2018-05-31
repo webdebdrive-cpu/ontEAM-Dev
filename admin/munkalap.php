@@ -5629,7 +5629,9 @@ if (isset($_GET['csv'])) {
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
+
 require('selectek.php');
+
 
     if( !$_GET['ajax'] ) {
         echo '<div id="szamlaHidden" class="dn"></div><div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
@@ -5689,7 +5691,7 @@ require('selectek.php');
     }
 
     $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
-
+    
     // Hibaüzeneteknek készítünk két hidden inputot, ami midnig elérhető lesz
     $szamla_html .= '<div class="dn" id="ikt_szam_hibauzibe">'.$sor['ikt_szam'].'</div>';
     $szamla_html .= '<div class="dn" id="telephely_hibauzibe">'. getErtek('nev', 'telephely', 'id', $sor['telephely_id']).'</div>';
@@ -5733,9 +5735,7 @@ require('selectek.php');
 
     // Módosítás
     } else {
-
-        require_once 'selectek.php';
-
+        
         $telephely  = $adatbazis_kapcsolat -> s2('nev modell', 'telephely', "`id`='{$sor['telephely_id']}'");
 
         // Kezelés jog
@@ -5814,7 +5814,6 @@ require('selectek.php');
                 </div>
             ').$gombok;
         }
-
 
         // Kijelöltekkel való művelet gombok
         if( ($sor['stat_id']==MUNKALAP_STAT_NYITOTT) && _jog(JOG_MUNKALAP_HATIDO_UTEMEZ) ) {
@@ -6182,7 +6181,6 @@ require('selectek.php');
         ');
     }
 
-
     $js_submit_elott = 'return form_ell_admin();';
 
 	// Új munkalap felvitele
@@ -6303,7 +6301,6 @@ require('selectek.php');
             }
         }
 
-
         $json_sor = array();
         foreach($sor as $kulcs => $elem){
             $json_sor[$kulcs] = str_replace(array("\r\n", "\r", "\n", "'"), array("#UJSOR#", "#UJSOR#", "#UJSOR#", "#APOSZTROF#"), $elem);
@@ -6311,9 +6308,8 @@ require('selectek.php');
 
         $szamla_html .= '<script> formAdatok = JSON.parse(\''.json_encode($json_sor).'\'); </script>';
 
-        $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
-        $telephely = $telephely[0]['nev'];
-
+        getSzallodaNev($sor['telephely_id']);
+        
         $munkalap_kapcs = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs', "`munkalap_id` = '".$sor['recid']."'", '', '');
 
         // Duplikáláskor feltett kérdés
@@ -6397,16 +6393,14 @@ require('selectek.php');
                 if( $sor ) {
 
                     // Telephely
-                    $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
-                    $telephely = $telephely[0]['nev'];
+                    $telephely = getSzallodaNev($sor['telephely_id']);
 
                     // Helység
                     $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
                     $helyseg = $helyseg[0]['nev'];
 
                     // Hiba
-                    $hiba = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport`=4 AND `recid`='{$sor['hiba_id']}'");
-
+                    $hiba = getErtekLista('', '', $sor['hiba_id']);
 
                     // Bejelentést, csak munkalap törlés joggal lehet törölni.
                     $torles = '';
@@ -6424,7 +6418,7 @@ require('selectek.php');
                         <div id="naploSor-'.$sor['recid'].'" class="dtr nSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                             <div class="dtc"><a href="bejelentes.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a></div>
                             <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
-                            <div class="dtc">'.$hiba['info'].'</div>
+                            <div class="dtc">'.$hiba.'</div>
                             <div class="dtc">'.nl2br2($sor['hiba_text']).'</div>
                             <div class="dtc">
                                 '.$sor['usr_nev'].'
@@ -6456,20 +6450,14 @@ require('selectek.php');
                 </script>
                 ');
         }
-
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
                 'link'     => get_get(array('ajax', 'kat', 'epo', 'oldal', 'order'), true)
             ));
-
         } else {
             echo $szamla_html;
         }
-
-        if($tobb_kep){
-			require_once('tobb_kep.php');
-		}
 
     // Tételek fül
     } elseif(isset($_GET['tetel'])) {

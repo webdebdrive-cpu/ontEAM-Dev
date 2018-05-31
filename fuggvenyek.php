@@ -1913,7 +1913,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         // Bejelentéseknél szűrünk a törölve oszlop értékére is (logikailag törölt sorok nem látszanak)
         // Illetve csak a beloginolt user szállodáihoz tartozó bejegyzések látszanak
         if($tabla == 'bejelentes' || $tabla == 'bejelentes_arch'){
-            $where = "`".get_db_tabla()."$tabla`.`torolve` = '0' AND `".get_db_tabla().$tabla."`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+            $where = "`".get_db_tabla().$tabla."`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
             // Ha csak a saját részleget láthat, akkor tovább szűrünk részlegre is
             $felh = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
             if(_jog(JOG_BEJELENTES_SAJAT_RESZL) && !_jog(JOG_BEJELENTES_MEGTEKINT)){
@@ -2779,7 +2779,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                                 <td>'.getSzallodaNev($bsz['telephely_id']).' - '.$bsz['obj_txt'].'</td>
                             </tr>
                             <tr>
-                                <td colspan="4">'.getErtekLista($bsz['hiba_id']).'</td>
+                                <td colspan="4">'.getErtekLista('', '', $bsz['hiba_id']).'</td>
                             </tr>
                             </table>
                          </a>';
@@ -5175,14 +5175,17 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
 
 // Értéklistából infó kinyerése
 function erteklista($csoport, $id) {
-    global $adatbazis_kapcsolat;
-
-    $sor = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
-    if( $sor ) {
-        return $sor['info'];
-    } else {
-        return false;
-    }
+    
+    return getErtekLista($csoport, $id);
+    
+//    global $adatbazis_kapcsolat;
+//
+//    $sor = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
+//    if( $sor ) {
+//        return $sor['info'];
+//    } else {
+//        return false;
+//    }
 }
 
 // Adatbázisból egy érték gyors kinyerése

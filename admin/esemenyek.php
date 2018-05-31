@@ -156,7 +156,6 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`stat_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`surgos`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`,
-                                `'.get_db_tabla().$tabla_nophp.'`.`csoport_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`obj_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`hiba_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`hiba_text`,
