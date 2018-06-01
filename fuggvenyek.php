@@ -60,6 +60,12 @@ function i_u($type, $tabla, $tomb) {
         array_push($oszlopok, 'obj_txt');
         array_push($ertekek,  $obj_txt);
     }
+    // Munkalapnál meg a gép nevét
+    if($tabla=='munkalap' ){
+        $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $_POST['gep_id']);
+        array_push($oszlopok, 'gep_txt');
+        array_push($ertekek,  $obj_txt);
+    }
 
     // Értékek párosítása
 	$i = 0;

@@ -37,13 +37,14 @@ array_push($select_oracikkid, array('name'  => 'MÜZEM0004',     'value' => 'MÜ
 array_push($select_oracikkid, array('name'  => 'MVEGY0003',     'value' => 'MVEGY0003'));
 array_push($select_oracikkid, array('name'  => 'MÜSEG0001',     'value' => 'MÜSEG0001'));
 
+/* Úgy látom, nincs is használva, kivettem. 2018.06.01 - Éljen, itt van a nyár!
 // Select tömb előállítása rendszer kategóriákhoz
 $select_rkat = array();
 array_push($select_rkat, array('name' => '- Válasszon -', 'value' => '' ));
 $rkat = $adatbazis_kapcsolat -> select('recid nev', 'rendszer_kat', '', 'nev');
 foreach($rkat as $rkat_sor){
 	array_push($select_rkat, array('name' => $rkat_sor['nev'], 'value' => $rkat_sor['recid'] ));
-}
+}*/
 
 // Select tömb Ütemezés típushoz
 $select_cikltip = array();
@@ -179,10 +180,12 @@ $munkAnyag_statusz = array(
     DISZPNAG_STAT_ANYAG_IGENYELVE   => 'Igényelve'
 );
 
-// Értéklista csoport
-$select_erteklista = array();
-array_push($select_erteklista, array('name' => '-Válassz-', 'value' => '' ));
-$erteklistak = $adatbazis_kapcsolat -> select('csoport nev', 'erteklista_csoport', '', 'nev');
-foreach($erteklistak as $erteklista) {
-	array_push($select_erteklista, array('name' => $erteklista['nev'], 'value' => (int)$erteklista['csoport'] ));
+// Értéklista csoport - ezt elég az erteklista.php alatt kiszámolni
+if( basename(self()) == 'erteklista.php' ){
+    $select_erteklista = array();
+    array_push($select_erteklista, array('name' => '-Válassz-', 'value' => '' ));
+    $erteklistak = $adatbazis_kapcsolat -> select('csoport nev', 'erteklista_csoport', '', 'nev');
+    foreach($erteklistak as $erteklista) {
+        array_push($select_erteklista, array('name' => $erteklista['nev'], 'value' => (int)$erteklista['csoport'] ));
+    }
 }

@@ -3152,7 +3152,6 @@ if( isset($_POST['munkalapErkeztet']) ) {
         </tr>
         ');
 
-    require 'selectek.php';
     $anyagok = $adatbazis_kapcsolat->s('recid cikk_id cikk_nev cikk_men szuk_men cikk_mee stat_id', 'munkalap_anyag', "`munkalap_id`='{$_POST['recid']}'");
     foreach($anyagok as $anyag){
 
@@ -5637,26 +5636,15 @@ require('selectek.php');
         echo '<div id="szamlaHidden" class="dn"></div><div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
 
-    // Megjegyzések darabszáma
-    $megj_db = '';
-    $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
-    if( $megj_sorok ) {
-        $megj_db = ' ('.count($megj_sorok).')';
+    // Az adatlap adatait már a legelején lekérjük
+    if( $_GET['id'] ){
+        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     }
-
-    // Dokumentumok darabszáma
-    $dok_db = '';
-    $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
-    if( $dok_sorok ) {
-        $dok_db = 0;
-
-        foreach($dok_sorok as $dok_sor) {
-            if( is_file('../'.get_utvonal().$megnevezes.'/'.$dok_sor['utvonal']) ) {
-                $dok_db += 1;
-            }
-        }
-
-        $dok_db = ' ('.$dok_db.')';
+    if($sor['dok_db']){
+        $dok_db  = ' ('.$sor['dok_db'].')';
+    }
+    if($sor['megj_db']){
+        $megj_db = ' ('.$sor['megj_db'].')';
     }
 
     if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['naptar']) || /*isset($_GET['bejelentesek']) ||*/ isset($_GET['tortenet']) || isset($_GET['anyagigenyles']) || isset($_GET['elszamolas']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) || isset($_GET['tetel']) ) {
@@ -5689,8 +5677,6 @@ require('selectek.php');
             fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
         );
     }
-
-    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     
     // Hibaüzeneteknek készítünk két hidden inputot, ami midnig elérhető lesz
     $szamla_html .= '<div class="dn" id="ikt_szam_hibauzibe">'.$sor['ikt_szam'].'</div>';
