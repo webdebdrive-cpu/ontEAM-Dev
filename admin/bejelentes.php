@@ -684,7 +684,7 @@ if (isset($_GET['csv'])) {
                     `'.get_db_tabla().'bejelentes`.`telephely_id` as \'Szálloda\',
                     `hiba_id` as \'Bejelentett hiba\',
                     `hiba_text` as \'Hiba leírása\',
-                    `obj_id` as \'Helyiség\',
+                    `obj_txt` as \'Helyiség\',
                     `helyiseg_text` as \'Hely leírása\',
                     `gep_id` as \'Gépnév\',
                     `stat_id` as \'Státusz\',
@@ -705,20 +705,14 @@ if (isset($_GET['csv'])) {
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
                 if($kulcs=='Szálloda'){
-                    $sor = $adatbazis_kapcsolat->s('nev', 'telephely', "`id`='{$sor}'");
-                    $sor = $sor[0]['nev'];
+                    $sor = getSzallodaNev($sor);
                 }
                 if($kulcs=='Bejelentett hiba'){
-                    $sor = $adatbazis_kapcsolat->s('info', 'erteklista', "`recid`='{$sor}'");
-                    $sor = $sor[0]['info'];
-                }
-                if($kulcs=='Helyiség'){
-                    $sor = $adatbazis_kapcsolat->s('nev', 'obj', "`recid`='{$sor}'");
-                    $sor = $sor[0]['nev'];
+                    $sor = getErtekLista('', '', $sor);
                 }
                 if($kulcs=='Gépnév'){
-                    $sor = $adatbazis_kapcsolat->s('nev', 'eszkozkezeles', "`recid`='{$sor}'");
-                    $sor = $sor[0]['nev'];
+                    $sor = $adatbazis_kapcsolat->s2('nev', 'eszkozkezeles', "`recid`='{$sor}'");
+                    $sor = $sor['nev'];
                 }
                 if($kulcs=='Státusz'){
                     $sor = getStatText('bejelentes', $sor);

@@ -106,11 +106,10 @@ if( isset($_POST['munkalapKeszit']) ) {
         }*/
 
         // Ellenőrizzük a szállodákat is
-        $bejelentes = $adatbazis_kapcsolat->s2('telephely_id ikt_szam obj_id gep_id hiba_id', 'bejelentes', "`recid`='{$id}'");
+        $bejelentes = $adatbazis_kapcsolat->s2('telephely_id ikt_szam obj_id gep_id hiba_id surgos', 'bejelentes', "`recid`='{$id}'");
         if( $bejelentes === false ) { $db_error = true; }
         
-        $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$bejelentes['telephely_id']}'", '', '1');
-        if( $telephely === false ) { $db_error = true; }
+        $telephely = getSzallodaNev($bejelentes['telephely_id']);
 
         // Ellenőrizzük a státuszokat is
         foreach($idk as $id) {
@@ -218,8 +217,8 @@ if( isset($_POST['munkalapKeszit']) ) {
 
             // Munkalap beszúrása
             $recid = $adatbazis_kapcsolat -> i('munkalap',
-                                                array('ikt_szam',   'stat_id',              'tipus_id',  'telephely_id', 'obj_id',              'gep_id',               'loginnev',                         'update_usr',                          'insert_dt',    'insert_usr'                             ),
-                                                array($ikt_szam,     MUNKALAP_STAT_NYITOTT, 1,           $telephely_id,  $bejelentes['obj_id'],  $bejelentes['gep_id'], $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   )
+                                                array('ikt_szam',   'stat_id',              'tipus_id',  'surgos',              'telephely_id', 'obj_id',              'gep_id',               'loginnev',                         'update_usr',                          'insert_dt',    'insert_usr'                             ),
+                                                array($ikt_szam,     MUNKALAP_STAT_NYITOTT, 1,           $bejelentes['surgos'], $telephely_id,  $bejelentes['obj_id'],  $bejelentes['gep_id'], $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   )
                                             );
             if( $recid === false ) { $db_error = true; }
 
@@ -5523,7 +5522,7 @@ if (isset($_GET['csv'])) {
         $sql = 'SELECT
                 `'.get_db_tabla().$megnevezes.'`.`recid` as \'Id\',
                 `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
-                `obj_id` as \'Helyiség\',
+                `obj_txt` as \'Helyiség\',
                 `ikt_szam` as \'Munkalap szám\',
                 `'.get_db_tabla().$megnevezes.'`.`update_dt` as \'Bejelentett hiba\',
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\',
@@ -5559,7 +5558,7 @@ if (isset($_GET['csv'])) {
                     continue;
                 }
                 if($kulcs=='Szálloda'){
-                    $sor = getErtek('nev', 'telephely', 'id', $sor);
+                    $sor = getSzallodaNev($sor);
                 }
                 if($kulcs=='Bejelentett hiba'){
                     $sor = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
@@ -5569,9 +5568,6 @@ if (isset($_GET['csv'])) {
                 }
                 if($kulcs=='Gépnév'){
                     $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
-                }
-                if($kulcs=='Helyiség'){
-                    $sor = getErtek('nev', 'obj', 'recid', $sor);
                 }
                 if($kulcs=='Hozzárendelt személyzet'){
                     $sor = getErtek('nev', 'szerepkor', 'recid', $sor);

@@ -1314,7 +1314,7 @@ $header_html .= nl2('
     ');
 
 
-echo $header_html.fajlbol_olvas('../sablon/admin/js_beagyazasok.html', true);
+echo $header_html;
 
 if( $_SESSION[get_db_tabla().'login_recid'] ) {
 
