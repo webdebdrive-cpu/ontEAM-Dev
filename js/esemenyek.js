@@ -85,11 +85,16 @@ $(document).ready(function() {
     }
     
     /* Fancybox */
-    /*$.getScript('js/fancybox.js', function() {
+    $.getScript('js/fancybox.js', function() {
         $('a.light').fancybox({
             'prevEffect'            : 'fade',
             'nextEffect'            : 'fade'
         });
+        
+        /*
+        Fancybox-hoz útmutató, személyre szabásra minta kódokat itt találsz:
+        D:\AppServ\www\!WebDeb Engine v2.8\!MODULOK\Lightbox beépítése - fancybox\index.php
+        */
 
         $('a.youtube').click(function() {
             $.fancybox({
@@ -110,14 +115,14 @@ $(document).ready(function() {
             return false;
         });
         
-    });*/
+    });
     
     //SVG képek cseréje inline beágyazásra
     inline_svg();
     
 });
 
-// Azért van külön függvényben, mert egy-egy ajax hívás után is lehet le kell futtatni
+//Azért van külön függvényben, mert egy-egy ajax hívás után is lehet le kell futtatni
 function inline_svg(){
     $('img.f_svg').each(function(){
         var $img     = jQuery(this);

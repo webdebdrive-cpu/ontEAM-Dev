@@ -148,7 +148,7 @@ if( isset($_POST['munkalapKeszit']) ) {
                 echo json_encode(array(
                     'hiba' => nl2('
                                 Bejelentés szám: '.$bejelentes['ikt_szam'].'
-                                <br>Hiba helye: '.$telephely['nev'].'
+                                <br>Hiba helye: '.$telephely.'
                                 <br>Bejelentett hiba: '. getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).'
                                 <br>
                                 <br>Ehhez a bejelentéshez már készült munkalap. <br>Készít még egy munkalapot?
@@ -166,7 +166,7 @@ if( isset($_POST['munkalapKeszit']) ) {
 
             echo json_encode(array(
                 'hiba' => nl2( 'Bejelentés szám: '.$bejelentes['ikt_szam'].'
-                                <br>Hiba helye: '.$telephely['nev'].'
+                                <br>Hiba helye: '.$telephely.'
                                 <br>Bejelentett hiba: '. getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).'
                                 <br>
                                 <br>Biztos munkalapot készít a kijelölt bejelentésből?
@@ -5620,6 +5620,7 @@ if (isset($_GET['csv'])) {
     exit();
 }
 
+
 // Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
@@ -5636,6 +5637,7 @@ require('selectek.php');
     if( $_GET['id'] ){
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     }
+
     if($sor['dok_db']){
         $dok_db  = ' ('.$sor['dok_db'].')';
     }

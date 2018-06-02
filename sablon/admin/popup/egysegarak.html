@@ -5,7 +5,7 @@
         <div class="dtr">
             <div class="dtc">
                 Mező<br>
-                <select name="egysk_oszlop" onchange="egysegarOszlop( 'egysk_', this.value );">
+                <select class="eltol" name="egysk_oszlop" onchange="egysegarOszlop( 'egysk_', this.value );">
                     <option value="ear">Egységár</option>
                     <option value="dnem">Deviza</option>
                     <option value="arf">Árfolyam</option>
@@ -26,7 +26,7 @@
                     <input type="text" name="egysk_ear" class="f_num" data-tort="3" value="0,000">
                 </div>
                 <div class="egysk_box dn">
-                    <input type="text" autocomplete="off" class="csillag autocomp" name="egysk_dnem_autocomp" id="egysk_dnem_autocomp" style="min-width: inherit; width: 6rem;" value="" data-origin-val="">
+                    <input type="text" autocomplete="off" class="csillag autocomp" name="egysk_dnem_autocomp" id="egysk_dnem_autocomp" style="min-width: inherit; width: 5rem;" value="" data-origin-val="">
                     <input type="hidden" name="egysk_dnem" id="egysk_dnem" value="">
                     <script>
                         $(document).ready(function() {

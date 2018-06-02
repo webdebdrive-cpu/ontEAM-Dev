@@ -992,9 +992,9 @@ require_once('selectek.php');
         }
 
         $szamla_html .= nl2('
-                </tbody>
-            </table>
-        ');
+                            </tbody>
+                        </table>
+                        ');
 
         // Ha van a get-ben ear id, akkor azt a sort jelöljük meg
         if( isset($_GET['ear'])){
