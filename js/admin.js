@@ -433,7 +433,7 @@ $(function() {
                     }
 
                     $('.szamla_cont_tabla tbody tr:nth-of-type('+(kovSzamlaSor+1)+')').addClass('kijelolve');
-                    
+
                     $('#szamlaList li').removeClass('kijelolve');
                     $('#anyagig-sor-'+$('.szamla_cont_tabla tr.kijelolve').attr('data-recid')).click();
 
@@ -5567,13 +5567,13 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                 }
          	}
         });
-        
+
         return $.when(szamla, dfrd1).done(function() {
             formModositva = false;
             gombokRejt();
             scrollLeptet();
             fulGombMeretez();
-            
+
             setTimeout(function(){ szurkit_zar(); }, 100);
         }).promise();
     }
@@ -6670,7 +6670,7 @@ function szurkit( mehet_megsem_rejt ){
     }
 }
 function szurkit_zar( mehet_megsem_mutat ){
-    
+
     setTimeout(function() {
 
         $('#ajaxfedo').addClass('dn');
@@ -6680,7 +6680,7 @@ function szurkit_zar( mehet_megsem_mutat ){
 
 
     }, 100);
-    
+
 }
 
 /* Tabindex számozása */

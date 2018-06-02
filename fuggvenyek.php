@@ -53,7 +53,7 @@ function i_u($type, $tabla, $tomb) {
 
     $oszlopok = array();
     $ertekek  = array();
-    
+
     // Bejelentés és munkalap esetén az obj_id mellé a címkét is letároljuk
     if($tabla=='bejelentes' || $tabla=='munkalap' ){
         $obj_txt = getErtek('nev', 'obj', 'recid', $_POST['obj_id']);
@@ -2250,7 +2250,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 if( !$_GET['irany'] ) {
                     $_GET['irany'] = 'desc';
                 }
-                
+
                 $sorrend_idk = array();
 
                 // Ha státusz szerint rendezünk, akkor beállítunk egy aktuális sorrendet, és a sorrend oszlop szerint rendezünk
@@ -2277,7 +2277,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                     $i++;
                     array_push($sorrend_idk, $bejelentes['recid']);
                 }
-                
+
                 // Fordított sorrendben a recid-kat is megfordítjuk
                 if($_GET['irany']=='desc'){
                     $sorrend_idk = array_reverse($sorrend_idk);
@@ -2302,10 +2302,10 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
         // Rendezés munkalap esetén külön problémakör:
         if( $tabla=='munkalap' || $tabla=='munkalap_arch' ){
-            
+
             $order = '';
             // Elsődleges rendezés a csoport, ettől lesznek a csoportok is sorban (elől az önálló bejelentések). De ezt csak Diszpécsereknél renezzük így, mert csak náluk jelenik meg a csoportosítás
-            
+
             // Már nincs csoportosítás
 //            if(_jog(JOG_MUNKALAP_KESZITHET)){
 //                $order .= '`'.get_db_tabla().'munkalap_csoport`.`nev`, '; // <= itt fixen munkalap kell, nem a $tabla
@@ -2320,7 +2320,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 if( !$_GET['irany'] ) {
                     $_GET['irany'] = 'desc';
                 }
-                
+
                 $sorrend_idk = array();
 
                 // Ha státusz szerint rendezünk, akkor beállítunk egy aktuális sorrendet, és a sorrend oszlop szerint rendezünk
@@ -2347,7 +2347,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 //                    $i++;
                     array_push($sorrend_idk, $munkalap['recid']);
                 }
-                
+
                 // Fordított sorrendben a recid-kat is megfordítjuk
                 if($_GET['irany']=='desc'){
                     $sorrend_idk = array_reverse($sorrend_idk);
@@ -2419,7 +2419,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         // Már nem használunk csoportot, de az SQL-el pedig csínján kell bánni, ezért kivéve 2018.05.28
         if($tabla=='munkalap' || $tabla=='munkalap_arch'){
             $sql_kieg .= ' LEFT JOIN `'.get_db_tabla().'eszkozkezeles` ON `'.get_db_tabla().$tabla.'`.`gep_id`=`'.get_db_tabla().'eszkozkezeles`.`recid`';
-            
+
             // Státusz szerinti rendezésnél nem JOIN-oljuk a telephelyeket, egyébként mindig
             if($_GET['rend']!='stat_id'){
                 $sql_kieg .= ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
@@ -2430,7 +2430,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if ($_GET['mezo']=='megjegyzes') {
             $sql_kieg .= ' JOIN `'.get_db_tabla().'megjegyzes` ON `'.get_db_tabla().'megjegyzes`.`tabla`=\''.$tabla.'\' AND `'.get_db_tabla().''.$tabla.'`.`recid`=`'.get_db_tabla().'megjegyzes`.`id`';
         }
-        
+
         // A bejelentések és munkalapoknál már megvan oldva, hogy ne használjunk obj JOIN-t, de a többi tálbára még nincs megoldva
         $kivetelek = array('bejelentes', 'bejelentes_arch', 'munkalap', 'munkalap_arch');
         if( (strpos($select, 'obj_id')!==false && !in_array($tabla, $kivetelek)) ){
@@ -2441,7 +2441,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $sql_kieg .= ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
         }
 
-        
+
         // Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elé kell beszúrni a JOIN-t
         $mivel = $sql_kieg.' WHERE';
         if(strpos($sql, 'WHERE')===false){
@@ -2657,7 +2657,7 @@ if(isset($_GET['debug'])) {
 
 function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_idk ) {
     global $adatbazis_kapcsolat;
-    
+
     // Legyen-e JS rendezés, vagy sem?
     // Csak akkor van, ha nincs megadva rendezés, vagy ha az a stat_id, ÉS FONTOS, hogy nem egy sort frissítünk
     $js_rendezes = false;
@@ -2825,7 +2825,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
             if($bsz['surgos']){
                 $surgos_class = ' surgos';
             }
-            
+
             // Ha van kívánt sorrend információnk is, akkor ezt tegyük be egy data-sorrend tag-be
             $sorrend = '';
             if($js_rendezes){
@@ -2870,7 +2870,12 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                         function isNumeric(n) {
                             return !isNaN(parseFloat(n)) && isFinite(n);
                         }
-                        
+
+                        if( $(\'.szamla_sor.kijelolve\').hasClass(\'kijelolve\') ) {
+                            active_top = $(\'.szamla_sor.kijelolve\').position().top;
+                            $(\'#tartalomBal\').scrollTop(active_top - 250);
+                        }
+
                         /* data-i újraszámozása */
                         var data_i = 1;
                         $(\'#szamlaList li\').each(function () {
@@ -2882,7 +2887,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                 </script>
                 ');
         }
-        
+
         return nl2($html);
     }
 
@@ -2897,7 +2902,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
     if( $sorrend_idk && (!$_GET['rend'] || $_GET['rend']=='stat_id') && !$_GET['szamlaSorFrissit'] && !$_GET['ajax'] ){
         $js_rendezes = true;
     }
-    
+
     if( $bejegyzesek ) {
         $csoport = $bejegyzesek[0]['csoport_id'];
 
@@ -3030,7 +3035,7 @@ if (!isset($_GET['teszt'])) {
 
             // Személyzettípus kiíratása
             require 'selectek_szemelyzet.php';
-            
+
             $szemelyzet = '';
             if($bsz['szemelyzet_id']){
 
@@ -3110,7 +3115,7 @@ if (isset($_GET['teszt']) || isset($_GET['teszt2'])) {
             if($bsz['surgos']){
                 $surgos_class = ' surgos';
             }
-            
+
             // Ha van kívánt sorrend információnk is, akkor ezt tegyük be egy data-sorrend tag-be
             $sorrend = '';
             if($js_rendezes){
@@ -3125,7 +3130,7 @@ if (isset($_GET['teszt']) || isset($_GET['teszt2'])) {
         if( !$frissit ) {
             $html .= '</ul>';
         }
-        
+
         // Ha kaptunk sorrendiséget, akkor JS-el állítjuk be a sorrendet, hogy ne az SQL-t terheljük
         if($js_rendezes){
             $html .= nl2('
@@ -3156,6 +3161,12 @@ if (isset($_GET['teszt']) || isset($_GET['teszt2'])) {
                             return !isNaN(parseFloat(n)) && isFinite(n);
                         }
                         
+                        if( $(\'.szamla_sor.kijelolve\').hasClass(\'kijelolve\') ) {
+                            active_top = $(\'.szamla_sor.kijelolve\').position().top;
+                            console.log(active_top);
+                            $(\'#tartalomBal\').scrollTop(active_top - 250);
+                        }
+
                         /* data-i újraszámozása */
                         var data_i = 1;
                         $(\'#szamlaList li\').each(function () {
@@ -4850,7 +4861,7 @@ function loginLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
         if( !$frissit ) {
             $html .= '</ul>';
         }
-        
+
         return nl2($html);
     }
 
@@ -5181,9 +5192,9 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
 
 // Értéklistából infó kinyerése
 function erteklista($csoport, $id) {
-    
+
     return getErtekLista($csoport, $id);
-    
+
 //    global $adatbazis_kapcsolat;
 //
 //    $sor = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
@@ -5588,15 +5599,15 @@ function addMegj( $tabla, $id, $megj ) {
                                                         array($tabla,  $id, $megj,   $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'szemelyzet_id'],   $szerepkor,         $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'])
                                         );
         if($ins===false){ return false; }
-        
+
         // Adott tábla megj_db oszlop karban tartása
         $megj_db = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='{$tabla}' AND `id`='{$id}'");
         if($megj_db===flase){ return false; }
 
-        
+
         $sql = $adatbazis_kapcsolat->u($tabla, array('megj_db'), array(count($megj_db)), "`recid`='{$id}'");
         if($sql===flase){ return false; }
-        
+
     }
 }
 
@@ -6209,9 +6220,9 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
     switch($cimzett){
         // Bejelentőnek
         case 'bejelento':
-            
+
             $felhasznalonak_szo = 'bejelentőnek';
-            
+
             if(substr($recid, 0, 1)=='m'){
                 $munkalap   = $adatbazis_kapcsolat->s2('text', 'munkalap', "`recid`='".substr($recid, 1)."'");
                 $hiba       = htmlspecialchars_decode( nl2br2( $munkalap['text'] ) );
@@ -6344,7 +6355,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             if( $munkalap['szemelyzet_id']==KULSO_KIVITELEZO ){
                 $keszre_jelentette .= "\r\n".'<br>Külső kivitelező: '. getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']);
             }
-            
+
             $felhasznalonak_szo = 'munkalap igazolónak';
 
             $mit            = array('{IKT_SZAM}',          '{SZALLODA}',                                                   '{INS_DT}',             '{HIBA}',    '{OBJ}',                                              '{KESZRE_JELENTETTE}' );

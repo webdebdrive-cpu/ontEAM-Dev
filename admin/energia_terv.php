@@ -593,6 +593,87 @@ if (isset($_POST['energiaterv_veglegesit'])) {
     exit();
 }
 
+// CSV generálása
+if (isset($_GET['csv'])) {
+
+    header("Content-type: text/csv");
+    header("Content-Disposition: attachment; filename=$megnevezes.csv");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+
+    $mibol   = get_web_charset();
+    $mibe    = 'windows-1250';
+
+    if( !is_dir('export') ) {
+        mkdir('export');
+    }
+
+    if( !is_dir('export/csv') ) {
+        mkdir('export/csv');
+    }
+
+    // Open the output stream
+    $open = fopen('php://output', 'w');
+    ob_start();
+
+    if($open){
+
+        $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+
+        $sql = 'SELECT
+                    `ikt_szam` as \'Energia terv szám\',
+                    `stat_id` as \'Státusz\',
+                    `ev` as \'Tervező év\',
+                    `text` as \'Leírás\',
+                    `dok_db` as \'Dokumentumok\',
+                    `megj_db` as \'Megjegyzések\',
+                    `insert_dt` as \'Energia terv dátuma\'
+                    '.$lekerdezes_fromtol;
+
+        $query      = mysqli_query($db_kapcs, $sql);
+
+        $csvhead    = array();
+        while($fejlec_nevek = mysqli_fetch_field($query)){
+            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+        }
+        fputcsv($open, $csvhead, ';');
+
+        $i = 0;
+        while( $sorok = mysqli_fetch_assoc($query) ){
+
+            $csvcont = array();
+            foreach( $sorok as $kulcs => $sor ) {
+                if($kulcs=='Státusz'){
+                    $sor = getStatText('energia_terv', $sor);
+                }
+                if($kulcs=='Energia terv dátuma'){
+                    $sor = datum_kiir($sor);
+                }
+                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+            }
+
+            fputcsv($open, $csvcont, ';');
+
+            //100 soronként kiírtatunk
+            if ($i % 100 == 0) {
+                flush();
+            }
+
+            $i++;
+        }
+    }
+
+    // Get the contents of the output buffer
+    $string = ob_get_clean();
+    fclose($fh);
+
+    // Stream the CSV data
+    exit($string);
+
+    $weblap->leallit();
+    exit();
+}
+
 // Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
