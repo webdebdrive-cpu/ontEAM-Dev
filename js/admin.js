@@ -1093,10 +1093,12 @@ $(function() {
         }
     });
 
-    if( $('.szamla_sor.kijelolve').hasClass('kijelolve') ) {
-        active_top = $('.szamla_sor.kijelolve').position().top;
-        $('#tartalomBal').scrollTop(active_top - 250);
-    }
+    setTimeout(function() {
+        if( $('.szamla_sor.kijelolve').hasClass('kijelolve') ) {
+            active_top = $('.szamla_sor.kijelolve').position().top;
+            $('#tartalomBal').scrollTop(active_top - 250);
+        }
+    }, 250);
 
     /* Scroll elindása görgetésre */
     $(document).on('mousewheel', function(event) {
@@ -4596,7 +4598,7 @@ function kapcsolodoSzerkeszt( oldal ) {
                      	}
                     });
                 } else {
-                    alert2(EGYSEGAR_VALASZT, '', 'Üzenet');
+                    alert2(EGYSEGAR_VALASZT, '', 'Hiba');
                     return false;
                 }
             break;

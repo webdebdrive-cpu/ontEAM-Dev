@@ -191,6 +191,20 @@ if (isset($_POST['terv_keszit'])) {
         exit();
     }
 
+    if( $energia_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev` = '{$ev}'", '', '1') ) {
+        $is_munkakozi = $adatbazis_kapcsolat->s2('recid', 'energia_terv_statusz', "`energia_terv_recid` = '".$energia_terv['recid']."' AND `stat_id` = '".ENERGIATERV_STAT_MUNKAKOZI."'", '', '1');
+
+        if( $is_munkakozi ) {
+            echo json_encode(array(
+                'hiba'  => $ev.' évre már van munkaközi terv.',
+                'gomb'  => '<input type="button" class="gomb zold" value="Megnyitás" onclick="szamlaBetolt( \''.$energia_terv['recid'].'\', \''.basename(self()).'\', \'modosit\' ); alert2(); popupZar();"><input type="button" class="gomb piros" value="Mégsem" onclick="alert2()">',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+    }
+
     // Ha a kijelölt terv alapján kell létrehozni az újat, akkor lekérjük a kijelölt adatait
     if($kijelolt){
 

@@ -1286,16 +1286,28 @@ if(basename(self())=='energia_terv.php'){
 }
 
 // Nyomtatási popup
-$header_html .= nl2('
-    <div class="dn">
-        <div id="nyomtatasi_nezet">
-            Nyomtatási nézet választás...
-            <br><a href="'.self().get_get('pdf').'&amp;print=lista{KSZ}" target="_blank">Listanézet</a>
-            <br><a href="#" target="_blank">B nézet</a>
-            <br><a href="#" target="_blank">C nézet</a>
+if( basename(self()) == 'energia_terv.php' ) {
+    $header_html .= nl2('
+        <div class="dn">
+            <div id="nyomtatasi_nezet">
+                Nyomtatási nézet választás...
+                <br><a href="'.self().get_get('pdf').'&amp;print=lista&amp;type=energia_terv_lista" target="_blank">Energia tervek listája</a>
+                <br><a href="'.self().get_get('pdf').'&amp;print=lista&amp;type=egysegarak_lista" target="_blank">Egységárak listája</a>
+            </div>
         </div>
-    </div>
-');
+    ');
+} else {
+    $header_html .= nl2('
+        <div class="dn">
+            <div id="nyomtatasi_nezet">
+                Nyomtatási nézet választás...
+                <br><a href="'.self().get_get('pdf').'&amp;print=lista{KSZ}" target="_blank">Listanézet</a>
+                <br><a href="#" target="_blank">B nézet</a>
+                <br><a href="#" target="_blank">C nézet</a>
+            </div>
+        </div>
+    ');
+}
 
 // Jogosultság tomb JS-be
 $jogok = '';

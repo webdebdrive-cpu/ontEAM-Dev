@@ -2871,11 +2871,6 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                             return !isNaN(parseFloat(n)) && isFinite(n);
                         }
 
-                        if( $(\'.szamla_sor.kijelolve\').hasClass(\'kijelolve\') ) {
-                            active_top = $(\'.szamla_sor.kijelolve\').position().top;
-                            $(\'#tartalomBal\').scrollTop(active_top - 250);
-                        }
-
                         /* data-i újraszámozása */
                         var data_i = 1;
                         $(\'#szamlaList li\').each(function () {
@@ -3160,12 +3155,6 @@ if (isset($_GET['teszt']) || isset($_GET['teszt2'])) {
                         function isNumeric(n) {
                             return !isNaN(parseFloat(n)) && isFinite(n);
                         }
-                        
-                        if( $(\'.szamla_sor.kijelolve\').hasClass(\'kijelolve\') ) {
-                            active_top = $(\'.szamla_sor.kijelolve\').position().top;
-                            console.log(active_top);
-                            $(\'#tartalomBal\').scrollTop(active_top - 250);
-                        }
 
                         /* data-i újraszámozása */
                         var data_i = 1;
@@ -3173,7 +3162,6 @@ if (isset($_GET['teszt']) || isset($_GET['teszt2'])) {
                             $(this).attr(\'data-i\', data_i);
                             data_i++;
                         });
-
                     });
                 </script>
                 ');
