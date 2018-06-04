@@ -83,6 +83,14 @@ if (isset($_GET['csv'])) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
+        if( $_SESSION['nyomtatas_ids'] ) {
+            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+            } else {
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            }
+        }
+
         $sql = 'SELECT
                 `nev` as \'Munkavállaló neve\'
                 '.$lekerdezes_fromtol;
@@ -169,7 +177,7 @@ require_once('selectek.php');
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
-            
+
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -246,7 +254,7 @@ require_once('selectek.php');
     }
 
     $js_submit_elott = 'return form_ell_admin();';
-    
+
 	// Új rekord felvitele
 	if(isset($_GET['uj'])  && _jog(JOG_TORZSADAT_KEZEL) && !$csak_szerkesztheto){
 
@@ -294,7 +302,7 @@ require_once('selectek.php');
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
-        
+
 
 	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
 	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
@@ -319,7 +327,7 @@ require_once('selectek.php');
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                
+
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];

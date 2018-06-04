@@ -8,7 +8,6 @@ ini_set('error_log',        '!Errors.txt'   );  // Melyik fájlba íródjanak a 
 ini_set('display_errors' ,  '0'             );
 error_reporting(E_ERROR);                       // Csak a hibákat írja ki
 
-
 require_once 'konstansok.php';
 
 // Időzóna beállítása

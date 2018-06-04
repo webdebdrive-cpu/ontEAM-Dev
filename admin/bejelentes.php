@@ -14,7 +14,7 @@ require_once('../weblap.php');
 /*// Manuális értesítés küldés
 if (isset($_GET['teszt_123'])) {
     //level_felkeszit_es_kuld_TMP('bejelentes', 1475, ERT_BEJ_ELUTASITKOR, 'bejelentesElutasit', 'bejelento');
-    
+
     $targy = 'ontEAM bejelentett hiba elutasítva';
     $uzi = '
 Tisztelt Váradi Márk!
@@ -33,7 +33,7 @@ Az Ön által bejelentett hiba elutasításra került.
         ';
     //Váradi Márk mark.varadi@danubiushotels.com
     var_dump(level_kuldes(get_nev(), get_mail(), 'Váradi Márk', 'mark.varadi@danubiushotels.com', $targy, $uzi));
-    
+
     //E-mail elküldve Váradi Márk Hibabejelentő felhasználónak bejelentés elutasításakor<br><br>
     exit;
 }*/
@@ -679,6 +679,14 @@ if (isset($_GET['csv'])) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
+        if( $_SESSION['nyomtatas_ids'] ) {
+            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+            } else {
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            }
+        }
+
         $sql = 'SELECT
                     `ikt_szam` as \'Bejelentés szám\',
                     `'.get_db_tabla().'bejelentes`.`telephely_id` as \'Szálloda\',
@@ -754,7 +762,7 @@ require_once('selectek.php');
     if( !$_GET['ajax'] ) {
         echo '<div id="szamlaBetolt" data-recid="'.$_GET['id'].'" data-page="'.str_replace('.php', '', basename(self())).'">';
     }
-    
+
     // Az adatlap adatait már a legelején lekérjük
     if( $_GET['id'] ){
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
@@ -778,12 +786,12 @@ require_once('selectek.php');
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
-            
+
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
             }
-            
+
             $fulek .= '<a href="javascript: szamlaBetolt(\''.$_GET['id'].'\', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
         }
 
@@ -889,7 +897,7 @@ require_once('selectek.php');
             (
                 (   _jog(JOG_BEJELENTES_KEZEL) &&                               // Ha saját néven tudok bejelenteni
                     $sor['usr_reszleg_id'] == $felh['reszleg_id']               // És a saját részlegemhez tartozik
-                )                                                           ||  
+                )                                                           ||
                 _jog(JOG_BEJELENTES_MAS_NEVEBEN)                                // Vagy ha más nevében is tudok bejelenteni
             )
         ) {

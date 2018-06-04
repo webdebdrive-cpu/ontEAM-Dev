@@ -78,11 +78,19 @@ if (isset($_GET['csv'])) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
+        if( $_SESSION['nyomtatas_ids'] ) {
+            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."erteklista`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+            } else {
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla()."erteklista`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            }
+        }
+
         $sql = 'SELECT
                 `'.get_db_tabla().'erteklista`.`csoport` as \'Csoport\',
                 `'.get_db_tabla().'erteklista`.`info` as \'Érték\'
                 '.$lekerdezes_fromtol;
-
+                
         $query      = mysqli_query($db_kapcs, $sql);
 
         $csvhead    = array();
@@ -320,7 +328,7 @@ require_once('selectek.php');
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
-        
+
         // Duplákáláskor feltett kérdés
         $szamla_html .= nl2('
             <script>

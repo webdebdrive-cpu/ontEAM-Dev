@@ -2305,6 +2305,14 @@ $felmeresi_terv_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 //{KOVETKEZO_TOMB}
 
+// Nyomtáshoz a látható ID-k
+if( isset($_POST['nyomtatas_ids']) ) {
+    $_SESSION['nyomtatas_ids'] = $_POST['data'];
+
+    $weblap->leallit();
+    exit();
+}
+
 // Táblázat sorrend mentés
 if( isset($_POST['tablaSorrend']) ) {
     $tabla   = $_POST['tabla'];
@@ -3942,8 +3950,8 @@ if( isset($_GET['ertekFoglalt']) ) {
 
 // Bal oldali navpanel egy sorának frissítése
 if( isset($_GET['szamlaSorFrissit']) ) {
-    
-    
+
+
     $tabla = $_GET['tabla'];
     $recid = $_GET['recid'];
     if( !in_array($recid, $_SESSION[$tabla.'_idk']) ){
@@ -4723,11 +4731,11 @@ if(isset($_GET['modosit'])){
                     array('bejelentes_id', 'utvonal',             'fajlnev',  'loginnev',                       'update_dt',  'update_usr',                           'insert_dt', 'insert_usr'                            ),
                     array($_GET['id'],     $alkonyvtar.$fajlnev2, $fajlnev2,  $_SESSION[get_db_tabla().'user'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']  )
             );
-            
+
             // Végül a szülő táblában a dok_db karbantartása
             $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', 'bejelentes_dok', "`bejelentes_id`='{$_GET['id']}'") );
             $adatbazis_kapcsolat->u('bejelentes', array('dok_db'), array($dokumentumok_szama), "`recid`='{$_GET['id']}'");
-            
+
         // Ha az oszlop a munkalapUjFeltoltes, akkor bejelentések új feltötlésekor hozzáadott dokumentumról van szó
         // Ezt másoljuk be a dokumentumok füle alá
         } else if($oszlop=='munkalapUjFeltoltes') {
@@ -4746,11 +4754,11 @@ if(isset($_GET['modosit'])){
                 array('munkalap_id', 'utvonal',             'fajlnev',  'loginnev',                       'update_dt',  'update_usr',                           'insert_dt', 'insert_usr'                            ),
                 array($_GET['id'],   $alkonyvtar.$fajlnev2, $fajlnev2,  $_SESSION[get_db_tabla().'user'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']  )
             );
-            
+
             // Végül a szülő táblában a dok_db karbantartása
             $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', 'munkalap_dok', "`munkalap_id`='{$_GET['id']}'") );
             $adatbazis_kapcsolat->u('munkalap', array('dok_db'), array($dokumentumok_szama), "`recid`='{$_GET['id']}'");
-            
+
         // Általános eset
         }else{
 

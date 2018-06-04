@@ -177,6 +177,14 @@ if (isset($_GET['csv'])) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
+        if( $_SESSION['nyomtatas_ids'] ) {
+            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."eszkozkezeles`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+            } else {
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla()."eszkozkezeles`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            }
+        }
+
         $sql = 'SELECT
                 `'.get_db_tabla().'eszkozkezeles`.`nev` as \'Név\'
                 '.$lekerdezes_fromtol;
@@ -295,7 +303,7 @@ require_once('selectek.php');
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
-            
+
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -421,7 +429,7 @@ require_once('selectek.php');
 
 	// Új eszköz felvitele
 	if(isset($_GET['uj']) && _jog(JOG_ESZKOZ_KEZEL)){
-        
+
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
@@ -490,7 +498,7 @@ require_once('selectek.php');
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                
+
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];

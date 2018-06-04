@@ -119,6 +119,14 @@ if (isset($_GET['csv'])) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
+        if( $_SESSION['nyomtatas_ids'] ) {
+            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+            } else {
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            }
+        }
+
         $sql = 'SELECT
                 `'.get_db_tabla().$megnevezes.'`.`nev` as \'Név\'
                 '.$lekerdezes_fromtol;
@@ -173,7 +181,7 @@ if (isset($_GET['csv'])) {
 
 // Felmérési terv fájl létezik-e?
 if (isset($_POST['felmeresi_terv_csatolva'])) {
-    
+
     // Új feltöltésnél még nincs recid, ekkor a Cache mappát kell megvizsgálni, hogy van-e session kezdetű fájl
     if (!$_POST['recid']) {
         // Nézzük meg, hogy van-e SESSION id kezdetű fájl a könyvtárban
@@ -191,9 +199,9 @@ if (isset($_POST['felmeresi_terv_csatolva'])) {
                 'tallozas_mehet'  => true,
             ));
         }
-        
+
     }else{
-        
+
         $ft = $adatbazis_kapcsolat->s2('felm_terv', 'felmeresi_terv', "`recid`='{$_POST['recid']}'");
         if(is_file('../'.get_utvonal().$megnevezes.'/'.$ft['felm_terv'])){
             echo json_encode(array(
@@ -206,10 +214,10 @@ if (isset($_POST['felmeresi_terv_csatolva'])) {
                 'tallozas_mehet'  => true,
             ));
         }
-        
+
     }
-    
-    
+
+
     $weblap->leallit();
     exit();
 }
@@ -254,7 +262,7 @@ require_once('selectek.php');
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
-            
+
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -273,7 +281,7 @@ require_once('selectek.php');
     // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) ) {
-        
+
         if(_jog(JOG_FT_KEZEL)){
             $gombok = nl2('
                 <input type="button" class="gomb" value="Felmérési terv csatolása" onclick="felmeresi_terv_csatolva()">
@@ -306,7 +314,7 @@ require_once('selectek.php');
         $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
 
         if(!$nem_szerkesztheti && isset($_GET['modosit']) && _jog(JOG_FT_KEZEL)){
-            
+
             $gombok = nl2('
                 <input type="button" class="gomb" value="Felmérési terv csatolása" onclick="felmeresi_terv_csatolva(\''.$_GET['id'].'\')">
                 <div class="form_kuldes">
@@ -372,7 +380,7 @@ require_once('selectek.php');
 
 	// Új FT felvitele
 	if(isset($_GET['uj']) && _jog(JOG_FT_KEZEL)){
-        
+
         $navi_sablon  = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit     = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
@@ -448,7 +456,7 @@ require_once('selectek.php');
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                
+
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
@@ -472,7 +480,7 @@ require_once('selectek.php');
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
-        
+
         // Duplákáláskor feltett kérdés
         $szamla_html .= nl2('
             <script>

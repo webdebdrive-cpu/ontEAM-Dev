@@ -113,6 +113,14 @@ if (isset($_GET['csv'])) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
+        if( $_SESSION['nyomtatas_ids'] ) {
+            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+            } else {
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            }
+        }
+
         $sql = 'SELECT
                 `'.get_db_tabla().$megnevezes.'`.`id` as \'Feladatszám\',
                 `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
@@ -188,7 +196,7 @@ require_once('selectek.php');
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
-            
+
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -224,7 +232,7 @@ require_once('selectek.php');
                 }
             }
 
-            // Műveletek box 
+            // Műveletek box
             $gombok = nl2('
                 <div class="muveletek"'.$muv_style.'>
                     '.$gombok.'
@@ -237,7 +245,7 @@ require_once('selectek.php');
 
         // Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
-        
+
         // Csak saját bejelentés törölhető!
         if( !_jog(JOG_ESETI_FENN_TOROL) && $sor['loginnev'] != $_SESSION[get_db_tabla().'user'] ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Önnek nincs joga '.$szoveg.' törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
@@ -280,9 +288,9 @@ require_once('selectek.php');
             </div>
         ');
     }
-    
+
     $js_submit_elott = 'return form_ell_admin();';
-    
+
 	// Új termék felvitele
 	if( isset($_GET['uj']) && _jog(JOG_ESETI_FENN_KEZEL) ){
 
@@ -310,7 +318,7 @@ require_once('selectek.php');
 			foreach($akt_tomb as $ertek){
 				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
-            
+
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
@@ -379,7 +387,7 @@ require_once('selectek.php');
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                
+
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
@@ -403,7 +411,7 @@ require_once('selectek.php');
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
-        
+
         // Duplikáláskor feltett kérdés
         $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
         $telephely = $telephely[0]['nev'];

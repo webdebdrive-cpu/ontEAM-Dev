@@ -91,6 +91,14 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         }
     }
 
+    if( $_SESSION['nyomtatas_ids'] ) {
+        if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+            $_SESSION['akt_sql'] = str_replace('WHERE', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $_SESSION['akt_sql']);
+        } else {
+            $_SESSION['akt_sql'] = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $_SESSION['akt_sql']);
+        }
+    }
+
     if( $_GET['type'] == 'egysegarak_lista' ) {
         if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
             $_SESSION['akt_sql'] = str_replace('WHERE', "WHERE `recid` = '".$_GET['id']."' AND ", $_SESSION['akt_sql']);

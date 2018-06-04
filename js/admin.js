@@ -5244,6 +5244,74 @@ function _get( ertek ) {
     return false;
 }
 
+function egysegarak_nyomtat() {
+    window.open(get_get() + '&print=lista&type=egysegarak_lista', '_blank');
+}
+
+function listanezet_nyomtat() {
+    var ids = new Array();
+
+    i = 0;
+    $('#szamlaList li.szamla_sor').each(function() {
+        var display = $(this).css('display');
+
+        if( display != 'none' ) {
+            ids[i] = $(this).attr('data-recid');
+
+            i++;
+        }
+    });
+
+    var ajax = $.ajax({
+     	url : 'esemenyek.php',
+     	type: 'POST',
+     	data: {
+            data: ids.join(','),
+            nyomtatas_ids: new Date().getTime()
+        }
+    });
+
+    $.when(ajax).done(function() {
+        if( ids.length ) {
+            window.open(get_get() + '&print=lista', '_blank');
+        } else {
+            alert2('Üres találati listát nem lehet nyomtatni!', '', 'Hiba');
+        }
+    });
+}
+
+function csv_general() {
+    var ids = new Array();
+
+    i = 0;
+    $('#szamlaList li.szamla_sor').each(function() {
+        var display = $(this).css('display');
+
+        if( display != 'none' ) {
+            ids[i] = $(this).attr('data-recid');
+
+            i++;
+        }
+    });
+
+    var ajax = $.ajax({
+     	url : 'esemenyek.php',
+     	type: 'POST',
+     	data: {
+            data: ids.join(','),
+            nyomtatas_ids: new Date().getTime()
+        }
+    });
+
+    $.when(ajax).done(function() {
+        if( ids.length ) {
+            window.open(get_get() + '&csv', '_blank');
+        } else {
+            alert2('Üres találati listát nem lehet nyomtatni!', '', 'Hiba');
+        }
+    });
+}
+
 /* Adatlap betöltése */
 var request_in_process = false;
 function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigenylesnel_is ) {

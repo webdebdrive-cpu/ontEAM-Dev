@@ -202,7 +202,7 @@ if (isset($_POST['anyagigenylesLeirasHozzaadas'])) {
         $weblap->leallit();
         exit();
     }
-    
+
     // Jog ellenőrzése
     if( !_jog(JOG_ANYAGREND_KESZIT) ) {
         echo json_encode(array(
@@ -1879,6 +1879,14 @@ if (isset($_GET['csv'])) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
+        if( $_SESSION['nyomtatas_ids'] ) {
+            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."anyagigenyles`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+            } else {
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla()."anyagigenyles`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            }
+        }
+
         // De azért indulunk ki az eredeti SQL-ből (és nem kezdjük a cikkrndfej táblát bejárni) mert így lesznek a kívánt rekordok az exportban is.
         if(isset($_GET['anyagrend'])){
             $sql = 'SELECT
@@ -2049,7 +2057,7 @@ require_once('selectek.php');
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
-            
+
             // Anyagrendelés alatt Anyagignylés fül nem kell Anyagrend mod: 2018.04
             // if( !(isset($_GET['anyagrend']) && $key=='tablazat') ){
 
@@ -2184,12 +2192,12 @@ require_once('selectek.php');
                 $gombok .= nl2('
                             <div class="kijeloltek_muv">
                             ');
-                
+
                 // Elutasított státusz alatt nincs Leírás hozzáadása gomb
                 if( $sor['stat_id']!=CIKKIGN_STAT_ELUTASITVA ){
                     $gombok .= '<input type="button" class="gomb" value="Leírás hozzáadása" title="Leírás hozzáadása" onclick="csoportMuvelet(\'anyagigenylesLeirasHozzaadas\')"> ';
                 }
-                
+
                 $gombok .= nl2('
                         <input type="button" class="gomb foGomb" value="Várólista..." title="Várólista...">
                         <div class="muv">
@@ -2203,10 +2211,10 @@ require_once('selectek.php');
                     '.$kuld_jovahagy.'
                     '.$rend_keszit.'
                 ');
-                
+
             // Anyagrendelés alatt csak a Leírás hozzáadása gomb látszik
             }else{
-                
+
                 if( $sor['stat_id']!=CIKKIGN_STAT_ELUTASITVA ){
                     $gombok .= nl2('
                                     <div class="kijeloltek_muv">
@@ -2406,7 +2414,7 @@ require_once('selectek.php');
                     // Azon belül anyagonként járjuk be
                     $anyagok = $adatbazis_kapcsolat->s('distinct cikk_id', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `stat_id`!='".DISZPNAG_STAT_VAN_ANYAG."' AND `telephely_id`='{$telephely['telephely_id']}'".$anyag_sql);
                     foreach($anyagok as $anyag){
-                        
+
                         $anyag = $adatbazis_kapcsolat->s2('recid id', 'cikktorzs', "`id`='{$anyag['cikk_id']}'");
                         $anyag['cikk_id'] = $anyag['id'];
 
@@ -2513,7 +2521,7 @@ require_once('selectek.php');
 
 	// Táblázat
     } elseif(isset($_GET['tablazat'])) {
-        
+
         // A füle CSS-ét itt felülírjuk, illetve a táblázat rendezőt és egyés ide vonatkozós JS-t is meghívunk
         $szamla_html .= nl2('
                 <style type="text/css">
@@ -2554,11 +2562,11 @@ require_once('selectek.php');
             $sor_rnd['rndertek'] = number_format($sor_rnd['rndertek'], 0, '', ' ');
             $kepfajl_original   = $sor_rnd['kepfajl'];
             $sor_rnd['kepfajl'] = str_replace('rendeles/', '', $sor_rnd['kepfajl']);
-            
+
             foreach($sor_rnd as $kulcs => $ertek){
                 $sor[$kulcs] = $sor_rnd[$kulcs];
             }
-            
+
         }
 
         $sor['rnd_dt']  = str_replace('-', '.', $sor['rnd_dt']);
@@ -2586,7 +2594,7 @@ require_once('selectek.php');
             }
 
         }
-        
+
         // A két számot visszaállítjuk
         $sor['vrndear'] = str_replace( array(' ', ','), array('', '.'), $sor['vrndear'] );
         $sor['rndear']  = str_replace( array(' ', ','), array('', '.'), $sor['rndear'] );

@@ -142,6 +142,14 @@ if (isset($_GET['csv'])) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
+        if( $_SESSION['nyomtatas_ids'] ) {
+            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."szerepkor`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+            } else {
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla()."szerepkor`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            }
+        }
+
         $sql = 'SELECT
                 `'.get_db_tabla().'szerepkor`.`nev` as \'Név\'
                 '.$lekerdezes_fromtol;
@@ -213,7 +221,7 @@ require_once('selectek.php');
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
-            
+
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -492,7 +500,7 @@ require_once('selectek.php');
                                             type   : \'POST\',
                                             data   : esamp2es(param+\'&amp;id='.$_GET['id'].'&amp;jogokhozzaad=\' + new Date().getTime()),
                                             success: function (response) {
-                                            
+
                                                 if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
                                                 $(\'input[type="checkbox"]\').removeClass(\'mod\');
                                                 formModositva = false;
@@ -587,7 +595,7 @@ require_once('selectek.php');
                     if($jogSor['torolve']){
                         $dn = ' dn';
                     }
-                    
+
                     // Van ahol a pipát kell elrejteni
                     $dn_pipa  = '';
                     $dn_pipac = '';

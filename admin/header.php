@@ -1202,7 +1202,8 @@ if( basename(self())=='torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL)){
     $uj = $duplikal = '';
 }
 
-$csv_get = get_get(array('id'));
+// $csv_get = get_get(array('id'));
+$csv_get = 'javascript: csv_general(); void(0);';
 
 $rendez_rejt_oldalak = array('dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
 if(in_array(basename(self()), $rendez_rejt_oldalak)){
@@ -1291,8 +1292,8 @@ if( basename(self()) == 'energia_terv.php' ) {
         <div class="dn">
             <div id="nyomtatasi_nezet">
                 Nyomtatási nézet választás...
-                <br><a href="'.self().get_get('pdf').'&amp;print=lista&amp;type=energia_terv_lista" target="_blank">Energia tervek listája</a>
-                <br><a href="'.self().get_get('pdf').'&amp;print=lista&amp;type=egysegarak_lista" target="_blank">Egységárak listája</a>
+                <br><a href="javascript: listanezet_nyomtat(); void(0);" target="_blank">Energia tervek listája</a>
+                <br><a href="javascript: egysegarak_nyomtat(); void(0);" target="_blank">Egységárak listája</a>
             </div>
         </div>
     ');
@@ -1301,7 +1302,7 @@ if( basename(self()) == 'energia_terv.php' ) {
         <div class="dn">
             <div id="nyomtatasi_nezet">
                 Nyomtatási nézet választás...
-                <br><a href="'.self().get_get('pdf').'&amp;print=lista{KSZ}" target="_blank">Listanézet</a>
+                <br><a href="javascript: listanezet_nyomtat(); void(0);" target="_blank">Listanézet</a>
                 <br><a href="#" target="_blank">B nézet</a>
                 <br><a href="#" target="_blank">C nézet</a>
             </div>

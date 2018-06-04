@@ -89,6 +89,14 @@ if (isset($_GET['csv'])) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
+        if( $_SESSION['nyomtatas_ids'] ) {
+            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+            } else {
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            }
+        }
+
         $sql = 'SELECT
                                                     `ikt_szam` as \'Bejelentés szám\',
                                                     `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
@@ -187,7 +195,7 @@ require_once('selectek.php');
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
-            
+
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -217,7 +225,7 @@ require_once('selectek.php');
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                
+
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
@@ -312,7 +320,7 @@ require_once('selectek.php');
         if( $munkalap_kapcsok ) {
             $i = 1;
             foreach($munkalap_kapcsok as $munkalap_kapcs) {
-                
+
                 // Csak akkor látszik a munkalap, ha az nyitott
                 $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id insert_dt stat_id', 'munkalap_arch', "`recid` = '".$munkalap_kapcs['munkalap_id']."'", '', '1');
                 if( $sor ) {
@@ -324,12 +332,12 @@ require_once('selectek.php');
                     // Helység
                     $helyseg = $adatbazis_kapcsolat->s('nev', 'obj', 'recid='.$sor['obj_id'], '', '1');
                     $helyseg = $helyseg[0]['nev'];
-                    
+
                     $ikt_szam = '<a href="munkalap_arch.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a>';
                     if( !_jog(JOG_MUNKALAP_MEGTEKINT) && !_jog(JOG_MUNKALAP_MEGTEKINT_SZALL) && !_jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ){
                         $ikt_szam = $sor['ikt_szam'];
                     }
-                    
+
                     $szamla_html .= nl2('
                         <div id="naploSor-'.$sor['recid'].'" class="dtr nSor kijSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                             <div class="dtc">'.$ikt_szam.'</div>

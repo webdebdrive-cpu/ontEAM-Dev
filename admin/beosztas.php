@@ -86,7 +86,7 @@ if (isset($_POST['beosztas_naptarba_tesz'])) {
                                                                 )"));
 
     if($utkozes===false){ $db_error = true; }
-    
+
     // Ha nincs ütközés, vagy felülírhatjuk, akkor beszúrjuk
     if(!$utkozes || $_POST['felulir']){
         $sql = $adatbazis_kapcsolat->i('beosztas_naptar',   array('beosztas_id',         'tol',        'ig',           'beosztas',         'szerepkor',        'felh_loginnev'),
@@ -127,7 +127,7 @@ if (isset($_POST['beosztas_naptarba_tesz'])) {
         echo json_encode( array(
                                 'siker'  => 'siker',
                                 'naptar' => beosztas_naptar($_POST['beosztas_id'])
-                                ) 
+                                )
                         );
         mysqli_commit($db_kapcs);
     }else{
@@ -148,7 +148,7 @@ if (isset($_POST['naptar_torol'])) {
 
     $beosztas_id = $adatbazis_kapcsolat->s('beosztas_id', 'beosztas_naptar', "`recid`='{$_POST['id']}'");
     if($beosztas_id===false){ $db_error = true; }
-    
+
     $beosztas_id = $beosztas_id[0]['beosztas_id'];
     $sql = $adatbazis_kapcsolat->d('beosztas_naptar', "`recid`='{$_POST['id']}'");
     if($sql===false){ $db_error = true; }
@@ -208,6 +208,14 @@ if (isset($_GET['csv'])) {
     if($open){
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+
+        if( $_SESSION['nyomtatas_ids'] ) {
+            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."beosztas`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+            } else {
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla()."beosztas`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            }
+        }
 
         $sql = 'SELECT
                 `'.get_db_tabla().'beosztas`.`cim` as \'Cím\',
@@ -273,7 +281,7 @@ require_once('selectek.php');
     if( !$_GET['ajax'] ) {
         echo '<div id="szamlaBetolt">';
     }
-    
+
     // Az adatlap adatait már a legelején lekérjük
     if( $_GET['id'] ){
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
@@ -286,7 +294,7 @@ require_once('selectek.php');
     }
 
     if( isset($_GET['modosit']) || isset($_GET['naptar']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
-        
+
         // Számla fülek
         $ful_tomb = array(
             'modosit'       => 'Adatlap',
@@ -298,7 +306,7 @@ require_once('selectek.php');
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
-            
+
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -339,7 +347,7 @@ require_once('selectek.php');
             </div>
         ');
 
-    
+
     } elseif(isset($_GET['naptar'])) {
 
         $beosztas = $adatbazis_kapcsolat->s2('tol ig', 'beosztas', "`recid`='{$_GET['id']}'");
@@ -431,7 +439,7 @@ require_once('selectek.php');
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-        // Javascipt-es ellenőrzéshez 
+        // Javascipt-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
         $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');

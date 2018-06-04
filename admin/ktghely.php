@@ -89,6 +89,14 @@ if (isset($_GET['csv'])) {
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
+        if( $_SESSION['nyomtatas_ids'] ) {
+            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."ktghely`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+            } else {
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla()."ktghely`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            }
+        }
+
         $sql = 'SELECT
                 `'.get_db_tabla().'ktghely`.`id` as \'id\',
                 `nev` as \'Érték\'
@@ -153,7 +161,7 @@ require_once('selectek.php');
     }
 
     $js_submit_elott = 'return form_ell_admin();';
-    
+
     // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) ) {
@@ -184,7 +192,7 @@ require_once('selectek.php');
     } else {
 
         $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
-        
+
         // Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
@@ -194,7 +202,7 @@ require_once('selectek.php');
         }else{
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
-        
+
         if(_jog(JOG_ERTEKLISTAK_KEZEL)){
             $gombok = nl2('
                 <div class="form_kuldes">
@@ -203,7 +211,7 @@ require_once('selectek.php');
                 </div>
             ').$gombok;
         }
-        
+
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
@@ -218,7 +226,7 @@ require_once('selectek.php');
             </div>
         ');
     }
-    
+
 	// Új Ktghely felvitele
 	if(isset($_GET['uj']) && _jog(JOG_ERTEKLISTAK_KEZEL)){
 
@@ -293,7 +301,7 @@ require_once('selectek.php');
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                
+
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];

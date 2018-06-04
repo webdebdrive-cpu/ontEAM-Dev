@@ -56,7 +56,7 @@ if($tobb_kep){
 
 // Mentés előtt popupban megmutatjuk, mi lesz az ütemezés
 if (isset($_GET['datumra_utemezes'])) {
-    
+
     include('datumra_utemezes.php');
 
     // Üres értékeket 0-val adjunk át
@@ -66,7 +66,7 @@ if (isset($_GET['datumra_utemezes'])) {
             $_GET[$kulcs] = '0';
         }
     }
-    
+
     $utemezes = 'Folyamatos';
     if($_GET['idoszakos']){
         if($_GET['aktkezd_d']>'0000.00.00' && $_GET['aktkezd_d']>'0000.00.00'){
@@ -98,7 +98,7 @@ if (isset($_GET['datumra_utemezes'])) {
     if(!$_GET['esem_d'] || $_GET['esem_d']=='0000.00.00' || $_GET['esem_d']=='    .  .  '){
         $_GET['esem_d'] = date('Y.m.d');
     }
-    
+
     $aktkezd_d  = str_replace('-', '.', $_GET['aktkezd_d']);
     $aktvege_d  = str_replace('-', '.', $_GET['aktvege_d']);
 // $szamla_html .= "esemd: $esem_d<br>cikltip: $_GET[cikltip]<br>ciklaltip: $_GET[ciklaltip]<br>ciklszorz: $_GET[ciklszorz_]<br>ciklho: $_GET[ciklho]<br>ciklhet: $_GET[ciklhet]<br>ciklnap: $_GET[ciklnap]<br>idoszakos: $_GET[idoszakos]<br>kezdho: $_GET[kezdho]<br>kezdnap: $_GET[kezdnap]<br>vegeho: $_GET[vegeho]<br>vegenap: $_GET[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
@@ -112,13 +112,13 @@ if (isset($_GET['datumra_utemezes'])) {
     }else{
         $getnextvaliddate = $esedekes;
     }
-    
+
     $szamla_html .= '<br>Szabály: ' . getcimke( $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz_'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $getnextvaliddate);
     $szamla_html .= '<br>Ütemezés: ' . $utemezes;
     $szamla_html .= '<br>Esedékes: ' . $esedekes.' '.het_napja_txt($esedekes);
     $szamla_html .= '<br>';
     $szamla_html .= '<br>Várható ütemezés:<br>';
-    
+
     $szamla_html .= $getnextvaliddate . '<br>';
     for($i=0; $i<9; $i++){
         $getnextvaliddate = getnextvaliddate(false, $getnextvaliddate, $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz_'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $_GET['idoszakos'], $_GET['kezdho'], $_GET['kezdnap'], $_GET['vegeho'], $_GET['vegenap'], $aktkezd_d, $aktvege_d);
@@ -134,7 +134,7 @@ if (isset($_GET['datumra_utemezes'])) {
             array(
                 'uzenet'    => 'Ön a következő ütemezést választotta:<br><div class="l" style="max-height: 20rem; overflow: auto">'.$szamla_html.'</div><br>Folytatja?',
                 'esedekes'  => $esedekes
-            ) 
+            )
         );
 
     $weblap -> leallit();
@@ -170,6 +170,14 @@ if (isset($_GET['csv'])) {
     if($open){
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+
+        if( $_SESSION['nyomtatas_ids'] ) {
+            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+            } else {
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla().$megnevezes."`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            }
+        }
 
         $sql = 'SELECT
                 `'.get_db_tabla().$megnevezes.'`.`id` as \'Feladatszám\',
@@ -246,7 +254,7 @@ require_once('selectek.php');
 
         $fulek = '';
         foreach($ful_tomb as $key => $value) {
-            
+
             $active = 'active';
             if( isset($_GET[$key]) ) {
                 $active = ' class="active"';
@@ -329,7 +337,7 @@ require_once('selectek.php');
     }
 
     $js_submit_elott = 'return form_ell_admin();';
-    
+
 	// Új termék felvitele
 	if( isset($_GET['uj']) && _jog(JOG_UTFEL_KEZEL) ){
 
@@ -357,7 +365,7 @@ require_once('selectek.php');
 			foreach($akt_tomb as $ertek){
 				$sor[$ertek['name']] = $_SESSION[$ertek['name']];
 			}
-            
+
             // Újként szerkesztésnél az ütemezés tipust beállítani, meglegyen az onchange + adatok beállítása
             $checkboxok = '';
             if($sor['cikltip']=='d' && $sor['ciklaltip']==2){
@@ -372,7 +380,7 @@ require_once('selectek.php');
             if($sor['cikltip']=='m' && $sor['ciklho2']){
                 $sor['ciklho'] = '';
             }
-            
+
             if($sor['cikltip']=='w'){
                 if(strpos($sor['ciklnap'], '1')!==false){
                     $checkboxok .= '$(\'#h\').prop(\'checked\', true);';
@@ -401,7 +409,7 @@ require_once('selectek.php');
                         $(document).ready(function () {
                             $(\'#cikltip\').val(\'0\').change();
                             $(\'#cikltip\').val(\''.$sor['cikltip'].'\').change();
-                            
+
                             $(\'#esnap_d\').val(\''.str_replace('-', '.', $sor['esnap_d']).'\');
                             $(\'#ciklho\').val(\''.$sor['ciklho'].'\');
                             $(\'#honapjan\').val(\''.$sor['honapjan'].'\');
@@ -411,16 +419,16 @@ require_once('selectek.php');
                             $(\'#ho_rendsz_het\').val(\''.$sor['ho_rendsz_het'].'\');
                             $(\'#ciklnap\').val(\''.$sor['ciklnap'].'\');
                             $(\'#ism_het\').val(\''.$sor['ism_het'].'\');
-                            
+
                             '.$checkboxok.'
-                            
+
                         });
                     </script>
                     ');
-            
+
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
-        
+
         // Mobilcsoport választható-e vagy sem?
         $szamla_html .= nl2('
                 <script>
@@ -465,7 +473,7 @@ require_once('selectek.php');
 
         $sor['elv_ido_tol'] = '08:00';
         $sor['elv_ido_ig']  = '17:00';
-        
+
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
 
@@ -491,7 +499,7 @@ require_once('selectek.php');
         }
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
-        
+
         // 0-ék helyett használjunk üres stringet
         foreach($sor as $kulcs => $ertek){
             if(!$sor[$kulcs]){
@@ -512,7 +520,7 @@ require_once('selectek.php');
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
-                
+
                 if($tomb['csoport']){
                     $kulso_ertek = $adatbazis_kapcsolat->s2('info', $tomb['tabla'], "`{$tomb['oszlop_keres']}`='{$sor[$tomb['name']]}' AND `csoport`='{$tomb['csoport']}'", '', '1');
                     $kulso_ertek['nev'] = $kulso_ertek['info'];
@@ -543,7 +551,7 @@ require_once('selectek.php');
         }
         // A többi mezőt is le kell kezelni
         $json_sor['ism_het'] = $sor['ciklszorz'];
-        
+
         $szamla_html .= nl2('
                         <script>
                             $(document).ready(function () {
@@ -552,8 +560,8 @@ require_once('selectek.php');
                             formAdatok = JSON.parse(\''.json_encode($json_sor).'\');
                         </script>
                         ');
-        
-        
+
+
 // Szinvatrednes demo
 //if ($_SERVER['HTTP_HOST']=='demo.szinvatrend.hu') {
 //    $szamla_html .= '<script> $(document).ready(function () { $(\'#szerk_form div.dtr\').hide(); $(\'.mutat_szinva_tmp\').show(); $(\'.mutat_szinva_tmp div.dtr\').show(); }); </script>';
@@ -562,7 +570,7 @@ require_once('selectek.php');
         if($id_latszik){
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
-        
+
         // Duplikáláskor feltett kérdés
         $telephely = $adatbazis_kapcsolat->s('nev', 'telephely', 'id='.$sor['telephely_id'], '', '1');
         $telephely = $telephely[0]['nev'];
@@ -582,7 +590,7 @@ require_once('selectek.php');
 
 	    // HIBAüZENETEK
         require_once('info.php');
-        
+
 // szinvatrend.hu-n kiírjuk a részeredményeket
 if(isset($_GET['ut_teszt'])) {
     $szamla_html = '';
@@ -630,8 +638,8 @@ if(isset($_GET['ut_teszt'])) {
             array( $js,   $js_submit_elott,    $action,    $mezok,    $megnevezes,    $jobb_oldal, $ckeditor,     $gombok,    $sor['update_dt'] ),
             fajlbol_olvas('../sablon/admin/form_modosit.html', true)
         );
-        
-        
+
+
         if( $_GET['ajax'] ) {
             echo json_encode(array(
                 'tartalom' => $szamla_html,
@@ -755,13 +763,13 @@ if(isset($_GET['ut_teszt'])) {
         }else{
             $getnextvaliddate = $esedekes;
         }
-        
+
         //$szamla_html .=  "esemd: $esem_d<br>cikltip: $sor[cikltip]<br>ciklaltip: $sor[ciklaltip]<br>ciklszorz: $sor[ciklszorz]<br>ciklho: $sor[ciklho]<br>ciklhet: $sor[ciklhet]<br>ciklnap: $sor[ciklnap]<br>idoszakos: $sor[idoszakos]<br>kezdho: $sor[kezdho]<br>kezdnap: $sor[kezdnap]<br>vegeho: $sor[vegeho]<br>vegenap: $sor[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
         $szamla_html .= '<br>Szabály: ' . getcimke( $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $getnextvaliddate);
         $szamla_html .= '<br>Ütemezés: ' . $utemezes;
         $szamla_html .= '<br>Esedékes: ' . $esedekes.' '.het_napja_txt($esedekes);
         $szamla_html .= '<br>';
-        $szamla_html .= '<br>Várható ütemezés:<br>'; 
+        $szamla_html .= '<br>Várható ütemezés:<br>';
 
         $szamla_html .= $getnextvaliddate . '<br>';
         for($i=0; $i<9; $i++){
