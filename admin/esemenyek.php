@@ -2225,7 +2225,7 @@ $megnevezes = 'energia_terv';
 $energia_terv_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',   'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
     array('type' => 'text',                 'megn' => 'Tervszám:',  'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1,     'class' => 'normal', 'style' => 'width: 11.5rem'),
-    array('type' => 'text',                 'megn' => 'Tervező év:','name' => 'ev',             'szuro' => 1,  'disabled' => 1,     'class' => 'normal f_csakszam', 'style' => 'width: 6rem', 'maxlength' => 4),
+    array('type' => 'text',                 'megn' => 'Tervező év:','name' => 'ev',             'szuro' => 1,  'disabled' => 1,     'class' => 'normal f_csakszam', 'style' => 'width: 4.1rem', 'maxlength' => 4),
     array('type' => 'textarea',             'megn' => 'Leírás:',    'name' => 'text',           'szuro' => 1,                       'class' => 'oriasi disableNav', 'style' => 'height: 10rem'),
 
 );

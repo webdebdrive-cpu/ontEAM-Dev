@@ -1,6 +1,5 @@
 <?php
 require_once('../weblap.php');
-//Config
 
 if( !_jog(JOG_ESZKOZ_MEGTEKINT) ) {
     if(!$_SESSION[get_db_tabla().'user']){
@@ -26,7 +25,7 @@ if( isset($_GET['obj']) ) {
     $szoveg                 = 'gépet';        //Hibaüzenetkor: Biztosan törlöd a $szoveg?
 }
 
-//Változók beállítása
+// Változók beállítása
 $csak_szerkesztheto     = false;                //Ha tiltani szeretnéd, hogy újat tudjon feltölteni, vagy törölni adott bejegyzést
 $elonezet               = '';                   //Ha üres nincs előnézet. Egyébként meg az előnézet URL-jét add meg ide, pl.: '../index.php?id='.$_GET['id']
 $fajloszlop             = 'kep';                //Kép (vagy kivételes esetekben más fájl) oszlopneve.
@@ -240,7 +239,7 @@ if (isset($_GET['csv'])) {
 
 
 
-/** Tartalom */
+// Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
@@ -250,26 +249,15 @@ require_once('selectek.php');
         echo '<div id="szamlaBetolt">';
     }
 
-    // Megjegyzések darabszáma
-    $megj_db = '';
-    $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
-    if( $megj_sorok ) {
-        $megj_db = ' ('.count($megj_sorok).')';
+    // Az adatlap adatait már a legelején lekérjük
+    if( $_GET['id'] ){
+        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     }
-
-    // Dokumentumok darabszáma
-    $dok_db = '';
-    $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
-    if( $dok_sorok ) {
-        $dok_db = 0;
-
-        foreach($dok_sorok as $dok_sor) {
-            if( is_file('../'.get_utvonal().$megnevezes.'/'.$dok_sor['utvonal']) ) {
-                $dok_db += 1;
-            }
-        }
-
-        $dok_db = ' ('.$dok_db.')';
+    if($sor['dok_db']){
+        $dok_db  = ' ('.$sor['dok_db'].')';
+    }
+    if($sor['megj_db']){
+        $megj_db = ' ('.$sor['megj_db'].')';
     }
 
     // Engedélyek darabszáma
@@ -288,7 +276,7 @@ require_once('selectek.php');
     }
 
     if( isset($_GET['modosit']) || isset($_GET['megjegyzesek']) || isset($_GET['dokumentumok']) || isset($_GET['naptar']) || isset($_GET['esemenyek']) || isset($_GET['engedelyek']) || isset($_GET['felmeresi']) || isset($_GET['terkep']) || isset($_GET['obj']) ) {
-        /* Számla fülek */
+        // Számla fülek
         if( isset($_GET['obj']) ) {
             $ful_tomb = array(
                 'obj' => 'Adatlap'
@@ -323,7 +311,7 @@ require_once('selectek.php');
         );
     }
 
-    /* Gombok kirajzolása minden oldalra */
+    // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) ) {
         if(_jog(JOG_ESZKOZ_KEZEL)){
@@ -352,7 +340,7 @@ require_once('selectek.php');
     // Módosítás gombok
     } else {
 
-        //Js, a törlés gombhoz
+        // Js, a törlés gombhoz
         $gombok  = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
         $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
 
@@ -372,7 +360,7 @@ require_once('selectek.php');
             }
         }
 
-        /* Műveletek box */
+        // Műveletek box
         $gombok = nl2('
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'
@@ -439,10 +427,10 @@ require_once('selectek.php');
         $navi_mivel   = array( $navi,             '',         $gyk2 );
         $szamla_html .= str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
 	    require_once('info.php');
 
-	    //FORM
+	    // FORM
 		if(isset($_GET['ujkent'])){
 			foreach($akt_tomb as $ertek){
 				$sor[$ertek['name']]=$_SESSION[$ertek['name']];
@@ -450,14 +438,14 @@ require_once('selectek.php');
 		}
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()');
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
 
 	    $form_sablon = fajlbol_olvas('../sablon/admin/form_uj.html', true);
 
-        /* Javascipt-es ellenőrzéshez */
+        // Javascipt-es ellenőrzéshez
         $tabla = str_replace('.php', '', basename(self()));
 
         $rend_mezok = $adatbazis_kapcsolat->s('`column_name`', '`information_schema`.columns', '`table_schema` LIKE  \''.get_db().'\' AND  `table_name` LIKE  \''.get_db_tabla().$tabla.'\'', '', '');
@@ -500,8 +488,6 @@ require_once('selectek.php');
             $_GET['id'] = $_GET['id_hidden'];
         }
 
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
-
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
                 
@@ -529,22 +515,22 @@ require_once('selectek.php');
             $navi = '<b>#'.$_GET['id'].'</b> '.$navi;
         }
 
-        //NAVIGÁCIÓ
+        // NAVIGÁCIÓ
         $navi_sablon = fajlbol_olvas('../sablon/admin/navi.html', true);
         $navi_mit    = array('{NAVI_FELIRAT}',  '{GOMBOK}', '{GYK}');
         $navi_mivel  = array( $navi,             '',         $gyk2 );
-        //echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
+        // echo str_replace($navi_mit, $navi_mivel, $navi_sablon);
 
-	    //HIBAüZENETEK
+	    // HIBAüZENETEK
         require_once('info.php');
 
-	    //FORM
+	    // FORM
 	    $js = js_kiir($akt_tomb, 'form_ell_admin()', 'ajax');
 
-		//Form actionja
+		// Form actionja
 		$action = self().get_get(array('errnum','kephiba','siker'));
 
-        //Ckeditort csak akkor húzzuk be, ha kell
+        // Ckeditort csak akkor húzzuk be, ha kell
         if(is_file($ckeditor_js)){
             $ckeditor = '<script src="'.$ckeditor_js.'"></script>';
         }
@@ -746,7 +732,7 @@ require_once('selectek.php');
         }
 
 
-	//Térkép
+	// Térkép
 	}elseif(isset($_GET['terkep'])){
 
         $szamla_html .= 'Térkép felülete';

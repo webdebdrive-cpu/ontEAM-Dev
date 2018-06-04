@@ -374,26 +374,15 @@ require_once('selectek.php');
         echo '<div id="szamlaBetolt">';
     }
 
-    // Megjegyzések darabszáma
-    $megj_db = '';
-    $megj_sorok = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla` = '".$megnevezes."' AND `id` = '".$_GET['id']."'", '', '');
-    if( $megj_sorok ) {
-        $megj_db = ' ('.count($megj_sorok).')';
+    // Az adatlap adatait már a legelején lekérjük
+    if( $_GET['id'] ){
+        $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     }
-
-    // Dokumentumok darabszáma
-    $dok_db = '';
-    $dok_sorok = $adatbazis_kapcsolat->s('recid utvonal', $megnevezes.'_dok', "`{$megnevezes}_id` = '".$_GET['id']."'", '', '');
-    if( $dok_sorok ) {
-        $dok_db = 0;
-
-        foreach($dok_sorok as $dok_sor) {
-            if( is_file('../'.get_utvonal().$megnevezes.'/'.$dok_sor['utvonal']) ) {
-                $dok_db += 1;
-            }
-        }
-
-        $dok_db = ' ('.$dok_db.')';
+    if($sor['dok_db']){
+        $dok_db  = ' ('.$sor['dok_db'].')';
+    }
+    if($sor['megj_db']){
+        $megj_db = ' ('.$sor['megj_db'].')';
     }
 
     if( isset($_GET['modosit']) || isset($_GET['jogosultsag']) || isset($_GET['ertesites']) || isset($_GET['szallodak']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
@@ -617,8 +606,6 @@ require_once('selectek.php');
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
-
-	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {

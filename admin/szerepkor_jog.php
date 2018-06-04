@@ -87,36 +87,9 @@ require_once('selectek.php');
         echo '<div id="szamlaBetolt">';
     }
 
-    if( isset($_GET['modosit']) || isset($_GET['tortenet']) || isset($_GET['dokumentumok']) || isset($_GET['megjegyzesek']) ) {
-        // Számla fülek
-        $ful_tomb = array(
-            'modosit'       => 'Adatlap',
-            'tortenet'      => 'Történet',
-            'dokumentumok'  => 'Dokumentumok'.$dok_db,
-            'megjegyzesek'  => 'Megjegyzések'.$megj_db,
-        );
-
-        $fulek = '';
-        foreach($ful_tomb as $key => $value) {
-            
-            $active = 'active';
-            if( isset($_GET[$key]) ) {
-                $active = ' class="active"';
-            }
-
-            $fulek .= '<a href="javascript: szamlaBetolt(\''.$_GET['id'].'\', \''.basename(self()).'\', \''.$key.'\'); void(0);"'.$active.' data-oldal="'.$key.'">'.$value.'</a>';
-        }
-
-        $szamla_html .= str_replace(
-            array('{FULEK}'),
-            array( $fulek  ),
-            fajlbol_olvas('../sablon/admin/szamla_fulek.html', true)
-        );
-    }
-
-    /* Gombok kirajzolása minden oldalra */
+    // Gombok kirajzolása minden oldalra
     $gombok = '';
-    //Js, a törlés gombhoz
+    // Js, a törlés gombhoz
     $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
     if( _jog(JOG_SZEREPKOR_KEZEL) ){

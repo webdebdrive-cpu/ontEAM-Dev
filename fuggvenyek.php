@@ -1835,7 +1835,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
     // Dokumentumtárnál egyszerű a helyzet, nem kell számolni SQL-t
     if($tabla=='dokumentumtar'){
-        return dokumentumtarLista();
+        return array(dokumentumtarLista(), '0');
     }
 
     $select = $_OPTS['select'];
@@ -4467,14 +4467,13 @@ function cikktorzsLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 // Dokuemntumtár nav panel része
 function dokumentumtarLista() {
     global $adatbazis_kapcsolat;
-
     $html = '
             <div class="padd b">Dokumentumok:</div>
             <link rel="stylesheet" type="text/css" href="../css/konyvtarszerkezet.css">
             <ol class="konyvtar_szerk">
             ';
 
-    //Ezen menüpontok dokumentumait járjuk be
+    // Ezen menüpontok dokumentumait járjuk be
     $menupontok = array(
                         array('tabla' => 'bejelentes',              'nev' => 'Bejelentés'               ),
                         array('tabla' => 'munkalap',                'nev' => 'Munkalap'                 ),
@@ -4496,10 +4495,11 @@ function dokumentumtarLista() {
                         array('tabla' => 'szallito',                'nev' => 'Partnertörzs'             ),
                         array('tabla' => 'torzsadat',               'nev' => 'Törzsadatok'              ),
                         array('tabla' => 'beosztas',                'nev' => 'Beosztások'               ),
-                        array('tabla' => 'login',                   'nev' => 'Felhasználók'             )
+                        // array('tabla' => 'login',                   'nev' => 'Felhasználók'             )
                     );
 
     foreach($menupontok as $menu){
+
         $checked = '';
         if($_GET['konyvtar']){
             $kapott_konyvtar = substr($_GET['konyvtar'], 0, strpos($_GET['konyvtar'], '/'));
@@ -4519,17 +4519,20 @@ function dokumentumtarLista() {
             if($menu['tabla']=='projektigenyles_velemeny'){
                 $post = '';
             }
+            
             $alkak = $adatbazis_kapcsolat->s('utvonal', $menu['tabla'].$post);
             foreach($alkak as $alk){
                 $konyvtar = substr($alk['utvonal'], 0, strpos($alk['utvonal'], '/'));
                 array_push($alkonyvtarak, $konyvtar);
             }
+
             if($alkonyvtarak){
                 $html .= '<ol>';
 
                 $alkonyvtarak = array_unique($alkonyvtarak);
                 sort($alkonyvtarak);
                 foreach($alkonyvtarak as $alk){
+
                     $html .= '
                             <li>
                                 <label class="as"><a href="javascript: getKonyvtar(\''.self().'?konyvtar='.$menu['tabla'].'/'.$alk.'\'); void(0);" class="link">'.$alk.'</a></label>

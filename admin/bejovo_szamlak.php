@@ -37,7 +37,7 @@ if($tobb_kep){
 }
 
 
-/** Tartalom */
+// Tartalom
 if( !$_GET['ajax'] ) {
     require_once('header.php');
 }
