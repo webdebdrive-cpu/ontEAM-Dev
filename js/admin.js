@@ -433,7 +433,7 @@ $(function() {
                     }
 
                     $('.szamla_cont_tabla tbody tr:nth-of-type('+(kovSzamlaSor+1)+')').addClass('kijelolve');
-                    
+
                     $('#szamlaList li').removeClass('kijelolve');
                     $('#anyagig-sor-'+$('.szamla_cont_tabla tr.kijelolve').attr('data-recid')).click();
 
@@ -1093,10 +1093,12 @@ $(function() {
         }
     });
 
-    if( $('.szamla_sor.kijelolve').hasClass('kijelolve') ) {
-        active_top = $('.szamla_sor.kijelolve').position().top;
-        $('#tartalomBal').scrollTop(active_top - 250);
-    }
+    setTimeout(function() {
+        if( $('.szamla_sor.kijelolve').hasClass('kijelolve') ) {
+            active_top = $('.szamla_sor.kijelolve').position().top;
+            $('#tartalomBal').scrollTop(active_top - 250);
+        }
+    }, 250);
 
     /* Scroll elindása görgetésre */
     $(document).on('mousewheel', function(event) {
@@ -4596,7 +4598,7 @@ function kapcsolodoSzerkeszt( oldal ) {
                      	}
                     });
                 } else {
-                    alert2(EGYSEGAR_VALASZT, '', 'Üzenet');
+                    alert2(EGYSEGAR_VALASZT, '', 'Hiba');
                     return false;
                 }
             break;
@@ -5567,13 +5569,13 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                 }
          	}
         });
-        
+
         return $.when(szamla, dfrd1).done(function() {
             formModositva = false;
             gombokRejt();
             scrollLeptet();
             fulGombMeretez();
-            
+
             setTimeout(function(){ szurkit_zar(); }, 100);
         }).promise();
     }
@@ -6670,7 +6672,7 @@ function szurkit( mehet_megsem_rejt ){
     }
 }
 function szurkit_zar( mehet_megsem_mutat ){
-    
+
     setTimeout(function() {
 
         $('#ajaxfedo').addClass('dn');
@@ -6680,7 +6682,7 @@ function szurkit_zar( mehet_megsem_mutat ){
 
 
     }, 100);
-    
+
 }
 
 /* Tabindex számozása */
