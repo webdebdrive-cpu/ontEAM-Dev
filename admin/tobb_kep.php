@@ -7,7 +7,6 @@
 
     HA TÖBB ILYEN FELTÖLTÉSI PANEL IS KELL (azaz nem csak egy "Több kép" lenne hanem több is), akkor a következőket lépésekre lesz szükség:
         - tobb_kep.php-ból csinálj klónokat, pl. tobb_kep2.php (ugyanis ez lesz meghívva ajax-al, fájl feltöltésekor)
-        - minden egyes $_SESSION['fajl'] kezdetű SESSION változókat is klónozd. Pl. $_SESSION['fajl']['megnevezes'] => $_SESSION['fajl']['megnevezes2']. Ezt minden egyes előfordulásnál meg kell tenni.
 
  */
 
@@ -31,13 +30,13 @@ if(basename($_SERVER['PHP_SELF']) == 'eszkozkezeles.php' && isset($_GET['engedel
 // echo $tobbkep_tablanev; exit;
 
 // Képfeltöltés
-if( isset($_POST['session_name']) && !$archivum ){
+if( isset($_POST['megnevezes']) && !$archivum ){
 
     // Ha a megnevezés csak annyi, hogy javaslattetel_popup, akkor munkalap javaslattétel popuján töltünk fel képet, ekkor másképp kell eljárni
     if($_POST['megnevezes']=='javaslattetel_popup'){
         
         require_once('../weblap.php');
-        $konyvtar_db_nev = csonkit($_SESSION['fajl']['tabla'], 4);
+        $konyvtar_db_nev = csonkit($_POST['tabla'], 4);
         $utvonal = '../'.get_utvonal().'munkalap';
         $ikt_szam = $adatbazis_kapcsolat->s2('recid ikt_szam', 'munkalap', "`recid` = '".$_POST['sorid']."'", '', '1');
         if( $ikt_szam ) {
@@ -49,28 +48,26 @@ if( isset($_POST['session_name']) && !$archivum ){
         
         // JS alapú fájlfeltöltés esetén a $_FILES['file'] tömbben vannak az adatok a $_FILES[megnevezés] helyett
         if($_FILES['file']){
-            $_FILES[ $_SESSION['fajl']['megnevezes'] ] = $_FILES['file'];
+            $_FILES[ $_POST['megnevezes'] ] = $_FILES['file'];
         }
-        
+
         $sor_kepek          = 'munkalap';
         $tobbkep_tablanev   = 'munkalap_dok';
         
     // Általános eset
     }else{
         
-        session_id($_POST['session_name']);
-        session_start();
         require_once('../weblap.php');
 
         // utolsó 4 karakter a "_dok", ezt levesszük
-        $konyvtar_db_nev = csonkit($_SESSION['fajl']['tabla'], 4); 
+        $konyvtar_db_nev = csonkit($_POST['tabla'], 4); 
         $utvonal = '../'.get_utvonal().$konyvtar_db_nev;
 
         if(!is_dir($utvonal)){
             mkdir($utvonal, 0777);
         }
 
-        $ikt_szam = $adatbazis_kapcsolat->s2('recid ikt_szam', $_SESSION['fajl']['konyvtar'], "`recid` = '".$_POST['sorid']."'", '', '1');
+        $ikt_szam = $adatbazis_kapcsolat->s2('recid ikt_szam', $_POST['konyvtar'], "`recid` = '".$_POST['sorid']."'", '', '1');
         if( $ikt_szam ) {
             $utvonal = $utvonal.'/'.str_replace('/', '_', $ikt_szam['ikt_szam']);
             if( !is_dir($utvonal) ) {
@@ -87,17 +84,17 @@ if( isset($_POST['session_name']) && !$archivum ){
 
 	// Tiltott fájlformátumok kiszűrése, szintén nincs feltöltés
 	$tiltott_fajlok = array('text/x-js', 'text/css', 'text/html', 'application/xhtml+xml', 'text/xml');
-    if( in_array( $_FILES[ $_SESSION['fajl']['megnevezes'] ]['type'], $tiltott_fajlok ) ){
+    if( in_array( $_FILES[ $_POST['megnevezes'] ]['type'], $tiltott_fajlok ) ){
         echo 'Hiba!Ilyen formátumú fájl feltöltése tiltott, a fájlfeltöltés nem jött létre!';
         $weblap -> leallit();
 		exit;
 	}
 
     setlocale(LC_CTYPE, 'hu_HU.utf8');
-    $fajlnev = pathinfo($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
+    $fajlnev = pathinfo($_FILES[ $_POST['megnevezes'] ]['name']);
     $fajlnev = $fajlnev['filename'];
 
-    switch($_FILES[ $_SESSION['fajl']['megnevezes'] ]['error']){
+    switch($_FILES[ $_POST['megnevezes'] ]['error']){
 
         case 1:
             echo 'Hiba! Túl nagy méretű fájl! Maximum '.ini_get('upload_max_filesize').' engedélyezett!';
@@ -125,7 +122,7 @@ if( isset($_POST['session_name']) && !$archivum ){
 
         case 0:
             // Végleges képnév a teljes elérési útvonallal, kiterjesztéssel (hozzáadjuk az eredeti fájl kiterjesztését)
-            $kit   = kit($_FILES[ $_SESSION['fajl']['megnevezes'] ]['name']);
+            $kit   = kit($_FILES[ $_POST['megnevezes'] ]['name']);
             $kepnev = $utvonal.'/'.$fajlnev.'.'.$kit;
 
             if( is_file($kepnev) && $_POST['ellenorzes_kihagy'] == 'false' ) {
@@ -136,29 +133,28 @@ if( isset($_POST['session_name']) && !$archivum ){
                 }
 
                 // Fájlfeltöltés
-                if(move_uploaded_file($_FILES[ $_SESSION['fajl']['megnevezes'] ]['tmp_name'], $kepnev)){
+                if(move_uploaded_file($_FILES[ $_POST['megnevezes'] ]['tmp_name'], $kepnev)){
 
                     $kep_tort = str_replace('../'.get_utvonal().$konyvtar_db_nev.'/', '', $kepnev);
                     if( $_POST['ellenorzes_kihagy'] == 'false' ) {
-                        // Letárolás adatbázisba is A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
-                        $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'],
-                            array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev',         'loginnev',                        'insert_dt',   'insert_usr',                            'update_usr'                           ),
-                            array($_SESSION['fajl']['termek_id'], $kep_tort,  $fajlnev.'.'.$kit, $_SESSION[get_db_tabla().'user'],  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev'] )
+                        // Letárolás adatbázisba is. A kép neve nem tartalmazza a get_utvonal részt! Ha sikeres akkor adunk egy outputot a flashfile-nak
+                        $id = $adatbazis_kapcsolat -> i( $_POST['tabla'],
+                            array($_POST['oszlop'], 'utvonal',  'fajlnev',         'loginnev',                        'insert_dt',   'insert_usr',                            'update_usr'                           ),
+                            array($_POST['sorid'],  $kep_tort,  $fajlnev.'.'.$kit, $_SESSION[get_db_tabla().'user'],  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev'] )
                         );
 
+                        $sor_kepek = $adatbazis_kapcsolat->s2('*', $_POST['tabla'], "`recid`='{$id}'");
 
-                        $sor_kepek = $adatbazis_kapcsolat->s2('*', $_SESSION['fajl']['tabla'], "`recid`='{$id}'");
-
-                        $osszes_sor = $adatbazis_kapcsolat->s('recid', $_SESSION['fajl']['tabla'], '');
+                        $osszes_sor = $adatbazis_kapcsolat->s('recid', $_POST['tabla'], '');
 
                         echo get_tobbkep_thumb($sor_kepek, count($osszes_sor));
                     } else {
-                        $sor_kep = $adatbazis_kapcsolat->s($_SESSION['fajl']['oszlop'], $_SESSION['fajl']['tabla'], "`".$_SESSION['fajl']['oszlop']."` = '".$_POST['sorid']."' AND `utvonal` = '{$kep_tort}'", '', '0,1');
+                        $sor_kep = $adatbazis_kapcsolat->s($_POST['oszlop'], $_POST['tabla'], "`".$_POST['oszlop']."` = '".$_POST['sorid']."' AND `utvonal` = '{$kep_tort}'", '', '0,1');
 
                         if( !$sor_kep ) {
-                            $id = $adatbazis_kapcsolat -> i( $_SESSION['fajl']['tabla'],
-                                                                array($_SESSION['fajl']['oszlop'],    'utvonal',  'fajlnev',            'loginnev',                        'insert_dt',   'insert_usr',                            'update_usr'                            ),
-                                                                array($_SESSION['fajl']['termek_id'], $kep_tort,  $fajlnev.'.'.$kit,    $_SESSION[get_db_tabla().'user'],  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev']  )
+                            $id = $adatbazis_kapcsolat -> i( $_POST['tabla'],
+                                                                array($_POST['oszlop'], 'utvonal',  'fajlnev',            'loginnev',                        'insert_dt',   'insert_usr',                            'update_usr'                            ),
+                                                                array($_POST['sorid'],  $kep_tort,  $fajlnev.'.'.$kit,    $_SESSION[get_db_tabla().'user'],  'NOW()',       $_SESSION[get_db_tabla().'teljes_nev'],  $_SESSION[get_db_tabla().'teljes_nev']  )
                                                             );
                         }
 
@@ -166,8 +162,8 @@ if( isset($_POST['session_name']) && !$archivum ){
                     }
                     
                     // Végül a szülő táblában a dok_db karbantartása
-                    $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', $_SESSION['fajl']['tabla'], "`{$_SESSION['fajl']['oszlop']}`='{$_SESSION['fajl']['termek_id']}'") );
-                    $adatbazis_kapcsolat->u($konyvtar_db_nev, array('dok_db'), array($dokumentumok_szama), "`recid`='{$_SESSION['fajl']['termek_id']}'");
+                    $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', $_POST['tabla'], "`{$_POST['oszlop']}`='{$_POST['sorid']}'") );
+                    $adatbazis_kapcsolat->u($konyvtar_db_nev, array('dok_db'), array($dokumentumok_szama), "`recid`='{$_POST['sorid']}'");
                     
                 }
             }
@@ -207,12 +203,12 @@ require_once '../class/html/class.Img.php';
 
 // Sessionok beállítása a feltöltéshez:
 $megn = 'tobbkep'.$_GET['id'];
-$_SESSION['fajl']['megnevezes'] = $megn;                    //A $FILE változó neve, egyedi legyen
-$_SESSION['fajl']['nev']        = $sor['nev'];              //Fájlnév, a terméknévből származtatva (kiterjesztés nem kell, fajlnev_keszit is lesz később így ez sem kell)
-$_SESSION['fajl']['konyvtar']   = $megnevezes;              //Könyvtár, ahol a képeket gyűjtjük (eredeti termék könyvtára)
-$_SESSION['fajl']['tabla']      = $tobbkep_tablanev;        //Képek tábla, amellyel összekapcsoljuk a termékkel
-$_SESSION['fajl']['oszlop']     = get_tobbkep_oszlopnev();  //Képek tábla oszopa, amellyel összekapcsoljuk a termékkel
-$_SESSION['fajl']['termek_id']  = $_GET['id'];              //A termék azonosítója, amivel összekapcsoljuk
+//$_SESSION['fajl']['megnevezes'] = $megn;                    //A $FILE változó neve, egyedi legyen
+//$_SESSION['fajl']['nev']        = $sor['nev'];              //Fájlnév, a terméknévből származtatva (kiterjesztés nem kell, fajlnev_keszit is lesz később így ez sem kell)
+//$_SESSION['fajl']['konyvtar']   = $megnevezes;              //Könyvtár, ahol a képeket gyűjtjük (eredeti termék könyvtára)
+//$_SESSION['fajl']['tabla']      = $tobbkep_tablanev;        //Képek tábla, amellyel összekapcsoljuk a termékkel
+//$_SESSION['fajl']['oszlop']     = get_tobbkep_oszlopnev();  //Képek tábla oszopa, amellyel összekapcsoljuk a termékkel
+//$_SESSION['fajl']['termek_id']  = $_GET['id'];              //A termék azonosítója, amivel összekapcsoljuk
 
 // Korlátozás csak képre
 $eng_kit = '';
@@ -221,7 +217,13 @@ if(get_tobbkep_csakkep()){
 }
 
 // Fájlfeltöltéskor milyen paraméterek menjenek át
-$parameterek = "'session_name':'".session_id()."', 'megnevezes':'".$megn."', 'sorid':'".$_GET['id']."'";
+$parameterek = nl2("
+                    'megnevezes'    : '".$megn."',
+                    'konyvtar'      : '".$megnevezes."',
+                    'tabla'         : '".$tobbkep_tablanev."',
+                    'oszlop'        : '".get_tobbkep_oszlopnev()."',
+                    'sorid'         : '".$_GET['id']."'
+                    ");
 
 // Ha minden fájl feltöltése kész, mi történjen (ide kéne egy jó ajax hívás)
 $gomb_neve   = 'Tallózás';
@@ -280,6 +282,10 @@ $szamla_html .= $tobbkep_html;
 function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
 
     global $archivum;
+    global $tobbkep_tablanev;
+    if(!$tobbkep_tablanev){
+        $tobbkep_tablanev = $_POST['tabla'];
+    }
     
     $javaslattetel = '';
     if($_POST['megnevezes']=='javaslattetel_popup'){
@@ -295,7 +301,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
     if($archivum){
         $csonkit = 9;
     }
-    $kep_utvonal = '../'.get_utvonal().csonkit($_SESSION['fajl']['tabla'], $csonkit).'/'.$sor_kepek['utvonal'];
+    $kep_utvonal = '../'.get_utvonal().csonkit($tobbkep_tablanev, $csonkit).'/'.$sor_kepek['utvonal'];
     if(is_file($kep_utvonal)){
 
         $felirat = utf8(stripslashes($sor_kepek['fajlnev']));

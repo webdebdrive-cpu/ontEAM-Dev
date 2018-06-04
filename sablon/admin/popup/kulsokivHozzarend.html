@@ -155,7 +155,7 @@
                     };
                 }(progress_id, fajl, i));
 
-                var parameterek = {'session_name':'', 'megnevezes':'javaslattetel_popup', 'sorid':_get('id')};
+                var parameterek = {'megnevezes':'javaslattetel_popup', 'konyvtar' : 'munkalap', 'tabla':'munkalap_dok', 'oszlop' : 'munkalap_id', 'sorid':_get('id')};
                 $.each(parameterek, function(kulcs, ertek){
                     formData.append(kulcs, ertek);
                 });
