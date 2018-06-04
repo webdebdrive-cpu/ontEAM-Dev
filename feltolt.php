@@ -25,7 +25,7 @@ if(kit($_FILES[$_POST['megnevezes']]['name'])=='php'){
 // Vélemény feltöltésének lekezelése
 if($_POST['megnevezes']=='velemeny'){
 
-    //Adott illető egyáltalán véleményező-e
+    // Adott illető egyáltalán véleményező-e
     $prigeny = $adatbazis_kapcsolat->s2('stat_id', 'projektigenyles', "`recid`='{$_POST['projektigenyles_recid']}'");
 
     if($prigeny['stat_id']!=PRIGENY_STAT_VEL_ALATT){
@@ -190,7 +190,7 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
             $fajlnev = 'get_id';
         }
         
-        // A fájl sorszáma pedig a SESSION id-ja, ezzel azonosítva az aktuális munkafolymatot
+        // A fájl sorszáma pedig a SESSION id-ja, ezzel azonosítva az aktuális munkafolyamatot
         // majd #két sharp közt# az oszlop neve, hogy tudjuk, az adatbázisban melyik oszlopba kell beírni
         // majd a következő #két sharp közt# a fájl végleges neve (ezt persze csak akkor tudjuk ha fájlnév vagy ID alapján mentjük el)
         // végül a timestamp, hogy biztosan egyedi legyen

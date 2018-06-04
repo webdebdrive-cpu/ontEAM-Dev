@@ -1676,42 +1676,42 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 	}
 
 	$tiltott_fajlok = array('text/x-js', 'text/css', 'text/html', 'application/xhtml+xml', 'text/xml');
-	//Ha csakképet engedünk, és nem képformátumú: hiba2
+	// Ha csakképet engedünk, és nem képformátumú: hiba2
 	if($csakkep && !$flashfeltoltes && !($_FILES[$valtozo]['type']=='image/pjpeg' || $_FILES[$valtozo]['type']=='image/jpeg' || $_FILES[$valtozo]['type']=='image/gif' || $_FILES[$valtozo]['type']=='image/png' || $_FILES[$valtozo]['type']=='image/x-png')) {
 		return array($kepnev,'k2');
 	}elseif(in_array($_FILES[$valtozo]['type'],$tiltott_fajlok)){
 		return array($kepnev,'k2b');
 	}
 
-    //Ha kell, levesszük a kiterjesztést
+    // Ha kell, levesszük a kiterjesztést
 	$kit = '';
     if(strrpos($kepnev,'.')){
         $kepnev_tmp = substr($kepnev,0,strrpos($kepnev,'.'));
         $kit        = strtolower(substr($kepnev,strrpos($kepnev,'.'),strlen($kepnev)));//elmentjük a kiterjesztést, kisbetűsre alakítva
         $kepnev     = $kepnev_tmp;
     }
-	if($overwrite){//Ha van, felülírjuk a már létező fájlt
+    // Ha van, felülírjuk a már létező fájlt
+	if($overwrite){
 		if($sor_id != null){//ha meg van adva a $sor_id akkor valószínűleg az elérési útvonal le van tárolva adatbázisba. Megkíséreljük ezt az előző fájlt törölni
 
-			$lekerdez = $adatbazis_kapcsolat -> select($oszlop, $tabla, 'recid='.$sor_id);
-			$sor      = $lekerdez[0];
+			$sor = $adatbazis_kapcsolat -> s2($oszlop, $tabla, 'recid='.$sor_id);
 
-			//Ebben az esetben valóban az adatbázisban van elmentve a kép elérési útvonala
+			// Ebben az esetben valóban az adatbázisban van elmentve a kép elérési útvonala
 			if($sor[$oszlop]){
 
-                //Elfőrodukhat, hogy több bejegyzésnél is a kép útvonala azonos
-                //Emiatt ha az egyiknél cserélnénk a képet, akkor azt még ne törölje le, ha máshol még arra a képre hivatkozunk
+                // Elfőrodukhat, hogy több bejegyzésnél is a kép útvonala azonos
+                // Emiatt ha az egyiknél cserélnénk a képet, akkor azt még ne törölje le, ha máshol még arra a képre hivatkozunk
                 $van_mashol_kep = false;
                 $van_mashol_kep = $adatbazis_kapcsolat->s('recid', $tabla, $oszlop.'='.$sor[$oszlop].' AND recid!='.$sor_id);
 
                 if(!$van_mashol_kep){
-                    //ha van kiterjesztése (általában van)
+                    // Ha van kiterjesztése (általában van)
                     if( strrpos($sor[$oszlop], '.') > 0 ){
                         remover($utvonal.$tabla.'/'.substr($sor[$oszlop], 0, strrpos($sor[$oszlop], '.')).'_*');
                     }else{
                         remover($utvonal.$tabla.'/'.$sor[$oszlop].'_*');
                     }
-                    //Végül magát a fájlt is töröljük
+                    // Végül magát a fájlt is töröljük
                     if(is_file($utvonal.$tabla.'/'.$sor[$oszlop])){
                         unlink($utvonal.$tabla.'/'.$sor[$oszlop]);
                     }
@@ -1736,7 +1736,8 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
 		if(is_file($kepnev_.'.gif')){ if(!unlink($kepnev_.'.gif')){ return 'k3'; } }
 		if(is_file($kepnev_.'.png')){ if(!unlink($kepnev_.'.png')){ return 'k3'; } }
 
-		remover($kepnev_.'_*');//Resized képek esetére
+        // Resized képek esetére
+		remover($kepnev_.'_*');
 
     // Egyébként másolat (Arra az esetre, ha pl. két termék neve megeggyezik és a nevéből nyerjük ki a képnevet => termeknev_2.jpg)
 	}else{
@@ -1772,9 +1773,11 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
             // Még a tálba levét se tároljuk le, azt is felesleges.
             $kepnev = str_replace($tabla.'/', '', $kepnev);
 
-			if(!$adatbazis_kapcsolat -> u($tabla, array($oszlop), array($kepnev), 'recid='.$sor_id)){
-				return(array($kepnev,'k5'));// Sikertelen táblamod => hiba5
+			if(!$adatbazis_kapcsolat -> u($tabla, array($oszlop), array($kepnev), "`recid`='{$sor_id}'")){
+                // Sikertelen táblamod => hiba5
+				return(array($kepnev,'k5'));
 			}
+            
 		}
 		if($flashfeltoltes){
             // Flash alapú fájlfeltöltéskor kell egy kimenet, ha minden rendben volt.
@@ -1793,13 +1796,6 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
                 imagepng($src_img, $utvonal.$kepnev);
             }
         }
-
-        /* Vízjelezés
-        if($tabla=='termek'){
-            //Debug: fajlba_mentes('!debug.txt', $utvonal.$kepnev);
-            imagejpeg(logot_pecsetel($utvonal.$kepnev, 'elemek/vizjel.png', 50, 50, 100), $utvonal.$kepnev);
-        }
-         */
 
 		return array($kepnev, '-1');
 	}else{
