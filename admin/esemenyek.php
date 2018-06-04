@@ -3942,8 +3942,13 @@ if( isset($_GET['ertekFoglalt']) ) {
 
 // Bal oldali navpanel egy sorának frissítése
 if( isset($_GET['szamlaSorFrissit']) ) {
+    
+    
     $tabla = $_GET['tabla'];
     $recid = $_GET['recid'];
+    if( !in_array($recid, $_SESSION[$tabla.'_idk']) ){
+        exit;
+    }
     if( $tabla && $recid ) {
         $szamla_lista = szamla_lista("`".get_db_tabla().$tabla."`.`recid` = '{$recid}'", $tabla);
         $szamla_lista = $szamla_lista[0];

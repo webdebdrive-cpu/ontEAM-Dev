@@ -111,11 +111,18 @@ if( $_SESSION[get_db_tabla().'user'] ) {
 // Ugyanígy az autocomplete.php esetén sem hívjuk meg
 if( empty($_POST) && basename(self())!='autocomplete.php' && !isset($_GET['no_lista']) ){
     list($balNavPanelHTMLje, $balNavPanelRECIDk) = szamla_lista(); // Ezt azért futtatjuk le, hogy az aktuális oldalnak megfelelő $_SESSION['akt_sql'] jöjjön létre, hogy tudjunk ID-t ellenőrizni.
+    $_SESSION[csonkit(basename(self()), 4).'_idk'] = $balNavPanelRECIDk; // Egy Session-ben is eltároljuk az ID-kat, hogy ajax-al egy sort meghívva, ne töltse be, ha adott ID nem tartozik a felhasználó látokörébe
 }
 
 if( $_GET['id'] && !isset($_GET['no_lista']) ){
     if(!in_array($_GET['id'], $balNavPanelRECIDk)){
         $_GET['id'] = '';
+    }
+}
+
+if( $_GET['id'] ){
+    if( !in_array($_GET['id'], $_SESSION[csonkit(basename(self()), 4).'_idk']) ){
+        exit;
     }
 }
 
