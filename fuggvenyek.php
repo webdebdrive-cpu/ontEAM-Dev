@@ -5291,7 +5291,7 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
             $egy_szalloda_nyitva = ' active';
         }
         foreach($telephelyek as $telephely) {
-            $fokatok = $adatbazis_kapcsolat->s('recid telephely_id nev szulo', 'obj', 'szulo=0 and telephely_id='.$telephely['id']);
+            $fokatok = $adatbazis_kapcsolat->s('recid telephely_id nev szulo', 'obj', "`szulo`=0 AND `telephely_id`='{$telephely['id']}'", 'sor');
 
             $fokat_html = '';
             if( $fokatok ) {
@@ -5308,7 +5308,7 @@ function obj_gen( $telephelyID = false, $csak_szintig ) {
                     if($csak_szintig){
                         $fokat_html .= '<li class="alkat"><a onclick="popupZar(); addObj( this );" class="link" data-recid="'.$fokat['recid'].'">'.$fokat['nev'].'</a></li>';
                     }else{
-                        $katok = $adatbazis_kapcsolat->s('recid telephely_id nev szulo', 'obj', 'szulo='.$fokat['recid'], '', '');
+                        $katok = $adatbazis_kapcsolat->s('recid telephely_id nev szulo', 'obj', "`szulo`='{$fokat['recid']}'", 'sor');
 
                         $kat_html = '';
                         if( $katok ) {
