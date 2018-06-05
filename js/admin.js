@@ -5392,7 +5392,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
         }
 
         var no_lista = '&amp;no_lista=1';
-        if(anyagigenylesnel_is){
+        if(anyagigenylesnel_is || page=='anyagigenyles.php'){
             no_lista = '';
         }
 

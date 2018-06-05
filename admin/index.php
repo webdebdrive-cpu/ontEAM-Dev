@@ -21,43 +21,19 @@ require_once('../weblap.php');
 
 if (isset($_GET['dok_megj'])) {
     
-    $tabla = 'bejelentes';
-    $bejelentesek = $adatbazis_kapcsolat->s('recid, obj_id', $tabla);
+    
+    $tabla = 'anyagigenyles';
+    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla);
     foreach($bejelentesek as $bejelentes){
         
-        $obj_txt = $adatbazis_kapcsolat->s2('nev', 'obj', "`recid`='{$bejelentes['obj_id']}'");
-        $adatbazis_kapcsolat->u($tabla, array('obj_txt'), array($obj_txt['nev']), "`recid`='{$bejelentes['recid']}'");
-        
-    }
-    $tabla = 'munkalap';
-    $bejelentesek = $adatbazis_kapcsolat->s('recid, obj_id', $tabla);
-    foreach($bejelentesek as $bejelentes){
-        
-        $obj_txt = $adatbazis_kapcsolat->s2('nev', 'obj', "`recid`='{$bejelentes['obj_id']}'");
-        $adatbazis_kapcsolat->u($tabla, array('obj_txt'), array($obj_txt['nev']), "`recid`='{$bejelentes['recid']}'");
+        $megj_ek = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='{$tabla}' AND `id`='{$bejelentes['recid']}'");
+        $dok_ok = $adatbazis_kapcsolat->s('recid', $tabla.'_dok', "`{$tabla}_id`='{$bejelentes['recid']}'");
+        $adatbazis_kapcsolat->u($tabla, array('megj_db', 'dok_db'), array(count($megj_ek), count($dok_ok)), "`recid`='{$bejelentes['recid']}'");
         
     }
 
-    
-//    $tabla = 'bejelentes';
-//    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla);
-//    foreach($bejelentesek as $bejelentes){
-//        
-//        $megj_ek = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='{$tabla}' AND `id`='{$bejelentes['recid']}'");
-//        $dok_ok = $adatbazis_kapcsolat->s('recid', $tabla.'_dok', "`{$tabla}_id`='{$bejelentes['recid']}'");
-//        $adatbazis_kapcsolat->u($tabla, array('megj_db', 'dok_db'), array(count($megj_ek), count($dok_ok)), "`recid`='{$bejelentes['recid']}'");
-//        
-//    }
-//    
-//    $tabla = 'bejelentes_arch';
-//    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla);
-//    foreach($bejelentesek as $bejelentes){
-//        $megj_ek = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='bejelentes' AND `id`='{$bejelentes['recid']}'");
-//        $dok_ok = $adatbazis_kapcsolat->s('recid', $tabla.'_dok', "`bejelentes_id`='{$bejelentes['recid']}'");
-//        $adatbazis_kapcsolat->u($tabla, array('megj_db', 'dok_db'), array(count($megj_ek), count($dok_ok)), "`recid`='{$bejelentes['recid']}'");
-//    }
-//    echo '<hr>KÉSZ';
-//    exit;
+    echo '<hr>KÉSZ';
+    exit;
 //    $tabla = 'munkalap';
 //    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla);
 //    foreach($bejelentesek as $bejelentes){
@@ -97,7 +73,7 @@ if (isset($_GET['stat_ido'])) {
 }*/
 
 // Loginról értesítő levelek küldése
-if (isset($_GET['login_ertesit'])) {
+if (false && isset($_GET['login_ertesit'])) {
     
     $szalloda_nev   = 'GUNDEL';
     $galyasz_bence  = false;
@@ -613,7 +589,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 // Objektumok importja PPM-ből
 if (false && isset($_GET['objektum_import_ppm'])) {
     
-    $telephely_id = 5411;
+    $telephely_id = 2050;
     
     $adatbazis_kapcsolat->d('obj', "`telephely_id`='$telephely_id'");
     
@@ -637,6 +613,7 @@ if (false && isset($_GET['objektum_import_ppm'])) {
             // Adatok feldolgozása
             } else {
                 
+
                 foreach($sor as $key => $value) {
                     $akt_tomb[$_SESSION['sor_fejlec'][$key]] = $value;
                 }
@@ -659,21 +636,22 @@ if (false && isset($_GET['objektum_import_ppm'])) {
 
 
                     }
+
                 }
 
                 switch( strlen($szint) ){
 
                     // Emelet
                     case 2:
-                        $szint_id = $adatbazis_kapcsolat->i('obj',  array('telephely_id', 'szulo', 'nev', 'insert_dt', 'insert_usr',        'update_usr'           ),
-                                                                    array($telephely_id,  0,       $nev,  'NOW()',     get_nev().' import',  get_nev().' import'   )
+                        $szint_id = $adatbazis_kapcsolat->i('obj',  array('telephely_id', 'szulo', 'nev', 'sor', 'insert_dt', 'insert_usr',        'update_usr'           ),
+                                                                    array($telephely_id,  0,       $nev,  $k,    'NOW()',     get_nev().' import',  get_nev().' import'   )
                                                             );
                     break;
                 
                     // Helyiség
                     case 6:
-                        $helyiseg = $adatbazis_kapcsolat->i('obj',  array('telephely_id', 'szulo',      'nev', 'insert_dt', 'insert_usr',         'update_usr'          ),
-                                                                    array($telephely_id,  $szint_id,    $nev,  'NOW()',     get_nev().' import',  get_nev().' import'   )
+                        $helyiseg = $adatbazis_kapcsolat->i('obj',  array('telephely_id', 'szulo',      'nev', 'sor', 'insert_dt', 'insert_usr',         'update_usr'          ),
+                                                                    array($telephely_id,  $szint_id,    $nev,  $k,    'NOW()',     get_nev().' import',  get_nev().' import'   )
                                                             );
                     break;
                 
