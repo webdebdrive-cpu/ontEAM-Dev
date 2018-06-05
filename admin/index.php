@@ -19,43 +19,6 @@ if(isset($_GET['info'])){
 require_once('../weblap.php');
 
 
-if (isset($_GET['dok_megj'])) {
-    
-    
-    $tabla = 'anyagigenyles';
-    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla);
-    foreach($bejelentesek as $bejelentes){
-        
-        $megj_ek = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='{$tabla}' AND `id`='{$bejelentes['recid']}'");
-        $dok_ok = $adatbazis_kapcsolat->s('recid', $tabla.'_dok', "`{$tabla}_id`='{$bejelentes['recid']}'");
-        $adatbazis_kapcsolat->u($tabla, array('megj_db', 'dok_db'), array(count($megj_ek), count($dok_ok)), "`recid`='{$bejelentes['recid']}'");
-        
-    }
-
-    echo '<hr>KÉSZ';
-    exit;
-//    $tabla = 'munkalap';
-//    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla);
-//    foreach($bejelentesek as $bejelentes){
-//        $megj_ek = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='{$tabla}' AND `id`='{$bejelentes['recid']}'");
-//        $dok_ok = $adatbazis_kapcsolat->s('recid', $tabla.'_dok', "`{$tabla}_id`='{$bejelentes['recid']}'");
-//        $adatbazis_kapcsolat->u($tabla, array('megj_db', 'dok_db'), array(count($megj_ek), count($dok_ok)), "`recid`='{$bejelentes['recid']}'");
-//    }
-//    echo '<hr>KÉSZ';
-////    exit;
-//    $tabla = 'munkalap_arch';
-//    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla);
-//    foreach($bejelentesek as $bejelentes){
-//        $megj_ek = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='munkalap' AND `id`='{$bejelentes['recid']}'");
-//        $dok_ok = $adatbazis_kapcsolat->s('recid', $tabla.'_dok', "`munkalap_id`='{$bejelentes['recid']}'");
-//        $adatbazis_kapcsolat->u($tabla, array('megj_db', 'dok_db'), array(count($megj_ek), count($dok_ok)), "`recid`='{$bejelentes['recid']}'");
-//    }
-//    
-//    
-//    echo '<hr>KÉSZ';
-//    exit;
-}
-
 /*
 // Státusz idők rendbetétele
 if (isset($_GET['stat_ido'])) {
