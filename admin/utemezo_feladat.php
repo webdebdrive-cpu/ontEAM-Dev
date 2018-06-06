@@ -201,7 +201,6 @@ $log_tmp = date('Y.m.d H:i:s').' ütemező sikeresen lefutott.
 ';
 $log .= $log_tmp;
 file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
-echo htmlspecialchars($log) . '<br>';
 
 // A lefutást is eltároljuk
 $adatbazis_kapcsolat->i('utemezo_log', array('utemezo', 'log'), array(basename(self()), $log));

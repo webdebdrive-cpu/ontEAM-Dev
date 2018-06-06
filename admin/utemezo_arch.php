@@ -71,6 +71,7 @@ function bejelentesek_archival($idk, $munkalap_is) {
     global $adatbazis_kapcsolat;
     global $db_kapcs;
     global $log;
+    global $log_utvonal;
     
     // Ha csak egy ID-t kaptunk volna
     if(is_numeric($idk) ){
@@ -104,7 +105,6 @@ function bejelentesek_archival($idk, $munkalap_is) {
         $telephely_txt          = getErtek('nev', 'telephely', 'id', $bejelentes['telephely_id']);
         $csoport_txt            = getErtek('nev', 'bejelentes_csoport', 'recid', $bejelentes['csoport_id']  );
         $hiba_txt               = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']  );
-        $obj_txt                = getErtek('nev', 'obj', 'recid', $bejelentes['obj_id']  );
         $gep_txt                = getErtek('nev', 'eszkozkezeles', 'recid', $bejelentes['gep_id']  );
         $stat_txt               = getStatText('bejelentes', $bejelentes['stat_id']);
         $usr_beosztas_txt       = erteklista(ERTEKLISTA_BEOSZTAS, $bejelentes['usr_beosztas_id']);
@@ -112,8 +112,8 @@ function bejelentesek_archival($idk, $munkalap_is) {
         $usr_man_beosztas_txt   = erteklista(ERTEKLISTA_BEOSZTAS, $bejelentes['usr_man_beosztas_id']);
         $usr_man_reszleg_txt    = erteklista(ERTEKLISTA_RESZLEG, $bejelentes['usr_man_reszleg_id']);
         
-        array_push($mezok,   'telephely_txt', 'csoport_txt', 'hiba_txt', 'obj_txt', 'gep_txt', 'stat_txt', 'usr_beosztas_txt', 'usr_reszleg_txt', 'usr_man_beosztas_txt', 'usr_man_reszleg_txt');
-        array_push($ertekek, $telephely_txt,  $csoport_txt,  $hiba_txt,  $obj_txt,  $gep_txt,  $stat_txt,  $usr_beosztas_txt,  $usr_reszleg_txt,  $usr_man_beosztas_txt,  $usr_man_reszleg_txt);
+        array_push($mezok,   'telephely_txt', 'csoport_txt', 'hiba_txt', 'gep_txt', 'stat_txt', 'usr_beosztas_txt', 'usr_reszleg_txt', 'usr_man_beosztas_txt', 'usr_man_reszleg_txt');
+        array_push($ertekek, $telephely_txt,  $csoport_txt,  $hiba_txt,  $gep_txt,  $stat_txt,  $usr_beosztas_txt,  $usr_reszleg_txt,  $usr_man_beosztas_txt,  $usr_man_reszleg_txt);
         
         $sql = $adatbazis_kapcsolat->i('bejelentes_arch', $mezok, $ertekek);
         if( $sql === false ) { 
@@ -262,6 +262,7 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
     global $adatbazis_kapcsolat;
     global $db_kapcs;
     global $log;
+    global $log_utvonal;
     
     // Ha csak egy ID-t kaptunk volna
     if(is_numeric($idk) ){
@@ -299,14 +300,12 @@ function munkalapok_archival($idk, $tranzakcio_nelkul) {
         $szallito_txt           = getErtek('nev', 'szallito', 'recid', $munkalap['szallito_id']);
         $telephely_txt          = getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']);
         $stat_txt               = getStatText('munkalap', $munkalap['stat_id']);
-        $obj_txt                = getErtek('nev', 'obj', 'recid', $munkalap['obj_id']  );
-        $gep_txt                = getErtek('nev', 'eszkozkezeles', 'recid', $munkalap['gep_id']  );
         $tipus_txt              = getErtek('info', 'erteklista', 'recid', $munkalap['tipus_id']  );
         $jh1_szerep_txt         = getSzerepkorNev($munkalap['jh1_szerep']);
         $jh2_szerep_txt         = getSzerepkorNev($munkalap['jh2_szerep']);
         
-        array_push($mezok,   'csoport_txt', 'szemelyzet_txt', 'szallito_txt', 'telephely_txt', 'stat_txt', 'obj_txt', 'gep_txt', 'tipus_txt', 'jh1_szerep_txt', 'jh2_szerep_txt');
-        array_push($ertekek, $csoport_txt,  $szemelyzet_txt,  $szallito_txt,  $telephely_txt,  $stat_txt,  $obj_txt,  $gep_txt,  $tipus_txt,  $jh1_szerep_txt,  $jh2_szerep_txt );
+        array_push($mezok,   'csoport_txt', 'szemelyzet_txt', 'szallito_txt', 'telephely_txt', 'stat_txt', 'tipus_txt', 'jh1_szerep_txt', 'jh2_szerep_txt');
+        array_push($ertekek, $csoport_txt,  $szemelyzet_txt,  $szallito_txt,  $telephely_txt,  $stat_txt,  $tipus_txt,  $jh1_szerep_txt,  $jh2_szerep_txt );
         
         $sql = $adatbazis_kapcsolat->i('munkalap_arch', $mezok, $ertekek);
         if( $sql === false ) {

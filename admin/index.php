@@ -18,7 +18,6 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
-
 /*
 // Státusz idők rendbetétele
 if (isset($_GET['stat_ido'])) {
