@@ -911,10 +911,17 @@ require_once('selectek.php');
 
         // Igazolás és Elutasítás gombok
         if( $sor['stat_id']==BEJELENTES_STAT_KESZ_IG && _jog(JOG_BEJELENTES_KEZEL) ) {
+            
+            // Ideiglenesen egyszállodás modell esetén nem mutatjuk az elutasítás gombot 2018.06.06
+            $szalloda = $adatbazis_kapcsolat -> s2('modell', 'telephely', "`id`='{$sor['telephely_id']}'");
+            $elutasit_gomb = '';
+            if($szalloda['modell']){
+                $elutasit_gomb = '<input type="button" class="gomb modositaskor_rejt" value="Igazolás elutasítása" onclick="csoportMuvelet(\'bejelentesElutasit\');">';
+            }
             $gombok .= nl2('
                 <div id="kmCont">
                     <input type="button" class="gomb modositaskor_rejt" value="Igazolás" onclick="bejelentesIgazolas( \''.$sor['recid'].'\', \'Csak kérdezünk még\' );">
-                    <input type="button" class="gomb modositaskor_rejt" value="Igazolás elutasítása" onclick="csoportMuvelet(\'bejelentesElutasit\');">
+                    '.$elutasit_gomb.'
                 </div>
             ');
         }
