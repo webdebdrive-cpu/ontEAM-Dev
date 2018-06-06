@@ -495,7 +495,7 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`insert_dt`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`dok_db`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`obj_txt`,
-                                `'.get_db_tabla().'eszkozkezeles`.`nev` as `eszkozkezeles_nev`
+                                `'.get_db_tabla().$tabla_nophp.'`.`esnap_d`
                             ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani

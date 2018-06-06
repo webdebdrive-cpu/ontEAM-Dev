@@ -2414,8 +2414,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
         // Már nem használunk csoportot, de az SQL-el pedig csínján kell bánni, ezért kivéve 2018.05.28
         if($tabla=='munkalap' || $tabla=='munkalap_arch'){
-            $sql_kieg .= ' LEFT JOIN `'.get_db_tabla().'eszkozkezeles` ON `'.get_db_tabla().$tabla.'`.`gep_id`=`'.get_db_tabla().'eszkozkezeles`.`recid`';
-
             // Státusz szerinti rendezésnél nem JOIN-oljuk a telephelyeket, egyébként mindig
             if($_GET['rend']!='stat_id'){
                 $sql_kieg .= ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
@@ -2980,7 +2978,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
 //                }
 //            }
 
-if (!isset($_GET['teszt'])) {
+
 
             $surgos = '';
             if( $bsz['surgos'] ) {
@@ -3057,6 +3055,12 @@ if (!isset($_GET['teszt'])) {
                     </span>
                 ');
             }
+            
+            // Esnapd kiíratása
+            $esnap_d = '';
+            if($bsz['esnap_d']!='0000-00-00'){
+                $esnap_d = datum_kiir($bsz['esnap_d']);
+            }
 
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
@@ -3071,15 +3075,12 @@ if (!isset($_GET['teszt'])) {
                             </tr>
                             <tr>
                                 <td>'.getErtekLista(ERTEKLISTA_MUNKALAP_TIP, $bsz['tipus_id']).'</td>
-                                <td colspan="2">'.datum_kiir($bsz['insert_dt']).'</td>
+                                <td colspan="2">'.datum_kiir($bsz['insert_dt']).' '.$esnap_d.'</td>
                                 <td>'.$szemelyzet.'</td>
                             </tr>
                             </table>
                          </a>';
-}
-if (isset($_GET['teszt']) || isset($_GET['teszt2'])) {
-    $li_tart = $bsz['recid'];
-}
+
 //            $csoport_class = '';
 //            $csoport_data  = '';
 //            if(false && $bsz['csoport_id'] && _jog(JOG_MUNKALAP_HATIDO_UTEMEZ) && !isset($_GET['print']) ) {
