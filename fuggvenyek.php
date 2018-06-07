@@ -64,7 +64,7 @@ function i_u($type, $tabla, $tomb) {
     if($tabla=='munkalap' ){
         $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $_POST['gep_id']);
         array_push($oszlopok, 'gep_txt');
-        array_push($ertekek,  $obj_txt);
+        array_push($ertekek,  $gep_txt);
     }
 
     // Értékek párosítása
@@ -508,10 +508,10 @@ function i_u($type, $tabla, $tomb) {
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
         if( $id === false ) { $db_error = true; }
 
-//echo '<pre style="font-size: 1.4rem">';
-//echo $adatbazis_kapcsolat->gp() . '<br>';
-//echo '</pre>';
-//exit;
+echo '<pre style="font-size: 1.4rem">';
+echo $adatbazis_kapcsolat->gp() . '<br>';
+echo '</pre>';
+exit;
 //mysqli_commit($db_kapcs);
 //exit;
 
@@ -3065,7 +3065,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                                 <td style="width: 11rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem;">'.getStatText($tabla, $bsz['stat_id']).'</td>
                                 <td style="width: 7rem;">'.getSzallodaNev($bsz['telephely_id']).'</td>
-                                <td>'.$bsz['obj_txt'].' - '.$bsz['eszkozkezeles_nev'].'</td>
+                                <td>'.$bsz['obj_txt'].' - '.$bsz['gep_txt'].'</td>
                             </tr>
                             <tr>
                                 <td>'.getErtekLista(ERTEKLISTA_MUNKALAP_TIP, $bsz['tipus_id']).'</td>
@@ -5644,7 +5644,7 @@ function get_akt_tomb($megn){
     return $akt_tomb;
 }
 
-// Az aktuálisan bejelentkezett felhasználóhoz rendelt szállodák ID_ját adja vissza. Ez többször előfroduló igén, azért van kiszervezve függvénybe.
+// Az aktuálisan bejelentkezett felhasználóhoz rendelt szállodák ID_ját adja vissza. Ez többször előfroduló igény, azért van kiszervezve függvénybe.
 function get_akt_login_szallodai($sqlt_adj_vissza, $telephely_id_oszlop_helyett_masik_oszlop, $masik_user){
     global $adatbazis_kapcsolat;
 

@@ -18,6 +18,23 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
+//if (isset($_GET['teszt'])) {
+//    $munkalapok = $adatbazis_kapcsolat->s('recid gep_id', 'munkalap', "`gep_id`!=0 AND `gep_txt`=''");
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//    foreach($munkalapok as $munkalap){
+//        $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $munkalap['gep_id']);
+//        $adatbazis_kapcsolat->u('munkalap', array('gep_txt'), array($gep_txt), "`recid`='{$munkalap['recid']}'");
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//    }
+//    $munkalapok = $adatbazis_kapcsolat->s('recid obj_id', 'munkalap', "`obj_id`!=0 AND `obj_txt`=''");
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//    foreach($munkalapok as $munkalap){
+//        $gep_txt = getErtek('nev', 'obj', 'recid', $munkalap['obj_id']);
+//        $adatbazis_kapcsolat->u('munkalap', array('obj_txt'), array($gep_txt), "`recid`='{$munkalap['recid']}'");
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//    }
+//    exit;
+//}
 /*
 // Státusz idők rendbetétele
 if (isset($_GET['stat_ido'])) {
@@ -104,7 +121,7 @@ if (false && isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
 }
 
 // Kötött fejléc nevű CSV feldolgozása (login_import.csv legyen a fájl neve)
-if (isset($_GET['loginnev_import'])) {
+if (false && isset($_GET['loginnev_import'])) {
     
     header('Content-Type: text/html; charset='. get_web_charset());
     
@@ -113,9 +130,8 @@ if (isset($_GET['loginnev_import'])) {
 
     $k = 0;
     $loginnevek = array();
-    $log_csv .= "Beolvasás eredménye, még nincs beimportálva!\r\n";
     if (!isset($_GET['mehet'])) {
-        
+        $log_csv .= "Beolvasás eredménye, még nincs beimportálva!\r\n";
     }
     $log_csv .= 'Esemény;Státusz;PP2 loginnév;Teljes név;ontEAM név;Részleg;Beosztás;E-mail;Telefon;'."\r\n";
     if (($csv_fajl = fopen($fajlnev, 'r')) !== FALSE) {
