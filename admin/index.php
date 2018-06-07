@@ -104,7 +104,7 @@ if (false && isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
 }
 
 // Kötött fejléc nevű CSV feldolgozása (login_import.csv legyen a fájl neve)
-if (false && isset($_GET['loginnev_import'])) {
+if (isset($_GET['loginnev_import'])) {
     
     header('Content-Type: text/html; charset='. get_web_charset());
     
@@ -113,7 +113,11 @@ if (false && isset($_GET['loginnev_import'])) {
 
     $k = 0;
     $loginnevek = array();
-    $log_csv = 'Esemény;Státusz;PP2 loginnév;Teljes név;ontEAM név;Részleg;Beosztás;E-mail;Telefon;'."\r\n";
+    $log_csv .= "Beolvasás eredménye, még nincs beimportálva!\r\n";
+    if (!isset($_GET['mehet'])) {
+        
+    }
+    $log_csv .= 'Esemény;Státusz;PP2 loginnév;Teljes név;ontEAM név;Részleg;Beosztás;E-mail;Telefon;'."\r\n";
     if (($csv_fajl = fopen($fajlnev, 'r')) !== FALSE) {
         while (($sor = fgetcsv($csv_fajl, 0, ';')) !== FALSE) {
 
@@ -238,9 +242,11 @@ if (false && isset($_GET['loginnev_import'])) {
                                 $elozo_login_nev = $login_nev.$sorszam;
                             }
                             $login_nev .= $sorszam;
-                            $log_csv .= 'Nem volt megadva loginnév, így a nevéből generáva: '.$login_nev;
+                            $log_csv .= 'Nem volt megadva loginnév, így a nevéből generáva: '.$login_nev.' ';
                         }else{
-                            $log_csv .= 'ELŐRE MEGADOTT LOGINNÉV alapján a következő adatok beállítva: '.$login_nev;
+                            if (!isset($_GET['mehet'])) {
+                                $log_csv .= 'ELŐRE MEGADOTT LOGINNÉV: '.$login_nev.' ';
+                            }
                         }
 
                         // Jegyezzük meg, hogy milyen loginnevek voltak

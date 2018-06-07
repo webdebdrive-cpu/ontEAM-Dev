@@ -3055,12 +3055,6 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                     </span>
                 ');
             }
-            
-            // Esnapd kiíratása
-            $esnap_d = '';
-            if($bsz['esnap_d']!='0000-00-00'){
-                $esnap_d = datum_kiir($bsz['esnap_d']);
-            }
 
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
@@ -3075,7 +3069,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                             </tr>
                             <tr>
                                 <td>'.getErtekLista(ERTEKLISTA_MUNKALAP_TIP, $bsz['tipus_id']).'</td>
-                                <td colspan="2">'.datum_kiir($bsz['insert_dt']).' '.$esnap_d.'</td>
+                                <td colspan="2">'.datum_kiir($bsz['insert_dt']).'</td>
                                 <td>'.$szemelyzet.'</td>
                             </tr>
                             </table>
