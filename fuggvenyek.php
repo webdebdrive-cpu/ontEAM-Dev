@@ -508,10 +508,10 @@ function i_u($type, $tabla, $tomb) {
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);
         if( $id === false ) { $db_error = true; }
 
-echo '<pre style="font-size: 1.4rem">';
-echo $adatbazis_kapcsolat->gp() . '<br>';
-echo '</pre>';
-exit;
+//echo '<pre style="font-size: 1.4rem">';
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//echo '</pre>';
+//exit;
 //mysqli_commit($db_kapcs);
 //exit;
 
