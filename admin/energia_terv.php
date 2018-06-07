@@ -73,7 +73,8 @@ if (isset($_POST['egysegarMentes'])) {
     $adatbazis_kapcsolat -> u('energia_terv_ear', $mit, $mire, 'recid='.$_POST['egysegarsor_id']);
 
     echo json_encode(array(
-        'statusz' => 'OK'
+        'statusz' => 'OK',
+        'recid'   => $_POST['egysegarsor_id']
     ));
 
     $weblap->leallit();
@@ -518,7 +519,8 @@ if (isset($_POST['uj_egysegar'])) {
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode(array(
-            'statusz' => 'siker'
+            'statusz' => 'siker',
+            'recid'   => $uj_egysegar_recid
         ));
     } else {
         mysqli_rollback($db_kapcs);

@@ -25,7 +25,12 @@ function addSzallodaEnergia( recid, that ) {
                     }
 
                     szurkit();
-                    location.href='energia_terv.php?egysegarak&id='+_get('id')+'&ear='+recid;
+                    popupZar();
+                    szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'egysegarak' ).done(function() {
+                        $('.szamla_cont_tabla tr').removeClass('kijelolve');
+                        $('#tr_ear_' + recid).addClass('kijelolve');
+                    });
+                    /*location.href='energia_terv.php?egysegarak&id='+_get('id')+'&ear='+recid;*/
          		}
          	}
         });
@@ -71,12 +76,12 @@ function terv_elesites(mehet) {
 
 /* Új egységár sor feltöltése */
 function uj_egysegar(){
-    
+
     // Ha nincs kijelölve sor, akkor csak szálloda választó jön fel, a sor meg üres adatokkal jön létre.
     var kijelolt_egysegar = $('.szamla_cont_tabla .kijelolve').attr('data-recid');
     if(!kijelolt_egysegar){
         kapcsolodoSzerkeszt('szallodak_energia_uj_hozzaad');
-        
+
     // Ha van aktív sok, akkor a szállodákat átmásolva, minden más adatot üresen hagyva hozunk létre új sort
     }else{
         $.ajax({
@@ -90,8 +95,19 @@ function uj_egysegar(){
             success: function (response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if (response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
                     szurkit();
-                    location.reload();
+
+                    szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'egysegarak' ).done(function() {
+                        $('.szamla_cont_tabla tr').removeClass('kijelolve');
+                        $('#tr_ear_' + response.recid).addClass('kijelolve');
+                    });
                 }
             }
         });
@@ -108,7 +124,7 @@ function uj_egysegar_szallodak(that){
         var value = $(this).val();
         data[i] = value;
     });
-    
+
     if( objLength(data) ) {
         $.ajax({
             url : 'energia_terv.php',
@@ -121,8 +137,20 @@ function uj_egysegar_szallodak(that){
             success: function (response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if (response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
                     szurkit();
-                    location.reload();
+
+                    popupZar();
+                    szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'egysegarak' ).done(function() {
+                        $('.szamla_cont_tabla tr').removeClass('kijelolve');
+                        $('#tr_ear_' + response.recid).addClass('kijelolve');
+                    });
                 }
             }
         });
@@ -135,7 +163,7 @@ function uj_egysegar_szallodak(that){
 
 /* Egységár sor törlése */
 function egysegar_sor_torol(mehet){
-    
+
     // Ha nincs kijelölve sor, hibaüzi
     var kijelolt_egysegar = $('.szamla_cont_tabla .kijelolve').attr('data-recid');
     if(!kijelolt_egysegar){
@@ -156,7 +184,8 @@ function egysegar_sor_torol(mehet){
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 szurkit();
-                location.reload();
+
+                szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'egysegarak' );
             }
         }
     });
@@ -164,12 +193,12 @@ function egysegar_sor_torol(mehet){
 
 /* Energiaterv véglegesítése */
 function energiaterv_veglegesit(mehet){
-    
+
     if(!mehet){
         alert2('Biztosan véglegesíti a tervet?', '<input type="button" class="gomb zold" value="Igen" onclick="energiaterv_veglegesit(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
         return false;
     }
-    
+
     $.ajax({
         url : 'energia_terv.php',
         type: 'POST',
@@ -180,9 +209,9 @@ function energiaterv_veglegesit(mehet){
         success: function (response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
-                
+
                 response = JSON.parse(response);
-                
+
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
@@ -196,10 +225,10 @@ function energiaterv_veglegesit(mehet){
 
 /* Egységárak táblázat */
 $(document).ready(function () {
-    
+
     $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
         $('.szamla_cont_tabla tbody tr').removeClass('kijelolve');
         $(this).addClass('kijelolve');
     });
-    
+
 });
