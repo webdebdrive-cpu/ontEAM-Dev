@@ -214,11 +214,15 @@ if( isset($_POST['munkalapKeszit']) ) {
             if( $telephely_id ) {
                 $telephely_id = $telephely_id['telephely_id'];
             }
+            
+            // Címkék lekezelése
+            $obj_txt = getErtek('nev', 'obj', 'recid', $bejelentes['obj_id']);
+            $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $bejelentes['gep_id']);
 
             // Munkalap beszúrása
             $recid = $adatbazis_kapcsolat -> i('munkalap',
-                                                array('ikt_szam',   'stat_id',              'tipus_id',  'surgos',              'telephely_id', 'obj_id',              'gep_id',               'loginnev',                         'update_usr',                          'insert_dt',    'insert_usr'                             ),
-                                                array($ikt_szam,     MUNKALAP_STAT_NYITOTT, 1,           $bejelentes['surgos'], $telephely_id,  $bejelentes['obj_id'],  $bejelentes['gep_id'], $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   )
+                                                array('ikt_szam',   'stat_id',              'tipus_id',  'surgos',              'telephely_id', 'obj_id',              'obj_txt', 'gep_id',              'gep_txt', 'loginnev',                         'update_usr',                          'insert_dt',    'insert_usr'                             ),
+                                                array($ikt_szam,     MUNKALAP_STAT_NYITOTT, 1,           $bejelentes['surgos'], $telephely_id,  $bejelentes['obj_id'], $obj_txt,  $bejelentes['gep_id'], $gep_txt,  $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   )
                                             );
             if( $recid === false ) { $db_error = true; }
 
@@ -276,10 +280,14 @@ if ($_GET['ujkent_bejelentes']) {
     // Iktatószám generálása
     $sorszam = get_iktatoszam_sorszam('munkalap');
     $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
+    
+    // Címkék lekezelése
+    $obj_txt = getErtek('nev', 'obj', 'recid', $bejelentes['obj_id']);
+    $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $bejelentes['gep_id']);
 
     $uj_id = $adatbazis_kapcsolat->i('munkalap',
-                                                array('ikt_szam', 'surgos',              'text',                   'telephely_id',              'obj_id',              'gep_id',                'tipus_id', 'loginnev',                         'update_usr',                           'insert_dt',    'insert_usr'                            ),
-                                                array($ikt_szam,  $bejelentes['surgos'], $bejelentes['hiba_text'], $bejelentes['telephely_id'], $bejelentes['obj_id'], $bejelentes['gep_id'],   1,          $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                array('ikt_szam', 'surgos',              'text',                   'telephely_id',              'obj_id',              'obj_txt', 'gep_id',                 'gep_txt',  'tipus_id', 'loginnev',                         'update_usr',                           'insert_dt',    'insert_usr'                            ),
+                                                array($ikt_szam,  $bejelentes['surgos'], $bejelentes['hiba_text'], $bejelentes['telephely_id'], $bejelentes['obj_id'], $obj_txt,  $bejelentes['gep_id'],    $gep_txt,   1,          $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
                                     );
     if( $uj_id === false ) { $db_error = true; }
 
@@ -297,6 +305,9 @@ if ($_GET['ujkent_bejelentes']) {
                                                        array($uj_id,         $_GET['ujkent_bejelentes'])
                                     );
     if( $sql === false ) { $db_error = true; }
+    
+    // Dokumentum átmásolása
+    bejelentes_dok_munkalapba_masol($_GET['ujkent_bejelentes'], $uj_id);
 
     // Logolás
     $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' új munkalapot hozott létre a '.$bejelentes['ikt_szam'].' bejelentésből.';

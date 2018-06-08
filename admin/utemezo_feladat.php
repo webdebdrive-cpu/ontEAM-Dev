@@ -82,10 +82,14 @@ foreach($ut_feladatok as $ut_feladat){
     // Szállodának mi a modellje
     $szalloda = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$ut_feladat['telephely_id']}'");
     
+    // Címkék lekezelése
+    $obj_txt = getErtek('nev', 'obj', 'recid', $ut_feladat['obj_id']);
+    $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $ut_feladat['gep_id']);
+    
     // Új munkalap státsza mi legyen. Alapból nyitott
     $stat_id = MUNKALAP_STAT_NYITOTT;
-    $ujrecid = $adatbazis_kapcsolat->i('munkalap',  array('ikt_szam', 'uf_szam',         'stat_id',             'text', 'szemelyzet_id',                'telephely_id',               'obj_id',               'gep_id',               'tipus_id',                      'esnap_d',              'loginnev',                         'update_usr',                           'insert_dt',    'insert_usr'                             ),
-                                                    array($ikt_szam,  $ut_feladat['id'], MUNKALAP_STAT_NYITOTT,  $text,  $ut_feladat['szemelyzet_id'],   $ut_feladat['telephely_id'],  $ut_feladat['obj_id'],  $ut_feladat['gep_id'],  3/*Ütemezett feladat a tipusa*/, $ut_feladat['esnap_d'], $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']   )
+    $ujrecid = $adatbazis_kapcsolat->i('munkalap',  array('ikt_szam', 'uf_szam',         'stat_id',             'text', 'szemelyzet_id',                'telephely_id',               'obj_id',               'obj_txt',  'gep_id',              'gep_txt',     'tipus_id',                      'esnap_d',              'loginnev',                         'update_usr',                           'insert_dt',    'insert_usr'                             ),
+                                                    array($ikt_szam,  $ut_feladat['id'], MUNKALAP_STAT_NYITOTT,  $text,  $ut_feladat['szemelyzet_id'],   $ut_feladat['telephely_id'],  $ut_feladat['obj_id'], $obj_txt,   $ut_feladat['gep_id'], $gep_txt,      3/*Ütemezett feladat a tipusa*/, $ut_feladat['esnap_d'], $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']   )
                                    );
     
     if( $ujrecid === false ) {

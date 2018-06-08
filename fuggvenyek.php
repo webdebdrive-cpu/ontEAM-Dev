@@ -538,7 +538,7 @@ function i_u($type, $tabla, $tomb) {
                                             array($id,               BEJELENTES_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'], 'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                         );
             if( $sql === false ) { $db_error = true; }
-            $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(BEJELENTES_STAT_NYITOTT), "`recid`='$id'");
+            $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(BEJELENTES_STAT_NYITOTT), "`recid`='{$id}'");
             if( $sql === false ) { $db_error = true; }
 
             // Megvizsgáljuk, hogy egy/több szállodás modell
@@ -553,10 +553,14 @@ function i_u($type, $tabla, $tomb) {
                     if($sorszam===false){ $db_error = true; }
                     $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
 
+                    // Címkék lekezelése
+                    $obj_txt = getErtek('nev', 'obj', 'recid',  $_POST['obj_id']            );
+                    $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $_POST['gep_id']   );
+                    
                     // Munkalap beszúrása
                     $recid = $adatbazis_kapcsolat -> i('munkalap',
-                                                        array('ikt_szam',   'stat_id',              'tipus_id',  'telephely_id',          'obj_id',          'gep_id',          'szemelyzet_id',        'surgos',         'loginnev',                        'update_usr',                          'insert_dt',  'insert_usr'                             ),
-                                                        array($ikt_szam,    MUNKALAP_STAT_NYITOTT,  1,           $_POST['telephely_id'],  $_POST['obj_id'],  $_POST['gep_id'],  TELEPITETT_SZEMELYZET,  $_POST['surgos'], $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']   )
+                                                        array('ikt_szam',   'stat_id',              'tipus_id',  'telephely_id',          'obj_id',         'obj_txt',  'gep_id',           'gep_txt',  'szemelyzet_id',        'surgos',         'loginnev',                        'update_usr',                          'insert_dt',  'insert_usr'                             ),
+                                                        array($ikt_szam,    MUNKALAP_STAT_NYITOTT,  1,           $_POST['telephely_id'],  $_POST['obj_id'], $obj_txt,   $_POST['gep_id'],   $gep_txt,   TELEPITETT_SZEMELYZET,  $_POST['surgos'], $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']   )
                                                     );
                     if( $recid === false ) { $db_error = true; }
 
@@ -579,6 +583,8 @@ function i_u($type, $tabla, $tomb) {
                     if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
                         $db_error = true;
                     }
+                    
+                    // Dokumentumot is átmásoljuk, de nem itt, mert itt még nincs hozzárendelve, hanem a bejelentes.php elején
                 }
             }
 
@@ -4459,7 +4465,7 @@ function cikktorzsLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
     return false;
 }
 
-// Dokuemntumtár nav panel része
+// Dokumentumtár nav panel része
 function dokumentumtarLista() {
     global $adatbazis_kapcsolat;
     $html = '
@@ -6168,6 +6174,12 @@ function bejelentes_dok_munkalapba_masol($bejelentes_id, $munkalap_id){
                                         );
         if( $sql === false ) { $db_error = true; }
     }
+    
+    // Darabszám kiszámítása
+    $dok_db = $adatbazis_kapcsolat->s('recid', 'munkalap_dok', "`munkalap_id`='{$munkalap_id}'");
+    if( $dok_db === false ) { $db_error = true; }
+    $sql = $adatbazis_kapcsolat->u('munkalap', array('dok_db'), array(count($dok_db)), "`recid`='{$munkalap_id}'");
+    if( $sql === false ) { $db_error = true; }
 
     if($db_error){
         return false;

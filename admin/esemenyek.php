@@ -4718,7 +4718,7 @@ if(isset($_GET['modosit'])){
         // Ha az oszlop a bejelentesUjFeltoltes, akkor bejelentések új feltötlésekor hozzáadott dokumentumról van szó
         // Ezt másoljuk be a dokumentumok füle alá
         if($oszlop=='bejelentesUjFeltoltes'){
-            $bejelentes = $adatbazis_kapcsolat->s2('ikt_szam', $tabla, "`recid`='{$_GET['id']}'");
+            $bejelentes = $adatbazis_kapcsolat->s2('ikt_szam telephely_id', $tabla, "`recid`='{$_GET['id']}'");
             $alkonyvtar = str_replace('/', '_', $bejelentes['ikt_szam']).'/';
             $akt_utvonal .= $alkonyvtar;
             if(!is_dir($akt_utvonal)){
@@ -4737,6 +4737,18 @@ if(isset($_GET['modosit'])){
             // Végül a szülő táblában a dok_db karbantartása
             $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', 'bejelentes_dok', "`bejelentes_id`='{$_GET['id']}'") );
             $adatbazis_kapcsolat->u('bejelentes', array('dok_db'), array($dokumentumok_szama), "`recid`='{$_GET['id']}'");
+            
+            // Dokumentumokat is átmásoljuk, ha egyszállodás a bejelentés
+            // Ha volt cache fájl, akkor ez biztosan egy új feltöltés, tehát most kell átmásolni.
+            $telehely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$bejelentes['telephely_id']}'");
+            if(!$telehely['modell']){
+                
+                // Ha cache fájl létezik (tehát új feltöltés) és egyszállodás, akkor biztosan egy kapcsolódó mukalapja lesz
+                $munkalapja = $adatbazis_kapcsolat->s2('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
+                if( bejelentes_dok_munkalapba_masol($_GET['id'], $munkalapja['munkalap_id']) === false){
+                    $db_error = true;
+                }
+            }
 
         // Ha az oszlop a munkalapUjFeltoltes, akkor bejelentések új feltötlésekor hozzáadott dokumentumról van szó
         // Ezt másoljuk be a dokumentumok füle alá
