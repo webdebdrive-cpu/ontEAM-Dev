@@ -1096,16 +1096,19 @@ $(function() {
     /* Az éppen aktív rekordra ugrás, miután a rendezés lefutott */
     $(document).ready(function () {
         if( $('.szamla_sor.kijelolve').hasClass('kijelolve') ) {
+            $('#tartalomBal').scrollTop(0);
             active_top = $('.szamla_sor.kijelolve').position().top;
+console.log('a'+active_top);
             $('#tartalomBal').scrollTop(active_top - 250);
         }
         /* Biztonság kedvért kis idő után újra pozícionálunk (sok balnavpanel után ez szükséges) */
-        setTimeout(function() {
+        /*setTimeout(function() {
             if( $('.szamla_sor.kijelolve').hasClass('kijelolve') ) {
                 active_top = $('.szamla_sor.kijelolve').position().top;
+console.log('b'+active_top);
                 $('#tartalomBal').scrollTop(active_top - 250);
             }
-        }, 500);
+        }, 500);*/
     });
 
     /* Scroll elindítása görgetésre */
