@@ -62,7 +62,8 @@ $log_tmp = date('Y.m.d H:i:s').' ütemező sikeresen lefutott.
 $log .= $log_tmp;
 file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
-$adatbazis_kapcsolat->i('utemezo_log', array('utemezo', 'log'), array(basename(self()), $log));
+mysqli_query($db_kapcs, 'INSERT INTO `'.get_db_tabla().'utemezo_log` SET `utemezo`=\''.basename(self()).'\', `log`=\''.addslashes($log).'\'') or die(mysqli_error($db_kapcs));
+//$adatbazis_kapcsolat->i('utemezo_log', array('utemezo', 'log'), array(basename(self()), $log));
 
 
 // Bejelentések archiválása
