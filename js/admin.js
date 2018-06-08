@@ -530,11 +530,6 @@ $(function() {
     $(document).on('click', function(e) {
         $('.kijeloltek_muv').removeClass('active');
     });
-    // Jobb egérgomb tiltása
-    $(document).on('contextmenu', function(e){
-        e.preventDefault();
-        return false;
-    });
     // Readonly mezők tiltása
     $('input[readonly]')   .removeAttr('onclick').removeAttr('onblur');
     $('select[readonly]')  .removeAttr('onclick').removeAttr('onblur');
@@ -5262,7 +5257,7 @@ function egysegarak_nyomtat() {
     window.open(get_get() + '&print=lista&type=egysegarak_lista', '_blank');
 }
 
-function listanezet_nyomtat() {
+function listanezet_nyomtat( that ) {
     var ids = new Array();
 
     i = 0;
@@ -5287,14 +5282,18 @@ function listanezet_nyomtat() {
 
     $.when(ajax).done(function() {
         if( ids.length ) {
-            window.open(get_get() + '&print=lista', '_blank');
+            var onclick = $(that).attr('onclick');
+
+            $(that).attr('href', get_get() + '&print=lista').removeAttr('onclick');
+            $(that)[0].click();
+            $(that).attr('onclick', onclick).removeAttr('href');
         } else {
             alert2('Üres találati listát nem lehet nyomtatni!', '', 'Hiba');
         }
     });
 }
 
-function csv_general() {
+function csv_general( that ) {
     var ids = new Array();
 
     i = 0;
@@ -5319,7 +5318,11 @@ function csv_general() {
 
     $.when(ajax).done(function() {
         if( ids.length ) {
-            window.open(get_get() + '&csv', '_blank');
+            var onclick = $(that).attr('onclick');
+
+            $(that).attr('href', get_get() + '&csv').removeAttr('onclick');
+            $(that)[0].click();
+            $(that).attr('onclick', onclick).removeAttr('href');
         } else {
             alert2('Üres találati listát nem lehet nyomtatni!', '', 'Hiba');
         }

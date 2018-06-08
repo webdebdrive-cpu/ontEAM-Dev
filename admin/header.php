@@ -663,7 +663,9 @@ $header_html .= '<body'.$body_class;
         $header_html .=' onload="if(document.getElementById(\'id\')){document.getElementById(\'id\').focus();}"';
     // Többképes képfeltöltésnél ugrás a képekhez
     }
-    $header_html .=' oncontextmenu="return false;" ';
+    if( $_SERVER['HTTP_HOST'] != 'demo.webdeb.hu' ) {
+        $header_html .=' oncontextmenu="return false;" ';
+    }
 
 
 $header_html .='>';
@@ -1203,7 +1205,7 @@ if( basename(self())=='torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL)){
 }
 
 // $csv_get = get_get(array('id'));
-$csv_get = 'javascript: csv_general(); void(0);';
+$csv_get = 'csv_general( this );';
 
 $rendez_rejt_oldalak = array('dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
 if(in_array(basename(self()), $rendez_rejt_oldalak)){
@@ -1286,14 +1288,27 @@ if(basename(self())=='energia_terv.php'){
     $header_html .= '<script src="../js/energia_terv.js?cache='.time().'"></script>';
 }
 
+if( $_SERVER['HTTP_HOST'] != 'demo.webdeb.hu' ) {
+    $header_html .= nl2('
+        <script>
+            $(function() {
+                $(document).on(\'contextmenu\', function(e){
+                    e.preventDefault();
+                    return false;
+                });
+            });
+        </script>
+    ');
+}
+
 // Nyomtatási popup
 if( basename(self()) == 'energia_terv.php' ) {
     $header_html .= nl2('
         <div class="dn">
             <div id="nyomtatasi_nezet">
                 Nyomtatási nézet választás...
-                <br><a href="javascript: listanezet_nyomtat(); void(0);" target="_blank">Energia tervek listája</a>
-                <br><a href="javascript: egysegarak_nyomtat(); void(0);" target="_blank">Egységárak listája</a>
+                <br><a class="link" onclick="listanezet_nyomtat( this );" target="_blank">Energia tervek listája</a>
+                <br><a class="link" onclick="egysegarak_nyomtat( this );" target="_blank">Egységárak listája</a>
             </div>
         </div>
     ');
@@ -1302,7 +1317,7 @@ if( basename(self()) == 'energia_terv.php' ) {
         <div class="dn">
             <div id="nyomtatasi_nezet">
                 Nyomtatási nézet választás...
-                <br><a href="javascript: listanezet_nyomtat(); void(0);" target="_blank">Listanézet</a>
+                <br><a class="link" onclick="listanezet_nyomtat( this );" target="_blank">Listanézet</a>
                 <br><a href="#" target="_blank">B nézet</a>
                 <br><a href="#" target="_blank">C nézet</a>
             </div>
@@ -1316,8 +1331,8 @@ foreach ($_SESSION[get_db_tabla().'rights'] as $jog){
     $jogok .= $jog;
 }
 $header_html .= nl2('
-<script>var _jogok = \''.$jogok.'\';</script>
-    ');
+    <script>var _jogok = \''.$jogok.'\';</script>
+');
 
 
 echo $header_html.fajlbol_olvas('../sablon/admin/js_beagyazasok.html', true);
