@@ -1239,19 +1239,26 @@ if(basename(self())=='anyagigenyles.php'){
 // Kereső általános esete
 }else{
     $kereso = nl2('
-            <input type="text" name="ksz" id="rendezesKeres" class="disableNav" autocomplete="off" placeholder="Keresés" onkeyup="altalanos_tabla_szur($(\'#szamlaList\'), $(this).val())">
-            <script>
-                function altalanos_tabla_szur(tabla, kulcs) {
-                    var $rows = tabla.find(\'li\');
-                    var val = $.trim(kulcs).replace(/ +/g, \' \').toLowerCase();
+        <input type="text" name="ksz" id="rendezesKeres" class="disableNav" autocomplete="off" placeholder="Keresés" onkeyup="altalanos_tabla_szur($(\'#szamlaList\'), $(this).val())">
+        <script>
+            function altalanos_tabla_szur(tabla, kulcs) {
+                var $rows = tabla.find(\'li\');
+                var val = $.trim(kulcs).replace(/ +/g, \' \').toLowerCase();
 
-                    $rows.show().filter(function() {
-                        var text = $(this).text().replace(/\s+/g, \' \').toLowerCase();
-                        return !~text.indexOf(val);
-                    }).hide();
-                }
-            </script>
-            ');
+                i = 1;
+                $rows.show().filter(function() {
+                    var text = $(this).text().replace(/\s+/g, \' \').toLowerCase();
+                    if( ~text.indexOf(val) ) {
+                        $(this).attr(\'data-i\', i);
+                        i++;
+                    } else {
+                        $(this).attr(\'data-i\', \'\');
+                    }
+                    return !~text.indexOf(val);
+                }).hide();
+            }
+        </script>
+    ');
     // Felhasználók esetén a keresés mezőbe kerüljön a fókusz
     if( basename(self())=='login.php' ){
         $kereso .= nl2('
@@ -1260,7 +1267,7 @@ if(basename(self())=='anyagigenyles.php'){
                     $(\'#rendezesKeres\').focus();
                 });
             </script>
-                    ');
+        ');
     }
 }
 
