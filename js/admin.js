@@ -4666,10 +4666,10 @@ function popupNyit() {
     $('#popup input:text, #popup textarea, #popup select').first().select();
 }
 
+/* Popup villogtatása */
 function popup_villogtat() {
     speed = 75;
-
-    $('#popup .popup_kont').fadeOut(speed).fadeIn(speed).fadeOut(speed).fadeIn(speed).fadeOut(speed).fadeIn(speed);
+    $('#popup .popup_kont, #alert2').fadeOut(speed).fadeIn(speed).fadeOut(speed).fadeIn(speed).fadeOut(speed).fadeIn(speed);
 }
 
 function inArray( keresett, tomb ) {
