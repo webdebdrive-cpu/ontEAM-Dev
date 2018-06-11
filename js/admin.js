@@ -442,8 +442,8 @@ $(function() {
                 /* A listás, általános verzió */
                 }else{
 
-                    var active   = $('#szamlaList li.szamla_sor.kijelolve').index('#szamlaList li.szamla_sor'),
-                        szamlaDb = $('#szamlaList li.szamla_sor').length - 1;
+                    var active   = $('#szamlaList li.szamla_sor.kijelolve').index('#szamlaList li.szamla_sor:visible'),
+                        szamlaDb = $('#szamlaList li.szamla_sor:visible').length - 1;
 
                     if( !formModositva ) {
                         $('#szamlaList li.szamla_sor').removeClass('kijelolve');
@@ -466,9 +466,9 @@ $(function() {
                     }
 
                     if( !formModositva ) {
-                        $('#szamlaList li.szamla_sor').eq(kovSzamlaSor).addClass('kijelolve');
+                        $('#szamlaList li.szamla_sor:visible').eq(kovSzamlaSor).addClass('kijelolve');
                     }
-                    var szamlaID = $('#szamlaList li.szamla_sor').eq(kovSzamlaSor).attr('data-recid');
+                    var szamlaID = $('#szamlaList li.szamla_sor:visible').eq(kovSzamlaSor).attr('data-recid');
 
                 }
 
@@ -4664,6 +4664,12 @@ function popupZar() {
 function popupNyit() {
     $('#popup').css('display', 'block');
     $('#popup input:text, #popup textarea, #popup select').first().select();
+}
+
+function popup_villogtat() {
+    speed = 75;
+
+    $('#popup .popup_kont').fadeOut(speed).fadeIn(speed).fadeOut(speed).fadeIn(speed).fadeOut(speed).fadeIn(speed);
 }
 
 function inArray( keresett, tomb ) {
