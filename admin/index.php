@@ -1068,13 +1068,15 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 if (isset($_GET['dok_megj'])) {
     
 //    $tabla = 'bejelentes';
-//    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla);
+//    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`dok_db`=0");
 //    foreach($bejelentesek as $bejelentes){
 //        
 //        $megj_ek = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='{$tabla}' AND `id`='{$bejelentes['recid']}'");
 //        $dok_ok  = $adatbazis_kapcsolat->s('recid', $tabla.'_dok', "`{$tabla}_id`='{$bejelentes['recid']}'");
-//        $adatbazis_kapcsolat->u($tabla, array('megj_db', 'dok_db'), array(count($megj_ek), count($dok_ok)), "`recid`='{$bejelentes['recid']}'");
-//        
+//        if($megj_ek || $dok_ok){
+//            $adatbazis_kapcsolat->u($tabla, array('megj_db', 'dok_db'), array(count($megj_ek), count($dok_ok)), "`recid`='{$bejelentes['recid']}'");
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//        }
 //    }
 //    
 //    $tabla = 'bejelentes_arch';
@@ -1087,11 +1089,14 @@ if (isset($_GET['dok_megj'])) {
 //    echo '<hr>KÉSZ';
 //    exit;
 //    $tabla = 'munkalap';
-//    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla);
+//    $bejelentesek = $adatbazis_kapcsolat->s('recid', $tabla, "`dok_db`=0");
 //    foreach($bejelentesek as $bejelentes){
 //        $megj_ek = $adatbazis_kapcsolat->s('recid', 'megjegyzes', "`tabla`='{$tabla}' AND `id`='{$bejelentes['recid']}'");
-//        $dok_ok = $adatbazis_kapcsolat->s('recid', $tabla.'_dok', "`{$tabla}_id`='{$bejelentes['recid']}'");
-//        $adatbazis_kapcsolat->u($tabla, array('megj_db', 'dok_db'), array(count($megj_ek), count($dok_ok)), "`recid`='{$bejelentes['recid']}'");
+//        $dok_ok  = $adatbazis_kapcsolat->s('recid', $tabla.'_dok', "`{$tabla}_id`='{$bejelentes['recid']}'");
+//        if($megj_ek || $dok_ok){
+//            $adatbazis_kapcsolat->u($tabla, array('megj_db', 'dok_db'), array(count($megj_ek), count($dok_ok)), "`recid`='{$bejelentes['recid']}'");
+//echo $adatbazis_kapcsolat->gp() . '<br>';
+//        }
 //    }
 //    echo '<hr>KÉSZ';
 //    exit;
