@@ -187,46 +187,19 @@ if( isset($_POST['munkalapKeszit']) ) {
         }
 
         if( !$db_error ) {
-            // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
-            $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
-            if( $ikt_seq === false ) { $db_error = true; }
 
-            if( $ikt_seq ) {
-
-                $sorszam = $ikt_seq['sorszam'];
-                $sorszam++;
-                $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
-                if( $sql === false ) { $db_error = true; }
-
-            } else {
-
-                $sorszam = 1;
-                $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), 'munkalap'));
-                if( $sql === false ) { $db_error = true; }
-            }
-
-            // Iktatószám formázása
-            $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
-
-            // Ellenőrizzük a szállodákat is
+            // Szálloda kiszámítása
             $telephely_id = $adatbazis_kapcsolat->s2('telephely_id', 'bejelentes', "`recid` IN (".implode(',', $idk).")", '', '1');
             if( $telephely_id === false ) { $db_error = true; }
 
             if( $telephely_id ) {
                 $telephely_id = $telephely_id['telephely_id'];
             }
-            
-            // Címkék lekezelése
-            $obj_txt = getErtek('nev', 'obj', 'recid', $bejelentes['obj_id']);
-            $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $bejelentes['gep_id']);
 
-            // Munkalap beszúrása
-            $recid = $adatbazis_kapcsolat -> i('munkalap',
-                                                array('ikt_szam',   'stat_id',              'tipus_id',  'surgos',              'telephely_id', 'obj_id',              'obj_txt', 'gep_id',              'gep_txt', 'loginnev',                         'update_usr',                          'insert_dt',    'insert_usr'                             ),
-                                                array($ikt_szam,     MUNKALAP_STAT_NYITOTT, 1,           $bejelentes['surgos'], $telephely_id,  $bejelentes['obj_id'], $obj_txt,  $bejelentes['gep_id'], $gep_txt,  $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   )
-                                            );
+            // Munkalap létrehozása
+            $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $telephely_id, MLTIPUS_HIBAELHARITAS, $bejelentes['obj_id'], $bejelentes['gep_id'], $bejelentes['surgos']);
             if( $recid === false ) { $db_error = true; }
-
+            
             // Hozzákapcsoljuk a bejelentéseket (valójában nincs is olyan eset, hogy több bejelentés egy munkalap, csak egy bejelentéshez tartozhat több munkalap is), de azért meghagytuk a régi ciklust
             foreach($idk as $id) {
                 $sql = $adatbazis_kapcsolat -> i('munkalap_kapcs',
@@ -241,13 +214,16 @@ if( isset($_POST['munkalapKeszit']) ) {
                 }
 
             }
-
-            // Felvesszük az első státuszt
-            $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
-                                                array('munkalap_recid', 'stat_id',             'login',                           'insert_dt',    'insert_usr',                              'update_usr'                           ),
-                                                array($recid,           MUNKALAP_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+            
+            // Logolás
+            $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' új munkalapot hozott létre a '.$bejelentes['ikt_szam'].' bejelentésből.';
+            $sql = $adatbazis_kapcsolat -> i(
+                                                'log',
+                                                array( 'felh_id',                               'nev',       'valtozas', 'ip'                   ),
+                                                array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,    $muvelet,   $_SERVER['REMOTE_ADDR'])
                                             );
             if( $sql === false ) { $db_error = true; }
+
         }
 
         if( !$db_error ) {
@@ -278,28 +254,9 @@ if ($_GET['ujkent_bejelentes']) {
     $bejelentes = $adatbazis_kapcsolat -> s2('*', 'bejelentes', "`recid`='{$_GET['ujkent_bejelentes']}'");
     if( $bejelentes === false ) { $db_error = true; }
 
-    // Iktatószám generálása
-    $sorszam = get_iktatoszam_sorszam('munkalap');
-    $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
-    
-    // Címkék lekezelése
-    $obj_txt = getErtek('nev', 'obj', 'recid', $bejelentes['obj_id']);
-    $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $bejelentes['gep_id']);
-
-    $uj_id = $adatbazis_kapcsolat->i('munkalap',
-                                                array('ikt_szam', 'surgos',              'text',                   'telephely_id',              'obj_id',              'obj_txt', 'gep_id',                 'gep_txt',  'tipus_id', 'loginnev',                         'update_usr',                           'insert_dt',    'insert_usr'                            ),
-                                                array($ikt_szam,  $bejelentes['surgos'], $bejelentes['hiba_text'], $bejelentes['telephely_id'], $bejelentes['obj_id'], $obj_txt,  $bejelentes['gep_id'],    $gep_txt,   1,          $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  )
-                                    );
+    // Munkalap létrehozása
+    $uj_id = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $bejelentes['telephely_id'], MLTIPUS_HIBAELHARITAS, $bejelentes['obj_id'], $bejelentes['gep_id'], $bejelentes['surgos'], $bejelentes['hiba_text']);
     if( $uj_id === false ) { $db_error = true; }
-
-    // Felvesszük az első státuszt
-    $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
-                                        array('munkalap_recid', 'stat_id',               'login',                           'insert_dt',    'insert_usr',                              'update_usr'                          ),
-                                        array($uj_id,            MUNKALAP_STAT_NYITOTT,  $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
-                                    );
-    if( $sql === false ) { $db_error = true; }
-    $sql = $adatbazis_kapcsolat->u('munkalap', array('stat_id'), array(MUNKALAP_STAT_NYITOTT), "`recid`='{$uj_id}'");
-    if( $sql === false ) { $db_error = true; }
 
     // Bejelentés hozzákapcsolása
     $sql = $adatbazis_kapcsolat->i('munkalap_kapcs',   array('munkalap_id',  'bejelentes_id'           ),
@@ -1801,7 +1758,7 @@ if( isset($_POST['munkalapMegrendelve']) ) {
 
     if( $recid ) {
         // Ellenőrizzük, hogy hozzárendelés előkészítés alatt van e
-        $munkalap = $adatbazis_kapcsolat->ss('stat_id szallito_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id szallito_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
         if( $munkalap ) {

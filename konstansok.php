@@ -316,4 +316,7 @@ define('ERTEKLISTA_PENZNEM',        21);
 //37 Projektigénylés megtérülési terület
 //38 Bejelentés nem igazolás oka
 
+define('MLTIPUS_HIBAELHARITAS', 1);
+define('MLTIPUS_UTEMEZETT_F',   3);
+
 ?>

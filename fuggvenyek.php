@@ -547,29 +547,9 @@ function i_u($type, $tabla, $tomb) {
 
                 // Egyszállodás modell VAGY ha a "telefonon bejelentve" pipa be van pipálva, így rögtön munkalapot generálunk belőle
                 if( !$telephely['modell'] || $_POST['telefon'] ) {
-
-                    // Iktatószám kiszámítása
-                    $sorszam  = get_iktatoszam_sorszam('munkalap');
-                    if($sorszam===false){ $db_error = true; }
-                    $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
-
-                    // Címkék lekezelése
-                    $obj_txt = getErtek('nev', 'obj', 'recid',  $_POST['obj_id']            );
-                    $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $_POST['gep_id']   );
                     
-                    // Munkalap beszúrása
-                    $recid = $adatbazis_kapcsolat -> i('munkalap',
-                                                        array('ikt_szam',   'stat_id',              'tipus_id',  'telephely_id',          'obj_id',         'obj_txt',  'gep_id',           'gep_txt',  'szemelyzet_id',        'surgos',         'loginnev',                        'update_usr',                          'insert_dt',  'insert_usr'                             ),
-                                                        array($ikt_szam,    MUNKALAP_STAT_NYITOTT,  1,           $_POST['telephely_id'],  $_POST['obj_id'], $obj_txt,   $_POST['gep_id'],   $gep_txt,   TELEPITETT_SZEMELYZET,  $_POST['surgos'], $_SESSION[get_db_tabla().'user'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev']   )
-                                                    );
+                    $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $_POST['telephely_id'], MLTIPUS_HIBAELHARITAS, $_POST['obj_id'], $_POST['gep_id'], $_POST['surgos'], '', TELEPITETT_SZEMELYZET);
                     if( $recid === false ) { $db_error = true; }
-
-                    // Felvesszük az első státuszt
-                    $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
-                                                        array('munkalap_recid', 'stat_id',             'login',                             'insert_dt',    'insert_usr',                              'update_usr'                           ),
-                                                        array($recid,           MUNKALAP_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'],    'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
-                                                    );
-                    if( $sql === false ) { $db_error = true; }
 
                     if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) === false ) { $db_error = true; }
 
@@ -584,7 +564,7 @@ function i_u($type, $tabla, $tomb) {
                         $db_error = true;
                     }
                     
-                    // Dokumentumot is átmásoljuk, de nem itt, mert itt még nincs hozzárendelve, hanem a bejelentes.php elején
+                    // Dokumentumot is átmásoljuk, de nem itt, mert itt még nincs hozzárendelve, hanem az esemenyek.php-ban (keress rá erre: bejelentes_dok_munkalapba_masol )
                 }
             }
 
@@ -6710,4 +6690,43 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
 // Egységes dátum kiíráshoz (másodperc nem kell, kötőjel helyett pont)
 function datum_kiir($datum){
     return str_replace('-', '.', substr($datum, 0, 16));
+}
+
+
+// Új munkalap készítése kiszervezve
+function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id, $surgos=0, $text='', $szemelyzet_id=0, $uf_szam='', $esnap_d='0000-00-00'){
+    
+    global $adatbazis_kapcsolat;
+    
+    $db_error = false;
+    
+    // Iktatószám beállítása
+    $sorszam = get_iktatoszam_sorszam('munkalap');
+    if($sorszam===false){ $db_error = true; }
+    $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
+
+    // Címkék lekezelése
+    $obj_txt = getErtek('nev', 'obj', 'recid', $obj_id);
+    $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $gep_id);
+
+    // Munkalap beszúrása
+    $recid = $adatbazis_kapcsolat -> i('munkalap',
+                                        array('ikt_szam',   'stat_id',  'tipus_id',  'surgos',  'telephely_id', 'obj_id', 'obj_txt', 'gep_id', 'gep_txt', 'text', 'szemelyzet_id', 'uf_szam', 'esnap_d', 'loginnev',                         'update_usr',                          'insert_dt',    'insert_usr'                             ),
+                                        array($ikt_szam,     $stat_id,  $tipus_id,   $surgos,   $telephely_id,  $obj_id,  $obj_txt,  $gep_id,  $gep_txt,  $text,  $szemelyzet_id,  $uf_szam,  $uf_szam,  $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   )
+                                    );
+    if( $recid === false ) { $db_error = true; }
+    
+    // Felvesszük az első státuszt
+    $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
+                                        array('munkalap_recid', 'stat_id',  'login',                           'insert_dt',    'insert_usr',                              'update_usr'                           ),
+                                        array($recid,           $stat_id,   $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+                                    );
+    if( $sql === false ) { $db_error = true; }
+    
+    if($db_error){
+        return false;
+    }else{
+        return $recid;
+    }
+    
 }

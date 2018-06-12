@@ -36,47 +36,7 @@ foreach($ut_feladatok as $ut_feladat){
     file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
     $text = /*$ut_feladat['id'].' feladatot ütemezte '.$ut_feladat['insert_usr']."\r\n".*/$ut_feladat['nev']."\r\n".$ut_feladat['leiras'];
-
-    // Feladatszám kiszámítása
-    // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
-    $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
-    if( $ikt_seq === false ) { $db_error = true; }
-    if( $ikt_seq ) {
  
-        $sorszam = $ikt_seq['sorszam'];
-        $sorszam++;
-        $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), "`tabla` = 'munkalap' AND `ev` = '".date('y')."'");
-        if( $sql === false ) {
-            $db_error = true;
-            $log_tmp = 'NEM SIKERÜLT iktatószám szekveciát frissíteni: '.$adatbazis_kapcsolat->gp().'
-';
-        }else{
-            $log_tmp = 'Iktatószám szekvecia frissítve: '.$adatbazis_kapcsolat->gp().'
-';
-        }
- 
-    } else {
- 
-        $sorszam = 1;
-        $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam',    'ev',       'tabla'     ),
-                                                        array($sorszam,     date('y'),  'munkalap'  )
-                                        );
-        if( $sql === false ) {
-            $db_error = true;
-            $log_tmp = 'NEM SIKERÜLT új iktatószámot létrehozni: '.$adatbazis_kapcsolat->gp().'
-';
-        }else{
-            $log_tmp = 'Új iktatószám szekvencia bejegyzés létrehozva: '.$adatbazis_kapcsolat->gp().'
-';
-        }
-    }
-    $log .= $log_tmp;
-    file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
- 
-    // Iktatószám formázása
-    $ikt_szam = 'M'.date('y').'/'.sprintf('%07d', $sorszam);
-    $log_tmp = 'Iktatószám létrehozva: '.$ikt_szam.'
-';
     $log .= $log_tmp;
     file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
     // Szállodának mi a modellje
@@ -87,10 +47,8 @@ foreach($ut_feladatok as $ut_feladat){
     $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $ut_feladat['gep_id']);
     
     // Új munkalap státsza mi legyen. Alapból nyitott
-    $stat_id = MUNKALAP_STAT_NYITOTT;
-    $ujrecid = $adatbazis_kapcsolat->i('munkalap',  array('ikt_szam', 'uf_szam',         'stat_id',             'text', 'szemelyzet_id',                'telephely_id',               'obj_id',               'obj_txt',  'gep_id',              'gep_txt',     'tipus_id',                      'esnap_d',              'loginnev',                         'update_usr',                           'insert_dt',    'insert_usr'                             ),
-                                                    array($ikt_szam,  $ut_feladat['id'], MUNKALAP_STAT_NYITOTT,  $text,  $ut_feladat['szemelyzet_id'],   $ut_feladat['telephely_id'],  $ut_feladat['obj_id'], $obj_txt,   $ut_feladat['gep_id'], $gep_txt,      3/*Ütemezett feladat a tipusa*/, $ut_feladat['esnap_d'], $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']   )
-                                   );
+    
+    $ujrecid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $ut_feladat['telephely_id'], MLTIPUS_UTEMEZETT_F, $ut_feladat['obj_id'], $ut_feladat['gep_id'], 0, $text, $ut_feladat['szemelyzet_id'], $ut_feladat['id'], $ut_feladat['esnap_d']);
     
     if( $ujrecid === false ) {
         $db_error = true;
@@ -98,22 +56,6 @@ foreach($ut_feladatok as $ut_feladat){
 ';
     }else{
         $log_tmp = 'Munkalap létrehozva: '.$adatbazis_kapcsolat->gp().'
-';
-    }
-    $log .= $log_tmp;
-    file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
-
-    // Kezdő státusz beállítása
-    $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
-                                        array('munkalap_recid', 'stat_id',             'login',                             'insert_dt',    'insert_usr',                'update_usr'                ),
-                                        array($ujrecid,         MUNKALAP_STAT_NYITOTT, $_SESSION[get_db_tabla().'user'],    'NOW()',        $ut_feladat['insert_usr'],   $ut_feladat['update_usr']   )
-                                    );
-    if( $sql === false ) {
-        $db_error = true;
-        $log_tmp = 'NEM SIKERÜLT munkalap státuszt beszúrni: '.$adatbazis_kapcsolat->gp().'
-';
-    }else{
-        $log_tmp = 'Munkalap státusz beszúrva: '.$adatbazis_kapcsolat->gp().'
 ';
     }
     $log .= $log_tmp;
