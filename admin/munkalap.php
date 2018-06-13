@@ -4025,7 +4025,7 @@ if( isset($_POST['feladatHozzaadas']) ) {
         if( $sql === false ) { $db_error = true; }
         if( $is_feladat ) {
             echo json_encode(array(
-                'hiba'  => 'A(z) "'.erteklista(5, $erteklista_id).'" feladat már hozzáadásra került!',
+                'hiba'  => 'A(z) "'.erteklista(ERTEKLISTA_ELV_FELAD, $erteklista_id).'" feladat már hozzáadásra került!',
                 'title' => 'Hiba',
             ));
             $weblap->leallit();
@@ -4425,14 +4425,15 @@ if( isset($_POST['munkalapMuszakiVezeto']) ) {
             $weblap->leallit();
             exit();
         }
-
+        
         // Jog ellenőrzése
+        $kezeles_jog = get_kezeles_jog($munkalap['szemelyzet_id']);
         if(
             !( // Ha nem igaz a következő feltétel rendszer
-                ( $munkalap['stat_id'] == MUNKALAP_STAT_NYITOTT             && _jog(JOG_MUNKALAP_NYITOTT_KEZEL)                                                          ) ||    // Nyitott státusz alatt nyitottak kezelése jog
-                ( $munkalap['stat_id'] == MUNKALAP_STAT_HOZZARENDELT        && $_SESSION[get_db_tabla().'szemelyzet_id']==TELEPITETT_SZEMELYZET && !$telephely['modell'] ) ||    // Folyamatban státusz alatt fontos, hogy telepített legyen a személy, egszállodás modell
-                ( $munkalap['stat_id'] == MUNKALAP_STAT_FELVEVE             && get_kezeles_jog($munkalap['szemelyzet_id']) && !$telephely['modell']                      ) ||    // Felvéve státusz alatt fontos, hogy kezelés joga legyen és egyszállodás modell
-                ( $munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT   && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT)                                                       )       // Előkészítés státusz alatt előkészítés jog
+                ( $munkalap['stat_id'] == MUNKALAP_STAT_NYITOTT             && _jog(JOG_MUNKALAP_NYITOTT_KEZEL)      ) ||    // Nyitott státusz alatt nyitottak kezelése jog
+                ( $munkalap['stat_id'] == MUNKALAP_STAT_HOZZARENDELT        && $kezeles_jog && !$telephely['modell'] ) ||    // Folyamatban státusz alatt fontos, hogy kezelés joga legyen és egyszállodás modell
+                ( $munkalap['stat_id'] == MUNKALAP_STAT_FELVEVE             && $kezeles_jog && !$telephely['modell'] ) ||    // Felvéve státusz alatt fontos, hogy kezelés joga legyen és egyszállodás modell
+                ( $munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT   && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT)   )       // Előkészítés státusz alatt előkészítés jog
             )
             ){
             echo json_encode(array(
@@ -5988,7 +5989,7 @@ require('selectek.php');
         }
 
         // Folyamatban státusz
-        if($sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && $_SESSION[get_db_tabla().'szemelyzet_id']==TELEPITETT_SZEMELYZET && !$telephely['modell']/*Egyszálodás modell*/ ){
+        if( $sor['stat_id']==MUNKALAP_STAT_HOZZARENDELT && !$telephely['modell']/*Egyszálodás modell*/ && $kezeles_jog ){
 
             $gombok .= nl2('
                 <div class="kijeloltek_muv">

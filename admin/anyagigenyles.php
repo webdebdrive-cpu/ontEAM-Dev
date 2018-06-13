@@ -2400,7 +2400,6 @@ require_once('selectek.php');
             // Vegyük a loginolt user azon munkalapjait, amik anyagra vár státuszban vannak
             $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`telephely_id` IN (".implode(',', $szallodak).") AND `stat_id`='".MUNKALAP_STAT_ANYAGRAVAR."'");
             $munkalapok = adatbazis2tomb($munkalapok, 'recid');
-
             if($munkalapok){
 
                 $anyagok_html = '';

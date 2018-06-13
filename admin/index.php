@@ -348,9 +348,9 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                     }
                                     
                                     // Szállodához rendelés
-                                    $szallodak = explode(',', $szalloda);
+                                    $szallodak = explode(/*','*/"\n", $szalloda);
                                     foreach( $szallodak as $szall ){
-                                        $szall = trim($szall);
+                                        $szall = mb_strtoupper( trim($szall) ).' TH';
                                         $szall_id = $adatbazis_kapcsolat->s2('id', 'telephely', "`nev`='{$szall}'");
                                         if(!$szall_id){
                                             $log_csv .= 'Nem ismert szálloda (ez még az előző sorhoz tartozik): '.$szall;

@@ -2452,7 +2452,7 @@ if( isset($_GET['sendMail']) ) {
                                 foreach($angyagigenyles as $anyagi){
 
                                     foreach($anyagigenyles_mailba as $tomb) {
-                                        /*$return .= $tomb['megn'];*/
+                                        // $return .= $tomb['megn'];
 
                                         switch($tomb['name']) {
                                             case 'stat_id':
@@ -2519,7 +2519,7 @@ if( isset($_GET['sendMail']) ) {
         }
 
         echo json_encode(array(
-            'html'      => $return.'%0D%0A',
+            'html'      => str_replace('&', '%26', $return).'%0D%0A',
             'subject'   => $subject,
         ));
     }
