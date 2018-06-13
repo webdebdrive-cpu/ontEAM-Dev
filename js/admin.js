@@ -3138,6 +3138,10 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         popupNyit();
                     });
                 break;
+                
+                case 'anyagigenylesKpBeszerez':
+                    alert2('Átmenetileg a készpénzes számlákat a PPM2 rendszerben dolgozza fel!', '', 'Tájékoztatás');
+                break;
 
                 case 'anyagigenylesLeirasHozzaadas':
 

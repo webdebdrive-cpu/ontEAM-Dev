@@ -3000,7 +3000,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
             $bold = '';
             if( $bsz['stat_id'] == MUNKALAP_STAT_NYITOTT || $bsz['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT ){
                 $bold    = ' class="b"';
-                $active .= ' nyitott_statuszu'; //Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
+                $active .= ' nyitott_statuszu'; // Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
 
             // A folyamatban levő munkalapok félkövérek (feltéve ha kezelhetem)
@@ -3012,18 +3012,20 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
             require 'selectek_szemelyzet.php';
 
             $szemelyzet = '';
-            if($bsz['szemelyzet_id']){
+            if($bsz['szallito_id']){
+                $szemelyzet = getErtek('nev', 'szallito', 'id', $bsz['szallito_id']);
+            }elseif($bsz['szemelyzet_id']){
 
                 // Ha a személyzettípus külső kivitelező, akkor a külső cég neve jelenjen meg
-                if($bsz['szemelyzet_id']==KULSO_KIVITELEZO){
-                    $szemelyzet = getErtek('nev', 'szallito', 'id', $bsz['szallito_id']);
-                }else{
+//                if($bsz['szemelyzet_id']==KULSO_KIVITELEZO){
+//                    $szemelyzet = getErtek('nev', 'szallito', 'id', $bsz['szallito_id']);
+//                }else{
                     foreach($select_szemelyzet as $szemely){
                         if($szemely['value']==$bsz['szemelyzet_id']){
                             $szemelyzet = $szemely['name'];
                         }
                     }
-                }
+//                }
 
             }
 

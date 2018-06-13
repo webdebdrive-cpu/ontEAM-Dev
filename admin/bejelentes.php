@@ -891,14 +891,26 @@ require_once('selectek.php');
         }
 
         // Szerkeszthető egy bejelentés, ha nyitott és van kezelés jogunk
-        $felh = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
-        if( isset($_GET['modosit'])                                         &&  // Más fülek alatt ne legyen mentés gomb
-            $sor['stat_id']==BEJELENTES_STAT_NYITOTT                        &&  // Nyitott
+        $felh         = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
+        $telephely    = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$sor['telephely_id']}'");
+        $munkalap_idk = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
+        $munkalap_idk = adatbazis2tomb($munkalap_idk, 'munkalap_id');
+        $van_nem_hozzarendelt = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid` IN (".implode(', ', $munkalap_idk).") AND `stat_id`!='".MUNKALAP_STAT_HOZZARENDELT."' AND `stat_id`!='".MUNKALAP_STAT_NYITOTT."'");
+        if( isset($_GET['modosit'])                                         &&      // Más fülek alatt ne legyen mentés gomb
+            (                                                                       // Nyitott státusz esetén
+                $sor['stat_id']==BEJELENTES_STAT_NYITOTT                    &&
+                (
+                    (   _jog(JOG_BEJELENTES_KEZEL) &&                               // Ha saját néven tudok bejelenteni
+                        $sor['usr_reszleg_id'] == $felh['reszleg_id']               // És a saját részlegemhez tartozik
+                    )                                                       ||
+                    _jog(JOG_BEJELENTES_MAS_NEVEBEN)                                // Vagy ha más nevében is tudok bejelenteni
+                )
+            )
+            ||                                                                      // VAGY Folyamatban státusz esetén is szerkeszthető, ha egyszállodás, és munkalapja nincs felvéve
             (
-                (   _jog(JOG_BEJELENTES_KEZEL) &&                               // Ha saját néven tudok bejelenteni
-                    $sor['usr_reszleg_id'] == $felh['reszleg_id']               // És a saját részlegemhez tartozik
-                )                                                           ||
-                _jog(JOG_BEJELENTES_MAS_NEVEBEN)                                // Vagy ha más nevében is tudok bejelenteni
+                $sor['stat_id']==BEJELENTES_STAT_FOLYAMATBAN    &&
+                !$telephely['modell']                           &&
+                !$van_nem_hozzarendelt
             )
         ) {
                 $gombok = nl2('
