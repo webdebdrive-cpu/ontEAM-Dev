@@ -2884,6 +2884,17 @@ table.csikos td{
     text-align: center;
 }
 
+table.csikos.tomorit td {
+    font-size: 1.2rem;
+    padding: 0.1rem .5rem 0.1rem .5rem;
+}
+
+table.csikos.tomorit td input.gomb {
+    font-size: 1.2rem;
+    margin-bottom: 0;
+    padding: 0.1rem 0.3rem 0.1rem 0.3rem;
+}
+
 table.csikos td.l{
     text-align: left;
 }
@@ -3267,4 +3278,8 @@ th.egys_szall {
 th.egys_dev {
     min-width: 3rem;
     width: 3rem;
+}
+
+.hozzaadasGomb {
+    padding: 1rem 0rem 1rem 0rem;
 }

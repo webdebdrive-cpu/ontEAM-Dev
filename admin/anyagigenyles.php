@@ -38,6 +38,16 @@ $szamla_html = '';
 // Az $id-k tömböt és a $page változót innen kaptjuk
 require_once 'anyagigenyles_nyomtat.php';
 
+// Anyagigénylések mentése
+if(isset($_POST['anyagigenylesekMentes'])) {
+    $mezok = json_decode($_POST['mezok']);
+
+    echo '<pre style="font-size: 1.4rem">', print_r($mezok), '</pre>';
+
+    $weblap -> leallit();
+    exit;
+}
+
 // Már igényelve gomb feldolgozás
 if (isset($_POST['anyagigenyles_mar_igenyelve'])) {
 
@@ -2100,10 +2110,10 @@ require_once('selectek.php');
     if( isset($_GET['uj']) ) {
 
         // Újat csak "Anyagigénylés kezelése" joggal lehet
-        if(_jog(JOG_ANYAGIGENYLES_KEZEL)){
+        if(_jog(JOG_ANYAGIGENYLES_KEZEL)) { // $(\'#szerk_form\').submit()
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
+                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="szurkit(\'mehet_megsem_rejt\'); anyagigenylesekMentes();">
                     <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
                 </div>
             ');
@@ -2467,42 +2477,59 @@ require_once('selectek.php');
                         $akt_anyag = $adatbazis_kapcsolat->s2('cikk_nev cikk_id szuk_men cikk_mee', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `telephely_id`='{$telephely['telephely_id']}' AND `cikk_id`='{$anyag['cikk_id']}'");
 
                         $anyagok_html .= nl2('
-                                        <tr id="sor_'.$anyag['cikk_id'].'">
-                                            <td>'.$szalloda['nev'].'</td>
-                                            <td id="cikk_id_'.$recid_egyedi_azon.'">'.$akt_anyag['cikk_id'].'</td>
-                                            <td id="cikk_nev_'.$recid_egyedi_azon.'" class="l">'.$akt_anyag['cikk_nev'].'</td>
-                                            <td class="r piros" id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'">'.number_format($ig_var, 2, ',', ' ').'</td>
-                                            <td class="r">'.number_format($anyag_var, 2, ',', ' ').'</td>
-                                            <td class="r zold">'.number_format($folyamatban, 2, ',', ' ').'</td>
-                                            <td id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'_mee">'.$akt_anyag['cikk_mee'].'</td>
-                                            <td><input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$akt_munkalapok.'\')"></td>
-                                            <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$anyag['recid'].'" data-cikk_id2="'.$anyag['cikk_id'].'"></td>
-                                            <td>'.$mar_igenyelve.'</td>
-                                            <td><input type="button" value="Anyag rendelkezésre áll" class="gomb f_anyag_rendelkezesre_all" data-telephely_id="'.$telephely['telephely_id'].'" data-cikkid_origi="'.$anyag['cikk_id'].'" data-cikk_id="'.$anyag['cikk_id'].'"></td>
-                                        </tr>
-                                        ');
+                            <tr id="sor_'.$anyag['cikk_id'].'">
+                                <td>'.$szalloda['nev'].'</td>
+                                <td id="cikk_id_'.$recid_egyedi_azon.'">'.$akt_anyag['cikk_id'].'</td>
+                                <td id="cikk_nev_'.$recid_egyedi_azon.'" class="l">'.$akt_anyag['cikk_nev'].'</td>
+                                <td class="r piros" id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'">'.number_format($ig_var, 2, ',', ' ').'</td>
+                                <td class="r">'.number_format($anyag_var, 2, ',', ' ').'</td>
+                                <td class="r zold">'.number_format($folyamatban, 2, ',', ' ').'</td>
+                                <td id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'_mee">'.$akt_anyag['cikk_mee'].'</td>
+                                <td><input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$akt_munkalapok.'\')"></td>
+                                <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$anyag['recid'].'" data-cikk_id2="'.$anyag['cikk_id'].'"></td>
+                                <td>'.$mar_igenyelve.'</td>
+                                <td><input type="button" value="Anyag rendelkezésre áll" class="gomb f_anyag_rendelkezesre_all" data-telephely_id="'.$telephely['telephely_id'].'" data-cikkid_origi="'.$anyag['cikk_id'].'" data-cikk_id="'.$anyag['cikk_id'].'"></td>
+                            </tr>
+                        ');
                     }
                 }
 
                 if($anyagok_html){
                     $szamla_html .= nl2('
-                                        <p style="margin: 2rem 0 0.2rem 0" class="b">Igénylésre váró anyagok a munkalapokon:</p>
-                                        <table class="csikos">
-                                        <tr>
-                                            <th>Szálloda</th>
-                                            <th>Cikk</th>
-                                            <th>Név</th>
-                                            <th>Munkalapon igénylés alatt</th>
-                                            <th>Munkalapon anyagra vár (igényelve)</th>
-                                            <th>Igénylés rendelés folyamatában</th>
-                                            <th>Mee</th>
-                                            <th>Anyagra váró feladatok</th>
-                                            <th>Anyag igénylés</th>
-                                            <th>Már igényelve</th>
-                                            <th>Anyag rendelkezésre áll</th>
-                                        </tr>
-                                        '.$anyagok_html.'
-                                    ');
+                        <div class="hozzaadasGomb">
+                            <input type="button" class="gombb mentes_gomb" name="mehet_gomb" value="Hozzáadás" onclick="if( form_ell_admin_elott() ) { anyagigenylesHozzaad(); }">
+                        </div>
+                        <form id="anyagSorokForm">
+                            <table id="insertAnyagigenylesSor" class="csikos tomorit">
+                                <tr>
+                                    <th>Szálloda</th>
+                                    <th>Cikk</th>
+                                    <th>Név</th>
+                                    <th>RB-s anyag</th>
+                                    <th>Igényelt mennyiség</th>
+                                    <th>Mee</th>
+                                    <th>Megjegyzés</th>
+                                    <th>Törlés</th>
+                                </tr>
+                            </table>
+                        </form>
+                        <p style="margin: 2rem 0 0.2rem 0" class="b">Igénylésre váró anyagok a munkalapokon:</p>
+                        <table class="csikos tomorit">
+                            <tr>
+                                <th>Szálloda</th>
+                                <th>Cikk</th>
+                                <th>Név</th>
+                                <th>Munkalapon igénylés alatt</th>
+                                <th>Munkalapon anyagra vár (igényelve)</th>
+                                <th>Igénylés rendelés folyamatában</th>
+                                <th>Mee</th>
+                                <th>Anyagra váró feladatok</th>
+                                <th>Anyag igénylés</th>
+                                <th>Már igényelve</th>
+                                <th>Anyag rendelkezésre áll</th>
+                            </tr>
+                            '.$anyagok_html.'
+                    ');
                 }
 
                 $szamla_html .= '</table>';
