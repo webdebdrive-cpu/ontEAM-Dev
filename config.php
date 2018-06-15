@@ -152,6 +152,7 @@ function get_jsfajlok_admin(){
 	$js = array(
                 $utvonal.'!js/jquery.js',
                 $utvonal.'!js/jquery-ui.js',
+                $utvonal.'!js/jquery.serializeJSON.js',
                 $utvonal.'!js/jquery.sortElements.js',
                 $utvonal.'!js/jquery.easing.1.3.js',
                 $utvonal.'!js/datetimepicker.js',

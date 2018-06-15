@@ -58,9 +58,9 @@ if($weblap -> db_prefix){
     foreach($_GET as $kulcs => $get){
         $_GET[$kulcs] = sql_ertek($_GET[$kulcs]);
     }
-    foreach($_POST as $kulcs => $post){
-        $_POST[$kulcs] = sql_ertek($_POST[$kulcs]);
-    }
+    // foreach($_POST as $kulcs => $post){
+    //     $_POST[$kulcs] = sql_ertek($_POST[$kulcs]);
+    // }
 }
 // Majd a weblap indulhat, ekkor tölthető ki a meta (később már lesz kimenet)
     require_once('esemenyek.php');	// Ezt ne töröld, még ha üres is, kell, mert különben az admin nem működik
@@ -92,7 +92,7 @@ if( !$_SESSION[get_db_tabla().'user'] && !$_POST['elfelejtett_jelszo'] && basena
     exit;
 }
 
-    
+
 // Jogosultságok karbantartása
 if( $_SESSION[get_db_tabla().'user'] ) {
     $felhasznalo = $adatbazis_kapcsolat->s2('flags flags_ert', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'", '', '1');
@@ -142,7 +142,7 @@ if( $_GET['id'] ){
     }
 }*/
 
-// Ha jóváhagyás joggal léptünk az anyagigénylésekhez, és nem módosítottunk még a szűrésen, akkor alapból leszűrünk az árazva státuszra. 
+// Ha jóváhagyás joggal léptünk az anyagigénylésekhez, és nem módosítottunk még a szűrésen, akkor alapból leszűrünk az árazva státuszra.
 // Viszont emiatt kell egy get szűrés töröl is, hogy tudjuk mikor kapcsolták ki szándékosan.
 if (isset($_GET['szures_torol'])) {
     $_SESSION['szures_torol'] = 1;

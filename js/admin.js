@@ -6802,3 +6802,92 @@ function szalloda_modell( that ) {
         }
     }
 }
+
+function anyagigenylesHozzaad() {
+    var form = $('#szerk_form'),
+        data = {};
+
+    form.find('input, select, textarea').each(function() {
+        var name  = $(this).attr('name'),
+            value = $(this).val();
+
+        if( name !== undefined ) {
+            switch(name) {
+                case 'telephely_id':
+                    var text  = $(this).find('option:selected').text();
+
+                    data[name] = text + ' <input type="hidden" name="' + name + '[]" value="' + value + '">';
+                break;
+                case 'nev':
+                    var autcomplete_text = $('input[name="' + name + '_autocomp"]').val();
+
+                    data[name] = autcomplete_text + ' <input type="hidden" name="' + name + '[]" value="' + value + '">';
+                break;
+                case 'igmen':
+                    data[name] = value + ' <input type="hidden" name="' + name + '[]" value="' + value + '">';
+                break;
+                case 'kulsosnek':
+                    var checked = $(this).prop('checked');
+
+                    if( checked ) {
+                        text = 'Igen';
+                        checked = 1;
+                    } else {
+                        text = 'Nem';
+                        checked = 0;
+                    }
+
+                    data[name] = text + ' <input type="hidden" name="' + name + '[]" value="' + checked + '">';
+                break;
+                case 'igleir':
+                    data[name] = value.replace(/\n/g,'<br>') + ' <input type="hidden" name="' + name + '[]" value="' + value + '">';
+                break;
+            }
+        }
+    });
+
+    data['cikkmee'] = form.find('.insertMee').text() + ' <input type="hidden" name="cikkmee[]" value="' + form.find('.insertMee').text() + '">';
+
+    var mezok = '<tr class="anyag_sor">' +
+                    '<td>' + data['telephely_id'] + '</td>' +
+                    '<td>' + data['nev'] + '</td>' +
+                    '<td></td>' +
+                    '<td>' + data['kulsosnek'] + '</td>' +
+                    '<td>' + data['igmen'] + '</td>' +
+                    '<td>' + data['cikkmee'] + '</td>' +
+                    '<td>' + data['igleir'] + '</td>' +
+                    '<td><span class="icon link" onclick="$(this).parents(\'tr\').remove();"><i class="material-icons" style="font-size: 2rem">delete</i></span></td>' +
+                '</tr>';
+
+    $('#insertAnyagigenylesSor').append(mezok);
+    document.getElementById('szerk_form').reset();
+    form.find('input, select, textarea').removeClass('mod alert');
+}
+
+function anyagigenylesekMentes() {
+    var form  = $('#anyagSorokForm'),
+        sorok = form.find('tr.anyag_sor');
+
+    if( sorok.length ) {
+        $.ajax({
+         	url : 'anyagigenyles.php',
+         	type: 'POST',
+         	data: {
+                mezok: JSON.stringify(form.serializeJSON()),
+                anyagigenylesekMentes: new Date().getTime()
+            },
+         	success: function(response) {
+         		if(response) {
+         			response = JSON.parse(response);
+
+         			if( response.hiba ) {
+         				aler2(response.hiba);
+         				return false;
+         			}
+         		}
+         	}
+        });
+    } else {
+        alert2('Kérem vegyen fel anyagigénylés sorokat!', '', 'Hiba');
+    }
+}
