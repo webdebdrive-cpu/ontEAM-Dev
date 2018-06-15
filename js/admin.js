@@ -569,7 +569,7 @@ $(function() {
     $(document).on('blur keyup', '.ora_perc', function(e) {
         var cursor_poz = $(this).getCursorPosition();
         $(this).val( datum_formatumra_formaz_ora($(this).val()) );
-        $(this).cursorTo( cursor_poz );
+        /* $(this).cursorTo( cursor_poz ); */
     });
     $(document).on('blur', '.datepicker', function(e) {
         if(!$(this).val().trim()){
@@ -3138,7 +3138,7 @@ function csoportMuvelet( oldal, mobilnal_no_statusz_hiba ) {
                         popupNyit();
                     });
                 break;
-                
+
                 case 'anyagigenylesKpBeszerez':
                     alert2('Átmenetileg a készpénzes számlákat a PPM2 rendszerben dolgozza fel!', '', 'Tájékoztatás');
                 break;

@@ -49,15 +49,15 @@
                             $input.val( $input.val().substring(0, 3)+'00' );
                         }
                     });
-                    
+
                     /* Fókuszálás az űrlap első nem disabled mezőjére */
                     $('#szerk_form input:text, #szerk_form textarea, #szerk_form select').filter(':not(:disabled)').filter(":not([readonly='readonly'])").first().focus().select();
-                    
+
                     /* Readonly mezőkre ne lehessen tabozni */
                     $('#szerk_form input').filter("[readonly='readonly']").each(function() {
                         $(this).attr('tabindex', '-1');
                     });
-                    
+
                 });
             </script>
             <div>
