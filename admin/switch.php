@@ -311,7 +311,7 @@ foreach($akt_tomb as $ertek){
 
                 // Státusz neve
                 $statusz = getStatText($ertek['oldal'], $statusz_sor['stat_id']);
-                $szinkod = getStatText($ertek['oldal'], $statusz_sor['stat_id'], 'színkód');
+                $szinkod = getStatText($ertek['oldal'], $statusz_sor['stat_id'], 'szinkod');
                 $text_color = '';
                 if( $szinkod && !strstr($szinkod, 'fff') ) {
                     $text_color = ' style="color: '.$szinkod.';"';

@@ -120,7 +120,7 @@ class Head{
 		
         //Amennyiben az oldal responzív, úgy a meta tagokban tiltjuk az oldal nagyíthatóságát (mobilon nem zoom-olunk hanem responzívek vagyunk)
         if(get_responsive() || basename( dirname(self()) ).'/' == get_admin() ){
-            $head .= '<meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0, user-scalable=0,width=device-width">';
+            //$head .= '<meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0, user-scalable=0,width=device-width">';
         }
         
 		if($this -> favicon){

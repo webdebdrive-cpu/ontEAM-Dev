@@ -548,7 +548,7 @@ function i_u($type, $tabla, $tomb) {
                 // Egyszállodás modell VAGY ha a "telefonon bejelentve" pipa be van pipálva, így rögtön munkalapot generálunk belőle
                 if( !$telephely['modell'] || $_POST['telefon'] ) {
                     
-                    $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $_POST['telephely_id'], MLTIPUS_HIBAELHARITAS, $_POST['obj_id'], $_POST['gep_id'], $_POST['surgos'], '', TELEPITETT_SZEMELYZET);
+                    $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $_POST['telephely_id'], MLTIPUS_HIBAELHARITAS, $_POST['obj_id'], $_POST['gep_id'], $_POST['surgos'], '', TELEPITETT_SZEMELYZET, '', '', $_POST['hiba_id']);
                     if( $recid === false ) { $db_error = true; }
 
                     if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) === false ) { $db_error = true; }
@@ -3044,6 +3044,21 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                 ');
             }
 
+            // Ha a munkalap tíupusa Hibaelhárítás, akkor a bejeletnés hibáját jelenítsük meg röviden
+            if( $bsz['tipus_id']==MLTIPUS_HIBAELHARITAS && $bsz['hiba_txt'] ){
+                $hossz = 14;
+                if(mb_strlen($bsz['hiba_txt'])){
+                    $hiba_rovid = mb_substr($bsz['hiba_txt'], 0, 14).'...';
+                }else{
+                    $hiba_rovid = $bsz['hiba_txt'];
+                }
+                $ml_tipus = '<span title="'.$bsz['hiba_txt'].'">'.$hiba_rovid.'</span>';
+            }else{
+                // Munkalap tipus szövegén rövidítsünk
+                $ml_tipus = getErtekLista(ERTEKLISTA_MUNKALAP_TIP, $bsz['tipus_id']);
+                $ml_tipus = str_replace(array('Ütemezett feladat', 'Eseti fenntartás', 'Rendszeres kbt.'), array('Ütemezett', 'Eseti', 'Rendsz.Karb.'), $ml_tipus);
+            }
+            
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
                             <tr>
@@ -3051,12 +3066,12 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                                     <br>'.$kesz.$dok_icon.$surgos.'&nbsp;
                                 </td>
                                 <td style="width: 11rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 9rem;">'.getStatText($tabla, $bsz['stat_id']).'</td>
+                                <td style="width: 9rem;">'.getStatText($tabla, $bsz['stat_id'], 'rovid').'</td>
                                 <td style="width: 7rem;">'.getSzallodaNev($bsz['telephely_id']).'</td>
                                 <td>'.$bsz['obj_txt'].' - '.$bsz['gep_txt'].'</td>
                             </tr>
                             <tr>
-                                <td>'.getErtekLista(ERTEKLISTA_MUNKALAP_TIP, $bsz['tipus_id']).'</td>
+                                <td>'.$ml_tipus.'</td>
                                 <td colspan="2">'.datum_kiir($bsz['insert_dt']).'</td>
                                 <td>'.$szemelyzet.'</td>
                             </tr>
@@ -5899,7 +5914,7 @@ function get_tortenet($megnevezes){
         foreach($sorok as $sor) {
 
             $statusz['nev']     = getStatText($megnevezes, $sor['stat_id']);
-            $statusz['szinkod'] = getStatText($megnevezes, $sor['stat_id'], 'színkód');
+            $statusz['szinkod'] = getStatText($megnevezes, $sor['stat_id'], 'szinkod');
 
             $szinkod = '';
             $sor['statusz'] = $statusz['nev'];
@@ -5966,14 +5981,19 @@ function get_iktatoszam_sorszam($tabla){
 }
 
 // Státusz címkék és színeket visszaadó függvény ($_stat_text változó pedig a statusz_text.php -ben kerül előállításra)
-function getStatText($tabla, $statid, $szinkod = false) {
+function getStatText($tabla, $statid, $mezo = '') {
+    
     global $_stat_text;
+    
+    if(!$mezo){
+        $mezo = 'nev';
+    }
+    
     if( $_stat_text[$tabla][$statid] ) {
-        if( $szinkod ) {
-            return $_stat_text[$tabla][$statid]['szinkod'];
-        } else {
-            return $_stat_text[$tabla][$statid]['nev'];
+        if($mezo=='rovid' && !$_stat_text[$tabla][$statid][$mezo]){
+            $mezo='nev';
         }
+        return $_stat_text[$tabla][$statid][$mezo];
     }
 
     return '';
@@ -6696,7 +6716,7 @@ function datum_kiir($datum){
 
 
 // Új munkalap készítése kiszervezve
-function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id, $surgos=0, $text='', $szemelyzet_id=0, $uf_szam='', $esnap_d='0000-00-00'){
+function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id, $surgos=0, $text='', $szemelyzet_id=0, $uf_szam='', $esnap_d='0000-00-00', $hiba_id = 0){
     
     global $adatbazis_kapcsolat;
     
@@ -6710,11 +6730,15 @@ function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id,
     // Címkék lekezelése
     $obj_txt = getErtek('nev', 'obj', 'recid', $obj_id);
     $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $gep_id);
+    $hiba_txt = '';
+    if($hiba_id){
+        $hiba_txt = getErtekLista('', '', $hiba_id);
+    }
 
     // Munkalap beszúrása
     $recid = $adatbazis_kapcsolat -> i('munkalap',
-                                        array('ikt_szam',   'stat_id',  'tipus_id',  'surgos',  'telephely_id', 'obj_id', 'obj_txt', 'gep_id', 'gep_txt', 'text', 'szemelyzet_id', 'uf_szam', 'esnap_d', 'loginnev',                         'update_usr',                          'insert_dt',    'insert_usr'                             ),
-                                        array($ikt_szam,     $stat_id,  $tipus_id,   $surgos,   $telephely_id,  $obj_id,  $obj_txt,  $gep_id,  $gep_txt,  $text,  $szemelyzet_id,  $uf_szam,  $uf_szam,  $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   )
+                                        array('ikt_szam',   'stat_id',  'tipus_id',  'surgos',  'telephely_id', 'obj_id', 'obj_txt', 'gep_id', 'gep_txt', 'hiba_id', 'hiba_txt', 'text', 'szemelyzet_id', 'uf_szam', 'esnap_d', 'loginnev',                         'update_usr',                          'insert_dt',    'insert_usr'                             ),
+                                        array($ikt_szam,     $stat_id,  $tipus_id,   $surgos,   $telephely_id,  $obj_id,  $obj_txt,  $gep_id,  $gep_txt,  $hiba_id,  $hiba_txt,  $text,  $szemelyzet_id,  $uf_szam,  $uf_szam,  $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   )
                                     );
     if( $recid === false ) { $db_error = true; }
     

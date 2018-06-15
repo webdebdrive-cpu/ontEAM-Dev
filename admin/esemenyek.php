@@ -490,6 +490,7 @@ switch($tabla) {
                                 `'.get_db_tabla().$tabla_nophp.'`.`obj_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`gep_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`gep_txt`,
+                                `'.get_db_tabla().$tabla_nophp.'`.`hiba_txt`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`szemelyzet_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`szallito_id`,
                                 `'.get_db_tabla().$tabla_nophp.'`.`mobil`,

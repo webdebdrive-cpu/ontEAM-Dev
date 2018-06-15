@@ -18,21 +18,16 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
-if (isset($_GET['teszt'])) {
-    $munkalapok = $adatbazis_kapcsolat->s('recid gep_id', 'munkalap', "`gep_id`!=0 AND `gep_txt`=''");
-echo $adatbazis_kapcsolat->gp() . '<br>';
+if (isset($_GET['hiba_id_feltolt'])) {
+    $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`tipus_id`='".MLTIPUS_HIBAELHARITAS."'");
     foreach($munkalapok as $munkalap){
-//        $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $munkalap['gep_id']);
-//        $adatbazis_kapcsolat->u('munkalap', array('gep_txt'), array($gep_txt), "`recid`='{$munkalap['recid']}'");
-//echo $adatbazis_kapcsolat->gp() . '<br>';
-    }
-    $munkalapok = $adatbazis_kapcsolat->s('recid obj_id', 'munkalap', "`obj_id`!=0 AND `obj_txt`=''");
+        $bejelentes_id = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'");
+        $bejelentes = $adatbazis_kapcsolat->s2('hiba_id', 'bejelentes', "`recid`='{$bejelentes_id['bejelentes_id']}'");
+        $hiba_txt = getErtekLista('', '', $bejelentes['hiba_id']);
+        $adatbazis_kapcsolat->u('munkalap', array('hiba_id', 'hiba_txt'), array($bejelentes['hiba_id'], $hiba_txt), "`recid`='{$munkalap['recid']}'");
 echo $adatbazis_kapcsolat->gp() . '<br>';
-    foreach($munkalapok as $munkalap){
-//        $gep_txt = getErtek('nev', 'obj', 'recid', $munkalap['obj_id']);
-//        $adatbazis_kapcsolat->u('munkalap', array('obj_txt'), array($gep_txt), "`recid`='{$munkalap['recid']}'");
-//echo $adatbazis_kapcsolat->gp() . '<br>';
     }
+
     exit;
 }
 /*
@@ -54,7 +49,7 @@ if (isset($_GET['stat_ido'])) {
 // Loginról értesítő levelek küldése
 if (false && isset($_GET['login_ertesit'])) {
     
-    $szalloda_nev   = 'MARINA'; // MARINA
+    $szalloda_nev   = 'AQUA TH'; // AQUA TH
     $galyasz_bence  = false;
     $datum          = date('Y.m.d', strtotime(' +1 day'));
     $napok          = array('vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat');
@@ -142,13 +137,14 @@ if ( isset($_GET['loginnev_import']) ) {
             if($k == 0) {
 
                 foreach($sor as $key => $value) {
-                    $_SESSION['sor_fejlec'][] = $value;
+                    $_SESSION['sor_fejlec'][$key] = $value;
                 }
 
             // Adatok feldolgozása
             } else {
                 
                 foreach($sor as $key => $value) {
+
                     $akt_tomb[$_SESSION['sor_fejlec'][$key]] = $value;
                 }
 
@@ -158,7 +154,7 @@ if ( isset($_GET['loginnev_import']) ) {
 
                 $szemelyzet_id = '';
                 foreach($akt_tomb as $key => $value) {
-                    
+
                     switch( utf8($key) ) {
 
                         case 'Státusz':
@@ -192,6 +188,7 @@ if ( isset($_GET['loginnev_import']) ) {
 
 
                         case 'ontEAM login név':
+
                             $login_nev = trim($akt_tomb[$key]);
                         break;
 
@@ -260,6 +257,7 @@ if ( isset($_GET['loginnev_import']) ) {
                             $login_nev .= $sorszam;
                             $log_csv .= 'Nem volt megadva loginnév, így a nevéből generáva: '.$login_nev.' ';
                         }else{
+
                             if (!isset($_GET['mehet'])) {
                                 $log_csv .= 'ELŐRE MEGADOTT LOGINNÉV: '.$login_nev.' ';
                             }

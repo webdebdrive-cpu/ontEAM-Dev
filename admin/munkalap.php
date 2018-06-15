@@ -197,7 +197,7 @@ if( isset($_POST['munkalapKeszit']) ) {
             }
 
             // Munkalap létrehozása
-            $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $telephely_id, MLTIPUS_HIBAELHARITAS, $bejelentes['obj_id'], $bejelentes['gep_id'], $bejelentes['surgos']);
+            $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $telephely_id, MLTIPUS_HIBAELHARITAS, $bejelentes['obj_id'], $bejelentes['gep_id'], $bejelentes['surgos'], '', '', '', '', $bejelentes['hiba_id']);
             if( $recid === false ) { $db_error = true; }
             
             // Hozzákapcsoljuk a bejelentéseket (valójában nincs is olyan eset, hogy több bejelentés egy munkalap, csak egy bejelentéshez tartozhat több munkalap is), de azért meghagytuk a régi ciklust
@@ -255,7 +255,7 @@ if ($_GET['ujkent_bejelentes']) {
     if( $bejelentes === false ) { $db_error = true; }
 
     // Munkalap létrehozása
-    $uj_id = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $bejelentes['telephely_id'], MLTIPUS_HIBAELHARITAS, $bejelentes['obj_id'], $bejelentes['gep_id'], $bejelentes['surgos'], $bejelentes['hiba_text']);
+    $uj_id = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $bejelentes['telephely_id'], MLTIPUS_HIBAELHARITAS, $bejelentes['obj_id'], $bejelentes['gep_id'], $bejelentes['surgos'], $bejelentes['hiba_text'], '', '', '', $bejelentes['hiba_id']);
     if( $uj_id === false ) { $db_error = true; }
 
     // Bejelentés hozzákapcsolása
