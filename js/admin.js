@@ -6831,10 +6831,10 @@ function anyagigenylesHozzaad() {
 
                     if( checked ) {
                         text = 'Igen';
-                        checked = 1;
+                        checked = true;
                     } else {
                         text = 'Nem';
-                        checked = 0;
+                        checked = false;
                     }
 
                     data[name] = text + ' <input type="hidden" name="' + name + '[]" value="' + checked + '">';
@@ -6865,28 +6865,58 @@ function anyagigenylesHozzaad() {
 }
 
 function anyagigenylesekMentes() {
-    var form  = $('#anyagSorokForm'),
-        sorok = form.find('tr.anyag_sor');
+    var form    = $('#anyagSorokForm'),
+        inputok = form.serializeJSON();
 
-    if( sorok.length ) {
-        $.ajax({
-         	url : 'anyagigenyles.php',
-         	type: 'POST',
-         	data: {
-                mezok: JSON.stringify(form.serializeJSON()),
-                anyagigenylesekMentes: new Date().getTime()
-            },
-         	success: function(response) {
-         		if(response) {
-         			response = JSON.parse(response);
+    var darab = objLength(inputok['telephely_id']),
+        dfrd1 = $.Deferred();
 
-         			if( response.hiba ) {
-         				aler2(response.hiba);
-         				return false;
-         			}
-         		}
-         	}
+    if( darab ) {
+        for( var i = 0; i < darab; i++ ) {
+            var data = {};
+
+            for( oszlop in inputok ) {
+                if( oszlop != 'cikkmee' ) {
+                    for( key in inputok[oszlop] ) {
+                        if( key == i ) {
+                            data[oszlop] = inputok[oszlop][key];
+                        }
+                    }
+                }
+            }
+
+            data['tobbsor'] = '1';
+            data['ujanyagigenyles'] = new Date().getTime();
+
+            $.ajax({
+             	url : 'anyagigenyles.php?modosit',
+             	type: 'POST',
+             	data: data,
+                async: false,
+             	success: function(response) {
+             		if(response) {
+             			response = JSON.parse(response);
+
+             			if( response.hiba ) {
+             				alert2(response.hiba, response.gomb, 'Hiba');
+             				return false;
+             			}
+
+                        if( darab == (i + 1) ) {
+                            dfrd1.resolve();
+
+                            location.href = response.link;
+                        }
+             		}
+             	}
+            });
+        }
+
+        $.when(dfrd1).then(function() {
+            console.log('Anyagigénylések beszúrva.');
         });
+
+        alert2('');
     } else {
         alert2('Kérem vegyen fel anyagigénylés sorokat!', '', 'Hiba');
     }

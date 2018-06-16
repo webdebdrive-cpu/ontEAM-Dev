@@ -38,16 +38,6 @@ $szamla_html = '';
 // Az $id-k tömböt és a $page változót innen kaptjuk
 require_once 'anyagigenyles_nyomtat.php';
 
-// Anyagigénylések mentése
-if(isset($_POST['anyagigenylesekMentes'])) {
-    $mezok = json_decode($_POST['mezok']);
-
-    echo '<pre style="font-size: 1.4rem">', print_r($mezok), '</pre>';
-
-    $weblap -> leallit();
-    exit;
-}
-
 // Már igényelve gomb feldolgozás
 if (isset($_POST['anyagigenyles_mar_igenyelve'])) {
 
