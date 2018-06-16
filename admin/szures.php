@@ -46,7 +46,7 @@ if (isset($_POST['f_szuro_mezo'])) {
                 $operator .= '<option value="lt"'.$selected_lt.'>&lt;</option>';
                 
             // Autocomplete esetén a switch.php alapján gyártunk egy inputot
-            }elseif($ertek['type']=='autocomplete'){
+            }elseif($ertek['type']=='autocomplete' || $ertek['type_szurohoz']=='autocomplete'){
                 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
@@ -160,7 +160,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
 
                 // Autocomplete esetén a switch.php alapján gyártunk egy inputot
-                }elseif($ertek['type']=='autocomplete'){
+                }elseif($ertek['type']=='autocomplete' || $ertek['type_szurohoz']=='autocomplete'){
 
                     require_once('../class/html/class.Input.php');
                     $input = new Input('text');

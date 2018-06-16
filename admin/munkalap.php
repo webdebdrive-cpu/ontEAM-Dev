@@ -6337,13 +6337,10 @@ require('selectek.php');
             $szamla_html .= nl2('
                 <div class="dt naplo kijCont" data-tabla="munkalap_kapcs" data-mellek="bejelentesek" style="margin-top: 3rem">
                     <div class="dtr nFejlec">
-                        <div class="dtc">Bejelentés szám</div>
-                        <div class="dtc">Szálloda</div>
                         <div class="dtc">Hiba</div>
-                        <div class="dtc">Hiba leírása</div>
-                        <div class="dtc">Bejelentő</div>
-                        <div class="dtc">Bejelentve</div>
-                        <div class="dtc">Státusz</div>
+                        <div class="dtc">Hely</div>
+                        <div class="dtc">Bejelentés</div>
+                        <div class="dtc">Bejelentő adatai</div>
                         <div class="dtc"></div>
                     </div>
             ');
@@ -6351,7 +6348,7 @@ require('selectek.php');
 
             foreach($munkalap_kapcsok as $munkalap_kapcs) {
 
-                $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id hiba_id insert_dt stat_id hiba_text usr_nev usr_telefon usr_email usr_beosztas_id usr_reszleg_id', 'bejelentes', "`recid` = '".$munkalap_kapcs['bejelentes_id']."'", '', '1');
+                $sor = $adatbazis_kapcsolat->s2('recid ikt_szam telephely_id obj_id hiba_id insert_dt stat_id hiba_text usr_nev usr_telefon usr_email usr_beosztas_id usr_reszleg_id helyiseg_text', 'bejelentes', "`recid` = '".$munkalap_kapcs['bejelentes_id']."'", '', '1');
                 if( $sor ) {
 
                     // Telephely
@@ -6378,20 +6375,21 @@ require('selectek.php');
 // HA MÉGIS KELLENE A TÖRLÉS, AKKOR A naploSor-nak adj egy "kijSor" class-t.
                     $szamla_html .= nl2('
                         <div id="naploSor-'.$sor['recid'].'" class="dtr nSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                            <div class="dtc"><a href="bejelentes.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a></div>
-                            <div class="dtc">'.$telephely.' - '.$helyseg.'</div>
-                            <div class="dtc">'.$hiba.'</div>
-                            <div class="dtc">'.nl2br2($sor['hiba_text']).'</div>
-                            <div class="dtc">
+                            <div class="dtc vat">'.$hiba.'<br>'.nl2br2($sor['hiba_text']).'</div>
+                            <div class="dtc vat">'.$telephely.' - '.$helyseg.'<br>'.nl2br2($sor['helyiseg_text']).'</div>
+                            <div class="dtc vat">
+                                <a href="bejelentes.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a>
+                                <br>'.datum_kiir($sor['insert_dt']).'
+                                <br>'.getStatText('bejelentes', $sor['stat_id']).'
+                            </div>
+                            <div class="dtc vat">
                                 '.$sor['usr_nev'].'
                                 <br>'.erteklista(ERTEKLISTA_BEOSZTAS, $sor['usr_beosztas_id']).'
                                 <br>'.$sor['usr_telefon'].'
                                 <br>'.erteklista(ERTEKLISTA_RESZLEG, $sor['usr_reszleg_id']).'
                                 <br>'.$sor['usr_email'].'
                             </div>
-                            <div class="dtc">'.datum_kiir($sor['insert_dt']).'</div>
-                            <div class="dtc">'.getStatText('bejelentes', $sor['stat_id']).'</div>
-                            <div class="dtc link">
+                            <div class="dtc link vat">
                                 '.$torles.'
                             </div>
                         </div>

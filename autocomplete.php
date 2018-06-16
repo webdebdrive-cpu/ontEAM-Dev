@@ -3,6 +3,7 @@
 include('weblap.php');
 
 if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres'])){
+
     // Több oszlop is szerepelhet a $_GET['oszlop']-ban (minden oszlop értékét sortöréssel tesszük a találati listába)
     $oszlop_keres  = explode(',', str_replace(' ', '', $_GET['oszlop_keres']));
     $oszlop_listaz = explode(',', str_replace(' ', '', $_GET['oszlop_listaz']));
@@ -11,7 +12,6 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
         $weblap -> leallit();
         exit;
     }
-
     // Ha legalább egy értéke van
     if( count( $oszlop_keres ) ) {
 
@@ -59,7 +59,7 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
             $_GET['tabla'] = 'obj';
             $obj_csak_szint = true;
         }
-        if( $_GET['telephely_id'] && ($_GET['tabla'] == 'obj' || $_GET['tabla'] == 'eszkozkezeles') ) {
+        if( is_numeric($_GET['telephely_id']) && ($_GET['tabla'] == 'obj' || $_GET['tabla'] == 'eszkozkezeles') ) {
             if( $where_sql ) {
                 $where_sql .= " AND `telephely_id` = '".$_GET['telephely_id']."'";
             } else {

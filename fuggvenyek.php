@@ -2996,14 +2996,14 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                 $active = ' kijelolve';
             }
 
-            // Nyitott státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
+            // Nyitott és előkészítés alatt státuszú bejegyzések navpanelen félkövérrel jelenjenek meg
             $bold = '';
             if( $bsz['stat_id'] == MUNKALAP_STAT_NYITOTT || $bsz['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT ){
                 $bold    = ' class="b"';
                 $active .= ' nyitott_statuszu'; // Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
 
-            // A folyamatban levő munkalapok félkövérek (feltéve ha kezelhetem)
+            // A hozzárendelt levő munkalapok félkövérek (feltéve ha kezelhetem)
             if( (_jog(JOG_MUNKALAP_SAJAT_SZALL_KEZEL) || (_jog(JOG_MUNKALAP_SAJAT_KEZEL) && $_SESSION[get_db_tabla().'szemelyzet_id']==$bsz['szemelyzet_id'])) && $bsz['stat_id'] == MUNKALAP_STAT_HOZZARENDELT ){
                 $bold    = ' class="b"';
             }
@@ -3047,7 +3047,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
             // Ha a munkalap tíupusa Hibaelhárítás, akkor a bejeletnés hibáját jelenítsük meg röviden
             if( $bsz['tipus_id']==MLTIPUS_HIBAELHARITAS && $bsz['hiba_txt'] ){
                 $hossz = 14;
-                if(mb_strlen($bsz['hiba_txt'])){
+                if(mb_strlen($bsz['hiba_txt'])>$hossz){
                     $hiba_rovid = mb_substr($bsz['hiba_txt'], 0, 14).'...';
                 }else{
                     $hiba_rovid = $bsz['hiba_txt'];
@@ -3059,6 +3059,12 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                 $ml_tipus = str_replace(array('Ütemezett feladat', 'Eseti fenntartás', 'Rendszeres kbt.'), array('Ütemezett', 'Eseti', 'Rendsz.Karb.'), $ml_tipus);
             }
             
+            // Ha van gép, csak akkor legyen kötőjel
+            $gep_txt = '';
+            if($bsz['gep_txt']){
+                $gep_txt = ' - '.$bsz['gep_txt'];
+            }
+            
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
                             <tr>
@@ -3068,7 +3074,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                                 <td style="width: 11rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem;">'.getStatText($tabla, $bsz['stat_id'], 'rovid').'</td>
                                 <td style="width: 7rem;">'.getSzallodaNev($bsz['telephely_id']).'</td>
-                                <td>'.$bsz['obj_txt'].' - '.$bsz['gep_txt'].'</td>
+                                <td>'.$bsz['obj_txt'].$gep_txt.'</td>
                             </tr>
                             <tr>
                                 <td>'.$ml_tipus.'</td>

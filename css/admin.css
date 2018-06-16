@@ -2078,6 +2078,9 @@ div.naplo div.nSor div.dtc {
     padding: 1rem 1.5rem 1rem 1.5rem;
     vertical-align: middle;
 }
+div.naplo div.nSor div.dtc.vat {
+    vertical-align: top;
+}
 
 #szamlaBetolt {
     display: table;

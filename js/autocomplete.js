@@ -126,6 +126,9 @@
                                 )
                             ) {
                                 telephely_id = $('#telephely_id').val();
+                            /* De az autocomplete.php felé ekkor is jelezzük, hogy engedjen listázni */
+                            }else{
+                                telephely_id = 'szuros_szoval_mehet';
                             }
 
                             obj_id = '';

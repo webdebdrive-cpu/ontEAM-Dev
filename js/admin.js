@@ -569,7 +569,7 @@ $(function() {
     $(document).on('blur keyup', '.ora_perc', function(e) {
         var cursor_poz = $(this).getCursorPosition();
         $(this).val( datum_formatumra_formaz_ora($(this).val()) );
-        /* $(this).cursorTo( cursor_poz ); */
+        /*$(this).cursorTo( cursor_poz ); ez nem tudom miért kellett, de azért vettük ki, mert Chrome alatt nem záródott be a datetime picker ütemezett feladatoknál */
     });
     $(document).on('blur', '.datepicker', function(e) {
         if(!$(this).val().trim()){
