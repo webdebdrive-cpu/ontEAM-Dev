@@ -910,8 +910,8 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 // Szállítók
 $nev_disabled = $disabled_szerk;
-// Dokumentum írás joggal mégis szerkeszthető a szállító neve
-if( _jog( JOG_DOKUMENTUM_IR ) ){
+// Partnertörzs név szerkesztés joggal mégis szerkeszthető a szállító neve
+if( _jog( JOG_PARTNERTORZS_NEV_SZERK ) ){
     $nev_disabled = 0;
 }
 $megnevezes = 'szallito';

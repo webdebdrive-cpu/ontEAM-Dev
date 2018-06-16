@@ -2754,6 +2754,12 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                     </span>
                 ');
             }
+            
+            // Ha a usernek nem csak egy szállodája van, akkor kiírjuk a szálloda nevét
+            $szalloda_neve = '';
+            if(!$_SESSION['egyszallodas_user']){
+                $szalloda_neve = getSzallodaNev($bsz['telephely_id']).' - ';
+            }
 
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit" title="'.$bsz['hiba_text'].'">
                             <table'.$bold.'>
@@ -2762,7 +2768,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                                 <td style="width: 9rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem">'.getStatText($tabla, $bsz['stat_id']).'</td>
                                 <td style="width: 7rem">'.str_replace('-', '.', substr($bsz['insert_dt'], 0, 16) ).'</td>
-                                <td>'.getSzallodaNev($bsz['telephely_id']).' - '.$bsz['obj_txt'].'</td>
+                                <td>'.$szalloda_neve.$bsz['obj_txt'].'</td>
                             </tr>
                             <tr>
                                 <td colspan="4">'.getErtekLista('', '', $bsz['hiba_id']).'</td>
@@ -3065,6 +3071,14 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                 $gep_txt = ' - '.$bsz['gep_txt'];
             }
             
+            // Ha a usernek nem csak egy szállodája van, akkor kiírjuk a szálloda nevét
+            $szalloda_neve = '';
+            $colspan       = '';
+            if(!$_SESSION['egyszallodas_user']){
+                $szalloda_neve = '<td style="width: 7rem;">'.getSzallodaNev($bsz['telephely_id']).'</td>';
+                $colspan       = ' colspan="2"';
+            }
+            
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
                             <tr>
@@ -3073,12 +3087,12 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                                 </td>
                                 <td style="width: 11rem;" class="ikt_szam">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 9rem;">'.getStatText($tabla, $bsz['stat_id'], 'rovid').'</td>
-                                <td style="width: 7rem;">'.getSzallodaNev($bsz['telephely_id']).'</td>
+                                '.$szalloda_neve.'
                                 <td>'.$bsz['obj_txt'].$gep_txt.'</td>
                             </tr>
                             <tr>
                                 <td>'.$ml_tipus.'</td>
-                                <td colspan="2">'.datum_kiir($bsz['insert_dt']).'</td>
+                                <td'.$colspan.'>'.datum_kiir($bsz['insert_dt']).'</td>
                                 <td>'.$szemelyzet.'</td>
                             </tr>
                             </table>
@@ -5653,11 +5667,11 @@ function get_akt_tomb($megn){
     return $akt_tomb;
 }
 
-// Az aktuálisan bejelentkezett felhasználóhoz rendelt szállodák ID_ját adja vissza. Ez többször előfroduló igény, azért van kiszervezve függvénybe.
+// Az aktuálisan bejelentkezett felhasználóhoz rendelt szállodák ID-ját adja vissza. Ez többször előfroduló igény, azért van kiszervezve függvénybe.
 function get_akt_login_szallodai($sqlt_adj_vissza, $telephely_id_oszlop_helyett_masik_oszlop, $masik_user){
     global $adatbazis_kapcsolat;
 
-    // Aktuálsi felhasználó, vagy valaki más?
+    // Aktuális felhasználó, vagy valaki más?
     $user = $_SESSION[get_db_tabla().'user'];
     if($masik_user){
         $user = $masik_user;

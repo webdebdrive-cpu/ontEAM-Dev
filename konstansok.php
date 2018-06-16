@@ -265,6 +265,7 @@ define('JOG_SZAMLAK_KEZEL',             91);
 define('JOG_SZAMLAK_TOROL',             92);
 define('JOG_PARTNERTORZS_OLVAS',        93);
 define('JOG_PARTNERTORZS_KEZEL',        94);
+define('JOG_PARTNERTORZS_NEV_SZERK',    99);
 define('JOG_PARTNERTORZS_TOROL',        95);
 define('JOG_DOKUMENTUMTAR_OLVAS',       96);
 define('JOG_DOKUMENTUMTAR_KEZEL',       97);

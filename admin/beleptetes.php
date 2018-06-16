@@ -175,7 +175,7 @@ if(isset($_POST['megsem'])) {
 //    $_SESSION[get_db_tabla().'szemelyzet_id']   = $felhasznalo['szemelyzet_id'];
 //}
 
-// Belétetés
+// Beléptetés
 if(isset($_POST['login'])) {
 
     unset($_SESSION['bejelento_menu_rejt']);
@@ -205,6 +205,14 @@ if(isset($_POST['login'])) {
                     $_SESSION['telephelyek'] = $adatbazis_kapcsolat->s('id nev',                'telephely');
                     $_SESSION['erteklista']  = $adatbazis_kapcsolat->s('recid csoport id info', 'erteklista');
 
+                    // A felhasználó egyszállodás-e vagy sem (ha igen, a navpanelben nem írjuk ki külön a szálloda nevét)
+                    $szallodak = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$felhasznalo['nev']}'");
+                    if(count($szallodak)==1){
+                        $_SESSION['egyszallodas_user'] = 1;
+                    }else{
+                        unset($_SESSION['egyszallodas_user']);
+                    }
+                    
                     // Rendezés
                     if( $felhasznalo['tabla_rendezes'] ) {
                         $rendezes = json_decode(htmlspecialchars_decode($felhasznalo['tabla_rendezes']), true);

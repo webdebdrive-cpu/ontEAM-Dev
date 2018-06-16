@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 89-es ID-nál járunk
+ * 99-es ID-nál járunk
  * 13-as kategória ID-nál járunk
 \*                                                  */
 
@@ -135,8 +135,9 @@ $jogosultsagok = array(
     92 => array('nev' => 'Számlák törlése',                         'kat' => 13, 'sor' => 6),
     93 => array('nev' => 'Partnertörzs olvasása',                   'kat' => 13, 'sor' => 7),
     94 => array('nev' => 'Partnertörzs kezelése',                   'kat' => 13, 'sor' => 8),
-    95 => array('nev' => 'Partnertörzs törlése',                    'kat' => 13, 'sor' => 9),
-    96 => array('nev' => 'Dokumentumtár olvasása',                  'kat' => 13, 'sor' => 10),
-    97 => array('nev' => 'Dokumentumtár kezelése',                  'kat' => 13, 'sor' => 11),
-    98 => array('nev' => 'Dokumentumtár törlése',                   'kat' => 13, 'sor' => 12),
+    99 => array('nev' => 'Partnertörzs név szerkesztése',           'kat' => 13, 'sor' => 9),
+    95 => array('nev' => 'Partnertörzs törlése',                    'kat' => 13, 'sor' => 10),
+    96 => array('nev' => 'Dokumentumtár olvasása',                  'kat' => 13, 'sor' => 11),
+    97 => array('nev' => 'Dokumentumtár kezelése',                  'kat' => 13, 'sor' => 12),
+    98 => array('nev' => 'Dokumentumtár törlése',                   'kat' => 13, 'sor' => 13),
 );
