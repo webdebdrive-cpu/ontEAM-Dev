@@ -28,6 +28,12 @@
                     <span class="insertMee"></span>
                 </div>
             </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Leírás:</div>
+                <div class="dtc form_jobb">
+                    <textarea id="igleir" name="igleir" class="oriasi" style="height: 4rem"></textarea>
+                </div>
+            </div>
         </div>
         <div id="insertTable">
             <table class="csikos">
@@ -37,6 +43,7 @@
                     <th class="r">Felhasznált mennyiség</th>
                     <th>Mee</th>
                     <th>Anyag státusz</th>
+                    <th>Leírás</th>
                     <th class="torles"></th>
                 </tr>
             </table>
@@ -69,9 +76,10 @@ function munkAnyagVetelezes() {
 
     that = $('#munkAnyagVetelezForm');
 
-    var addCikkUj = $(that).find('input[name="addCikkUj[]"]'),
-        addCikkID = $(that).find('input[name="addCikkID[]"]'),
-        addCikkFelhMenny = $(that).find('input[name="addCikkFelhMenny[]"]');
+    var addCikkUj        = $(that).find('input[name="addCikkUj[]"]'),
+        addCikkID        = $(that).find('input[name="addCikkID[]"]'),
+        addCikkFelhMenny = $(that).find('input[name="addCikkFelhMenny[]"]'),
+        addCikkIgleir    = $(that).find('input[name="addCikkIgleir[]"]');
 
     /* Van-e egyáltalán a táblázatnak sora */
     if($(that).find('#insertTable tr').length<=1){
@@ -88,6 +96,7 @@ function munkAnyagVetelezes() {
                 addCikkUj           : addCikkUj.serialize(),
                 addCikkID           : addCikkID.serialize(),
                 addCikkFelhMenny    : addCikkFelhMenny.serialize(),
+                addCikkIgleir       : addCikkIgleir.serialize(),
                 munkAnyagVetelezes  : new Date().getTime()
             },
          	success: function(response) {

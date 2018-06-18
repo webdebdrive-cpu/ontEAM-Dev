@@ -35,6 +35,12 @@
                     <span class="insertMee"></span>
                 </div>
             </div>
+            <div class="dtr">
+                <div class="dtc form_bal">Leírás:</div>
+                <div class="dtc form_jobb">
+                    <textarea id="igleir" name="igleir" class="oriasi" style="height: 4rem"></textarea>
+                </div>
+            </div>
         </div>
         <div id="insertTable">
             <table class="csikos">
@@ -45,6 +51,7 @@
                     <th class="r">Szükséges mennyiség</th>
                     <th>Mee</th>
                     <th>Anyag státusz</th>
+                    <th>Leírás</th>
                     <th class="torles"></th>
                 </tr>
             </table>
@@ -84,7 +91,8 @@ function munkAnyagIgenyles( csak_kerdezunk ) {
     var addCikkUj           = $(that).find('input[name="addCikkUj[]"]'),
         addCikkID           = $(that).find('input[name="addCikkID[]"]'),
         addCikkFelhMenny    = $(that).find('input[name="addCikkFelhMenny[]"]'),
-        addCikkSzukMenny    = $(that).find('input[name="addCikkSzukMenny[]"]');
+        addCikkSzukMenny    = $(that).find('input[name="addCikkSzukMenny[]"]'),
+        addCikkIgleir       = $(that).find('input[name="addCikkIgleir[]"]');
 
     if( addCikkID.length && addCikkFelhMenny.length ) {
         $.ajax({
@@ -96,6 +104,7 @@ function munkAnyagIgenyles( csak_kerdezunk ) {
                 addCikkID           : addCikkID.serialize(),
                 addCikkFelhMenny    : addCikkFelhMenny.serialize(),
                 addCikkSzukMenny    : addCikkSzukMenny.serialize(),
+                addCikkIgleir       : addCikkIgleir.serialize(),
                 csak_kerdezunk      : csak_kerdezunk,
                 munkAnyagIgenyles   : new Date().getTime()
             },

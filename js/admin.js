@@ -1477,12 +1477,14 @@ console.log('b'+active_top);
         nev_autocompl       = $('#cikk_nev_'+recid_egyedi_azon).html();
         igmen               = $('#th'+telephely_id+'a'+cikk_id2).html();
         mee                 = $('#th'+telephely_id+'a'+cikk_id2+'_mee').html();
+        igleir              = $('#th'+telephely_id+'a'+cikk_id2+'_igleir').html().replace(/<br\s*[\/]?>/gi, "\n");
 
         $('#telephely_id')  .val(telephely_id).addClass('mod');
         $('#nev_autocomp')  .val(nev_autocompl);
         $('#nev_autocomp')  .attr('data-origin-val', nev_autocompl).addClass('mod');
         $('#nev')           .val(cikk_id).addClass('mod');
         $('#igmen')         .val(igmen).addClass('mod');
+        $('#igleir')        .val(igleir).addClass('mod');
         $('.insertMee')     .html(mee);
 
         $('#mehet_gomb').removeAttr('disabled').addClass('gombb_alert');
@@ -6508,6 +6510,7 @@ function munkAnyagHozzaad( formID, igenyles ) {
         cikkid_origi= $('#cikkid_origi'),
         felh_menny  = $('#felh_menny'),
         szuk_menny  = $('#szuk_menny'),
+        igleir      = $('#igleir'),
         cikkmee     = $('.insertMee').eq(0).text(),
         id_tmp      = new Date().getTime();
 
@@ -6570,6 +6573,7 @@ function munkAnyagHozzaad( formID, igenyles ) {
                         sz_td +
                         '<td>' + cikkmee + '</td>' +
                         '<td></td>' +
+                        '<td>' + igleir.val().replace(/(?:\r\n|\r|\n)/g, '<br>') + '<input type="hidden" name="addCikkIgleir[]" value="' + igleir.val() + '"></td>' +
                         '<td><a id="anyag_id_'+id_tmp+'" onclick="munkAnyagTorol( \''+id_tmp+'\', \'anyag_id_'+id_tmp+'\' );"><span class="icon"><i class="material-icons">delete</i></span></a></td>' +
                     '</tr>';
 
@@ -6577,6 +6581,7 @@ function munkAnyagHozzaad( formID, igenyles ) {
 
     cikkID.val('');
     cikknev.val('');
+    igleir.val('');
     felh_menny.val('0,00');
     szuk_menny.val('0,00');
     form.find('.insertMee').text('');
@@ -6918,6 +6923,6 @@ function anyagigenylesekMentes() {
 
         alert2('');
     } else {
-        alert2('Kérem vegyen fel anyagigénylés sorokat!', '', 'Hiba');
+        alert2('Kérem vegyen fel anyagigénylés sorokat!', '<input type="button" class="gomb" value="Ok" onclick="$(\'#mehet_gomb, #megsem_gomb\').removeAttr(\'disabled\'); alert2();">', 'Hiba');
     }
 }

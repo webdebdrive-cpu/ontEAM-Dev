@@ -2104,7 +2104,7 @@ require_once('selectek.php');
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="szurkit(\'mehet_megsem_rejt\'); anyagigenylesekMentes();">
-                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
+                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; location.reload();">
                 </div>
             ');
 
@@ -2464,7 +2464,7 @@ require_once('selectek.php');
                         }
 
                         // Kiíratáshoz
-                        $akt_anyag = $adatbazis_kapcsolat->s2('cikk_nev cikk_id szuk_men cikk_mee', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `telephely_id`='{$telephely['telephely_id']}' AND `cikk_id`='{$anyag['cikk_id']}'");
+                        $akt_anyag = $adatbazis_kapcsolat->s2('cikk_nev cikk_id szuk_men cikk_mee igleir', 'munkalap_anyag', "`munkalap_id` IN (".$munkalapok.") AND `telephely_id`='{$telephely['telephely_id']}' AND `cikk_id`='{$anyag['cikk_id']}'");
 
                         $anyagok_html .= nl2('
                             <tr id="sor_'.$anyag['cikk_id'].'">
@@ -2475,6 +2475,7 @@ require_once('selectek.php');
                                 <td class="r">'.number_format($anyag_var, 2, ',', ' ').'</td>
                                 <td class="r zold">'.number_format($folyamatban, 2, ',', ' ').'</td>
                                 <td id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'_mee">'.$akt_anyag['cikk_mee'].'</td>
+                                <td id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'_igleir">'.nl2br2($akt_anyag['igleir']).'</td>
                                 <td><input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$akt_munkalapok.'\')"></td>
                                 <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$anyag['recid'].'" data-cikk_id2="'.$anyag['cikk_id'].'"></td>
                                 <td>'.$mar_igenyelve.'</td>
@@ -2513,6 +2514,7 @@ require_once('selectek.php');
                                 <th>Munkalapon anyagra vár (igényelve)</th>
                                 <th>Igénylés rendelés folyamatában</th>
                                 <th>Mee</th>
+                                <th>Leírás</th>
                                 <th>Anyagra váró feladatok</th>
                                 <th>Anyag igénylés</th>
                                 <th>Már igényelve</th>
