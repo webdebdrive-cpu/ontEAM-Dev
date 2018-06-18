@@ -1,66 +1,66 @@
 <?php
 /**
-* Head objektum. A weboldal tetejét készíti el (metatagok, kódolás stb... beállítása) 
-* 
+* Head objektum. A weboldal tetejét készíti el (metatagok, kódolás stb... beállítása)
+*
 * @author www.WebDeb.hu - Bollmann Krisztián 2009.06.03
 */
 
 class Head{
-	
+
     /** @var string Charset - az oldal karakterkódolása*/
     public $charset  = 'utf-8';
-    
+
     /** @var string Country - Ország*/
     public $country  = 'Hungary';
-    
+
     /** @var string További js vagy css scriptek (pl. vízszintes menühöz)*/
     public $extrak   = '';
-	    
+
     /** @var string Favicon - Ikon beállítása (a megadott elérési útvonalon létezik a fájl)*/
     public $favicon  = '';
-    
+
     /** @var string Language - nyelv*/
     public $language = 'hu';
-    
+
     /** @var int Title hossz - max mekkora legyen, ha 0 akkor korlátlan */
     public $title_hossz    = '';
-    
+
     /** @var int Description hossz - max mekkora legyen, ha 0 akkor korlátlan */
     public $desc_hossz     = '';
-    
+
     /** @var int Keywords hossz - max mekkora legyen, ha 0 akkor korlátlan */
     public $keywords_hossz = '';
-    
-    
-    
+
+
+
     /** @var string A head tartalma*/
     private $head     = '';
-    
+
     /** @var string Doctype - alapértelmezetten strict.dtd*/
     private $doc_type = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 
     /** @var string Title - Az aktuális oldal title tagja*/
     private $title    = '';
-    
+
     /** @var string Description - Az aktuális oldal description tagja*/
     private $desc     = '';
-    
+
     /** @var string Keywords - Az aktuális oldal keywords tagja*/
     private $keywords = '';
-				
+
     /** @var string OG meta - A közösségi oldalak (facebook) metatagjai*/
     private $og_meta = '';
-    
+
     /**
     * @desc Konstruktor
     */
    	public function __construct(){
-		
+
 	}
-	
+
 	/**
 	* @desc Doctype beállíátsa
-	* 
+	*
 	* @param string doc_type Lehetséges értékei: transitional, frameset, strict
 	*/
 	public function setDocType($doc_type){
@@ -73,7 +73,7 @@ class Head{
 
 	/**
 	* @desc Doctype lekérdezése
-	* 
+	*
 	* @return string doc_type Lehetséges értékei: transitional, frameset, strict
 	*/
 	public function getDocType(){
@@ -83,16 +83,16 @@ class Head{
 			default: $this -> doc_type = '<!DOCTYPE html>'; return '';
 		}
 	}
-	
+
 	/**
 	* @desc getHtml
-	* 
+	*
 	* @return string a head forráskódja
 	*/
 	public function getHtml(){
-		
+
         global $tartalom_tomb;
-        
+
 		$head = $this -> doc_type;
 		$head .= '<html lang="'.$this -> language.'">';
 		$head .= '<head>';
@@ -108,7 +108,7 @@ class Head{
 		$head .= '<meta name="dcterms.audience" content="Global">';
 		$head .= '<meta name="revisit-after" content="1 days">';
         $head .= get_canonical();
-        
+
         if(get_alk()){
             if( basename( dirname(self()) ).'/' == get_admin()){
                 $head .= '<base href="'.get_alk().get_admin().'">';
@@ -117,17 +117,17 @@ class Head{
             }
         }
         //HTML 5 alatt nem valid, .hataccess-ben kell meagdni: $head .= '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /> ';//CSS3-hoz kell, hogy IE alatt is menjen FUCK
-		
+
         //Amennyiben az oldal responzív, úgy a meta tagokban tiltjuk az oldal nagyíthatóságát (mobilon nem zoom-olunk hanem responzívek vagyunk)
         if(get_responsive() || basename( dirname(self()) ).'/' == get_admin() ){
-            //$head .= '<meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0, user-scalable=0,width=device-width">';
+            $head .= '<meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0, user-scalable=0,width=device-width">';
         }
-        
+
 		if($this -> favicon){
 			$head .= '<link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">';
             $head .= '<link rel="icon" href="/favicon.png">';
 		}
-		
+
         //CSS és JS tömörítés
         if( basename( dirname(self()) ).'/' == get_admin()){
             $js_css         = get_jsfajlok_admin();
@@ -165,8 +165,8 @@ class Head{
             fajlba_mentes($css_min_fajl, $css);
         }
         $head .= '<link href="'.get_alk().$css_min_fajl.'?cache='.time().'" rel="stylesheet" type="text/css">';
-        
-        
+
+
 
         //JS tömörítés
         $async_js      = '';
@@ -214,12 +214,12 @@ class Head{
             $js = str_replace('*/*', '{JQUERY_KODRESZLET}', $js);
             $js = preg_replace('#/\*.*?\*/#s', '', $js);
             $js = str_replace('{JQUERY_KODRESZLET}', '*/*', $js);
-            
+
             $js = nl2($js);
             $js = str_replace(array(') +'), array('){MINIFY_TMP}+'), $js);
             $js = str_replace(array(' {', '{ ', ';}', ' }', '} ', '; ', '( ', ' (', ') ', ' )', ' =', '= ', ', '), array('{', '{', '}', '}', '}', ';', '(', '(', ')', ')', '=', '=', ','), $js);
             $js = str_replace(array('){MINIFY_TMP}'), array(') '), $js);
-            
+
             $async_js = nl2($async_js);
             $async_js = str_replace(array(') +'), array('){MINIFY_TMP}+'), $async_js);
             $async_js = str_replace(array(' {', '{ ', ';}', ' }', '} ', '; ', '( ', ' (', ') ', ' )', ' =', '= ', ', '), array('{', '{', '}', '}', '}', ';', '(', '(', ')', ')', '=', '=', ','), $async_js);
@@ -227,7 +227,7 @@ class Head{
 
             fajlba_mentes($js_async_fajl, $async_js);
             fajlba_mentes($js_min_fajl,   $js);
-            
+
             foreach(get_nyelvek() as $nyelv){
                 $js_mit     = array();
                 $js_mivel   = array();
@@ -240,29 +240,29 @@ class Head{
                 fajlba_mentes( str_replace('.js', '_'.$nyelv.'.js', $js_async_fajl), str_replace($js_mit, $js_mivel, $async_js)  );
                 fajlba_mentes( str_replace('.js', '_'.$nyelv.'.js', $js_min_fajl),   str_replace($js_mit, $js_mivel, $js)        );
             }
-            
+
         }
 
-		
+
 		if($this -> extrak){
 			$head .= $this -> extrak;
 		}
-        
+
 		$head .= '</head>';
-		
+
         header('X-Frame-Options: sameorigin');
 		header('X-XSS-Protection: 1; mode=block');
 		header('Content-Type: text/html; charset='.$this -> charset);
-        
+
 		return $head;
-	}	
-	
-	
-	
+	}
+
+
+
 	//SET & GET metódusok
 	/**
 	* @desc Title beállíátsa
-	* 
+	*
 	* @param string title
 	*/
 	public function setTitle($title){
@@ -272,21 +272,21 @@ class Head{
             $this -> title = str_replace( '"', '', notags($title) );
         }
 	}
-	
+
 	/**
 	* @desc Title lekrédezése
-	* 
+	*
 	* @return string title
 	*/
 	public function getTitle(){
 		return $this -> title;
 	}
-	
-	
-	
+
+
+
 	/**
 	* @desc Description beállíátsa
-	* 
+	*
 	* @param string desc
 	*/
 	public function setDesc($desc){
@@ -296,21 +296,21 @@ class Head{
             $this -> desc = str_replace( '"', '', notags($desc));
         }
 	}
-	
+
 	/**
 	* @desc Description lekrédezése
-	* 
+	*
 	* @return string desc
 	*/
 	public function getDesc(){
 		return $this -> desc;
 	}
-	
-	
-	
+
+
+
 	/**
 	* @desc Keywords beállíátsa
-	* 
+	*
 	* @param string keywords
 	*/
 	public function setKeywords($keywords){
@@ -320,33 +320,33 @@ class Head{
             $this -> keywords = str_replace( '"', '', notags($keywords));
         }
 	}
-	
+
 	/**
 	* @desc Keywords lekrédezése
-	* 
+	*
 	* @return string keywords
 	*/
 	public function getKeywords(){
 		return $this -> keywords;
 	}
-    
+
 	/**
 	* @desc OG meta beállíátsa
-	* 
+	*
 	* @param string og meta
 	*/
 	public function setOg($og_meta){
 		$this -> og_meta = $og_meta;
 	}
-	
+
 	/**
 	* @desc OG meta lekrédezése
-	* 
+	*
 	* @return string og meta
 	*/
 	public function getOg(){
 		return $this -> og_meta;
 	}
-	
+
 }
 ?>

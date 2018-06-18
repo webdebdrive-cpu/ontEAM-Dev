@@ -1665,6 +1665,11 @@ console.log('b'+active_top);
     $(window).resize(function() {
         fulGombMeretez();
     });
+
+    $('.menu_icon').on('click', function() {
+        $('.menu_icon').toggleClass('active');
+        $('.menu').toggleClass('active');
+    });
 });
 
 function egysegarMuv( pre, muvelet ) {

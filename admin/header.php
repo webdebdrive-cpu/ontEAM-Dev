@@ -972,7 +972,7 @@ if( isset($_GET['uj']) ) {
 }
 
 $belepve = nl2('
-    <div class="dtc link f25" style="border-right: 0.1rem solid #e9e9e9; padding-right: 1rem; padding-left: 1rem" onclick="window.open(\'../'.get_utvonal().'Hibabejelentes_az_ontEAM_rendszerben.pdf\')">
+    <div class="dtc link sugo f25" style="border-right: 0.1rem solid #e9e9e9; padding-right: 1rem; padding-left: 1rem" onclick="window.open(\'../'.get_utvonal().'Hibabejelentes_az_ontEAM_rendszerben.pdf\')">
         ?
     </div>
     <div class="dtc nav c felh">
