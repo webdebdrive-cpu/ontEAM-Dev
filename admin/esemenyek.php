@@ -4317,7 +4317,16 @@ foreach($postok as $ertek){
                         $_SESSION['anyagigenyles_tablazat_rendez'] = 'anyag_tabla_ig_datum';
                         $_SESSION['anyagigenyles_tablazat_irany']  = 'desc';
 
-                        header('location:'.self().'?tablazat');
+                        if( isset($_POST['tobbsor']) ) {
+                            echo json_encode(array(
+                                'link' => self().'?tablazat'
+                            ));
+
+                            $weblap -> leallit();
+                            exit;
+                        } else {
+                            header('location:'.self().'?tablazat');
+                        }
                     }else{
                         header('location:'.self().str_replace('&amp;','&',get_get(array('id', 'hiba', 'errnum', 'kephiba', 'oldal', 'epo', 'kat', 'rend', 'irany', 'order'))).'&id='.$tabla_id.'&siker');
                     }
