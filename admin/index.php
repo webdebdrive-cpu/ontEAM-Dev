@@ -349,7 +349,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                     }
                                     
                                     // Szállodához rendelés
-                                    $szallodak = explode(/*','*/"\n", $szalloda);
+                                    $szallodak = explode(',', $szalloda);
                                     foreach( $szallodak as $szall ){
                                         $szall = mb_strtoupper( trim($szall) ).' TH';
                                         $szall_id = $adatbazis_kapcsolat->s2('id', 'telephely', "`nev`='{$szall}'");

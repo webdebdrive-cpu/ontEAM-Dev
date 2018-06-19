@@ -38,6 +38,22 @@ $szamla_html = '';
 // Az $id-k tömböt és a $page változót innen kaptjuk
 require_once 'anyagigenyles_nyomtat.php';
 
+// Anyagigénylés adatok beolvasása
+if (isset($_POST['get_adatok'])) {
+    
+    $anyagigenyles = $adatbazis_kapcsolat->s2('cikk_id nev igmen cikkmee', 'anyagigenyles', "`recid`='{$_POST['id']}'");
+    
+    echo nl2('
+        Cikkszám: '.$anyagigenyles['cikk_id'].'
+        <br>Cikk név: '.$anyagigenyles['nev'].'
+        <br>Mennyiség: '.number_format($anyagigenyles['igmen'], 2, ',', ' ').' '.$anyagigenyles['cikkmee'].'
+        ');
+    
+    $weblap -> leallit();
+    exit;
+    
+}
+
 // Már igényelve gomb feldolgozás
 if (isset($_POST['anyagigenyles_mar_igenyelve'])) {
 
@@ -1670,7 +1686,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
 //                $statid = CIKKIGN_STAT_LEZARVA;
 //            }
 //
-//            //Oszlopok társítása
+//            // Oszlopok társítása
 //            $oszlopok        = array('recid', 'ikt_szam', 'telephely_id',  'cikk_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallito_id', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
 //            $anyagig_oszlop  = array('recid', 'ikt_szam', 'telephely_id',  'cikk_id', 'nev', 'cikkmee', 'igmen', 'igleir', 'jhmen', 'rndmen', 'rndear', 'rndid', 'erkmen', 'erkear', 'erkcimid', 'szlacimid', 'elutleir', 'keszpenz', 'uileir', 'szallito_id', 'oracikkid', 'aparecid', 'kepfajl', 'rnd_dt', 'kulsosnek', 'szlaid', 'rndmenleir', 'vbrutert', 'vnetert', 'kcs_21', 'arfolyam', 'atvaltva_d', 'vrndear', 'verkear');
 //
@@ -1846,6 +1862,58 @@ if (isset($_POST['anyagigenyles_tablazat_rendez'])) {
         $_SESSION['anyagigenyles_tablazat_irany']  = $_POST['irany'];
     }
 
+    $weblap->leallit();
+    exit();
+}
+
+// Anyagigénylés sztornózása
+if (isset($_POST['anyagigenylesSztornoz'])) {
+    
+    // Tranzakció indul
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+    
+    $sor = $adatbazis_kapcsolat->s2('stat_id', 'anyagigenyles', "`recid`='{$_POST['id']}'");
+    if( $sor === false ) { $db_error = true; }
+    
+    // Státusz ellenőrzése
+    $sztornos_statuszok = array(CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_VARAKOZO);
+    if( !in_array($sor['stat_id'], $sztornos_statuszok) ){
+        echo json_encode(array(
+            'title' => 'Hiba',
+            'hiba'  => 'Ebben a státuszban nem lehet anyagigénylést sztornózni!'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+
+    // Jog ellenőrzése
+    if( !_jog(JOG_ANYAGREND_KESZIT) ) {
+        echo json_encode(array(
+            'hiba'  => 'Nincs joga anyagigénylést sztornózni!',
+            'title' => 'Hiba'
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Státusz léptetés
+    addStatusz('anyagigenyles_statusz', $_POST['recid'], CIKKIGN_STAT_TOROLT, '', $_POST['memo']);
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
+        ));
+    }
+    
     $weblap->leallit();
     exit();
 }
@@ -2173,7 +2241,7 @@ require_once('selectek.php');
             }
         }
 
-        // Anyagigénylés árazása
+        // Anyagigénylés készít jög
         if( _jog(JOG_ANYAGREND_KESZIT) ) {
 
             if(!isset($_GET['anyagrend'])){
@@ -2211,6 +2279,12 @@ require_once('selectek.php');
                     '.$kuld_jovahagy.'
                     '.$rend_keszit.'
                 ');
+                
+                // Sztornó gomb
+                $sztornos_statuszok = array(CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_VARAKOZO);
+                if( in_array($sor['stat_id'], $sztornos_statuszok) ){
+                    $gombok .= '<input type="button" class="gomb" value="Sztornó" onclick="csoportMuvelet(\'anyagigenylesSztornoz\')"> ';
+                }
 
             // Anyagrendelés alatt csak a Leírás hozzáadása gomb látszik
             }else{
