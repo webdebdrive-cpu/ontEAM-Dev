@@ -1,9 +1,9 @@
 <?php
 // Operátor kiválasztása
 if (isset($_POST['f_szuro_mezo'])) {
-    
+
     $akt_tomb_szures = get_akt_tomb($_POST['tabla']);
-    
+
     $selected_equal = '';
     $selected_like = '';
     $selected_empty = '';
@@ -15,7 +15,7 @@ if (isset($_POST['f_szuro_mezo'])) {
     if($_POST['selected']=='gt'     ){ $selected_gt     = ' selected'; }
     if($_POST['selected']=='lt'     ){ $selected_lt     = ' selected'; }
     if($_POST['selected']=='not_eq' ){ $selected_not_eq = ' selected'; }
-    
+
     // A tömbben előforduló selectek tömbje. Innen tudjuk hogy csak két operátor tartozhat hozzá
     $selectek = array(
         'select_cikltip',
@@ -27,39 +27,39 @@ if (isset($_POST['f_szuro_mezo'])) {
         'select_pri_tipus',
         'select_pri_besorol',
         );
-    
+
     $operator = '';
     // Feltétel összerakása tömbből
     foreach ($akt_tomb_szures as $ertek){
         if($ertek['name']==$_POST['mezo']){
-            
+
             // Checkbox esetén Igen/Nem
             if($ertek['type']=='checkbox'){
-                
+
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
-                
+
             // Dátum mező esetén
             }elseif( strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false ){
-                
+
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 $operator .= '<option value="gt"'.$selected_gt.'>&gt;</option>';
                 $operator .= '<option value="lt"'.$selected_lt.'>&lt;</option>';
-                
+
             // Autocomplete esetén a switch.php alapján gyártunk egy inputot
             }elseif($ertek['type']=='autocomplete' || $ertek['type_szurohoz']=='autocomplete'){
-                
+
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
-                
+
             // selectek esetén csak = vagy üres operátort ajánlunk fel
             }elseif( in_array($ertek['type'], $selectek) ){
-                
+
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                 $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
-                
+
             // Általános esetben egy szabadszavas mező
             }else{
-                
+
                 //Numerikus adatok operátora
                 if( strpos($ertek['class'], 'f_num')!==false || strpos($ertek['class'], 'datepicker')!==false){
                     $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
@@ -77,40 +77,40 @@ if (isset($_POST['f_szuro_mezo'])) {
                     $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
                     $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
                 }
-                
+
             }
             break;
         }
     }
-    
+
     // Kapcsolódó szállodák felsorolása
     if( $_POST['mezo']=='telephely_id' || ($_POST['tabla'] == 'login' && $_POST['mezo']=='szalloda') ){
-        
+
         // Ilyenkor felülírva az operátorokat, csak egyenlőségjel van
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
-        
+
     }
-    
+
     // Megjegyzés esetén tartalmazza operátor + szabadszavas mező
     if($_POST['mezo']=='megjegyzes'){
         $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
     }
-    
+
     // Szakterület esetén = operátor + autocomplete
     if($_POST['mezo']=='szakterulet'){
         $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
     }
-    
+
     // Jogosultságnál, Státusznál és Mobilcsoportnál csak =
     if($_POST['mezo']=='jogosultsag' || $_POST['mezo']=='stat_id' || ( $_POST['mezo']=='mobil' && $_POST['tabla'] == 'munkalap' ) ){
         $operator = '<option value="equal"'.$selected_equal.'>=</option>';
     }
-    
+
     // Operátor select bezárása
     $operator = '<select class="f_szuro_mezo_operator" data-tabla="'.$_POST['tabla'].'">'.$operator.'</select>';
-    
+
     echo json_encode( array('operator' => $operator) );
-    
+
     $weblap -> leallit();
     exit;
 }
@@ -119,7 +119,7 @@ if (isset($_POST['f_szuro_mezo'])) {
 if (isset($_POST['f_szuro_mezo_operator'])) {
 
     $akt_tomb_szures = get_akt_tomb($_POST['tabla']);
-    
+
     $selected_null = '';
     $selected_egy  = '';
     if($_POST['felt']=='0'){
@@ -128,11 +128,11 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
     if($_POST['felt']=='1'){
         $selected_egy = ' selected';
     }
-    
+
     if($_POST['felt']=='undefined'){
         $_POST['felt'] = '';
     }
-    
+
     // Ha az éppen kiválasztott operátor az ures, akkor az alábbit adjuk vissza és kész
     if($_POST['selected']=='empty'){
         $feltetel = nl2('
@@ -141,10 +141,10 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                 <option value="0"'.$selected_null.'>Nem</option>
             </select>
             ');
-    
+
     // Ha nem az üres operátort választottuk ki
     }else{
-    
+
         foreach ($akt_tomb_szures as $ertek){
             if($ertek['name']==$_POST['mezo']){
 
@@ -166,14 +166,14 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                     $input = new Input('text');
 
                     $input -> value = $_POST['felt'];
-                    
+
                     // Onblurra a hidden mező is nullázódjon, ha üres volna a mező
                     $ertek['onblur'] .= 'if(!$(this).val()){ $(\'#'.$ertek['name'].'\').val(\'\'); }';
-                    
+
                     if($ertek['alert']){
                         $ertek['class'] .= ' csillag';
                     }
-                    
+
                     $input -> cssClass      = $ertek['class'].' f_felt';
                     $input -> data          = 'data-auto="1"';
                     $input -> id            = $ertek['name'].'_autocomp_szurobe';
@@ -240,17 +240,17 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
                 // select_szemelyzet
                 }elseif($ertek['type']=='select_szemelyzet'){
-                    
+
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
-                    
+
                     $input = new Select($select_szemelyzet, $_POST['felt']);
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
 
                 // select_szemelyzet
                 }elseif($ertek['type']=='select_cikltip'){
-                    
+
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
 
@@ -260,7 +260,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
                 // select_mobilcsoport
                 }elseif($ertek['type']=='select_mobilcsoport'){
-                    
+
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
 
@@ -270,41 +270,41 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
                 // select_pri_tipus
                 }elseif($ertek['type']=='select_pri_tipus'){
-                    
+
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
 
                     $input = new Select($select_pri_tipus, $_POST['felt']);
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
-                    
+
                 // select_pri_besorol
                 }elseif($_POST['mezo']=='mobil'){
-                    
+
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
 
                     $input = new Select($select_mobilcsoport, $_POST['felt']);
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
-                    
+
                 // select_pri_besorol
                 }elseif($ertek['type']=='select_pri_besorol'){
-                    
+
                     require_once('../class/html/class.Select.php');
                     require_once('selectek.php');
 
                     $input = new Select($select_pri_besorol, $_POST['felt']);
                     $input -> cssClass = 'f_felt';
                     $feltetel = $input -> getHtml();
-                    
+
                 // Általános esetben egy szabadszavas mező
                 }else{
 
                     // Numerikus adatok operátora
                     if( strpos($ertek['class'], 'f_num')!==false){
                         $feltetel = '<input type="text" placeholder="Érték..." class="f_num f_felt" value="'.$_POST['felt'].'">';
-                    
+
                     // Dátum mezők (mindig csak dátum pontos)
                     }elseif( strpos($ertek['class'], 'datepicker')!==false ||  strpos($ertek['class'], 'datetimepicker')!==false ){
                         $feltetel = nl2('
@@ -343,7 +343,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
             $feltetel .= '</select>';
 
         }
-        
+
         // Megjegyzés esetén tartalmazza operátor + szabadszavas mező
         if($_POST['mezo']=='megjegyzes'){
 
@@ -352,7 +352,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
                 ');
 
         }
-        
+
         // Szakterület esetén = operátor + autocomplete
         if($_POST['mezo']=='szakterulet'){
 
@@ -361,7 +361,7 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
             $ertek['oszlop_keres_autocomp'] = 'info';
             $ertek['listaz']                = 'info';
             $ertek['csoport']               = ERTEKLISTA_SZAKTER;
-            
+
             require_once('../class/html/class.Input.php');
             $input = new Input('text');
 
@@ -432,20 +432,20 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
             ');
 
         }
-        
+
         // Jogosultság esetén
         if($_POST['mezo']=='jogosultsag'){
 
             require_once 'jogosultsag.php';
-            
+
             $feltetel = '<select class="f_felt">';
-            
+
             $jog_kat_i = 0;
             foreach($jogosultsagKatok as $jog_kat_kulcs => $jog_kat){
                 $feltetel .= '<optgroup label="'.$jog_kat['nev'].'">';
                 foreach($jogosultsagok as $jog_sor => $jog){
                     if($jog['kat']==$jog_kat_kulcs){
-                        
+
                         $selected = '';
                         if($jog_sor==$_POST['felt']){
                             $selected = ' selected';
@@ -459,10 +459,10 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
             $feltetel .= '</select>';
 
         }
-        
+
         // Státusz esetén
         if($_POST['mezo']=='stat_id'){
-            
+
             $feltetel = '<select class="f_felt">';
             $feltetel .= '<option value="">-Válasszon státuszt-</option>';
             foreach($_stat_text[$_POST['tabla']] as $kulcs => $statusz){
@@ -475,11 +475,11 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
             $feltetel .= '</select>';
 
         }
-        
+
     }
-    
+
     echo json_encode( array('feltetel' => $feltetel) );
-    
+
     $weblap -> leallit();
     exit;
 }
@@ -548,7 +548,7 @@ $szurve         = '';
 if($_SESSION['o_szuro_feltetel']){
     $szurve     = ' piros';
 }
-$osszetett_link = '<span onclick="csoportMuvelet(\'osszetett_szuro\')"><img class="link'.$szurve.' f_svg" src="../elemek/filter.svg"></span>';
+$osszetett_link = '<span id="osszetett_szuro" onclick="csoportMuvelet(\'osszetett_szuro\')"><img class="link'.$szurve.' f_svg" src="../elemek/filter.svg"></span>';
 if(isset($_POST['o_szures'])){
     $prefix         = 'o_';
     $osszetett_link = '';

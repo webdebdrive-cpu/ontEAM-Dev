@@ -23,6 +23,10 @@ div.menu{
     position: relative;
 }
 
+#sddm li.respo_kilep {
+    display: none;
+}
+
 #sddm li.home a {
     padding: 0.5rem 0.7rem 0.2rem 0.7rem;
 }
