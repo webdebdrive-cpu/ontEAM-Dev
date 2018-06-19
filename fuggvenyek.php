@@ -560,9 +560,10 @@ function i_u($type, $tabla, $tomb) {
                     if( $sql === false ) { $db_error = true; }
 
                     // Bejelentést is folyamatbanra állítjuk
-                    if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
-                        $db_error = true;
-                    }
+                    // Update 2018.06.19 NEM! marad nyitott. Majd akkor lesz folyamatban, ha valaki felvette a munkalapot.
+//                    if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
+//                        $db_error = true;
+//                    }
                     
                     // Dokumentumot is átmásoljuk, de nem itt, mert itt még nincs hozzárendelve, hanem az esemenyek.php-ban (keress rá erre: bejelentes_dok_munkalapba_masol )
                 }
@@ -3064,7 +3065,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
             if( $bsz['tipus_id']==MLTIPUS_HIBAELHARITAS && $bsz['hiba_txt'] ){
                 $hossz = 14;
                 if(mb_strlen($bsz['hiba_txt'])>$hossz){
-                    $hiba_rovid = mb_substr($bsz['hiba_txt'], 0, 14).'...';
+                    $hiba_rovid = mb_substr($bsz['hiba_txt'], 0, 14, get_web_charset()).'...';
                 }else{
                     $hiba_rovid = $bsz['hiba_txt'];
                 }

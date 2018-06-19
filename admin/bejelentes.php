@@ -852,7 +852,7 @@ require_once('selectek.php');
 
         // Törlés gomb hibaüzenetei
         // Csak nyitott és folyamatban státusz törölhető
-        $torolheto_statuszok = array(BEJELENTES_STAT_NYITOTT, BEJELENTES_STAT_FOLYAMATBAN);
+        $torolheto_statuszok = array(BEJELENTES_STAT_NYITOTT/*, BEJELENTES_STAT_FOLYAMATBAN*/);
         if( !in_array($sor['stat_id'], $torolheto_statuszok) ) {
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Ebben a státuszban nem törölhető a bejelentés!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         // Csak törlés joggal törölhető
@@ -906,12 +906,12 @@ require_once('selectek.php');
                     _jog(JOG_BEJELENTES_MAS_NEVEBEN)                                // Vagy ha más nevében is tudok bejelenteni
                 )
             )
-            ||                                                                      // VAGY Folyamatban státusz esetén is szerkeszthető, ha egyszállodás, és munkalapja nincs felvéve
+            /*||                                                                      // VAGY Folyamatban státusz esetén is szerkeszthető, ha egyszállodás, és munkalapja nincs felvéve
             (
                 $sor['stat_id']==BEJELENTES_STAT_FOLYAMATBAN    &&
                 !$telephely['modell']                           &&
                 !$van_nem_hozzarendelt
-            )
+            )*/
         ) {
                 $gombok = nl2('
                     <div class="form_kuldes">
