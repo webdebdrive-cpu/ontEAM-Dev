@@ -3286,3 +3286,93 @@ th.egys_dev {
 .hozzaadasGomb {
     padding: 1rem 0rem 1rem 0rem;
 }
+
+div.header div.dtc.respo_menu {
+    display: none;
+    padding: 0rem 1.8rem 0rem 1.8rem;
+}
+
+.menu_icon {
+    cursor: pointer;
+    display: inline-block;
+    height: 2.2rem;
+    position: relative;
+    width: 2.9rem;
+}
+
+.menu_icon span {
+    top: calc(50% - 0.2rem);
+}
+
+.menu_icon span, .menu_icon span:before, .menu_icon span:after {
+    background: #34474b;
+    cursor: pointer;
+    content: '';
+    display: block;
+    height: 0.4rem;
+    position: absolute;
+    width: 2.9rem;
+}
+
+.menu_icon span:before {
+    top: -0.9rem;
+}
+
+.menu_icon span:after {
+    bottom: -0.9rem;
+}
+
+.menu_icon span, .menu_icon span:before, .menu_icon span:after {
+    transition: all 250ms ease-in-out;
+}
+
+.menu_icon.active span {
+    background-color: transparent;
+}
+
+.menu_icon.active span:before, .menu_icon.active span:after {
+    top: 0;
+}
+
+.menu_icon.active span:before {
+    transform: rotate(45deg);
+}
+
+.menu_icon.active span:after {
+    transform: rotate(-45deg);
+}
+
+div.respo_felh {
+    background: #36474f;
+    display: none;
+    height: 6rem;
+    width: 100%;
+}
+
+div.respo_felh div.dtc {
+    height: 6rem;
+    vertical-align: middle;
+}
+
+div.respo_felh div.dtc.nev a,
+div.respo_felh div.dtc.nev {
+    color: #fff;
+}
+
+div.respo_felh div.dtc.nev {
+    font-size: 1.4rem;
+    padding: 0rem 0rem 0rem 2.5rem;
+    width: 100%;
+}
+
+div.respo_felh div.dtc.bezar {
+    padding: 0rem 1.8rem 0rem 1.8rem;
+}
+
+div.respo_felh div.dtc.nev a {
+    font-size: 1.8rem;
+}
+
+div.respo_felh .menu_icon span:before, div.respo_felh .menu_icon span:after {
+    background: #fff;
+}
