@@ -63,6 +63,7 @@ $_stat_text = array(
         MUNKALAP_STAT_LEZARASRA_VAR         => array('nev' => 'Lezárásra vár',                                  'szinkod' => '#b3e5ab'),
         MUNKALAP_STAT_LEZART                => array('nev' => 'Lezárt',                                         'szinkod' => '#fff'),
         MUNKALAP_STAT_HOZREND_MEGREND_VAR   => array('nev' => 'Megrendelésre vár',                              'szinkod' => '#f5a56c'),
+        MUNKALAP_STAT_AJANLAT_NYOMTATVA     => array('nev' => 'Ajánlat nyomtatva',                              'szinkod' => ''),
         MUNKALAP_STAT_BEOSZTAS_NELKUL       => array('nev' => 'Mobil beosztás nélkül', 'rovid' => 'MBN',        'szinkod' => ''),
         MUNKALAP_STAT_NYITOTT               => array('nev' => 'Nyitott',                                        'szinkod' => '#fff'),
         MUNKALAP_STAT_TOROLT                => array('nev' => 'Törölt',                                         'szinkod' => '#fff'),

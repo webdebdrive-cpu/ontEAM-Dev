@@ -18,7 +18,7 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
-if (isset($_GET['hiba_id_feltolt'])) {
+if (false && isset($_GET['hiba_id_feltolt'])) {
     
     $arch = '_arch';
     
@@ -574,7 +574,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 // Objektumok importja PPM-ből
 if (false && isset($_GET['objektum_import_ppm'])) {
     
-    $telephely_id = 1022;
+    $telephely_id = 1033;
     
     $adatbazis_kapcsolat->d('obj', "`telephely_id`='$telephely_id'");
     
@@ -606,9 +606,10 @@ if (false && isset($_GET['objektum_import_ppm'])) {
                 foreach($akt_tomb as $key => $value) {
                     $akt_tomb[$key] = utf8($akt_tomb[$key]);
                 }
+
                 $szemelyzet_id = '';
                 foreach($akt_tomb as $key => $value) {
-                    
+
                     switch( utf8($key) ) {
 
                         case 'Szint':
@@ -618,7 +619,6 @@ if (false && isset($_GET['objektum_import_ppm'])) {
                         case 'Név':
                             $nev = $akt_tomb[$key];
                         break;
-
 
                     }
 

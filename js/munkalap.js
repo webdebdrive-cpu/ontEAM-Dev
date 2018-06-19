@@ -106,8 +106,8 @@ function munkalapMuszakiVezetoHelyettes() {
             url : 'munkalap.php',
             type: 'POST',
             data: {
-                recid: _get('id'),
-                munkalapMuszakiVezetoHelyettes: new Date().getTime()
+                recid                           : _get('id'),
+                munkalapMuszakiVezetoHelyettes  : new Date().getTime()
             },
             success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
@@ -313,8 +313,7 @@ function munkalapKeszre(csak_kerdezunk) {
                         return false;
                     }
 
-                    szurkit();
-                    location.reload();
+                    szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
                 }
             }
         });
@@ -348,8 +347,7 @@ function munkalapRogzit(csak_kerdezunk) {
                         return false;
                     }
 
-                    szurkit();
-                    location.reload();
+                    szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
                 }
             }
         });
@@ -425,8 +423,7 @@ function munkalapIgazol(csak_kerdezunk) {
                         return false;
                     }
                     
-                    szurkit();
-                    location.reload();
+                    szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
                 }
             }
         });
@@ -460,8 +457,41 @@ function munkalapReklamacioElfogad(csak_kerdezunk) {
                         return false;
                     }
 
-                    szurkit();
-                    location.reload();
+                    szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
+                }
+            }
+        });
+
+    }
+    return false;
+}
+
+/* Munkalap Külsős munka megrendelve */
+function munkalapArajanlatNyomtatva(csak_kerdezunk) {
+
+    if(balnav_kijelol_ell()){
+
+        alert2();
+
+        $.ajax({
+            url : 'munkalap.php',
+            type: 'POST',
+            data: {
+                recid                       : _get('id'),
+                csak_kerdezunk              : csak_kerdezunk,
+                munkalapArajanlatNyomtatva  : new Date().getTime()
+            },
+            success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        return false;
+                    }
+
+                    szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
                 }
             }
         });
@@ -495,8 +525,7 @@ function munkalapKulsosMegrendelve(csak_kerdezunk) {
                         return false;
                     }
 
-                    szurkit();
-                    location.reload();
+                    szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
                 }
             }
         });
@@ -530,8 +559,7 @@ function munkalapLezaras(csak_kerdezunk) {
                         return false;
                     }
 
-                    szurkit();
-                    location.reload();
+                    szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
                 }
             }
         });
@@ -697,8 +725,8 @@ function munkFeladatTorol( recid, elem_id, mehet ) {
     
     if( recid ) {
         $.ajax({
-         	url : 'munkalap.php',
-         	type: 'POST',
+         	url  : 'munkalap.php',
+         	type : 'POST',
             async: false,
          	data: {
                 recid           : recid,
@@ -710,7 +738,7 @@ function munkFeladatTorol( recid, elem_id, mehet ) {
          			response = JSON.parse(response);
 
                     $('#'+elem_id).parents('tr').remove();
-                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+                    szamlaBetolt(recid, baseName(location.href) + '.php', 'tetel');
          		}
          	}
         });
@@ -745,7 +773,7 @@ function munkAnyagTorol( recid, elem_id, mehet ) {
          			response = JSON.parse(response);
 
                     $('#'+elem_id).parents('tr').remove();
-                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+                    szamlaBetolt(recid, baseName(location.href) + '.php', 'tetel');
          		}
          	}
         });
@@ -779,7 +807,7 @@ function munkMunkaidoTorol( recid, elem_id, mehet ) {
          			response = JSON.parse(response);
 
                     $('#'+elem_id).parents('tr').remove();
-                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'tetel');
+                    szamlaBetolt(recid, baseName(location.href) + '.php', 'tetel');
          		}
          	}
         });
@@ -809,8 +837,8 @@ function munkalapVisszaNyitott(recid, mehet){
                 alert2(response.hiba, response.gomb, response.title);
                 return false;
             }
-            szurkit();
-            location.reload();
+            
+            szamlaBetolt(recid, 'munkalap.php', 'modosit');
         }
     });
 }
@@ -838,8 +866,7 @@ function munkalapVisszavetel(recid, mehet){
                     return false;
                 }
             }
-            szurkit();
-            location.reload();
+            szamlaBetolt(recid, 'munkalap.php', 'modosit');
         }
     });
 }
@@ -862,8 +889,7 @@ function munkalapVarakoztatVege(){
                     return false;
                 }
             }
-            szurkit();
-            location.reload();
+            szamlaBetolt(_get('id'), 'munkalap.php', 'modosit');
         }
     });
 }

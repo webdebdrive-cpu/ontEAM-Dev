@@ -1685,8 +1685,8 @@ if( isset($_POST['munkalapReklamacioElutasit']) ) {
 }
 
 
-// Külsős munka megrendelve
-if( isset($_POST['munkalapKulsosMegrendelve']) ) {
+// Árajánlat nyomtatva
+if( isset($_POST['munkalapArajanlatNyomtatva']) ) {
     $recid = $_POST['recid'];
 
     $db_error = false;
@@ -1700,7 +1700,75 @@ if( isset($_POST['munkalapKulsosMegrendelve']) ) {
         // Státusz ellenőrzés
         if( $munkalap['stat_id'] != MUNKALAP_STAT_HOZREND_MEGREND_VAR ) {
             echo json_encode(array(
-                'hiba'  => 'Csak "hozzárendelés megrendelés alatt" státuszú munkalaphoz rendelhető külsős munka!',
+                'hiba'  => 'Csak "megrendelésre vár" státuszú munkalapból lehet árajánlatot nyomtatni!',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+
+        // Jog ellenőrzés
+        if( !_jog(JOG_MUNKALAP_KULSOS_MEGREND) ) {
+            echo json_encode(array(
+                'hiba'  => 'Önnek nincs joga ehhez a beállításhoz!',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+
+        // Előbb csak kérdezünk, viszont az ellenőrzéseket addig is lefuttatjuk, derüljön ki ha baj van még a kérdés előtt!
+        if (isset($_POST['csak_kerdezunk'])) {
+
+            echo json_encode(array(
+                'hiba' => 'Biztos, hogy sikerült az árajánlat nyomtatása?',
+                'gomb' => '<input class="gomb zold" value="Igen" onclick="munkalapArajanlatNyomtatva();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
+            ));
+
+            $weblap->leallit();
+            exit();
+        }
+
+        // Státusz léptetés
+        if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_AJANLAT_NYOMTATVA ) ) {
+            $db_error = true;
+        }
+
+        if( !$db_error ) {
+            mysqli_commit($db_kapcs);
+            echo json_encode(array(
+                'statusz' => 'siker'
+            ));
+        } else {
+            mysqli_rollback($db_kapcs);
+            echo json_encode(array(
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba',
+            ));
+        }
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+
+// Külsős munka megrendelve
+if( isset($_POST['munkalapKulsosMegrendelve']) ) {
+    $recid = $_POST['recid'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    if( $recid ) {
+
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id szallito_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        if( $munkalap === false ) { $db_error = true; }
+
+        // Státusz ellenőrzés
+        if( $munkalap['stat_id'] != MUNKALAP_STAT_AJANLAT_NYOMTATVA ) {
+            echo json_encode(array(
+                'hiba'  => 'Csak "árajánlat nyomtatva" státuszú munkalaphoz rendelhető külsős munka!',
                 'title' => 'Hiba',
             ));
             $weblap->leallit();
@@ -6124,9 +6192,14 @@ require('selectek.php');
             }
             $gombok .= '<input type="button" class="gomb piros" value="Sztornó" onclick="'.$onclick.'"> ';
         }
-
+        
         // Megrendelés alatt
         if( $sor['stat_id']==MUNKALAP_STAT_HOZREND_MEGREND_VAR && _jog(JOG_MUNKALAP_KULSOS_MEGREND) ){
+            $gombok .= '<input type="button" class="gomb" value="Árajánlat nyomtatva" onclick="munkalapArajanlatNyomtatva(\'csak kérdezünk még\');"> ';
+        }
+
+        // Ajánlat nyomtatva alatt
+        if( $sor['stat_id']==MUNKALAP_STAT_AJANLAT_NYOMTATVA && _jog(JOG_MUNKALAP_KULSOS_MEGREND) ){
             $gombok .= '<input type="button" class="gomb" value="Külsős munka megrendelve" onclick="munkalapKulsosMegrendelve(\'csak kérdezünk még\');"> ';
         }
 

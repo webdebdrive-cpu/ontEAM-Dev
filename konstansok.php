@@ -75,6 +75,7 @@ define('MUNKALAP_STAT_VIZSGALAT_ALATT',     '17');
 define('MUNKALAP_STAT_BEOSZTAS_NELKUL',     '18');
 define('MUNKALAP_STAT_SZTORNO',             '19');
 define('MUNKALAP_STAT_VARAKOZO',            '20');
+define('MUNKALAP_STAT_AJANLAT_NYOMTATVA',   '21');
 
 // Projektigénylés státuszok
 define('PRIGENY_STAT_NYITOTT',              '01' );
