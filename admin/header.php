@@ -775,14 +775,14 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     // Aktívnál fordítva van
     if($_GET['rend']=='aktiv' || (basename(self())=='utemezett_feladatok.php' && !$_GET['rend']) ){
         $_OPTS['order'] .= ' desc';
-        $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▼ <span>Z-A</span></a>';
+        $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▼<span>Z-A</span></a>';
         if( $_GET['irany'] && $_GET['irany'] != 'desc' ) {
-            $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▲ <span>A-Z</span></a>';
+            $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▲<span>A-Z</span></a>';
         }
     }else{
-        $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▲ <span>A-Z</span></a>';
+        $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'desc\', \''.$_GET['rkat'].'\' ); void(0);">▲<span>A-Z</span></a>';
         if( $_GET['irany'] && $_GET['irany'] == 'desc' ) {
-            $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'asc\', \''.$_GET['rkat'].'\' ); void(0);">▼ <span>Z-A</span></a>';
+            $rend_irany = '<a id="rendezesIrany" href="javascript: bejegyzesekLista( \'#rendezesSelect\', \'asc\', \''.$_GET['rkat'].'\' ); void(0);">▼<span>Z-A</span></a>';
 
             if( $_GET['rend'] && in_array($_GET['rend'], $rend_mezok) ) {
                 $_OPTS['order'] .= ' desc';
@@ -1219,6 +1219,7 @@ if(basename(self())=='anyagigenyles.php' && !isset($_GET['anyagrend'])){
 // Anyagigénylés tálbázatban másképp keresünk
 if(basename(self())=='anyagigenyles.php'){
     $kereso = nl2('
+            <span id="respo_keresGomb"><i class="material-icons">search</i></span>
             <input type="text" name="ksz" id="rendezesKeres" class="disableNav" autocomplete="off" placeholder="Keresés" onkeyup="anyagigenyles_tabla_szur($(\'table.szamla_cont_tabla\'), $(this).val())">
             <script>
                 function anyagigenyles_tabla_szur(tabla, kulcs) {
@@ -1239,6 +1240,7 @@ if(basename(self())=='anyagigenyles.php'){
 // Kereső általános esete
 }else{
     $kereso = nl2('
+        <span id="respo_keresGomb"><i class="material-icons">search</i></span>
         <input type="text" name="ksz" id="rendezesKeres" class="disableNav" autocomplete="off" placeholder="Keresés" onkeyup="altalanos_tabla_szur($(\'#szamlaList\'), $(this).val())">
         <script>
             function altalanos_tabla_szur(tabla, kulcs) {
