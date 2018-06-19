@@ -19,12 +19,15 @@ if(isset($_GET['info'])){
 require_once('../weblap.php');
 
 if (isset($_GET['hiba_id_feltolt'])) {
-    $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`tipus_id`='".MLTIPUS_HIBAELHARITAS."'");
+    
+    $arch = '_arch';
+    
+    $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap'.$arch, "`tipus_id`='".MLTIPUS_HIBAELHARITAS."'");
     foreach($munkalapok as $munkalap){
-        $bejelentes_id = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'");
-        $bejelentes = $adatbazis_kapcsolat->s2('hiba_id', 'bejelentes', "`recid`='{$bejelentes_id['bejelentes_id']}'");
+        $bejelentes_id = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs'.$arch, "`munkalap_id`='{$munkalap['recid']}'");
+        $bejelentes = $adatbazis_kapcsolat->s2('hiba_id', 'bejelentes'.$arch, "`recid`='{$bejelentes_id['bejelentes_id']}'");
         $hiba_txt = getErtekLista('', '', $bejelentes['hiba_id']);
-        $adatbazis_kapcsolat->u('munkalap', array('hiba_id', 'hiba_txt'), array($bejelentes['hiba_id'], $hiba_txt), "`recid`='{$munkalap['recid']}'");
+        $adatbazis_kapcsolat->u('munkalap'.$arch, array('hiba_id', 'hiba_txt'), array($bejelentes['hiba_id'], $hiba_txt), "`recid`='{$munkalap['recid']}'");
 echo $adatbazis_kapcsolat->gp() . '<br>';
     }
 

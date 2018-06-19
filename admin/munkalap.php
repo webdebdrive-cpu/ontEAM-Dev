@@ -6367,7 +6367,11 @@ require('selectek.php');
                     $szamla_html .= nl2('
                         <div id="naploSor-'.$sor['recid'].'" class="dtr nSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
                             <div class="dtc vat">'.$hiba.'<br>'.nl2br2($sor['hiba_text']).'</div>
-                            <div class="dtc vat">'.$telephely.' - '.$helyseg.'<br>'.nl2br2($sor['helyiseg_text']).'</div>
+                            <div class="dtc vat">
+                                '.$telephely.'
+                                <br>'.$helyseg.'
+                                <br>'.nl2br2($sor['helyiseg_text']).'
+                            </div>
                             <div class="dtc vat">
                                 <a href="bejelentes.php?id='.$sor['recid'].'&modosit" target="_blank">'.$sor['ikt_szam'].'</a>
                                 <br>'.datum_kiir($sor['insert_dt']).'
@@ -6376,8 +6380,8 @@ require('selectek.php');
                             <div class="dtc vat">
                                 '.$sor['usr_nev'].'
                                 <br>'.erteklista(ERTEKLISTA_BEOSZTAS, $sor['usr_beosztas_id']).'
-                                <br>'.$sor['usr_telefon'].'
                                 <br>'.erteklista(ERTEKLISTA_RESZLEG, $sor['usr_reszleg_id']).'
+                                <br>'.$sor['usr_telefon'].'
                                 <br>'.$sor['usr_email'].'
                             </div>
                             <div class="dtc link vat">

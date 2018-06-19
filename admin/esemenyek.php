@@ -1122,14 +1122,16 @@ $bejelentes_dok_tomb = $akt_tomb = array(
 
 // Munkalap tömb
 $megnevezes = 'munkalap';
+$arch_post  = '';
 if( basename(self())=='munkalap_arch.php' ){
+    $arch_post  = '_arch';
     $megnevezes = 'munkalap_arch';
 }
 $surgos_disabled = '';
 $surgos_onclick  = '';
 if(isset($_GET['modosit'])){
 
-    $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev stat_id mobil', $megnevezes, "`recid`='{$_GET['id']}'");
+    $munkalap = $adatbazis_kapcsolat->s2('szemelyzet_id mobil_loginnev stat_id mobil loginnev', $megnevezes, "`recid`='{$_GET['id']}'");
     $hozrend_mobilnev = '';
     if($munkalap['szemelyzet_id']==MOBILCSOPORT && $munkalap['mobil_loginnev']){
         $torzsadat = $adatbazis_kapcsolat->s2('nev', 'torzsadat', "`felh_loginnev`='{$munkalap['mobil_loginnev']}'");
@@ -1150,6 +1152,28 @@ if(isset($_GET['modosit'])){
             $surgos_disabled = false;
         //}
     }
+    
+    // Munkalapon, a leírás mező után kell egy kiírás, de csak akkor ha nincs mögötte bejelentés
+    $ml_leiras_ala = '';
+    $van_bejelentes = false;
+    $bejelentesek = $adatbazis_kapcsolat->s('bejelentes_id', 'munkalap_kapcs'.$arch_post, "`munkalap_id`='{$_GET['id']}'");
+    $bejelentesek = adatbazis2tomb($bejelentesek, 'bejelentes_id');
+    if($bejelentesek){
+        $bejelentesek = $adatbazis_kapcsolat->s('recid', 'bejelentes'.$arch_post, "`recid` IN (".implode(', ', $bejelentesek).")", '', '1');
+        if($bejelentesek){
+            $van_bejelentes = true;
+        }
+    }
+    if(!$van_bejelentes){
+        $login = $adatbazis_kapcsolat->s2('teljes_nev usertel usermail', 'login', "`nev`='{$munkalap['loginnev']}'");
+        $ml_leiras_ala = '<br>Létrehozta: <b>'.$login['teljes_nev'].'</b> ';
+        if($login['usertel']){
+            $ml_leiras_ala .= '<span style="margin-left: 2rem"></span>Telefon: <a href="tel:'.$login['usertel'].'">'.$login['usertel'].'</a>';
+        }
+        if($login['usermail']){
+            $ml_leiras_ala .= '<span style="margin-left: 2rem"></span>E-mail: <a href="mailto:'.$login['usertel'].'">'.$login['usermail'].'</a>';
+        }
+    }
 }
 // Bejelentésből 2. munkalap készítésekor a szálloda disabled
 $ub_disabled = false;
@@ -1164,7 +1188,7 @@ $munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
     array('type' => 'text',                     'megn' => 'Munkalap szám:',             'name' => 'ikt_szam',           'szuro' => 1, 'disabled' => 1,        'maxlength' => 250,  'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
     array('type' => 'checkbox',                 'megn' => 'Sürgős:',                    'name' => 'surgos',             'szuro' => 1, 'disabled' => $surgos_disabled,   'class' => 'check', 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>', 'onclick' => $surgos_onclick),
     array('type' => 'checkbox',                 'megn' => 'Visszaadva:',                'name' => 'visszaadva',         'szuro' => 1, 'disabled' => 1,                  'class' => 'check'),
-    array('type' => 'textarea',                 'megn' => 'Leírása:',                   'name' => 'text',               'szuro' => 1, 'disabled' => 0,                  'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images', 'width' => '100%', 'height' => '150'),
+    array('type' => 'textarea',                 'megn' => 'Leírása:',                   'name' => 'text',               'szuro' => 1, 'disabled' => 0,                  'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images', 'width' => '100%', 'height' => '150', 'post' => $ml_leiras_ala),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',                  'name' => 'telephely_id',       'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'disableNav',        'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
     array('type' => 'autocomplete',             'megn' => 'Helyiség:',                  'name' => 'obj_id',             'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'oriasi disableNav', 'style' => 'width: calc(100% - 3rem);', 'tabla' => 'obj', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'recid', 'onclick' => 'szallodaVane( this );', 'post' => $obj_post),
     array('type' => 'autocomplete',             'megn' => 'Gépnév:',                    'name' => 'gep_id',             'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
