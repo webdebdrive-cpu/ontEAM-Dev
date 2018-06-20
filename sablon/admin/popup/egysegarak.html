@@ -119,3 +119,26 @@
         <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
     </div>
 </form>
+<script>
+	$(document).ready(function(){
+        $.ajax({
+            url : 'energia_terv.php',
+            type: 'POST',
+            data: {
+                recid       : _get('id'),
+                get_statusz : Date.now()
+            },
+            success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response){
+                    response = JSON.parse(response);
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        popupZar();
+                        return false;
+                    }
+                }
+            }
+        });
+    });
+</script>

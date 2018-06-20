@@ -25,6 +25,27 @@
 <script>
 $(document).ready(function(){
 
+    /* Státusz ellenőrzése */
+    $.ajax({
+        url : 'energia_terv.php',
+        type: 'POST',
+        data: {
+            recid       : _get('id'),
+            get_statusz : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    popupZar();
+                    return false;
+                }
+            }
+        }
+    });
+
     var kijelolt_egysegar = $('.szamla_cont_tabla .kijelolve').attr('data-recid');
     if(!kijelolt_egysegar){
         alert2(EGYSEGAR_VALASZT, '', 'Hiba');

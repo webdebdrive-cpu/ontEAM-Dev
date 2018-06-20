@@ -72,10 +72,21 @@ $(document).ready(function(){
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                 if(response) {
                     response = JSON.parse(response);
-                    $('#ktgnem_id_autocomp').val( response.ktgnem_id_autocomp ).attr('data-origin-val', response.ktgnem_id_autocomp);
-                    $('#ktgnem_id')         .val( response.ktgnem_id );
-                    $('#dijelem_autocomp')  .val( response.dijelem_autocomp ).attr('data-origin-val', response.dijelem_autocomp);
-                    $('#popup_mee')         .val( response.popup_mee );
+                    
+                    if( response.hiba ) {
+                        
+                        alert2(response.hiba, response.gomb, response.title);
+                        popupZar();
+                        return false;
+                        
+                    }else{
+                    
+                        $('#ktgnem_id_autocomp').val( response.ktgnem_id_autocomp ).attr('data-origin-val', response.ktgnem_id_autocomp);
+                        $('#ktgnem_id')         .val( response.ktgnem_id );
+                        $('#dijelem_autocomp')  .val( response.dijelem_autocomp ).attr('data-origin-val', response.dijelem_autocomp);
+                        $('#popup_mee')         .val( response.popup_mee );
+                        
+                    }
                 }
             }
         });

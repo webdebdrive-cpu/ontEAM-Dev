@@ -15,12 +15,14 @@ function addSzallodaEnergia( recid, that ) {
          	url : 'energia_terv.php',
          	type: 'GET',
          	data: esamp2es('recid=' + recid + '&amp;szallIDs=' + JSON.stringify(data) + '&amp;addSzallodaEnergia=' + new Date().getTime()),
-         	success: function(html) {
-                if(html.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-         		if(html) {
-                    html = JSON.parse(html);
-                    if( html.statusz == 'hiba' ) {
-                        alert2(html.uzi, '', 'Hiba');
+         	success: function(response) {
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+         		if(response) {
+                    
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
 
@@ -30,7 +32,7 @@ function addSzallodaEnergia( recid, that ) {
                         $('.szamla_cont_tabla tr').removeClass('kijelolve');
                         $('#tr_ear_' + recid).addClass('kijelolve');
                     });
-                    /*location.href='energia_terv.php?egysegarak&id='+_get('id')+'&ear='+recid;*/
+
          		}
          	}
         });
@@ -183,9 +185,16 @@ function egysegar_sor_torol(mehet){
         success: function (response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
-                szurkit();
-
-                szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'egysegarak' );
+                
+                response = JSON.parse(response);
+                
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }else{
+                    szurkit();
+                    szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'egysegarak' );
+                }
             }
         }
     });
