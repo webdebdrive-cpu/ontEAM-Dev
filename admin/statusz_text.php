@@ -32,7 +32,7 @@ $_stat_text = array(
         CIKKRNDFEJ_STAT_MEGRENDELVE     => array('nev' => 'Megrendelve',            'szinkod' => ''),
         CIKKRNDFEJ_STAT_RESZBEN_BEERK   => array('nev' => 'Részben beérkezett',     'szinkod' => ''),
         CIKKRNDFEJ_STAT_SLA_BEERK       => array('nev' => 'Számla beérkezett',      'szinkod' => ''),
-        CIKKRNDFEJ_STAT_TOROLT          => array('nev' => 'Törölt',                 'szinkod' => ''),
+        CIKKRNDFEJ_STAT_TOROLT          => array('nev' => 'Sztornó',                'szinkod' => ''),
         CIKKRNDFEJ_STAT_VARAKOZO        => array('nev' => 'Várakozó',               'szinkod' => ''),
     ),
     'eloterj_fb' => array(

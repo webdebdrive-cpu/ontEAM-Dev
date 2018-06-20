@@ -90,6 +90,14 @@
     background: #76B958;
 }
 
+#alert2 .gombb.kek, #alert2 .gomb.kek{
+    background: #54A2F9;
+}
+
+#alert2 .gombb.kek:hover, #alert2 .gomb.kek:hover{
+    background: #5192DA;
+}
+
 #alert2 .gomb:focus, #alert2 .gombb:focus{
     border: 0.1rem solid #f00;
 }

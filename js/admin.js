@@ -140,6 +140,11 @@ function login_mentes(id){
 
 }
 
+/* Előkészítés joggal aki rendelkezik, az így is létre tud hozni munkalapot */
+function uj_munkalap_elokeszites_joggal(){
+    alert2('Új munkalap készítése', '<input type="button" class="gomb" value="Előkészítésre" onclick="location.href=\'munkalap.php?uj&amp;elokeszitesre\'"><input type="button" class="gomb kek" value="Telepítettnek" onclick="location.href=\'munkalap.php?uj&amp;telepitettnek\'"><input type="button" class="gomb piros" value="Mégsem" onclick="alert2()">', 'Új munkalap készítése');
+}
+
 /* Userek belépése az adminhoz */
 function login_torol(id){
 
@@ -5603,7 +5608,11 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     } else if( baseName(location.href) == 'munkalap' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
-                    } else if( baseName(location.href) == 'munkalap' && !_get('megjegyzesek') /* Egyelőre csak a megjegyzések fül a kivétel */ && _jogok[5] == 0 ) {
+                    /* Munkalapon, ha nem a megjegyzés alatt vagyunk, és a usernek van előkészítés jog, akkor feljön egy popup, hogy válasszon, mit szeretne tenni */
+                    } else if( baseName(location.href) == 'munkalap' && !_get('megjegyzesek') && _jogok[37] == 1 ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: uj_munkalap_elokeszites_joggal(); void(0);');
+                        
+                    } else if( baseName(location.href) == 'munkalap' && !_get('megjegyzesek') && _jogok[5] == 0 ) {
                         $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Önnek nincs joga új munkalapot létrehozni!\'); void(0);');
 
                     } else if( baseName(location.href) == 'rendszeres_karbantartas' && _get('megjegyzesek') ) {

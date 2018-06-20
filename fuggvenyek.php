@@ -241,7 +241,6 @@ function i_u($type, $tabla, $tomb) {
             $sql = $adatbazis_kapcsolat->u('munkalap_anyag', array('stat_id'), array(MUNKALAP_STAT_HOZZARENDELT), "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$cikktorzs['id']}'");
             if( $sql === false ) { $db_error = true; }
 
-
             $i = 0;
             foreach($oszlopok as $oszl){
                 if($oszl=='nev'){
@@ -621,6 +620,7 @@ function i_u($type, $tabla, $tomb) {
                 if( $sql === false ) { $db_error = true; }
             }
         }
+        
         // Munkalap
         if( $tabla == 'munkalap' ) {
             if( $_POST['ujkentSzerkID'] ) {
@@ -663,6 +663,14 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(MUNKALAP_STAT_NYITOTT), "`recid`='$id'");
             if( $sql === false ) { $db_error = true; }
+            
+            // Ha van előkészítős jogunk, és post-ként kaptunk is "elokeszitett_statuszba" információt, akkor rögtön léptetjük is tovább a sáttuszát
+            if (_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $_POST['statuszba_tovabb_leptet']) {
+                if ( addStatusz($tabla.'_statusz', $id, $_POST['statuszba_tovabb_leptet']) === false ){
+                    $db_error = true;
+                }
+            }
+            
         }
 
         // Projektigénylés státusz beszúrása

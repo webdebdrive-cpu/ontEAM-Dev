@@ -6296,10 +6296,34 @@ require('selectek.php');
         if (isset($_GET['ujkent_bejelentes'])) {
             $mezok .= '<input type="hidden" id="ujkentSzerkBejelentesbol" name="ujkentSzerkBejelentesbol" value="'.$_GET['ujkent_bejelentes'].'">';
         }
+        
+        // Ha van előkészítés joga
+        if (_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT)) {
+            
+            // És előkészíésre szeretné létrehozni, akkor beállítjuk a hozzárenelt személyzetet saját magára, meg egy hidden inputként is hozzáfűzzük
+            if (isset($_GET['elokeszitesre'])) {
+                $mezok .= nl2('
+                            <script>$(\'#szemelyzet_id\').val(\''.$_SESSION[get_db_tabla().'szemelyzet_id'].'\')</script>
+                            <input type="hidden" name="szemelyzet_id" value="'.$_SESSION[get_db_tabla().'szemelyzet_id'].'">
+                            <input type="hidden" name="statuszba_tovabb_leptet" value="'.MUNKALAP_STAT_ELOKESZITES_ALATT.'">
+                            ');
+            }
+            
+            // Ha telepítettnek szeretnék létrehozni a munkalapot, akkor ugyanezt eljátszuk, mint az előbb, csak más személyzettípussal
+            if (isset($_GET['telepitettnek'])) {
+                $mezok .= nl2('
+                            <script>$(\'#szemelyzet_id\').val(\''.TELEPITETT_SZEMELYZET.'\')</script>
+                            <input type="hidden" name="szemelyzet_id" value="'.TELEPITETT_SZEMELYZET.'">
+                            <input type="hidden" name="statuszba_tovabb_leptet" value="'.MUNKALAP_STAT_HOZZARENDELT.'">
+                            ');
+            }
+            
+        }
 
 	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
 	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
+        
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

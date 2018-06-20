@@ -845,6 +845,10 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'munkalap.php' && !isset($_GET['megjegyzesek']) && !_jog(JOG_MUNKALAP_UJ_LETREHOZ) ) {
         $uj_link = 'javascript: alert2(\'Önnek nincs joga új munkalapot létrehozni!\', \'\', \'Hiba\'); void(0);';
 
+    // Munkalapon, ha nem a megjegyzés alatt vagyunk, és a usernek van előkészítés jog, akkor feljön egy popup, hogy válasszon, mit szeretne tenni
+    } elseif( basename(self()) == 'munkalap.php' && !isset($_GET['megjegyzesek']) && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ) {
+        $uj_link = 'javascript: uj_munkalap_elokeszites_joggal(); void(0);';
+
     } elseif( basename(self()) == 'munkalap.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
