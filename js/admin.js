@@ -1818,7 +1818,7 @@ function sendMail( that, file ) {
 }
 
 function fulGombMeretez() {
-    if( $('div.muveletek').length ) {
+    if( $('div.muveletek').length && !$.browser.mobile ) {
         var muvHeight   = parseInt($('div.muveletek').outerHeight());
         var fulekHeight = parseInt($('#szamlaFulek').outerHeight());
 
@@ -5611,7 +5611,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     /* Munkalapon, ha nem a megjegyzés alatt vagyunk, és a usernek van előkészítés jog, akkor feljön egy popup, hogy válasszon, mit szeretne tenni */
                     } else if( baseName(location.href) == 'munkalap' && !_get('megjegyzesek') && _jogok[37] == 1 ) {
                         $('#navGombok a.uj').attr('href', 'javascript: uj_munkalap_elokeszites_joggal(); void(0);');
-                        
+
                     } else if( baseName(location.href) == 'munkalap' && !_get('megjegyzesek') && _jogok[5] == 0 ) {
                         $('#navGombok a.uj').attr('href', 'javascript: alert2(\'Önnek nincs joga új munkalapot létrehozni!\'); void(0);');
 

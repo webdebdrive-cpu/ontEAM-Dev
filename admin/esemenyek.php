@@ -1065,7 +1065,7 @@ $bejelentes_tomb = $bejelentes_arch_tomb = $akt_tomb = array(
     array('type' => 'checkbox',        'megn' => 'Sürgős',              'name' => 'surgos',     'szuro' => 1,  'disabled' => $surgos_disabled,  'class' => 'check', 'onclick' => $surgos_onclick),
 
     array('type' => 'html',            'megn' => nl2('
-                                                        <div class="dtr">
+                                                        <div class="dtr rogzito_dtr">
                                                             <div class="dtc">
 
                                                             </div>
@@ -1152,7 +1152,7 @@ if(isset($_GET['modosit'])){
             $surgos_disabled = false;
         //}
     }
-    
+
     // Munkalapon, a leírás mező után kell egy kiírás, de csak akkor ha nincs mögötte bejelentés
     $ml_leiras_ala = '';
     $van_bejelentes = false;

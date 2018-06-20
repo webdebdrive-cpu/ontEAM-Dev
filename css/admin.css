@@ -1961,6 +1961,7 @@ div.szamlaKereses div.rendezes div.irany a {
 }
 
 div.szamlaKereses div.rendezes div.irany a span {
+    display: block;
     font-size: 1rem;
 }
 
@@ -3375,4 +3376,8 @@ div.respo_felh div.dtc.nev a {
 
 div.respo_felh .menu_icon span:before, div.respo_felh .menu_icon span:after {
     background: #fff;
+}
+
+#respo_keresGomb {
+    display: none;
 }
