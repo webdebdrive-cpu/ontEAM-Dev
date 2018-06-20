@@ -545,7 +545,7 @@ function i_u($type, $tabla, $tomb) {
             $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id` = '".$_POST['telephely_id']."'", '', '1');
             if( $telephely ) {
 
-                // Egyszállodás modell VAGY ha a "telefonon bejelentve" pipa be van pipálva, így rögtön munkalapot generálunk belőle
+                // Egyszállodás modell esetén, vagy ha "telefonon bejelentve" pipa be van pipálva rögtön munkalapot generálunk belőle
                 if( !$telephely['modell'] || $_POST['telefon'] ) {
                     
                     $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $_POST['telephely_id'], MLTIPUS_HIBAELHARITAS, $_POST['obj_id'], $_POST['gep_id'], $_POST['surgos'], '', TELEPITETT_SZEMELYZET, '', '', $_POST['hiba_id']);
@@ -558,14 +558,19 @@ function i_u($type, $tabla, $tomb) {
                                                         array($recid,        $id,              $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']  )
                                                     );
                     if( $sql === false ) { $db_error = true; }
-
-                    // Bejelentést is folyamatbanra állítjuk
-                    // Update 2018.06.19 NEM! marad nyitott. Majd akkor lesz folyamatban, ha valaki felvette a munkalapot.
-//                    if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
-//                        $db_error = true;
-//                    }
                     
                     // Dokumentumot is átmásoljuk, de nem itt, mert itt még nincs hozzárendelve, hanem az esemenyek.php-ban (keress rá erre: bejelentes_dok_munkalapba_masol )
+                    
+                }
+                
+                // Ha többszállodás és "telefonon bejelentve" pipa be van pipálva, akkor a munkalap generáláson felül a bejelentést folyamatban státuszra léptetjük
+                if( $telephely['modell'] && $_POST['telefon'] ) {
+
+                    // Bejelentést is folyamatbanra állítjuk
+                    if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
+                        $db_error = true;
+                    }
+                    
                 }
             }
 
@@ -6245,6 +6250,32 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
     // Illetve az üzenet törzse is itt kerül beállításra
 
     switch($cimzett){
+        // Anyagigénylőnek
+        case 'anyagigenylo':
+
+            $felhasznalonak_szo = 'anyagigénylőnek';
+
+            $anyagigenyles = $adatbazis_kapcsolat->s2('ikt_szam cikk_id nev igmen cikkmee loginnev', 'anyagigenyles', "`recid`='{$recid}'");
+            
+            $mit            = array('{IKT_SZAM}',               '{CIKKSZAM}',               '{CIKKNEV}',            '{MENNY}'                                                                           );
+            $mivel          = array($anyagigenyles['ikt_szam'], $anyagigenyles['cikk_id'],  $anyagigenyles['nev'],  number_format($anyagigenyles['igmen'], 2, ',', ' ').' '.$anyagigenyles['cikkmee']   );
+            $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/anyagigenyles.html') );
+
+            // Aktív-e és nem virtuális-e a felhasználó, van-e mailcíme? Ha nem, kilépünk
+            $login = $adatbazis_kapcsolat -> s2('teljes_nev usermail aktiv virtual szemelyzet_id flags_ert', 'login', "`nev` = '{$anyagigenyles['loginnev']}'");
+            if(!$login['aktiv'] || $login['virtual'] || !$login['usermail'] || substr($login['flags_ert'], $ert_pipa, 1)!=1 ){
+                return false;
+            }
+
+            // Címzett adatait kiszámoljuk
+            $cimzett_nev   = $login['teljes_nev'];
+            $cimzett_mail  = $login['usermail'];
+            $telefon       = $login['usertel'];
+            $szemelyzet_id = $login['szemelyzet_id'];
+
+            $cimzettek = array( array('nev' => $anyagigenyles['loginnev'], 'teljes_nev' => $cimzett_nev, 'usermail' => $cimzett_mail, 'szemelyzet_id' => $szemelyzet_id) );
+        break;
+        
         // Bejelentőnek
         case 'bejelento':
 
@@ -6512,6 +6543,23 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
     // Esemény neve
     switch( $sablon ){
 
+        case 'anyagigenylesJovahagy':
+            $esemeny =  'anyagigénylés elküldése jóváhagyásrakor';
+            $targy   =  get_nev().' anyagigénylések jóváhagyásra várnak';
+            $uzi     =  'Anyagigénylések várnak az Ön jóváhagyására.
+                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        break;
+    
+        case 'anyagigenylesSztorno':
+            $esemeny =  'anyagigénylés sztornózásakor';
+            $targy   =  get_nev().' anyagigénylés sztornózva';
+            $uzi     =  'Az Ön által igényelt anyag sztornózásra került.
+                        <br>'.
+                        $extra_szoveg.
+                        $uzi.
+                        fajlbol_olvas('../sablon/admin/mail/alairas.html');
+        break;
+
         case 'bejelentesElutasit':
             $esemeny =  'bejelentés elutasításakor';
             $targy   =  get_nev().' bejelentett hiba elutasítva';
@@ -6634,13 +6682,6 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
                         <br>Várakoztatja: '.$_SESSION[get_db_tabla().'teljes_nev'].' '.getSzerepkorNev($_SESSION[get_db_tabla().'szemelyzet_id']).'
                         <br>Várakoztatás indoka:
                         <br>'.$extra_szoveg.'
-                        <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
-        break;
-
-        case 'anyagigenylesJovahagy':
-            $esemeny =  'anyagigénylés elküldése jóváhagyásrakor';
-            $targy   =  get_nev().' anyagigénylések jóváhagyásra várnak';
-            $uzi     =  'Anyagigénylések várnak az Ön jóváhagyására.
                         <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
 

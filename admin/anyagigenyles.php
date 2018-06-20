@@ -41,10 +41,11 @@ require_once 'anyagigenyles_nyomtat.php';
 // Anyagigénylés adatok beolvasása
 if (isset($_POST['get_adatok'])) {
     
-    $anyagigenyles = $adatbazis_kapcsolat->s2('cikk_id nev igmen cikkmee', 'anyagigenyles', "`recid`='{$_POST['id']}'");
+    $anyagigenyles = $adatbazis_kapcsolat->s2('ikt_szam cikk_id nev igmen cikkmee', 'anyagigenyles', "`recid`='{$_POST['id']}'");
     
     echo nl2('
-        Cikkszám: '.$anyagigenyles['cikk_id'].'
+        Anyagigénylés szám: '.$anyagigenyles['ikt_szam'].'
+        <br>Cikkszám: '.$anyagigenyles['cikk_id'].'
         <br>Cikk név: '.$anyagigenyles['nev'].'
         <br>Mennyiség: '.number_format($anyagigenyles['igmen'], 2, ',', ' ').' '.$anyagigenyles['cikkmee'].'
         ');
@@ -1428,24 +1429,8 @@ if( isset($_POST['rendeles_keszit']) ) {
         }
 
         // Szekvencia táblából kiszámoljuk a rendelés következő sorszámát
-        // Megnézzük, hogy az adott évszámmal létezik e bejegyzés
-        $ikt_seq = $adatbazis_kapcsolat->s2('ev sorszam', 'iktszam_seq', '`tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\'');
-        if( $ikt_seq === false ) { $db_error = true; }
-        if( $ikt_seq ) {
-
-            $sorszam = $ikt_seq['sorszam'];
-            $sorszam++;
-
-            // Letároljuk az új sorszámot
-            $sql = $adatbazis_kapcsolat -> u('iktszam_seq', array('sorszam'), array($sorszam), '`tabla`=\'cikkrendfej\' AND `ev`=\''.date('y').'\'');
-            if( $sql === false ) { $db_error = true; }
-
-        } else {
-
-            $sorszam = 1;
-            $sql = $adatbazis_kapcsolat -> i('iktszam_seq', array('sorszam', 'ev', 'tabla'), array($sorszam, date('y'), 'cikkrendfej'));
-            if( $sql === false ) {  $db_error = true; }
-        }
+        $sorszam = get_iktatoszam_sorszam('cikkrendfej');
+        if( $sorszam === false ) { $db_error = true; }
 
         // Most kommitoljuk el a popupban lekért sorszámot
         mysqli_query($db_kapcs, 'COMMIT');
@@ -1465,7 +1450,6 @@ if( isset($_POST['rendeles_keszit']) ) {
 
         // Rendelés ID formázása
         $rndid = 'R'.date('y').'/'.sprintf('%04d', $sorszam);
-        $rnd_dt = date('Y-m-d H:i:s');
         $pdf_utvonal = 'rendeles/'.date('y').'/'.$elozo_szallito.'/'.str_replace('/', '_', $rndid).'.pdf';
 
         // Számoljuk ki a rendelt értéket
@@ -1476,9 +1460,8 @@ if( isset($_POST['rendeles_keszit']) ) {
         }
         // Létrehozunk egy új rendelésfej bejegyzést
         $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('stat_id',                'rndid', 'rnd_dt', 'rndertek',  'kepfajl',     'szallito_id',    'insert_dt',    'insert_usr',                           'update_usr'                            ),
-                                                                    array(CIKKIGN_STAT_MEGRENDELVE, $rndid,  $rnd_dt,  $rndertek,   $pdf_utvonal,  $elozo_szallito,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                                    array(CIKKIGN_STAT_MEGRENDELVE, $rndid,  'NOW()',  $rndertek,   $pdf_utvonal,  $elozo_szallito,  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
                                                     );
-
         if( $cikkrendfej_id === false ) { $db_error = true; }
 
         // Felvesszük az első státuszt
@@ -1496,7 +1479,7 @@ if( isset($_POST['rendeles_keszit']) ) {
 
             // Az anyagigénylés érintett sorait updateljük
             $adatbazis_kapcsolat->u('anyagigenyles',    array('rndid', 'rnd_dt', 'kepfajl',    'update_usr',                           'aparecid'       ),
-                                                        array($rndid,  $rnd_dt,  $pdf_utvonal, $_SESSION[get_db_tabla().'teljes_nev'], $cikkrendfej_id  ),
+                                                        array($rndid,  'NOW()',  $pdf_utvonal, $_SESSION[get_db_tabla().'teljes_nev'], $cikkrendfej_id  ),
                                     "`recid`='$id'");
         }
 
@@ -1869,13 +1852,16 @@ if (isset($_POST['anyagigenyles_tablazat_rendez'])) {
 // Anyagigénylés sztornózása
 if (isset($_POST['anyagigenylesSztornoz'])) {
     
+    $memo  = $_POST['memo'];
+    $recid = $_POST['recid'];
+    
     // Tranzakció indul
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    $sor = $adatbazis_kapcsolat->s2('stat_id', 'anyagigenyles', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat->s2('stat_id rndmen rndear szallito_id', 'anyagigenyles', "`recid`='{$recid}'");
     if( $sor === false ) { $db_error = true; }
-    
+
     // Státusz ellenőrzése
     $sztornos_statuszok = array(CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_VARAKOZO);
     if( !in_array($sor['stat_id'], $sztornos_statuszok) ){
@@ -1898,8 +1884,48 @@ if (isset($_POST['anyagigenylesSztornoz'])) {
         exit();
     }
     
-    // Státusz léptetés
-    addStatusz('anyagigenyles_statusz', $_POST['recid'], CIKKIGN_STAT_TOROLT, '', $_POST['memo']);
+    // Memó ellenőrzése
+    if(!$memo){
+        echo json_encode(array(
+            'hiba'  => 'Kérjük indokolja a sztornózást!',
+            'title' => 'Hiba'
+        ));
+        $weblap->leallit();
+        exit();
+    }else{
+        $memo = 'Sztornó indoklása:'."\r\n".$memo;
+    }
+    
+    // Létrehozunk egy új rendelésfej bejegyzést
+    $sorszam = get_iktatoszam_sorszam('cikkrendfej');
+    if( $sorszam === false ) { $db_error = true; }
+    $rndid = 'R'.date('y').'/'.sprintf('%04d', $sorszam);
+    $rndertek = ($sor['rndmen']*$sor['rndear']);
+        
+    $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('stat_id',           'rndid', 'rnd_dt', 'rndertek',  'kepfajl',   'szallito_id',        'insert_dt',    'insert_usr',                           'update_usr'                            ),
+                                                                array(CIKKIGN_STAT_TOROLT, $rndid,  'NOW()',  $rndertek,   '',          $sor['szallito_id'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
+                                                );
+    if( $cikkrendfej_id === false ) { $db_error = true; }
+
+    // Felvesszük az első státuszt
+    $sql = $adatbazis_kapcsolat -> i('cikkrendfej_statusz',
+                                        array('cikkrendfej_recid',  'stat_id',              'login',                          'insert_dt',    'insert_usr',                              'update_usr'                          ),
+                                        array($cikkrendfej_id,      CIKKIGN_STAT_TOROLT,    $_SESSION[get_db_tabla().'user'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+                                    );
+    if( $sql === false ) { $db_error = true; }
+    
+    // Anyagigénylés státusz léptetés
+    if( addStatusz('anyagigenyles_statusz', $recid, CIKKIGN_STAT_TOROLT, '', $memo) === false ){
+        $db_error = true;
+    }
+    // Illetve update
+    $adatbazis_kapcsolat->u('anyagigenyles',    array('rndid', 'rnd_dt', 'kepfajl', 'update_usr',                           'aparecid'       ),
+                                                array($rndid,  'NOW()',  '',        $_SESSION[get_db_tabla().'teljes_nev'], $cikkrendfej_id  ),
+                            "`recid`='$recid'");
+    
+    // Értesítés küldése az anyagigénylőnek
+    $hiba = level_felkeszit_es_kuld('anyagigenyles', $recid, '', 'anyagigenylesSztorno', 'anyagigenylo');
+    if( $sor === false ) { $db_error = true; }
     
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
