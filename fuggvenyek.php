@@ -562,8 +562,8 @@ function i_u($type, $tabla, $tomb) {
                     
                 }
                 
-                // Ha többszállodás és "telefonon bejelentve" pipa be van pipálva, akkor a munkalap generáláson felül a bejelentést folyamatban státuszra léptetjük
-                if( $telephely['modell'] && $_POST['telefon'] ) {
+                // Ha "telefonon bejelentve" pipa be van pipálva, akkor a munkalap generáláson felül a bejelentést folyamatban státuszra léptetjük
+                if( $_POST['telefon'] ) {
 
                     // Bejelentést is folyamatbanra állítjuk
                     if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
