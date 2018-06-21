@@ -60,7 +60,7 @@ if (isset($_POST['f_szuro_mezo'])) {
             // Általános esetben egy szabadszavas mező
             }else{
 
-                //Numerikus adatok operátora
+                // Numerikus adatok operátora
                 if( strpos($ertek['class'], 'f_num')!==false || strpos($ertek['class'], 'datepicker')!==false){
                     $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
                     if(strpos($ertek['class'], 'datepicker')!==false){

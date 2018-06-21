@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 99-es ID-nál járunk
+ * 102-es ID-nál járunk
  * 13-as kategória ID-nál járunk
 \*                                                  */
 
@@ -123,9 +123,12 @@ $jogosultsagok = array(
     44 => array('nev' => 'Felmérési tervek olvasása',               'kat' => 11, 'sor' => 1),
     45 => array('nev' => 'Felmérési tervek kezelése',               'kat' => 11, 'sor' => 2),
     
-    84 => array('nev' => 'Energia egységárak olvasása',             'kat' => 12, 'sor' => 1),
-    85 => array('nev' => 'Energia egységárak kezelése',             'kat' => 12, 'sor' => 2),
-    86 => array('nev' => 'Energia egységárak törlése',              'kat' => 12, 'sor' => 3),
+    84 => array('nev' => 'Saját szálloda olvasása',                 'kat' => 12, 'sor' => 1),
+    85 => array('nev' => 'Saját szálloda kezelése',                 'kat' => 12, 'sor' => 2),
+    86 => array('nev' => 'Minden szálloda olvasása',                'kat' => 12, 'sor' => 3),
+    100 => array('nev' => 'Minden szálloda kezelése',               'kat' => 12, 'sor' => 7),
+    101 => array('nev' => 'Terv törlése',                           'kat' => 12, 'sor' => 8),
+    102 => array('nev' => 'Terv élesítése',                         'kat' => 12, 'sor' => 9),
     
     87 => array('nev' => 'Fenntartási szerződések olvasása',        'kat' => 13, 'sor' => 1),
     88 => array('nev' => 'Fenntartási szerződések kezelése',        'kat' => 13, 'sor' => 2),

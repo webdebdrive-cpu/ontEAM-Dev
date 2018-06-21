@@ -161,20 +161,20 @@ if ( isset($_GET['loginnev_import']) ) {
                     switch( utf8($key) ) {
 
                         case 'Státusz':
-                            $statusz = $akt_tomb[$key];
-                            if( $statusz == 'Szállodai bejelentő' ){
+                            $statusz = mb_strtolower($akt_tomb[$key], get_web_charset());
+                            if( $statusz == 'szállodai bejelentő' ){
                                 $szemelyzet_id = HIBABEJELENTO;
                             }
-                            if( $statusz == 'Telepített karbantartó' || $statusz == 'telepített karbantartó' ){
+                            if( $statusz == 'telepített karbantartó' || $statusz == 'telepített karbentartó' ){
                                 $szemelyzet_id = TELEPITETT_SZEMELYZET;
                             }
-                            if( $statusz == 'Gazdasági vezető' ){
+                            if( $statusz == 'gazdasági vezető' ){
                                 $szemelyzet_id = HIBABEJELENTO;
                             }
-                            if( $statusz == 'Szálloda igazgató' || $statusz == 'Szálloda Igazgató' || $statusz == 'Szálloda igazgató 1' || $statusz == 'Szálloda igazgató 2' ){
+                            if( $statusz == 'szálloda igazgató' || $statusz == 'szálloda igazgató 1' || $statusz == 'szálloda igazgató 2' ){
                                 $szemelyzet_id = SZALLODA_IGAZGATO;
                             }
-                            if( $statusz == 'Létesítmény főmérnök' || $statusz == 'Létesítményi Főmérnök' || $statusz == 'Létesítmény felelős' ){
+                            if( $statusz == 'létesítmény főmérnök' || $statusz == 'létesítmény felelős' || $statusz == 'műszaki vezető' ){
                                 $szemelyzet_id = MUSZAKI_VEZETO;
                             }
                         break;

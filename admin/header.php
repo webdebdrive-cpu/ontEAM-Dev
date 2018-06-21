@@ -330,7 +330,7 @@ if(!$_SESSION['bejelento_menu_rejt']){
     if(basename(self())==$megn.'.php'){ $oldalNev = $oldalNev = 'Tervezés / <span id="rekord_neve">Energia egységárak</span><span class="dn" id="rekord_neve_egyes">energia egységár</span><span class="dn" id="rekord_neve_targy">energia egységárat</span>'; }
 
     $aktmenuk  = '';
-    if(_jog(JOG_ENERGIATERV_MEGTEKINT)){
+    if(_jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Energia egységárak'  ), $almenu_sablon );
     }
 
@@ -1037,11 +1037,6 @@ if( substr($tabla_nev, strlen($tabla_nev)-9) == '_arch.php' ){
     $uj = $duplikal = $torles_icon = '';
 }
 
-// Energia tervezés alatt elrejtjük a duplikáláselect
-if( basename(self())=='energia_terv.php') {
-    $duplikal = '';
-}
-
 if( basename(self())=='anyagigenyles.php' && !_jog(JOG_ANYAGIGENYLES_KEZEL)){
     $torles_icon    = '';
     // $uj             = '';
@@ -1079,6 +1074,11 @@ if( basename(self())=='cikktorzs.php' && !_jog(JOG_CIKKTORZS_KEZEL)){
 if( basename(self())=='dokumentumtar.php' && !_jog(JOG_DOKUMENTUMTAR_KEZEL)){
     $torles_icon    = '';
     $uj = $duplikal = '';
+}
+
+// Energia tervezés alatt elrejtjük a duplikálást
+if( basename(self())=='energia_terv.php') {
+    $duplikal = '';
 }
 
 if(basename(self())=='eloterj_bod.php' && !_jog(JOG_ELOTERJ_KEZEL)){
