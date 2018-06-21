@@ -452,10 +452,85 @@
     }
 
     #tartalomJobb {
+        width: 100%!important;
+    }
+
+    .muveletek {
+        width: 100%!important;
+    }
+
+    div.szamlaFulek {
+        margin: -4.1rem 0rem 0rem -0.5rem;
+    }
+
+    div.szamlaFulek a {
+        font-size: 1.4rem;
+        padding: 1rem 1.5rem 1rem 1.5rem;
+    }
+
+    select {
+        font-size: 1.4rem;
+        height: auto;
+        padding: 1rem 0.8rem 1rem 1rem;
+    }
+
+    input {
+        font-size: 1.4rem;
+        height: auto;
+        padding: 1rem 0.8rem 1rem 1rem;
+    }
+
+    textarea {
+        font-size: 1.4rem;
+        padding: 1rem 0.8rem 1rem 1rem;
+    }
+
+    input.gomb {
+        font-size: 1.4rem;
+        padding: 0.6rem;
+    }
+
+    input.gombb_alert {
+        font-size: 1.4rem;
+        padding: 0.7rem;
+    }
+
+    .form_bal {
+        display: block;
+    }
+
+    .form_bal span {
+        display: block;
+        color: #848d8c;
+        font-size: 1.2rem;
+        padding: 0.9rem 0rem 0.6rem 1rem;
+    }
+
+    .form_jobb a.obj_gen {
+        height: 3.8rem;
+        width: 3.8rem;
+    }
+
+    input[name="obj_id_autocomp"] {
+        width: calc(100% - 4.3rem)!important;
+    }
+
+    .form_jobb a.obj_gen .material-icons {
+        font-size: 3.5rem;
+    }
+
+    .form_jobb {
+        display: block;
+        font-size: 1.4rem;
+        padding: 0.2rem 0rem 0.2rem 0.5rem;
+    }
+
+    .rogzito_dtr .dtc:first-child {
         display: none;
     }
 
     #tartalomBal {
+        display: none;
         box-shadow: none;
         width: 100%!important;
     }
@@ -471,9 +546,7 @@
     ul.szamla_cont.nobehuzas li a {
         padding: 1rem 1rem 1rem 0rem;
     }
-}
 
-@media only screen and (max-width: 600px) {
     div.header {
         background: #f5f7f6;
         border-bottom: 0.1rem solid #dbe2ea;
@@ -764,6 +837,7 @@
     }
 
     div.navGombok a.uj .material-icons {
+        color: #fff;
         font-size: 3.8rem;
     }
 
