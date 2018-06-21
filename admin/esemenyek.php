@@ -1202,7 +1202,7 @@ $munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
 	array('type' => 'nosql',                    'name' => 'ujkentSzerkID'),
 	array('type' => 'nosql',                    'megn' => 'Mobilcsoport:',              'name' => 'mobil',              'szuro' => 1),
 	array('type' => 'nosql',                    'megn' => 'Esedékes:',                  'name' => 'esnap_d',            'szuro' => 1,                                   'class' => 'datepicker'),
-	array('type' => 'nosql','type_szurohoz' => 'autocomplete','megn' => 'Hiba leírása:','name' => 'hiba_txt',           'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_BEJ_HIBA, 'id_kiir' => 'info'),
+	array('type' => 'nosql','type_szurohoz' => 'autocomplete','megn' => 'Hiba:',        'name' => 'hiba_txt',           'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_BEJ_HIBA, 'id_kiir' => 'info'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 if (isset($_GET['uj'])) {
