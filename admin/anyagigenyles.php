@@ -2309,7 +2309,7 @@ require_once('selectek.php');
                 // Sztornó gomb
                 $sztornos_statuszok = array(CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_VARAKOZO);
                 if( in_array($sor['stat_id'], $sztornos_statuszok) ){
-                    $gombok .= '<input type="button" class="gomb" value="Sztornó" onclick="csoportMuvelet(\'anyagigenylesSztornoz\')"> ';
+                    $gombok .= '<input type="button" class="gomb piros" value="Sztornó" onclick="csoportMuvelet(\'anyagigenylesSztornoz\')"> ';
                 }
 
             // Anyagrendelés alatt csak a Leírás hozzáadása gomb látszik

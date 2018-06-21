@@ -3029,7 +3029,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
             }
             
             // Hozzárendelt + kezelő jog
-            if( $bsz['stat_id'] == MUNKALAP_STAT_HOZZARENDELT && _jog(JOG_MUNKALAP_SAJAT_KEZEL) ){
+            if( $bsz['stat_id'] == MUNKALAP_STAT_HOZZARENDELT && get_kezeles_jog($bsz['szemelyzet_id']) ){
                 $bold = ' class="b"';
             }
             
@@ -6835,4 +6835,19 @@ function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id,
         return $recid;
     }
     
+}
+
+// Kezelés jogot visszaadó függvény (felvéve státusz alatt)
+function get_kezeles_jog($szemelyzet_id){
+    $kezeles_jog = false;
+    if(
+            ( _jog(JOG_MUNKALAP_SAJAT_KEZEL)        && $szemelyzet_id == $_SESSION[get_db_tabla().'szemelyzet_id'] ) ||
+            ( _jog(JOG_MUNKALAP_KEZEL_TELEPITETT)   && $szemelyzet_id == TELEPITETT_SZEMELYZET )                     ||
+            ( _jog(JOG_MUNKALAP_KEZEL_MOBIL)        && $szemelyzet_id == MOBILCSOPORT          )                     ||
+            // Ez utóbbi feltétek vizsgálat sokszor felesleges, mert a feltétel (ahol ez a függvény meghívódik) eleve kizárja a külső kivitelezőket. De nem baj, így általánosa meghívható ez a függvény.
+            ( _jog(JOG_MUNKALAP_KEZEL_KULSO)        && $szemelyzet_id == KULSO_KIVITELEZO      )
+        ) {
+        $kezeles_jog = true;
+    }
+    return $kezeles_jog;
 }
