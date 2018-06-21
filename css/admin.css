@@ -3381,3 +3381,7 @@ div.respo_felh .menu_icon span:before, div.respo_felh .menu_icon span:after {
 #respo_keresGomb {
     display: none;
 }
+
+#respo_visszalepes {
+    display: none;
+}
