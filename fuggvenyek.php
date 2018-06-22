@@ -443,8 +443,8 @@ function i_u($type, $tabla, $tomb) {
                 $i++;
             }
 
-            array_push($oszlopok,  'stat_id'                );
-            array_push($ertekek,    MUNKALAP_STAT_NYITOTT   );
+            array_push($oszlopok,  'stat_id',               'loginnev'                      );
+            array_push($ertekek,    MUNKALAP_STAT_NYITOTT,  $_SESSION[get_db_tabla().'user']);
 
         // Ütemezett feladatok új bejegyzés esetén
         } else if( $tabla == 'utemezett_feladatok' ) {
@@ -2326,7 +2326,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $i = 0;
                 // Nem nyitott státuszú, azon belül sürgősek majd iktatószám
                 // A státuszoknak is van egy sorrendje
-                $statuszok = array_reverse( array( MUNKALAP_STAT_BEOSZTAS_NELKUL, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_HATIDO_UTEMEZETT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_TOROLT, MUNKALAP_STAT_SZTORNO ) );
+                $statuszok = array_reverse( array( MUNKALAP_STAT_BEOSZTAS_NELKUL, MUNKALAP_STAT_HOZZARENDELT, MUNKALAP_STAT_FELVEVE, MUNKALAP_STAT_ANYAGRAVAR, MUNKALAP_STAT_IGAZOLASRA_VAR, MUNKALAP_STAT_IGAZOLT, MUNKALAP_STAT_VIZSGALAT_ALATT, MUNKALAP_STAT_ELOKESZITES_ALATT, MUNKALAP_STAT_DONTESRE_VAR, MUNKALAP_STAT_AJANLAT_NYOMTATVA, MUNKALAP_STAT_HOZREND_MEGREND_VAR, MUNKALAP_STAT_HATIDO_UTEMEZETT, MUNKALAP_STAT_VARAKOZO, MUNKALAP_STAT_LEZARASRA_VAR, MUNKALAP_STAT_LEZART, MUNKALAP_STAT_ELUTASITVA, MUNKALAP_STAT_TOROLT, MUNKALAP_STAT_SZTORNO ) );
                 foreach($statuszok as $stat){
                     $munkalapok = $adatbazis_kapcsolat->s('recid', $tabla, "`stat_id`='$stat'", '`surgos`, `ikt_szam`');
                     foreach($munkalapok as $munkalap){
@@ -5450,13 +5450,19 @@ function getStatuszIdo( $time ) {
 }
 
 // Státusz hozzáadása
-function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklista_recid = 0, $memo = '', $rendszer_a_user = false ) {
+function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklista_recid = 0, $memo = '', $rendszer_a_user = false, $adott_ido = '' ) {
 
     global $adatbazis_kapcsolat;
     global $db_kapcs;
 
     $db_error = false;
     $kulso_kulcs = str_replace('_statusz', '', $tabla);
+    
+    if($adott_ido){
+        $time = strtotime($adott_ido);
+    }else{
+        $time = time();
+    }
 
     // Ütemezők esetén is legyen teljes_nev, amit be tudunk írni
     $teljes_nev = $_SESSION[get_db_tabla().'teljes_nev'];
@@ -5473,14 +5479,14 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
         if( $akt_statusz && ( $akt_statusz['stat_id']!=$stat_id || $akt_statusz['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
 
             // Megállapítjuk a státusz idejét
-            $statusz_ido_s = round( time() - strtotime($akt_statusz['insert_dt']) );
+            $statusz_ido_s = round( $time - strtotime($akt_statusz['insert_dt']) );
             $statusz_ido   = getStatuszIdo( $statusz_ido_s );
 
             // Göngyölt státuszidő
             $elso_statusz = $adatbazis_kapcsolat->s2('insert_dt', $tabla, "`{$kulso_kulcs}_recid`='{$recid}'", 'recid asc', '1');
             if( $elso_statusz === false ) { $db_error = true; }
             if( $elso_statusz ) {
-                $gongyolt_statido_s = round( time() - strtotime($elso_statusz['insert_dt']) );
+                $gongyolt_statido_s = round( $time - strtotime($elso_statusz['insert_dt']) );
                 $gongyolt_statido   = getStatuszIdo( $gongyolt_statido_s );
             }
 
@@ -5491,7 +5497,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
             $ossz_statido = '';
             if( $elso_akt_stat ) {
 
-                $ossz_statido_s = round( time() - strtotime($elso_akt_stat['insert_dt']) );
+                $ossz_statido_s = round( $time - strtotime($elso_akt_stat['insert_dt']) );
                 $ossz_statido   = getStatuszIdo( $ossz_statido_s );
 
                 // Frissítjük a sort
@@ -6821,7 +6827,7 @@ function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id,
                                         array($ikt_szam,     $stat_id,  $tipus_id,   $surgos,   $telephely_id,  $obj_id,  $obj_txt,  $gep_id,  $gep_txt,  $hiba_id,  $hiba_txt,  $text,  $szemelyzet_id,  $uf_szam,  $uf_szam,  $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   )
                                     );
     if( $recid === false ) { $db_error = true; }
-    
+
     // Felvesszük az első státuszt
     $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
                                         array('munkalap_recid', 'stat_id',  'login',                           'insert_dt',    'insert_usr',                              'update_usr'                           ),

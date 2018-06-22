@@ -142,7 +142,7 @@ function login_mentes(id){
 
 /* Előkészítés joggal aki rendelkezik, az így is létre tud hozni munkalapot */
 function uj_munkalap_elokeszites_joggal(){
-    alert2('Új munkalap készítése', '<input type="button" class="gomb" value="Előkészítésre" onclick="location.href=\'munkalap.php?uj&amp;elokeszitesre\'"><input type="button" class="gomb kek" value="Telepítettnek" onclick="location.href=\'munkalap.php?uj&amp;telepitettnek\'"><input type="button" class="gomb piros" value="Mégsem" onclick="alert2()">', 'Új munkalap készítése');
+    alert2('<div class="c"><input type="button" class="gomb" value="Előkészítésre" onclick="location.href=\'munkalap.php?uj&amp;elokeszitesre\'" style="margin-bottom: 1rem; width: 11rem"><br><input type="button" class="gomb kek" value="Telepítettnek" onclick="location.href=\'munkalap.php?uj&amp;telepitettnek\'" style="margin-bottom: 1rem; width: 11rem"><br><input type="button" class="gomb piros" value="Mégsem" onclick="alert2()" style="margin-bottom: 1rem; width: 11rem"></div>', '<div class="dn">Fiktív tartalom</div>', 'Új munkalap készítése');
 }
 
 /* Userek belépése az adminhoz */
@@ -6839,7 +6839,19 @@ function anyagigenylesHozzaad() {
                 break;
                 case 'nev':
                     var autcomplete_text = $('input[name="' + name + '_autocomp"]').val();
-
+                    
+                    $.ajax({
+                        url : 'anyagigenyles.php',
+                        type: 'POST',
+                        data: {
+                            recid       : $('input[name="' + name + '"]').val(),
+                            get_cikkszam: Date.now()
+                        },
+                        success: function (response) {
+                            $('#cikkszam_'+$('input[name="' + name + '"]').val()).html(response);
+                        }
+                    });
+                    data['cikkszam_recid'] = $('input[name="' + name + '"]').val();
                     data[name] = autcomplete_text + ' <input type="hidden" name="' + name + '[]" value="' + value + '">';
                 break;
                 case 'igmen':
@@ -6849,10 +6861,10 @@ function anyagigenylesHozzaad() {
                     var checked = $(this).prop('checked');
 
                     if( checked ) {
-                        text = 'Igen';
+                        text    = '✓';
                         checked = true;
                     } else {
-                        text = 'Nem';
+                        text    = '';
                         checked = false;
                     }
 
@@ -6869,8 +6881,8 @@ function anyagigenylesHozzaad() {
 
     var mezok = '<tr class="anyag_sor">' +
                     '<td>' + data['telephely_id'] + '</td>' +
-                    '<td>' + data['nev'] + '</td>' +
-                    '<td></td>' +
+                    '<td class="l" id="cikkszam_'+data['cikkszam_recid']+'"></td>' +
+                    '<td class="l">' + data['nev'] + '</td>' +
                     '<td>' + data['kulsosnek'] + '</td>' +
                     '<td>' + data['igmen'] + '</td>' +
                     '<td>' + data['cikkmee'] + '</td>' +

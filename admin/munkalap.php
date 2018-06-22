@@ -264,6 +264,11 @@ if ($_GET['ujkent_bejelentes']) {
                                     );
     if( $sql === false ) { $db_error = true; }
     
+    // Bejelentés státuszát is léptetjük, mert van hogy már volt munkalapja, csak stornózták és nyitottá vált a bejeletnés, és ekkor is folyamatbanra kell tenni
+    if( addStatusz('bejelentes_statusz', $_GET['ujkent_bejelentes'], BEJELENTES_STAT_FOLYAMATBAN) === false){
+        $db_error = true;
+    }
+    
     // Dokumentum átmásolása
     bejelentes_dok_munkalapba_masol($_GET['ujkent_bejelentes'], $uj_id);
 
@@ -2187,6 +2192,9 @@ if (isset($_POST['munkalapJovahagyottErtekModositasa'])) {
     // Jóváhagyott érték felülírása
     $sql = $adatbazis_kapcsolat->u('munkalap', array('jh_ert'), array($jh_ert), "`recid`='{$_POST['recid']}'");
     if( $sql === false ) { $db_error = true; }
+    
+    // Megjegyzés sor is bővül
+    addMegj('munkalap', $_POST['recid'], 'Jóváhagyásra váró érték módosítva: '.number_format($jh_ert, 0, '', ' ').' Ft');
 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
