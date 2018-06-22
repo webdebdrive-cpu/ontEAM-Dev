@@ -646,6 +646,8 @@ $header_html .= $head -> getHtml();
 $body_class = '';
 if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
     $body_class = ' class="teljesMagas"';
+} else if( !$_SESSION[get_db_tabla().'user'] ) {
+    $body_class = ' class="signedout"';
 }
 
 $header_html .= '<body'.$body_class;

@@ -456,6 +456,14 @@
         width: 100%!important;
     }
 
+    .signedout #tartalomJobb {
+        display: block;
+    }
+
+    .signedout #tartalomBal {
+        display: none;
+    }
+
     .muveletek {
         width: 100%!important;
     }
