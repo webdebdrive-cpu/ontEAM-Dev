@@ -38,6 +38,15 @@ $szamla_html = '';
 // Az $id-k tömböt és a $page változót innen kaptjuk
 require_once 'anyagigenyles_nyomtat.php';
 
+if (isset($_POST['get_cikkszam'])) {
+    
+    $cikktozs = $adatbazis_kapcsolat->s2('id', 'cikktorzs', "`recid`='{$_POST['recid']}'");
+    echo $cikktozs['id'];
+    
+    $weblap -> leallit();
+    exit;
+}
+
 // Anyagigénylés adatok beolvasása
 if (isset($_POST['get_adatok'])) {
     
@@ -2585,26 +2594,33 @@ require_once('selectek.php');
                     }
                 }
 
-                if($anyagok_html){
-                    $szamla_html .= nl2('
-                        <div class="hozzaadasGomb">
-                            <input type="button" class="gombb mentes_gomb" name="mehet_gomb" value="Hozzáadás" onclick="if( form_ell_admin_elott() ) { anyagigenylesHozzaad(); }">
+                $szamla_html .= nl2('
+                    <div class="dt">
+                        <div class="dtc form_bal" style="padding-right: 4rem;">
+                            <div class="hozzaadasGomb">
+                                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" value="Hozzáadás" onclick="if( form_ell_admin_elott() ) { anyagigenylesHozzaad(); }">
+                            </div>
                         </div>
-                        <form id="anyagSorokForm">
-                            <table id="insertAnyagigenylesSor" class="csikos tomorit">
-                                <tr>
-                                    <th>Szálloda</th>
-                                    <th>Cikk</th>
-                                    <th>Név</th>
-                                    <th>RB-s anyag</th>
-                                    <th>Igényelt mennyiség</th>
-                                    <th>Mee</th>
-                                    <th>Megjegyzés</th>
-                                    <th>Törlés</th>
-                                </tr>
-                            </table>
-                        </form>
-                        <p style="margin: 2rem 0 0.2rem 0" class="b">Igénylésre váró anyagok a munkalapokon:</p>
+                        <div class="dtc form_jobb">
+                            <form id="anyagSorokForm">
+                                <table id="insertAnyagigenylesSor" class="csikos tomorit full">
+                                    <tr>
+                                        <th>Szálloda</th>
+                                        <th style="width: 6rem">Cikk</th>
+                                        <th>Név</th>
+                                        <th>RB-s anyag</th>
+                                        <th>Igényelt mennyiség</th>
+                                        <th>Mee</th>
+                                        <th>Leírás</th>
+                                        <th>Törlés</th>
+                                    </tr>
+                                </table>
+                            </form>
+                        </div>
+                    </div>
+                    ');
+                    if($anyagok_html){
+                        $szamla_html .= nl2('<p style="margin: 2rem 0 0.2rem 0" class="b">Igénylésre váró anyagok a munkalapokon:</p>
                         <table class="csikos tomorit">
                             <tr>
                                 <th>Szálloda</th>

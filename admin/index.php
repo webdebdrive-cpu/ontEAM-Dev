@@ -18,7 +18,12 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
-if (false && isset($_GET['hiba_id_feltolt'])) {
+//if (isset($_GET['teszt'])) {
+//    addStatusz('bejelentes_statusz', 10216, BEJELENTES_STAT_FOLYAMATBAN, '', '', '2018-06-21 19:59:00');
+//    exit;
+//}
+
+if (isset($_GET['hiba_id_feltolt'])) {
     
     $arch = '_arch';
     
@@ -52,7 +57,7 @@ if (isset($_GET['stat_ido'])) {
 // Loginról értesítő levelek küldése
 if (false && isset($_GET['login_ertesit'])) {
     
-    $szalloda_nev   = 'AQUA TH'; // AQUA TH
+    $szalloda_nev   = 'SÁRVÁR TH'; // SÁRVÁR TH
     $galyasz_bence  = false;
     $datum          = date('Y.m.d', strtotime(' +1 day'));
     $napok          = array('vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat');
