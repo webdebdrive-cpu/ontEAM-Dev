@@ -151,7 +151,7 @@ if( isset($_POST['munkalapKeszit']) ) {
                                 <br>Hiba helye: '.$telephely.'
                                 <br>Bejelentett hiba: '. getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).'
                                 <br>
-                                <br>Ehhez a bejelentéshez már készült munkalap. <br>Készít még egy munkalapot?
+                                <br><span class="piros f25">Ehhez a bejelentéshez<br>már készült munkalap!</span><br>Készít még egy munkalapot?
                                 <script>popup_villogtat();</script>
                                     '),
                     'gomb' => '<input class="gomb zold" value="Igen" onclick="szurkit(); location.href = \'munkalap.php?uj&ujkent_bejelentes='.$id.'\';" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">'
