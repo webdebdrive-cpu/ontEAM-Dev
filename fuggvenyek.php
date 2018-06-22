@@ -2758,6 +2758,18 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                 $bold    = ' class="b"';
                 $active .= ' nyitott_statuszu'; // Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
+            
+            // Egyszálloda esetén, ha nyitott a státuzs, van munkalap készíthet jog, és van is hozzá munkalap, akkor legyen szürke a háttér
+            if( _jog(JOG_MUNKALAP_KESZITHET) && $bsz['stat_id']==BEJELENTES_STAT_NYITOTT){
+                $szalloda  = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$bsz['telephely_id']}'");
+                if(!$szalloda['modell']){
+                    $van_kapcs = $adatbazis_kapcsolat->s2('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bsz['recid']}'", '', '1');
+                    $letezik_munkalap = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid`='{$van_kapcs['munkalap_id']}'");
+                    if( $van_kapcs ){
+                        $active .= ' szurke_hat';
+                    }
+                }
+            }
 
             // Van-e csatolt dokumentuma
             $dok_icon = '';

@@ -1826,6 +1826,20 @@ ul.szamla_cont li.kijelolve.surgos a:not(.nohover) {
     color: #FFD3D3;
 }
 
+ul.szamla_cont li.szurke_hat {
+    background: #F9F9F9;
+}
+
+ul.szamla_cont li.szurke_hat a{
+    color: #909090;
+}
+ul.szamla_cont li.szurke_hat:hover a{
+    color: #000;
+}
+ul.szamla_cont li.szurke_hat.surgos:hover a{
+    color: #D80000;
+}
+
 table.szamla_cont_tabla {
     width: 100%;
     user-select: none;
