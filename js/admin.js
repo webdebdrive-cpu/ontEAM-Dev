@@ -292,8 +292,8 @@ $(function() {
             }
 
         /* Kattintás a nav panel első elemére */
-        }else{
-            if( !$('#szamlaList li.szamla_sor').hasClass('kijelolve') && !_get('uj') ) {
+        } else {
+            if( !$.browser.mobile && !$('#szamlaList li.szamla_sor').hasClass('kijelolve') && !_get('uj') ) {
                 $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
             }
         }
