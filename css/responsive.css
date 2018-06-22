@@ -434,7 +434,7 @@
     }
 }
 
-@media only screen and (max-width: 992px) {
+@media only screen and (max-width: 800px) {
     div.header div.dtc {
         height: 6rem;
     }
@@ -465,6 +465,9 @@
     }
 
     .muveletek {
+        position: relative;
+        bottom: 0;
+        right: 0;
         width: 100%!important;
     }
 
@@ -582,6 +585,10 @@
 
     .rogzito_dtr .dtc:first-child {
         display: none;
+    }
+
+    .sor.kethasabos div.jobb {
+        height: calc( 100% - 8.5rem );
     }
 
     #tartalomBal {
@@ -885,11 +892,6 @@
         width: 3.8rem;
     }
 
-    div.navGombok a.uj {
-        height: 3.8rem;
-        width: 3.8rem;
-    }
-
     div.navGombok a.uj .material-icons {
         color: #fff;
         font-size: 3.8rem;
@@ -908,5 +910,75 @@
     div.navGombok a.elso,
     div.navGombok a.utolso {
         display: none;
+    }
+
+    div.dt div.nSor div.dtc {
+        border-bottom: none;
+        display: block;
+        font-size: 1.4rem;
+    }
+
+    div.dt div.nSor div.dtc:last-child {
+        border-bottom: 0.1rem solid #8e8e8e;
+    }
+
+    div.dt div.nFejlec {
+        display: none;
+    }
+
+    div.dt div.nFejlec div.dtc {
+        font-size: 1.4rem;
+    }
+
+    div.naplo div.nFejlec div.dtc:nth-child(4),
+    div.naplo div.nFejlec div.dtc:nth-child(5) {
+        display: none;
+    }
+
+    div.naplo div.nSor div.dtc:nth-child(4),
+    div.naplo div.nSor div.dtc:nth-child(5) {
+        display: none;
+    }
+}
+
+@media only screen and (max-width: 400px) {
+    #respo_keresGomb {
+        height: 3rem;
+        padding: 0.4rem 0rem 0rem 0rem;
+        width: 3rem;
+    }
+
+    #respo_keresGomb i {
+        font-size: 2.1rem;
+    }
+
+    div.szamlaKereses div.rendezes div.irany a {
+        height: 3rem;
+        width: 3rem;
+    }
+
+    div.szamlaKereses div.rendezes div.irany a span {
+        font-size: 1rem;
+        padding: 0rem 0rem 0rem 0rem;
+    }
+
+    #osszetett_szuro {
+        height: 3rem;
+        padding: 0.8rem 0rem 0rem 0rem;
+        width: 3rem;
+    }
+
+    #osszetett_szuro svg {
+        height: 1.2rem;
+        width: 1.8rem;
+    }
+
+    div.navGombok a {
+        height: 3rem;
+        width: 3rem;
+    }
+
+    div.navGombok a.uj .material-icons {
+        font-size: 3rem;
     }
 }

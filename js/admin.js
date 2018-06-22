@@ -6852,7 +6852,7 @@ function anyagigenylesHozzaad() {
                 break;
                 case 'nev':
                     var autcomplete_text = $('input[name="' + name + '_autocomp"]').val();
-                    
+
                     $.ajax({
                         url : 'anyagigenyles.php',
                         type: 'POST',
@@ -6962,6 +6962,7 @@ function anyagigenylesekMentes() {
 
         alert2('');
     } else {
-        alert2('Kérem vegyen fel anyagigénylés sorokat!', '<input type="button" class="gomb" value="Ok" onclick="$(\'#mehet_gomb, #megsem_gomb\').removeAttr(\'disabled\'); alert2();">', 'Hiba');
+        $('#szerk_form').submit();
+        /* alert2('Kérem vegyen fel anyagigénylés sorokat!', '<input type="button" class="gomb" value="Ok" onclick="$(\'#mehet_gomb, #megsem_gomb\').removeAttr(\'disabled\'); alert2();">', 'Hiba'); */
     }
 }
