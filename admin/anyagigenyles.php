@@ -2500,6 +2500,33 @@ require_once('selectek.php');
 	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
 	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
+        
+        // Anyagigénylések táblázata
+        $szamla_html .= nl2('
+            <div class="dt">
+                <div class="dtc form_bal" style="padding-right: 4rem;">
+                    <div class="hozzaadasGomb">
+                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" value="Hozzáadás" onclick="if( form_ell_admin_elott() ) { anyagigenylesHozzaad(); }">
+                    </div>
+                </div>
+                <div class="dtc form_jobb">
+                    <form id="anyagSorokForm">
+                        <table id="insertAnyagigenylesSor" class="csikos tomorit full">
+                            <tr>
+                                <th>Szálloda</th>
+                                <th style="width: 6rem">Cikk</th>
+                                <th>Név</th>
+                                <th>RB-s anyag</th>
+                                <th>Igényelt mennyiség</th>
+                                <th>Mee</th>
+                                <th>Leírás</th>
+                                <th>Törlés</th>
+                            </tr>
+                        </table>
+                    </form>
+                </div>
+            </div>
+            ');
 
         // Igénylésre váró anyagok a munkalapokon:
         // A beloginolt user szállodáit érintő munkalapokat szedjük össze
@@ -2593,50 +2620,25 @@ require_once('selectek.php');
                         ');
                     }
                 }
-
-                $szamla_html .= nl2('
-                    <div class="dt">
-                        <div class="dtc form_bal" style="padding-right: 4rem;">
-                            <div class="hozzaadasGomb">
-                                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" value="Hozzáadás" onclick="if( form_ell_admin_elott() ) { anyagigenylesHozzaad(); }">
-                            </div>
-                        </div>
-                        <div class="dtc form_jobb">
-                            <form id="anyagSorokForm">
-                                <table id="insertAnyagigenylesSor" class="csikos tomorit full">
-                                    <tr>
-                                        <th>Szálloda</th>
-                                        <th style="width: 6rem">Cikk</th>
-                                        <th>Név</th>
-                                        <th>RB-s anyag</th>
-                                        <th>Igényelt mennyiség</th>
-                                        <th>Mee</th>
-                                        <th>Leírás</th>
-                                        <th>Törlés</th>
-                                    </tr>
-                                </table>
-                            </form>
-                        </div>
-                    </div>
-                    ');
-                    if($anyagok_html){
-                        $szamla_html .= nl2('<p style="margin: 2rem 0 0.2rem 0" class="b">Igénylésre váró anyagok a munkalapokon:</p>
-                        <table class="csikos tomorit">
-                            <tr>
-                                <th>Szálloda</th>
-                                <th>Cikk</th>
-                                <th>Név</th>
-                                <th>Munkalapon igénylés alatt</th>
-                                <th>Munkalapon anyagra vár (igényelve)</th>
-                                <th>Igénylés rendelés folyamatában</th>
-                                <th>Mee</th>
-                                <th>Leírás</th>
-                                <th>Anyagra váró feladatok</th>
-                                <th>Anyag igénylés</th>
-                                <th>Már igényelve</th>
-                                <th>Anyag rendelkezésre áll</th>
-                            </tr>
-                            '.$anyagok_html.'
+                
+                if($anyagok_html){
+                    $szamla_html .= nl2('<p style="margin: 2rem 0 0.2rem 0" class="b">Igénylésre váró anyagok a munkalapokon:</p>
+                    <table class="csikos tomorit">
+                        <tr>
+                            <th>Szálloda</th>
+                            <th>Cikk</th>
+                            <th>Név</th>
+                            <th>Munkalapon igénylés alatt</th>
+                            <th>Munkalapon anyagra vár (igényelve)</th>
+                            <th>Igénylés rendelés folyamatában</th>
+                            <th>Mee</th>
+                            <th>Leírás</th>
+                            <th>Anyagra váró feladatok</th>
+                            <th>Anyag igénylés</th>
+                            <th>Már igényelve</th>
+                            <th>Anyag rendelkezésre áll</th>
+                        </tr>
+                        '.$anyagok_html.'
                     ');
                 }
 

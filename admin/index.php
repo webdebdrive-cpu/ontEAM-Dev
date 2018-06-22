@@ -23,7 +23,7 @@ require_once('../weblap.php');
 //    exit;
 //}
 
-if (isset($_GET['hiba_id_feltolt'])) {
+if (false && isset($_GET['hiba_id_feltolt'])) {
     
     $arch = '_arch';
     
@@ -124,7 +124,7 @@ if (false && isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
 }
 
 // Kötött fejléc nevű CSV feldolgozása (login_import.csv legyen a fájl neve)
-if ( isset($_GET['loginnev_import']) ) {
+if (false && isset($_GET['loginnev_import']) ) {
     
     header('Content-Type: text/html; charset='. get_web_charset());
     
