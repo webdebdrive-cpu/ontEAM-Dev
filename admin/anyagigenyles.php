@@ -2496,15 +2496,11 @@ require_once('selectek.php');
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
-
-	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
-	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
-	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
         
-        // Anyagigénylések táblázata
-        $szamla_html .= nl2('
-            <div class="dt">
-                <div class="dtc form_bal" style="padding-right: 4rem;">
+        // Anyagigénylések táblázata, ezt még vegyük a mezők végére
+        $mezok .= nl2('
+            <div class="dtr">
+                <div class="dtc form_bal">
                     <div class="hozzaadasGomb">
                         <input type="button" class="gombb mentes_gomb" name="mehet_gomb" value="Hozzáadás" onclick="if( form_ell_admin_elott() ) { anyagigenylesHozzaad(); }">
                     </div>
@@ -2527,6 +2523,11 @@ require_once('selectek.php');
                 </div>
             </div>
             ');
+
+	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
+	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
+	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
+        
 
         // Igénylésre váró anyagok a munkalapokon:
         // A beloginolt user szállodáit érintő munkalapokat szedjük össze
@@ -2670,7 +2671,6 @@ require_once('selectek.php');
         ');
 
         $szamla_html .= $balNavPanelHTMLje;
-        // $szamla_html .= szamla_lista();
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -2853,7 +2853,6 @@ require_once('selectek.php');
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
         $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
-        //$szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -2876,7 +2875,6 @@ require_once('selectek.php');
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
         $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
-        //$szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -2895,7 +2893,6 @@ require_once('selectek.php');
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
         $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
-        //$szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
@@ -2937,7 +2934,6 @@ require_once('selectek.php');
 
         // A léptetés csak akkor fog működni, ha a bal navpanel kódja benne van a kódban
         $szamla_html .= '<div class="dn">'.$balNavPanelHTMLje.'</div>';
-        //$szamla_html .= '<div class="dn">'.szamla_lista().'</div>';
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(

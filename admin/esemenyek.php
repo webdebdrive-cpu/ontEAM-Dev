@@ -1039,12 +1039,14 @@ $usr_beosztas   = '';
 $usr_reszleg    = '';
 $usr_telefon    = '';
 $usr_email      = '';
+$tel_disabled   = true;
 if( isset($_GET['uj']) ) {
     $usr_nev        = $bejelento['teljes_nev'];
     $usr_beosztas   = $bejelento['beosztas_id']; //erteklista(18, $user['beosztas_id']);
     $usr_reszleg    = $bejelento['reszleg_id'];  //erteklista(17, $user['reszleg_id']);
     $usr_telefon    = $bejelento['usertel'];
     $usr_email      = $bejelento['usermail'];
+    $tel_disabled   = false;
 }
 
 $usr_dis = true;
@@ -1105,7 +1107,7 @@ $bejelentes_tomb = $bejelentes_arch_tomb = $akt_tomb = array(
     array('type' => 'textarea',        'megn' => 'Hely leírása:',       'name' => 'helyiseg_text','szuro' => 1,  'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images', 'width' => '100%', 'height' => '150'),
     array('type' => 'autocomplete',    'megn' => 'Gépnév:',             'name' => 'gep_id',       'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
 
-    array('type' => 'checkbox',        'megn' => '',   'megn_szurobe' => 'Telefonon bejelentve',    'name' => 'telefon',      'szuro' => 1,  'class' => 'check', 'post' => ' közvetlenül telepített karbantartónak telefonon bejelentve'),
+    array('type' => 'checkbox',        'megn' => '',   'megn_szurobe' => 'Telefonon bejelentve',    'name' => 'telefon',      'szuro' => 1,  'class' => 'check', 'post' => ' közvetlenül telepített karbantartónak telefonon bejelentve', 'disabled' => $tel_disabled),
     array('type' => 'nosql',           'name' => '',   'megn_szurobe' => 'Bejelentés dátuma',       'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datetimepicker'),
     array('type' => 'nosql',           'name' => 'masnevebenFeltolt'),
 

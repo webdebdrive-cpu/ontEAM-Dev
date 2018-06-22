@@ -406,7 +406,8 @@ $(function() {
                 elso_utolso = false;
 
                 /* Anyagigénylésnél használt táblázat esetén valójában a táblázat következő sorára kell ugrani, ami a helyben rendezetség miatt nem ugyanaz, mint a bal oldali navpanelé */
-                if( $('.szamla_cont_tabla').length && _get('tablazat') ){
+                /*if( $('.szamla_cont_tabla').length && _get('tablazat') ){*/
+                if( tabla=='anyagigenyles' ){
 
                     var active   = $('.szamla_cont_tabla tr.kijelolve').index('.szamla_cont_tabla tbody tr'),
                         szamlaDb = $('.szamla_cont_tabla tbody tr').length - 1;

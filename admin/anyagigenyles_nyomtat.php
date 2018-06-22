@@ -520,7 +520,7 @@ function get_alairasok(){
                         ......................................................................
                         <div class="c" style="padding-right: 60px">
                         <center>
-                            Kővágó Levente
+                            Csanádi Péter
                             <br>Diszpécser központ vezető
                         </center>
                         </div>
