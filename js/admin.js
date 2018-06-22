@@ -5664,6 +5664,12 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?uj');
                     }
 
+                    if( $.browser.mobile ) {
+                        $('#tartalomBal').css('display', 'none');
+                        $('#tartalomJobb').css('display', 'block');
+                        $('#respo_visszalepes').css('display', 'block');
+                    }
+
                     /* Ha épp egy csoporton állunk, akkor elrejtük a jobb oldali tartalmakat */
                     $('#szamlaList li.csoport').each(function () {
                         if($(this).hasClass('kijelolve')){
@@ -5691,6 +5697,12 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
         }).promise();
     }
 
+}
+
+function respoVisszalepes() {
+    $('#tartalomBal').css('display', 'block');
+    $('#tartalomJobb').css('display', 'none');
+    $('#respo_visszalepes').css('display', 'none');
 }
 
 /* Bal oldali navpanel egy sorának frissítése */

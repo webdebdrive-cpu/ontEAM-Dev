@@ -452,6 +452,7 @@
     }
 
     #tartalomJobb {
+        display: none;
         width: 100%!important;
     }
 
@@ -461,11 +462,37 @@
 
     div.szamlaFulek {
         margin: -4.1rem 0rem 0rem -0.5rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        height: 3.7rem;
+        white-space: nowrap;
+        width: 100%;
     }
 
     div.szamlaFulek a {
         font-size: 1.4rem;
+        float: none;
         padding: 1rem 1.5rem 1rem 1.5rem;
+    }
+
+    .form_jobb.statusz div.text {
+        font-size: 2rem;
+    }
+
+    .cb {
+        height: 2.1rem;
+        top: 0.1rem;
+        width: 2.1rem;
+    }
+
+    .cb label {
+        height: 2.2rem;
+        width: 2.2rem;
+    }
+
+    .cb label:after {
+        top: 0.5rem;
+        left: 0.5rem;
     }
 
     select {
@@ -495,6 +522,25 @@
         padding: 0.7rem;
     }
 
+    #respo_visszalepes {
+        padding: 1rem 0rem 0rem 0rem;
+        text-align: right;
+    }
+
+    #respo_visszalepes a {
+        background: #75b54b;
+        border: 0.1rem solid rgba(0,0,0,0);
+        border-radius: 0.3rem;
+        color: #fff;
+        display: inline-block;
+        cursor: pointer;
+        font-size: 1.4rem;
+        font-weight: 700;
+        padding: 0.7rem;
+        position: relative;
+        transition: all ease-in-out 0.2s;
+    }
+
     .form_bal {
         display: block;
     }
@@ -508,6 +554,7 @@
 
     .form_jobb a.obj_gen {
         height: 3.8rem;
+        padding: 0.3rem 0rem 0rem 0.2rem;
         width: 3.8rem;
     }
 
@@ -516,7 +563,7 @@
     }
 
     .form_jobb a.obj_gen .material-icons {
-        font-size: 3.5rem;
+        font-size: 3.3rem;
     }
 
     .form_jobb {
@@ -530,7 +577,6 @@
     }
 
     #tartalomBal {
-        display: none;
         box-shadow: none;
         width: 100%!important;
     }
