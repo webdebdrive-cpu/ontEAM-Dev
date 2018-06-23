@@ -3299,7 +3299,7 @@ th.egys_dev {
 }
 
 .hozzaadasGomb {
-    padding: 1rem 0rem 1rem 0rem;
+    padding: 0rem 0rem 0rem 0rem;
 }
 
 div.header div.dtc.respo_menu {
@@ -3398,4 +3398,17 @@ div.respo_felh .menu_icon span:before, div.respo_felh .menu_icon span:after {
 
 #respo_visszalepes {
     display: none;
+}
+
+.anyagokTable {
+    width: 100%;
+}
+
+.anyagokTable .dtc {
+    vertical-align: top;
+}
+
+.anyagokTable .dtc.form_bal {
+    min-width: 13.2rem;
+    width: 13.2rem;
 }

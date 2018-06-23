@@ -39,29 +39,29 @@ $szamla_html = '';
 require_once 'anyagigenyles_nyomtat.php';
 
 if (isset($_POST['get_cikkszam'])) {
-    
+
     $cikktozs = $adatbazis_kapcsolat->s2('id', 'cikktorzs', "`recid`='{$_POST['recid']}'");
     echo $cikktozs['id'];
-    
+
     $weblap -> leallit();
     exit;
 }
 
 // Anyagigénylés adatok beolvasása
 if (isset($_POST['get_adatok'])) {
-    
+
     $anyagigenyles = $adatbazis_kapcsolat->s2('ikt_szam cikk_id nev igmen cikkmee', 'anyagigenyles', "`recid`='{$_POST['id']}'");
-    
+
     echo nl2('
         Anyagigénylés szám: '.$anyagigenyles['ikt_szam'].'
         <br>Cikkszám: '.$anyagigenyles['cikk_id'].'
         <br>Cikk név: '.$anyagigenyles['nev'].'
         <br>Mennyiség: '.number_format($anyagigenyles['igmen'], 2, ',', ' ').' '.$anyagigenyles['cikkmee'].'
         ');
-    
+
     $weblap -> leallit();
     exit;
-    
+
 }
 
 // Már igényelve gomb feldolgozás
@@ -1860,14 +1860,14 @@ if (isset($_POST['anyagigenyles_tablazat_rendez'])) {
 
 // Anyagigénylés sztornózása
 if (isset($_POST['anyagigenylesSztornoz'])) {
-    
+
     $memo  = $_POST['memo'];
     $recid = $_POST['recid'];
-    
+
     // Tranzakció indul
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
-    
+
     $sor = $adatbazis_kapcsolat->s2('stat_id rndmen rndear szallito_id', 'anyagigenyles', "`recid`='{$recid}'");
     if( $sor === false ) { $db_error = true; }
 
@@ -1892,7 +1892,7 @@ if (isset($_POST['anyagigenylesSztornoz'])) {
         $weblap->leallit();
         exit();
     }
-    
+
     // Memó ellenőrzése
     if(!$memo){
         echo json_encode(array(
@@ -1904,13 +1904,13 @@ if (isset($_POST['anyagigenylesSztornoz'])) {
     }else{
         $memo = 'Sztornó indoklása:'."\r\n".$memo;
     }
-    
+
     // Létrehozunk egy új rendelésfej bejegyzést
     $sorszam = get_iktatoszam_sorszam('cikkrendfej');
     if( $sorszam === false ) { $db_error = true; }
     $rndid = 'R'.date('y').'/'.sprintf('%04d', $sorszam);
     $rndertek = ($sor['rndmen']*$sor['rndear']);
-        
+
     $cikkrendfej_id = $adatbazis_kapcsolat->i('cikkrendfej',    array('stat_id',           'rndid', 'rnd_dt', 'rndertek',  'kepfajl',   'szallito_id',        'insert_dt',    'insert_usr',                           'update_usr'                            ),
                                                                 array(CIKKIGN_STAT_TOROLT, $rndid,  'NOW()',  $rndertek,   '',          $sor['szallito_id'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev']  )
                                                 );
@@ -1922,7 +1922,7 @@ if (isset($_POST['anyagigenylesSztornoz'])) {
                                         array($cikkrendfej_id,      CIKKIGN_STAT_TOROLT,    $_SESSION[get_db_tabla().'user'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
                                     );
     if( $sql === false ) { $db_error = true; }
-    
+
     // Anyagigénylés státusz léptetés
     if( addStatusz('anyagigenyles_statusz', $recid, CIKKIGN_STAT_TOROLT, '', $memo) === false ){
         $db_error = true;
@@ -1931,11 +1931,11 @@ if (isset($_POST['anyagigenylesSztornoz'])) {
     $adatbazis_kapcsolat->u('anyagigenyles',    array('rndid', 'rnd_dt', 'kepfajl', 'update_usr',                           'aparecid'       ),
                                                 array($rndid,  'NOW()',  '',        $_SESSION[get_db_tabla().'teljes_nev'], $cikkrendfej_id  ),
                             "`recid`='$recid'");
-    
+
     // Értesítés küldése az anyagigénylőnek
     $hiba = level_felkeszit_es_kuld('anyagigenyles', $recid, '', 'anyagigenylesSztorno', 'anyagigenylo');
     if( $sor === false ) { $db_error = true; }
-    
+
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode(array(
@@ -1948,7 +1948,7 @@ if (isset($_POST['anyagigenylesSztornoz'])) {
             'title' => 'Hiba'
         ));
     }
-    
+
     $weblap->leallit();
     exit();
 }
@@ -2314,7 +2314,7 @@ require_once('selectek.php');
                     '.$kuld_jovahagy.'
                     '.$rend_keszit.'
                 ');
-                
+
                 // Sztornó gomb
                 $sztornos_statuszok = array(CIKKIGN_STAT_NYITOTT, CIKKIGN_STAT_ARAZVA, CIKKIGN_STAT_VARAKOZO);
                 if( in_array($sor['stat_id'], $sztornos_statuszok) ){
@@ -2496,38 +2496,11 @@ require_once('selectek.php');
 
 		// Ez elkészíti a $mezok változót
 		require('switch.php');
-        
-        // Anyagigénylések táblázata, ezt még vegyük a mezők végére
-        $mezok .= nl2('
-            <div class="dtr">
-                <div class="dtc form_bal">
-                    <div class="hozzaadasGomb">
-                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" value="Hozzáadás" onclick="if( form_ell_admin_elott() ) { anyagigenylesHozzaad(); }">
-                    </div>
-                </div>
-                <div class="dtc form_jobb">
-                    <form id="anyagSorokForm">
-                        <table id="insertAnyagigenylesSor" class="csikos tomorit full">
-                            <tr>
-                                <th>Szálloda</th>
-                                <th style="width: 6rem">Cikk</th>
-                                <th>Név</th>
-                                <th>RB-s anyag</th>
-                                <th>Igényelt mennyiség</th>
-                                <th>Mee</th>
-                                <th>Leírás</th>
-                                <th>Törlés</th>
-                            </tr>
-                        </table>
-                    </form>
-                </div>
-            </div>
-            ');
 
 	    $form_mit     = array('{JS}', '{JS_SUBMIT_ELOTT}', '{ACTION}', '{MEZOK}', '{MEGNEVEZES}', '{CK_EDITOR}', '{GOMBOK}', '{MUV_STYLE}'   );
 	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
-        
+
 
         // Igénylésre váró anyagok a munkalapokon:
         // A beloginolt user szállodáit érintő munkalapokat szedjük össze
@@ -2621,7 +2594,36 @@ require_once('selectek.php');
                         ');
                     }
                 }
-                
+
+                // Anyagigénylések táblázata, ezt még vegyük a mezők végére
+                $szamla_html .= nl2('
+                    <div class="dt anyagokTable">
+                        <div class="dtr">
+                            <div class="dtc form_bal">
+                                <div class="hozzaadasGomb">
+                                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" value="Hozzáadás" onclick="if( form_ell_admin_elott() ) { anyagigenylesHozzaad(); }">
+                                </div>
+                            </div>
+                            <div class="dtc form_jobb">
+                                <form id="anyagSorokForm">
+                                    <table id="insertAnyagigenylesSor" class="csikos tomorit full">
+                                        <tr>
+                                            <th>Szálloda</th>
+                                            <th style="width: 6rem">Cikk</th>
+                                            <th>Név</th>
+                                            <th>RB-s anyag</th>
+                                            <th>Igényelt mennyiség</th>
+                                            <th>Mee</th>
+                                            <th>Leírás</th>
+                                            <th>Törlés</th>
+                                        </tr>
+                                    </table>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                ');
+
                 if($anyagok_html){
                     $szamla_html .= nl2('<p style="margin: 2rem 0 0.2rem 0" class="b">Igénylésre váró anyagok a munkalapokon:</p>
                     <table class="csikos tomorit">
