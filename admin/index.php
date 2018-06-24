@@ -415,7 +415,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 }
 
 // Logginnév átnevezése
-if (false && isset($_GET['loginnev_csere'])) {
+if (isset($_GET['loginnev_csere'])) {
     
     $regi_nev = trim($_GET['regi']);
     $uj_nev   = trim($_GET['uj']);

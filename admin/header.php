@@ -1129,7 +1129,7 @@ if(basename(self())=='fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_TOROL)
 }
 
 // Felhasználóknál a törlés gomb sosem látszik.
-if(basename(self())=='login.php'){
+if(basename(self())=='login.php'/* Ez valszed kelleni fog, rákérdeztem && !isset($_GET['szallodak'])*/){
     $torles_icon    = '';
 }
 if(basename(self())=='login.php' && !_jog(JOG_FELHASZNALOK_KEZEL)){

@@ -1099,7 +1099,7 @@ $(function() {
         if( $('.szamla_sor.kijelolve').hasClass('kijelolve') ) {
             $('#tartalomBal').scrollTop(0);
             active_top = $('.szamla_sor.kijelolve').position().top;
-console.log('a'+active_top);
+
             $('#tartalomBal').scrollTop(active_top - 250);
         }
         /* Biztonság kedvért kis idő után újra pozícionálunk (sok balnavpanel után ez szükséges) */
@@ -6771,6 +6771,7 @@ function munkalapok_nyitottak_koze(mehet){
 
 /* Az űrlap gombjait váltjuk: mentés / mégsem látsszon vagy a kék gombok. Illetve fomr módosított-e vagy sem.  */
 function gombok_valt(mod){
+    
     if( mod ) {
         $('#kilepes_gomb').val('Kilépés mentés nélkül');
         $('#mehet_gomb').attr('disabled', false).addClass('gombb_alert');
@@ -6781,8 +6782,13 @@ function gombok_valt(mod){
         formModositva = true;
     } else {
         $('#kilepes_gomb').val('Kilépés');
-        $('#mehet_gomb').attr('disabled', true).removeClass('gombb_alert');
-        $('#megsem_gomb').attr('disabled', true);
+        /* Új anyagigénylés feltöltésénél a gombot inkább ne rejtsük el sose. Mert itt gond volt abból, hogy a Hozzáadás gomb lenyomása után nem lehetett az alap űrlapot elmenteni. */
+        if(!$('#mehet_gomb').hasClass('ne_rejtsd_el')){
+            $('#mehet_gomb').attr('disabled', true).removeClass('gombb_alert');
+        }
+        if(!$('#megsem_gomb').hasClass('ne_rejtsd_el')){
+            $('#megsem_gomb').attr('disabled', true);
+        }
         $('#visszavonas_gomb').attr('disabled', true);
         $('.modositaskor_rejt').show();
 
@@ -6839,16 +6845,16 @@ function anyagigenylesHozzaad() {
     var form = $('#szerk_form'),
         data = {};
 
+    var telephely_id = '';
     form.find('input, select, textarea').each(function() {
         var name  = $(this).attr('name'),
             value = $(this).val();
-
         if( name !== undefined ) {
             switch(name) {
                 case 'telephely_id':
-                    var text  = $(this).find('option:selected').text();
-
-                    data[name] = text + ' <input type="hidden" name="' + name + '[]" value="' + value + '">';
+                    var text     = $(this).find('option:selected').text();
+                    telephely_id = value;
+                    data[name]   = ' <input type="hidden" name="' + name + '[]" value="' + value + '">';
                 break;
                 case 'nev':
                     var autcomplete_text = $('input[name="' + name + '_autocomp"]').val();
@@ -6893,7 +6899,8 @@ function anyagigenylesHozzaad() {
     data['cikkmee'] = form.find('.insertMee').text() + ' <input type="hidden" name="cikkmee[]" value="' + form.find('.insertMee').text() + '">';
 
     var mezok = '<tr class="anyag_sor">' +
-                    '<td>' + data['telephely_id'] + '</td>' +
+                    '<td>' + $('#telephely_id').find('option:selected').text()/*Itt azért csináljuk másképpen, mert ha a szálloda readonly (egyszállodája ha van a usernek), akkor nem jelent meg a szálloda neve */ 
+                           + data['telephely_id'] + '</td>' +
                     '<td class="l" id="cikkszam_'+data['cikkszam_recid']+'"></td>' +
                     '<td class="l">' + data['nev'] + '</td>' +
                     '<td>' + data['kulsosnek'] + '</td>' +
@@ -6905,7 +6912,9 @@ function anyagigenylesHozzaad() {
 
     $('#insertAnyagigenylesSor').append(mezok);
     document.getElementById('szerk_form').reset();
+    $('#telephely_id').val(telephely_id);
     form.find('input, select, textarea').removeClass('mod alert');
+    $('#nev_autocomp').focus();
 }
 
 function anyagigenylesekMentes() {

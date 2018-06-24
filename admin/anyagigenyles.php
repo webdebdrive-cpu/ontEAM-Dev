@@ -2206,8 +2206,8 @@ require_once('selectek.php');
         if(_jog(JOG_ANYAGIGENYLES_KEZEL)) { // $(\'#szerk_form\').submit()
             $gombok = nl2('
                 <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="szurkit(\'mehet_megsem_rejt\'); anyagigenylesekMentes();">
-                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; location.reload();">
+                    <input type="button" class="gombb mentes_gomb ne_rejtsd_el" name="mehet_gomb" id="mehet_gomb" disabled value="Anyagigénylés" onclick="szurkit(\'mehet_megsem_rejt\'); anyagigenylesekMentes();">
+                    <input type="button" class="gomb piros ne_rejtsd_el" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; location.reload();">
                 </div>
             ');
 
@@ -2501,6 +2501,34 @@ require_once('selectek.php');
 	    $form_mivel   = array($js,    $js_submit_elott,    self(),     $mezok,    $megnevezes,    $ckeditor,     $gombok,    $muv_style      );
 	    $szamla_html .= str_replace($form_mit, $form_mivel, $form_sablon);
 
+        // Anyagigénylések táblázata, ezt még vegyük a mezők végére
+        $szamla_html .= nl2('
+            <div class="dt anyagokTable">
+                <div class="dtr">
+                    <div class="dtc form_bal">
+                        <div class="hozzaadasGomb">
+                            <input type="button" class="gombb mentes_gomb" name="mehet_gomb" value="Hozzáadás" onclick="if( form_ell_admin_elott() ) { anyagigenylesHozzaad(); }">
+                        </div>
+                    </div>
+                    <div class="dtc form_jobb">
+                        <form id="anyagSorokForm">
+                            <table id="insertAnyagigenylesSor" class="csikos tomorit full">
+                                <tr>
+                                    <th>Szálloda</th>
+                                    <th style="width: 6rem">Cikk</th>
+                                    <th>Név</th>
+                                    <th>RB-s anyag</th>
+                                    <th>Igényelt mennyiség</th>
+                                    <th>Mee</th>
+                                    <th>Leírás</th>
+                                    <th>Törlés</th>
+                                </tr>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        ');
 
         // Igénylésre váró anyagok a munkalapokon:
         // A beloginolt user szállodáit érintő munkalapokat szedjük össze
@@ -2595,35 +2623,6 @@ require_once('selectek.php');
                     }
                 }
 
-                // Anyagigénylések táblázata, ezt még vegyük a mezők végére
-                $szamla_html .= nl2('
-                    <div class="dt anyagokTable">
-                        <div class="dtr">
-                            <div class="dtc form_bal">
-                                <div class="hozzaadasGomb">
-                                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" value="Hozzáadás" onclick="if( form_ell_admin_elott() ) { anyagigenylesHozzaad(); }">
-                                </div>
-                            </div>
-                            <div class="dtc form_jobb">
-                                <form id="anyagSorokForm">
-                                    <table id="insertAnyagigenylesSor" class="csikos tomorit full">
-                                        <tr>
-                                            <th>Szálloda</th>
-                                            <th style="width: 6rem">Cikk</th>
-                                            <th>Név</th>
-                                            <th>RB-s anyag</th>
-                                            <th>Igényelt mennyiség</th>
-                                            <th>Mee</th>
-                                            <th>Leírás</th>
-                                            <th>Törlés</th>
-                                        </tr>
-                                    </table>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                ');
-
                 if($anyagok_html){
                     $szamla_html .= nl2('<p style="margin: 2rem 0 0.2rem 0" class="b">Igénylésre váró anyagok a munkalapokon:</p>
                     <table class="csikos tomorit">
@@ -2648,6 +2647,7 @@ require_once('selectek.php');
                 $szamla_html .= '</table>';
             }
         }
+        
 
         if( $_GET['ajax'] ) {
             echo json_encode(array(
