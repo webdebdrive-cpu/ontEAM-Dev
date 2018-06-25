@@ -465,10 +465,12 @@
         width: 100%!important;
     }
 
+    .csakjobboldal #tartalomJobb,
     .signedout #tartalomJobb {
         display: block;
     }
 
+    .csakjobboldal #tartalomBal,
     .signedout #tartalomBal {
         display: none;
     }
@@ -589,10 +591,23 @@
     .form_jobb {
         display: block;
         font-size: 1.4rem;
-        padding: 0.2rem 0rem 0.2rem 0.5rem;
+        padding: 0.2rem 0rem 0.2rem 0rem;
     }
 
     .rogzito_dtr .dtc:first-child {
+        display: none;
+    }
+
+    .rogzito_dtr .dtc:last-child {
+        min-width: 100%!important;
+    }
+
+    .rogzito_dtr .dtc:last-child .dib:first-child {
+        text-align: left;
+        width: 100%!important;
+    }
+
+    .rogzito_dtr .dtc:last-child .dib:last-child {
         display: none;
     }
 
@@ -947,6 +962,64 @@
     div.naplo div.nSor div.dtc:nth-child(4),
     div.naplo div.nSor div.dtc:nth-child(5) {
         display: none;
+    }
+
+    #alert2 .gomb {
+        font-size: 1.4rem;
+        margin: 0rem 0.5rem 0.5rem 0rem;
+        padding: 0.7rem;
+    }
+
+    div.figy div.header {
+        font-size: 1.6rem;
+        height: 5.1rem;
+        padding: 1.8rem 0rem 0rem 2.5rem;
+    }
+
+    div.figy div.tart {
+        font-size: 1.4rem;
+        padding: 3rem 2.5rem 3rem 2.5rem;
+    }
+
+    div.figy div.f_footer {
+        padding: 1.3rem 0rem 0.7rem 0rem;
+    }
+
+    #popup div.popup_kont div.bezar, #alert2 div.bezar {
+        height: 5rem;
+        width: 5rem;
+    }
+
+    input.bej_rogzito {
+        display: none;
+    }
+
+    input.bej {
+        width: 100%;
+    }
+
+    .dtr.bejelento_sor {
+        display: none;
+    }
+
+    .dtr.bejelento_sor span.formText {
+        display: none;
+    }
+}
+
+@media only screen and (max-width: 600px) {
+    #alert2 {
+        top: 2rem!important;
+        left: 2rem!important;
+        width: calc(100% - 4rem);
+    }
+
+    div.figy {
+        min-width: 100%!important;
+    }
+
+    div.figy div.tart {
+        min-width: 100%;
     }
 }
 
