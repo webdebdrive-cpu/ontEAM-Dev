@@ -2938,6 +2938,10 @@ table.csikos tr.link:hover{
     transition: all ease-in-out 0.2s;
 }
 
+table.csikos.hoveres tr:hover {
+    background: #F1F8FF;
+}
+
 input.alert, table.csikos td input.alert{
     border: 0.1rem solid #f00;
 }
@@ -3300,6 +3304,7 @@ th.egys_dev {
 
 .hozzaadasGomb {
     padding: 0rem 0rem 0rem 0rem;
+    margin-top: 0.1rem;
 }
 
 div.header div.dtc.respo_menu {

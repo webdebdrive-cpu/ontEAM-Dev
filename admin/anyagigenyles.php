@@ -178,6 +178,59 @@ if($tobb_kep){
     }
 }
 
+// Van-e olyan anyagigénylés, ami a kapott szálloda + cikkszám párossal, anyagiégnylés státuszban van. Új anyagigénylés hozzáadásakor ellenőrizzük.
+if (isset($_POST['van_mar_ilyen_anyagigenyles'])) {
+    
+    $cikktorzs = $adatbazis_kapcsolat->s2('nev id', 'cikktorzs', "`recid`='{$_POST['cikk_id']}'");
+    $anyagigenylesek = $adatbazis_kapcsolat->s('recid insert_dt', 'anyagigenyles', "`telephely_id`='{$_POST['telephely_id']}' AND `cikk_id`='{$cikktorzs['id']}' AND `stat_id`<='".CIKKIGN_STAT_JOVAHAGYVA."'");
+    if( $anyagigenylesek && !$_POST['mehet'] ){
+        
+        $tablazat = nl2('
+            <table class="csikos tomorit hoveres">
+            <tr>
+                <th>Igénylés dátuma</th>
+                <th>Szálloda</th>
+                <th>Cikk</th>
+                <th>Név</th>
+            </tr>
+            ');
+        foreach($anyagigenylesek as $anyag){
+            
+            $telephely = $adatbazis_kapcsolat->s2('nev', 'telephely', "`id`='{$_POST['telephely_id']}'");
+            $tablazat .= nl2('
+                            <tr>
+                                <td>'.datum_kiir($anyag['insert_dt']).'</td>
+                                <td>'.$telephely['nev'].'</td>
+                                <td>'.$cikktorzs['id'].'</td>
+                                <td>'.$cikktorzs['nev'].'</td>
+                            </tr>
+                            ');
+        }
+        $tablazat .= '</table>';
+        
+        // Az igen gombra kattintva újra meghívjuk a Hozzáadás gombot vagy az Anyagigénylés gombot egy Mehet-el
+        if($_POST['mentes_gombbol']){
+            $onclick = 'anyagigenylesekMentes(\'mehet\');';
+        }else{
+            $onclick = 'anyagigenylesHozzaad(\'mehet\');';
+        }
+        
+        echo json_encode(array(
+            'title' => 'Hiba', 
+            'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="'.$onclick.' alert2();"><input type="button" class="gomb piros" value="Nem" onclick="anyagigenyles_form_reset(\''.$_POST['telephely_id'].'\'); alert2();">',
+            'hiba'  => 'Az alábbi igényléseket már tartalmazza a rendszer:<br>'.$tablazat.'<br>A már meglévő igénylések ellenére is kíván igénylést megadni?'
+        ));
+        
+    }else{
+        echo json_encode(array(
+            'mehet' => '1', 
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
 // Get leírás
 if (isset($_POST['get_leiras'])) {
 
@@ -1953,6 +2006,7 @@ if (isset($_POST['anyagigenylesSztornoz'])) {
     exit();
 }
 
+
 // CSV generálása
 if (isset($_GET['csv'])) {
 
@@ -2512,7 +2566,7 @@ require_once('selectek.php');
                     </div>
                     <div class="dtc form_jobb">
                         <form id="anyagSorokForm">
-                            <table id="insertAnyagigenylesSor" class="csikos tomorit full">
+                            <table id="insertAnyagigenylesSor" class="csikos tomorit full hoveres">
                                 <tr>
                                     <th>Szálloda</th>
                                     <th style="width: 6rem">Cikk</th>
@@ -2625,7 +2679,7 @@ require_once('selectek.php');
 
                 if($anyagok_html){
                     $szamla_html .= nl2('<p style="margin: 2rem 0 0.2rem 0" class="b">Igénylésre váró anyagok a munkalapokon:</p>
-                    <table class="csikos tomorit">
+                    <table class="csikos tomorit hoveres">
                         <tr>
                             <th>Szálloda</th>
                             <th>Cikk</th>
