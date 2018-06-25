@@ -1676,6 +1676,19 @@ console.log('b'+active_top);
         $('.menu_icon').toggleClass('active');
         $('.menu').toggleClass('active');
     });
+
+
+    $('#bejelentoText').on('click', function() {
+        if( $.browser.mobile ) {
+            $(this).toggleClass('active');
+
+            if( $(this).hasClass('active') ) {
+                $('.dtr.bejelento_sor').fadeIn(0);
+            } else {
+                $('.dtr.bejelento_sor').fadeOut(0);
+            }
+        }
+    });
 });
 
 function egysegarMuv( pre, muvelet ) {
@@ -6771,7 +6784,7 @@ function munkalapok_nyitottak_koze(mehet){
 
 /* Az űrlap gombjait váltjuk: mentés / mégsem látsszon vagy a kék gombok. Illetve fomr módosított-e vagy sem.  */
 function gombok_valt(mod){
-    
+
     if( mod ) {
         $('#kilepes_gomb').val('Kilépés mentés nélkül');
         $('#mehet_gomb').attr('disabled', false).addClass('gombb_alert');
@@ -6899,7 +6912,7 @@ function anyagigenylesHozzaad() {
     data['cikkmee'] = form.find('.insertMee').text() + ' <input type="hidden" name="cikkmee[]" value="' + form.find('.insertMee').text() + '">';
 
     var mezok = '<tr class="anyag_sor">' +
-                    '<td>' + $('#telephely_id').find('option:selected').text()/*Itt azért csináljuk másképpen, mert ha a szálloda readonly (egyszállodája ha van a usernek), akkor nem jelent meg a szálloda neve */ 
+                    '<td>' + $('#telephely_id').find('option:selected').text()/*Itt azért csináljuk másképpen, mert ha a szálloda readonly (egyszállodája ha van a usernek), akkor nem jelent meg a szálloda neve */
                            + data['telephely_id'] + '</td>' +
                     '<td class="l" id="cikkszam_'+data['cikkszam_recid']+'"></td>' +
                     '<td class="l">' + data['nev'] + '</td>' +
