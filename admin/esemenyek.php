@@ -1072,7 +1072,7 @@ $bejelentes_tomb = $bejelentes_arch_tomb = $akt_tomb = array(
 
                                                             </div>
                                                             <div class="dtc" style="padding-top: 2rem; min-width: 43rem">
-                                                                <div class="dib c" style="width: 26%; min-width: 21rem; padding-top: 1rem">Bejelentő</div>
+                                                                <div id="bejelentoText" class="dib c" style="width: 26%; min-width: 21rem; padding-top: 1rem">Bejelentő</div>
                                                                 <div class="dib c" style="width: 26%; min-width: 21rem; padding-top: 1rem">Bejelentést rögzítő</div>
                                                             </div>
                                                         </div>
