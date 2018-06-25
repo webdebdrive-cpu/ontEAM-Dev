@@ -892,7 +892,7 @@ require_once('selectek.php');
 
         // Szerkeszthető egy bejelentés, ha nyitott és van kezelés jogunk
         $felh         = $adatbazis_kapcsolat->s2('reszleg_id', 'login', "`nev`='{$_SESSION[get_db_tabla().'user']}'");
-        $telephely    = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$sor['telephely_id']}'");
+        $telephely    = $adatbazis_kapcsolat->s2('nev modell', 'telephely', "`id`='{$sor['telephely_id']}'");
         $munkalap_idk = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
         $munkalap_idk = adatbazis2tomb($munkalap_idk, 'munkalap_id');
         $van_nem_hozzarendelt = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid` IN (".implode(', ', $munkalap_idk).") AND `stat_id`!='".MUNKALAP_STAT_HOZZARENDELT."' AND `stat_id`!='".MUNKALAP_STAT_NYITOTT."'");
@@ -940,9 +940,27 @@ require_once('selectek.php');
 
         // Munkalap készítése
         if( ($sor['stat_id']==BEJELENTES_STAT_NYITOTT || $sor['stat_id']==BEJELENTES_STAT_FOLYAMATBAN) && _jog(JOG_MUNKALAP_KESZITHET) ) {
-            $gombok .= nl2('
-                <input type="button" id="munkalapEgyeni" class="gomb modositaskor_rejt" value="Munkalap készítése" onclick="munkalapKeszit(\'csak kérdezünk még\')" title="Munkalap készítése">
-            ');
+            
+            // Ha egyszállodás, és van munkalapja, akkor nem készíthet újabb munkalapot
+            $keszithet_ml_ot = true;
+            if(!$telephely['modell']){
+                $van_kapcs = $adatbazis_kapcsolat->s2('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'", '', '1');
+                $letezik_munkalap = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid`='{$van_kapcs['munkalap_id']}'");
+                if( $letezik_munkalap ){
+                    $keszithet_ml_ot = false;
+                }
+            }
+            
+            if($keszithet_ml_ot){
+                $gombok .= nl2('
+                    <input type="button" id="munkalapEgyeni" class="gomb modositaskor_rejt" value="Munkalap készítése" onclick="munkalapKeszit(\'csak kérdezünk még\')" title="Munkalap készítése">
+                ');
+            }else{
+                $gombok .= nl2('
+                    <input type="button" id="munkalapEgyeni" class="gomb modositaskor_rejt" value="Munkalap készítése" onclick="alert2(\'Bejelentés szám: '.$sor['ikt_szam'].'<br>Hiba helye: '.$telephely['nev'].'<br>Bejelentett hiba: '. getErtek('info', 'erteklista', 'recid', $sor['hiba_id']).'<br><br>Ehhez a bejelentéshez már van munkalap.<br>Nem lehet újat készíteni!\', \'\', \'Hiba\')" title="Munkalap készítése">
+                ');
+            }
+
         }
 
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';

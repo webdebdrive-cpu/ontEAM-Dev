@@ -2765,7 +2765,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                 if(!$szalloda['modell']){
                     $van_kapcs = $adatbazis_kapcsolat->s2('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bsz['recid']}'", '', '1');
                     $letezik_munkalap = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid`='{$van_kapcs['munkalap_id']}'");
-                    if( $van_kapcs ){
+                    if( $letezik_munkalap ){
                         $active .= ' szurke_hat';
                     }
                 }
@@ -3086,7 +3086,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                 ');
             }
 
-            // Ha a munkalap tíupusa Hibaelhárítás, akkor a bejeletnés hibáját jelenítsük meg röviden
+            // Ha a munkalap típusa Hibaelhárítás, akkor a bejelentés hibáját jelenítsük meg röviden
             if( $bsz['tipus_id']==MLTIPUS_HIBAELHARITAS && $bsz['hiba_txt'] ){
                 $hossz = 14;
                 if(mb_strlen($bsz['hiba_txt'])>$hossz){
@@ -3098,7 +3098,9 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
             }else{
                 // Munkalap tipus szövegén rövidítsünk
                 $ml_tipus = getErtekLista(ERTEKLISTA_MUNKALAP_TIP, $bsz['tipus_id']);
-                $ml_tipus = str_replace(array('Ütemezett feladat', 'Eseti fenntartás', 'Rendszeres kbt.'), array('Ütemezett', 'Eseti', 'Rendsz.Karb.'), $ml_tipus);
+                $ml_tipus = str_replace(array('Ütemezett feladat',  'Eseti fenntartás', 'Rendszeres kbt.', 'Üzemeltetési feladat'),
+                                        array('Ütemezett',          'Eseti',            'Rendsz.Karb.',    'Üzemeltetés'         ),
+                                        $ml_tipus);
             }
             
             // Ha van gép, csak akkor legyen kötőjel
