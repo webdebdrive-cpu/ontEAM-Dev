@@ -4488,7 +4488,7 @@ if( isset($_POST['munkalapMuszakiVezeto']) ) {
         mysqli_autocommit($db_kapcs, false);
 
         // Státusz ellenőrzése
-        $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id', 'munkalap', "`recid`='$recid'");
+        $munkalap = $adatbazis_kapcsolat->s2('stat_id szemelyzet_id telephely_id', 'munkalap', "`recid`='{$recid}'");
         if( $munkalap === false ) { $db_error = true; }
 
         $telephely  = $adatbazis_kapcsolat -> s2('nev modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
@@ -4555,17 +4555,38 @@ if( isset($_POST['munkalapMuszakiVezeto']) ) {
 
         // Státusz léptetés
         if($munkalap['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT){
+            
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) === false ) {
                 $db_error = true;
             }
+            
         }elseif($munkalap['stat_id'] == MUNKALAP_STAT_HOZZARENDELT || $munkalap['stat_id'] == MUNKALAP_STAT_FELVEVE){
+            
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) === false ) {
                 $db_error = true;
             }
+            
+            // FONTOS: Ha idáig eljutottunk, akkor már támaszkodhatunk arra, hogy egyszállodás modellben vagyunk, és van kezelés jog. Elvégre fentebb a jog ellenőrzésénél már hibát dobtunk volna.
+            // Ha kifejezetten hozzárendeltben vagyunk, akkor ellenőrizzük a ML-hoz kapcsolódó bejelentést. Ha ez nyitott, akkor folyamatban ra kell léptetni.
+            if( $munkalap['stat_id'] == MUNKALAP_STAT_HOZZARENDELT ){
+                
+                $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$recid}'");
+                if( $bejelentes === false ) { $db_error = true; }
+                $bejelentes = $adatbazis_kapcsolat->s2('recid stat_id', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
+                if( $bejelentes === false ) { $db_error = true; }
+                if($bejelentes['stat_id']==BEJELENTES_STAT_NYITOTT){
+                    if( addStatusz( 'bejelentes_statusz', $bejelentes['recid'], BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
+                        $db_error = true;
+                    }
+                }
+            }
+            
         }else{
+            
             if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) === false ) {
                 $db_error = true;
             }
+            
         }
 
         if( !$db_error ) {

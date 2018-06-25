@@ -18,10 +18,10 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
-//if (isset($_GET['teszt'])) {
-//    addStatusz('bejelentes_statusz', 10216, BEJELENTES_STAT_FOLYAMATBAN, '', '', '2018-06-21 19:59:00');
-//    exit;
-//}
+if (isset($_GET['teszt'])) {
+    addStatusz('bejelentes_statusz', 10446, BEJELENTES_STAT_FOLYAMATBAN, '', '', '', ' 2018.06.22 19:20', ' Korsós Gyula');
+    exit;
+}
 
 if (false && isset($_GET['hiba_id_feltolt'])) {
     
@@ -415,7 +415,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 }
 
 // Logginnév átnevezése
-if (isset($_GET['loginnev_csere'])) {
+if (false && isset($_GET['loginnev_csere'])) {
     
     $regi_nev = trim($_GET['regi']);
     $uj_nev   = trim($_GET['uj']);

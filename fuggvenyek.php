@@ -5462,7 +5462,7 @@ function getStatuszIdo( $time ) {
 }
 
 // Státusz hozzáadása
-function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklista_recid = 0, $memo = '', $rendszer_a_user = false, $adott_ido = '' ) {
+function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklista_recid = 0, $memo = '', $rendszer_a_user = false, $adott_ido = '', $adott_nev = '' ) {
 
     global $adatbazis_kapcsolat;
     global $db_kapcs;
@@ -5471,13 +5471,31 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
     $kulso_kulcs = str_replace('_statusz', '', $tabla);
     
     if($adott_ido){
+        $adott_ido = trim($adott_ido);
+        $adott_ido  = str_replace('.', '-', $adott_ido);
+        if(strlen($adott_ido)==16){
+            $adott_ido .= ':00';
+        }
+        $now  = $adott_ido;
         $time = strtotime($adott_ido);
     }else{
+        $now  = 'NOW()';
         $time = time();
     }
 
     // Ütemezők esetén is legyen teljes_nev, amit be tudunk írni
     $teljes_nev = $_SESSION[get_db_tabla().'teljes_nev'];
+    $login      = $_SESSION[get_db_tabla().'user'];
+    if($adott_nev){
+        $adott_nev = trim($adott_nev);
+        $teljes_nev = $adott_nev;
+        $login = $adatbazis_kapcsolat->s('nev', 'login', "`teljes_nev`='{$adott_nev}'");
+        if(count($login)>1){
+            echo 'Hiba: nem egyértelmű a teljes név alapján, ki a user!';
+        }else{
+            $login = $login[0]['nev'];
+        }
+    }
     if($rendszer_a_user){
         $teljes_nev = get_nev();
     }
@@ -5530,11 +5548,11 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 
             // Beszúrjuk az újat
             $sql = $adatbazis_kapcsolat -> i($tabla,
-                                                array($kulso_kulcs.'_recid', 'stat_id', 'erteklista_recid', 'text',  'login',                           'insert_dt',   'insert_usr',  'update_usr' ),
-                                                array($recid,                $stat_id,  $erteklista_recid,  $memo,   $_SESSION[get_db_tabla().'user'],  'NOW()',       $teljes_nev,   $teljes_nev  )
+                                                array($kulso_kulcs.'_recid', 'stat_id', 'erteklista_recid', 'text',  'login',   'insert_dt',   'update_dt', 'insert_usr',  'update_usr' ),
+                                                array($recid,                $stat_id,  $erteklista_recid,  $memo,   $login,    $now,          $now,        $teljes_nev,   $teljes_nev  )
                                             );
             if( $sql === false ) { $db_error = true; }
-//echo $adatbazis_kapcsolat->gp() . '<br>';
+// echo $adatbazis_kapcsolat->gp() . '<br>';
             // Ha van memó, akkor azt az előző státuszhoz írjuk be: MÉGSEM, a friss sorba kerül be
 //            $sql = $adatbazis_kapcsolat -> u($tabla, array('text' ), array($memo), "`recid`='{$akt_statusz['recid']}'");
 //            if( $sql === false ) { $db_error = true; }
