@@ -132,7 +132,7 @@
         min-width: 9.5rem;
         width: 9.5rem;
     }
-    
+
     .hozzaadasGomb {
         margin-top: 0.2rem;
     }
@@ -444,6 +444,10 @@
 }
 
 @media only screen and (max-width: 800px) {
+    body {
+        font-size: 1.4rem;
+    }
+
     div.header div.dtc {
         height: 6rem;
     }
@@ -594,6 +598,10 @@
         padding: 0.2rem 0rem 0.2rem 0rem;
     }
 
+    .dtr.wpre .form_jobb {
+        white-space: normal;
+    }
+
     .rogzito_dtr .dtc:first-child {
         display: none;
     }
@@ -635,7 +643,8 @@
     }
 
     .sor.kethasabos div.jobb {
-        height: calc( 100% - 8.5rem );
+        height: calc( 100% - 0.5rem );
+        margin: 0rem 0rem 0rem 0rem;
     }
 
     #tartalomBal {
@@ -1032,6 +1041,39 @@
     .form_jobb span.formText {
         font-size: 1.2rem;
     }
+
+    #popup div.popup_tart div.kozep {
+        font-size: 1.4rem;
+    }
+
+    ul.telephelyek li {
+        font-size: 1.6rem;
+        line-height: 2.8rem;
+    }
+
+    ul.telephelyek li.kat {
+        padding: 0rem 0rem 0rem 2.5rem;
+    }
+
+    ul.telephelyek li.fokat {
+        padding: 0rem 0rem 0rem 2.5rem;
+    }
+
+    ul.telephelyek li.alkatos a span.icon {
+        height: 1.5rem;
+        top: 0.6rem;
+        width: 1.5rem;
+    }
+
+    ul.telephelyek li.alkatos a span.icon:before, ul.telephelyek li.alkatos a span.icon:after {
+        top: 0.6rem;
+        left: 0.2rem;
+        width: 0.9rem;
+    }
+
+    div.jsff div.talloz div {
+        font-size: 1.6rem;
+    }
 }
 
 @media only screen and (max-width: 600px) {
@@ -1048,6 +1090,27 @@
 
     div.figy div.tart {
         min-width: 100%;
+    }
+
+    #popup div.popup_kont {
+        width: calc(100% - 2rem);
+    }
+
+    #popup div.popup_tart {
+        min-width: 100%;
+        max-width: 100%;
+        padding: 5rem 0rem 0rem 0rem;
+    }
+
+    ul.telephelyek {
+        min-width: 100%;
+    }
+
+    #popup div.popup_tart h2 {
+        font-size: 1.4rem;
+        height: 5rem;
+        padding: 1.8rem 0rem 0.5rem 1.5rem;
+        width: calc(100% - 5rem);
     }
 }
 
