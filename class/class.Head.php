@@ -119,7 +119,7 @@ class Head{
         //HTML 5 alatt nem valid, .hataccess-ben kell meagdni: $head .= '<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /> ';//CSS3-hoz kell, hogy IE alatt is menjen FUCK
 
         //Amennyiben az oldal responzív, úgy a meta tagokban tiltjuk az oldal nagyíthatóságát (mobilon nem zoom-olunk hanem responzívek vagyunk)
-        if(get_responsive() || basename( dirname(self()) ).'/' == get_admin() ){
+        if(get_responsive() /*|| basename( dirname(self()) ).'/' == get_admin()*/ ){
             $head .= '<meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0, user-scalable=0,width=device-width">';
         }
 

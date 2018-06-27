@@ -641,6 +641,10 @@ $head -> js_css        = get_jsfajlok_admin();
 $head -> extrak        = '<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">';
 $head -> extrak       .= '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">';
 
+if( in_array(basename(self()), get_aktiv_oldalak()) ) {
+    $head -> extrak   .= '<link href="../css/responsive.css" rel="stylesheet">';
+}
+
 $header_html .= $head -> getHtml();
 
 $body_class = '';
@@ -648,10 +652,10 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     $body_class = ' class="teljesMagas"';
 
     if( isset($_GET['uj']) ) {
-        $body_class = ' class="teljesMagas csakjobboldal"';
+        $body_class = ' class="teljesMagas ujfeltoltes"';
     }
 } else if( isset($_GET['uj']) ) {
-    $body_class = ' class="csakjobboldal"';
+    $body_class = ' class="ujfeltoltes"';
 } else if( !$_SESSION[get_db_tabla().'user'] ) {
     $body_class = ' class="signedout"';
 }

@@ -469,12 +469,12 @@
         width: 100%!important;
     }
 
-    .csakjobboldal #tartalomJobb,
+    .ujfeltoltes #tartalomJobb,
     .signedout #tartalomJobb {
         display: block;
     }
 
-    .csakjobboldal #tartalomBal,
+    .ujfeltoltes #tartalomBal,
     .signedout #tartalomBal {
         display: none;
     }
@@ -642,9 +642,13 @@
         display: none;
     }
 
-    .sor.kethasabos div.jobb {
-        height: calc( 100% - 0.5rem );
+    body.ujfeltoltes .sor.kethasabos div.jobb {
+        height: 100%;
         margin: 0rem 0rem 0rem 0rem;
+    }
+
+    body:not(.ujfeltoltes) .sor.kethasabos div.jobb {
+        height: calc( 100% - 7.5rem );
     }
 
     #tartalomBal {
@@ -994,6 +998,38 @@
     div.naplo div.nSor div.dtc:nth-child(4),
     div.naplo div.nSor div.dtc:nth-child(5) {
         display: none;
+    }
+
+    #sorrendezes li, #feltoltott_fajl li, #sorrendezes_album li, #sorrendezes_tobbkep li, #sorrendezes_bejegyzes li {
+        display: block;
+        padding: 1rem 0rem 1rem 0rem;
+        width: 100%;
+    }
+
+    #sorrendezes li.fejlec, #feltoltott_fajl li.fejlec, #sorrendezes_album li.fejlec, #sorrendezes_tobbkep li.fejlec, #sorrendezes_bejegyzes li.fejlec {
+        display: none;
+    }
+
+    #sorrendezes li div.kep, #feltoltott_fajl li div.kep, #sorrendezes_album li div.kep, #sorrendezes_tobbkep li div.kep, #sorrendezes_bejegyzes li div.kep {
+        border-bottom: none;
+        display: block;
+        width: 100%;
+    }
+
+    #sorrendezes li div.felirat, #feltoltott_fajl li div.felirat, #sorrendezes_album li div.felirat, #sorrendezes_tobbkep li div.felirat, #sorrendezes_bejegyzes li div.felirat {
+        border-bottom: none;
+        display: block;
+        width: 100%!important;
+    }
+
+    #sorrendezes li div.maradek, #feltoltott_fajl li div.maradek, #sorrendezes_album li div.maradek, #sorrendezes_tobbkep li div.maradek, #sorrendezes_bejegyzes li div.maradek {
+        display: block;
+        width: 100%;
+    }
+
+    #sorrendezes li div.maradek.torles, #feltoltott_fajl li div.maradek.torles, #sorrendezes_album li div.maradek.torles, #sorrendezes_tobbkep li div.maradek.torles, #sorrendezes_bejegyzes li div.maradek.torles {
+        text-align: left;
+        width: 100%;
     }
 
     #alert2 .gomb {

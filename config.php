@@ -89,7 +89,19 @@ function gu()                { return get_utvonal();                            
 function get_utvonal()       { return 'tartalom/';                              }
 function get_penznem()       { return 'Ft';                                     }
 function get_session()       { return true;                                     }
-function get_responsive()    { return true;                                     } //Amennyiben az oldal responzív, úgy a meta tagokban tiltjuk az oldal nagyíthatóságát (mobilon nem zoom-olunk hanem responzívek vagyunk)
+function get_aktiv_oldalak() {
+    return array(
+        'index.php',
+        'bejelentes.php'
+    );
+}
+function get_responsive()    {
+    if( in_array(basename(self()), get_aktiv_oldalak()) ) {
+        return true;
+    }
+
+    return false;
+} //Amennyiben az oldal responzív, úgy a meta tagokban tiltjuk az oldal nagyíthatóságát (mobilon nem zoom-olunk hanem responzívek vagyunk)
 function get_session_felh()  { return get_db_tabla().'felhId';                  }
 function get_teszt_mail()    { return 'teszt@webdeb.hu';                        }
 function get_teszt_mail_nev(){ return 'WebDeb Teszt';                           }
@@ -188,7 +200,7 @@ function get_jsfajlok_admin(){
                 $utvonal.'css/feltolt.css',
                 $utvonal.'css/tooltip.css',
                 $utvonal.'css/dragtable.css',
-                $utvonal.'css/responsive.css',
+                // $utvonal.'css/responsive.css',
                 //{KOVETKEZO_ADMIN_CSS}
 		);
 
