@@ -2074,8 +2074,8 @@ if( isset($_POST['kulsokivHozzarend']) ) {
         // Munkalap update
         if(isset($_POST['javaslattetel'])) {
             $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                                        array('szallito_id', 'jh_ert', 'varh_erk', 'jh1_login', 'jh1_datum',            'jh2_login', 'jh2_datum',           'szemelyzet_id' ),
-                                                        array($szallitoid,   $jh_ert,  $varh_erk,  '',          '0000-00-00 00:00:00',  '',          '0000-00-00 00:00:00', ''              ),
+                                                        array('szallito_id', 'jh_ert', 'varh_erk', 'jh1_login', 'jh1_datum',           'jh1_szerep',    'jh2_login', 'jh2_datum',           'jh2_szerep',   'szemelyzet_id' ),
+                                                        array($szallitoid,   $jh_ert,  $varh_erk,  '',          '0000-00-00 00:00:00', '',              '',          '0000-00-00 00:00:00', '',             ''              ),
                                                 "`recid` = '{$recid}'");
             if( $sql === false ) { $db_error = true; }
 
