@@ -2694,12 +2694,12 @@ if( isset($_GET['getBejBejelentok']) ) {
                         return !~text.indexOf(val);
                     }).hide();
 
-                    if( $(\'table.egyErtek tr.kijSor.kijelolve\').is(\':hidden\') ){
+                    if( !$(\'#bejbejelentok table.egyErtek tr.kijSor.kijelolve\').length ){
                         $(\'#diszpFeltolt\').attr(\'disabled\', true);
                         $(\'#masnevebenFeltolt\').val(\'\');
                     }else{
                         $(\'#diszpFeltolt\').attr(\'disabled\', false);
-                        $(\'#masnevebenFeltolt\').val( $(\'table.egyErtek tr.kijSor.kijelolve\').attr(\'data-nev\') );
+                        $(\'#masnevebenFeltolt\').val( $(\'#bejbejelentok table.egyErtek tr.kijSor.kijelolve\').attr(\'data-nev\') );
                     }
 
                 }

@@ -714,14 +714,14 @@ function i_u($type, $tabla, $tomb) {
     // Update
 	} else {
 
-        // Csak nyitott státuszú bejelentést lehet szerkeszteni
+        // Bejelentések szerkesztésekor
         if( $tabla == 'bejelentes' ) {
 
+            // Csak nyitott státuszú bejelentést lehet szerkeszteni
             $akt_statusz = $adatbazis_kapcsolat->s2('stat_id', $tabla, "`recid`='{$_GET['id']}'");
             if( $akt_statusz === false ) { $db_error = true; }
 
             if( $akt_statusz ) {
-
                 if( $akt_statusz['stat_id'] != BEJELENTES_STAT_NYITOTT ) {
                     echo json_encode(array(
                         'hiba' => 'Csak nyitott státuszú bejegyzést lehet módosítani!'
@@ -734,6 +734,29 @@ function i_u($type, $tabla, $tomb) {
                 ));
                 exit();
             }
+            
+            // Ha a bejelentéshez tartozik munkalap, akkor annak adatait is frissítjük
+            $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
+            $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
+            if($munkalapok){
+                
+                // Van pár mező, ami a munkalapban létezik, de a bejelentésnél nem, ezért ki kell számolni:
+                $_POST['gep_txt']  = getErtek('nev', 'eszkozkezeles', 'recid', $_POST['gep_id']);
+                $_POST['hiba_txt'] = getErtekLista('', '', $_POST['hiba_id']);
+                $_POST['obj_txt']  = getErtek('nev', 'obj', 'recid', $_POST['obj_id']);
+                
+                // Adatok összeszedése
+                $munkalapba_mezok   = array('telephely_id', 'obj_id', 'obj_txt', 'gep_id', 'gep_txt', 'hiba_id', 'hiba_txt', 'surgos');
+                $munkalapba_ertekek = array();
+                foreach( $munkalapba_mezok as $mezo ){
+                    array_push($munkalapba_ertekek, $_POST[$mezo]);
+                }
+                
+                $sql = $adatbazis_kapcsolat->u('munkalap', $munkalapba_mezok, $munkalapba_ertekek, "`recid` IN (".implode(', ', $munkalapok).")");
+                if( $sql === false ) { $db_error = true; }
+ 
+            }
+            
         }
 
         // Ha volt változás, akkor logoljuk
@@ -854,7 +877,7 @@ function i_u($type, $tabla, $tomb) {
         if( $id === false ) { $db_error = true; }
 
         if( $id ) {
-            $sor = $adatbazis_kapcsolat->s('*', $tabla, 'recid='.$_GET['id'], '', '1');
+            $sor = $adatbazis_kapcsolat->s('*', $tabla, "`recid`='{$_GET['id']}'", '', '1');
             if( $sor === false ) { $db_error = true; }
 
             if( $sor ) {
@@ -913,7 +936,7 @@ function i_u($type, $tabla, $tomb) {
 	}
 
 	if(isset($_GET['id']) && $type == 'update'){
-		$id=$_GET['id'];
+		$id = $_GET['id'];
 	}
 
     // Ha kell, akkor beállítjuk még a nevid-s oszlopot
