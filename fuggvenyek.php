@@ -2759,7 +2759,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                 $active .= ' nyitott_statuszu'; // Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
             
-            // Egyszálloda esetén, ha nyitott a státuzs, van munkalap készíthet jog, és van is hozzá munkalap, akkor legyen szürke a háttér
+            // Egyszálloda esetén, ha nyitott a státusz, van munkalap készíthet jog, és van is hozzá munkalap, akkor legyen szürke a háttér
             if( _jog(JOG_MUNKALAP_KESZITHET) && $bsz['stat_id']==BEJELENTES_STAT_NYITOTT){
                 $szalloda  = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$bsz['telephely_id']}'");
                 if(!$szalloda['modell']){

@@ -22,7 +22,7 @@ require_once('../weblap.php');
 // Loginról értesítő levelek küldése
 if (false && isset($_GET['login_ertesit'])) {
     
-    $szalloda_nev   = 'SÁRVÁR TH'; // SÁRVÁR TH
+    $szalloda_nev   = 'PALATINUS'; // SÁRVÁR TH
     $galyasz_bence  = false;
     $datum          = date('Y.m.d', strtotime(' +1 day'));
     $napok          = array('vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat');
@@ -69,22 +69,11 @@ $uzi .= fajlbol_olvas('../sablon/admin/mail/alairas.html');
 
 
 
-            var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
+            //var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
             //var_dump( level_kuldes(get_nev(), get_mail(), 'Handrai Tamás', 'handari@szinvatrend.hu', 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) ); exit;
             //var_dump( level_kuldes(get_nev(), get_mail(), 'BK', 'bk@webdeb.hu', 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) ); exit;
         }
     }
-    exit;
-}
-
-if (false && isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
-    
-    $loginok = $adatbazis_kapcsolat->s('recid tabla_sorrend', 'login');
-    foreach( $loginok as $login ){
-        $login['tabla_sorrend'] = str_replace('{&quot;id&quot;:&quot;anyag_tabla_jovah_menny', '{&quot;id&quot;:&quot;anyag_tabla_jovah_ertek&quot;,&quot;width&quot;:118},{&quot;id&quot;:&quot;anyag_tabla_jovah_menny', $login['tabla_sorrend']);
-        $adatbazis_kapcsolat->u('login', array('tabla_sorrend'), array($login['tabla_sorrend']), "`recid`='{$login['recid']}'");
-    }
-    
     exit;
 }
 
@@ -321,7 +310,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                     // Szállodához rendelés
                                     $szallodak = explode(',', $szalloda);
                                     foreach( $szallodak as $szall ){
-                                        $szall = mb_strtoupper( trim($szall) ).' TH';
+                                        $szall = mb_strtoupper( trim($szall) );
                                         $szall_id = $adatbazis_kapcsolat->s2('id', 'telephely', "`nev`='{$szall}'");
                                         if(!$szall_id){
                                             $log_csv .= 'Nem ismert szálloda (ez még az előző sorhoz tartozik): '.$szall;
@@ -542,7 +531,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 }
 
 // Objektumok importja PPM-ből
-if (isset($_GET['objektum_import_ppm'])) {
+if (false && isset($_GET['objektum_import_ppm'])) {
     
     $telephely_id = 2012;
     
@@ -626,6 +615,18 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
         fclose($csv_fajl);
     }else{
         echo 'Fájl nem található';
+    }
+    
+    exit;
+}
+
+
+if (false && isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
+    
+    $loginok = $adatbazis_kapcsolat->s('recid tabla_sorrend', 'login');
+    foreach( $loginok as $login ){
+        $login['tabla_sorrend'] = str_replace('{&quot;id&quot;:&quot;anyag_tabla_jovah_menny', '{&quot;id&quot;:&quot;anyag_tabla_jovah_ertek&quot;,&quot;width&quot;:118},{&quot;id&quot;:&quot;anyag_tabla_jovah_menny', $login['tabla_sorrend']);
+        $adatbazis_kapcsolat->u('login', array('tabla_sorrend'), array($login['tabla_sorrend']), "`recid`='{$login['recid']}'");
     }
     
     exit;
@@ -724,125 +725,125 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
     exit;
 }
 
-// 
-if (isset($_GET['archivum_helyreallit'])) {
-    
-    $tobbszalloda = $adatbazis_kapcsolat->s('id', 'telephely', "`modell`=0");
-    $tobbszalloda = adatbazis2tomb($tobbszalloda, 'id');
-    
-    $munkalap_recidk = array();
-    
-    $bejelentesek = $adatbazis_kapcsolat->s('recid telephely_id stat_id hiba_id obj_id insert_dt', 'bejelentes_arch', "`telephely_id` IN ('". implode('\', \'', $tobbszalloda)."')", '', '');
-    foreach($bejelentesek as $bejelentes){
-        
-        $kapcs = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs_arch', "`bejelentes_id`='{$bejelentes['recid']}'");
-        if(!$kapcs){
-            $statusz = $adatbazis_kapcsolat->s('insert_dt', 'bejelentes_statusz_arch', "`bejelentes_recid`='{$bejelentes['recid']}'", 'recid');
-            
-            $munkalap = $adatbazis_kapcsolat->s('recid', 'munkalap_arch', "`insert_dt`='{$statusz[0]['insert_dt']}' AND `telephely_id`='{$bejelentes['telephely_id']}'");
-            if(count($munkalap)==1){
-                array_push($munkalap_recidk, $munkalap[0]['recid']);
-// $adatbazis_kapcsolat->i('munkalap_kapcs_arch', array('munkalap_id', 'bejelentes_id'), array($munkalap[0]['recid'], $bejelentes['recid']));
-                echo $munkalap['recid'] . 'HURRÁ<br>';
-            }elseif(count($munkalap)>1){
-                echo $adatbazis_kapcsolat->gp() . '<br>';
-                echo  'Több egyezés'.$bejelentes['recid'].'<br>';
-                foreach($munkalap as $ml){
-                    array_push($munkalap_recidk, $ml['recid']);
-                }
-            }else{
-                $munkalap = $adatbazis_kapcsolat->s('recid', 'munkalap_arch', "`insert_dt`='".date('Y-m-d H:i:s', strtotime($statusz[1]['insert_dt'])-1)."' AND `telephely_id`='{$bejelentes['telephely_id']}'");
-                if($munkalap){
-                    echo  'HURRÁ-1<br>';
-// $adatbazis_kapcsolat->i('munkalap_kapcs_arch', array('munkalap_id', 'bejelentes_id'), array($munkalap[0]['recid'], $bejelentes['recid']));
-                    array_push($munkalap_recidk, $munkalap[0]['recid']);
-                }else{
-                    $munkalap = $adatbazis_kapcsolat->s('recid', 'munkalap_arch', "`insert_dt`='".date('Y-m-d H:i:s', strtotime($statusz[1]['insert_dt'])+1)."' AND `telephely_id`='{$bejelentes['telephely_id']}'");
-                    if($munkalap){
-                        array_push($munkalap_recidk, $munkalap[0]['recid']);
-// $adatbazis_kapcsolat->i('munkalap_kapcs_arch', array('munkalap_id', 'bejelentes_id'), array($munkalap[0]['recid'], $bejelentes['recid']));
-                        echo  'HURRÁ+1<br>';
-                    }else{
-                        // Ha nincs találat, nézzük meg a 2. státusz időpontjában
-                        $munkalap = $adatbazis_kapcsolat->s('recid', 'munkalap_arch', "`insert_dt`='{$statusz[1]['insert_dt']}' AND `telephely_id`='{$bejelentes['telephely_id']}'");
-                        if(count($munkalap)==1){
-                            array_push($munkalap_recidk, $munkalap[0]['recid']);
-// $adatbazis_kapcsolat->i('munkalap_kapcs_arch', array('munkalap_id', 'bejelentes_id'), array($munkalap[0]['recid'], $bejelentes['recid']));
-                            echo $munkalap['recid'] . 'HURRÁ<br>';
-                        }else{
-                            
-                            $munkalap = $adatbazis_kapcsolat->s('recid', 'munkalap_arch', "`insert_dt`='".date('Y-m-d H:i:s', strtotime($statusz[1]['insert_dt'])-1)."' AND `telephely_id`='{$bejelentes['telephely_id']}'");
-                            if($munkalap){
-                                echo  'HURRÁ-1<br>';
-            // $adatbazis_kapcsolat->i('munkalap_kapcs_arch', array('munkalap_id', 'bejelentes_id'), array($munkalap[0]['recid'], $bejelentes['recid']));
-                                array_push($munkalap_recidk, $munkalap[0]['recid']);
-                            }else{
-                                $munkalap = $adatbazis_kapcsolat->s('recid', 'munkalap_arch', "`insert_dt`='".date('Y-m-d H:i:s', strtotime($statusz[1]['insert_dt'])-1)."' AND `telephely_id`='{$bejelentes['telephely_id']}'");
-                                if($munkalap){
-                                    echo  'HURRÁ-1<br>';
-                // $adatbazis_kapcsolat->i('munkalap_kapcs_arch', array('munkalap_id', 'bejelentes_id'), array($munkalap[0]['recid'], $bejelentes['recid']));
-                                    array_push($munkalap_recidk, $munkalap[0]['recid']);
-                                }
-                            }
-                            
-                            echo $bejelentes['recid'].'|'. $adatbazis_kapcsolat->gp() . '<br>';
-                            echo  'Nincs találat<br>';
-                        }
-                    }
-                }
-            }
-            
-        }
-    }
-    
-    $munkalapok = $adatbazis_kapcsolat->s('*', 'munkalap_arch', "`text`='' AND `insert_dt`>='2018-04-24 12:27:44' AND `tipus_id`!='3' AND `telephely_id` IN ('". implode('\', \'', $tobbszalloda)."')");
-    echo $adatbazis_kapcsolat->gp() . '<br>';
-    
-    $problemas = array();
-    foreach($munkalapok as $ml){
-        
-        // Ha nincs kapcsolata, csak akkor foglalkozunk vele
-        $van_kapcs = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs_arch', "`munkalap_id`='{$ml['recid']}'");
-        if(!$van_kapcs){
-            
-            array_push($problemas, $ml['recid']);
-            
-//            $parja = $adatbazis_kapcsolat->s('recid insert_dt', 'munkalap_arch', "`recid`!='{$ml['recid']}' AND `telephely_id`='{$ml['telephely_id']}' AND `obj_id`='{$ml['obj_id']}' AND `hiba_id`='{$ml['hiba_id']}'");
-//            if($parja){
-//                if(count($parja)==1){
-//    // $adatbazis_kapcsolat->i('munkalap_kapcs_arch', array('munkalap_id', 'bejelentes_id'), array($ml['recid'], $parja[0]['recid']));
-//                    echo 'megvan a párja: '.$ml['recid'].' - '.$parja[0]['recid']. '<br>';
+// Archiv táblák közti kapcsolatot így állítottuk helyre
+//if (false && isset($_GET['archivum_helyreallit'])) {
+//    
+//    $tobbszalloda = $adatbazis_kapcsolat->s('id', 'telephely', "`modell`=0");
+//    $tobbszalloda = adatbazis2tomb($tobbszalloda, 'id');
+//    
+//    $munkalap_recidk = array();
+//    
+//    $bejelentesek = $adatbazis_kapcsolat->s('recid telephely_id stat_id hiba_id obj_id insert_dt', 'bejelentes_arch', "`telephely_id` IN ('". implode('\', \'', $tobbszalloda)."')", '', '');
+//    foreach($bejelentesek as $bejelentes){
+//        
+//        $kapcs = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs_arch', "`bejelentes_id`='{$bejelentes['recid']}'");
+//        if(!$kapcs){
+//            $statusz = $adatbazis_kapcsolat->s('insert_dt', 'bejelentes_statusz_arch', "`bejelentes_recid`='{$bejelentes['recid']}'", 'recid');
+//            
+//            $munkalap = $adatbazis_kapcsolat->s('recid', 'munkalap_arch', "`insert_dt`='{$statusz[0]['insert_dt']}' AND `telephely_id`='{$bejelentes['telephely_id']}'");
+//            if(count($munkalap)==1){
+//                array_push($munkalap_recidk, $munkalap[0]['recid']);
+//// $adatbazis_kapcsolat->i('munkalap_kapcs_arch', array('munkalap_id', 'bejelentes_id'), array($munkalap[0]['recid'], $bejelentes['recid']));
+//                echo $munkalap['recid'] . 'HURRÁ<br>';
+//            }elseif(count($munkalap)>1){
+//                echo $adatbazis_kapcsolat->gp() . '<br>';
+//                echo  'Több egyezés'.$bejelentes['recid'].'<br>';
+//                foreach($munkalap as $ml){
+//                    array_push($munkalap_recidk, $ml['recid']);
+//                }
+//            }else{
+//                $munkalap = $adatbazis_kapcsolat->s('recid', 'munkalap_arch', "`insert_dt`='".date('Y-m-d H:i:s', strtotime($statusz[1]['insert_dt'])-1)."' AND `telephely_id`='{$bejelentes['telephely_id']}'");
+//                if($munkalap){
+//                    echo  'HURRÁ-1<br>';
+//// $adatbazis_kapcsolat->i('munkalap_kapcs_arch', array('munkalap_id', 'bejelentes_id'), array($munkalap[0]['recid'], $bejelentes['recid']));
+//                    array_push($munkalap_recidk, $munkalap[0]['recid']);
 //                }else{
-//                    $db = 0;
-//                    foreach($parja as $p){
-//                        $bejelentes_id = $adatbazis_kapcsolat->s2('bejelentes_recid', 'bejelentes_statusz_arch', "`insert_dt`='{$p['insert_dt']}'");
-//                        $insert_dt = $adatbazis_kapcsolat->s2('insert_dt', 'bejelentes_statusz_arch', "`bejelentes_recid`='{$bejelentes_id['bejelentes_recid']}'", 'recid desc', '1');
-//                        // echo $ml['recid'].' - '.$p['recid'].' - '.$p['insert_dt'].' kisebb mint '.$insert_dt['insert_dt'] . '? ';
-//                        if($p['insert_dt']<$insert_dt['insert_dt']){
-//                        //    echo 'igen' . '<br>';
-//                            $db++;
+//                    $munkalap = $adatbazis_kapcsolat->s('recid', 'munkalap_arch', "`insert_dt`='".date('Y-m-d H:i:s', strtotime($statusz[1]['insert_dt'])+1)."' AND `telephely_id`='{$bejelentes['telephely_id']}'");
+//                    if($munkalap){
+//                        array_push($munkalap_recidk, $munkalap[0]['recid']);
+//// $adatbazis_kapcsolat->i('munkalap_kapcs_arch', array('munkalap_id', 'bejelentes_id'), array($munkalap[0]['recid'], $bejelentes['recid']));
+//                        echo  'HURRÁ+1<br>';
+//                    }else{
+//                        // Ha nincs találat, nézzük meg a 2. státusz időpontjában
+//                        $munkalap = $adatbazis_kapcsolat->s('recid', 'munkalap_arch', "`insert_dt`='{$statusz[1]['insert_dt']}' AND `telephely_id`='{$bejelentes['telephely_id']}'");
+//                        if(count($munkalap)==1){
+//                            array_push($munkalap_recidk, $munkalap[0]['recid']);
+//// $adatbazis_kapcsolat->i('munkalap_kapcs_arch', array('munkalap_id', 'bejelentes_id'), array($munkalap[0]['recid'], $bejelentes['recid']));
+//                            echo $munkalap['recid'] . 'HURRÁ<br>';
 //                        }else{
-//                            //echo 'nem' . '<br>';
+//                            
+//                            $munkalap = $adatbazis_kapcsolat->s('recid', 'munkalap_arch', "`insert_dt`='".date('Y-m-d H:i:s', strtotime($statusz[1]['insert_dt'])-1)."' AND `telephely_id`='{$bejelentes['telephely_id']}'");
+//                            if($munkalap){
+//                                echo  'HURRÁ-1<br>';
+//            // $adatbazis_kapcsolat->i('munkalap_kapcs_arch', array('munkalap_id', 'bejelentes_id'), array($munkalap[0]['recid'], $bejelentes['recid']));
+//                                array_push($munkalap_recidk, $munkalap[0]['recid']);
+//                            }else{
+//                                $munkalap = $adatbazis_kapcsolat->s('recid', 'munkalap_arch', "`insert_dt`='".date('Y-m-d H:i:s', strtotime($statusz[1]['insert_dt'])-1)."' AND `telephely_id`='{$bejelentes['telephely_id']}'");
+//                                if($munkalap){
+//                                    echo  'HURRÁ-1<br>';
+//                // $adatbazis_kapcsolat->i('munkalap_kapcs_arch', array('munkalap_id', 'bejelentes_id'), array($munkalap[0]['recid'], $bejelentes['recid']));
+//                                    array_push($munkalap_recidk, $munkalap[0]['recid']);
+//                                }
+//                            }
+//                            
+//                            echo $bejelentes['recid'].'|'. $adatbazis_kapcsolat->gp() . '<br>';
+//                            echo  'Nincs találat<br>';
 //                        }
 //                    }
 //                }
-//                if($db == 1){
-//                    echo 'megvan'. '<br>';
-//                }else{
-//                    echo 'Baj, túl sok pár' .$ml['recid'];
-//                    echo $adatbazis_kapcsolat->gp() . '<br>';
-//                }
-//            }else{
-//                echo 'Baj, nincs pár' .$ml['recid'];
-//                echo $adatbazis_kapcsolat->gp() . '<br>';
 //            }
-        }
-    }
-    
-    echo implode(',', $problemas);
-    
-    exit;
-}
+//            
+//        }
+//    }
+//    
+//    $munkalapok = $adatbazis_kapcsolat->s('*', 'munkalap_arch', "`text`='' AND `insert_dt`>='2018-04-24 12:27:44' AND `tipus_id`!='3' AND `telephely_id` IN ('". implode('\', \'', $tobbszalloda)."')");
+//    echo $adatbazis_kapcsolat->gp() . '<br>';
+//    
+//    $problemas = array();
+//    foreach($munkalapok as $ml){
+//        
+//        // Ha nincs kapcsolata, csak akkor foglalkozunk vele
+//        $van_kapcs = $adatbazis_kapcsolat->s('recid', 'munkalap_kapcs_arch', "`munkalap_id`='{$ml['recid']}'");
+//        if(!$van_kapcs){
+//            
+//            array_push($problemas, $ml['recid']);
+//            
+////            $parja = $adatbazis_kapcsolat->s('recid insert_dt', 'munkalap_arch', "`recid`!='{$ml['recid']}' AND `telephely_id`='{$ml['telephely_id']}' AND `obj_id`='{$ml['obj_id']}' AND `hiba_id`='{$ml['hiba_id']}'");
+////            if($parja){
+////                if(count($parja)==1){
+////    // $adatbazis_kapcsolat->i('munkalap_kapcs_arch', array('munkalap_id', 'bejelentes_id'), array($ml['recid'], $parja[0]['recid']));
+////                    echo 'megvan a párja: '.$ml['recid'].' - '.$parja[0]['recid']. '<br>';
+////                }else{
+////                    $db = 0;
+////                    foreach($parja as $p){
+////                        $bejelentes_id = $adatbazis_kapcsolat->s2('bejelentes_recid', 'bejelentes_statusz_arch', "`insert_dt`='{$p['insert_dt']}'");
+////                        $insert_dt = $adatbazis_kapcsolat->s2('insert_dt', 'bejelentes_statusz_arch', "`bejelentes_recid`='{$bejelentes_id['bejelentes_recid']}'", 'recid desc', '1');
+////                        // echo $ml['recid'].' - '.$p['recid'].' - '.$p['insert_dt'].' kisebb mint '.$insert_dt['insert_dt'] . '? ';
+////                        if($p['insert_dt']<$insert_dt['insert_dt']){
+////                        //    echo 'igen' . '<br>';
+////                            $db++;
+////                        }else{
+////                            //echo 'nem' . '<br>';
+////                        }
+////                    }
+////                }
+////                if($db == 1){
+////                    echo 'megvan'. '<br>';
+////                }else{
+////                    echo 'Baj, túl sok pár' .$ml['recid'];
+////                    echo $adatbazis_kapcsolat->gp() . '<br>';
+////                }
+////            }else{
+////                echo 'Baj, nincs pár' .$ml['recid'];
+////                echo $adatbazis_kapcsolat->gp() . '<br>';
+////            }
+//        }
+//    }
+//    
+//    echo implode(',', $problemas);
+//    
+//    exit;
+//}
 
 
 // 
