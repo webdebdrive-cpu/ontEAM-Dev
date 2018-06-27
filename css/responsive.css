@@ -1001,6 +1001,7 @@
     }
 
     #sorrendezes li, #feltoltott_fajl li, #sorrendezes_album li, #sorrendezes_tobbkep li, #sorrendezes_bejegyzes li {
+        border-bottom: 0.1rem solid #dadbde;
         display: block;
         padding: 1rem 0rem 1rem 0rem;
         width: 100%;
@@ -1028,6 +1029,7 @@
     }
 
     #sorrendezes li div.maradek.torles, #feltoltott_fajl li div.maradek.torles, #sorrendezes_album li div.maradek.torles, #sorrendezes_tobbkep li div.maradek.torles, #sorrendezes_bejegyzes li div.maradek.torles {
+        border-bottom: none;
         text-align: left;
         width: 100%;
     }
