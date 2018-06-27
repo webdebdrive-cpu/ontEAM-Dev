@@ -361,7 +361,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
                 </div>
                 <div id="megj_'.$azon.'_felirat" class="felirat c" style="width: 15rem">
                     <a href="'.$kep_utvonal.'" target="_blank" title="Letöltés">
-                        '.wordwrap($felirat, 20, '<br>', 1).'
+                        '.mb_wordwrap($felirat, 20, '<br>', 1, 'UTF-8').'
                     </a>
                 </div>
                 <div class="felirat">'.$sor_kepek['insert_usr'].'</div>
@@ -373,5 +373,21 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
     }
     return $tobbkep_html;
 
+}
+
+function mb_wordwrap($str, $width = 75, $break = "\n", $cut = false, $charset = null) {
+    if ($charset === null) $charset = mb_internal_encoding();
+
+    $pieces = explode($break, $str);
+    $result = array();
+    foreach ($pieces as $piece) {
+      $current = $piece;
+      while ($cut && mb_strlen($current) > $width) {
+        $result[] = mb_substr($current, 0, $width, $charset);
+        $current = mb_substr($current, $width, 2048, $charset);
+      }
+      $result[] = $current;
+    }
+    return implode($break, $result);
 }
 ?>

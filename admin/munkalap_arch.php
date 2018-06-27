@@ -712,7 +712,7 @@ require('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid szerepkor megj insert_usr insert_dt', 'megjegyzes_arch', "`id` = '".$_GET['id']."' AND `tabla` = '".str_replace('.php', '', basename(self()))."'", 'recid desc', '');
+        $sorok = $adatbazis_kapcsolat->s('recid szerepkor megj insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = 'munkalap'", 'recid desc', '');
         if( $sorok ) {
             $i = 1;
             foreach($sorok as $sor) {
@@ -746,20 +746,4 @@ require('selectek.php');
 
 if( !$_GET['ajax'] ) {
     require_once('footer.php');
-}
-
-
-// Kezelés jogot visszaadó függvény (felvéve státusz alatt)
-function get_kezeles_jog($szemelyzet_id){
-    $kezeles_jog = false;
-    if(
-            ( _jog(JOG_MUNKALAP_SAJAT_KEZEL)        && $szemelyzet_id == $_SESSION[get_db_tabla().'szemelyzet_id'] ) ||
-            ( _jog(JOG_MUNKALAP_KEZEL_TELEPITETT)   && $szemelyzet_id == TELEPITETT_SZEMELYZET )                     ||
-            ( _jog(JOG_MUNKALAP_KEZEL_MOBIL)        && $szemelyzet_id == MOBILCSOPORT          )                     ||
-            // Ez utóbbi feltétek vizsgálat sokszor feles leges, mert a feltétel (ahol ez a függvény meghívódik) eleve kizárja a külső kivitelezőket. De nem baj, így általánosa meghívható ez a függvény.
-            ( _jog(JOG_MUNKALAP_KEZEL_KULSO)        && $szemelyzet_id == KULSO_KIVITELEZO      )
-        ) {
-        $kezeles_jog = true;
-    }
-    return $kezeles_jog;
 }
