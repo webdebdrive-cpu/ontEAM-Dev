@@ -20,6 +20,9 @@
                              });
                         });
                     </script>
+                    <br>
+                    <br><strong>Várható érkezés:</strong>
+                    <br><input type="text" style="margin: 0.2rem 0 0.8rem 0" autocomplete="off" class="datetimepicker pop_datetimepicker" name="pop_varh_erk" id="pop_varh_erk">
                 </div>
             </div>
         </div>
@@ -30,9 +33,28 @@
     </div>
 </form>
 <script>
+$(document).ready(function(){
+    $('.pop_datetimepicker').datetimepicker({
+        closeOnDateSelect   : false,
+        format              :'Y.m.d H:i',
+        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0',
+        timepicker          : true,
+        step                : 60,
+        validateOnBlur      : false,
+        scrollInput         : false,
+        defaultTime         : '08:00',
+        minDate             : 0,
+        onChangeDateTime    : function(dp, $input){
+            /* Órapontosak vagyunk */
+            $input.val( $input.val().substring(0, 14)+'00' );
+        }
+    });
+});
+    
 /* Külső kivitelező hozzárendelése */
 function kulsokivHozzarend( that ) {
     var szallitoid = $(that).find('input[name="szallito_id"]');
+    var varh_erk   = $('#pop_varh_erk');
 
     if( szallitoid.val() ) {
         $.ajax({
@@ -42,6 +64,7 @@ function kulsokivHozzarend( that ) {
                 recid            : _get('id'),
                 validate         : 'false',
                 szallitoid       : szallitoid.val(),
+                varh_erk         : varh_erk.val(),
                 kulsokivHozzarend: new Date().getTime()
             },
          	success: function(response) {

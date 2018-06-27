@@ -538,7 +538,8 @@ input.datepicker, #popup div.popup_tart div.dt div.dtc input[type="text"].datepi
     white-space: pre;
 }
 
-input.datetimepicker{
+input.datetimepicker, #popup div.popup_tart div.dt div.dtc input[type="text"].datetimepicker{
+    min-width: 0;
     width: 12.2rem;
     white-space: pre;
 }

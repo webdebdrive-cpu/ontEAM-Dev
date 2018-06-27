@@ -531,6 +531,7 @@ if( isset($_POST['munkalapKulso']) ) {
 
     $recid          = $_POST['recid'];
     $szallito_id    = $_POST['szallito_id'];
+    $varh_erk       = str_replace(array('.'), array('-'), $_POST['varh_erk']);
 
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
@@ -564,8 +565,8 @@ if( isset($_POST['munkalapKulso']) ) {
 
         // Külső kivitelező hozzárendelése
         $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                            array('szemelyzet_id',   'szallito_id', 'visszaadva',   'update_usr'                           ),
-                                            array( KULSO_KIVITELEZO, $szallito_id,  0,              $_SESSION[get_db_tabla().'teljes_nev'] ),
+                                            array('szemelyzet_id',   'szallito_id', 'varh_erk', 'visszaadva',   'update_usr'                           ),
+                                            array( KULSO_KIVITELEZO, $szallito_id,  $varh_erk,  0,              $_SESSION[get_db_tabla().'teljes_nev'] ),
                                             "`recid` = '{$recid}'"
                                         );
         if( $sql === false ) { $db_error = true; }
@@ -2090,8 +2091,8 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             }
         }else{
             $sql = $adatbazis_kapcsolat -> u('munkalap',
-                                                        array('szallito_id', 'szemelyzet_id' ),
-                                                        array($szallitoid,   KULSO_KIVITELEZO),
+                                                        array('szallito_id', 'szemelyzet_id',   'varh_erk'  ),
+                                                        array($szallitoid,   KULSO_KIVITELEZO,  $varh_erk   ),
                                                 "`recid` = '{$recid}'");
             if( $sql === false ) { $db_error = true; }
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) ) {
