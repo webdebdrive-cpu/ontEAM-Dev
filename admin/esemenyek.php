@@ -1107,7 +1107,7 @@ $bejelentes_tomb = $bejelentes_arch_tomb = $akt_tomb = array(
     array('type' => 'textarea',        'megn' => 'Hely leírása:',       'name' => 'helyiseg_text','szuro' => 1,  'class' => 'oriasiTargy disableNav'/*,  'limit' => 500/*Limit wysiwyg-el nem kombinálható!*/ /*, 'wysiwyg' => 'Alap'/*Min vagy Full*/, 'feltoltes' => 'Images', 'width' => '100%', 'height' => '150'),
     array('type' => 'autocomplete',    'megn' => 'Gépnév:',             'name' => 'gep_id',       'szuro' => 1,  'class' => 'oriasi disableNav', 'tabla' => 'eszkozkezeles', 'oszlop_keres' => 'recid', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'onclick' => 'helyisegVane( this );'),
 
-    array('type' => 'checkbox',        'megn' => '',   'megn_szurobe' => 'Telefonon bejelentve',    'name' => 'telefon',      'szuro' => 1,  'class' => 'check', 'post' => ' közvetlenül telepített karbantartónak telefonon bejelentve', 'disabled' => $tel_disabled),
+    array('type' => 'checkbox',        'megn' => '',   'megn_szurobe' => 'Telefonon bejelentve',    'name' => 'telefon',      'szuro' => 1,  'class' => 'check', 'dtr_class' => ' wpre', 'post' => ' közvetlenül telepített karbantartónak telefonon bejelentve', 'disabled' => $tel_disabled),
     array('type' => 'nosql',           'name' => '',   'megn_szurobe' => 'Bejelentés dátuma',       'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datetimepicker'),
     array('type' => 'nosql',           'name' => 'masnevebenFeltolt'),
 
