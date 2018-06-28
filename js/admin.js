@@ -953,6 +953,16 @@ $(function() {
         }
     });
 
+    $(document).on('click', '#respo_keresGomb', function() {
+        $(this).toggleClass('active');
+
+        if( $(this).hasClass('active') ) {
+            $('#rendezesKeres').fadeIn(0);
+        } else {
+            $('#rendezesKeres').fadeOut(0);
+        }
+    });
+
     formModositva = false;
     $('#tartalomJobb').on('keyup change blur', '#szerk_form input:not([type=\'button\']), #szerk_form select, #szerk_form textarea', function(e) {
 

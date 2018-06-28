@@ -921,7 +921,15 @@
     }
 
     #rendezesKeres {
+        border-radius: 0;
         display: none;
+        height: 3.8rem;
+        max-width: 100%!important;
+        position: fixed;
+        top: 7.1rem;
+        left: 5.8rem;
+        width: calc( 100% - 7rem );
+        z-index: 5;
     }
 
     #respo_keresGomb {
@@ -933,6 +941,18 @@
         padding: 0.6rem 0rem 0rem 0rem;
         text-align: center;
         width: 3.8rem;
+    }
+
+    #respo_keresGomb i.close {
+        display: none;
+    }
+
+    #respo_keresGomb.active i.search {
+        display: none;
+    }
+
+    #respo_keresGomb.active i.close {
+        display: inline-block;
     }
 
     div.szamlaKereses {
@@ -1122,7 +1142,7 @@
 
     #autocomplete ul li {
         font-size: 1.7rem;
-        padding: 0.4rem 0.5rem;
+        padding: 0.8rem 0.5rem;
     }
 
     div.jsff div.talloz {
@@ -1225,5 +1245,11 @@
 
     div.navGombok a.uj .material-icons {
         font-size: 3rem;
+    }
+
+    #rendezesKeres {
+        height: 3rem;
+        left: 5rem;
+        width: calc( 100% - 6rem );
     }
 }

@@ -1235,7 +1235,7 @@ if(basename(self())=='anyagigenyles.php' && !isset($_GET['anyagrend'])){
 // Anyagigénylés tálbázatban másképp keresünk
 if(basename(self())=='anyagigenyles.php'){
     $kereso = nl2('
-            <span id="respo_keresGomb"><i class="material-icons">search</i></span>
+            <span id="respo_keresGomb"><i class="material-icons search">search</i><i class="material-icons close">close</i></span>
             <input type="text" name="ksz" id="rendezesKeres" class="disableNav" autocomplete="off" placeholder="Keresés" onkeyup="anyagigenyles_tabla_szur($(\'table.szamla_cont_tabla\'), $(this).val())">
             <script>
                 function anyagigenyles_tabla_szur(tabla, kulcs) {
@@ -1256,7 +1256,7 @@ if(basename(self())=='anyagigenyles.php'){
 // Kereső általános esete
 }else{
     $kereso = nl2('
-        <span id="respo_keresGomb"><i class="material-icons">search</i></span>
+        <span id="respo_keresGomb"><i class="material-icons search">search</i><i class="material-icons close">close</i></span>
         <input type="text" name="ksz" id="rendezesKeres" class="disableNav" autocomplete="off" placeholder="Keresés" onkeyup="altalanos_tabla_szur($(\'#szamlaList\'), $(this).val())">
         <script>
             function altalanos_tabla_szur(tabla, kulcs) {
