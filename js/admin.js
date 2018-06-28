@@ -1678,7 +1678,7 @@ console.log('b'+active_top);
     });
 
 
-    $('#bejelentoText').on('click', function() {
+    $(document).on('click', '#bejelentoText', function() {
         if( $.browser.mobile ) {
             $(this).toggleClass('active');
 
@@ -5684,6 +5684,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#respo_visszalepes').css('display', 'block');
                     }
 
+                    $('body').removeClass('ujfeltoltes');
+
                     /* Ha épp egy csoporton állunk, akkor elrejtük a jobb oldali tartalmakat */
                     $('#szamlaList li.csoport').each(function () {
                         if($(this).hasClass('kijelolve')){
@@ -6911,13 +6913,13 @@ function anyagigenylesHozzaad(mehet, mentes_gombbol, ajax_nelkul_hozzaad) {
         alert2('Cikk: '+$('#cikkszam_'+data['cikkszam_recid']).html()+'<br>Név: '+cikkszam_nev+'<br>Szálloda: '+telephely_nev+'<br><br>A választott szálloda és anyag már szerepel a listában!', '', 'Hiba');
         return false;
     }
-    
+
     /* Ajax nélkül veszük fel a sort, nem kell már ellenőrizni. Anyagigénylés gombra kattintva, a megerősítő kérdés után. */
     if(ajax_nelkul_hozzaad){
         data['cikkmee'] = form.find('.insertMee').text() + ' <input type="hidden" name="cikkmee[]" value="' + form.find('.insertMee').text() + '">';
 
         var mezok = '<tr class="anyag_sor">' +
-                        '<td>' + $('#telephely_id').find('option:selected').text()/*Itt azért csináljuk másképpen, mert ha a szálloda readonly (egyszállodája ha van a usernek), akkor nem jelent meg a szálloda neve */ 
+                        '<td>' + $('#telephely_id').find('option:selected').text()/*Itt azért csináljuk másképpen, mert ha a szálloda readonly (egyszállodája ha van a usernek), akkor nem jelent meg a szálloda neve */
                                + data['telephely_id'] + '</td>' +
                         '<td class="l" id="cikkszam_'+data['cikkszam_recid']+'"></td>' +
                         '<td class="l">' + data['nev'] + '</td>' +
@@ -6932,9 +6934,9 @@ function anyagigenylesHozzaad(mehet, mentes_gombbol, ajax_nelkul_hozzaad) {
                     '</tr>';
 
         $('#insertAnyagigenylesSor').append(mezok);
-        
+
         anyagigenyles_hozzaad_defer.resolve();
-        
+
         return true;
     }else{
 
@@ -6960,7 +6962,7 @@ function anyagigenylesHozzaad(mehet, mentes_gombbol, ajax_nelkul_hozzaad) {
                         data['cikkmee'] = form.find('.insertMee').text() + ' <input type="hidden" name="cikkmee[]" value="' + form.find('.insertMee').text() + '">';
 
                         var mezok = '<tr class="anyag_sor">' +
-                                        '<td>' + $('#telephely_id').find('option:selected').text()/*Itt azért csináljuk másképpen, mert ha a szálloda readonly (egyszállodája ha van a usernek), akkor nem jelent meg a szálloda neve */ 
+                                        '<td>' + $('#telephely_id').find('option:selected').text()/*Itt azért csináljuk másképpen, mert ha a szálloda readonly (egyszállodája ha van a usernek), akkor nem jelent meg a szálloda neve */
                                                + data['telephely_id'] + '</td>' +
                                         '<td class="l" id="cikkszam_'+data['cikkszam_recid']+'"></td>' +
                                         '<td class="l">' + data['nev'] + '</td>' +
@@ -6988,7 +6990,7 @@ function anyagigenylesHozzaad(mehet, mentes_gombbol, ajax_nelkul_hozzaad) {
                             },
                             success: function (response) {
                                 $('#cikkszam_'+cikkszam_id).html(response);
-                                
+
                                 /* Idáig el kell jussunk ahhoz, hogy az anyagigenylesekMentes() függvényben a tálbázat feldolgozása elkezdődhessen */
                                 anyagigenyles_hozzaad_defer.resolve();
                             }
@@ -7023,9 +7025,9 @@ function anyagigenylesekMentes(mehet) {
 
 
     if( darab ) {
-        
+
         anyagigenyles_hozzaad_defer = $.Deferred();
-        
+
         /* Ha az alap űrlap Cikk név mezőjében van adat, akkor az űrlap IS ki van töltve, tehát adjuk előbb hozzá a sort. De ellenőrizni kell az űrla helyességét, és ha gond van, akkor álljon meg minden!
          * Sőt ha az a kérdés jött fel, hogy adott szálloda+cikkszám már benne van az igénylések tálbába, és ezt jóváhagyták (tehát mehet paraméterrel lett meghívva eza  függvény), akkor már nem kell ellenőrizni mégegyszer a form_ell_admin_elott()-t, mehetünk tovább.
          */
@@ -7046,12 +7048,12 @@ function anyagigenylesekMentes(mehet) {
         }else{
             anyagigenylesHozzaad('', '', 'Ajax lélkül add hozzá');
         }
-        
+
         $.when(anyagigenyles_hozzaad_defer).then(function() {
 
             inputok = form.serializeJSON();
             darab   = objLength(inputok['telephely_id']);
-            
+
             if(mehet2){
                 for( var i = 0; i < darab; i++ ) {
                     var data = {};
