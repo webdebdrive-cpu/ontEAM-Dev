@@ -548,9 +548,14 @@
         padding: 0.7rem;
     }
 
+    #popup div.popup_tart button, #popup div.popup_tart input[type="submit"] {
+        font-size: 1.4rem;
+        padding: 0.7rem;
+    }
+
     #respo_visszalepes {
         padding: 1rem 0rem 0rem 0rem;
-        text-align: right;
+        text-align: center;
     }
 
     #respo_visszalepes a {
@@ -564,6 +569,7 @@
         font-weight: 700;
         padding: 0.7rem;
         position: relative;
+        text-align: left;
         transition: all ease-in-out 0.2s;
     }
 
@@ -1047,6 +1053,7 @@
     }
 
     div.figy div.tart {
+        line-height: 1.8rem;
         font-size: 1.4rem;
         padding: 3rem 2.5rem 3rem 2.5rem;
     }
@@ -1112,6 +1119,24 @@
     div.jsff div.talloz div {
         font-size: 1.6rem;
     }
+
+    #autocomplete ul li {
+        font-size: 1.7rem;
+        padding: 0.4rem 0.5rem;
+    }
+
+    div.jsff div.talloz {
+        width: 100%;
+    }
+
+    div.jsff div.talloz div,
+    div.jsff div.talloz div:hover {
+        border: 0.1rem solid #cbced5;
+        background: #f5f7f6;
+        color: #334343;
+        padding: 1rem 1.2rem;
+        width: 100%;
+    }
 }
 
 @media only screen and (max-width: 600px) {
@@ -1128,6 +1153,7 @@
 
     div.figy div.tart {
         min-width: 100%;
+        padding: 3rem 1.5rem 3rem 1.5rem;
     }
 
     #popup div.popup_kont {
@@ -1149,6 +1175,14 @@
         height: 5rem;
         padding: 1.8rem 0rem 0.5rem 1.5rem;
         width: calc(100% - 5rem);
+    }
+
+    #popup div.popup_tart div.dt div.dtc input[type="text"] {
+        min-width: 100%!important;
+    }
+
+    #alert2 select {
+        width: 100%!important;
     }
 }
 
