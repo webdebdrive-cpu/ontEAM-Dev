@@ -1173,7 +1173,7 @@ if(isset($_GET['modosit'])){
             $ml_leiras_ala .= '<span style="margin-left: 2rem"></span>Telefon: <a href="tel:'.$login['usertel'].'">'.$login['usertel'].'</a>';
         }
         if($login['usermail']){
-            $ml_leiras_ala .= '<span style="margin-left: 2rem"></span>E-mail: <a href="mailto:'.$login['usertel'].'">'.$login['usermail'].'</a>';
+            $ml_leiras_ala .= '<span style="margin-left: 2rem"></span>E-mail: <a href="mailto:'.$login['usermail'].'">'.$login['usermail'].'</a>';
         }
     }
 }

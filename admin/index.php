@@ -708,11 +708,42 @@ if (false && isset($_GET['szallito_import'])) {
                     }
 
                 }
-
-                $adatbazis_kapcsolat->i('szallito', array('nev', 'insert_dt', 'insert_usr',         'update_usr'       ),
-                                                    array($nev,  'NOW()',     get_nev().' import',  get_nev().' import')
-                                        );
+                
+                // Ha van egyáltalán oracle kód
+                if($oracle_kod && $oracle_kod!='?'){
+                    $kod_hossz = strlen($oracle_kod);
+                    if($kod_hossz<5){
+                        for($i=0; $i<5-$kod_hossz;$i++){
+                            $oracle_kod = '0'.$oracle_kod;
+                        }
+                    }
+                    
+                    // Ellenőrizzük, hogy nem foglalt-e
+                    if($adatbazis_kapcsolat->s('id', 'szallito', "`id`='{$oracle_kod}'")){
+                        echo 'A '.$oracle_kod.' Oracle kód már foglalt!<br>';
+                    }
+                    
+                    // Cím feldolgozása
+                    $isz = substr($cim, 0, 4);
+                    if(is_numeric($isz)){
+                        $cim         = trim(substr($cim, 4));
+                        $elso_szokoz = strpos($cim, ' ');
+                        $varos       = trim(substr($cim, 0, $elso_szokoz));
+                        if(substr($varos, strlen($varos)-1)==','){
+                            $varos = csonkit($varos, 1);
+                        }
+                        $cim         = trim(substr($cim, $elso_szokoz));
+                    }else{
+                        $isz    = '';
+                        $varos  = '';
+                    }
+                    
+                    $adatbazis_kapcsolat->i('szallito', array('id',         'nev', 'isz', 'varos', 'utca', 'adoszam', 'bank', 'knev',   'email', 'tel',    'aktiv',  'insert_dt', 'insert_usr',         'update_usr'       ),
+                                                        array($oracle_kod,  $nev,  $isz,  $varos,  $cim,   $adoszam,  $bank,  $kontakt, $email,  $telefon, 1,        'NOW()',     get_nev().' import',  get_nev().' import')
+                                            );
 echo $adatbazis_kapcsolat->gp() . '<br>';
+                }
+
 
             }
             $k++;
