@@ -2798,7 +2798,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
             
             // Korábban szürke színnel voltak kiírva azok a nyitott bejelentések, amikhez tartozott munkalap, de ezeket végül teljesen elrejtjük.
             if($rejtsuk){
-                continue;
+                //continue;
             }
 
             // Van-e csatolt dokumentuma

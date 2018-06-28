@@ -633,10 +633,11 @@ if (false && isset($_GET['anyagigenyles_tabla_oszlop_bovit'])) {
 }
 
 // Beszállítók importja
-if (false && isset($_GET['szallito_import'])) {
+if (isset($_GET['szallito_import'])) {
     
     header('Content-Type: text/html; charset='. get_web_charset());
     
+    $_SESSION['sor_fejlec'] = array();
     $fajlnev = 'csv/szallito_import.csv';
     setlocale(LC_ALL,'hu_HU');
 
@@ -708,7 +709,7 @@ if (false && isset($_GET['szallito_import'])) {
                     }
 
                 }
-                
+
                 // Ha van egyáltalán oracle kód
                 if($oracle_kod && $oracle_kod!='?'){
                     $kod_hossz = strlen($oracle_kod);
@@ -718,30 +719,74 @@ if (false && isset($_GET['szallito_import'])) {
                         }
                     }
                     
-                    // Ellenőrizzük, hogy nem foglalt-e
-                    if($adatbazis_kapcsolat->s('id', 'szallito', "`id`='{$oracle_kod}'")){
-                        echo 'A '.$oracle_kod.' Oracle kód már foglalt!<br>';
-                    }
-                    
                     // Cím feldolgozása
-                    $isz = substr($cim, 0, 4);
-                    if(is_numeric($isz)){
-                        $cim         = trim(substr($cim, 4));
-                        $elso_szokoz = strpos($cim, ' ');
-                        $varos       = trim(substr($cim, 0, $elso_szokoz));
-                        if(substr($varos, strlen($varos)-1)==','){
-                            $varos = csonkit($varos, 1);
+                    if($cim){
+                        $isz = substr($cim, 0, 4);
+                        if(is_numeric($isz)){
+                            $cim         = trim(substr($cim, 4));
+                            $elso_szokoz = strpos($cim, ' ');
+                            $varos       = trim(substr($cim, 0, $elso_szokoz));
+                            if(substr($varos, strlen($varos)-1)==','){
+                                $varos = csonkit($varos, 1);
+                            }
+                            $cim         = trim(substr($cim, $elso_szokoz));
+                        }else{
+                            $isz    = '';
+                            $varos  = '';
                         }
-                        $cim         = trim(substr($cim, $elso_szokoz));
-                    }else{
-                        $isz    = '';
-                        $varos  = '';
                     }
                     
-                    $adatbazis_kapcsolat->i('szallito', array('id',         'nev', 'isz', 'varos', 'utca', 'adoszam', 'bank', 'knev',   'email', 'tel',    'aktiv',  'insert_dt', 'insert_usr',         'update_usr'       ),
-                                                        array($oracle_kod,  $nev,  $isz,  $varos,  $cim,   $adoszam,  $bank,  $kontakt, $email,  $telefon, 1,        'NOW()',     get_nev().' import',  get_nev().' import')
-                                            );
+                    // Szakterület létezik-e?
+                    if($tev){
+                        $szakterulet_id = $adatbazis_kapcsolat->s2('recid', 'erteklista', "`info`='{$tev}' AND `csoport`='".ERTEKLISTA_SZAKTER."'");
+                        $szakterulet_id = $szakterulet_id['recid'];
+                        if(!$szakterulet_id){
+
+                            $max_id = mysqli_query($db_kapcs, 'SELECT MAX(`id`) FROM `'.get_db_tabla().'erteklista`');
+                            $max_id = mysqli_fetch_array($max_id);
+                            $max_id = $max_id[0]+1;
+
+                            $szakterulet_id = $adatbazis_kapcsolat->i('erteklista', array('id',     'info', 'csoport',            'insert_dt', 'insert_usr',         'update_usr'         ),
+                                                                                    array($max_id,  $tev,   ERTEKLISTA_SZAKTER,   'NOW()',     get_nev().' import',  get_nev().' import'  )
+                                                                    );
+                            echo 'Nem létező szakterület létrehozva: ';
+                            echo $adatbazis_kapcsolat->gp() . '<br>';
+                        }
+                    }
+                    
+                    // Ellenőrizzük, hogy nem foglalt-e
+                    $szallito_id = $adatbazis_kapcsolat->s2('recid', 'szallito', "`id`='{$oracle_kod}'");
+                    $szallito_id = $szallito_id['recid'];
+                    if($szallito_id){
+                        
+                        if( !isset($_GET['mehet']) ){
+                            echo $oracle_kod.' Orcale kód már foglalt. Felülírható? ('.$nev.' '.$isz.' '.$varos.' '.$cim.' '.$adoszam.')' . '<br>';
+                        }else{
+                            $adatbazis_kapcsolat->u('szallito', array('id',         'nev', 'isz', 'varos', 'utca', 'adoszam', 'bank', 'knev',   'email', 'tel',    'aktiv',  'insert_dt', 'insert_usr',         'update_usr'       ),
+                                                                array($oracle_kod,  $nev,  $isz,  $varos,  $cim,   $adoszam,  $bank,  $kontakt, $email,  $telefon, 1,        'NOW()',     get_nev().' import',  get_nev().' import'),
+                                                                "`id`='$oracle_kod'"
+                                                    );
 echo $adatbazis_kapcsolat->gp() . '<br>';
+                        }
+                        
+                    }else{
+
+                        $szallito_id = $adatbazis_kapcsolat->i('szallito',  array('id',         'nev', 'isz', 'varos', 'utca', 'adoszam', 'bank', 'knev',   'email', 'tel',    'aktiv',  'insert_dt', 'insert_usr',         'update_usr'       ),
+                                                                            array($oracle_kod,  $nev,  $isz,  $varos,  $cim,   $adoszam,  $bank,  $kontakt, $email,  $telefon, 1,        'NOW()',     get_nev().' import',  get_nev().' import')
+                                                            );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+
+                        
+                    }
+                    
+                    if($tev){
+                        // Szállító és szakterület összekapcsolása, ha még nem volna
+                        if(!$adatbazis_kapcsolat->s('recid', 'szakter_kapcs', "`szallito_id`='{$szallito_id}' AND `szakter_id`='{$szakterulet_id}'")){
+                            $adatbazis_kapcsolat->i('szakter_kapcs', array('szallito_id', 'szakter_id'), array($szallito_id, $szakterulet_id));
+echo $adatbazis_kapcsolat->gp() . '<br>';
+                        }
+                    }
+                    
                 }
 
 

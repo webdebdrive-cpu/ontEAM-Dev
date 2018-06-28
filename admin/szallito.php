@@ -410,7 +410,7 @@ require_once('selectek.php');
             ');
 
             foreach($sorok as $sor) {
-                $szak_sorok = $adatbazis_kapcsolat->s('recid info', 'erteklista', "`recid` = '".$sor['szakter_id']."'", '', '');
+                $szak_sorok = $adatbazis_kapcsolat->s('recid info', 'erteklista', "`recid` = '".$sor['szakter_id']."'");
 
                 foreach($szak_sorok as $szak_sor) {
                     $szamla_html .= nl2('
