@@ -547,6 +547,7 @@ function i_u($type, $tabla, $tomb) {
                 // Egyszállodás modell esetén, vagy ha "telefonon bejelentve" pipa be van pipálva rögtön munkalapot generálunk belőle
                 if( !$telephely['modell'] || $_POST['telefon'] ) {
                     
+                    
                     $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $_POST['telephely_id'], MLTIPUS_HIBAELHARITAS, $_POST['obj_id'], $_POST['gep_id'], $_POST['surgos'], '', TELEPITETT_SZEMELYZET, '', '', $_POST['hiba_id']);
                     if( $recid === false ) { $db_error = true; }
 
@@ -3122,9 +3123,6 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
             // Ha a munkalap típusa Hibaelhárítás, akkor a bejelentés hibáját jelenítsük meg röviden
             if( $bsz['tipus_id']==MLTIPUS_HIBAELHARITAS && $bsz['hiba_txt'] ){
                 $hossz = 14;
-                if(!$bsz['hiba_txt']){
-                    $bsz['hiba_txt'] = getErtekLista('', '', $bsz['hiba_id']);
-                }
                 if(mb_strlen($bsz['hiba_txt'])>$hossz){
                     $hiba_rovid = mb_substr($bsz['hiba_txt'], 0, 14, get_web_charset()).'...';
                 }else{
@@ -6932,7 +6930,7 @@ function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id,
     $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $gep_id);
     $hiba_txt = '';
     if($hiba_id){
-        $hiba_txt = getErtekLista('', '', $hiba_id);
+        $hiba_txt = getErtek('info', 'erteklista', 'recid', $hiba_id);
     }
 
     // Munkalap beszúrása

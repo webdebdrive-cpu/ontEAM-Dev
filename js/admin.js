@@ -5728,7 +5728,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
 
                     request_in_process = false;
          		} else {
-                    alert2('Nem lehet betölteni a kért oldalt!');
+                    alert2('Nem lehet betölteni a kért oldalt!', '', 'Hiba');
                     dfrd1.resolve();
                 }
          	}

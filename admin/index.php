@@ -844,6 +844,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
     exit;
 }
 
+
 // Archiv táblák közti kapcsolatot így állítottuk helyre
 //if (false && isset($_GET['archivum_helyreallit'])) {
 //    
@@ -1003,19 +1004,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 }*/
 
 
-// Munkalap kapcsolat javítás
-//if (isset($_GET['munkalap_kapcs_javit'])) {
-//    $kapcsolatok = $adatbazis_kapcsolat->s('*', 'munkalap_kapcs');
-//    foreach ($kapcsolatok as $kapcs){
-//        $bejelentes = $adatbazis_kapcsolat->s2('surgos', 'bejelentes', "`recid`='{$kapcs['bejelentes_id']}'");
-//        $munkalap   = $adatbazis_kapcsolat->s2('surgos', 'munkalap',   "`recid`='{$kapcs['munkalap_id']}'");
-//        if($bejelentes['surgos'] != $munkalap['surgos']){
-//            $adatbazis_kapcsolat->u('munkalap', array('surgos'), array($bejelentes['surgos']), "`recid`='{$kapcs['munkalap_id']}'");
-//            echo $adatbazis_kapcsolat->gp() . '<br>';
-//        }
-//    }
-//    exit;
-//}
+
 
 /*
 // Bejelentések törlése, hogy a gyakorló felület ne legyen tele adatokkal
