@@ -333,7 +333,7 @@ if(!$_SESSION['bejelento_menu_rejt']){
     $aktmenuk  = '';
     if(_jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Energia egységárak'  ), $almenu_sablon );
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Fenntartási terv'    ), $almenu_sablon );
+        //$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Fenntartási terv'    ), $almenu_sablon );
     }
 
     $style = '';

@@ -2163,7 +2163,7 @@ if (isset($_POST['munkalapJovahagyottErtekModositasa'])) {
     // Státusz ellenőrzése
     if( $munkalap['stat_id']!=MUNKALAP_STAT_DONTESRE_VAR ){
         echo json_encode(array(
-            'hiba'  => 'Ebben a státuszban nem módosítható a jóváhagyott érték!'.$munkalap['stat_id'],
+            'hiba'  => 'Ebben a státuszban nem módosítható a jóváhagyott érték!',
             'title' => 'Hiba',
         ));
         $weblap->leallit();
@@ -2196,6 +2196,69 @@ if (isset($_POST['munkalapJovahagyottErtekModositasa'])) {
     
     // Megjegyzés sor is bővül
     addMegj('munkalap', $_POST['recid'], 'Jóváhagyásra váró érték módosítva: '.number_format($jh_ert, 0, '', ' ').' Ft');
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+// Vissza előkészített státuszba
+if (isset($_POST['munkalapVisszaElokeszit'])) {
+
+    $recid = $_POST['recid'];
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    $munkalap = $adatbazis_kapcsolat->s2('stat_id, jh1_login, jh2_login', 'munkalap', "`recid`='{$recid}'");
+    if( $munkalap === false ) { $db_error = true; }
+
+    // Státusz ellenőrzése
+    if( $munkalap['stat_id']!=MUNKALAP_STAT_DONTESRE_VAR ){
+        echo json_encode(array(
+            'hiba'  => 'Ebben a státuszban nem küldhető vissza előkészítésre!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    // Jog ellenőrzése
+    if( !_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) ){
+        echo json_encode(array(
+            'hiba'  => 'Nincs jogosultsága visszaküldeni előkészítésre!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    // Volt-e már jóváhagyás?
+    if( $munkalap['jh1_login'] || $munkalap['jh2_login'] ){
+        echo json_encode(array(
+            'hiba'  => 'A munkalapot már jóváhagyta legalább egy szereplő, így nem küldhető vissza előkészítésre!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Státusz léptetés
+    if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
+        $db_error = true;
+    }
 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
@@ -6170,9 +6233,13 @@ require('selectek.php');
         // "Döntés alatt" státuszkor, ha még egy jóváhagyás sem történt és van jogunk, akkor a jóváhagyott értéket szerkeszteni lehet
         if( $sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $sor['jh1_login']=='' && $sor['jh2_login']=='' ){
             $gombok .= '<input type="button" class="gomb" value="Jóváhagyott érték módosítása" onclick="csoportMuvelet(\'munkalapJovahagyottErtekModositasa\')"> ';
+            $gombok .= nl2('
+                            <script> gomb_vissza_elok = \'<input type="button" class="gomb zold" onclick="munkalapVisszaElokeszit()" value="Igen"><input type="button" class="gomb piros" onclick="alert2()" value="Nem">\'; </script>
+                            <input type="button" class="gomb" value="Vissza előkészítésre" onclick="alert2(\'Biztosan visszaadja előkészítésre?\', gomb_vissza_elok)"> 
+                        ');
         }
 
-        // "Döntés alatt" státusz
+        // "Döntés alatt" státuszs
         if( $sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_DONTES) && $sor['jh1_login']!=$_SESSION[get_db_tabla().'user'] && $sor['jh2_login']!=$_SESSION[get_db_tabla().'user'] ){
             $gombok .= '<input type="button" class="gomb" value="Külsős jóváhagyása" onclick="munkalapKulsosJovahagy(\'csak kérdezünk még\');"> ';
             $gombok .= '<input type="button" class="gomb" value="Külsős elutasítása" onclick="csoportMuvelet(\'munkalapKulsosElutasit\')"> ';

@@ -51,6 +51,12 @@ if($tobb_kep){
 
 // Jogosultságok beállítsa
 if( isset($_POST['jogokhozzaad']) ) {
+    
+    // Ha a usernek nincs joga felhasználót kezelni, akkor ne tudjon jogokat változtatni
+    if( !_jog(JOG_FELHASZNALOK_KEZEL) ){
+        exit;
+    }
+    
     $id = $_POST['id'];
 
     // Kitöröljük a nem kívánatos POST elemeket
@@ -121,6 +127,12 @@ if( isset($_POST['jogokhozzaad']) ) {
 
 // Értesítések beállítsa
 if( isset($_POST['ertekhozzaad']) ) {
+    
+    // Ha a usernek nincs joga felhasználót kezelni, akkor ne tudjon értesítéseket változtatni
+    if( !_jog(JOG_FELHASZNALOK_KEZEL) ){
+        exit;
+    }
+    
     $id = $_POST['id'];
 
     // Kitöröljük a nem kívánatos POST elemeket
@@ -902,16 +914,27 @@ require_once('selectek.php');
                     $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
                 }
             }
-
-            $szamla_html .= nl2('
+            
+            if( _jog(JOG_FELHASZNALOK_KEZEL) ){
+                $szamla_html .= nl2('
                         <div class="muveletek"'.$muv_style.'>
                             <div class="form_kuldes">
                                 <input type="hidden" name="id" value="'.$_GET['id'].'">
                                 <input type="submit" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\');">
                                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt(\''.$_GET['id'].'\', \''.$megnevezes.'.php\');">
                             </div>
-                        </div>
-                    </div>
+                        </div>');
+            }else{
+                $szamla_html .= nl2('
+                        <script>
+                            $(document).ready(function () {
+                                $(\'div.cb input\').attr(\'disabled\', true);
+                            });
+                        </script>
+                    ');
+            }
+            
+            $szamla_html .= nl2('</div>
                 </form>
             ');
 
@@ -1118,14 +1141,25 @@ require_once('selectek.php');
                 }
             }
 
-            $szamla_html .= nl2('
+            if( _jog(JOG_FELHASZNALOK_KEZEL) ){
+                $szamla_html .= nl2('
                         <div class="muveletek"'.$muv_style.'>
                             <div class="form_kuldes">
                                 <input type="hidden" name="id" value="'.$_GET['id'].'">
                                 <input type="submit" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\');">
                                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\');formModositva=false; szamlaBetolt(\''.$_GET['id'].'\', \''.$megnevezes.'.php\');">
-                            </div>
-                        </div>
+                            </div>');
+            }else{
+                $szamla_html .= nl2('
+                        <script>
+                            $(document).ready(function () {
+                                $(\'div.cb input\').attr(\'disabled\', true);
+                            });
+                        </script>
+                    ');
+            }
+            
+            $szamla_html .= nl2('</div>
                     </div>
                 </form>
             ');

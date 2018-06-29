@@ -3122,6 +3122,9 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
             // Ha a munkalap típusa Hibaelhárítás, akkor a bejelentés hibáját jelenítsük meg röviden
             if( $bsz['tipus_id']==MLTIPUS_HIBAELHARITAS && $bsz['hiba_txt'] ){
                 $hossz = 14;
+                if(!$bsz['hiba_txt']){
+                    $bsz['hiba_txt'] = getErtekLista('', '', $bsz['hiba_id']);
+                }
                 if(mb_strlen($bsz['hiba_txt'])>$hossz){
                     $hiba_rovid = mb_substr($bsz['hiba_txt'], 0, 14, get_web_charset()).'...';
                 }else{
