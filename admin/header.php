@@ -325,13 +325,15 @@ if(!$_SESSION['bejelento_menu_rejt']){
     $menu_nev_kis    = 'tervezés';
     $menu_nev_tobbes = 'Tervezés';
     $megn            = 'energia_terv';
-    $aloldalak       = array($megn.'.php');
+    $aloldalak       = array($megn.'.php', 'fenntartasi_terv.php');
     if(basename(self())==$megn.'.php' && isset($_GET['modosit'])){ $navi = $menu_nev.' szerkesztése'; }
     if(basename(self())==$megn.'.php'){ $oldalNev = $oldalNev = 'Tervezés / <span id="rekord_neve">Energia egységárak</span><span class="dn" id="rekord_neve_egyes">energia egységár</span><span class="dn" id="rekord_neve_targy">energia egységárat</span>'; }
+    if(basename(self())=='fenntartasi_terv.php'){ $oldalNev = $oldalNev = 'Tervezés / <span id="rekord_neve">Fenntartási terv</span><span class="dn" id="rekord_neve_egyes">fenntartási ter</span><span class="dn" id="rekord_neve_targy">fenntartási tervet</span>'; }
 
     $aktmenuk  = '';
     if(_jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Energia egységárak'  ), $almenu_sablon );
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Fenntartási terv'    ), $almenu_sablon );
     }
 
     $style = '';

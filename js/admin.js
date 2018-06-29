@@ -5,6 +5,8 @@ var KEY_ESCAPE =  27;
 var KEY_SPACE  =  32;
 var KEY_UP     =  38;
 var KEY_DOWN   =  40;
+var KEY_PLUS   =  107;
+var KEY_MINUS  =  109;
 var KEY_F5     = 116;
 
 var EGYSEGAR_VALASZT = 'Kérjük válasszon egységár sort!';
@@ -278,8 +280,20 @@ function felh_valt( valt ) {
 $(function() {
 
     /* Csak számokat elfogadó mező */
-    $(document).on('keyup blur', '.f_csakszam', function(){
+    $(document).on('keyup blur', '.f_csakszam, .f_plus_minus', function(){
         onlyNumbers($(this));
+    });
+
+    /* Plusz/minusz billentyűvel léptető mező */
+    $(document).on('keydown', '.f_plus_minus', function(event){
+        if(event.keyCode == KEY_PLUS){
+            $(this).val( Number($(this).val())+1 );
+            return false;
+        }
+        if(event.keyCode == KEY_MINUS){
+            $(this).val( Number($(this).val())-1 );
+            return false;
+        }
     });
 
     /* Ha nincs kjelölve a bal navpanelben egy sor sem, akkor az első kijelöltjük */
@@ -375,6 +389,7 @@ $(function() {
                 'eszkozkezeles',
                 'felmeresi_terv',
                 'fenntartasi_szerzodes',
+                'fenntartasi_terv',
                 'ktghely',
                 'ktgnem',
                 'login',
@@ -5489,15 +5504,19 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         'anyagigenyles',
                         'bejelentesek',
                         'beosztasok',
+                        'bwh',
                         'cash_flow',
                         'dokumentumok',
                         'egysegarak',
                         'elszamolas',
+                        'energia',
                         'engedelyek',
                         'esemenyek',
+                        'eseti_karban',
                         'ertesites',
                         'felmeresi',
                         'garancialis',
+                        'hibaelharitas',
                         'id',
                         'jogosultsag',
                         'megjegyzes',
@@ -5506,9 +5525,11 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         'modosit',
                         'modosit_ules',
                         'munkalapok',
+                        'muszaki_anyag',
                         'naplo',
                         'naptar',
                         'obj',
+                        'osszesen',
                         'uj',
                         'utemezes',
                         'projekt_team',

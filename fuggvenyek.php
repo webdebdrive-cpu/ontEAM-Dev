@@ -2586,6 +2586,9 @@ if(isset($_GET['debug'])) {
             case 'fenntartasi_szerzodes':
                 $html = fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
+            case 'fenntartasi_terv':
+                $html = fenntartasi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
+            break;
             case 'ktghely':
                 $html = ktghelyLista( $bejegyzesek, $tabla, $frissit, $kijeloltek );
             break;
@@ -3487,6 +3490,51 @@ function fenntartasi_szerzodesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <span>'.$bsz['recid'].'</span>
+                        </a>';
+
+            // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
+            if($frissit){
+                // $active .= ' kijelolve';
+            }
+            $html .= '<li id="szamla-'.$bsz['recid'].'" class="szamla_sor'.$active.'" data-recid="'.$bsz['recid'].'" data-i="'.$i.'">'.$li_tart.'</li>';
+
+            $i++;
+        }
+
+        if( !$frissit ) {
+            $html .= '</ul>';
+        }
+
+        return nl2($html);
+    }
+
+    return false;
+}
+
+function fenntartasi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
+    global $adatbazis_kapcsolat;
+
+    if( $bejegyzesek ) {
+
+        if( !$frissit ) {
+            $html = '<ul id="szamlaList" class="szamla_cont rendszer">';
+        }
+
+        $i = 1;
+        foreach($bejegyzesek as $bsz) {
+            $active = '';
+            if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
+                $active = ' kijelolve';
+            }
+
+            $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
+                            <table>
+                            <tr>
+                                <td style="width: 7rem">'.$bsz['ikt_szam'].'</td>
+                                <td style="width: 3.6rem">'.$bsz['ev'].'</td>
+                                <td>'.getStatText('energia_terv', $bsz['stat_id']).'</td>
+                            </tr>
+                            </table>
                         </a>';
 
             // Bal oldali navpanel frissítésekor kijelöljük az aktuális sort
@@ -4561,26 +4609,27 @@ function dokumentumtarLista() {
 
     // Ezen menüpontok dokumentumait járjuk be
     $menupontok = array(
-                        array('tabla' => 'bejelentes',              'nev' => 'Bejelentés'               ),
-                        array('tabla' => 'munkalap',                'nev' => 'Munkalap'                 ),
-                        array('tabla' => 'utemezett_feladatok',     'nev' => 'Ütemezett feladatok'      ),
-                        array('tabla' => 'rendszeres_karbantartas', 'nev' => 'Rendszeres karbantartás'  ),
-                        array('tabla' => 'eseti_fenntartas',        'nev' => 'Eseti fenntartás'         ),
-                        array('tabla' => 'uzemeltetesi_naplo',      'nev' => 'Üzemeltetési napló'       ),
                         array('tabla' => 'anyagigenyles',           'nev' => 'Anyagigénylések'          ),
-                        array('tabla' => 'raktar',                  'nev' => 'Raktár'                   ),
+                        array('tabla' => 'bejelentes',              'nev' => 'Bejelentés'               ),
+                        array('tabla' => 'beosztas',                'nev' => 'Beosztások'               ),
                         array('tabla' => 'cikktorzs',               'nev' => 'Cikktörzs'                ),
-                        array('tabla' => 'eszkozkezeles',           'nev' => 'Eszközkezelés'            ),
-                        array('tabla' => 'tervezes',                'nev' => 'Tervezés'                 ),
+                        array('tabla' => 'munkalap',                'nev' => 'Munkalap'                 ),
                         array('tabla' => 'energia',                 'nev' => 'Energia'                  ),
+                        array('tabla' => 'eseti_fenntartas',        'nev' => 'Eseti fenntartás'         ),
+                        array('tabla' => 'eszkozkezeles',           'nev' => 'Eszközkezelés'            ),
+                        array('tabla' => 'fenntartasi_szerzodes',   'nev' => 'Fenntartási szerződések'  ),
+                        array('tabla' => 'fenntartasi_terv',        'nev' => 'Fenntartási terv'         ),
+                        array('tabla' => 'raktar',                  'nev' => 'Raktár'                   ),
+                        array('tabla' => 'tervezes',                'nev' => 'Tervezés'                 ),
+                        array('tabla' => 'utemezett_feladatok',     'nev' => 'Ütemezett feladatok'      ),
+                        array('tabla' => 'uzemeltetesi_naplo',      'nev' => 'Üzemeltetési napló'       ),
                         array('tabla' => 'projektigenyles',         'nev' => 'Projektigénylések'        ),
                         array('tabla' => 'projektigenyles_velemeny','nev' => 'Projektigénylés vélemények'),
                         array('tabla' => 'projektkezeles',          'nev' => 'Projektkezelés'           ),
-                        array('tabla' => 'fenntartasi_szerzodes',   'nev' => 'Fenntartási szerződések'  ),
+                        array('tabla' => 'rendszeres_karbantartas', 'nev' => 'Rendszeres karbantartás'  ),
                         array('tabla' => 'szamla',                  'nev' => 'Számlák'                  ),
                         array('tabla' => 'szallito',                'nev' => 'Partnertörzs'             ),
                         array('tabla' => 'torzsadat',               'nev' => 'Törzsadatok'              ),
-                        array('tabla' => 'beosztas',                'nev' => 'Beosztások'               ),
                         // array('tabla' => 'login',                   'nev' => 'Felhasználók'             )
                     );
 

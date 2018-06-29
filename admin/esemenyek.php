@@ -28,6 +28,7 @@ $_SESSION['ketHasabos'] = array(
     'eszkozkezeles.php',
     'felmeresi_terv.php',
     'fenntartasi_szerzodes.php',
+    'fenntartasi_terv.php',
     'ktghely.php',
     'ktgnem.php',
     'login.php',
@@ -414,6 +415,20 @@ switch($tabla) {
         if( !$_GET['irany'] ) {
             $_GET['irany'] = 'desc';
         }
+    break;
+    case 'fenntartasi_terv.php':
+        // Ezeket a tábla oszlopokat kérdezzük le baloldalra
+        $_OPTS['select']    = 'recid, ikt_szam, ev, stat_id';
+
+        // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
+        $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'ev'     );
+        $_OPTS['iranyok']   = array('desc',    'desc',     'asc'    );
+
+        // Default rendezés
+        if( !$_GET['rend'] ) {
+            $_GET['rend'] = 'ikt_szam';
+        }
+
     break;
     case 'ktghely.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
@@ -2250,7 +2265,7 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 
 
 
-// Fenntartási terv
+// Energia terv
 $megnevezes = 'energia_terv';
 $energia_terv_tomb = $akt_tomb = array(
     array('type' => 'statusz',              'megn' => 'Státusz:',   'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
@@ -2269,6 +2284,17 @@ $fenntartasi_szerzodes_tomb = $akt_tomb = array(
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
+// Fenntartási terv
+$megnevezes = 'fenntartasi_terv';
+$fenntartasi_terv_tomb = $akt_tomb = array(
+    array('type' => 'statusz',                  'megn' => 'Státusz:',       'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
+    array('type' => 'text',                     'megn' => 'Tervszám:',      'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1,     'class' => 'normal', 'style' => 'width: 11.5rem'),
+    array('type' => 'text',                     'megn' => 'Tervező év:',    'name' => 'ev',             'szuro' => 1,  'disabled' => 1,     'class' => 'normal f_csakszam', 'style' => 'width: 4.1rem', 'maxlength' => 4),
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',      'name' => 'telephely_id',   'szuro' => 1,       'class'  => 'disableNav',  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+    array('type' => 'textarea',                 'megn' => 'Megjegyzés:',    'name' => 'text',           'szuro' => 1,                       'class' => 'oriasi disableNav', 'style' => 'height: 10rem'),
+
+);
+array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 
 // Számlák
