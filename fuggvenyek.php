@@ -548,7 +548,7 @@ function i_u($type, $tabla, $tomb) {
                 if( !$telephely['modell'] || $_POST['telefon'] ) {
                     
                     
-                    $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $_POST['telephely_id'], MLTIPUS_HIBAELHARITAS, $_POST['obj_id'], $_POST['gep_id'], $_POST['surgos'], '', TELEPITETT_SZEMELYZET, '', '', $_POST['hiba_id']);
+                    $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $_POST['telephely_id'], MLTIPUS_HIBAELHARITAS, $_POST['obj_id'], $_POST['gep_id'], $_POST['surgos'], '', TELEPITETT_SZEMELYZET, '', '', '', '', $_POST['hiba_id']);
                     if( $recid === false ) { $db_error = true; }
 
                     if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) === false ) { $db_error = true; }
@@ -6914,7 +6914,7 @@ function datum_kiir($datum){
 
 
 // Új munkalap készítése kiszervezve
-function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id, $surgos=0, $text='', $szemelyzet_id=0, $uf_szam='', $esnap_d='0000-00-00', $hiba_id = 0){
+function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id, $surgos=0, $text='', $szemelyzet_id=0, $uf_szam='', $rk_szam='', $ef_szam='', $esnap_d='0000-00-00', $hiba_id = 0){
     
     global $adatbazis_kapcsolat;
     
@@ -6935,8 +6935,8 @@ function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id,
 
     // Munkalap beszúrása
     $recid = $adatbazis_kapcsolat -> i('munkalap',
-                                        array('ikt_szam',   'stat_id',  'tipus_id',  'surgos',  'telephely_id', 'obj_id', 'obj_txt', 'gep_id', 'gep_txt', 'hiba_id', 'hiba_txt', 'text', 'szemelyzet_id', 'uf_szam', 'esnap_d', 'loginnev',                         'update_usr',                          'insert_dt',    'insert_usr'                             ),
-                                        array($ikt_szam,     $stat_id,  $tipus_id,   $surgos,   $telephely_id,  $obj_id,  $obj_txt,  $gep_id,  $gep_txt,  $hiba_id,  $hiba_txt,  $text,  $szemelyzet_id,  $uf_szam,  $uf_szam,  $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   )
+                                        array('ikt_szam',   'stat_id',  'tipus_id',  'surgos',  'telephely_id', 'obj_id', 'obj_txt', 'gep_id', 'gep_txt', 'hiba_id', 'hiba_txt', 'text', 'szemelyzet_id', 'uf_szam', 'rk_szam', 'ef_szam', 'esnap_d', 'loginnev',                         'update_usr',                          'insert_dt',    'insert_usr'                             ),
+                                        array($ikt_szam,     $stat_id,  $tipus_id,   $surgos,   $telephely_id,  $obj_id,  $obj_txt,  $gep_id,  $gep_txt,  $hiba_id,  $hiba_txt,  $text,  $szemelyzet_id,  $uf_szam,  $rk_szam,  $ef_szam,  $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']   )
                                     );
     if( $recid === false ) { $db_error = true; }
 

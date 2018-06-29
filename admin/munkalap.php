@@ -197,7 +197,7 @@ if( isset($_POST['munkalapKeszit']) ) {
             }
 
             // Munkalap létrehozása
-            $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $telephely_id, MLTIPUS_HIBAELHARITAS, $bejelentes['obj_id'], $bejelentes['gep_id'], $bejelentes['surgos'], '', '', '', '', $bejelentes['hiba_id']);
+            $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $telephely_id, MLTIPUS_HIBAELHARITAS, $bejelentes['obj_id'], $bejelentes['gep_id'], $bejelentes['surgos'], '', '', '', '', '', '', $bejelentes['hiba_id']);
             if( $recid === false ) { $db_error = true; }
             
             // Hozzákapcsoljuk a bejelentéseket (valójában nincs is olyan eset, hogy több bejelentés egy munkalap, csak egy bejelentéshez tartozhat több munkalap is), de azért meghagytuk a régi ciklust
@@ -255,7 +255,7 @@ if ($_GET['ujkent_bejelentes']) {
     if( $bejelentes === false ) { $db_error = true; }
 
     // Munkalap létrehozása
-    $uj_id = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $bejelentes['telephely_id'], MLTIPUS_HIBAELHARITAS, $bejelentes['obj_id'], $bejelentes['gep_id'], $bejelentes['surgos'], $bejelentes['hiba_text'], '', '', '', $bejelentes['hiba_id']);
+    $uj_id = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $bejelentes['telephely_id'], MLTIPUS_HIBAELHARITAS, $bejelentes['obj_id'], $bejelentes['gep_id'], $bejelentes['surgos'], $bejelentes['hiba_text'], '', '', '', '', '', $bejelentes['hiba_id']);
     if( $uj_id === false ) { $db_error = true; }
 
     // Bejelentés hozzákapcsolása
@@ -791,7 +791,7 @@ if( isset($_POST['munkalapKeszre']) ) {
 
     if( $recid ) {
 
-        $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id uf_szam szemelyzet_id telephely_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id uf_szam szemelyzet_id telephely_id tipus_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
         $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
@@ -868,7 +868,14 @@ if( isset($_POST['munkalapKeszre']) ) {
 
         // Ha ütemezett feladatból jött létre (azaz van érték az uf_szam-ban), akkor az "Utoljára végrehajtva:" dátumát frissítjük
         if($munkalap['uf_szam']){
-            $sql = $adatbazis_kapcsolat->u('utemezett_feladatok', array('esem_d'), array('NOW()'), "`id`='{$munkalap['uf_szam']}'");
+            $tabla = 'utemezett_feladatok';
+            if($munkalap['tipus_id']==MLTIPUS_RENDSZERES_K){
+                $tabla = 'rendszeres_karbantartas';
+            }
+            if($munkalap['tipus_id']==MLTIPUS_ESETI_FENNT){
+                $tabla = 'eseti_fenntartas';
+            }
+            $sql = $adatbazis_kapcsolat->u($tabla, array('esem_d'), array('NOW()'), "`id`='{$munkalap['uf_szam']}'");
             if( $sql === false ) { $db_error = true; }
         }
 

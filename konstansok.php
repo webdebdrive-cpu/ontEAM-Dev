@@ -322,6 +322,8 @@ define('ERTEKLISTA_PENZNEM',        21);
 //38 Bejelentés nem igazolás oka
 
 define('MLTIPUS_HIBAELHARITAS', 1);
+define('MLTIPUS_RENDSZERES_K',  2);
 define('MLTIPUS_UTEMEZETT_F',   3);
+define('MLTIPUS_ESETI_FENNT',   5);
 
 ?>
