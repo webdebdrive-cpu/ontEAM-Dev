@@ -2289,10 +2289,10 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 $megnevezes = 'fenntartasi_terv';
 $fenntartasi_terv_tomb = $akt_tomb = array(
     array('type' => 'statusz',                  'megn' => 'Státusz:',       'name' => 'stat_id',        'szuro' => 1,  'oldal' => $megnevezes),
-    array('type' => 'text',                     'megn' => 'Tervszám:',      'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1,     'class' => 'normal', 'style' => 'width: 11.5rem'),
-    array('type' => 'text',                     'megn' => 'Tervező év:',    'name' => 'ev',             'szuro' => 1,  'disabled' => 1,     'class' => 'normal f_csakszam', 'style' => 'width: 4.1rem', 'maxlength' => 4),
-    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',      'name' => 'telephely_id',   'szuro' => 1,       'class'  => 'disableNav',  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
-    array('type' => 'textarea',                 'megn' => 'Megjegyzés:',    'name' => 'text',           'szuro' => 1,                       'class' => 'oriasi disableNav', 'style' => 'height: 10rem'),
+    array('type' => 'text',                     'megn' => 'Tervszám:',      'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'style' => 'width: 11.5rem'),
+    array('type' => 'text',                     'megn' => 'Tervező év:',    'name' => 'ev',             'szuro' => 1,  'disabled' => 1, 'class' => 'normal f_csakszam', 'style' => 'width: 4.1rem', 'maxlength' => 4),
+    array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',      'name' => 'telephely_id',   'szuro' => 1,                   'class' => 'disableNav',  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
+    array('type' => 'textarea',                 'megn' => 'Megjegyzés:',    'name' => 'text',           'szuro' => 1,                   'class' => 'oriasi disableNav', 'style' => 'height: 10rem'),
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -4451,6 +4451,9 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='fenntartasi_szerzodes' && !_jog(JOG_FENNTARTASI_TOROL)){
             $weblap -> leallit(); exit;
         }
+        if($ertek['tabla']=='fenntartasi_terv' && !_jog(JOG_FENNTARTASI_TERV_TOROL)){
+            $weblap -> leallit(); exit;
+        }
         // Login egyáltalán nem törölhető
         if($ertek['tabla']=='login'){
             $weblap -> leallit(); exit;
@@ -4520,7 +4523,7 @@ foreach($postok as $ertek){
 
         // Dokumentumok törlése
         $torolt_fajlok = '';
-        $dokos_oldalak = array('anyagigenyles', 'bejelentes', 'eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'munkalap', 'utemezett_feladatok', 'projektigenyles', 'rendszeres_karbantartas');
+        $dokos_oldalak = array('anyagigenyles', 'bejelentes', 'eseti_fenntartas', 'eszkozkezeles', 'eszkozkezeles_eng', 'felmeresi_terv', 'fenntartasi_terv', 'munkalap', 'utemezett_feladatok', 'projektigenyles', 'rendszeres_karbantartas');
         if( in_array($ertek['tabla'], $dokos_oldalak) ){
             $fajlok = $adatbazis_kapcsolat->s('*', $ertek['tabla'].'_dok', "`{$ertek['tabla']}_id`='{$_GET[$ertek['torid']]}'");
 
@@ -4703,6 +4706,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
 
             $sikeres_torles = $adatbazis_kapcsolat -> d($ertek['tabla'], "`recid`='{$_GET[$ertek['torid']]}'");
         }
+
         if( $sikeres_torles === false ) { $db_error = true; }
         if( !$db_error ) {
             mysqli_commit($db_kapcs);

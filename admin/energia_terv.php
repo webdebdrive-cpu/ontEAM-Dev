@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS) ) {
+if( !_jog(JOG_ENERGIA_EGYSEGAR_OLVAS) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -173,7 +173,7 @@ if (isset($_POST['terv_keszit'])) {
     mysqli_autocommit($db_kapcs, false);
 
     // Jog ellenőrzése
-    if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
+    if( !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ) {
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga tervet készíteni!',
             'title' => 'Hiba',
@@ -295,7 +295,7 @@ if (isset($_POST['terv_elesites'])) {
     }
 
     // Jog ellenőrzése
-    if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
+    if( !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ) {
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga tervet élesíteni!',
             'title' => 'Hiba',
@@ -870,7 +870,7 @@ require_once('selectek.php');
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         // Jogosutságkezelés: csak az törölheti, aki létrehozta
-        if(!_jog(JOG_FENNTARTASI_TERV_ELESIT)){
+        if(!_jog(JOG_ENERGIA_EGYSEGAR_KEZEL)){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága '.$szoveg.' törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }elseif( $sor['stat_id']==ENERGIATERV_STAT_ELES ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A '.$sor['ikt_szam'].' tervszámú energia terv státusza ÉLES, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
@@ -890,12 +890,12 @@ require_once('selectek.php');
         // Tervek fül
         }else{
             // Élesítés gomb
-            if( $sor['stat_id']==ENERGIATERV_STAT_KESZ && _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ){
+            if( $sor['stat_id']==ENERGIATERV_STAT_KESZ && _jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ){
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Élesítés" onclick="terv_elesites()"> ';
             }
         }
 
-        if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ){
+        if( _jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">

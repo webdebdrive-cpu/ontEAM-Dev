@@ -319,7 +319,7 @@ if(!$_SESSION['bejelento_menu_rejt']){
 }
 
 // Csak bejelentő elől rejtve
-if(!$_SESSION['bejelento_menu_rejt']){
+if( !$_SESSION['bejelento_menu_rejt'] && (_jog(JOG_ENERGIA_EGYSEGAR_OLVAS) || _jog(JOG_FENNTARTASI_MIND_SZ_OLVAS) || _jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS)) ){
     // Tervezés
     $menu_nev        = 'Tervezés';
     $menu_nev_kis    = 'tervezés';
@@ -331,9 +331,11 @@ if(!$_SESSION['bejelento_menu_rejt']){
     if(basename(self())=='fenntartasi_terv.php'){ $oldalNev = $oldalNev = 'Tervezés / <span id="rekord_neve">Fenntartási terv</span><span class="dn" id="rekord_neve_egyes">fenntartási ter</span><span class="dn" id="rekord_neve_targy">fenntartási tervet</span>'; }
 
     $aktmenuk  = '';
-    if(_jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS)){
+    if(_jog(JOG_ENERGIA_EGYSEGAR_OLVAS)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Energia egységárak'  ), $almenu_sablon );
-        //$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Fenntartási terv'    ), $almenu_sablon );
+    }
+    if(_jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS) || _jog(JOG_FENNTARTASI_MIND_SZ_OLVAS)){
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Fenntartási terv'    ), $almenu_sablon );
     }
 
     $style = '';
@@ -884,6 +886,9 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'energia_terv.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
+    } elseif( basename(self()) == 'energia_terv.php' && !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ) {
+        $uj_link = 'javascript: alert2(\'Önnek nincs joga energia egységárat feltölteni!\', \'\', \'Hiba\'); void(0);';
+
     } elseif( basename(self()) == 'energia_terv.php' ) {
         $uj_link = 'javascript: csoportMuvelet(\'terv_keszites_jellemzoi\'); void(0);';
 
@@ -899,6 +904,12 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'felmeresi_terv.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
+    } elseif( basename(self()) == 'fenntartasi_terv.php' && !_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) && !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
+        $uj_link = 'javascript: alert2(\'Önnek nincs joga fenntartási tervet feltölteni!\', \'\', \'Hiba\'); void(0);';
+
+    } elseif( basename(self()) == 'fenntartasi_terv.php' ) {
+        $uj_link = 'javascript: csoportMuvelet(\'fenntartasi_terv_feltolt\'); void(0);';
+        
     } elseif( basename(self()) == 'login.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
@@ -1018,6 +1029,7 @@ if( $_SESSION['nincs_jelsz'] ) {
 }
 
 // Törlés és új gombok ne is látsszon, ha nincs hozzá joga
+$sajat_szallodak = get_akt_login_szallodai();
 $torles_icon = nl2('
         <a onclick="naviTorles();" class="torles'.$torol_dis.'" title="Törlés">
             <i class="material-icons">delete</i>
@@ -1091,8 +1103,12 @@ if( basename(self())=='dokumentumtar.php' && !_jog(JOG_DOKUMENTUMTAR_KEZEL)){
 }
 
 // Energia tervezés alatt elrejtjük a duplikálást
-if( basename(self())=='energia_terv.php') {
+if( basename(self())=='energia_terv.php' ) {
     $duplikal = '';
+}
+if( basename(self())=='energia_terv.php' &&  !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL)) {
+    $torles_icon    = '';
+    $uj = $duplikal = '';
 }
 
 if(basename(self())=='eloterj_bod.php' && !_jog(JOG_ELOTERJ_KEZEL)){
@@ -1138,6 +1154,17 @@ if(basename(self())=='fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_KEZEL)
 }
 if(basename(self())=='fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_TOROL)){
     $torles_icon    = '';
+}
+
+if(basename(self())=='fenntartasi_terv.php'){
+    $sor = $adatbazis_kapcsolat->s2('telephely_id', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
+    if ( !(_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) || ( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && in_array($sor['telephely_id'], $sajat_szallodak) ))){
+        $uj = $duplikal = '';
+    }
+    
+    if(!_jog(JOG_FENNTARTASI_TERV_TOROL)){
+        $torles_icon = '';
+    }
 }
 
 // Felhasználóknál a törlés gomb sosem látszik.

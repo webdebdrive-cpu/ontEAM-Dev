@@ -50,6 +50,11 @@ $_stat_text = array(
         ENERGIATERV_STAT_KESZ               => array('nev' => 'Kész',                               'szinkod' => ''),
         ENERGIATERV_STAT_ELES               => array('nev' => 'Éles',                               'szinkod' => ''),
     ),
+    'fenntartasi_terv' => array(
+        ENERGIATERV_STAT_MUNKAKOZI          => array('nev' => 'Munkaközi',                          'szinkod' => ''),
+        ENERGIATERV_STAT_KESZ               => array('nev' => 'Kész',                               'szinkod' => ''),
+        ENERGIATERV_STAT_ELES               => array('nev' => 'Éles',                               'szinkod' => ''),
+    ),
     'munkalap' => array(
         MUNKALAP_STAT_ANYAGRAVAR            => array('nev' => 'Anyagra vár',                                    'szinkod' => '#677b70'),
         MUNKALAP_STAT_DONTESRE_VAR          => array('nev' => 'Döntésre vár',                                   'szinkod' => '#f5a56c'),

@@ -255,6 +255,8 @@ define('JOG_ESZKOZ_MEGTEKINT',          42);
 define('JOG_ESZKOZ_KEZEL',              43);
 define('JOG_FT_MEGTEKINT',              44);
 define('JOG_FT_KEZEL',                  45);
+define('JOG_ENERGIA_EGYSEGAR_OLVAS',    103);
+define('JOG_ENERGIA_EGYSEGAR_KEZEL',    104);
 define('JOG_FENNTARTASI_SAJAT_SZ_OLVAS',84);
 define('JOG_FENNTARTASI_SAJAT_SZ_KEZEL',85);
 define('JOG_FENNTARTASI_MIND_SZ_OLVAS', 86);

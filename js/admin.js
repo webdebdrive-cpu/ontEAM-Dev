@@ -5647,6 +5647,12 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                     } else if( baseName(location.href) == 'fenntartasi_szerzodes' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 
+                    } else if( baseName(location.href) == 'fenntartasi_terv' && _get('megjegyzesek') ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
+
+                    } else if( baseName(location.href) == 'fenntartasi_terv' ) {
+                        $('#navGombok a.uj').attr('href', 'javascript: csoportMuvelet(\'fenntartasi_terv_feltolt\'); void(0);');
+
                     } else if( baseName(location.href) == 'login' && _get('megjegyzesek') ) {
                         $('#navGombok a.uj').attr('href', 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);');
 

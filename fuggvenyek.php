@@ -376,6 +376,11 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
+        // Fenntartási terv
+        } else if( $tabla == 'fenntartasi_terv' ) {
+            array_push($oszlopok,  'stat_id'                    );
+            array_push($ertekek,   ENERGIATERV_STAT_MUNKAKOZI   );
+
         // Gégpek új bejegyzés esetén
         } else if( $tabla == 'gep' ) {
             array_push($oszlopok, 'loginnev'                        );
