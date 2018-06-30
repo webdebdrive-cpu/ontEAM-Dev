@@ -19,48 +19,13 @@ if(isset($_GET['info'])){
 require_once('../weblap.php');
 
 if (isset($_GET['teszt'])) {
-    
-    require_once 'jogosultsag.php';
-    
-    $csv = 'Telejes név;Loginnév;Jogosultság; Eltérések a szerepkör jogosultságaihoz képest'."\r\n";
-    
-    $loginok = $adatbazis_kapcsolat->s('*', 'login', "`aktiv`=1 AND `virtual`=0");
-    foreach($loginok as $login){
-        
-        $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', "`recid`='{$login['szemelyzet_id']}'");
-        if($szerepkor['flags']!=$login['flags']){
-            
-            $sz_flags = str_split($szerepkor['flags']);
-            $lo_flags = str_split($login['flags']);
-            $i = 0;
-            $elteres = '';
-            foreach($sz_flags as $f){
-                if($sz_flags[$i]!=$lo_flags[$i]){
-                    $elteres .= '"'.$jogosultsagok[$i]['nev'].'"';
-                    if($sz_flags[$i]=='1'){
-                        $elteres .= ' KI van pipálva;';
-                    }else{
-                        $elteres .= ' BE van pipálva;';
-                    }
-                }
-                $i++;
-            }
-            if($elteres){
-                $csv .= $login['teljes_nev'].';'.$login['nev'].';'. getSzerepkorNev($login['szemelyzet_id']) . ';'.$elteres;
-                //$csv .= $szerepkor['flags'].';'.$login['flags'];
-                $csv .= "\r\n";
-            }
-        }
+    $munkalapok = $adatbazis_kapcsolat->s('tipus_id recid', 'munkalap_arch', "`tipus_id_back`=0");
+    foreach($munkalapok as $ml){
+        $adatbazis_kapcsolat->u('munkalap_arch', array('tipus_id_back'), array($ml['tipus_id']), "`recid`='{$ml['recid']}'");
     }
-    
-    header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=szerepkor_jog_elteresek ".date('Y-m-d').".csv");
-    header("Pragma: no-cache");
-    header("Expires: 0");
-    echo iconv2(get_web_charset(), 'Windows-1250', $csv);
-    //echo str_replace("\r\n", '<br>', $csv);
     exit;
 }
+
 
 // Loginról értesítő levelek küldése
 if (false && isset($_GET['login_ertesit'])) {
@@ -844,6 +809,51 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
     exit;
 }
 
+
+// Szerepkör és beállított jögök közti különbség kiszűrése felhasználónként
+if (isset($_GET['szerepkor_jogosultsag_ell'])) {
+    
+    require_once 'jogosultsag.php';
+    
+    $csv = 'Telejes név;Loginnév;Jogosultság; Eltérések a szerepkör jogosultságaihoz képest'."\r\n";
+    
+    $loginok = $adatbazis_kapcsolat->s('*', 'login', "`aktiv`=1 AND `virtual`=0");
+    foreach($loginok as $login){
+        
+        $szerepkor = $adatbazis_kapcsolat->s2('flags', 'szerepkor', "`recid`='{$login['szemelyzet_id']}'");
+        if($szerepkor['flags']!=$login['flags']){
+            
+            $sz_flags = str_split($szerepkor['flags']);
+            $lo_flags = str_split($login['flags']);
+            $i = 0;
+            $elteres = '';
+            foreach($sz_flags as $f){
+                if($sz_flags[$i]!=$lo_flags[$i]){
+                    $elteres .= '"'.$jogosultsagok[$i]['nev'].'"';
+                    if($sz_flags[$i]=='1'){
+                        $elteres .= ' KI van pipálva;';
+                    }else{
+                        $elteres .= ' BE van pipálva;';
+                    }
+                }
+                $i++;
+            }
+            if($elteres){
+                $csv .= $login['teljes_nev'].';'.$login['nev'].';'. getSzerepkorNev($login['szemelyzet_id']) . ';'.$elteres;
+                //$csv .= $szerepkor['flags'].';'.$login['flags'];
+                $csv .= "\r\n";
+            }
+        }
+    }
+    
+    header("Content-type: text/csv");
+    header("Content-Disposition: attachment; filename=szerepkor_jog_elteresek ".date('Y-m-d').".csv");
+    header("Pragma: no-cache");
+    header("Expires: 0");
+    echo iconv2(get_web_charset(), 'Windows-1250', $csv);
+    //echo str_replace("\r\n", '<br>', $csv);
+    exit;
+}
 
 // Archiv táblák közti kapcsolatot így állítottuk helyre
 //if (false && isset($_GET['archivum_helyreallit'])) {

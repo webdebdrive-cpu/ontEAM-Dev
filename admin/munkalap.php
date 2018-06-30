@@ -791,7 +791,7 @@ if( isset($_POST['munkalapKeszre']) ) {
 
     if( $recid ) {
 
-        $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id uf_szam szemelyzet_id telephely_id tipus_id', 'munkalap', "`recid` = '{$recid}'", '', '1');
+        $munkalap = $sor = $adatbazis_kapcsolat->s2('stat_id uf_szam szemelyzet_id telephely_id tipus_id_back', 'munkalap', "`recid` = '{$recid}'", '', '1');
         if( $munkalap === false ) { $db_error = true; }
 
         $telephely = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$munkalap['telephely_id']}'");
@@ -869,10 +869,10 @@ if( isset($_POST['munkalapKeszre']) ) {
         // Ha ütemezett feladatból jött létre (azaz van érték az uf_szam-ban), akkor az "Utoljára végrehajtva:" dátumát frissítjük
         if($munkalap['uf_szam']){
             $tabla = 'utemezett_feladatok';
-            if($munkalap['tipus_id']==MLTIPUS_RENDSZERES_K){
+            if($munkalap['tipus_id_back']==MLTIPUS_RENDSZERES_K){
                 $tabla = 'rendszeres_karbantartas';
             }
-            if($munkalap['tipus_id']==MLTIPUS_ESETI_FENNT){
+            if($munkalap['tipus_id_back']==MLTIPUS_ESETI_FENNT){
                 $tabla = 'eseti_fenntartas';
             }
             $sql = $adatbazis_kapcsolat->u($tabla, array('esem_d'), array('NOW()'), "`id`='{$munkalap['uf_szam']}'");
