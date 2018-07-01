@@ -55,10 +55,6 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
         // Szállodának mi a modellje
         $szalloda = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$ut_feladat['telephely_id']}'");
 
-        // Címkék lekezelése
-        $obj_txt = getErtek('nev', 'obj', 'recid', $ut_feladat['obj_id']);
-        $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $ut_feladat['gep_id']);
-
         // Új munkalap státusza mi legyen. Alapból nyitott
         $ujrecid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $ut_feladat['telephely_id'], $tipus, $ut_feladat['obj_id'], $ut_feladat['gep_id'], 0, $text, $ut_feladat['szemelyzet_id'], $ut_feladat['id'], $ut_feladat['esnap_d']);
 
@@ -171,10 +167,6 @@ foreach($eseti_fenntartasok as $eseti){
     file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
     $text = $eseti['nev']."\r\n".$eseti['leiras'];
-
-    // Címkék lekezelése
-    $obj_txt = getErtek('nev', 'obj', 'recid', $eseti['obj_id']);
-    $gep_txt = getErtek('nev', 'eszkozkezeles', 'recid', $eseti['gep_id']);
 
     // Új munkalap státusza mi legyen. Alapból nyitott
     $ujrecid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $eseti['telephely_id'], MLTIPUS_ESETI_FENNT, $eseti['obj_id'], $eseti['gep_id'], 0, $text, $eseti['szemelyzet_id'], $eseti['id'], $eseti['esnap_d']);
