@@ -1,7 +1,7 @@
 <?php
 // Ütemezés típushoz - A 'kulsos' paraméterrel az szabályozható, hogy Külsős átadáskor, melyik személyzettípus jelenjen meg
 
-$kiveteles_oldalak = array('utemezett_feladatok.php', 'rendszeres_karbantartas.php');
+$kiveteles_oldalak = array('utemezett_feladatok.php', 'rendszeres_karbantartas.php', 'eseti_fenntartas.php');
 
 $select_szemelyzet = array();
 array_push($select_szemelyzet, array('name' => '- Válasszon -',                                 'value' => '0' ));

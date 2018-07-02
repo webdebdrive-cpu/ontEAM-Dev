@@ -197,7 +197,7 @@ if( isset($_POST['munkalapKeszit']) ) {
             }
 
             // Munkalap létrehozása
-            $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $telephely_id, MLTIPUS_HIBAELHARITAS, $bejelentes['obj_id'], $bejelentes['gep_id'], $bejelentes['surgos'], '', '', '', '', '', '', $bejelentes['hiba_id']);
+            $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $telephely_id, MLTIPUS_HIBAELHARITAS, $bejelentes['obj_id'], $bejelentes['gep_id'], $bejelentes['surgos'], '', '', '', '', '', $bejelentes['hiba_id']);
             if( $recid === false ) { $db_error = true; }
             
             // Hozzákapcsoljuk a bejelentéseket (valójában nincs is olyan eset, hogy több bejelentés egy munkalap, csak egy bejelentéshez tartozhat több munkalap is), de azért meghagytuk a régi ciklust
@@ -255,7 +255,7 @@ if ($_GET['ujkent_bejelentes']) {
     if( $bejelentes === false ) { $db_error = true; }
 
     // Munkalap létrehozása
-    $uj_id = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $bejelentes['telephely_id'], MLTIPUS_HIBAELHARITAS, $bejelentes['obj_id'], $bejelentes['gep_id'], $bejelentes['surgos'], $bejelentes['hiba_text'], '', '', '', '', '', $bejelentes['hiba_id']);
+    $uj_id = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $bejelentes['telephely_id'], MLTIPUS_HIBAELHARITAS, $bejelentes['obj_id'], $bejelentes['gep_id'], $bejelentes['surgos'], $bejelentes['hiba_text'], '', '', '', '', $bejelentes['hiba_id']);
     if( $uj_id === false ) { $db_error = true; }
 
     // Bejelentés hozzákapcsolása
@@ -5671,9 +5671,11 @@ if (isset($_GET['csv'])) {
                 `'.get_db_tabla().$megnevezes.'`.`recid` as \'Id\',
                 `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
                 `obj_txt` as \'Helyiség\',
+                1 as \'Helyiség leírása\',
                 `ikt_szam` as \'Munkalap szám\',
                 `'.get_db_tabla().$megnevezes.'`.`update_dt` as \'Bejelentett hiba\',
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\',
+                2 as \'Hiba leírása\',
                 `surgos` as \'Sürgős\',
                 `stat_id` as \'Státusz\',
                 `visszaadva` as \'Visszaadva\',
@@ -5699,7 +5701,7 @@ if (isset($_GET['csv'])) {
             $csvcont = array();
 
             $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$sorok['Id']}'");
-            $bejelentes = $adatbazis_kapcsolat->s2('hiba_id insert_dt', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
+            $bejelentes = $adatbazis_kapcsolat->s2('hiba_id hiba_text helyiseg_text insert_dt', 'bejelentes', "`recid`='{$bejelentes['bejelentes_id']}'");
             foreach( $sorok as $kulcs => $sor ) {
 
                 if($kulcs=='Id'){
@@ -5710,6 +5712,12 @@ if (isset($_GET['csv'])) {
                 }
                 if($kulcs=='Bejelentett hiba'){
                     $sor = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
+                }
+                if($kulcs=='Hiba leírása'){
+                    $sor = $bejelentes['hiba_text'];
+                }
+                if($kulcs=='Helyiség leírása'){
+                    $sor = $bejelentes['helyiseg_text'];
                 }
                 if($kulcs=='Bejelentés dátuma'){
                     $sor = $bejelentes['insert_dt'];

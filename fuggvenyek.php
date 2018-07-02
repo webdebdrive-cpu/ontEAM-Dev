@@ -554,7 +554,7 @@ function i_u($type, $tabla, $tomb) {
                 if( !$telephely['modell'] || $_POST['telefon'] ) {
                     
                     
-                    $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $_POST['telephely_id'], MLTIPUS_HIBAELHARITAS, $_POST['obj_id'], $_POST['gep_id'], $_POST['surgos'], '', TELEPITETT_SZEMELYZET, '', '', '', '', $_POST['hiba_id']);
+                    $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $_POST['telephely_id'], MLTIPUS_HIBAELHARITAS, $_POST['obj_id'], $_POST['gep_id'], $_POST['surgos'], '', TELEPITETT_SZEMELYZET, '', '', '', $_POST['hiba_id']);
                     if( $recid === false ) { $db_error = true; }
 
                     if( addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) === false ) { $db_error = true; }
@@ -1382,7 +1382,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
                 /* Riasztás 0 értékkel van beállítva, így mehet? */
                 if( (!$(\'#riaszt\').val() || $(\'#riaszt\').val()==0) && !riasztas_mehet ){
-                    uf_gomb2 = \'<div class="c"><input type="button" class="gomb zold" value="Igen" onclick="riasztas_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2()"></div>\';
+                    uf_gomb2 = \'<div class="c"><input type="button" class="gomb zold" value="Igen" onclick="riasztas_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2(); szurkit_zar(\\\'mentés mégsem gomb megjelenít\\\');"></div>\';
                     alert2(\'
                         Ön a következőt választotta:
                         <br>
@@ -1478,7 +1478,7 @@ function js_kiir($tomb, $fg = 'form_ell_regi()', $ajax = false) {
 
                             response = JSON.parse(response);
                             eredeti_esnap_d = $(\'#esnap_d\').val();
-                            uf_gomb3 = \'<div class="c"><input type="button" class="gomb zold" value="Igen" onclick="utemezes_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\\\'#esnap_d\\\').val(eredeti_esnap_d);"></div>\';
+                            uf_gomb3 = \'<div class="c"><input type="button" class="gomb zold" value="Igen" onclick="utemezes_mehet = true; $(\\\'#szerk_form\\\').submit();"> <input type="button" class="gomb piros" value="Nem" onclick="alert2(); szurkit_zar(\\\'mentés mégsem gomb megjelenít\\\'); $(\\\'#esnap_d\\\').val(eredeti_esnap_d);"></div>\';
                             alert2(response[\'uzenet\'], uf_gomb3);
                             $(\'#esnap_d\').val(response[\'esedekes\']);
                             return false;
@@ -5575,14 +5575,9 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
     $teljes_nev = $_SESSION[get_db_tabla().'teljes_nev'];
     $login      = $_SESSION[get_db_tabla().'user'];
     if($adott_nev){
-        $adott_nev = trim($adott_nev);
-        $teljes_nev = $adott_nev;
-        $login = $adatbazis_kapcsolat->s('nev', 'login', "`teljes_nev`='{$adott_nev}'");
-        if(count($login)>1){
-            echo 'Hiba: nem egyértelmű a teljes név alapján, ki a user!';
-        }else{
-            $login = $login[0]['nev'];
-        }
+        $login      = $adatbazis_kapcsolat->s2('nev teljes_nev', 'login', "`nev`='{$adott_nev}'");
+        $teljes_nev = $login['teljes_nev'];
+        $login      = $login['nev'];
     }
     if($rendszer_a_user){
         $teljes_nev = get_nev();
@@ -6920,7 +6915,7 @@ function datum_kiir($datum){
 
 
 // Új munkalap készítése kiszervezve
-function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id, $surgos=0, $text='', $szemelyzet_id=0, $uf_szam='', $esnap_d='0000-00-00', $hiba_id = 0){
+function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id, $surgos=0, $text='', $szemelyzet_id=0, $szallito_id=0, $uf_szam='', $esnap_d='0000-00-00', $hiba_id = 0, $loginnev = ''){
     
     global $adatbazis_kapcsolat;
     
@@ -6938,19 +6933,27 @@ function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id,
     if($hiba_id){
         $hiba_txt = getErtek('info', 'erteklista', 'recid', $hiba_id);
     }
+    
+    // Ha meg van adva, hogy ki legyen a létrehozó, akkor adott loginnév legyen a név/teljes név insert-nél, egyébként a Session (tehátbelépett) felhasználó
+    if($loginnev){
+        $login = $adatbazis_kapcsolat->s2('nev teljes_nev', 'login', "`nev`='{$loginnev}'");
+    }else{
+        $login['teljes_nev']    = $_SESSION[get_db_tabla().'teljes_nev'];
+        $login['nev']           = $_SESSION[get_db_tabla().'user'];
+    }
 
     // Munkalap beszúrása
     // A tipusát backupként is eltároljuk, hogy tudjuk, mi volt eredetileg (a sima tipus_id sem változhat, de az a tuti, ha duplán benne van, mert készre jelentéskor nem mindegy, milyen tipusú volt eredetileg, melyik táblát kell majd updatelni)
     $recid = $adatbazis_kapcsolat -> i('munkalap',
-                                        array('ikt_szam',   'stat_id',  'tipus_id', 'tipus_id_back',    'surgos',  'telephely_id', 'obj_id', 'obj_txt', 'gep_id', 'gep_txt', 'hiba_id', 'hiba_txt', 'text', 'szemelyzet_id', 'uf_szam', 'esnap_d', 'loginnev',                         'update_usr',                           'insert_dt',    'insert_usr'                             ),
-                                        array($ikt_szam,     $stat_id,  $tipus_id,  $tipus_id,          $surgos,   $telephely_id,  $obj_id,  $obj_txt,  $gep_id,  $gep_txt,  $hiba_id,  $hiba_txt,  $text,  $szemelyzet_id,  $uf_szam,  $esnap_d,  $_SESSION[get_db_tabla().'user'],   $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']   )
+                                        array('ikt_szam',   'stat_id',  'tipus_id', 'tipus_id_back',    'surgos',  'telephely_id', 'obj_id', 'obj_txt', 'gep_id', 'gep_txt', 'hiba_id', 'hiba_txt', 'text', 'szemelyzet_id', 'szallito_id', 'uf_szam', 'esnap_d', 'loginnev',     'update_usr',         'insert_dt',    'insert_usr'           ),
+                                        array($ikt_szam,     $stat_id,  $tipus_id,  $tipus_id,          $surgos,   $telephely_id,  $obj_id,  $obj_txt,  $gep_id,  $gep_txt,  $hiba_id,  $hiba_txt,  $text,  $szemelyzet_id,  $szallito_id,  $uf_szam,  $esnap_d,  $login['nev'],  $login['teljes_nev'], 'NOW()',        $login['teljes_nev']   )
                                     );
     if( $recid === false ) { $db_error = true; }
 
     // Felvesszük az első státuszt
     $sql = $adatbazis_kapcsolat -> i('munkalap_statusz',
-                                        array('munkalap_recid', 'stat_id',  'login',                           'insert_dt',    'insert_usr',                              'update_usr'                           ),
-                                        array($recid,           $stat_id,   $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],    $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        array('munkalap_recid', 'stat_id',  'login',        'insert_dt',    'insert_usr',            'update_usr'            ),
+                                        array($recid,           $stat_id,   $login['nev'],  'NOW()',        $login['teljes_nev'],    $login['teljes_nev']    )
                                     );
     if( $sql === false ) { $db_error = true; }
     

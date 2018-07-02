@@ -3,14 +3,15 @@ require_once('../weblap.php');
 require_once('datumra_utemezes.php');
 
 
+
 // Ütemezett feladatok lekérdezése, bejárása
 $log_utvonal = str_replace('.php', '', basename(self())).'.err';
-
 $log_tmp = $log = '
 *****************************
 '.date('Y.m.d H:i:s').' '.basename(self()).' elindult
 ';
 file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
+
 // Adott méret felett felezzük a log fájlt
 if( filesize($log_utvonal)>get_logfile_max_meret() ){
     $log_tmp = fajlbol_olvas($log_utvonal);
@@ -56,7 +57,7 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
         $szalloda = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$ut_feladat['telephely_id']}'");
 
         // Új munkalap státusza mi legyen. Alapból nyitott
-        $ujrecid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $ut_feladat['telephely_id'], $tipus, $ut_feladat['obj_id'], $ut_feladat['gep_id'], 0, $text, $ut_feladat['szemelyzet_id'], $ut_feladat['id'], $ut_feladat['esnap_d']);
+        $ujrecid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $ut_feladat['telephely_id'], $tipus, $ut_feladat['obj_id'], $ut_feladat['gep_id'], 0, $text, $ut_feladat['szemelyzet_id'], $ut_feladat['szallito_id'], $ut_feladat['id'], $ut_feladat['esnap_d'], '', $ut_feladat['loginnev']);
 
         if( $ujrecid === false ) {
             $db_error = true;
@@ -71,7 +72,7 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
 
         // Egyszállodás modell esetén a munkalap automatikusan hozzárendelt státuszban jön létre, ha telepített a hozzárendelt személyzet
         if( !$szalloda['modell'] && $ut_feladat['szemelyzet_id']==TELEPITETT_SZEMELYZET ){
-            if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_HOZZARENDELT)===false ){
+            if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_HOZZARENDELT, '', '', '', '', $ut_feladat['loginnev'])===false){
                 $db_error = true;
                 $log_tmp = 'NEM SIKERÜLT munkalap státuszt léptetni hozzárendeltre: '.$adatbazis_kapcsolat->gp().'
     ';
@@ -79,7 +80,7 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
         }
         // Előkészítés alatt státuszban jön létre, ha külső kivitelező a hozzárendelt személyzet
         if( !$szalloda['modell'] && $ut_feladat['szemelyzet_id']==KULSO_KIVITELEZO ){
-            if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_ELOKESZITES_ALATT)===false ){
+            if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_ELOKESZITES_ALATT, '', '', '', '', $ut_feladat['loginnev'])===false ){
                 $db_error = true;
                 $log_tmp = 'NEM SIKERÜLT munkalap státuszt léptetni előkészítés alatt-ra: '.$adatbazis_kapcsolat->gp().'
     ';
@@ -148,7 +149,7 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
 }
 
 // Eseti fenntartások
-$eseti_fenntartasok = $adatbazis_kapcsolat->s('*', 'eseti_fenntartas', "DATE_ADD(`esnap_d`, INTERVAL - `riaszt` DAY)<=CURDATE() AND `aktiv`=1");
+$eseti_fenntartasok = $adatbazis_kapcsolat->s('*', 'eseti_fenntartas', "DATE_ADD(`esnap_d`, INTERVAL - `riaszt` DAY)<=CURDATE() AND `aktiv`=1 AND `munkalap_recid`=0");
 $log_tmp = $adatbazis_kapcsolat->gp().'
 ';
 $log .= $log_tmp;
@@ -168,9 +169,11 @@ foreach($eseti_fenntartasok as $eseti){
 
     $text = $eseti['nev']."\r\n".$eseti['leiras'];
 
-    // Új munkalap státusza mi legyen. Alapból nyitott
-    $ujrecid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $eseti['telephely_id'], MLTIPUS_ESETI_FENNT, $eseti['obj_id'], $eseti['gep_id'], 0, $text, $eseti['szemelyzet_id'], $eseti['id'], $eseti['esnap_d']);
+    // Szállodának mi a modellje
+    $szalloda = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$eseti['telephely_id']}'");
 
+    // Új munkalap státusza mi legyen. Alapból nyitott
+    $ujrecid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $eseti['telephely_id'], MLTIPUS_ESETI_FENNT, $eseti['obj_id'], $eseti['gep_id'], 0, $text, $eseti['szemelyzet_id'], $eseti['szallito_id'], $eseti['id'], $eseti['esnap_d'], '', $eseti['loginnev']);
     if( $ujrecid === false ) {
         $db_error = true;
         $log_tmp = 'NEM SIKERÜLT új munkalapot létrehozni: '.$adatbazis_kapcsolat->gp().'
@@ -184,7 +187,7 @@ foreach($eseti_fenntartasok as $eseti){
 
     // Egyszállodás modell esetén a munkalap automatikusan hozzárendelt státuszban jön létre, ha telepített a hozzárendelt személyzet
     if( !$szalloda['modell'] && $eseti['szemelyzet_id']==TELEPITETT_SZEMELYZET ){
-        if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_HOZZARENDELT)===false ){
+        if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_HOZZARENDELT, '', '', '', '', $eseti['loginnev'])===false ){
             $db_error = true;
             $log_tmp = 'NEM SIKERÜLT munkalap státuszt léptetni hozzárendeltre: '.$adatbazis_kapcsolat->gp().'
 ';
@@ -192,7 +195,7 @@ foreach($eseti_fenntartasok as $eseti){
     }
     // Előkészítés alatt státuszban jön létre, ha külső kivitelező a hozzárendelt személyzet
     if( !$szalloda['modell'] && $eseti['szemelyzet_id']==KULSO_KIVITELEZO ){
-        if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_ELOKESZITES_ALATT)===false ){
+        if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_ELOKESZITES_ALATT, '', '', '', '', $eseti['loginnev'])===false ){
             $db_error = true;
             $log_tmp = 'NEM SIKERÜLT munkalap státuszt léptetni előkészítés alatt-ra: '.$adatbazis_kapcsolat->gp().'
 ';
@@ -201,12 +204,11 @@ foreach($eseti_fenntartasok as $eseti){
     $log .= $log_tmp;
     file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
-    // Feladat adatainak frissítése
-    $oszlopok = array('utnap_d',        'utesnap_d'        );
-    $ertekek  = array(date('Y-m-d'),    $eseti['esnap_d']  );
-
-    // A tényleges update
-    $sql = $adatbazis_kapcsolat->u($tabla,  $oszlopok, $ertekek, "`recid`='{$eseti['recid']}'");
+    // Feladat adatainak frissítése. Ütemezés napja a mai nap; Utolsó esedékessék napa az esnap-d mező értéke. Inaktiváljuk, de a lérehozott ML recid-ját is eltároljuk, hogy visszaaktiválással ne ütemeződjön újra.
+    // Tehát csak azokból az eseti karbnatartásokból fogunk ML-ot készíteni, aminél még nincs letárolva a munkalap_recid oszlop.
+    $sql = $adatbazis_kapcsolat->u('eseti_fenntartas',  array('utnap_d',        'utesnap_d',       'munkalap_recid', 'aktiv' ),
+                                                        array(date('Y-m-d'),    $eseti['esnap_d'], $ujrecid,         0       ),
+                                    "`recid`='{$eseti['recid']}'");
     if( $sql === false ) { 
         $db_error = true;
         $log_tmp = 'NEM SIKERÜLT  '.a_az($targyas).' '.$targyas.' módosítani: '.$adatbazis_kapcsolat->gp().'

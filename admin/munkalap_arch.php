@@ -101,10 +101,12 @@ if (isset($_GET['csv'])) {
         $sql = 'SELECT
                 `'.get_db_tabla().$megnevezes.'`.`recid` as \'Id\',
                 `'.get_db_tabla().$megnevezes.'`.`telephely_id` as \'Szálloda\',
-                `obj_id` as \'Helyiség\',
+                `obj_txt` as \'Helyiség\',
+                1 as \'Helyiség leírása\',
                 `ikt_szam` as \'Munkalap szám\',
                 `'.get_db_tabla().$megnevezes.'`.`update_dt` as \'Bejelentett hiba\',
                 `'.get_db_tabla().$megnevezes.'`.`insert_dt` as \'Bejelentés dátuma\',
+                2 as \'Hiba leírása\',
                 `surgos` as \'Sürgős\',
                 `stat_id` as \'Státusz\',
                 `visszaadva` as \'Visszaadva\',
@@ -130,17 +132,23 @@ if (isset($_GET['csv'])) {
             $csvcont = array();
 
             $bejelentes = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs_arch', "`munkalap_id`='{$sorok['Id']}'");
-            $bejelentes = $adatbazis_kapcsolat->s2('hiba_id insert_dt', 'bejelentes_arch', "`recid`='{$bejelentes['bejelentes_id']}'");
+            $bejelentes = $adatbazis_kapcsolat->s2('hiba_id hiba_text helyiseg_text insert_dt', 'bejelentes_arch', "`recid`='{$bejelentes['bejelentes_id']}'");
             foreach( $sorok as $kulcs => $sor ) {
 
                 if($kulcs=='Id'){
                     continue;
                 }
                 if($kulcs=='Szálloda'){
-                    $sor = getErtek('nev', 'telephely', 'id', $sor);
+                    $sor = getSzallodaNev($sor);
                 }
                 if($kulcs=='Bejelentett hiba'){
                     $sor = getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']);
+                }
+                if($kulcs=='Hiba leírása'){
+                    $sor = $bejelentes['hiba_text'];
+                }
+                if($kulcs=='Helyiség leírása'){
+                    $sor = $bejelentes['helyiseg_text'];
                 }
                 if($kulcs=='Bejelentés dátuma'){
                     $sor = $bejelentes['insert_dt'];
@@ -148,10 +156,8 @@ if (isset($_GET['csv'])) {
                 if($kulcs=='Gépnév'){
                     $sor = getErtek('nev', 'eszkozkezeles', 'recid', $sor);
                 }
-                if($kulcs=='Helyiség'){
-                    $sor = getErtek('nev', 'obj', 'recid', $sor);
-                }
                 if($kulcs=='Hozzárendelt személyzet'){
+                    $sor = getErtek('nev', 'szerepkor', 'recid', $sor);
                     $sor = getSzerepkorNev($sor);
                 }
                 if($kulcs=='Igényelt elvégzés' || $kulcs=='Várható érkezés'){
@@ -163,7 +169,7 @@ if (isset($_GET['csv'])) {
                     $sor = getErtek('nev', 'szallito', 'id', $sor);
                 }
                 if($kulcs=='Típus'){
-                    $sor = erteklista(6, $sor);
+                    $sor = erteklista(ERTEKLISTA_MUNKALAP_TIP, $sor);
                 }
                 if($kulcs=='Státusz'){
                     $sor = getStatText('munkalap', $sor);
