@@ -1,3 +1,14 @@
+/* Egységárak táblázat kijelölés klikkre */
+$(document).ready(function () {
+
+    $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
+        $('.szamla_cont_tabla tbody tr').removeClass('kijelolve');
+        $(this).addClass('kijelolve');
+    });
+
+});
+
+
 /* Szálloda hozzárendelése energia tervhez */
 function addSzallodaEnergia( recid, that ) {
 
@@ -228,18 +239,9 @@ function energiaterv_veglegesit(mehet){
                     return false;
                 }
                 szurkit();
-                location.reload();
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
             }
         }
     });
 }
 
-/* Egységárak táblázat */
-$(document).ready(function () {
-
-    $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
-        $('.szamla_cont_tabla tbody tr').removeClass('kijelolve');
-        $(this).addClass('kijelolve');
-    });
-
-});

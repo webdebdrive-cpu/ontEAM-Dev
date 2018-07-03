@@ -1,3 +1,13 @@
+/* Energia táblázat kijelölés klikkre */
+$(document).ready(function () {
+
+    $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
+        $('.szamla_cont_tabla tbody tr').removeClass('kijelolve');
+        $(this).addClass('kijelolve');
+    });
+
+});
+
 /* Élesítés */
 function fenntartasi_terv_elesites(mehet) {
 
@@ -20,7 +30,7 @@ function fenntartasi_terv_elesites(mehet) {
                         alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
-                    
+                    szurkit();
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                     if(response.kesz_id>0){
                         szamlaSorFrissit(baseName(location.href), response.kesz_id);
@@ -35,12 +45,49 @@ function fenntartasi_terv_elesites(mehet) {
     return false;
 }
 
-/* Egységárak táblázat */
-$(document).ready(function () {
+/* Energiaterv véglegesítése */
+function fenntartasterv_veglegesit(mehet){
 
-    $(document).on('click', '.szamla_cont_tabla tbody tr', function(e) {
-        $('.szamla_cont_tabla tbody tr').removeClass('kijelolve');
-        $(this).addClass('kijelolve');
+    if(!mehet){
+        alert2('Biztosan véglegesíti a fenntartási tervet?', '<input type="button" class="gomb zold" value="Igen" onclick="fenntartasterv_veglegesit(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+        return false;
+    }
+
+    $.ajax({
+        url : 'fenntartasi_terv.php',
+        type: 'POST',
+        data: {
+            recid                       : _get('id'),
+            fenntartasterv_veglegesit   : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                szurkit();
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+            }
+        }
     });
+}
 
-});
+/* Energia fül alatt számokat szummázzuk */
+function energia_szummaz(){
+    for( i=1; i<13; i++ ){
+        if( i<10 ){
+            i = '0'+String(i);
+        }
+        ossz = 0;
+        $('.ft'+i).each(function () {
+            ossz += Number($(this).html().replace(/ /g, ''));
+        });
+        $('#szum_ft'+i).html( ezresek(ossz, '', '', ' ') );
+
+    }
+}

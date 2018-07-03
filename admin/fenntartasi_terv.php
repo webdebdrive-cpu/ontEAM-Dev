@@ -162,7 +162,7 @@ if (isset($_POST['terv_keszit'])) {
         $ft_energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}'");
         if( $ft_energiak === false ) { $db_error = true; }
         foreach($ft_energiak as $energia){
-            $oszlopok   = '`ktgnem_id`, `dijelem`, `efajta`, `mee`, `ear01`, `ear02`, `ear03`, `ear04`, `ear05`, `ear06`, `ear07`, `ear08`, `ear09`, `ear10`, `ear11`, `ear12`, `sorid`';
+            $oszlopok   = array('ktgnem_id', 'dijelem', 'efajta', 'mee', 'ear01', 'ear02', 'ear03', 'ear04', 'ear05', 'ear06', 'ear07', 'ear08', 'ear09', 'ear10', 'ear11', 'ear12', 'sorid');
             $ertekek    = array();
             foreach($oszlopok as $oszl){
                 array_push($ertekek, $energia[$oszl]);
@@ -171,9 +171,6 @@ if (isset($_POST['terv_keszit'])) {
             array_push($ertekek,  $uj_id,                'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  );
             
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_energia', $oszlopok, $ertekek);
-echo '<pre style="font-size: 1.4rem">';
-print_r($ertekek);
-echo '</pre>';
             if( $sql === false ) { $db_error = true; }
         }
 
@@ -237,6 +234,112 @@ echo '</pre>';
     $weblap->leallit();
     exit();
 
+}
+
+// Éles-e már az energia terv státusza?
+if (isset($_POST['get_statusz'])) {
+    
+    $terv = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$_POST['recid']}'");
+    if($terv['stat_id']==ENERGIATERV_STAT_ELES){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => 'A fenntartási terv már éles, így nem szerkeszthető!',
+            'title' => 'Hiba'
+        ));
+
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Energia mennyiség táblázat lekérdezése
+if (isset($_POST['get_mennyisegek'])) {
+    $id = $_POST['id'];
+
+    if( $id ) {
+        $html = '';
+        $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
+
+        // Egységár sor lekérdezése
+        $ft_energia = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_energia', "`recid`='{$id}'");
+        if( $ft_energia ) {
+            $html = nl2('
+                <div class="dt egysegarak_tablazat" style="width: auto">
+                    <div class="dtr">
+                        <div class="dtc"></div>
+                        <div class="dtc">Mennyiség</div>
+                    </div>
+            ');
+
+            foreach($honapok as $key => $honap) {
+                $sorszam = sprintf('%02d', $key + 1);
+
+                $html .= nl2('
+                    <div class="dtr">
+                        <div class="dtc" style="padding-right: 0.5rem;">'.$honap.'</div>
+                        <div class="dtc"><input type="text" name="em'.$sorszam.'" id="em'.$sorszam.'" class="f_num" data-tort="2" value="'.str_replace('.', ',', $ft_energia['em'.$sorszam]).'"></div>
+                    </div>
+                ');
+            }
+
+            $html .= '</div>';
+        }
+
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'html'    => $html
+        ));
+    } else {
+        echo json_encode(array(
+            'hiba' => 'Energia mennyiségek megadásához válasszon ki egy sort!'
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+}
+
+// Energia mennyiségek mentése
+if (isset($_POST['ft_energiaKitolt'])) {
+    $mit  = array();
+    $mire = array();
+    
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    $energia = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_energia', "`recid`='{$_POST['egysegarsor_id']}'");
+    if( $energia === false ) { $db_error = true; }
+    
+    for($i = 1; $i <= 12; $i++) {
+        $sorszam = sprintf('%02d', $i);
+
+        // Mennyiség
+        $mennyiseg = str_replace(',', '.', $_POST['em'.$sorszam]);
+        $ertek     = round($energia['ear'.$sorszam]*$mennyiseg);
+        array_push($mit,    'em'.$sorszam, 'ft'.$sorszam);
+        array_push($mire,   $mennyiseg,    $ertek       );
+    }
+
+    // Frissítés
+    $sql = $adatbazis_kapcsolat -> u('fenntartasi_terv_energia', $mit, $mire, "`recid`='{$_POST['egysegarsor_id']}'");
+    if( $sql === false ) { $db_error = true; }
+    
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'OK',
+            'recid'   => $_POST['egysegarsor_id']
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
 }
 
 // Fenntartási terv élesítése
@@ -322,6 +425,61 @@ if (isset($_POST['fenntartasi_terv_elesites'])) {
     $weblap->leallit();
     exit();
 
+}
+
+// Fenntartási terv véglegesítése
+if (isset($_POST['fenntartasterv_veglegesit'])) {
+
+    $recid = $_POST['recid'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    $sor = $adatbazis_kapcsolat->s2('ikt_szam stat_id', 'fenntartasi_terv', "`recid`='{$recid}'");
+    if( $sor === false ) { $db_error = true; }
+    
+    // Státusz ellenőrzése
+    if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => 'Csak munkaközi fenntartási terv véglegesíthető!',
+            'title' => 'Hiba'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+
+    // Ha már van iktató szám, akkor hibaüzenet
+    if($sor['ikt_szam']){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => 'A fenntartási tervnek már van iktató száma ('.$sor['ikt_szam'].'), így nem véglegesíthető!',
+            'title' => 'Hiba'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+
+    if( !addStatusz( 'fenntartasi_terv_statusz', $recid, ENERGIATERV_STAT_KESZ ) ) {
+        $db_error = true;
+    }
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker'
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
 }
 
 // CSV generálása
@@ -536,23 +694,27 @@ require_once('selectek.php');
             }
         }
 
-
-        // Egységárak fül
-        if( isset($_GET['egysegarak']) ){
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Új sor" onclick="uj_egysegar()"> ';
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Szálloda" onclick="kapcsolodoSzerkeszt(\'szallodak_energia\');"> ';
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Költségnem és díjelem" onclick="kapcsolodoSzerkeszt(\'energia_terv_koltsegnem_dijelem\');"> ';
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Egységárak" onclick="kapcsolodoSzerkeszt(\'egysegarak\');"> ';
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Sor törlése" onclick="egysegar_sor_torol()"> ';
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="energiaterv_veglegesit()"> ';
-        
-        // Tervek fül
-        }elseif(isset($_GET['modosit'])){
+        // Terv adatlapján
+        if(isset($_GET['modosit'])){
             // Élesítés gomb
             if( $sor['stat_id']==ENERGIATERV_STAT_KESZ && (_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) || _jog(JOG_FENNTARTASI_MIND_SZ_KEZEL)) ){
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Élesítés" onclick="fenntartasi_terv_elesites()"> ';
             }
+        // Ha nem az adatlapon vagyunk
+        }else{
+            
+            if( (_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) || _jog(JOG_FENNTARTASI_MIND_SZ_KEZEL)) && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="fenntartasterv_veglegesit()"> ';
+            }
+            
+            // Egységárak fül
+            if( isset($_GET['energia']) ){
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kitöltés" onclick="kapcsolodoSzerkeszt(\'ft_energia_mennyiseg\');"> ';
+
+            }
+            
         }
+        
 
         if( $kezeles_jog ){
             $gombok = nl2('
@@ -773,61 +935,114 @@ require_once('selectek.php');
 
         $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$_GET['id']}'");
         foreach($energiak as $energia){
-
+            
+            // Számok formzása
+            for($i=1; $i<13; $i++){
+                if($i<10){
+                    $i = '0'.$i;
+                }
+                $energia['em'.$i] = str_replace('.', ',', $energia['em01']);
+            }
+            
             $szamla_html .= '
-                <tr id="ft_ear_'.$energia['recid'].'" data-recid="'.$energia['recid'].'" class="ftt_menny">
+                <tr id="ft_em_'.$energia['recid'].'" data-recid="'.$energia['recid'].'" class="ftt_menny">
                     <td>'.$energia['dijelem'].'</td>
                     <td>'.$energia['mee'].'</td>
-                    <td class="r">'.$energia['ear01'].'</td>
-                    <td><input type="text" name="em01"></td>
-                    <td class="r">'.$energia['ft01'].'</td>
-                    <td class="r">'.$egysegar['ear02'].'</td>
-                    <td><input type="text" name="em02"></td>
-                    <td class="r">'.$egysegar['ft02'].'</td>
-                    <td class="r">'.$egysegar['ear03'].'</td>
-                    <td><input type="text" name="em03"></td>
-                    <td class="r">'.$egysegar['ft03'].'</td>
-                    <td class="r">'.$egysegar['ear04'].'</td>
-                    <td><input type="text" name="em04"></td>
-                    <td class="r">'.$egysegar['ft04'].'</td>
-                    <td class="r">'.$egysegar['ear05'].'</td>
-                    <td><input type="text" name="em05"></td>
-                    <td class="r">'.$egysegar['ft05'].'</td>
-                    <td class="r">'.$egysegar['ear06'].'</td>
-                    <td><input type="text" name="em06"></td>
-                    <td class="r">'.$egysegar['ft06'].'</td>
-                    <td class="r">'.$egysegar['ear07'].'</td>
-                    <td><input type="text" name="em07"></td>
-                    <td class="r">'.$egysegar['ft07'].'</td>
-                    <td class="r">'.$egysegar['ear08'].'</td>
-                    <td><input type="text" name="em08"></td>
-                    <td class="r">'.$egysegar['ft08'].'</td>
-                    <td class="r">'.$egysegar['ear09'].'</td>
-                    <td><input type="text" name="em09"></td>
-                    <td class="r">'.$egysegar['ft09'].'</td>
-                    <td class="r">'.$egysegar['ear10'].'</td>
-                    <td><input type="text" name="em10"></td>
-                    <td class="r">'.$egysegar['ft10'].'</td>
-                    <td class="r">'.$egysegar['ear11'].'</td>
-                    <td><input type="text" name="em11"></td>
-                    <td class="r">'.$egysegar['ft11'].'</td>
-                    <td class="r">'.$egysegar['ear12'].'</td>
-                    <td><input type="text" name="em12"></td>
-                    <td class="r">'.$egysegar['ft12'].'</td>
+                    <td class="r">'.str_replace('.', ',', $energia['ear01']).'</td>
+                    <td>'.str_replace('.', ',', $energia['em01']).'</td>
+                    <td class="r ft01">'.number_format($energia['ft01'], 0, '', ' ').'</td>
+                    <td class="r">'.str_replace('.', ',', $energia['ear02']).'</td>
+                    <td>'.str_replace('.', ',', $energia['em02']).'</td>
+                    <td class="r ft02">'.number_format($energia['ft02'], 0, '', ' ').'</td>
+                    <td class="r">'.str_replace('.', ',', $energia['ear03']).'</td>
+                    <td>'.str_replace('.', ',', $energia['em03']).'</td>
+                    <td class="r ft03">'.number_format($energia['ft03'], 0, '', ' ').'</td>
+                    <td class="r">'.str_replace('.', ',', $energia['ear04']).'</td>
+                    <td>'.str_replace('.', ',', $energia['em04']).'</td>
+                    <td class="r ft04">'.number_format($energia['ft04'], 0, '', ' ').'</td>
+                    <td class="r">'.str_replace('.', ',', $energia['ear05']).'</td>
+                    <td>'.str_replace('.', ',', $energia['em05']).'</td>
+                    <td class="r ft05">'.number_format($energia['ft05'], 0, '', ' ').'</td>
+                    <td class="r">'.str_replace('.', ',', $energia['ear06']).'</td>
+                    <td>'.str_replace('.', ',', $energia['em06']).'</td>
+                    <td class="r ft06">'.number_format($energia['ft06'], 0, '', ' ').'</td>
+                    <td class="r">'.str_replace('.', ',', $energia['ear07']).'</td>
+                    <td>'.str_replace('.', ',', $energia['em07']).'</td>
+                    <td class="r ft07">'.number_format($energia['ft07'], 0, '', ' ').'</td>
+                    <td class="r">'.str_replace('.', ',', $energia['ear08']).'</td>
+                    <td>'.str_replace('.', ',', $energia['em08']).'</td>
+                    <td class="r ft08">'.number_format($energia['ft08'], 0, '', ' ').'</td>
+                    <td class="r">'.str_replace('.', ',', $energia['ear09']).'</td>
+                    <td>'.str_replace('.', ',', $energia['em09']).'</td>
+                    <td class="r ft09">'.number_format($energia['ft09'], 0, '', ' ').'</td>
+                    <td class="r">'.str_replace('.', ',', $energia['ear10']).'</td>
+                    <td>'.str_replace('.', ',', $energia['em10']).'</td>
+                    <td class="r ft10">'.number_format($energia['ft10'], 0, '', ' ').'</td>
+                    <td class="r">'.str_replace('.', ',', $energia['ear11']).'</td>
+                    <td>'.str_replace('.', ',', $energia['em11']).'</td>
+                    <td class="r ft11">'.number_format($energia['ft11'], 0, '', ' ').'</td>
+                    <td class="r">'.str_replace('.', ',', $energia['ear12']).'</td>
+                    <td>'.str_replace('.', ',', $energia['em12']).'</td>
+                    <td class="r ft12">'.number_format($energia['ft12'], 0, '', ' ').'</td>
                 </tr>
                 ';
         }
 
         $szamla_html .= nl2('
                             </tbody>
+                            <tfoot>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td class="r" id="szum_ft01"></td>
+                                <td></td>
+                                <td></td>
+                                <td class="r" id="szum_ft02"></td>
+                                <td></td>
+                                <td></td>
+                                <td class="r" id="szum_ft03"></td>
+                                <td></td>
+                                <td></td>
+                                <td class="r" id="szum_ft04"></td>
+                                <td></td>
+                                <td></td>
+                                <td class="r" id="szum_ft05"></td>
+                                <td></td>
+                                <td></td>
+                                <td class="r" id="szum_ft06"></td>
+                                <td></td>
+                                <td></td>
+                                <td class="r" id="szum_ft07"></td>
+                                <td></td>
+                                <td></td>
+                                <td class="r" id="szum_ft08"></td>
+                                <td></td>
+                                <td></td>
+                                <td class="r" id="szum_ft09"></td>
+                                <td></td>
+                                <td></td>
+                                <td class="r" id="szum_ft10"></td>
+                                <td></td>
+                                <td></td>
+                                <td class="r" id="szum_ft11"></td>
+                                <td></td>
+                                <td></td>
+                                <td class="r" id="szum_ft12"></td>
+                            </tfoot>
                         </table>
+                        <script>
+                        $(document).ready(function () {
+                            energia_szummaz();
+                        });
+                        </script>
                         ');
 
-        // Ha van a get-ben ear id, akkor azt a sort jelöljük meg
-        if( isset($_GET['ear'])){
+        // Ha van a get-ben em id, akkor azt a sort jelöljük meg
+        if( isset($_GET['em'])){
             $szamla_html .= nl2('
                             <script>
-                                $(\'#tr_ear_'.$_GET['ear'].'\').addClass(\'kijelolve\');
+                                $(\'#ft_em_'.$_GET['em'].'\').addClass(\'kijelolve\');
                             </script>
                             ');
         }

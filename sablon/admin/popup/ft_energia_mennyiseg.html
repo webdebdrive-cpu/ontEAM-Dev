@@ -1,0 +1,218 @@
+<h2>Mennyiségek kitöltése</h2>
+<form action="" id="egysegarakForm" class="popupForm" method="post" onsubmit="return ft_energiaKitolt( this );">
+    <div id="setEgysegarTablazat" class="kozep" style="min-height: 26rem; width: 50rem"></div>
+    <div class="dt egysegarMuv">
+        <div class="dtr">
+            <div class="dtc">
+                Minden<br>
+                <select name="egysk_ciklus">
+                    <option value="1">havi</option>
+                    <option value="2">2 havi</option>
+                    <option value="3">negyedév</option>
+                    <option value="6">félév</option>
+                </select>
+            </div>
+            <div class="dtc">
+                legyen<br>
+                <div class="egysk_box">
+                    <input type="text" name="egysk_em" class="f_num" data-tort="2" value="0,00">
+                </div>
+                <div class="egysk_box dn">
+                    <input type="text" autocomplete="off" class="csillag autocomp" name="egysk_dnem_autocomp" id="egysk_dnem_autocomp" style="min-width: inherit; width: 6rem;" value="" data-origin-val="">
+                    <input type="hidden" name="egysk_dnem" id="egysk_dnem" value="">
+                    <script>
+                        $(document).ready(function() {
+                            $('#egysk_dnem_autocomp').autocomplete({
+                                'php_fajl'        : '../autocomplete.php',
+                                'tabla'           : 'erteklista',
+                                'oszlop_keres'    : 'info',
+                                'oszlop_listaz'   : 'info',
+                                'csoport'         : 21,
+                                'id_kiir'         : 'id',
+                                'popupba'         : true
+                            });
+                        });
+                    </script>
+                </div>
+                <div class="egysk_box dn">
+                    <input type="text" name="egysk_arf" class="f_num" data-tort="5" value="1,00000">
+                </div>
+            </div>
+            <div class="dtc">
+                Kezdő hónap:<br>
+                <select name="egysk_honap">
+                    <option value="01">Január</option>
+                    <option value="02">Február</option>
+                    <option value="03">Március</option>
+                    <option value="04">Április</option>
+                    <option value="05">Május</option>
+                    <option value="06">Június</option>
+                    <option value="07">Július</option>
+                    <option value="08">Augusztus</option>
+                    <option value="09">Szeptember</option>
+                    <option value="10">Október</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+            <div class="dtc">
+                <input type="button" name="" class="gomb" value="Kitölt" onclick="mennyisegMuv( 'egysk_', 'kitolt' );">
+            </div>
+        </div>
+        <div class="dtr">
+            <div class="dtc">
+                <div class="egysv_box">
+                    <input type="text" name="egysv_em" class="f_num eltol" data-tort="2" value="0,00">
+                </div>
+            </div>
+            <div class="dtc">
+                legyen visszaosztva<br>
+                <select name="egysv_ciklus">
+                    <option value="1">havonta</option>
+                    <option value="2">2 havonta</option>
+                    <option value="3">negyedévente</option>
+                    <option value="6">félévente</option>
+                </select>
+            </div>
+            <div class="dtc">
+                Kezdő hónap:<br>
+                <select name="egysv_honap">
+                    <option value="01">Január</option>
+                    <option value="02">Február</option>
+                    <option value="03">Március</option>
+                    <option value="04">Április</option>
+                    <option value="05">Május</option>
+                    <option value="06">Június</option>
+                    <option value="07">Július</option>
+                    <option value="08">Augusztus</option>
+                    <option value="09">Szeptember</option>
+                    <option value="10">Október</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+            <div class="dtc">
+                <input type="button" name="" class="gomb" value="Visszaosztás" onclick="mennyisegMuv( 'egysv_', 'visszaoszt' );">
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="hidden" name="egysegarsor_id" id="egysegarsor_id" value="">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+	$(document).ready(function(){
+        $.ajax({
+            url : 'fenntartasi_terv.php',
+            type: 'POST',
+            data: {
+                recid       : _get('id'),
+                get_statusz : Date.now()
+            },
+            success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response){
+                    response = JSON.parse(response);
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        popupZar();
+                        return false;
+                    }
+                }
+            }
+        });
+        
+        var id = $('.szamla_cont_tabla tr.kijelolve').attr('data-recid');
+        $.ajax({
+            url : 'fenntartasi_terv.php',
+            type: 'POST',
+            data: {
+                id              : id,
+                get_mennyisegek : new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, 'Hiba');
+                        popupZar();
+                        return false;
+                    }
+
+                    $('#egysegarsor_id').val(id);
+                    $('#setEgysegarTablazat').html(response.html);
+                }
+            }
+        });
+    });
+    
+function mennyisegMuv( pre, muvelet ) {
+    var ciklus  = parseInt($('select[name="' + pre + 'ciklus"]').val()),
+        oszlop  = 'em',
+        ertek   = $('input[name="' + pre + oszlop + '"]').val(),
+        honap   = $('select[name="' + pre + 'honap"]').val();
+
+    ertek = ertek.replace(' ', '');
+
+    var inputok = $('#setEgysegarTablazat').find('input[name^="' + oszlop + '"]');
+    inputok.each(function(index, el) {
+
+        index++;
+        var sorszam = ('0' + index).slice(-2);
+
+        if( sorszam == honap ) {
+            if( muvelet == 'kitolt' ) {
+
+                for(var i = index; i <= 12; i += ciklus) {
+                    var uj_sorszam = ('0' + i).slice(-2);
+                    $('#setEgysegarTablazat input[name="' + oszlop + uj_sorszam + '"]').val(ertek);
+                }
+            } else if( muvelet == 'visszaoszt' ) {
+                oszto = 12 - parseInt(honap) + 1;
+
+                ertek = (ertek.replace(',', '.') / (oszto / ciklus));
+                ertek = ertek.toFixed(2);
+
+                for(var i = index; i <= 12; i += ciklus) {
+                    var uj_sorszam = ('0' + i).slice(-2);
+                    ertek = ertek.replace('.', ',');
+                    $('#setEgysegarTablazat input[name="' + oszlop + uj_sorszam + '"]').val(ertek);
+                }
+            }
+
+            return false;
+        }
+    });
+}
+
+function ft_energiaKitolt( that ) {
+    if( $(that).length ) {
+        $.ajax({
+         	url : 'fenntartasi_terv.php',
+         	type: 'POST',
+         	data: $(that).serialize() + '&ft_energiaKitolt=' + new Date().getTime(),
+         	success: function(response) {
+         		if(response) {
+         			response = JSON.parse(response);
+
+         			if( response.hiba ) {
+         				alert2(response.hiba, response.gomb, 'Hiba');
+         				return false;
+         			}
+                    energia_szummaz();
+                    popupZar();
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'energia').done(function() {
+                        $('.szamla_cont_tabla tr').removeClass('kijelolve');
+                        $('#ft_em_' + response.recid).addClass('kijelolve');
+                    });
+         		}
+         	}
+        });
+    }
+
+    return false;
+}
+</script>

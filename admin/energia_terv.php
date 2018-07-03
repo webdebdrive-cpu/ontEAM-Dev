@@ -48,7 +48,7 @@ if($tobb_kep){
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 }
 
-// Egységárak lekérdezése
+// Egységárak mentése
 if (isset($_POST['egysegarMentes'])) {
     $mit = array();
     $mire = array();
@@ -81,7 +81,7 @@ if (isset($_POST['egysegarMentes'])) {
     exit();
 }
 
-// Egységárak lekérdezése
+// Egységárak táblázat lekérdezése
 if (isset($_POST['get_egysegarak'])) {
     $id = $_POST['id'];
 
@@ -658,6 +658,7 @@ if (isset($_POST['energiaterv_veglegesit'])) {
     $sor = $adatbazis_kapcsolat->s2('ikt_szam stat_id', 'energia_terv', "`recid`='{$recid}'");
     if( $sor === false ) { $db_error = true; }
     
+    // Státusz ellenőrzése
     if($sor['stat_id']==ENERGIATERV_STAT_ELES){
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
@@ -673,7 +674,7 @@ if (isset($_POST['energiaterv_veglegesit'])) {
     if($sor['ikt_szam']){
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba'  => 'Az energia tervnek már van iktató száma ('.$sor['ikt_szam'].'), így nem véglegesíthető!',
+            'hiba'  => 'Az energia tervnek már van tervszáma ('.$sor['ikt_szam'].'), így nem véglegesíthető!',
             'title' => 'Hiba'
         ));
 
@@ -1145,42 +1146,42 @@ require_once('selectek.php');
                     <td>'.$ktgnem['id'].'</td>
                     <td>'.$ktgnem['nev'].'</td>
                     <td>'.$egysegar['mee'].'</td>
-                    <td class="r">'.$egysegar['ear01'].'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['ear01']).'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem01']).'</td>
-                    <td class="r">'.$egysegar['arf01'].'</td>
-                    <td class="r">'.$egysegar['ear02'].'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['arf01']).'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['ear02']).'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem02']).'</td>
-                    <td class="r">'.$egysegar['arf02'].'</td>
-                    <td class="r">'.$egysegar['ear03'].'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['arf02']).'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['ear03']).'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem03']).'</td>
-                    <td class="r">'.$egysegar['arf03'].'</td>
-                    <td class="r">'.$egysegar['ear04'].'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['arf03']).'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['ear04']).'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem04']).'</td>
-                    <td class="r">'.$egysegar['arf04'].'</td>
-                    <td class="r">'.$egysegar['ear05'].'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['arf04']).'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['ear05']).'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem05']).'</td>
-                    <td class="r">'.$egysegar['arf05'].'</td>
-                    <td class="r">'.$egysegar['ear06'].'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['arf05']).'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['ear06']).'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem06']).'</td>
-                    <td class="r">'.$egysegar['arf06'].'</td>
-                    <td class="r">'.$egysegar['ear07'].'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['arf06']).'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['ear07']).'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem07']).'</td>
-                    <td class="r">'.$egysegar['arf07'].'</td>
-                    <td class="r">'.$egysegar['ear08'].'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['arf07']).'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['ear08']).'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem08']).'</td>
-                    <td class="r">'.$egysegar['arf08'].'</td>
-                    <td class="r">'.$egysegar['ear09'].'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['arf08']).'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['ear09']).'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem09']).'</td>
-                    <td class="r">'.$egysegar['arf09'].'</td>
-                    <td class="r">'.$egysegar['ear10'].'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['arf09']).'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['ear10']).'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem10']).'</td>
-                    <td class="r">'.$egysegar['arf10'].'</td>
-                    <td class="r">'.$egysegar['ear11'].'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['arf10']).'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['ear11']).'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem11']).'</td>
-                    <td class="r">'.$egysegar['arf11'].'</td>
-                    <td class="r">'.$egysegar['ear12'].'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['arf11']).'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['ear12']).'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem12']).'</td>
-                    <td class="r">'.$egysegar['arf12'].'</td>
+                    <td class="r">'.str_replace('.', ',', $egysegar['arf12']).'</td>
                 </tr>
                 ';
         }
