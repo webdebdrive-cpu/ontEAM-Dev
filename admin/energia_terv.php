@@ -213,7 +213,10 @@ if (isset($_POST['terv_keszit'])) {
         if( $energia_terv === false ) { $db_error = true; }
 
         // Új terv létrehozása
-        $uj_id = $adatbazis_kapcsolat->i('energia_terv', array('ev', 'text'), array($ev, $energia_terv['text']));
+        $uj_id = $adatbazis_kapcsolat->i('energia_terv',
+                                                        array('ev', 'text',                 'loginnev',                        'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                        array($ev, $energia_terv['text'],   $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        );
         if( $uj_id === false ) { $db_error = true; }
 
         // Egységárak átmásolása
@@ -240,7 +243,10 @@ if (isset($_POST['terv_keszit'])) {
     }else{
 
         // Új terv létrehozása
-        $uj_id = $adatbazis_kapcsolat->i('energia_terv', array('ev'), array($ev));
+        $uj_id = $adatbazis_kapcsolat->i('energia_terv', 
+                                                            array('ev', 'loginnev',                        'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                            array($ev,  $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        );
         if( $uj_id === false ) { $db_error = true; }
 
     }
@@ -327,7 +333,9 @@ if (isset($_POST['terv_elesites'])) {
         }
     }
 
+    $kesz_id = 0;
     if($van_eles_terv){
+        $kesz_id = $van_eles_terv['recid'];
         if( !addStatusz( 'energia_terv_statusz', $van_eles_terv['recid'], ENERGIATERV_STAT_KESZ ) ) {
             $db_error = true;
         }
@@ -338,11 +346,11 @@ if (isset($_POST['terv_elesites'])) {
         $db_error = true;
     }
 
-
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
         echo json_encode(array(
-            'statusz' => 'siker'
+            'statusz' => 'siker',
+            'kesz_id' => $kesz_id,
         ));
     } else {
         mysqli_rollback($db_kapcs);
@@ -1138,40 +1146,40 @@ require_once('selectek.php');
                     <td>'.$ktgnem['nev'].'</td>
                     <td>'.$egysegar['mee'].'</td>
                     <td class="r">'.$egysegar['ear01'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem01']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem01']).'</td>
                     <td class="r">'.$egysegar['arf01'].'</td>
                     <td class="r">'.$egysegar['ear02'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem02']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem02']).'</td>
                     <td class="r">'.$egysegar['arf02'].'</td>
                     <td class="r">'.$egysegar['ear03'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem03']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem03']).'</td>
                     <td class="r">'.$egysegar['arf03'].'</td>
                     <td class="r">'.$egysegar['ear04'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem04']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem04']).'</td>
                     <td class="r">'.$egysegar['arf04'].'</td>
                     <td class="r">'.$egysegar['ear05'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem05']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem05']).'</td>
                     <td class="r">'.$egysegar['arf05'].'</td>
                     <td class="r">'.$egysegar['ear06'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem06']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem06']).'</td>
                     <td class="r">'.$egysegar['arf06'].'</td>
                     <td class="r">'.$egysegar['ear07'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem07']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem07']).'</td>
                     <td class="r">'.$egysegar['arf07'].'</td>
                     <td class="r">'.$egysegar['ear08'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem08']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem08']).'</td>
                     <td class="r">'.$egysegar['arf08'].'</td>
                     <td class="r">'.$egysegar['ear09'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem09']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem09']).'</td>
                     <td class="r">'.$egysegar['arf09'].'</td>
                     <td class="r">'.$egysegar['ear10'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem10']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem10']).'</td>
                     <td class="r">'.$egysegar['arf10'].'</td>
                     <td class="r">'.$egysegar['ear11'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem11']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem11']).'</td>
                     <td class="r">'.$egysegar['arf11'].'</td>
                     <td class="r">'.$egysegar['ear12'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem12']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem12']).'</td>
                     <td class="r">'.$egysegar['arf12'].'</td>
                 </tr>
                 ';

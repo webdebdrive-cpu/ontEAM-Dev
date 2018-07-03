@@ -418,7 +418,13 @@ switch($tabla) {
     break;
     case 'fenntartasi_terv.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
-        $_OPTS['select']    = 'recid, ikt_szam, ev, stat_id';
+        $_OPTS['select']    = nl2('
+                                    `'.get_db_tabla().$tabla_nophp.'`.`recid`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`ikt_szam`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`ev`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`stat_id`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`
+                                ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'ev'     );
@@ -4448,7 +4454,7 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='felmeresi_terv' && !_jog(JOG_FT_KEZEL)){
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='fenntartasi_szerzodes' && !_jog(JOG_FENNTARTASI_TOROL)){
+        if($ertek['tabla']=='fenntartasi_szerzodes' && !_jog(JOG_FENNTARTASI_SZERZ_TOROL)){
             $weblap -> leallit(); exit;
         }
         if($ertek['tabla']=='fenntartasi_terv' && !_jog(JOG_FENNTARTASI_TERV_TOROL)){
@@ -4659,6 +4665,25 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             }
             $sql = $adatbazis_kapcsolat->d('eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
+        }
+        
+        // Fenntartási tervnél ellenőrizzük, hogy a terv státusza és a felhasználó személyzettípusa stimmel-e.
+        if($ertek['tabla']=='fenntartasi_terv'){
+            $fenntartasi_terv = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_GET[$ertek['torid']]}'");
+            if( $fenntartasi_terv === false ) { $db_error = true; }
+            if(
+                !(
+                    ($fenntartasi_terv['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && $_SESSION[get_db_tabla().'szemelyzet_id']==TERULETI_FELELOS ) || 
+                    ($fenntartasi_terv['stat_id']==ENERGIATERV_STAT_KESZ      && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO      )
+                )
+            ){
+                exit;
+            }
+            
+            // Ha idáig eljutottunk, akkor tényleg törölhető. A fenntartási terv minden gyerek tábláját is töröljük (státusz, megjegyzés és dokumentumok fentebb már megvannak).
+            $del = $adatbazis_kapcsolat->d('fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
+            if( $del === false ) { $db_error = true; }
+
         }
 
         // Projektigénylésnél a véleményezők és azok dokumentumai

@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(JOG_FENNTARTASI_OLVAS) ) {
+if( !_jog(JOG_FENNTARTASI_SZERZ_OLVAS) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -103,7 +103,7 @@ require_once('selectek.php');
 
     // Gombok kirajzolása minden oldalra
     $gombok = '';
-    if( isset($_GET['uj']) && _jog(JOG_FENNTARTASI_OLVAS) ) {
+    if( isset($_GET['uj']) && _jog(JOG_FENNTARTASI_SZERZ_OLVAS) ) {
 
         $gombok = nl2('
             <div class="form_kuldes">
@@ -133,13 +133,13 @@ require_once('selectek.php');
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         // Jogosutságkezelés
-        if(!_jog(JOG_FENNTARTASI_TOROL)){
+        if(!_jog(JOG_FENNTARTASI_SZERZ_TOROL)){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága törölni ezt a '.$szoveg.'!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }else{
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Biztosan törli ezt a '.$szoveg.'?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
 
-        if( _jog(JOG_FENNTARTASI_KEZEL) ){
+        if( _jog(JOG_FENNTARTASI_SZERZ_KEZEL) ){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">

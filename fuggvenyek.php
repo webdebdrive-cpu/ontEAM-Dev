@@ -3533,13 +3533,20 @@ function fenntartasi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
+            
+            // Ha a usernek nem csak egy szállodája van, akkor kiírjuk a szálloda nevét
+            $szalloda_neve = '';
+            if(!$_SESSION['egyszallodas_user']){
+                $szalloda_neve = getSzallodaNev($bsz['telephely_id']);
+            }
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table>
                             <tr>
                                 <td style="width: 7rem">'.$bsz['ikt_szam'].'</td>
                                 <td style="width: 3.6rem">'.$bsz['ev'].'</td>
-                                <td>'.getStatText('energia_terv', $bsz['stat_id']).'</td>
+                                <td style="width: 7rem">'.getStatText('energia_terv', $bsz['stat_id']).'</td>
+                                <td>'.$szalloda_neve.'</td>
                             </tr>
                             </table>
                         </a>';

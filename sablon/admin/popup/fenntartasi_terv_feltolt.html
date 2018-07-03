@@ -3,11 +3,26 @@
 <div class="kozep">
     Adja meg a terv készítéséhez szükséges évet!
     <br>
-    <br>Évszám <input type="text" id="popup_ev" maxlength="4" class="f_plus_minus" style="width: 4rem">
+    <div class="kozep">
+        <div class="dt">
+                
+            <div class="dtr" id="fterv_szalloda">
+                
+            </div>
+            <div class="dtr">
+                <div class="dtc p">
+                    Évszám: 
+                </div>
+                <div class="dtc p">
+                    <input type="text" id="popup_ev" maxlength="4" class="f_plus_minus csillag" style="width: 4.5rem; min-width: 4.5rem"> (év választás +/- billentyűk)
+                </div>
+            </div>
+        </div>
+    </div>
     
     <div class="c" style="margin-top: 2rem">
-        <input type="button" class="gomb" value="Üres" onclick="terv_keszit()">
-        <input type="button" class="gomb" value="Kijelölt alapján" onclick="terv_keszit('kijelolt')">
+        <input type="button" class="gomb" value="Új munkaközi terv (üres)" onclick="terv_keszit()">
+        <br><input type="button" class="gomb dn" value="Új munkaközi terv (kijelölt alapján)" onclick="terv_keszit('kijelolt')" id="kijelolt_alapjan">
     </div>
 </div>
 <div class="kuldes">
@@ -16,16 +31,45 @@
 
 <script>
     $(document).ready(function(){
+        
+        /* Évszám alapértelmezett értéke */
         $('#popup_ev').val( new Date().getFullYear() + 1);
+        
+        /* Szálloda select betöltése */
+        $.ajax({
+            url : 'fenntartasi_terv.php',
+            type: 'POST',
+            data: {
+                recid           : _get('id'),
+                get_szalloda    : Date.now()
+            },
+            success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response){
+                    response = JSON.parse(response);
+                    $('#fterv_szalloda').html(response.telephely_select);
+                    if(!response.munkakozi){
+                        $('#kijelolt_alapjan').removeClass('dn');
+                    }
+                    $('#'+response.focus).focus();
+                }
+            }
+        });
+        
     });
     
     function terv_keszit( kijelolt ){
+        
+        $('#popup_telephely').removeClass('hibas_ide_focus');
+        $('#popup_ev').removeClass('hibas_ide_focus');
+        
         $.ajax({
-            url : 'energia_terv.php',
+            url : 'fenntartasi_terv.php',
             type: 'POST',
             data: {
                 recid       : _get('id'),
                 kijelolt    : kijelolt,
+                telephely   : $('#popup_telephely').val(),
                 ev          : $('#popup_ev').val(),
                 terv_keszit : Date.now()
             },
@@ -34,19 +78,23 @@
                 response = JSON.parse(response);
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
-                    $('#popup_ev').select();
+                    $('#'+response.focus).addClass('hibas_ide_focus');
                     return false;
                 }else{
-                    szurkit();
-                    location.href='energia_terv.php?modosit&id='+response.id;
+                    if(response.uzenet){
+                        alert2(response.uzenet, '<input type="button" class="gomb" value="Ok" onclick="szurkit(); location.href=\'fenntartasi_terv.php?modosit&id='+response.id+'\'">', '');
+                    }else{
+                        szurkit();
+                        location.href='fenntartasi_terv.php?modosit&id='+response.id;
+                    }
                 }
             }
         });
-        egysegar_fulre_lep();
+        
     }
     
     /* Az egységára fülre lépünk */
     function egysegar_fulre_lep(){
-        szamlaBetolt(_get('id'), 'energia_terv.php', 'egysegarak');
+        szamlaBetolt(_get('id'), 'fenntartasi_terv.php', 'egysegarak');
     }
 </script>

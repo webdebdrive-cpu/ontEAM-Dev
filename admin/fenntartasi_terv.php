@@ -48,656 +48,281 @@ if($tobb_kep){
     function get_tobbkep_tabla(){ return str_replace('.php', '', basename(self())).'_dok'; } // A képeket tartalmazó adatbázis tábla neve FONTOS: ha itt átnevezed akkor a tobbkep.php-ban is át kell írni!
 }
 
-//// Egységárak lekérdezése
-//if (isset($_POST['egysegarMentes'])) {
-//    $mit = array();
-//    $mire = array();
-//
-//    for($i = 1; $i <= 12; $i++) {
-//        $sorszam = sprintf('%02d', $i);
-//
-//        // Egységára
-//        array_push($mit,    'ear'.$sorszam);
-//        array_push($mire,   str_replace(',', '.', $_POST['ear'.$sorszam]));
-//
-//        // Deviza
-//        array_push($mit,    'dnem'.$sorszam);
-//        array_push($mire,   $_POST['dnem'.$sorszam]);
-//
-//        // Árfolyam
-//        array_push($mit,    'arf'.$sorszam);
-//        array_push($mire,   str_replace(',', '.', $_POST['arf'.$sorszam]));
-//    }
-//
-//    // Frissítés
-//    $adatbazis_kapcsolat -> u('energia_terv_ear', $mit, $mire, 'recid='.$_POST['egysegarsor_id']);
-//
-//    echo json_encode(array(
-//        'statusz' => 'OK',
-//        'recid'   => $_POST['egysegarsor_id']
-//    ));
-//
-//    $weblap->leallit();
-//    exit();
-//}
-//
-//// Egységárak lekérdezése
-//if (isset($_POST['get_egysegarak'])) {
-//    $id = $_POST['id'];
-//
-//    if( $id ) {
-//        $html = '';
-//        $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
-//
-//        // Egységár sor lekérdezése
-//        $egysegar = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`recid`='{$id}'");
-//
-//        if( $egysegar ) {
-//            $html = nl2('
-//                <div class="dt egysegarak_tablazat">
-//                    <div class="dtr">
-//                        <div class="dtc"></div>
-//                        <div class="dtc">Egységár</div>
-//                        <div class="dtc">Deviza</div>
-//                        <div class="dtc">Árfolyam</div>
-//                    </div>
-//            ');
-//
-//            foreach($honapok as $key => $honap) {
-//                $sorszam = sprintf('%02d', $key + 1);
-//
-//                $kulso_val = $egysegar['dnem'.$sorszam];
-//                if( !$kulso_val ) {
-//                    $kulso_val = 5;
-//                }
-//
-//                $kulso_ertek = $adatbazis_kapcsolat->s2('id info', 'erteklista', '`id`=\''.$kulso_val.'\' and `csoport` = \'21\'', '', '1');
-//
-//                // Árfolyam
-//                $arfolyam = str_replace('.', ',', $egysegar['arf'.$sorszam]);
-//                if( $arfolyam == '0,00000' ) {
-//                    $arfolyam = '1,00000';
-//                }
-//
-//                $html .= nl2('
-//                    <div class="dtr">
-//                        <div class="dtc">'.$honap.'</div>
-//                        <div class="dtc"><input type="text" name="ear'.$sorszam.'" id="ear'.$sorszam.'" class="f_num" data-tort="3" value="'.str_replace('.', ',', $egysegar['ear'.$sorszam]).'"></div>
-//                        <div class="dtc">
-//                            <input type="text" autocomplete="off" class="csillag autocomp" name="dnem'.$sorszam.'_autocomp" id="dnem'.$sorszam.'_autocomp" style="min-width: inherit; width: 5rem;" value="'.$kulso_ertek['info'].'" data-origin-val="'.$kulso_ertek['info'].'">
-//                            <input type="hidden" name="dnem'.$sorszam.'" id="dnem'.$sorszam.'" value="'.$kulso_ertek['id'].'">
-//                            <script>
-//                                $(document).ready(function() {
-//                                    $(\'#dnem'.$sorszam.'_autocomp\').autocomplete({
-//                                        \'php_fajl\'        : \'../autocomplete.php\',
-//                                        \'tabla\'           : \'erteklista\',
-//                                        \'oszlop_keres\'    : \'info\',
-//                                        \'oszlop_listaz\'   : \'info\',
-//                                        \'csoport\'         : 21,
-//                                        \'id_kiir\'         : \'id\',
-//                                        \'popupba\'         : true
-//                                    });
-//                                });
-//                            </script>
-//                        </div>
-//                        <div class="dtc"><input type="text" name="arf'.$sorszam.'" id="arf'.$sorszam.'" class="f_num" data-tort="5" value="'.$arfolyam.'"></div>
-//                    </div>
-//                ');
-//            }
-//
-//            $html .= '</div>';
-//        }
-//
-//        echo json_encode(array(
-//            'statusz' => 'siker',
-//            'html'    => $html
-//        ));
-//    } else {
-//        echo json_encode(array(
-//            'hiba' => 'Egységárak megadásához válasszon ki egy sort!'
-//        ));
-//    }
-//
-//    $weblap->leallit();
-//    exit();
-//}
-//
-//// Új terv létrehozása
-//if (isset($_POST['terv_keszit'])) {
-//
-//    $recid    = $_POST['recid'];
-//    $kijelolt = $_POST['kijelolt'];
-//    $ev       = $_POST['ev'];
-//
-//    $db_error = false;
-//    mysqli_autocommit($db_kapcs, false);
-//
-//    // Jog ellenőrzése
-//    if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
-//        echo json_encode(array(
-//            'hiba'  => 'Önnek nincs joga tervet készíteni!',
-//            'title' => 'Hiba',
-//        ));
-//        $weblap->leallit();
-//        exit();
-//    }
-//
-//    // Év ellenőrzése
-//    if( !is_numeric($ev) || $ev < date('Y') ) {
-//        echo json_encode(array(
-//            'hiba'  => 'Csak az idei év, vagy attól későbbi évszám adható meg!',
-//            'title' => 'Hiba',
-//        ));
-//        $weblap->leallit();
-//        exit();
-//    }
-//
-//    if( $energia_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev` = '{$ev}'", '', '1') ) {
-//        $is_munkakozi = $adatbazis_kapcsolat->s2('recid', 'energia_terv_statusz', "`energia_terv_recid` = '".$energia_terv['recid']."' AND `stat_id` = '".ENERGIATERV_STAT_MUNKAKOZI."'", '', '1');
-//
-//        if( $is_munkakozi ) {
-//            echo json_encode(array(
-//                'hiba'  => $ev.' évre már van munkaközi terv.',
-//                'gomb'  => '<input type="button" class="gomb zold" value="Megnyitás" onclick="szamlaBetolt( \''.$energia_terv['recid'].'\', \''.basename(self()).'\', \'modosit\' ); alert2(); popupZar();"><input type="button" class="gomb piros" value="Mégsem" onclick="alert2()">',
-//                'title' => 'Hiba',
-//            ));
-//            $weblap->leallit();
-//            exit();
-//        }
-//    }
-//
-//    // Ha a kijelölt terv alapján kell létrehozni az újat, akkor lekérjük a kijelölt adatait
-//    if($kijelolt){
-//
-//        $energia_terv = $adatbazis_kapcsolat->s2('ev text', 'energia_terv', "`recid` = '{$recid}'");
-//        if( $energia_terv === false ) { $db_error = true; }
-//
-//        // Új terv létrehozása
-//        $uj_id = $adatbazis_kapcsolat->i('energia_terv', array('ev', 'text'), array($ev, $energia_terv['text']));
-//        if( $uj_id === false ) { $db_error = true; }
-//
-//        // Egységárak átmásolása
-//        $egysegarak = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$recid}'");
-//        foreach( $egysegarak as $ear ){
-//
-//            $mezok      = array();
-//            $ertekek    = array();
-//
-//            array_push($mezok,   'energia_terv_id', 'insert_dt', 'insert_usr',                           'update_usr'                           );
-//            array_push($ertekek, $uj_id,            'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
-//
-//            $oszlopok   = array('telephely_idk', 'dijelem', 'ktgnem_id', 'mee', 'ear01', 'ear02', 'ear03', 'ear04', 'ear05', 'ear06', 'ear07', 'ear08', 'ear09', 'ear10', 'ear11', 'ear12', 'dnem01', 'dnem02', 'dnem03', 'dnem04', 'dnem05', 'dnem06', 'dnem07', 'dnem08', 'dnem09', 'dnem10', 'dnem11', 'dnem12', 'arf01', 'arf02', 'arf03', 'arf04', 'arf05', 'arf06', 'arf07', 'arf08', 'arf09', 'arf10', 'arf11', 'arf12');
-//            foreach($oszlopok as $oszlop){
-//                array_push($mezok,   $oszlop        );
-//                array_push($ertekek, $ear[$oszlop]  );
-//            }
-//
-//            $sql = $adatbazis_kapcsolat->i('energia_terv_ear',  $mezok, $ertekek );
-//            if( $sql === false ) { $db_error = true; }
-//
-//        }
-//
-//    }else{
-//
-//        // Új terv létrehozása
-//        $uj_id = $adatbazis_kapcsolat->i('energia_terv', array('ev'), array($ev));
-//        if( $uj_id === false ) { $db_error = true; }
-//
-//    }
-//
-//
-//    // Kezdőstátusz beállítása
-//    $sql = $adatbazis_kapcsolat -> i('energia_terv_statusz',
-//                                        array('energia_terv_recid', 'stat_id',                   'login',                           'insert_dt',    'insert_usr',                             'update_usr'                           ),
-//                                        array($uj_id,               ENERGIATERV_STAT_MUNKAKOZI,  $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
-//                                    );
-//    if( $sql === false ) { $db_error = true; }
-//    $sql = $adatbazis_kapcsolat->u('energia_terv', array('stat_id'), array(ENERGIATERV_STAT_MUNKAKOZI), "`recid`='{$uj_id}'");
-//    if( $sql === false ) { $db_error = true; }
-//
-//    if( !$db_error ) {
-//        mysqli_commit($db_kapcs);
-//        echo json_encode(array(
-//            'statusz'   => 'siker',
-//            'id'        => $uj_id,
-//        ));
-//    } else {
-//        mysqli_rollback($db_kapcs);
-//        echo json_encode(array(
-//            'hiba' => tranzakcioHiba()
-//        ));
-//    }
-//
-//    $weblap->leallit();
-//    exit();
-//
-//}
-//
-//// Terv élesites
-//if (isset($_POST['terv_elesites'])) {
-//
-//    $recid = $_POST['recid'];
-//    $mehet = $_POST['mehet'];
-//
-//    $db_error = false;
-//    mysqli_autocommit($db_kapcs, false);
-//
-//    $energia_terv = $adatbazis_kapcsolat->s2('stat_id ev ikt_szam', 'energia_terv', "`recid` = '{$recid}'");
-//    if( $energia_terv === false ) { $db_error = true; }
-//
-//    // Státusz ellenőrzése
-//    if( $energia_terv['stat_id'] != ENERGIATERV_STAT_KESZ ) {
-//        echo json_encode(array(
-//            'hiba' => 'Csak kész terv élesíthető!',
-//        ));
-//        $weblap->leallit();
-//        exit();
-//    }
-//
-//    // Jog ellenőrzése
-//    if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
-//        echo json_encode(array(
-//            'hiba'  => 'Önnek nincs joga tervet élesíteni!',
-//            'title' => 'Hiba',
-//        ));
-//        $weblap->leallit();
-//        exit();
-//    }
-//
-//    // Ha van olyan terv, ami azonos évszámú, és éles, akkor azt készre kell vissza léptetni
-//    $van_eles_terv = $adatbazis_kapcsolat->s2('recid ev ikt_szam', 'energia_terv', "`ev`='{$energia_terv['ev']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
-//    if( $van_eles_terv === false ) { $db_error = true; }
-//
-//    // Előbb kérdezünk
-//    if(!$mehet){
-//        if($van_eles_terv){
-//            echo json_encode(array(
-//                'hiba'  => $energia_terv['ev'].' évre már van éles egységár terv!<br><br>A jelenlegi éles terv:<br><br>Tervező év: '.$van_eles_terv['ev'].'<br>Tervszám: '.$van_eles_terv['ikt_szam'].'<br><br>A következő egységár terv élesítésére készül:<br><br>Tervező év: '.$energia_terv['ev'].'<br>Tervszám: '.$energia_terv['ikt_szam'].'<br><br>Folytatja?',
-//                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="terv_elesites(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
-//            ));
-//            $weblap->leallit();
-//            exit();
-//        }else{
-//            echo json_encode(array(
-//                'hiba'  => 'A következő egységár terv élesítésére készül:<br><br>Tervező év: '.$energia_terv['ev'].'<br>Tervszám: '.$energia_terv['ikt_szam'].'<br><br>Folytatja?',
-//                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="terv_elesites(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
-//            ));
-//            $weblap->leallit();
-//            exit();
-//        }
-//    }
-//
-//    if($van_eles_terv){
-//        if( !addStatusz( 'energia_terv_statusz', $van_eles_terv['recid'], ENERGIATERV_STAT_KESZ ) ) {
-//            $db_error = true;
-//        }
-//    }
-//
-//    // Státusz léptetés
-//    if( !addStatusz( 'energia_terv_statusz', $recid, ENERGIATERV_STAT_ELES ) ) {
-//        $db_error = true;
-//    }
-//
-//
-//    if( !$db_error ) {
-//        mysqli_commit($db_kapcs);
-//        echo json_encode(array(
-//            'statusz' => 'siker'
-//        ));
-//    } else {
-//        mysqli_rollback($db_kapcs);
-//        echo json_encode(array(
-//            'hiba' => tranzakcioHiba()
-//        ));
-//    }
-//
-//    $weblap->leallit();
-//    exit();
-//
-//}
-//
-//// Szálloda választó popup
-//if( isset($_POST['getSzallodak']) ) {
-//
-//    // Szálloda lekérdezése
-//    $telephelyek = $adatbazis_kapcsolat->s('id nev recid modell', 'telephely', "`inaktiv`='0'", 'nev');
-//
-//    // Felhasználóhoz kapcsolt szállodák
-//    $kijelolek = $adatbazis_kapcsolat->s2('telephely_idk', 'energia_terv_ear', "`recid` = '".$_POST['recid']."'");
-//    $kijelolek = $kijelolek['telephely_idk'];
-//    $kijelolek = explode(',', $kijelolek);
-//
-//    if( !$felh_szallodak ) {
-//        $felh_szallodak = array();
-//    }
-//
-//    $html = '';
-//    foreach($telephelyek as $telephely) {
-//        $checked = '';
-//        if( in_array($telephely['id'], $kijelolek) ) {
-//            $checked = ' checked="checked"';
-//        }
-//
-//        $html .= nl2('
-//            <div class="dtr">
-//                <div class="dtc">
-//                    <div class="cb">
-//                        <input type="checkbox" class="check" name="telephely[]" id="telephely-'.$telephely['recid'].'" value="'.$telephely['id'].'" data-pesti="'.$telephely['modell'].'"'.$checked.'>
-//                        <label for="telephely-'.$telephely['recid'].'"></label>
-//                    </div>
-//                </div>
-//                <div class="dtc">
-//                    '.$telephely['nev'].'
-//                </div>
-//            </div>
-//        ');
-//    }
-//
-//    echo $html;
-//
-//    $weblap->leallit();
-//    exit();
-//}
-//
-//// Szálloda rendelése egységárhoz
-//if (isset($_GET['addSzallodaEnergia'])) {
-//
-//    $egysegar_id    = $_GET['recid'];
-//    $szallIDs       = json_decode($_GET['szallIDs'], true);
-//    sort($szallIDs);
-//    
-//    // Státusz ellenőrzése
-//    $terv_ear = $adatbazis_kapcsolat->s2('energia_terv_id', 'energia_terv_ear', "`recid`='{$egysegar_id}'");
-//    if( $terv_ear === false ) { $db_error = true; }
-//    $terv     = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$terv_ear['energia_terv_id']}'");
-//    if( $terv === false ) { $db_error = true; }
-//    if($terv['stat_id']==ENERGIATERV_STAT_ELES){
-//        mysqli_rollback($db_kapcs);
-//        echo json_encode(array(
-//            'hiba'  => 'Az energia terv már éles, így nem szerkeszthető!',
-//            'title' => 'Hiba'
-//        ));
-//
-//        $weblap->leallit();
-//        exit();
-//    }
-//    
-//    if( $egysegar_id && count($szallIDs) ) {
-//
-//        $adatbazis_kapcsolat->u('energia_terv_ear', array('telephely_idk'), array(implode(',', $szallIDs)), "`recid`='{$egysegar_id}'");
-//
-//        echo json_encode(array(
-//            'statusz' => 'siker',
-//            'kapcsID' => $kapcsID,
-//            'uzi'     => ''
-//        ));
-//
-//    }
-//
-//    $weblap->leallit();
-//    exit();
-//
-//}
-//
-//// Éles-e már az energia terv státusza?
-//if (isset($_POST['get_statusz'])) {
-//    
-//    $terv = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$_POST['recid']}'");
-//    if($terv['stat_id']==ENERGIATERV_STAT_ELES){
-//        mysqli_rollback($db_kapcs);
-//        echo json_encode(array(
-//            'hiba'  => 'Az energia terv már éles, így nem szerkeszthető!',
-//            'title' => 'Hiba'
-//        ));
-//
-//    }
-//    
-//    $weblap->leallit();
-//    exit();
-//}
-//
-//// Egységár sor adatai a popup feltöltéséhez
-//if (isset($_POST['get_egysegar_adatok'])) {
-//    
-//
-//    $egysegar = $adatbazis_kapcsolat->s2('dijelem ktgnem_id mee energia_terv_id', 'energia_terv_ear', "`recid`='{$_POST['recid']}'");
-//    $terv     = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$egysegar['energia_terv_id']}'");
-//    $ktgnem   = $adatbazis_kapcsolat->s2('nev', 'ktgnem', "`recid`='{$egysegar['ktgnem_id']}'");
-//    
-//    if($terv['stat_id']==ENERGIATERV_STAT_ELES){
-//        echo json_encode(array(
-//            'hiba'  => 'Az energia terv már éles, így nem szerkeszthető!',
-//            'title' => 'Hiba'
-//        ));
-//
-//        $weblap->leallit();
-//        exit();
-//    }
-//    
-//    echo json_encode(array(
-//        'ktgnem_id_autocomp'    => $ktgnem['nev'],
-//        'ktgnem_id'             => $egysegar['ktgnem_id'],
-//        'dijelem_autocomp'      => $egysegar['dijelem'],
-//        'popup_mee'             => $egysegar['mee'],
-//    ));
-//
-//    $weblap->leallit();
-//    exit();
-//}
-//
-//// Költségnem, díjelem és mennyiségi egység beállítása
-//if ($_POST['energia_terv_koltsegnem_dijelem']) {
-//
-//    $terv_id    = $_POST['terv_id'];
-//    $terv_ea_id = $_POST['terv_ea_id'];
-//    $ktgnem_id  = $_POST['ktgnem_id'];
-//    $dijelem    = $_POST['dijelem'];
-//    $mee        = $_POST['mee'];
-//
-//    $db_error = false;
-//    mysqli_autocommit($db_kapcs, false);
-//
-//    $egysegar = $adatbazis_kapcsolat->s2('telephely_idk', 'energia_terv_ear', "`recid`='{$terv_ea_id}'");
-//
-//    // Szálloda+költségnem+díjelem terven belüli egyediség ellenőrzése
-//    $hibauzi = szalloda_koltsnem_dijelem_azonos($terv_id, $egysegar['telephely_idk'], $ktgnem_id, $dijelem);
-//    if( $hibauzi ){
-//        echo json_encode(array(
-//            'hiba'  => $hibauzi,
-//            'title' => 'Hiba',
-//        ));
-//        $weblap->leallit();
-//        exit();
-//    }
-//
-//    // Mezők beírása az egységár sorba
-//    $sql = $adatbazis_kapcsolat->u('energia_terv_ear',  array('ktgnem_id', 'dijelem', 'mee'),
-//                                                        array($ktgnem_id,  $dijelem,  $mee ),
-//                                    "`recid`='{$terv_ea_id}'");
-//    if( $sql === false ) { $db_error = true; }
-//
-//
-//    if( !$db_error ) {
-//        mysqli_commit($db_kapcs);
-//        echo json_encode(array(
-//            'statusz' => 'siker'
-//        ));
-//    } else {
-//        mysqli_rollback($db_kapcs);
-//        echo json_encode(array(
-//            'hiba' => tranzakcioHiba()
-//        ));
-//    }
-//
-//    $weblap->leallit();
-//    exit();
-//}
-//
-//// Új egységár sor hozzáadása
-//if (isset($_POST['uj_egysegar'])) {
-//
-//    $terv_recid     = $_POST['terv_recid'];
-//    $egysegar_recid = $_POST['egysegar_recid'];
-//    $szalloda_idk   = json_decode($_POST['szalloda_idk'], true);
-//    sort($szalloda_idk);
-//
-//    $db_error = false;
-//    mysqli_autocommit($db_kapcs, false);
-//    
-//    // Ha a terv éles, akkor már nem szerkeszthető
-//    $terv = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$terv_recid}'");
-//    if( $terv === false ) { $db_error = true; }
-//    
-//    if($terv['stat_id']==ENERGIATERV_STAT_ELES){
-//        mysqli_rollback($db_kapcs);
-//        echo json_encode(array(
-//            'hiba'  => 'Az energia terv már éles, így nem szerkeszthető!',
-//            'title' => 'Hiba'
-//        ));
-//
-//        $weblap->leallit();
-//        exit();
-//    }
-//
-//    // Ha kaptunk szállodákat, akkor azzal...
-//    if( $szalloda_idk ){
-//        
-//        $uj_egysegar_recid = $adatbazis_kapcsolat->i('energia_terv_ear', array('energia_terv_id', 'telephely_idk'            ),
-//                                                                         array($terv_recid,       implode(',', $szalloda_idk))
-//                                                    );
-//        if( $uj_egysegar_recid === false ) { $db_error = true; }
-//
-//    // Ha nem kaptunk szállodát csak egységárrecid-t, akkor meg azok szállodáival hozzuk létre az új sort
-//    }else{
-//        $telephelyek = $adatbazis_kapcsolat->s2('telephely_idk', 'energia_terv_ear', "`recid`='{$egysegar_recid}'");
-//        if( $telephelyek === false ) { $db_error = true; }
-//
-//        $uj_egysegar_recid = $adatbazis_kapcsolat->i('energia_terv_ear', array('energia_terv_id', 'telephely_idk'               ),
-//                                                                         array($terv_recid,       $telephelyek['telephely_idk'] )
-//                                                    );
-//        if( $uj_egysegar_recid === false ) { $db_error = true; }
-//    }
-//
-//    if( !$db_error ) {
-//        mysqli_commit($db_kapcs);
-//        echo json_encode(array(
-//            'statusz' => 'siker',
-//            'recid'   => $uj_egysegar_recid
-//        ));
-//    } else {
-//        mysqli_rollback($db_kapcs);
-//        echo json_encode(array(
-//            'hiba' => tranzakcioHiba()
-//        ));
-//    }
-//
-//    $weblap->leallit();
-//    exit();
-//}
-//
-//// Egységár sor törlése
-//if (isset($_POST['egysegar_sor_torol'])) {
-//
-//    $egysegar_recid = $_POST['egysegar_recid'];
-//
-//    $db_error = false;
-//    mysqli_autocommit($db_kapcs, false);
-//    
-//    // Státusz ellenőrzése
-//    $terv_ear = $adatbazis_kapcsolat->s2('energia_terv_id', 'energia_terv_ear', "`recid`='{$egysegar_recid}'");
-//    if( $terv_ear === false ) { $db_error = true; }
-//    $terv     = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$terv_ear['energia_terv_id']}'");
-//    if( $terv === false ) { $db_error = true; }
-//    if($terv['stat_id']==ENERGIATERV_STAT_ELES){
-//        mysqli_rollback($db_kapcs);
-//        echo json_encode(array(
-//            'hiba'  => 'Az energia terv már éles, így nem szerkeszthető!',
-//            'title' => 'Hiba'
-//        ));
-//
-//        $weblap->leallit();
-//        exit();
-//    }
-//
-//    // Sor törlése
-//    $sql = $adatbazis_kapcsolat->d('energia_terv_ear', "`recid`='{$egysegar_recid}'");
-//    if( $sql === false ) { $db_error = true; }
-//
-//    if( !$db_error ) {
-//        mysqli_commit($db_kapcs);
-//        echo json_encode(array(
-//            'statusz' => 'siker'
-//        ));
-//    } else {
-//        mysqli_rollback($db_kapcs);
-//        echo json_encode(array(
-//            'hiba' => tranzakcioHiba()
-//        ));
-//    }
-//
-//    $weblap->leallit();
-//    exit();
-//}
-//
-//// Energiaterv véglegesítése
-//if (isset($_POST['energiaterv_veglegesit'])) {
-//
-//    $recid = $_POST['recid'];
-//
-//    $db_error = false;
-//    mysqli_autocommit($db_kapcs, false);
-//
-//    $sor = $adatbazis_kapcsolat->s2('ikt_szam stat_id', 'energia_terv', "`recid`='{$recid}'");
-//    if( $sor === false ) { $db_error = true; }
-//    
-//    if($sor['stat_id']==ENERGIATERV_STAT_ELES){
-//        mysqli_rollback($db_kapcs);
-//        echo json_encode(array(
-//            'hiba'  => 'Az energia terv már éles, így nem szerkeszthető!',
-//            'title' => 'Hiba'
-//        ));
-//
-//        $weblap->leallit();
-//        exit();
-//    }
-//
-//    // Ha már van iktató szám, akkor hibaüzenet
-//    if($sor['ikt_szam']){
-//        mysqli_rollback($db_kapcs);
-//        echo json_encode(array(
-//            'hiba'  => 'Az energia tervnek már van iktató száma ('.$sor['ikt_szam'].'), így nem véglegesíthető!',
-//            'title' => 'Hiba'
-//        ));
-//
-//        $weblap->leallit();
-//        exit();
-//    }
-//
-//    // Ha nem WebDeb szerveren vagyunk, akkor lefuttatjuk a ftervear_updatetrigger()-t
-//    if($_SERVER['HTTP_HOST']!='demo.webdeb.hu'){
-//        $sql = mysqli_query($db_kapcs, 'call ftervear_updatetrigger()');
-//        if( $sql === false ) { $db_error = true; }
-//    }
-//
-//    if( !addStatusz( 'energia_terv_statusz', $recid, ENERGIATERV_STAT_KESZ ) ) {
-//        $db_error = true;
-//    }
-//
-//    if( !$db_error ) {
-//        mysqli_commit($db_kapcs);
-//        echo json_encode(array(
-//            'statusz' => 'siker'
-//        ));
-//    } else {
-//        mysqli_rollback($db_kapcs);
-//        echo json_encode(array(
-//            'hiba' => tranzakcioHiba()
-//        ));
-//    }
-//
-//    $weblap->leallit();
-//    exit();
-//}
+// Új tervhez szállodák lekérdezése
+if (isset($_POST['get_szalloda'])) {
+    
+    $szlloda_idk = get_akt_login_szallodai();
+    $valasszon = '<option value="">-Válasszon-</option>';
+    $disabled  = '';
+    $focus     = 'popup_telephely';
+    // Ha csak egy szállodás, akkor fixen ki van válatsztva
+    if( count($szlloda_idk)<2 ){
+        $valasszon = '';
+        $disabled  = ' disabled';
+        $focus     = 'popup_ev';
+    }
+    $szallodak = $adatbazis_kapcsolat->s('id nev', 'telephely', "`id` IN ('".implode('\', \'', $szlloda_idk)."')");
+    $szall_html = nl2('
+                <div class="dtc p">
+                    Szálloda: 
+                </div>
+                <div class="dtc p">
+                    <select id="popup_telephely"'.$disabled.' class="csillag" onchange="$(\'#popup_ev\').focus();">
+                        '.$valasszon.'
+                        '.tomb2option($szallodak, 'id', 'nev').'
+                    </select>
+                </div>
+                ');
+    
+    // Kijelölt tervnek mi a státusza
+    $munkakozi = 0;
+    $kijelolt = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_POST['recid']}'");
+    if($kijelolt['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+        $munkakozi = 1;
+    }
+    
+    echo json_encode( array(
+                    'telephely_select'  => $szall_html,
+                    'munkakozi'         => $munkakozi,
+                    'focus'             => $focus,
+                    ) );
+    
+    $weblap->leallit();
+    exit();
+}
+
+// Új terv létrehozása
+if (isset($_POST['terv_keszit'])) {
+
+    $recid      = $_POST['recid'];
+    $kijelolt   = $_POST['kijelolt'];
+    $ev         = $_POST['ev'];
+    $telephely  = $_POST['telephely'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    // Jog ellenőrzése
+    if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && !_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga tervet készíteni!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    // Szálloda ellenőrzése
+    if( !$telephely ) {
+        echo json_encode(array(
+            'hiba'  => 'Kérjük válasszon szállodát!',
+            'focus' => 'popup_telephely',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    // Év ellenőrzése
+    if( !is_numeric($ev) || $ev < date('Y') || $ev > date('Y')+5 ) {
+        echo json_encode(array(
+            'hiba'  => 'A tervező év '.date('Y').'-'.(date('Y')+5).' között lehet!',
+            'focus' => 'popup_ev',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    // Munkaközi terv meglétének ellenőrzése
+    if( $adatbazis_kapcsolat->s2('recid', 'fenntartasi_terv', "`ev` = '{$ev}' AND `telephely_id`='{$telephely}' AND `stat_id`='".ENERGIATERV_STAT_MUNKAKOZI."'", '', '1') ) {
+        echo json_encode(array(
+            //'hiba'  => $ev.' évre már van munkaközi terv.',
+            'hiba'  => 'Munkaközi tervverzió nem hozható létre.',
+            //'gomb'  => '<input type="button" class="gomb zold" value="Megnyitás" onclick="szamlaBetolt( \''.$energia_terv['recid'].'\', \''.basename(self()).'\', \'modosit\' ); alert2(); popupZar();"><input type="button" class="gomb piros" value="Mégsem" onclick="alert2()">',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    // Ha a kijelölt terv alapján kell létrehozni az újat, akkor lekérjük a kijelölt adatait
+    if($kijelolt){
+
+        $energia_terv = $adatbazis_kapcsolat->s2('text', 'fenntartasi_terv', "`recid` = '{$recid}'");
+        if( $energia_terv === false ) { $db_error = true; }
+
+        // Új terv létrehozása
+        $uj_id = $adatbazis_kapcsolat->i('fenntartasi_terv',    array('ev', 'telephely_id', 'text',                'loginnev',                        'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                                array($ev,  $telephely,     $energia_terv['text'], $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+                                        );
+        if( $uj_id === false ) { $db_error = true; }
+        
+        // Gyermek táblák másolása
+        $ft_energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}'");
+        if( $ft_energiak === false ) { $db_error = true; }
+        foreach($ft_energiak as $energia){
+            $oszlopok   = '`ktgnem_id`, `dijelem`, `efajta`, `mee`, `ear01`, `ear02`, `ear03`, `ear04`, `ear05`, `ear06`, `ear07`, `ear08`, `ear09`, `ear10`, `ear11`, `ear12`, `sorid`';
+            $ertekek    = array();
+            foreach($oszlopok as $oszl){
+                array_push($ertekek, $energia[$oszl]);
+            }
+            array_push($oszlopok, 'fenntartasi_terv_id', 'update_dt', 'update_usr',                             'insert_dt',    'insert_usr'                            );
+            array_push($ertekek,  $uj_id,                'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  );
+            
+            $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_energia', $oszlopok, $ertekek);
+echo '<pre style="font-size: 1.4rem">';
+print_r($ertekek);
+echo '</pre>';
+            if( $sql === false ) { $db_error = true; }
+        }
+
+    }else{
+
+        // Új terv létrehozása
+        $uj_id = $adatbazis_kapcsolat->i('fenntartasi_terv', array('ev', 'telephely_id', 'loginnev',                        'insert_dt',    'insert_usr',                             'update_usr'                            ),
+                                                             array($ev,  $telephely,     $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']  )
+                                        );
+        if( $uj_id === false ) { $db_error = true; }
+        
+        // Van-e éles energia egységár. Ha van, akkor ez alapján feltöltjük az Energia fület, de csak ekkor, ha újat, üresen töltünk fel. Kijelöt alapján a kijelölt energia sorai kerülnek átmásolásra.
+        $uzenet = '';
+        $energia = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$ev}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
+        if( $energia === false ) { $db_error = true; }
+        // Ha van, akkor ez alapján feltöltjük az Energia fület
+        if($energia){
+            $egysegarak = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$energia['recid']}' AND `telephely_idk` LIKE '%{$telephely}%'");
+            foreach($egysegarak as $ear){
+                $oszlopok = array('ktgnem_id', 'dijelem', 'mee', 'ear01', 'ear02', 'ear03', 'ear04', 'ear05', 'ear06', 'ear07', 'ear08', 'ear09', 'ear10', 'ear11', 'ear12', 'sorid');
+                $ertekek  = array();
+                foreach($oszlopok as $oszl){
+                    array_push($ertekek, $ear[$oszl]);
+                }
+                array_push($oszlopok, 'update_dt', 'fenntartasi_terv_id',   'update_usr',                            'insert_dt',    'insert_usr'                            );
+                array_push($ertekek,  'NOW()',     $uj_id,                  $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  );
+                $adatbazis_kapcsolat->i('fenntartasi_terv_energia', $oszlopok, $ertekek);
+            }
+        // Ha nincs, akkor is minden megy tovább, de tájékoztatjuk, hogy az Energia fül nem került feltöltésre sorokkal.
+        }else{
+            $uzenet = 'Energia egységár tábla hiánya miatt energia tervtábla készítése nem lehetséges.';
+        }
+
+    }
+
+    // Kezdőstátusz beállítása
+    $sql = $adatbazis_kapcsolat -> i('fenntartasi_terv_statusz',
+                                        array('fenntartasi_terv_recid', 'stat_id',                   'login',                           'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                        array($uj_id,                   ENERGIATERV_STAT_MUNKAKOZI,  $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                    );
+    if( $sql === false ) { $db_error = true; }
+ 
+    $sql = $adatbazis_kapcsolat->u('fenntartasi_terv', array('stat_id'), array(ENERGIATERV_STAT_MUNKAKOZI), "`recid`='{$uj_id}'");
+    if( $sql === false ) { $db_error = true; }
+    
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz'   => 'siker',
+            'uzenet'    => $uzenet,
+            'id'        => $uj_id,
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+
+}
+
+// Fenntartási terv élesítése
+if (isset($_POST['fenntartasi_terv_elesites'])) {
+
+    $recid = $_POST['recid'];
+    $mehet = $_POST['mehet'];
+
+    $db_error = false;
+    mysqli_autocommit($db_kapcs, false);
+
+    $fenntartasi_terv = $adatbazis_kapcsolat->s2('stat_id ev telephely_id ikt_szam', 'fenntartasi_terv', "`recid` = '{$recid}'");
+    if( $fenntartasi_terv === false ) { $db_error = true; }
+
+    // Státusz ellenőrzése
+    if( $fenntartasi_terv['stat_id'] != ENERGIATERV_STAT_KESZ ) {
+        echo json_encode(array(
+            'hiba' => 'Csak kész terv élesíthető!',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    // Jog ellenőrzése
+    if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && !_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga tervet élesíteni!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+
+    // Ha van olyan terv, ami azonos évszámú, szállodájú, és éles, akkor azt készre kell vissza léptetni
+    $van_eles_terv = $adatbazis_kapcsolat->s2('recid ev ikt_szam', 'fenntartasi_terv', "`ev`='{$fenntartasi_terv['ev']}' AND `telephely_id`='{$fenntartasi_terv['telephely_id']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
+    if( $van_eles_terv === false ) { $db_error = true; }
+
+    // Előbb kérdezünk
+    if(!$mehet){
+        if($van_eles_terv){
+            echo json_encode(array(
+                'hiba'  => getSzallodaNev($fenntartasi_terv['telephely_id']).' szállodának '.$fenntartasi_terv['ev'].' évre már van éles fenntartási terve!<br><br>A jelenlegi éles terv:<br><br>Tervező év: '.$van_eles_terv['ev'].'<br>Tervszám: '.$van_eles_terv['ikt_szam'].'<br><br>A következő fenntartási terv élesítésére készül:<br><br>Tervező év: '.$fenntartasi_terv['ev'].'<br>Tervszám: '.$fenntartasi_terv['ikt_szam'].'<br><br>Folytatja?',
+                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="fenntartasi_terv_elesites(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
+            ));
+            $weblap->leallit();
+            exit();
+        }else{
+            echo json_encode(array(
+                'hiba'  => 'A következő fenntartási terv élesítésére készül:<br><br>Tervező év: '.$fenntartasi_terv['ev'].'<br>Tervszám: '.$fenntartasi_terv['ikt_szam'].'<br><br>Folytatja?',
+                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="fenntartasi_terv_elesites(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+    }
+
+    $kesz_id = 0;
+    if($van_eles_terv){
+        $kesz_id = $van_eles_terv['recid'];
+        if( !addStatusz( 'fenntartasi_terv_statusz', $van_eles_terv['recid'], ENERGIATERV_STAT_KESZ ) ) {
+            $db_error = true;
+        }
+    }
+
+    // Státusz léptetés
+    if( !addStatusz( 'fenntartasi_terv_statusz', $recid, ENERGIATERV_STAT_ELES ) ) {
+        $db_error = true;
+    }
+
+    if( !$db_error ) {
+        mysqli_commit($db_kapcs);
+        echo json_encode(array(
+            'statusz' => 'siker',
+            'kesz_id' => $kesz_id,
+        ));
+    } else {
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba' => tranzakcioHiba()
+        ));
+    }
+
+    $weblap->leallit();
+    exit();
+
+}
 
 // CSV generálása
 if (isset($_GET['csv'])) {
@@ -891,12 +516,24 @@ require_once('selectek.php');
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';
 
         // Jogosutságkezelés
-        if( !$kezeles_jog ){
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága '.$szoveg.' törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-        }elseif( $sor['stat_id']==ENERGIATERV_STAT_ELES ){
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A '.$sor['ikt_szam'].' tervszámú energia terv státusza ÉLES, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        if( !_jog(JOG_FENNTARTASI_TERV_TOROL) ){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága fenntartási tervet törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        // Ha van törlés joga, akkor még ellenőrizni kell a terv státuszát+személyzettípust, hogy stimmel-e
         }else{
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A következő egységár terv törlésére készül:<br><br>Tervező év: '.$sor['ev'].'<br>Tervszám: '.$sor['ikt_szam'].'<br><br>Biztos, hogy törli?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            // Munkaközit csak területi felelős, Kész tervet pedig MSZK vezető tud csak törölni
+            if(
+                ($sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && $_SESSION[get_db_tabla().'szemelyzet_id']==TERULETI_FELELOS ) || 
+                ($sor['stat_id']==ENERGIATERV_STAT_KESZ      && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO      )
+            ){
+                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A következő fenntartási terv törlésére készül:<br><br>Tervező év: '.$sor['ev'].'<br>Tervszám: '.$sor['ikt_szam'].'<br><br>Biztos, hogy törli?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            }else{
+                if($sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Munkaközi fenntartási tervet csak Területi felelős törölhet!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+                }
+                if($sor['stat_id']==ENERGIATERV_STAT_KESZ){
+                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Kész fenntartási tervet csak MSZK vezető törölhet!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+                }
+            }
         }
 
 
@@ -908,11 +545,12 @@ require_once('selectek.php');
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Egységárak" onclick="kapcsolodoSzerkeszt(\'egysegarak\');"> ';
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Sor törlése" onclick="egysegar_sor_torol()"> ';
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="energiaterv_veglegesit()"> ';
+        
         // Tervek fül
-        }else{
+        }elseif(isset($_GET['modosit'])){
             // Élesítés gomb
-            if( $sor['stat_id']==ENERGIATERV_STAT_KESZ && _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ){
-                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Élesítés" onclick="terv_elesites()"> ';
+            if( $sor['stat_id']==ENERGIATERV_STAT_KESZ && (_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) || _jog(JOG_FENNTARTASI_MIND_SZ_KEZEL)) ){
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Élesítés" onclick="fenntartasi_terv_elesites()"> ';
             }
         }
 
@@ -941,7 +579,7 @@ require_once('selectek.php');
         
     // Ha nem éles a terv, akkor törlésnél jelezzük ezt
     }else{
-        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A terv már éles, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A fenntartási terv már éles, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
     }
 
 	// Új rekord felvitele
@@ -1083,120 +721,99 @@ require_once('selectek.php');
 			require_once('tobb_kep.php');
 		}
 
-	// Egységár
-	}elseif(isset($_GET['egysegarak'])){
+	// Energia
+	}elseif(isset($_GET['energia'])){
 
         $szamla_html .= '
             <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
             <thead>
             <tr>
-                <th class="egys_szall"><span>Szállodák</span></th>
-                <th class="egys_szall"><span>Díjelem</span></th>
-                <th><span>Ktgnem kód</span></th>
-                <th><span>Ktgnem név</span></th>
+                <th class="egys_szall"><span>Tárgy</span></th>
                 <th><span>Mee</span></th>
                 <th><span>Egységár Január</span></th>
-                <th class="egys_dev"><span>Dev. Jan.</span></th>
-                <th><span>Árfolyam Január</span></th>
+                <th class="egys_dev"><span>Mennyiség Január</span></th>
+                <th><span>Érték Január</span></th>
                 <th><span>Egységár Február</span></th>
-                <th class="egys_dev"><span>Dev. Feb</span></th>
-                <th><span>Árfolyam Február</span></th>
+                <th class="egys_dev"><span>Mennyiség Február</span></th>
+                <th><span>Érték Február</span></th>
                 <th><span>Egységár Március</span></th>
-                <th class="egys_dev"><span>Dev. Márc.</span></th>
-                <th><span>Árfolyam Március</span></th>
+                <th class="egys_dev"><span>Mennyiség Március</span></th>
+                <th><span>Érték Március</span></th>
                 <th><span>Egységár Április</span></th>
-                <th class="egys_dev"><span>Dev. Ápr.</span></th>
-                <th><span>Árfolyam Április</span></th>
+                <th class="egys_dev"><span>Mennyiség Április</span></th>
+                <th><span>Érték Április</span></th>
                 <th><span>Egységár Május</span></th>
-                <th class="egys_dev"><span>Dev. Máj.</span></th>
-                <th><span>Árfolyam Május</span></th>
+                <th class="egys_dev"><span>Mennyiség Május</span></th>
+                <th><span>Érték Május</span></th>
                 <th><span>Egységár Június</span></th>
-                <th class="egys_dev"><span>Dev. Jún.</span></th>
-                <th><span>Árfolyam Június</span></th>
+                <th class="egys_dev"><span>Mennyiség Június</span></th>
+                <th><span>Érték Június</span></th>
                 <th><span>Egységár Július</span></th>
-                <th class="egys_dev"><span>Dev. Júl.</span></th>
-                <th><span>Árfolyam Július</span></th>
+                <th class="egys_dev"><span>Mennyiség Július</span></th>
+                <th><span>Érték Július</span></th>
                 <th><span>Egységár Augusztus</span></th>
-                <th class="egys_dev"><span>Dev. Aug.</span></th>
-                <th><span>Árfolyam Augusztus</span></th>
+                <th class="egys_dev"><span>Mennyiség Augusztus</span></th>
+                <th><span>Érték Augusztus</span></th>
                 <th><span>Egységár Szeptember</span></th>
-                <th class="egys_dev"><span>Dev. Szept.</span></th>
-                <th><span>Árfolyam Szeptember</span></th>
+                <th class="egys_dev"><span>Mennyiség Szeptember</span></th>
+                <th><span>Érték Szeptember</span></th>
                 <th><span>Egységár Október</span></th>
-                <th class="egys_dev"><span>Dev. Okt.</span></th>
-                <th><span>Árfolyam Október</span></th>
+                <th class="egys_dev"><span>Mennyiség Október</span></th>
+                <th><span>Érték Október</span></th>
                 <th><span>Egységár November</span></th>
-                <th class="egys_dev"><span>Dev. Nov.</span></th>
-                <th><span>Árfolyam November</span></th>
+                <th class="egys_dev"><span>Mennyiség November</span></th>
+                <th><span>Érték November</span></th>
                 <th><span>Egységár December</span></th>
-                <th class="egys_dev"><span>Dev. Dec</span></th>
-                <th><span>Árfolyam December</span></th>
+                <th class="egys_dev"><span>Mennyiség December</span></th>
+                <th><span>Érték December</span></th>
             </tr>
             </thead>
             <tbody>
             ';
 
-        $egysegarak = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$_GET['id']}'");
-        foreach($egysegarak as $egysegar){
-
-            // Szálloda nevek
-            $szalloda_html = '';
-            $szallodak = explode(',', $egysegar['telephely_idk']);
-            $szallodak = $adatbazis_kapcsolat->s('nev', 'telephely', "`id` IN ('".implode('\', \'', $szallodak)."')");
-            $szallodak = adatbazis2tomb($szallodak, 'nev');
-
-            // ABC sorrend
-            sort($szallodak);
-
-            // Szálloda html
-            $szalloda_html = implode(',', $szallodak);
-
-            // Ktgnem
-            $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`recid`='{$egysegar['ktgnem_id']}'");
+        $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$_GET['id']}'");
+        foreach($energiak as $energia){
 
             $szamla_html .= '
-                <tr id="tr_ear_'.$egysegar['recid'].'" data-recid="'.$egysegar['recid'].'">
-                    <td>'.$szalloda_html.'</td>
-                    <td>'.$egysegar['dijelem'].'</td>
-                    <td>'.$ktgnem['id'].'</td>
-                    <td>'.$ktgnem['nev'].'</td>
-                    <td>'.$egysegar['mee'].'</td>
-                    <td class="r">'.$egysegar['ear01'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem01']).'</td>
-                    <td class="r">'.$egysegar['arf01'].'</td>
+                <tr id="ft_ear_'.$energia['recid'].'" data-recid="'.$energia['recid'].'" class="ftt_menny">
+                    <td>'.$energia['dijelem'].'</td>
+                    <td>'.$energia['mee'].'</td>
+                    <td class="r">'.$energia['ear01'].'</td>
+                    <td><input type="text" name="em01"></td>
+                    <td class="r">'.$energia['ft01'].'</td>
                     <td class="r">'.$egysegar['ear02'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem02']).'</td>
-                    <td class="r">'.$egysegar['arf02'].'</td>
+                    <td><input type="text" name="em02"></td>
+                    <td class="r">'.$egysegar['ft02'].'</td>
                     <td class="r">'.$egysegar['ear03'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem03']).'</td>
-                    <td class="r">'.$egysegar['arf03'].'</td>
+                    <td><input type="text" name="em03"></td>
+                    <td class="r">'.$egysegar['ft03'].'</td>
                     <td class="r">'.$egysegar['ear04'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem04']).'</td>
-                    <td class="r">'.$egysegar['arf04'].'</td>
+                    <td><input type="text" name="em04"></td>
+                    <td class="r">'.$egysegar['ft04'].'</td>
                     <td class="r">'.$egysegar['ear05'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem05']).'</td>
-                    <td class="r">'.$egysegar['arf05'].'</td>
+                    <td><input type="text" name="em05"></td>
+                    <td class="r">'.$egysegar['ft05'].'</td>
                     <td class="r">'.$egysegar['ear06'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem06']).'</td>
-                    <td class="r">'.$egysegar['arf06'].'</td>
+                    <td><input type="text" name="em06"></td>
+                    <td class="r">'.$egysegar['ft06'].'</td>
                     <td class="r">'.$egysegar['ear07'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem07']).'</td>
-                    <td class="r">'.$egysegar['arf07'].'</td>
+                    <td><input type="text" name="em07"></td>
+                    <td class="r">'.$egysegar['ft07'].'</td>
                     <td class="r">'.$egysegar['ear08'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem08']).'</td>
-                    <td class="r">'.$egysegar['arf08'].'</td>
+                    <td><input type="text" name="em08"></td>
+                    <td class="r">'.$egysegar['ft08'].'</td>
                     <td class="r">'.$egysegar['ear09'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem09']).'</td>
-                    <td class="r">'.$egysegar['arf09'].'</td>
+                    <td><input type="text" name="em09"></td>
+                    <td class="r">'.$egysegar['ft09'].'</td>
                     <td class="r">'.$egysegar['ear10'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem10']).'</td>
-                    <td class="r">'.$egysegar['arf10'].'</td>
+                    <td><input type="text" name="em10"></td>
+                    <td class="r">'.$egysegar['ft10'].'</td>
                     <td class="r">'.$egysegar['ear11'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem11']).'</td>
-                    <td class="r">'.$egysegar['arf11'].'</td>
+                    <td><input type="text" name="em11"></td>
+                    <td class="r">'.$egysegar['ft11'].'</td>
                     <td class="r">'.$egysegar['ear12'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem12']).'</td>
-                    <td class="r">'.$egysegar['arf12'].'</td>
+                    <td><input type="text" name="em12"></td>
+                    <td class="r">'.$egysegar['ft12'].'</td>
                 </tr>
                 ';
         }
@@ -1306,22 +923,4 @@ require_once('selectek.php');
 
 if( !$_GET['ajax'] ) {
     require_once('footer.php');
-}
-
-
-// Szálloda+költségnem+díjelem terven belüli egyediség ellenőrzése
-function szalloda_koltsnem_dijelem_azonos($terv_id, $telephely_idk, $ktgnem_id, $dijelem){
-
-    global $adatbazis_kapcsolat;
-
-    $telephely_idk  = trim($telephely_idk);
-    $ktgnem_id      = trim($ktgnem_id);
-    $dijelem        = trim($dijelem);
-
-    if( $telephely_idk && $ktgnem_id && $dijelem && $adatbazis_kapcsolat->s('recid', 'energia_terv_ear', "`energia_terv_id`='{$terv_id}' AND `telephely_idk`='{$telephely_idk}' AND `ktgnem_id`='{$ktgnem_id}' AND `dijelem`='{$dijelem}'") ){
-        return 'Azonos díjelem megnevezések szálloda - költségnem összerendelésen belül!';
-    }else{
-        return '';
-    }
-
 }

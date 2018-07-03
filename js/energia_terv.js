@@ -63,10 +63,12 @@ function terv_elesites(mehet) {
                         alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
-                    szurkit();
-                    location.reload();
-                    /*szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
-                    popupZar();*/
+                    
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                    if(response.kesz_id>0){
+                        szamlaSorFrissit(baseName(location.href), response.kesz_id);
+                    }
+                    popupZar();
                 }
             }
         });

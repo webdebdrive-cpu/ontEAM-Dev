@@ -449,7 +449,7 @@ if(_jog(JOG_PRIGENY_S_KEZEL) ||_jog(JOG_PRIGENY_SZ_MEGTEKINT) || _jog(JOG_PRIGEN
 }
 
 
-if( !$_SESSION['bejelento_menu_rejt'] /* Bejelentő elől rejtve */ && (_jog(JOG_FENNTARTASI_OLVAS) || _jog(JOG_SZAMLAK_OLVAS) || _jog(JOG_PARTNERTORZS_OLVAS) || _jog(JOG_DOKUMENTUMTAR_OLVAS) ) ){
+if( !$_SESSION['bejelento_menu_rejt'] /* Bejelentő elől rejtve */ && (_jog(JOG_FENNTARTASI_SZERZ_OLVAS) || _jog(JOG_SZAMLAK_OLVAS) || _jog(JOG_PARTNERTORZS_OLVAS) || _jog(JOG_DOKUMENTUMTAR_OLVAS) ) ){
     // Továbbiak
     $menu_nev        = 'Dokumentumok';
     $menu_nev_kis    = 'dokumentumok';
@@ -463,7 +463,7 @@ if( !$_SESSION['bejelento_menu_rejt'] /* Bejelentő elől rejtve */ && (_jog(JOG
     if(basename(self())=='dokumentumtar.php')           { $oldalNev = 'Dokumentumok / <span id="rekord_neve">Dokumentumtár</span><span class="dn" id="rekord_neve_egyes">dokumentumtár</span><span class="dn" id="rekord_neve_targy">dokumentumtárat</span>';                           }
 
     $aktmenuk  = '';
-    if( _jog(JOG_FENNTARTASI_OLVAS) ){
+    if( _jog(JOG_FENNTARTASI_SZERZ_OLVAS) ){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Fenntartási szerződések'), $almenu_sablon );
     }
     if( _jog(JOG_SZAMLAK_OLVAS) ){
@@ -1149,10 +1149,10 @@ if(basename(self())=='felmeresi_terv.php' && !_jog(JOG_FT_KEZEL)){
     $uj = $duplikal = '';
 }
 
-if(basename(self())=='fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_KEZEL)){
+if(basename(self())=='fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_SZERZ_KEZEL)){
     $uj = $duplikal = '';
 }
-if(basename(self())=='fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_TOROL)){
+if(basename(self())=='fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_SZERZ_TOROL)){
     $torles_icon    = '';
 }
 
@@ -1162,6 +1162,7 @@ if(basename(self())=='fenntartasi_terv.php'){
         $uj = $duplikal = '';
     }
 
+    // Törléshez törlés jog mindenképp kell. Ezen felül vizsgáljuk a login személyzettípusát + terv státuszát, de ezt már törléskor kezeljük le.
     if(!_jog(JOG_FENNTARTASI_TERV_TOROL)){
         $torles_icon = '';
     }
@@ -1340,6 +1341,10 @@ if(basename(self())=='munkalap.php'){
 // Energia terv JS behúzva
 if(basename(self())=='energia_terv.php'){
     $header_html .= '<script src="../js/energia_terv.js?cache='.time().'"></script>';
+}
+// Fenntartási terv JS behúzva
+if(basename(self())=='fenntartasi_terv.php'){
+    $header_html .= '<script src="../js/fenntartasi_terv.js?cache='.time().'"></script>';
 }
 
 if( $_SERVER['HTTP_HOST'] != 'demo.webdeb.hu' ) {
