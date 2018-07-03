@@ -278,6 +278,10 @@ function felh_valt( valt ) {
 }
 
 $(function() {
+    isMobile = false;
+    if( $(window).width() < 800 ) {
+        isMobile = true;
+    }
 
     /* Csak számokat elfogadó mező */
     $(document).on('keyup blur', '.f_csakszam, .f_plus_minus', function(){
@@ -307,7 +311,7 @@ $(function() {
 
         /* Kattintás a nav panel első elemére */
         } else {
-            if( !$.browser.mobile && !$('#szamlaList li.szamla_sor').hasClass('kijelolve') && !_get('uj') ) {
+            if( !isMobile && !$('#szamlaList li.szamla_sor').hasClass('kijelolve') && !_get('uj') ) {
                 $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
             }
         }
@@ -1704,7 +1708,7 @@ console.log('b'+active_top);
 
 
     $(document).on('click', '#bejelentoText', function() {
-        if( $.browser.mobile ) {
+        if( isMobile ) {
             $(this).toggleClass('active');
 
             if( $(this).hasClass('active') ) {
@@ -1857,7 +1861,7 @@ function sendMail( that, file ) {
 }
 
 function fulGombMeretez() {
-    if( $('div.muveletek').length && !$.browser.mobile ) {
+    if( $('div.muveletek').length && !isMobile ) {
         var muvHeight   = parseInt($('div.muveletek').outerHeight());
         var fulekHeight = parseInt($('#szamlaFulek').outerHeight());
 
@@ -5715,7 +5719,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         $('#navGombok a.uj').attr('href', baseName(location.href) + '.php?uj');
                     }
 
-                    if( $.browser.mobile ) {
+                    if( isMobile ) {
                         $('#tartalomBal').css('display', 'none');
                         $('#tartalomJobb').css('display', 'block');
                         $('#respo_visszalepes').css('display', 'block');
