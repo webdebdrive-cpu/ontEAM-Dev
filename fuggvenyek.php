@@ -708,7 +708,8 @@ function i_u($type, $tabla, $tomb) {
                 $i++;
             }
         }
-
+        
+        // Logolás
         $sql = $adatbazis_kapcsolat -> i(
                                             'log',
                                             array( 'felh_id',                               'nev',       'valtozas', 'ip'                   ),

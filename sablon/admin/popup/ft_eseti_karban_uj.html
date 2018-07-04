@@ -1,0 +1,201 @@
+<h2>Eseti karbantartás szerkesztése</h2>
+<form action="" id="egysegarakForm" class="popupForm" method="post" onsubmit="return eseti_tabla_ment( this );">
+    <div id="setEgysegarTablazat" class="kozep" style="min-height: 26rem; width: 50rem"></div>
+    <div class="dt egysegarMuv">
+        <div class="dtr">
+            <div class="dtc">
+                Minden<br>
+                <select name="egysk_ciklus">
+                    <option value="1">havi</option>
+                    <option value="2">2 havi</option>
+                    <option value="3">negyedév</option>
+                    <option value="6">félév</option>
+                </select>
+            </div>
+            <div class="dtc">
+                legyen<br>
+                <div class="egysk_box">
+                    <input type="text" name="egysk_ft" class="f_num" data-tort="0">
+                </div>
+            </div>
+            <div class="dtc">
+                Kezdő hónap:<br>
+                <select name="egysk_honap">
+                    <option value="01">Január</option>
+                    <option value="02">Február</option>
+                    <option value="03">Március</option>
+                    <option value="04">Április</option>
+                    <option value="05">Május</option>
+                    <option value="06">Június</option>
+                    <option value="07">Július</option>
+                    <option value="08">Augusztus</option>
+                    <option value="09">Szeptember</option>
+                    <option value="10">Október</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+            <div class="dtc">
+                <input type="button" name="" class="gomb" value="Kitölt" onclick="mennyisegMuv( 'egysk_', 'kitolt' );">
+            </div>
+        </div>
+        <div class="dtr">
+            <div class="dtc">
+                <div class="egysv_box">
+                    <input type="text" name="egysv_ft" class="f_num eltol" data-tort="0">
+                </div>
+            </div>
+            <div class="dtc">
+                legyen visszaosztva<br>
+                <select name="egysv_ciklus">
+                    <option value="1">havonta</option>
+                    <option value="2">2 havonta</option>
+                    <option value="3">negyedévente</option>
+                    <option value="6">félévente</option>
+                </select>
+            </div>
+            <div class="dtc">
+                Kezdő hónap:<br>
+                <select name="egysv_honap">
+                    <option value="01">Január</option>
+                    <option value="02">Február</option>
+                    <option value="03">Március</option>
+                    <option value="04">Április</option>
+                    <option value="05">Május</option>
+                    <option value="06">Június</option>
+                    <option value="07">Július</option>
+                    <option value="08">Augusztus</option>
+                    <option value="09">Szeptember</option>
+                    <option value="10">Október</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+            </div>
+            <div class="dtc">
+                <input type="button" name="" class="gomb" value="Visszaosztás" onclick="mennyisegMuv( 'egysv_', 'visszaoszt' );">
+            </div>
+        </div>
+    </div>
+    <div class="kuldes">
+        <input type="hidden" name="egysegarsor_id" id="egysegarsor_id" value="">
+        <input type="submit" name="elkuld" value="Mentés">
+        <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
+    </div>
+</form>
+<script>
+	$(document).ready(function(){
+        /* Státusz ellenőrzése: éles már nem szerkeszthető. */
+        $.ajax({
+            url : 'fenntartasi_terv.php',
+            type: 'POST',
+            data: {
+                recid       : _get('id'),
+                get_statusz : Date.now()
+            },
+            success: function(response){
+                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                if(response){
+                    response = JSON.parse(response);
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, response.title);
+                        popupZar();
+                        return false;
+                    }
+                }
+            }
+        });
+        
+        /* Táblázat betöltése */
+        var id = $('.szamla_cont_tabla tr.kijelolve').attr('data-recid');
+        $.ajax({
+            url : 'fenntartasi_terv.php',
+            type: 'POST',
+            data: {
+                id              : id,
+                uj              : 'uj',
+                get_eseti_tabla : new Date().getTime()
+            },
+            success: function(response) {
+                if(response) {
+                    response = JSON.parse(response);
+
+                    if( response.hiba ) {
+                        alert2(response.hiba, response.gomb, 'Hiba');
+                        popupZar();
+                        return false;
+                    }
+
+                    $('#egysegarsor_id').val(id);
+                    $('#setEgysegarTablazat').html(response.html);
+                    $('#setEgysegarTablazat input, #setEgysegarTablazat select').first().select().focus();
+                }
+            }
+        });
+    });
+    
+function mennyisegMuv( pre, muvelet ) {
+    var ciklus  = parseInt($('select[name="' + pre + 'ciklus"]').val()),
+        oszlop  = 'ft',
+        ertek   = $('input[name="' + pre + oszlop + '"]').val(),
+        honap   = $('select[name="' + pre + 'honap"]').val();
+
+    ertek = ertek.replace(' ', '');
+
+    var inputok = $('#setEgysegarTablazat').find('input[name^="' + oszlop + '"]');
+    inputok.each(function(index, el) {
+
+        index++;
+        var sorszam = ('0' + index).slice(-2);
+
+        if( sorszam == honap ) {
+            if( muvelet == 'kitolt' ) {
+
+                for(var i = index; i <= 12; i += ciklus) {
+                    var uj_sorszam = ('0' + i).slice(-2);
+                    $('#setEgysegarTablazat input[name="' + oszlop + uj_sorszam + '"]').val(ezresek(ertek, '', '', ' '));
+                }
+            } else if( muvelet == 'visszaoszt' ) {
+                oszto = 12 - parseInt(honap) + 1;
+
+                ertek = (ertek / (oszto / ciklus));
+                ertek = ertek.toFixed(0);
+
+                for(var i = index; i <= 12; i += ciklus) {
+                    var uj_sorszam = ('0' + i).slice(-2);
+                    $('#setEgysegarTablazat input[name="' + oszlop + uj_sorszam + '"]').val(ezresek(ertek, '', '', ' '));
+                }
+            }
+
+            return false;
+        }
+    });
+}
+
+function eseti_tabla_ment( that ) {
+    if( $(that).length ) {
+        $.ajax({
+         	url : 'fenntartasi_terv.php',
+         	type: 'POST',
+         	data: $(that).serialize() + esamp2es('&amp;uj='+_get('id')+'&amp;id='+_get('id')+'&amp;eseti_tabla_ment=') + new Date().getTime(),
+         	success: function(response) {
+         		if(response) {
+         			response = JSON.parse(response);
+
+         			if( response.hiba ) {
+         				alert2(response.hiba, response.gomb, 'Hiba');
+         				return false;
+         			}
+                    energia_szummaz();
+                    popupZar();
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'eseti_karban').done(function() {
+                        $('.szamla_cont_tabla tr').removeClass('kijelolve');
+                        $('#ft_ft_' + response.recid).addClass('kijelolve');
+                    });
+         		}
+         	}
+        });
+    }
+
+    return false;
+}
+</script>

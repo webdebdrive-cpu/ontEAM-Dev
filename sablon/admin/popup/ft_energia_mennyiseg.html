@@ -1,5 +1,5 @@
-<h2>Mennyiségek kitöltése</h2>
-<form action="" id="egysegarakForm" class="popupForm" method="post" onsubmit="return ft_energiaKitolt( this );">
+<h2>Energia szerkesztése</h2>
+<form action="" id="egysegarakForm" class="popupForm" method="post" onsubmit="return energia_tabla_ment( this );">
     <div id="setEgysegarTablazat" class="kozep" style="min-height: 26rem; width: 50rem"></div>
     <div class="dt egysegarMuv">
         <div class="dtr">
@@ -16,26 +16,6 @@
                 legyen<br>
                 <div class="egysk_box">
                     <input type="text" name="egysk_em" class="f_num" data-tort="2" value="0,00">
-                </div>
-                <div class="egysk_box dn">
-                    <input type="text" autocomplete="off" class="csillag autocomp" name="egysk_dnem_autocomp" id="egysk_dnem_autocomp" style="min-width: inherit; width: 6rem;" value="" data-origin-val="">
-                    <input type="hidden" name="egysk_dnem" id="egysk_dnem" value="">
-                    <script>
-                        $(document).ready(function() {
-                            $('#egysk_dnem_autocomp').autocomplete({
-                                'php_fajl'        : '../autocomplete.php',
-                                'tabla'           : 'erteklista',
-                                'oszlop_keres'    : 'info',
-                                'oszlop_listaz'   : 'info',
-                                'csoport'         : 21,
-                                'id_kiir'         : 'id',
-                                'popupba'         : true
-                            });
-                        });
-                    </script>
-                </div>
-                <div class="egysk_box dn">
-                    <input type="text" name="egysk_arf" class="f_num" data-tort="5" value="1,00000">
                 </div>
             </div>
             <div class="dtc">
@@ -104,6 +84,8 @@
 </form>
 <script>
 	$(document).ready(function(){
+        
+        /* Státusz ellenőrzése: éles már nem szerkeszthető. */
         $.ajax({
             url : 'fenntartasi_terv.php',
             type: 'POST',
@@ -124,13 +106,14 @@
             }
         });
         
+        /* Táblázat betöltése */
         var id = $('.szamla_cont_tabla tr.kijelolve').attr('data-recid');
         $.ajax({
             url : 'fenntartasi_terv.php',
             type: 'POST',
             data: {
-                id              : id,
-                get_mennyisegek : new Date().getTime()
+                id                  : id,
+                get_energia_tabla   : new Date().getTime()
             },
             success: function(response) {
                 if(response) {
@@ -144,6 +127,7 @@
 
                     $('#egysegarsor_id').val(id);
                     $('#setEgysegarTablazat').html(response.html);
+                    $('#setEgysegarTablazat input, #setEgysegarTablazat select').first().select().focus();
                 }
             }
         });
@@ -188,12 +172,12 @@ function mennyisegMuv( pre, muvelet ) {
     });
 }
 
-function ft_energiaKitolt( that ) {
+function energia_tabla_ment( that ) {
     if( $(that).length ) {
         $.ajax({
          	url : 'fenntartasi_terv.php',
          	type: 'POST',
-         	data: $(that).serialize() + '&ft_energiaKitolt=' + new Date().getTime(),
+         	data: $(that).serialize() + esamp2es('&amp;id='+_get('id')+'&amp;energia_tabla_ment=') + new Date().getTime(),
          	success: function(response) {
          		if(response) {
          			response = JSON.parse(response);

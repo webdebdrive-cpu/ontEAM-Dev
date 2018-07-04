@@ -2758,7 +2758,8 @@ if( isset($_GET['getBejBejelentok']) ) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
         ));
     }
 
@@ -2972,7 +2973,8 @@ if( isset($_POST['varolistabolKivetel']) ) {
         } else {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
-                'hiba' => tranzakcioHiba()
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba'
             ));
         }
     }
@@ -3119,7 +3121,8 @@ if( isset($_POST['bejegyzesElutasitas']) ) {
         } else {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
-                'hiba' => tranzakcioHiba()
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba'
             ));
         }
     }
@@ -3217,7 +3220,8 @@ if( isset($_POST['csoportbolTorol']) ) {
         } else {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
-                'hiba' => tranzakcioHiba()
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba'
             ));
         }
     }
@@ -3309,7 +3313,8 @@ if( isset($_POST['csoportbaRendez']) ) {
             } else {
                 mysqli_rollback($db_kapcs);
                 echo json_encode(array(
-                    'hiba' => tranzakcioHiba()
+                    'hiba'  => tranzakcioHiba(),
+                    'title' => 'Hiba'
                 ));
             }
         } else {
@@ -3374,7 +3379,8 @@ if( isset($_GET['addCsoport']) ) {
             mysqli_rollback($db_kapcs);
 
             echo json_encode(array(
-                'hiba' => tranzakcioHiba()
+                'hiba'  => tranzakcioHiba(),
+                'title' => 'Hiba'
             ));
         }
     } else {
@@ -3669,7 +3675,8 @@ if( isset($_POST['mellekTorol']) ) {
         } else {
             mysqli_rollback($db_kapcs);
             echo json_encode(array(
-                                'hiba' => tranzakcioHiba()
+                                'hiba'  => tranzakcioHiba(),
+                                'title' => 'Hiba'
                             ));
         }
     }
@@ -3914,7 +3921,8 @@ if (isset($_POST['surgosseg_allit'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba'
         ));
     }
 
@@ -3972,7 +3980,8 @@ if( isset($_GET['addSzalloda']) ) {
             } else {
                 mysqli_rollback($db_kapcs);
                 echo json_encode(array(
-                    'hiba' => tranzakcioHiba()
+                    'hiba'  => tranzakcioHiba(),
+                    'title' => 'Hiba'
                 ));
             }
 
@@ -4682,6 +4691,16 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             
             // Ha idáig eljutottunk, akkor tényleg törölhető. A fenntartási terv minden gyerek tábláját is töröljük (státusz, megjegyzés és dokumentumok fentebb már megvannak).
             $del = $adatbazis_kapcsolat->d('fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
+            if( $del === false ) { $db_error = true; }
+            $del = $adatbazis_kapcsolat->d('fenntartasi_terv_muszaki_anyag', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
+            if( $del === false ) { $db_error = true; }
+            $del = $adatbazis_kapcsolat->d('fenntartasi_terv_rendsz_karban', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
+            if( $del === false ) { $db_error = true; }
+            $del = $adatbazis_kapcsolat->d('fenntartasi_terv_eseti_karban', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
+            if( $del === false ) { $db_error = true; }
+            $del = $adatbazis_kapcsolat->d('fenntartasi_terv_hibaelharitas', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
+            if( $del === false ) { $db_error = true; }
+            $del = $adatbazis_kapcsolat->d('fenntartasi_terv_bwh', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
             if( $del === false ) { $db_error = true; }
 
         }

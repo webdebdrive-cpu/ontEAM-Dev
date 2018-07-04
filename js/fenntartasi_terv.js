@@ -90,4 +90,50 @@ function energia_szummaz(){
         $('#szum_ft'+i).html( ezresek(ossz, '', '', ' ') );
 
     }
+    
+    /* Ha van összesen oszlop, akkor azt is szummázzuk */
+    if($('.ftossz').length){
+        ossz = 0;
+        $('.ftossz').each(function () {
+            ossz += Number($(this).html().replace(/ /g, ''));
+        });
+        $('#szum_ftossz').html( ezresek(ossz, '', '', ' ') );
+    }
+}
+
+/* Kijelölt sor törlése */
+function sor_torol(ful, mehet){
+    
+    var sor = '';
+    if(!$('.szamla_cont_tabla tr.kijelolve').length){
+        alert2('Kérjük jelölje ki a törölni kívánt sor!', '', 'Hiba');
+        return;
+    }else{
+        sor = $('.szamla_cont_tabla tr.kijelolve').attr('id').replace('ft_ft_', '');
+    }
+    
+    $.ajax({
+        url : 'fenntartasi_terv.php',
+        type: 'POST',
+        data: {
+            id          : _get('id'),
+            ful         : ful,
+            sor         : sor,
+            mehet       : mehet,
+            sor_torol   : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                szurkit();
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', ful);
+            }
+        }
+    });
 }

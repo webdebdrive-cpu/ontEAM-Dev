@@ -1998,6 +1998,7 @@ div.szamlaFulek {
     margin: -5.1rem 0rem 0rem -1.5rem;
     padding-top: 0rem;
     position: fixed;
+ 
     /* width: 100%; */
     z-index: 1;
 }

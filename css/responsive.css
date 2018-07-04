@@ -444,6 +444,13 @@
 }
 
 @media only screen and (max-width: 800px) {
+    
+    /* iPhone túl scrolozás tiltása */
+    html, body{
+        position: fixed;
+        overflow: hidden;
+    }
+    
     body {
         font-size: 1.4rem;
     }

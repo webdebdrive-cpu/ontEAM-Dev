@@ -5426,6 +5426,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         'projekt_team',
                         'projektigeny',
                         'rb_anyag',
+                        'rb_anyag',
+                        'rendsz_karban',
                         'rogzit',
                         'siker',
                         'statusz',
