@@ -1893,6 +1893,14 @@ table.szamla_cont_tabla tr.fake.kijelolve, table.szamla_cont_tabla tr.fake.kijel
     background: #F1EFF0;
 }
 
+table.szamla_cont_tabla tr.piros_hat, table.szamla_cont_tabla tr.piros_hat:hover{
+    background: #DF7171;
+}
+
+table.szamla_cont_tabla tr.zold_hat, table.szamla_cont_tabla tr.zold_hat:hover{
+    background: #87E072;
+}
+
 div.szamlaKereses {
     background: #fffffd;
     position: relative;

@@ -53,12 +53,12 @@ if (isset($_POST['egysegarMentes'])) {
     $mit = array();
     $mire = array();
 
-    for($i = 1; $i <= 12; $i++) {
+    for($i = 1; $i < 13; $i++) {
         $sorszam = sprintf('%02d', $i);
 
         // Egységára
         array_push($mit,    'ear'.$sorszam);
-        array_push($mire,   str_replace(',', '.', $_POST['ear'.$sorszam]));
+        array_push($mire,   str_replace(array(',', ' '), array('.', ''), $_POST['ear'.$sorszam]));
 
         // Deviza
         array_push($mit,    'dnem'.$sorszam);
@@ -66,7 +66,7 @@ if (isset($_POST['egysegarMentes'])) {
 
         // Árfolyam
         array_push($mit,    'arf'.$sorszam);
-        array_push($mire,   str_replace(',', '.', $_POST['arf'.$sorszam]));
+        array_push($mire,   str_replace(array(',', ' '), array('.', ''), $_POST['arf'.$sorszam]));
     }
 
     // Frissítés
@@ -122,7 +122,7 @@ if (isset($_POST['get_egysegarak'])) {
                 $html .= nl2('
                     <div class="dtr">
                         <div class="dtc">'.$honap.'</div>
-                        <div class="dtc"><input type="text" name="ear'.$sorszam.'" id="ear'.$sorszam.'" class="f_num" data-tort="3" value="'.str_replace('.', ',', $egysegar['ear'.$sorszam]).'"></div>
+                        <div class="dtc"><input type="text" name="ear'.$sorszam.'" id="ear'.$sorszam.'" class="f_num" data-tort="3" value="'. number_format($egysegar['ear'.$sorszam], 3, ',', ' ').'"></div>
                         <div class="dtc">
                             <input type="text" autocomplete="off" class="csillag autocomp" name="dnem'.$sorszam.'_autocomp" id="dnem'.$sorszam.'_autocomp" style="min-width: inherit; width: 5rem;" value="'.$kulso_ertek['info'].'" data-origin-val="'.$kulso_ertek['info'].'">
                             <input type="hidden" name="dnem'.$sorszam.'" id="dnem'.$sorszam.'" value="'.$kulso_ertek['id'].'">
@@ -192,18 +192,14 @@ if (isset($_POST['terv_keszit'])) {
         exit();
     }
 
-    if( $energia_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev` = '{$ev}'", '', '1') ) {
-        $is_munkakozi = $adatbazis_kapcsolat->s2('recid', 'energia_terv_statusz', "`energia_terv_recid` = '".$energia_terv['recid']."' AND `stat_id` = '".ENERGIATERV_STAT_MUNKAKOZI."'", '', '1');
-
-        if( $is_munkakozi ) {
-            echo json_encode(array(
-                'hiba'  => $ev.' évre már van munkaközi terv.',
-                'gomb'  => '<input type="button" class="gomb zold" value="Megnyitás" onclick="szamlaBetolt( \''.$energia_terv['recid'].'\', \''.basename(self()).'\', \'modosit\' ); alert2(); popupZar();"><input type="button" class="gomb piros" value="Mégsem" onclick="alert2()">',
-                'title' => 'Hiba',
-            ));
-            $weblap->leallit();
-            exit();
-        }
+    if( $energia_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev` = '{$ev}' AND `stat_id` = '".ENERGIATERV_STAT_MUNKAKOZI."'", '', '1') ) {
+        echo json_encode(array(
+            'hiba'  => $ev.' évre már van munkaközi terv.',
+            'gomb'  => '<input type="button" class="gomb zold" value="Megnyitás" onclick="szamlaBetolt( \''.$energia_terv['recid'].'\', \''.basename(self()).'\', \'modosit\' ); alert2(); popupZar();"><input type="button" class="gomb piros" value="Mégsem" onclick="alert2()">',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
     }
 
     // Ha a kijelölt terv alapján kell létrehozni az újat, akkor lekérjük a kijelölt adatait
@@ -467,7 +463,6 @@ if (isset($_POST['get_statusz'])) {
 // Egységár sor adatai a popup feltöltéséhez
 if (isset($_POST['get_egysegar_adatok'])) {
     
-
     $egysegar = $adatbazis_kapcsolat->s2('dijelem ktgnem_id mee energia_terv_id', 'energia_terv_ear', "`recid`='{$_POST['recid']}'");
     $terv     = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$egysegar['energia_terv_id']}'");
     $ktgnem   = $adatbazis_kapcsolat->s2('nev', 'ktgnem', "`recid`='{$egysegar['ktgnem_id']}'");
@@ -1139,6 +1134,13 @@ require_once('selectek.php');
             // Ktgnem
             $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`recid`='{$egysegar['ktgnem_id']}'");
 
+            for($i = 1; $i < 13; $i++) {
+                $sorszam = sprintf('%02d', $i);
+
+                $egysegar['ear'.$sorszam] = number_format($egysegar['ear'.$sorszam], 3, ',', ' ');
+                $egysegar['arf'.$sorszam] = number_format($egysegar['arf'.$sorszam], 5, ',', ' ');
+            }
+            
             $szamla_html .= '
                 <tr id="tr_ear_'.$egysegar['recid'].'" data-recid="'.$egysegar['recid'].'">
                     <td>'.$szalloda_html.'</td>
@@ -1146,42 +1148,42 @@ require_once('selectek.php');
                     <td>'.$ktgnem['id'].'</td>
                     <td>'.$ktgnem['nev'].'</td>
                     <td>'.$egysegar['mee'].'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['ear01']).'</td>
+                    <td class="r">'.$egysegar['ear01'].'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem01']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['arf01']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['ear02']).'</td>
+                    <td class="r">'.$egysegar['arf01'].'</td>
+                    <td class="r">'.$egysegar['ear02'].'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem02']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['arf02']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['ear03']).'</td>
+                    <td class="r">'.$egysegar['arf02'].'</td>
+                    <td class="r">'.$egysegar['ear03'].'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem03']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['arf03']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['ear04']).'</td>
+                    <td class="r">'.$egysegar['arf03'].'</td>
+                    <td class="r">'.$egysegar['ear04'].'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem04']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['arf04']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['ear05']).'</td>
+                    <td class="r">'.$egysegar['arf04'].'</td>
+                    <td class="r">'.$egysegar['ear05'].'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem05']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['arf05']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['ear06']).'</td>
+                    <td class="r">'.$egysegar['arf05'].'</td>
+                    <td class="r">'.$egysegar['ear06'].'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem06']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['arf06']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['ear07']).'</td>
+                    <td class="r">'.$egysegar['arf06'].'</td>
+                    <td class="r">'.$egysegar['ear07'].'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem07']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['arf07']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['ear08']).'</td>
+                    <td class="r">'.$egysegar['arf07'].'</td>
+                    <td class="r">'.$egysegar['ear08'].'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem08']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['arf08']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['ear09']).'</td>
+                    <td class="r">'.$egysegar['arf08'].'</td>
+                    <td class="r">'.$egysegar['ear09'].'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem09']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['arf09']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['ear10']).'</td>
+                    <td class="r">'.$egysegar['arf09'].'</td>
+                    <td class="r">'.$egysegar['ear10'].'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem10']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['arf10']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['ear11']).'</td>
+                    <td class="r">'.$egysegar['arf10'].'</td>
+                    <td class="r">'.$egysegar['ear11'].'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem11']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['arf11']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['ear12']).'</td>
+                    <td class="r">'.$egysegar['arf11'].'</td>
+                    <td class="r">'.$egysegar['ear12'].'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem12']).'</td>
-                    <td class="r">'.str_replace('.', ',', $egysegar['arf12']).'</td>
+                    <td class="r">'.$egysegar['arf12'].'</td>
                 </tr>
                 ';
         }

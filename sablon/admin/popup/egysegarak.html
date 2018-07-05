@@ -188,7 +188,14 @@ function egysegarMuv( pre, muvelet ) {
             if( muvelet == 'kitolt' ) {
                 for(var i = index; i <= 12; i += ciklus) {
                     var uj_sorszam = ('0' + i).slice(-2);
-                    $('input[name="' + oszlop + uj_sorszam + '"]').val(ertek);
+                    
+                    if( oszlop == 'ear' ) {
+                        tizedesek = 3;
+                    } else {
+                        tizedesek = 5;
+                    }
+                    
+                    $('input[name="' + oszlop + uj_sorszam + '"]').val(ezresek(ertek.replace(',', '.'), tizedesek, ',', ' '));
 
                     if( oszlop == 'dnem' ) {
                         $('input[name="' + oszlop + uj_sorszam + '_autocomp"]').val(dnemText);
@@ -200,15 +207,16 @@ function egysegarMuv( pre, muvelet ) {
                 ertek = (ertek.replace(',', '.') / (oszto / ciklus));
 
                 if( oszlop == 'ear' ) {
-                    ertek = ertek.toFixed(3);
+                    tizedesek = 3;
+                    ertek = ertek.toFixed(tizedesek);
                 } else {
-                    ertek = ertek.toFixed(5);
+                    tizedesek = 5;
+                    ertek = ertek.toFixed(tizedesek);
                 }
 
                 for(var i = index; i <= 12; i += ciklus) {
                     var uj_sorszam = ('0' + i).slice(-2);
-                    ertek = ertek.replace('.', ',');
-                    $('input[name="' + oszlop + uj_sorszam + '"]').val(ertek);
+                    $('input[name="' + oszlop + uj_sorszam + '"]').val(ezresek(ertek, tizedesek, ',', ' '));
                 }
             }
 

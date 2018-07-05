@@ -78,16 +78,24 @@ function fenntartasterv_veglegesit(mehet){
 }
 
 /* Energia fül alatt számokat szummázzuk */
-function energia_szummaz(){
+function energia_szummaz(ful){
+    
+    /* Ha van ful paraméter, akkor adott fülhöz tartozó összegeket szummázzuk csak. (Összesen fül alatt használjuk) */
+    var ful_class = '';
+    var ful_ossz  = '';
+    if(ful){
+        ful_class = '.'+ful;
+        ful_ossz  = '_'+ful;
+    }
     for( i=1; i<13; i++ ){
         if( i<10 ){
             i = '0'+String(i);
         }
         ossz = 0;
-        $('.ft'+i).each(function () {
+        $('.ft'+i+ful_class).each(function () {
             ossz += Number($(this).html().replace(/ /g, ''));
         });
-        $('#szum_ft'+i).html( ezresek(ossz, '', '', ' ') );
+        $('#szum_ft'+i+ful_ossz).html( ezresek(ossz, '', '', ' ') );
 
     }
     
@@ -133,6 +141,32 @@ function sor_torol(ful, mehet){
                 }
                 szurkit();
                 szamlaBetolt(_get('id'), baseName(location.href) + '.php', ful);
+            }
+        }
+    });
+}
+
+/* Változtatások jóváhagyása */
+function valtozas_jovahagyas(){
+    $.ajax({
+        url : 'fenntartasi_terv.php',
+        type: 'POST',
+        data: {
+            id                  : _get('id'),
+            valtozas_jovahagyas : Date.now()
+        },
+        success: function (response) {
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if (response) {
+                response = JSON.parse(response);
+                
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    return false;
+                }
+                
+                szurkit();
+                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'energia');
             }
         }
     });
