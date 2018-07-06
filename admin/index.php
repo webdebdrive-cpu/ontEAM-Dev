@@ -27,12 +27,10 @@ if (isset($_GET['teszt'])) {
     $ures_atadta_datum = adatbazis2tomb($ures_atadta_datum, 'munkalap_id');
       
     $munkalapok = $adatbazis_kapcsolat->s('recid stat_id ikt_szam', 'munkalap', "`stat_id`!='".MUNKALAP_STAT_FELVEVE."' AND `telephely_id` IN (".implode(',', $egyszallodasok).") AND `recid` IN (".implode(',', $ures_atadta_datum).")");
-echo $adatbazis_kapcsolat->gp() . '<br>';
     foreach($munkalapok as $ml){
-        if($ml['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR){
-            echo 'lezarasra var: ';
-        }
-        echo $ml['recid'] .',';
+        $stat_datum = $adatbazis_kapcsolat->s2('insert_dt', 'munkalap_statusz', "`munkalap_recid`='{$ml['recid']}' AND `stat_id`='".MUNKALAP_STAT_ELOKESZITES_ALATT."'");
+        // $tetel = $adatbazis_kapcsolat->u('munkalap_tetel', 'atadta_dt', $stat_datum['insert_dt'], "`munkalap_id`='{$ml['recid']}' AND `atadta_dt`='0000-00-00 00:00:00'", '1');
+        echo $ml['recid'] .' - '.$stat_datum['insert_dt'] .' - '.$tetel['recid']. '<br>';
     }
     
     exit;
