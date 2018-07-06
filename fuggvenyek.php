@@ -6989,3 +6989,11 @@ function get_kezeles_jog($szemelyzet_id){
     }
     return $kezeles_jog;
 }
+
+// iPhone alatt vagyunk-e
+function isIphone($user_agent=NULL) {
+    if(!isset($user_agent)) {
+        $user_agent = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+    }
+    return (strpos($user_agent, 'iPhone') !== FALSE);
+}

@@ -1346,6 +1346,17 @@ if(basename(self())=='fenntartasi_terv.php'){
     $header_html .= '<script src="../js/fenntartasi_terv.js?cache='.time().'"></script>';
 }
 
+if(isIphone()){
+    $header_html .= nl2('
+<style type="text/css">
+    html, body{
+        position: fixed;
+        overflow: hidden;
+    }
+</style>
+        ');
+}
+
 if( $_SERVER['HTTP_HOST'] != 'demo.webdeb.hu' ) {
     $header_html .= nl2('
         <script>

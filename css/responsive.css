@@ -445,12 +445,6 @@
 
 @media only screen and (max-width: 800px) {
     
-    /* iPhone túl scrolozás tiltása */
-    html, body{
-        position: fixed;
-        overflow: hidden;
-    }
-    
     body {
         font-size: 1.4rem;
     }
@@ -464,7 +458,11 @@
     }
 
     div.teszt_rendszer {
-        display: none;
+        font-size: 1.2rem;
+        top: 0;
+        width: 60%;
+        text-align: center;
+        /*display: none;*/
     }
 
     .sor.kethasabos div.jobb div.bborder {
