@@ -4637,6 +4637,13 @@ if( isset($_POST['munkalapMuszakiVezeto']) ) {
                 $db_error = true;
             }
             
+            // Ha felvéve státuszban voltunk, akkor az utolsó tételnél az átadva dátumot kitöltjük
+            if( $munkalap['stat_id'] == MUNKALAP_STAT_FELVEVE ){
+                // Fevéve sáttusz esetén fentebb már lekértük az utolsó tétel recid-ját
+                $sql = $adatbazis_kapcsolat->u('munkalap_tetel', array('atadta_dt'), array('NOW()'), "`recid`='{$utolso_tetel['recid']}'");
+                if( $sql === false ) { $db_error = true; }
+            }
+            
             // FONTOS: Ha idáig eljutottunk, akkor már támaszkodhatunk arra, hogy egyszállodás modellben vagyunk, és van kezelés jog. Elvégre fentebb a jog ellenőrzésénél már hibát dobtunk volna.
             // Ha kifejezetten hozzárendeltben vagyunk, akkor ellenőrizzük a ML-hoz kapcsolódó bejelentést. Ha ez nyitott, akkor folyamatban ra kell léptetni.
             if( $munkalap['stat_id'] == MUNKALAP_STAT_HOZZARENDELT ){

@@ -7,39 +7,41 @@
     <link rel="stylesheet" href="../css/admin.css" type="text/css">
     <link rel="stylesheet" href="../css/alert_admin.css" type="text/css">
 </head>
-<body onload="if(document.getElementById('nev')){document.getElementById('nev').focus();}">
-    <div class="noFooter rFalse alert2" style="width: 40rem; margin: auto; position: relative;">
-        <div class="figy">
-            <div class="header">{FELIRAT}</div>
-            <div class="tart">
-                <span style="font-weight: normal; font-size: 1.1rem; line-height: 1.3; display: block; margin: 0 0 1rem 1.5rem">
-                    A jelszó hossza minimum 8, maximum 20 karakter hosszú lehet!
-                    <br>Ügyeljen, hogy a jelszó számokat és betűket is tartalmazzon!
-                </span>
-                <form method="post" action="{SELF}" onsubmit="return jelszo_ell()">
-                    <table class="auto">
-                        <tr>
-                            <td class="p c">
-                                <input type="password" id="jlsz" name="jlsz" placeholder="Jelszó" autofocus maxlength="20">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="p c">
-                                <input type="password" id="jlsz2" name="jlsz2" placeholder="Jelszó megerősítése" maxlength="20" autocomplete="off">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="p c">
-                                <input class="gombb zold" type="submit" name="jelszo_csere" value="Mentés">
-                                <br><input class="gomb" type="button" name="jelszo_csere" value="Vissza a bejelentkezéshez" onclick="megsem()" style="margin-top: 0.7rem; font-size: 1.4rem; padding: 0.7rem">
-                            </td>
-                        </tr>
-                    </table>
-                </form>
+<body onload="if(document.getElementById('nev')){document.getElementById('nev').focus();}" style="overflow: scroll; height: 60rem">
+    <div style="height: 60rem">
+        <div class="noFooter rFalse alert2" style="max-width: 40rem; margin: auto; position: relative;">
+            <div class="figy">
+                <div class="header">{FELIRAT}</div>
+                <div class="tart">
+                    <span style="font-weight: normal; font-size: 1.1rem; line-height: 1.3; display: block; margin: 0 0 1rem 1.5rem">
+                        A jelszó hossza minimum 8, maximum 20 karakter hosszú lehet!
+                        <br>Ügyeljen, hogy a jelszó számokat és betűket is tartalmazzon!
+                    </span>
+                    <form method="post" action="{SELF}" onsubmit="return jelszo_ell()">
+                        <table class="auto">
+                            <tr>
+                                <td class="p c">
+                                    <input type="password" id="jlsz" name="jlsz" placeholder="Jelszó" autofocus maxlength="20">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p c">
+                                    <input type="password" id="jlsz2" name="jlsz2" placeholder="Jelszó megerősítése" maxlength="20" autocomplete="off">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p c">
+                                    <input class="gombb zold" type="submit" name="jelszo_csere" value="Mentés">
+                                    <br><input class="gomb" type="button" name="jelszo_csere" value="Vissza a bejelentkezéshez" onclick="megsem()" style="margin-top: 0.7rem; font-size: 1.4rem; padding: 0.7rem">
+                                </td>
+                            </tr>
+                        </table>
+                    </form>
+                </div>
+                <div class="f_footer"></div>
             </div>
-            <div class="f_footer"></div>
         </div>
-    </div>
+</div>
     <script>
         function jelszo_ell(){
             

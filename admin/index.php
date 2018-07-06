@@ -18,6 +18,28 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
+if (isset($_GET['teszt'])) {
+    
+    $egyszallodasok = $adatbazis_kapcsolat->s('id', 'telephely', "`modell`='0'");
+    $egyszallodasok = adatbazis2tomb($egyszallodasok, 'id');
+
+    $ures_atadta_datum = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_tetel', "`atadta_dt`='0000-00-00 00:00:00'");
+    $ures_atadta_datum = adatbazis2tomb($ures_atadta_datum, 'munkalap_id');
+      
+    $munkalapok = $adatbazis_kapcsolat->s('recid stat_id ikt_szam', 'munkalap', "`stat_id`!='".MUNKALAP_STAT_FELVEVE."' AND `telephely_id` IN (".implode(',', $egyszallodasok).") AND `recid` IN (".implode(',', $ures_atadta_datum).")");
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    foreach($munkalapok as $ml){
+        if($ml['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR){
+            echo 'lezarasra var: ';
+        }
+        echo $ml['recid'] .',';
+    }
+    
+    exit;
+}
+
+
+
 // Loginról értesítő levelek küldése
 if (false && isset($_GET['login_ertesit'])) {
     
