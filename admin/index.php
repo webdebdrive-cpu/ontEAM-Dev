@@ -18,50 +18,6 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
-if (isset($_GET['teszt'])) {
-    $munkalapok = $adatbazis_kapcsolat->s('recid insert_usr uf_szam tipus_id telephely_id', 'munkalap', "`loginnev`=''");
-    foreach($munkalapok as $ml){
-        
-        if(!$ml['insert_usr'] && $ml['uf_szam']){
-            $tabla = 'utemezett_feladatok';
-            if($ml['tipus_id']==MLTIPUS_RENDSZERES_K){
-                $tabla = 'rendszeres_karbantartas';
-            }
-            if($ml['tipus_id']==MLTIPUS_ESETI_FENNT){
-                $tabla = 'eseti_fenntartas';
-            }
-            
-            $uf     = $adatbazis_kapcsolat->s2('loginnev', $tabla, "`id`='{$ml['uf_szam']}'");
-            $login  = $adatbazis_kapcsolat->s('nev teljes_nev', 'login', "`nev`='{$uf['loginnev']}'");
-        }else{
-            $login = $adatbazis_kapcsolat->s('nev teljes_nev', 'login', "`teljes_nev`='{$ml['insert_usr']}'");
-        }
-        
-        if( count($login)>1 ){
-            echo $ml['recid'].' '.'Több! ('.$ml['insert_usr'].')<br>';
-            
-            foreach($login as $log){
-                $szallodai = $adatbazis_kapcsolat->s('telephely_id', 'telephely_kapcs', "`nev`='{$log['nev']}'");
-                foreach($szallodai as $szall){
-                    if($szall['telephely_id']==$ml['telephely_id']){
-                        echo $log['nev'].' '.$szall['telephely_id'] . '<br>';
-                        $login = $adatbazis_kapcsolat->s('nev teljes_nev', 'login', "`nev`='{$log['nev']}'");
-                    }
-                }
-            }
-            
-        }
-        
-        $login_nev = $login[0]['nev'];
-//echo $ml['recid'].'|'.$login_nev . '<br>';
-        $adatbazis_kapcsolat->u('munkalap', array('loginnev'), array($login_nev), "`recid`='{$ml['recid']}'");
-        echo $adatbazis_kapcsolat->gp() . '<br>';
-        
-    }
-    exit;
-}
-
-
 // Loginról értesítő levelek küldése
 if (false && isset($_GET['login_ertesit'])) {
     

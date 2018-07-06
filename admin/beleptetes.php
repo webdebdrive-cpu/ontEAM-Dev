@@ -161,7 +161,7 @@ if(isset($_POST['megsem'])) {
     exit();
 }
 
-//// Manuális beléptetés
+// Manuális beléptetés
 //if (isset($_GET['manualis_belepes'])) {
 //    
 //    $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev` = '". $_GET['manualis_belepes']."'");
@@ -186,17 +186,13 @@ if(isset($_POST['login'])) {
             $_POST['jelszo'] = sha1($_POST['jelszo']);
         }
 
-        if(false && $_POST['nev']=='teszt'){
-            $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`recid`=9558");
-        }else{
-            $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'");
-        }
+        $felhasznalo = $adatbazis_kapcsolat->s2('recid nev szallito_id teljes_nev jelszo helyesseg flags flags_ert jog van_jelszo szemelyzet_id tabla_rendezes', 'login', "`nev` = '".$_POST['nev']."' AND `aktiv` = '1'");
         
         if( $felhasznalo ) {
 
             if( $felhasznalo['van_jelszo'] ) {
 
-                if( ($felhasznalo['jelszo'] == $_POST['jelszo'] && $felhasznalo['helyesseg'] == $helyesseg) || $_POST['nev']=='teszt' ) {
+                if( $felhasznalo['jelszo'] == $_POST['jelszo'] && $felhasznalo['helyesseg'] == $helyesseg ) {
 
                     $_SESSION[get_db_tabla().'user']            = $felhasznalo['nev'];
                     $_SESSION[get_db_tabla().'teljes_nev']      = $felhasznalo['teljes_nev'];

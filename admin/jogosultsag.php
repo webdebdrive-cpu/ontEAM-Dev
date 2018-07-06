@@ -27,6 +27,10 @@ $jogosultsagok = array(
 
 //Törölni így tudsz:
 //123  => array('torolve' => 'TÖRÖLVE - a lényeg, hogy legyen egy torolve attribútuma is.',  'nev' => 'A törölt jog neve',   'kat' => 123, 'sor' => 123),
+    75  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Munkaidő hozzáadása',     'kat' => 1,  'sor' => 0  ),
+    86  => array('torolve' => 'TÖRÖLVE', 'nev' => 'Minden szálloda olvasása','kat' => 12, 'sor' => 5),
+    100 => array('torolve' => 'TÖRÖLVE', 'nev' => 'Minden szálloda kezelése','kat' => 12, 'sor' => 6),
+    
     0  => array('nev' => 'Saját részleg bejelentések megtekintése',         'kat' => 0, 'sor' => 0  ),
     57 => array('nev' => 'Saját szállodák bejelentéseinek megtekintése',    'kat' => 0, 'sor' => 1  ),
     1  => array('nev' => 'Bejelentés saját névben',                         'kat' => 0, 'sor' => 2  ),
@@ -35,7 +39,6 @@ $jogosultsagok = array(
     71 => array('nev' => 'Bejelentések vizsgálat',                          'kat' => 0, 'sor' => 5  ),
     72 => array('nev' => 'Bejelentések törlése',                            'kat' => 0, 'sor' => 6  ),
 
-    75 => array('torolve' => 'TÖRÖLVE', 'nev' => 'Munkaidő hozzáadása',     'kat' => 1, 'sor' => 0  ),
     3  => array('nev' => 'Saját szerepkör megtekintése',                    'kat' => 1, 'sor' => 1, 'i' => 'telepített, mobil, külső partner'  ),
     4  => array('nev' => 'Saját szállodák megtekintése',                    'kat' => 1, 'sor' => 2, 'i' => 'diszpécser, MSZK vezető, műszaki vezető, területi felelős'  ),
     79 => array('nev' => 'Saját feladatok megtekintése',                    'kat' => 1, 'sor' => 3, 'i' => 'Szálloda igazgató, műszaki ügyintéző, területi felelős<br>kezelt jogok: igazolás, vizsgálat, külsős előkészítés,<br>jóváhagyás, megrendelés készítése'  ),
@@ -125,10 +128,8 @@ $jogosultsagok = array(
     
     103 => array('nev' => 'Energia egységár olvasása',              'kat' => 12, 'sor' => 1),
     104 => array('nev' => 'Energia egységár kezelés',               'kat' => 12, 'sor' => 2),
-    84  => array('nev' => 'Saját szálloda olvasása',                'kat' => 12, 'sor' => 3),
-    85  => array('nev' => 'Saját szálloda kezelése',                'kat' => 12, 'sor' => 4),
-    86  => array('nev' => 'Minden szálloda olvasása',               'kat' => 12, 'sor' => 5),
-    100 => array('nev' => 'Minden szálloda kezelése',               'kat' => 12, 'sor' => 6),
+    84  => array('nev' => 'Terv olvasása',                          'kat' => 12, 'sor' => 3),
+    85  => array('nev' => 'Terv kezelése',                          'kat' => 12, 'sor' => 4),
     101 => array('nev' => 'Terv törlése',                           'kat' => 12, 'sor' => 7),
     102 => array('nev' => 'Terv élesítése',                         'kat' => 12, 'sor' => 8),
     

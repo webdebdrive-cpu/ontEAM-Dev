@@ -319,7 +319,7 @@ if(!$_SESSION['bejelento_menu_rejt']){
 }
 
 // Csak bejelentő elől rejtve
-if( !$_SESSION['bejelento_menu_rejt'] && (_jog(JOG_ENERGIA_EGYSEGAR_OLVAS) || _jog(JOG_FENNTARTASI_MIND_SZ_OLVAS) || _jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS)) ){
+if( !$_SESSION['bejelento_menu_rejt'] && (_jog(JOG_ENERGIA_EGYSEGAR_OLVAS) || _jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS)) ){
     // Tervezés
     $menu_nev        = 'Tervezés';
     $menu_nev_kis    = 'tervezés';
@@ -334,7 +334,7 @@ if( !$_SESSION['bejelento_menu_rejt'] && (_jog(JOG_ENERGIA_EGYSEGAR_OLVAS) || _j
     if(_jog(JOG_ENERGIA_EGYSEGAR_OLVAS)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Energia egységárak'  ), $almenu_sablon );
     }
-    if(_jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS) || _jog(JOG_FENNTARTASI_MIND_SZ_OLVAS)){
+    if(_jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS)){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['1'], 'Fenntartási terv'    ), $almenu_sablon );
     }
 
@@ -904,7 +904,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
     } elseif( basename(self()) == 'felmeresi_terv.php' && isset($_GET['megjegyzesek']) ) {
         $uj_link = 'javascript: kapcsolodoSzerkeszt(\'megjegyzes\'); void(0);';
 
-    } elseif( basename(self()) == 'fenntartasi_terv.php' && !_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) && !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
+    } elseif( basename(self()) == 'fenntartasi_terv.php' && !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
         $uj_link = 'javascript: alert2(\'Önnek nincs joga fenntartási tervet feltölteni!\', \'\', \'Hiba\'); void(0);';
 
     } elseif( basename(self()) == 'fenntartasi_terv.php' ) {
@@ -1157,8 +1157,7 @@ if(basename(self())=='fenntartasi_szerzodes.php' && !_jog(JOG_FENNTARTASI_SZERZ_
 }
 
 if(basename(self())=='fenntartasi_terv.php'){
-    $sor = $adatbazis_kapcsolat->s2('telephely_id', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
-    if ( !(_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) || ( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && in_array($sor['telephely_id'], $sajat_szallodak) ))){
+    if ( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ){
         $uj = $duplikal = '';
     }
 

@@ -1,7 +1,7 @@
 <?php
 require_once('../weblap.php');
 
-if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS) && !_jog(JOG_FENNTARTASI_MIND_SZ_OLVAS) ) {
+if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
         header('Location: index.php');
@@ -103,7 +103,7 @@ if (isset($_POST['terv_keszit'])) {
     mysqli_autocommit($db_kapcs, false);
 
     // Jog ellenőrzése
-    if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && !_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) ) {
+    if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga tervet készíteni!',
             'title' => 'Hiba',
@@ -149,12 +149,9 @@ if (isset($_POST['terv_keszit'])) {
     // Ha a kijelölt terv alapján kell létrehozni az újat, akkor lekérjük a kijelölt adatait
     if($kijelolt){
 
-        $energia_terv = $adatbazis_kapcsolat->s2('text', 'fenntartasi_terv', "`recid` = '{$recid}'");
-        if( $energia_terv === false ) { $db_error = true; }
-
         // Új terv létrehozása
-        $uj_id = $adatbazis_kapcsolat->i('fenntartasi_terv',    array('ev', 'telephely_id', 'text',                'loginnev',                        'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                                array($ev,  $telephely,     $energia_terv['text'], $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+        $uj_id = $adatbazis_kapcsolat->i('fenntartasi_terv',    array('ev', 'telephely_id', 'loginnev',                        'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                                array($ev,  $telephely,     $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                         );
         if( $uj_id === false ) { $db_error = true; }
         
@@ -162,7 +159,7 @@ if (isset($_POST['terv_keszit'])) {
         $ft_energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}'");
         if( $ft_energiak === false ) { $db_error = true; }
         foreach($ft_energiak as $energia){
-            $oszlopok   = array('ktgnem_id', 'dijelem', 'efajta', 'mee', 'ear01', 'ear02', 'ear03', 'ear04', 'ear05', 'ear06', 'ear07', 'ear08', 'ear09', 'ear10', 'ear11', 'ear12', 'sorid');
+            $oszlopok   = array('ktgnem_id', 'dijelem', 'eear_recid', 'efajta', 'mee', 'ear01', 'ear02', 'ear03', 'ear04', 'ear05', 'ear06', 'ear07', 'ear08', 'ear09', 'ear10', 'ear11', 'ear12', 'em01', 'em02', 'em03', 'em04', 'em05', 'em06', 'em07', 'em08', 'em09', 'em10', 'em11', 'em12', 'ft01', 'ft02', 'ft03', 'ft04', 'ft05', 'ft06', 'ft07', 'ft08', 'ft09', 'ft10', 'ft11', 'ft12', 'sorid');
             $ertekek    = array();
             foreach($oszlopok as $oszl){
                 array_push($ertekek, $energia[$oszl]);
@@ -453,7 +450,7 @@ if (isset($_POST['energia_tabla_ment'])) {
     }
     
     // Jog ellenőrzése
-    if(!_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) && !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
+    if(!_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) || $_SESSION[get_db_tabla().'szemelyzet_id']!=MUSZAKI_VEZETO){
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga a tervet szerkeszteni!',
             'title' => 'Hiba'
@@ -605,7 +602,7 @@ if (isset($_POST['muszaki_tabla_ment'])) {
     }
     
     // Jog ellenőrzése
-    if(!_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) && !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
+    if(!_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga a tervet szerkeszteni!',
             'title' => 'Hiba'
@@ -616,15 +613,15 @@ if (isset($_POST['muszaki_tabla_ment'])) {
     }
     
     // Ha új feltöltés, akkor ellenőrizni kell, hogy a ktsgnem ki van-e töltve
-    if (isset($_POST['uj']) && !$_POST['ktgnem_id']) {
-        echo json_encode(array(
-            'hiba'  => 'Kérjük válasszon költségnemet!',
-            'focus' => 'ktgnem_id',
-            'title' => 'Hiba'
-        ));
-        $weblap->leallit();
-        exit();
-    }
+//    if (isset($_POST['uj']) && !$_POST['ktgnem_id']) {
+//        echo json_encode(array(
+//            'hiba'  => 'Kérjük válasszon költségnemet!',
+//            'focus' => 'ktgnem_id',
+//            'title' => 'Hiba'
+//        ));
+//        $weblap->leallit();
+//        exit();
+//    }
 
     // Frissítés
     for($i = 1; $i <= 12; $i++) {
@@ -633,22 +630,22 @@ if (isset($_POST['muszaki_tabla_ment'])) {
         array_push($mire, str_replace(' ', '', $_POST['ft'.$sorszam])   );
     }
     
-    if (isset($_POST['uj'])) {
-        array_push($mit,  'fenntartasi_terv_id', 'ktgnem_id',         'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt' );
-        array_push($mire, $_POST['uj'],          $_POST['ktgnem_id'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()'     );
-        $sor_id = $adatbazis_kapcsolat -> i('fenntartasi_terv_muszaki_anyag', $mit, $mire);
-        if( $sor_id === false ) { $db_error = true; }
-        
-        // Logolás
-        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv Műszaki anyag fül alatt új sort töltött fel '.$_POST['ktgnem_id'].' költségnemmel.';
-        $valtozas = $adatbazis_kapcsolat->gp();
-        $sql = $adatbazis_kapcsolat -> i(
-                                            'log',
-                                            array( 'felh_id',                               'nev',     'valtozas',              'ip'                   ),
-                                            array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,  $muvelet.' '.$valtozas,  $_SERVER['REMOTE_ADDR'])
-                                        );
-        if( $sql === false ) { $db_error = true; }
-    }else{
+//    if (isset($_POST['uj'])) {
+//        array_push($mit,  'fenntartasi_terv_id', 'ktgnem_id',         'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt' );
+//        array_push($mire, $_POST['uj'],          $_POST['ktgnem_id'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()'     );
+//        $sor_id = $adatbazis_kapcsolat -> i('fenntartasi_terv_muszaki_anyag', $mit, $mire);
+//        if( $sor_id === false ) { $db_error = true; }
+//        
+//        // Logolás
+//        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv Műszaki anyag fül alatt új sort töltött fel '.$_POST['ktgnem_id'].' költségnemmel.';
+//        $valtozas = $adatbazis_kapcsolat->gp();
+//        $sql = $adatbazis_kapcsolat -> i(
+//                                            'log',
+//                                            array( 'felh_id',                               'nev',     'valtozas',              'ip'                   ),
+//                                            array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,  $muvelet.' '.$valtozas,  $_SERVER['REMOTE_ADDR'])
+//                                        );
+//        if( $sql === false ) { $db_error = true; }
+//    }else{
         array_push($mit,  'update_usr'                              );
         array_push($mire, $_SESSION[get_db_tabla().'teljes_nev']    );
         $sql = $adatbazis_kapcsolat -> u('fenntartasi_terv_muszaki_anyag', $mit, $mire, "`recid`='{$_POST['egysegarsor_id']}'");
@@ -664,7 +661,7 @@ if (isset($_POST['muszaki_tabla_ment'])) {
                                             array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,  $muvelet.' '.$valtozas,  $_SERVER['REMOTE_ADDR'])
                                         );
         if( $sql === false ) { $db_error = true; }
-    }
+//    }
     
     
     if( !$db_error ) {
@@ -794,7 +791,7 @@ if (isset($_POST['rendszeres_tabla_ment'])) {
     }
     
     // Jog ellenőrzése
-    if(!_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) && !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
+    if(!_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga a tervet szerkeszteni!',
             'title' => 'Hiba'
@@ -985,7 +982,7 @@ if (isset($_POST['eseti_tabla_ment'])) {
     }
     
     // Jog ellenőrzése
-    if(!_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) && !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
+    if(!_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga a tervet szerkeszteni!',
             'title' => 'Hiba'
@@ -1172,7 +1169,7 @@ if (isset($_POST['hiba_tabla_ment'])) {
     }
     
     // Jog ellenőrzése
-    if(!_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) && !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
+    if(!_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga a tervet szerkeszteni!',
             'title' => 'Hiba'
@@ -1363,7 +1360,7 @@ if (isset($_POST['bwh_tabla_ment'])) {
     }
     
     // Jog ellenőrzése
-    if(!_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) && !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
+    if(!_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga a tervet szerkeszteni!',
             'title' => 'Hiba'
@@ -1467,7 +1464,7 @@ if (isset($_POST['fenntartasi_terv_elesites'])) {
     }
 
     // Jog ellenőrzése
-    if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && !_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) ) {
+    if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ) {
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga tervet élesíteni!',
             'title' => 'Hiba',
@@ -1612,6 +1609,17 @@ if (isset($_POST['valtozas_jovahagyas'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
+    // Jog ellenőrzése
+    if(!_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) || $_SESSION[get_db_tabla().'szemelyzet_id']!=MUSZAKI_VEZETO){
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga a tervet szerkeszteni!',
+            'title' => 'Hiba'
+        ));
+        
+        $weblap->leallit();
+        exit();
+    }
+    
     $sor = $adatbazis_kapcsolat->s2('ev telephely_id', 'fenntartasi_terv', "`recid`='{$recid}'");
     if( $sor === false ) { $db_error = true; }
     
@@ -1708,6 +1716,11 @@ if (isset($_POST['sor_torol'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
+    // Műszaki anyagot még véletlen se tudjanak törölni
+    if($_POST['ful']=='muszaki_anyag' ){
+        exit;
+    }
+    
     $sor = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
     
@@ -1726,7 +1739,7 @@ if (isset($_POST['sor_torol'])) {
     }
     
     // Jog ellenőrzése
-    if(!_jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) && !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
+    if(!_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga sort törölni!',
             'title' => 'Hiba'
@@ -1893,12 +1906,12 @@ require_once('selectek.php');
     $olvasas_jog = false;
     if($_GET['id']){
         $telephely = $adatbazis_kapcsolat->s2('telephely_id', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
-        if( _jog(JOG_FENNTARTASI_MIND_SZ_OLVAS) || ( _jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS) && in_array($telephely['telephely_id'], $sajat_szallodak) ) ){
+        if( _jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS) && in_array($telephely['telephely_id'], $sajat_szallodak) ){
             $olvasas_jog = true;
         }
     }
     $kezeles_jog = false;
-    if( _jog(JOG_FENNTARTASI_MIND_SZ_KEZEL) || ( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && in_array($sor['telephely_id'], $sajat_szallodak) ) ){
+    if(  _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && in_array($sor['telephely_id'], $sajat_szallodak) ){
         $kezeles_jog = true;
     }
 
@@ -1998,26 +2011,26 @@ require_once('selectek.php');
         // Terv adatlapján
         if(isset($_GET['modosit'])){
             // Élesítés gomb
-            if( $sor['stat_id']==ENERGIATERV_STAT_KESZ && (_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) || _jog(JOG_FENNTARTASI_MIND_SZ_KEZEL)) ){
+            if( $sor['stat_id']==ENERGIATERV_STAT_KESZ && _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ){
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Élesítés" onclick="fenntartasi_terv_elesites()"> ';
             }
         // Ha nem az adatlapon vagyunk
         }else{
             
-            if( (_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) || _jog(JOG_FENNTARTASI_MIND_SZ_KEZEL)) && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){
+            if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="fenntartasterv_veglegesit()"> ';
             }
             
             // Fülek alatti gombok csak akkor érhetőek el, ha van is hozzá jogunk
-            if( (_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) || _jog(JOG_FENNTARTASI_MIND_SZ_KEZEL)) ){
-                if( isset($_GET['energia']) ){
+            if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ){
+                if( isset($_GET['energia']) && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO ){
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kitöltés" onclick="kapcsolodoSzerkeszt(\'ft_energia_mennyiseg\');"> ';
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt dn" id="valtoztatas_jovahagyas" value="Változás jóváhagyás" onclick="valtozas_jovahagyas()"> ';
                 }
                 if( isset($_GET['muszaki_anyag']) ){
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kitöltés" onclick="kapcsolodoSzerkeszt(\'ft_muszaki_anyag\');"> ';
-                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Új sor" onclick="kapcsolodoSzerkeszt(\'ft_muszaki_anyag_uj\');"> ';
-                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Sor törlés" onclick="sor_torol(\'muszaki_anyag\');"> ';
+//                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Új sor" onclick="kapcsolodoSzerkeszt(\'ft_muszaki_anyag_uj\');"> ';
+//                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Sor törlés" onclick="sor_torol(\'muszaki_anyag\');"> ';
                 }
                 if( isset($_GET['rendsz_karban']) ){
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kitöltés" onclick="kapcsolodoSzerkeszt(\'ft_rendsz_karban\');"> ';

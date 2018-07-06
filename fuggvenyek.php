@@ -5330,16 +5330,18 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
 // Értéklistából infó kinyerése
 function erteklista($csoport, $id) {
 
-    return getErtekLista($csoport, $id);
-
-//    global $adatbazis_kapcsolat;
-//
-//    $sor = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
-//    if( $sor ) {
-//        return $sor['info'];
-//    } else {
-//        return false;
-//    }
+    global $adatbazis_kapcsolat;
+    
+    // Megpróbáljuk Session-ból visszaadni 
+    $ertek = getErtekLista($csoport, $id);
+    
+    // De ha nem sikerült, akkor lekréjük adatbázisból
+    if(!$ertek){
+        $sor   = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
+        $ertek = $sor['info'];
+    }
+    return $ertek;
+    
 }
 
 // Adatbázisból egy érték gyors kinyerése
