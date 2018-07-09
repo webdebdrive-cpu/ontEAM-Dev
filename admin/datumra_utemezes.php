@@ -36,9 +36,10 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
 		if($dlast<0){
             $dlast = '000.00.00';
         }
+//var_dump($dnext);
         $dnext = validnextdate($dlast, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d);
-		$lstart = true; //ha elsőnek kiszámolt esedékesség érvénytelen, újrakezdjük esedékesség számítását mai naptól
-		if ($i == 100) //ha végtelen ciklusba keveredne
+		$lstart = true; // ha elsőnek kiszámolt esedékesség érvénytelen, újrakezdjük esedékesség számítását mai naptól
+		if ($i == 100)  // ha végtelen ciklusba keveredne
 		{
 			$dnext = "Nem ütemezhető !";
 			break;
@@ -64,7 +65,6 @@ function validnextdate($dnext, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cveg
 	//$nev = date("Y", strtotime($dnext)); // Ez magyar dátum formátumnál sajnos nem jó
 	$date = DateTime::createFromFormat(DATEFORMAT, '0000.00.00');
 	$nev = $date->format("Y");
-
 	if ($nidoszakos == 0) //folyamatos ütemezés
 	{
 		//+1, mert mára nem ütemezhet
@@ -76,6 +76,7 @@ function validnextdate($dnext, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cveg
 		$dszokvege = date(DATEFORMAT, mktime(0, 0, 0, $cvegeho, $cvegenap, $nev));
 		if (!empty($daktkezd_d)) //tárgyévi ütemezés van megadva
 		{
+
 			if (date("Y", strtotime($daktkezd_d)) == date("Y", strtotime($daktvege_d))) //márciustól októberig ütemezés
 			{
 				if (date("Y", strtotime($daktkezd_d)) == $nev) //tárgyévben vagyunk
@@ -107,10 +108,12 @@ function validnextdate($dnext, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cveg
 		//innen szokásos ütemezés
 		if ($dszokvege > $dszokkezd) //márciustól októberig ütemezés
 		{
-			if ($dnext > $dszokvege) //szokásos interv. záró dátuma után
+            
+			if ($dnext > $dszokvege){ //szokásos interv. záró dátuma után
 				return date(DATEFORMAT, mktime(0, 0, 0, $ckezdho, $ckezdnap, intval($nev) + 1));
-			else
+            }else{
 				return max($dnext, $dszokkezd);
+            }
 		}
 		else //októbertől márciusig ütemezés
 		{
