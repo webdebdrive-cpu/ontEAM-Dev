@@ -270,19 +270,19 @@ if (isset($_POST['terv_keszit'])) {
                 foreach($oszlopok as $oszl){
                     array_push($ertekek, $ear[$oszl]);
                 }
-                array_push($oszlopok, 'eear_recid',   'update_dt', 'fenntartasi_terv_id',   'update_usr',                            'insert_dt',    'insert_usr'                            );
-                array_push($ertekek,  $ear['recid'],  'NOW()',     $uj_id,                  $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  );
+                array_push($oszlopok, 'update_dt', 'fenntartasi_terv_id',   'update_usr',                            'insert_dt',    'insert_usr'                            );
+                array_push($ertekek,  'NOW()',     $uj_id,                  $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  );
                 $adatbazis_kapcsolat->i('fenntartasi_terv_energia', $oszlopok, $ertekek);
             }
         }
-        
+
         // Ha nincs, akkor is minden megy tovább, de tájékoztatjuk, hogy az Energia fül nem került feltöltésre sorokkal.
         if(!$volt_energia){
             $uzenet = 'Energia egységár tábla hiánya miatt energia tervtábla készítése nem lehetséges.';
         }
         
         // Műszaki anyag fül feltöltése
-        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%<HELY>7030</>%'");
+        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7030%'");
         foreach($ktgnemek as $ktgnem){
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_muszaki_anyag',
                                                                     array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -292,7 +292,7 @@ if (isset($_POST['terv_keszit'])) {
         }
         
         // Rendszeres karbantartás fül feltöltése
-        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%<HELY>7031</>%'");
+        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7031%'");
         foreach($ktgnemek as $ktgnem){
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_rendsz_karban',
                                                                     array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -302,7 +302,7 @@ if (isset($_POST['terv_keszit'])) {
         }
         
         // Eseti karbantartás fül feltöltése
-        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%<HELY>7032</>%'");
+        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7032%'");
         foreach($ktgnemek as $ktgnem){
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_eseti_karban',
                                                                     array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -312,7 +312,7 @@ if (isset($_POST['terv_keszit'])) {
         }
         
         // Hibalehárítás fül feltöltése
-        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%<HELY>7033</>%'");
+        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7033%'");
         foreach($ktgnemek as $ktgnem){
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_hibaelharitas',
                                                                     array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -322,7 +322,7 @@ if (isset($_POST['terv_keszit'])) {
         }
         
         // BWH fül feltöltése
-        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%<HELY>7210</>%'");
+        $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7210%'");
         foreach($ktgnemek as $ktgnem){
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_bwh',
                                                                     array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
@@ -523,7 +523,7 @@ if (isset($_POST['get_muszaki_tabla'])) {
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if($uj){
-                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%<HELY>7030</>%'");
+                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7030%'");
                 $ktgnem_option = tomb2option($ktgnem_option, 'id', 'nev');
                 $ktgnem_select = nl2('
                     <div class="dtr">
@@ -701,7 +701,7 @@ if (isset($_POST['get_rendszeres_tabla'])) {
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if($uj){
-                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%<HELY>7031</>%'");
+                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7031%'");
                 $ktgnem_option = tomb2option($ktgnem_option, 'id', 'nev');
                 $ktgnem_select = nl2('
                     <div class="dtr">
@@ -725,10 +725,6 @@ if (isset($_POST['get_rendszeres_tabla'])) {
                     <div class="dtr">
                         <div class="dtc">Tárgy</div>
                         <div class="dtc"><input type="text" name="targy" id="targy" value="'.$rendszeres['targy'].'" maxlength="200"></div>
-                    </div>
-                    <div class="dtr">
-                        <div class="dtc">Verzió</div>
-                        <div class="dtc"><input type="text" name="verzio" id="verzio" value="'.$rendszeres['verzio'].'" maxlength="3" style="width: 4rem; min-width: 4rem;"></div>
                     </div>
                     <div class="dtr">
                         <div class="dtc padd">&nbsp;</div>
@@ -820,12 +816,12 @@ if (isset($_POST['rendszeres_tabla_ment'])) {
     }
     
     // Tárgy
-    array_push($mit,    'targy',         'verzio'           );
-    array_push($mire,   $_POST['targy'], $_POST['verzio']   );
+    array_push($mit,    'targy'           );
+    array_push($mire,   $_POST['targy']   );
     
     if (isset($_POST['uj'])) {
-        array_push($mit,  'fenntartasi_terv_id', 'ktgnem_id',         'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt' );
-        array_push($mire, $_POST['uj'],          $_POST['ktgnem_id'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()'     );
+        array_push($mit,  'fenntartasi_terv_id', 'ktgnem_id',         'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt', 'sorid' );
+        array_push($mire, $_POST['uj'],          $_POST['ktgnem_id'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',     time()  );
         $sor_id = $adatbazis_kapcsolat -> i('fenntartasi_terv_rendsz_karban', $mit, $mire);
         if( $sor_id === false ) { $db_error = true; }
         
@@ -892,7 +888,7 @@ if (isset($_POST['get_eseti_tabla'])) {
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if($uj){
-                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%<HELY>7032</>%'");
+                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7032%'");
                 $ktgnem_option = tomb2option($ktgnem_option, 'id', 'nev');
                 $ktgnem_select = nl2('
                     <div class="dtr">
@@ -1015,8 +1011,8 @@ if (isset($_POST['eseti_tabla_ment'])) {
     array_push($mire,   $_POST['targy'], $_POST['leir']   );
 
     if (isset($_POST['uj'])) {
-        array_push($mit,  'fenntartasi_terv_id', 'ktgnem_id',         'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt' );
-        array_push($mire, $_POST['uj'],          $_POST['ktgnem_id'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()'     );
+        array_push($mit,  'fenntartasi_terv_id', 'ktgnem_id',         'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt',    'sorid' );
+        array_push($mire, $_POST['uj'],          $_POST['ktgnem_id'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',        time()  );
         $sor_id = $adatbazis_kapcsolat -> i('fenntartasi_terv_eseti_karban', $mit, $mire);
         if( $sor_id === false ) { $db_error = true; }
         
@@ -1083,7 +1079,7 @@ if (isset($_POST['get_hiba_tabla'])) {
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if($uj){
-                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%<HELY>7033</>%'");
+                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7033%'");
                 $ktgnem_option = tomb2option($ktgnem_option, 'id', 'nev');
                 $ktgnem_select = nl2('
                     <div class="dtr">
@@ -1202,8 +1198,8 @@ if (isset($_POST['hiba_tabla_ment'])) {
     array_push($mire,   $_POST['leir']   );
 
     if (isset($_POST['uj'])) {
-        array_push($mit,  'fenntartasi_terv_id', 'ktgnem_id',         'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt' );
-        array_push($mire, $_POST['uj'],          $_POST['ktgnem_id'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()'     );
+        array_push($mit,  'fenntartasi_terv_id', 'ktgnem_id',         'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt', 'sorid' );
+        array_push($mire, $_POST['uj'],          $_POST['ktgnem_id'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',     time()  );
         $sor_id = $adatbazis_kapcsolat -> i('fenntartasi_terv_hibaelharitas', $mit, $mire);
         if( $sor_id === false ) { $db_error = true; }
         
@@ -1270,7 +1266,7 @@ if (isset($_POST['get_bwh_tabla'])) {
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if($uj){
-                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%<HELY>7210</>%'");
+                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7210%'");
                 $ktgnem_option = tomb2option($ktgnem_option, 'id', 'nev');
                 $ktgnem_select = nl2('
                     <div class="dtr">
@@ -1393,8 +1389,8 @@ if (isset($_POST['bwh_tabla_ment'])) {
     array_push($mire,   $_POST['targy'],    $_POST['leir']   );
 
     if (isset($_POST['uj'])) {
-        array_push($mit,  'fenntartasi_terv_id', 'ktgnem_id',         'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt' );
-        array_push($mire, $_POST['uj'],          $_POST['ktgnem_id'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()'     );
+        array_push($mit,  'fenntartasi_terv_id', 'ktgnem_id',         'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt', 'sorid' );
+        array_push($mire, $_POST['uj'],          $_POST['ktgnem_id'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',     time()  );
         $sor_id = $adatbazis_kapcsolat -> i('fenntartasi_terv_bwh', $mit, $mire);
         if( $sor_id === false ) { $db_error = true; }
         
@@ -1623,24 +1619,24 @@ if (isset($_POST['valtozas_jovahagyas'])) {
     $sor = $adatbazis_kapcsolat->s2('ev telephely_id', 'fenntartasi_terv', "`recid`='{$recid}'");
     if( $sor === false ) { $db_error = true; }
     
-    $energia = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$sor['ev']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
+    $energia_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$sor['ev']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
     if( $energia === false ) { $db_error = true; }
-    $akt_eear_sorok = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$energia['recid']}' AND `telephely_idk` LIKE '%{$sor['telephely_id']}%'");
+    $akt_eear_sorok = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `telephely_idk` LIKE '%{$sor['telephely_id']}%'");
     if( $akt_eear_sorok === false ) { $db_error = true; }
-    $eear_recidk = adatbazis2tomb($akt_eear_sorok, 'recid');
-    
-    $energia_recidk = array();
+    $eear_soridk = adatbazis2tomb($akt_eear_sorok, 'sorid');
+
+    $energia_soridk = array();
     $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}'");
     if( $energiak === false ) { $db_error = true; }
     foreach($energiak as $energia){
 //echo $energia['recid'] . '<br>';
         // Innen tujduk majd, hogy mik az új sorok
-        array_push($energia_recidk, $energia['eear_recid']);
+        array_push($energia_soridk, $energia['sorid']);
         
         // Ha változtak volna az egységárak, azt felül kell írni
-        $energia_ear = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`recid`='{$energia['eear_recid']}'");
+        $energia_ear = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$energia['sorid']}'");
         if( $energia_ear === false ) { $db_error = true; }
-        
+
         // Változott egységár frissítése
         $valtozott_oszlop = array();
         $valtozott_ertek  = array();
@@ -1653,23 +1649,23 @@ if (isset($_POST['valtozas_jovahagyas'])) {
                 array_push($valtozott_ertek,  $energia_ear['ear'.$i]);
             }
             if($valtozott_oszlop){
-                $sql = $adatbazis_kapcsolat->u('fenntartasi_terv_energia', $valtozott_oszlop, $valtozott_ertek, "`recid`='{$energia['recid']}'");
+                $sql = $adatbazis_kapcsolat->u('fenntartasi_terv_energia', $valtozott_oszlop, $valtozott_ertek, "`fenntartasi_terv_id`='{$recid}' AND `sorid`='{$energia['sorid']}'");
                 if( $sql === false ) { $db_error = true; }
             }
         }
-        
+
         // Megszűnt sor törlése
-        if( !in_array($energia['eear_recid'], $eear_recidk) ){
-            $sql = $adatbazis_kapcsolat->d('fenntartasi_terv_energia', "`recid`='{$energia['recid']}'");
+        if( !in_array($energia['sorid'], $eear_soridk) ){
+            $sql = $adatbazis_kapcsolat->d('fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}' AND `sorid`='{$energia['sorid']}'");
             if( $sql === false ) { $db_error = true; }
         }
     }
-    
+
     // Új sorok beszúrása
-    foreach ($eear_recidk as $e_recid){
-        if(!in_array($e_recid, $energia_recidk)){
+    foreach ($eear_soridk as $e_sorid){
+        if(!in_array($e_sorid, $energia_soridk)){
             
-            $ear = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`recid`='{$e_recid}'");
+            $ear = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$e_sorid}'");
             
             $volt_energia = true;
             $oszlopok = array('ktgnem_id', 'dijelem', 'mee', 'ear01', 'ear02', 'ear03', 'ear04', 'ear05', 'ear06', 'ear07', 'ear08', 'ear09', 'ear10', 'ear11', 'ear12', 'sorid');
@@ -1677,8 +1673,8 @@ if (isset($_POST['valtozas_jovahagyas'])) {
             foreach($oszlopok as $oszl){
                 array_push($ertekek, $ear[$oszl]);
             }
-            array_push($oszlopok, 'eear_recid',   'update_dt', 'fenntartasi_terv_id',           'update_usr',                            'insert_dt',    'insert_usr'                            );
-            array_push($ertekek,  $ear['recid'],  'NOW()',     $recid/*tehát a $_POST['id']*/,  $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  );
+            array_push($oszlopok, 'update_dt', 'fenntartasi_terv_id',           'update_usr',                            'insert_dt',    'insert_usr'                            );
+            array_push($ertekek,  'NOW()',     $recid/*tehát a $_POST['id']*/,  $_SESSION[get_db_tabla().'teljes_nev'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  );
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_energia', $oszlopok, $ertekek);
             if( $sql === false ) { $db_error = true; }
 
@@ -1990,22 +1986,11 @@ require_once('selectek.php');
         // Jogosutságkezelés
         if( !_jog(JOG_FENNTARTASI_TERV_TOROL) ){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága fenntartási tervet törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-        // Ha van törlés joga, akkor még ellenőrizni kell a terv státuszát+személyzettípust, hogy stimmel-e
+        // Csak munkaközi terv törölhető
+        }elseif($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak munkaközi terv törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }else{
-            // Munkaközit csak területi felelős, Kész tervet pedig MSZK vezető tud csak törölni
-            if(
-                ($sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && $_SESSION[get_db_tabla().'szemelyzet_id']==TERULETI_FELELOS ) || 
-                ($sor['stat_id']==ENERGIATERV_STAT_KESZ      && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO      )
-            ){
-                $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A következő fenntartási terv törlésére készül:<br><br>Tervező év: '.$sor['ev'].'<br>Tervszám: '.$sor['ikt_szam'].'<br><br>Biztos, hogy törli?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
-            }else{
-                if($sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
-                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Munkaközi fenntartási tervet csak Területi felelős törölhet!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-                }
-                if($sor['stat_id']==ENERGIATERV_STAT_KESZ){
-                    $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Kész fenntartási tervet csak MSZK vezető törölhet!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-                }
-            }
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A következő fenntartási terv törlésére készül:<br><br>Tervező év: '.$sor['ev'].'<br>Tervszám: '.$sor['ikt_szam'].'<br><br>Biztos, hogy törli?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
 
         // Terv adatlapján
@@ -2056,8 +2041,8 @@ require_once('selectek.php');
             
         }
         
-
-        if( $kezeles_jog ){
+        // Csak munkaközi terv szerkeszthető
+        if( $kezeles_jog && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
@@ -2231,6 +2216,8 @@ require_once('selectek.php');
             <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
             <thead>
             <tr>
+                <th><span>Költségnem</span></th>
+                <th><span>Költségnem</span></th>
                 <th class="egys_szall"><span>Tárgy</span></th>
                 <th><span>Mee</span></th>
                 <th><span>Egységár Január</span></th>
@@ -2275,20 +2262,20 @@ require_once('selectek.php');
             ';
 
         // Nézzük meg, hogy az energia egységár soraiban van-e változás
-        $energia = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$sor['ev']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
-        $akt_eear_sorok = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$energia['recid']}' AND `telephely_idk` LIKE '%{$sor['telephely_id']}%'");
-        $eear_recidk    = adatbazis2tomb($akt_eear_sorok, 'recid');
+        $energia_terv   = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$sor['ev']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
+        $akt_eear_sorok = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `telephely_idk` LIKE '%{$sor['telephely_id']}%'");
+        $eear_soridk    = adatbazis2tomb($akt_eear_sorok, 'sorid');
         
         $volt_valtozas  = false;
-        $energia_recidk = array();
+        $energia_soridk = array();
         $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$_GET['id']}'");
         foreach($energiak as $energia){
             
             // Innen tujduk majd, hogy mik az új sorok
-            array_push($energia_recidk, $energia['eear_recid']);
+            array_push($energia_soridk, $energia['sorid']);
             
             // Ha változtak volna az egységárak, azt felül kell írni
-            $energia_ear = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`recid`='{$energia['eear_recid']}'");
+            $energia_ear = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$energia['sorid']}'");
             
             // Számok formázása
             for($i=1; $i<13; $i++){
@@ -2307,13 +2294,15 @@ require_once('selectek.php');
             }
             
             $class = '';
-            if( !in_array($energia['eear_recid'], $eear_recidk) ){
+            if( !in_array($energia['sorid'], $eear_soridk) ){
                 $class          = ' piros_hat';
                 $volt_valtozas  = true;
             }
             
             $szamla_html .= '
                 <tr id="ft_em_'.$energia['recid'].'" data-recid="'.$energia['recid'].'" class="ftt_menny'.$class.'">
+                    <td>'.$energia['ktgnem_id'].'</td>
+                    <td>'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
                     <td>'.$energia['dijelem'].'</td>
                     <td>'.$energia['mee'].'</td>
                     <td class="r">'.$energia['ear01'].'</td>
@@ -2357,13 +2346,15 @@ require_once('selectek.php');
         }
         
         // Új sorok kiszámítása, kirajzolása
-        foreach ($eear_recidk as $recid){
-            if(!in_array($recid, $energia_recidk)){
+        foreach ($eear_soridk as $sorid){
+            if(!in_array($sorid, $energia_soridk)){
                 $volt_valtozas  = true;
                 
-                $energia = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`recid`='{$recid}'");
+                $energia = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$sorid}'");
                 $szamla_html .= '
-                    <tr id="ft_em_'.$recid.'" data-recid="'.$recid.'" class="ftt_menny zold_hat">
+                    <tr id="ft_em_'.$sorid.'" data-recid="'.$sorid.'" class="ftt_menny zold_hat">
+                        <td>'.$energia['ktgnem_id'].'</td>
+                        <td>'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
                         <td>'.$energia['dijelem'].'</td>
                         <td>'.$energia['mee'].'</td>
                         <td class="r">'.$energia['ear01'].'</td>
@@ -2414,6 +2405,8 @@ require_once('selectek.php');
                                 <td></td>
                                 <td></td>
                                 <td></td>
+                                <td></td>
+                                <td></td>
                                 <td class="r" id="szum_ft01"></td>
                                 <td></td>
                                 <td></td>
@@ -2458,7 +2451,7 @@ require_once('selectek.php');
                         ');
         
         // Ha van eltérés az energia egységárahoz képest, akkor egy plusz gombot kiíruratunk
-        if($volt_valtozas){
+        if($volt_valtozas && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO){
             $szamla_html .= nl2('
                         <script>
                         $(document).ready(function () {
@@ -2620,7 +2613,6 @@ require_once('selectek.php');
                 <th class="egys_szall"><span>Költségnem</span></th>
                 <th><span>Költségnem</span></th>
                 <th><span>Tárgy</span></th>
-                <th><span>Verzió</span></th>
                 <th><span>Összesen</span></th>
                 <th><span>Január</span></th>
                 <th><span>Február</span></th>
@@ -2658,7 +2650,6 @@ require_once('selectek.php');
                     <td>'.$rendszeres['ktgnem_id'].'</td>
                     <td>'.getErtek('nev', 'ktgnem', 'id', $rendszeres['ktgnem_id']).'</td>
                     <td>'.$rendszeres['targy'].'</td>
-                    <td>'.$rendszeres['verzio'].'</td>
                     <td class="r ftossz">'.$osszesen.'</td>
                     <td class="r ft01">'.$rendszeres['ft01'].'</td>
                     <td class="r ft02">'.$rendszeres['ft02'].'</td>
@@ -3107,8 +3098,12 @@ require_once('selectek.php');
             </thead>
             <tbody>
             ';
-
+        
         $kivetelek = array('modosit', 'osszesen', 'tortenet', 'dokumentumok', 'megjegyzesek');
+        // A BWH-t is felvesszük a kivételek közé, hacsak nem Hungáriás a user
+        if( !in_array(2120, $sajat_szallodak) ){
+            array_push($kivetelek, 'bwh');
+        }
         foreach($ful_tomb as $tabla_post => $ful_neve){
 
             if( !in_array($tabla_post, $kivetelek) ){

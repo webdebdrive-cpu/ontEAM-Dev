@@ -43,6 +43,15 @@ function i_u($type, $tabla, $tomb) {
             $weblap -> leallit();
             exit();
         }
+        
+        // Fenntartási terv csak akkor szerkeszthető, ha munkaközi
+        if( $tabla == 'fenntartasi_terv' ){
+            $terv = $adatbazis_kapcsolat->s('stat_id', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
+            if( $terv === false ) { $db_error = true; }
+            if($terv['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
+                exit;
+            }
+        }
     }
 
     // Tranzakció indul

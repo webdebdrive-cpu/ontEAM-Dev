@@ -2298,7 +2298,7 @@ $fenntartasi_terv_tomb = $akt_tomb = array(
     array('type' => 'text',                     'megn' => 'Tervszám:',      'name' => 'ikt_szam',       'szuro' => 1,  'disabled' => 1, 'class' => 'normal', 'style' => 'width: 11.5rem'),
     array('type' => 'text',                     'megn' => 'Tervező év:',    'name' => 'ev',             'szuro' => 1,  'disabled' => 1, 'class' => 'normal f_csakszam', 'style' => 'width: 4.1rem', 'maxlength' => 4),
     array('type' => 'select_felh_telephely',    'megn' => 'Szálloda:',      'name' => 'telephely_id',   'szuro' => 1,                   'class' => 'disableNav',  'style' => 'width: 100%;', 'alert' => 'Kérem válasszon szállodát!', 'onchange' => 'szallodaVane( this );'),
-    array('type' => 'textarea',                 'megn' => 'Megjegyzés:',    'name' => 'text',           'szuro' => 1,                   'class' => 'oriasi disableNav', 'style' => 'height: 10rem'),
+    array('type' => 'textarea',                 'megn' => 'Leírás:',        'name' => 'text',           'szuro' => 1,                   'class' => 'oriasi disableNav', 'style' => 'height: 10rem'),
 
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
@@ -4448,7 +4448,7 @@ foreach($postok as $ertek){
         if($ertek['tabla']=='eloterj_fb' && !_jog(JOG_ELOTERJ_KEZEL)){
             $weblap -> leallit(); exit;
         }
-        if($ertek['tabla']=='energia_terv' && !_jog(JOG_FENNTARTASI_TERV_ELESIT)){
+        if($ertek['tabla']=='energia_terv' && !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL)){
             $weblap -> leallit(); exit;
         }
         if($ertek['tabla']=='erteklista' && !_jog(JOG_ERTEKLISTAK_KEZEL)){
@@ -4645,7 +4645,8 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
 
         // Energia tervkor tranzakcióban töröljük az egységár sorait
         if($ertek['tabla']=='energia_terv'){
-            // egységár tábla sorait
+            $sql = $adatbazis_kapcsolat->d('energia_terv_ear', "`energia_terv_id`='{$_GET[$ertek['torid']]}'");
+            if( $sql === false ) { $db_error = true; }
         }
 
         // Előterjesztéskor a kapcsolódó táblák és projektigénylés előterjesztés tábla törlése
@@ -4680,12 +4681,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
         if($ertek['tabla']=='fenntartasi_terv'){
             $fenntartasi_terv = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_GET[$ertek['torid']]}'");
             if( $fenntartasi_terv === false ) { $db_error = true; }
-            if(
-                !(
-                    ($fenntartasi_terv['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && $_SESSION[get_db_tabla().'szemelyzet_id']==TERULETI_FELELOS ) || 
-                    ($fenntartasi_terv['stat_id']==ENERGIATERV_STAT_KESZ      && $_SESSION[get_db_tabla().'szemelyzet_id']==MSZK_VEZETO      )
-                )
-            ){
+            if( $fenntartasi_terv['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI ){
                 exit;
             }
             

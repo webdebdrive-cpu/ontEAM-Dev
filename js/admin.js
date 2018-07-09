@@ -5973,6 +5973,9 @@ function szuro_ertek_mezo_gen(that, felt){
                     var kieg = '';
                     if( baseName(location.href)=='anyagigenyles' ) {
                         kieg = '?szures_torol';
+                        if(_get('anyagrend')){
+                            kieg += '&anyagrend';
+                        }
                     }
                     $('#'+prefix+'szures_submit').html( '<input type="button" class="gomb f_szures_submit" value="Szűrés">'+
                                                         '<input style="margin-left: 0.2rem" type="button" class="gomb piros" value="Szűrés töröl" onclick="szurkit(); location.href=\''+tabla+'.php'+kieg+'\'">'

@@ -91,8 +91,12 @@ if(isset($_POST['jelszo_csere'])) {
                             $_SESSION['bejelento_menu_rejt'] = 1;
                         }
 
+                        if($bejelento){
+                            header('Location: '.get_http().$_SERVER['HTTP_HOST'].'/'.get_admin().'bejelentes.php');
+                        }else{
+                            header('Location: '.get_http().$_SESSION['kert_url']);
+                        }
                         $adatbazis_kapcsolat -> bezar();
-                        header('Location: '.get_http().$_SESSION['kert_url']);
                         exit();
                     }
 
