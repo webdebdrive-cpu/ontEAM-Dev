@@ -552,8 +552,8 @@ function i_u($type, $tabla, $tomb) {
 
                 // Egyszállodás modell esetén, vagy ha "telefonon bejelentve" pipa be van pipálva rögtön munkalapot generálunk belőle
                 if( !$telephely['modell'] || $_POST['telefon'] ) {
-                    
-                    
+
+
                     $recid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $_POST['telephely_id'], MLTIPUS_HIBAELHARITAS, $_POST['obj_id'], $_POST['gep_id'], $_POST['surgos'], '', TELEPITETT_SZEMELYZET, '', '', '', $_POST['hiba_id']);
                     if( $recid === false ) { $db_error = true; }
 
@@ -564,11 +564,11 @@ function i_u($type, $tabla, $tomb) {
                                                         array($recid,        $id,              $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',       $_SESSION[get_db_tabla().'teljes_nev']  )
                                                     );
                     if( $sql === false ) { $db_error = true; }
-                    
+
                     // Dokumentumot is átmásoljuk, de nem itt, mert itt még nincs hozzárendelve, hanem az esemenyek.php-ban (keress rá erre: bejelentes_dok_munkalapba_masol )
-                    
+
                 }
-                
+
                 // Ha "telefonon bejelentve" pipa be van pipálva, akkor a munkalap generáláson felül a bejelentést folyamatban státuszra léptetjük
                 if( $_POST['telefon'] ) {
 
@@ -576,7 +576,7 @@ function i_u($type, $tabla, $tomb) {
                     if( addStatusz( 'bejelentes_statusz', $id, BEJELENTES_STAT_FOLYAMATBAN ) === false ) {
                         $db_error = true;
                     }
-                    
+
                 }
             }
 
@@ -627,7 +627,7 @@ function i_u($type, $tabla, $tomb) {
                 if( $sql === false ) { $db_error = true; }
             }
         }
-        
+
         // Munkalap
         if( $tabla == 'munkalap' ) {
             if( $_POST['ujkentSzerkID'] ) {
@@ -670,14 +670,14 @@ function i_u($type, $tabla, $tomb) {
             if( $sql === false ) { $db_error = true; }
             $sql = $adatbazis_kapcsolat->u($tabla, array('stat_id'), array(MUNKALAP_STAT_NYITOTT), "`recid`='$id'");
             if( $sql === false ) { $db_error = true; }
-            
+
             // Ha van előkészítős jogunk, és post-ként kaptunk is "elokeszitett_statuszba" információt, akkor rögtön léptetjük is tovább a sáttuszát
             if (_jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $_POST['statuszba_tovabb_leptet']) {
                 if ( addStatusz($tabla.'_statusz', $id, $_POST['statuszba_tovabb_leptet']) === false ){
                     $db_error = true;
                 }
             }
-            
+
         }
 
         // Projektigénylés státusz beszúrása
@@ -708,7 +708,7 @@ function i_u($type, $tabla, $tomb) {
                 $i++;
             }
         }
-        
+
         // Logolás
         $sql = $adatbazis_kapcsolat -> i(
                                             'log',
@@ -742,29 +742,29 @@ function i_u($type, $tabla, $tomb) {
                 ));
                 exit();
             }
-            
+
             // Ha a bejelentéshez tartozik munkalap, akkor annak adatait is frissítjük
             $munkalapok = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'");
             $munkalapok = adatbazis2tomb($munkalapok, 'munkalap_id');
             if($munkalapok){
-                
+
                 // Van pár mező, ami a munkalapban létezik, de a bejelentésnél nem, ezért ki kell számolni:
                 $_POST['gep_txt']  = getErtek('nev', 'eszkozkezeles', 'recid', $_POST['gep_id']);
                 $_POST['hiba_txt'] = getErtekLista('', '', $_POST['hiba_id']);
                 $_POST['obj_txt']  = getErtek('nev', 'obj', 'recid', $_POST['obj_id']);
-                
+
                 // Adatok összeszedése
                 $munkalapba_mezok   = array('telephely_id', 'obj_id', 'obj_txt', 'gep_id', 'gep_txt', 'hiba_id', 'hiba_txt', 'surgos');
                 $munkalapba_ertekek = array();
                 foreach( $munkalapba_mezok as $mezo ){
                     array_push($munkalapba_ertekek, $_POST[$mezo]);
                 }
-                
+
                 $sql = $adatbazis_kapcsolat->u('munkalap', $munkalapba_mezok, $munkalapba_ertekek, "`recid` IN (".implode(', ', $munkalapok).")");
                 if( $sql === false ) { $db_error = true; }
- 
+
             }
-            
+
         }
 
         // Ha volt változás, akkor logoljuk
@@ -1808,7 +1808,7 @@ function web_ftp($valtozo, $kepnev, $size=409600, $overwrite=false, $csakkep=tru
                 // Sikertelen táblamod => hiba5
 				return(array($kepnev,'k5'));
 			}
-            
+
 		}
 		if($flashfeltoltes){
             // Flash alapú fájlfeltöltéskor kell egy kimenet, ha minden rendben volt.
@@ -2397,6 +2397,11 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam`';
             }
 
+            if( $_GET['mezo'] == 'legfrissebb' ) {
+                $order .= '`'.get_db_tabla().$tabla.'`.`update_dt` DESC';
+                $limit = $_GET['felt'];
+            }
+
             $order = trim($order, ', ');
 
         }
@@ -2465,7 +2470,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         if(!in_array($tabla, $kivetelek)){
             $sql_kieg .= ' JOIN `'.get_db_tabla().'telephely` ON `'.get_db_tabla().$tabla.'`.`telephely_id`=`'.get_db_tabla().'telephely`.`id`';
         }
-
 
         // Ha az SQL-ben nem volna WHERE feltétel, akkor az ORDER BY elé kell beszúrni a JOIN-t
         $mivel = $sql_kieg.' WHERE';
@@ -2792,7 +2796,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                 $bold    = ' class="b"';
                 $active .= ' nyitott_statuszu'; // Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
-            
+
             // Egyszálloda esetén, ha nyitott a státusz, van munkalap készíthet jog, és van is hozzá munkalap, akkor legyen szürke a háttér
             $rejtsuk = false;
             if( _jog(JOG_MUNKALAP_KESZITHET) && $bsz['stat_id']==BEJELENTES_STAT_NYITOTT){
@@ -2806,7 +2810,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                     }
                 }
             }
-            
+
             // Korábban szürke színnel voltak kiírva azok a nyitott bejelentések, amikhez tartozott munkalap, de ezeket végül teljesen elrejtjük.
             if($rejtsuk){
                 continue;
@@ -2821,7 +2825,7 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                     </span>
                 ');
             }
-            
+
             // Ha a usernek nem csak egy szállodája van, akkor kiírjuk a szálloda nevét
             $szalloda_neve = '';
             if(!$_SESSION['egyszallodas_user']){
@@ -3073,19 +3077,19 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
             if( $bsz['stat_id'] == MUNKALAP_STAT_NYITOTT || $bsz['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT ){
                 $active .= ' nyitott_statuszu'; // Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
-            
+
             // Félkövérítések:
             // Nyitott + nyitottak kezelése jog
             $bold = '';
             if( $bsz['stat_id'] == MUNKALAP_STAT_NYITOTT && _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ){
                 $bold = ' class="b"';
             }
-            
+
             // Hozzárendelt + kezelő jog
             if( $bsz['stat_id'] == MUNKALAP_STAT_HOZZARENDELT && get_kezeles_jog($bsz['szemelyzet_id']) ){
                 $bold = ' class="b"';
             }
-            
+
             // Előkészítés alatt + előkészítés kezelő jog + ML szerepkör=Login személyzet
             if( $bsz['stat_id'] == MUNKALAP_STAT_ELOKESZITES_ALATT && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $_SESSION[get_db_tabla().'szemelyzet_id']==$bsz['szemelyzet_id'] ){
                 $bold = ' class="b"';
@@ -3143,13 +3147,13 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                                         array('Ütemezett',          'Eseti',            'Rendsz.Karb.',    'Üzemeltetés'         ),
                                         $ml_tipus);
             }
-            
+
             // Ha van gép, csak akkor legyen kötőjel
             $gep_txt = '';
             if($bsz['gep_txt']){
                 $gep_txt = ' - '.$bsz['gep_txt'];
             }
-            
+
             // Ha a usernek nem csak egy szállodája van, akkor kiírjuk a szálloda nevét
             $szalloda_neve = '';
             $colspan       = '';
@@ -3157,7 +3161,7 @@ function munkalapLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_id
                 $szalloda_neve = '<td style="width: 7rem;">'.getSzallodaNev($bsz['telephely_id']).'</td>';
                 $colspan       = ' colspan="2"';
             }
-            
+
             $li_tart = '<a class="szamla'.$nohover.'" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table'.$bold.'>
                             <tr>
@@ -3534,7 +3538,7 @@ function fenntartasi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             if( $bsz['recid'] == $_GET['id'] && !isset($_GET['print']) ) {
                 $active = ' kijelolve';
             }
-            
+
             // Ha a usernek nem csak egy szállodája van, akkor kiírjuk a szálloda nevét
             $szalloda_neve = '';
             if(!$_SESSION['egyszallodas_user']){
@@ -4669,7 +4673,7 @@ function dokumentumtarLista() {
             if($menu['tabla']=='projektigenyles_velemeny'){
                 $post = '';
             }
-            
+
             $alkak = $adatbazis_kapcsolat->s('utvonal', $menu['tabla'].$post);
             foreach($alkak as $alk){
                 $konyvtar = substr($alk['utvonal'], 0, strpos($alk['utvonal'], '/'));
@@ -5331,17 +5335,17 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
 function erteklista($csoport, $id) {
 
     global $adatbazis_kapcsolat;
-    
-    // Megpróbáljuk Session-ból visszaadni 
+
+    // Megpróbáljuk Session-ból visszaadni
     $ertek = getErtekLista($csoport, $id);
-    
+
     // De ha nem sikerült, akkor lekréjük adatbázisból
     if(!$ertek){
         $sor   = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
         $ertek = $sor['info'];
     }
     return $ertek;
-    
+
 }
 
 // Adatbázisból egy érték gyors kinyerése
@@ -5567,7 +5571,7 @@ function addStatusz( $tabla = false, $recid = false, $stat_id = false, $erteklis
 
     $db_error = false;
     $kulso_kulcs = str_replace('_statusz', '', $tabla);
-    
+
     if($adott_ido){
         $adott_ido = trim($adott_ido);
         $adott_ido  = str_replace('.', '-', $adott_ido);
@@ -5943,6 +5947,10 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     $op   = sql_ertek($op);
     $felt = sql_ertek($felt);
 
+    if( $mezo == 'legfrissebb' ) {
+        return '';
+    }
+
     $op_origi = $op;
     switch ($op){
         case 'equal'    : $op = '=';    break;
@@ -6155,13 +6163,13 @@ function get_iktatoszam_sorszam($tabla){
 
 // Státusz címkék és színeket visszaadó függvény ($_stat_text változó pedig a statusz_text.php -ben kerül előállításra)
 function getStatText($tabla, $statid, $mezo = '') {
-    
+
     global $_stat_text;
-    
+
     if(!$mezo){
         $mezo = 'nev';
     }
-    
+
     if( $_stat_text[$tabla][$statid] ) {
         if($mezo=='rovid' && !$_stat_text[$tabla][$statid][$mezo]){
             $mezo='nev';
@@ -6349,7 +6357,7 @@ function bejelentes_dok_munkalapba_masol($bejelentes_id, $munkalap_id){
                                         );
         if( $sql === false ) { $db_error = true; }
     }
-    
+
     // Darabszám kiszámítása
     $dok_db = $adatbazis_kapcsolat->s('recid', 'munkalap_dok', "`munkalap_id`='{$munkalap_id}'");
     if( $dok_db === false ) { $db_error = true; }
@@ -6393,7 +6401,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $felhasznalonak_szo = 'anyagigénylőnek';
 
             $anyagigenyles = $adatbazis_kapcsolat->s2('ikt_szam cikk_id nev igmen cikkmee loginnev', 'anyagigenyles', "`recid`='{$recid}'");
-            
+
             $mit            = array('{IKT_SZAM}',               '{CIKKSZAM}',               '{CIKKNEV}',            '{MENNY}'                                                                           );
             $mivel          = array($anyagigenyles['ikt_szam'], $anyagigenyles['cikk_id'],  $anyagigenyles['nev'],  number_format($anyagigenyles['igmen'], 2, ',', ' ').' '.$anyagigenyles['cikkmee']   );
             $uzi            = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/anyagigenyles.html') );
@@ -6412,7 +6420,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
 
             $cimzettek = array( array('nev' => $anyagigenyles['loginnev'], 'teljes_nev' => $cimzett_nev, 'usermail' => $cimzett_mail, 'szemelyzet_id' => $szemelyzet_id) );
         break;
-        
+
         // Bejelentőnek
         case 'bejelento':
 
@@ -6686,7 +6694,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             $uzi     =  'Anyagigénylések várnak az Ön jóváhagyására.
                         <br>'.fajlbol_olvas('../sablon/admin/mail/alairas.html');
         break;
-    
+
         case 'anyagigenylesSztorno':
             $esemeny =  'anyagigénylés sztornózásakor';
             $targy   =  get_nev().' anyagigénylés sztornózva';
@@ -6926,11 +6934,11 @@ function datum_kiir($datum){
 
 // Új munkalap készítése kiszervezve
 function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id, $surgos=0, $text='', $szemelyzet_id=0, $szallito_id=0, $uf_szam='', $esnap_d='0000-00-00', $hiba_id = 0, $loginnev = ''){
-    
+
     global $adatbazis_kapcsolat;
-    
+
     $db_error = false;
-    
+
     // Iktatószám beállítása
     $sorszam = get_iktatoszam_sorszam('munkalap');
     if($sorszam===false){ $db_error = true; }
@@ -6943,7 +6951,7 @@ function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id,
     if($hiba_id){
         $hiba_txt = getErtek('info', 'erteklista', 'recid', $hiba_id);
     }
-    
+
     // Ha meg van adva, hogy ki legyen a létrehozó, akkor adott loginnév legyen a név/teljes név insert-nél, egyébként a Session (tehátbelépett) felhasználó
     if($loginnev){
         $login = $adatbazis_kapcsolat->s2('nev teljes_nev', 'login', "`nev`='{$loginnev}'");
@@ -6966,13 +6974,13 @@ function munkalap_letrehoz($stat_id, $telephely_id, $tipus_id, $obj_id, $gep_id,
                                         array($recid,           $stat_id,   $login['nev'],  'NOW()',        $login['teljes_nev'],    $login['teljes_nev']    )
                                     );
     if( $sql === false ) { $db_error = true; }
-    
+
     if($db_error){
         return false;
     }else{
         return $recid;
     }
-    
+
 }
 
 // Kezelés jogot visszaadó függvény (felvéve státusz alatt)

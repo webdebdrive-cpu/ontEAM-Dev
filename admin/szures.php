@@ -26,7 +26,7 @@ if (isset($_POST['f_szuro_mezo'])) {
         'select_szemelyzet',
         'select_pri_tipus',
         'select_pri_besorol',
-        );
+    );
 
     $operator = '';
     // Feltétel összerakása tömbből
@@ -98,6 +98,11 @@ if (isset($_POST['f_szuro_mezo'])) {
 
     // Szakterület esetén = operátor + autocomplete
     if($_POST['mezo']=='szakterulet'){
+        $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+    }
+
+    // Legfrissebb esetén = operátor
+    if($_POST['mezo']=='legfrissebb') {
         $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
     }
 
@@ -476,6 +481,11 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
         }
 
+        // Legfrissebb esetén
+        if($_POST['mezo']=='legfrissebb') {
+            $feltetel .= '<input type="text" placeholder="Feltétel..." class="f_felt" value="'.$_POST['felt'].'">';
+        }
+
     }
 
     echo json_encode( array('feltetel' => $feltetel) );
@@ -511,6 +521,15 @@ if($tabla == 'anyagigenyles'){
         $selected_megj = ' selected';
     }
     array_push( $sz_mezo, array('eleje' => '<option value="megjegyzes" data-tabla="megjegyzes"'.$selected_megj.'>', 'vege' => 'Megjegyzés</option>' ) );
+}
+
+// Kapcsolódó táblák szűrő mezői
+if($tabla == 'munkalap_arch'){
+    $selected_legfrissebb  = '';
+    if($_GET['mezo']=='legfrissebb'){
+        $selected_legfrissebb = ' selected';
+    }
+    array_push( $sz_mezo, array('eleje' => '<option value="legfrissebb"'.$selected_legfrissebb.'>', 'vege' => 'Legfrissebb</option>' ) );
 }
 if($tabla == 'login'){
     $selected_jog   = '';

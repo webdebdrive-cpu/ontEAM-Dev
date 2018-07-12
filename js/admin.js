@@ -4697,21 +4697,23 @@ function scrollLeptet() {
 
     } else if($('.szamla_cont_tabla').length) {
 
-        var active_top      = $('.szamla_cont_tabla tr.kijelolve').position().top,
-            activeHeight    = $('.szamla_cont_tabla tr.kijelolve').outerHeight(),
-            tartBalHeight   = $('#szamlaBetolt').outerHeight();
+        if( $('.szamla_cont_tabla.kijelolve').length ) {
+            var active_top      = $('.szamla_cont_tabla tr.kijelolve').position().top,
+                activeHeight    = $('.szamla_cont_tabla tr.kijelolve').outerHeight(),
+                tartBalHeight   = $('#szamlaBetolt').outerHeight();
 
-        /* Összeadjuk az active elem magasságát és a felső eltolását */
-        var aTopH = active_top + activeHeight;
+            /* Összeadjuk az active elem magasságát és a felső eltolását */
+            var aTopH = active_top + activeHeight;
 
-        if( (aTopH - activeHeight) < 0 ) {
-            $('#szamlaBetolt').scrollTop(0);
-            aTop = $('.szamla_cont_tabla tr.kijelolve').position().top;
-            $('#szamlaBetolt').scrollTop(aTop - 250);
-        } else if( aTopH > tartBalHeight ) {
-            $('#szamlaBetolt').scrollTop(0);
-            aTop = $('.szamla_cont_tabla tr.kijelolve').position().top;
-            $('#szamlaBetolt').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
+            if( (aTopH - activeHeight) < 0 ) {
+                $('#szamlaBetolt').scrollTop(0);
+                aTop = $('.szamla_cont_tabla tr.kijelolve').position().top;
+                $('#szamlaBetolt').scrollTop(aTop - 250);
+            } else if( aTopH > tartBalHeight ) {
+                $('#szamlaBetolt').scrollTop(0);
+                aTop = $('.szamla_cont_tabla tr.kijelolve').position().top;
+                $('#szamlaBetolt').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
+            }
         }
 
     } else {

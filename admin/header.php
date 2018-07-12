@@ -188,7 +188,7 @@ if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(J
     $aktmenuk  = '';
     if( _jog(JOG_MUNKALAP_MEGTEKINT) || _jog(JOG_MUNKALAP_MEGTEKINT_SZALL) || _jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Munkalapok'                                                             ), $almenu_sablon );
-        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['5'], 'Archív munkalapok'                                                             ), $almenu_sablon );
+        $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['5'].'?mezo=legfrissebb&op=equal&felt=100', 'Archív munkalapok'                                                             ), $almenu_sablon );
     }
     if( _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ){
         $aktmenuk .= str_replace( $akt_almenu_mit, array( 'mobil_hozzarendel.php', 'Mobil hozzárendelés'                                            ), $almenu_sablon );
