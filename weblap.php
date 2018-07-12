@@ -120,7 +120,8 @@ if( $_GET['id'] && !isset($_GET['no_lista']) ){
     }
 }
 
-if( $_GET['id'] ){
+// Ideiglenesen bekerült ide az eszkozkezelés kivétele, hozzá lettek adva az ID-k a SESSION tömbhöz, viszont az objektum ID-k nem, így nem találta a tömben az obj ID-kat, ezért kifagyott
+if( $_GET['id'] && basename(self())!='eszkozkezeles.php' ){
     if( !in_array($_GET['id'], $_SESSION[csonkit(basename(self()), 4).'_idk']) ){
         exit;
     }
