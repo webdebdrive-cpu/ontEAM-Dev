@@ -175,7 +175,7 @@ $uzi .= fajlbol_olvas('../sablon/admin/mail/alairas.html');
 }
 
 // Kötött fejléc nevű CSV feldolgozása (login_import.csv legyen a fájl neve)
-if (false && isset($_GET['loginnev_import']) ) {
+if (isset($_GET['loginnev_import']) ) {
     
     header('Content-Type: text/html; charset='. get_web_charset());
     
@@ -457,7 +457,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
     }
 
     header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=felhasznalo_import_log ".date('Y-m-d').".csv");
+    header("Content-Disposition: attachment; filename=felhasznalo_import_log_".date('Y-m-d').".csv");
     header("Pragma: no-cache");
     header("Expires: 0");
     echo iconv2(get_web_charset(), 'Windows-1250', $log_csv);
