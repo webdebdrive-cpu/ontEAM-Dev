@@ -18,22 +18,98 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
-if (isset($_GET['teszt'])) {
-    
-    $egyszallodasok = $adatbazis_kapcsolat->s('id', 'telephely', "`modell`='0'");
-    $egyszallodasok = adatbazis2tomb($egyszallodasok, 'id');
 
-    $ures_atadta_datum = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_tetel', "`atadta_dt`='0000-00-00 00:00:00'");
-    $ures_atadta_datum = adatbazis2tomb($ures_atadta_datum, 'munkalap_id');
-      
-    $munkalapok = $adatbazis_kapcsolat->s('recid stat_id ikt_szam', 'munkalap', "`stat_id`!='".MUNKALAP_STAT_FELVEVE."' AND `telephely_id` IN (".implode(',', $egyszallodasok).") AND `recid` IN (".implode(',', $ures_atadta_datum).")");
+if (isset($_GET['fenntartas_import'])) {
+    /*
+    $adatbazis_kapcsolat->d('fenntartasi_terv_rendsz_karban', "recid>0");
+    $lek = mysqli_query($db_kapcs, 'SELECT * FROM `tervrkarb`');
+    while($sor = mysqli_fetch_assoc($lek) ){
+        $adatbazis_kapcsolat->i('fenntartasi_terv_rendsz_karban',   array('recid',      'fenntartasi_terv_id',  'ktgnem_id',      'targy',        'szszam',       'ft01',        'ft02',        'ft03',            'ft04',        'ft05',        'ft06',        'ft07',        'ft08',        'ft09',        'ft10',    'ft11',        'ft12',            'update_dt',        'update_usr',       'insert_dt',        'insert_usr',           'sorid'     ),
+                                                                    array($sor['recid'], $sor['aparecid'],      $sor['ktgnemid'], $sor['targy'],  $sor['szszam'], $sor['ft01'],   $sor['ft02'],   $sor['ft03'],   $sor['ft04'], $sor['ft05'],  $sor['ft06'],  $sor['ft07'],  $sor['ft08'],   $sor['ft09'],  $sor['ft10'], $sor['ft11'], $sor['ft12'],     $sor['update_dt'],  $sor['update_usr'], $sor['insert_dt'],  $sor['insert_usr'],  $sor['sorid']  )
+                                );
 echo $adatbazis_kapcsolat->gp() . '<br>';
-    foreach($munkalapok as $ml){
-        if($ml['stat_id']==MUNKALAP_STAT_LEZARASRA_VAR){
-            echo 'lezarasra var: ';
-        }
-        echo $ml['recid'] .',';
     }
+    */
+    /*
+    $adatbazis_kapcsolat->d('fenntartasi_terv_energia', "recid>0");
+    $lek = mysqli_query($db_kapcs, 'SELECT * FROM `tervenerg`');
+    while($sor = mysqli_fetch_assoc($lek) ){
+        $adatbazis_kapcsolat->i('fenntartasi_terv_energia',   array('recid',      'fenntartasi_terv_id',  'ktgnem_id',      'efajta',        'mee',        'ft01',        'ft02',        'ft03',            'ft04',        'ft05',        'ft06',        'ft07',        'ft08',        'ft09',        'ft10',    'ft11',        'ft12',            'ear01',        'ear02',        'ear03',            'ear04',        'ear05',        'ear06',        'ear07',        'ear08',        'ear09',        'ear10',    'ear11',        'ear12',        'em01',        'em02',        'em03',            'em04',        'em05',        'em06',        'em07',        'em08',        'em09',        'em10',    'em11',        'em12',         'update_dt',        'update_usr',       'insert_dt',        'insert_usr',           'sorid'     ),
+                                                              array($sor['recid'], $sor['aparecid'],      $sor['ktgnemid'], $sor['efajta'],  $sor['mee'],  $sor['ft01'],   $sor['ft02'],   $sor['ft03'],   $sor['ft04'], $sor['ft05'],  $sor['ft06'],  $sor['ft07'],  $sor['ft08'],   $sor['ft09'],  $sor['ft10'], $sor['ft11'], $sor['ft12'],   $sor['ear01'],   $sor['ear02'],   $sor['ear03'],   $sor['ear04'], $sor['ear05'],  $sor['ear06'],  $sor['ear07'],  $sor['ear08'],   $sor['ear09'],  $sor['ear10'], $sor['ear11'], $sor['ear12'],   $sor['em01'],   $sor['em02'],   $sor['em03'],   $sor['em04'], $sor['em05'],  $sor['em06'],  $sor['em07'],  $sor['em08'],   $sor['em09'],  $sor['em10'], $sor['em11'], $sor['em12'],   $sor['update_dt'],  $sor['update_usr'], $sor['insert_dt'],  $sor['insert_usr'],  $sor['sorid']    )
+                                );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    */
+    /*
+    $adatbazis_kapcsolat->d('fenntartasi_terv_eseti_karban', "recid>0");
+    $lek = mysqli_query($db_kapcs, 'SELECT * FROM `tervekarb`');
+    while($sor = mysqli_fetch_assoc($lek) ){
+        $adatbazis_kapcsolat->i('fenntartasi_terv_eseti_karban',   array('recid',      'fenntartasi_terv_id',  'ktgnem_id',      'targy',         'leir',        'ft01',        'ft02',        'ft03',            'ft04',        'ft05',        'ft06',        'ft07',        'ft08',        'ft09',        'ft10',    'ft11',        'ft12',            'update_dt',        'update_usr',       'insert_dt',        'insert_usr',           'sorid'     ),
+                                                                   array($sor['recid'], $sor['aparecid'],      $sor['ktgnemid'], $sor['targy'],  $sor['leir'],  $sor['ft01'],   $sor['ft02'],   $sor['ft03'],   $sor['ft04'], $sor['ft05'],  $sor['ft06'],  $sor['ft07'],  $sor['ft08'],   $sor['ft09'],  $sor['ft10'], $sor['ft11'], $sor['ft12'],   $sor['update_dt'],  $sor['update_usr'], $sor['insert_dt'],  $sor['insert_usr'],  $sor['sorid']    )
+                                );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    */
+    /*
+    $adatbazis_kapcsolat->d('fenntartasi_terv_hibaelharitas', "recid>0");
+    $lek = mysqli_query($db_kapcs, 'SELECT * FROM `tervegyeb`');
+    while($sor = mysqli_fetch_assoc($lek) ){
+        $adatbazis_kapcsolat->i('fenntartasi_terv_hibaelharitas',   array('recid',      'fenntartasi_terv_id',  'ktgnem_id',      'leir',        'ft01',        'ft02',        'ft03',            'ft04',        'ft05',        'ft06',        'ft07',        'ft08',        'ft09',        'ft10',    'ft11',        'ft12',            'update_dt',        'update_usr',       'insert_dt',        'insert_usr',           'sorid'     ),
+                                                                    array($sor['recid'], $sor['aparecid'],      $sor['ktgnemid'], $sor['leir'],  $sor['ft01'],   $sor['ft02'],   $sor['ft03'],   $sor['ft04'], $sor['ft05'],  $sor['ft06'],  $sor['ft07'],  $sor['ft08'],   $sor['ft09'],  $sor['ft10'], $sor['ft11'], $sor['ft12'],   $sor['update_dt'],  $sor['update_usr'], $sor['insert_dt'],  $sor['insert_usr'],  $sor['sorid']    )
+                                );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    */
+    /*
+    $adatbazis_kapcsolat->d('energia_terv_ear', "recid>0");
+    $lek = mysqli_query($db_kapcs, 'SELECT * FROM `tervear`');
+    while($sor = mysqli_fetch_assoc($lek) ){
+        $adatbazis_kapcsolat->i('energia_terv_ear', array('recid',      'energia_terv_id', 'telephely_idk', 'dijelem',        'ktgnem_id',      'mee',        'ear01',          'ear02',        'ear03',        'ear04',        'ear05',        'ear06',        'ear07',        'ear08',        'ear09',        'ear10',        'ear11',       'ear12',         'dnem01',       'dnem02',       'dnem03',       'dnem04',       'dnem05',       'dnem06',         'dnem07',         'dnem08',       'dnem09',           'dnem10',       'dnem11',       'dnem12',       'arf01',        'arf02',        'arf03',            'arf04',        'arf05',        'arf06',        'arf07',        'arf08',        'arf09',        'arf10',    'arf11',        'arf12',            'update_dt',        'update_usr',       'insert_dt',        'insert_usr',           'sorid'     ),
+                                                    array($sor['recid'], $sor['aparecid'], $sor['telepsor'], $sor['dijelem'], $sor['ktgnemid'], $sor['mee'],  $sor['ear01'],   $sor['ear02'],   $sor['ear03'],   $sor['ear04'], $sor['ear05'],  $sor['ear06'],  $sor['ear07'],  $sor['ear08'],   $sor['ear09'],  $sor['ear10'], $sor['ear11'], $sor['ear12'],   $sor['dnem01'], $sor['dnem02'], $sor['dnem03'], $sor['dnem04'], $sor['dnem05'],  $sor['dnem06'],  $sor['dnem07'],  $sor['dnem08'],   $sor['dnem09'],  $sor['dnem10'], $sor['dnem11'], $sor['dnem12'],   $sor['arf01'],   $sor['arf02'],   $sor['arf03'],   $sor['arf04'], $sor['arf05'],  $sor['arf06'],  $sor['arf07'],  $sor['arf08'],   $sor['arf09'],  $sor['arf10'], $sor['arf11'], $sor['arf12'],   $sor['update_dt'],  $sor['update_usr'], $sor['insert_dt'],  $sor['insert_usr'],  $sor['sorid']    )
+                                );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    */
+    
+    /*
+    $adatbazis_kapcsolat->d('fenntartasi_terv_bwh', "recid>0");
+    $lek = mysqli_query($db_kapcs, 'SELECT * FROM `tervbwhcuk`');
+    while($sor = mysqli_fetch_assoc($lek) ){
+        $adatbazis_kapcsolat->i('fenntartasi_terv_bwh',   array('recid',      'fenntartasi_terv_id', 'ktgnem_id',      'targy',       'leir',       'ft01',        'ft02',         'ft03',         'ft04',         'ft05',         'ft06',         'ft07',         'ft08',         'ft09',         'ft10',         'ft11',         'ft12',         'update_dt',        'update_usr',       'insert_dt',        'insert_usr',        'sorid'        ),
+                                                          array($sor['recid'], $sor['aparecid'],     $sor['ktgnemid'], $sor['targy'], $sor['leir'], $sor['ft01'],  $sor['ft02'],   $sor['ft03'],   $sor['ft04'],   $sor['ft05'],   $sor['ft06'],   $sor['ft07'],   $sor['ft08'],   $sor['ft09'],   $sor['ft10'],   $sor['ft11'],   $sor['ft12'],   $sor['update_dt'],  $sor['update_usr'], $sor['insert_dt'],  $sor['insert_usr'],  $sor['sorid']  )
+                                );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    */
+    /*
+    $adatbazis_kapcsolat->d('fenntartasi_terv_muszaki_anyag', "recid>0");
+    $lek = mysqli_query($db_kapcs, 'SELECT * FROM `tervanyag`');
+    while($sor = mysqli_fetch_assoc($lek) ){
+        $adatbazis_kapcsolat->i('fenntartasi_terv_muszaki_anyag',   array('recid',      'fenntartasi_terv_id', 'ktgnem_id',      'ft01',        'ft02',         'ft03',         'ft04',         'ft05',         'ft06',         'ft07',         'ft08',         'ft09',         'ft10',         'ft11',         'ft12',         'update_dt',        'update_usr',       'insert_dt',        'insert_usr',        'sorid'        ),
+                                                                    array($sor['recid'], $sor['aparecid'],     $sor['ktgnemid'], $sor['ft01'],  $sor['ft02'],   $sor['ft03'],   $sor['ft04'],   $sor['ft05'],   $sor['ft06'],   $sor['ft07'],   $sor['ft08'],   $sor['ft09'],   $sor['ft10'],   $sor['ft11'],   $sor['ft12'],   $sor['update_dt'],  $sor['update_usr'], $sor['insert_dt'],  $sor['insert_usr'],  $sor['sorid']  )
+                                );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    */
+    /*
+    $adatbazis_kapcsolat->d('ktghely', "recid>0");
+    $lek = mysqli_query($db_kapcs, 'SELECT * FROM `ktghely`');
+    while($sor = mysqli_fetch_assoc($lek) ){
+        $adatbazis_kapcsolat->i('ktghely',  array('recid',      'id',        'nev',         'update_dt',        'update_usr',       'insert_dt',        'insert_usr'        ),
+                                            array($sor['recid'], $sor['id'], $sor['nev'],   $sor['update_dt'],  $sor['update_usr'], $sor['insert_dt'],  $sor['insert_usr']  )
+                                );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    }*/
+    
+    /*
+    $adatbazis_kapcsolat->d('fenntartasi_terv', "recid>0");
+    $lek = mysqli_query($db_kapcs, 'SELECT * FROM `fterv`');
+    while($sor = mysqli_fetch_assoc($lek) ){
+        $adatbazis_kapcsolat->i('fenntartasi_terv', array('recid',      'ikt_szam',     'stat_id',      'ev',        'telephely_id', 'text',            'update_dt',        'update_usr',       'insert_dt',        'insert_usr'        ),
+                                                    array($sor['recid'], $sor['tszam'], $sor['statid'], $sor['tev'], $sor['telepid'], $sor['tervleir'], $sor['update_dt'],  $sor['update_usr'], $sor['insert_dt'],  $sor['insert_usr']  )
+                                );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    }*/
     
     exit;
 }

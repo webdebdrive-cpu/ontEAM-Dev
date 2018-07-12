@@ -225,7 +225,7 @@ if (isset($_POST['terv_keszit'])) {
             array_push($mezok,   'energia_terv_id', 'insert_dt', 'insert_usr',                           'update_usr'                           );
             array_push($ertekek, $uj_id,            'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'], $_SESSION[get_db_tabla().'teljes_nev'] );
 
-            $oszlopok   = array('telephely_idk', 'dijelem', 'ktgnem_id', 'mee', 'ear01', 'ear02', 'ear03', 'ear04', 'ear05', 'ear06', 'ear07', 'ear08', 'ear09', 'ear10', 'ear11', 'ear12', 'dnem01', 'dnem02', 'dnem03', 'dnem04', 'dnem05', 'dnem06', 'dnem07', 'dnem08', 'dnem09', 'dnem10', 'dnem11', 'dnem12', 'arf01', 'arf02', 'arf03', 'arf04', 'arf05', 'arf06', 'arf07', 'arf08', 'arf09', 'arf10', 'arf11', 'arf12');
+            $oszlopok   = array('telephely_idk', 'dijelem', 'ktgnem_id', 'mee', 'ear01', 'ear02', 'ear03', 'ear04', 'ear05', 'ear06', 'ear07', 'ear08', 'ear09', 'ear10', 'ear11', 'ear12', 'dnem01', 'dnem02', 'dnem03', 'dnem04', 'dnem05', 'dnem06', 'dnem07', 'dnem08', 'dnem09', 'dnem10', 'dnem11', 'dnem12', 'arf01', 'arf02', 'arf03', 'arf04', 'arf05', 'arf06', 'arf07', 'arf08', 'arf09', 'arf10', 'arf11', 'arf12', 'sorid');
             foreach($oszlopok as $oszlop){
                 array_push($mezok,   $oszlop        );
                 array_push($ertekek, $ear[$oszlop]  );
@@ -565,8 +565,8 @@ if (isset($_POST['uj_egysegar'])) {
     // Ha kaptunk szállodákat, akkor azzal...
     if( $szalloda_idk ){
         
-        $uj_egysegar_recid = $adatbazis_kapcsolat->i('energia_terv_ear', array('energia_terv_id', 'telephely_idk'            ),
-                                                                         array($terv_recid,       implode(',', $szalloda_idk))
+        $uj_egysegar_recid = $adatbazis_kapcsolat->i('energia_terv_ear', array('energia_terv_id', 'telephely_idk',              'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt', 'sorid' ),
+                                                                         array($terv_recid,       implode(',', $szalloda_idk),  $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      time()  )
                                                     );
         if( $uj_egysegar_recid === false ) { $db_error = true; }
 
@@ -575,8 +575,8 @@ if (isset($_POST['uj_egysegar'])) {
         $telephelyek = $adatbazis_kapcsolat->s2('telephely_idk', 'energia_terv_ear', "`recid`='{$egysegar_recid}'");
         if( $telephelyek === false ) { $db_error = true; }
 
-        $uj_egysegar_recid = $adatbazis_kapcsolat->i('energia_terv_ear', array('energia_terv_id', 'telephely_idk'               ),
-                                                                         array($terv_recid,       $telephelyek['telephely_idk'] )
+        $uj_egysegar_recid = $adatbazis_kapcsolat->i('energia_terv_ear', array('energia_terv_id', 'telephely_idk',              'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt', 'sorid' ),
+                                                                         array($terv_recid,       $telephelyek['telephely_idk'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',     time() )
                                                     );
         if( $uj_egysegar_recid === false ) { $db_error = true; }
     }
@@ -1129,7 +1129,7 @@ require_once('selectek.php');
             sort($szallodak);
 
             // Szálloda html
-            $szalloda_html = implode(',', $szallodak);
+            $szalloda_html = implode(', ', $szallodak);
 
             // Ktgnem
             $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`recid`='{$egysegar['ktgnem_id']}'");

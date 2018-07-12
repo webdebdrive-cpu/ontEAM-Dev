@@ -130,7 +130,7 @@ $jogosultsagok = array(
     104 => array('nev' => 'Energia egységár kezelés',               'kat' => 12, 'sor' => 2),
     84  => array('nev' => 'Terv olvasása',                          'kat' => 12, 'sor' => 3),
     85  => array('nev' => 'Terv kezelése',                          'kat' => 12, 'sor' => 4),
-    101 => array('nev' => 'Terv törlése',                           'kat' => 12, 'sor' => 7),
+    101 => array('nev' => 'Munkaközi terv törlése',                 'kat' => 12, 'sor' => 7),
     102 => array('nev' => 'Terv élesítése',                         'kat' => 12, 'sor' => 8),
     
     87 => array('nev' => 'Fenntartási szerződések olvasása',        'kat' => 13, 'sor' => 1),
