@@ -5463,7 +5463,13 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
 
                     /* Bal oldali navpanel sorát is frissítjük */
                     if(page!='anyagigenyles.php' && page.replace('.php', '')!='erteklista'){
-                        szamlaSorFrissit(page.replace('.php', ''), recid);
+                        frissit_tabla = page.replace('.php', '');
+
+                        if( _get('obj') ) {
+                            frissit_tabla = 'obj';
+                        }
+
+                        szamlaSorFrissit(frissit_tabla, recid);
                     }
 
                     /* URL mod */
@@ -5668,13 +5674,26 @@ function szamlaSorFrissit( tabla, recid ) {
         $.ajax({
          	url : 'esemenyek.php',
          	type: 'GET',
-         	data: esamp2es('tabla=' + tabla + '&amp;recid=' + recid + param_kieg + '&amp;szamlaSorFrissit=' + new Date().getTime()),
+         	data: esamp2es('tabla=' + tabla + '&amp;recid=' + recid + param_kieg + '&amp;no_lista=1&amp;szamlaSorFrissit=' + new Date().getTime()),
          	success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-         		if(response) {
-                    /* A frissítendő sor data-i értéke maradjon változatlan. Amit kapunk abban lesz az értéke */
-                    response = response.replace('data-i="1"', 'data-i="' + $('#szamla-' + recid).attr('data-i') + '"');
-         			$('#szamla-' + recid).replaceWith(response);
+                if(response) {
+                    if( tabla == 'eszkozkezeles' || tabla == 'obj' ) {
+                        response = JSON.parse(response);
+
+                        switch(tabla) {
+                            case 'eszkozkezeles':
+                                $('#' + tabla + '-' + recid).html(response.nev);
+                            break;
+                            case 'obj':
+                                $('#' + tabla + '_' + recid).html(response.nev);
+                            break;
+                        }
+                    } else {
+                        /* A frissítendő sor data-i értéke maradjon változatlan. Amit kapunk abban lesz az értéke */
+                        response = response.replace('data-i="1"', 'data-i="' + $('#szamla-' + recid).attr('data-i') + '"');
+             			$('#szamla-' + recid).replaceWith(response);
+                    }
          		}
          	}
         });
