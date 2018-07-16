@@ -67,7 +67,7 @@ function validnextdate($dnext, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cveg
 	$nev = $date->format("Y");
 
     // A $nev változót itt most felülírjuk, mert a fenti esetben nem kapott rendes értéket, ha havi rendszerességű és időszakos ütemezés volt beállítva
-    $nev = date('Y', strtotime( str_replace('.', '-', $dnext) ) );
+    // Ezt mégsem tesszük meg: $nev = date('Y', strtotime( str_replace('.', '-', $dnext) ) );
 
 	if ($nidoszakos == 0) //folyamatos ütemezés
 	{

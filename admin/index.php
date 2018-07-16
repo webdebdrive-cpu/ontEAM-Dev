@@ -119,7 +119,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 // Loginról értesítő levelek küldése
 if (false && isset($_GET['login_ertesit'])) {
     
-    $szalloda_nev   = 'PALATINUS'; // SÁRVÁR TH
+    $szalloda_nev   = 'RÁBA'; // SÁRVÁR TH
     $galyasz_bence  = false;
     $datum          = date('Y.m.d', strtotime(' +1 day'));
     $napok          = array('vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat');
@@ -166,7 +166,7 @@ $uzi .= fajlbol_olvas('../sablon/admin/mail/alairas.html');
 
 
 
-            //var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
+            var_dump( level_kuldes(get_nev(), get_mail(), $login['teljes_nev'], $login['usermail'], 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) );
             //var_dump( level_kuldes(get_nev(), get_mail(), 'Handrai Tamás', 'handari@szinvatrend.hu', 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) ); exit;
             //var_dump( level_kuldes(get_nev(), get_mail(), 'BK', 'bk@webdeb.hu', 'ontEAM rendszer indítása '.$szalloda_nev.' szállodában', $uzi) ); exit;
         }
@@ -175,7 +175,7 @@ $uzi .= fajlbol_olvas('../sablon/admin/mail/alairas.html');
 }
 
 // Kötött fejléc nevű CSV feldolgozása (login_import.csv legyen a fájl neve)
-if (isset($_GET['loginnev_import']) ) {
+if (false && isset($_GET['loginnev_import']) ) {
     
     header('Content-Type: text/html; charset='. get_web_charset());
     
@@ -630,7 +630,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 // Objektumok importja PPM-ből
 if (false && isset($_GET['objektum_import_ppm'])) {
     
-    $telephely_id = 2012;
+    $telephely_id = 2130;
     
     $adatbazis_kapcsolat->d('obj', "`telephely_id`='$telephely_id'");
     

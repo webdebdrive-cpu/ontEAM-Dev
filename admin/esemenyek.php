@@ -2607,12 +2607,15 @@ if (isset($_POST['elfelejtett_jelszo'])) {
 
 // Összetett szűrés törlése, ha menüpontot váltunk
 $kivetelek = array('header.php', 'esemenyek.php');
+// Kivéve bizonyos php fájlokat, és ha az előző oldal nem a mobil_hozzarendel.php volt, hogy onnan tudjunk összetett szűrést kezdeményezni.
 if( !in_array(basename(self()), $kivetelek) ){
-    if($_SESSION['o_szuro_feltetel'] && $_SESSION['elozo_oldal']!=self()){
-        unset($_SESSION['o_szuro_feltetel']);
-        unset($_SESSION['o_szuro_html']);
+    if( $_SESSION['elozo_oldal']!='mobil_hozzarendel.php' ){
+        if($_SESSION['o_szuro_feltetel'] && $_SESSION['elozo_oldal']!=basename(self())){
+            unset($_SESSION['o_szuro_feltetel']);
+            unset($_SESSION['o_szuro_html']);
+        }
     }
-    $_SESSION['elozo_oldal'] = self();
+    $_SESSION['elozo_oldal'] = basename(self());
 }
 // Összetett szűrés inicializálása
 if (isset($_POST['o_szures'])) {

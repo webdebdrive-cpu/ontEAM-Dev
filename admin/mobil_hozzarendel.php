@@ -37,7 +37,7 @@ $szamla_html = '';
 
 
 $sajat_szallodak = get_akt_login_szallodai();
-$sajat_szallodak = implode(',', $sajat_szallodak);
+$sajat_szallodak_id_sztring = implode(',', $sajat_szallodak);
 
 // Csoportosítás mentése
 if (isset($_POST['beosztas_kerdez'])) {
@@ -321,7 +321,7 @@ require_once('selectek.php');
                         <ul class="dropItem droptrue">
                     ');
     
-    $munkalapok = $adatbazis_kapcsolat->s('*', 'munkalap', "`stat_id`='".MUNKALAP_STAT_BEOSZTAS_NELKUL."' AND `telephely_id` IN (".$sajat_szallodak.")", 'ikt_szam');
+    $munkalapok = $adatbazis_kapcsolat->s('*', 'munkalap', "`stat_id`='".MUNKALAP_STAT_BEOSZTAS_NELKUL."' AND `telephely_id` IN (".$sajat_szallodak_id_sztring.")", 'ikt_szam');
     foreach($munkalapok as $munkalap){
         
         $kapcsolat  = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'", '', '0,1');
@@ -378,7 +378,7 @@ require_once('selectek.php');
     $folyamatban_db = array();
     foreach($mobilok as $mobil){
 
-        $munkalapok = $adatbazis_kapcsolat->s('recid telephely_id', 'munkalap', "`szemelyzet_id`='".MOBILCSOPORT."' AND `telephely_id` IN (".$sajat_szallodak.") AND `mobil`='{$mobil}' AND `stat_id`='".MUNKALAP_STAT_HOZZARENDELT."'", 'ikt_szam');
+        $munkalapok = $adatbazis_kapcsolat->s('recid telephely_id', 'munkalap', "`szemelyzet_id`='".MOBILCSOPORT."' AND `telephely_id` IN (".$sajat_szallodak_id_sztring.") AND `mobil`='{$mobil}' AND `stat_id`='".MUNKALAP_STAT_HOZZARENDELT."'", 'ikt_szam');
         foreach($munkalapok as $munkalap){
             $kapcsolat  = $adatbazis_kapcsolat->s2('bejelentes_id', 'munkalap_kapcs', "`munkalap_id`='{$munkalap['recid']}'", '', '0,1');
             $bejelentes = $adatbazis_kapcsolat->s2('hiba_id hiba_text', 'bejelentes', "`recid`='{$kapcsolat['bejelentes_id']}'");
@@ -396,7 +396,7 @@ require_once('selectek.php');
                 </tr>';
         }
 
-        $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`szemelyzet_id`='".MOBILCSOPORT."' AND `telephely_id` IN (".$sajat_szallodak.") AND `mobil`='{$mobil}' AND `stat_id`='".MUNKALAP_STAT_FELVEVE."'");
+        $munkalapok = $adatbazis_kapcsolat->s('recid', 'munkalap', "`szemelyzet_id`='".MOBILCSOPORT."' AND `telephely_id` IN (".$sajat_szallodak_id_sztring.") AND `mobil`='{$mobil}' AND `stat_id`='".MUNKALAP_STAT_FELVEVE."'");
         $folyamatban_db[$mobil] = count($munkalapok);
 
         $folyamatban[$mobil] = nl2('
