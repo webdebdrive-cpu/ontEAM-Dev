@@ -120,7 +120,7 @@ if( $_GET['id'] && !isset($_GET['no_lista']) ){
     }
 }
 
-if( $_GET['id'] ){
+if( $_GET['id'] ) {
     if( !in_array($_GET['id'], $_SESSION[csonkit(basename(self()), 4).'_idk']) ){
         exit;
     }

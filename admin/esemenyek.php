@@ -382,6 +382,10 @@ switch($tabla) {
             $_GET['rend'] = 'nev';
         }
     break;
+    case 'obj.php':
+        // Ezeket a tábla oszlopokat kérdezzük le baloldalra
+        $_OPTS['select']    = 'recid nev';
+    break;
     case 'felmeresi_terv.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
         $_OPTS['select']    = 'recid';
@@ -4025,13 +4029,18 @@ if( isset($_GET['ertekFoglalt']) ) {
 
 // Bal oldali navpanel egy sorának frissítése
 if( isset($_GET['szamlaSorFrissit']) ) {
-
-
     $tabla = $_GET['tabla'];
     $recid = $_GET['recid'];
-    if( !in_array($recid, $_SESSION[$tabla.'_idk']) ){
+
+    $tabla_idk = $tabla;
+    if( $tabla == 'obj' ) {
+        $tabla_idk = 'eszkozkezeles';
+    }
+
+    if( !in_array($recid, $_SESSION[$tabla_idk.'_idk']) ){
         exit;
     }
+
     if( $tabla && $recid ) {
         $szamla_lista = szamla_lista("`".get_db_tabla().$tabla."`.`recid` = '{$recid}'", $tabla);
         $szamla_lista = $szamla_lista[0];
@@ -4679,7 +4688,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             $sql = $adatbazis_kapcsolat->d('eloterj_fb_kapcs', "`eloterj_recid`='{$_GET[$ertek['torid']]}'");
             if( $sql === false ) { $db_error = true; }
         }
-        
+
         // Fenntartási tervnél ellenőrizzük, hogy a terv státusza és a felhasználó személyzettípusa stimmel-e.
         if($ertek['tabla']=='fenntartasi_terv'){
             $fenntartasi_terv = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_GET[$ertek['torid']]}'");
@@ -4687,7 +4696,7 @@ Hiba: '.getErtek('info', 'erteklista', 'recid', $bejelentes['hiba_id']).$hiba_tx
             if( $fenntartasi_terv['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI ){
                 exit;
             }
-            
+
             // Ha idáig eljutottunk, akkor tényleg törölhető. A fenntartási terv minden gyerek tábláját is töröljük (státusz, megjegyzés és dokumentumok fentebb már megvannak).
             $del = $adatbazis_kapcsolat->d('fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$_GET[$ertek['torid']]}'");
             if( $del === false ) { $db_error = true; }
