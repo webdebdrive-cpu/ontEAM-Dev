@@ -464,6 +464,11 @@ $(function() {
 
                     return false;
 
+                /* Eszközkezelésnél egy könyvtárszerkezet van bal oldalt */
+                }else if(tabla=='eszkozkezeles'){
+
+                    /*$('.konyvtar_szerk .active').parent().next('li').first('a').first('label').click();*/
+
                 /* A listás, általános verzió */
                 }else{
 
@@ -5343,6 +5348,16 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
             }
             if(_get('felt')){
                 anyagrend += 'felt='+_get('felt')+'&amp;';
+            }
+        }
+        
+        /* Eszközkezelésnél linkekre active class-t tenni */
+        if( page=='eszkozkezeles.php' ){
+            $('.konyvtar_szerk a, .konyvtar_szerk li').removeClass('active');
+            if(muvelet=='obj'){
+                $('#obj_'+recid).addClass('active');
+            }else{
+                $('#eszkoz_'+recid).addClass('active');
             }
         }
 

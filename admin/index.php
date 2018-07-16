@@ -101,16 +101,16 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
 echo $adatbazis_kapcsolat->gp() . '<br>';
     }*/
     
-    /*
-    $adatbazis_kapcsolat->d('fenntartasi_terv', "recid>0");
+    
+    /*$adatbazis_kapcsolat->d('fenntartasi_terv', "recid>0");
     $lek = mysqli_query($db_kapcs, 'SELECT * FROM `fterv`');
     while($sor = mysqli_fetch_assoc($lek) ){
-        $adatbazis_kapcsolat->i('fenntartasi_terv', array('recid',      'ikt_szam',     'stat_id',      'ev',        'telephely_id', 'text',            'update_dt',        'update_usr',       'insert_dt',        'insert_usr'        ),
-                                                    array($sor['recid'], $sor['tszam'], $sor['statid'], $sor['tev'], $sor['telepid'], $sor['tervleir'], $sor['update_dt'],  $sor['update_usr'], $sor['insert_dt'],  $sor['insert_usr']  )
+        $adatbazis_kapcsolat->i('fenntartasi_terv', array('recid',       'earrecid',        'ikt_szam',     'stat_id',      'ev',        'telephely_id', 'text',            'update_dt',        'update_usr',       'insert_dt',        'insert_usr'        ),
+                                                    array($sor['recid'], $sor['earrecid'],  $sor['tszam'], $sor['statid'], $sor['tev'], $sor['telepid'], $sor['tervleir'], $sor['update_dt'],  $sor['update_usr'], $sor['insert_dt'],  $sor['insert_usr']  )
                                 );
 echo $adatbazis_kapcsolat->gp() . '<br>';
-    }*/
-    
+    }
+    */
     exit;
 }
 

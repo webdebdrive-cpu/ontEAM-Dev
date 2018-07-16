@@ -4035,6 +4035,8 @@ if( isset($_GET['szamlaSorFrissit']) ) {
     $tabla_idk = $tabla;
     if( $tabla == 'obj' ) {
         $tabla_idk = 'eszkozkezeles';
+        /* Eszközkezelésnél nem kell csinálni semmit, nav panel helyén könyvtárszerkezet van, azt nem kell frissíteni. */
+        return false;
     }
 
     if( !in_array($recid, $_SESSION[$tabla_idk.'_idk']) ){

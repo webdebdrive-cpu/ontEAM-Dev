@@ -148,18 +148,22 @@ if (isset($_POST['terv_keszit'])) {
 
     // Ha a kijelölt terv alapján kell létrehozni az újat, akkor lekérjük a kijelölt adatait
     if($kijelolt){
-
+        
+        // Kijelölt terv adatai
+        $kijelolt = $adatbazis_kapcsolat->s2('earrecid', 'fenntartasi_terv', "`recid`='{$recid}'");
+        if( $kijelolt === false ) { $db_error = true; }
+        
         // Új terv létrehozása
-        $uj_id = $adatbazis_kapcsolat->i('fenntartasi_terv',    array('ev', 'telephely_id', 'loginnev',                        'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                                array($ev,  $telephely,     $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+        $uj_id = $adatbazis_kapcsolat->i('fenntartasi_terv',    array('earrecid',            'ev', 'telephely_id', 'loginnev',                        'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                                array($kijelolt['earrecid'], $ev,  $telephely,     $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                         );
         if( $uj_id === false ) { $db_error = true; }
-        
+
         // Gyermek táblák másolása
         $ft_energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}'");
         if( $ft_energiak === false ) { $db_error = true; }
         foreach($ft_energiak as $energia){
-            $oszlopok   = array('ktgnem_id', 'dijelem', 'eear_recid', 'efajta', 'mee', 'ear01', 'ear02', 'ear03', 'ear04', 'ear05', 'ear06', 'ear07', 'ear08', 'ear09', 'ear10', 'ear11', 'ear12', 'em01', 'em02', 'em03', 'em04', 'em05', 'em06', 'em07', 'em08', 'em09', 'em10', 'em11', 'em12', 'ft01', 'ft02', 'ft03', 'ft04', 'ft05', 'ft06', 'ft07', 'ft08', 'ft09', 'ft10', 'ft11', 'ft12', 'sorid');
+            $oszlopok   = array('ktgnem_id', 'dijelem', 'efajta', 'mee', 'ear01', 'ear02', 'ear03', 'ear04', 'ear05', 'ear06', 'ear07', 'ear08', 'ear09', 'ear10', 'ear11', 'ear12', 'em01', 'em02', 'em03', 'em04', 'em05', 'em06', 'em07', 'em08', 'em09', 'em10', 'em11', 'em12', 'ft01', 'ft02', 'ft03', 'ft04', 'ft05', 'ft06', 'ft07', 'ft08', 'ft09', 'ft10', 'ft11', 'ft12', 'sorid');
             $ertekek    = array();
             foreach($oszlopok as $oszl){
                 array_push($ertekek, $energia[$oszl]);
@@ -185,7 +189,6 @@ if (isset($_POST['terv_keszit'])) {
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_muszaki_anyag', $oszlopok, $ertekek);
             if( $sql === false ) { $db_error = true; }
         }
-
 
         $ft_rendszeres = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_rendsz_karban', "`fenntartasi_terv_id`='{$recid}'");
         if( $ft_rendszeres === false ) { $db_error = true; }
@@ -1620,11 +1623,16 @@ if (isset($_POST['valtozas_jovahagyas'])) {
     if( $sor === false ) { $db_error = true; }
     
     $energia_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$sor['ev']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
-    if( $energia === false ) { $db_error = true; }
+    if( $energia_terv === false ) { $db_error = true; }
+
     $akt_eear_sorok = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `telephely_idk` LIKE '%{$sor['telephely_id']}%'");
     if( $akt_eear_sorok === false ) { $db_error = true; }
     $eear_soridk = adatbazis2tomb($akt_eear_sorok, 'sorid');
-
+    
+    // A fenntartási terv earrecid oszlopát frissítjük
+    $sql = $adatbazis_kapcsolat->u('fenntartasi_terv', array('earrecid'), array($energia_terv['recid']), "`recid`='{$recid}'");
+    if( $sql === false ) { $db_error = true; }
+ 
     $energia_soridk = array();
     $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}'");
     if( $energiak === false ) { $db_error = true; }

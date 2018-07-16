@@ -2333,6 +2333,12 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             }elseif($_GET['rend']=='ikt_szam'){
                 $order .= '`'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
             }
+            
+            // Legfrisebb szűrő működésének lekezelése
+            if( $_GET['mezo'] == 'legfrissebb' ) {
+                $order .= '`'.get_db_tabla().$tabla.'`.`update_dt` DESC';
+                $limit = $_GET['felt'];
+            }
 
         }
 
@@ -2406,6 +2412,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam`';
             }
 
+            // Legfrisebb szűrő működésének lekezelése
             if( $_GET['mezo'] == 'legfrissebb' ) {
                 $order .= '`'.get_db_tabla().$tabla.'`.`update_dt` DESC';
                 $limit = $_GET['felt'];
@@ -4721,6 +4728,7 @@ function dokumentumtarLista() {
     return nl2($html);
 }
 
+// Eszközkezelés bal oldali könyvtárszerkezete
 function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
     global $adatbazis_kapcsolat;
@@ -4799,7 +4807,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 }
                                 $html .= '
                                         <li>
-                                            <a href="javascript: szamlaBetolt(\''.$szint['recid'].'\', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' id="obj_'.$szint['recid'].'" for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label></a>
+                                            <a id="obj_'.$szint['recid'].'" href="javascript: szamlaBetolt(\''.$szint['recid'].'\', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' id="obj_'.$szint['recid'].'" for="szint_'.$szint['recid'].'">'.$szint['nev'].'</label></a>
                                             <input type="checkbox"'.$checked.' class="asdas">
                                         ';
                                 // id="szint_'.$szint['recid'].'"
@@ -4820,7 +4828,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                             $link = ' class="link"';
                                         }
                                         $html .= '<li>
-                                                    <a href="javascript: szamlaBetolt(\''.$obj['recid'].'\', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' id="obj_'.$obj['recid'].'" for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label></a>
+                                                    <a id="obj_'.$obj['recid'].'" href="javascript: szamlaBetolt(\''.$obj['recid'].'\', \'eszkozkezeles.php\', \'obj\'); void(0);"><label'.$link.' id="obj_'.$obj['recid'].'" for="obj_'.$obj['recid'].'">'.$obj['nev'].'</label></a>
                                                     <input type="checkbox"'.$checked.'>';
                                         // id="obj_'.$obj['recid'].'"
                                             if($eszkozok){
@@ -4830,7 +4838,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                                     if($akt_eszkoz['recid']==$eszkoz['recid']){
                                                         $aktiv = ' aktiv';
                                                     }
-                                                    $html .= '<li id="eszkozkezeles-'.$eszkoz['recid'].'" class="sor'.$aktiv.'" onclick="szamlaBetolt(\''.$eszkoz['recid'].'\', \'eszkozkezeles.php\', \'modosit\')">'.$eszkoz['nev'].'<li>';
+                                                    $html .= '<li id="eszkoz_'.$eszkoz['recid'].'" id="eszkozkezeles-'.$eszkoz['recid'].'" class="sor'.$aktiv.'" onclick="szamlaBetolt(\''.$eszkoz['recid'].'\', \'eszkozkezeles.php\', \'modosit\')">'.$eszkoz['nev'].'<li>';
                                                 }
                                                 $html .= '</ol>';
                                             }

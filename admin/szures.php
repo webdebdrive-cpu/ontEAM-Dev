@@ -524,7 +524,7 @@ if($tabla == 'anyagigenyles'){
 }
 
 // Kapcsolódó táblák szűrő mezői
-if($tabla == 'munkalap_arch'){
+if($tabla == 'bejelentes_arch' || $tabla == 'munkalap_arch'){
     $selected_legfrissebb  = '';
     if($_GET['mezo']=='legfrissebb'){
         $selected_legfrissebb = ' selected';
