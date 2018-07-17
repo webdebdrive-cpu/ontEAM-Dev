@@ -155,3 +155,11 @@ if (isset($_GET['szures_torol'])) {
 if( empty($_POST) && basename(self()) == 'anyagigenyles.php' && !$_GET['anyagrend'] && _jog(JOG_ANYAGIGENYLES_JOVAHAGY) && !$_GET['mezo'] && !$_SESSION['szures_torol']){
     header('Location:'.self().get_get('', 'nem &amp;').'&mezo=stat_id&op=equal&felt='.CIKKIGN_STAT_ARAZVA);
 }
+
+// Archiv bejelentés/munkalap esetén ha nincs szűrés, akkor a legfrisseb legyen beállítva (amúgy is van rajta egy limit, ha van más szűrés, de ha nincs beállítva semmi, akkor ez látszik is).
+$archivok = array('bejelentes_arch.php', 'munkalap_arch.php');
+if( in_array(basename(self()), $archivok) && !isset($_GET['mezo']) ){
+    $_GET['mezo']   = 'legfrissebb';
+    $_GET['op']     = 'equal';
+    $_GET['felt']   = ARCHIV_NAVPANEL_LIMIT;
+}

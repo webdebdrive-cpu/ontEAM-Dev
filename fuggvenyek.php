@@ -2334,10 +2334,17 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $order .= '`'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
             }
             
-            // Legfrisebb szűrő működésének lekezelése
-            if( $_GET['mezo'] == 'legfrissebb' ) {
-                $order .= '`'.get_db_tabla().$tabla.'`.`update_dt` DESC';
-                $limit = $_GET['felt'];
+            // Archiv menüpnt alatt egy 100-as limit mindig van (ha nincs más szűrés, akkor a feltétel a lista hossza)
+            if( $tabla == 'bejelentes_arch' ) {
+                if( $_GET['mezo'] == 'legfrissebb' ) {
+                    $limit = $_GET['felt'];
+                }else{
+                    $limit = ARCHIV_NAVPANEL_LIMIT;
+                }
+                if($order){
+                    $order .= ', ';
+                }
+                $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
             }
 
         }
@@ -2412,10 +2419,17 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam`';
             }
 
-            // Legfrisebb szűrő működésének lekezelése
-            if( $_GET['mezo'] == 'legfrissebb' ) {
-                $order .= '`'.get_db_tabla().$tabla.'`.`update_dt` DESC';
-                $limit = $_GET['felt'];
+            // Archiv menüpnt alatt egy 100-as limit mindig van (ha nincs más szűrés, akkor a feltétel a lista hossza)
+            if( $tabla == 'munkalap_arch' ) {
+                if( $_GET['mezo'] == 'legfrissebb' ) {
+                    $limit = $_GET['felt'];
+                }else{
+                    $limit = ARCHIV_NAVPANEL_LIMIT;
+                }
+                if($order){
+                    $order .= ', ';
+                }
+                $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
             }
 
             $order = trim($order, ', ');
@@ -4781,7 +4795,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
             }
 
             $link = '';
-            $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'");
+            $szintek = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='0' AND `telephely_id`='{$szalloda['id']}'", 'sor');
             if($szintek){
                 $link = ' class="link"';
             }
@@ -4801,7 +4815,7 @@ function eszkozkezelesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 }
 
                                 $link = '';
-                                $objektumok = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='{$szint['recid']}'");
+                                $objektumok = $adatbazis_kapcsolat->s('recid nev', 'obj', "`szulo`='{$szint['recid']}'", 'sor');
                                 if($objektumok){
                                     $link = ' class="link"';
                                 }
@@ -5381,7 +5395,7 @@ function erteklista($csoport, $id) {
     // Megpróbáljuk Session-ból visszaadni
     $ertek = getErtekLista($csoport, $id);
 
-    // De ha nem sikerült, akkor lekréjük adatbázisból
+    // De ha nem sikerült, akkor lekérjük adatbázisból
     if(!$ertek){
         $sor   = $adatbazis_kapcsolat->s2('info', 'erteklista', "`csoport` = '{$csoport}' AND `id` = '{$id}'", '', '1');
         $ertek = $sor['info'];
@@ -6531,8 +6545,8 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
             if(!$login['aktiv']){
                 return 'Inaktív felhasználói név!<br>Kérését így nem tudjuk továbbítani!';
             }
-            $beosztas   = erteklista(18, $login['beosztas_id']);
-            $reszleg    = erteklista(17, $login['reszleg_id']);
+            $beosztas   = erteklista(ERTEKLISTA_BEOSZTAS, $login['beosztas_id']);
+            $reszleg    = erteklista(ERTEKLISTA_RESZLEG, $login['reszleg_id']);
             $mit        = array('{LOGINNEV}',  '{TELJES_NEV}',        '{BEOSZTAS}', '{RESZLEG}',    '{TELEFON}',       '{EMAIL}'          );
             $mivel      = array($login['nev'], $login['teljes_nev'],  $beosztas,    $reszleg,       $login['usertel'], $login['usermail'] );
             $uzi        = str_replace( $mit, $mivel, fajlbol_olvas('../sablon/admin/mail/'.$cimzett.'.html') );

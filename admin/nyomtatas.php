@@ -128,8 +128,9 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         case 'munkalap'             : $sorok_html = munkalapLista( $sorok, $tabla );        break;
         case 'energia_terv'         : $sorok_html = energia_tervLista( $sorok, $tabla );    break;
 //        case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
-//        case 'torzsadat'            : $akt_tomb = $torzsadat_tomb;              break;
+        case 'torzsadat'            : $sorok_html = torzsadatLista($sorok, $tabla);         break;
         case 'projektigenyles'      : $sorok_html = projektigenylesLista( $sorok, $tabla ); break;
+        case 'szallito'             : $sorok_html = szallitoLista( $sorok, $tabla );        break;
         case 'szerepkor'            : $sorok_html = szerepkorLista( $sorok, $tabla );       break;
     }
 
@@ -210,40 +211,40 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
                     <td>'.$ktgnem['nev'].'</td>
                     <td>'.$egysegar['mee'].'</td>
                     <td class="r">'.$egysegar['ear01'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem01']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem01']).'</td>
                     <td class="r">'.$egysegar['arf01'].'</td>
                     <td class="r">'.$egysegar['ear02'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem02']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem02']).'</td>
                     <td class="r">'.$egysegar['arf02'].'</td>
                     <td class="r">'.$egysegar['ear03'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem03']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem03']).'</td>
                     <td class="r">'.$egysegar['arf03'].'</td>
                     <td class="r">'.$egysegar['ear04'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem04']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem04']).'</td>
                     <td class="r">'.$egysegar['arf04'].'</td>
                     <td class="r">'.$egysegar['ear05'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem05']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem05']).'</td>
                     <td class="r">'.$egysegar['arf05'].'</td>
                     <td class="r">'.$egysegar['ear06'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem06']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem06']).'</td>
                     <td class="r">'.$egysegar['arf06'].'</td>
                     <td class="r">'.$egysegar['ear07'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem07']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem07']).'</td>
                     <td class="r">'.$egysegar['arf07'].'</td>
                     <td class="r">'.$egysegar['ear08'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem08']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem08']).'</td>
                     <td class="r">'.$egysegar['arf08'].'</td>
                     <td class="r">'.$egysegar['ear09'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem09']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem09']).'</td>
                     <td class="r">'.$egysegar['arf09'].'</td>
                     <td class="r">'.$egysegar['ear10'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem10']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem10']).'</td>
                     <td class="r">'.$egysegar['arf10'].'</td>
                     <td class="r">'.$egysegar['ear11'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem11']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem11']).'</td>
                     <td class="r">'.$egysegar['arf11'].'</td>
                     <td class="r">'.$egysegar['ear12'].'</td>
-                    <td>'.erteklista(21, $egysegar['dnem12']).'</td>
+                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem12']).'</td>
                     <td class="r">'.$egysegar['arf12'].'</td>
                 </tr>
                 ';
