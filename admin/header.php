@@ -1319,7 +1319,7 @@ if(basename(self())=='anyagigenyles.php'){
 }
 
 // Teszt rendszer felirat
-$teszt_rendszerek = array('demo.webdeb.hu', 'demo.szinvatrend.hu', 'teszt.onteam.hu');
+$teszt_rendszerek = array('demo.webdeb.hu', 'demo.szinvatrend.hu', 'teszt.onteam.hu', 'dev.onteam.hu');
 if( get_teszt_rendszer() ){
     $belepve .= '<div class="teszt_rendszer">Teszt rendszer</div>';
 }

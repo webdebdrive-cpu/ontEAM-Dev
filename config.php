@@ -25,7 +25,8 @@ function get_db()         {
         case 'demo.szinvatrend.hu'  : return 'szinvatrendhu1';
         case 'www.onteam.hu'        : return 'onteam_live';
         case 'onteam.hu'            : return 'onteam_live';
-        case 'teszt.onteam.hu'	    : return 'onteam_teszt';
+        case 'teszt.onteam.hu'      : return 'onteam_teszt';
+        case 'dev.onteam.hu'        : return 'onteam_dev';
     }
 }
 function get_db_user() {
@@ -36,6 +37,7 @@ function get_db_user() {
         case 'www.onteam.hu'        : return 'onteam_live';
         case 'onteam.hu'            : return 'onteam_live';
         case 'teszt.onteam.hu'      : return 'onteam_teszt' ;
+        case 'dev.onteam.hu'        : return 'onteam_teszt' ;
     }
 }
 function get_db_pass() {
@@ -45,13 +47,14 @@ function get_db_pass() {
         case 'demo.szinvatrend.hu'  : return 'vikike';
         case 'www.onteam.hu'        : return 'HMERDQgx0JHp124U';
         case 'onteam.hu'            : return 'HMERDQgx0JHp124U';
-        case 'teszt.onteam.hu'	    : return 'iChtTeSbI4GXIlXg';
+        case 'teszt.onteam.hu'      : return 'iChtTeSbI4GXIlXg';
+        case 'dev.onteam.hu'        : return 'iChtTeSbI4GXIlXg';
     }
 }
 
 // Teszt környezetben vagyunk-e vagy sem
 function get_teszt_rendszer() {
-    $teszt_rendszerek = array('demo.webdeb.hu', 'demo.szinvatrend.hu', 'teszt.onteam.hu');
+    $teszt_rendszerek = array('demo.webdeb.hu', 'demo.szinvatrend.hu', 'teszt.onteam.hu', 'dev.onteam.hu');
     if( in_array($_SERVER['HTTP_HOST'], $teszt_rendszerek) ) {
         return true;
     }

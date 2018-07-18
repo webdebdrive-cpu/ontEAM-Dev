@@ -1256,8 +1256,8 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                                     array($sor['recid'], $sor['aparecid'], $sor['telepsor'], $sor['dijelem'], $sor['ktgnemid'], $sor['mee'],  $sor['ear01'],   $sor['ear02'],   $sor['ear03'],   $sor['ear04'], $sor['ear05'],  $sor['ear06'],  $sor['ear07'],  $sor['ear08'],   $sor['ear09'],  $sor['ear10'], $sor['ear11'], $sor['ear12'],   $sor['dnem01'], $sor['dnem02'], $sor['dnem03'], $sor['dnem04'], $sor['dnem05'],  $sor['dnem06'],  $sor['dnem07'],  $sor['dnem08'],   $sor['dnem09'],  $sor['dnem10'], $sor['dnem11'], $sor['dnem12'],   $sor['arf01'],   $sor['arf02'],   $sor['arf03'],   $sor['arf04'], $sor['arf05'],  $sor['arf06'],  $sor['arf07'],  $sor['arf08'],   $sor['arf09'],  $sor['arf10'], $sor['arf11'], $sor['arf12'],   $sor['update_dt'],  $sor['update_usr'], $sor['insert_dt'],  $sor['insert_usr'],  $sor['sorid']    )
                                 );
 echo $adatbazis_kapcsolat->gp() . '<br>';
-    }
-    */
+    }*/
+    
     
     /*
     $adatbazis_kapcsolat->d('fenntartasi_terv_bwh', "recid>0");
