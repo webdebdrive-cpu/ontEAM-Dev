@@ -327,6 +327,6 @@ define('MLTIPUS_UTEMEZETT_F',   3);
 define('MLTIPUS_ESETI_FENNT',   5);
 
 
-define('ARCHIV_NAVPANEL_LIMIT', 100);
+define('ARCHIV_NAVPANEL_LIMIT', 1000);
 
 ?>

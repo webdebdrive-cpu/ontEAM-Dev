@@ -2656,7 +2656,7 @@ if (isset($_POST['f_o_szures_submit'])) {
     }else{
         $hiba_kieg = '';
         if($_SERVER['HTTP_HOST']=='demo.webdeb.hu'){
-            $hiba_kieg = '<br>'.$sql;
+            $hiba_kieg = '<br>Nyugi, ez csak WebDeb felületen látszik debughoz:<br>'.$sql;
         }
         echo json_encode(array(
             'hiba' => 'A megfogalmazott feltétel hibás, nem futtatható le!'.$hiba_kieg

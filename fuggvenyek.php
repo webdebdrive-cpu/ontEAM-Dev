@@ -2333,19 +2333,6 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             }elseif($_GET['rend']=='ikt_szam'){
                 $order .= '`'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
             }
-            
-            // Archiv menüpnt alatt egy 100-as limit mindig van (ha nincs más szűrés, akkor a feltétel a lista hossza)
-            if( $tabla == 'bejelentes_arch' ) {
-                if( $_GET['mezo'] == 'legfrissebb' ) {
-                    $limit = $_GET['felt'];
-                }else{
-                    $limit = ARCHIV_NAVPANEL_LIMIT;
-                }
-                if($order){
-                    $order .= ', ';
-                }
-                $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
-            }
 
         }
 
@@ -2419,21 +2406,30 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $order .= '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().$tabla.'`.`ikt_szam`';
             }
 
-            // Archiv menüpnt alatt egy 100-as limit mindig van (ha nincs más szűrés, akkor a feltétel a lista hossza)
-            if( $tabla == 'munkalap_arch' ) {
-                if( $_GET['mezo'] == 'legfrissebb' ) {
-                    $limit = $_GET['felt'];
-                }else{
-                    $limit = ARCHIV_NAVPANEL_LIMIT;
-                }
-                if($order){
-                    $order .= ', ';
-                }
-                $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
-            }
-
             $order = trim($order, ', ');
 
+        }
+        
+        // Archiv menüpont alatt egy 100-as limit mindig van (ha nincs más szűrés, akkor a feltétel a lista hossza)
+        if( $_GET['mezo'] == 'legfrissebb' ) {
+            $limit = $_GET['felt'];
+            if($order){
+                $order .= ', ';
+            }
+            $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
+        }
+        $osszetett_legfrissebb = strpos($_SESSION['o_szuro_feltetel'], 'me|legfrissebb#op|equal#fe|');
+        if($osszetett_legfrissebb!==false){
+            // Keressük meg a "legfrissebb" szűrő feltétel vége pozíciót
+            $vege  = strpos($_SESSION['o_szuro_feltetel'], '#es', $osszetett_legfrissebb+27);
+
+            // A feltétel vége pozíciójából kivonva a kezdőpozíciója + a 27 lesz a limit amit keresünk => "me|legfrissebb#op|equal#fe|NA ENNEK A SZÁMNAK A HOSSZA#es"
+            // Ezt a limit hosszt vágjuk ki a $_SESSION['o_szuro_feltetel'] stringből.
+            $limit = substr($_SESSION['o_szuro_feltetel'], $osszetett_legfrissebb+27, $vege-($osszetett_legfrissebb+27) );
+            if($order){
+                $order .= ', ';
+            }
+            $order .= '`'.get_db_tabla().$tabla.'`.`insert_dt` DESC';
         }
 
         // Rendezés Ütemezett feladatoknál
@@ -6003,6 +5999,7 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     $op   = sql_ertek($op);
     $felt = sql_ertek($felt);
 
+    // Legfrisebb mezőre nem szűrünk, ez a limit-re vonatkozik
     if( $mezo == 'legfrissebb' ) {
         return '';
     }
@@ -6101,7 +6098,9 @@ function get_o_szures_where_kieg($feltetel, $tabla){
 
         }
     }
-    return csonkit( $sql, 5 );
+    $sql = str_replace(array(' AND  AND ', ' OR   AND ', ' AND  OR  ', ' AND ) AND '), array(' AND ', ' OR  ', ' OR  ', ') AND '), $sql);
+    // return $sql;
+    return csonkit($sql, 5);
 }
 
 // Az adatbázisba letárolt props stringből visszaadja azt a mezőértéket, amire szükségünk van

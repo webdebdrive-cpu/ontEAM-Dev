@@ -1324,12 +1324,33 @@ if( get_teszt_rendszer() ){
     $belepve .= '<div class="teszt_rendszer">Teszt rendszer</div>';
 }
 
+// Léptető ikonok
+$lepteto_ikonok = nl2('
+        <a onclick="naviElozo();" class="elo" title="Előző">
+            <i class="material-icons">keyboard_arrow_left</i>
+        </a>
+        <a onclick="naviKov();" class="kov" title="Következő">
+            <i class="material-icons">keyboard_arrow_right</i>
+        </a>
+        <a onclick="naviElso();" class="elso" title="Első">
+            <i class="material-icons">skip_previous</i>
+        </a>
+        <a onclick="naviUtolso();" class="utolso" title="Utolsó">
+            <i class="material-icons">skip_next</i>
+        </a>
+    ');
+// Eszközkezelés alatt nincs léptetés
+$nincs_lepteto_ikon = array('dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
+if( in_array(basename(self()), $nincs_lepteto_ikon) ){
+    $lepteto_ikonok = '';
+}
+
 $get_get = get_get(array('pdf'));
 
 $header_sablon = fajlbol_olvas('../sablon/admin/header.html', true);
 $header_html .= str_replace(
-    array('{CACHE}',        '{CSS}', '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',      '{UJ}', '{DUPLIKAL}', '{TORLES}',   '{CSUSZKADN}', '{RENDEZES_REJT}', '{MAIL}', '{FELH_NEV}', '{RESZLEG}' ),
-    array('?cache='.time(),  $css,    get_nev(),  $menuk,    $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $uj,    $duplikal,    $torles_icon, $csuszkadn,    $rendezes_rejt,    $mail,    $felh_nev,    $reszleg   ),
+    array('{CACHE}',        '{CSS}', '{CEGNEV}', '{MENUK}', '{KERESO}', '{SZURES}', '{TBALW}', '{TJOBBW}', '{TARTBAL}', '{TABLA}', '{KERESODN}', '{OLDALNEV}', '{RENDEZES}', '{REND_IRANY}', '{REND_CHANGE}', '{MEGN}', '{SELF}', '{GET_GET}', '{CSV_GET}', '{SZERK_DIS}', '{BELEPVE}', '{LAPOZAS}', '{KSZ}',       '{LEPTETO_IKONOK}', '{UJ}', '{DUPLIKAL}', '{TORLES}',   '{CSUSZKADN}', '{RENDEZES_REJT}', '{MAIL}', '{FELH_NEV}', '{RESZLEG}' ),
+    array('?cache='.time(),  $css,    get_nev(),  $menuk,    $kereso,    $szures,    $tbalw,    $tjobbw,    $tartBal,    $tabla,    $keresodn,    $oldalNev,    $rendezes,    $rend_irany,    $rend_change,    $megn,    $self,    $get_get,    $csv_get,    $szerk_dis,    $belepve,    $lapozas,    $_GET['ksz'], $lepteto_ikonok,    $uj,    $duplikal,    $torles_icon, $csuszkadn,    $rendezes_rejt,    $mail,    $felh_nev,    $reszleg   ),
     $header_sablon
 );
 

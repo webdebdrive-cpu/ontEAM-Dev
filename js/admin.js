@@ -467,7 +467,10 @@ $(function() {
                 /* Eszközkezelésnél egy könyvtárszerkezet van bal oldalt */
                 }else if(tabla=='eszkozkezeles'){
 
-                    /*$('.konyvtar_szerk .active').parent().next('li').first('a').first('label').click();*/
+                    /* Itt próbálkoztunk azzal, hogy a könyvtárakon végig lehessen lépkedni, de túl bonyolult volt, hagytunk végül. Tamással megbeszélve.
+                     * $('.konyvtar_szerk .active').parent().next('li').first('a').first('label').click();
+                     * 
+                     * */
 
                 /* A listás, általános verzió */
                 }else{
@@ -1376,7 +1379,7 @@ console.log('b'+active_top);
             /* Szűrés gomb mehet a végére */
             o_szures_gomb_mutat();
 
-            /*Szűrő inputok nullázása*/
+            /* Szűrő inputok nullázása */
             $('#o_szuro_mezo').val('');
             $('#o_operator select').val('');
             $('#o_feltetel select').val('');
@@ -1473,7 +1476,10 @@ console.log('b'+active_top);
 
     /* És vagy értékének letárolása */
     $(document).on('change', '.es_vagy', function(e) {
-        $(this).find('option:selected').attr('selected', 'selected');
+        var uj_selected = $(this).find('option:selected');
+        $(this).find('option').removeAttr('selected');
+        uj_selected.attr('selected', 'selected');
+        $(this).val(uj_selected.val());
     });
 
     /* Szám mezők formázása */

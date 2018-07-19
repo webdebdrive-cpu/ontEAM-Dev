@@ -102,7 +102,15 @@ if( $_SESSION[get_db_tabla().'user'] ) {
     if( $felhasznalo['flags_ert'] ) {
         $_SESSION[get_db_tabla().'ertesites'] = str_split($felhasznalo['flags_ert']);
     }
+}
 
+// Archiv bejelentés/munkalap esetén ha nincs szűrés/összetett szűrés, akkor a legfrisseb legyen beállítva (amúgy is van rajta egy limit, ha van más szűrés, de ha nincs beállítva semmi, akkor ez látszik is).
+// FONTOS, hogy ez még itt a szamla_lista() függvény meghívása előtt legyen, mert az már számol ezekkel!
+$archivok = array('bejelentes_arch.php', 'munkalap_arch.php');
+if( in_array(basename(self()), $archivok) && !isset($_GET['mezo']) && !$_SESSION['o_szuro_feltetel'] ){
+    $_GET['mezo']   = 'legfrissebb';
+    $_GET['op']     = 'equal';
+    $_GET['felt']   = ARCHIV_NAVPANEL_LIMIT;
 }
 
 // Ha olyan $_GET['id']-t akarnék megnézni, ami az aktuális SQL-nek nem is eredménye, akkor kinullázzuk: ne lehessen leskelődni
@@ -154,12 +162,4 @@ if (isset($_GET['szures_torol'])) {
 }
 if( empty($_POST) && basename(self()) == 'anyagigenyles.php' && !$_GET['anyagrend'] && _jog(JOG_ANYAGIGENYLES_JOVAHAGY) && !$_GET['mezo'] && !$_SESSION['szures_torol']){
     header('Location:'.self().get_get('', 'nem &amp;').'&mezo=stat_id&op=equal&felt='.CIKKIGN_STAT_ARAZVA);
-}
-
-// Archiv bejelentés/munkalap esetén ha nincs szűrés, akkor a legfrisseb legyen beállítva (amúgy is van rajta egy limit, ha van más szűrés, de ha nincs beállítva semmi, akkor ez látszik is).
-$archivok = array('bejelentes_arch.php', 'munkalap_arch.php');
-if( in_array(basename(self()), $archivok) && !isset($_GET['mezo']) ){
-    $_GET['mezo']   = 'legfrissebb';
-    $_GET['op']     = 'equal';
-    $_GET['felt']   = ARCHIV_NAVPANEL_LIMIT;
 }
