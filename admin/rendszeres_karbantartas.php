@@ -90,7 +90,7 @@ if (isset($_GET['datumra_utemezes'])) {
         }
     }
 
-    if(!$_GET['esem_d'] || $_GET['esem_d']=='0000.00.00' || $_GET['esem_d']=='    .  .  '){
+    if(!$_GET['esem_d'] || $_GET['esem_d']=='0000.00.00' || $_GET['esem_d']>'    .  .  '){
         $_GET['esem_d'] = date('Y.m.d');
     }
     
@@ -99,12 +99,13 @@ if (isset($_GET['datumra_utemezes'])) {
 // $szamla_html .= "esemd: $esem_d<br>cikltip: $_GET[cikltip]<br>ciklaltip: $_GET[ciklaltip]<br>ciklszorz: $_GET[ciklszorz_]<br>ciklho: $_GET[ciklho]<br>ciklhet: $_GET[ciklhet]<br>ciklnap: $_GET[ciklnap]<br>idoszakos: $_GET[idoszakos]<br>kezdho: $_GET[kezdho]<br>kezdnap: $_GET[kezdnap]<br>vegeho: $_GET[vegeho]<br>vegenap: $_GET[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
 
     // $getnextvaliddate = getnextvaliddate(false, $_GET['esem_d'], $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz_'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $_GET['idoszakos'], $_GET['kezdho'], $_GET['kezdnap'], $_GET['vegeho'], $_GET['vegenap'], $aktkezd_d, $aktvege_d);
-
     $esedekes = $_GET['esnap_d'];
-    if(!$esedekes || $esedekes=='0000.00.00' || $esedekes=='    .  .  '){
+    
+    if(!$esedekes || $esedekes=='0000.00.00' || $esedekes>'3000.00.00'/* Az $esedekes == '    .  .  ' feltétel sehogy sem működött*/){
         $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
         $esedekes = $getnextvaliddate;
     }
+
 // Fontos, hogy az első ütemezés az esedékesség napja legyen, Ezért lett kivéve az alábbi kód, mert a getnextvaliddate-et futtatva már más dátum jönne ki első időpontra, pedig oda az esedékességet kell írni. 
 //    if( !is_numeric( substr($esedekes, 0, 1) ) ||  $esedekes == '    .  .  ' || $getnextvaliddate>$esedekes){
 //        $esedekes = $getnextvaliddate;

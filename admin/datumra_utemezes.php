@@ -25,7 +25,7 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
         $dnext = '';
     }
 
-	
+
 	while (($dlast != $dnext or $dnext < date(DATEFORMAT, strtotime("+1 day"))) and $dnext < date(DATEFORMAT, strtotime('+10 year')))  //legfeljebb a következő 2 évre keressük ütemezhetőséget
 	{
 		$i = $i + 1;
@@ -36,7 +36,7 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
 		if($dlast<0){
             $dlast = '000.00.00';
         }
-//var_dump($dnext);
+// var_dump($dnext);
         $dnext = validnextdate($dlast, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d);
 		$lstart = true; // ha elsőnek kiszámolt esedékesség érvénytelen, újrakezdjük esedékesség számítását mai naptól
 		if ($i == 100)  // ha végtelen ciklusba keveredne
@@ -151,6 +151,7 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 	*/
 	if ($lstart)
 	{
+
 		/*
 		újfelvitelkor vagy intervallum kezdéskor következő esedékesség számítása
 		ha m.dlast jövőbeni, akkor lehet esedékes ezért az előző nappal kezdjük

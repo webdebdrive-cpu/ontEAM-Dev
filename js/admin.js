@@ -5870,7 +5870,7 @@ function helyisegVane( that ) {
                 alert2('Kérem előbb válasszon szállodát!');
                 return false;
             }
-
+            
             alert2('Kérem előbb válasszon helyiséget!');
             return false;
         } else {

@@ -54,6 +54,12 @@
             }
 
             $(this).keyup(function(e) {
+                
+                /* Ha readonly, akkor nem csinálunk semmit */
+                if($(this).attr('readonly')){
+                    return false;
+                }
+                
                 that  = $(this);
 
                 kesleltetes = 500;
