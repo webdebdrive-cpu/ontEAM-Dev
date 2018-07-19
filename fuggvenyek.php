@@ -46,8 +46,9 @@ function i_u($type, $tabla, $tomb) {
 
         // Fenntartási terv csak akkor szerkeszthető, ha munkaközi
         if( $tabla == 'fenntartasi_terv' ){
-            $terv = $adatbazis_kapcsolat->s('stat_id', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
+            $terv = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
             if( $terv === false ) { $db_error = true; }
+
             if($terv['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
                 exit;
             }
@@ -892,7 +893,7 @@ function i_u($type, $tabla, $tomb) {
 
 		$id = $adatbazis_kapcsolat -> update($tabla, $oszlopok, $ertekek, "`recid`='{$_GET['id']}'");
         if( $id === false ) { $db_error = true; }
-
+// echo $adatbazis_kapcsolat->gp() . '<br>';
         if( $id ) {
             $sor = $adatbazis_kapcsolat->s('*', $tabla, "`recid`='{$_GET['id']}'", '', '1');
             if( $sor === false ) { $db_error = true; }

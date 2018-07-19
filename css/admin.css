@@ -3307,6 +3307,26 @@ th.egys_szall {
     width: 20rem;
 }
 
+th.ktgnem_kod {
+    min-width: 5rem;
+    width: 5rem;
+}
+
+tr.ftt_menny input{
+    width: 6rem;
+}
+
+tr.ftt_menny td{
+    white-space: nowrap;
+}
+tr.ftt_menny td.wrap{
+    white-space: normal;
+}
+
+tfoot.nowrap td{
+    white-space: nowrap;
+}
+
 th.egys_dev {
     min-width: 3rem;
     width: 3rem;
@@ -3426,8 +3446,4 @@ div.respo_felh .menu_icon span:before, div.respo_felh .menu_icon span:after {
 .anyagokTable .dtc.form_bal {
     min-width: 13.2rem;
     width: 13.2rem;
-}
-
-tr.ftt_menny input{
-    width: 6rem;
 }

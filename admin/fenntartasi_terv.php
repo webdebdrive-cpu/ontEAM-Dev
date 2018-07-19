@@ -442,9 +442,9 @@ if (isset($_POST['energia_tabla_ment'])) {
     if( $sor === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
-    if($sor['stat_id']==ENERGIATERV_STAT_ELES){
+    if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         echo json_encode(array(
-            'hiba'  => 'Éles terv nem szerkeszthető!',
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
             'title' => 'Hiba'
         ));
         
@@ -594,9 +594,9 @@ if (isset($_POST['muszaki_tabla_ment'])) {
     if( $sor === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
-    if($sor['stat_id']==ENERGIATERV_STAT_ELES){
+    if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         echo json_encode(array(
-            'hiba'  => 'Éles terv nem szerkeszthető!',
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
             'title' => 'Hiba'
         ));
         
@@ -779,9 +779,9 @@ if (isset($_POST['rendszeres_tabla_ment'])) {
     if( $sor === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
-    if($sor['stat_id']==ENERGIATERV_STAT_ELES){
+    if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         echo json_encode(array(
-            'hiba'  => 'Éles terv nem szerkeszthető!',
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
             'title' => 'Hiba'
         ));
         
@@ -970,9 +970,9 @@ if (isset($_POST['eseti_tabla_ment'])) {
     if( $sor === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
-    if($sor['stat_id']==ENERGIATERV_STAT_ELES){
+    if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         echo json_encode(array(
-            'hiba'  => 'Éles terv nem szerkeszthető!',
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
             'title' => 'Hiba'
         ));
         
@@ -1157,9 +1157,9 @@ if (isset($_POST['hiba_tabla_ment'])) {
     if( $sor === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
-    if($sor['stat_id']==ENERGIATERV_STAT_ELES){
+    if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         echo json_encode(array(
-            'hiba'  => 'Éles terv nem szerkeszthető!',
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
             'title' => 'Hiba'
         ));
         
@@ -1348,9 +1348,9 @@ if (isset($_POST['bwh_tabla_ment'])) {
     if( $sor === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
-    if($sor['stat_id']==ENERGIATERV_STAT_ELES){
+    if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         echo json_encode(array(
-            'hiba'  => 'Éles terv nem szerkeszthető!',
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
             'title' => 'Hiba'
         ));
         
@@ -1732,9 +1732,9 @@ if (isset($_POST['sor_torol'])) {
     if( $ful === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
-    if($sor['stat_id']==ENERGIATERV_STAT_ELES){
+    if($sor['stat_id']==ENERGIATERV_STAT_ELES || $sor['stat_id']==ENERGIATERV_STAT_KESZ){
         echo json_encode(array(
-            'hiba'  => 'Éles terv sora nem törölhető!',
+            'hiba'  => 'Kész és éles státuszú terv nem törölhető!',
             'title' => 'Hiba'
         ));
         
@@ -1939,7 +1939,7 @@ require_once('selectek.php');
         foreach($ful_tomb as $key => $value) {
             
             // A BWH fül csak Hungária (2120) szálloda esetén látszik
-            if( in_array(2120, $sajat_szallodak) || $key != 'bwh' ){
+            if( (in_array(2120, $sajat_szallodak) && $sor['telephely_id']==2120) || $key != 'bwh' ){
                 $active = 'active';
                 if( isset($_GET[$key]) ) {
                     $active = ' class="active"';
@@ -2014,8 +2014,8 @@ require_once('selectek.php');
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="fenntartasterv_veglegesit()"> ';
             }
             
-            // Fülek alatti gombok csak akkor érhetőek el, ha van is hozzá jogunk
-            if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ){
+            // Fülek alatti gombok csak akkor érhetőek el, ha van is hozzá jogunk, és munkaközi a státusza
+            if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){
                 if( isset($_GET['energia']) && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO ){
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kitöltés" onclick="kapcsolodoSzerkeszt(\'ft_energia_mennyiseg\');"> ';
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt dn" id="valtoztatas_jovahagyas" value="Változás jóváhagyás" onclick="valtozas_jovahagyas()"> ';
@@ -2224,8 +2224,8 @@ require_once('selectek.php');
             <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
             <thead>
             <tr>
-                <th><span>Költségnem</span></th>
-                <th><span>Költségnem</span></th>
+                <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+                <th><span>Ktgnem név</span></th>
                 <th class="egys_szall"><span>Tárgy</span></th>
                 <th><span>Mee</span></th>
                 <th><span>Egységár Január</span></th>
@@ -2408,7 +2408,7 @@ require_once('selectek.php');
 
         $szamla_html .= nl2('
                             </tbody>
-                            <tfoot>
+                            <tfoot class="nowrap">
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -2459,7 +2459,7 @@ require_once('selectek.php');
                         ');
         
         // Ha van eltérés az energia egységárahoz képest, akkor egy plusz gombot kiíruratunk
-        if($volt_valtozas && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO){
+        if($volt_valtozas && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
             $szamla_html .= nl2('
                         <script>
                         $(document).ready(function () {
@@ -2506,8 +2506,8 @@ require_once('selectek.php');
             <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
             <thead>
             <tr>
-                <th class="egys_szall"><span>Költségnem</span></th>
-                <th><span>Költségnem</span></th>
+                <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+                <th><span>Ktgnem név</span></th>
                 <th><span>Január</span></th>
                 <th><span>Február</span></th>
                 <th><span>Március</span></th>
@@ -2558,7 +2558,7 @@ require_once('selectek.php');
 
         $szamla_html .= nl2('
                             </tbody>
-                            <tfoot>
+                            <tfoot class="nowrap">
                                 <td></td>
                                 <td></td>
                                 <td class="r" id="szum_ft01"></td>
@@ -2618,8 +2618,8 @@ require_once('selectek.php');
             <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
             <thead>
             <tr>
-                <th class="egys_szall"><span>Költségnem</span></th>
-                <th><span>Költségnem</span></th>
+                <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+                <th><span>Ktgnem név</span></th>
                 <th><span>Tárgy</span></th>
                 <th><span>Összesen</span></th>
                 <th><span>Január</span></th>
@@ -2657,7 +2657,7 @@ require_once('selectek.php');
                 <tr id="ft_ft_'.$rendszeres['recid'].'" data-recid="'.$rendszeres['recid'].'" class="ftt_menny">
                     <td>'.$rendszeres['ktgnem_id'].'</td>
                     <td>'.getErtek('nev', 'ktgnem', 'id', $rendszeres['ktgnem_id']).'</td>
-                    <td>'.$rendszeres['targy'].'</td>
+                    <td class="wrap">'.$rendszeres['targy'].'</td>
                     <td class="r ftossz">'.$osszesen.'</td>
                     <td class="r ft01">'.$rendszeres['ft01'].'</td>
                     <td class="r ft02">'.$rendszeres['ft02'].'</td>
@@ -2677,8 +2677,7 @@ require_once('selectek.php');
 
         $szamla_html .= nl2('
                             </tbody>
-                            <tfoot>
-                                <td></td>
+                            <tfoot class="nowrap">
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -2740,8 +2739,8 @@ require_once('selectek.php');
             <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
             <thead>
             <tr>
-                <th class="egys_szall"><span>Költségnem</span></th>
-                <th><span>Költségnem</span></th>
+                <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+                <th><span>Ktgnem név</span></th>
                 <th><span>Tárgy</span></th>
                 <th><span>Részletes leírás</span></th>
                 <th><span>Január</span></th>
@@ -2775,8 +2774,8 @@ require_once('selectek.php');
                 <tr id="ft_ft_'.$eseti['recid'].'" data-recid="'.$eseti['recid'].'" class="ftt_menny">
                     <td>'.$eseti['ktgnem_id'].'</td>
                     <td>'.getErtek('nev', 'ktgnem', 'id', $eseti['ktgnem_id']).'</td>
-                    <td>'.$eseti['targy'].'</td>
-                    <td>'.nl2br2($eseti['leir']).'</td>
+                    <td class="wrap">'.$eseti['targy'].'</td>
+                    <td class="wrap">'.nl2br2($eseti['leir']).'</td>
                     <td class="r ft01">'.$eseti['ft01'].'</td>
                     <td class="r ft02">'.$eseti['ft02'].'</td>
                     <td class="r ft03">'.$eseti['ft03'].'</td>
@@ -2795,7 +2794,7 @@ require_once('selectek.php');
 
         $szamla_html .= nl2('
                             </tbody>
-                            <tfoot>
+                            <tfoot class="nowrap">
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -2857,8 +2856,8 @@ require_once('selectek.php');
             <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
             <thead>
             <tr>
-                <th class="egys_szall"><span>Költségnem</span></th>
-                <th><span>Költségnem</span></th>
+                <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+                <th><span>Ktgnem név</span></th>
                 <th><span>Részletes leírás</span></th>
                 <th><span>Január</span></th>
                 <th><span>Február</span></th>
@@ -2891,7 +2890,7 @@ require_once('selectek.php');
                 <tr id="ft_ft_'.$hiba['recid'].'" data-recid="'.$hiba['recid'].'" class="ftt_menny">
                     <td>'.$hiba['ktgnem_id'].'</td>
                     <td>'.getErtek('nev', 'ktgnem', 'id', $hiba['ktgnem_id']).'</td>
-                    <td>'.nl2br2($hiba['leir']).'</td>
+                    <td class="wrap">'.nl2br2($hiba['leir']).'</td>
                     <td class="r ft01">'.$hiba['ft01'].'</td>
                     <td class="r ft02">'.$hiba['ft02'].'</td>
                     <td class="r ft03">'.$hiba['ft03'].'</td>
@@ -2910,7 +2909,7 @@ require_once('selectek.php');
 
         $szamla_html .= nl2('
                             </tbody>
-                            <tfoot>
+                            <tfoot class="nowrap">
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -2971,8 +2970,8 @@ require_once('selectek.php');
             <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
             <thead>
             <tr>
-                <th class="egys_szall"><span>Költségnem</span></th>
-                <th><span>Költségnem</span></th>
+                <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+                <th><span>Ktgnem név</span></th>
                 <th><span>Tárgy</span></th>
                 <th><span>Leírás</span></th>
                 <th><span>Január</span></th>
@@ -3006,8 +3005,8 @@ require_once('selectek.php');
                 <tr id="ft_ft_'.$bwh['recid'].'" data-recid="'.$bwh['recid'].'" class="ftt_menny">
                     <td>'.$bwh['ktgnem_id'].'</td>
                     <td>'.getErtek('nev', 'ktgnem', 'id', $bwh['ktgnem_id']).'</td>
-                    <td>'.$bwh['targy'].'</td>
-                    <td>'.nl2br2($bwh['leir']).'</td>
+                    <td class="wrap">'.$bwh['targy'].'</td>
+                    <td class="wrap">'.nl2br2($bwh['leir']).'</td>
                     <td class="r ft01">'.$bwh['ft01'].'</td>
                     <td class="r ft02">'.$bwh['ft02'].'</td>
                     <td class="r ft03">'.$bwh['ft03'].'</td>
@@ -3026,7 +3025,7 @@ require_once('selectek.php');
 
         $szamla_html .= nl2('
                             </tbody>
-                            <tfoot>
+                            <tfoot class="nowrap">
                                 <td></td>
                                 <td></td>
                                 <td></td>
@@ -3088,8 +3087,8 @@ require_once('selectek.php');
             <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
             <thead>
             <tr>
-                <th class="egys_szall"><span>Költségnem</span></th>
-                <th><span>Költségnem</span></th>
+                <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+                <th><span>Ktgnem név</span></th>
                 <th><span>Január</span></th>
                 <th><span>Február</span></th>
                 <th><span>Március</span></th>
@@ -3177,7 +3176,7 @@ require_once('selectek.php');
 
         $szamla_html .= nl2('
                             </tbody>
-                            <tfoot>
+                            <tfoot class="nowrap">
                                 <td></td>
                                 <td></td>
                                 <td class="r" id="szum_ft01"></td>
