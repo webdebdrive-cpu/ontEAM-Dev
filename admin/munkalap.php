@@ -2102,7 +2102,9 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                                                         array($szallitoid,   KULSO_KIVITELEZO,  $varh_erk   ),
                                                 "`recid` = '{$recid}'");
             if( $sql === false ) { $db_error = true; }
-            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT ) ) {
+            
+            $memo = 'Kivitelező: '.getErtek('nev', 'szallito', 'id', $szallitoid);
+            if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT, '', $memo ) ) {
                 $db_error = true;
             }
         }
@@ -6249,8 +6251,8 @@ require('selectek.php');
             ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_ELOKESZITES_ALATT  && $_SESSION[get_db_tabla().'szemelyzet_id']==$sor['szemelyzet_id'] && _jog( JOG_MUNKALAP_KULSOS_ELOKESZIT )  ) ||
             ( /* Modell nem számít */ $sor['stat_id']==MUNKALAP_STAT_VIZSGALAT_ALATT    && _jog(JOG_MUNKALAP_VIZSGALAT)         )
            ){
-            $gombok .= '<input type="button" class="gomb piros" value="Visszaadás" onclick="csoportMuvelet(\'atadasDiszpecsernek\');"> ';
-        }
+                $gombok .= '<input type="button" class="gomb piros" value="Visszaadás" onclick="csoportMuvelet(\'atadasDiszpecsernek\');"> ';
+            }
 
         // "Döntés alatt" státuszkor, ha még egy jóváhagyás sem történt és van jogunk, akkor a jóváhagyott értéket szerkeszteni lehet
         if( $sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_ELOKESZIT) && $sor['jh1_login']=='' && $sor['jh2_login']=='' ){
