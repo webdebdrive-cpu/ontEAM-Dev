@@ -149,13 +149,9 @@ if (isset($_POST['terv_keszit'])) {
     // Ha a kijelölt terv alapján kell létrehozni az újat, akkor lekérjük a kijelölt adatait
     if($kijelolt){
         
-        // Kijelölt terv adatai
-        $kijelolt = $adatbazis_kapcsolat->s2('earrecid', 'fenntartasi_terv', "`recid`='{$recid}'");
-        if( $kijelolt === false ) { $db_error = true; }
-        
         // Új terv létrehozása
-        $uj_id = $adatbazis_kapcsolat->i('fenntartasi_terv',    array('earrecid',            'ev', 'telephely_id', 'loginnev',                        'insert_dt',    'insert_usr',                             'update_usr'                              ),
-                                                                array($kijelolt['earrecid'], $ev,  $telephely,     $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
+        $uj_id = $adatbazis_kapcsolat->i('fenntartasi_terv',    array('ev', 'telephely_id', 'loginnev',                        'insert_dt',    'insert_usr',                             'update_usr'                              ),
+                                                                array($ev,  $telephely,     $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']    )
                                         );
         if( $uj_id === false ) { $db_error = true; }
 
@@ -334,6 +330,14 @@ if (isset($_POST['terv_keszit'])) {
             if( $sql === false ) { $db_error = true; }
         }
 
+    }
+    
+    // Ha van éles energia terv adott évre, akkor annak recid-ját etároljuk az earrecid-ba
+    $energia_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$ev}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
+    if( $energia_terv === false ) { $db_error = true; }
+    if($energia_terv){
+        $sql = $adatbazis_kapcsolat->u('fenntartasi_terv', array('earrecid'), array($energia_terv['recid']), "`recid`='{$uj_id}'");
+        if( $sql === false ) { $db_error = true; }
     }
 
     // Kezdőstátusz beállítása
