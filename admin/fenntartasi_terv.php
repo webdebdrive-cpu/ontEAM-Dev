@@ -446,9 +446,9 @@ if (isset($_POST['energia_tabla_ment'])) {
     if( $sor === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
-    if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
+    if($sor['stat_id']==ENERGIATERV_STAT_ELES){
         echo json_encode(array(
-            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
+            'hiba'  => 'Éles terv nem szerkeszthető!',
             'title' => 'Hiba'
         ));
         
@@ -1612,6 +1612,9 @@ if (isset($_POST['valtozas_jovahagyas'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
+    $sor = $adatbazis_kapcsolat->s2('ev stat_id telephely_id', 'fenntartasi_terv', "`recid`='{$recid}'");
+    if( $sor === false ) { $db_error = true; }
+    
     // Jog ellenőrzése
     if(!_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) || $_SESSION[get_db_tabla().'szemelyzet_id']!=MUSZAKI_VEZETO){
         echo json_encode(array(
@@ -1623,8 +1626,17 @@ if (isset($_POST['valtozas_jovahagyas'])) {
         exit();
     }
     
-    $sor = $adatbazis_kapcsolat->s2('ev telephely_id', 'fenntartasi_terv', "`recid`='{$recid}'");
-    if( $sor === false ) { $db_error = true; }
+    // Státusz ellenőrzése
+    if($sor['stat_id']==ENERGIATERV_STAT_ELES){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => 'Éles fenntartási terv nem módosítható!',
+            'title' => 'Hiba'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
     
     $energia_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$sor['ev']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
     if( $energia_terv === false ) { $db_error = true; }
@@ -2018,12 +2030,14 @@ require_once('selectek.php');
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="fenntartasterv_veglegesit()"> ';
             }
             
-            // Fülek alatti gombok csak akkor érhetőek el, ha van is hozzá jogunk, és munkaközi a státusza
-            if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){
+            // Fülek alatti gombok csak akkor érhetőek el, ha van is hozzá jogunk, és munkaközi a státusza, kivéve az energiát (ott csak akkor, ha nem éles)
+            if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && $sor['stat_id']!=ENERGIATERV_STAT_ELES ){
                 if( isset($_GET['energia']) && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO ){
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kitöltés" onclick="kapcsolodoSzerkeszt(\'ft_energia_mennyiseg\');"> ';
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt dn" id="valtoztatas_jovahagyas" value="Változás jóváhagyás" onclick="valtozas_jovahagyas()"> ';
                 }
+            }
+            if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){
                 if( isset($_GET['muszaki_anyag']) ){
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kitöltés" onclick="kapcsolodoSzerkeszt(\'ft_muszaki_anyag\');"> ';
 //                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Új sor" onclick="kapcsolodoSzerkeszt(\'ft_muszaki_anyag_uj\');"> ';
@@ -2463,7 +2477,7 @@ require_once('selectek.php');
                         ');
         
         // Ha van eltérés az energia egységárahoz képest, akkor egy plusz gombot kiíruratunk
-        if($volt_valtozas && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+        if($volt_valtozas && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO && $sor['stat_id']!=ENERGIATERV_STAT_ELES){
             $szamla_html .= nl2('
                         <script>
                         $(document).ready(function () {
@@ -3119,10 +3133,30 @@ require_once('selectek.php');
 
             if( !in_array($tabla_post, $kivetelek) ){
             
-                $ful_sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_'.$tabla_post, "`fenntartasi_terv_id`='{$_GET['id']}'");
+                $ful_sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_'.$tabla_post, "`fenntartasi_terv_id`='{$_GET['id']}'", '', '', 'ktgnem_id');
+// echo '---'.$adatbazis_kapcsolat->gp() . '<br>';
                 if($ful_sorok){
                     foreach($ful_sorok as $sor){
 
+                        // Mivel költségnem id szerint group by-oztunk, ezért itt le kell kérni újra a sorokat, mert lehet több azonos költségnem rekord is van adott terv_id-hoz
+                        // Első lépésként ezket ezért nullázzuk is
+                        for($i=1; $i<13; $i++){
+                            if($i<10){
+                                $i = '0'.$i;
+                            }
+                            $sor['ft'.$i] = 0;
+                        }
+                        $akt_ful_sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_'.$tabla_post, "`fenntartasi_terv_id`='{$_GET['id']}' AND `ktgnem_id`='{$sor['ktgnem_id']}'");
+// echo $adatbazis_kapcsolat->gp() . '<br>';
+                        foreach($akt_ful_sorok as $akt_sor){
+                            for($i=1; $i<13; $i++){
+                                if($i<10){
+                                    $i = '0'.$i;
+                                }
+                                $sor['ft'.$i] += $akt_sor['ft'.$i];
+                            }
+                        }
+                        
                         for($i=1; $i<13; $i++){
                             if($i<10){
                                 $i = '0'.$i;
