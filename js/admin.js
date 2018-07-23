@@ -469,7 +469,7 @@ $(function() {
 
                     /* Itt próbálkoztunk azzal, hogy a könyvtárakon végig lehessen lépkedni, de túl bonyolult volt, hagytunk végül. Tamással megbeszélve.
                      * $('.konyvtar_szerk .active').parent().next('li').first('a').first('label').click();
-                     * 
+                     *
                      * */
 
                 /* A listás, általános verzió */
@@ -4847,6 +4847,11 @@ function bejegyzesekLista( that, irany, rkat, ksz ) {
                 $('#tartalomBal').scrollTop(active_top - 250);
 
             }
+
+            /* Megtriggerjük a keresés mezőt, hogy leszűkítsen */
+            if( $('#rendezesKeres').val() ) {
+                $('#rendezesKeres').trigger('keyup');
+            }
         });
     }
 }
@@ -5356,7 +5361,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                 anyagrend += 'felt='+_get('felt')+'&amp;';
             }
         }
-        
+
         /* Eszközkezelésnél linkekre active class-t tenni */
         if( page=='eszkozkezeles.php' ){
             $('.konyvtar_szerk a, .konyvtar_szerk li').removeClass('active');
@@ -5870,7 +5875,7 @@ function helyisegVane( that ) {
                 alert2('Kérem előbb válasszon szállodát!');
                 return false;
             }
-            
+
             alert2('Kérem előbb válasszon helyiséget!');
             return false;
         } else {
