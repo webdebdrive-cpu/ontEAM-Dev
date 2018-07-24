@@ -2647,7 +2647,17 @@ if (isset($_POST['f_o_szures_submit'])) {
         $join = ' JOIN `'.get_db_tabla().'szakter_kapcs` ON `'.get_db_tabla().$_POST['tabla'].'`.`recid`=`'.get_db_tabla().'szakter_kapcs`.`szallito_id` ';
     }
     $sql = 'SELECT * FROM `'.get_db_tabla().$_POST['tabla'].'`'.$join.' WHERE '.get_o_szures_where_kieg($_POST['feltetel'], $_POST['tabla']);
-    if(mysqli_query($db_kapcs, $sql)){
+    $lekerdez = mysqli_query($db_kapcs, $sql);
+    if($lekerdez){
+        if(!$_POST['mehet'] && mysqli_num_rows($lekerdez)>SZURES_DB_LIMIT){
+            echo json_encode(array(
+                'hiba'  => 'Ezzel a szűrési feltétellel több mint '.SZURES_DB_LIMIT.' sor adatot listázna ki.<br>Biztosan folytatja?',
+                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'.f_o_szures_submit\').addClass(\'mehet\').click(); alert2();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.f_o_szures_submit\').removeClass(\'mehet\');">',
+                'title' => 'Kérdés'
+            ));
+            $weblap->leallit();
+            exit();
+        }
         $_SESSION['o_szuro_feltetel'] = $_POST['feltetel'];
         $_SESSION['o_szuro_html']     = $_POST['html'];
         echo json_encode(array(
@@ -2659,7 +2669,8 @@ if (isset($_POST['f_o_szures_submit'])) {
             $hiba_kieg = '<br>Nyugi, ez csak WebDeb felületen látszik debughoz:<br>'.$sql;
         }
         echo json_encode(array(
-            'hiba' => 'A megfogalmazott feltétel hibás, nem futtatható le!'.$hiba_kieg
+            'hiba'  => 'A megfogalmazott feltétel hibás, nem futtatható le!'.$hiba_kieg,
+            'title' => 'Hiba'
         ));
     }
 

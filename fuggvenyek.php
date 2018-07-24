@@ -2563,6 +2563,13 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         $sql = $adatbazis_kapcsolat->gp();
 
     }
+    
+    // Ha csak a darabszámra vagyunk kíváncsiak, akkor ezt írjuk ki, amit az admin.js f_szures_submit-nál kezelünk le
+    if (isset($_GET['sql_db'])) {
+        echo count($bejegyzesek);
+        $weblap -> leallit();
+        exit;
+    }
 
     // Weblap.php elején vizsgáljuk, hogy a kért ID-t egyáltlán láthatjuk-e vagy sem. Ekkor elég ha kapunk egy SQL-t
     if($csak_sql_miatt){
@@ -5367,7 +5374,7 @@ function getOszlopNev( $oszlop, $kieg_nev = '' ) {
     if( basename(self()) == 'projektigenyles.php' || basename(self()) == 'eloterj_fb.php' || basename(self()) == 'eloterj_bod.php' ) {
         $oszlopNevek['ikt_szam'] = 'Azonosító';
     }
-    if( basename(self()) == 'energia_terv.php' ) {
+    if( basename(self()) == 'energia_terv.php' || basename(self()) == 'fenntartasi_terv.php' ) {
         $oszlopNevek['ikt_szam'] = 'Tervszám';
     }
     if( basename(self()) == 'szallito.php' ) {

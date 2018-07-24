@@ -7,7 +7,7 @@ var KEY_UP     =  38;
 var KEY_DOWN   =  40;
 var KEY_PLUS   =  107;
 var KEY_MINUS  =  109;
-var KEY_F5     = 116;
+var KEY_F5     =  116;
 
 var EGYSEGAR_VALASZT = 'Kérjük válasszon egységár sort!';
 
@@ -1318,9 +1318,37 @@ console.log('b'+active_top);
             if(get_get(['mezo', 'op', 'felt']).indexOf('?')<0){
                 kerdo_es = '?';
             }
+            
+            var szures_link = get_get(['mezo', 'op', 'felt'])+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt;
+            if(!$(this).hasClass('mehet')){
+                
+                link = location.href;
+                link = link.split('?');
+                link = link[0];
 
-            szurkit();
-            location.href=get_get(['mezo', 'op', 'felt'])+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt;
+                $.ajax({
+                    url : link,
+                    type: 'GET',
+                    data: get_get(['mezo', 'op', 'felt']).replace(link+'?', '')+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt+'&sql_db',
+                    success: function (response) {
+                        if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                        
+                        if(response>SZURES_DB_LIMIT){
+                            alert2('Ezzel a szűrési feltétellel több mint '+SZURES_DB_LIMIT+' sor adatot listázna ki.<br>Biztosan folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="$(\'.f_szures_submit\').addClass(\'mehet\').click();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.f_szures_submit\').removeClass(\'mehet\');">', 'Kérdés');
+                        }else{
+                            szurkit();
+                            location.href=szures_link;
+                        }
+                    }
+                });
+                
+            }else{
+                
+                szurkit();
+                location.href=szures_link;
+            
+            }
+
         }
     });
 
@@ -1428,13 +1456,19 @@ console.log('b'+active_top);
             feltetel += $(this).find('.es_vagy').val()+'#';
 
         });
+        
+        var mehet = 0;
+        if( $(this).hasClass('mehet') ){
+            mehet = 1;
+        }
 
         $.ajax({
-            url: 'esemenyek.php',
+            url : 'esemenyek.php',
             type: 'POST',
             data: {
                 tabla            : $('#o_szuro_mezo').attr('data-tabla'),
                 feltetel         : feltetel,
+                mehet            : mehet,
                 html             : $('#o_feltetel_halmaz').html(),
                 f_o_szures_submit: new Date().getTime()
             },
@@ -1443,7 +1477,7 @@ console.log('b'+active_top);
                 response = JSON.parse(response);
 
                 if( response.hiba ) {
-                    alert2(response.hiba, response.gomb, 'Hiba');
+                    alert2(response.hiba, response.gomb, response.title);
                 }
                 if( response.mehet ) {
                     szurkit();

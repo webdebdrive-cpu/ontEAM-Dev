@@ -1424,8 +1424,8 @@ $header_html .= nl2('
     <script>var _jogok = \''.$jogok.'\';</script>
 ');
 
-
 echo $header_html.fajlbol_olvas('../sablon/admin/js_beagyazasok.html', true);
+echo '<script>var SZURES_DB_LIMIT = '.SZURES_DB_LIMIT.';</script>';
 
 if( $_SESSION[get_db_tabla().'login_recid'] ) {
 

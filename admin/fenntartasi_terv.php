@@ -333,12 +333,7 @@ if (isset($_POST['terv_keszit'])) {
     }
     
     // Ha van éles energia terv adott évre, akkor annak recid-ját etároljuk az earrecid-ba
-    $energia_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$ev}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
-    if( $energia_terv === false ) { $db_error = true; }
-    if($energia_terv){
-        $sql = $adatbazis_kapcsolat->u('fenntartasi_terv', array('earrecid'), array($energia_terv['recid']), "`recid`='{$uj_id}'");
-        if( $sql === false ) { $db_error = true; }
-    }
+    earrecid_beallit($ev, $uj_id);
 
     // Kezdőstátusz beállítása
     $sql = $adatbazis_kapcsolat -> i('fenntartasi_terv_statusz',
@@ -442,8 +437,10 @@ if (isset($_POST['energia_tabla_ment'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    $sor = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat->s2('stat_id ev', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
+    // Ha van éles energia terv adott évre, akkor annak recid-ját etároljuk az earrecid-ba
+    earrecid_beallit($sor['ev'], $_POST['id']);
     
     // Státusz ellenőrzése
     if($sor['stat_id']==ENERGIATERV_STAT_ELES){
@@ -594,8 +591,10 @@ if (isset($_POST['muszaki_tabla_ment'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    $sor = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat->s2('stat_id ev', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
+    // Ha van éles energia terv adott évre, akkor annak recid-ját etároljuk az earrecid-ba
+    earrecid_beallit($sor['ev'], $_POST['id']);
     
     // Státusz ellenőrzése
     if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
@@ -779,8 +778,11 @@ if (isset($_POST['rendszeres_tabla_ment'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    $sor = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat->s2('stat_id ev', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
+    
+    // Ha van éles energia terv adott évre, akkor annak recid-ját etároljuk az earrecid-ba
+    earrecid_beallit($sor['ev'], $_POST['id']);
     
     // Státusz ellenőrzése
     if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
@@ -970,8 +972,10 @@ if (isset($_POST['eseti_tabla_ment'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    $sor = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat->s2('stat_id ev', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
+    // Ha van éles energia terv adott évre, akkor annak recid-ját etároljuk az earrecid-ba
+    earrecid_beallit($sor['ev'], $_POST['id']);
     
     // Státusz ellenőrzése
     if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
@@ -1157,8 +1161,10 @@ if (isset($_POST['hiba_tabla_ment'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    $sor = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat->s2('stat_id ev', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
+    // Ha van éles energia terv adott évre, akkor annak recid-ját etároljuk az earrecid-ba
+    earrecid_beallit($sor['ev'], $_POST['id']);
     
     // Státusz ellenőrzése
     if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
@@ -1348,8 +1354,10 @@ if (isset($_POST['bwh_tabla_ment'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
     
-    $sor = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat->s2('stat_id ev', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
+    // Ha van éles energia terv adott évre, akkor annak recid-ját etároljuk az earrecid-ba
+    earrecid_beallit($sor['ev'], $_POST['id']);
     
     // Státusz ellenőrzése
     if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
@@ -1615,6 +1623,9 @@ if (isset($_POST['valtozas_jovahagyas'])) {
     $sor = $adatbazis_kapcsolat->s2('ev stat_id telephely_id', 'fenntartasi_terv', "`recid`='{$recid}'");
     if( $sor === false ) { $db_error = true; }
     
+    // Ha van éles energia terv adott évre, akkor annak recid-ját etároljuk az earrecid-ba
+    earrecid_beallit($sor['ev'], $_POST['id']);
+    
     // Jog ellenőrzése
     if(!_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) || $_SESSION[get_db_tabla().'szemelyzet_id']!=MUSZAKI_VEZETO){
         echo json_encode(array(
@@ -1741,11 +1752,14 @@ if (isset($_POST['sor_torol'])) {
         exit;
     }
     
-    $sor = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
+    $sor = $adatbazis_kapcsolat->s2('stat_id ev', 'fenntartasi_terv', "`recid`='{$_POST['id']}'");
     if( $sor === false ) { $db_error = true; }
     
     $ful = $adatbazis_kapcsolat->s2('ktgnem_id', 'fenntartasi_terv_'. $_POST['ful'], "`recid`='{$_POST['sor']}'");
     if( $ful === false ) { $db_error = true; }
+    
+    // Ha van éles energia terv adott évre, akkor annak recid-ját etároljuk az earrecid-ba
+    earrecid_beallit($sor['ev'], $_POST['id']);
     
     // Státusz ellenőrzése
     if($sor['stat_id']==ENERGIATERV_STAT_ELES || $sor['stat_id']==ENERGIATERV_STAT_KESZ){
@@ -3338,4 +3352,16 @@ require_once('selectek.php');
 
 if( !$_GET['ajax'] ) {
     require_once('footer.php');
+}
+
+// earrecid beállítása az éles energia terv alapján
+function earrecid_beallit($ev, $ft_recid){
+    global $adatbazis_kapcsolat;
+    
+    $energia_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$ev}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
+    if( $energia_terv === false ) { $db_error = true; }
+    if($energia_terv){
+        $sql = $adatbazis_kapcsolat->u('fenntartasi_terv', array('earrecid'), array($energia_terv['recid']), "`recid`='{$ft_recid}'");
+        if( $sql === false ) { $db_error = true; }
+    }
 }
