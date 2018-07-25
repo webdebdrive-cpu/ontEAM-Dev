@@ -1621,7 +1621,7 @@ console.log('b'+active_top);
         if( ev ) {
             var id = event.target.id;
 
-            if( ev !== false && id.indexOf('_autocomp') === -1 /*id != '' && id !== undefined && Ez miért kellett? Popupban levő autocomplete-nél gond volt belőle, mert ha olyan elemre kattintottunk, aminke nem volt ID-ja, akkor nme íródott vissza az origin-val */ ) {
+            if( ev !== false && id.indexOf('_autocomp') === -1 /*id != '' && id !== undefined && Ez miért kellett? Popupban levő autocomplete-nél gond volt belőle, mert ha olyan elemre kattintottunk, aminke nem volt ID-ja, akkor nem íródott vissza az origin-val */ ) {
                 var elementID = ev.target.id;
 
                 if( elementID.indexOf('_autocomp') !== -1 && !ev.target.attributes['readonly'] ) {
