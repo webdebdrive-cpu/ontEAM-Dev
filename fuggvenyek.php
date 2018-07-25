@@ -3920,8 +3920,8 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             if( !$frissit ) {
 
-                // Anyagigénylés jóváhagyás jog (Igazgatók) esetén a rendelési egységár alatt
-                if (_jog(JOG_ANYAGIGENYLES_JOVAHAGY)) {
+                // Anyagigénylés jóváhagyás jog (Igazgatók) esetén, ha anyagigénylés alatt vagyunk, a rendelési egységár alatt
+                if ( _jog(JOG_ANYAGIGENYLES_JOVAHAGY) && !isset($_GET['anyagrend']) ) {
 
                     $html .= nl2('
                             <tfoot>
