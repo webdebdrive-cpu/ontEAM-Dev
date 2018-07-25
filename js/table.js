@@ -180,8 +180,6 @@ $(function() {
         var height = $(this).find('thead').find('th:first-child').outerHeight();
         $(this).find('tr.fake td').css('height', height);
 
-
-
         $(this).find('thead').find('th').each(function(i) {
             var width = $(this).outerWidth(),
                 index = $(this).index();
@@ -357,6 +355,7 @@ $(function() {
     $(window).resize(function() {
         fejlec_igazit($('.sar-table'));
         tablaSorrend($('.sar-table'));
+        fejlecPozicional();
     });
 });
 
@@ -444,3 +443,19 @@ function fejlec_igazit( table ) {
     });
 }
 
+function fejlecPozicional() {
+    $('.sar-table').each(function() {
+        var scrollTop  = $('#tartalomJobb').scrollTop(),
+            scrollLeft = $('#tartalomJobb').scrollLeft();
+
+        var tableParent  = $(this).parents('#tartalomJobb'),
+            parentOffset = tableParent.offset();
+
+        $(this).find('thead').css({
+            'position'  : 'fixed',
+            'top'       : parentOffset.top,
+            'left'      : -Math.abs(scrollLeft),
+            'z-index'   : '10'
+        });
+    });
+}

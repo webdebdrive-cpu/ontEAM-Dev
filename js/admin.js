@@ -1318,10 +1318,10 @@ console.log('b'+active_top);
             if(get_get(['mezo', 'op', 'felt']).indexOf('?')<0){
                 kerdo_es = '?';
             }
-            
+
             var szures_link = get_get(['mezo', 'op', 'felt'])+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt;
             if(!$(this).hasClass('mehet')){
-                
+
                 link = location.href;
                 link = link.split('?');
                 link = link[0];
@@ -1340,12 +1340,12 @@ console.log('b'+active_top);
                         }
                     }
                 });
-                
+
             }else{
-                
+
                 szurkit();
                 location.href=szures_link;
-            
+
             }
 
         }
@@ -1455,7 +1455,7 @@ console.log('b'+active_top);
             feltetel += $(this).find('.es_vagy').val()+'#';
 
         });
-        
+
         var mehet = 0;
         if( $(this).hasClass('mehet') ){
             mehet = 1;
@@ -1837,6 +1837,12 @@ function fulGombMeretez() {
 
             $('#tartalomJobb').css('margin-top', fulekHeight + 'px');
             $('#szamlaFulek').css('margin-top', -Math.abs(fulekHeight + 15) + 'px');
+        }
+
+        var szamlaKeresesHeight = parseInt($('#szamlaKereses').outerHeight());
+
+        if( szamlaKeresesHeight > 39 ) {
+            muvHeight += szamlaKeresesHeight - 39;
         }
 
         $('#tartalomJobb').css('height', 'calc( 100% - ' + muvHeight + 'px )');
@@ -6038,7 +6044,7 @@ function szuro_ertek_mezo_gen(that, felt){
         prefix = 'o_';
     }
 
-    $.ajax({
+    ajax = $.ajax({
         url: 'header.php',
         type: 'POST',
         data: esamp2es('tabla=' + tabla + '&amp;mezo=' + $('#'+prefix+'szuro_mezo').val() + '&amp;selected=' + selected.val() + '&amp;felt=' + felt + '&amp;f_szuro_mezo_operator=' + new Date().getTime()),
@@ -6064,6 +6070,11 @@ function szuro_ertek_mezo_gen(that, felt){
 
             }
         }
+   });
+
+   $.when(ajax).then(function() {
+       fejlecPozicional();
+       fulGombMeretez()
    });
 }
 
