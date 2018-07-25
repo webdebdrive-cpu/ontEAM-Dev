@@ -2258,7 +2258,7 @@ require_once('selectek.php');
             <tr>
                 <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
                 <th><span>Ktgnem név</span></th>
-                <th class="egys_szall"><span>Tárgy</span></th>
+                <th><span>Tárgy</span></th>
                 <th><span>Mee</span></th>
                 <th><span>Egységár Január</span></th>
                 <th class="egys_dev"><span>Mennyiség Január</span></th>
@@ -3121,6 +3121,7 @@ require_once('selectek.php');
             <tr>
                 <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
                 <th><span>Ktgnem név</span></th>
+                <th><span>Összesen</span></th>
                 <th><span>Január</span></th>
                 <th><span>Február</span></th>
                 <th><span>Március</span></th>
@@ -3161,7 +3162,6 @@ require_once('selectek.php');
                             $sor['ft'.$i] = 0;
                         }
                         $akt_ful_sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_'.$tabla_post, "`fenntartasi_terv_id`='{$_GET['id']}' AND `ktgnem_id`='{$sor['ktgnem_id']}'");
-// echo $adatbazis_kapcsolat->gp() . '<br>';
                         foreach($akt_ful_sorok as $akt_sor){
                             for($i=1; $i<13; $i++){
                                 if($i<10){
@@ -3171,17 +3171,21 @@ require_once('selectek.php');
                             }
                         }
                         
+                        $honapok_osszesen = 0;
                         for($i=1; $i<13; $i++){
                             if($i<10){
                                 $i = '0'.$i;
                             }
+                            $honapok_osszesen += $sor['ft'.$i];
                             $sor['ft'.$i] = number_format($sor['ft'.$i], 0, '', ' ');
                         }
+                        $honapok_osszesen = number_format($honapok_osszesen, 0, '', ' ');
 
                         $szamla_html .= '
                             <tr id="ft_ft_'.$tabla_post.$sor['recid'].'" data-recid="'.$sor['recid'].'" class="ftt_menny">
                                 <td>'.$sor['ktgnem_id'].'</td>
                                 <td>'.getErtek('nev', 'ktgnem', 'id', $sor['ktgnem_id']).'</td>
+                                <td class="r fto '.$tabla_post.'">'.$honapok_osszesen.'</td>
                                 <td class="r ft01 '.$tabla_post.'">'.$sor['ft01'].'</td>
                                 <td class="r ft02 '.$tabla_post.'">'.$sor['ft02'].'</td>
                                 <td class="r ft03 '.$tabla_post.'">'.$sor['ft03'].'</td>
@@ -3208,6 +3212,7 @@ require_once('selectek.php');
                                 </script>
                             </td>
                             <td>'.$ful_neve.' összesen</td>
+                            <td class="r" id="szum_fto_'.$tabla_post.'">Ö2</td>
                             <td class="r" id="szum_ft01_'.$tabla_post.'"></td>
                             <td class="r" id="szum_ft02_'.$tabla_post.'"></td>
                             <td class="r" id="szum_ft03_'.$tabla_post.'"></td>
@@ -3231,6 +3236,7 @@ require_once('selectek.php');
                             <tfoot class="nowrap">
                                 <td></td>
                                 <td></td>
+                                <td class="r" id="szum_fto"></td>
                                 <td class="r" id="szum_ft01"></td>
                                 <td class="r" id="szum_ft02"></td>
                                 <td class="r" id="szum_ft03"></td>

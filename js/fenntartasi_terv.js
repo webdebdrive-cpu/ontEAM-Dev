@@ -87,6 +87,7 @@ function energia_szummaz(ful){
         ful_class = '.'+ful;
         ful_ossz  = '_'+ful;
     }
+    
     for( i=1; i<13; i++ ){
         if( i<10 ){
             i = '0'+String(i);
@@ -96,8 +97,13 @@ function energia_szummaz(ful){
             ossz += Number($(this).html().replace(/ /g, ''));
         });
         $('#szum_ft'+i+ful_ossz).html( ezresek(ossz, '', '', ' ') );
-
     }
+    /* És még egy ráadás: Összesen fül alatt van egy hónapot összesítő oszlop is, ezt is összesíteni kell. */
+    ossz = 0;
+    $('.fto'+ful_class).each(function () {
+        ossz += Number($(this).html().replace(/ /g, ''));
+    });
+    $('#szum_fto'+ful_ossz).html( ezresek(ossz, '', '', ' ') );
     
     /* Ha van összesen oszlop, akkor azt is szummázzuk */
     if($('.ftossz').length){
