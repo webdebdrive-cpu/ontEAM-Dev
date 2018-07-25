@@ -1332,7 +1332,6 @@ console.log('b'+active_top);
                     data: get_get(['mezo', 'op', 'felt']).replace(link+'?', '')+kerdo_es+'mezo='+$('.f_szuro_mezo').val()+'&op='+$('.f_szuro_mezo_operator').val()+'&felt='+felt+'&sql_db',
                     success: function (response) {
                         if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                        
                         if(response>SZURES_DB_LIMIT){
                             alert2('Ezzel a szűrési feltétellel több mint '+SZURES_DB_LIMIT+' sor adatot listázna ki.<br>Biztosan folytatja?', '<input type="button" class="gomb zold" value="Igen" onclick="$(\'.f_szures_submit\').addClass(\'mehet\').click();"><input type="button" class="gomb piros" value="Nem" onclick="alert2(); $(\'.f_szures_submit\').removeClass(\'mehet\');">', 'Kérdés');
                         }else{

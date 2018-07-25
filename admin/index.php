@@ -18,25 +18,6 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
-if (isset($_GET['obj_ujrasorrendez'])) {
-    $objok = $adatbazis_kapcsolat->s('recid', 'obj', "`szulo`='0'", 'sor');
-    $i = 0;
-    foreach($objok as $obj){
-        $adatbazis_kapcsolat->u('obj', array('sor'), array($i), "`recid`='{$obj['recid']}'");
-        $i += 10;
-        echo $adatbazis_kapcsolat->gp() . '<br>';
-        
-        $i2 = 0;
-        $objok2 = $adatbazis_kapcsolat->s('recid', 'obj', "`szulo`='{$obj['recid']}'", 'sor');
-        foreach($objok2 as $obj2){
-            $adatbazis_kapcsolat->u('obj', array('sor'), array($i2), "`recid`='{$obj2['recid']}'");
-            $i2 += 10;
-            echo $adatbazis_kapcsolat->gp() . '<br>';
-        }
-    }
-    exit;
-}
-
 // Loginról értesítő levelek küldése
 if (false && isset($_GET['login_ertesit'])) {
     
@@ -1301,4 +1282,23 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
     */
     exit;
 }
+
+/*if (isset($_GET['obj_ujrasorrendez'])) {
+    $objok = $adatbazis_kapcsolat->s('recid', 'obj', "`szulo`='0'", 'sor');
+    $i = 10;
+    foreach($objok as $obj){
+        $adatbazis_kapcsolat->u('obj', array('sor'), array($i), "`recid`='{$obj['recid']}'");
+        $i += 10;
+        echo $adatbazis_kapcsolat->gp() . '<br>';
+        
+        $i2 = 10;
+        $objok2 = $adatbazis_kapcsolat->s('recid', 'obj', "`szulo`='{$obj['recid']}'", 'sor');
+        foreach($objok2 as $obj2){
+            $adatbazis_kapcsolat->u('obj', array('sor'), array($i2), "`recid`='{$obj2['recid']}'");
+            $i2 += 10;
+            echo $adatbazis_kapcsolat->gp() . '<br>';
+        }
+    }
+    exit;
+}*/
 ?>

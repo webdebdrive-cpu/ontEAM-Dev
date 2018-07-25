@@ -1857,6 +1857,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
     global $adatbazis_kapcsolat;
     global $db_kapcs;
     global $_OPTS;
+    global $weblap;
 
     // Van, hogy pár GET-et is át szeretnénk adni
     if($getek){

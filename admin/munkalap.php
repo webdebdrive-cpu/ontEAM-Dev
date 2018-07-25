@@ -575,6 +575,10 @@ if( isset($_POST['munkalapKulso']) ) {
         if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT, '', $memo ) ) {
             $db_error = true;
         }
+        // A memót a megjegyzésbe is beírjuk, nem csak a státuszsorba
+        if(addMegj('munkalap', $recid, $memo)===false){
+            $db_error = true;
+        }
 
         if( !$db_error ) {
             mysqli_commit($db_kapcs);
@@ -2105,6 +2109,10 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             
             $memo = 'Kivitelező: '.getErtek('nev', 'szallito', 'id', $szallitoid);
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_HOZZARENDELT, '', $memo ) ) {
+                $db_error = true;
+            }
+            // A memót a megjegyzésbe is beírjuk, nem csak a státuszsorba
+            if(addMegj('munkalap', $recid, $memo)===false){
                 $db_error = true;
             }
         }

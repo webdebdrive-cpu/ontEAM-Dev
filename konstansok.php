@@ -328,6 +328,6 @@ define('MLTIPUS_ESETI_FENNT',   5);
 
 
 define('ARCHIV_NAVPANEL_LIMIT', 1000);
-define('SZURES_DB_LIMIT',       2);
+define('SZURES_DB_LIMIT',       1000);
 
 ?>
