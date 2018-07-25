@@ -3141,7 +3141,7 @@ require_once('selectek.php');
         
         $kivetelek = array('modosit', 'osszesen', 'tortenet', 'dokumentumok', 'megjegyzesek');
         // A BWH-t is felvesszük a kivételek közé, hacsak nem Hungáriás a user
-        if( !in_array(2120, $sajat_szallodak) ){
+        if( !in_array(2120, $sajat_szallodak) || $sor['telephely_id']!=2120 ){
             array_push($kivetelek, 'bwh');
         }
         foreach($ful_tomb as $tabla_post => $ful_neve){
