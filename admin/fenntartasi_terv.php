@@ -2047,7 +2047,7 @@ require_once('selectek.php');
             // Fülek alatti gombok csak akkor érhetőek el, ha van is hozzá jogunk, és munkaközi a státusza, kivéve az energiát (ott csak akkor, ha nem éles)
             if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && $sor['stat_id']!=ENERGIATERV_STAT_ELES ){
                 if( isset($_GET['energia']) && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO ){
-                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Kitöltés" onclick="kapcsolodoSzerkeszt(\'ft_energia_mennyiseg\');"> ';
+                    $gombok .= '<input type="button" class="gomb modositaskor_rejt dn" id="energia_kitolt" value="Kitöltés" onclick="kapcsolodoSzerkeszt(\'ft_energia_mennyiseg\');"> ';
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt dn" id="valtoztatas_jovahagyas" value="Változás jóváhagyás" onclick="valtozas_jovahagyas()"> ';
                 }
             }
@@ -2260,6 +2260,8 @@ require_once('selectek.php');
                 <th><span>Ktgnem név</span></th>
                 <th><span>Tárgy</span></th>
                 <th><span>Mee</span></th>
+                <th><span>Mennyiség összesen</span></th>
+                <th><span>Érték összesen</span></th>
                 <th><span>Egységár Január</span></th>
                 <th class="egys_dev"><span>Mennyiség Január</span></th>
                 <th><span>Érték Január</span></th>
@@ -2318,6 +2320,8 @@ require_once('selectek.php');
             $energia_ear = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$energia['sorid']}'");
             
             // Számok formázása
+            $mennyiseg_osszesen = 0;
+            $ertek_osszesen     = 0;
             for($i=1; $i<13; $i++){
                 if($i<10){
                     $i = '0'.$i;
@@ -2328,10 +2332,15 @@ require_once('selectek.php');
                     $volt_valtozas     = true;
                 }
                 
+                $mennyiseg_osszesen += $energia['em'.$i];
+                $ertek_osszesen     += $energia['ft'.$i];
+                
                 $energia['em'.$i]  = number_format($energia['em'.$i],  2, ',', ' ');
                 $energia['ear'.$i] = number_format($energia['ear'.$i], 3, ',', ' ');
                 $energia['ft'.$i]  = number_format($energia['ft'.$i],  0, '',  ' ');
             }
+            $mennyiseg_osszesen = number_format($mennyiseg_osszesen,  0, ',', ' ');
+            $ertek_osszesen     = number_format($ertek_osszesen,  0, ',', ' ');
             
             $class = '';
             if( !in_array($energia['sorid'], $eear_soridk) ){
@@ -2345,6 +2354,8 @@ require_once('selectek.php');
                     <td>'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
                     <td>'.$energia['dijelem'].'</td>
                     <td>'.$energia['mee'].'</td>
+                    <td class="r mennyossz">'.$mennyiseg_osszesen.'</td>
+                    <td class="r ertekossz">'.$ertek_osszesen.'</td>
                     <td class="r">'.$energia['ear01'].'</td>
                     <td class="r">'.$energia['em01'].'</td>
                     <td class="r ft01">'.$energia['ft01'].'</td>
@@ -2391,12 +2402,28 @@ require_once('selectek.php');
                 $volt_valtozas  = true;
                 
                 $energia = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$sorid}'");
+                
+                $mennyiseg_osszesen = 0;
+                $ertek_osszesen     = 0;
+                for($i=1; $i<13; $i++){
+                    if($i<10){
+                        $i = '0'.$i;
+                    }
+
+                    $mennyiseg_osszesen += $energia['em'.$i];
+                    $ertek_osszesen     += $energia['ft'.$i];
+                }
+                $mennyiseg_osszesen = number_format($mennyiseg_osszesen,  0, ',', ' ');
+                $ertek_osszesen     = number_format($ertek_osszesen,  0, ',', ' ');
+                
                 $szamla_html .= '
                     <tr id="ft_em_'.$sorid.'" data-recid="'.$sorid.'" class="ftt_menny zold_hat">
                         <td>'.$energia['ktgnem_id'].'</td>
                         <td>'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
                         <td>'.$energia['dijelem'].'</td>
                         <td>'.$energia['mee'].'</td>
+                        <td class="r mennyossz">'.$mennyiseg_osszesen.'</td>
+                        <td class="r ertekossz">'.$ertek_osszesen.'</td>
                         <td class="r">'.$energia['ear01'].'</td>
                         <td class="r">'.$energia['em01'].'</td>
                         <td class="r ft01">'.$energia['ft01'].'</td>
@@ -2445,6 +2472,8 @@ require_once('selectek.php');
                                 <td></td>
                                 <td></td>
                                 <td></td>
+                                <td class="r" id="szum_menny_o"></td>
+                                <td class="r" id="szum_ertek_o"></td>
                                 <td></td>
                                 <td></td>
                                 <td class="r" id="szum_ft01"></td>
@@ -2498,6 +2527,16 @@ require_once('selectek.php');
                             $(\'#valtoztatas_jovahagyas\').show();
                             alert2(\'Az energia egységár tábla megváltozott.<br>Kérem ellenőrizze az energia tervtábla adatait!\', \'\', \'Üzenet\');
                         });
+                        </script>
+                ');
+        }
+        // A kitöltés gomb csak akkor látsszon, ha nem volt változás
+        if(!$volt_valtozas){
+            $szamla_html .= nl2('
+                        <script>
+                        $(document).ready(function () {
+                            $(\'#energia_kitolt\').show();
+                         });
                         </script>
                 ');
         }
@@ -2773,8 +2812,9 @@ require_once('selectek.php');
             <tr>
                 <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
                 <th><span>Ktgnem név</span></th>
-                <th><span>Tárgy</span></th>
-                <th><span>Részletes leírás</span></th>
+                <th style="min-width: 20rem"><span>Tárgy</span></th>
+                <th style="min-width: 20rem"><span>Részletes leírás</span></th>
+                <th><span>Összesen</span></th>
                 <th><span>Január</span></th>
                 <th><span>Február</span></th>
                 <th><span>Március</span></th>
@@ -2795,12 +2835,15 @@ require_once('selectek.php');
         $esetik = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_eseti_karban', "`fenntartasi_terv_id`='{$_GET['id']}'");
         foreach($esetik as $eseti){
             
+            $osszesen = '';
             for($i=1; $i<13; $i++){
                 if($i<10){
                     $i = '0'.$i;
                 }
+                $osszesen += $eseti['ft'.$i];
                 $eseti['ft'.$i] = number_format($eseti['ft'.$i], 0, '', ' ');
             }
+            $osszesen = number_format($osszesen, 0, '', ' ');
             
             $szamla_html .= '
                 <tr id="ft_ft_'.$eseti['recid'].'" data-recid="'.$eseti['recid'].'" class="ftt_menny">
@@ -2808,6 +2851,7 @@ require_once('selectek.php');
                     <td>'.getErtek('nev', 'ktgnem', 'id', $eseti['ktgnem_id']).'</td>
                     <td class="wrap">'.$eseti['targy'].'</td>
                     <td class="wrap">'.nl2br2($eseti['leir']).'</td>
+                    <td class="r ftossz">'.$osszesen.'</td>
                     <td class="r ft01">'.$eseti['ft01'].'</td>
                     <td class="r ft02">'.$eseti['ft02'].'</td>
                     <td class="r ft03">'.$eseti['ft03'].'</td>
@@ -2831,6 +2875,7 @@ require_once('selectek.php');
                                 <td></td>
                                 <td></td>
                                 <td></td>
+                                <td class="r" id="szum_ftossz"></td>
                                 <td class="r" id="szum_ft01"></td>
                                 <td class="r" id="szum_ft02"></td>
                                 <td class="r" id="szum_ft03"></td>
@@ -2890,7 +2935,8 @@ require_once('selectek.php');
             <tr>
                 <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
                 <th><span>Ktgnem név</span></th>
-                <th><span>Részletes leírás</span></th>
+                <th style="min-width: 20rem"><span>Részletes leírás</span></th>
+                <th><span>Összesen</span></th>
                 <th><span>Január</span></th>
                 <th><span>Február</span></th>
                 <th><span>Március</span></th>
@@ -2911,18 +2957,22 @@ require_once('selectek.php');
         $hibak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_hibaelharitas', "`fenntartasi_terv_id`='{$_GET['id']}'");
         foreach($hibak as $hiba){
             
+            $osszesen = '';
             for($i=1; $i<13; $i++){
                 if($i<10){
                     $i = '0'.$i;
                 }
+                $osszesen += $hiba['ft'.$i];
                 $hiba['ft'.$i] = number_format($hiba['ft'.$i], 0, '', ' ');
             }
+            $osszesen = number_format($osszesen, 0, '', ' ');
             
             $szamla_html .= '
                 <tr id="ft_ft_'.$hiba['recid'].'" data-recid="'.$hiba['recid'].'" class="ftt_menny">
                     <td>'.$hiba['ktgnem_id'].'</td>
                     <td>'.getErtek('nev', 'ktgnem', 'id', $hiba['ktgnem_id']).'</td>
                     <td class="wrap">'.nl2br2($hiba['leir']).'</td>
+                    <td class="r ftossz">'.$osszesen.'</td>
                     <td class="r ft01">'.$hiba['ft01'].'</td>
                     <td class="r ft02">'.$hiba['ft02'].'</td>
                     <td class="r ft03">'.$hiba['ft03'].'</td>
@@ -2945,6 +2995,7 @@ require_once('selectek.php');
                                 <td></td>
                                 <td></td>
                                 <td></td>
+                                <td class="r" id="szum_ftossz"></td>
                                 <td class="r" id="szum_ft01"></td>
                                 <td class="r" id="szum_ft02"></td>
                                 <td class="r" id="szum_ft03"></td>
