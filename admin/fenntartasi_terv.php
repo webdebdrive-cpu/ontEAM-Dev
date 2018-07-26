@@ -2423,7 +2423,7 @@ require_once('selectek.php');
                         <td>'.$energia['dijelem'].'</td>
                         <td>'.$energia['mee'].'</td>
                         <td class="r mennyossz">'.$mennyiseg_osszesen.'</td>
-                        <td class="r ertekossz">'.$ertek_osszesen.'</td>
+                        <td class="r">'.$ertek_osszesen.'</td>
                         <td class="r">'.$energia['ear01'].'</td>
                         <td class="r">'.$energia['em01'].'</td>
                         <td class="r ft01">'.$energia['ft01'].'</td>
@@ -2473,7 +2473,7 @@ require_once('selectek.php');
                                 <td></td>
                                 <td></td>
                                 <td class="r" id="szum_menny_o"></td>
-                                <td class="r" id="szum_ertek_o"></td>
+                                <td class="r"></td>
                                 <td></td>
                                 <td></td>
                                 <td class="r" id="szum_ft01"></td>

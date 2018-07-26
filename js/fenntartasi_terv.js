@@ -123,14 +123,6 @@ function energia_szummaz(ful){
         $('#szum_menny_o').html( ezresek(ossz, '', '', ' ') );
     }
     
-    /* Ha van érték összesen, akkor azt is szummázzuk */
-    if($('.ertekossz').length){
-        ossz = 0;
-        $('.ertekossz').each(function () {
-            ossz += Number($(this).html().replace(/ /g, ''));
-        });
-        $('#szum_ertek_o').html( ezresek(ossz, '', '', ' ') );
-    }
 }
 
 /* Kijelölt sor törlése */
