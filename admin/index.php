@@ -1117,7 +1117,7 @@ require_once('footer.php');
 
 // Státusz hozzáadás manuálisan
 if (false && isset($_GET['add_statusz'])) {
-    addStatusz('bejelentes_statusz', 0000, BEJELENTES_STAT_FOLYAMATBAN, '', '', '', ' 2018.06.22 19:20', ' Korsós Gyula');
+    addStatusz('munkalap_statusz', 11310, MUNKALAP_STAT_HOZZARENDELT, '', '', '', ' 2018.07.27 13:18', '');
     exit;
 }
 

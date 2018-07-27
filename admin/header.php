@@ -1319,9 +1319,13 @@ if(basename(self())=='anyagigenyles.php'){
 }
 
 // Teszt rendszer felirat
-$teszt_rendszerek = array('demo.webdeb.hu', 'demo.szinvatrend.hu', 'teszt.onteam.hu', 'dev.onteam.hu');
 if( get_teszt_rendszer() ){
-    $belepve .= '<div class="teszt_rendszer">Teszt rendszer</div>';
+    // Dev-nél mást írunk ki más színnel
+    if($_SERVER['HTTP_HOST']=='dev.onteam.hu'){
+        $belepve .= '<div class="teszt_rendszer lila">DEV rendszer</div>';
+    }else{
+        $belepve .= '<div class="teszt_rendszer">Teszt rendszer</div>';
+    }
 }
 
 // Léptető ikonok

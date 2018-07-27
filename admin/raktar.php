@@ -331,8 +331,9 @@ require_once('selectek.php');
 	// Megjegyzések
 	}elseif(isset($_GET['megjegyzesek'])){
 
+        // <div class="dt naplo" class nevekből a kijCont kivéve, hogy a megjegyzéseket ne lehessen törölni
         $szamla_html .= nl2('
-            <div class="dt naplo kijCont" data-tabla="megjegyzes" data-mellek="megjegyzesek">
+            <div class="dt naplo" data-tabla="megjegyzes" data-mellek="megjegyzesek">
                 <div class="dtr nFejlec">
                     <div class="dtc">Megjegyzés</div>
                     <div class="dtc">Hozzáadta</div>

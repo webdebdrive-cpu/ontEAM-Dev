@@ -3641,17 +3641,18 @@ if( isset($_POST['mellekTorol']) ) {
         // Megjegyzéskor az apa tábla megj_db oszlopát karban kell tartani
         } elseif($tabla=='megjegyzes'){
 
-            $megj = $adatbazis_kapcsolat->s2('id, tabla', 'megjegyzes', "`recid`='{$idk[1]}'");
-            if( $megj === false ) { $db_error = true; }
-
-            $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
-            if( $sql === false ) { $db_error = true; }
-
-            $megj_db = $adatbazis_kapcsolat->s('recid', $tabla, "`tabla`='{$megj['tabla']}' AND `id`='{$megj['id']}'");
-            if( $megj_db === false ) { $db_error = true; }
-
-            $sql = $adatbazis_kapcsolat->u($megj['tabla'], array('megj_db'), array(count($megj_db)), "`recid`='{$megj['id']}'");
-            if( $sql === false ) { $db_error = true; }
+            // 2018.07.27 - megjegyzéseket ne lehessen törölni
+//            $megj = $adatbazis_kapcsolat->s2('id, tabla', 'megjegyzes', "`recid`='{$idk[1]}'");
+//            if( $megj === false ) { $db_error = true; }
+//
+//            $sql = $adatbazis_kapcsolat -> d($tabla, "`recid` IN (".implode(',', $idk).")");
+//            if( $sql === false ) { $db_error = true; }
+//
+//            $megj_db = $adatbazis_kapcsolat->s('recid', $tabla, "`tabla`='{$megj['tabla']}' AND `id`='{$megj['id']}'");
+//            if( $megj_db === false ) { $db_error = true; }
+//
+//            $sql = $adatbazis_kapcsolat->u($megj['tabla'], array('megj_db'), array(count($megj_db)), "`recid`='{$megj['id']}'");
+//            if( $sql === false ) { $db_error = true; }
 
         // Általános eset
         } else {

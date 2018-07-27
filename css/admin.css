@@ -108,6 +108,9 @@ div.teszt_rendszer {
     text-align: center;
     width: 50%;
 }
+div.teszt_rendszer.lila {
+    color: #980BFB;
+}
 
 /* Űrlap körüli keret */
 div.keret{
