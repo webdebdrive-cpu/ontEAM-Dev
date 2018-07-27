@@ -443,9 +443,9 @@ if (isset($_POST['energia_tabla_ment'])) {
     earrecid_beallit($sor['ev'], $_POST['id']);
     
     // Státusz ellenőrzése
-    if($sor['stat_id']==ENERGIATERV_STAT_ELES){
+    if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         echo json_encode(array(
-            'hiba'  => 'Éles terv nem szerkeszthető!',
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
             'title' => 'Hiba'
         ));
         
@@ -1638,10 +1638,10 @@ if (isset($_POST['valtozas_jovahagyas'])) {
     }
     
     // Státusz ellenőrzése
-    if($sor['stat_id']==ENERGIATERV_STAT_ELES){
+    if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba'  => 'Éles fenntartási terv nem módosítható!',
+            'hiba'  => 'Csak munkaközi fenntartási terv módosítható!',
             'title' => 'Hiba'
         ));
 
@@ -2045,7 +2045,7 @@ require_once('selectek.php');
             }
             
             // Fülek alatti gombok csak akkor érhetőek el, ha van is hozzá jogunk, és munkaközi a státusza, kivéve az energiát (ott csak akkor, ha nem éles)
-            if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && $sor['stat_id']!=ENERGIATERV_STAT_ELES ){
+            if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){
                 if( isset($_GET['energia']) && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO ){
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt dn" id="energia_kitolt" value="Kitöltés" onclick="kapcsolodoSzerkeszt(\'ft_energia_mennyiseg\');"> ';
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt dn" id="valtoztatas_jovahagyas" value="Változás jóváhagyás" onclick="valtozas_jovahagyas()"> ';
@@ -2422,8 +2422,8 @@ require_once('selectek.php');
                         <td>'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
                         <td>'.$energia['dijelem'].'</td>
                         <td>'.$energia['mee'].'</td>
-                        <td class="r mennyossz">'.$mennyiseg_osszesen.'</td>
-                        <td class="r">'.$ertek_osszesen.'</td>
+                        <td class="r">'.$mennyiseg_osszesen.'</td>
+                        <td class="r ertekossz">'.$ertek_osszesen.'</td>
                         <td class="r">'.$energia['ear01'].'</td>
                         <td class="r">'.$energia['em01'].'</td>
                         <td class="r ft01">'.$energia['ft01'].'</td>
@@ -2472,8 +2472,8 @@ require_once('selectek.php');
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td class="r" id="szum_menny_o"></td>
                                 <td class="r"></td>
+                                <td class="r" id="szum_ertek_o"></td>
                                 <td></td>
                                 <td></td>
                                 <td class="r" id="szum_ft01"></td>
@@ -2520,7 +2520,7 @@ require_once('selectek.php');
                         ');
         
         // Ha van eltérés az energia egységárahoz képest, akkor egy plusz gombot kiíruratunk
-        if($volt_valtozas && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO && $sor['stat_id']!=ENERGIATERV_STAT_ELES){
+        if($volt_valtozas && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
             $szamla_html .= nl2('
                         <script>
                         $(document).ready(function () {

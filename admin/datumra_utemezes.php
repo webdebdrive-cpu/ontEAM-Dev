@@ -36,7 +36,7 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
 		if($dlast<0){
             $dlast = '000.00.00';
         }
-// var_dump($dnext);
+ 
         $dnext = validnextdate($dlast, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d);
 		$lstart = true; // ha elsőnek kiszámolt esedékesség érvénytelen, újrakezdjük esedékesség számítását mai naptól
 		if ($i == 100)  // ha végtelen ciklusba keveredne
@@ -157,6 +157,7 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 		ha m.dlast jövőbeni, akkor lehet esedékes ezért az előző nappal kezdjük
 		(azaz, az első ütemezhető nap m.dlast vagy date()+1)*/
 		$dlast = max(dateadd ($dlast, -1, 0, 0), date(DATEFORMAT, time())); 
+
 		/*
 		ütemezés 0 ciklusszorzóval:
 		, m.dlasthoz legközelebbi dátumot adja vissza (lehet előtte és utána is)*/
@@ -233,7 +234,7 @@ function getnextdate_w ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 		$anap[$i] = intval(substr($cciklnap, $i , 1));
 
 	sort($anap, SORT_NUMERIC);
-	
+
 	if ($ndow >= $anap[$nnapok-1]) //a hét utolsó ütemezett napján vagy utána
 	{
 		$nciklszorz = max($nciklszorz,1);
@@ -412,6 +413,7 @@ function dateadd ($stringdate, $days, $months, $years)
 
 function dowFormStringdate($stringdate)
 {
+
 	$date = DateTime::createFromFormat(DATEFORMAT, $stringdate);
 	$returnvalue = $date->format('N') % 7;
 	return $returnvalue;

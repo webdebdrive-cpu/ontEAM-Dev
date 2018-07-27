@@ -1305,7 +1305,7 @@ function szalloda_koltsnem_dijelem_azonos($terv_id, $telephely_idk, $ktgnem_id, 
     $ktgnem_id      = trim($ktgnem_id);
     $dijelem        = trim($dijelem);
 
-    if( $telephely_idk && $ktgnem_id && $dijelem && $adatbazis_kapcsolat->s('recid', 'energia_terv_ear', "`energia_terv_id`='{$terv_id}' AND `telephely_idk`='{$telephely_idk}' AND `ktgnem_id`='{$ktgnem_id}' AND `dijelem`='{$dijelem}'") ){
+    if( $telephely_idk && $ktgnem_id && $dijelem && $adatbazis_kapcsolat->s('recid', 'energia_terv_ear', "`energia_terv_id`='{$terv_id}' AND `telephely_idk` LIKE '%{$telephely_idk}%' AND `ktgnem_id`='{$ktgnem_id}' AND `dijelem`='{$dijelem}'") ){
         return 'Azonos díjelem megnevezések szálloda - költségnem összerendelésen belül!';
     }else{
         return '';

@@ -1992,6 +1992,39 @@ if( isset($_POST['kuldesJovahagyasra']) ) {
     exit();
 }
 
+// Munkalap volt-e már döntés alatt státuszban?
+if (isset($_POST['volt_mar_dontesre_var'])) {
+
+    $statusz = $adatbazis_kapcsolat->s2('insert_usr insert_dt', 'munkalap_statusz', "`munkalap_recid`='{$_POST['recid']}' AND `stat_id`='".MUNKALAP_STAT_DONTESRE_VAR."'", 'recid desc');
+    if($statusz){
+        if(!$statusz['text']){
+            $statusz['text'] = '-';
+        }
+        echo json_encode(array(
+            'kerdes'=> nl2('
+                            Erre a munkalapra már volt javaslat téve!
+                            <br>
+                            <br>Javaslattevő: '.$statusz['insert_usr'].'
+                            <br>Kelte: '.datum_kiir($statusz['insert_dt']).'
+                            <br>Megjegyzés: '.nl2br2($statusz['text']).'
+                            <br>
+                            <br>Folytatja?
+                            <div class="c">
+                                <input type="button" name="elkuld" class="gomb zold" value="Igen" onclick="$(\'#mar_volt_kerdes\').hide(); $(\'#munkalapKulso\').show(); ">
+                                <input type="button" name="megsem" class="gomb piros" value="Nem" onclick="popupZar();">
+                            </div>
+                            ')
+        ));
+    }else{
+        echo json_encode(array(
+            'mehet' => 1
+        ));
+    }
+    
+    $weblap->leallit();
+    exit();
+}
+
 // Munkalap Javaslattétel
 if( isset($_POST['kulsokivHozzarend']) ) {
     $recid      = $_POST['recid'];

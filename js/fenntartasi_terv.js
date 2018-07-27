@@ -115,12 +115,12 @@ function energia_szummaz(ful){
     }
     
     /* Ha van mennyiség összesen, akkor azt is szummázzuk */
-    if($('.mennyossz').length){
+    if($('.ertekossz').length){
         ossz = 0;
-        $('.mennyossz').each(function () {
+        $('.ertekossz').each(function () {
             ossz += Number($(this).html().replace(/ /g, ''));
         });
-        $('#szum_menny_o').html( ezresek(ossz, '', '', ' ') );
+        $('#szum_ertek_o').html( ezresek(ossz, '', '', ' ') );
     }
     
 }

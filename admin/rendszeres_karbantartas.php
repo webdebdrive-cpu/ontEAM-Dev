@@ -90,10 +90,12 @@ if (isset($_GET['datumra_utemezes'])) {
         }
     }
 
-    if(!$_GET['esem_d'] || $_GET['esem_d']=='0000.00.00' || $_GET['esem_d']>'    .  .  '){
+    if(!$_GET['esem_d'] || $_GET['esem_d']=='0000.00.00'){
         $_GET['esem_d'] = date('Y.m.d');
     }
     
+    $esem_d     = str_replace('-', '.', $_GET['esem_d']);
+    $esnap_d    = str_replace('-', '.', $_GET['esnap_d']);
     $aktkezd_d  = str_replace('-', '.', $_GET['aktkezd_d']);
     $aktvege_d  = str_replace('-', '.', $_GET['aktvege_d']);
 // $szamla_html .= "esemd: $esem_d<br>cikltip: $_GET[cikltip]<br>ciklaltip: $_GET[ciklaltip]<br>ciklszorz: $_GET[ciklszorz_]<br>ciklho: $_GET[ciklho]<br>ciklhet: $_GET[ciklhet]<br>ciklnap: $_GET[ciklnap]<br>idoszakos: $_GET[idoszakos]<br>kezdho: $_GET[kezdho]<br>kezdnap: $_GET[kezdnap]<br>vegeho: $_GET[vegeho]<br>vegenap: $_GET[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
@@ -112,13 +114,13 @@ if (isset($_GET['datumra_utemezes'])) {
 //    }else{
         $getnextvaliddate = $esedekes;
     //}
-    
+
     $szamla_html .= '<br>Szabály: ' . getcimke( $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz_'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $getnextvaliddate);
     $szamla_html .= '<br>Ütemezés: ' . $utemezes;
     $szamla_html .= '<br>Esedékes: ' . $esedekes.' '.het_napja_txt($esedekes);
     $szamla_html .= '<br>';
     $szamla_html .= '<br>Várható ütemezés:<br>';
-    
+
     $szamla_html .= $getnextvaliddate . '<br>';
     for($i=0; $i<9; $i++){
         $getnextvaliddate = getnextvaliddate(false, $getnextvaliddate, $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz_'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $_GET['idoszakos'], $_GET['kezdho'], $_GET['kezdnap'], $_GET['vegeho'], $_GET['vegenap'], $aktkezd_d, $aktvege_d);
@@ -758,7 +760,6 @@ if(isset($_GET['ut_teszt'])) {
         $aktvege_d  = str_replace('-', '.', $sor['aktvege_d']);
 
         $esedekes = $esnap_d;
-        $esedekes = $_GET['esnap_d'];
         if(!$esedekes || $esedekes=='0000.00.00' || $esedekes=='    .  .  '){
             $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
             $esedekes = $getnextvaliddate;
