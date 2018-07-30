@@ -655,10 +655,10 @@ if( isset($_POST['bejelentesReklamacioElutasit']) ) {
 // CSV generálása
 if (isset($_GET['csv'])) {
 
-    header("Content-type: text/csv");
-    header("Content-Disposition: attachment; filename=$megnevezes.csv");
-    header("Pragma: no-cache");
-    header("Expires: 0");
+//    header("Content-type: text/csv");
+//    header("Content-Disposition: attachment; filename=$megnevezes.csv");
+//    header("Pragma: no-cache");
+//    header("Expires: 0");
 
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
@@ -698,6 +698,7 @@ if (isset($_GET['csv'])) {
                     `stat_id` as \'Státusz\',
                     `'.get_db_tabla().'bejelentes`.`insert_dt` as \'Bejelentés dátuma\'
                     '.$lekerdezes_fromtol;
+echo $sql;
 
         $query      = mysqli_query($db_kapcs, $sql);
 
@@ -733,7 +734,7 @@ if (isset($_GET['csv'])) {
 
             fputcsv($open, $csvcont, ';');
 
-            //100 soronként kiírtatunk
+            // 100 soronként kiírtatunk
             if ($i % 100 == 0) {
                 flush();
             }

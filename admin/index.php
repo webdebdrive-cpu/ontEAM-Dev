@@ -18,6 +18,11 @@ if(isset($_GET['info'])){
 
 require_once('../weblap.php');
 
+if (isset($_GET['teszt'])) {
+    echo date('Y-m-d H:i:s');
+    exit;
+}
+
 // Loginról értesítő levelek küldése
 if (false && isset($_GET['login_ertesit'])) {
     
