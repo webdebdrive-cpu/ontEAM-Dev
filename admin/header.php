@@ -646,7 +646,7 @@ $head -> extrak        = '<link href="https://fonts.googleapis.com/css?family=Op
 $head -> extrak       .= '<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">';
 
 if( in_array(basename(self()), get_aktiv_oldalak()) ) {
-    $head -> extrak   .= '<link href="../css/responsive.css" rel="stylesheet">';
+    $head -> extrak   .= '<link href="../css/responsive_mobil.css" rel="stylesheet">';
 }
 
 $header_html .= $head -> getHtml();
