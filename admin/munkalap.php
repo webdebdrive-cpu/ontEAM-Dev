@@ -127,6 +127,41 @@ if( isset($_POST['munkalapKeszit']) ) {
                     $weblap->leallit();
                     exit();
                 }
+                
+                // Ha a bejelntés státusza nyitott, és egyszállodás, és van már munkalapja, akkor nem lehet belőle munkalapot készíteni
+                if( $statusz['stat_id'] == BEJELENTES_STAT_NYITOTT ){
+
+                    // Szálloda modell lekérdezése
+                    $akt_bejelentes = $adatbazis_kapcsolat->s2('telephely_id', 'bejelentes', "`recid`='{$id}'");
+                    if( $akt_bejelentes === false ) { $db_error = true; }
+                    $modell = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$akt_bejelentes['telephely_id']}'");
+                    if( $modell === false ) { $db_error = true; }
+ 
+                    if(!$modell['modell']){
+                    
+                        $keszithet_ml_ot = true;
+                        $van_kapcs = $adatbazis_kapcsolat->s2('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$id}'", '', '1');
+                        if( $van_kapcs === false ) { $db_error = true; }
+                        $letezik_munkalap = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid`='{$van_kapcs['munkalap_id']}'");
+                        if( $letezik_munkalap === false ) { $db_error = true; }
+
+                        if( $letezik_munkalap ){
+                            $keszithet_ml_ot = false;
+                        }
+
+                        if(!$keszithet_ml_ot){
+                            echo json_encode(array(
+                                'hiba'  => 'Nyitott státuszú bejelentésből nem készíthető újabb munkalap! (Egyszállodás modellben)',
+                                'title' => 'Hiba',
+                            ));
+
+                            $weblap->leallit();
+                            exit();
+                        }
+                    }
+                    
+                }
+                
             } else {
                 echo json_encode(array(
                     'hiba'  => 'Státusz nem található!',

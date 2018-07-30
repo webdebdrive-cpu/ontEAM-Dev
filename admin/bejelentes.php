@@ -941,9 +941,9 @@ require_once('selectek.php');
         // Munkalap készítése
         if( ($sor['stat_id']==BEJELENTES_STAT_NYITOTT || $sor['stat_id']==BEJELENTES_STAT_FOLYAMATBAN) && _jog(JOG_MUNKALAP_KESZITHET) ) {
             
-            // Ha egyszállodás, és van munkalapja, akkor nem készíthet újabb munkalapot
+            // Ha egyszállodás, nyitott, és van munkalapja, akkor nem készíthet újabb munkalapot
             $keszithet_ml_ot = true;
-            if(!$telephely['modell']){
+            if( !$telephely['modell'] && $sor['stat_id']==BEJELENTES_STAT_NYITOTT ){
                 $van_kapcs = $adatbazis_kapcsolat->s2('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$_GET['id']}'", '', '1');
                 $letezik_munkalap = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid`='{$van_kapcs['munkalap_id']}'");
                 if( $letezik_munkalap ){
