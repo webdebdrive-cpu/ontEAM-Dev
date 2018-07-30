@@ -411,7 +411,7 @@ if (isset($_GET['addSzallodaEnergia'])) {
     sort($szallIDs);
     
     // Státusz ellenőrzése
-    $terv_ear = $adatbazis_kapcsolat->s2('energia_terv_id', 'energia_terv_ear', "`recid`='{$egysegar_id}'");
+    $terv_ear = $adatbazis_kapcsolat->s2('energia_terv_id, telephely_idk, ktgnem_id, dijelem', 'energia_terv_ear', "`recid`='{$egysegar_id}'");
     if( $terv_ear === false ) { $db_error = true; }
     $terv     = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$terv_ear['energia_terv_id']}'");
     if( $terv === false ) { $db_error = true; }
@@ -419,6 +419,22 @@ if (isset($_GET['addSzallodaEnergia'])) {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
             'hiba'  => 'Az energia terv már éles, így nem szerkeszthető!',
+            'title' => 'Hiba'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Azonos díjelem, költségem és szálloda ellenőrzése
+    foreach($szallIDs as $szall){
+        $hiba = szalloda_koltsnem_dijelem_azonos( $terv_ear['energia_terv_id'], $szall, $terv_ear['ktgnem_id'], $terv_ear['dijelem'], $egysegar_id );
+        if( $hiba === false ) { $db_error = true; }
+    }
+    if( $hiba ){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => $hiba,
             'title' => 'Hiba'
         ));
 
@@ -565,8 +581,8 @@ if (isset($_POST['uj_egysegar'])) {
     // Ha kaptunk szállodákat, akkor azzal...
     if( $szalloda_idk ){
         
-        $uj_egysegar_recid = $adatbazis_kapcsolat->i('energia_terv_ear', array('energia_terv_id', 'telephely_idk',              'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt', 'sorid' ),
-                                                                         array($terv_recid,       implode(',', $szalloda_idk),  $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      time()  )
+        $uj_egysegar_recid = $adatbazis_kapcsolat->i('energia_terv_ear', array('energia_terv_id', 'telephely_idk',              'dnem01', 'dnem02', 'dnem03', 'dnem04', 'dnem05', 'dnem06', 'dnem07', 'dnem08', 'dnem09', 'dnem10', 'dnem11', 'dnem12', 'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt', 'sorid' ),
+                                                                         array($terv_recid,       implode(',', $szalloda_idk),  '5',      '5',      '5',      '5',      '5',      '5',      '5',      '5',      '5',      '5',      '5',      '5',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      time()  )
                                                     );
         if( $uj_egysegar_recid === false ) { $db_error = true; }
 
@@ -575,8 +591,8 @@ if (isset($_POST['uj_egysegar'])) {
         $telephelyek = $adatbazis_kapcsolat->s2('telephely_idk', 'energia_terv_ear', "`recid`='{$egysegar_recid}'");
         if( $telephelyek === false ) { $db_error = true; }
 
-        $uj_egysegar_recid = $adatbazis_kapcsolat->i('energia_terv_ear', array('energia_terv_id', 'telephely_idk',              'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt', 'sorid' ),
-                                                                         array($terv_recid,       $telephelyek['telephely_idk'], $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',     time() )
+        $uj_egysegar_recid = $adatbazis_kapcsolat->i('energia_terv_ear', array('energia_terv_id', 'telephely_idk',               'dnem01', 'dnem02', 'dnem03', 'dnem04', 'dnem05', 'dnem06', 'dnem07', 'dnem08', 'dnem09', 'dnem10', 'dnem11', 'dnem12', 'insert_usr',                           'insert_dt',  'update_usr',                           'update_dt', 'sorid' ),
+                                                                         array($terv_recid,       $telephelyek['telephely_idk'], '5',      '5',      '5',      '5',      '5',      '5',      '5',      '5',      '5',      '5',      '5',      '5',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',      $_SESSION[get_db_tabla().'teljes_nev'], 'NOW()',     time() )
                                                     );
         if( $uj_egysegar_recid === false ) { $db_error = true; }
     }
@@ -1298,7 +1314,7 @@ if( !$_GET['ajax'] ) {
 
 
 // Szálloda+költségnem+díjelem terven belüli egyediség ellenőrzése
-function szalloda_koltsnem_dijelem_azonos($terv_id, $telephely_idk, $ktgnem_id, $dijelem){
+function szalloda_koltsnem_dijelem_azonos($terv_id, $telephely_idk, $ktgnem_id, $dijelem, $ear_id = ''){
 
     global $adatbazis_kapcsolat;
 
@@ -1306,7 +1322,15 @@ function szalloda_koltsnem_dijelem_azonos($terv_id, $telephely_idk, $ktgnem_id, 
     $ktgnem_id      = trim($ktgnem_id);
     $dijelem        = trim($dijelem);
 
-    if( $telephely_idk && $ktgnem_id && $dijelem && $adatbazis_kapcsolat->s('recid', 'energia_terv_ear', "`energia_terv_id`='{$terv_id}' AND `telephely_idk` LIKE '%{$telephely_idk}%' AND `ktgnem_id`='{$ktgnem_id}' AND `dijelem`='{$dijelem}'") ){
+    if($ear_id){
+        $van_egyezes = $adatbazis_kapcsolat->s('recid', 'energia_terv_ear', "`recid`!='{$ear_id}' AND `energia_terv_id`='{$terv_id}' AND `telephely_idk` LIKE '%{$telephely_idk}%' AND `ktgnem_id`='{$ktgnem_id}' AND `dijelem`='{$dijelem}'");
+        if($van_egyezes===false){ return false; }
+    }else{
+        $van_egyezes = $adatbazis_kapcsolat->s('recid', 'energia_terv_ear', "`energia_terv_id`='{$terv_id}' AND `telephely_idk` LIKE '%{$telephely_idk}%' AND `ktgnem_id`='{$ktgnem_id}' AND `dijelem`='{$dijelem}'");
+        if($van_egyezes===false){ return false; }    
+    }
+    
+    if( $telephely_idk && $ktgnem_id && $dijelem && $van_egyezes ){
         return 'Azonos díjelem megnevezések szálloda - költségnem összerendelésen belül!';
     }else{
         return '';
