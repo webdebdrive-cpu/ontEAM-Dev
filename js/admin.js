@@ -1624,7 +1624,7 @@ console.log('b'+active_top);
             if( ev !== false && id.indexOf('_autocomp') === -1 /*id != '' && id !== undefined && Ez miért kellett? Popupban levő autocomplete-nél gond volt belőle, mert ha olyan elemre kattintottunk, aminke nem volt ID-ja, akkor nem íródott vissza az origin-val */ ) {
                 var elementID = ev.target.id;
 
-                if( elementID.indexOf('_autocomp') !== -1 && !ev.target.attributes['readonly'] ) {
+                if( elementID.indexOf('_autocomp') !== -1 && !ev.target.attributes['readonly'] && $('#' + elementID).attr('data-no_original_val')!='1' ) {
                     var originVal = $('#' + elementID).attr('data-origin-val');
                     var ertekID = $('#' + elementID.replace('_autocomp', '')).val();
 
@@ -1643,7 +1643,7 @@ console.log('b'+active_top);
         if( event.keyCode == KEY_TAB ) {
             var elementID = $(this).attr('id');
 
-            if( elementID.indexOf('_autocomp') !== -1 && !$(this).attr('readonly') && !$(this).attr('disabled') ) {
+            if( elementID.indexOf('_autocomp') !== -1 && !$(this).attr('readonly') && !$(this).attr('disabled') && $(this).attr('data-no_original_val')!='1' ) {
                 var originVal = $(this).attr('data-origin-val');
                 var ertekID = $(this).val();
 

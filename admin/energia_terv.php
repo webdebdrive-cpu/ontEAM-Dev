@@ -1071,9 +1071,9 @@ require_once('selectek.php');
             <thead>
             <tr>
                 <th class="egys_szall"><span>Szállodák</span></th>
-                <th class="egys_szall"><span>Díjelem</span></th>
+                <th class="egys_szall_fel"><span>Díjelem</span></th>
                 <th><span>Ktgnem kód</span></th>
-                <th><span>Ktgnem név</span></th>
+                <th class="egys_szall_fel"><span>Ktgnem név</span></th>
                 <th><span>Mee</span></th>
                 <th><span>Egységár Január</span></th>
                 <th class="egys_dev"><span>Dev. Jan.</span></th>
@@ -1142,11 +1142,11 @@ require_once('selectek.php');
             }
             
             $szamla_html .= '
-                <tr id="tr_ear_'.$egysegar['recid'].'" data-recid="'.$egysegar['recid'].'">
-                    <td>'.$szalloda_html.'</td>
-                    <td>'.$egysegar['dijelem'].'</td>
+                <tr id="tr_ear_'.$egysegar['recid'].'" data-recid="'.$egysegar['recid'].'" class="ftt_menny">
+                    <td class="wrap">'.$szalloda_html.'</td>
+                    <td class="wrap">'.$egysegar['dijelem'].'</td>
                     <td>'.$ktgnem['id'].'</td>
-                    <td>'.$ktgnem['nev'].'</td>
+                    <td class="wrap">'.$ktgnem['nev'].'</td>
                     <td>'.$egysegar['mee'].'</td>
                     <td class="r">'.$egysegar['ear01'].'</td>
                     <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem01']).'</td>

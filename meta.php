@@ -5,8 +5,11 @@ function get_title(){
     global $adatbazis_kapcsolat;
 
 	$title = get_nev().' - ';
-    if( $_SERVER['HTTP_HOST']=='teszt.onteam.hu' || $_SERVER['HTTP_HOST']=='dev.onteam.hu' ){
+    if( $_SERVER['HTTP_HOST']=='teszt.onteam.hu' ){
         $title = '[teszt] '.$title;
+    }
+    if( $_SERVER['HTTP_HOST']=='dev.onteam.hu' ){
+        $title = '[dev] '.$title;
     }
 	//global $tartalom_tomb; Ha tartalom többől generálunk ki tartalmat
 

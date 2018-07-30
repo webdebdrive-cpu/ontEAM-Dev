@@ -122,6 +122,7 @@ function uj_egysegar(){
                     szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'egysegarak' ).done(function() {
                         $('.szamla_cont_tabla tr').removeClass('kijelolve');
                         $('#tr_ear_' + response.recid).addClass('kijelolve');
+                        $('#tartalomJobb').scrollTop($('#tartalomJobb').prop('scrollHeight'));
                     });
                 }
             }

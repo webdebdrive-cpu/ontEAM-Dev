@@ -2257,8 +2257,8 @@ require_once('selectek.php');
             <thead>
             <tr>
                 <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-                <th><span>Ktgnem név</span></th>
-                <th><span>Tárgy</span></th>
+                <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+                <th style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
                 <th><span>Mee</span></th>
                 <th><span>Mennyiség összesen</span></th>
                 <th><span>Érték összesen</span></th>
@@ -2351,8 +2351,8 @@ require_once('selectek.php');
             $szamla_html .= '
                 <tr id="ft_em_'.$energia['recid'].'" data-recid="'.$energia['recid'].'" class="ftt_menny'.$class.'">
                     <td>'.$energia['ktgnem_id'].'</td>
-                    <td>'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
-                    <td>'.$energia['dijelem'].'</td>
+                    <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
+                    <td class="wrap">'.$energia['dijelem'].'</td>
                     <td>'.$energia['mee'].'</td>
                     <td class="r mennyossz">'.$mennyiseg_osszesen.'</td>
                     <td class="r ertekossz">'.$ertek_osszesen.'</td>
@@ -2520,7 +2520,7 @@ require_once('selectek.php');
                         ');
         
         // Ha van eltérés az energia egységárahoz képest, akkor egy plusz gombot kiíruratunk
-        if($volt_valtozas && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+        if($volt_valtozas && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
             $szamla_html .= nl2('
                         <script>
                         $(document).ready(function () {
@@ -2578,7 +2578,8 @@ require_once('selectek.php');
             <thead>
             <tr>
                 <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-                <th><span>Ktgnem név</span></th>
+                <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+                <th><span>Összesen</span></th>
                 <th><span>Január</span></th>
                 <th><span>Február</span></th>
                 <th><span>Március</span></th>
@@ -2599,18 +2600,22 @@ require_once('selectek.php');
         $muszaki_anyagok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_muszaki_anyag', "`fenntartasi_terv_id`='{$_GET['id']}'");
         foreach($muszaki_anyagok as $anyagok){
             
+            $osszesen = 0;
             for($i=1; $i<13; $i++){
                 if($i<10){
                     $i = '0'.$i;
                 }
+                $osszesen += $anyagok['ft'.$i];
                 
                 $anyagok['ft'.$i] = number_format($anyagok['ft'.$i], 0, '', ' ');
             }
+            $osszesen = number_format($osszesen, 0, '', ' ');
             
             $szamla_html .= '
                 <tr id="ft_ft_'.$anyagok['recid'].'" data-recid="'.$anyagok['recid'].'" class="ftt_menny">
                     <td>'.$anyagok['ktgnem_id'].'</td>
-                    <td>'.getErtek('nev', 'ktgnem', 'id', $anyagok['ktgnem_id']).'</td>
+                    <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $anyagok['ktgnem_id']).'</td>
+                    <td class="r ftossz">'.$osszesen.'</td>
                     <td class="r ft01">'.$anyagok['ft01'].'</td>
                     <td class="r ft02">'.$anyagok['ft02'].'</td>
                     <td class="r ft03">'.$anyagok['ft03'].'</td>
@@ -2632,6 +2637,7 @@ require_once('selectek.php');
                             <tfoot class="nowrap">
                                 <td></td>
                                 <td></td>
+                                <td class="r" id="szum_ftossz"></td>
                                 <td class="r" id="szum_ft01"></td>
                                 <td class="r" id="szum_ft02"></td>
                                 <td class="r" id="szum_ft03"></td>
@@ -2690,8 +2696,8 @@ require_once('selectek.php');
             <thead>
             <tr>
                 <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-                <th><span>Ktgnem név</span></th>
-                <th><span>Tárgy</span></th>
+                <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+                <th style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
                 <th><span>Összesen</span></th>
                 <th><span>Január</span></th>
                 <th><span>Február</span></th>
@@ -2727,7 +2733,7 @@ require_once('selectek.php');
             $szamla_html .= '
                 <tr id="ft_ft_'.$rendszeres['recid'].'" data-recid="'.$rendszeres['recid'].'" class="ftt_menny">
                     <td>'.$rendszeres['ktgnem_id'].'</td>
-                    <td>'.getErtek('nev', 'ktgnem', 'id', $rendszeres['ktgnem_id']).'</td>
+                    <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $rendszeres['ktgnem_id']).'</td>
                     <td class="wrap">'.$rendszeres['targy'].'</td>
                     <td class="r ftossz">'.$osszesen.'</td>
                     <td class="r ft01">'.$rendszeres['ft01'].'</td>
@@ -2811,9 +2817,9 @@ require_once('selectek.php');
             <thead>
             <tr>
                 <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-                <th><span>Ktgnem név</span></th>
-                <th style="min-width: 20rem"><span>Tárgy</span></th>
-                <th style="min-width: 20rem"><span>Részletes leírás</span></th>
+                <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+                <th style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
+                <th style="min-width: 20rem; width: 20rem"><span>Részletes leírás</span></th>
                 <th><span>Összesen</span></th>
                 <th><span>Január</span></th>
                 <th><span>Február</span></th>
@@ -2848,7 +2854,7 @@ require_once('selectek.php');
             $szamla_html .= '
                 <tr id="ft_ft_'.$eseti['recid'].'" data-recid="'.$eseti['recid'].'" class="ftt_menny">
                     <td>'.$eseti['ktgnem_id'].'</td>
-                    <td>'.getErtek('nev', 'ktgnem', 'id', $eseti['ktgnem_id']).'</td>
+                    <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $eseti['ktgnem_id']).'</td>
                     <td class="wrap">'.$eseti['targy'].'</td>
                     <td class="wrap">'.nl2br2($eseti['leir']).'</td>
                     <td class="r ftossz">'.$osszesen.'</td>
@@ -2934,8 +2940,8 @@ require_once('selectek.php');
             <thead>
             <tr>
                 <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-                <th><span>Ktgnem név</span></th>
-                <th style="min-width: 20rem"><span>Részletes leírás</span></th>
+                <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+                <th style="min-width: 20rem; width: 20rem"><span>Részletes leírás</span></th>
                 <th><span>Összesen</span></th>
                 <th><span>Január</span></th>
                 <th><span>Február</span></th>
@@ -2970,7 +2976,7 @@ require_once('selectek.php');
             $szamla_html .= '
                 <tr id="ft_ft_'.$hiba['recid'].'" data-recid="'.$hiba['recid'].'" class="ftt_menny">
                     <td>'.$hiba['ktgnem_id'].'</td>
-                    <td>'.getErtek('nev', 'ktgnem', 'id', $hiba['ktgnem_id']).'</td>
+                    <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $hiba['ktgnem_id']).'</td>
                     <td class="wrap">'.nl2br2($hiba['leir']).'</td>
                     <td class="r ftossz">'.$osszesen.'</td>
                     <td class="r ft01">'.$hiba['ft01'].'</td>
@@ -3054,9 +3060,9 @@ require_once('selectek.php');
             <thead>
             <tr>
                 <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-                <th><span>Ktgnem név</span></th>
-                <th><span>Tárgy</span></th>
-                <th><span>Leírás</span></th>
+                <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+                <th style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
+                <th style="min-width: 20rem; width: 20rem"><span>Leírás</span></th>
                 <th><span>Január</span></th>
                 <th><span>Február</span></th>
                 <th><span>Március</span></th>
@@ -3087,7 +3093,7 @@ require_once('selectek.php');
             $szamla_html .= '
                 <tr id="ft_ft_'.$bwh['recid'].'" data-recid="'.$bwh['recid'].'" class="ftt_menny">
                     <td>'.$bwh['ktgnem_id'].'</td>
-                    <td>'.getErtek('nev', 'ktgnem', 'id', $bwh['ktgnem_id']).'</td>
+                    <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $bwh['ktgnem_id']).'</td>
                     <td class="wrap">'.$bwh['targy'].'</td>
                     <td class="wrap">'.nl2br2($bwh['leir']).'</td>
                     <td class="r ft01">'.$bwh['ft01'].'</td>
@@ -3171,7 +3177,7 @@ require_once('selectek.php');
             <thead>
             <tr>
                 <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
-                <th><span>Ktgnem név</span></th>
+                <th style="min-width: 10rem; width: 10rem;"><span>Ktgnem név</span></th>
                 <th><span>Összesen</span></th>
                 <th><span>Január</span></th>
                 <th><span>Február</span></th>
@@ -3235,7 +3241,7 @@ require_once('selectek.php');
                         $szamla_html .= '
                             <tr id="ft_ft_'.$tabla_post.$sor['recid'].'" data-recid="'.$sor['recid'].'" class="ftt_menny">
                                 <td>'.$sor['ktgnem_id'].'</td>
-                                <td>'.getErtek('nev', 'ktgnem', 'id', $sor['ktgnem_id']).'</td>
+                                <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $sor['ktgnem_id']).'</td>
                                 <td class="r fto '.$tabla_post.'">'.$honapok_osszesen.'</td>
                                 <td class="r ft01 '.$tabla_post.'">'.$sor['ft01'].'</td>
                                 <td class="r ft02 '.$tabla_post.'">'.$sor['ft02'].'</td>

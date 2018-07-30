@@ -6905,9 +6905,13 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
 
     $targy_kieg = '';
     $uzi_kieg   = '';
+    $dev_kieg   = '';
+    if( $_SERVER['HTTP_HOST']=='dev.onteam.hu' ){
+        $dev_kieg = 'Dev ';
+    }
     if( get_teszt_rendszer() ){
-        $targy_kieg = '[Teszt email] ';
-        $uzi_kieg   = '[Teszt email]<br><br>';
+        $targy_kieg = '['.$dev_kieg.'Teszt email] ';
+        $uzi_kieg   = '['.$dev_kieg.'Teszt email]<br><br>';
     }
 
 //echo '<pre style="font-size: 1.4rem">';

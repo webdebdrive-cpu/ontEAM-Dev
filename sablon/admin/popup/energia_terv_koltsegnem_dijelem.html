@@ -24,7 +24,7 @@
             <div class="dtr">
                 <div class="dtc form_bal">Díjelem neve:</div>
                 <div class="dtc form_jobb">
-                    <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="dijelem_autocomp" id="dijelem_autocomp" value="">
+                    <input type="text" autocomplete="off" class="oriasi disableNav csillag" name="dijelem_autocomp" id="dijelem_autocomp" value="" data-no_original_val="1">
                     <script>
                         $(document).ready(function() {
                             $('#dijelem_autocomp').autocomplete({
@@ -83,7 +83,7 @@ $(document).ready(function(){
                     
                         $('#ktgnem_id_autocomp').val( response.ktgnem_id_autocomp ).attr('data-origin-val', response.ktgnem_id_autocomp);
                         $('#ktgnem_id')         .val( response.ktgnem_id );
-                        $('#dijelem_autocomp')  .val( response.dijelem_autocomp ).attr('data-origin-val', response.dijelem_autocomp);
+                        $('#dijelem_autocomp')  .val( response.dijelem_autocomp );/* A díjelemnek szándékosan nem adtunk meg original valu-et, mert ide szabadszavasan is lehet beleírni szöveget. */
                         $('#popup_mee')         .val( response.popup_mee );
                         
                     }

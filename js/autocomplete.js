@@ -44,7 +44,9 @@
             var van_uj_erteke = false;
             var options = $.extend(defaults, options);
 
-            $(this).attr('data-origin-val', $(this).val());
+            if( $(this).attr('data-no_original_val')!='1' ){
+                $(this).attr('data-origin-val', $(this).val());
+            }
             $(this).addClass('autocomp'); /* Ettől lesz nyíl ikon az input végén, látszik, hogy egy autocompletes input. */
 
             /* Szállítóknál legyen placeholder, illetve itt 3 karakter kell a listázáshoz */
@@ -255,7 +257,7 @@
                     var mezo_nev = mezo.attr('name').replace('_autocomp', ''),
                         value    = $('input[name="' + mezo_nev + '"]').val();
 
-                    if( !value ) {
+                    if( !value && mezo.attr('data-no_original_val')!='1' ) {
                         mezo.val('');
                     }
                 }
@@ -291,7 +293,7 @@
                     if( li_val.indexOf('&') !== -1 ) {
                         li_val = li_val.replace('&amp;', '&');
                     }
-
+                    
                     mezo.val( li_val ).change();
                     van_uj_erteke = true;
 
@@ -471,7 +473,6 @@
                             mezo.val( li_val ).change();
                             van_uj_erteke = true;
 
-                            mezo.attr('data-origin-val', mezo.val());
                             mezo.attr('data-origin-val', mezo.val());
                             if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                                 mezo_nev = mezo.attr('name').replace('_autocomp', '');

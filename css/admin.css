@@ -3308,6 +3308,13 @@ div.rendBal {
 th.egys_szall {
     min-width: 20rem;
     width: 20rem;
+    white-space: normal;
+}
+
+th.egys_szall_fel {
+    min-width: 10rem;
+    width: 10rem;
+    white-space: normal;
 }
 
 th.ktgnem_kod {
