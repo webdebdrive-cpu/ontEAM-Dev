@@ -655,10 +655,10 @@ if( isset($_POST['bejelentesReklamacioElutasit']) ) {
 // CSV generálása
 if (isset($_GET['csv'])) {
 
-//    header("Content-type: text/csv");
-//    header("Content-Disposition: attachment; filename=$megnevezes.csv");
-//    header("Pragma: no-cache");
-//    header("Expires: 0");
+    header("Content-type: text/csv");
+    header("Content-Disposition: attachment; filename=$megnevezes.csv");
+    header("Pragma: no-cache");
+    header("Expires: 0");
 
     $mibol   = get_web_charset();
     $mibe    = 'windows-1250';
@@ -681,9 +681,9 @@ if (isset($_GET['csv'])) {
 
         if( $_SESSION['nyomtatas_ids'] ) {
             if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `".get_db_tabla()."bejelentes`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
             } else {
-                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `".get_db_tabla()."bejelentes`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
             }
         }
 
@@ -698,7 +698,6 @@ if (isset($_GET['csv'])) {
                     `stat_id` as \'Státusz\',
                     `'.get_db_tabla().'bejelentes`.`insert_dt` as \'Bejelentés dátuma\'
                     '.$lekerdezes_fromtol;
-echo $sql;
 
         $query      = mysqli_query($db_kapcs, $sql);
 
