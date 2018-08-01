@@ -254,6 +254,7 @@ if (isset($_POST['terv_keszit'])) {
                                         array($uj_id,               ENERGIATERV_STAT_MUNKAKOZI,  $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                     );
     if( $sql === false ) { $db_error = true; }
+
     $sql = $adatbazis_kapcsolat->u('energia_terv', array('stat_id'), array(ENERGIATERV_STAT_MUNKAKOZI), "`recid`='{$uj_id}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -427,9 +428,13 @@ if (isset($_GET['addSzallodaEnergia'])) {
     }
     
     // Azonos díjelem, költségem és szálloda ellenőrzése
+    $hiba = '';
     foreach($szallIDs as $szall){
         $hiba = szalloda_koltsnem_dijelem_azonos( $terv_ear['energia_terv_id'], $szall, $terv_ear['ktgnem_id'], $terv_ear['dijelem'], $egysegar_id );
         if( $hiba === false ) { $db_error = true; }
+        if($hiba){
+            break;
+        }
     }
     if( $hiba ){
         mysqli_rollback($db_kapcs);
@@ -695,7 +700,11 @@ if (isset($_POST['energiaterv_veglegesit'])) {
 
     // Ha nem WebDeb szerveren vagyunk, akkor lefuttatjuk a ftervear_updatetrigger()-t
     if($_SERVER['HTTP_HOST']!='demo.webdeb.hu'){
-        $sql = mysqli_query($db_kapcs, 'call ftervear_updatetrigger()');
+        
+        $sql = mysqli_query($db_kapcs, 'call onteam_fenntartasi_terv_updatetrigger()');
+        if(!$sql){
+            echo mysqli_error($db_kapcs);
+        }
         if( $sql === false ) { $db_error = true; }
     }
 

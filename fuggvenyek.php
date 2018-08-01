@@ -1900,7 +1900,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         // Ezért az itt felsoroltakra váltva a rendezés irányán is fordítunk
         $iranyt_is_valt = array(
                                 array('tabla' => 'utemezett_feladatok', 'rend' => 'aktiv',          'default' => 'desc' ),
-                                array('tabla' => 'utemezett_feladatok', 'rend' => 'esnap_d',        'default' => 'asc' ),
+                                array('tabla' => 'utemezett_feladatok', 'rend' => 'esnap_d',        'default' => 'asc'  ),
                             );
 
         $volt_irany_valtas = false;
@@ -1969,6 +1969,9 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         }
         if($tabla == 'eszkozkezeles'){
             $where = "`".get_db_tabla()."eszkozkezeles`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
+        }
+        if($tabla == 'fenntartasi_terv'){
+            $where = "`".get_db_tabla()."fenntartasi_terv`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
         }
         if($tabla == 'utemezett_feladatok'){
             $where = "`".get_db_tabla()."utemezett_feladatok`.`telephely_id` IN (".implode(',', $szallodak).") AND ";
@@ -2252,7 +2255,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 case 'anyag_tabla_statusz'      : $order = '`'.get_db_tabla().'anyagigenyles`.`stat_id`';   break;
                 case 'anyag_tabla_rndid'        : $order = '`'.get_db_tabla().'anyagigenyles`.`rndid`';     break;
                 case 'anyag_tabla_rnd_dt'       : $order = '`'.get_db_tabla().'anyagigenyles`.`rnd_dt`';    break;
-                case 'anyag_tabla_rndertek'     : $order = '`'.get_db_tabla().'cikkrendfej`.`rndertek`';   break;
+                case 'anyag_tabla_rndertek'     : $order = '`'.get_db_tabla().'cikkrendfej`.`rndertek`';    break;
             }
             $order .= ' '.$_SESSION['anyagigenyles_tablazat_irany'];
         }
