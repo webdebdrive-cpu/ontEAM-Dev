@@ -368,12 +368,17 @@ function tablaSorrend( table ) {
 
         table.find('thead').not('.sticky').find('th').each(function(i) {
             if( this.id != '') {
+                var width = '';
                 /* Rejtett oszlop esetén nem a látható szélessége, hanem a style attribútumba írt szélességére van szükségünk */
                 if( $(this).hasClass('dn') ){
-                    sorrend[i] = {id: this.id, width: $(this)[0].style.width };
+                    width = $(this)[0].style.width;
                 }else{
-                    sorrend[i] = {id: this.id, width: $(this).outerWidth()};
+                    width = $(this).outerWidth();
                 }
+                if(width<40){
+                    width = 40;
+                }
+                sorrend[i] = {id: this.id, width: width };
             }
         });
 

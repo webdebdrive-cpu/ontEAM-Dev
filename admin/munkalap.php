@@ -2340,6 +2340,14 @@ if (isset($_POST['munkalapVisszaElokeszit'])) {
         exit();
     }
     
+    // Nézzük meg, ki tette legutóbb döntés státuszba. Annak a usernek a személyzettípusát állítsuk be hozzárendelt személynek, illetve ürítjük a külső kivitelezőt és jóváhagyott értéket
+    $dontes_statusz = $adatbazis_kapcsolat->s2('login', 'munkalap_statusz', "`munkalap_recid`='{$recid}' AND `stat_id`='".MUNKALAP_STAT_DONTESRE_VAR."'", 'recid desc', '1');
+    if( $dontes_statusz === false ) { $db_error = true; }
+    $login = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev`='{$dontes_statusz['login']}'");
+    if( $login === false ) { $db_error = true; }
+    $sql = $adatbazis_kapcsolat->u('munkalap', array('szemelyzet_id', 'szallito_id', 'jh_ert'), array($login['szemelyzet_id'], '', '0'), "`recid`='{$recid}'");
+    if( $sql === false ) { $db_error = true; }
+    
     // Státusz léptetés
     if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_ELOKESZITES_ALATT ) ) {
         $db_error = true;

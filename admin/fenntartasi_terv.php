@@ -1586,6 +1586,7 @@ if (isset($_POST['fenntartasterv_veglegesit'])) {
     if( !addStatusz( 'fenntartasi_terv_statusz', $recid, ENERGIATERV_STAT_KESZ ) ) {
         $db_error = true;
     }
+
     
     // Logolás
     $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$recid.' recid-jú fenntartási tervet véglegesítette.';

@@ -1235,6 +1235,18 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
     }
     */
     
+    $adatbazis_kapcsolat->d('energia_terv', "recid>0");
+    $lek = mysqli_query($db_kapcs, 'SELECT * FROM `ftervear`');
+    while($sor = mysqli_fetch_assoc($lek) ){
+        
+        $ktgnem = $adatbazis_kapcsolat->s2('recid', 'ktgnem', "`id`='{$sor['ktgnemid']}'");
+        $adatbazis_kapcsolat->i('energia_terv', array('recid',      'ikt_szam',     'stat_id',      'ev',        'text',           'terv_dt',        'update_dt',        'update_usr',       'insert_dt',        'insert_usr'        ),
+                                                array($sor['recid'], $sor['tszam'], $sor['statid'], $sor['tev'], $sor['tervleir'], $sor['terv_dt'],  $sor['update_dt'],  $sor['update_usr'], $sor['insert_dt'],  $sor['insert_usr']  )
+                                );
+echo $adatbazis_kapcsolat->gp() . '<br>';
+    }
+    
+    /*
     $adatbazis_kapcsolat->d('energia_terv_ear', "recid>0");
     $lek = mysqli_query($db_kapcs, 'SELECT * FROM `tervear`');
     while($sor = mysqli_fetch_assoc($lek) ){
@@ -1245,7 +1257,7 @@ echo $adatbazis_kapcsolat->gp() . '<br>';
                                 );
 echo $adatbazis_kapcsolat->gp() . '<br>';
     }
-    
+    */
     
     /*
     $adatbazis_kapcsolat->d('fenntartasi_terv_bwh', "recid>0");

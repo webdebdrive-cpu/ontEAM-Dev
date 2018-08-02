@@ -698,15 +698,16 @@ if (isset($_POST['energiaterv_veglegesit'])) {
         exit();
     }
 
-    // Ha nem WebDeb szerveren vagyunk, akkor lefuttatjuk a ftervear_updatetrigger()-t
-    if($_SERVER['HTTP_HOST']!='demo.webdeb.hu'){
-        
-        $sql = mysqli_query($db_kapcs, 'call onteam_fenntartasi_terv_updatetrigger()');
-        if(!$sql){
-            echo mysqli_error($db_kapcs);
-        }
-        if( $sql === false ) { $db_error = true; }
-    }
+//    // Ha nem WebDeb szerveren vagyunk, akkor lefuttatjuk a ftervear_updatetrigger()-t
+//    if($_SERVER['HTTP_HOST']!='demo.webdeb.hu'){
+//        
+//        $sql = mysqli_query($db_kapcs, 'call onteam_fenntartasi_terv_updatetrigger()');
+//        if(!$sql){
+//            echo mysqli_error($db_kapcs);
+//        }
+//        if( $sql === false ) { $db_error = true; }
+//
+//    }
 
     if( !addStatusz( 'energia_terv_statusz', $recid, ENERGIATERV_STAT_KESZ ) ) {
         $db_error = true;
