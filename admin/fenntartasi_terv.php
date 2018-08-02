@@ -454,7 +454,7 @@ if (isset($_POST['energia_tabla_ment'])) {
     }
     
     // Jog ellenőrzése
-    if(!_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) || $_SESSION[get_db_tabla().'szemelyzet_id']!=MUSZAKI_VEZETO){
+    if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ){
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga a tervet szerkeszteni!',
             'title' => 'Hiba'
@@ -2038,6 +2038,10 @@ require_once('selectek.php');
             if( $sor['stat_id']==ENERGIATERV_STAT_KESZ && _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) ){
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Élesítés" onclick="fenntartasi_terv_elesites()"> ';
             }
+            if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){
+                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="fenntartasterv_veglegesit()"> ';
+            }
+            
         // Ha nem az adatlapon vagyunk
         }else{
             
@@ -2047,9 +2051,11 @@ require_once('selectek.php');
             
             // Fülek alatti gombok csak akkor érhetőek el, ha van is hozzá jogunk, és munkaközi a státusza, kivéve az energiát (ott csak akkor, ha nem éles)
             if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){
-                if( isset($_GET['energia']) && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO ){
+                if( isset($_GET['energia']) ){
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt dn" id="energia_kitolt" value="Kitöltés" onclick="kapcsolodoSzerkeszt(\'ft_energia_mennyiseg\');"> ';
-                    $gombok .= '<input type="button" class="gomb modositaskor_rejt dn" id="valtoztatas_jovahagyas" value="Változás jóváhagyás" onclick="valtozas_jovahagyas()"> ';
+                    if($_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO){
+                        $gombok .= '<input type="button" class="gomb modositaskor_rejt dn" id="valtoztatas_jovahagyas" value="Változás jóváhagyás" onclick="valtozas_jovahagyas()"> ';
+                    }
                 }
             }
             if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){

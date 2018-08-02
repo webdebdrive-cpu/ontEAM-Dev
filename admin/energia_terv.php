@@ -923,6 +923,7 @@ require_once('selectek.php');
             if( $sor['stat_id']==ENERGIATERV_STAT_KESZ && _jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ){
                 $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Élesítés" onclick="terv_elesites()"> ';
             }
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="energiaterv_veglegesit()"> ';
         }
 
         if( _jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ){
