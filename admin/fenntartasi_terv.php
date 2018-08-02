@@ -1628,7 +1628,7 @@ if (isset($_POST['valtozas_jovahagyas'])) {
     earrecid_beallit($sor['ev'], $_POST['id']);
     
     // Jog ellenőrzése
-    if(!_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) || $_SESSION[get_db_tabla().'szemelyzet_id']!=MUSZAKI_VEZETO){
+    if(!_jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
         echo json_encode(array(
             'hiba'  => 'Önnek nincs joga a tervet szerkeszteni!',
             'title' => 'Hiba'
@@ -2053,9 +2053,7 @@ require_once('selectek.php');
             if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){
                 if( isset($_GET['energia']) ){
                     $gombok .= '<input type="button" class="gomb modositaskor_rejt dn" id="energia_kitolt" value="Kitöltés" onclick="kapcsolodoSzerkeszt(\'ft_energia_mennyiseg\');"> ';
-                    if($_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO){
-                        $gombok .= '<input type="button" class="gomb modositaskor_rejt dn" id="valtoztatas_jovahagyas" value="Változás jóváhagyás" onclick="valtozas_jovahagyas()"> ';
-                    }
+                    $gombok .= '<input type="button" class="gomb modositaskor_rejt dn" id="valtoztatas_jovahagyas" value="Változás jóváhagyás" onclick="valtozas_jovahagyas()"> ';
                 }
             }
             if( _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL) && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){
@@ -2409,7 +2407,7 @@ require_once('selectek.php');
                 $volt_valtozas  = true;
                 
                 $energia = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$sorid}'");
-                
+// echo $adatbazis_kapcsolat->gp() . '<br>';
                 $mennyiseg_osszesen = 0;
                 $ertek_osszesen     = 0;
                 for($i=1; $i<13; $i++){
@@ -2422,11 +2420,12 @@ require_once('selectek.php');
                 }
                 $mennyiseg_osszesen = number_format($mennyiseg_osszesen,  0, ',', ' ');
                 $ertek_osszesen     = number_format($ertek_osszesen,  0, ',', ' ');
+                $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`recid`='{$energia['ktgnem_id']}'");
                 
                 $szamla_html .= '
                     <tr id="ft_em_'.$sorid.'" data-recid="'.$sorid.'" class="ftt_menny zold_hat">
-                        <td>'.$energia['ktgnem_id'].'</td>
-                        <td>'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
+                        <td>'.$ktgnem['id'].'</td>
+                        <td>'.$ktgnem['nev'].'</td>
                         <td>'.$energia['dijelem'].'</td>
                         <td>'.$energia['mee'].'</td>
                         <td class="r">'.$mennyiseg_osszesen.'</td>
@@ -2527,7 +2526,7 @@ require_once('selectek.php');
                         ');
         
         // Ha van eltérés az energia egységárahoz képest, akkor egy plusz gombot kiíruratunk
-        if($volt_valtozas && $_SESSION[get_db_tabla().'szemelyzet_id']==MUSZAKI_VEZETO && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
+        if($volt_valtozas && $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && _jog(JOG_FENNTARTASI_SAJAT_SZ_KEZEL)){
             $szamla_html .= nl2('
                         <script>
                         $(document).ready(function () {

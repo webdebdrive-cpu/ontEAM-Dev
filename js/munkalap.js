@@ -918,12 +918,14 @@ function munkalapElokeszit(szemelyzet_id, mehet) {
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
-                        alert2(response.hiba, response.gomb, response.title);
+                        szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                        setTimeout(function(){ alert2(response.hiba, response.gomb, response.title); }, 1000);
+                        
                         return false;
                     }
 
-                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                     popupZar();
+                    szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                 }
             }
         });
