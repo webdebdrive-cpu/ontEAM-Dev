@@ -379,8 +379,8 @@ function munkalapKulsosJovahagy(csak_kerdezunk) {
                     szurkit_zar();
                     
                     if( response.hiba ) {
-                        alert2(response.hiba, response.gomb, response.title);
-                        
+                        szamlaBetolt( _get('id'), 'munkalap.php', 'modosit' );
+                        setTimeout(function(){ alert2(response.hiba, response.gomb, response.title); }, 1000);
                         return false;
                     }
 
