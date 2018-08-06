@@ -6051,6 +6051,14 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
     }elseif($tabla=='login' && $mezo=='szalloda'){
         return '`'.get_db_tabla().'telephely_kapcs`.`telephely_id`=\''.$felt.'\'';
+    
+    // mszk_jovahagy feltétele: a munkalap döntésre vár státuszban van, és a hozzárendelt személy vagy Műszaki vezető vagy diszpécser
+    }elseif($tabla=='munkalap' && $mezo=='mszk_jovahagy'){
+        if($felt==1){
+            return '`stat_id`=\''.MUNKALAP_STAT_DONTESRE_VAR.'\' AND `szemelyzet_id` IN (\''.MUSZAKI_VEZETO.'\', \''.DISZPECSER.'\')';
+        }else{
+            return '!(`stat_id`=\''.MUNKALAP_STAT_DONTESRE_VAR.'\' AND `szemelyzet_id` IN (\''.MUSZAKI_VEZETO.'\', \''.DISZPECSER.'\'))';
+        }
     }elseif($tabla=='utemezett_feladatok' && $mezo=='telephely_id'){
         return '`'.get_db_tabla().'utemezett_feladatok`.`telephely_id`=\''.$felt.'\'';
     }elseif($tabla=='utemezett_feladatok' && $mezo=='id'){

@@ -96,6 +96,11 @@ if (isset($_POST['f_szuro_mezo'])) {
         $operator .= '<option value="like"'.$selected_like.'>Tartalmazza</option>';
     }
 
+    // MSZK jóváhagyta operátora
+    if($_POST['mezo']=='mszk_jovahagy'){
+        $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+    }
+
     // Szakterület esetén = operátor + autocomplete
     if($_POST['mezo']=='szakterulet'){
         $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
@@ -358,6 +363,18 @@ if (isset($_POST['f_szuro_mezo_operator'])) {
 
         }
 
+        // Megjegyzés esetén tartalmazza operátor + szabadszavas mező
+        if($_POST['mezo']=='mszk_jovahagy'){
+
+            $feltetel = nl2('
+                <select class="f_felt">
+                    <option value="1"'.$selected_egy.'>Igen</option>
+                    <option value="0"'.$selected_null.'>Nem</option>
+                </select>
+                ');
+
+        }
+
         // Szakterület esetén = operátor + autocomplete
         if($_POST['mezo']=='szakterulet'){
 
@@ -530,6 +547,13 @@ if($tabla == 'bejelentes_arch' || $tabla == 'munkalap_arch'){
         $selected_legfrissebb = ' selected';
     }
     array_push( $sz_mezo, array('eleje' => '<option value="legfrissebb"'.$selected_legfrissebb.'>', 'vege' => 'Legfrissebb</option>' ) );
+}
+if($tabla == 'munkalap'){
+    $selected_mszk_jovahagy  = '';
+    if($_GET['mezo']=='mszk_jovahagy'){
+        $selected_mszk_jovahagy = ' selected';
+    }
+    array_push( $sz_mezo, array('eleje' => '<option value="mszk_jovahagy"'.$selected_mszk_jovahagy.'>', 'vege' => 'MSZK jóváhagyta</option>' ) );
 }
 if($tabla == 'login'){
     $selected_jog   = '';
