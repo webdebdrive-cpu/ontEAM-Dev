@@ -416,10 +416,10 @@ if (isset($_GET['addSzallodaEnergia'])) {
     if( $terv_ear === false ) { $db_error = true; }
     $terv     = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$terv_ear['energia_terv_id']}'");
     if( $terv === false ) { $db_error = true; }
-    if($terv['stat_id']==ENERGIATERV_STAT_ELES){
+    if($terv['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba'  => 'Az energia terv már éles, így nem szerkeszthető!',
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
             'title' => 'Hiba'
         ));
 
@@ -468,10 +468,10 @@ if (isset($_GET['addSzallodaEnergia'])) {
 if (isset($_POST['get_statusz'])) {
     
     $terv = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$_POST['recid']}'");
-    if($terv['stat_id']==ENERGIATERV_STAT_ELES){
+    if($terv['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba'  => 'Az energia terv már éles, így nem szerkeszthető!',
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
             'title' => 'Hiba'
         ));
 
@@ -488,9 +488,9 @@ if (isset($_POST['get_egysegar_adatok'])) {
     $terv     = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$egysegar['energia_terv_id']}'");
     $ktgnem   = $adatbazis_kapcsolat->s2('nev', 'ktgnem', "`recid`='{$egysegar['ktgnem_id']}'");
     
-    if($terv['stat_id']==ENERGIATERV_STAT_ELES){
+    if($terv['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         echo json_encode(array(
-            'hiba'  => 'Az energia terv már éles, így nem szerkeszthető!',
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
             'title' => 'Hiba'
         ));
 
@@ -572,10 +572,10 @@ if (isset($_POST['uj_egysegar'])) {
     $terv = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$terv_recid}'");
     if( $terv === false ) { $db_error = true; }
     
-    if($terv['stat_id']==ENERGIATERV_STAT_ELES){
+    if($terv['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba'  => 'Az energia terv már éles, így nem szerkeszthető!',
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
             'title' => 'Hiba'
         ));
 
@@ -632,10 +632,10 @@ if (isset($_POST['egysegar_sor_torol'])) {
     if( $terv_ear === false ) { $db_error = true; }
     $terv     = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$terv_ear['energia_terv_id']}'");
     if( $terv === false ) { $db_error = true; }
-    if($terv['stat_id']==ENERGIATERV_STAT_ELES){
+    if($terv['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba'  => 'Az energia terv már éles, így nem szerkeszthető!',
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
             'title' => 'Hiba'
         ));
 
@@ -675,10 +675,10 @@ if (isset($_POST['energiaterv_veglegesit'])) {
     if( $sor === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
-    if($sor['stat_id']==ENERGIATERV_STAT_ELES){
+    if($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba'  => 'Az energia terv már éles, így nem szerkeszthető!',
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
             'title' => 'Hiba'
         ));
 
@@ -902,8 +902,8 @@ require_once('selectek.php');
         // Jogosutságkezelés: csak az törölheti, aki létrehozta
         if(!_jog(JOG_ENERGIA_EGYSEGAR_KEZEL)){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága '.$szoveg.' törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
-        }elseif( $sor['stat_id']==ENERGIATERV_STAT_ELES ){
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A '.$sor['ikt_szam'].' tervszámú energia terv státusza ÉLES, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        }elseif( $sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI ){
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A '.$sor['ikt_szam'].' tervszámú energia terv státusza nem munkaközi, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }else{
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A következő egységár terv törlésére készül:<br><br>Tervező év: '.$sor['ev'].'<br>Tervszám: '.$sor['ikt_szam'].'<br><br>Biztos, hogy törli?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
@@ -919,20 +919,25 @@ require_once('selectek.php');
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="energiaterv_veglegesit()"> ';
         // Tervek fül
         }else{
-            // Élesítés gomb
-            if( $sor['stat_id']==ENERGIATERV_STAT_KESZ && _jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ){
-                $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Élesítés" onclick="terv_elesites()"> ';
-            }
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="energiaterv_veglegesit()"> ';
         }
 
-        if( _jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ){
-            $gombok = nl2('
-                <div class="form_kuldes">
-                    <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
-                    <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt(\''.$_GET['id'].'\', \''.$megnevezes.'.php\');">
-                </div>
-            ').$gombok;
+        if( $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){
+            if(_jog(JOG_ENERGIA_EGYSEGAR_KEZEL)){
+                $gombok = nl2('
+                    <div class="form_kuldes">
+                        <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
+                        <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt(\''.$_GET['id'].'\', \''.$megnevezes.'.php\');">
+                    </div>
+                ').$gombok;
+            }
+        }else{
+            $gombok = '';
+        }
+        
+        // Élesítés gomb
+        if( !isset($_GET['egysegarak']) && $sor['stat_id']==ENERGIATERV_STAT_KESZ && _jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ){
+            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Élesítés" onclick="terv_elesites()"> ';
         }
 
 

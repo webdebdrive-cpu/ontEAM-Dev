@@ -44,8 +44,8 @@ function i_u($type, $tabla, $tomb) {
             exit();
         }
 
-        // Fenntartási terv csak akkor szerkeszthető, ha munkaközi
-        if( $tabla == 'fenntartasi_terv' ){
+        // Fenntartási terv és energia terv is csak akkor szerkeszthető, ha munkaközi
+        if( $tabla == 'fenntartasi_terv' && $tabla == 'energia_terv' ){
             $terv = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
             if( $terv === false ) { $db_error = true; }
 
