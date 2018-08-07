@@ -2471,7 +2471,7 @@ require_once('selectek.php');
                 }
                 $mennyiseg_osszesen = number_format($mennyiseg_osszesen,  0, ',', ' ');
                 $ertek_osszesen     = number_format($ertek_osszesen,  0, ',', ' ');
-                $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`recid`='{$energia['ktgnem_id']}'");
+                $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`id`='{$energia['ktgnem_id']}'");
                 
                 $szamla_html .= '
                     <tr id="ft_em_'.$sorid.'" data-recid="'.$sorid.'" class="ftt_menny zold_hat">

@@ -552,7 +552,7 @@ if (isset($_POST['get_egysegar_adatok'])) {
     
     $egysegar = $adatbazis_kapcsolat->s2('dijelem ktgnem_id mee energia_terv_id', 'energia_terv_ear', "`recid`='{$_POST['recid']}'");
     $terv     = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$egysegar['energia_terv_id']}'");
-    $ktgnem   = $adatbazis_kapcsolat->s2('nev', 'ktgnem', "`recid`='{$egysegar['ktgnem_id']}'");
+    $ktgnem   = $adatbazis_kapcsolat->s2('nev', 'ktgnem', "`id`='{$egysegar['ktgnem_id']}'");
     
     if($terv['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
         echo json_encode(array(
@@ -1052,7 +1052,7 @@ require_once('selectek.php');
         }
         
         // Élesítés gomb
-        if( !isset($_GET['egysegarak']) && $sor['stat_id']==ENERGIATERV_STAT_KESZ && _jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ){
+        if( $sor['stat_id']==ENERGIATERV_STAT_KESZ && _jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ){
             $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Élesítés" onclick="terv_elesites()"> ';
         }
 
@@ -1280,7 +1280,7 @@ require_once('selectek.php');
             $szalloda_html = implode(', ', $szallodak);
 
             // Ktgnem
-            $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`recid`='{$egysegar['ktgnem_id']}'");
+            $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`id`='{$egysegar['ktgnem_id']}'");
 
             for($i = 1; $i < 13; $i++) {
                 $sorszam = sprintf('%02d', $i);
