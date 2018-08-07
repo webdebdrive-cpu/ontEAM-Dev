@@ -50,8 +50,31 @@ if($tobb_kep){
 
 // Egységárak mentése
 if (isset($_POST['egysegarMentes'])) {
-    $mit = array();
+    $mit  = array();
     $mire = array();
+    
+    // Státusz ellenőzése
+    $terv = $adatbazis_kapcsolat -> s2('energia_terv_id', 'energia_terv_ear', "`recid`='{$_POST['egysegarsor_id']}'");
+    $terv = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$terv['energia_terv_id']}'");
+    if($terv['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
+            'title' => 'Hiba'
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga tervet szerkeszteni!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
 
     for($i = 1; $i < 13; $i++) {
         $sorszam = sprintf('%02d', $i);
@@ -84,6 +107,29 @@ if (isset($_POST['egysegarMentes'])) {
 // Egységárak táblázat lekérdezése
 if (isset($_POST['get_egysegarak'])) {
     $id = $_POST['id'];
+        
+    // Státusz ellenőzése
+    $terv = $adatbazis_kapcsolat -> s2('energia_terv_id', 'energia_terv_ear', "`recid`='{$id}'");
+    $terv = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$terv['energia_terv_id']}'");
+    if($terv['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => 'Csak munkaközi terv szerkeszthető!',
+            'title' => 'Hiba'
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga tervet szerkeszteni!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
 
     if( $id ) {
         $html = '';
@@ -427,6 +473,16 @@ if (isset($_GET['addSzallodaEnergia'])) {
         exit();
     }
     
+    // Jog ellenőrzése
+    if( !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga tervet szerkeszteni!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
     // Azonos díjelem, költségem és szálloda ellenőrzése
     $hiba = '';
     foreach($szallIDs as $szall){
@@ -477,6 +533,16 @@ if (isset($_POST['get_statusz'])) {
 
     }
     
+    // Jog ellenőrzése
+    if( !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga tervet szerkeszteni!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
     $weblap->leallit();
     exit();
 }
@@ -494,6 +560,16 @@ if (isset($_POST['get_egysegar_adatok'])) {
             'title' => 'Hiba'
         ));
 
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga tervet szerkeszteni!',
+            'title' => 'Hiba',
+        ));
         $weblap->leallit();
         exit();
     }
@@ -528,6 +604,16 @@ if ($_POST['energia_terv_koltsegnem_dijelem']) {
     if( $hibauzi ){
         echo json_encode(array(
             'hiba'  => $hibauzi,
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga tervet élesíteni!',
             'title' => 'Hiba',
         ));
         $weblap->leallit();
@@ -579,6 +665,16 @@ if (isset($_POST['uj_egysegar'])) {
             'title' => 'Hiba'
         ));
 
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga tervet szerkeszteni!',
+            'title' => 'Hiba',
+        ));
         $weblap->leallit();
         exit();
     }
@@ -642,6 +738,16 @@ if (isset($_POST['egysegar_sor_torol'])) {
         $weblap->leallit();
         exit();
     }
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga tervet szerkeszteni!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
 
     // Sor törlése
     $sql = $adatbazis_kapcsolat->d('energia_terv_ear', "`recid`='{$egysegar_recid}'");
@@ -685,7 +791,17 @@ if (isset($_POST['energiaterv_veglegesit'])) {
         $weblap->leallit();
         exit();
     }
-
+    
+    // Jog ellenőrzése
+    if( !_jog(JOG_ENERGIA_EGYSEGAR_KEZEL) ) {
+        echo json_encode(array(
+            'hiba'  => 'Önnek nincs joga tervet szerkeszteni!',
+            'title' => 'Hiba',
+        ));
+        $weblap->leallit();
+        exit();
+    }
+    
     // Ha már van iktató szám, akkor hibaüzenet
     if($sor['ikt_szam']){
         mysqli_rollback($db_kapcs);

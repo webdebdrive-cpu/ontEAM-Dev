@@ -1555,7 +1555,7 @@ if (isset($_POST['fenntartasterv_veglegesit'])) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $sor = $adatbazis_kapcsolat->s2('ikt_szam stat_id', 'fenntartasi_terv', "`recid`='{$recid}'");
+    $sor = $adatbazis_kapcsolat->s2('ikt_szam stat_id telephely_id ev', 'fenntartasi_terv', "`recid`='{$recid}'");
     if( $sor === false ) { $db_error = true; }
     
     // Státusz ellenőrzése
@@ -1581,13 +1581,64 @@ if (isset($_POST['fenntartasterv_veglegesit'])) {
         $weblap->leallit();
         exit();
     }
+    
+    // Ha nincs még jóváhagyva változtatás, akkor hiba
+    $energia_terv   = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$sor['ev']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
+    $akt_eear_sorok = $adatbazis_kapcsolat->s('sorid', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `telephely_idk` LIKE '%{$sor['telephely_id']}%'");
+    $eear_soridk    = adatbazis2tomb($akt_eear_sorok, 'sorid');
+ 
+    $volt_valtozas  = false;
+    $energia_soridk = array();
+    $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}'");
+    if( $energiak === false ) { $db_error = true; }
+    foreach($energiak as $energia){
 
+        // Innen tujduk majd, hogy mik az új sorok
+        array_push($energia_soridk, $energia['sorid']);
+        
+        // Változások figyeléséhez lekérjük az energia terv sorait
+        $energia_ear = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$energia['sorid']}'");
+        if( $energia_ear === false ) { $db_error = true; }
+
+        $valtozott_oszlop = array();
+        $valtozott_ertek  = array();
+        for($i=1; $i<13; $i++){
+            if($i<10){
+                $i = '0'.$i;
+            }
+            if($energia_ear['ear'.$i]!=$energia['ear'.$i]){
+                $volt_valtozas = true;
+            }
+        }
+
+        // Megszűnt sor van-e
+        if( !in_array($energia['sorid'], $eear_soridk) ){
+            $volt_valtozas = true;
+        }
+    }
+
+    // Új sorok van-e
+    foreach ($eear_soridk as $e_sorid){
+        if(!in_array($e_sorid, $energia_soridk)){
+            $volt_valtozas = true;
+        }
+    }
+    if($volt_valtozas){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => 'Az energia egységárak változásának jóváhagyása nem történt meg!',
+            'title' => 'Hiba'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
     // Státusz léptetés
     if( !addStatusz( 'fenntartasi_terv_statusz', $recid, ENERGIATERV_STAT_KESZ ) ) {
         $db_error = true;
     }
 
-    
     // Logolás
     $muvelet = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$recid.' recid-jú fenntartási tervet véglegesítette.';
     $sql = $adatbazis_kapcsolat -> i(
