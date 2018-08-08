@@ -93,9 +93,9 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
 
     if( $_SESSION['nyomtatas_ids'] ) {
         if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-            $_SESSION['akt_sql'] = str_replace('WHERE', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $_SESSION['akt_sql']);
+            $_SESSION['akt_sql'] = str_replace('WHERE', "WHERE `". get_db_tabla()."$tabla`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $_SESSION['akt_sql']);
         } else {
-            $_SESSION['akt_sql'] = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $_SESSION['akt_sql']);
+            $_SESSION['akt_sql'] = str_replace('ORDER', "WHERE `". get_db_tabla()."$tabla`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $_SESSION['akt_sql']);
         }
     }
 
@@ -127,6 +127,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         case 'eloterj_bod'          : $sorok_html = eloterj_bodLista( $sorok, $tabla );     break;
         case 'munkalap'             : $sorok_html = munkalapLista( $sorok, $tabla );        break;
         case 'energia_terv'         : $sorok_html = energia_tervLista( $sorok, $tabla );    break;
+        case 'fenntartasi_terv'     : $sorok_html = fenntartasi_tervLista( $sorok, $tabla );break;
 //        case 'utemezett_feladatok'  : $akt_tomb = $utemezett_feladatok_tomb;    break;
         case 'torzsadat'            : $sorok_html = torzsadatLista($sorok, $tabla);         break;
         case 'projektigenyles'      : $sorok_html = projektigenylesLista( $sorok, $tabla ); break;
@@ -201,7 +202,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
             $szalloda_html = implode(',', $szallodak);
 
             // Ktgnem
-            $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`recid`='{$egysegar['ktgnem_id']}'");
+            $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`id`='{$egysegar['ktgnem_id']}'");
 
             $sorok_html .= '
                 <tr id="tr_ear_'.$egysegar['recid'].'" data-recid="'.$egysegar['recid'].'">

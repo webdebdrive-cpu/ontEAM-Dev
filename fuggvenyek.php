@@ -3909,7 +3909,9 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 if(isset($_GET['anyagrend'])) {
                     $sorok['anyag_tabla_rndid']     = '<td class="c">'.$bsz['rndid'].'</td>';
                     $sorok['anyag_tabla_rnd_dt']    = '<td class="c">'.substr(str_replace('-', '.', $bsz['rnd_dt']), 0, 10).'</td>';
-                    $sorok['anyag_tabla_rndertek']  = '<td class="c" data-sort="'.$rndertek.'">'.number_format($rndertek, 0, ',', ' ').' '.get_penznem().'</td>';
+                    // A rendelés érték a Rendelt mennyiség * Rendelési egységár (Ft) oszlopok szorzata
+                    $rendeles_ertek = $bsz['rndmen']*$bsz['rndear'];
+                    $sorok['anyag_tabla_rndertek']  = '<td class="c" data-sort="'.$rendeles_ertek.'">'.number_format($rendeles_ertek, 0, ',', ' ').' '.get_penznem().'</td>';
                 }
 
                 foreach($oszlopok as $oszl) {

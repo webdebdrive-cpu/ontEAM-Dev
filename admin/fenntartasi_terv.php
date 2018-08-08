@@ -1907,20 +1907,20 @@ if (isset($_GET['csv'])) {
 
         if( $_SESSION['nyomtatas_ids'] ) {
             if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `". get_db_tabla()."$megnevezes`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
             } else {
-                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `". get_db_tabla()."$megnevezes`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
             }
         }
 
         $sql = 'SELECT
                     `ikt_szam` as \'Energia terv szám\',
-                    `stat_id` as \'Státusz\',
                     `ev` as \'Tervező év\',
+                    `stat_id` as \'Státusz\',
+                    `telephely_id` as \'Szálloda\',
                     `text` as \'Leírás\',
                     `dok_db` as \'Dokumentumok\',
-                    `megj_db` as \'Megjegyzések\',
-                    `insert_dt` as \'Energia terv dátuma\'
+                    `megj_db` as \'Megjegyzések\'
                     '.$lekerdezes_fromtol;
 
         $query      = mysqli_query($db_kapcs, $sql);
@@ -1936,6 +1936,9 @@ if (isset($_GET['csv'])) {
 
             $csvcont = array();
             foreach( $sorok as $kulcs => $sor ) {
+                if($kulcs=='Szálloda'){
+                    $sor = getSzallodaNev($sor);
+                }
                 if($kulcs=='Státusz'){
                     $sor = getStatText('energia_terv', $sor);
                 }
