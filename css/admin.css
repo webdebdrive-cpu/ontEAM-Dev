@@ -1863,6 +1863,7 @@ table.szamla_cont_tabla tfoot tr:hover{
     cursor: default;
 }
 table.szamla_cont_tabla th{
+    background: #F1EFF0;
     border-bottom: 0.1rem solid #8e8e8e;
     font-weight: normal;
     padding: 1rem 0.1rem;
@@ -1884,6 +1885,7 @@ table.szamla_cont_tabla tr td{
     padding: 0.1rem 0.2rem;
 }
 table.szamla_cont_tabla tfoot tr td{
+    background: #F1EFF0;
     font-size: 1.6rem;
     padding: 1rem 0.2rem;
 }
@@ -2009,7 +2011,7 @@ div.szamlaFulek {
     margin: -5.1rem 0rem 0rem -1.5rem;
     padding-top: 0rem;
     position: fixed;
- 
+
     /* width: 100%; */
     z-index: 1;
 }
