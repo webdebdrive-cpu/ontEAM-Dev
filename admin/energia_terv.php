@@ -229,9 +229,10 @@ if (isset($_POST['terv_keszit'])) {
     }
 
     // Év ellenőrzése
-    if( !is_numeric($ev) || $ev < date('Y') ) {
+    if( !is_numeric($ev) || $ev < date('Y') || $ev > date('Y')+5 ) {
         echo json_encode(array(
-            'hiba'  => 'Csak az idei év, vagy attól későbbi évszám adható meg!',
+            'hiba'  => 'A tervező év '.date('Y').'-'.(date('Y')+5).' között lehet!',
+            'focus' => 'popup_ev',
             'title' => 'Hiba',
         ));
         $weblap->leallit();
@@ -598,9 +599,10 @@ if ($_POST['energia_terv_koltsegnem_dijelem']) {
     mysqli_autocommit($db_kapcs, false);
 
     $egysegar = $adatbazis_kapcsolat->s2('telephely_idk', 'energia_terv_ear', "`recid`='{$terv_ea_id}'");
-
+    if( $egysegar === false ) { $db_error = true; }
+    
     // Szálloda+költségnem+díjelem terven belüli egyediség ellenőrzése
-    $hibauzi = szalloda_koltsnem_dijelem_azonos($terv_id, $egysegar['telephely_idk'], $ktgnem_id, $dijelem);
+    $hibauzi = szalloda_koltsnem_dijelem_azonos($terv_id, $egysegar['telephely_idk'], $ktgnem_id, $dijelem, $terv_ea_id);
     if( $hibauzi ){
         echo json_encode(array(
             'hiba'  => $hibauzi,
@@ -803,7 +805,7 @@ if (isset($_POST['energiaterv_veglegesit'])) {
     }
     
     // Ha már van iktató szám, akkor hibaüzenet
-    if($sor['ikt_szam']){
+    if(trim($sor['ikt_szam'])){
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
             'hiba'  => 'Az energia tervnek már van tervszáma ('.$sor['ikt_szam'].'), így nem véglegesíthető!',
@@ -813,17 +815,21 @@ if (isset($_POST['energiaterv_veglegesit'])) {
         $weblap->leallit();
         exit();
     }
+    
+    // Ha nincsenek egységár sorok, akkor nem lehet véglegesíteni
+    $sql = $adatbazis_kapcsolat->s('recid', 'energia_terv_ear', "`energia_terv_id`='{$recid}'");
+    if( $sql === false ) { $db_error = true; }
+    if(!$sql){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => 'Az energia tervnek nincsenek egységár sorai, így nem véglegesíthető+!',
+            'title' => 'Hiba'
+        ));
 
-//    // Ha nem WebDeb szerveren vagyunk, akkor lefuttatjuk a ftervear_updatetrigger()-t
-//    if($_SERVER['HTTP_HOST']!='demo.webdeb.hu'){
-//        
-//        $sql = mysqli_query($db_kapcs, 'call onteam_fenntartasi_terv_updatetrigger()');
-//        if(!$sql){
-//            echo mysqli_error($db_kapcs);
-//        }
-//        if( $sql === false ) { $db_error = true; }
-//
-//    }
+        $weblap->leallit();
+        exit();
+    }
+
 
     if( !addStatusz( 'energia_terv_statusz', $recid, ENERGIATERV_STAT_KESZ ) ) {
         $db_error = true;
@@ -847,6 +853,10 @@ if (isset($_POST['energiaterv_veglegesit'])) {
 
 // CSV generálása
 if (isset($_GET['csv'])) {
+    
+    if (isset($_GET['egysegarak'])) {
+        $megnevezes .= '_egysegarak';
+    }
 
     header("Content-type: text/csv");
     header("Content-Disposition: attachment; filename=$megnevezes.csv");
@@ -873,54 +883,147 @@ if (isset($_GET['csv'])) {
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
         if( $_SESSION['nyomtatas_ids'] ) {
-            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
-            } else {
-                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
-            }
-        }
+            
+            // Energia egységár exportja
+            if (isset($_GET['egysegarak'])) {
+                
+                $sql = 'SELECT
+                            `telephely_idk` as \'Szállodák\',
+                            `dijelem` as \'Díjelem\',
+                            `ktgnem_id` as \'Költségnem kód\',
+                            `ktgnem_id` as \'Költségnem név\',
+                            `mee` as \'Mee\',
+                            `ear01` as \'Egységár Január\',
+                            `dnem01` as \'Devizanem Január\',
+                            `arf01` as \'Árfolyam Január\',
+                            `ear02` as \'Egységár Február\',
+                            `dnem02` as \'Devizanem Február\',
+                            `arf02` as \'Árfolyam Február\',
+                            `ear03` as \'Egységár Március\',
+                            `dnem03` as \'Devizanem Március\',
+                            `arf03` as \'Árfolyam Március\',
+                            `ear04` as \'Egységár Április\',
+                            `dnem04` as \'Devizanem Április\',
+                            `arf04` as \'Árfolyam Április\',
+                            `ear05` as \'Egységár Május\',
+                            `dnem05` as \'Devizanem Május\',
+                            `arf05` as \'Árfolyam Május\',
+                            `ear06` as \'Egységár Június\',
+                            `dnem06` as \'Devizanem Június\',
+                            `arf06` as \'Árfolyam Június\',
+                            `ear07` as \'Egységár Július\',
+                            `dnem07` as \'Devizanem Július\',
+                            `arf07` as \'Árfolyam Július\',
+                            `ear08` as \'Egységár Augusztus\',
+                            `dnem08` as \'Devizanem Augusztus\',
+                            `arf08` as \'Árfolyam Augusztus\',
+                            `ear09` as \'Egységár Szeptember\',
+                            `dnem09` as \'Devizanem Szeptember\',
+                            `arf09` as \'Árfolyam Szeptember\',
+                            `ear10` as \'Egységár Október\',
+                            `dnem10` as \'Devizanem Október\',
+                            `arf10` as \'Árfolyam Október\',
+                            `ear11` as \'Egységár November\',
+                            `dnem11` as \'Devizanem November\',
+                            `arf11` as \'Árfolyam November\',
+                            `ear12` as \'Egységár December\',
+                            `dnem12` as \'Devizanem December\',
+                            `arf12` as \'Árfolyam December\'
+                            
+                            FROM `'.get_db_tabla().'energia_terv_ear` WHERE `energia_terv_id`=\''.$_GET['id'].'\'
+                            ';
+                $query      = mysqli_query($db_kapcs, $sql);
 
-        $sql = 'SELECT
-                    `ikt_szam` as \'Energia terv szám\',
-                    `stat_id` as \'Státusz\',
-                    `ev` as \'Tervező év\',
-                    `text` as \'Leírás\',
-                    `dok_db` as \'Dokumentumok\',
-                    `megj_db` as \'Megjegyzések\',
-                    `insert_dt` as \'Energia terv dátuma\'
-                    '.$lekerdezes_fromtol;
-
-        $query      = mysqli_query($db_kapcs, $sql);
-
-        $csvhead    = array();
-        while($fejlec_nevek = mysqli_fetch_field($query)){
-            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
-        }
-        fputcsv($open, $csvhead, ';');
-
-        $i = 0;
-        while( $sorok = mysqli_fetch_assoc($query) ){
-
-            $csvcont = array();
-            foreach( $sorok as $kulcs => $sor ) {
-                if($kulcs=='Státusz'){
-                    $sor = getStatText('energia_terv', $sor);
+                $csvhead    = array();
+                while($fejlec_nevek = mysqli_fetch_field($query)){
+                    $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
                 }
-                if($kulcs=='Energia terv dátuma'){
-                    $sor = datum_kiir($sor);
+                fputcsv($open, $csvhead, ';');
+
+                $i = 0;
+                while( $sorok = mysqli_fetch_assoc($query) ){
+
+                    $csvcont = array();
+                    foreach( $sorok as $kulcs => $sor ) {
+                        if($kulcs=='Szállodák'){
+                            $telepehely_nevek = array();
+                            $telephely_idk = explode(',', $sor);
+                            foreach($telephely_idk as $t_id){
+                                array_push($telepehely_nevek, getSzallodaNev($t_id));
+                            }
+                            $sor = implode(', ', $telepehely_nevek);
+                        }
+                        if($kulcs=='Költségnem név'){
+                            $sor = getErtek('nev', 'ktgnem', 'id', $sor);
+                        }
+                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+                    }
+
+                    fputcsv($open, $csvcont, ';');
+
+                    //100 soronként kiírtatunk
+                    if ($i % 100 == 0) {
+                        flush();
+                    }
+
+                    $i++;
                 }
-                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+                
+            // Energia terv exportja
+            }else{
+                
+                if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                    $lekerdezes_fromtol = str_replace('WHERE', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+                } else {
+                    $lekerdezes_fromtol = str_replace('ORDER', "WHERE `recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+                }
+                
+                $sql = 'SELECT
+                            `ikt_szam` as \'Energia terv szám\',
+                            `stat_id` as \'Státusz\',
+                            `ev` as \'Tervező év\',
+                            `text` as \'Leírás\',
+                            `dok_db` as \'Dokumentumok\',
+                            `megj_db` as \'Megjegyzések\',
+                            `insert_dt` as \'Energia terv dátuma\'
+                            '.$lekerdezes_fromtol;
+
+                $query      = mysqli_query($db_kapcs, $sql);
+
+                $csvhead    = array();
+                while($fejlec_nevek = mysqli_fetch_field($query)){
+                    $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+                }
+                fputcsv($open, $csvhead, ';');
+
+                $i = 0;
+                while( $sorok = mysqli_fetch_assoc($query) ){
+
+                    $csvcont = array();
+                    foreach( $sorok as $kulcs => $sor ) {
+                        if($kulcs=='Státusz'){
+                            $sor = getStatText('energia_terv', $sor);
+                        }
+                        if($kulcs=='Energia terv dátuma'){
+                            $sor = datum_kiir($sor);
+                        }
+                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+                    }
+
+                    fputcsv($open, $csvcont, ';');
+
+                    //100 soronként kiírtatunk
+                    if ($i % 100 == 0) {
+                        flush();
+                    }
+
+                    $i++;
+                }
+                
             }
-
-            fputcsv($open, $csvcont, ';');
-
-            //100 soronként kiírtatunk
-            if ($i % 100 == 0) {
-                flush();
-            }
-
-            $i++;
+            
         }
+
     }
 
     // Get the contents of the output buffer
@@ -1019,27 +1122,28 @@ require_once('selectek.php');
         if(!_jog(JOG_ENERGIA_EGYSEGAR_KEZEL)){
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága '.$szoveg.' törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }elseif( $sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI ){
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A '.$sor['ikt_szam'].' tervszámú energia terv státusza nem munkaközi, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Az energia terv státusza nem munkaközi, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }else{
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A következő egységár terv törlésére készül:<br><br>Tervező év: '.$sor['ev'].'<br>Tervszám: '.$sor['ikt_szam'].'<br><br>Biztos, hogy törli?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A következő egységár terv törlésére készül:<br><br>Tervező év: '.$sor['ev'].'<br><br>Biztos, hogy törli?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
 
-
-        // Egységárak fül
-        if( isset($_GET['egysegarak']) ){
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Új sor" onclick="uj_egysegar()"> ';
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Szálloda" onclick="kapcsolodoSzerkeszt(\'szallodak_energia\');"> ';
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Költségnem és díjelem" onclick="kapcsolodoSzerkeszt(\'energia_terv_koltsegnem_dijelem\');"> ';
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Egységárak" onclick="kapcsolodoSzerkeszt(\'egysegarak\');"> ';
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Sor törlése" onclick="egysegar_sor_torol()"> ';
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="energiaterv_veglegesit()"> ';
-        // Tervek fül
-        }else{
-            $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="energiaterv_veglegesit()"> ';
-        }
-
+        // Munkaközi státusz és kezelés jog nélkül nincsenek gombok
         if( $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI ){
             if(_jog(JOG_ENERGIA_EGYSEGAR_KEZEL)){
+                
+                // Egységárak fül
+                if( isset($_GET['egysegarak']) ){
+                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Új sor" onclick="uj_egysegar()"> ';
+                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Szálloda" onclick="kapcsolodoSzerkeszt(\'szallodak_energia\');"> ';
+                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Költségnem és díjelem" onclick="kapcsolodoSzerkeszt(\'energia_terv_koltsegnem_dijelem\');"> ';
+                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Egységárak" onclick="kapcsolodoSzerkeszt(\'egysegarak\');"> ';
+                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Sor törlése" onclick="egysegar_sor_torol()"> ';
+                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="energiaterv_veglegesit()"> ';
+                // Tervek fül
+                }else{
+                    $gombok .= '<input type="button" class="gomb modositaskor_rejt" value="Véglegesítés" onclick="energiaterv_veglegesit()"> ';
+                }
+
                 $gombok = nl2('
                     <div class="form_kuldes">
                         <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
@@ -1047,8 +1151,6 @@ require_once('selectek.php');
                     </div>
                 ').$gombok;
             }
-        }else{
-            $gombok = '';
         }
         
         // Élesítés gomb
@@ -1072,7 +1174,7 @@ require_once('selectek.php');
         
     // Ha nem éles a terv, akkor törlésnél jelezzük ezt
     }else{
-        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A terv már éles, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Az energia terv már éles, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
     }
 
 	// Új rekord felvitele

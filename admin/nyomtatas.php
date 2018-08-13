@@ -199,7 +199,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
             sort($szallodak);
 
             // Szálloda html
-            $szalloda_html = implode(',', $szallodak);
+            $szalloda_html = implode(', ', $szallodak);
 
             // Ktgnem
             $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`id`='{$egysegar['ktgnem_id']}'");

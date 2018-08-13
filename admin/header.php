@@ -1249,8 +1249,12 @@ if( basename(self())=='torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL)){
     $uj = $duplikal = '';
 }
 
-// $csv_get = get_get(array('id'));
-$csv_get = 'csv_general( this );';
+// Excel export
+$valasztos = '';
+if( basename(self())=='energia_terv.php'){
+    $valasztos = '\'választós\'';
+}
+$csv_get = 'csv_general( this, '.$valasztos.' );';
 
 $rendez_rejt_oldalak = array('dokumentumtar.php', 'eszkozkezeles.php', 'felmeresi_terv.php');
 if(in_array(basename(self()), $rendez_rejt_oldalak)){
@@ -1400,9 +1404,9 @@ if( basename(self()) == 'energia_terv.php' ) {
     $header_html .= nl2('
         <div class="dn">
             <div id="nyomtatasi_nezet">
-                Nyomtatási nézet választás...
-                <br><a class="link" onclick="listanezet_nyomtat( this );" target="_blank">Energia tervek listája</a>
-                <br><a class="link" onclick="egysegarak_nyomtat( this );" target="_blank">Egységárak listája</a>
+                Válasszon nyomtatási nézetet:
+                <br><a class="link" onclick="listanezet_nyomtat( this );" target="_blank">» Energia tervek listája</a>
+                <br><a class="link" onclick="egysegarak_nyomtat( this );" target="_blank">» Egységárak listája</a>
             </div>
         </div>
     ');
@@ -1410,10 +1414,10 @@ if( basename(self()) == 'energia_terv.php' ) {
     $header_html .= nl2('
         <div class="dn">
             <div id="nyomtatasi_nezet">
-                Nyomtatási nézet választás...
-                <br><a class="link" onclick="listanezet_nyomtat( this );" target="_blank">Listanézet</a>
-                <br><a href="#" target="_blank">B nézet</a>
-                <br><a href="#" target="_blank">C nézet</a>
+                Válasszon nyomtatási nézetet:
+                <br><a class="link" onclick="listanezet_nyomtat( this );" target="_blank">» Listanézet</a>
+                <br><a href="#" target="_blank">» B nézet</a>
+                <br><a href="#" target="_blank">» C nézet</a>
             </div>
         </div>
     ');

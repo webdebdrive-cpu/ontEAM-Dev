@@ -5284,7 +5284,7 @@ function listanezet_nyomtat( that ) {
      	url : 'esemenyek.php',
      	type: 'POST',
      	data: {
-            data: ids.join(','),
+            data         : ids.join(','),
             nyomtatas_ids: new Date().getTime()
         }
     });
@@ -5302,40 +5302,57 @@ function listanezet_nyomtat( that ) {
     });
 }
 
-function csv_general( that ) {
-    var ids = new Array();
-
-    i = 0;
-    $('#szamlaList li.szamla_sor').each(function() {
-        var display = $(this).css('display');
-
-        if( display != 'none' ) {
-            ids[i] = $(this).attr('data-recid');
-
-            i++;
+function csv_general( that, valasztos, link_kieg ) {
+    
+    if(link_kieg){
+        link_kieg = '';
+    }
+    
+    if(valasztos){
+        
+        /* Energia tervnél lehet választani, hogy tervet, vagy Egységárakat szeretne-e nyomtatni */
+        if( baseName(location.href) == 'energia_terv' ){
+            alert2('Válasszon exportot fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Energia tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'egysegarak&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
-    });
+        
+    }else{
+        
+        var ids = new Array();
 
-    var ajax = $.ajax({
-     	url : 'esemenyek.php',
-     	type: 'POST',
-     	data: {
-            data: ids.join(','),
-            nyomtatas_ids: new Date().getTime()
-        }
-    });
+        i = 0;
+        $('#szamlaList li.szamla_sor').each(function() {
+            var display = $(this).css('display');
 
-    $.when(ajax).done(function() {
-        if( ids.length ) {
-            var onclick = $(that).attr('onclick');
+            if( display != 'none' ) {
+                ids[i] = $(this).attr('data-recid');
 
-            $(that).attr('href', get_get() + '&csv').removeAttr('onclick');
-            $(that)[0].click();
-            $(that).attr('onclick', onclick).removeAttr('href');
-        } else {
-            alert2('Üres találati listát nem lehet nyomtatni!', '', 'Hiba');
-        }
-    });
+                i++;
+            }
+        });
+
+        var ajax = $.ajax({
+            url : 'esemenyek.php',
+            type: 'POST',
+            data: {
+                data         : ids.join(','),
+                nyomtatas_ids: new Date().getTime()
+            }
+        });
+
+        $.when(ajax).done(function() {
+            if( ids.length ) {
+                var onclick = $(that).attr('onclick');
+
+                $(that).attr('href', get_get() + '&csv&'+link_kieg).removeAttr('onclick');
+                $(that)[0].click();
+                $(that).attr('onclick', onclick).removeAttr('href');
+            } else {
+                alert2('Üres találati listát nem lehet exportálni!', '', 'Hiba');
+            }
+        });
+        
+    }
+    
 }
 
 /* Adatlap betöltése */

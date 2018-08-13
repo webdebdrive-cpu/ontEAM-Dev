@@ -2081,9 +2081,9 @@ require_once('selectek.php');
             $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Nincs jogosultsága fenntartási tervet törölni!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         // Csak munkaközi terv törölhető
         }elseif($sor['stat_id']!=ENERGIATERV_STAT_MUNKAKOZI){
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'Csak munkaközi terv törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A fenntartási terv nem munkaközi, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
         }else{
-            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A következő fenntartási terv törlésére készül:<br><br>Tervező év: '.$sor['ev'].'<br>Tervszám: '.$sor['ikt_szam'].'<br><br>Biztos, hogy törli?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
+            $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A következő fenntartási terv törlésére készül:<br><br>Tervező év: '.$sor['ev'].'<br><br>Biztos, hogy törli?\', gomb'.$_GET['id'].')" value="Töröl" title="Töröl">';
         }
 
         // Terv adatlapján

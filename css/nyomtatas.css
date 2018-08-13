@@ -83,3 +83,7 @@ ul.szamla_cont li a td{
 #stat_gyors_szuro{
     display: none;
 }
+
+ul.szamla_cont li a.szamla, li.szamla_sor, table.szamla_cont_tabla.kisbetu td{
+    cursor: default;
+}
