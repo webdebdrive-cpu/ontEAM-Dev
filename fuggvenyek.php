@@ -2844,16 +2844,21 @@ function bejelentesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek, $sorrend_
                 $active .= ' nyitott_statuszu'; // Innen fogjuk tudni, hogy a csoporosítás gombokat mutassuk-e meg vagy sem
             }
 
-            // Egyszálloda esetén, ha nyitott a státusz, van munkalap készíthet jog, és van is hozzá munkalap, akkor legyen szürke a háttér
+            // Egyszálloda esetén, ha nyitott a státusz, van munkalap készíthet jog, és ponstosan egy ML-ja van, és a ML-nak két státusza van (ez csak Nyitott és hozzárendelt lehet), akkor legyen szürke a háttér
             $rejtsuk = false;
             if( _jog(JOG_MUNKALAP_KESZITHET) && $bsz['stat_id']==BEJELENTES_STAT_NYITOTT){
                 $szalloda  = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$bsz['telephely_id']}'");
                 if(!$szalloda['modell']){
-                    $van_kapcs = $adatbazis_kapcsolat->s2('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bsz['recid']}'", '', '1');
-                    $letezik_munkalap = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid`='{$van_kapcs['munkalap_id']}'");
-                    if( $letezik_munkalap ){
-                        $active .= ' szurke_hat';
-                        $rejtsuk = true;
+                    $van_kapcs = $adatbazis_kapcsolat->s('munkalap_id', 'munkalap_kapcs', "`bejelentes_id`='{$bsz['recid']}'");
+                    if( count($van_kapcs)==1 ){
+                        $letezik_munkalap = $adatbazis_kapcsolat->s2('recid', 'munkalap', "`recid`='{$van_kapcs[0]['munkalap_id']}'");
+                        if($letezik_munkalap){
+                            $statuszok = $adatbazis_kapcsolat->s('recid', 'munkalap_statusz', "`munkalap_recid`='{$letezik_munkalap['recid']}'");
+                            if(count($statuszok)==2){
+                                $active .= ' szurke_hat';
+                                $rejtsuk = true;
+                            }
+                        }
                     }
                 }
             }
