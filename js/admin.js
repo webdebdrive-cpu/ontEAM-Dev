@@ -1762,6 +1762,8 @@ console.log('b'+active_top);
             }
         }
     });
+
+    
 });
 
 /* Mailto beállítása a felső ikonsor mail ikonjához */
