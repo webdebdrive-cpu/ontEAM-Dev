@@ -47,34 +47,59 @@ function fenntartasi_terv_elesites(mehet) {
 
 /* Energiaterv véglegesítése */
 function fenntartasterv_veglegesit(mehet){
-
-    if(!mehet){
-        alert2('Biztosan véglegesíti a fenntartási tervet?', '<input type="button" class="gomb zold" value="Igen" onclick="fenntartasterv_veglegesit(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
-        return false;
-    }
-
+    
+    /* Először vizsgáljuk meg, hogy jóvá van-e hagyva minden az energia fül alatt */
     $.ajax({
         url : 'fenntartasi_terv.php',
         type: 'POST',
         data: {
-            recid                       : _get('id'),
-            fenntartasterv_veglegesit   : Date.now()
+            recid                                   : _get('id'),
+            fenntartasterv_veglegesit_jovahagyva_ell: Date.now()
         },
         success: function (response) {
-            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
-
                 response = JSON.parse(response);
-
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
                 }
-                szurkit();
-                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                
+                /* Ha jóvá van hagyva az energia fül alatt a változtatás, akkor mehetünk tovább, csak akkor kérdezzük meg, hogy biztosan...? */
+                if( response.rendben_van ) {
+                    
+                    if(!mehet){
+                        alert2('Biztosan véglegesíti a fenntartási tervet?', '<input type="button" class="gomb zold" value="Igen" onclick="fenntartasterv_veglegesit(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
+                        return false;
+                    }
+
+                    $.ajax({
+                        url : 'fenntartasi_terv.php',
+                        type: 'POST',
+                        data: {
+                            recid                       : _get('id'),
+                            fenntartasterv_veglegesit   : Date.now()
+                        },
+                        success: function (response) {
+                            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+                            if (response) {
+
+                                response = JSON.parse(response);
+
+                                if( response.hiba ) {
+                                    alert2(response.hiba, response.gomb, response.title);
+                                    return false;
+                                }
+                                szurkit();
+                                szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
+                            }
+                        }
+                    });
+                    
+                }
             }
         }
     });
+
 }
 
 /* Energia fül alatt számokat szummázzuk */

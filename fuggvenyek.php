@@ -6064,9 +6064,9 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
     // mszk_jovahagy feltétele: a munkalap döntésre vár státuszban van, és a hozzárendelt személy vagy Műszaki vezető vagy diszpécser
     }elseif($tabla=='munkalap' && $mezo=='mszk_jovahagy'){
         if($felt==1){
-            return '`stat_id`=\''.MUNKALAP_STAT_DONTESRE_VAR.'\' AND `szemelyzet_id` IN (\''.MUSZAKI_VEZETO.'\', \''.DISZPECSER.'\')';
+            return '`stat_id`=\''.MUNKALAP_STAT_DONTESRE_VAR.'\' AND (`jh1_szerep` IN (\''.MSZK_VEZETO.'\', \''.MUSZAKI_IGAZGATO.'\') OR `jh2_szerep` IN (\''.MSZK_VEZETO.'\', \''.MUSZAKI_IGAZGATO.'\'))';
         }else{
-            return '!(`stat_id`=\''.MUNKALAP_STAT_DONTESRE_VAR.'\' AND `szemelyzet_id` IN (\''.MUSZAKI_VEZETO.'\', \''.DISZPECSER.'\'))';
+            return '`stat_id`=\''.MUNKALAP_STAT_DONTESRE_VAR.'\' AND (`jh1_szerep` NOT IN (\''.MSZK_VEZETO.'\', \''.MUSZAKI_IGAZGATO.'\') AND `jh2_szerep` NOT IN (\''.MSZK_VEZETO.'\', \''.MUSZAKI_IGAZGATO.'\'))';
         }
     }elseif($tabla=='utemezett_feladatok' && $mezo=='telephely_id'){
         return '`'.get_db_tabla().'utemezett_feladatok`.`telephely_id`=\''.$felt.'\'';

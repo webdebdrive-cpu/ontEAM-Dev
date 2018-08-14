@@ -5361,8 +5361,8 @@ function csv_general( that, valasztos, link_kieg ) {
 var request_in_process = false;
 function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigenylesnel_is ) {
 
-    /* Mindneképp legyen rajta egy szurkítés */
-    setTimeout(function(){ szurkit(); }, 100);
+    /* Mindenképp legyen rajta egy szurkítés */
+    setTimeout(function(){ szurkit(); }, 200);
 
     focused = false; /* Ezt azért kell hamisra állítani, mert alert2 bezárásakor az utoljára fókuszált elemre visszatesszük a fókuszt.
                         Viszont ezt az anyagigénylések táblázatánál gondot okozott: nem lehetett kilépni az árazva sorok inputjaiból.

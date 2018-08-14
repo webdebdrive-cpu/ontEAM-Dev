@@ -135,126 +135,263 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
         case 'szerepkor'            : $sorok_html = szerepkorLista( $sorok, $tabla );       break;
     }
 
-    if( $_GET['type'] == 'egysegarak_lista' ) {
-        $sorok_html .= '
-            <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
-            <thead>
-            <tr>
-                <th class="egys_szall"><span>Szállodák</span></th>
-                <th class="egys_szall"><span>Díjelem</span></th>
-                <th><span>Ktgnem kód</span></th>
-                <th><span>Ktgnem név</span></th>
-                <th><span>Mee</span></th>
-                <th><span>Egységár Január</span></th>
-                <th class="egys_dev"><span>Dev. Jan.</span></th>
-                <th><span>Árfolyam Január</span></th>
-                <th><span>Egységár Február</span></th>
-                <th class="egys_dev"><span>Dev. Feb</span></th>
-                <th><span>Árfolyam Február</span></th>
-                <th><span>Egységár Március</span></th>
-                <th class="egys_dev"><span>Dev. Márc.</span></th>
-                <th><span>Árfolyam Március</span></th>
-                <th><span>Egységár Április</span></th>
-                <th class="egys_dev"><span>Dev. Ápr.</span></th>
-                <th><span>Árfolyam Április</span></th>
-                <th><span>Egységár Május</span></th>
-                <th class="egys_dev"><span>Dev. Máj.</span></th>
-                <th><span>Árfolyam Május</span></th>
-                <th><span>Egységár Június</span></th>
-                <th class="egys_dev"><span>Dev. Jún.</span></th>
-                <th><span>Árfolyam Június</span></th>
-                <th><span>Egységár Július</span></th>
-                <th class="egys_dev"><span>Dev. Júl.</span></th>
-                <th><span>Árfolyam Július</span></th>
-                <th><span>Egységár Augusztus</span></th>
-                <th class="egys_dev"><span>Dev. Aug.</span></th>
-                <th><span>Árfolyam Augusztus</span></th>
-                <th><span>Egységár Szeptember</span></th>
-                <th class="egys_dev"><span>Dev. Szept.</span></th>
-                <th><span>Árfolyam Szeptember</span></th>
-                <th><span>Egységár Október</span></th>
-                <th class="egys_dev"><span>Dev. Okt.</span></th>
-                <th><span>Árfolyam Október</span></th>
-                <th><span>Egységár November</span></th>
-                <th class="egys_dev"><span>Dev. Nov.</span></th>
-                <th><span>Árfolyam November</span></th>
-                <th><span>Egységár December</span></th>
-                <th class="egys_dev"><span>Dev. Dec</span></th>
-                <th><span>Árfolyam December</span></th>
-            </tr>
-            </thead>
-            <tbody>
-            ';
-
-        $egysegarak = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$_GET['id']}'");
-        foreach($egysegarak as $egysegar){
-
-            // Szálloda nevek
-            $szalloda_html = '';
-            $szallodak = explode(',', $egysegar['telephely_idk']);
-            $szallodak = $adatbazis_kapcsolat->s('nev', 'telephely', "`id` IN ('".implode('\', \'', $szallodak)."')");
-            $szallodak = adatbazis2tomb($szallodak, 'nev');
-
-            // ABC sorrend
-            sort($szallodak);
-
-            // Szálloda html
-            $szalloda_html = implode(', ', $szallodak);
-
-            // Ktgnem
-            $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`id`='{$egysegar['ktgnem_id']}'");
-
+    // Energia tervek egységár listájának nyomtatási képe
+    if(basename(self())=='energia_terv.php'){
+        if( $_GET['type'] == 'egysegarak_lista' ) {
             $sorok_html .= '
-                <tr id="tr_ear_'.$egysegar['recid'].'" data-recid="'.$egysegar['recid'].'">
-                    <td>'.$szalloda_html.'</td>
-                    <td>'.$egysegar['dijelem'].'</td>
-                    <td>'.$ktgnem['id'].'</td>
-                    <td>'.$ktgnem['nev'].'</td>
-                    <td>'.$egysegar['mee'].'</td>
-                    <td class="r">'.$egysegar['ear01'].'</td>
-                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem01']).'</td>
-                    <td class="r">'.$egysegar['arf01'].'</td>
-                    <td class="r">'.$egysegar['ear02'].'</td>
-                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem02']).'</td>
-                    <td class="r">'.$egysegar['arf02'].'</td>
-                    <td class="r">'.$egysegar['ear03'].'</td>
-                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem03']).'</td>
-                    <td class="r">'.$egysegar['arf03'].'</td>
-                    <td class="r">'.$egysegar['ear04'].'</td>
-                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem04']).'</td>
-                    <td class="r">'.$egysegar['arf04'].'</td>
-                    <td class="r">'.$egysegar['ear05'].'</td>
-                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem05']).'</td>
-                    <td class="r">'.$egysegar['arf05'].'</td>
-                    <td class="r">'.$egysegar['ear06'].'</td>
-                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem06']).'</td>
-                    <td class="r">'.$egysegar['arf06'].'</td>
-                    <td class="r">'.$egysegar['ear07'].'</td>
-                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem07']).'</td>
-                    <td class="r">'.$egysegar['arf07'].'</td>
-                    <td class="r">'.$egysegar['ear08'].'</td>
-                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem08']).'</td>
-                    <td class="r">'.$egysegar['arf08'].'</td>
-                    <td class="r">'.$egysegar['ear09'].'</td>
-                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem09']).'</td>
-                    <td class="r">'.$egysegar['arf09'].'</td>
-                    <td class="r">'.$egysegar['ear10'].'</td>
-                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem10']).'</td>
-                    <td class="r">'.$egysegar['arf10'].'</td>
-                    <td class="r">'.$egysegar['ear11'].'</td>
-                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem11']).'</td>
-                    <td class="r">'.$egysegar['arf11'].'</td>
-                    <td class="r">'.$egysegar['ear12'].'</td>
-                    <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem12']).'</td>
-                    <td class="r">'.$egysegar['arf12'].'</td>
+                <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
+                <thead>
+                <tr>
+                    <th class="egys_szall"><span>Szállodák</span></th>
+                    <th class="egys_szall"><span>Díjelem</span></th>
+                    <th><span>Ktgnem kód</span></th>
+                    <th><span>Ktgnem név</span></th>
+                    <th><span>Mee</span></th>
+                    <th><span>Egységár Január</span></th>
+                    <th class="egys_dev"><span>Dev. Jan.</span></th>
+                    <th><span>Árfolyam Január</span></th>
+                    <th><span>Egységár Február</span></th>
+                    <th class="egys_dev"><span>Dev. Feb</span></th>
+                    <th><span>Árfolyam Február</span></th>
+                    <th><span>Egységár Március</span></th>
+                    <th class="egys_dev"><span>Dev. Márc.</span></th>
+                    <th><span>Árfolyam Március</span></th>
+                    <th><span>Egységár Április</span></th>
+                    <th class="egys_dev"><span>Dev. Ápr.</span></th>
+                    <th><span>Árfolyam Április</span></th>
+                    <th><span>Egységár Május</span></th>
+                    <th class="egys_dev"><span>Dev. Máj.</span></th>
+                    <th><span>Árfolyam Május</span></th>
+                    <th><span>Egységár Június</span></th>
+                    <th class="egys_dev"><span>Dev. Jún.</span></th>
+                    <th><span>Árfolyam Június</span></th>
+                    <th><span>Egységár Július</span></th>
+                    <th class="egys_dev"><span>Dev. Júl.</span></th>
+                    <th><span>Árfolyam Július</span></th>
+                    <th><span>Egységár Augusztus</span></th>
+                    <th class="egys_dev"><span>Dev. Aug.</span></th>
+                    <th><span>Árfolyam Augusztus</span></th>
+                    <th><span>Egységár Szeptember</span></th>
+                    <th class="egys_dev"><span>Dev. Szept.</span></th>
+                    <th><span>Árfolyam Szeptember</span></th>
+                    <th><span>Egységár Október</span></th>
+                    <th class="egys_dev"><span>Dev. Okt.</span></th>
+                    <th><span>Árfolyam Október</span></th>
+                    <th><span>Egységár November</span></th>
+                    <th class="egys_dev"><span>Dev. Nov.</span></th>
+                    <th><span>Árfolyam November</span></th>
+                    <th><span>Egységár December</span></th>
+                    <th class="egys_dev"><span>Dev. Dec</span></th>
+                    <th><span>Árfolyam December</span></th>
                 </tr>
+                </thead>
+                <tbody>
                 ';
-        }
 
-        $sorok_html .= nl2('
-                </tbody>
-            </table>
-        ');
+            $egysegarak = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$_GET['id']}'");
+            foreach($egysegarak as $egysegar){
+
+                // Szálloda nevek
+                $szalloda_html = '';
+                $szallodak = explode(',', $egysegar['telephely_idk']);
+                $szallodak = $adatbazis_kapcsolat->s('nev', 'telephely', "`id` IN ('".implode('\', \'', $szallodak)."')");
+                $szallodak = adatbazis2tomb($szallodak, 'nev');
+
+                // ABC sorrend
+                sort($szallodak);
+
+                // Szálloda html
+                $szalloda_html = implode(', ', $szallodak);
+
+                // Ktgnem
+                $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`id`='{$egysegar['ktgnem_id']}'");
+
+                $sorok_html .= '
+                    <tr id="tr_ear_'.$egysegar['recid'].'" data-recid="'.$egysegar['recid'].'">
+                        <td>'.$szalloda_html.'</td>
+                        <td>'.$egysegar['dijelem'].'</td>
+                        <td>'.$ktgnem['id'].'</td>
+                        <td>'.$ktgnem['nev'].'</td>
+                        <td>'.$egysegar['mee'].'</td>
+                        <td class="r">'.$egysegar['ear01'].'</td>
+                        <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem01']).'</td>
+                        <td class="r">'.$egysegar['arf01'].'</td>
+                        <td class="r">'.$egysegar['ear02'].'</td>
+                        <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem02']).'</td>
+                        <td class="r">'.$egysegar['arf02'].'</td>
+                        <td class="r">'.$egysegar['ear03'].'</td>
+                        <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem03']).'</td>
+                        <td class="r">'.$egysegar['arf03'].'</td>
+                        <td class="r">'.$egysegar['ear04'].'</td>
+                        <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem04']).'</td>
+                        <td class="r">'.$egysegar['arf04'].'</td>
+                        <td class="r">'.$egysegar['ear05'].'</td>
+                        <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem05']).'</td>
+                        <td class="r">'.$egysegar['arf05'].'</td>
+                        <td class="r">'.$egysegar['ear06'].'</td>
+                        <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem06']).'</td>
+                        <td class="r">'.$egysegar['arf06'].'</td>
+                        <td class="r">'.$egysegar['ear07'].'</td>
+                        <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem07']).'</td>
+                        <td class="r">'.$egysegar['arf07'].'</td>
+                        <td class="r">'.$egysegar['ear08'].'</td>
+                        <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem08']).'</td>
+                        <td class="r">'.$egysegar['arf08'].'</td>
+                        <td class="r">'.$egysegar['ear09'].'</td>
+                        <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem09']).'</td>
+                        <td class="r">'.$egysegar['arf09'].'</td>
+                        <td class="r">'.$egysegar['ear10'].'</td>
+                        <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem10']).'</td>
+                        <td class="r">'.$egysegar['arf10'].'</td>
+                        <td class="r">'.$egysegar['ear11'].'</td>
+                        <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem11']).'</td>
+                        <td class="r">'.$egysegar['arf11'].'</td>
+                        <td class="r">'.$egysegar['ear12'].'</td>
+                        <td>'.erteklista(ERTEKLISTA_PENZNEM, $egysegar['dnem12']).'</td>
+                        <td class="r">'.$egysegar['arf12'].'</td>
+                    </tr>
+                    ';
+            }
+
+            $sorok_html .= nl2('
+                    </tbody>
+                </table>
+            ');
+        }
+        
+    // Fenntartási tervek egységár listájának nyomtatási képe
+    }elseif(basename(self())=='fenntartasi_terv.php'){
+        if( $_GET['type'] == 'egysegarak_lista' ) {
+            
+            $sorok_html .= '
+                <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
+                <thead>
+                <tr>
+                    <th><span>Ktgnem kód</span></th>
+                    <th><span>Ktgnem név</span></th>
+                    <th><span>Tárgy</span></th>
+                    <th><span>Mee</span></th>
+                    <th><span>Mennyiség összesen</span></th>
+                    <th><span>Érték összesen</span></th>
+                    <th><span>Egységár Január</span></th>
+                    <th><span>Mennyiség Január</span></th>
+                    <th><span>Érték Január</span></th>
+                    <th><span>Egységár Február</span></th>
+                    <th><span>Mennyiség Február</span></th>
+                    <th><span>Érték Február</span></th>
+                    <th><span>Egységár Március</span></th>
+                    <th><span>Mennyiség Március</span></th>
+                    <th><span>Érték Március</span></th>
+                    <th><span>Egységár Április</span></th>
+                    <th><span>Mennyiség Április</span></th>
+                    <th><span>Érték Április</span></th>
+                    <th><span>Egységár Május</span></th>
+                    <th><span>Mennyiség Május</span></th>
+                    <th><span>Érték Május</span></th>
+                    <th><span>Egységár Június</span></th>
+                    <th><span>Mennyiség Június</span></th>
+                    <th><span>Érték Június</span></th>
+                    <th><span>Egységár Július</span></th>
+                    <th><span>Mennyiség Július</span></th>
+                    <th><span>Érték Július</span></th>
+                    <th><span>Egységár Augusztus</span></th>
+                    <th><span>Mennyiség Augusztus</span></th>
+                    <th><span>Érték Augusztus</span></th>
+                    <th><span>Egységár Szeptember</span></th>
+                    <th><span>Mennyiség Szeptember</span></th>
+                    <th><span>Érték Szeptember</span></th>
+                    <th><span>Egységár Október</span></th>
+                    <th><span>Mennyiség Október</span></th>
+                    <th><span>Érték Október</span></th>
+                    <th><span>Egységár November</span></th>
+                    <th><span>Mennyiség November</span></th>
+                    <th><span>Érték November</span></th>
+                    <th><span>Egységár December</span></th>
+                    <th><span>Mennyiség December</span></th>
+                    <th><span>Érték December</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                ';
+
+            $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$_GET['id']}'");
+            foreach($energiak as $energia){
+                
+                // Számok formázása
+                $mennyiseg_osszesen = 0;
+                $ertek_osszesen     = 0;
+                for($i=1; $i<13; $i++){
+                    if($i<10){
+                        $i = '0'.$i;
+                    }
+
+                    $mennyiseg_osszesen += $energia['em'.$i];
+                    $ertek_osszesen     += $energia['ft'.$i];
+
+                    $energia['em'.$i]  = number_format($energia['em'.$i],  2, ',', ' ');
+                    $energia['ear'.$i] = number_format($energia['ear'.$i], 3, ',', ' ');
+                    $energia['ft'.$i]  = number_format($energia['ft'.$i],  0, '',  ' ');
+                }
+                $mennyiseg_osszesen = number_format($mennyiseg_osszesen,  0, ',', ' ');
+                $ertek_osszesen     = number_format($ertek_osszesen,  0, ',', ' ');
+
+
+                // Ktgnem
+                $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`id`='{$energia['ktgnem_id']}'");
+
+                $sorok_html .= '
+                    <tr class="ftt_menny">
+                        <td>'.$energia['ktgnem_id'].'</td>
+                        <td>'.$ktgnem['nev'].'</td>
+                        <td>'.$energia['dijelem'].'</td>
+                        <td>'.$energia['mee'].'</td>
+                        <td class="r">'.$mennyiseg_osszesen.'</td>
+                        <td class="r">'.$ertek_osszesen.'</td>
+                        <td class="r">'.$energia['ear01'].'</td>
+                        <td class="r">'.$energia['em01'].'</td>
+                        <td class="r">'.$energia['ft01'].'</td>
+                        <td class="r">'.$energia['ear02'].'</td>
+                        <td class="r">'.$energia['em02'].'</td>
+                        <td class="r">'.$energia['ft02'].'</td>
+                        <td class="r">'.$energia['ear03'].'</td>
+                        <td class="r">'.$energia['em03'].'</td>
+                        <td class="r">'.$energia['ft03'].'</td>
+                        <td class="r">'.$energia['ear04'].'</td>
+                        <td class="r">'.$energia['em04'].'</td>
+                        <td class="r">'.$energia['ft04'].'</td>
+                        <td class="r">'.$energia['ear05'].'</td>
+                        <td class="r">'.$energia['em05'].'</td>
+                        <td class="r">'.$energia['ft05'].'</td>
+                        <td class="r">'.$energia['ear06'].'</td>
+                        <td class="r">'.$energia['em06'].'</td>
+                        <td class="r">'.$energia['ft06'].'</td>
+                        <td class="r">'.$energia['ear07'].'</td>
+                        <td class="r">'.$energia['em07'].'</td>
+                        <td class="r">'.$energia['ft07'].'</td>
+                        <td class="r">'.$energia['ear08'].'</td>
+                        <td class="r">'.$energia['em08'].'</td>
+                        <td class="r">'.$energia['ft08'].'</td>
+                        <td class="r">'.$energia['ear09'].'</td>
+                        <td class="r">'.$energia['em09'].'</td>
+                        <td class="r">'.$energia['ft09'].'</td>
+                        <td class="r">'.$energia['ear10'].'</td>
+                        <td class="r">'.$energia['em10'].'</td>
+                        <td class="r">'.$energia['ft10'].'</td>
+                        <td class="r">'.$energia['ear11'].'</td>
+                        <td class="r">'.$energia['em11'].'</td>
+                        <td class="r">'.$energia['ft11'].'</td>
+                        <td class="r">'.$energia['ear12'].'</td>
+                        <td class="r">'.$energia['em12'].'</td>
+                        <td class="r">'.$energia['ft12'].'</td>
+                    </tr>
+                    ';
+            }
+
+            $sorok_html .= nl2('
+                    </tbody>
+                </table>
+            ');
+        }
     }
 
     if( !isset($_GET['pdf']) ) {

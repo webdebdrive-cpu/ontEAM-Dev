@@ -252,13 +252,10 @@ if (isset($_POST['terv_keszit'])) {
     // Ha a kijelölt terv alapján kell létrehozni az újat, akkor lekérjük a kijelölt adatait
     if($kijelolt){
 
-        $energia_terv = $adatbazis_kapcsolat->s2('ev text', 'energia_terv', "`recid` = '{$recid}'");
-        if( $energia_terv === false ) { $db_error = true; }
-
         // Új terv létrehozása
         $uj_id = $adatbazis_kapcsolat->i('energia_terv',
-                                                        array('ev', 'text',                 'loginnev',                        'insert_dt',    'insert_usr',                             'update_usr'                           ),
-                                                        array($ev, $energia_terv['text'],   $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                                        array('ev', 'loginnev',                        'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                        array($ev,  $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
                                         );
         if( $uj_id === false ) { $db_error = true; }
 
@@ -822,7 +819,21 @@ if (isset($_POST['energiaterv_veglegesit'])) {
     if(!$sql){
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba'  => 'Az energia tervnek nincsenek egységár sorai, így nem véglegesíthető+!',
+            'hiba'  => 'Az energia tervnek nincsenek egységár sorai, így nem véglegesíthető!',
+            'title' => 'Hiba'
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Ha vannak olyan egységár sorok, amik nincsenek kitöltve (ha ki van töltve akkor a ktgnem_id-nek már biztosan van értéke), akkor szintén hiba
+    $sql = $adatbazis_kapcsolat->s('recid', 'energia_terv_ear', "`energia_terv_id`='{$recid}' AND `ktgnem_id`=''");
+    if( $sql === false ) { $db_error = true; }
+    if($sql){
+        mysqli_rollback($db_kapcs);
+        echo json_encode(array(
+            'hiba'  => 'Az energia tervnek van még ki nem tölött egységár sora, így nem véglegesíthető!',
             'title' => 'Hiba'
         ));
 

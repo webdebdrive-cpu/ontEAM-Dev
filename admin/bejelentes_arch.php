@@ -390,7 +390,7 @@ require_once('selectek.php');
                 </div>
         ');
 
-        $sorok = $adatbazis_kapcsolat->s('recid megj szerepkor insert_usr insert_dt', 'megjegyzes_arch', "`id` = '".$_GET['id']."' AND `tabla` = '".$megnevezes_origi."'", 'recid desc');
+        $sorok = $adatbazis_kapcsolat->s('recid megj szerepkor insert_usr insert_dt', 'megjegyzes', "`id` = '".$_GET['id']."' AND `tabla` = '".$megnevezes_origi."'", 'recid desc');
         if( $sorok ) {
             $i = 1;
             foreach($sorok as $sor) {

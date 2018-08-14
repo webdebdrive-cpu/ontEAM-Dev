@@ -2159,7 +2159,6 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                                                 "`recid` = '{$recid}'");
             if( $sql === false ) { $db_error = true; }
 
-
             // Megjegyzés hozzáadása
             $megj = 'Javasolt kivitelező: '. getErtek('nev', 'szallito', 'id', $szallitoid).'<br>Érték: '. number_format($jh_ert, 0, '', ' ').' '.get_penznem().'<br>Érkezés: '.str_replace('-', '.', $varh_erk);
             addMegj('munkalap', $recid, $megj);
@@ -5614,6 +5613,9 @@ if (isset($_POST['munkalapSztornoz'])) {
                 if( addStatusz('bejelentes_statusz', $bejelentes_recid, BEJELENTES_STAT_ELUTASITVA, '', $memo) === false ) {
                     $db_error = true;
                 }
+                
+                // E-mail értesítés a bejelentőnek
+                level_felkeszit_es_kuld('bejelentes', $bejelentes_recid, ERT_BEJ_ELUTASITKOR, 'bejelentesElutasit', 'bejelento', '<br>'.nl2br2($memo).'<br>');
             }
 
             // Indoklás bekerül a bejelentéshez is
@@ -5621,9 +5623,6 @@ if (isset($_POST['munkalapSztornoz'])) {
             if( addMegj('bejelentes', $bejelentes_recid, $munkalap['ikt_szam'].' munkalap sztornózva') === false ){
                 $db_error = true;
             }
-
-            // E-mail értesítés a bejelentőnek
-            level_felkeszit_es_kuld('bejelentes', $bejelentes_recid, ERT_BEJ_ELUTASITKOR, 'bejelentesElutasit', 'bejelento', '<br>'.nl2br2($memo).'<br>');
 
         // Egyébként kérdezünk
         }else{

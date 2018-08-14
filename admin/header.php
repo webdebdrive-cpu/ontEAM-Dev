@@ -1400,7 +1400,7 @@ if( $_SERVER['HTTP_HOST'] != 'demo.webdeb.hu' ) {
 }
 
 // Nyomtatási popup
-if( basename(self()) == 'energia_terv.php' ) {
+if( basename(self()) == 'energia_terv.php' || basename(self()) == 'fenntartasi_terv.php' ) {
     $header_html .= nl2('
         <div class="dn">
             <div id="nyomtatasi_nezet">
