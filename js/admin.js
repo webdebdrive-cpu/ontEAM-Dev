@@ -5306,7 +5306,7 @@ function listanezet_nyomtat( that ) {
 
 function csv_general( that, valasztos, link_kieg ) {
     
-    if(link_kieg){
+    if(!link_kieg){
         link_kieg = '';
     }
     

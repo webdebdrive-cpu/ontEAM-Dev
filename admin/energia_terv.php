@@ -833,7 +833,7 @@ if (isset($_POST['energiaterv_veglegesit'])) {
     if($sql){
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba'  => 'Az energia tervnek van még ki nem tölött egységár sora, így nem véglegesíthető!',
+            'hiba'  => 'Az energia tervnek van még ki nem töltött egységár sora, így nem véglegesíthető!',
             'title' => 'Hiba'
         ));
 
