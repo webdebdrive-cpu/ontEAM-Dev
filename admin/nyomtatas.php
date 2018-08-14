@@ -262,135 +262,26 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
     // Fenntartási tervek egységár listájának nyomtatási képe
     }elseif(basename(self())=='fenntartasi_terv.php'){
         if( $_GET['type'] == 'egysegarak_lista' ) {
-            
-            $sorok_html .= '
-                <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
-                <thead>
-                <tr>
-                    <th><span>Ktgnem kód</span></th>
-                    <th><span>Ktgnem név</span></th>
-                    <th><span>Tárgy</span></th>
-                    <th><span>Mee</span></th>
-                    <th><span>Mennyiség összesen</span></th>
-                    <th><span>Érték összesen</span></th>
-                    <th><span>Egységár Január</span></th>
-                    <th><span>Mennyiség Január</span></th>
-                    <th><span>Érték Január</span></th>
-                    <th><span>Egységár Február</span></th>
-                    <th><span>Mennyiség Február</span></th>
-                    <th><span>Érték Február</span></th>
-                    <th><span>Egységár Március</span></th>
-                    <th><span>Mennyiség Március</span></th>
-                    <th><span>Érték Március</span></th>
-                    <th><span>Egységár Április</span></th>
-                    <th><span>Mennyiség Április</span></th>
-                    <th><span>Érték Április</span></th>
-                    <th><span>Egységár Május</span></th>
-                    <th><span>Mennyiség Május</span></th>
-                    <th><span>Érték Május</span></th>
-                    <th><span>Egységár Június</span></th>
-                    <th><span>Mennyiség Június</span></th>
-                    <th><span>Érték Június</span></th>
-                    <th><span>Egységár Július</span></th>
-                    <th><span>Mennyiség Július</span></th>
-                    <th><span>Érték Július</span></th>
-                    <th><span>Egységár Augusztus</span></th>
-                    <th><span>Mennyiség Augusztus</span></th>
-                    <th><span>Érték Augusztus</span></th>
-                    <th><span>Egységár Szeptember</span></th>
-                    <th><span>Mennyiség Szeptember</span></th>
-                    <th><span>Érték Szeptember</span></th>
-                    <th><span>Egységár Október</span></th>
-                    <th><span>Mennyiség Október</span></th>
-                    <th><span>Érték Október</span></th>
-                    <th><span>Egységár November</span></th>
-                    <th><span>Mennyiség November</span></th>
-                    <th><span>Érték November</span></th>
-                    <th><span>Egységár December</span></th>
-                    <th><span>Mennyiség December</span></th>
-                    <th><span>Érték December</span></th>
-                </tr>
-                </thead>
-                <tbody>
-                ';
-
-            $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$_GET['id']}'");
-            foreach($energiak as $energia){
-                
-                // Számok formázása
-                $mennyiseg_osszesen = 0;
-                $ertek_osszesen     = 0;
-                for($i=1; $i<13; $i++){
-                    if($i<10){
-                        $i = '0'.$i;
-                    }
-
-                    $mennyiseg_osszesen += $energia['em'.$i];
-                    $ertek_osszesen     += $energia['ft'.$i];
-
-                    $energia['em'.$i]  = number_format($energia['em'.$i],  2, ',', ' ');
-                    $energia['ear'.$i] = number_format($energia['ear'.$i], 3, ',', ' ');
-                    $energia['ft'.$i]  = number_format($energia['ft'.$i],  0, '',  ' ');
-                }
-                $mennyiseg_osszesen = number_format($mennyiseg_osszesen,  0, ',', ' ');
-                $ertek_osszesen     = number_format($ertek_osszesen,  0, ',', ' ');
-
-
-                // Ktgnem
-                $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`id`='{$energia['ktgnem_id']}'");
-
-                $sorok_html .= '
-                    <tr class="ftt_menny">
-                        <td>'.$energia['ktgnem_id'].'</td>
-                        <td>'.$ktgnem['nev'].'</td>
-                        <td>'.$energia['dijelem'].'</td>
-                        <td>'.$energia['mee'].'</td>
-                        <td class="r">'.$mennyiseg_osszesen.'</td>
-                        <td class="r">'.$ertek_osszesen.'</td>
-                        <td class="r">'.$energia['ear01'].'</td>
-                        <td class="r">'.$energia['em01'].'</td>
-                        <td class="r">'.$energia['ft01'].'</td>
-                        <td class="r">'.$energia['ear02'].'</td>
-                        <td class="r">'.$energia['em02'].'</td>
-                        <td class="r">'.$energia['ft02'].'</td>
-                        <td class="r">'.$energia['ear03'].'</td>
-                        <td class="r">'.$energia['em03'].'</td>
-                        <td class="r">'.$energia['ft03'].'</td>
-                        <td class="r">'.$energia['ear04'].'</td>
-                        <td class="r">'.$energia['em04'].'</td>
-                        <td class="r">'.$energia['ft04'].'</td>
-                        <td class="r">'.$energia['ear05'].'</td>
-                        <td class="r">'.$energia['em05'].'</td>
-                        <td class="r">'.$energia['ft05'].'</td>
-                        <td class="r">'.$energia['ear06'].'</td>
-                        <td class="r">'.$energia['em06'].'</td>
-                        <td class="r">'.$energia['ft06'].'</td>
-                        <td class="r">'.$energia['ear07'].'</td>
-                        <td class="r">'.$energia['em07'].'</td>
-                        <td class="r">'.$energia['ft07'].'</td>
-                        <td class="r">'.$energia['ear08'].'</td>
-                        <td class="r">'.$energia['em08'].'</td>
-                        <td class="r">'.$energia['ft08'].'</td>
-                        <td class="r">'.$energia['ear09'].'</td>
-                        <td class="r">'.$energia['em09'].'</td>
-                        <td class="r">'.$energia['ft09'].'</td>
-                        <td class="r">'.$energia['ear10'].'</td>
-                        <td class="r">'.$energia['em10'].'</td>
-                        <td class="r">'.$energia['ft10'].'</td>
-                        <td class="r">'.$energia['ear11'].'</td>
-                        <td class="r">'.$energia['em11'].'</td>
-                        <td class="r">'.$energia['ft11'].'</td>
-                        <td class="r">'.$energia['ear12'].'</td>
-                        <td class="r">'.$energia['em12'].'</td>
-                        <td class="r">'.$energia['ft12'].'</td>
-                    </tr>
-                    ';
+            $sor = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
+            $ful_tomb = array(
+                'energia'       => 'Energia',
+                'muszaki_anyag' => 'Műszaki anyag',
+                'rendsz_karban' => 'Rendszeres karbantartás',
+                'eseti_karban'  => 'Eseti karbantartás',
+                'hibaelharitas' => 'Hibaelhárítás',
+                'bwh'           => 'Cukrászat BWH',
+                'osszesen'      => 'Összesen',
+            );
+            $sorok_html .= '<h2 class="f14">Energia</h2>'.fenntartasi_terv_energia($sor);
+            $sorok_html .= '<h2 class="f14" style="margin-top: 3rem">Műszaki anyag</h2>'.fenntartasi_terv_muszaki_anyag($sor);
+            $sorok_html .= '<h2 class="f14" style="margin-top: 3rem">Rendszeres karbantartás</h2>'.fenntartasi_terv_rendsz_karban($sor);
+            $sorok_html .= '<h2 class="f14" style="margin-top: 3rem">Eseti karbantartás</h2>'.fenntartasi_terv_eseti_karban($sor);
+            $sorok_html .= '<h2 class="f14" style="margin-top: 3rem">Hibaelhárítás</h2>'.fenntartasi_terv_hibaelharitas($sor);
+            $sajat_szallodak = get_akt_login_szallodai();
+            if(in_array(2120, $sajat_szallodak) && $sor['telephely_id']==2120){
+                $sorok_html .= '<h2 class="f14" style="margin-top: 3rem">BWH</h2>'.fenntartasi_terv_bwh($sor);
             }
-
-            $sorok_html .= nl2('
-                    </tbody>
-                </table>
-            ');
+            $sorok_html .= '<h2 class="f14" style="margin-top: 3rem">Összesen</h2>'.fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak);
         }
     }
 
@@ -400,6 +291,8 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
             <link href="../css/admin.css" rel="stylesheet" type="text/css">
             <link href="../css/nyomtatas.css" rel="stylesheet" type="text/css">
             <script src="../js/jquery.js"></script>
+            <script src="../js/main.js"></script>
+            <script src="../js/fenntartasi_terv.js"></script>
             <img src="../elemek/admin/nyomtat.gif" alt="Nyomtat" class="nyomtat_ikon nyomtat_dn link" onclick="window.print();">
             <title>Listanézet '.date('Y.m.d H:i:s').'</title>
             <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">

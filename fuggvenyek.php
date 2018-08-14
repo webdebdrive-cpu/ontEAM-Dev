@@ -7093,3 +7093,919 @@ function isIphone($user_agent=NULL) {
     }
     return (strpos($user_agent, 'iPhone') !== FALSE);
 }
+
+// Fenntartási terv energia fül alatti táblázat kirajzolása
+function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
+    
+    global $adatbazis_kapcsolat;
+    
+    $szamla_html = '
+        <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu energia_tabla">
+        <thead>
+        <tr>
+            <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+            <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+            <th style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
+            <th><span>Mee</span></th>
+            <th><span>Mennyiség összesen</span></th>
+            <th><span>Érték összesen</span></th>
+            <th><span>Egységár Január</span></th>
+            <th class="egys_dev"><span>Mennyiség Január</span></th>
+            <th><span>Érték Január</span></th>
+            <th><span>Egységár Február</span></th>
+            <th class="egys_dev"><span>Mennyiség Február</span></th>
+            <th><span>Érték Február</span></th>
+            <th><span>Egységár Március</span></th>
+            <th class="egys_dev"><span>Mennyiség Március</span></th>
+            <th><span>Érték Március</span></th>
+            <th><span>Egységár Április</span></th>
+            <th class="egys_dev"><span>Mennyiség Április</span></th>
+            <th><span>Érték Április</span></th>
+            <th><span>Egységár Május</span></th>
+            <th class="egys_dev"><span>Mennyiség Május</span></th>
+            <th><span>Érték Május</span></th>
+            <th><span>Egységár Június</span></th>
+            <th class="egys_dev"><span>Mennyiség Június</span></th>
+            <th><span>Érték Június</span></th>
+            <th><span>Egységár Július</span></th>
+            <th class="egys_dev"><span>Mennyiség Július</span></th>
+            <th><span>Érték Július</span></th>
+            <th><span>Egységár Augusztus</span></th>
+            <th class="egys_dev"><span>Mennyiség Augusztus</span></th>
+            <th><span>Érték Augusztus</span></th>
+            <th><span>Egységár Szeptember</span></th>
+            <th class="egys_dev"><span>Mennyiség Szeptember</span></th>
+            <th><span>Érték Szeptember</span></th>
+            <th><span>Egységár Október</span></th>
+            <th class="egys_dev"><span>Mennyiség Október</span></th>
+            <th><span>Érték Október</span></th>
+            <th><span>Egységár November</span></th>
+            <th class="egys_dev"><span>Mennyiség November</span></th>
+            <th><span>Érték November</span></th>
+            <th><span>Egységár December</span></th>
+            <th class="egys_dev"><span>Mennyiség December</span></th>
+            <th><span>Érték December</span></th>
+        </tr>
+        </thead>
+        <tbody>
+        ';
+
+    // Nézzük meg, hogy az energia egységár soraiban van-e változás (feltéve ha még munkaközi)
+    if($sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+        $energia_terv   = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$sor['ev']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
+        $akt_eear_sorok = $adatbazis_kapcsolat->s('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `telephely_idk` LIKE '%{$sor['telephely_id']}%'");
+        $eear_soridk    = adatbazis2tomb($akt_eear_sorok, 'sorid');
+    }
+
+    $volt_valtozas  = false;
+    $energia_soridk = array();
+    $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$sor['recid']}'");
+    foreach($energiak as $energia){
+
+        // Innen tujduk majd, hogy mik az új sorok
+        array_push($energia_soridk, $energia['sorid']);
+
+        // Ha változtak volna az egységárak, azt felül kell írni
+        if($sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+            $energia_ear = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$energia['sorid']}'");
+        }
+
+        // Számok formázása
+        $mennyiseg_osszesen = 0;
+        $ertek_osszesen     = 0;
+        for($i=1; $i<13; $i++){
+            if($i<10){
+                $i = '0'.$i;
+            }
+
+            if($sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+                if($energia_ear['ear'.$i]!=$energia['ear'.$i]){
+                    $energia['ear'.$i] = $energia_ear['ear'.$i];
+                    $energia['ft'.$i]  = $energia['em'.$i]*$energia['ear'.$i];
+                    $volt_valtozas     = true;
+                }
+            }
+
+            $mennyiseg_osszesen += $energia['em'.$i];
+            $ertek_osszesen     += $energia['ft'.$i];
+
+            $energia['em'.$i]  = number_format($energia['em'.$i],  2, ',', ' ');
+            $energia['ear'.$i] = number_format($energia['ear'.$i], 3, ',', ' ');
+            $energia['ft'.$i]  = number_format($energia['ft'.$i],  0, '',  ' ');
+        }
+        $mennyiseg_osszesen = number_format($mennyiseg_osszesen,  0, ',', ' ');
+        $ertek_osszesen     = number_format($ertek_osszesen,  0, ',', ' ');
+
+        $class = '';
+        if( $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && !in_array($energia['sorid'], $eear_soridk) ){
+            $class          = ' piros_hat';
+            $volt_valtozas  = true;
+        }
+
+        $szamla_html .= '
+            <tr id="ft_em_'.$energia['recid'].'" data-recid="'.$energia['recid'].'" class="ftt_menny'.$class.'">
+                <td>'.$energia['ktgnem_id'].'</td>
+                <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
+                <td class="wrap">'.$energia['dijelem'].'</td>
+                <td>'.$energia['mee'].'</td>
+                <td class="r mennyossz">'.$mennyiseg_osszesen.'</td>
+                <td class="r ertekossz">'.$ertek_osszesen.'</td>
+                <td class="r">'.$energia['ear01'].'</td>
+                <td class="r">'.$energia['em01'].'</td>
+                <td class="r ft01">'.$energia['ft01'].'</td>
+                <td class="r">'.$energia['ear02'].'</td>
+                <td class="r">'.$energia['em02'].'</td>
+                <td class="r ft02">'.$energia['ft02'].'</td>
+                <td class="r">'.$energia['ear03'].'</td>
+                <td class="r">'.$energia['em03'].'</td>
+                <td class="r ft03">'.$energia['ft03'].'</td>
+                <td class="r">'.$energia['ear04'].'</td>
+                <td class="r">'.$energia['em04'].'</td>
+                <td class="r ft04">'.$energia['ft04'].'</td>
+                <td class="r">'.$energia['ear05'].'</td>
+                <td class="r">'.$energia['em05'].'</td>
+                <td class="r ft05">'.$energia['ft05'].'</td>
+                <td class="r">'.$energia['ear06'].'</td>
+                <td class="r">'.$energia['em06'].'</td>
+                <td class="r ft06">'.$energia['ft06'].'</td>
+                <td class="r">'.$energia['ear07'].'</td>
+                <td class="r">'.$energia['em07'].'</td>
+                <td class="r ft07">'.$energia['ft07'].'</td>
+                <td class="r">'.$energia['ear08'].'</td>
+                <td class="r">'.$energia['em08'].'</td>
+                <td class="r ft08">'.$energia['ft08'].'</td>
+                <td class="r">'.$energia['ear09'].'</td>
+                <td class="r">'.$energia['em09'].'</td>
+                <td class="r ft09">'.$energia['ft09'].'</td>
+                <td class="r">'.$energia['ear10'].'</td>
+                <td class="r">'.$energia['em10'].'</td>
+                <td class="r ft10">'.$energia['ft10'].'</td>
+                <td class="r">'.$energia['ear11'].'</td>
+                <td class="r">'.$energia['em11'].'</td>
+                <td class="r ft11">'.$energia['ft11'].'</td>
+                <td class="r">'.$energia['ear12'].'</td>
+                <td class="r">'.$energia['em12'].'</td>
+                <td class="r ft12">'.$energia['ft12'].'</td>
+            </tr>
+            ';
+    }
+
+    // Új sorok kiszámítása, kirajzolása
+    if($sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+        foreach ($eear_soridk as $sorid){
+            if(!in_array($sorid, $energia_soridk)){
+                $volt_valtozas  = true;
+
+                $energia = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$sorid}'");
+// echo $adatbazis_kapcsolat->gp() . '<br>';
+                $mennyiseg_osszesen = 0;
+                $ertek_osszesen     = 0;
+                for($i=1; $i<13; $i++){
+                    if($i<10){
+                        $i = '0'.$i;
+                    }
+
+                    $mennyiseg_osszesen += $energia['em'.$i];
+                    $ertek_osszesen     += $energia['ft'.$i];
+                }
+                $mennyiseg_osszesen = number_format($mennyiseg_osszesen,  0, ',', ' ');
+                $ertek_osszesen     = number_format($ertek_osszesen,  0, ',', ' ');
+                $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`id`='{$energia['ktgnem_id']}'");
+
+                $szamla_html .= '
+                    <tr id="ft_em_'.$sorid.'" data-recid="'.$sorid.'" class="ftt_menny zold_hat">
+                        <td>'.$ktgnem['id'].'</td>
+                        <td>'.$ktgnem['nev'].'</td>
+                        <td>'.$energia['dijelem'].'</td>
+                        <td>'.$energia['mee'].'</td>
+                        <td class="r">'.$mennyiseg_osszesen.'</td>
+                        <td class="r ertekossz">'.$ertek_osszesen.'</td>
+                        <td class="r">'.$energia['ear01'].'</td>
+                        <td class="r">'.$energia['em01'].'</td>
+                        <td class="r ft01">'.$energia['ft01'].'</td>
+                        <td class="r">'.$energia['ear02'].'</td>
+                        <td class="r">'.$energia['em02'].'</td>
+                        <td class="r ft02">'.$energia['ft02'].'</td>
+                        <td class="r">'.$energia['ear03'].'</td>
+                        <td class="r">'.$energia['em03'].'</td>
+                        <td class="r ft03">'.$energia['ft03'].'</td>
+                        <td class="r">'.$energia['ear04'].'</td>
+                        <td class="r">'.$energia['em04'].'</td>
+                        <td class="r ft04">'.$energia['ft04'].'</td>
+                        <td class="r">'.$energia['ear05'].'</td>
+                        <td class="r">'.$energia['em05'].'</td>
+                        <td class="r ft05">'.$energia['ft05'].'</td>
+                        <td class="r">'.$energia['ear06'].'</td>
+                        <td class="r">'.$energia['em06'].'</td>
+                        <td class="r ft06">'.$energia['ft06'].'</td>
+                        <td class="r">'.$energia['ear07'].'</td>
+                        <td class="r">'.$energia['em07'].'</td>
+                        <td class="r ft07">'.$energia['ft07'].'</td>
+                        <td class="r">'.$energia['ear08'].'</td>
+                        <td class="r">'.$energia['em08'].'</td>
+                        <td class="r ft08">'.$energia['ft08'].'</td>
+                        <td class="r">'.$energia['ear09'].'</td>
+                        <td class="r">'.$energia['em09'].'</td>
+                        <td class="r ft09">'.$energia['ft09'].'</td>
+                        <td class="r">'.$energia['ear10'].'</td>
+                        <td class="r">'.$energia['em10'].'</td>
+                        <td class="r ft10">'.$energia['ft10'].'</td>
+                        <td class="r">'.$energia['ear11'].'</td>
+                        <td class="r">'.$energia['em11'].'</td>
+                        <td class="r ft11">'.$energia['ft11'].'</td>
+                        <td class="r">'.$energia['ear12'].'</td>
+                        <td class="r">'.$energia['em12'].'</td>
+                        <td class="r ft12">'.$energia['ft12'].'</td>
+                    </tr>
+                    ';
+            }
+        }
+    }
+
+    $szamla_html .= nl2('
+                        </tbody>
+                        <tfoot class="nowrap">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r"></td>
+                            <td class="r" id="szum_ertek_o"></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ft01"></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ft02"></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ft03"></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ft04"></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ft05"></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ft06"></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ft07"></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ft08"></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ft09"></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ft10"></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ft11"></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ft12"></td>
+                        </tfoot>
+                    </table>
+                    <script>
+                    $(document).ready(function () {
+                        energia_szummaz(\'energia_tabla\');
+                    });
+                    </script>
+                    ');
+    
+    return $szamla_html;
+}
+
+// Fenntartási terv műszaki anyag fül alatti táblázat kirajzolása
+function fenntartasi_terv_muszaki_anyag($sor){
+    
+    global $adatbazis_kapcsolat;
+    
+    $szamla_html = '
+                <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu muszaki_anyag_tabla">
+                <thead>
+                <tr>
+                    <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+                    <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+                    <th><span>Összesen</span></th>
+                    <th><span>Január</span></th>
+                    <th><span>Február</span></th>
+                    <th><span>Március</span></th>
+                    <th><span>Április</span></th>
+                    <th><span>Május</span></th>
+                    <th><span>Június</span></th>
+                    <th><span>Július</span></th>
+                    <th><span>Augusztus</span></th>
+                    <th><span>Szeptember</span></th>
+                    <th><span>Október</span></th>
+                    <th><span>November</span></th>
+                    <th><span>December</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                ';
+
+            $muszaki_anyagok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_muszaki_anyag', "`fenntartasi_terv_id`='{$sor['recid']}'");
+            foreach($muszaki_anyagok as $anyagok){
+
+                $osszesen = 0;
+                for($i=1; $i<13; $i++){
+                    if($i<10){
+                        $i = '0'.$i;
+                    }
+                    $osszesen += $anyagok['ft'.$i];
+
+                    $anyagok['ft'.$i] = number_format($anyagok['ft'.$i], 0, '', ' ');
+                }
+                $osszesen = number_format($osszesen, 0, '', ' ');
+
+                $szamla_html .= '
+                    <tr id="ft_ft_'.$anyagok['recid'].'" data-recid="'.$anyagok['recid'].'" class="ftt_menny">
+                        <td>'.$anyagok['ktgnem_id'].'</td>
+                        <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $anyagok['ktgnem_id']).'</td>
+                        <td class="r ftossz">'.$osszesen.'</td>
+                        <td class="r ft01">'.$anyagok['ft01'].'</td>
+                        <td class="r ft02">'.$anyagok['ft02'].'</td>
+                        <td class="r ft03">'.$anyagok['ft03'].'</td>
+                        <td class="r ft04">'.$anyagok['ft04'].'</td>
+                        <td class="r ft05">'.$anyagok['ft05'].'</td>
+                        <td class="r ft06">'.$anyagok['ft06'].'</td>
+                        <td class="r ft07">'.$anyagok['ft07'].'</td>
+                        <td class="r ft08">'.$anyagok['ft08'].'</td>
+                        <td class="r ft09">'.$anyagok['ft09'].'</td>
+                        <td class="r ft10">'.$anyagok['ft10'].'</td>
+                        <td class="r ft11">'.$anyagok['ft11'].'</td>
+                        <td class="r ft12">'.$anyagok['ft12'].'</td>
+                    </tr>
+                    ';
+            }
+
+            $szamla_html .= nl2('
+                                </tbody>
+                                <tfoot class="nowrap">
+                                    <td></td>
+                                    <td></td>
+                                    <td class="r" id="szum_ftossz"></td>
+                                    <td class="r" id="szum_ft01"></td>
+                                    <td class="r" id="szum_ft02"></td>
+                                    <td class="r" id="szum_ft03"></td>
+                                    <td class="r" id="szum_ft04"></td>
+                                    <td class="r" id="szum_ft05"></td>
+                                    <td class="r" id="szum_ft06"></td>
+                                    <td class="r" id="szum_ft07"></td>
+                                    <td class="r" id="szum_ft08"></td>
+                                    <td class="r" id="szum_ft09"></td>
+                                    <td class="r" id="szum_ft10"></td>
+                                    <td class="r" id="szum_ft11"></td>
+                                    <td class="r" id="szum_ft12"></td>
+                                </tfoot>
+                            </table>
+                            <script>
+                            $(document).ready(function () {
+                                energia_szummaz(\'muszaki_anyag_tabla\');
+                            });
+                            </script>
+                            ');
+            
+    return $szamla_html;
+}
+
+// Fenntartási terv rendszeres karbantartás fül alatti táblázat kirajzolása
+function fenntartasi_terv_rendsz_karban($sor){
+    
+    global $adatbazis_kapcsolat;
+    
+    $szamla_html = '
+        <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu rendsz_karban_tabla">
+        <thead>
+        <tr>
+            <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+            <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+            <th style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
+            <th><span>Összesen</span></th>
+            <th><span>Január</span></th>
+            <th><span>Február</span></th>
+            <th><span>Március</span></th>
+            <th><span>Április</span></th>
+            <th><span>Május</span></th>
+            <th><span>Június</span></th>
+            <th><span>Július</span></th>
+            <th><span>Augusztus</span></th>
+            <th><span>Szeptember</span></th>
+            <th><span>Október</span></th>
+            <th><span>November</span></th>
+            <th><span>December</span></th>
+        </tr>
+        </thead>
+        <tbody>
+        ';
+
+    $rendszeresek = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_rendsz_karban', "`fenntartasi_terv_id`='{$sor['recid']}'");
+    foreach($rendszeresek as $rendszeres){
+
+        $osszesen = 0;
+        for($i=1; $i<13; $i++){
+            if($i<10){
+                $i = '0'.$i;
+            }
+            $osszesen += $rendszeres['ft'.$i];
+
+            $rendszeres['ft'.$i] = number_format($rendszeres['ft'.$i], 0, '', ' ');
+        }
+        $osszesen = number_format($osszesen, 0, '', ' ');
+
+        $szamla_html .= '
+            <tr id="ft_ft_'.$rendszeres['recid'].'" data-recid="'.$rendszeres['recid'].'" class="ftt_menny">
+                <td>'.$rendszeres['ktgnem_id'].'</td>
+                <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $rendszeres['ktgnem_id']).'</td>
+                <td class="wrap">'.$rendszeres['targy'].'</td>
+                <td class="r ftossz">'.$osszesen.'</td>
+                <td class="r ft01">'.$rendszeres['ft01'].'</td>
+                <td class="r ft02">'.$rendszeres['ft02'].'</td>
+                <td class="r ft03">'.$rendszeres['ft03'].'</td>
+                <td class="r ft04">'.$rendszeres['ft04'].'</td>
+                <td class="r ft05">'.$rendszeres['ft05'].'</td>
+                <td class="r ft06">'.$rendszeres['ft06'].'</td>
+                <td class="r ft07">'.$rendszeres['ft07'].'</td>
+                <td class="r ft08">'.$rendszeres['ft08'].'</td>
+                <td class="r ft09">'.$rendszeres['ft09'].'</td>
+                <td class="r ft10">'.$rendszeres['ft10'].'</td>
+                <td class="r ft11">'.$rendszeres['ft11'].'</td>
+                <td class="r ft12">'.$rendszeres['ft12'].'</td>
+            </tr>
+            ';
+    }
+
+    $szamla_html .= nl2('
+                        </tbody>
+                        <tfoot class="nowrap">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ftossz"></td>
+                            <td class="r" id="szum_ft01"></td>
+                            <td class="r" id="szum_ft02"></td>
+                            <td class="r" id="szum_ft03"></td>
+                            <td class="r" id="szum_ft04"></td>
+                            <td class="r" id="szum_ft05"></td>
+                            <td class="r" id="szum_ft06"></td>
+                            <td class="r" id="szum_ft07"></td>
+                            <td class="r" id="szum_ft08"></td>
+                            <td class="r" id="szum_ft09"></td>
+                            <td class="r" id="szum_ft10"></td>
+                            <td class="r" id="szum_ft11"></td>
+                            <td class="r" id="szum_ft12"></td>
+                        </tfoot>
+                    </table>
+                    <script>
+                    $(document).ready(function () {
+                        energia_szummaz(\'rendsz_karban_tabla\');
+                    });
+                    </script>
+                    ');
+    
+    return $szamla_html;
+}
+
+// Fenntartási terv eseti karbantartás fül alatti táblázat kirajzolása
+function fenntartasi_terv_eseti_karban($sor){
+    
+    global $adatbazis_kapcsolat;
+    
+    $szamla_html = '
+    <div id="fixTable">
+        <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu eseti_karban_tabla">
+        <thead>
+        <tr>
+            <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+            <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+            <th style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
+            <th style="min-width: 20rem; width: 20rem"><span>Részletes leírás</span></th>
+            <th><span>Összesen</span></th>
+            <th><span>Január</span></th>
+            <th><span>Február</span></th>
+            <th><span>Március</span></th>
+            <th><span>Április</span></th>
+            <th><span>Május</span></th>
+            <th><span>Június</span></th>
+            <th><span>Július</span></th>
+            <th><span>Augusztus</span></th>
+            <th><span>Szeptember</span></th>
+            <th><span>Október</span></th>
+            <th><span>November</span></th>
+            <th><span>December</span></th>
+        </tr>
+        </thead>
+        <tbody>
+        ';
+
+    $esetik = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_eseti_karban', "`fenntartasi_terv_id`='{$sor['recid']}'");
+    foreach($esetik as $eseti){
+
+        $osszesen = '';
+        for($i=1; $i<13; $i++){
+            if($i<10){
+                $i = '0'.$i;
+            }
+            $osszesen += $eseti['ft'.$i];
+            $eseti['ft'.$i] = number_format($eseti['ft'.$i], 0, '', ' ');
+        }
+        $osszesen = number_format($osszesen, 0, '', ' ');
+
+        $szamla_html .= '
+            <tr id="ft_ft_'.$eseti['recid'].'" data-recid="'.$eseti['recid'].'" class="ftt_menny">
+                <td>'.$eseti['ktgnem_id'].'</td>
+                <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $eseti['ktgnem_id']).'</td>
+                <td class="wrap">'.$eseti['targy'].'</td>
+                <td class="wrap">'.nl2br2($eseti['leir']).'</td>
+                <td class="r ftossz">'.$osszesen.'</td>
+                <td class="r ft01">'.$eseti['ft01'].'</td>
+                <td class="r ft02">'.$eseti['ft02'].'</td>
+                <td class="r ft03">'.$eseti['ft03'].'</td>
+                <td class="r ft04">'.$eseti['ft04'].'</td>
+                <td class="r ft05">'.$eseti['ft05'].'</td>
+                <td class="r ft06">'.$eseti['ft06'].'</td>
+                <td class="r ft07">'.$eseti['ft07'].'</td>
+                <td class="r ft08">'.$eseti['ft08'].'</td>
+                <td class="r ft09">'.$eseti['ft09'].'</td>
+                <td class="r ft10">'.$eseti['ft10'].'</td>
+                <td class="r ft11">'.$eseti['ft11'].'</td>
+                <td class="r ft12">'.$eseti['ft12'].'</td>
+            </tr>
+            ';
+    }
+
+    $szamla_html .= nl2('
+                        </tbody>
+                        <tfoot class="nowrap">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ftossz"></td>
+                            <td class="r" id="szum_ft01"></td>
+                            <td class="r" id="szum_ft02"></td>
+                            <td class="r" id="szum_ft03"></td>
+                            <td class="r" id="szum_ft04"></td>
+                            <td class="r" id="szum_ft05"></td>
+                            <td class="r" id="szum_ft06"></td>
+                            <td class="r" id="szum_ft07"></td>
+                            <td class="r" id="szum_ft08"></td>
+                            <td class="r" id="szum_ft09"></td>
+                            <td class="r" id="szum_ft10"></td>
+                            <td class="r" id="szum_ft11"></td>
+                            <td class="r" id="szum_ft12"></td>
+                        </tfoot>
+                    </table>
+                </div>
+                    <script>
+                    $(document).ready(function () {
+                        energia_szummaz(\'eseti_karban_tabla\');
+                    });
+                    </script>
+                ');
+    
+    return $szamla_html;
+}
+
+// Fenntartási terv hibaelhárítás fül alatti táblázat kirajzolása
+function fenntartasi_terv_hibaelharitas($sor){
+    
+    global $adatbazis_kapcsolat;
+    
+    $szamla_html .= '
+        <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu hibaelharitas_tabla">
+        <thead>
+        <tr>
+            <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+            <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+            <th style="min-width: 20rem; width: 20rem"><span>Részletes leírás</span></th>
+            <th><span>Összesen</span></th>
+            <th><span>Január</span></th>
+            <th><span>Február</span></th>
+            <th><span>Március</span></th>
+            <th><span>Április</span></th>
+            <th><span>Május</span></th>
+            <th><span>Június</span></th>
+            <th><span>Július</span></th>
+            <th><span>Augusztus</span></th>
+            <th><span>Szeptember</span></th>
+            <th><span>Október</span></th>
+            <th><span>November</span></th>
+            <th><span>December</span></th>
+        </tr>
+        </thead>
+        <tbody>
+        ';
+
+    $hibak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_hibaelharitas', "`fenntartasi_terv_id`='{$sor['recid']}'");
+    foreach($hibak as $hiba){
+
+        $osszesen = '';
+        for($i=1; $i<13; $i++){
+            if($i<10){
+                $i = '0'.$i;
+            }
+            $osszesen += $hiba['ft'.$i];
+            $hiba['ft'.$i] = number_format($hiba['ft'.$i], 0, '', ' ');
+        }
+        $osszesen = number_format($osszesen, 0, '', ' ');
+
+        $szamla_html .= '
+            <tr id="ft_ft_'.$hiba['recid'].'" data-recid="'.$hiba['recid'].'" class="ftt_menny">
+                <td>'.$hiba['ktgnem_id'].'</td>
+                <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $hiba['ktgnem_id']).'</td>
+                <td class="wrap">'.nl2br2($hiba['leir']).'</td>
+                <td class="r ftossz">'.$osszesen.'</td>
+                <td class="r ft01">'.$hiba['ft01'].'</td>
+                <td class="r ft02">'.$hiba['ft02'].'</td>
+                <td class="r ft03">'.$hiba['ft03'].'</td>
+                <td class="r ft04">'.$hiba['ft04'].'</td>
+                <td class="r ft05">'.$hiba['ft05'].'</td>
+                <td class="r ft06">'.$hiba['ft06'].'</td>
+                <td class="r ft07">'.$hiba['ft07'].'</td>
+                <td class="r ft08">'.$hiba['ft08'].'</td>
+                <td class="r ft09">'.$hiba['ft09'].'</td>
+                <td class="r ft10">'.$hiba['ft10'].'</td>
+                <td class="r ft11">'.$hiba['ft11'].'</td>
+                <td class="r ft12">'.$hiba['ft12'].'</td>
+            </tr>
+            ';
+    }
+
+    $szamla_html .= nl2('
+                        </tbody>
+                        <tfoot class="nowrap">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ftossz"></td>
+                            <td class="r" id="szum_ft01"></td>
+                            <td class="r" id="szum_ft02"></td>
+                            <td class="r" id="szum_ft03"></td>
+                            <td class="r" id="szum_ft04"></td>
+                            <td class="r" id="szum_ft05"></td>
+                            <td class="r" id="szum_ft06"></td>
+                            <td class="r" id="szum_ft07"></td>
+                            <td class="r" id="szum_ft08"></td>
+                            <td class="r" id="szum_ft09"></td>
+                            <td class="r" id="szum_ft10"></td>
+                            <td class="r" id="szum_ft11"></td>
+                            <td class="r" id="szum_ft12"></td>
+                        </tfoot>
+                    </table>
+                    <script>
+                    $(document).ready(function () {
+                        energia_szummaz(\'hibaelharitas_tabla\');
+                    });
+                    </script>
+                    ');
+    
+    return $szamla_html;
+}
+
+// Fenntartási terv bwh fül alatti táblázat kirajzolása
+function fenntartasi_terv_bwh($sor){
+    
+    global $adatbazis_kapcsolat;
+    
+    $szamla_html .= '
+        <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu bwh_tabla">
+        <thead>
+        <tr>
+            <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+            <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+            <th style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
+            <th style="min-width: 20rem; width: 20rem"><span>Leírás</span></th>
+            <th><span>Január</span></th>
+            <th><span>Február</span></th>
+            <th><span>Március</span></th>
+            <th><span>Április</span></th>
+            <th><span>Május</span></th>
+            <th><span>Június</span></th>
+            <th><span>Július</span></th>
+            <th><span>Augusztus</span></th>
+            <th><span>Szeptember</span></th>
+            <th><span>Október</span></th>
+            <th><span>November</span></th>
+            <th><span>December</span></th>
+        </tr>
+        </thead>
+        <tbody>
+        ';
+
+    $bwhk = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_bwh', "`fenntartasi_terv_id`='{$sor['recid']}'");
+    foreach($bwhk as $bwh){
+
+        for($i=1; $i<13; $i++){
+            if($i<10){
+                $i = '0'.$i;
+            }
+            $bwh['ft'.$i] = number_format($bwh['ft'.$i], 0, '', ' ');
+        }
+
+        $szamla_html .= '
+            <tr id="ft_ft_'.$bwh['recid'].'" data-recid="'.$bwh['recid'].'" class="ftt_menny">
+                <td>'.$bwh['ktgnem_id'].'</td>
+                <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $bwh['ktgnem_id']).'</td>
+                <td class="wrap">'.$bwh['targy'].'</td>
+                <td class="wrap">'.nl2br2($bwh['leir']).'</td>
+                <td class="r ft01">'.$bwh['ft01'].'</td>
+                <td class="r ft02">'.$bwh['ft02'].'</td>
+                <td class="r ft03">'.$bwh['ft03'].'</td>
+                <td class="r ft04">'.$bwh['ft04'].'</td>
+                <td class="r ft05">'.$bwh['ft05'].'</td>
+                <td class="r ft06">'.$bwh['ft06'].'</td>
+                <td class="r ft07">'.$bwh['ft07'].'</td>
+                <td class="r ft08">'.$bwh['ft08'].'</td>
+                <td class="r ft09">'.$bwh['ft09'].'</td>
+                <td class="r ft10">'.$bwh['ft10'].'</td>
+                <td class="r ft11">'.$bwh['ft11'].'</td>
+                <td class="r ft12">'.$bwh['ft12'].'</td>
+            </tr>
+            ';
+    }
+
+    $szamla_html .= nl2('
+                        </tbody>
+                        <tfoot class="nowrap">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ft01"></td>
+                            <td class="r" id="szum_ft02"></td>
+                            <td class="r" id="szum_ft03"></td>
+                            <td class="r" id="szum_ft04"></td>
+                            <td class="r" id="szum_ft05"></td>
+                            <td class="r" id="szum_ft06"></td>
+                            <td class="r" id="szum_ft07"></td>
+                            <td class="r" id="szum_ft08"></td>
+                            <td class="r" id="szum_ft09"></td>
+                            <td class="r" id="szum_ft10"></td>
+                            <td class="r" id="szum_ft11"></td>
+                            <td class="r" id="szum_ft12"></td>
+                        </tfoot>
+                    </table>
+                    <script>
+                    $(document).ready(function () {
+                        energia_szummaz(\'bwh_tabla\');
+                    });
+                    </script>
+                    ');
+    
+    return $szamla_html;
+}
+
+// Fenntartási terv összesen fül alatti táblázat kirajzolása
+function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak){
+    
+    global $adatbazis_kapcsolat;
+    
+    $szamla_html = '
+        <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu osszesen_tabla">
+        <thead>
+        <tr>
+            <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+            <th style="min-width: 10rem; width: 10rem;"><span>Ktgnem név</span></th>
+            <th><span>Összesen</span></th>
+            <th><span>Január</span></th>
+            <th><span>Február</span></th>
+            <th><span>Március</span></th>
+            <th><span>Április</span></th>
+            <th><span>Május</span></th>
+            <th><span>Június</span></th>
+            <th><span>Július</span></th>
+            <th><span>Augusztus</span></th>
+            <th><span>Szeptember</span></th>
+            <th><span>Október</span></th>
+            <th><span>November</span></th>
+            <th><span>December</span></th>
+        </tr>
+        </thead>
+        <tbody>
+        ';
+
+    $kivetelek = array('modosit', 'osszesen', 'tortenet', 'dokumentumok', 'megjegyzesek');
+    // A BWH-t is felvesszük a kivételek közé, hacsak nem Hungáriás a user
+    if( !in_array(2120, $sajat_szallodak) || $sor['telephely_id']!=2120 ){
+        array_push($kivetelek, 'bwh');
+    }
+    foreach($ful_tomb as $tabla_post => $ful_neve){
+
+        if( !in_array($tabla_post, $kivetelek) ){
+
+            $ful_sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_'.$tabla_post, "`fenntartasi_terv_id`='{$sor['recid']}'", '', '', 'ktgnem_id');
+            if($ful_sorok){
+                foreach($ful_sorok as $f_sor){
+
+                    // Mivel költségnem id szerint group by-oztunk, ezért itt le kell kérni újra a sorokat, mert lehet több azonos költségnem rekord is van adott terv_id-hoz
+                    // Első lépésként ezket ezért nullázzuk is
+                    for($i=1; $i<13; $i++){
+                        if($i<10){
+                            $i = '0'.$i;
+                        }
+                        $f_sor['ft'.$i] = 0;
+                    }
+                    $akt_ful_sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_'.$tabla_post, "`fenntartasi_terv_id`='{$sor['recid']}' AND `ktgnem_id`='{$f_sor['ktgnem_id']}'");
+                    foreach($akt_ful_sorok as $akt_sor){
+                        for($i=1; $i<13; $i++){
+                            if($i<10){
+                                $i = '0'.$i;
+                            }
+                            $f_sor['ft'.$i] += $akt_sor['ft'.$i];
+                        }
+                    }
+
+                    $honapok_osszesen = 0;
+                    for($i=1; $i<13; $i++){
+                        if($i<10){
+                            $i = '0'.$i;
+                        }
+                        $honapok_osszesen += $f_sor['ft'.$i];
+                        $f_sor['ft'.$i] = number_format($f_sor['ft'.$i], 0, '', ' ');
+                    }
+                    $honapok_osszesen = number_format($honapok_osszesen, 0, '', ' ');
+
+                    $szamla_html .= '
+                        <tr id="ft_ft_'.$tabla_post.$f_sor['recid'].'" data-recid="'.$f_sor['recid'].'" class="ftt_menny">
+                            <td>'.$f_sor['ktgnem_id'].'</td>
+                            <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $f_sor['ktgnem_id']).'</td>
+                            <td class="r fto '.$tabla_post.'">'.$honapok_osszesen.'</td>
+                            <td class="r ft01 '.$tabla_post.'">'.$f_sor['ft01'].'</td>
+                            <td class="r ft02 '.$tabla_post.'">'.$f_sor['ft02'].'</td>
+                            <td class="r ft03 '.$tabla_post.'">'.$f_sor['ft03'].'</td>
+                            <td class="r ft04 '.$tabla_post.'">'.$f_sor['ft04'].'</td>
+                            <td class="r ft05 '.$tabla_post.'">'.$f_sor['ft05'].'</td>
+                            <td class="r ft06 '.$tabla_post.'">'.$f_sor['ft06'].'</td>
+                            <td class="r ft07 '.$tabla_post.'">'.$f_sor['ft07'].'</td>
+                            <td class="r ft08 '.$tabla_post.'">'.$f_sor['ft08'].'</td>
+                            <td class="r ft09 '.$tabla_post.'">'.$f_sor['ft09'].'</td>
+                            <td class="r ft10 '.$tabla_post.'">'.$f_sor['ft10'].'</td>
+                            <td class="r ft11 '.$tabla_post.'">'.$f_sor['ft11'].'</td>
+                            <td class="r ft12 '.$tabla_post.'">'.$f_sor['ft12'].'</td>
+                        </tr>
+                        ';
+                }
+
+                $szamla_html .= '
+                    <tr id="ft_ft_'.$tabla_post.$f_sor['recid'].'" data-recid="'.$f_sor['recid'].'" class="ftt_menny piros">
+                        <td>
+                            <script>
+                                $(document).ready(function () {
+                                    energia_szummaz(\'osszesen_tabla\', \''.$tabla_post.'\');
+                                });
+                            </script>
+                        </td>
+                        <td>'.$ful_neve.' összesen</td>
+                        <td class="r" id="szum_fto_'.$tabla_post.'">Ö2</td>
+                        <td class="r" id="szum_ft01_'.$tabla_post.'"></td>
+                        <td class="r" id="szum_ft02_'.$tabla_post.'"></td>
+                        <td class="r" id="szum_ft03_'.$tabla_post.'"></td>
+                        <td class="r" id="szum_ft04_'.$tabla_post.'"></td>
+                        <td class="r" id="szum_ft05_'.$tabla_post.'"></td>
+                        <td class="r" id="szum_ft06_'.$tabla_post.'"></td>
+                        <td class="r" id="szum_ft07_'.$tabla_post.'"></td>
+                        <td class="r" id="szum_ft08_'.$tabla_post.'"></td>
+                        <td class="r" id="szum_ft09_'.$tabla_post.'"></td>
+                        <td class="r" id="szum_ft10_'.$tabla_post.'"></td>
+                        <td class="r" id="szum_ft11_'.$tabla_post.'"></td>
+                        <td class="r" id="szum_ft12_'.$tabla_post.'"></td>
+                    </tr>
+                    ';
+            }
+        }
+    }
+
+    $szamla_html .= nl2('
+                        </tbody>
+                        <tfoot class="nowrap">
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_fto"></td>
+                            <td class="r" id="szum_ft01"></td>
+                            <td class="r" id="szum_ft02"></td>
+                            <td class="r" id="szum_ft03"></td>
+                            <td class="r" id="szum_ft04"></td>
+                            <td class="r" id="szum_ft05"></td>
+                            <td class="r" id="szum_ft06"></td>
+                            <td class="r" id="szum_ft07"></td>
+                            <td class="r" id="szum_ft08"></td>
+                            <td class="r" id="szum_ft09"></td>
+                            <td class="r" id="szum_ft10"></td>
+                            <td class="r" id="szum_ft11"></td>
+                            <td class="r" id="szum_ft12"></td>
+                        </tfoot>
+                    </table>
+                    <script>
+                    $(document).ready(function () {
+                        energia_szummaz(\'osszesen_tabla\');
+                    });
+                    </script>
+                    ');
+    
+    return $szamla_html;
+}

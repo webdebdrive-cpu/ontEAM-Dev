@@ -103,7 +103,7 @@ function fenntartasterv_veglegesit(mehet){
 }
 
 /* Energia fül alatt számokat szummázzuk */
-function energia_szummaz(ful){
+function energia_szummaz(tabla, ful){
     
     /* Ha van ful paraméter, akkor adott fülhöz tartozó összegeket szummázzuk csak. (Összesen fül alatt használjuk) */
     var ful_class = '';
@@ -118,34 +118,34 @@ function energia_szummaz(ful){
             i = '0'+String(i);
         }
         ossz = 0;
-        $('.ft'+i+ful_class).each(function () {
+        $('table.'+tabla+' .ft'+i+ful_class).each(function () {
             ossz += Number($(this).html().replace(/ /g, ''));
         });
-        $('#szum_ft'+i+ful_ossz).html( ezresek(ossz, '', '', ' ') );
+        $('table.'+tabla+' #szum_ft'+i+ful_ossz).html( ezresek(ossz, '', '', ' ') );
     }
     /* És még egy ráadás: Összesen fül alatt van egy hónapot összesítő oszlop is, ezt is összesíteni kell. */
     ossz = 0;
-    $('.fto'+ful_class).each(function () {
+    $('table.'+tabla+' .fto'+ful_class).each(function () {
         ossz += Number($(this).html().replace(/ /g, ''));
     });
-    $('#szum_fto'+ful_ossz).html( ezresek(ossz, '', '', ' ') );
+    $('table.'+tabla+' #szum_fto'+ful_ossz).html( ezresek(ossz, '', '', ' ') );
     
     /* Ha van összesen oszlop, akkor azt is szummázzuk */
-    if($('.ftossz').length){
+    if($('table.'+tabla+' .ftossz').length){
         ossz = 0;
-        $('.ftossz').each(function () {
+        $('table.'+tabla+' .ftossz').each(function () {
             ossz += Number($(this).html().replace(/ /g, ''));
         });
-        $('#szum_ftossz').html( ezresek(ossz, '', '', ' ') );
+        $('table.'+tabla+' #szum_ftossz').html( ezresek(ossz, '', '', ' ') );
     }
     
     /* Ha van mennyiség összesen, akkor azt is szummázzuk */
-    if($('.ertekossz').length){
+    if($('table.'+tabla+' .ertekossz').length){
         ossz = 0;
-        $('.ertekossz').each(function () {
+        $('table.'+tabla+' .ertekossz').each(function () {
             ossz += Number($(this).html().replace(/ /g, ''));
         });
-        $('#szum_ertek_o').html( ezresek(ossz, '', '', ' ') );
+        $('table.'+tabla+' #szum_ertek_o').html( ezresek(ossz, '', '', ' ') );
     }
     
 }

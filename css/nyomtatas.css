@@ -84,6 +84,10 @@ ul.szamla_cont li a td{
     display: none;
 }
 
+table.szamla_cont_tabla{
+    width: auto;
+}
+
 ul.szamla_cont li a.szamla, li.szamla_sor, table.szamla_cont_tabla.kisbetu td{
     cursor: default;
 }
