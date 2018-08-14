@@ -3459,3 +3459,8 @@ div.respo_felh .menu_icon span:before, div.respo_felh .menu_icon span:after {
     min-width: 13.2rem;
     width: 13.2rem;
 }
+
+#fixTable {
+    border-top: 0.1rem solid #ccc;
+    border-bottom: 0.1rem solid #ccc;
+}

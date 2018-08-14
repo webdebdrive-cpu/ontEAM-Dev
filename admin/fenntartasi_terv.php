@@ -1549,12 +1549,12 @@ if (isset($_POST['fenntartasi_terv_elesites'])) {
 
 // Fenntartási terv véglegesítése. Először azt vizsgáljuk, hogy jóvá lett-e minden hagyva.
 if (isset($_POST['fenntartasterv_veglegesit_jovahagyva_ell'])) {
-    
+
     $recid = $_POST['recid'];
 
     $sor = $adatbazis_kapcsolat->s2('ikt_szam stat_id telephely_id ev', 'fenntartasi_terv', "`recid`='{$recid}'");
     if( $sor === false ) { $db_error = true; }
-    
+
     // Ha nincs még jóváhagyva változtatás, akkor hiba
     $energia_terv   = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$sor['ev']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
     $akt_eear_sorok = $adatbazis_kapcsolat->s('sorid', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `telephely_idk` LIKE '%{$sor['telephely_id']}%'");
@@ -1606,7 +1606,7 @@ if (isset($_POST['fenntartasterv_veglegesit_jovahagyva_ell'])) {
             'rendben_van'  => '1'
         ));
     }
-    
+
     $weblap->leallit();
     exit();
 }
@@ -2937,7 +2937,7 @@ require_once('selectek.php');
 
         $szamla_html .= '
         <!-- style="height: 50rem;"-->
-        <div id="fixTable">
+        <div id="fixTable" style="height: 50rem;">
             <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
             <thead>
             <tr>
@@ -3024,7 +3024,6 @@ require_once('selectek.php');
                     </div>
                         <script>
                         $(document).ready(function () {
-                            /*$("#fixTable table").tableHeadFixer({\'foot\' : true});*/
                             energia_szummaz();
                         });
                         </script>

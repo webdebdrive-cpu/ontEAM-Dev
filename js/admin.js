@@ -1763,8 +1763,17 @@ console.log('b'+active_top);
         }
     });
 
-    
+    setTimeout(function() {
+        fixTable();
+    }, 50);
 });
+
+function fixTable() {
+    if( $('#fixTable').length ) {
+        $('#fixTable').height($('#tartalomJobb').height() - 32);
+        $('#fixTable table').tableHeadFixer({'foot' : true});
+    }
+}
 
 /* Mailto beállítása a felső ikonsor mail ikonjához */
 function sendMail( that, file ) {
@@ -5305,20 +5314,20 @@ function listanezet_nyomtat( that ) {
 }
 
 function csv_general( that, valasztos, link_kieg ) {
-    
+
     if(!link_kieg){
         link_kieg = '';
     }
-    
+
     if(valasztos){
-        
+
         /* Energia tervnél lehet választani, hogy tervet, vagy Egységárakat szeretne-e nyomtatni */
         if( baseName(location.href) == 'energia_terv' ){
             alert2('Válasszon exportot fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Energia tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'egysegarak&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
-        
+
     }else{
-        
+
         var ids = new Array();
 
         i = 0;
@@ -5352,9 +5361,9 @@ function csv_general( that, valasztos, link_kieg ) {
                 alert2('Üres találati listát nem lehet exportálni!', '', 'Hiba');
             }
         });
-        
+
     }
-    
+
 }
 
 /* Adatlap betöltése */
@@ -5730,6 +5739,8 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
             gombokRejt();
             scrollLeptet();
             fulGombMeretez();
+
+            fixTable();
 
             setTimeout(function(){ szurkit_zar(); }, 100);
         }).promise();

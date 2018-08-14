@@ -75,10 +75,10 @@
                     var left = parent.scrollLeft();
 
                     if (settings.head)
-                        this.find("thead tr > *").css("top", top);
+                        this.find("thead tr > *").css("top", top - 1);
 
                     if (settings.foot)
-                        this.find("tfoot tr > *").css("bottom", scrollHeight - clientHeight - top);
+                        this.find("tfoot tr > *").css("bottom", scrollHeight - clientHeight - top - 1);
 
                     if (settings.left > 0)
                         settings.leftColumns.css("left", left);
