@@ -1251,7 +1251,7 @@ if( basename(self())=='torzsadat.php' && !_jog(JOG_TORZSADAT_KEZEL)){
 
 // Excel export
 $valasztos = '';
-if( basename(self())=='energia_terv.php'){
+if( basename(self())=='energia_terv.php' || basename(self())=='fenntartasi_terv.php'){
     $valasztos = '\'választós\'';
 }
 $csv_get = 'csv_general( this, '.$valasztos.' );';

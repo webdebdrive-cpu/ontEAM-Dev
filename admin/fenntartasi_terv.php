@@ -1942,6 +1942,10 @@ if (isset($_POST['sor_torol'])) {
 
 // CSV generálása
 if (isset($_GET['csv'])) {
+    
+    if (isset($_GET['energia'])) {
+        $megnevezes .= '_energia';
+    }
 
     header("Content-type: text/csv");
     header("Content-Disposition: attachment; filename=$megnevezes.csv");
@@ -1968,57 +1972,193 @@ if (isset($_GET['csv'])) {
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
         if( $_SESSION['nyomtatas_ids'] ) {
-            if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
-                $lekerdezes_fromtol = str_replace('WHERE', "WHERE `". get_db_tabla()."$megnevezes`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
-            } else {
-                $lekerdezes_fromtol = str_replace('ORDER', "WHERE `". get_db_tabla()."$megnevezes`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+            
+            // Energia egységár exportja
+            if (isset($_GET['energia'])) {
+                
+                $fterv_sor = $adatbazis_kapcsolat->s2('stat_id ev', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
+                $sql = 'SELECT
+                            `ktgnem_id` as \'Költségnem kód\',
+                            `ktgnem_id` as \'Költségnem név\',
+                            `dijelem` as \'Díjelem\',
+                            `mee` as \'Mee\',
+                            `ear01` as \'Egységár Január\',
+                            `em01` as \'Mennyiség Január\',
+                            `ft01` as \'Érték Január\',
+                            `ear02` as \'Egységár Február\',
+                            `em02` as \'Mennyiség Február\',
+                            `ft02` as \'Érték Február\',
+                            `ear03` as \'Egységár Március\',
+                            `em03` as \'Mennyiség Március\',
+                            `ft03` as \'Érték Március\',
+                            `ear04` as \'Egységár Április\',
+                            `em04` as \'Mennyiség Április\',
+                            `ft04` as \'Érték Április\',
+                            `ear05` as \'Egységár Május\',
+                            `em05` as \'Mennyiség Május\',
+                            `ft05` as \'Érték Május\',
+                            `ear06` as \'Egységár Június\',
+                            `em06` as \'Mennyiség Június\',
+                            `ft06` as \'Érték Június\',
+                            `ear07` as \'Egységár Július\',
+                            `em07` as \'Mennyiség Július\',
+                            `ft07` as \'Érték Július\',
+                            `ear08` as \'Egységár Augusztus\',
+                            `em08` as \'Mennyiség Augusztus\',
+                            `ft08` as \'Érték Augusztus\',
+                            `ear09` as \'Egységár Szeptember\',
+                            `em09` as \'Mennyiség Szeptember\',
+                            `ft09` as \'Érték Szeptember\',
+                            `ear10` as \'Egységár Október\',
+                            `em10` as \'Mennyiség Október\',
+                            `ft10` as \'Érték Október\',
+                            `ear11` as \'Egységár November\',
+                            `em11` as \'Mennyiség November\',
+                            `ft11` as \'Érték November\',
+                            `ear12` as \'Egységár December\',
+                            `em12` as \'Mennyiség December\',
+                            `ft12` as \'Érték December\'
+                            
+                            FROM `'.get_db_tabla().'fenntartasi_terv_energia` WHERE `fenntartasi_terv_id`=\''.$_GET['id'].'\'
+                            ';
+                $query      = mysqli_query($db_kapcs, $sql);
+
+                $csvhead    = array();
+                while($fejlec_nevek = mysqli_fetch_field($query)){
+                    $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+                    // Mee oszlop után még kalkulált oszlopot még beszűrunk
+                    if($fejlec_nevek -> name=='Mee'){
+                        $csvhead[] = iconv2($mibol, $mibe, 'Mennyiség összesen' );
+                        $csvhead[] = iconv2($mibol, $mibe, 'Érték összesen' );
+                    }
+                }
+                fputcsv($open, $csvhead, ';');
+
+                $i = 0;
+//                if($fterv_sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+//                    $energia_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$fterv_sor['ev']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
+//                }
+                
+                $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
+                $egysegarak  = array();
+                $mennyisegek = array();
+                $ertekek     = array();
+                $ertekek_mindosszesen = 0;
+                while( $sorok = mysqli_fetch_assoc($query) ){
+                    
+//                    if($fterv_sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+//                        $energia_ear  = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$sorok['sorid']}'");
+//                    }
+
+                    $mennyiseg_osszesen = 0;
+                    $ertek_osszesen     = 0;
+                    for($i_tmp=0; $i_tmp<12; $i_tmp++){
+
+//                        if($fterv_sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+//                            if($energia_ear['ear'.$i_tmp]!=$energia['ear'.$i_tmp]){
+//                                $sorok['ear'.$i_tmp] = $energia_ear['ear'.$i_tmp];
+//                                $sorok['ft'.$i_tmp]  = $sorok['em'.$i_tmp]*$sorok['ear'.$i_tmp];
+//                            }
+//                        }
+
+                        $mennyiseg_osszesen += $sorok['Mennyiség '.$honapok[$i_tmp]];
+                        $ertek_osszesen     += $sorok['Érték '.$honapok[$i_tmp]];
+                        
+                        $egysegarak[$honapok[$i_tmp]]   += $sorok['Egységár '   .$honapok[$i_tmp]];
+                        $mennyisegek[$honapok[$i_tmp]]  += $sorok['Mennyiség '  .$honapok[$i_tmp]];
+                        $ertekek[$honapok[$i_tmp]]      += $sorok['Érték '      .$honapok[$i_tmp]];
+                    }
+                    $ertekek_mindosszesen += $ertek_osszesen;
+                    
+                    $csvcont = array();
+                    foreach( $sorok as $kulcs => $sor ) {
+                        if($kulcs=='Költségnem név'){
+                            $sor = getErtek('nev', 'ktgnem', 'id', $sor);
+                        }
+                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+                        
+                        // Mee oszlop után még kalkulált oszlopot még beszűrunk
+                        if($kulcs=='Mee'){
+                            $csvcont[] = $mennyiseg_osszesen;
+                            $csvcont[] = $ertek_osszesen;
+                        }
+                    }
+
+                    fputcsv($open, $csvcont, ';');
+
+                    //100 soronként kiírtatunk
+                    if ($i % 100 == 0) {
+                        flush();
+                    }
+
+                    $i++;
+                }
+                
+                $csvcont = array('', '', '', '', '', $ertekek_mindosszesen);
+                foreach($honapok as $honap){
+                    $csvcont[] = '';
+                    $csvcont[] = '';
+                    $csvcont[] = $ertekek[$honap];
+                }
+                fputcsv($open, $csvcont, ';');
+                
+            // Fenntartási terv exportálása
+            }else{
+                
+                if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
+                    $lekerdezes_fromtol = str_replace('WHERE', "WHERE `". get_db_tabla()."$megnevezes`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
+                } else {
+                    $lekerdezes_fromtol = str_replace('ORDER', "WHERE `". get_db_tabla()."$megnevezes`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
+                }
+                
+                $sql = 'SELECT
+                            `ikt_szam` as \'Energia terv szám\',
+                            `ev` as \'Tervező év\',
+                            `stat_id` as \'Státusz\',
+                            `telephely_id` as \'Szálloda\',
+                            `text` as \'Leírás\',
+                            `dok_db` as \'Dokumentumok\',
+                            `megj_db` as \'Megjegyzések\'
+                            '.$lekerdezes_fromtol;
+
+                $query      = mysqli_query($db_kapcs, $sql);
+
+                $csvhead    = array();
+                while($fejlec_nevek = mysqli_fetch_field($query)){
+                    $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+                }
+                fputcsv($open, $csvhead, ';');
+
+                $i = 0;
+                while( $sorok = mysqli_fetch_assoc($query) ){
+
+                    $csvcont = array();
+                    foreach( $sorok as $kulcs => $sor ) {
+                        if($kulcs=='Szálloda'){
+                            $sor = getSzallodaNev($sor);
+                        }
+                        if($kulcs=='Státusz'){
+                            $sor = getStatText('energia_terv', $sor);
+                        }
+                        if($kulcs=='Energia terv dátuma'){
+                            $sor = datum_kiir($sor);
+                        }
+                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+                    }
+
+                    fputcsv($open, $csvcont, ';');
+
+                    //100 soronként kiírtatunk
+                    if ($i % 100 == 0) {
+                        flush();
+                    }
+
+                    $i++;
+                }
+                
             }
         }
 
-        $sql = 'SELECT
-                    `ikt_szam` as \'Energia terv szám\',
-                    `ev` as \'Tervező év\',
-                    `stat_id` as \'Státusz\',
-                    `telephely_id` as \'Szálloda\',
-                    `text` as \'Leírás\',
-                    `dok_db` as \'Dokumentumok\',
-                    `megj_db` as \'Megjegyzések\'
-                    '.$lekerdezes_fromtol;
-
-        $query      = mysqli_query($db_kapcs, $sql);
-
-        $csvhead    = array();
-        while($fejlec_nevek = mysqli_fetch_field($query)){
-            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
-        }
-        fputcsv($open, $csvhead, ';');
-
-        $i = 0;
-        while( $sorok = mysqli_fetch_assoc($query) ){
-
-            $csvcont = array();
-            foreach( $sorok as $kulcs => $sor ) {
-                if($kulcs=='Szálloda'){
-                    $sor = getSzallodaNev($sor);
-                }
-                if($kulcs=='Státusz'){
-                    $sor = getStatText('energia_terv', $sor);
-                }
-                if($kulcs=='Energia terv dátuma'){
-                    $sor = datum_kiir($sor);
-                }
-                $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
-            }
-
-            fputcsv($open, $csvcont, ';');
-
-            //100 soronként kiírtatunk
-            if ($i % 100 == 0) {
-                flush();
-            }
-
-            $i++;
-        }
     }
 
     // Get the contents of the output buffer
