@@ -171,7 +171,6 @@ function get_jsfajlok_admin(){
                 $utvonal.'!js/jquery.serializeJSON.js',
                 $utvonal.'!js/jquery.sortElements.js',
                 $utvonal.'!js/jquery.easing.1.3.js',
-                $utvonal.'!js/tableHeadFixer.js',
                 $utvonal.'!js/datetimepicker.js',
                 $utvonal.'!js/admin.js',
                 $utvonal.'!js/admin_sorrendez.js',

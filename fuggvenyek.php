@@ -2414,7 +2414,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             $order = trim($order, ', ');
 
         }
-        
+
         // Archiv menüpont alatt egy 100-as limit mindig van (ha nincs más szűrés, akkor a feltétel a lista hossza)
         if( $_GET['mezo'] == 'legfrissebb' ) {
             $limit = $_GET['felt'];
@@ -2567,7 +2567,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
         $sql = $adatbazis_kapcsolat->gp();
 
     }
-    
+
     // Ha csak a darabszámra vagyunk kíváncsiak, akkor ezt írjuk ki, amit az admin.js f_szures_submit-nál kezelünk le
     if (isset($_GET['sql_db'])) {
         echo count($bejegyzesek);
@@ -6060,7 +6060,7 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
     }elseif($tabla=='login' && $mezo=='szalloda'){
         return '`'.get_db_tabla().'telephely_kapcs`.`telephely_id`=\''.$felt.'\'';
-    
+
     // mszk_jovahagy feltétele: a munkalap döntésre vár státuszban van, és a hozzárendelt személy vagy Műszaki vezető vagy diszpécser
     }elseif($tabla=='munkalap' && $mezo=='mszk_jovahagy'){
         if($felt==1){
@@ -7096,9 +7096,9 @@ function isIphone($user_agent=NULL) {
 
 // Fenntartási terv energia fül alatti táblázat kirajzolása
 function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
-    
+
     global $adatbazis_kapcsolat;
-    
+
     $szamla_html = '
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu energia_tabla">
         <thead>
@@ -7375,15 +7375,15 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
                     });
                     </script>
                     ');
-    
+
     return $szamla_html;
 }
 
 // Fenntartási terv műszaki anyag fül alatti táblázat kirajzolása
 function fenntartasi_terv_muszaki_anyag($sor){
-    
+
     global $adatbazis_kapcsolat;
-    
+
     $szamla_html = '
                 <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu muszaki_anyag_tabla">
                 <thead>
@@ -7469,15 +7469,15 @@ function fenntartasi_terv_muszaki_anyag($sor){
                             });
                             </script>
                             ');
-            
+
     return $szamla_html;
 }
 
 // Fenntartási terv rendszeres karbantartás fül alatti táblázat kirajzolása
 function fenntartasi_terv_rendsz_karban($sor){
-    
+
     global $adatbazis_kapcsolat;
-    
+
     $szamla_html = '
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu rendsz_karban_tabla">
         <thead>
@@ -7566,15 +7566,15 @@ function fenntartasi_terv_rendsz_karban($sor){
                     });
                     </script>
                     ');
-    
+
     return $szamla_html;
 }
 
 // Fenntartási terv eseti karbantartás fül alatti táblázat kirajzolása
 function fenntartasi_terv_eseti_karban($sor){
-    
+
     global $adatbazis_kapcsolat;
-    
+
     $szamla_html = '
     <div id="fixTable">
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu eseti_karban_tabla">
@@ -7618,9 +7618,9 @@ function fenntartasi_terv_eseti_karban($sor){
         $szamla_html .= '
             <tr id="ft_ft_'.$eseti['recid'].'" data-recid="'.$eseti['recid'].'" class="ftt_menny">
                 <td>'.$eseti['ktgnem_id'].'</td>
-                <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $eseti['ktgnem_id']).'</td>
-                <td class="wrap">'.$eseti['targy'].'</td>
-                <td class="wrap">'.nl2br2($eseti['leir']).'</td>
+                <td style="min-width: 10rem; width: 10rem" class="wrap">'.getErtek('nev', 'ktgnem', 'id', $eseti['ktgnem_id']).'</td>
+                <td style="min-width: 20rem; width: 20rem" class="wrap">'.$eseti['targy'].'</td>
+                <td style="min-width: 20rem; width: 20rem" class="wrap">'.nl2br2($eseti['leir']).'</td>
                 <td class="r ftossz">'.$osszesen.'</td>
                 <td class="r ft01">'.$eseti['ft01'].'</td>
                 <td class="r ft02">'.$eseti['ft02'].'</td>
@@ -7667,15 +7667,15 @@ function fenntartasi_terv_eseti_karban($sor){
                     });
                     </script>
                 ');
-    
+
     return $szamla_html;
 }
 
 // Fenntartási terv hibaelhárítás fül alatti táblázat kirajzolása
 function fenntartasi_terv_hibaelharitas($sor){
-    
+
     global $adatbazis_kapcsolat;
-    
+
     $szamla_html .= '
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu hibaelharitas_tabla">
         <thead>
@@ -7763,15 +7763,15 @@ function fenntartasi_terv_hibaelharitas($sor){
                     });
                     </script>
                     ');
-    
+
     return $szamla_html;
 }
 
 // Fenntartási terv bwh fül alatti táblázat kirajzolása
 function fenntartasi_terv_bwh($sor){
-    
+
     global $adatbazis_kapcsolat;
-    
+
     $szamla_html .= '
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu bwh_tabla">
         <thead>
@@ -7856,15 +7856,15 @@ function fenntartasi_terv_bwh($sor){
                     });
                     </script>
                     ');
-    
+
     return $szamla_html;
 }
 
 // Fenntartási terv összesen fül alatti táblázat kirajzolása
 function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak){
-    
+
     global $adatbazis_kapcsolat;
-    
+
     $szamla_html = '
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu osszesen_tabla">
         <thead>
@@ -8006,6 +8006,6 @@ function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak){
                     });
                     </script>
                     ');
-    
+
     return $szamla_html;
 }
