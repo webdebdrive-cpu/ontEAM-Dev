@@ -190,6 +190,7 @@ function eseti_tabla_ment( that ) {
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'eseti_karban').done(function() {
                         $('.szamla_cont_tabla tr').removeClass('kijelolve');
                         $('#ft_ft_' + response.recid).addClass('kijelolve');
+                        $('#tartalomJobb').scrollTop($('#tartalomJobb').prop('scrollHeight'));
                     });
          		}
          	}

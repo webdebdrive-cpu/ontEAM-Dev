@@ -272,7 +272,9 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
                 'bwh'           => 'Cukrászat BWH',
                 'osszesen'      => 'Összesen',
             );
-            $sorok_html .= '<h2 class="f14">Energia</h2>'.fenntartasi_terv_energia($sor);
+            
+            $tomb = fenntartasi_terv_energia($sor);
+            $sorok_html .= '<h2 class="f14">Energia</h2>'.$tomb[0];
             $sorok_html .= '<h2 class="f14" style="margin-top: 3rem">Műszaki anyag</h2>'.fenntartasi_terv_muszaki_anyag($sor);
             $sorok_html .= '<h2 class="f14" style="margin-top: 3rem">Rendszeres karbantartás</h2>'.fenntartasi_terv_rendsz_karban($sor);
             $sorok_html .= '<h2 class="f14" style="margin-top: 3rem">Eseti karbantartás</h2>'.fenntartasi_terv_eseti_karban($sor);

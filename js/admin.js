@@ -5353,7 +5353,7 @@ function csv_general( that, valasztos, link_kieg ) {
             alert2('Válasszon exportot fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Energia tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'egysegarak&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
         if( baseName(location.href) == 'fenntartasi_terv' ){
-            alert2('Válasszon exportot fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Energia tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'energia&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+            alert2('Válasszon exportot fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Fenntartási tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'energia&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
     }else{
@@ -5401,7 +5401,7 @@ var request_in_process = false;
 function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigenylesnel_is ) {
 
     /* Mindenképp legyen rajta egy szurkítés */
-    setTimeout(function(){ szurkit(); }, 200);
+    setTimeout(function(){ szurkit(); }, 100);
 
     focused = false; /* Ezt azért kell hamisra állítani, mert alert2 bezárásakor az utoljára fókuszált elemre visszatesszük a fókuszt.
                         Viszont ezt az anyagigénylések táblázatánál gondot okozott: nem lehetett kilépni az árazva sorok inputjaiból.

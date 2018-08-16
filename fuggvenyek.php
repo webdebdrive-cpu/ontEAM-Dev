@@ -7400,7 +7400,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
                     </script>
                     ');
 
-    return $szamla_html;
+    return array($szamla_html, $volt_valtozas);
 }
 
 // Fenntartási terv műszaki anyag fül alatti táblázat kirajzolása
