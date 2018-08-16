@@ -3785,7 +3785,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                         foreach($oszlopok as $key => $val) {
                            if( $val['id'] === $value['id']) {
                                $val['width'] = $value['width'];
-                               
+
                                // Még véletlen se szerepelhessen egy oszlop benne duplán
                                $mar_benne_van = false;
                                foreach($oszlopok_sorrend as $oszl_s){
@@ -3793,13 +3793,13 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                        $mar_benne_van = true;
                                    }
                                }
-                               if(!$mar_benne_van){   
+                               if(!$mar_benne_van){
                                     $oszlopok_sorrend[] = $val;
                                }
                            }
                        }
                     }
-                    
+
                     // Ha olyan oszlop is van, ami adott felhasználónál még nincs letárolva, akkor alapértelmezett szélességgel kerüljön be
                     foreach($oszlopok as $oszl){
                         $van_talalat = false;
@@ -3815,7 +3815,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                             $oszlopok_sorrend[] = $val;
                         }
                     }
-                    
+
                     $oszlopok = $oszlopok_sorrend;
                 }
             }
@@ -3916,7 +3916,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $jh_ert = $bsz['rndear']*$bsz['rndmen'];
 
                 $rndertek = getErtek('rndertek', 'cikkrendfej', 'rndid', $bsz['rndid']);
-                
+
                 if($bsz['kulsosnek']){
                     $bsz['kulsosnek'] = '✓';
                 }else{
@@ -7611,7 +7611,7 @@ function fenntartasi_terv_eseti_karban($sor){
 
     $szamla_html = '
     <div id="fixTable">
-        <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu eseti_karban_tabla">
+        <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu eseti_karban_tabla width_auto">
         <thead>
         <tr>
             <th class="ktgnem_kod"><span>Ktgnem kód</span></th>

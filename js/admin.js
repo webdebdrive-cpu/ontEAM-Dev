@@ -1775,7 +1775,7 @@ function fixTable() {
             footer: true,
             width: '100%',
             create: function() {
-                $('#fixTable').find('.fht-thead table tr th').each(function() {
+                $('#fixTable').find('.fht-tbody table tr th').each(function() {
                     var width = $(this).outerWidth(),
                         index = $(this).index();
 
@@ -1785,11 +1785,11 @@ function fixTable() {
                         'width': width
                     });
 
-                    $('#fixTable .fht-tbody tbody tr td').eq(index).css({
+                    /*$('#fixTable .fht-tbody tbody tr td').eq(index).css({
                         'min-width': width,
                         'max-width': width,
                         'width': width
-                    });
+                    });*/
 
                     $('#fixTable .fht-tfoot tfoot tr td').eq(index).css({
                         'min-width': width,
@@ -6134,7 +6134,7 @@ function szuro_ertek_mezo_gen(that, felt){
 
    $.when(ajax).then(function() {
        fejlecPozicional();
-       fulGombMeretez()
+       fulGombMeretez();
    });
 }
 

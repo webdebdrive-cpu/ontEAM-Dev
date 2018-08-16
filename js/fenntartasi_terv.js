@@ -35,6 +35,7 @@ function fenntartasi_terv_elesites(mehet) {
                     if(response.kesz_id>0){
                         szamlaSorFrissit(baseName(location.href), response.kesz_id);
                     }
+                    fulGombMeretez();
                     popupZar();
                 }
             }
@@ -47,7 +48,7 @@ function fenntartasi_terv_elesites(mehet) {
 
 /* Energiaterv véglegesítése */
 function fenntartasterv_veglegesit(mehet){
-    
+
     /* Először vizsgáljuk meg, hogy jóvá van-e hagyva minden az energia fül alatt */
     $.ajax({
         url : 'fenntartasi_terv.php',
@@ -63,10 +64,10 @@ function fenntartasterv_veglegesit(mehet){
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
                 }
-                
+
                 /* Ha jóvá van hagyva az energia fül alatt a változtatás, akkor mehetünk tovább, csak akkor kérdezzük meg, hogy biztosan...? */
                 if( response.rendben_van ) {
-                    
+
                     if(!mehet){
                         alert2('Biztosan véglegesíti a fenntartási tervet?', '<input type="button" class="gomb zold" value="Igen" onclick="fenntartasterv_veglegesit(\'mehet\')"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">');
                         return false;
@@ -94,7 +95,7 @@ function fenntartasterv_veglegesit(mehet){
                             }
                         }
                     });
-                    
+
                 }
             }
         }
@@ -104,7 +105,7 @@ function fenntartasterv_veglegesit(mehet){
 
 /* Energia fül alatt számokat szummázzuk */
 function energia_szummaz(tabla, ful){
-    
+
     /* Ha van ful paraméter, akkor adott fülhöz tartozó összegeket szummázzuk csak. (Összesen fül alatt használjuk) */
     var ful_class = '';
     var ful_ossz  = '';
@@ -112,7 +113,7 @@ function energia_szummaz(tabla, ful){
         ful_class = '.'+ful;
         ful_ossz  = '_'+ful;
     }
-    
+
     for( i=1; i<13; i++ ){
         if( i<10 ){
             i = '0'+String(i);
@@ -129,7 +130,7 @@ function energia_szummaz(tabla, ful){
         ossz += Number($(this).html().replace(/ /g, ''));
     });
     $('table.'+tabla+' #szum_fto'+ful_ossz).html( ezresek(ossz, '', '', ' ') );
-    
+
     /* Ha van összesen oszlop, akkor azt is szummázzuk */
     if($('table.'+tabla+' .ftossz').length){
         ossz = 0;
@@ -138,7 +139,7 @@ function energia_szummaz(tabla, ful){
         });
         $('table.'+tabla+' #szum_ftossz').html( ezresek(ossz, '', '', ' ') );
     }
-    
+
     /* Ha van mennyiség összesen, akkor azt is szummázzuk */
     if($('table.'+tabla+' .ertekossz').length){
         ossz = 0;
@@ -147,12 +148,12 @@ function energia_szummaz(tabla, ful){
         });
         $('table.'+tabla+' #szum_ertek_o').html( ezresek(ossz, '', '', ' ') );
     }
-    
+
 }
 
 /* Kijelölt sor törlése */
 function sor_torol(ful, mehet){
-    
+
     var sor = '';
     if(!$('.szamla_cont_tabla tr.kijelolve').length){
         alert2('Kérjük jelölje ki a törölni kívánt sor!', '', 'Hiba');
@@ -160,7 +161,7 @@ function sor_torol(ful, mehet){
     }else{
         sor = $('.szamla_cont_tabla tr.kijelolve').attr('id').replace('ft_ft_', '');
     }
-    
+
     $.ajax({
         url : 'fenntartasi_terv.php',
         type: 'POST',
@@ -175,7 +176,7 @@ function sor_torol(ful, mehet){
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
-                
+
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
@@ -200,12 +201,12 @@ function valtozas_jovahagyas(){
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
                 response = JSON.parse(response);
-                
+
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
                 }
-                
+
                 szurkit();
                 szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'energia');
             }
