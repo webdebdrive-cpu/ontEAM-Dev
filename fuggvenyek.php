@@ -3785,7 +3785,17 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                         foreach($oszlopok as $key => $val) {
                            if( $val['id'] === $value['id']) {
                                $val['width'] = $value['width'];
-                               $oszlopok_sorrend[] = $val;
+                               
+                               // Még véletlen se szerepelhessen egy oszlop benne duplán
+                               $mar_benne_van = false;
+                               foreach($oszlopok_sorrend as $oszl_s){
+                                   if($oszl_s['id']==$val['id']){
+                                       $mar_benne_van = true;
+                                   }
+                               }
+                               if(!$mar_benne_van){   
+                                    $oszlopok_sorrend[] = $val;
+                               }
                            }
                        }
                     }
