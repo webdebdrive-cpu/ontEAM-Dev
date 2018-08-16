@@ -2108,6 +2108,9 @@ if (isset($_GET['csv'])) {
             $csvhead    = array();
             while($fejlec_nevek = mysqli_fetch_field($query)){
                 $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+                if($fejlec_nevek -> name=='Jóváhagyott mennyiség'){
+                    $csvhead[] = iconv2($mibol, $mibe, 'Jóváhagyásra váró érték' );
+                }
             }
             fputcsv($open, $csvhead, ';');
 
@@ -2124,9 +2127,6 @@ if (isset($_GET['csv'])) {
 
                 foreach( $sorok as $kulcs => $sor ) {
 
-                    if($kulcs=='Pénznem'){
-                        $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
-                    }
                     if($kulcs=='Szállító'){
                         $sor = getErtek('nev', 'szallito', 'id', $sor);
                     }
@@ -2143,8 +2143,15 @@ if (isset($_GET['csv'])) {
                             $sor = 'nem';
                         }
                     }
+                    if($kulcs=='Pénznem'){
+                        $sor = erteklista(ERTEKLISTA_PENZNEM, $sor);
+                    }
 
                     $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+                    
+                    if($kulcs=='Jóváhagyott mennyiség'){
+                        $csvcont[] = iconv2($mibol, $mibe, number_format($sorok['Rendelési egységár ('.get_penznem().')']*$sorok['Rendelt mennyiség'], 2, ',', '') );
+                    }
                 }
                 fputcsv($open, $csvcont, ';');
             }

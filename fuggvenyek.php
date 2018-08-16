@@ -3753,6 +3753,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 array('id' => 'anyag_tabla_rend_egysegar',  'nev' => 'Rendelési egységár ('.get_penznem().')'),
                 array('id' => 'anyag_tabla_dev_rend',       'nev' => 'Deviza rend. egységár'),
                 array('id' => 'anyag_tabla_penznem',        'nev' => 'Pénzn'),
+                array('id' => 'anyag_tabla_rbs',            'nev' => 'RB-s anyag'),
             );
 
             if(isset($_GET['anyagrend'])) {
@@ -3788,7 +3789,23 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                            }
                        }
                     }
-
+                    
+                    // Ha olyan oszlop is van, ami adott felhasználónál még nincs letárolva, akkor alapértelmezett szélességgel kerüljön be
+                    foreach($oszlopok as $oszl){
+                        $van_talalat = false;
+                        foreach($oszlopok_sorrend as $oszl_s){
+                            if($oszl_s['id']==$oszl['id']){
+                                $van_talalat = true;
+                                continue;
+                            }
+                        }
+                        if(!$van_talalat){
+                            $val['id']    = $oszl['id'];
+                            $val['width'] = 40;
+                            $oszlopok_sorrend[] = $val;
+                        }
+                    }
+                    
                     $oszlopok = $oszlopok_sorrend;
                 }
             }
@@ -3889,6 +3906,12 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                 $jh_ert = $bsz['rndear']*$bsz['rndmen'];
 
                 $rndertek = getErtek('rndertek', 'cikkrendfej', 'rndid', $bsz['rndid']);
+                
+                if($bsz['kulsosnek']){
+                    $bsz['kulsosnek'] = '✓';
+                }else{
+                    $bsz['kulsosnek'] = '';
+                }
 
                 $html .= '<tr class="'.$active.$bold.'" onclick="$(\'#szamla-'.$bsz['recid'].'\').click()" data-recid="'.$bsz['recid'].'" data-i="'.$i.'" id="anyagig-sor-'.$bsz['recid'].'">';
 
@@ -3908,7 +3931,8 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     'anyag_tabla_rend_menny'    => '<td class="r nowrap" data-sort="'.$bsz['rndmen'].'">'.number_format($bsz['rndmen'], 2, ',', ' ').'</td>',
                     'anyag_tabla_rend_egysegar' => '<td class="r nowrap" id="td_rndear_'.$bsz['recid'].'" data-sort="'.$bsz['rndear'].'">'.number_format($bsz['rndear'], 2, ',', ' ').'</td>',
                     'anyag_tabla_dev_rend'      => '<td class="r nowrap">'.number_format($bsz['vrndear'], 2, ',', ' ').'</td>',
-                    'anyag_tabla_penznem'       => '<td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>'
+                    'anyag_tabla_penznem'       => '<td class="c">'.erteklista(ERTEKLISTA_PENZNEM, $bsz['kcs_21']).'</td>',
+                    'anyag_tabla_rbs'           => '<td class="c">'.$bsz['kulsosnek'].'</td>'
                 );
 
                 if(isset($_GET['anyagrend'])) {

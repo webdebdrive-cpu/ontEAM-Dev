@@ -82,6 +82,7 @@ switch($tabla) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`erkmen`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`erkear`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`igleir`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`kulsosnek`,
                                     `'.get_db_tabla().'szallito`.`nev`
                                 ');
 

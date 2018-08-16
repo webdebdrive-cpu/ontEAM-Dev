@@ -119,8 +119,8 @@ table.sar-table th div.order {
 table.sar-table th div.order:before {
     content: '';
     border-style: solid;
+    border-color: transparent transparent #6E6E6E transparent;
     border-width: 0 0.3rem 0.5rem 0.3rem;
-    border-color: transparent transparent #000 transparent;
     height: 0;
     position: absolute;
     top: 0;
@@ -131,8 +131,8 @@ table.sar-table th div.order:before {
 table.sar-table th div.order:after {
     content: '';
     border-style: solid;
+    border-color: #6E6E6E transparent transparent transparent;
     border-width: 0.5rem 0.3rem 0 0.3rem;
-    border-color: #000 transparent transparent transparent;
     height: 0;
     position: absolute;
     bottom: 0;
@@ -146,6 +146,16 @@ table.sar-table th div.order.desc:before {
 
 table.sar-table th div.order.asc:after {
     display: none;
+}
+
+table.sar-table th div.order.asc:before{
+    border-color: transparent transparent #2489FA transparent;
+    border-width: 0 0.6rem 0.9rem 0.6rem;
+}
+
+table.sar-table th div.order.desc:after{
+    border-color: #2489FA transparent transparent transparent;
+    border-width: 0.9rem 0.6rem 0 0.6rem;
 }
 
 #handlerTable th {
