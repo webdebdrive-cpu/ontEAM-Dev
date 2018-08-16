@@ -967,6 +967,9 @@ if (isset($_GET['csv'])) {
                         if($kulcs=='Költségnem név'){
                             $sor = getErtek('nev', 'ktgnem', 'id', $sor);
                         }
+                        if( strpos($kulcs, 'Devizanem')!==false ){
+                            $sor = getErtekLista(ERTEKLISTA_PENZNEM, $sor);
+                        }
                         $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
                     }
 
