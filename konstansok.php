@@ -123,9 +123,16 @@ function prigeny_fb_ele_statuszok(){
 function prigeny_bod_ele_statuszok(){
     return array(PRIGENY_STAT_FB_TERJESZT);
 }
-//Véleményezőt hozzáadni ezekben a státuszokban lehet
+// Véleményezőt hozzáadni ezekben a státuszokban lehet
 function prigeny_velemenyezo_hozzaad_statuszok(){
     return array(PRIGENY_STAT_NYITOTT, PRIGENY_STAT_VEL_ALATT, PRIGENY_STAT_HIANYPOTOLT);
+}
+
+function specialis_karakterek_mit(){
+    return array('	');
+}
+function specialis_karakterek_mivel(){
+    return array(' ');
 }
 
 //Projektkezeles státuszok

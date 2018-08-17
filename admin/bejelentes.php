@@ -1115,6 +1115,12 @@ require_once('selectek.php');
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
 
+        // Speciális karakterek szűrése
+        $mit   = specialis_karakterek_mit();
+        $mivel = specialis_karakterek_mivel();
+        $sor['hiba_text']       = str_replace($mit, $mivel, $sor['hiba_text']);
+        $sor['helyiseg_text']   = str_replace($mit, $mivel, $sor['helyiseg_text']);
+        
         foreach($akt_tomb as $tomb) {
             if( $tomb['type'] == 'autocomplete' ) {
 

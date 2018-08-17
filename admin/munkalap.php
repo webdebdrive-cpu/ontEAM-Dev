@@ -6545,6 +6545,12 @@ require('selectek.php');
         if(isset($_GET['id_hidden'])){
             $_GET['id'] = $_GET['id_hidden'];
         }
+        
+        // Speciális karakterek szűrése
+        $mit   = specialis_karakterek_mit();
+        $mivel = specialis_karakterek_mivel();
+        $sor['obj_txt'] = str_replace($mit, $mivel, $sor['obj_txt']);
+        $sor['text']    = str_replace($mit, $mivel, $sor['text']);
 
         // Jóváhagyott érték legyen formázva, úgy is csak ki van írva
         $sor['jh_ert'] = number_format($sor['jh_ert'], 0, '', ' ');

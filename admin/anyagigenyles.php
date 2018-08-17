@@ -2165,7 +2165,7 @@ if (isset($_GET['csv'])) {
                         $sor = getSzallodaNev($sor);
                     }
                     if($kulcs=='Cikk szám'){
-                        $sor = "\t".$sor;
+                        $sor = $sor;
                     }
                     if($kulcs=='Státusz'){
                         $sor = getStatText('anyagigenyles', $sor);
