@@ -264,7 +264,9 @@ require('selectek.php');
     $szamla_html .= '<div class="dn" id="telephely_hibauzibe">'. getErtek('nev', 'telephely', 'id', $sor['telephely_id']).'</div>';
 
     // Gombok nincsenek
-    $gombok = '';
+    $gombok = nl2('
+        <div class="muveletek"></div>
+    ');
 
     $js_submit_elott = 'return form_ell_admin();';
 

@@ -1848,6 +1848,12 @@ table.szamla_cont_tabla {
     width: 100%;
     user-select: none;
 }
+
+table.szamla_cont_tabla.width_auto {
+    width: auto;
+    user-select: none;
+}
+
 /* Azért adunk egy fix szélességet a névnek, hogy kereséskor, se nagyon változzon meg a táblázat szerkezete, ha egy olyan találat volna, ami túl rövid nevű */
 table.szamla_cont_tabla tr{
     border-bottom: 0.1rem solid #D6D6D6;

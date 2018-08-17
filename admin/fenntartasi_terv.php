@@ -1942,7 +1942,7 @@ if (isset($_POST['sor_torol'])) {
 
 // CSV generálása
 if (isset($_GET['csv'])) {
-    
+
     if (isset($_GET['energia'])) {
         $megnevezes .= '_energia';
     }
@@ -1972,10 +1972,10 @@ if (isset($_GET['csv'])) {
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
 
         if( $_SESSION['nyomtatas_ids'] ) {
-            
+
             // Energia egységár exportja
             if (isset($_GET['energia'])) {
-                
+
                 $fterv_sor = $adatbazis_kapcsolat->s2('stat_id ev', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
                 $sql = 'SELECT
                             `ktgnem_id` as \'Költségnem kód\',
@@ -2018,7 +2018,7 @@ if (isset($_GET['csv'])) {
                             `ear12` as \'Egységár December\',
                             `em12` as \'Mennyiség December\',
                             `ft12` as \'Érték December\'
-                            
+
                             FROM `'.get_db_tabla().'fenntartasi_terv_energia` WHERE `fenntartasi_terv_id`=\''.$_GET['id'].'\'
                             ';
                 $query      = mysqli_query($db_kapcs, $sql);
@@ -2038,14 +2038,14 @@ if (isset($_GET['csv'])) {
 //                if($fterv_sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
 //                    $energia_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$fterv_sor['ev']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
 //                }
-                
+
                 $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
                 $egysegarak  = array();
                 $mennyisegek = array();
                 $ertekek     = array();
                 $ertekek_mindosszesen = 0;
                 while( $sorok = mysqli_fetch_assoc($query) ){
-                    
+
 //                    if($fterv_sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
 //                        $energia_ear  = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$sorok['sorid']}'");
 //                    }
@@ -2063,20 +2063,20 @@ if (isset($_GET['csv'])) {
 
                         $mennyiseg_osszesen += $sorok['Mennyiség '.$honapok[$i_tmp]];
                         $ertek_osszesen     += $sorok['Érték '.$honapok[$i_tmp]];
-                        
+
                         $egysegarak[$honapok[$i_tmp]]   += $sorok['Egységár '   .$honapok[$i_tmp]];
                         $mennyisegek[$honapok[$i_tmp]]  += $sorok['Mennyiség '  .$honapok[$i_tmp]];
                         $ertekek[$honapok[$i_tmp]]      += $sorok['Érték '      .$honapok[$i_tmp]];
                     }
                     $ertekek_mindosszesen += $ertek_osszesen;
-                    
+
                     $csvcont = array();
                     foreach( $sorok as $kulcs => $sor ) {
                         if($kulcs=='Költségnem név'){
                             $sor = getErtek('nev', 'ktgnem', 'id', $sor);
                         }
                         $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
-                        
+
                         // Mee oszlop után még kalkulált oszlopot még beszűrunk
                         if($kulcs=='Mee'){
                             $csvcont[] = $mennyiseg_osszesen;
@@ -2093,7 +2093,7 @@ if (isset($_GET['csv'])) {
 
                     $i++;
                 }
-                
+
                 $csvcont = array('', '', '', '', '', $ertekek_mindosszesen);
                 foreach($honapok as $honap){
                     $csvcont[] = '';
@@ -2101,16 +2101,16 @@ if (isset($_GET['csv'])) {
                     $csvcont[] = $ertekek[$honap];
                 }
                 fputcsv($open, $csvcont, ';');
-                
+
             // Fenntartási terv exportálása
             }else{
-                
+
                 if( strstr($_SESSION['akt_sql'], 'WHERE') ) {
                     $lekerdezes_fromtol = str_replace('WHERE', "WHERE `". get_db_tabla()."$megnevezes`.`recid` IN (".$_SESSION['nyomtatas_ids'].") AND ", $lekerdezes_fromtol);
                 } else {
                     $lekerdezes_fromtol = str_replace('ORDER', "WHERE `". get_db_tabla()."$megnevezes`.`recid` IN (".$_SESSION['nyomtatas_ids'].") ORDER", $lekerdezes_fromtol);
                 }
-                
+
                 $sql = 'SELECT
                             `ikt_szam` as \'Energia terv szám\',
                             `ev` as \'Tervező év\',
@@ -2155,7 +2155,7 @@ if (isset($_GET['csv'])) {
 
                     $i++;
                 }
-                
+
             }
         }
 
@@ -2256,20 +2256,6 @@ require_once('selectek.php');
                     <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
                 </div>
             ');
-
-            $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
-            if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
-                if( $_COOKIE['csuszkaSzelesseg'] ) {
-                    $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
-                }
-            }
-
-            // Műveletek box
-            $gombok = nl2('
-                <div class="muveletek"'.$muv_style.'>
-                    '.$gombok.'
-                </div>
-            ');
         }
 
     // Módosítás gombok: ha éles, akkor semmilyen gomb nem használható
@@ -2352,23 +2338,25 @@ require_once('selectek.php');
             ').$gombok;
         }
 
+    // Ha nem éles a terv, akkor törlésnél jelezzük ezt
+    }else{
+        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A fenntartási terv már éles, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
+    }
 
+    if( $gombok ) {
         $muv_style = ' style="width: calc(100% - '.($_SESSION['defaultCsuszka'] + 16).'px);"';
         if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabla().'user'] ) {
             if( $_COOKIE['csuszkaSzelesseg'] ) {
                 $muv_style = ' style="width: calc(100% - '.(($_COOKIE['csuszkaSzelesseg'] + 16)/10).'rem);"';
             }
         }
+
         // Műveletek box
         $gombok = nl2('
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'
             </div>
         ');
-
-    // Ha nem éles a terv, akkor törlésnél jelezzük ezt
-    }else{
-        $gombok .= ' <input type="button" id="recordTorol" class="gombb_alert dn" onclick="alert2(\'A fenntartási terv már éles, így nem törölhető!\', \'\', \'Hiba\')" value="Töröl" title="Töröl">';
     }
 
 	// Új rekord felvitele
@@ -2512,7 +2500,7 @@ require_once('selectek.php');
 
 	// Energia
 	}elseif(isset($_GET['energia'])){
-        
+
         $tomb = fenntartasi_terv_energia($sor);
         $szamla_html  .= $tomb[0];
         $volt_valtozas = $tomb[1];
@@ -2570,7 +2558,7 @@ require_once('selectek.php');
 
 	// Műszaki anyag
 	}elseif(isset($_GET['muszaki_anyag'])){
-        
+
         $szamla_html .= fenntartasi_terv_muszaki_anyag($sor);
 
         // Ha van a get-ben em id, akkor azt a sort jelöljük meg
@@ -2604,7 +2592,7 @@ require_once('selectek.php');
 
 	// Rendszeres karbantartás
 	}elseif(isset($_GET['rendsz_karban'])){
-        
+
         $szamla_html .= fenntartasi_terv_rendsz_karban($sor);
 
         // Ha van a get-ben em id, akkor azt a sort jelöljük meg
@@ -2638,7 +2626,7 @@ require_once('selectek.php');
 
 	// Eseti karbantartás
 	}elseif(isset($_GET['eseti_karban'])){
-        
+
         $szamla_html .= fenntartasi_terv_eseti_karban($sor);
 
         // Ha van a get-ben em id, akkor azt a sort jelöljük meg
@@ -2672,7 +2660,7 @@ require_once('selectek.php');
 
 	// Hibaelhárítás
 	}elseif(isset($_GET['hibaelharitas'])){
-        
+
         $szamla_html .= fenntartasi_terv_hibaelharitas($sor);
 
         // Ha van a get-ben em id, akkor azt a sort jelöljük meg
@@ -2740,7 +2728,7 @@ require_once('selectek.php');
 
 	// Összesítő fül
 	}elseif(isset($_GET['osszesen']) ){
-        
+
         $szamla_html .= fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak);
 
         // Ha van a get-ben ft id, akkor azt a sort jelöljük meg
