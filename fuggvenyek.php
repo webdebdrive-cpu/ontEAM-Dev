@@ -7134,6 +7134,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
     global $adatbazis_kapcsolat;
 
     $szamla_html = '
+    <div id="fixTable">
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu energia_tabla">
         <thead>
         <tr>
@@ -7403,12 +7404,13 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
                             <td class="r" id="szum_ft12"></td>
                         </tfoot>
                     </table>
-                    <script>
-                    $(document).ready(function () {
-                        energia_szummaz(\'energia_tabla\');
-                    });
-                    </script>
-                    ');
+                </div>
+            <script>
+                $(document).ready(function () {
+                    energia_szummaz(\'energia_tabla\');
+                });
+            </script>
+        ');
 
     return array($szamla_html, $volt_valtozas);
 }
@@ -7419,6 +7421,7 @@ function fenntartasi_terv_muszaki_anyag($sor){
     global $adatbazis_kapcsolat;
 
     $szamla_html = '
+            <div id="fixTable">
                 <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu muszaki_anyag_tabla">
                 <thead>
                 <tr>
@@ -7497,12 +7500,13 @@ function fenntartasi_terv_muszaki_anyag($sor){
                                     <td class="r" id="szum_ft12"></td>
                                 </tfoot>
                             </table>
-                            <script>
-                            $(document).ready(function () {
-                                energia_szummaz(\'muszaki_anyag_tabla\');
-                            });
-                            </script>
-                            ');
+                        </div>
+                    <script>
+                        $(document).ready(function () {
+                            energia_szummaz(\'muszaki_anyag_tabla\');
+                        });
+                    </script>
+                ');
 
     return $szamla_html;
 }
@@ -7513,6 +7517,7 @@ function fenntartasi_terv_rendsz_karban($sor){
     global $adatbazis_kapcsolat;
 
     $szamla_html = '
+    <div id="fixTable">
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu rendsz_karban_tabla">
         <thead>
         <tr>
@@ -7594,12 +7599,13 @@ function fenntartasi_terv_rendsz_karban($sor){
                             <td class="r" id="szum_ft12"></td>
                         </tfoot>
                     </table>
-                    <script>
-                    $(document).ready(function () {
-                        energia_szummaz(\'rendsz_karban_tabla\');
-                    });
-                    </script>
-                    ');
+                </div>
+            <script>
+                $(document).ready(function () {
+                    energia_szummaz(\'rendsz_karban_tabla\');
+                });
+            </script>
+        ');
 
     return $szamla_html;
 }
@@ -7711,6 +7717,7 @@ function fenntartasi_terv_hibaelharitas($sor){
     global $adatbazis_kapcsolat;
 
     $szamla_html .= '
+    <div id="fixTable">
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu hibaelharitas_tabla">
         <thead>
         <tr>
@@ -7791,12 +7798,13 @@ function fenntartasi_terv_hibaelharitas($sor){
                             <td class="r" id="szum_ft12"></td>
                         </tfoot>
                     </table>
-                    <script>
-                    $(document).ready(function () {
-                        energia_szummaz(\'hibaelharitas_tabla\');
-                    });
-                    </script>
-                    ');
+                </div>
+            <script>
+            $(document).ready(function () {
+                energia_szummaz(\'hibaelharitas_tabla\');
+            });
+            </script>
+        ');
 
     return $szamla_html;
 }
@@ -7900,6 +7908,7 @@ function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak){
     global $adatbazis_kapcsolat;
 
     $szamla_html = '
+    <div id="fixTable">
         <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu osszesen_tabla">
         <thead>
         <tr>
@@ -8034,12 +8043,13 @@ function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak){
                             <td class="r" id="szum_ft12"></td>
                         </tfoot>
                     </table>
-                    <script>
-                    $(document).ready(function () {
-                        energia_szummaz(\'osszesen_tabla\');
-                    });
-                    </script>
-                    ');
+                </div>
+            <script>
+                $(document).ready(function () {
+                    energia_szummaz(\'osszesen_tabla\');
+                });
+            </script>
+        ');
 
     return $szamla_html;
 }

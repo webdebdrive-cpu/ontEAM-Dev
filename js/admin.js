@@ -1770,35 +1770,36 @@ console.log('b'+active_top);
 
 function fixTable() {
     if( $('#fixTable').length ) {
-        $('#fixTable').height($('#tartalomJobb').height() - 50);
-        $('#fixTable table').fixedHeaderTable({
-            footer: true,
-            width: '100%',
-            create: function() {
-                $('#fixTable').find('.fht-tbody table tr th').each(function() {
-                    var width = $(this).outerWidth(),
-                        index = $(this).index();
+        var tartalomHeight = $('#tartalomJobb').height(),
+            tartalomScrollHeight = $('#tartalomJobb').prop('scrollHeight');
 
-                    $('#fixTable .fht-thead thead tr th').eq(index).css({
-                        'min-width': width,
-                        'max-width': width,
-                        'width': width
+        if( tartalomScrollHeight > tartalomHeight ) {
+            $('#fixTable').height($('#tartalomJobb').height() - 50);
+            $('#fixTable table').fixedHeaderTable({
+                footer: true,
+                width: '100%',
+                create: function() {
+                    $('#fixTable').find('.fht-tbody table tr th').each(function() {
+                        var width = $(this).outerWidth(),
+                            index = $(this).index();
+
+                        $('#fixTable .fht-thead thead tr th').eq(index).css({
+                            'min-width': width,
+                            'max-width': width,
+                            'width': width
+                        });
+
+                        $('#fixTable .fht-tfoot tfoot tr td').eq(index).css({
+                            'min-width': width,
+                            'max-width': width,
+                            'width': width
+                        });
                     });
-
-                    /*$('#fixTable .fht-tbody tbody tr td').eq(index).css({
-                        'min-width': width,
-                        'max-width': width,
-                        'width': width
-                    });*/
-
-                    $('#fixTable .fht-tfoot tfoot tr td').eq(index).css({
-                        'min-width': width,
-                        'max-width': width,
-                        'width': width
-                    });
-                });
-            }
-        });
+                }
+            });
+        } else {
+            $('#fixTable table').css('width', '100%');
+        }
     }
 }
 
