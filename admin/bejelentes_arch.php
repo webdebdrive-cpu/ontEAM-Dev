@@ -212,7 +212,7 @@ require_once('selectek.php');
     }
 
     // Gombok nincsenek
-    $gombok = '';
+    $gombok = '<div class="muveletek"></div>';
 
     $js_submit_elott = 'return form_ell_admin();';
 
