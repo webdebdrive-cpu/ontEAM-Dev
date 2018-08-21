@@ -944,7 +944,16 @@ if (isset($_GET['csv'])) {
                             FROM `'.get_db_tabla().'energia_terv_ear` WHERE `energia_terv_id`=\''.$_GET['id'].'\'
                             ';
                 $query      = mysqli_query($db_kapcs, $sql);
+                
+                $eterv_sor = $adatbazis_kapcsolat->s2('ikt_szam ev stat_id', 'energia_terv', "`recid`='{$_GET['id']}'");
 
+                // CSV első sora évszám, tervszám (ha van), státusz
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, $eterv_sor['ev']);
+                $csvhead[] = iconv2($mibol, $mibe, $eterv_sor['ikt_szam']);
+                $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $eterv_sor['stat_id']) );
+                fputcsv($open, $csvhead, ';');
+                
                 $csvhead    = array();
                 while($fejlec_nevek = mysqli_fetch_field($query)){
                     $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );

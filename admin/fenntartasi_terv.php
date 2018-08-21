@@ -1028,7 +1028,7 @@ if (isset($_POST['eseti_tabla_ment'])) {
         if( $sor_id === false ) { $db_error = true; }
 
         // Logolás
-        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv Eseti karbantartás fül alatt új sort töltött fel '.$_POST['ktgnem_id'].' költségnemmel.';
+        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv Eseti fenntartás fül alatt új sort töltött fel '.$_POST['ktgnem_id'].' költségnemmel.';
         $valtozas = $adatbazis_kapcsolat->gp();
         $sql = $adatbazis_kapcsolat -> i(
                                             'log',
@@ -1044,7 +1044,7 @@ if (isset($_POST['eseti_tabla_ment'])) {
         $sor_id = $_POST['egysegarsor_id'];
 
         // Logolás
-        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv Eseti karbantartás fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
+        $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv Eseti fenntartás fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
         $valtozas = $adatbazis_kapcsolat->gp();
         $sql = $adatbazis_kapcsolat -> i(
                                             'log',
@@ -1943,8 +1943,34 @@ if (isset($_POST['sor_torol'])) {
 // CSV generálása
 if (isset($_GET['csv'])) {
 
+    $csv_cim = '';
     if (isset($_GET['energia'])) {
         $megnevezes .= '_energia';
+        $csv_cim     = 'Energia';
+    }
+    if (isset($_GET['muszaki_anyag'])) {
+        $megnevezes .= '_muszaki_anyag';
+        $csv_cim     = 'Műszaki anyag';
+    }
+    if (isset($_GET['rendsz_karban'])) {
+        $megnevezes .= '_rendszeres_karbantartas';
+        $csv_cim     = 'Rendszeres karbantartás';
+    }
+    if (isset($_GET['eseti_karban'])) {
+        $megnevezes .= '_eseti_fenntartas';
+        $csv_cim     = 'Eseti fenntartás';
+    }
+    if (isset($_GET['hibaelharitas'])) {
+        $megnevezes .= '_hibaelharitas';
+        $csv_cim     = 'Hibaelhárítás';
+    }
+    if (isset($_GET['bwh'])) {
+        $megnevezes .= '_bwh';
+        $csv_cim     = 'Cukrászat BWH';
+    }
+    if (isset($_GET['osszesen'])) {
+        $megnevezes .= '_osszesen';
+        $csv_cim     = 'Összesen';
     }
 
     header("Content-type: text/csv");
@@ -1970,13 +1996,15 @@ if (isset($_GET['csv'])) {
     if($open){
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
+        
+        // A fenntartási terv sorára is szükség lesz
+        $fterv_sor = $adatbazis_kapcsolat->s2('stat_id ev telephely_id', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
 
         if( $_SESSION['nyomtatas_ids'] ) {
 
             // Energia egységár exportja
             if (isset($_GET['energia'])) {
 
-                $fterv_sor = $adatbazis_kapcsolat->s2('stat_id ev', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
                 $sql = 'SELECT
                             `ktgnem_id` as \'Költségnem kód\',
                             `ktgnem_id` as \'Költségnem név\',
@@ -2023,10 +2051,20 @@ if (isset($_GET['csv'])) {
                             ';
                 $query      = mysqli_query($db_kapcs, $sql);
 
+                // CSV első két sora a fül neve + szálloda, évszám, státusz
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, $csv_cim);
+                fputcsv($open, $csvhead, ';');
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, getSzallodaNev($fterv_sor['telephely_id']));
+                $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ev']);
+                $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $fterv_sor['stat_id']) );
+                fputcsv($open, $csvhead, ';');
+                
                 $csvhead    = array();
                 while($fejlec_nevek = mysqli_fetch_field($query)){
                     $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
-                    // Mee oszlop után még kalkulált oszlopot még beszűrunk
+                    // Mee oszlop után a kalkulált oszlopot még beszúrjuk
                     if($fejlec_nevek -> name=='Mee'){
                         $csvhead[] = iconv2($mibol, $mibe, 'Mennyiség összesen' );
                         $csvhead[] = iconv2($mibol, $mibe, 'Érték összesen' );
@@ -2035,9 +2073,6 @@ if (isset($_GET['csv'])) {
                 fputcsv($open, $csvhead, ';');
 
                 $i = 0;
-//                if($fterv_sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
-//                    $energia_terv = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$fterv_sor['ev']}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
-//                }
 
                 $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
                 $egysegarak  = array();
@@ -2046,20 +2081,9 @@ if (isset($_GET['csv'])) {
                 $ertekek_mindosszesen = 0;
                 while( $sorok = mysqli_fetch_assoc($query) ){
 
-//                    if($fterv_sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
-//                        $energia_ear  = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$sorok['sorid']}'");
-//                    }
-
                     $mennyiseg_osszesen = 0;
                     $ertek_osszesen     = 0;
                     for($i_tmp=0; $i_tmp<12; $i_tmp++){
-
-//                        if($fterv_sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
-//                            if($energia_ear['ear'.$i_tmp]!=$energia['ear'.$i_tmp]){
-//                                $sorok['ear'.$i_tmp] = $energia_ear['ear'.$i_tmp];
-//                                $sorok['ft'.$i_tmp]  = $sorok['em'.$i_tmp]*$sorok['ear'.$i_tmp];
-//                            }
-//                        }
 
                         $mennyiseg_osszesen += $sorok['Mennyiség '.$honapok[$i_tmp]];
                         $ertek_osszesen     += $sorok['Érték '.$honapok[$i_tmp]];
@@ -2077,7 +2101,7 @@ if (isset($_GET['csv'])) {
                         }
                         $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
 
-                        // Mee oszlop után még kalkulált oszlopot még beszűrunk
+                        // Mee oszlop után a kalkulált oszlopot még beszúrjuk
                         if($kulcs=='Mee'){
                             $csvcont[] = $mennyiseg_osszesen;
                             $csvcont[] = $ertek_osszesen;
@@ -2086,7 +2110,7 @@ if (isset($_GET['csv'])) {
 
                     fputcsv($open, $csvcont, ';');
 
-                    //100 soronként kiírtatunk
+                    // 100 soronként kiírtatunk
                     if ($i % 100 == 0) {
                         flush();
                     }
@@ -2099,6 +2123,571 @@ if (isset($_GET['csv'])) {
                     $csvcont[] = '';
                     $csvcont[] = '';
                     $csvcont[] = $ertekek[$honap];
+                }
+                fputcsv($open, $csvcont, ';');
+
+            // Műszaki anyag exportja
+            }elseif (isset($_GET['muszaki_anyag'])) {
+
+                $sql = 'SELECT
+                            `ktgnem_id` as \'Költségnem kód\',
+                            `ktgnem_id` as \'Költségnem név\',
+                            `ft01` as \'Január\',
+                            `ft02` as \'Február\',
+                            `ft03` as \'Március\',
+                            `ft04` as \'Április\',
+                            `ft05` as \'Május\',
+                            `ft06` as \'Június\',
+                            `ft07` as \'Július\',
+                            `ft08` as \'Augusztus\',
+                            `ft09` as \'Szeptember\',
+                            `ft10` as \'Október\',
+                            `ft11` as \'November\',
+                            `ft12` as \'December\'
+
+                            FROM `'.get_db_tabla().'fenntartasi_terv_muszaki_anyag` WHERE `fenntartasi_terv_id`=\''.$_GET['id'].'\'
+                            ';
+                $query      = mysqli_query($db_kapcs, $sql);
+
+                // CSV első két sora a fül neve + szálloda, évszám, státusz
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, $csv_cim);
+                fputcsv($open, $csvhead, ';');
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, getSzallodaNev($fterv_sor['telephely_id']));
+                $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ev']);
+                $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $fterv_sor['stat_id']) );
+                fputcsv($open, $csvhead, ';');
+                
+                $csvhead    = array();
+                while($fejlec_nevek = mysqli_fetch_field($query)){
+                    $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+                    // Költségnem név oszlop után a kalkulált oszlopot még beszúrjuk
+                    if($fejlec_nevek -> name=='Költségnem név'){
+                        $csvhead[] = iconv2($mibol, $mibe, 'Összesen' );
+                    }
+                }
+                fputcsv($open, $csvhead, ';');
+
+                $i = 0;
+
+                $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
+                $ertekek     = array();
+                $ertekek_mindosszesen = 0;
+                while( $sorok = mysqli_fetch_assoc($query) ){
+
+                    $osszesen = 0;
+                    for($i_tmp=0; $i_tmp<12; $i_tmp++){
+
+                        $osszesen += $sorok[$honapok[$i_tmp]];
+
+                        $ertekek[$honapok[$i_tmp]]      += $sorok[$honapok[$i_tmp]];
+                    }
+                    $ertekek_mindosszesen += $osszesen;
+
+                    $csvcont = array();
+                    foreach( $sorok as $kulcs => $sor ) {
+                        if($kulcs=='Költségnem név'){
+                            $sor = getErtek('nev', 'ktgnem', 'id', $sor);
+                        }
+                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+
+                        // Költségnem név oszlop után a kalkulált oszlopot még beszúrjuk
+                        if($kulcs=='Költségnem név'){
+                            $csvcont[] = $osszesen;
+                        }
+                    }
+
+                    fputcsv($open, $csvcont, ';');
+
+                    // 100 soronként kiírtatunk
+                    if ($i % 100 == 0) {
+                        flush();
+                    }
+
+                    $i++;
+                }
+
+                $csvcont = array('', '', $ertekek_mindosszesen);
+                foreach($honapok as $honap){
+                    $csvcont[] = $ertekek[$honap];
+                }
+                fputcsv($open, $csvcont, ';');
+
+            // Rendszeres karbantartás exportja
+            }elseif (isset($_GET['rendsz_karban'])) {
+
+                $sql = 'SELECT
+                            `ktgnem_id` as \'Költségnem kód\',
+                            `ktgnem_id` as \'Költségnem név\',
+                            `targy` as \'Tárgy\',
+                            `ft01` as \'Január\',
+                            `ft02` as \'Február\',
+                            `ft03` as \'Március\',
+                            `ft04` as \'Április\',
+                            `ft05` as \'Május\',
+                            `ft06` as \'Június\',
+                            `ft07` as \'Július\',
+                            `ft08` as \'Augusztus\',
+                            `ft09` as \'Szeptember\',
+                            `ft10` as \'Október\',
+                            `ft11` as \'November\',
+                            `ft12` as \'December\'
+
+                            FROM `'.get_db_tabla().'fenntartasi_terv_rendsz_karban` WHERE `fenntartasi_terv_id`=\''.$_GET['id'].'\'
+                            ';
+                $query      = mysqli_query($db_kapcs, $sql);
+
+                // CSV első két sora a fül neve + szálloda, évszám, státusz
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, $csv_cim);
+                fputcsv($open, $csvhead, ';');
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, getSzallodaNev($fterv_sor['telephely_id']));
+                $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ev']);
+                $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $fterv_sor['stat_id']) );
+                fputcsv($open, $csvhead, ';');
+                
+                $csvhead    = array();
+                while($fejlec_nevek = mysqli_fetch_field($query)){
+                    $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+                    // Tárgy oszlop után a kalkulált oszlopot még beszúrjuk
+                    if($fejlec_nevek -> name=='Tárgy'){
+                        $csvhead[] = iconv2($mibol, $mibe, 'Összesen' );
+                    }
+                }
+                fputcsv($open, $csvhead, ';');
+
+                $i = 0;
+
+                $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
+                $ertekek     = array();
+                $ertekek_mindosszesen = 0;
+                while( $sorok = mysqli_fetch_assoc($query) ){
+
+                    $osszesen = 0;
+                    for($i_tmp=0; $i_tmp<12; $i_tmp++){
+
+                        $osszesen += $sorok[$honapok[$i_tmp]];
+
+                        $ertekek[$honapok[$i_tmp]]      += $sorok[$honapok[$i_tmp]];
+                    }
+                    $ertekek_mindosszesen += $osszesen;
+
+                    $csvcont = array();
+                    foreach( $sorok as $kulcs => $sor ) {
+                        if($kulcs=='Költségnem név'){
+                            $sor = getErtek('nev', 'ktgnem', 'id', $sor);
+                        }
+                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+
+                        // Tárgy oszlop után a kalkulált oszlopot még beszúrjuk
+                        if($kulcs=='Tárgy'){
+                            $csvcont[] = $osszesen;
+                        }
+                    }
+
+                    fputcsv($open, $csvcont, ';');
+
+                    // 100 soronként kiírtatunk
+                    if ($i % 100 == 0) {
+                        flush();
+                    }
+
+                    $i++;
+                }
+
+                $csvcont = array('', '', '', $ertekek_mindosszesen);
+                foreach($honapok as $honap){
+                    $csvcont[] = $ertekek[$honap];
+                }
+                fputcsv($open, $csvcont, ';');
+
+            // Eseti fenntartás exportja
+            }elseif (isset($_GET['eseti_karban'])) {
+
+                $sql = 'SELECT
+                            `ktgnem_id` as \'Költségnem kód\',
+                            `ktgnem_id` as \'Költségnem név\',
+                            `targy` as \'Tárgy\',
+                            `leir` as \'Részletes leírás\',
+                            `ft01` as \'Január\',
+                            `ft02` as \'Február\',
+                            `ft03` as \'Március\',
+                            `ft04` as \'Április\',
+                            `ft05` as \'Május\',
+                            `ft06` as \'Június\',
+                            `ft07` as \'Július\',
+                            `ft08` as \'Augusztus\',
+                            `ft09` as \'Szeptember\',
+                            `ft10` as \'Október\',
+                            `ft11` as \'November\',
+                            `ft12` as \'December\'
+
+                            FROM `'.get_db_tabla().'fenntartasi_terv_eseti_karban` WHERE `fenntartasi_terv_id`=\''.$_GET['id'].'\'
+                            ';
+                $query      = mysqli_query($db_kapcs, $sql);
+
+                // CSV első két sora a fül neve + szálloda, évszám, státusz
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, $csv_cim);
+                fputcsv($open, $csvhead, ';');
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, getSzallodaNev($fterv_sor['telephely_id']));
+                $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ev']);
+                $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $fterv_sor['stat_id']) );
+                fputcsv($open, $csvhead, ';');
+                
+                $csvhead    = array();
+                while($fejlec_nevek = mysqli_fetch_field($query)){
+                    $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+                    // Részletes leírás oszlop után a kalkulált oszlopot még beszúrjuk
+                    if($fejlec_nevek -> name=='Részletes leírás'){
+                        $csvhead[] = iconv2($mibol, $mibe, 'Összesen' );
+                    }
+                }
+                fputcsv($open, $csvhead, ';');
+
+                $i = 0;
+
+                $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
+                $ertekek     = array();
+                $ertekek_mindosszesen = 0;
+                while( $sorok = mysqli_fetch_assoc($query) ){
+
+                    $osszesen = 0;
+                    for($i_tmp=0; $i_tmp<12; $i_tmp++){
+
+                        $osszesen += $sorok[$honapok[$i_tmp]];
+
+                        $ertekek[$honapok[$i_tmp]]      += $sorok[$honapok[$i_tmp]];
+                    }
+                    $ertekek_mindosszesen += $osszesen;
+
+                    $csvcont = array();
+                    foreach( $sorok as $kulcs => $sor ) {
+                        if($kulcs=='Költségnem név'){
+                            $sor = getErtek('nev', 'ktgnem', 'id', $sor);
+                        }
+                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+
+                        // Részletes leírás oszlop után a kalkulált oszlopot még beszúrjuk
+                        if($kulcs=='Részletes leírás'){
+                            $csvcont[] = $osszesen;
+                        }
+                    }
+
+                    fputcsv($open, $csvcont, ';');
+
+                    // 100 soronként kiírtatunk
+                    if ($i % 100 == 0) {
+                        flush();
+                    }
+
+                    $i++;
+                }
+
+                $csvcont = array('', '', '', '', $ertekek_mindosszesen);
+                foreach($honapok as $honap){
+                    $csvcont[] = $ertekek[$honap];
+                }
+                fputcsv($open, $csvcont, ';');
+
+            // Hibalehárítás exportja
+            }elseif (isset($_GET['hibaelharitas'])) {
+
+                $sql = 'SELECT
+                            `ktgnem_id` as \'Költségnem kód\',
+                            `ktgnem_id` as \'Költségnem név\',
+                            `leir` as \'Részletes leírás\',
+                            `ft01` as \'Január\',
+                            `ft02` as \'Február\',
+                            `ft03` as \'Március\',
+                            `ft04` as \'Április\',
+                            `ft05` as \'Május\',
+                            `ft06` as \'Június\',
+                            `ft07` as \'Július\',
+                            `ft08` as \'Augusztus\',
+                            `ft09` as \'Szeptember\',
+                            `ft10` as \'Október\',
+                            `ft11` as \'November\',
+                            `ft12` as \'December\'
+
+                            FROM `'.get_db_tabla().'fenntartasi_terv_hibaelharitas` WHERE `fenntartasi_terv_id`=\''.$_GET['id'].'\'
+                            ';
+                $query      = mysqli_query($db_kapcs, $sql);
+
+                // CSV első két sora a fül neve + szálloda, évszám, státusz
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, $csv_cim);
+                fputcsv($open, $csvhead, ';');
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, getSzallodaNev($fterv_sor['telephely_id']));
+                $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ev']);
+                $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $fterv_sor['stat_id']) );
+                fputcsv($open, $csvhead, ';');
+                
+                $csvhead    = array();
+                while($fejlec_nevek = mysqli_fetch_field($query)){
+                    $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+                    // Részletes leírás oszlop után a kalkulált oszlopot még beszúrjuk
+                    if($fejlec_nevek -> name=='Részletes leírás'){
+                        $csvhead[] = iconv2($mibol, $mibe, 'Összesen' );
+                    }
+                }
+                fputcsv($open, $csvhead, ';');
+
+                $i = 0;
+
+                $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
+                $ertekek     = array();
+                $ertekek_mindosszesen = 0;
+                while( $sorok = mysqli_fetch_assoc($query) ){
+
+                    $osszesen = 0;
+                    for($i_tmp=0; $i_tmp<12; $i_tmp++){
+
+                        $osszesen += $sorok[$honapok[$i_tmp]];
+
+                        $ertekek[$honapok[$i_tmp]]      += $sorok[$honapok[$i_tmp]];
+                    }
+                    $ertekek_mindosszesen += $osszesen;
+
+                    $csvcont = array();
+                    foreach( $sorok as $kulcs => $sor ) {
+                        if($kulcs=='Költségnem név'){
+                            $sor = getErtek('nev', 'ktgnem', 'id', $sor);
+                        }
+                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+
+                        // Részletes leírás oszlop után a kalkulált oszlopot még beszúrjuk
+                        if($kulcs=='Részletes leírás'){
+                            $csvcont[] = $osszesen;
+                        }
+                    }
+
+                    fputcsv($open, $csvcont, ';');
+
+                    // 100 soronként kiírtatunk
+                    if ($i % 100 == 0) {
+                        flush();
+                    }
+
+                    $i++;
+                }
+
+                $csvcont = array('', '', '', $ertekek_mindosszesen);
+                foreach($honapok as $honap){
+                    $csvcont[] = $ertekek[$honap];
+                }
+                fputcsv($open, $csvcont, ';');
+
+            // BWH exportja
+            }elseif (isset($_GET['bwh'])) {
+
+                $sql = 'SELECT
+                            `ktgnem_id` as \'Költségnem kód\',
+                            `ktgnem_id` as \'Költségnem név\',
+                            `targy` as \'Tárgy\',
+                            `leir` as \'Részletes leírás\',
+                            `ft01` as \'Január\',
+                            `ft02` as \'Február\',
+                            `ft03` as \'Március\',
+                            `ft04` as \'Április\',
+                            `ft05` as \'Május\',
+                            `ft06` as \'Június\',
+                            `ft07` as \'Július\',
+                            `ft08` as \'Augusztus\',
+                            `ft09` as \'Szeptember\',
+                            `ft10` as \'Október\',
+                            `ft11` as \'November\',
+                            `ft12` as \'December\'
+
+                            FROM `'.get_db_tabla().'fenntartasi_terv_bwh` WHERE `fenntartasi_terv_id`=\''.$_GET['id'].'\'
+                            ';
+                $query      = mysqli_query($db_kapcs, $sql);
+
+                // CSV első két sora a fül neve + szálloda, évszám, státusz
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, $csv_cim);
+                fputcsv($open, $csvhead, ';');
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, getSzallodaNev($fterv_sor['telephely_id']));
+                $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ev']);
+                $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $fterv_sor['stat_id']) );
+                fputcsv($open, $csvhead, ';');
+                
+                $csvhead    = array();
+                while($fejlec_nevek = mysqli_fetch_field($query)){
+                    $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+                }
+                fputcsv($open, $csvhead, ';');
+
+                $i = 0;
+
+                $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
+                $ertekek     = array();
+                $ertekek_mindosszesen = 0;
+                while( $sorok = mysqli_fetch_assoc($query) ){
+
+                    $osszesen = 0;
+                    for($i_tmp=0; $i_tmp<12; $i_tmp++){
+
+                        $osszesen += $sorok[$honapok[$i_tmp]];
+
+                        $ertekek[$honapok[$i_tmp]]      += $sorok[$honapok[$i_tmp]];
+                    }
+                    $ertekek_mindosszesen += $osszesen;
+
+                    $csvcont = array();
+                    foreach( $sorok as $kulcs => $sor ) {
+                        if($kulcs=='Költségnem név'){
+                            $sor = getErtek('nev', 'ktgnem', 'id', $sor);
+                        }
+                        $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+                    }
+
+                    fputcsv($open, $csvcont, ';');
+
+                    // 100 soronként kiírtatunk
+                    if ($i % 100 == 0) {
+                        flush();
+                    }
+
+                    $i++;
+                }
+
+                $csvcont = array('', '', '', '');
+                foreach($honapok as $honap){
+                    $csvcont[] = $ertekek[$honap];
+                }
+                fputcsv($open, $csvcont, ';');
+
+            // Összesen exportja
+            }elseif (isset($_GET['osszesen'])) {
+
+                // CSV első két sora a fül neve + szálloda, évszám, státusz
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, $csv_cim);
+                fputcsv($open, $csvhead, ';');
+                $csvhead    = array();
+                $csvhead[] = iconv2($mibol, $mibe, getSzallodaNev($fterv_sor['telephely_id']));
+                $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ev']);
+                $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $fterv_sor['stat_id']) );
+                fputcsv($open, $csvhead, ';');
+                
+                $fofo_mindosszesen = 0;
+                $fofo_ertekek      = array();
+                $tabla_postok = array(
+                                        array('tabla' => 'energia',         'nev' => 'Energia'),
+                                        array('tabla' => 'muszaki_anyag',   'nev' => 'Műszaki anyag'),
+                                        array('tabla' => 'rendsz_karban',   'nev' => 'Rendszeres karbantartás'),
+                                        array('tabla' => 'eseti_karban',    'nev' => 'Eseti fenntartás'),
+                                        array('tabla' => 'hibaelharitas',   'nev' => 'Hibaelhárítás'),
+                                        
+                                    );
+                // BWH feltétele
+                $sajat_szallodak = get_akt_login_szallodai();
+                if( in_array(2120, $sajat_szallodak) && $fterv_sor['telephely_id']==2120 ){
+                    array_push($tabla_postok, array('tabla' => 'bwh', 'nev' => 'Cukrászda BWH'));
+                }
+                foreach($tabla_postok as $tabla_post){
+                    $sql = 'SELECT
+                                `ktgnem_id` as \'Költségnem kód\',
+                                `ktgnem_id` as \'Költségnem név\',
+                                `ft01` as \'Január\',
+                                `ft02` as \'Február\',
+                                `ft03` as \'Március\',
+                                `ft04` as \'Április\',
+                                `ft05` as \'Május\',
+                                `ft06` as \'Június\',
+                                `ft07` as \'Július\',
+                                `ft08` as \'Augusztus\',
+                                `ft09` as \'Szeptember\',
+                                `ft10` as \'Október\',
+                                `ft11` as \'November\',
+                                `ft12` as \'December\'
+
+                                FROM `'.get_db_tabla().'fenntartasi_terv_'.$tabla_post['tabla'].'` WHERE `fenntartasi_terv_id`=\''.$_GET['id'].'\'
+                                GROUP BY `ktgnem_id`
+                                ';
+                    $query      = mysqli_query($db_kapcs, $sql);
+
+                    if($tabla_post['tabla']=='energia'){
+                        $csvhead    = array();
+                        while($fejlec_nevek = mysqli_fetch_field($query)){
+                            $csvhead[] = iconv2($mibol, $mibe, $fejlec_nevek -> name );
+                            // Költségnem név oszlop után a kalkulált oszlopot még beszúrjuk
+                            if($fejlec_nevek -> name=='Költségnem név'){
+                                $csvhead[] = iconv2($mibol, $mibe, 'Összesen' );
+                            }
+                        }
+                        fputcsv($open, $csvhead, ';');
+                    }
+                    $i = 0;
+
+                    $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
+                    $ertekek     = array();
+                    $ertekek_mindosszesen = 0;
+                    while( $sorok = mysqli_fetch_assoc($query) ){
+                        
+                        // Kinullázzuk az értéket, mert a GroupBy-ozott sorokat összeadogatjuk
+                        for($i_tmp=0; $i_tmp<12; $i_tmp++){
+                            $sorok[$honapok[$i_tmp]] = 0;
+                        }
+                        $group_sorok = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_'.$tabla_post['tabla'], "`fenntartasi_terv_id`='{$_GET['id']}' AND `ktgnem_id`='{$sorok['Költségnem kód']}'");
+                        foreach($group_sorok as $g_sorok){
+                            
+                            for($i_tmp=1; $i_tmp<13; $i_tmp++){
+                                if($i_tmp<10){
+                                    $i_tmp = '0'.$i_tmp;
+                                }
+                                $sorok[$honapok[(int)$i_tmp-1]] += $g_sorok['ft'.$i_tmp];
+                            }
+                        }
+                        
+                        $osszesen = 0;
+                        for($i_tmp=0; $i_tmp<12; $i_tmp++){
+
+                            $osszesen += $sorok[$honapok[$i_tmp]];
+
+                            $ertekek[$honapok[$i_tmp]]      += $sorok[$honapok[$i_tmp]];
+                            $fofo_ertekek[$honapok[$i_tmp]] += $sorok[$honapok[$i_tmp]];
+                        }
+                        $ertekek_mindosszesen += $osszesen;
+                        $fofo_mindosszesen    += $osszesen;
+
+                        $csvcont = array();
+                        foreach( $sorok as $kulcs => $sor ) {
+                            if($kulcs=='Költségnem név'){
+                                $sor = getErtek('nev', 'ktgnem', 'id', $sor);
+                            }
+                            $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sor ) ) );
+
+                            // Költségnem név oszlop után a kalkulált oszlopot még beszúrjuk
+                            if($kulcs=='Költségnem név'){
+                                $csvcont[] = $osszesen;
+                            }
+                        }
+
+                        fputcsv($open, $csvcont, ';');
+
+                        // 100 soronként kiírtatunk
+                        if ($i % 100 == 0) {
+                            flush();
+                        }
+
+                        $i++;
+                    }
+                    $csvcont = array('', iconv2($mibol, $mibe, $tabla_post['nev'].' összesen'), $ertekek_mindosszesen);
+                    foreach($honapok as $honap){
+                        $csvcont[] = $ertekek[$honap];
+                    }
+                    fputcsv($open, $csvcont, ';');
+                }
+                $csvcont = array('', '', $fofo_mindosszesen);
+                foreach($honapok as $honap){
+                    $csvcont[] = $fofo_ertekek[$honap];
                 }
                 fputcsv($open, $csvcont, ';');
 
@@ -2213,7 +2802,7 @@ require_once('selectek.php');
             'energia'       => 'Energia',
             'muszaki_anyag' => 'Műszaki anyag',
             'rendsz_karban' => 'Rendszeres karbantartás',
-            'eseti_karban'  => 'Eseti karbantartás',
+            'eseti_karban'  => 'Eseti fenntartás',
             'hibaelharitas' => 'Hibaelhárítás',
             'bwh'           => 'Cukrászat BWH',
             'osszesen'      => 'Összesen',

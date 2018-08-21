@@ -5350,10 +5350,7 @@ function csv_general( that, valasztos, link_kieg ) {
 
         /* Energia tervnél lehet választani, hogy tervet, vagy Egységárakat szeretne-e nyomtatni */
         if( baseName(location.href) == 'energia_terv' ){
-            alert2('Válasszon exportot fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Energia tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'egysegarak&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
-        }
-        if( baseName(location.href) == 'fenntartasi_terv' ){
-            alert2('Válasszon exportot fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Fenntartási tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'energia&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
+            alert2('Válasszon export fajtát:<br><a href="javascript:csv_general($(\'.excel\'))">» Energia tervek exportálása</a><br><a href="javascript:csv_general($(\'.excel\'), \'\', \'egysegarak&id=\'+_get(\'id\'))">» Egységárak exportálása</a>', '<input type="button" class="gomb" value="Mégsem" onclick="alert2()">', 'Válasszon exportot');
         }
 
     }else{
@@ -5384,7 +5381,7 @@ function csv_general( that, valasztos, link_kieg ) {
             if( ids.length ) {
                 var onclick = $(that).attr('onclick');
 
-                $(that).attr('href', get_get() + '&csv&'+link_kieg).removeAttr('onclick');
+                $(that).attr('href', get_get(['egysegarak']) + '&csv&'+link_kieg).removeAttr('onclick');
                 $(that)[0].click();
                 $(that).attr('onclick', onclick).removeAttr('href');
             } else {
