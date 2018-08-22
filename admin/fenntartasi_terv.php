@@ -394,7 +394,12 @@ if (isset($_POST['get_energia_tabla'])) {
         $ft_energia = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_energia', "`recid`='{$id}'");
         $felirat = '';
         if($ft_energia['ktgnem_id']){
-            $felirat = '<b>'.getErtek('nev', 'ktgnem', 'id', $ft_energia['ktgnem_id']).' kitöltése:</b><br><br>';
+            $felirat = nl2('
+                            <b>'.getErtek('nev', 'ktgnem', 'id', $ft_energia['ktgnem_id']).' kitöltése
+                            <br>Tárgy: '.$ft_energia['dijelem'].'</b>
+                            <br>
+                            <br>
+                            ');
         }
         if( $ft_energia ) {
             $html = nl2('
@@ -420,23 +425,10 @@ if (isset($_POST['get_energia_tabla'])) {
 
             $html .= nl2('
                     <div class="dtr">
-                        <div class="dtc" style="padding-right: 0.5rem;">Összesen</div>
-                        <div class="dtc r b"><span id="popup_tabla_osszesen_sor">'. number_format($osszesen, 2, ',', ' ').'</span> '.$ft_energia['mee'].'</div>
+                        <div class="dtc b" style="padding-right: 0.5rem;">Összesen</div>
+                        <div class="dtc r b"><span id="popup_tabla_osszesen_sor">'. number_format($osszesen, 0, ',', ' ').'</span> '.$ft_energia['mee'].'</div>
                     </div>
                 </div>
-                <script>
-                $(document).on(\'input\', \'input.popup_mennyisegek\', function(e) {
-                    popup_tabla_osszesit();
-                });
-                function popup_tabla_osszesit(){
-                    var popup_osszesen = 0;
-                    $( \'input.popup_mennyisegek\').each(function () {
-                        ertek = $(this).val().replace(/ /g, \'\').replace(\',\', \'.\');
-                        popup_osszesen += Number(ertek);
-                    });
-                    $(\'#popup_tabla_osszesen_sor\').html(ezresek(popup_osszesen, 2, \',\', \' \'));
-                }
-                </script>
                     ');
         }
 
@@ -601,8 +593,8 @@ if (isset($_POST['get_muszaki_tabla'])) {
 
             $html .= nl2('
                     <div class="dtr">
-                        <div class="dtc" style="padding-right: 0.5rem;">Összesen</div>
-                        <div class="dtc r b"><span id="popup_tabla_osszesen_sor">'. number_format($osszesen, 2, ',', ' ').'</span> '.$ft_energia['mee'].'</div>
+                        <div class="dtc b" style="padding-right: 0.5rem;">Összesen</div>
+                        <div class="dtc r b"><span id="popup_tabla_osszesen_sor">'. number_format($osszesen, 0, ',', ' ').'</span> '.$ft_energia['mee'].'</div>
                     </div>
                 </div>
                 <script>
@@ -615,7 +607,7 @@ if (isset($_POST['get_muszaki_tabla'])) {
                         ertek = $(this).val().replace(/ /g, \'\').replace(\',\', \'.\');
                         popup_osszesen += Number(ertek);
                     });
-                    $(\'#popup_tabla_osszesen_sor\').html(ezresek(popup_osszesen, 2, \',\', \' \'));
+                    $(\'#popup_tabla_osszesen_sor\').html(ezresek(popup_osszesen, 0, \',\', \' \'));
                 }
                 </script>
                 ');
@@ -755,13 +747,18 @@ if (isset($_POST['get_rendszeres_tabla'])) {
         // Sor lekérdezése
         $rendszeres = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_rendsz_karban', "`recid`='{$id}'");
         if( $rendszeres || $uj ) {
-
+            
+            $felirat = '';
+            if($rendszeres['ktgnem_id']){
+                $felirat = '<b>'.getErtek('nev', 'ktgnem', 'id', $rendszeres['ktgnem_id']).' kitöltése:</b><br><br>';
+            }
+            
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if($uj){
-                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7031%'");
-                $ktgnem_option = tomb2option($ktgnem_option, 'id', 'nev');
-                $ktgnem_select = nl2('
+                $ktgnem_option  = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7031%'");
+                $ktgnem_option  = tomb2option($ktgnem_option, 'id', 'nev');
+                $ktgnem_select  = nl2('
                     <div class="dtr">
                         <div class="dtc">Költségnem</div>
                         <div class="dtc">
@@ -778,34 +775,44 @@ if (isset($_POST['get_rendszeres_tabla'])) {
                     ');
             }
             $html = nl2('
-                <div class="dt egysegarak_tablazat" style="width: auto">
+                '.$felirat.'
+                <div class="dt egysegarak_tablazat" style="width: 100%">
                     '.$ktgnem_select.'
                     <div class="dtr">
-                        <div class="dtc">Tárgy</div> 
+                        <div class="dtc" style="width: 8.3rem">Tárgy</div> 
                         <div class="dtc"><input type="text" name="targy" id="targy" value="'.$rendszeres['targy'].'" maxlength="200" style="min-width: 90%; max-width: 90%"></div>
                     </div>
                     <div class="dtr">
                         <div class="dtc padd">&nbsp;</div>
                         <div class="dtc padd">&nbsp;</div>
                     </div>
+                </div>
+                <div class="dt egysegarak_tablazat" style="width: auto">
                     <div class="dtr">
                         <div class="dtc"></div>
                         <div class="dtc">Összeg</div>
                     </div>
             ');
 
+            $osszesen = 0;
             foreach($honapok as $key => $honap) {
                 $sorszam = sprintf('%02d', $key + 1);
-
+                $osszesen += $rendszeres['ft'.$sorszam];
                 $html .= nl2('
                     <div class="dtr">
                         <div class="dtc" style="padding-right: 0.5rem;">'.$honap.'</div>
-                        <div class="dtc"><input type="text" name="ft'.$sorszam.'" id="ft'.$sorszam.'" class="f_num" data-tort="0" value="'.number_format($rendszeres['ft'.$sorszam], 0, '', ' ').'"></div>
+                        <div class="dtc"><input type="text" name="ft'.$sorszam.'" id="ft'.$sorszam.'" class="f_num popup_mennyisegek" data-tort="0" value="'.number_format($rendszeres['ft'.$sorszam], 0, '', ' ').'"></div>
                     </div>
                 ');
             }
 
-            $html .= '</div>';
+            $html .= nl2('
+                    <div class="dtr">
+                        <div class="dtc b" style="padding-right: 0.5rem;">Összesen</div>
+                        <div class="dtc r b"><span id="popup_tabla_osszesen_sor">'. number_format($osszesen, 0, ',', ' ').'</span> '.$ft_energia['mee'].'</div>
+                    </div>
+                </div>
+                        ');
         }
 
         echo json_encode(array(
@@ -814,7 +821,7 @@ if (isset($_POST['get_rendszeres_tabla'])) {
         ));
     } else {
         echo json_encode(array(
-            'hiba' => 'Műszaki anyag megadásához válasszon ki egy sort!'
+            'hiba' => 'Rendszeres karbantartáshoz megadásához válasszon ki egy sort!'
         ));
     }
 
@@ -946,6 +953,11 @@ if (isset($_POST['get_eseti_tabla'])) {
         $eseti = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_eseti_karban', "`recid`='{$id}'");
         if( $eseti || $uj ) {
 
+            $felirat = '';
+            if($eseti['ktgnem_id']){
+                $felirat = '<b>'.getErtek('nev', 'ktgnem', 'id', $eseti['ktgnem_id']).' kitöltése:</b><br><br>';
+            }
+            
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if($uj){
@@ -968,10 +980,11 @@ if (isset($_POST['get_eseti_tabla'])) {
                     ');
             }
             $html = nl2('
+                '.$felirat.'
                 <div class="dt egysegarak_tablazat" style="width: auto">
                     '.$ktgnem_select.'
                     <div class="dtr">
-                        <div class="dtc">Tárgy</div>
+                        <div class="dtc" style="min-width: 8.7rem">Tárgy</div>
                         <div class="dtc"><input type="text" name="targy" id="targy" value="'.$eseti['targy'].'" maxlength="200"></div>
                     </div>
                     <div class="dtr">
@@ -982,24 +995,33 @@ if (isset($_POST['get_eseti_tabla'])) {
                         <div class="dtc padd">&nbsp;</div>
                         <div class="dtc padd">&nbsp;</div>
                     </div>
+                </div>
+                <div class="dt egysegarak_tablazat" style="width: auto">
                     <div class="dtr">
                         <div class="dtc"></div>
                         <div class="dtc">Összeg</div>
                     </div>
             ');
 
+            $osszesen = 0;
             foreach($honapok as $key => $honap) {
                 $sorszam = sprintf('%02d', $key + 1);
-
+                $osszesen += $eseti['ft'.$sorszam];
                 $html .= nl2('
                     <div class="dtr">
                         <div class="dtc" style="padding-right: 0.5rem;">'.$honap.'</div>
-                        <div class="dtc"><input type="text" name="ft'.$sorszam.'" id="ft'.$sorszam.'" class="f_num" data-tort="0" value="'.number_format($eseti['ft'.$sorszam], 0, '', ' ').'"></div>
+                        <div class="dtc"><input type="text" name="ft'.$sorszam.'" id="ft'.$sorszam.'" class="f_num popup_mennyisegek" data-tort="0" value="'.number_format($eseti['ft'.$sorszam], 0, '', ' ').'"></div>
                     </div>
                 ');
             }
 
-            $html .= '</div>';
+            $html .= nl2('
+                    <div class="dtr">
+                        <div class="dtc b" style="padding-right: 0.5rem;">Összesen</div>
+                        <div class="dtc r b"><span id="popup_tabla_osszesen_sor">'. number_format($osszesen, 0, ',', ' ').'</span> '.$ft_energia['mee'].'</div>
+                    </div>
+                </div>
+                    ');
         }
 
         echo json_encode(array(
@@ -1008,7 +1030,7 @@ if (isset($_POST['get_eseti_tabla'])) {
         ));
     } else {
         echo json_encode(array(
-            'hiba' => 'Műszaki anyag megadásához válasszon ki egy sort!'
+            'hiba' => 'Eseti fenntartás megadásához válasszon ki egy sort!'
         ));
     }
 
@@ -1139,6 +1161,11 @@ if (isset($_POST['get_hiba_tabla'])) {
         $hiba = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_hibaelharitas', "`recid`='{$id}'");
         if( $hiba || $uj ) {
 
+            $felirat = '';
+            if($hiba['ktgnem_id']){
+                $felirat = '<b>'.getErtek('nev', 'ktgnem', 'id', $hiba['ktgnem_id']).' kitöltése:</b><br><br>';
+            }
+            
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if($uj){
@@ -1161,34 +1188,44 @@ if (isset($_POST['get_hiba_tabla'])) {
                     ');
             }
             $html = nl2('
-                <div class="dt egysegarak_tablazat" style="width: 100%">
+                '.$felirat.'
+                <div class="dt egysegarak_tablazat">
                     '.$ktgnem_select.'
                     <div class="dtr">
-                        <div class="dtc">Leírás</div>
+                        <div class="dtc" style="min-width: 8.7rem">Leírás</div>
                         <div class="dtc"><textarea name="leir" id="leir">'.$hiba['leir'].'</textarea></div>
                     </div>
                     <div class="dtr">
                         <div class="dtc padd">&nbsp;</div>
                         <div class="dtc padd">&nbsp;</div>
                     </div>
+                </div>
+                <div class="dt egysegarak_tablazat" style="width: auto">
                     <div class="dtr">
                         <div class="dtc"></div>
                         <div class="dtc">Összeg</div>
                     </div>
             ');
 
+            $osszesen = 0;
             foreach($honapok as $key => $honap) {
                 $sorszam = sprintf('%02d', $key + 1);
-
+                $osszesen += $hiba['ft'.$sorszam];
                 $html .= nl2('
                     <div class="dtr">
                         <div class="dtc" style="padding-right: 0.5rem;">'.$honap.'</div>
-                        <div class="dtc"><input type="text" name="ft'.$sorszam.'" id="ft'.$sorszam.'" class="f_num" data-tort="0" value="'.number_format($hiba['ft'.$sorszam], 0, '', ' ').'"></div>
+                        <div class="dtc"><input type="text" name="ft'.$sorszam.'" id="ft'.$sorszam.'" class="f_num popup_mennyisegek" data-tort="0" value="'.number_format($hiba['ft'.$sorszam], 0, '', ' ').'"></div>
                     </div>
                 ');
             }
 
-            $html .= '</div>';
+            $html .= nl2('
+                    <div class="dtr">
+                        <div class="dtc b" style="padding-right: 0.5rem;">Összesen</div>
+                        <div class="dtc r b"><span id="popup_tabla_osszesen_sor">'. number_format($osszesen, 0, ',', ' ').'</span></div>
+                    </div>
+                </div>
+                    ');
         }
 
         echo json_encode(array(
@@ -1197,7 +1234,7 @@ if (isset($_POST['get_hiba_tabla'])) {
         ));
     } else {
         echo json_encode(array(
-            'hiba' => 'Műszaki anyag megadásához válasszon ki egy sort!'
+            'hiba' => 'Hibaelhárítás megadásához válasszon ki egy sort!'
         ));
     }
 
@@ -1327,6 +1364,11 @@ if (isset($_POST['get_bwh_tabla'])) {
         // Sor lekérdezése
         $bwh = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_bwh', "`recid`='{$id}'");
         if( $bwh || $uj ) {
+            
+            $felirat = '';
+            if($bwh['ktgnem_id']){
+                $felirat = '<b>'.getErtek('nev', 'ktgnem', 'id', $bwh['ktgnem_id']).' kitöltése:</b><br><br>';
+            }
 
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
@@ -1350,7 +1392,8 @@ if (isset($_POST['get_bwh_tabla'])) {
                     ');
             }
             $html = nl2('
-                <div class="dt egysegarak_tablazat" style="width: 100%">
+                '.$felirat.'
+                <div class="dt egysegarak_tablazat">
                     '.$ktgnem_select.'
                     <div class="dtr">
                         <div class="dtc">Tárgy</div>
@@ -1364,24 +1407,33 @@ if (isset($_POST['get_bwh_tabla'])) {
                         <div class="dtc padd">&nbsp;</div>
                         <div class="dtc padd">&nbsp;</div>
                     </div>
+                </div>
+                <div class="dt egysegarak_tablazat" style="width: auto">
                     <div class="dtr">
                         <div class="dtc"></div>
                         <div class="dtc">Összeg</div>
                     </div>
             ');
 
+            $osszesen = 0;
             foreach($honapok as $key => $honap) {
                 $sorszam = sprintf('%02d', $key + 1);
-
+                $osszesen += $bwh['ft'.$sorszam];
                 $html .= nl2('
                     <div class="dtr">
                         <div class="dtc" style="padding-right: 0.5rem;">'.$honap.'</div>
-                        <div class="dtc"><input type="text" name="ft'.$sorszam.'" id="ft'.$sorszam.'" class="f_num" data-tort="0" value="'.number_format($bwh['ft'.$sorszam], 0, '', ' ').'"></div>
+                        <div class="dtc"><input type="text" name="ft'.$sorszam.'" id="ft'.$sorszam.'" class="f_num popup_mennyisegek" data-tort="0" value="'.number_format($bwh['ft'.$sorszam], 0, '', ' ').'"></div>
                     </div>
                 ');
             }
 
-            $html .= '</div>';
+            $html .= nl2('
+                    <div class="dtr">
+                        <div class="dtc b" style="padding-right: 0.5rem;">Összesen</div>
+                        <div class="dtc r b"><span id="popup_tabla_osszesen_sor">'. number_format($osszesen, 0, ',', ' ').'</span></div>
+                    </div>
+                </div>
+                    ');
         }
 
         echo json_encode(array(
@@ -1390,7 +1442,7 @@ if (isset($_POST['get_bwh_tabla'])) {
         ));
     } else {
         echo json_encode(array(
-            'hiba' => 'Műszaki anyag megadásához válasszon ki egy sort!'
+            'hiba' => 'BWH megadásához válasszon ki egy sort!'
         ));
     }
 
@@ -2050,7 +2102,7 @@ if (isset($_GET['csv'])) {
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));
         
         // A fenntartási terv sorára is szükség lesz
-        $fterv_sor = $adatbazis_kapcsolat->s2('stat_id ev telephely_id', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
+        $fterv_sor = $adatbazis_kapcsolat->s2('stat_id ev telephely_id ikt_szam', 'fenntartasi_terv', "`recid`='{$_GET['id']}'");
 
         if( $_SESSION['nyomtatas_ids'] ) {
 
@@ -2111,6 +2163,7 @@ if (isset($_GET['csv'])) {
                 $csvhead[] = iconv2($mibol, $mibe, getSzallodaNev($fterv_sor['telephely_id']));
                 $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ev']);
                 $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $fterv_sor['stat_id']) );
+                $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ikt_szam'] );
                 fputcsv($open, $csvhead, ';');
                 
                 $csvhead    = array();
@@ -2209,6 +2262,7 @@ if (isset($_GET['csv'])) {
                 $csvhead[] = iconv2($mibol, $mibe, getSzallodaNev($fterv_sor['telephely_id']));
                 $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ev']);
                 $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $fterv_sor['stat_id']) );
+                $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ikt_szam']);
                 fputcsv($open, $csvhead, ';');
                 
                 $csvhead    = array();
@@ -2298,6 +2352,7 @@ if (isset($_GET['csv'])) {
                 $csvhead[] = iconv2($mibol, $mibe, getSzallodaNev($fterv_sor['telephely_id']));
                 $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ev']);
                 $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $fterv_sor['stat_id']) );
+                $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ikt_szam']);
                 fputcsv($open, $csvhead, ';');
                 
                 $csvhead    = array();
@@ -2388,6 +2443,7 @@ if (isset($_GET['csv'])) {
                 $csvhead[] = iconv2($mibol, $mibe, getSzallodaNev($fterv_sor['telephely_id']));
                 $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ev']);
                 $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $fterv_sor['stat_id']) );
+                $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ikt_szam']);
                 fputcsv($open, $csvhead, ';');
                 
                 $csvhead    = array();
@@ -2477,6 +2533,7 @@ if (isset($_GET['csv'])) {
                 $csvhead[] = iconv2($mibol, $mibe, getSzallodaNev($fterv_sor['telephely_id']));
                 $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ev']);
                 $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $fterv_sor['stat_id']) );
+                $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ikt_szam']);
                 fputcsv($open, $csvhead, ';');
                 
                 $csvhead    = array();
@@ -2567,6 +2624,7 @@ if (isset($_GET['csv'])) {
                 $csvhead[] = iconv2($mibol, $mibe, getSzallodaNev($fterv_sor['telephely_id']));
                 $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ev']);
                 $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $fterv_sor['stat_id']) );
+                $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ikt_szam']);
                 fputcsv($open, $csvhead, ';');
                 
                 $csvhead    = array();
@@ -2626,6 +2684,7 @@ if (isset($_GET['csv'])) {
                 $csvhead[] = iconv2($mibol, $mibe, getSzallodaNev($fterv_sor['telephely_id']));
                 $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ev']);
                 $csvhead[] = iconv2($mibol, $mibe, getStatText('fenntartasi_terv', $fterv_sor['stat_id']) );
+                $csvhead[] = iconv2($mibol, $mibe, $fterv_sor['ikt_szam']);
                 fputcsv($open, $csvhead, ';');
                 
                 $fofo_mindosszesen = 0;

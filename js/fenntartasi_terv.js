@@ -213,3 +213,16 @@ function valtozas_jovahagyas(){
         }
     });
 }
+
+/* Kitöltés popup-okra az összesítő működése */
+$(document).on('input', 'input.popup_mennyisegek', function(e) {
+    popup_tabla_osszesit();
+});
+function popup_tabla_osszesit(){
+    var popup_osszesen = 0;
+    $( 'input.popup_mennyisegek').each(function () {
+        ertek = $(this).val().replace(/ /g, '').replace(',', '.');
+        popup_osszesen += Number(ertek);
+    });
+    $('#popup_tabla_osszesen_sor').html(ezresek(popup_osszesen, 0, ',', ' '));
+}
