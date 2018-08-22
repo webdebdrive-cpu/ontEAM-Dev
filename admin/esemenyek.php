@@ -323,7 +323,7 @@ switch($tabla) {
     break;
     case 'energia_terv.php':
         // Ezeket a tábla oszlopokat kérdezzük le baloldalra
-        $_OPTS['select']    = 'recid, ikt_szam, ev, stat_id';
+        $_OPTS['select']    = 'recid, ikt_szam, ev, stat_id, text';
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
         $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'ev'     );

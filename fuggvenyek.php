@@ -3653,6 +3653,9 @@ function energia_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 <td style="width: 3.6rem">'.$bsz['ev'].'</td>
                                 <td>'.getStatText('energia_terv', $bsz['stat_id']).'</td>
                             </tr>
+                            <tr>
+                                <td colspan="3">'.$bsz['text'].'</td>
+                            </tr>
                             </table>
                         </a>';
 
