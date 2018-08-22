@@ -1114,6 +1114,8 @@ require_once('selectek.php');
         }
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
+        $sor['hiba_text'] = str_replace(array('	'), array(' '), $sor['hiba_text']);
+        $sor['hiba_text'] = preg_replace("/[[:blank:]]+/", ' ', $sor['hiba_text']);
 
         // Speciális karakterek szűrése
         $mit   = specialis_karakterek_mit();

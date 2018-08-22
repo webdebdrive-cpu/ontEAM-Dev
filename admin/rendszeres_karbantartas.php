@@ -501,6 +501,9 @@ require_once('selectek.php');
         }
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
+        
+        $sor['leiras'] = str_replace(array('	'), array(' '), $sor['leiras']);
+        $sor['leiras'] = preg_replace("/[[:blank:]]+/", ' ', $sor['leiras']);
 
         // 0-ék helyett használjunk üres stringet
         foreach($sor as $kulcs => $ertek){

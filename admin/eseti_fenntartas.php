@@ -373,6 +373,9 @@ require_once('selectek.php');
         }
 
 	    $sor = $adatbazis_kapcsolat -> s2('*', $megnevezes, 'recid='.$_GET['id']);
+        
+        $sor['leiras'] = str_replace(array('	'), array(' '), $sor['leiras']);
+        $sor['leiras'] = preg_replace("/[[:blank:]]+/", ' ', $sor['leiras']);
 
         // Régi adatbázisól jövő adatok miatt szükséges:
         if($sor['cikltip']=='d'){
