@@ -3605,6 +3605,9 @@ function fenntartasi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                                 <td style="width: 7rem">'.getStatText('energia_terv', $bsz['stat_id']).'</td>
                                 <td>'.$szalloda_neve.'</td>
                             </tr>
+                            <tr>
+                                <td colspan="4">'.$bsz['text'].'</td>
+                            </tr>
                             </table>
                         </a>';
 

@@ -392,8 +392,13 @@ if (isset($_POST['get_energia_tabla'])) {
 
         // Egységár sor lekérdezése
         $ft_energia = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_energia', "`recid`='{$id}'");
+        $felirat = '';
+        if($ft_energia['ktgnem_id']){
+            $felirat = '<b>'.getErtek('nev', 'ktgnem', 'id', $ft_energia['ktgnem_id']).' kitöltése:</b><br><br>';
+        }
         if( $ft_energia ) {
             $html = nl2('
+                '.$felirat.'
                 <div class="dt egysegarak_tablazat" style="width: auto">
                     <div class="dtr">
                         <div class="dtc"></div>
@@ -401,18 +406,38 @@ if (isset($_POST['get_energia_tabla'])) {
                     </div>
             ');
 
+            $osszesen = 0;
             foreach($honapok as $key => $honap) {
                 $sorszam = sprintf('%02d', $key + 1);
-
+                $osszesen += $ft_energia['em'.$sorszam];
                 $html .= nl2('
                     <div class="dtr">
                         <div class="dtc" style="padding-right: 0.5rem;">'.$honap.'</div>
-                        <div class="dtc"><input type="text" name="em'.$sorszam.'" id="em'.$sorszam.'" class="f_num" data-tort="2" value="'.number_format($ft_energia['em'.$sorszam], 2, ',', ' ').'"></div>
+                        <div class="dtc"><input type="text" name="em'.$sorszam.'" id="em'.$sorszam.'" class="f_num popup_mennyisegek" data-tort="2" value="'.number_format($ft_energia['em'.$sorszam], 2, ',', ' ').'"> '.$ft_energia['mee'].'</div>
                     </div>
                 ');
             }
 
-            $html .= '</div>';
+            $html .= nl2('
+                    <div class="dtr">
+                        <div class="dtc" style="padding-right: 0.5rem;">Összesen</div>
+                        <div class="dtc r b"><span id="popup_tabla_osszesen_sor">'. number_format($osszesen, 2, ',', ' ').'</span> '.$ft_energia['mee'].'</div>
+                    </div>
+                </div>
+                <script>
+                $(document).on(\'input\', \'input.popup_mennyisegek\', function(e) {
+                    popup_tabla_osszesit();
+                });
+                function popup_tabla_osszesit(){
+                    var popup_osszesen = 0;
+                    $( \'input.popup_mennyisegek\').each(function () {
+                        ertek = $(this).val().replace(/ /g, \'\').replace(\',\', \'.\');
+                        popup_osszesen += Number(ertek);
+                    });
+                    $(\'#popup_tabla_osszesen_sor\').html(ezresek(popup_osszesen, 2, \',\', \' \'));
+                }
+                </script>
+                    ');
         }
 
         echo json_encode(array(
@@ -546,7 +571,13 @@ if (isset($_POST['get_muszaki_tabla'])) {
                     ');
             }
 
+            $felirat = '';
+            if($muszaki_anyag['ktgnem_id']){
+                $felirat = '<b>'.getErtek('nev', 'ktgnem', 'id', $muszaki_anyag['ktgnem_id']).' kitöltése:</b><br><br>';
+            }
+            
             $html = nl2('
+                '.$felirat.'
                 <div class="dt egysegarak_tablazat" style="width: auto">
                     '.$ktgnem_select.'
                     <div class="dtr">
@@ -555,18 +586,39 @@ if (isset($_POST['get_muszaki_tabla'])) {
                     </div>
             ');
 
+            $osszesen = 0;
             foreach($honapok as $key => $honap) {
                 $sorszam = sprintf('%02d', $key + 1);
 
+                $osszesen += $muszaki_anyag['ft'.$sorszam];
                 $html .= nl2('
                     <div class="dtr">
                         <div class="dtc" style="padding-right: 0.5rem;">'.$honap.'</div>
-                        <div class="dtc"><input type="text" name="ft'.$sorszam.'" id="ft'.$sorszam.'" class="f_num" data-tort="0" value="'.number_format($muszaki_anyag['ft'.$sorszam], 0, '', ' ').'"></div>
+                        <div class="dtc"><input type="text" name="ft'.$sorszam.'" id="ft'.$sorszam.'" class="f_num popup_mennyisegek" data-tort="0" value="'.number_format($muszaki_anyag['ft'.$sorszam], 0, '', ' ').'"></div>
                     </div>
                 ');
             }
 
-            $html .= '</div>';
+            $html .= nl2('
+                    <div class="dtr">
+                        <div class="dtc" style="padding-right: 0.5rem;">Összesen</div>
+                        <div class="dtc r b"><span id="popup_tabla_osszesen_sor">'. number_format($osszesen, 2, ',', ' ').'</span> '.$ft_energia['mee'].'</div>
+                    </div>
+                </div>
+                <script>
+                $(document).on(\'input\', \'input.popup_mennyisegek\', function(e) {
+                    popup_tabla_osszesit();
+                });
+                function popup_tabla_osszesit(){
+                    var popup_osszesen = 0;
+                    $( \'input.popup_mennyisegek\').each(function () {
+                        ertek = $(this).val().replace(/ /g, \'\').replace(\',\', \'.\');
+                        popup_osszesen += Number(ertek);
+                    });
+                    $(\'#popup_tabla_osszesen_sor\').html(ezresek(popup_osszesen, 2, \',\', \' \'));
+                }
+                </script>
+                ');
         }
 
         echo json_encode(array(
@@ -699,7 +751,7 @@ if (isset($_POST['get_rendszeres_tabla'])) {
     if( $id || $uj ) {
         $html = '';
         $honapok = array('Január', 'Február', 'Március', 'Április', 'Május', 'Június', 'Július', 'Augusztus', 'Szeptember', 'Október', 'November', 'December');
-
+        
         // Sor lekérdezése
         $rendszeres = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_rendsz_karban', "`recid`='{$id}'");
         if( $rendszeres || $uj ) {
@@ -713,7 +765,7 @@ if (isset($_POST['get_rendszeres_tabla'])) {
                     <div class="dtr">
                         <div class="dtc">Költségnem</div>
                         <div class="dtc">
-                            <select name="ktgnem_id" id="ktgnem_id" class="csillag">
+                            <select name="ktgnem_id" id="ktgnem_id" class="csillag" style="max-width: 90%"> 
                                 <option value="">-Válasszon-</option>
                                 '.$ktgnem_option.'
                             </select>
@@ -729,8 +781,8 @@ if (isset($_POST['get_rendszeres_tabla'])) {
                 <div class="dt egysegarak_tablazat" style="width: auto">
                     '.$ktgnem_select.'
                     <div class="dtr">
-                        <div class="dtc">Tárgy</div>
-                        <div class="dtc"><input type="text" name="targy" id="targy" value="'.$rendszeres['targy'].'" maxlength="200"></div>
+                        <div class="dtc">Tárgy</div> 
+                        <div class="dtc"><input type="text" name="targy" id="targy" value="'.$rendszeres['targy'].'" maxlength="200" style="min-width: 90%; max-width: 90%"></div>
                     </div>
                     <div class="dtr">
                         <div class="dtc padd">&nbsp;</div>

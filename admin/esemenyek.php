@@ -428,6 +428,7 @@ switch($tabla) {
                                     `'.get_db_tabla().$tabla_nophp.'`.`ikt_szam`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`ev`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`stat_id`,
+                                    `'.get_db_tabla().$tabla_nophp.'`.`text`,
                                     `'.get_db_tabla().$tabla_nophp.'`.`telephely_id`
                                 ');
 
