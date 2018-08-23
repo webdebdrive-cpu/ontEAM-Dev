@@ -115,6 +115,7 @@ if (isset($_GET['csv'])) {
 
     $fajlnev = $utvonal.'csv'.time().'.csv';
     $open = fopen($fajlnev,'a');
+    fwrite($open, "sep=;\n");
     if($open){
 
         $lekerdezes_fromtol = substr($_SESSION['akt_sql'], strpos($_SESSION['akt_sql'], 'FROM'));

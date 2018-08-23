@@ -128,6 +128,7 @@ require_once('header.php');
         }
 
 		$open = fopen($fajlnev,'a');
+        fwrite($open, "sep=;\n");
 		if($open){
 
 			$query = mysqli_query($db_kapcs, 'SELECT * FROM `tblu`');

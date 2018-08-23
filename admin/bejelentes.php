@@ -673,6 +673,7 @@ if (isset($_GET['csv'])) {
 
     // Open the output stream
     $open = fopen('php://output', 'w');
+    fwrite($open, "sep=;\n");
     ob_start();
 
     if($open){
