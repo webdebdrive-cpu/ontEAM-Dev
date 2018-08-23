@@ -398,7 +398,6 @@ if (isset($_POST['get_energia_tabla'])) {
                             <b>'.getErtek('nev', 'ktgnem', 'id', $ft_energia['ktgnem_id']).' kitöltése
                             <br>Tárgy: '.$ft_energia['dijelem'].'</b>
                             <br>
-                            <br>
                             ');
         }
         if( $ft_energia ) {
@@ -556,21 +555,17 @@ if (isset($_POST['get_muszaki_tabla'])) {
                             </select>
                         </div>
                     </div>
-                    <div class="dtr">
-                        <div class="dtc padd">&nbsp;</div>
-                        <div class="dtc padd">&nbsp;</div>
-                    </div>
                     ');
             }
 
             $felirat = '';
             if($muszaki_anyag['ktgnem_id']){
-                $felirat = '<b>'.getErtek('nev', 'ktgnem', 'id', $muszaki_anyag['ktgnem_id']).' kitöltése:</b><br><br>';
+                $felirat = '<b>'.getErtek('nev', 'ktgnem', 'id', $muszaki_anyag['ktgnem_id']).' kitöltése:</b><br>';
             }
             
             $html = nl2('
                 '.$felirat.'
-                <div class="dt egysegarak_tablazat" style="width: auto">
+                <div class="dt egysegarak_tablazat" style="width: auto; margin-top: 1rem;">
                     '.$ktgnem_select.'
                     <div class="dtr">
                         <div class="dtc"></div>
@@ -768,10 +763,6 @@ if (isset($_POST['get_rendszeres_tabla'])) {
                             </select>
                         </div>
                     </div>
-                    <div class="dtr">
-                        <div class="dtc padd">&nbsp;</div>
-                        <div class="dtc padd">&nbsp;</div>
-                    </div>
                     ');
             }
             $html = nl2('
@@ -782,12 +773,8 @@ if (isset($_POST['get_rendszeres_tabla'])) {
                         <div class="dtc" style="width: 8.3rem">Tárgy</div> 
                         <div class="dtc"><input type="text" name="targy" id="targy" value="'.$rendszeres['targy'].'" maxlength="200" style="min-width: 90%; max-width: 90%"></div>
                     </div>
-                    <div class="dtr">
-                        <div class="dtc padd">&nbsp;</div>
-                        <div class="dtc padd">&nbsp;</div>
-                    </div>
                 </div>
-                <div class="dt egysegarak_tablazat" style="width: auto">
+                <div class="dt egysegarak_tablazat" style="width: auto; margin-top: 1rem">
                     <div class="dtr">
                         <div class="dtc"></div>
                         <div class="dtc">Összeg</div>
@@ -955,7 +942,7 @@ if (isset($_POST['get_eseti_tabla'])) {
 
             $felirat = '';
             if($eseti['ktgnem_id']){
-                $felirat = '<b>'.getErtek('nev', 'ktgnem', 'id', $eseti['ktgnem_id']).' kitöltése:</b><br><br>';
+                $felirat = '<b>'.getErtek('nev', 'ktgnem', 'id', $eseti['ktgnem_id']).' kitöltése:</b><br>';
             }
             
             // Új sor beszúrásakor költségnemet kell tudni választani
@@ -973,10 +960,6 @@ if (isset($_POST['get_eseti_tabla'])) {
                             </select>
                         </div>
                     </div>
-                    <div class="dtr">
-                        <div class="dtc padd">&nbsp;</div>
-                        <div class="dtc padd">&nbsp;</div>
-                    </div>
                     ');
             }
             $html = nl2('
@@ -989,14 +972,10 @@ if (isset($_POST['get_eseti_tabla'])) {
                     </div>
                     <div class="dtr">
                         <div class="dtc">Leírás</div>
-                        <div class="dtc"><textarea name="leir" id="leir">'.$eseti['leir'].'</textarea></div>
-                    </div>
-                    <div class="dtr">
-                        <div class="dtc padd">&nbsp;</div>
-                        <div class="dtc padd">&nbsp;</div>
+                        <div class="dtc"><textarea name="leir" id="leir" style="height: 4rem; min-height: 4rem;">'.$eseti['leir'].'</textarea></div>
                     </div>
                 </div>
-                <div class="dt egysegarak_tablazat" style="width: auto">
+                <div class="dt egysegarak_tablazat" style="width: auto; margin-top: 1rem">
                     <div class="dtr">
                         <div class="dtc"></div>
                         <div class="dtc">Összeg</div>
@@ -1181,26 +1160,18 @@ if (isset($_POST['get_hiba_tabla'])) {
                             </select>
                         </div>
                     </div>
-                    <div class="dtr">
-                        <div class="dtc padd">&nbsp;</div>
-                        <div class="dtc padd">&nbsp;</div>
-                    </div>
                     ');
             }
             $html = nl2('
                 '.$felirat.'
-                <div class="dt egysegarak_tablazat">
+                <div class="dt egysegarak_tablazat"style="width: auto;">
                     '.$ktgnem_select.'
                     <div class="dtr">
                         <div class="dtc" style="min-width: 8.7rem">Leírás</div>
-                        <div class="dtc"><textarea name="leir" id="leir">'.$hiba['leir'].'</textarea></div>
-                    </div>
-                    <div class="dtr">
-                        <div class="dtc padd">&nbsp;</div>
-                        <div class="dtc padd">&nbsp;</div>
+                        <div class="dtc"><textarea name="leir" id="leir" style="height: 4rem; min-height: 4rem; min-width: 30rem;">'.$hiba['leir'].'</textarea></div>
                     </div>
                 </div>
-                <div class="dt egysegarak_tablazat" style="width: auto">
+                <div class="dt egysegarak_tablazat" style="width: auto; margin-top: 1rem;">
                     <div class="dtr">
                         <div class="dtc"></div>
                         <div class="dtc">Összeg</div>
@@ -1367,7 +1338,7 @@ if (isset($_POST['get_bwh_tabla'])) {
             
             $felirat = '';
             if($bwh['ktgnem_id']){
-                $felirat = '<b>'.getErtek('nev', 'ktgnem', 'id', $bwh['ktgnem_id']).' kitöltése:</b><br><br>';
+                $felirat = '<b>'.getErtek('nev', 'ktgnem', 'id', $bwh['ktgnem_id']).' kitöltése:</b><br>';
             }
 
             // Új sor beszúrásakor költségnemet kell tudni választani
@@ -1385,15 +1356,11 @@ if (isset($_POST['get_bwh_tabla'])) {
                             </select>
                         </div>
                     </div>
-                    <div class="dtr">
-                        <div class="dtc padd">&nbsp;</div>
-                        <div class="dtc padd">&nbsp;</div>
-                    </div>
                     ');
             }
             $html = nl2('
                 '.$felirat.'
-                <div class="dt egysegarak_tablazat">
+                <div class="dt egysegarak_tablazat" style="margin-top: 1rem">
                     '.$ktgnem_select.'
                     <div class="dtr">
                         <div class="dtc">Tárgy</div>
@@ -1403,12 +1370,8 @@ if (isset($_POST['get_bwh_tabla'])) {
                         <div class="dtc">Leírás</div>
                         <div class="dtc"><textarea name="leir" id="leir">'.$bwh['leir'].'</textarea></div>
                     </div>
-                    <div class="dtr">
-                        <div class="dtc padd">&nbsp;</div>
-                        <div class="dtc padd">&nbsp;</div>
-                    </div>
                 </div>
-                <div class="dt egysegarak_tablazat" style="width: auto">
+                <div class="dt egysegarak_tablazat" style="width: auto; margin-top: 1rem;">
                     <div class="dtr">
                         <div class="dtc"></div>
                         <div class="dtc">Összeg</div>

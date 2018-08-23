@@ -1,6 +1,6 @@
 <h2>Eseti fenntartás szerkesztése</h2>
 <form action="" id="egysegarakForm" class="popupForm" method="post" onsubmit="return eseti_tabla_ment( this );">
-    <div id="setEgysegarTablazat" class="kozep" style="min-height: 26rem; width: 50rem"></div>
+    <div id="setEgysegarTablazat" class="kozep" style="min-height: 26rem;"></div>
     <div class="dt egysegarMuv">
         <div class="dtr">
             <div class="dtc">
@@ -138,7 +138,7 @@ function mennyisegMuv( pre, muvelet ) {
         ertek   = $('input[name="' + pre + oszlop + '"]').val(),
         honap   = $('select[name="' + pre + 'honap"]').val();
 
-    ertek = ertek.replace(' ', '');
+    ertek = ertek.replace(/ /g, '');
 
     var inputok = $('#setEgysegarTablazat').find('input[name^="' + oszlop + '"]');
     inputok.each(function(index, el) {

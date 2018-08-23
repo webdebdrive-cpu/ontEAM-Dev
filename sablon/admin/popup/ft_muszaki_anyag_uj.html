@@ -140,7 +140,7 @@ function mennyisegMuv( pre, muvelet ) {
         ertek   = $('input[name="' + pre + oszlop + '"]').val(),
         honap   = $('select[name="' + pre + 'honap"]').val();
 
-    ertek = ertek.replace(' ', '');
+    ertek = ertek.replace(/ /g, '');
 
     var inputok = $('#setEgysegarTablazat').find('input[name^="' + oszlop + '"]');
     inputok.each(function(index, el) {

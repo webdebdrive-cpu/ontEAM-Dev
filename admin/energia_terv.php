@@ -1340,6 +1340,7 @@ require_once('selectek.php');
 	}elseif(isset($_GET['egysegarak'])){
 
         $szamla_html .= '
+        <div id="fixTable">
             <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu">
             <thead>
             <tr>
@@ -1464,6 +1465,7 @@ require_once('selectek.php');
         $szamla_html .= nl2('
                             </tbody>
                         </table>
+                    </div>
                         ');
 
         // Ha van a get-ben ear id, akkor azt a sort jelöljük meg
