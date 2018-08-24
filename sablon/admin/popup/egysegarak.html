@@ -176,7 +176,7 @@ function egysegarMuv( pre, muvelet ) {
         dnemText = $('input[name="' + pre + oszlop + '_autocomp"]').val();
     }
 
-    ertek = ertek.replace(' ', '');
+    ertek = ertek.replace(/ /g, '');
 
     var inputok = $('#setEgysegarTablazat').find('input[name^="' + oszlop + '"]');
 
