@@ -972,6 +972,7 @@ if (isset($_GET['csv'])) {
                             foreach($telephely_idk as $t_id){
                                 array_push($telepehely_nevek, getSzallodaNev($t_id));
                             }
+                            sort($telepehely_nevek);
                             $sor = implode(', ', $telepehely_nevek);
                         }
                         if($kulcs=='Költségnem név'){

@@ -2092,7 +2092,7 @@ if (isset($_GET['csv'])) {
                     $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( getStatText('anyagigenyles', $anyagigenyles['stat_id']) ) ) );
                     $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $anyagigenyles['ikt_szam'] ) ) );
                     $csvcont[] = iconv2($mibol, $mibe, getSzallodaNev($sorok['Szálloda']) );
-                    $csvcont[] = "\t".iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sorok['Cikk szám'] ) ) );
+                    $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sorok['Cikk szám'] ) ) );
                     $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sorok['Cikk név'] ) ) );
                     $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sorok['Igényelt mennyiség'] ) ) );
                     $csvcont[] = iconv2($mibol, $mibe, strip_tags( htmlspecialchars_decode( $sorok['Leírás'] ) ) );
