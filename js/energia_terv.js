@@ -29,7 +29,7 @@ function addSzallodaEnergia( recid, that ) {
          	success: function(response) {
                 if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
          		if(response) {
-                    
+
                     response = JSON.parse(response);
 
                     if( response.hiba ) {
@@ -74,7 +74,7 @@ function terv_elesites(mehet) {
                         alert2(response.hiba, response.gomb, response.title);
                         return false;
                     }
-                    
+
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'modosit');
                     if(response.kesz_id>0){
                         szamlaSorFrissit(baseName(location.href), response.kesz_id);
@@ -122,7 +122,7 @@ function uj_egysegar(){
                     szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'egysegarak' ).done(function() {
                         $('.szamla_cont_tabla tr').removeClass('kijelolve');
                         $('#tr_ear_' + response.recid).addClass('kijelolve');
-                        $('#tartalomJobb').scrollTop($('#tartalomJobb').prop('scrollHeight'));
+                        $('#tartalomJobb .fht-tbody').scrollTop($('#tartalomJobb .fht-tbody').prop('scrollHeight'));
                     });
                 }
             }
@@ -199,9 +199,9 @@ function egysegar_sor_torol(mehet){
         success: function (response) {
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if (response) {
-                
+
                 response = JSON.parse(response);
-                
+
                 if( response.hiba ) {
                     alert2(response.hiba, response.gomb, response.title);
                     return false;
@@ -245,4 +245,3 @@ function energiaterv_veglegesit(mehet){
         }
     });
 }
-
