@@ -55,9 +55,15 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
 
         // Szállodának mi a modellje
         $szalloda = $adatbazis_kapcsolat->s2('modell', 'telephely', "`id`='{$ut_feladat['telephely_id']}'");
-
+        
+        // Ha az ütemezett feladatnak/rendszeres karbantartásnak a hozzárendelt személyzete külső kivitelező, akkor átírjuk
+        $szemelyzet_id = $ut_feladat['szemelyzet_id'];
+        if($szemelyzet_id==KULSO_KIVITELEZO){
+            $szemelyzet_id = MUSZAKI_VEZETO;
+        }
+        
         // Új munkalap státusza mi legyen. Alapból nyitott
-        $ujrecid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $ut_feladat['telephely_id'], $tipus, $ut_feladat['obj_id'], $ut_feladat['gep_id'], 0, $text, $ut_feladat['szemelyzet_id'], $ut_feladat['szallito_id'], $ut_feladat['id'], $ut_feladat['esnap_d'], '', $ut_feladat['loginnev']);
+        $ujrecid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $ut_feladat['telephely_id'], $tipus, $ut_feladat['obj_id'], $ut_feladat['gep_id'], 0, $text, $szemelyzet_id, $ut_feladat['szallito_id'], $ut_feladat['id'], $ut_feladat['esnap_d'], '', $ut_feladat['loginnev']);
 
         if( $ujrecid === false ) {
             $db_error = true;
