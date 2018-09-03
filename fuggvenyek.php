@@ -2077,6 +2077,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 }
                 if( _jog(JOG_MUNKALAP_KULSOS_MEGREND) ){
                     array_push($statuszra_szures, MUNKALAP_STAT_HOZREND_MEGREND_VAR);
+                    array_push($statuszra_szures, MUNKALAP_STAT_AJANLAT_NYOMTATVA);
                 }
 
                 // Szűrés azokra a státuszokra, amiket láthat
