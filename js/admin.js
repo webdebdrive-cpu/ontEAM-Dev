@@ -1743,6 +1743,7 @@ console.log('b'+active_top);
     fulGombMeretez();
     $(window).resize(function() {
         fulGombMeretez();
+        fixTable();
     });
 
     $('.menu_icon').on('click', function() {
