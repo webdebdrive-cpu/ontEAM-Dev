@@ -5536,6 +5536,7 @@ function szamlaBetolt( recid, page, muvelet, szerkeszt, kerdes_nelkul, anyagigen
                         'megjegyzes',
                         'megjegyzesek',
                         'megterules',
+                        'miniprojekt',
                         'modosit',
                         'modosit_ules',
                         'munkalapok',

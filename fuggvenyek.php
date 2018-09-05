@@ -7816,6 +7816,108 @@ function fenntartasi_terv_hibaelharitas($sor){
     return $szamla_html;
 }
 
+
+// Fenntartási terv miniprojekt fül alatti táblázat kirajzolása
+function fenntartasi_terv_miniprojekt($sor){
+
+    global $adatbazis_kapcsolat;
+
+    $szamla_html = '
+    <div id="fixTable">
+        <table class="szamla_cont_tabla nolink fejlec_padd szep_csikos kisbetu miniprojekt_tabla width_auto">
+        <thead>
+        <tr>
+            <th class="ktgnem_kod"><span>Ktgnem kód</span></th>
+            <th style="min-width: 10rem; width: 10rem"><span>Ktgnem név</span></th>
+            <th style="min-width: 20rem; width: 20rem"><span>Tárgy</span></th>
+            <th style="min-width: 20rem; width: 20rem"><span>Részletes leírás</span></th>
+            <th><span>Összesen</span></th>
+            <th><span>Január</span></th>
+            <th><span>Február</span></th>
+            <th><span>Március</span></th>
+            <th><span>Április</span></th>
+            <th><span>Május</span></th>
+            <th><span>Június</span></th>
+            <th><span>Július</span></th>
+            <th><span>Augusztus</span></th>
+            <th><span>Szeptember</span></th>
+            <th><span>Október</span></th>
+            <th><span>November</span></th>
+            <th><span>December</span></th>
+        </tr>
+        </thead>
+        <tbody>
+        ';
+
+    $minik = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_miniprojekt', "`fenntartasi_terv_id`='{$sor['recid']}'");
+    foreach($minik as $mini){
+
+        $osszesen = '';
+        for($i=1; $i<13; $i++){
+            if($i<10){
+                $i = '0'.$i;
+            }
+            $osszesen += $mini['ft'.$i];
+            $mini['ft'.$i] = number_format($mini['ft'.$i], 0, '', ' ');
+        }
+        $osszesen = number_format($osszesen, 0, '', ' ');
+
+        $szamla_html .= '
+            <tr id="ft_ft_'.$mini['recid'].'" data-recid="'.$mini['recid'].'" class="ftt_menny">
+                <td>'.$mini['ktgnem_id'].'</td>
+                <td style="min-width: 10rem; width: 10rem" class="wrap">'.getErtek('nev', 'ktgnem', 'id', $mini['ktgnem_id']).'</td>
+                <td style="min-width: 20rem; width: 20rem" class="wrap">'.$mini['targy'].'</td>
+                <td style="min-width: 20rem; width: 20rem" class="wrap">'.nl2br2($mini['leir']).'</td>
+                <td class="r ftossz">'.$osszesen.'</td>
+                <td class="r ft01">'.$mini['ft01'].'</td>
+                <td class="r ft02">'.$mini['ft02'].'</td>
+                <td class="r ft03">'.$mini['ft03'].'</td>
+                <td class="r ft04">'.$mini['ft04'].'</td>
+                <td class="r ft05">'.$mini['ft05'].'</td>
+                <td class="r ft06">'.$mini['ft06'].'</td>
+                <td class="r ft07">'.$mini['ft07'].'</td>
+                <td class="r ft08">'.$mini['ft08'].'</td>
+                <td class="r ft09">'.$mini['ft09'].'</td>
+                <td class="r ft10">'.$mini['ft10'].'</td>
+                <td class="r ft11">'.$mini['ft11'].'</td>
+                <td class="r ft12">'.$mini['ft12'].'</td>
+            </tr>
+            ';
+    }
+
+    $szamla_html .= nl2('
+                        </tbody>
+                        <tfoot class="nowrap">
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td class="r" id="szum_ftossz"></td>
+                            <td class="r" id="szum_ft01"></td>
+                            <td class="r" id="szum_ft02"></td>
+                            <td class="r" id="szum_ft03"></td>
+                            <td class="r" id="szum_ft04"></td>
+                            <td class="r" id="szum_ft05"></td>
+                            <td class="r" id="szum_ft06"></td>
+                            <td class="r" id="szum_ft07"></td>
+                            <td class="r" id="szum_ft08"></td>
+                            <td class="r" id="szum_ft09"></td>
+                            <td class="r" id="szum_ft10"></td>
+                            <td class="r" id="szum_ft11"></td>
+                            <td class="r" id="szum_ft12"></td>
+                        </tfoot>
+                    </table>
+                </div>
+                    <script>
+                    $(document).ready(function () {
+                        energia_szummaz(\'miniprojekt_tabla\');
+                    });
+                    </script>
+                ');
+
+    return $szamla_html;
+}
+
 // Fenntartási terv bwh fül alatti táblázat kirajzolása
 function fenntartasi_terv_bwh($sor){
 
