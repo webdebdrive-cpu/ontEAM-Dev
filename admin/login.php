@@ -508,23 +508,29 @@ require_once('selectek.php');
                                 });
 
                                 $.when( login_letezik ).then(function() {
-
+                                    login_mehet = false;
                                     if(letezik){
                                         alert2(letezik, \'\', \'Hiba\');
                                         $(\'#nev\').addClass(\'hibas_ide_focus\');
                                         return false;
                                     }else{
                                         login_mehet = true;
-                                        $(\'#szerk_form\').submit();
-                                        /*return form_ell_admin();*/
                                     }
 
+                                    /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel lentebb is */
+                                    if(!login_mehet){
+                                        return false;
+                                    }else{
+                                        return form_ell_admin();
+                                    }
                                 });
-
+                                
+                                /* Ez a feltétel nem tévedésből van kétszer, kell ide is, meg egyel fentebb is */
                                 if(!login_mehet){
                                     return false;
+                                }else{
+                                    return form_ell_admin();
                                 }
-
                                 ');
 
         // Hibaüzenetek lekezelése
