@@ -269,11 +269,12 @@ if (isset($_POST['terv_keszit'])) {
                                                              array($ev,  $telephely,     $_SESSION[get_db_tabla().'user'],  'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev']  )
                                         );
         if( $uj_id === false ) { $db_error = true; }
-
+// echo $adatbazis_kapcsolat->gp() . '<br>';
         // Van-e éles energia egységár. Ha van, akkor ez alapján feltöltjük az Energia fület, de csak ekkor, ha újat, üresen töltünk fel. Kijelöt alapján a kijelölt energia sorai kerülnek átmásolásra.
         $uzenet = '';
         $energia = $adatbazis_kapcsolat->s2('recid', 'energia_terv', "`ev`='{$ev}' AND `stat_id`='".ENERGIATERV_STAT_ELES."'");
         if( $energia === false ) { $db_error = true; }
+
         // Ha van, akkor ez alapján feltöltjük az Energia fület
         $volt_energia = false;
         if($energia){
@@ -382,7 +383,8 @@ if (isset($_POST['terv_keszit'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -542,7 +544,8 @@ if (isset($_POST['energia_tabla_ment'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -942,7 +945,8 @@ if (isset($_POST['rendszeres_tabla_ment'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -1142,7 +1146,8 @@ if (isset($_POST['eseti_tabla_ment'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -1338,7 +1343,8 @@ if (isset($_POST['hiba_tabla_ment'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -1370,7 +1376,7 @@ if (isset($_POST['get_mini_tabla'])) {
             // Új sor beszúrásakor költségnemet kell tudni választani
             $ktgnem_select = '';
             if($uj){
-                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7032%'");
+                $ktgnem_option = $adatbazis_kapcsolat->s('id nev', 'ktgnem', "`props` LIKE '%7034%'");
                 $ktgnem_option = tomb2option($ktgnem_option, 'id', 'nev');
                 $ktgnem_select = nl2('
                     <div class="dtr">
@@ -1538,7 +1544,8 @@ if (isset($_POST['mini_tabla_ment'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -1738,7 +1745,8 @@ if (isset($_POST['bwh_tabla_ment'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -1831,7 +1839,8 @@ if (isset($_POST['fenntartasi_terv_elesites'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -2011,7 +2020,8 @@ if (isset($_POST['fenntartasterv_veglegesit'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -2140,7 +2150,8 @@ if (isset($_POST['valtozas_jovahagyas'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -2225,7 +2236,8 @@ if (isset($_POST['sor_torol'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 

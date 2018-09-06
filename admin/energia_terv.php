@@ -311,7 +311,8 @@ if (isset($_POST['terv_keszit'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -396,7 +397,8 @@ if (isset($_POST['terv_elesites'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -634,7 +636,8 @@ if ($_POST['energia_terv_koltsegnem_dijelem']) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -706,7 +709,8 @@ if (isset($_POST['uj_egysegar'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -760,7 +764,8 @@ if (isset($_POST['egysegar_sor_torol'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -854,7 +859,8 @@ if (isset($_POST['energiaterv_veglegesit'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 

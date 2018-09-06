@@ -2783,7 +2783,7 @@ if( isset($_GET['getBejBejelentok']) ) {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
             'hiba'  => tranzakcioHiba(),
-            'title' => 'Hiba'
+            'title' => 'Hiba',
         ));
     }
 

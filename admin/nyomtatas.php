@@ -269,6 +269,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
                 'rendsz_karban' => 'Rendszeres karbantartás',
                 'eseti_karban'  => 'Eseti karbantartás',
                 'hibaelharitas' => 'Hibaelhárítás',
+                'miniprojekt'   => 'Miniprojekt',
                 'bwh'           => 'Cukrászat BWH',
                 'osszesen'      => 'Összesen',
             );
@@ -279,6 +280,7 @@ if( $_GET['print']=='lista' || isset($_GET['pdf'])) {
             $sorok_html .= '<h2 class="f14" style="margin-top: 3rem">Rendszeres karbantartás</h2>'.fenntartasi_terv_rendsz_karban($sor);
             $sorok_html .= '<h2 class="f14" style="margin-top: 3rem">Eseti karbantartás</h2>'.fenntartasi_terv_eseti_karban($sor);
             $sorok_html .= '<h2 class="f14" style="margin-top: 3rem">Hibaelhárítás</h2>'.fenntartasi_terv_hibaelharitas($sor);
+            $sorok_html .= '<h2 class="f14" style="margin-top: 3rem">Miniprojekt</h2>'. fenntartasi_terv_miniprojekt($sor);
             $sajat_szallodak = get_akt_login_szallodai();
             if(in_array(2120, $sajat_szallodak) && $sor['telephely_id']==2120){
                 $sorok_html .= '<h2 class="f14" style="margin-top: 3rem">BWH</h2>'.fenntartasi_terv_bwh($sor);

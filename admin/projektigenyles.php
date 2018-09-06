@@ -158,7 +158,8 @@ if( isset($_POST['addVelemenyezo']) ) {
                 mysqli_rollback($db_kapcs);
 
                 echo json_encode(array(
-                    'hiba' => tranzakcioHiba()
+                    'hiba'  => tranzakcioHiba(),
+                    'title' => 'Hiba',
                 ));
             }
 
@@ -220,7 +221,8 @@ if (isset($_POST['addMegterules'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -295,7 +297,8 @@ if (isset($_POST['velemeny_torol'])) {
         mysqli_rollback($db_kapcs);
 
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -333,7 +336,8 @@ if (isset($_POST['van_e_velemeny'])) {
         mysqli_rollback($db_kapcs);
 
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -452,7 +456,8 @@ if (isset($_POST['pri_statusz_leptet'])) {
         mysqli_rollback($db_kapcs);
 
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -533,7 +538,8 @@ if( isset($_POST['addHianypotlas']) ) {
         mysqli_rollback($db_kapcs);
 
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -582,7 +588,8 @@ if( isset($_POST['addVarakoztat']) ) {
         mysqli_rollback($db_kapcs);
 
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 
@@ -846,7 +853,8 @@ if (isset($_POST['pri_eloterj_statusz_mod'])) {
         mysqli_rollback($db_kapcs);
 
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
 

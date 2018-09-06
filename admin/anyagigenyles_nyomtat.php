@@ -267,7 +267,7 @@ if (isset($_GET['oracle'])) {
                                 </tr>
                             ';
 
-            //Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
+            // Anyagonként járjuk be az anyagigényléseket, összesítve a darabszámot
             $ossz = 0;
             $anyagok = $adatbazis_kapcsolat->s('distinct oracikkid', 'anyagigenyles', "`recid` IN (".$idk_impl.") AND `telephely_id`='{$telephely['id']}'");
             foreach($anyagok as $anyag){
@@ -295,7 +295,7 @@ if (isset($_GET['oracle'])) {
                             ';
 
 
-            //Lényegi tartalom
+            // Lényegi tartalom
             $tartalom = '
                 '.get_fejlec_top($sorszam).'
                 <div class="padd minh">
@@ -418,7 +418,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
         $sql_kieg = ' AND `telephely_id`=\''.$szalloda.'\'';
     }
 
-    //Szállítási címenkénti összesítés
+    // Szállítási címenkénti összesítés
     $szallcim_html = '
                         <table class="border full" style="font-size: 12px ;margin: auto; margin-top: 10px; margin-bottom: 10px;border-collapse: collapse;">
                     ';
@@ -442,11 +442,11 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
             $szl = get_props($telephely['props'], 'SZLACIM');
             $cim = get_props($telephely['props'], 'cim');
 
-            //erkcimid mező értéke alapján változik a szállítási cím
+            // erkcimid mező értéke alapján változik a szállítási cím
             $szall_cim = '';
             switch($igenyles['erkcimid']){
                 case 1:
-                    //aktuális szálloda SZN+CÍM+ha szálloda=2032,” Szondi utcai teherporta”
+                    // Aktuális szálloda SZN+CÍM+ha szálloda=2032,” Szondi utcai teherporta”
                     $szall_cim .= $szn.' '.$cim;
                     if($anyag['telephely_id']==NYOMTATAS_KIVETELES_CIM){
                         $szall_cim .= ' Szondi utcai teherporta';
@@ -497,7 +497,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                                 ';
             }
 
-            //Telephelyek után egy kis elválasztó
+            // Telephelyek után egy kis elválasztó
             $szallcim_html .= '
                             <tr >
                                 <td colspan="3" style="border: 1px solid #ddd; padding: 7px; border-left: 0; border-right: 0; border-bottom: 0"></td>

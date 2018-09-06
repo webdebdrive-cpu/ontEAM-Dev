@@ -54,7 +54,8 @@ if (isset($_GET['id_foglalt_e'])) {
 
     if($adatbazis_kapcsolat->s('id', $megnevezes, "`id`='{$_GET['id']}'")){
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
     $weblap -> leallit();

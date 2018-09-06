@@ -100,7 +100,8 @@ if (isset($_POST['beosztas_veglegesit'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
     
@@ -162,7 +163,8 @@ if (isset($_POST['mobil_beosztas_login_ment'])) {
     } else {
         mysqli_rollback($db_kapcs);
         echo json_encode(array(
-            'hiba' => tranzakcioHiba()
+            'hiba'  => tranzakcioHiba(),
+            'title' => 'Hiba',
         ));
     }
     
