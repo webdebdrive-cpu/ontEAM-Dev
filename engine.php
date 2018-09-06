@@ -2208,7 +2208,9 @@ function sql_ertek($ertek, $script=false){
         $ertek = '';
     }
     
-    $ertek = str_replace('--', '{sql_minus_minus}', $ertek);
+    while(strpos($ertek, '--')!==false){
+        $ertek = str_replace('--', '-', $ertek);
+    }
 
 	if(get_magic_quotes_gpc()){
         $ertek = stripslashes($ertek);

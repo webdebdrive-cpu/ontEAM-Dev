@@ -180,6 +180,11 @@ function fajl_menedzser($megnevezes, $tomb, $sor_id, $uj_mod){
     if($csakkep=='false'){
         $csakkep = 0;
     }
+    
+    // -- kiszűrése a fájl nevéből
+    while(strpos($_FILES[$megnevezes]['name'], '--')!==false){
+        $_FILES[$megnevezes]['name'] = str_replace('--', '-', $_FILES[$megnevezes]['name']);
+    }
 
     // Ha új feltöltés, akkor a fájlt ideiglenesen lementjük, míg a rekord el nem készül hozzá
     if($_POST['uj_feltolt']){

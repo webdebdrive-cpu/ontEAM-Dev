@@ -92,7 +92,12 @@ if( isset($_POST['megnevezes']) && !$archivum ){
 
     setlocale(LC_CTYPE, 'hu_HU.utf8');
     $fajlnev = pathinfo($_FILES[ $_POST['megnevezes'] ]['name']);
-    $fajlnev = $fajlnev['filename'];
+    
+    // -- kiszűrése a fájl nevéből
+    $fajlnev = str_replace('--', '-', $fajlnev['filename']);
+    while(strpos($fajlnev, '--')!==false){
+        $fajlnev = str_replace('--', '-', $fajlnev);
+    }
 
     switch($_FILES[ $_POST['megnevezes'] ]['error']){
 
