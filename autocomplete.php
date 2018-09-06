@@ -66,6 +66,17 @@ if(isset($_GET['value']) && isset($_GET['tabla']) && isset($_GET['oszlop_keres']
                 $where_sql .= " WHERE `telephely_id` = '".$_GET['telephely_id']."'";
             }
         }
+        
+        // Ha helységet vagy objektumokat kérünk le, akkor csak a felhasználóhoz tartozó szállodákat vesszük figyelembe
+        if($_GET['tabla']=='obj'){
+            $akt_user_szallodai = get_akt_login_szallodai();
+            $akt_user_szallodai = implode(', ', $akt_user_szallodai);
+            if( $where_sql ) {
+                $where_sql .= " AND `telephely_id` IN ({$akt_user_szallodai})";
+            } else {
+                $where_sql .= " WHERE `telephely_id` IN ({$akt_user_szallodai})";
+            }
+        }
 
         // Energia egységár esetén ha díjelem nevét kérjük le, akkor keressük meg az éppen éles tervet, és annak egységár soraiból készítsünk listát
         if( $_GET['tabla'] == 'energia_terv_ear' ) {

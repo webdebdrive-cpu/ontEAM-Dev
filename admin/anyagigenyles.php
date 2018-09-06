@@ -2338,7 +2338,7 @@ require_once('selectek.php');
             $utvonal = '../'.get_utvonal().$sor['kepfajl'];
             $onclick = 'window.open(\''.$utvonal.'\')';
             if ( !is_file($utvonal) ) {
-                $onclick = 'alert2(\'Nem található a következő fájl:<br>'.$sor['kepfajl'].'\')';
+                $onclick = 'alert2(\'Nem található a következő fájl:<br>'.$sor['kepfajl'].'\', \'\', \'Hiba\')';
             }
             $gombok .= '<input type="button" class="gomb" value="Rendelés kép" onclick="'.$onclick.'"> ';
         }
