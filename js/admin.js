@@ -347,6 +347,8 @@ $(function() {
                 $('#stat_gyors_szuro_div').css('width', Math.abs(nbWidth-17));
                 fulGombMeretez();
             }
+
+            fixTable();
         }
     });
 
@@ -426,7 +428,7 @@ $(function() {
 
                 /* Anyagigénylésnél használt táblázat esetén valójában a táblázat következő sorára kell ugrani, ami a helyben rendezetség miatt nem ugyanaz, mint a bal oldali navpanelé */
                 /*if( $('.szamla_cont_tabla').length && _get('tablazat') ){*/
-                if( tabla=='anyagigenyles' ){
+                if( tabla=='anyagigenyles' || aktiv_oldal == 'szamla_cont_tabla' ) {
 
                     var active   = $('.szamla_cont_tabla tr.kijelolve').index('.szamla_cont_tabla tbody tr'),
                         szamlaDb = $('.szamla_cont_tabla tbody tr').length - 1;
@@ -444,7 +446,11 @@ $(function() {
                             kovSzamlaSor = szamlaDb;
                             elso_utolso  = true;
 
-                            $('#tartalomJobb').scrollTop($('#tartalomJobb').prop('scrollHeight'));
+                            if( $('#tartalomJobb .fht-tbody').length ) {
+                                $('#tartalomJobb .fht-tbody').scrollTop($('#tartalomJobb .fht-tbody').prop('scrollHeight'));
+                            } else {
+                                $('#tartalomJobb').scrollTop($('#tartalomJobb').prop('scrollHeight'));
+                            }
                         }
                     } else if( e.keyCode == KEY_DOWN ) {
                         kovSzamlaSor = active + 1;
@@ -453,14 +459,25 @@ $(function() {
                             kovSzamlaSor = ugras;
                             elso_utolso  = true;
 
-                            $('#tartalomJobb').scrollTop(0);
+                            if( $('#tartalomJobb .fht-tbody').length ) {
+                                $('#tartalomJobb .fht-tbody').scrollTop(0);
+                            } else {
+                                $('#tartalomJobb').scrollTop(0);
+                            }
                         }
                     }
 
                     $('.szamla_cont_tabla tbody tr:nth-of-type('+(kovSzamlaSor+1)+')').addClass('kijelolve');
 
-                    $('#szamlaList li').removeClass('kijelolve');
+                    if( aktiv_oldal != 'szamla_cont_tabla' ) {
+                        $('#szamlaList li').removeClass('kijelolve');
+                    }
+
                     $('#anyagig-sor-'+$('.szamla_cont_tabla tr.kijelolve').attr('data-recid')).click();
+
+                    if( $('#tartalomJobb .fht-tbody').length ) {
+                        scrollLeptet();
+                    }
 
                     return false;
 
@@ -1762,6 +1779,15 @@ console.log('b'+active_top);
                 $('.dtr.bejelento_sor').fadeOut(0);
             }
         }
+    });
+
+    aktiv_oldal = 'szamla_cont';
+    $(document).on('click', '.szamla_cont .szamla_sor', function() {
+        aktiv_oldal = 'szamla_cont';
+    });
+
+    $(document).on('click', '.szamla_cont_tabla tr', function() {
+        aktiv_oldal = 'szamla_cont_tabla';
     });
 
     setTimeout(function() {
@@ -4784,25 +4810,48 @@ function scrollLeptet() {
             aTop = $('.szamla_cont_tabla tr.kijelolve').position().top;
             $('#tartalomJobb').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
         }*/
-
-    } else if($('.szamla_cont_tabla').length) {
-
-        if( $('.szamla_cont_tabla.kijelolve').length ) {
+    } else if($('.szamla_cont_tabla').length || aktiv_oldal == 'szamla_cont_tabla') {
+        if( $('.szamla_cont_tabla tr.kijelolve').length ) {
             var active_top      = $('.szamla_cont_tabla tr.kijelolve').position().top,
-                activeHeight    = $('.szamla_cont_tabla tr.kijelolve').outerHeight(),
-                tartBalHeight   = $('#szamlaBetolt').outerHeight();
+                activeHeight    = $('.szamla_cont_tabla tr.kijelolve').outerHeight();
+
+            if( $('#tartalomJobb .fht-tbody').length ) {
+                var tartBalHeight = $('#tartalomJobb .fht-tbody').outerHeight();
+            } else {
+                var tartBalHeight = $('#szamlaBetolt').outerHeight();
+            }
 
             /* Összeadjuk az active elem magasságát és a felső eltolását */
             var aTopH = active_top + activeHeight;
 
             if( (aTopH - activeHeight) < 0 ) {
-                $('#szamlaBetolt').scrollTop(0);
+                if( $('#tartalomJobb .fht-tbody').length ) {
+                    $('#tartalomJobb .fht-tbody').scrollTop(0);
+                } else {
+                    $('#szamlaBetolt').scrollTop(0);
+                }
+
                 aTop = $('.szamla_cont_tabla tr.kijelolve').position().top;
-                $('#szamlaBetolt').scrollTop(aTop - 250);
+
+                if( $('#tartalomJobb .fht-tbody').length ) {
+                    $('#tartalomJobb .fht-tbody').scrollTop(aTop - 250);
+                } else {
+                    $('#szamlaBetolt').scrollTop(aTop - 250);
+                }
             } else if( aTopH > tartBalHeight ) {
-                $('#szamlaBetolt').scrollTop(0);
+                if( $('#tartalomJobb .fht-tbody').length ) {
+                    $('#tartalomJobb .fht-tbody').scrollTop(0);
+                } else {
+                    $('#szamlaBetolt').scrollTop(0);
+                }
+
                 aTop = $('.szamla_cont_tabla tr.kijelolve').position().top;
-                $('#szamlaBetolt').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
+
+                if( $('#tartalomJobb .fht-tbody').length ) {
+                    $('#tartalomJobb .fht-tbody').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
+                } else {
+                    $('#szamlaBetolt').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
+                }
             }
         }
 
@@ -4825,7 +4874,6 @@ function scrollLeptet() {
                 $('#tartalomBal').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
             }
         }
-
     }
 }
 
