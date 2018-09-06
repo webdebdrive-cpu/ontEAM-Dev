@@ -34,7 +34,7 @@ if( isset($_POST['megnevezes']) && !$archivum ){
 
     // Ha a megnevezés csak annyi, hogy javaslattetel_popup, akkor munkalap javaslattétel popuján töltünk fel képet, ekkor másképp kell eljárni
     if($_POST['megnevezes']=='javaslattetel_popup'){
-        
+
         require_once('../weblap.php');
         $konyvtar_db_nev = csonkit($_POST['tabla'], 4);
         $utvonal = '../'.get_utvonal().'munkalap';
@@ -45,7 +45,7 @@ if( isset($_POST['megnevezes']) && !$archivum ){
                 mkdir($utvonal, 0777);
             }
         }
-        
+
         // JS alapú fájlfeltöltés esetén a $_FILES['file'] tömbben vannak az adatok a $_FILES[megnevezés] helyett
         if($_FILES['file']){
             $_FILES[ $_POST['megnevezes'] ] = $_FILES['file'];
@@ -53,14 +53,14 @@ if( isset($_POST['megnevezes']) && !$archivum ){
 
         $sor_kepek          = 'munkalap';
         $tobbkep_tablanev   = 'munkalap_dok';
-        
+
     // Általános eset
     }else{
-        
+
         require_once('../weblap.php');
 
         // utolsó 4 karakter a "_dok", ezt levesszük
-        $konyvtar_db_nev = csonkit($_POST['tabla'], 4); 
+        $konyvtar_db_nev = csonkit($_POST['tabla'], 4);
         $utvonal = '../'.get_utvonal().$konyvtar_db_nev;
 
         if(!is_dir($utvonal)){
@@ -74,7 +74,7 @@ if( isset($_POST['megnevezes']) && !$archivum ){
                 mkdir($utvonal, 0777);
             }
         }
-        
+
         // JS alapú fájlfeltöltés esetén a $_FILES['file'] tömbben vannak az adatok a $_FILES[megnevezés] helyett
         if($_FILES['file']){
             $_FILES[$_POST['megnevezes']] = $_FILES['file'];
@@ -160,11 +160,11 @@ if( isset($_POST['megnevezes']) && !$archivum ){
 
                         echo 'frissit';
                     }
-                    
+
                     // Végül a szülő táblában a dok_db karbantartása
                     $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', $_POST['tabla'], "`{$_POST['oszlop']}`='{$_POST['sorid']}'") );
                     $adatbazis_kapcsolat->u($konyvtar_db_nev, array('dok_db'), array($dokumentumok_szama), "`recid`='{$_POST['sorid']}'");
-                    
+
                 }
             }
         break;
@@ -180,13 +180,13 @@ require_once('../weblap.php');
 //if( isset($_POST['tobbkep_torol']) && !$archivum ){
 //
 //    $szulo_oszlop = csonkit($tobbkep_tablanev, 4).'_id';
-//    
+//
 //    $kepnev = mysqli_query($db_kapcs, 'SELECT `'.$szulo_oszlop.'`, `utvonal` FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['tobbkep_torol'].'\'');
 //    $kepnev = mysqli_fetch_assoc($kepnev);
 //
 //    $parancs = 'DELETE FROM `'.get_db_tabla().$tobbkep_tablanev.'` WHERE `recid`=\''.$_POST['tobbkep_torol'].'\'';
 //    mysqli_query($db_kapcs, $parancs);
-//    
+//
 //    $dokumentumok_szama = count( $adatbazis_kapcsolat->s('recid', $tobbkep_tablanev, "`{$szulo_oszlop}`='{$kepnev[$szulo_oszlop]}'") );
 //    $adatbazis_kapcsolat->u(csonkit($tobbkep_tablanev, 4), array('dok_db'), array($dokumentumok_szama), "`recid`='{$kepnev[$szulo_oszlop]}'");
 //
@@ -286,27 +286,26 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
     if(!$tobbkep_tablanev){
         $tobbkep_tablanev = $_POST['tabla'];
     }
-    
+
     $javaslattetel = '';
     if($_POST['megnevezes']=='javaslattetel_popup'){
         $tabla = 'munkalap_dok';
         $javaslattetel = 'javaslattetel';
     }
-    
+
     require_once('../weblap.php');
     $tobbkep_html = '';
-    
+
     $sor_kepek['utvonal'] = stripslashes(htmlspecialchars_decode($sor_kepek['utvonal']));
     $csonkit = 4;
-    if($archivum){
+    if($archivum) {
         $csonkit = 9;
     }
     $kep_utvonal = '../'.get_utvonal().csonkit($tobbkep_tablanev, $csonkit).'/'.$sor_kepek['utvonal'];
     if(is_file($kep_utvonal)){
-
         $felirat = utf8(stripslashes($sor_kepek['fajlnev']));
         $kep     = new Img($kep_utvonal, $felirat, 200, 200);
-        
+
         // A fájl linkjében a szóközöket %20-ra cseréljük, hogy dupla szóközös fájllal is működjön.
         $kep_utvonal = str_replace(' ', '%20', htmlspecialchars($kep_utvonal));
 
@@ -329,9 +328,9 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
         }else{
             $datum .= datum_kiir($sor_kepek['insert_dt']);
         }
-        
+
         $sor_kepek['fajlnev'] = htmlspecialchars($sor_kepek['fajlnev']);
-        
+
         $azon    = 'kep'.$sor_kepek['recid'];
 
         // Csak az törölheti, aki feltöltötte (ha archivum, akkor meg más senki)
@@ -348,7 +347,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
                         <span class="icon link" onclick="$(\'#'.$azon.'\').addClass(\'torles_elott\'); alert2(\'Biztos, hogy törli a(z) '.$sor_kepek['fajlnev'].' dokumentumot?\', dok_torol_gomb_'.$sor_kepek['recid'].');"><i class="material-icons" style="font-size: 2rem">delete</i></span>
                 ';
         }
-        
+
         $tobbkep_html .= nl2('
             <li id="'.$azon.'" title="'.$sor_kepek['megj'].'" data-id="'.$sor_kepek['recid'].'" data-i="'.$i.'">
                 <script>gomb'.$azon.' = get_tobbkep_megj_szerk_gomb(\''.basename(__FILE__).'\', \''.$azon.'\', \''.$sor_kepek['recid'].'\');</script>
