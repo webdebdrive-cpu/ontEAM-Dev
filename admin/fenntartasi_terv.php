@@ -1,6 +1,27 @@
 <?php
 require_once('../weblap.php');
 
+// 2019-es évű fenntatásit terveknél ha nincsenek még miniprojekt rekodok, akkor azokat töltsük fel.
+if (isset($_GET['min_feltolt'])) {
+    
+    $ftek = $adatbazis_kapcsolat->s('recid', 'fenntartasi_terv', "`ev`='2019'");
+    foreach($ftek as $ft){
+        if(!$adatbazis_kapcsolat->s('recid', 'fenntartasi_terv_miniprojekt', "`fenntartasi_terv_id`='{$ft['recid']}'")){
+            $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7034%'");
+            foreach($ktgnemek as $ktgnem){
+                $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_miniprojekt',
+                                                                        array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                                        array($ktgnem['id'], $ft['recid'],          'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        );
+                if( $sql === false ) { $db_error = true; }
+echo $adatbazis_kapcsolat->gp() . '<br>';
+            }
+        }
+    }
+    
+    exit;
+}
+
 if( !_jog(JOG_FENNTARTASI_SAJAT_SZ_OLVAS) ) {
     if(!$_SESSION[get_db_tabla().'user']){
         $weblap -> leallit();
@@ -234,17 +255,30 @@ if (isset($_POST['terv_keszit'])) {
 
         $ft_mini = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_miniprojekt', "`fenntartasi_terv_id`='{$recid}'");
         if( $ft_mini === false ) { $db_error = true; }
-        foreach($ft_mini as $mini){
-            $oszlopok   = array('ktgnem_id', 'targy', 'leir', 'ft01', 'ft02', 'ft03', 'ft04', 'ft05', 'ft06', 'ft07', 'ft08', 'ft09', 'ft10', 'ft11', 'ft12', 'sorid');
-            $ertekek    = array();
-            foreach($oszlopok as $oszl){
-                array_push($ertekek, htmlspecialchars_decode($mini[$oszl]));
+        // Miniprojekt esetén előfordulhat, hogy a kijelölt FT-nek nincs egyetlen miniprojekt rekordja sem. Ekkor a költségnem tábla alapján töltjük fel az alapértelmezett adatokkal
+        if(!$ft_mini){
+            $ktgnemek = $adatbazis_kapcsolat->s('id', 'ktgnem', "`props` LIKE '%7034%'");
+            foreach($ktgnemek as $ktgnem){
+                $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_miniprojekt',
+                                                                        array('ktgnem_id',   'fenntartasi_terv_id', 'insert_dt',    'insert_usr',                             'update_usr'                           ),
+                                                                        array($ktgnem['id'], $uj_id,                'NOW()',        $_SESSION[get_db_tabla().'teljes_nev'],   $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        );
+                if( $sql === false ) { $db_error = true; }
             }
-            array_push($oszlopok, 'fenntartasi_terv_id', 'update_dt', 'update_usr',                             'insert_dt',    'insert_usr'                            );
-            array_push($ertekek,  $uj_id,                'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  );
+        // Egyébként a kijelölt FT sorait másoljuk át
+        }else{
+            foreach($ft_mini as $mini){
+                $oszlopok   = array('ktgnem_id', 'targy', 'leir', 'ft01', 'ft02', 'ft03', 'ft04', 'ft05', 'ft06', 'ft07', 'ft08', 'ft09', 'ft10', 'ft11', 'ft12', 'sorid');
+                $ertekek    = array();
+                foreach($oszlopok as $oszl){
+                    array_push($ertekek, htmlspecialchars_decode($mini[$oszl]));
+                }
+                array_push($oszlopok, 'fenntartasi_terv_id', 'update_dt', 'update_usr',                             'insert_dt',    'insert_usr'                            );
+                array_push($ertekek,  $uj_id,                'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'],   'NOW()',        $_SESSION[get_db_tabla().'teljes_nev']  );
 
-            $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_miniprojekt', $oszlopok, $ertekek);
-            if( $sql === false ) { $db_error = true; }
+                $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_miniprojekt', $oszlopok, $ertekek);
+                if( $sql === false ) { $db_error = true; }
+            }
         }
         
         $ft_bwh = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_bwh', "`fenntartasi_terv_id`='{$recid}'");
