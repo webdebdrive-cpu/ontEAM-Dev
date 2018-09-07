@@ -2061,7 +2061,8 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
             }
 
             // Ha saját feladatok a láthatósági kör, akkor az SQL feltétel azon múlik, hogy milyen jogai vannak a felhasználónak
-            if( _jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) ){
+            // Archív munkalaponknál nincs külön státuszra szűrés, ott ez értelmetlen
+            if( _jog(JOG_MUNKALAP_MEGTEKINT_FELADAT) && $tabla != 'munkalap_arch' ){
                 $statuszra_szures = array();
                 if( _jog(JOG_MUNKALAP_IGAZOLAS) ){
                     array_push($statuszra_szures, MUNKALAP_STAT_IGAZOLASRA_VAR);
