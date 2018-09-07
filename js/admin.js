@@ -4624,6 +4624,14 @@ function kapcsolodoSzerkeszt( oldal ) {
                         if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                  		if(response) {
                  			$('#addSzallodak').html(response);
+                            
+                            /* Új felhasználó feltöltésekor van erre szükség: a már kiválasztott szállodák bepipálása */
+                            if($('#szallodak_hidden').length && $('#szallodak_hidden').val()){
+                                var szallodak = JSON.parse($('#szallodak_hidden').val());
+                                for(var i in szallodak) {
+                                    $('input[value='+szallodak[i]+']').prop("checked", true);
+                                }
+                            }
                  		}
                  	}
                 });

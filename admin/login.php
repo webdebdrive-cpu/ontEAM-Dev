@@ -488,6 +488,7 @@ require_once('selectek.php');
                                     return false;
                                 }
 
+                                dfrd_login = $.Deferred();
                                 var letezik = false;
                                 login_letezik = $.ajax({
                                     url : \'login.php\',
@@ -495,6 +496,7 @@ require_once('selectek.php');
                                     data: esamp2es(\'nev=\' + $(\'#nev\').val() + \'&amp;login_letezik=\' + new Date().getTime()),
                                     success: function(response) {
                                         if(response.substring(0, 6)==\'SESKIL\'){ location.href = \'index.php\'; }
+                                        dfrd_login.resolve();
                                         if(response) {
                                             response = JSON.parse(response);
 
@@ -507,8 +509,7 @@ require_once('selectek.php');
                                     }
                                 });
 
-                                $.when( login_letezik ).then(function() {
-                                    login_mehet = false;
+                                $.when(dfrd_login).then(function() {
                                     if(letezik){
                                         alert2(letezik, \'\', \'Hiba\');
                                         $(\'#nev\').addClass(\'hibas_ide_focus\');
@@ -521,6 +522,10 @@ require_once('selectek.php');
                                     if(!login_mehet){
                                         return false;
                                     }else{
+                                        /* Rengeteg kínlódás után ez a megoldás, mivel a Hibaüzeneteket újra és újra feldobta, így meg nem submitoljuk el ha hibaüzenet van. De ha inncs submit, akkor meg a szálloda választás után nem submitolna. */
+                                        if( !$(\'#alert2\').is(\':visible\') ){
+                                            $(\'#szerk_form\').submit();
+                                        }
                                         return form_ell_admin();
                                     }
                                 });
