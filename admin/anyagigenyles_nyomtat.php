@@ -426,9 +426,10 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
     // Van egy fix cím
     $telephely = $adatbazis_kapcsolat->s2('nev props', 'telephely', "`id`='".NYOMTATAS_FIX_CIM."'");
 
-    $szn = get_props($telephely['props'], 'SZN');
-    $cim = get_props($telephely['props'], 'cim');
-    $fix_cim  = $szn.' '.$cim;
+    $szn    = get_props($telephely['props'], 'SZN');
+    $cim    = get_props($telephely['props'], 'cim');
+    $szkcim = get_props($telephely['props'], 'SZKCIM');
+    $fix_cim  = $szkcim.' '.$cim;
 
     if($idk_impl){
         $anyagok = $adatbazis_kapcsolat->s('distinct telephely_id', 'anyagigenyles', "`recid` IN (".$idk_impl.")$sql_kieg");
