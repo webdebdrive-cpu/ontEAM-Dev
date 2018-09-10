@@ -1,7 +1,7 @@
 <?php
 /*                                                  *\
  * FONTOS:
- * 104-es ID-nál járunk
+ * 105-ös ID-nál járunk
  * 13-as kategória ID-nál járunk
 \*                                                  */
 
@@ -62,10 +62,11 @@ $jogosultsagok = array(
     
     6  => array('nev' => 'Felhasználók megtekintése',   'kat' => 2, 'sor' => 6),
     7  => array('nev' => 'Felhasználók kezelése',       'kat' => 2, 'sor' => 7),
-    8  => array('nev' => 'Értéklisták megtekintése',    'kat' => 2, 'sor' => 8),
-    9  => array('nev' => 'Értéklisták kezelése',        'kat' => 2, 'sor' => 9),
-    10 => array('nev' => 'Szerepkörök megtekintése',    'kat' => 2, 'sor' => 10),
-    11 => array('nev' => 'Szerepkörök kezelése',        'kat' => 2, 'sor' => 11),
+    105=> array('nev' => 'Jelszó kezelése',             'kat' => 2, 'sor' => 8),
+    8  => array('nev' => 'Értéklisták megtekintése',    'kat' => 2, 'sor' => 9),
+    9  => array('nev' => 'Értéklisták kezelése',        'kat' => 2, 'sor' => 10),
+    10 => array('nev' => 'Szerepkörök megtekintése',    'kat' => 2, 'sor' => 11),
+    11 => array('nev' => 'Szerepkörök kezelése',        'kat' => 2, 'sor' => 12),
 
     12 => array('nev' => 'Anyagigénylés megtekintése',  'kat' => 3, 'sor' => 1),
     13 => array('nev' => 'Új igénylés létrehozása',     'kat' => 3, 'sor' => 2, 'i' => 'Műszaki vezető'),

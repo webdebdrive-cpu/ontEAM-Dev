@@ -436,7 +436,7 @@ require_once('selectek.php');
         );
     }
 
-    // Új feletöltés alatti gombok
+    // Új feltöltés alatti gombok
     if (isset($_GET['uj'])) {
         $gombok .= nl2('
                         <input type="button" class="gomb" value="Szállodák hozzáadása" onclick="kapcsolodoSzerkeszt(\'szallodak\');">
@@ -450,8 +450,10 @@ require_once('selectek.php');
                 </div>
             ').$gombok;
         }
+        
+    // Módosítás alatti gombok
     }elseif (isset($_GET['modosit'])) {
-        if(_jog(JOG_FELHASZNALOK_KEZEL)){
+        if(_jog(JOG_FELHASZNALOK_KEZEL) || _jog(JOG_FELHASZNALOK_JELSZO)){
             $gombok = nl2('
                 <div class="form_kuldes">
                     <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit();">

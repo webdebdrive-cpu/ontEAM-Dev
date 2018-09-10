@@ -977,9 +977,18 @@ $erteklista_tomb = $akt_tomb = array(
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
 // Felhasználók
-$disabled_uj    = false;
+$disabled_uj        = false;
+$disabled_jelszo    = false;
+$disabled_szerepkor = false;
 if (isset($_GET['uj'])) {
-    $disabled_uj = true;
+    $disabled_uj     = true;
+    $disabled_jelszo = true;
+}
+if( !_jog(JOG_FELHASZNALOK_JELSZO) ){
+    $disabled_jelszo = true;
+}
+if( !_jog(JOG_FELHASZNALOK_KEZEL) ){
+    $disabled_szerepkor = true;
 }
 $megnevezes = 'login';
 $login_tomb = $akt_tomb = array(
@@ -987,10 +996,10 @@ $login_tomb = $akt_tomb = array(
     array('type' => 'checkbox',             'megn' => 'Virtuális felhasználó:',     'name' => 'virtual',        'class' => 'check',             'szuro' => 1),
     array('type' => 'text',                 'megn' => 'Login név:',                 'name' => 'nev',            'class' => 'f_loginnev',        'szuro' => 1, 'disabled' => $disabled_szerk,  'maxlength' => 30, 'alert' => 'Kérem töltse ki a login nevet!', 'style' => 'width: 21.5rem'),
     array('type' => 'text',                 'megn' => 'Név:',                       'name' => 'teljes_nev',     'class' => 'oriasi',            'szuro' => 1,                 'maxlength' => 250, 'alert' => 'Kérem töltse ki a nevet!'),
-    array('type' => 'checkbox',             'megn' => 'Jelszóval rendelkezik:',     'name' => 'van_jelszo',     'class' => 'check',             'szuro' => 1, 'disabled' => $disabled_uj),
+    array('type' => 'checkbox',             'megn' => 'Jelszóval rendelkezik:',     'name' => 'van_jelszo',     'class' => 'check',             'szuro' => 1, 'disabled' => $disabled_jelszo),
     array('type' => 'autocomplete',         'megn' => 'Beosztás:',                  'name' => 'beosztas_id',    'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 18, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a beosztást!'),
     array('type' => 'autocomplete',         'megn' => 'Részleg:',                   'name' => 'reszleg_id',     'class' => 'oriasi disableNav', 'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => 17, 'id_kiir' => 'id', 'alert' => 'Kérem adja meg a részleget!'),
-    array('type' => 'select_szemelyzet',    'megn' => 'Szerepkör:',                 'name' => 'szemelyzet_id',  'class' => 'disableNav',        'szuro' => 1, 'alert' => 'Kérjük adja meg a szerepkört!'),
+    array('type' => 'select_szemelyzet',    'megn' => 'Szerepkör:',                 'name' => 'szemelyzet_id',  'class' => 'disableNav',        'szuro' => 1, 'alert' => 'Kérjük adja meg a szerepkört!', 'disabled' => $disabled_szerepkor),
     array('type' => 'text',                 'megn' => 'E-mail:',                    'name' => 'usermail',       'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250),
     // array('type' => 'checkbox',             'megn' => 'Kap értesítést:',            'name' => 'kap_mailt',      'class' => 'check',             'szuro' => 1, 'disabled' => $disabled_uj),
     array('type' => 'text',                 'megn' => 'Telefon:',                   'name' => 'usertel',        'class' => 'oriasi',            'szuro' => 1, 'maxlength' => 250, 'alert' => 'Kérjük adja meg a telefonszámot!'),

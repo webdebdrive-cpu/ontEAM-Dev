@@ -188,6 +188,7 @@ define('JOG_BEJELENTES_VIZSGAL',        71);
 define('JOG_BEJELENTES_TORLESE',        72);
 define('JOG_FELHASZNALOK_MEGTEKINT',    6 );
 define('JOG_FELHASZNALOK_KEZEL',        7 );
+define('JOG_FELHASZNALOK_JELSZO',       105);
 define('JOG_ERTEKLISTAK_MEGTEKINT',     8 );
 define('JOG_ERTEKLISTAK_KEZEL',         9 );
 define('JOG_SZEREPKOR_MEGTEKINT',       10);
