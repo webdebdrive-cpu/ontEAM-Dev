@@ -3540,4 +3540,9 @@ div.respo_felh .menu_icon span:before, div.respo_felh .menu_icon span:after {
 	    z-index: 1;
 	    }
 
+.fht-table-wrapper .fht-thead,
+.fht-table-wrapper .fht-tfoot {
+    margin-right: 1.7rem;
+}
+
 /* @end */

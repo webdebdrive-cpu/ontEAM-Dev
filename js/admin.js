@@ -1806,6 +1806,17 @@ function fixTable() {
                 footer: true,
                 width: '100%',
                 create: function() {
+                    $('#fixTable').find('.fht-thead thead tr th').each(function() {
+                        var width = $(this).outerWidth(),
+                            index = $(this).index();
+
+                        $('#fixTable .fht-tbody table tr th').eq(index).css({
+                            'min-width': width,
+                            'max-width': width,
+                            'width': width
+                        });
+                    });
+
                     $('#fixTable').find('.fht-tbody table tr th').each(function() {
                         var width = $(this).outerWidth(),
                             index = $(this).index();
@@ -4624,7 +4635,7 @@ function kapcsolodoSzerkeszt( oldal ) {
                         if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
                  		if(response) {
                  			$('#addSzallodak').html(response);
-                            
+
                             /* Új felhasználó feltöltésekor van erre szükség: a már kiválasztott szállodák bepipálása */
                             if($('#szallodak_hidden').length && $('#szallodak_hidden').val()){
                                 var szallodak = JSON.parse($('#szallodak_hidden').val());
