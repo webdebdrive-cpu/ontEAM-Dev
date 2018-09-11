@@ -8163,3 +8163,24 @@ function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak){
 
     return $szamla_html;
 }
+
+// Mennyiségi egyég felirat cseréjéhez használt függvény
+function mennyisegi_egyseg_konvertal($mee){
+    
+    $mee = mb_strtolower($mee, get_web_charset());
+    switch($mee){
+        case 'ft/hó'    : $mee = 'db';  break;
+        case 'ft/kw/hó' : $mee = 'kW';  break;
+        case 'ft/kw'    : $mee = 'kW';  break;
+        case 'ft/kwh/hó': $mee = 'kWh'; break;
+        case 'ft/kwh'   : $mee = 'kWh'; break;
+        case 'ft/mj/hó' : $mee = 'MJ';  break;
+        case 'ft/mj'    : $mee = 'MJ';  break;
+        case 'ft/gj'    : $mee = 'GJ';  break;
+        case 'ft/mw'    : $mee = 'MW';  break;
+        case 'ft/m3'    : $mee = 'm<sup>3</sup>';  break;
+        case 'ft/db/hó' : $mee = 'db';  break;
+    }
+    
+    return $mee;
+}

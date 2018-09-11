@@ -463,6 +463,10 @@ if (isset($_POST['get_energia_tabla'])) {
                             ');
         }
         if( $ft_energia ) {
+            
+            // Mennyiségi egység konvertálása
+            $mee_kiir = mennyisegi_egyseg_konvertal($ft_energia['mee']);
+            
             $html = nl2('
                 '.$felirat.'
                 <div class="dt egysegarak_tablazat" style="width: auto">
@@ -479,7 +483,7 @@ if (isset($_POST['get_energia_tabla'])) {
                 $html .= nl2('
                     <div class="dtr">
                         <div class="dtc" style="padding-right: 0.5rem;">'.$honap.'</div>
-                        <div class="dtc"><input type="text" name="em'.$sorszam.'" id="em'.$sorszam.'" class="f_num popup_mennyisegek" data-tort="2" value="'.number_format($ft_energia['em'.$sorszam], 2, ',', ' ').'"> '.$ft_energia['mee'].'</div>
+                        <div class="dtc"><input type="text" name="em'.$sorszam.'" id="em'.$sorszam.'" class="f_num popup_mennyisegek" data-tort="2" value="'.number_format($ft_energia['em'.$sorszam], 2, ',', ' ').'"> '.$mee_kiir.'</div>
                     </div>
                 ');
             }
@@ -487,7 +491,7 @@ if (isset($_POST['get_energia_tabla'])) {
             $html .= nl2('
                     <div class="dtr">
                         <div class="dtc b" style="padding-right: 0.5rem;">Összesen</div>
-                        <div class="dtc r b"><span id="popup_tabla_osszesen_sor">'. number_format($osszesen, 0, ',', ' ').'</span> '.$ft_energia['mee'].'</div>
+                        <div class="dtc r b"><span id="popup_tabla_osszesen_sor">'. number_format($osszesen, 0, ',', ' ').'</span> '.$mee_kiir.'</div>
                     </div>
                 </div>
                     ');
