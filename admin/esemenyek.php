@@ -1014,9 +1014,8 @@ array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista'
 // Szerepkör
 $megnevezes = 'szerepkor';
 $szerepkor_tomb = $akt_tomb = array(
-	array('type' => 'text',        'megn' => 'Név:',        'name' => 'nev',   'maxlength' => 250, 'alert' => 'Kérem töltse ki a nevet!', 'class' => 'oriasi', 'disabled' => 1),
+	array('type' => 'text',        'megn' => 'Név:',        'name' => 'nev',   'maxlength' => 250, 'alert' => 'Kérem töltse ki a nevet!', 'class' => 'oriasi'),
 
-	//array('type' => 'submit', 'value' => 'Mentés',    'name' => 'mehet_gomb', 'class' => 'gombb'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));
 
@@ -4530,6 +4529,13 @@ foreach($postok as $ertek){
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla']=='szabadsagigeny' && !_jog(JOG_SZABADSAGIG_KEZEL)){
+            $weblap -> leallit(); exit;
+        }
+        // Szerepkör és annak joga egyáltalán nem törölhető
+        if( $ertek['tabla']=='szerepkor'){
+            $weblap -> leallit(); exit;
+        }
+        if( $ertek['tabla']=='szerepkor_jog'){
             $weblap -> leallit(); exit;
         }
         if( $ertek['tabla']=='torzsadat' && !_jog(JOG_TORZSADAT_KEZEL)){

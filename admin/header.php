@@ -82,7 +82,7 @@ if( $aktmenuk ) {
     }
 }
 
-//$menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+//$menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 
 /* Kimenő számlák */
 /*$menu_nev        = 'Kimenő számlák';
@@ -114,7 +114,7 @@ if( $aktmenuk ) {
     }
 }
 
-$menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );*/
+$menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );*/
 
 
 // Bejelentések
@@ -355,7 +355,7 @@ if( !$_SESSION['bejelento_menu_rejt'] && (_jog(JOG_ENERGIA_EGYSEGAR_OLVAS) || _j
         }
     }
 
-    $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
 
 // Csak bejelentő elől rejtve
@@ -389,7 +389,7 @@ if(!$_SESSION['bejelento_menu_rejt']){
         }
     }
 
-    $menuk   .= str_replace( $akt_menu_mit, array( $style, $aloldalak['0'], $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
+    $menuk   .= str_replace( $akt_menu_mit, array( $style, '#', $megn, $menu_nev_tobbes, $aktmenuk ), $menu_sablon );
 }
 
 
@@ -1232,10 +1232,12 @@ if( basename(self())=='szabadsagigeny.php' && !_jog(JOG_SZABADSAGIG_KEZEL)){
     $uj = $duplikal = '';
 }
 
-// Szerepkör alatt semmi értelme az új és törlés ikonoknak
-if( basename(self())=='szerepkor.php'){
-    $torles_icon    = '';
-    $uj = $duplikal = '';
+// Szerepkör - itt törölni semmiképp nem lehet
+if( basename(self())=='szerepkor.php' ){
+    $torles_icon = '';
+    if(!_jog(JOG_SZEREPKOR_KEZEL)){
+        $uj = $duplikal = '';
+    }
 }
 
 // Szerepkör jogoknál semmi értelme az új és törlés ikonoknak
