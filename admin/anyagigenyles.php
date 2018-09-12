@@ -87,8 +87,8 @@ if (isset($_POST['anyagigenyles_mar_igenyelve'])) {
         $kerdes = nl2( getErtek('nev', 'telephely', 'id', $_POST['telephely_id']).'
                         <br>'.$_POST['cikk_id'].' '.$munkalap_anyag['cikk_nev'].'
                         <br>
-                        <br>Diszpécsernaplóban igénylésre váró mennyiség: '.$_POST['ig_alatt'].' '.$munkalap_anyag['cikk_mee'].'
-                        <br>Már igényelt mennyiség: '.$_POST['ig_men'].' '.$munkalap_anyag['cikk_mee'].'
+                        <br>Diszpécsernaplóban igénylésre váró mennyiség: '.$_POST['ig_alatt'].' '.str_replace('m3', 'm<sup>3</sup>', $munkalap_anyag['cikk_mee']).'
+                        <br>Már igényelt mennyiség: '.$_POST['ig_men'].' '.str_replace('m3', 'm<sup>3</sup>', $munkalap_anyag['cikk_mee']).'
                         <br>Ha folytatja, a diszpécsernaplóban igénylésre váró mennyiség státusza át lesz állítva "'.$munkAnyag_statusz[DISZPNAG_STAT_ANYAG_IGENYELVE].'" státuszra.
                         <br>
                         <br>Folytatja?');
@@ -562,7 +562,7 @@ if( isset($_POST['arazas']) ) {
                     </tr>
                     <tr>
                         <td class="p r">Igényelt mennyiség:</td>
-                        <td class="p" colspan="3">'.number_format($ossz_ig_menny, 2, ',', ' ').' '.$igenyles['cikkmee'].'</td>
+                        <td class="p" colspan="3">'.number_format($ossz_ig_menny, 2, ',', ' ').' '.str_replace('m3', 'm<sup>3</sup>', $igenyles['cikkmee']).'</td>
                     </tr>
                     <tr>
                         <td class="p r">Szállító:</td>
@@ -585,7 +585,7 @@ if( isset($_POST['arazas']) ) {
                     </tr>
                     <tr>
                         <td class="p r">Rendelt mennyiség:</td>
-                        <td class="p"><input'.$rndmen_disabled.' type="text" name="pop_rndmen" id="pop_rndmen" class="f_num csillag" value="'.number_format($ossz_rend_menny, 2, ',', ' ').'" onblur="rend_ossz_beallit()"> '.$igenyles['cikkmee'].'</td>
+                        <td class="p"><input'.$rndmen_disabled.' type="text" name="pop_rndmen" id="pop_rndmen" class="f_num csillag" value="'.number_format($ossz_rend_menny, 2, ',', ' ').'" onblur="rend_ossz_beallit()"> '.str_replace('m3', 'm<sup>3</sup>', $igenyles['cikkmee']).'</td>
                         <td class="p r">
                             Rendelési összeg:
                         </td>
@@ -1102,7 +1102,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
             $igenyles = $adatbazis_kapcsolat->s2('nev cikk_id rndmen rndear cikkmee kcs_21 igmen', 'anyagigenyles', "`recid`='{$id}'");
             if($_POST['jhmen']==0 || $_POST['jhmen']==0.00){
                 echo json_encode(array(
-                    'hiba'  => 'A jóváhagyott mennyiség nem lehet 0 '.$igenyles['cikkmee'].'!<script>$(\'#jhmen_'.$id.'\').addClass(\'hibas_ide_focus\')</script>',
+                    'hiba'  => 'A jóváhagyott mennyiség nem lehet 0 '.str_replace('m3', 'm<sup>3</sup>', $igenyles['cikkmee']).'!<script>$(\'#jhmen_'.$id.'\').addClass(\'hibas_ide_focus\')</script>',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#jhmen_'.$id.'\').select()">',
                     'focus' => 'jhmen'
                 ));
@@ -1119,7 +1119,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
             }
             if($_POST['jhmen']>$igenyles['rndmen']){
                 echo json_encode(array(
-                    'hiba'  => 'A jóváhagyott mennyiség nem lehet több, mint a jóváhagyásra váró mennyiség ('.str_replace('.', ',', $igenyles['rndmen']).' '.$igenyles['cikkmee'].')!',
+                    'hiba'  => 'A jóváhagyott mennyiség nem lehet több, mint a jóváhagyásra váró mennyiség ('.str_replace('.', ',', $igenyles['rndmen']).' '.str_replace('m3', 'm<sup>3</sup>', $igenyles['cikkmee']).')!',
                     'focus' => 'jhmen',
                 ));
                 $weblap->leallit();
@@ -1135,7 +1135,7 @@ if( isset($_POST['anyagigenyles_jovahagy']) ) {
                 'hiba' => nl2('
                             Cikkszám: '.$igenyles['cikk_id'].'
                             <br>Cikk név: '.$igenyles['nev'].'
-                            <br>Mennyiség: '.number_format($_POST['jhmen'], 2, ',', ' ').' '.$igenyles['cikkmee'].'
+                            <br>Mennyiség: '.number_format($_POST['jhmen'], 2, ',', ' ').' '.str_replace('m3', 'm<sup>3</sup>', $igenyles['cikkmee']).'
                             <br>Jóváhagyott érték: '. number_format($_POST['jhmen']*$igenyles['rndear'], 0, '', ' ').' '. get_penznem()/*Igen ide a Ft-kell és nem az utolsó tétel pénzneme */.'
                             <br>
                             <br>Biztosan jóváhagyja az anyagigénylést?
@@ -1210,7 +1210,7 @@ if( isset($_POST['anyagigenyles_elutasitas']) ) {
                                 <div id="hibauzi" class="piros"></div>
                                 Cikkszám: '.$anyagigenyles['cikk_id'].'
                                 <br>Cikk név: '.$anyagigenyles['nev'].'
-                                <br>Mennyiség: '.number_format($anyagigenyles['igmen'], 2, ',', ' ').' '.$anyagigenyles['cikkmee'].'
+                                <br>Mennyiség: '.number_format($anyagigenyles['igmen'], 2, ',', ' ').' '.str_replace('m3', 'm<sup>3</sup>', $anyagigenyles['cikkmee']).'
                                 <br>
                                 <br>Anyagigénylés elutasításának indoklása:
                                 <br><textarea id="pop_indoklas" style="width: 37rem; margin-top: 1rem" class="csillag" onkeyup="if( $(this).val().trim()==\'\' ){ $(this).val(\'\'); }"></textarea>
@@ -1288,7 +1288,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
 
             if($igeny['jhmen']==0.00 ){
                 echo json_encode(array(
-                    'hiba'  => 'A jóváhagyott mennyiség nem lehet 0 '.$igeny['cikkmee'].'!<script>$(\'#jhmen_'.$igeny['recid'].'\').addClass(\'hibas_ide_focus\')</script>',
+                    'hiba'  => 'A jóváhagyott mennyiség nem lehet 0 '.str_replace('m3', 'm<sup>3</sup>', $igeny['cikkmee']).'!<script>$(\'#jhmen_'.$igeny['recid'].'\').addClass(\'hibas_ide_focus\')</script>',
                     'gomb'  => '<input type="button" class="gomb" value="Ok" onclick="alert2(); $(\'#jhmen_'.$igeny['recid'].'\').select()">',
                     'focus' => 'jhmen'
                 ));
@@ -1305,7 +1305,7 @@ if( isset($_POST['anyagigenyles_mind_jovahagy']) ) {
             }
             if($igeny['jhmen']>$igeny['rndmen']){
                 echo json_encode(array(
-                    'hiba'  => 'A jóváhagyott mennyiség nem lehet több, mint a jóváhagyásra váró mennyiség ('.str_replace('.', ',', $igeny['rndmen']).' '.$igeny['cikkmee'].')!',
+                    'hiba'  => 'A jóváhagyott mennyiség nem lehet több, mint a jóváhagyásra váró mennyiség ('.str_replace('.', ',', $igeny['rndmen']).' '.str_replace('m3', 'm<sup>3</sup>', $igeny['cikkmee']).')!',
                     'focus' => 'jhmen',
                 ));
 
@@ -1634,7 +1634,7 @@ if (isset($_POST['anyagigenyles_erkeztet'])) {
                                 <td class="r" id="rndmen_'.$igeny['recid'].'">'.number_format($igeny['rndmen'], 2, ',', ' ').'</td>
                                 <td class="r" id="marerkmen_'.$igeny['recid'].'">'.number_format($igeny['erkmen'], 2, ',', ' ').'</td>
                                 <td class="r"><input type="text" class="f_num erkmen" data-id="'.$igeny['recid'].'" id="erkmen_'.$igeny['recid'].'" value="0,00"'.$disabled.'></td>
-                                <td class="c" id="mee_'.$igeny['recid'].'">'.$igeny['cikkmee'].'</td>
+                                <td class="c" id="mee_'.$igeny['recid'].'">'.str_replace('m3', 'm<sup>3</sup>', $igeny['cikkmee']).'</td>
                                 <td class="c">
                                     <div class="cb">
                                         <input type="checkbox" class="nem_tobb_beerk" data-id="'.$igeny['recid'].'" id="nem_tobb_'.$igeny['recid'].'"'.$disabled.'>
@@ -2711,7 +2711,7 @@ require_once('selectek.php');
                                 <td class="r piros" id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'">'.number_format($ig_var, 2, ',', ' ').'</td>
                                 <td class="r">'.number_format($anyag_var, 2, ',', ' ').'</td>
                                 <td class="r zold">'.number_format($folyamatban, 2, ',', ' ').'</td>
-                                <td id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'_mee">'.$akt_anyag['cikk_mee'].'</td>
+                                <td id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'_mee">'.str_replace('m3', 'm<sup>3</sup>', $akt_anyag['cikk_mee']).'</td>
                                 <td id="th'.$telephely['telephely_id'].'a'.$anyag['cikk_id'].'_igleir">'.nl2br2($akt_anyag['igleir']).'</td>
                                 <td><input type="button" value="Mutat" class="gomb" onclick="window.open(\'munkalap.php?recidk='.$akt_munkalapok.'\')"></td>
                                 <td><input type="button" value="Igénylés" class="gomb f_anyagigenyles_mezok_kitolt" data-recid_egyedi_azon="'.$recid_egyedi_azon.'" data-telephely_id="'.$telephely['telephely_id'].'" data-cikk_id="'.$anyag['recid'].'" data-cikk_id2="'.$anyag['cikk_id'].'"></td>
@@ -2936,7 +2936,7 @@ require_once('selectek.php');
                                 <td class="l">'.$sor['cikk_id'].'</td>
                                 <td class="l">'.htmlspecialchars_decode($sor['nev']).'</td>
                                 <td class="r nowrap">'.$sor['rndmen'].'</td>
-                                <td>'.$sor['cikkmee'].'</td>
+                                <td>'.str_replace('m3', 'm<sup>3</sup>', $sor['cikkmee']).'</td>
                                 <td class="r nowrap">'.number_format($sor['rndear'], 2, ',', ' ').'</td>
                                 <td class="r nowrap">'.number_format($sor['vrndear'], 4, ',', ' ').'</td>
                                 <td class="r nowrap">'.number_format($sor['erkmen'], 2, ',', ' ').'</td>

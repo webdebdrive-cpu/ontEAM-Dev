@@ -3942,7 +3942,7 @@ function anyagigenylesLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
                     'anyag_tabla_igleir'        => '<td id="td_igleir_'.$bsz['recid'].'">'.htmlspecialchars_decode(nl2br2($bsz['igleir'])).'</td>',
                     'anyag_tabla_szallito'      => '<td>'.getErtek('nev', 'szallito', 'id', $bsz['szallito_id']).'</td>',
                     'anyag_tabla_ig_menny'      => '<td class="r nowrap" data-sort="'.$bsz['igmen'].'">'.number_format($bsz['igmen'], 2, ',', ' ').'</td>',
-                    'anyag_tabla_mee'           => '<td class="c">'.$bsz['cikkmee'].'</td>',
+                    'anyag_tabla_mee'           => '<td class="c">'.str_replace('m3', 'm<sup>3</sup>', $bsz['cikkmee']).'</td>',
                     'anyag_tabla_ig_datum'      => '<td class="c">'.substr(str_replace('-', '.', $bsz['insert_dt']), 0, 10).'</td>',
                     'anyag_tabla_jovah_menny'   => '<td class="r nowrap" id="td_jhmen_'.$bsz['recid'].'" data-sort="'.$bsz['jhmen'].'">'.$jhmen.'</td>',
                     'anyag_tabla_jovah_ertek'   => '<td class="r nowrap'.$jhertek_latszik.'" data-sort="'.$jh_ert.'" id="jovah_ertek_sor_'.$bsz['recid'].'">'.number_format($jh_ert, 2, ',', ' ').'</td>',
@@ -7237,7 +7237,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
             $energia['ft'.$i]  = number_format($energia['ft'.$i],  0, '',  ' ');
         }
         $mennyiseg_osszesen = number_format($mennyiseg_osszesen,  0, ',', ' ');
-        $ertek_osszesen     = number_format($ertek_osszesen,  0, ',', ' ');
+        $ertek_osszesen     = number_format($ertek_osszesen,      0, ',', ' ');
 
         $class = '';
         if( $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && !in_array($energia['sorid'], $eear_soridk) ){
@@ -7250,7 +7250,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
                 <td>'.$energia['ktgnem_id'].'</td>
                 <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
                 <td class="wrap">'.$energia['dijelem'].'</td>
-                <td>'.$energia['mee'].'</td>
+                <td>'.str_replace('m3', 'm<sup>3</sup>', $energia['mee']).'</td>
                 <td class="r mennyossz">'.$mennyiseg_osszesen.'</td>
                 <td class="r ertekossz">'.$ertek_osszesen.'</td>
                 <td class="r">'.$energia['ear01'].'</td>
@@ -7320,7 +7320,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
                         <td>'.$ktgnem['id'].'</td>
                         <td>'.$ktgnem['nev'].'</td>
                         <td>'.$energia['dijelem'].'</td>
-                        <td>'.$energia['mee'].'</td>
+                        <td>'.str_replace('m3', 'm<sup>3</sup>', $energia['mee']).'</td>
                         <td class="r">'.$mennyiseg_osszesen.'</td>
                         <td class="r ertekossz">'.$ertek_osszesen.'</td>
                         <td class="r">'.$energia['ear01'].'</td>
