@@ -76,14 +76,27 @@ if( isset($_POST['jogokhozzaad']) ) {
         }
     }
     ksort($jogok);
+    
+    // Log tartalmának beállítása
+    $flags = $adatbazis_kapcsolat->s2('flags', 'szerepkor', "`recid`='{$id}'");
+    if( $flags === false ) { $db_error = true; }
+    $log = 'Előző jogok: '.$flags['flags'].'. Új jogok: '.implode('', $jogok);
 
     // Szerepkör jogok eltárolása
-    $adatbazis_kapcsolat -> u('szerepkor', array('flags'), array(implode('', $jogok)), 'recid='.$id);
+    $adatbazis_kapcsolat -> u('szerepkor', array('flags', 'update_usr'), array(implode('', $jogok), $_SESSION[get_db_tabla().'teljes_nev']), 'recid='.$id);
 
     // Ha kell, az összes érintett felhasználónál frissítjük a jogokat
     if($erintetteket_modositjuk){
-        $adatbazis_kapcsolat->u('login', array('flags'), array(implode('', $jogok)), "`szemelyzet_id`='{$id}'");
+        $adatbazis_kapcsolat->u('login', array('flags', 'update_usr'), array(implode('', $jogok), $_SESSION[get_db_tabla().'teljes_nev']), "`szemelyzet_id`='{$id}'");
+        $log .= ' Érintett felhasználókat is módosította.';
     }
+    
+    // Logba is eltároljuk
+    $sql = $adatbazis_kapcsolat -> i('log',
+                                array( 'felh_id',                               'nev',                                                                                        'valtozas',    'ip'                    ),
+                                array( $_SESSION[get_db_tabla().'login_recid'], $_SESSION[get_db_tabla().'teljes_nev'].' módosította '.$id.' ID-jú szerepkör jogosultságait', $log,          $_SERVER['REMOTE_ADDR'] )
+                            );
+    if( $sql === false ) { $db_error = true; }
 
     // A formAdatok JS változoót frissíteni kell
     require_once('jogosultsag.php');

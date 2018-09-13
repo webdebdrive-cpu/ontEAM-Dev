@@ -6153,7 +6153,7 @@ require('selectek.php');
             $gombok .= '<input type="button" class="gomb foGomb" value="Külső kivitelező hozzárendelése" onclick="csoportMuvelet(\'kulsokivHozzarend2\');"> ';
         }
 
-        // Nyitott státusz + Külsős előkészít jog
+        // Nyitott státusz + Nyitottak kezel jog
         if($sor['stat_id']==MUNKALAP_STAT_NYITOTT && _jog(JOG_MUNKALAP_NYITOTT_KEZEL)){
 
             $szemelyzet_tipusok = '';

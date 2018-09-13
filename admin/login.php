@@ -88,7 +88,7 @@ if( isset($_POST['jogokhozzaad']) ) {
     $log = 'Előző jogok: '.$flags['flags'].'. Új jogok: '.implode('', $jogok);
 
     // Új jogok letárolása
-    $sql = $adatbazis_kapcsolat -> u('login',  array('flags'), array(implode('', $jogok)), "`recid`='{$id}'");
+    $sql = $adatbazis_kapcsolat -> u('login',  array('flags', 'update_usr'), array(implode('', $jogok), $_SESSION[get_db_tabla().'teljes_nev']), "`recid`='{$id}'");
     if( $sql === false ) { $db_error = true; }
 
     // Logba is eltároljuk
