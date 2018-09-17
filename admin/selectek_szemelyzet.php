@@ -28,3 +28,12 @@ if( !in_array(basename(self()), $kiveteles_oldalak) ) {
     array_push($select_szemelyzet, array('name' => getSzerepkorNev(MUSZAKI_IGAZGATO),          'value' => MUSZAKI_IGAZGATO,        'szin' => '#E0CBFF', 'kulsos' => 0 ));
     array_push($select_szemelyzet, array('name' => getSzerepkorNev(SZALLODA_IGAZGATO),         'value' => SZALLODA_IGAZGATO,       'szin' => '#E0CBFF', 'kulsos' => 0 ));
 }
+
+
+// Csak a felhasználók felületén mutatjuk meg még ezeken felül az általuk létrehozott szerepköröket
+if(basename(self())=='login.php'){
+    $tovabbi_szerepkorok = $adatbazis_kapcsolat->s('recid nev', 'szerepkor', "`recid`>'12'", 'nev');
+    foreach($tovabbi_szerepkorok as $szerepkor){
+        array_push($select_szemelyzet, array('name' => $szerepkor['nev'],         'value' => $szerepkor['recid'],       'szin' => '', 'kulsos' => 0 ));
+    }
+}

@@ -97,10 +97,18 @@ if (isset($_POST['get_szalloda'])) {
 
     // Kijelölt tervnek mi a státusza
     $munkakozi = 0;
-    $kijelolt = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_POST['recid']}'");
-    if($kijelolt['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
-        $munkakozi = 1;
+    if(is_numeric($_POST['recid']) && $_POST['recid']>0){
+        $kijelolt = $adatbazis_kapcsolat->s2('stat_id', 'fenntartasi_terv', "`recid`='{$_POST['recid']}'");
+        if($kijelolt['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+            $munkakozi = 1;
+        }
+    // Ha üres a bal navpanel, és nincs is kijelölve rekord, akkor sem ajánljuk fel a popupban azt, hogy a kijelölt alapján hozza létre az új tervet
+    }else{
+        // A lényeg, hogy a $munkakozi változó kapjon valami értéket, mert 0 esetén megjelenik 'A kielölt alapján' gomb
+        $munkakozi = 2;
     }
+    
+    
 
     echo json_encode( array(
                     'telephely_select'  => $szall_html,

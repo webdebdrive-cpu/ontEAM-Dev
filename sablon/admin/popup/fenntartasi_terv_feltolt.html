@@ -48,7 +48,7 @@
                 if(response){
                     response = JSON.parse(response);
                     $('#fterv_szalloda').html(response.telephely_select);
-                    if(!response.munkakozi){
+                    if(response.munkakozi=='0'){
                         $('#kijelolt_alapjan').removeClass('dn');
                     }
                     $('#'+response.focus).focus();
