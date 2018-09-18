@@ -279,7 +279,7 @@ if(_jog(JOG_CIKKTORZS_MEGTEKINT)){
 }
 
 // Csak bejelentő elől rejtve
-if(!$_SESSION['bejelento_menu_rejt']){
+if(!$_SESSION['bejelento_menu_rejt'] && ( _jog(JOG_ESZKOZ_MEGTEKINT) || _jog(JOG_FT_MEGTEKINT) ) ){
     // Eszközök
     $menu_nev        = 'Eszközök';
     $menu_nev_kis    = 'eszközök';
@@ -359,7 +359,7 @@ if( !$_SESSION['bejelento_menu_rejt'] && (_jog(JOG_ENERGIA_EGYSEGAR_OLVAS) || _j
 }
 
 // Csak bejelentő elől rejtve
-if(!$_SESSION['bejelento_menu_rejt']){
+if(!$_SESSION['bejelento_menu_rejt']  ){
     // Energia
     $menu_nev        = 'Energia';
     $menu_nev_kis    = 'energia';
@@ -370,7 +370,7 @@ if(!$_SESSION['bejelento_menu_rejt']){
     if(basename(self())==$megn.'.php'){ $oldalNev = $menu_nev; }
 
     $aktmenuk  = '';
-    //$aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Gépek'  ), $almenu_sablon );
+    // $aktmenuk .= str_replace( $akt_almenu_mit, array( $aloldalak['0'], 'Gépek'  ), $almenu_sablon );
 
     $style = '';
     if(substr( basename(self()), 0, strlen(basename($_SERVER['PHP_SELF']))-4 ) == $megn){
