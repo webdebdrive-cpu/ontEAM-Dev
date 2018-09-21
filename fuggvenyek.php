@@ -2274,7 +2274,7 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
 
         // Rendezés beosztásnál
         if($tabla=='beosztas'){
-            // Ha iktatószám szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            // Ha telephely szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
             if($_GET['rend']=='telephely_id'){
                 $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'beosztas`.`tol`';
             }
@@ -2341,6 +2341,14 @@ function szamla_lista( $where, $tabla, $kijeloltek = false, $csak_sql_miatt = fa
                 $order .= '`'.get_db_tabla().$tabla.'`.`ikt_szam` '.$_GET['irany'].', `'.get_db_tabla().'telephely`.`nev`';
             }
 
+        }
+        
+        // Rendezés fenntartási tervnél
+        if($tabla=='fenntartasi_terv'){
+            // Ha telephely szerint rendezünk, akkor ez lesz a következő rendezési szempont, és az irány is erre vonatkozik
+            if($_GET['rend']=='telephely_id'){
+                $order = '`'.get_db_tabla().'telephely`.`nev` '.$_GET['irany'].', `'.get_db_tabla().'fenntartasi_terv`.`ev` '.$_GET['ellen_irany'].', `'.get_db_tabla().'fenntartasi_terv`.`update_dt` '.$_GET['ellen_irany'].'';
+            }
         }
 
         // Rendezés munkalap esetén külön problémakör:
@@ -3601,14 +3609,13 @@ function fenntartasi_tervLista( $bejegyzesek, $tabla, $frissit, $kijeloltek ) {
 
             $li_tart = '<a class="szamla" data-recid="'.$bsz['recid'].'" data-fajl="'.$tabla.'.php" data-muvelet="modosit">
                             <table>
-                            <tr>
-                                <td style="width: 7rem">'.$bsz['ikt_szam'].'</td>
-                                <td style="width: 3.6rem">'.$bsz['ev'].'</td>
-                                <td style="width: 7rem">'.getStatText('energia_terv', $bsz['stat_id']).'</td>
-                                <td>'.$szalloda_neve.'</td>
+                            <tr> 
+                                <td style="width: 8rem">'.$szalloda_neve.'</td>
+                                <td style="width: 4rem">'.$bsz['ev'].'</td>
+                                <td>'.getStatText('energia_terv', $bsz['stat_id']).'</td>
                             </tr>
                             <tr>
-                                <td colspan="4">'.$bsz['text'].'</td>
+                                <td colspan="3">'.$bsz['text'].'</td>
                             </tr>
                             </table>
                         </a>';

@@ -433,12 +433,12 @@ switch($tabla) {
                                 ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('stat_id', 'ikt_szam', 'ev'     );
-        $_OPTS['iranyok']   = array('desc',    'desc',     'asc'    );
+        $_OPTS['rendezes']  = array('telephely_id', 'stat_id', 'ikt_szam', 'ev'     );
+        $_OPTS['iranyok']   = array('asc',          'desc',    'desc',     'asc'    );
 
         // Default rendezés
         if( !$_GET['rend'] ) {
-            $_GET['rend'] = 'ikt_szam';
+            $_GET['rend'] = 'telephely_id';
         }
 
     break;

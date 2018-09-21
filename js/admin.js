@@ -373,7 +373,7 @@ $(function() {
             popup_display = $('#popup').css('display');
 
             if( (className !== undefined && className.indexOf('disableNav') !== -1) || popup_display == 'block' || $('#alert2').length || !$('#beleptet_alert').hasClass('dn') ) {
-                return false;
+                
             }
 
             var ketHasabos = new Array(
@@ -443,27 +443,29 @@ $(function() {
                         kovSzamlaSor = active - 1;
 
                         if( kovSzamlaSor < ugras ) {
-                            kovSzamlaSor = szamlaDb;
+                            kovSzamlaSor = ugras;
+                            /*kovSzamlaSor = szamlaDb;
                             elso_utolso  = true;
 
                             if( $('#tartalomJobb .fht-tbody').length ) {
                                 $('#tartalomJobb .fht-tbody').scrollTop($('#tartalomJobb .fht-tbody').prop('scrollHeight'));
                             } else {
                                 $('#tartalomJobb').scrollTop($('#tartalomJobb').prop('scrollHeight'));
-                            }
+                            }*/
                         }
                     } else if( e.keyCode == KEY_DOWN ) {
                         kovSzamlaSor = active + 1;
 
                         if( kovSzamlaSor > szamlaDb ) {
-                            kovSzamlaSor = ugras;
+                            kovSzamlaSor = active;
+                            /*kovSzamlaSor = ugras;
                             elso_utolso  = true;
 
                             if( $('#tartalomJobb .fht-tbody').length ) {
                                 $('#tartalomJobb .fht-tbody').scrollTop(0);
                             } else {
                                 $('#tartalomJobb').scrollTop(0);
-                            }
+                            }*/
                         }
                     }
 
@@ -503,15 +505,17 @@ $(function() {
                         kovSzamlaSor = active - 1;
 
                         if( kovSzamlaSor < 0 ) {
-                            kovSzamlaSor = szamlaDb;
-                            elso_utolso  = true;
+                            kovSzamlaSor = 0; /* 2018.09.21 Tibi kérésére az első soron felfele nyílra lépve maradunk az első soron, nem pedig az utolsóra lépünk át */
+                            /*kovSzamlaSor = szamlaDb;
+                            elso_utolso  = true;*/
                         }
                     } else if( e.keyCode == KEY_DOWN ) {
                         kovSzamlaSor = active + 1;
 
                         if( kovSzamlaSor > szamlaDb ) {
-                            kovSzamlaSor = 0;
-                            elso_utolso  = true;
+                            kovSzamlaSor = szamlaDb; /* 2018.09.21 Tibi kérésére az u tolsó soron lefele nyílra lépve maradunk az utolsó soron, nem pedig az elsőre lépünk át */
+                            /*kovSzamlaSor = 0;
+                            elso_utolso  = true;*/
                         }
                     }
 
