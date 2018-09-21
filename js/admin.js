@@ -443,7 +443,7 @@ $(function() {
                         kovSzamlaSor = active - 1;
 
                         if( kovSzamlaSor < ugras ) {
-                            kovSzamlaSor = ugras;
+                            kovSzamlaSor = ugras;/* 2018.09.21 Tibi kérésére az első soron felfele nyílra lépve maradunk az első soron, nem pedig az utolsóra lépünk át */
                             /*kovSzamlaSor = szamlaDb;
                             elso_utolso  = true;
 
@@ -457,7 +457,7 @@ $(function() {
                         kovSzamlaSor = active + 1;
 
                         if( kovSzamlaSor > szamlaDb ) {
-                            kovSzamlaSor = active;
+                            kovSzamlaSor = active; /* 2018.09.21 Tibi kérésére az u tolsó soron lefele nyílra lépve maradunk az utolsó soron, nem pedig az elsőre lépünk át */
                             /*kovSzamlaSor = ugras;
                             elso_utolso  = true;
 
