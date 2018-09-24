@@ -373,7 +373,7 @@ $(function() {
             popup_display = $('#popup').css('display');
 
             if( (className !== undefined && className.indexOf('disableNav') !== -1) || popup_display == 'block' || $('#alert2').length || !$('#beleptet_alert').hasClass('dn') ) {
-                
+
             }
 
             var ketHasabos = new Array(
@@ -746,6 +746,7 @@ $(function() {
     });
 
     shiftCtrl = false;
+    alt_tab = false;
     $(document).on('keydown', function(e) {
         if( e.shiftKey || e.ctrlKey ) {
             if( !shiftCtrl ) {
@@ -753,12 +754,20 @@ $(function() {
                 shiftCtrl = true;
             }
         }
+
+        if( e.altKey ) {
+            alt_tab = true;
+        }
     });
 
     $(document).on('keyup', function(e) {
         if( !e.shiftKey || !e.ctrlKey ) {
             $('.kijCont').removeClass('link');
             shiftCtrl = false;
+        }
+
+        if( !e.altKey ) {
+            alt_tab = false;
         }
     });
 
@@ -1552,7 +1561,10 @@ console.log('b'+active_top);
 
             /* Ez azért kell, hogy ha 0 volt az értéke, kitörlöm üresnek, akkor az ezresek 0-át vissza teszi bele, tehát a mezőről le kellene venni a 'mod' class-t, és ezt egy focus-blur-al oldom meg */
             $(this).addClass('nincs_tobb_blurozas');
-            $(this).focus().blur();
+
+            if( !alt_tab ) {
+                $(this).focus().blur();
+            }
         }
 
     });
@@ -1806,6 +1818,11 @@ function fixTable() {
 
         if( tartalomScrollHeight > tartalomHeight ) {
             $('#fixTable').height($('#tartalomJobb').height() - 50);
+
+            var fHeader = $('#fixTable .fht-thead').height();
+            var fFooter = $('#fixTable .fht-tfoot').height();
+
+            $('#fixTable .fht-tbody').height($('#tartalomJobb').height() - 50 - fHeader - fFooter);
             $('#fixTable table').fixedHeaderTable({
                 footer: true,
                 width: '100%',
@@ -4780,11 +4797,21 @@ function naviKov() {
 }
 
 function naviElso() {
-    $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
+    if( $('.szamla_cont_tabla').length || aktiv_oldal == 'szamla_cont_tabla' ) {
+        $('.szamla_cont_tabla tbody tr').eq(0).trigger('click');
+        $('#tartalomJobb .fht-tbody').scrollTop(0);
+    } else {
+        $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
+    }
 }
 
 function naviUtolso() {
-    $('#szamlaList li.szamla_sor:last-child a').trigger('click');
+    if( $('.szamla_cont_tabla').length || aktiv_oldal == 'szamla_cont_tabla' ) {
+        $('.szamla_cont_tabla tbody tr:last-child').trigger('click');
+        $('#tartalomJobb .fht-tbody').scrollTop($('#tartalomJobb .fht-tbody').prop('scrollHeight'));
+    } else {
+        $('#szamlaList li.szamla_sor:last-child a').trigger('click');
+    }
 }
 
 function naviSzerk() {
