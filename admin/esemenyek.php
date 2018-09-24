@@ -433,8 +433,9 @@ switch($tabla) {
                                 ');
 
         // Ezek az oszlopok generálódnak ki a rendezés selectbe, lehet szépíteni az oszlopneveket, amit a getOszlopNev() függvényben kell beállítani
-        $_OPTS['rendezes']  = array('telephely_id', 'stat_id', 'ikt_szam', 'ev'     );
-        $_OPTS['iranyok']   = array('asc',          'desc',    'desc',     'asc'    );
+        // 2018.09.24 Tervszám kivéve, de majd még lehet vissza kell tenni.
+        $_OPTS['rendezes']  = array('telephely_id', 'stat_id', /*'ikt_szam', */'ev'     );
+        $_OPTS['iranyok']   = array('asc',          'desc',    /*'desc',     */'asc'    );
 
         // Default rendezés
         if( !$_GET['rend'] ) {

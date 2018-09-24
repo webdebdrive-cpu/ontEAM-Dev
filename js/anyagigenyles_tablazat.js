@@ -12,6 +12,11 @@ $(document).ready(function () {
     if( !$('.szamla_cont_tabla tbody tr.kijelolve').length ){
         $('.szamla_cont_tabla tbody tr:nth-of-type(2)').click();
     }
+    
+    /* Ha van már kijelölt sor, akkor meg ahhoz ugorjunk */
+    if($('.szamla_cont_tabla tr.kijelolve').length){
+        $('#tartalomJobb').scrollTop( $('.szamla_cont_tabla tr.kijelolve').position().top-100 );
+    }
 });
 
 /* Anyagigénylés táblázatban a jóváhagyott mennyiség értéke ha változik. A anyagig_eredeti_jhmen tömb a fuggvenyek.php-ban az anyagigenyleslista() résznél jön létre, ahol a táblázat HTML-je kigenerálódik */

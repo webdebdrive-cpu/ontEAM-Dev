@@ -746,7 +746,7 @@ $(function() {
     });
 
     shiftCtrl = false;
-    alt_tab = false;
+    alt_tab   = false;
     $(document).on('keydown', function(e) {
         if( e.shiftKey || e.ctrlKey ) {
             if( !shiftCtrl ) {
@@ -1559,7 +1559,7 @@ console.log('b'+active_top);
             }
             $(this).val( ezresek($(this).val().replace(/ /g, '').replace('.', '').replace(',', '.'), tort, ',', ' ') );
 
-            /* Ez azért kell, hogy ha 0 volt az értéke, kitörlöm üresnek, akkor az ezresek 0-át vissza teszi bele, tehát a mezőről le kellene venni a 'mod' class-t, és ezt egy focus-blur-al oldom meg */
+            /* Ez azért kell, hogy ha 0 volt az értéke, kitörlöm üresnek, akkor az ezresek 0-ját vissza teszi bele, tehát a mezőről le kellene venni a 'mod' class-t, és ezt egy focus-blur-al oldom meg */
             $(this).addClass('nincs_tobb_blurozas');
 
             if( !alt_tab ) {
@@ -4797,20 +4797,36 @@ function naviKov() {
 }
 
 function naviElso() {
-    if( $('.szamla_cont_tabla').length || aktiv_oldal == 'szamla_cont_tabla' ) {
-        $('.szamla_cont_tabla tbody tr').eq(0).trigger('click');
-        $('#tartalomJobb .fht-tbody').scrollTop(0);
-    } else {
-        $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
+    /* Anyagigénylésnél másképp járunk el */
+    if( baseName(location.href)=='anyagigenyles' ){
+        $('table.szamla_cont_tabla tbody tr:nth-of-type(2)').addClass('kijelolve').click();
+        $('#tartalomJobb').scrollTop(0);
+    }else{
+        /* Navpanel az aktív felület */
+        if( $('.szamla_cont_tabla').length || aktiv_oldal == 'szamla_cont_tabla' ) {
+            $('.szamla_cont_tabla tbody tr').eq(0).trigger('click');
+            $('#tartalomJobb .fht-tbody').scrollTop(0);
+        /* Bal oldali területen egy táblázat az aktív */
+        } else {
+            $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
+        }
     }
 }
 
 function naviUtolso() {
-    if( $('.szamla_cont_tabla').length || aktiv_oldal == 'szamla_cont_tabla' ) {
-        $('.szamla_cont_tabla tbody tr:last-child').trigger('click');
-        $('#tartalomJobb .fht-tbody').scrollTop($('#tartalomJobb .fht-tbody').prop('scrollHeight'));
-    } else {
-        $('#szamlaList li.szamla_sor:last-child a').trigger('click');
+    /* Anyagigénylésnél másképp járunk el */
+    if( baseName(location.href)=='anyagigenyles' ){
+        $('table.szamla_cont_tabla tbody tr:last-of-type').addClass('kijelolve').click();
+        $('#tartalomJobb').scrollTop($('#tartalomJobb').prop('scrollHeight'));
+    }else{
+        /* Navpanel az aktív felület */
+        if( $('.szamla_cont_tabla').length || aktiv_oldal == 'szamla_cont_tabla' ) {
+            $('.szamla_cont_tabla tbody tr:last-child').trigger('click');
+            $('#tartalomJobb .fht-tbody').scrollTop($('#tartalomJobb .fht-tbody').prop('scrollHeight'));
+        /* Bal oldali területen egy táblázat az aktív */
+        } else {
+            $('#szamlaList li.szamla_sor:last-child a').trigger('click');
+        }
     }
 }
 
@@ -4848,18 +4864,6 @@ function scrollLeptet() {
             $('#tartalomJobb').scrollTop( $('#tartalomJobb').scrollTop() + activeHeight + offset );
         }
 
-        /* Összeadjuk az active elem magasságát és a felső eltolását */
-        /*var aTopH = active_top + activeHeight;
-
-        if( (aTopH - activeHeight) < 0 ) {
-            $('#tartalomJobb').scrollTop(0);
-            aTop = $('.szamla_cont_tabla tr.kijelolve').position().top;
-            $('#tartalomJobb').scrollTop(aTop - 250);
-        } else {
-            $('#tartalomJobb').scrollTop(0);
-            aTop = $('.szamla_cont_tabla tr.kijelolve').position().top;
-            $('#tartalomJobb').scrollTop(aTop - tartBalHeight + activeHeight + 250 );
-        }*/
     } else if($('.szamla_cont_tabla').length || aktiv_oldal == 'szamla_cont_tabla') {
         if( $('.szamla_cont_tabla tr.kijelolve').length ) {
             var active_top      = $('.szamla_cont_tabla tr.kijelolve').position().top,
