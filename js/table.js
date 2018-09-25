@@ -460,7 +460,10 @@ function fejlecPozicional() {
             'position'  : 'fixed',
             'top'       : parentOffset.top,
             'left'      : -Math.abs(scrollLeft),
-            'z-index'   : '10'
+            'z-index'   : '10',
+            /* Ez a kettó azért kell, hogy a fejléc ne takarja ki a scrollt */
+            'right'     : '1.6rem',
+            'overflow-x': 'hidden'
         });
     });
 }

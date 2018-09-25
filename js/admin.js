@@ -1797,6 +1797,7 @@ console.log('b'+active_top);
         }
     });
 
+    /* Aktív terület váltása: nav panel (bal oldalt) vagy jobb oldali terület. Le-fel nyillal léptetésnél nem mindegy. */
     aktiv_oldal = 'szamla_cont';
     $(document).on('click', '.szamla_cont .szamla_sor', function() {
         aktiv_oldal = 'szamla_cont';
@@ -4802,13 +4803,14 @@ function naviElso() {
         $('table.szamla_cont_tabla tbody tr:nth-of-type(2)').addClass('kijelolve').click();
         $('#tartalomJobb').scrollTop(0);
     }else{
-        /* Navpanel az aktív felület */
-        if( $('.szamla_cont_tabla').length || aktiv_oldal == 'szamla_cont_tabla' ) {
+        /* Bal oldali területen egy táblázat az aktív */
+        if( /*$('.szamla_cont_tabla').length ||*/ aktiv_oldal == 'szamla_cont_tabla' ) {
             $('.szamla_cont_tabla tbody tr').eq(0).trigger('click');
             $('#tartalomJobb .fht-tbody').scrollTop(0);
-        /* Bal oldali területen egy táblázat az aktív */
+        /* Navpanel az aktív felület */
         } else {
             $('#szamlaList li.szamla_sor').eq(0).find('a').trigger('click');
+            $('#tartalomJobb').scrollTop(0);
         }
     }
 }
@@ -4819,11 +4821,11 @@ function naviUtolso() {
         $('table.szamla_cont_tabla tbody tr:last-of-type').addClass('kijelolve').click();
         $('#tartalomJobb').scrollTop($('#tartalomJobb').prop('scrollHeight'));
     }else{
-        /* Navpanel az aktív felület */
-        if( $('.szamla_cont_tabla').length || aktiv_oldal == 'szamla_cont_tabla' ) {
+        /* Bal oldali területen egy táblázat az aktív */
+        if( /*$('.szamla_cont_tabla').length ||*/ aktiv_oldal == 'szamla_cont_tabla' ) {
             $('.szamla_cont_tabla tbody tr:last-child').trigger('click');
             $('#tartalomJobb .fht-tbody').scrollTop($('#tartalomJobb .fht-tbody').prop('scrollHeight'));
-        /* Bal oldali területen egy táblázat az aktív */
+        /* Navpanel az aktív felület */
         } else {
             $('#szamlaList li.szamla_sor:last-child a').trigger('click');
         }
@@ -4844,6 +4846,7 @@ function naviTorles() {
 
 /* Bal oldali navpanelben kijelölt sor magasságában legyen a scroll */
 function scrollLeptet() {
+    /* Húzogathatós táblázathoz */
     if( $('.sar-table').length ) {
 
         var active_top      = $('.szamla_cont_tabla tr.kijelolve').position().top,
@@ -4864,7 +4867,9 @@ function scrollLeptet() {
             $('#tartalomJobb').scrollTop( $('#tartalomJobb').scrollTop() + activeHeight + offset );
         }
 
-    } else if($('.szamla_cont_tabla').length || aktiv_oldal == 'szamla_cont_tabla') {
+    /* Jobb oldali területen található táblázat léptetése */
+    } else if(aktiv_oldal == 'szamla_cont_tabla') {
+        
         if( $('.szamla_cont_tabla tr.kijelolve').length ) {
             var active_top      = $('.szamla_cont_tabla tr.kijelolve').position().top,
                 activeHeight    = $('.szamla_cont_tabla tr.kijelolve').outerHeight();
@@ -4909,7 +4914,9 @@ function scrollLeptet() {
             }
         }
 
+    /* Bal nav panel léptetése */
     } else {
+        
         if( $('.szamla_sor').hasClass('kijelolve') ) {
             var active_top      = $('.szamla_sor.kijelolve').position().top,
                 activeHeight    = $('.szamla_sor.kijelolve').outerHeight(),

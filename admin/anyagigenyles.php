@@ -2769,6 +2769,7 @@ require_once('selectek.php');
                 </style>
                 <script src="../js/sorttable.js"></script>
                 <script src="../js/anyagigenyles_tablazat.js"></script>
+                <script>$(document).ready(function () { fejlecPozicional(); });</script>
         ');
 
         $szamla_html .= $balNavPanelHTMLje;
