@@ -3,7 +3,6 @@ require_once('../weblap.php');
 require_once('datumra_utemezes.php');
 
 
-
 // Ütemezett feladatok lekérdezése, bejárása
 $log_utvonal = str_replace('.php', '', basename(self())).'.err';
 $log_tmp = $log = '
@@ -61,10 +60,9 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
         if($szemelyzet_id==KULSO_KIVITELEZO){
             $szemelyzet_id = MUSZAKI_VEZETO;
         }
-        
+
         // Új munkalap státusza mi legyen. Alapból nyitott
         $ujrecid = munkalap_letrehoz(MUNKALAP_STAT_NYITOTT, $ut_feladat['telephely_id'], $tipus, $ut_feladat['obj_id'], $ut_feladat['gep_id'], 0, $text, $szemelyzet_id, $ut_feladat['szallito_id'], $ut_feladat['id'], $ut_feladat['esnap_d'], '', $ut_feladat['loginnev']);
-
         if( $ujrecid === false ) {
             $db_error = true;
             $log_tmp = 'NEM SIKERÜLT új munkalapot létrehozni: '.$adatbazis_kapcsolat->gp().'
@@ -76,6 +74,7 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
         $log .= $log_tmp;
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
+        $log_tmp = ''; // Azért ürítem, mert már ki van írva a fájba, és ha a következő feltételekből egyik sem teljesül, akkor a LOG-ba bekerül mégegyszer ugyanaz a sor
         // Egyszállodás modell esetén a munkalap automatikusan hozzárendelt státuszban jön létre, ha telepített a hozzárendelt személyzet
         if( !$szalloda['modell'] && $ut_feladat['szemelyzet_id']==TELEPITETT_SZEMELYZET ){
             if( addStatusz('munkalap_statusz', $ujrecid, MUNKALAP_STAT_HOZZARENDELT, '', '', '', '', $ut_feladat['loginnev'])===false){
@@ -249,6 +248,8 @@ file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
 // A lefutást is eltároljuk
 //$adatbazis_kapcsolat->i('utemezo_log', array('utemezo', 'log'), array(basename(self()), $log));
- mysqli_query($db_kapcs, 'INSERT INTO `'.get_db_tabla().'utemezo_log` SET `utemezo`=\''.basename(self()).'\', `log`=\''.addslashes($log).'\'') or die(mysqli_error($db_kapcs));
+mysqli_autocommit($db_kapcs, false);
+mysqli_query($db_kapcs, 'INSERT INTO `'.get_db_tabla().'utemezo_log` SET `utemezo`=\''.basename(self()).'\', `log`=\''.addslashes($log).'\'') or die(mysqli_error($db_kapcs));
+mysqli_commit($db_kapcs);
 
 $weblap -> leallit();
