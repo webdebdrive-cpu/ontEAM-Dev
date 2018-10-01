@@ -95,8 +95,8 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
         file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
 
         // Feladat adatainak frissítése
-        $oszlopok = array('utnap_d',        'utesnap_d'             );
-        $ertekek  = array(date('Y-m-d'),    $ut_feladat['esnap_d']  );
+        $oszlopok = array('utnap_d',        'utesnap_d',            'update_usr');
+        $ertekek  = array(date('Y-m-d'),    $ut_feladat['esnap_d'], get_nev()   );
 
         // Ha nem határidős (azaz ciklikus), akkor futtatjuk ütemező programot, ami visszaadja következő esedékességet
         if($ut_feladat['cikltip']!='l'){
@@ -211,8 +211,8 @@ foreach($eseti_fenntartasok as $eseti){
 
     // Feladat adatainak frissítése. Ütemezés napja a mai nap; Utolsó esedékessék napa az esnap-d mező értéke. Inaktiváljuk, de a lérehozott ML recid-ját is eltároljuk, hogy visszaaktiválással ne ütemeződjön újra.
     // Tehát csak azokból az eseti karbnatartásokból fogunk ML-ot készíteni, aminél még nincs letárolva a munkalap_recid oszlop.
-    $sql = $adatbazis_kapcsolat->u('eseti_fenntartas',  array('utnap_d',        'utesnap_d',       'munkalap_recid', 'aktiv' ),
-                                                        array(date('Y-m-d'),    $eseti['esnap_d'], $ujrecid,         0       ),
+    $sql = $adatbazis_kapcsolat->u('eseti_fenntartas',  array('utnap_d',        'utesnap_d',       'munkalap_recid', 'aktiv', 'update_usr'  ),
+                                                        array(date('Y-m-d'),    $eseti['esnap_d'], $ujrecid,         0,       get_nev()     ),
                                     "`recid`='{$eseti['recid']}'");
     if( $sql === false ) { 
         $db_error = true;
