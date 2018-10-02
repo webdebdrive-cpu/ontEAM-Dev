@@ -373,7 +373,7 @@ $(function() {
             popup_display = $('#popup').css('display');
 
             if( (className !== undefined && className.indexOf('disableNav') !== -1) || popup_display == 'block' || $('#alert2').length || !$('#beleptet_alert').hasClass('dn') ) {
-
+                return false;
             }
 
             var ketHasabos = new Array(
@@ -4869,7 +4869,7 @@ function scrollLeptet() {
 
     /* Jobb oldali területen található táblázat léptetése */
     } else if(aktiv_oldal == 'szamla_cont_tabla') {
-        
+
         if( $('.szamla_cont_tabla tr.kijelolve').length ) {
             var active_top      = $('.szamla_cont_tabla tr.kijelolve').position().top,
                 activeHeight    = $('.szamla_cont_tabla tr.kijelolve').outerHeight();
@@ -4916,7 +4916,7 @@ function scrollLeptet() {
 
     /* Bal nav panel léptetése */
     } else {
-        
+
         if( $('.szamla_sor').hasClass('kijelolve') ) {
             var active_top      = $('.szamla_sor.kijelolve').position().top,
                 activeHeight    = $('.szamla_sor.kijelolve').outerHeight(),
