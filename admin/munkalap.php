@@ -4155,7 +4155,7 @@ if( isset($_POST['atadasDiszpecsernek']) ) {
 
         // Hozzáadjuk a megjegyzést is ha van
         if( $memo ) {
-            $megj_felvesz = addMegj('munkalap', $recid, $memo);
+            $megj_felvesz = addMegj('munkalap', $recid, 'Visszaadás oka:'."\r\n".$memo);
             if( $megj_felvesz === false ) { $db_error = true; }
         }
 
