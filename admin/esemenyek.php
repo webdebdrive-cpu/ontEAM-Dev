@@ -1238,9 +1238,9 @@ $munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
     array('type' => 'text',                     'megn' => 'Igényelt elvégzés:',         'name' => 'ig_el_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker', 'maxlength' => 16, 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
     array('type' => 'text',                     'megn' => 'Esedékes:',                  'name' => 'esnap_d',            'szuro' => 1, 'disabled' => 1,                  'class' => 'datepicker'),
     array('type' => 'text',                     'megn' => 'Várható érkezés:',           'name' => 'varh_erk',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker', 'maxlength' => 16),
+    array('type' => 'nosql',                    'name' => '', 'megn_szurobe' => 'Létrehozás dátuma',       'name' => 'insert_dt',    'szuro' => 1,  'class' => 'datetimepicker'),
 	array('type' => 'nosql',                    'name' => 'ujkentSzerkID'),
 	array('type' => 'nosql',                    'megn' => 'Mobilcsoport:',              'name' => 'mobil',              'szuro' => 1),
-	array('type' => 'nosql',                    'megn' => 'Esedékes:',                  'name' => 'esnap_d',            'szuro' => 1,                                   'class' => 'datepicker'),
 	array('type' => 'nosql','type_szurohoz' => 'autocomplete','megn' => 'Hiba:',        'name' => 'hiba_txt',           'szuro' => 1, 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_BEJ_HIBA, 'id_kiir' => 'info'),
 );
 array_push($postok, array('tomb' => $akt_tomb, 'uj' => 'uj'.$megnevezes, 'lista' => $megnevezes.'lista', 'tabla' => $megnevezes, 'torid' => $megnevezes.'tid' ));

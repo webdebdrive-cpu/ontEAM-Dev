@@ -7,14 +7,14 @@ if (isset($_POST['f_szuro_mezo'])) {
     $selected_equal = '';
     $selected_like = '';
     $selected_empty = '';
-    if($_POST['selected']=='equal'  ){ $selected_equal  = ' selected'; }
-    if($_POST['selected']=='like'   ){ $selected_like   = ' selected'; }
-    if($_POST['selected']=='empty'  ){ $selected_empty  = ' selected'; }
-    if($_POST['selected']=='gteq'   ){ $selected_gteq   = ' selected'; }
-    if($_POST['selected']=='lteq'   ){ $selected_lteq   = ' selected'; }
-    if($_POST['selected']=='gt'     ){ $selected_gt     = ' selected'; }
-    if($_POST['selected']=='lt'     ){ $selected_lt     = ' selected'; }
-    if($_POST['selected']=='not_eq' ){ $selected_not_eq = ' selected'; }
+    if($_POST['selected']=='equal'      ){ $selected_equal      = ' selected'; }
+    if($_POST['selected']=='like'       ){ $selected_like       = ' selected'; }
+    if($_POST['selected']=='empty'      ){ $selected_empty      = ' selected'; }
+    if($_POST['selected']=='gteq'       ){ $selected_gteq       = ' selected'; }
+    if($_POST['selected']=='lteq'       ){ $selected_lteq       = ' selected'; }
+    if($_POST['selected']=='gt'         ){ $selected_gt         = ' selected'; }
+    if($_POST['selected']=='lt'         ){ $selected_lt         = ' selected'; }
+    if($_POST['selected']=='not_eq'     ){ $selected_not_eq     = ' selected'; }
 
     // A tömbben előforduló selectek tömbje. Innen tudjuk hogy csak két operátor tartozhat hozzá
     $selectek = array(
@@ -42,8 +42,12 @@ if (isset($_POST['f_szuro_mezo'])) {
             }elseif( strpos($ertek['class'], 'datepicker')!==false || strpos($ertek['class'], 'datetimepicker')!==false ){
 
                 $operator .= '<option value="equal"'.$selected_equal.'>=</option>';
+                $operator .= '<option value="gteq"'.$selected_gteq.'>&gt;=</option>';
                 $operator .= '<option value="gt"'.$selected_gt.'>&gt;</option>';
+                $operator .= '<option value="lteq"'.$selected_lteq.'>&lt;=</option>';
                 $operator .= '<option value="lt"'.$selected_lt.'>&lt;</option>';
+                $operator .= '<option value="not_eq"'.$selected_not_eq.'>&lt;&gt;</option>';
+                $operator .= '<option value="empty"'.$selected_empty.'>Üres</option>';
 
             // Autocomplete esetén a switch.php alapján gyártunk egy inputot
             }elseif($ertek['type']=='autocomplete' || $ertek['type_szurohoz']=='autocomplete'){

@@ -6104,6 +6104,9 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         return '`'.get_db_tabla().'bejelentes`.`telephely_id`=\''.$felt.'\'';
     }elseif($tabla=='bejelentes' && $mezo=='insert_dt'){
         $felt = str_replace('.', '-', $felt);
+        if($op_origi=='empty'){
+            $felt = '0000-00-00';
+        }
         return '`'.get_db_tabla().'bejelentes`.`insert_dt`'.$op.'\''.$felt.'\'';
     }elseif($tabla=='login' && $mezo=='jogosultsag'){
         return 'SUBSTRING(`flags`, '.($felt+1).', 1)=1';
@@ -6117,6 +6120,12 @@ function get_szures_where_kieg($mezo, $op, $felt, $tabla){
         }else{
             return '`stat_id`=\''.MUNKALAP_STAT_DONTESRE_VAR.'\' AND (`jh1_szerep` NOT IN (\''.MSZK_VEZETO.'\', \''.MUSZAKI_IGAZGATO.'\') AND `jh2_szerep` NOT IN (\''.MSZK_VEZETO.'\', \''.MUSZAKI_IGAZGATO.'\'))';
         }
+    }elseif($tabla=='munkalap' && $mezo=='insert_dt'){
+        $felt = str_replace('.', '-', $felt);
+        if($op_origi=='empty'){
+            $felt = '0000-00-00';
+        }
+        return '`'.get_db_tabla().'munkalap`.`insert_dt`'.$op.'\''.$felt.'\'';
     }elseif($tabla=='utemezett_feladatok' && $mezo=='telephely_id'){
         return '`'.get_db_tabla().'utemezett_feladatok`.`telephely_id`=\''.$felt.'\'';
     }elseif($tabla=='utemezett_feladatok' && $mezo=='id'){
