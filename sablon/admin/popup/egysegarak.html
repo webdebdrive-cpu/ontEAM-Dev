@@ -140,7 +140,7 @@
                 }
             }
         });
-        
+
         var id = $('.szamla_cont_tabla tr.kijelolve').attr('data-recid');
         $.ajax({
             url : 'energia_terv.php',
@@ -161,11 +161,13 @@
 
                     $('#egysegarsor_id').val(id);
                     $('#setEgysegarTablazat').html(response.html);
+                    $('select[name="egysk_oszlop"]').html(response.egysk_oszlop);
+                    $('select[name="egysv_oszlop"]').html(response.egysv_oszlop);
                 }
             }
         });
     });
-    
+
 function egysegarMuv( pre, muvelet ) {
     var ciklus  = parseInt($('select[name="' + pre + 'ciklus"]').val()),
         oszlop  = $('select[name="' + pre + 'oszlop"]').val(),
@@ -188,13 +190,13 @@ function egysegarMuv( pre, muvelet ) {
             if( muvelet == 'kitolt' ) {
                 for(var i = index; i <= 12; i += ciklus) {
                     var uj_sorszam = ('0' + i).slice(-2);
-                    
+
                     if( oszlop == 'ear' ) {
                         tizedesek = 3;
                     } else {
                         tizedesek = 5;
                     }
-                    
+
                     $('input[name="' + oszlop + uj_sorszam + '"]').val(ezresek(ertek.replace(',', '.'), tizedesek, ',', ' '));
 
                     if( oszlop == 'dnem' ) {

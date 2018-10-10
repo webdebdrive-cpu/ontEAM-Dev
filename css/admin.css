@@ -1859,6 +1859,12 @@ table.szamla_cont_tabla tr{
     border-bottom: 0.1rem solid #D6D6D6;
     cursor: pointer;
 }
+
+table.szamla_cont_tabla tr.futoertek td.dnem,
+table.szamla_cont_tabla tr.futoertek td.arf {
+    background: #ccc;
+}
+
 table.szamla_cont_tabla tbody tr:hover{
     background: #F1F8FF;
 }
