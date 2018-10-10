@@ -22,6 +22,12 @@
         <br><strong>Jóváhagyott érték:</strong>
         <br><input type="text" style="margin: 0.2rem 0 0.8rem 0" autocomplete="off" data-tort="0" class="oriasi disableNav csillag f_num" name="pop_jh_ert" id="pop_jh_ert"> Ft + Áfa
 
+        <br><strong>Becsült érték:</strong>
+        <div class="cb">
+        	<input type="checkbox" class="check" name="pop_becsult_ertek" id="pop_becsult_ertek">
+        	<label for="pop_becsult_ertek"></label>
+        </div><br>
+
         <br><strong>Várható érkezés:</strong>
         <br><input type="text" style="margin: 0.2rem 0 0.8rem 0" autocomplete="off" class="datetimepicker pop_datetimepicker" name="pop_varh_erk" id="pop_varh_erk">
 
@@ -44,7 +50,7 @@
             });
         });
         </script>
-        
+
         <br><strong>Dokumentumok hozzáadása:</strong>
         <div id="jsff_javaslattetel_popup" class="jsff">
             <span class="uzenet">
@@ -216,7 +222,7 @@
             };
 
         }
-        </script>   
+        </script>
 
     </div>
     <div class="kuldes">
@@ -226,10 +232,10 @@
 </form>
 
 <div class="kozep dn f16 b" id="mar_volt_kerdes" style="line-height: 2.3rem">
-    
+
 </div>
 <script>
-/* A popup tartalma nem biztos, hogy megjelenik, mert lehet, hogy adott munkalap volt már korábban Döntésre vár státuszban, és ekkor előbb kérdezünk. */    
+/* A popup tartalma nem biztos, hogy megjelenik, mert lehet, hogy adott munkalap volt már korábban Döntésre vár státuszban, és ekkor előbb kérdezünk. */
 $(document).ready(function(){
     $.ajax({
         url : 'munkalap.php',
@@ -242,7 +248,7 @@ $(document).ready(function(){
             if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
             if(response){
                 response = JSON.parse(response);
-                
+
                 if(response.mehet){
                     $('#munkalapKulso').show();
                 }
@@ -254,7 +260,7 @@ $(document).ready(function(){
         }
     });
 });
-    
+
 /* Külső kivitelező hozzárendelése */
 function kulsokivHozzarend() {
 
@@ -267,6 +273,7 @@ function kulsokivHozzarend() {
             szallitoid       : $('#pop_szallito_id').val(),
             jh_ert           : $('#pop_jh_ert').val(),
             varh_erk         : $('#pop_varh_erk').val(),
+            becsult_ertek    : $('#pop_becsult_ertek').prop('checked'),
             javaslattetel    : 1,
             kulsokivHozzarend: new Date().getTime()
         },
