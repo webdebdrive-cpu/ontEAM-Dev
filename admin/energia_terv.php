@@ -620,7 +620,7 @@ if ($_POST['energia_terv_koltsegnem_dijelem']) {
     $db_error = false;
     mysqli_autocommit($db_kapcs, false);
 
-    $egysegar = $adatbazis_kapcsolat->s2('telephely_idk', 'energia_terv_ear', "`recid`='{$terv_ea_id}'");
+    $egysegar = $adatbazis_kapcsolat->s2('szulo telephely_idk', 'energia_terv_ear', "`recid`='{$terv_ea_id}'");
     if( $egysegar === false ) { $db_error = true; }
 
     // Szálloda+költségnem+díjelem terven belüli egyediség ellenőrzése
@@ -651,10 +651,12 @@ if ($_POST['energia_terv_koltsegnem_dijelem']) {
     if( $sql === false ) { $db_error = true; }
 
     if( $ktgnem_id == 5114400 && $mee == 'MJ/m3' && $dijelem == 'futoertek' ) {
-        $sql = $adatbazis_kapcsolat->i('energia_terv_ear',
-            array('szulo',      'energia_terv_id',  'dijelem'   ),
-            array($terv_ea_id,  $terv_id,           'Fűtőérték' )
-        );
+        if( !$egysegar['szulo'] ) {
+            $sql = $adatbazis_kapcsolat->i('energia_terv_ear',
+                array('szulo',      'energia_terv_id',  'dijelem'   ),
+                array($terv_ea_id,  $terv_id,           'Fűtőérték' )
+            );
+        }
 
         if( $sql === false ) { $db_error = true; }
     }
@@ -788,7 +790,7 @@ if (isset($_POST['egysegar_sor_torol'])) {
     mysqli_autocommit($db_kapcs, false);
 
     // Státusz ellenőrzése
-    $terv_ear = $adatbazis_kapcsolat->s2('energia_terv_id', 'energia_terv_ear', "`recid`='{$egysegar_recid}'");
+    $terv_ear = $adatbazis_kapcsolat->s2('energia_terv_id szulo', 'energia_terv_ear', "`recid`='{$egysegar_recid}'");
     if( $terv_ear === false ) { $db_error = true; }
     $terv     = $adatbazis_kapcsolat->s2('stat_id', 'energia_terv', "`recid`='{$terv_ear['energia_terv_id']}'");
     if( $terv === false ) { $db_error = true; }
@@ -816,6 +818,15 @@ if (isset($_POST['egysegar_sor_torol'])) {
     // Sor törlése
     $sql = $adatbazis_kapcsolat->d('energia_terv_ear', "`recid`='{$egysegar_recid}'");
     if( $sql === false ) { $db_error = true; }
+
+    // Megnézzük, hogy van e gyerek elem
+    $gyerek_elem = $adatbazis_kapcsolat->s2('recid energia_terv_id szulo', 'energia_terv_ear', "`szulo`='{$egysegar_recid}'");
+    if( $gyerek_elem === false ) { $db_error = true; }
+
+    if( $gyerek_elem ) {
+        $sql = $adatbazis_kapcsolat->d('energia_terv_ear', "`recid`='".$gyerek_elem['recid']."'");
+        if( $sql === false ) { $db_error = true; }
+    }
 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
