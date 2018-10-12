@@ -1244,7 +1244,14 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
 
         $becs_ertek_text = '';
         if( $munkalap['becs_ertek'] ) {
-            $becs_ertek_text = '<br><span class="piros">A végleges költség utólagos kalkulációval lesz számítva!</span>';
+            $becs_ertek_text = nl2('
+                                    <br><span class="piros">Becsült érték: 
+                                    <div class="cb">
+                                        <input class="check" readonly checked type="checkbox" for="popup_becs_ertek">
+                                        <label readonly="readonly" for="popup_becs_ertek"></label>
+                                    </div>
+                                    <br>A végleges költség utólagos kalkulációval lesz számítva!</span>
+                                ');
         }
 
         // Ha a 2. jóváhagyásnál járunk, akkor azt is ellenőrizni kell, hogy két azonos szerepkörű ne tudja jóváhagyni
@@ -6082,7 +6089,7 @@ require('selectek.php');
             $gombok .= '<input type="button" class="gomb" value="Vissza a nyitottak közé" onclick="munkalapVisszaNyitott(\''.$_GET['id'].'\')"> ';
         }
 
-        // Visszavétel (Folyamatban státusz, user személyzettípusa diszpécser.
+        // Visszavétel 
         if( $sor['stat_id'] == MUNKALAP_STAT_HOZZARENDELT && _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ) {
             $gombok .= '<input type="button" class="gomb" value="Visszavétel" onclick="munkalapVisszavetel(\''.$_GET['id'].'\')"> ';
         }
