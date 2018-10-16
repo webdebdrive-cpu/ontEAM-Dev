@@ -1861,9 +1861,17 @@ table.szamla_cont_tabla tr{
 }
 
 table.szamla_cont_tabla tr.futoertek td.dnem,
-table.szamla_cont_tabla tr.futoertek td.arf {
+table.szamla_cont_tabla tr.futoertek td.arf,
+table.szamla_cont_tabla tr.futoertek td.szurke {
     background: #ccc;
 }
+table.szamla_cont_tabla tr.futoertek.piros_hat td.szurke{
+    background: #D09898;
+}
+table.szamla_cont_tabla tr.futoertek.zold_hat td.szurke{
+    background: #D3E9D3;
+}
+
 
 table.szamla_cont_tabla tbody tr:hover{
     background: #F1F8FF;

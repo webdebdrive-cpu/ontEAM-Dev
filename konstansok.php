@@ -135,7 +135,7 @@ function specialis_karakterek_mivel(){
     return array(' ');
 }
 
-//Projektkezeles státuszok
+// Projektkezeles státuszok
 define('PRKEZEL_STAT_NYITOTT',              '01' );
 
 
@@ -337,5 +337,11 @@ define('MLTIPUS_ESETI_FENNT',   5);
 
 define('ARCHIV_NAVPANEL_LIMIT', 1000);
 define('SZURES_DB_LIMIT',       1000);
+
+define('FUTOERTEK_KOD',         '5114400'               );
+define('FUTOERTEK_MEE',         'MJ/m3'                 );
+define('FUTOERTEK_DIJELEM',     'futoertek'             );
+define('FUTOERTEK_MEE2',        'Ft/MJ'                 );
+define('GAZFOGYASZTAS_DIJELEM', 'Gáz fogyasztás (m3)'   );
 
 ?>

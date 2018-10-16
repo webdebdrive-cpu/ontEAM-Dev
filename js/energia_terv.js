@@ -8,7 +8,6 @@ $(document).ready(function () {
 
 });
 
-
 /* Szálloda hozzárendelése energia tervhez */
 function addSzallodaEnergia( recid, that ) {
 

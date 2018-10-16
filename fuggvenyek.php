@@ -7217,10 +7217,17 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
     }
 
     $volt_valtozas  = false;
+
     $energia_soridk = array();
     $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$sor['recid']}'");
     foreach($energiak as $energia){
 
+        // Ha a gázfogyasztás sort írjuk ki, akkor azzal másképp számolunk
+        $gazfogyasztas_sor = false;
+        if( $energia['ktgnem_id']==FUTOERTEK_KOD && $energia['mee']==FUTOERTEK_MEE && $energia['dijelem']==GAZFOGYASZTAS_DIJELEM ){
+            $gazfogyasztas_sor = true;
+        }
+        
         // Innen tujduk majd, hogy mik az új sorok
         array_push($energia_soridk, $energia['sorid']);
 
@@ -7237,7 +7244,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
                 $i = '0'.$i;
             }
 
-            if($sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI){
+            if($sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && !$gazfogyasztas_sor){
                 if($energia_ear['ear'.$i]!=$energia['ear'.$i]){
                     $energia['ear'.$i] = $energia_ear['ear'.$i];
                     $energia['ft'.$i]  = $energia['em'.$i]*$energia['ear'.$i];
@@ -7255,58 +7262,63 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
         $mennyiseg_osszesen = number_format($mennyiseg_osszesen,  0, ',', ' ');
         $ertek_osszesen     = number_format($ertek_osszesen,      0, ',', ' ');
 
-        $class = '';
-        if( $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && !in_array($energia['sorid'], $eear_soridk) ){
-            $class          = ' piros_hat';
+        $class = $class2 = '';
+        if( $sor['stat_id']==ENERGIATERV_STAT_MUNKAKOZI && !in_array($energia['sorid'], $eear_soridk) && !$gazfogyasztas_sor ){
+            $class         .= ' piros_hat';
             $volt_valtozas  = true;
+        }
+        if(futoertek_sor($energia) || $gazfogyasztas_sor){
+            $class  .= ' futoertek';
+            $class2 .= ' szurke';
         }
 
         $szamla_html .= '
             <tr id="ft_em_'.$energia['recid'].'" data-recid="'.$energia['recid'].'" class="ftt_menny'.$class.'">
                 <td>'.$energia['ktgnem_id'].'</td>
                 <td class="wrap">'.getErtek('nev', 'ktgnem', 'id', $energia['ktgnem_id']).'</td>
-                <td class="wrap">'.$energia['dijelem'].'</td>
+                <td class="wrap">'.str_replace('m3', 'm<sup>3</sup>', $energia['dijelem']).'</td>
                 <td>'.str_replace('m3', 'm<sup>3</sup>', $energia['mee']).'</td>
-                <td class="r mennyossz">'.$mennyiseg_osszesen.'</td>
-                <td class="r ertekossz">'.$ertek_osszesen.'</td>
-                <td class="r">'.$energia['ear01'].'</td>
-                <td class="r">'.$energia['em01'].'</td>
-                <td class="r ft01">'.$energia['ft01'].'</td>
-                <td class="r">'.$energia['ear02'].'</td>
-                <td class="r">'.$energia['em02'].'</td>
-                <td class="r ft02">'.$energia['ft02'].'</td>
-                <td class="r">'.$energia['ear03'].'</td>
-                <td class="r">'.$energia['em03'].'</td>
-                <td class="r ft03">'.$energia['ft03'].'</td>
-                <td class="r">'.$energia['ear04'].'</td>
-                <td class="r">'.$energia['em04'].'</td>
-                <td class="r ft04">'.$energia['ft04'].'</td>
-                <td class="r">'.$energia['ear05'].'</td>
-                <td class="r">'.$energia['em05'].'</td>
-                <td class="r ft05">'.$energia['ft05'].'</td>
-                <td class="r">'.$energia['ear06'].'</td>
-                <td class="r">'.$energia['em06'].'</td>
-                <td class="r ft06">'.$energia['ft06'].'</td>
-                <td class="r">'.$energia['ear07'].'</td>
-                <td class="r">'.$energia['em07'].'</td>
-                <td class="r ft07">'.$energia['ft07'].'</td>
-                <td class="r">'.$energia['ear08'].'</td>
-                <td class="r">'.$energia['em08'].'</td>
-                <td class="r ft08">'.$energia['ft08'].'</td>
-                <td class="r">'.$energia['ear09'].'</td>
-                <td class="r">'.$energia['em09'].'</td>
-                <td class="r ft09">'.$energia['ft09'].'</td>
-                <td class="r">'.$energia['ear10'].'</td>
-                <td class="r">'.$energia['em10'].'</td>
-                <td class="r ft10">'.$energia['ft10'].'</td>
-                <td class="r">'.$energia['ear11'].'</td>
-                <td class="r">'.$energia['em11'].'</td>
-                <td class="r ft11">'.$energia['ft11'].'</td>
-                <td class="r">'.$energia['ear12'].'</td>
-                <td class="r">'.$energia['em12'].'</td>
-                <td class="r ft12">'.$energia['ft12'].'</td>
+                <td class="r mennyossz'.$class2.'">'.$mennyiseg_osszesen.'</td>
+                <td class="r ertekossz'.$class2.'">'.$ertek_osszesen.'</td>
+                <td class="r'.$class2.'">'.$energia['ear01'].'</td>
+                <td class="r'.$class2.'">'.$energia['em01'].'</td>
+                <td class="r'.$class2.' ft01">'.$energia['ft01'].'</td>
+                <td class="r'.$class2.'">'.$energia['ear02'].'</td>
+                <td class="r'.$class2.'">'.$energia['em02'].'</td>
+                <td class="r'.$class2.' ft02">'.$energia['ft02'].'</td>
+                <td class="r'.$class2.'">'.$energia['ear03'].'</td>
+                <td class="r'.$class2.'">'.$energia['em03'].'</td>
+                <td class="r'.$class2.' ft03">'.$energia['ft03'].'</td>
+                <td class="r'.$class2.'">'.$energia['ear04'].'</td>
+                <td class="r'.$class2.'">'.$energia['em04'].'</td>
+                <td class="r'.$class2.' ft04">'.$energia['ft04'].'</td>
+                <td class="r'.$class2.'">'.$energia['ear05'].'</td>
+                <td class="r'.$class2.'">'.$energia['em05'].'</td>
+                <td class="r'.$class2.' ft05">'.$energia['ft05'].'</td>
+                <td class="r'.$class2.'">'.$energia['ear06'].'</td>
+                <td class="r'.$class2.'">'.$energia['em06'].'</td>
+                <td class="r'.$class2.' ft06">'.$energia['ft06'].'</td>
+                <td class="r'.$class2.'">'.$energia['ear07'].'</td>
+                <td class="r'.$class2.'">'.$energia['em07'].'</td>
+                <td class="r'.$class2.' ft07">'.$energia['ft07'].'</td>
+                <td class="r'.$class2.'">'.$energia['ear08'].'</td>
+                <td class="r'.$class2.'">'.$energia['em08'].'</td>
+                <td class="r'.$class2.' ft08">'.$energia['ft08'].'</td>
+                <td class="r'.$class2.'">'.$energia['ear09'].'</td>
+                <td class="r'.$class2.'">'.$energia['em09'].'</td>
+                <td class="r'.$class2.' ft09">'.$energia['ft09'].'</td>
+                <td class="r'.$class2.'">'.$energia['ear10'].'</td>
+                <td class="r'.$class2.'">'.$energia['em10'].'</td>
+                <td class="r'.$class2.' ft10">'.$energia['ft10'].'</td>
+                <td class="r'.$class2.'">'.$energia['ear11'].'</td>
+                <td class="r'.$class2.'">'.$energia['em11'].'</td>
+                <td class="r'.$class2.' ft11">'.$energia['ft11'].'</td>
+                <td class="r'.$class2.'">'.$energia['ear12'].'</td>
+                <td class="r'.$class2.'">'.$energia['em12'].'</td>
+                <td class="r'.$class2.' ft12">'.$energia['ft12'].'</td>
             </tr>
             ';
+        
     }
 
     // Új sorok kiszámítása, kirajzolása
@@ -7316,7 +7328,6 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
                 $volt_valtozas  = true;
 
                 $energia = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$sorid}'");
-// echo $adatbazis_kapcsolat->gp() . '<br>';
                 $mennyiseg_osszesen = 0;
                 $ertek_osszesen     = 0;
                 for($i=1; $i<13; $i++){
@@ -7331,50 +7342,57 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
                 $ertek_osszesen     = number_format($ertek_osszesen,  0, ',', ' ');
                 $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`id`='{$energia['ktgnem_id']}'");
 
+                $class  = '';
+                $class2 = '';
+                if(futoertek_sor($energia)){
+                    $class  .= ' futoertek';
+                    $class2 .= ' szurke';
+                }
+                
                 $szamla_html .= '
-                    <tr id="ft_em_'.$sorid.'" data-recid="'.$sorid.'" class="ftt_menny zold_hat">
+                    <tr id="ft_em_'.$sorid.'" data-recid="'.$sorid.'" class="ftt_menny zold_hat'.$class.'">
                         <td>'.$ktgnem['id'].'</td>
                         <td>'.$ktgnem['nev'].'</td>
                         <td>'.$energia['dijelem'].'</td>
                         <td>'.str_replace('m3', 'm<sup>3</sup>', $energia['mee']).'</td>
-                        <td class="r">'.$mennyiseg_osszesen.'</td>
-                        <td class="r ertekossz">'.$ertek_osszesen.'</td>
-                        <td class="r">'.$energia['ear01'].'</td>
-                        <td class="r">'.$energia['em01'].'</td>
-                        <td class="r ft01">'.$energia['ft01'].'</td>
-                        <td class="r">'.$energia['ear02'].'</td>
-                        <td class="r">'.$energia['em02'].'</td>
-                        <td class="r ft02">'.$energia['ft02'].'</td>
-                        <td class="r">'.$energia['ear03'].'</td>
-                        <td class="r">'.$energia['em03'].'</td>
-                        <td class="r ft03">'.$energia['ft03'].'</td>
-                        <td class="r">'.$energia['ear04'].'</td>
-                        <td class="r">'.$energia['em04'].'</td>
-                        <td class="r ft04">'.$energia['ft04'].'</td>
-                        <td class="r">'.$energia['ear05'].'</td>
-                        <td class="r">'.$energia['em05'].'</td>
-                        <td class="r ft05">'.$energia['ft05'].'</td>
-                        <td class="r">'.$energia['ear06'].'</td>
-                        <td class="r">'.$energia['em06'].'</td>
-                        <td class="r ft06">'.$energia['ft06'].'</td>
-                        <td class="r">'.$energia['ear07'].'</td>
-                        <td class="r">'.$energia['em07'].'</td>
-                        <td class="r ft07">'.$energia['ft07'].'</td>
-                        <td class="r">'.$energia['ear08'].'</td>
-                        <td class="r">'.$energia['em08'].'</td>
-                        <td class="r ft08">'.$energia['ft08'].'</td>
-                        <td class="r">'.$energia['ear09'].'</td>
-                        <td class="r">'.$energia['em09'].'</td>
-                        <td class="r ft09">'.$energia['ft09'].'</td>
-                        <td class="r">'.$energia['ear10'].'</td>
-                        <td class="r">'.$energia['em10'].'</td>
-                        <td class="r ft10">'.$energia['ft10'].'</td>
-                        <td class="r">'.$energia['ear11'].'</td>
-                        <td class="r">'.$energia['em11'].'</td>
-                        <td class="r ft11">'.$energia['ft11'].'</td>
-                        <td class="r">'.$energia['ear12'].'</td>
-                        <td class="r">'.$energia['em12'].'</td>
-                        <td class="r ft12">'.$energia['ft12'].'</td>
+                        <td class="r'.$class2.'">'.$mennyiseg_osszesen.'</td>
+                        <td class="r ertekossz'.$class2.'">'.$ertek_osszesen.'</td>
+                        <td class="r'.$class2.'">'.$energia['ear01'].'</td>
+                        <td class="r'.$class2.'">'.$energia['em01'].'</td>
+                        <td class="r ft01'.$class2.'">'.$energia['ft01'].'</td>
+                        <td class="r'.$class2.'">'.$energia['ear02'].'</td>
+                        <td class="r'.$class2.'">'.$energia['em02'].'</td>
+                        <td class="r ft02'.$class2.'">'.$energia['ft02'].'</td>
+                        <td class="r'.$class2.'">'.$energia['ear03'].'</td>
+                        <td class="r'.$class2.'">'.$energia['em03'].'</td>
+                        <td class="r ft03'.$class2.'">'.$energia['ft03'].'</td>
+                        <td class="r'.$class2.'">'.$energia['ear04'].'</td>
+                        <td class="r'.$class2.'">'.$energia['em04'].'</td>
+                        <td class="r ft04'.$class2.'">'.$energia['ft04'].'</td>
+                        <td class="r'.$class2.'">'.$energia['ear05'].'</td>
+                        <td class="r'.$class2.'">'.$energia['em05'].'</td>
+                        <td class="r ft05'.$class2.'">'.$energia['ft05'].'</td>
+                        <td class="r'.$class2.'">'.$energia['ear06'].'</td>
+                        <td class="r'.$class2.'">'.$energia['em06'].'</td>
+                        <td class="r ft06'.$class2.'">'.$energia['ft06'].'</td>
+                        <td class="r'.$class2.'">'.$energia['ear07'].'</td>
+                        <td class="r'.$class2.'">'.$energia['em07'].'</td>
+                        <td class="r ft07'.$class2.'">'.$energia['ft07'].'</td>
+                        <td class="r'.$class2.'">'.$energia['ear08'].'</td>
+                        <td class="r'.$class2.'">'.$energia['em08'].'</td>
+                        <td class="r ft08'.$class2.'">'.$energia['ft08'].'</td>
+                        <td class="r'.$class2.'">'.$energia['ear09'].'</td>
+                        <td class="r'.$class2.'">'.$energia['em09'].'</td>
+                        <td class="r ft09'.$class2.'">'.$energia['ft09'].'</td>
+                        <td class="r'.$class2.'">'.$energia['ear10'].'</td>
+                        <td class="r'.$class2.'">'.$energia['em10'].'</td>
+                        <td class="r ft10'.$class2.'">'.$energia['ft10'].'</td>
+                        <td class="r'.$class2.'">'.$energia['ear11'].'</td>
+                        <td class="r'.$class2.'">'.$energia['em11'].'</td>
+                        <td class="r ft11'.$class2.'">'.$energia['ft11'].'</td>
+                        <td class="r'.$class2.'">'.$energia['ear12'].'</td>
+                        <td class="r'.$class2.'">'.$energia['em12'].'</td>
+                        <td class="r ft12'.$class2.'">'.$energia['ft12'].'</td>
                     </tr>
                     ';
             }
@@ -8183,8 +8201,8 @@ function fenntartasi_terv_osszesen($sor, $ful_tomb, $sajat_szallodak){
 // Mennyiségi egyég felirat cseréjéhez használt függvény
 function mennyisegi_egyseg_konvertal($mee){
     
-    $mee = mb_strtolower($mee, get_web_charset());
-    switch($mee){
+    $mee_switchhez = mb_strtolower($mee, get_web_charset());
+    switch($mee_switchhez){
         case 'ft/hó'        : $mee = 'db';  break;
         case 'ft/bekötés/hó': $mee = 'db';  break;
         case 'ft/kw/hó'     : $mee = 'kW';  break;
@@ -8200,4 +8218,13 @@ function mennyisegi_egyseg_konvertal($mee){
     }
     
     return $mee;
+}
+
+// Kapott sor fűtőérték sor-e? Feltételt kiszervezve függvénybe
+function futoertek_sor($sor){
+    if($sor['ktgnem_id']==FUTOERTEK_KOD && $sor['mee']==FUTOERTEK_MEE && $sor['dijelem']==FUTOERTEK_DIJELEM){
+        return true;
+    }else{
+        return false;
+    }
 }

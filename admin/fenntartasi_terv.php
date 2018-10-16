@@ -462,6 +462,27 @@ if (isset($_POST['get_energia_tabla'])) {
 
         // Egységár sor lekérdezése
         $ft_energia = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_energia', "`recid`='{$id}'");
+        
+        // Ha fűtőérték sor, akkor nem szerkeszthető
+        if(futoertek_sor($ft_energia)){
+            echo json_encode(array(
+                'hiba'  => 'Fűtőérték nem szerkeszthető!',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        
+        // Ha gázfogyasztás sor, akkor nem szerkeszthető
+        if($ft_energia['ktgnem_id']==FUTOERTEK_KOD && $ft_energia['mee']==FUTOERTEK_MEE && $ft_energia['dijelem']==GAZFOGYASZTAS_DIJELEM){
+            echo json_encode(array(
+                'hiba'  => str_replace('m3', 'm<sup>3</sup>', GAZFOGYASZTAS_DIJELEM).' sor nem szerkeszthető!',
+                'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        
         $felirat = '';
         if($ft_energia['ktgnem_id']){
             $felirat = nl2('
@@ -473,33 +494,79 @@ if (isset($_POST['get_energia_tabla'])) {
         if( $ft_energia ) {
             
             // Mennyiségi egység konvertálása
-            $mee_kiir = mennyisegi_egyseg_konvertal($ft_energia['mee']);
+            $mee_kiir = str_replace('m3', 'm<sup>3</sup>', mennyisegi_egyseg_konvertal($ft_energia['mee']));
             
-            $html = nl2('
-                '.$felirat.'
-                <div class="dt egysegarak_tablazat" style="width: auto">
-                    <div class="dtr">
-                        <div class="dtc"></div>
-                        <div class="dtc">Mennyiség</div>
-                    </div>
-            ');
-
-            $osszesen = 0;
-            foreach($honapok as $key => $honap) {
-                $sorszam = sprintf('%02d', $key + 1);
-                $osszesen += $ft_energia['em'.$sorszam];
-                $html .= nl2('
-                    <div class="dtr">
-                        <div class="dtc" style="padding-right: 0.5rem;">'.$honap.'</div>
-                        <div class="dtc"><input type="text" name="em'.$sorszam.'" id="em'.$sorszam.'" class="f_num popup_mennyisegek" data-tort="2" value="'.number_format($ft_energia['em'.$sorszam], 2, ',', ' ').'"> '.$mee_kiir.'</div>
-                    </div>
+            // Speciális sor azonosítása
+            $plusz_ket_oszlop = false;
+            if( $ft_energia['ktgnem_id']==FUTOERTEK_KOD && $ft_energia['mee']==FUTOERTEK_MEE2 ){
+                $plusz_ket_oszlop = true;
+            }
+            
+            // Ha fűtőérték sorról van szó, akkor van két további oszlop
+            if($plusz_ket_oszlop){
+                
+                // Keressük meg a fűtőérték sort
+                $futoertek_sor = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$ft_energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE."' AND `dijelem`='".FUTOERTEK_DIJELEM."'");
+                
+                $html = nl2('
+                    '.$felirat.'
+                    <div class="dt egysegarak_tablazat">
+                        <div class="dtr">
+                            <div class="dtc"></div>
+                            <div class="dtc">Mennyiség</div>
+                            <div class="dtc">Fűtőérték</div>
+                            <div class="dtc">Mennyiség (m<sup>3</sup>)</div>
+                        </div>
                 ');
+
+                $osszesen = 0;
+                foreach($honapok as $key => $honap) {
+                    $sorszam = sprintf('%02d', $key + 1);
+                    $osszesen += $ft_energia['em'.$sorszam];
+                    $html .= nl2('
+                        <div class="dtr">
+                            <div class="dtc" style="padding-right: 0.5rem;">'.$honap.'</div>
+                            <div class="dtc"><input type="text" name="em'.$sorszam.'" id="em'.$sorszam.'" class="f_num popup_mennyisegek f_futoertek_mennyiseg" data-tort="2" data-sorszam="'.$sorszam.'" value="'.number_format($ft_energia['em'.$sorszam], 2, ',', ' ').'"> '.$mee_kiir.'</div>
+                            <div class="dtc"><input type="text" id="fe'.$sorszam.'" class="f_num popup_mennyisegek" value="'.number_format($futoertek_sor['ear'.$sorszam], 2, ',', ' ').'" disabled></div>
+                            <div class="dtc"><input type="text" id="fe_me'.$sorszam.'" class="f_num popup_mennyisegek" value="'.number_format($futoertek_sor['ear'.$sorszam]/$ft_energia['em'.$sorszam], 2, ',', ' ').'" disabled></div>
+                        </div>
+                    ');
+                }
+            }else{
+                $html = nl2('
+                    '.$felirat.'
+                    <div class="dt egysegarak_tablazat" style="width: auto">
+                        <div class="dtr">
+                            <div class="dtc"></div>
+                            <div class="dtc">Mennyiség</div>
+                        </div>
+                ');
+
+                $osszesen = 0;
+                foreach($honapok as $key => $honap) {
+                    $sorszam = sprintf('%02d', $key + 1);
+                    $osszesen += $ft_energia['em'.$sorszam];
+                    $html .= nl2('
+                        <div class="dtr">
+                            <div class="dtc" style="padding-right: 0.5rem;">'.$honap.'</div>
+                            <div class="dtc"><input type="text" name="em'.$sorszam.'" id="em'.$sorszam.'" class="f_num popup_mennyisegek" data-tort="2" value="'.number_format($ft_energia['em'.$sorszam], 2, ',', ' ').'"> '.$mee_kiir.'</div>
+                        </div>
+                    ');
+                }
+            }
+            
+            // Ha Fűtőérték sor, akkor kell még két cella
+            $futoertek_cella = '';
+            if($plusz_ket_oszlop){
+                $futoertek_cella .= '<div class="dtc b"></div>';
+                $futoertek_cella .= '<div class="dtc b"></div>';
             }
 
             $html .= nl2('
                     <div class="dtr">
                         <div class="dtc b" style="padding-right: 0.5rem;">Összesen</div>
-                        <div class="dtc r b"><span id="popup_tabla_osszesen_sor">'. number_format($osszesen, 0, ',', ' ').'</span> '.$mee_kiir.'</div>
+                        <div class="dtc r b" style="padding-right: 2rem;"><span id="popup_tabla_osszesen_sor">'. number_format($osszesen, 0, ',', ' ').'</span> '.$mee_kiir.'</div>
+                        '.$futoertek_cella.'
                     </div>
                 </div>
                     ');
@@ -511,7 +578,8 @@ if (isset($_POST['get_energia_tabla'])) {
         ));
     } else {
         echo json_encode(array(
-            'hiba' => 'Energia mennyiségek megadásához válasszon ki egy sort!'
+            'hiba'  => 'Energia mennyiségek megadásához válasszon ki egy sort!',
+            'title' => 'Hiba',
         ));
     }
 
@@ -570,7 +638,36 @@ if (isset($_POST['energia_tabla_ment'])) {
     // Frissítés
     $sql = $adatbazis_kapcsolat -> u('fenntartasi_terv_energia', $mit, $mire, "`recid`='{$_POST['egysegarsor_id']}'");
     if( $sql === false ) { $db_error = true; }
-
+    
+    // Ha "FUTOERTEK_MEE2"-os sor, akkor ellenőrizzük, hogy "GAZFOGYASZTAS_DIJELEM" sora van-e, ha nincs, létrehozzuk
+    if($energia['ktgnem_id']==FUTOERTEK_KOD && $energia['mee']==FUTOERTEK_MEE2){
+        
+        $futoertek_sor = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE."' AND `dijelem`='".FUTOERTEK_DIJELEM."'");
+        $ft_mj_sor     = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE2."'");
+        
+        $oszlopok = array();
+        $ertekek  = array();
+        for($i = 1; $i < 13; $i++) {
+            $sorszam = sprintf('%02d', $i);
+            $mennyiseg = str_replace(array(',', ' '), array('.', ''), $_POST['em'.$sorszam]);
+            $em  = $futoertek_sor['ear'.$sorszam]/$mennyiseg;
+            $ear = $ft_mj_sor['ear'.$sorszam]/($futoertek_sor['ear'.$sorszam]/$mennyiseg);
+            array_push($oszlopok,  'em'.$sorszam, 'ft'.$sorszam, 'ear'.$sorszam );
+            array_push($ertekek,   $em,           0,             $ear           );
+        }
+        
+        $van_gazfogy = $adatbazis_kapcsolat->s('recid', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE."' AND `dijelem`='".GAZFOGYASZTAS_DIJELEM."'");
+        if( $van_gazfogy === false ) { $db_error = true; }
+        if(!$van_gazfogy){
+            array_push($oszlopok, 'fenntartasi_terv_id',            'ktgnem_id',    'mee',          'dijelem'               );
+            array_push($ertekek,  $energia['fenntartasi_terv_id'],  FUTOERTEK_KOD,  FUTOERTEK_MEE,  GAZFOGYASZTAS_DIJELEM   );
+            $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_energia', $oszlopok, $ertekek);
+            if( $sql === false ) { $db_error = true; }
+        }else{
+            $sql = $adatbazis_kapcsolat->u('fenntartasi_terv_energia', $oszlopok, $ertekek, "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE."' AND `dijelem`='".GAZFOGYASZTAS_DIJELEM."'");
+            if( $sql === false ) { $db_error = true; }
+        }
+    }
     // Logolás
     $muvelet  = $_SESSION[get_db_tabla().'teljes_nev'].' ('.$_SESSION[get_db_tabla().'user'].') '.$_POST['uj'].' recid-jú fenntartási terv Energia fül alatt a '.$_POST['ktgnem_id'].' költségnemű sort módosította.';
     $valtozas = $adatbazis_kapcsolat->gp();
@@ -580,6 +677,7 @@ if (isset($_POST['energia_tabla_ment'])) {
                                         array( $_SESSION[get_db_tabla().'login_recid'], $muvelet,  $muvelet.' '.$valtozas,  $_SERVER['REMOTE_ADDR'])
                                     );
     if( $sql === false ) { $db_error = true; }
+
 
     if( !$db_error ) {
         mysqli_commit($db_kapcs);
@@ -2164,7 +2262,8 @@ if (isset($_POST['valtozas_jovahagyas'])) {
         if(!in_array($e_sorid, $energia_soridk)){
 
             $ear = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`energia_terv_id`='{$energia_terv['recid']}' AND `sorid`='{$e_sorid}'");
-
+            if( $ear === false ) { $db_error = true; }
+            
             $volt_energia = true;
             $oszlopok = array('ktgnem_id', 'dijelem', 'mee', 'ear01', 'ear02', 'ear03', 'ear04', 'ear05', 'ear06', 'ear07', 'ear08', 'ear09', 'ear10', 'ear11', 'ear12', 'sorid');
             $ertekek  = array();

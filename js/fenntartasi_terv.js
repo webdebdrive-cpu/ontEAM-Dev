@@ -5,6 +5,12 @@ $(document).ready(function () {
         $('.szamla_cont_tabla tbody tr').removeClass('kijelolve');
         $(this).addClass('kijelolve');
     });
+    
+    /* Mee=FUTOERTEK_MEE2 popup esetén a Mennyiség (m3) mezőket élőben ki kell számolni */
+    $(document).on('keyup blur', '.f_futoertek_mennyiseg', function(e) {
+        sorszam = $(this).attr('data-sorszam');
+        $('#fe_me'+sorszam).val( ezresek($('#fe'+sorszam).val().replace(/,/g, '.')/$(this).val().replace(/,/g, '.'), 2, ',', ' ') );
+    });
 
 });
 
