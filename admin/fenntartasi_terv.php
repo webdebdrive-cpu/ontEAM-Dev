@@ -523,12 +523,17 @@ if (isset($_POST['get_energia_tabla'])) {
                 foreach($honapok as $key => $honap) {
                     $sorszam = sprintf('%02d', $key + 1);
                     $osszesen += $ft_energia['em'.$sorszam];
+                    $fe_me = '0,00';
+
+                    if($ft_energia['em'.$sorszam] && $ft_energia['em'.$sorszam]!='0.00'){
+                        $fe_me = $futoertek_sor['ear'.$sorszam]/$ft_energia['em'.$sorszam];
+                    }
                     $html .= nl2('
                         <div class="dtr">
                             <div class="dtc" style="padding-right: 0.5rem;">'.$honap.'</div>
                             <div class="dtc"><input type="text" name="em'.$sorszam.'" id="em'.$sorszam.'" class="f_num popup_mennyisegek f_futoertek_mennyiseg" data-tort="2" data-sorszam="'.$sorszam.'" value="'.number_format($ft_energia['em'.$sorszam], 2, ',', ' ').'"> '.$mee_kiir.'</div>
                             <div class="dtc"><input type="text" id="fe'.$sorszam.'" class="f_num popup_mennyisegek" value="'.number_format($futoertek_sor['ear'.$sorszam], 2, ',', ' ').'" disabled></div>
-                            <div class="dtc"><input type="text" id="fe_me'.$sorszam.'" class="f_num popup_mennyisegek" value="'.number_format($futoertek_sor['ear'.$sorszam]/$ft_energia['em'.$sorszam], 2, ',', ' ').'" disabled></div>
+                            <div class="dtc"><input type="text" id="fe_me'.$sorszam.'" class="f_num popup_mennyisegek" value="'.number_format($fe_me, 2, ',', ' ').'" disabled></div>
                         </div>
                     ');
                 }
