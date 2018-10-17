@@ -307,7 +307,8 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
         $csonkit = 9;
     }
     $kep_utvonal = '../'.get_utvonal().csonkit($tobbkep_tablanev, $csonkit).'/'.$sor_kepek['utvonal'];
-    if(is_file($kep_utvonal)){
+// A fájl sora akkor is jelenjen meg, ha már nem létezik, hogy a dev-be átmásolt adatok esetén ha nincs ott a fájl maga, attól még jelenjen meg.
+//    if(is_file($kep_utvonal)){
         $felirat = utf8(stripslashes($sor_kepek['fajlnev']));
         $kep     = new Img($kep_utvonal, $felirat, 200, 200);
 
@@ -374,7 +375,7 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
             </li>
         ');
 
-    }
+//    }
     return $tobbkep_html;
 
 }

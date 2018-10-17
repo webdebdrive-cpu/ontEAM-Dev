@@ -1986,7 +1986,8 @@ if (isset($_POST['anyagigenylesSztornoz'])) {
                             "`recid`='$recid'");
 
     // Értesítés küldése az anyagigénylőnek
-    $hiba = level_felkeszit_es_kuld('anyagigenyles', $recid, '', 'anyagigenylesSztorno', 'anyagigenylo');
+    $ert_pipa = '-1'; // A '-1' azt jelenti, hogy az értesítési pipákat nem figyeljük, megy mindenkinek.
+    $hiba = level_felkeszit_es_kuld('anyagigenyles', $recid, $ert_pipa, 'anyagigenylesSztorno', 'anyagigenylo');
     if( $sor === false ) { $db_error = true; }
 
     if( !$db_error ) {

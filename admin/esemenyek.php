@@ -2428,7 +2428,7 @@ if( isset($_POST['tablaSorrend']) ) {
 // Mailto tartalmának kigenerálása a felső ikonsorhoz.
 if( isset($_GET['sendMail']) ) {
     $file = $_GET['file'];
-    $id   = $_GET['id'];
+    $id   = $_GET['recid'];
 
     if( $file ) {
         $return = '';
@@ -2442,7 +2442,7 @@ if( isset($_GET['sendMail']) ) {
                 if( _jog(JOG_MUNKALAP_NYITOTT_KEZEL) ){
 
                     if( $munkalap = $adatbazis_kapcsolat->s2('*', 'munkalap', "`recid` = '{$id}'") ) {
-
+                        
                         $subject = 'Munkalap '.$munkalap['ikt_szam'];
 
                         foreach($munkalap_tomb as $tomb) {

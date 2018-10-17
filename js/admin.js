@@ -1887,7 +1887,7 @@ function sendMail( that, file ) {
          	data: {
                 idk         : JSON.stringify(idk),
                 file        : file,
-                id          : _get('id'),
+                recid       : _get('id'),
                 sendMail    : new Date().getTime()
             },
          	success: function(response) {

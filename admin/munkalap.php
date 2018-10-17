@@ -2176,7 +2176,6 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             // Megjegyzés hozzáadása
             $megj = 'Javasolt kivitelező: '. getErtek('nev', 'szallito', 'id', $szallitoid).'<br>Érték: '. number_format($jh_ert, 0, '', ' ').' '.get_penznem().'<br>Érkezés: '.str_replace('-', '.', $varh_erk);
             addMegj('munkalap', $recid, $megj);
-
             // Státusz léptetés
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_DONTESRE_VAR ) ) {
                 $db_error = true;
@@ -2358,7 +2357,10 @@ if (isset($_POST['munkalapVisszaElokeszit'])) {
     if( $dontes_statusz === false ) { $db_error = true; }
     $login = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev`='{$dontes_statusz['login']}'");
     if( $login === false ) { $db_error = true; }
-    $sql = $adatbazis_kapcsolat->u('munkalap', array('szemelyzet_id', 'szallito_id', 'jh_ert'), array($login['szemelyzet_id'], '', '0'), "`recid`='{$recid}'");
+    $sql = $adatbazis_kapcsolat->u('munkalap', 
+                                            array('szemelyzet_id',          'szallito_id',  'jh_ert',   'varh_erk'              ),
+                                            array($login['szemelyzet_id'],  '',             '0',        '0000-00-00 00:00:00'   ),
+                                    "`recid`='{$recid}'");
     if( $sql === false ) { $db_error = true; }
 
     // Státusz léptetés
