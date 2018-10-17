@@ -1245,12 +1245,11 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
         $becs_ertek_text = '';
         if( $munkalap['becs_ertek'] ) {
             $becs_ertek_text = nl2('
-                                    <br><span class="piros">Becsült érték: 
-                                    <div class="cb">
-                                        <input class="check" readonly checked type="checkbox" for="popup_becs_ertek">
-                                        <label readonly="readonly" for="popup_becs_ertek"></label>
-                                    </div>
-                                    <br>A végleges költség utólagos kalkulációval lesz számítva!</span>
+                                    <br>
+                                    <span class="piros">
+                                        Becsült érték.
+                                        <br>A végleges költség utólagos kalkulációval lesz számítva!
+                                    </span>
                                 ');
         }
 
@@ -1378,8 +1377,19 @@ if( isset($_POST['munkalapKulsosJovahagy']) ) {
 // Popup tartalmába kiírjuk a ML adatait
 if( isset($_POST['get_ml_adatok']) ) {
 
-    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam telephely_id jh_ert szallito_id', 'munkalap', "`recid`='{$_POST['recid']}'");
+    $munkalap = $adatbazis_kapcsolat->s2('ikt_szam telephely_id jh_ert szallito_id becs_ertek', 'munkalap', "`recid`='{$_POST['recid']}'");
 
+    $becs_ertek_text = '';
+    if( $munkalap['becs_ertek'] ) {
+        $becs_ertek_text = nl2('
+                                <br>
+                                <span class="piros">
+                                    Becsült érték.
+                                    <br>A végleges költség utólagos kalkulációval lesz számítva!
+                                </span>
+                            ');
+    }
+    
     echo json_encode(array(
         'html'  => nl2('
                     <b style="line-height: 2.3rem">
@@ -1387,6 +1397,7 @@ if( isset($_POST['get_ml_adatok']) ) {
                         <br>Szálloda: '. getErtek('nev', 'telephely', 'id', $munkalap['telephely_id']).'
                         <br>Külső kivitelező: '.getErtek('nev', 'szallito', 'id', $munkalap['szallito_id']).'
                         <br>Jóváhagyott érték: '.number_format($munkalap['jh_ert'], 0, '', ' ').' '. get_penznem().' + Áfa
+                        '.$becs_ertek_text.'
                     </b>'
                 )
     ));
@@ -6363,7 +6374,7 @@ require('selectek.php');
                         ');
         }
 
-        // "Döntés alatt" státuszs
+        // "Döntés alatt" státusz
         if( $sor['stat_id']==MUNKALAP_STAT_DONTESRE_VAR && _jog(JOG_MUNKALAP_KULSOS_DONTES) && $sor['jh1_login']!=$_SESSION[get_db_tabla().'user'] && $sor['jh2_login']!=$_SESSION[get_db_tabla().'user'] ){
             $gombok .= '<input type="button" class="gomb" value="Külsős jóváhagyása" onclick="munkalapKulsosJovahagy(\'csak kérdezünk még\');"> ';
             $gombok .= '<input type="button" class="gomb" value="Külsős elutasítása" onclick="csoportMuvelet(\'munkalapKulsosElutasit\')"> ';

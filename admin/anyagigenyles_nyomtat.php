@@ -460,6 +460,12 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                     $szall_cim .= 'MSzK fuvar';
                 break;
             }
+            
+            $adoszam = NYOMTATAS_ADOSZAM;
+            if($anyag['telephely_id']==5411/*Gundel*/){
+                $adoszam = NYOMTATAS_ADOSZAM_GUNDEL;
+            }
+            
             $szallcim_html .= '
                             <tr style="border-collapse: collapse;border: 1px solid #ddd;">
                                 <td class="b" style="border: 1px solid #ddd; padding: 5px;">
@@ -471,7 +477,7 @@ function szallitasi_cimenkenti_lista($idk_impl, $szalloda){
                                 <td style="border: 1px solid #ddd; padding: 5px;" colspan="2">
                                     '.$szall_cim.'
                                     <br>'.$szl.' '.$cim.'
-                                    <br>'.NYOMTATAS_ADOSZAM.'
+                                    <br>'.$adoszam.'
                                     <br>'.$fix_cim.'
                                 </td>
                             </tr>

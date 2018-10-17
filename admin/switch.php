@@ -216,7 +216,7 @@ foreach($akt_tomb as $ertek){
                                     <div class=\"dtc form_jobb\">
                             ");
             }else{
-                $mezok .= '<span class="formText">'.$ertek['megn'].'</span>';
+                $mezok .= '<span class="formText'.$ertek['felirat_class'].'">'.$ertek['megn'].'</span>';
             }
 
             $mezok .= $ertek['pre'].$html.$ertek['post'];
