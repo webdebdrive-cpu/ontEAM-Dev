@@ -474,9 +474,27 @@ if (isset($_POST['get_energia_tabla'])) {
         }
         
         // Ha gázfogyasztás sor, akkor nem szerkeszthető
-        if($ft_energia['ktgnem_id']==FUTOERTEK_KOD && $ft_energia['mee']==FUTOERTEK_MEE && $ft_energia['dijelem']==GAZFOGYASZTAS_DIJELEM){
+        if($ft_energia['ktgnem_id']==FUTOERTEK_KOD && $ft_energia['mee']==FUTOERTEK_MEE3 && $ft_energia['dijelem']==GAZFOGYASZTAS_DIJELEM){
+            
+            // Ktgnem kód=5114400 + Mee=Ft/MJ 
+            $dijelemek_html = '';
+            $dijelemek = $adatbazis_kapcsolat->s('dijelem', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$ft_energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE2."'");
+            foreach($dijelemek as $dijelem){
+                $dijelemek_html .= $dijelem['dijelem'].'<br>';
+            }
+            if( count($dijelemek)==1 ){
+                $dijelemek_html = trim($dijelemek_html, '<br>').' sor';
+            }else{
+                $dijelemek_html .= 'sorok';
+            }
+            
             echo json_encode(array(
-                'hiba'  => str_replace('m3', 'm<sup>3</sup>', GAZFOGYASZTAS_DIJELEM).' sor nem szerkeszthető!',
+                'hiba'  => nl2(
+                                str_replace('m3', 'm<sup>3</sup>', GAZFOGYASZTAS_DIJELEM).' sor nem szerkeszthető!
+                                <br>
+                                <br>'.$dijelemek_html.'
+                                kitöltésekor automatikusan számítódik.
+                            '),
                 'title' => 'Hiba',
             ));
             $weblap->leallit();
@@ -526,7 +544,7 @@ if (isset($_POST['get_energia_tabla'])) {
                     $fe_me = '0,00';
 
                     if($ft_energia['em'.$sorszam] && $ft_energia['em'.$sorszam]!='0.00'){
-                        $fe_me = $futoertek_sor['ear'.$sorszam]/$ft_energia['em'.$sorszam];
+                        $fe_me = $ft_energia['em'.$sorszam]/$futoertek_sor['ear'.$sorszam];
                     }
                     $html .= nl2('
                         <div class="dtr">
@@ -655,21 +673,22 @@ if (isset($_POST['energia_tabla_ment'])) {
         for($i = 1; $i < 13; $i++) {
             $sorszam = sprintf('%02d', $i);
             $mennyiseg = str_replace(array(',', ' '), array('.', ''), $_POST['em'.$sorszam]);
-            $em  = $futoertek_sor['ear'.$sorszam]/$mennyiseg;
-            $ear = $ft_mj_sor['ear'.$sorszam]/($futoertek_sor['ear'.$sorszam]/$mennyiseg);
+
+            $em  = $mennyiseg/$futoertek_sor['ear'.$sorszam];
+            $ear = $ft_mj_sor['ear'.$sorszam]/$em;
             array_push($oszlopok,  'em'.$sorszam, 'ft'.$sorszam, 'ear'.$sorszam );
             array_push($ertekek,   $em,           0,             $ear           );
         }
         
-        $van_gazfogy = $adatbazis_kapcsolat->s('recid', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE."' AND `dijelem`='".GAZFOGYASZTAS_DIJELEM."'");
+        $van_gazfogy = $adatbazis_kapcsolat->s('recid', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE3."' AND `dijelem`='".GAZFOGYASZTAS_DIJELEM."'");
         if( $van_gazfogy === false ) { $db_error = true; }
         if(!$van_gazfogy){
             array_push($oszlopok, 'fenntartasi_terv_id',            'ktgnem_id',    'mee',          'dijelem'               );
-            array_push($ertekek,  $energia['fenntartasi_terv_id'],  FUTOERTEK_KOD,  FUTOERTEK_MEE,  GAZFOGYASZTAS_DIJELEM   );
+            array_push($ertekek,  $energia['fenntartasi_terv_id'],  FUTOERTEK_KOD,  FUTOERTEK_MEE3, GAZFOGYASZTAS_DIJELEM   );
             $sql = $adatbazis_kapcsolat->i('fenntartasi_terv_energia', $oszlopok, $ertekek);
             if( $sql === false ) { $db_error = true; }
         }else{
-            $sql = $adatbazis_kapcsolat->u('fenntartasi_terv_energia', $oszlopok, $ertekek, "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE."' AND `dijelem`='".GAZFOGYASZTAS_DIJELEM."'");
+            $sql = $adatbazis_kapcsolat->u('fenntartasi_terv_energia', $oszlopok, $ertekek, "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE3."' AND `dijelem`='".GAZFOGYASZTAS_DIJELEM."'");
             if( $sql === false ) { $db_error = true; }
         }
     }

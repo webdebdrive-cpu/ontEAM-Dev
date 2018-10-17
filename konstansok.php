@@ -342,6 +342,7 @@ define('FUTOERTEK_KOD',         '5114400'               );
 define('FUTOERTEK_MEE',         'MJ/m3'                 );
 define('FUTOERTEK_DIJELEM',     'futoertek'             );
 define('FUTOERTEK_MEE2',        'Ft/MJ'                 );
+define('FUTOERTEK_MEE3',        'Ft/m3'                 );
 define('GAZFOGYASZTAS_DIJELEM', 'Gáz fogyasztás (m3)'   );
 
 ?>

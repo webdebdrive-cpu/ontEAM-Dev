@@ -7055,7 +7055,7 @@ function level_felkeszit_es_kuld($tabla, $recid, $ert_pipa, $sablon, $cimzett, $
         $megj = 'A felhasználónak nincs e-mail címe, ezért a következő esemény nem következett be:<br>'.$megj;
     }
 
-    // Ha van megejgyzés, akkor azt hozzáadjuk
+    // Ha van megjegyzés, akkor azt hozzáadjuk
     if($megj){
         // Megjegyzés hozzáadása
         addMegj($tabla, $recid, $megj);
@@ -7224,7 +7224,7 @@ function fenntartasi_terv_energia($sor/* Fenntartás terv sora */){
 
         // Ha a gázfogyasztás sort írjuk ki, akkor azzal másképp számolunk
         $gazfogyasztas_sor = false;
-        if( $energia['ktgnem_id']==FUTOERTEK_KOD && $energia['mee']==FUTOERTEK_MEE && $energia['dijelem']==GAZFOGYASZTAS_DIJELEM ){
+        if( $energia['ktgnem_id']==FUTOERTEK_KOD && $energia['mee']==FUTOERTEK_MEE3 && $energia['dijelem']==GAZFOGYASZTAS_DIJELEM ){
             $gazfogyasztas_sor = true;
         }
         
@@ -8222,7 +8222,7 @@ function mennyisegi_egyseg_konvertal($mee){
 
 // Kapott sor fűtőérték sor-e? Feltételt kiszervezve függvénybe
 function futoertek_sor($sor){
-    if($sor['ktgnem_id']==FUTOERTEK_KOD && $sor['mee']==FUTOERTEK_MEE && $sor['dijelem']==FUTOERTEK_DIJELEM){
+    if($sor['ktgnem_id']==FUTOERTEK_KOD && $sor['mee']==FUTOERTEK_MEE && fajlnev_keszit($sor['dijelem'])==FUTOERTEK_DIJELEM){
         return true;
     }else{
         return false;

@@ -145,9 +145,14 @@ if (isset($_POST['get_egysegarak'])) {
 
         // Egységár sor lekérdezése
         $egysegar = $adatbazis_kapcsolat->s2('*', 'energia_terv_ear', "`recid`='{$id}'");
+        
+        $felirat = nl2('
+                        <b>'.getErtek('nev', 'ktgnem', 'id', $egysegar['ktgnem_id']).' kitöltése<br>Díjelem: '.$egysegar['dijelem'].'
+                        ');
 
         if( $egysegar ) {
-            $html = nl2('
+            $html .= nl2('
+                '.$felirat.'
                 <div class="dt egysegarak_tablazat">
                     <div class="dtr">
                         <div class="dtc"></div>
@@ -1443,17 +1448,25 @@ require_once('selectek.php');
 
             // Ktgnem
             $ktgnem = $adatbazis_kapcsolat->s2('id nev', 'ktgnem', "`id`='{$egysegar['ktgnem_id']}'");
+            
+            $class = '';
+            $futoertekes_sor = false;
+            if(futoertek_sor($egysegar)){
+                $class .= ' futoertek';
+                $futoertekes_sor = true;
+            }
 
             for($i = 1; $i < 13; $i++) {
                 $sorszam = sprintf('%02d', $i);
-                $egysegar['arf'.$sorszam] = number_format($egysegar['arf'.$sorszam], 5, ',', ' ');
-                $egysegar['ear'.$sorszam] = number_format($egysegar['ear'.$sorszam], 3, ',', ' ');
+                if($futoertekes_sor){
+                    $egysegar['arf'.$sorszam]  = '';
+                    $egysegar['dnem'.$sorszam] = '';
+                }else{
+                    $egysegar['arf'.$sorszam] = number_format($egysegar['arf'.$sorszam], 5, ',', ' ');
+                    $egysegar['ear'.$sorszam] = number_format($egysegar['ear'.$sorszam], 3, ',', ' ');
+                }
             }
             
-            $class = '';
-            if(futoertek_sor($egysegar)){
-                $class .= ' futoertek';
-            }
 
             $szamla_html .= '
                 <tr id="tr_ear_'.$egysegar['recid'].'" data-recid="'.$egysegar['recid'].'" class="ftt_menny'.$class.'">

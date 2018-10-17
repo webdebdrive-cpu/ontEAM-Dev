@@ -4614,6 +4614,12 @@ function kapcsolodoSzerkeszt( oldal ) {
                 return false;
 
             break;
+            case 'ft_energia_mennyiseg':
+                /* Fenntartási terv energia fülén ha egy sornak van futoertek class-ja, akkor arra a sorra meghívva a kitöltés gombot, biztosan hibaüzenetet kapunk (hogy nem szerkeszthető sor), így a popupot meg se jelenítsük. */
+                if($('.szamla_cont_tabla tr.kijelolve').hasClass('futoertek')){
+                    return false;
+                }
+            break;
             case 'megjegyzes':
                 $('#addMegjegyzes').attr('onsubmit', 'return addMegjegyzes(\'' + _get('id') + '\', this);');
             break;

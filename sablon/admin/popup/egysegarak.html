@@ -120,53 +120,53 @@
     </div>
 </form>
 <script>
-	$(document).ready(function(){
-        $.ajax({
-            url : 'energia_terv.php',
-            type: 'POST',
-            data: {
-                recid       : _get('id'),
-                get_statusz : Date.now()
-            },
-            success: function(response){
-                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                if(response){
-                    response = JSON.parse(response);
-                    if( response.hiba ) {
-                        alert2(response.hiba, response.gomb, response.title);
-                        popupZar();
-                        return false;
-                    }
+$(document).ready(function(){
+    $.ajax({
+        url : 'energia_terv.php',
+        type: 'POST',
+        data: {
+            recid       : _get('id'),
+            get_statusz : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    popupZar();
+                    return false;
                 }
             }
-        });
-
-        var id = $('.szamla_cont_tabla tr.kijelolve').attr('data-recid');
-        $.ajax({
-            url : 'energia_terv.php',
-            type: 'POST',
-            data: {
-                id: id,
-                get_egysegarak: new Date().getTime()
-            },
-            success: function(response) {
-                if(response) {
-                    response = JSON.parse(response);
-
-                    if( response.hiba ) {
-                        alert2(response.hiba, response.gomb, 'Hiba');
-                        popupZar();
-                        return false;
-                    }
-
-                    $('#egysegarsor_id').val(id);
-                    $('#setEgysegarTablazat').html(response.html);
-                    $('select[name="egysk_oszlop"]').html(response.egysk_oszlop);
-                    $('select[name="egysv_oszlop"]').html(response.egysv_oszlop);
-                }
-            }
-        });
+        }
     });
+
+    var id = $('.szamla_cont_tabla tr.kijelolve').attr('data-recid');
+    $.ajax({
+        url : 'energia_terv.php',
+        type: 'POST',
+        data: {
+            id              : id,
+            get_egysegarak  : new Date().getTime()
+        },
+        success: function(response) {
+            if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, 'Hiba');
+                    popupZar();
+                    return false;
+                }
+
+                $('#egysegarsor_id').val(id);
+                $('#setEgysegarTablazat').html(response.html);
+                $('select[name="egysk_oszlop"]').html(response.egysk_oszlop);
+                $('select[name="egysv_oszlop"]').html(response.egysv_oszlop);
+            }
+        }
+    });
+});
 
 function egysegarMuv( pre, muvelet ) {
     var ciklus  = parseInt($('select[name="' + pre + 'ciklus"]').val()),
@@ -251,6 +251,7 @@ function egysegarMentes( that ) {
                     szamlaBetolt(_get('id'), baseName(location.href) + '.php', 'egysegarak').done(function() {
                         $('.szamla_cont_tabla tr').removeClass('kijelolve');
                         $('#tr_ear_' + response.recid).addClass('kijelolve');
+                        $('#tartalomJobb .fht-tbody').scrollTop($('#tr_ear_' + response.recid+'.kijelolve').position().top);
                     });
          		}
          	}

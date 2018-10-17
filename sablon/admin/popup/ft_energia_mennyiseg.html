@@ -83,55 +83,55 @@
     </div>
 </form>
 <script>
-	$(document).ready(function(){
-        
-        /* Státusz ellenőrzése: éles már nem szerkeszthető. */
-        $.ajax({
-            url : 'fenntartasi_terv.php',
-            type: 'POST',
-            data: {
-                recid       : _get('id'),
-                get_statusz : Date.now()
-            },
-            success: function(response){
-                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-                if(response){
-                    response = JSON.parse(response);
-                    if( response.hiba ) {
-                        alert2(response.hiba, response.gomb, response.title);
-                        popupZar();
-                        return false;
-                    }
+$(document).ready(function(){
+
+    /* Státusz ellenőrzése: éles már nem szerkeszthető. */
+    $.ajax({
+        url : 'fenntartasi_terv.php',
+        type: 'POST',
+        data: {
+            recid       : _get('id'),
+            get_statusz : Date.now()
+        },
+        success: function(response){
+            if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
+            if(response){
+                response = JSON.parse(response);
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, response.title);
+                    popupZar();
+                    return false;
                 }
             }
-        });
-        
-        /* Táblázat betöltése */
-        var id = $('.szamla_cont_tabla tr.kijelolve').attr('data-recid');
-        $.ajax({
-            url : 'fenntartasi_terv.php',
-            type: 'POST',
-            data: {
-                id                  : id,
-                get_energia_tabla   : new Date().getTime()
-            },
-            success: function(response) {
-                if(response) {
-                    response = JSON.parse(response);
-
-                    if( response.hiba ) {
-                        alert2(response.hiba, response.gomb, 'Hiba');
-                        popupZar();
-                        return false;
-                    }
-
-                    $('#egysegarsor_id').val(id);
-                    $('#setEgysegarTablazat').html(response.html);
-                    $('#setEgysegarTablazat input, #setEgysegarTablazat select').first().select().focus();
-                }
-            }
-        });
+        }
     });
+
+    /* Táblázat betöltése */
+    var id = $('.szamla_cont_tabla tr.kijelolve').attr('data-recid');
+    $.ajax({
+        url : 'fenntartasi_terv.php',
+        type: 'POST',
+        data: {
+            id                  : id,
+            get_energia_tabla   : new Date().getTime()
+        },
+        success: function(response) {
+            if(response) {
+                response = JSON.parse(response);
+
+                if( response.hiba ) {
+                    alert2(response.hiba, response.gomb, 'Hiba');
+                    popupZar();
+                    return false;
+                }
+
+                $('#egysegarsor_id').val(id);
+                $('#setEgysegarTablazat').html(response.html);
+                $('#setEgysegarTablazat input, #setEgysegarTablazat select').first().select().focus();
+            }
+        }
+    });
+});
     
 function mennyisegMuv( pre, muvelet ) {
     var ciklus  = parseInt($('select[name="' + pre + 'ciklus"]').val()),

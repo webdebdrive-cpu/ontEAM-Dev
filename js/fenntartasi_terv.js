@@ -9,7 +9,7 @@ $(document).ready(function () {
     /* Mee=FUTOERTEK_MEE2 popup esetén a Mennyiség (m3) mezőket élőben ki kell számolni */
     $(document).on('keyup blur', '.f_futoertek_mennyiseg', function(e) {
         sorszam = $(this).attr('data-sorszam');
-        $('#fe_me'+sorszam).val( ezresek($('#fe'+sorszam).val().replace(/,/g, '.')/$(this).val().replace(/,/g, '.'), 2, ',', ' ') );
+        $('#fe_me'+sorszam).val( ezresek($(this).val().replace(/,/g, '.')/$('#fe'+sorszam).val().replace(/,/g, '.'), 2, ',', ' ') );
     });
 
 });
