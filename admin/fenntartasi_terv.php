@@ -668,7 +668,7 @@ if (isset($_POST['energia_tabla_ment'])) {
     if($energia['ktgnem_id']==FUTOERTEK_KOD && $energia['mee']==FUTOERTEK_MEE2){
         
         $futoertek_sor = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE."' AND `dijelem`='".FUTOERTEK_DIJELEM."'");
-        $ft_mj_sor     = $adatbazis_kapcsolat->s2('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE2."'");
+        $ft_mj_sorok   = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$energia['fenntartasi_terv_id']}' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE2."'");
         
         $oszlopok = array();
         $ertekek  = array();
@@ -676,8 +676,13 @@ if (isset($_POST['energia_tabla_ment'])) {
             $sorszam = sprintf('%02d', $i);
             $mennyiseg = str_replace(array(',', ' '), array('.', ''), $_POST['em'.$sorszam]);
 
-            $em  = $mennyiseg/$futoertek_sor['ear'.$sorszam];
-            $ear = $ft_mj_sor['ear'.$sorszam]/$em;
+            $em = $mennyiseg/$futoertek_sor['ear'.$sorszam];
+            $ft_mj_osszeg = 0;
+            foreach ($ft_mj_sorok as $ft_mj_sor){
+                $ft_mj_osszeg += str_replace(array(' '), array(''), $ft_mj_sor['ft'.$sorszam]);
+            }
+
+            $ear = $ft_mj_osszeg/$em;
             array_push($oszlopok,  'em'.$sorszam, 'ft'.$sorszam, 'ear'.$sorszam );
             array_push($ertekek,   $em,           0,             $ear           );
         }
