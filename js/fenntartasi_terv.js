@@ -9,7 +9,7 @@ $(document).ready(function () {
     /* Mee=FUTOERTEK_MEE2 popup esetén a Mennyiség (m3) mezőket élőben ki kell számolni */
     $(document).on('keyup blur', '.f_futoertek_mennyiseg', function(e) {
         sorszam = $(this).attr('data-sorszam');
-        $('#fe_me'+sorszam).val( ezresek($(this).val().replace(/,/g, '.')/$('#fe'+sorszam).val().replace(/,/g, '.'), 2, ',', ' ') );
+        $('#fe_me'+sorszam).val( ezresek($(this).val().replace(/,/g, '.').replace(/ /g, '')/$('#fe'+sorszam).val().replace(/,/g, '.').replace(/ /g, ''), 2, ',', ' ') );
     });
 
 });
@@ -225,10 +225,21 @@ $(document).on('input', 'input.popup_mennyisegek', function(e) {
     popup_tabla_osszesit();
 });
 function popup_tabla_osszesit(){
-    var popup_osszesen = 0;
+    var popup_osszesen    = 0;
+    var popup_osszesen_m3 = 0;
     $( 'input.popup_mennyisegek').each(function () {
         ertek = $(this).val().replace(/ /g, '').replace(',', '.');
         popup_osszesen += Number(ertek);
     });
     $('#popup_tabla_osszesen_sor').html(ezresek(popup_osszesen, 0, ',', ' '));
+    
+    /* Mennyiség m3 sorok ha vannak, akkor ott is összesítsünk 
+     * Azért nem a Mennyiség m3 inputból olvassuk ki a már kiszámolt értéket, mert lehet hogy az még nem számolódott ki. Konkrétan emiatt tényleg rosszul számolt. */
+    $( 'input.popup_mennyisegek').each(function () {
+        ertek   = $(this).val().replace(/ /g, '').replace(',', '.');
+        f_ertek = $('#'+$(this).attr('id').replace('em', 'fe')).val().replace(/ /g, '').replace(',', '.');
+        popup_osszesen_m3 += Number(ertek/f_ertek);
+    });
+    $('#popup_tabla_osszesen_sor_m3').html(ezresek(popup_osszesen_m3, 2, ',', ' '));
+    
 }

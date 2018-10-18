@@ -537,21 +537,23 @@ if (isset($_POST['get_energia_tabla'])) {
                         </div>
                 ');
 
-                $osszesen = 0;
+                $osszesen    = 0;
+                $osszesen_m3 = 0;
                 foreach($honapok as $key => $honap) {
                     $sorszam = sprintf('%02d', $key + 1);
                     $osszesen += $ft_energia['em'.$sorszam];
                     $fe_me = '0,00';
 
                     if($ft_energia['em'.$sorszam] && $ft_energia['em'.$sorszam]!='0.00'){
+                        $osszesen_m3 += ($ft_energia['em'.$sorszam]/$futoertek_sor['ear'.$sorszam]);
                         $fe_me = $ft_energia['em'.$sorszam]/$futoertek_sor['ear'.$sorszam];
                     }
                     $html .= nl2('
                         <div class="dtr">
                             <div class="dtc" style="padding-right: 0.5rem;">'.$honap.'</div>
                             <div class="dtc"><input type="text" name="em'.$sorszam.'" id="em'.$sorszam.'" class="f_num popup_mennyisegek f_futoertek_mennyiseg" data-tort="2" data-sorszam="'.$sorszam.'" value="'.number_format($ft_energia['em'.$sorszam], 2, ',', ' ').'"> '.$mee_kiir.'</div>
-                            <div class="dtc"><input type="text" id="fe'.$sorszam.'" class="f_num popup_mennyisegek" value="'.number_format($futoertek_sor['ear'.$sorszam], 2, ',', ' ').'" disabled></div>
-                            <div class="dtc"><input type="text" id="fe_me'.$sorszam.'" class="f_num popup_mennyisegek" value="'.number_format($fe_me, 2, ',', ' ').'" disabled></div>
+                            <div class="dtc"><input type="text" id="fe'.$sorszam.'" class="f_num" value="'.number_format($futoertek_sor['ear'.$sorszam], 2, ',', ' ').'" disabled></div>
+                            <div class="dtc"><input type="text" id="fe_me'.$sorszam.'" class="f_num popup_mennyisegek_m3" value="'.number_format($fe_me, 2, ',', ' ').'" disabled></div>
                         </div>
                     ');
                 }
@@ -582,7 +584,7 @@ if (isset($_POST['get_energia_tabla'])) {
             $futoertek_cella = '';
             if($plusz_ket_oszlop){
                 $futoertek_cella .= '<div class="dtc b"></div>';
-                $futoertek_cella .= '<div class="dtc b"></div>';
+                $futoertek_cella .= '<div class="dtc r b" style="padding-right: 3rem"><span id="popup_tabla_osszesen_sor_m3">'. number_format($osszesen_m3, 2, ',', ' ').'</span></div>';
             }
 
             $html .= nl2('
@@ -2032,10 +2034,10 @@ if (isset($_POST['fenntartasterv_veglegesit_jovahagyva_ell'])) {
 
     $volt_valtozas  = false;
     $energia_soridk = array();
-    $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}'");
+    // A gázfogyasztásos sorral ne számoljunk
+    $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}' AND !(`dijelem`='".GAZFOGYASZTAS_DIJELEM."' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE3."')");
     if( $energiak === false ) { $db_error = true; }
     foreach($energiak as $energia){
-
         // Innen tujduk majd, hogy mik az új sorok
         array_push($energia_soridk, $energia['sorid']);
 
@@ -2121,7 +2123,7 @@ if (isset($_POST['fenntartasterv_veglegesit'])) {
 
     $volt_valtozas  = false;
     $energia_soridk = array();
-    $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}'");
+    $energiak = $adatbazis_kapcsolat->s('*', 'fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}' AND !(`dijelem`='".GAZFOGYASZTAS_DIJELEM."' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE3."')");
     if( $energiak === false ) { $db_error = true; }
     foreach($energiak as $energia){
 
@@ -2268,15 +2270,17 @@ if (isset($_POST['valtozas_jovahagyas'])) {
                 array_push($valtozott_oszlop, 'ear'.$i              );
                 array_push($valtozott_ertek,  $energia_ear['ear'.$i]);
             }
-            if($valtozott_oszlop){
-                $sql = $adatbazis_kapcsolat->u('fenntartasi_terv_energia', $valtozott_oszlop, $valtozott_ertek, "`fenntartasi_terv_id`='{$recid}' AND `sorid`='{$energia['sorid']}'");
-                if( $sql === false ) { $db_error = true; }
-            }
+        }
+        array_push($valtozott_oszlop, 'dijelem'              );
+        array_push($valtozott_ertek,  $energia_ear['dijelem']);
+        if($valtozott_oszlop){
+            $sql = $adatbazis_kapcsolat->u('fenntartasi_terv_energia', $valtozott_oszlop, $valtozott_ertek, "`fenntartasi_terv_id`='{$recid}' AND `sorid`='{$energia['sorid']}'");
+            if( $sql === false ) { $db_error = true; }
         }
 
         // Megszűnt sor törlése
         if( !in_array($energia['sorid'], $eear_soridk) ){
-            $sql = $adatbazis_kapcsolat->d('fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}' AND `sorid`='{$energia['sorid']}'");
+            $sql = $adatbazis_kapcsolat->d('fenntartasi_terv_energia', "`fenntartasi_terv_id`='{$recid}' AND `sorid`='{$energia['sorid']}' AND !(`dijelem`='".GAZFOGYASZTAS_DIJELEM."' AND `ktgnem_id`='".FUTOERTEK_KOD."' AND `mee`='".FUTOERTEK_MEE3."')");
             if( $sql === false ) { $db_error = true; }
         }
     }
