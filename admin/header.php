@@ -679,6 +679,8 @@ $header_html .= '<body'.$body_class;
         $header_html .=' onload="if(document.getElementById(\'id\')){document.getElementById(\'id\').focus();}"';
     // Többképes képfeltöltésnél ugrás a képekhez
     }
+    
+    // Ha nem demo-n vagyunk, akkor a jobbklikket tiltjuk!
     if( $_SERVER['HTTP_HOST'] != 'demo.webdeb.hu' ) {
         $header_html .=' oncontextmenu="return false;" ';
     }

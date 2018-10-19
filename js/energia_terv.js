@@ -41,6 +41,7 @@ function addSzallodaEnergia( recid, that ) {
                     szamlaBetolt( _get('id'), baseName(location.href) + '.php', 'egysegarak' ).done(function() {
                         $('.szamla_cont_tabla tr').removeClass('kijelolve');
                         $('#tr_ear_' + recid).addClass('kijelolve');
+                        $('#tartalomJobb .fht-tbody').scrollTop($('#tr_ear_' + recid+'.kijelolve').position().top);
                     });
 
          		}

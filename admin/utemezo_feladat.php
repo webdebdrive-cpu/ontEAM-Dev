@@ -114,7 +114,7 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
             $esnap_d = getnextvaliddate(false, $esem_d, $ut_feladat['cikltip'], $ut_feladat['ciklaltip'], $ut_feladat['ciklszorz'], $ut_feladat['ciklho'], $ut_feladat['ciklhet'], $ut_feladat['ciklnap'], $ut_feladat['idoszakos'], $ut_feladat['kezdho'], $ut_feladat['kezdnap'], $ut_feladat['vegeho'], $ut_feladat['vegenap'], $aktkezd_d, $aktvege_d);
 
             $esnap_d = str_replace('.', '-', $esnap_d);
-            // Ha ez egy múltbeli dátum, akkor az esnap_d mezőbe 3000-01-01-et írunk
+            // Ha ez egy múltbeli dátum (ez azt jelenti, hogy az ütmező rosszul számolt, tehát programhiba volt), akkor az esnap_d mezőbe 3000-01-01-et írunk
             if($esnap_d<date('Y-m-d')){
                 $esnap_d = '3000-01-01';
             }

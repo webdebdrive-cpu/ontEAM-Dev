@@ -8,6 +8,7 @@ var KEY_DOWN   =  40;
 var KEY_PLUS   =  107;
 var KEY_MINUS  =  109;
 var KEY_F5     =  116;
+var KEY_F12    =  123;
 
 var EGYSEGAR_VALASZT = 'Kérjük válasszon egységár sort!';
 
@@ -358,6 +359,17 @@ $(function() {
         $('body').removeClass('noselect');
     });
 
+    /* F12 tiltása */
+    if( window.location.hostname!='demo.webdeb.hu' ){
+        $(document).keydown(function (event) {
+            if (event.keyCode == 123) {
+                return false;
+            } else if (event.ctrlKey && event.shiftKey && (event.keyCode == 73 || event.keyCode == 67)) {
+                return false;
+            }
+        });
+    }
+
     /* Billentyű leütés figyelés */
     $(document).on('keyup', function(e) {
 
@@ -365,6 +377,7 @@ $(function() {
         if( e.keyCode == KEY_F5 ) {
             szurkit('mentés mégsem gombot is rejtsd el');
         }
+        
 
         /* Léptetés lefele nyíllal, lépkedve le fel */
         if( e.keyCode == KEY_UP || e.keyCode == KEY_DOWN ) {
