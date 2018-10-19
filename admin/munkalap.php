@@ -2184,8 +2184,14 @@ if( isset($_POST['kulsokivHozzarend']) ) {
                                                 "`recid` = '{$recid}'");
             if( $sql === false ) { $db_error = true; }
 
+            // Ha becsült érték, az a megjegyzésbe is kerüljön be
+            $megj_kieg = '';
+            if($becs_ertek){
+                $megj_kieg .= ' <span class="piros">(becsült érték)</span>';
+            }
+            
             // Megjegyzés hozzáadása
-            $megj = 'Javasolt kivitelező: '. getErtek('nev', 'szallito', 'id', $szallitoid).'<br>Érték: '. number_format($jh_ert, 0, '', ' ').' '.get_penznem().'<br>Érkezés: '.str_replace('-', '.', $varh_erk);
+            $megj = 'Javasolt kivitelező: '. getErtek('nev', 'szallito', 'id', $szallitoid).'<br>Érték: '. number_format($jh_ert, 0, '', ' ').' '.get_penznem().$megj_kieg.'<br>Érkezés: '.str_replace('-', '.', $varh_erk);
             addMegj('munkalap', $recid, $megj);
             // Státusz léptetés
             if( !addStatusz( 'munkalap_statusz', $recid, MUNKALAP_STAT_DONTESRE_VAR ) ) {
@@ -6741,6 +6747,17 @@ require('selectek.php');
             }
         }
 
+        // Becsült érték pipát megjelenítjük, ha be van pipálva
+        if($sor['becs_ertek']){
+            $szamla_html .= nl2('
+                <script>
+                $(document).ready(function () {
+                    $(\'.f_becsult_ertek\').removeClass(\'dn\');
+                });
+                </script>
+                ');
+        }
+        
         // Diszpécser a sürgős pipát mégis eléri
         if($sor['stat_id']==MUNKALAP_STAT_FELVEVE ){
             $szamla_html .= nl2('

@@ -1980,6 +1980,10 @@ if (isset($_POST['anyagigenylesSztornoz'])) {
     if( addStatusz('anyagigenyles_statusz', $recid, CIKKIGN_STAT_TOROLT, '', $memo) === false ){
         $db_error = true;
     }
+    
+    // Indoklás kerüljön be a Megjegyzésekhez is
+    addMegj('anyagigenyles', $recid, $memo);
+    
     // Illetve update
     $adatbazis_kapcsolat->u('anyagigenyles',    array('rndid', 'rnd_dt', 'kepfajl', 'update_usr',                           'aparecid'       ),
                                                 array($rndid,  'NOW()',  '',        $_SESSION[get_db_tabla().'teljes_nev'], $cikkrendfej_id  ),

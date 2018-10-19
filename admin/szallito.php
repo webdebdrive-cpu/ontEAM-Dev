@@ -49,6 +49,54 @@ if($tobb_kep){
 
 }
 
+// Szállítókód ellenőrzése (nem foglat-e, helyes-e?) 
+if (isset($_POST['szallitokod_ell'])) {
+    
+    // Hossz ellenőrzése
+    if(strlen($_POST['id'])!=SZALLITOKOD_HOSSZ){
+        echo json_encode(array(
+            'hiba'  => 'A szállítókód hozza '.SZALLITOKOD_HOSSZ.' karakter legyen!',
+            'gomb'  => '<input type="button" value="Ok" class="gomb" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Numerikus-e?
+    if(!is_numeric($_POST['id'])){
+        echo json_encode(array(
+            'hiba'  => 'A szállítókód csak számokat tartalmazhat!',
+            'gomb'  => '<input type="button" value="Ok" class="gomb" onclick="szurkit_zar(\'mégsem mehet mutat\'); alert2();">',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    // Szabad-e még?
+    $foglalt_id = $adatbazis_kapcsolat->s('id', 'szallito', "`id`='{$_POST['id']}'");
+    if($foglalt_id){
+        echo json_encode(array(
+            'hiba'  => 'Ez a szállítókód már foglalt!',
+            'title' => 'Hiba',
+        ));
+
+        $weblap->leallit();
+        exit();
+    }
+    
+    echo json_encode(array(
+        'siker'  => '1'
+    ));
+
+    $weblap->leallit();
+    exit();
+
+}
+
 // CSV generálása
 if (isset($_GET['csv'])) {
 
@@ -188,16 +236,18 @@ require_once('selectek.php');
         );
     }
 
+    
     $js_submit_elott = 'return form_ell_admin();';
 
     // Gombok kirajzolása minden oldalra
     $gombok = '';
     if( isset($_GET['uj']) && _jog(JOG_PARTNERTORZS_OLVAS) ) {
+        
 
         // Gombok
         $gombok .= nl2('
             <div class="form_kuldes">
-                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); $(\'#szerk_form\').submit()">
+                <input type="button" class="gombb mentes_gomb" name="mehet_gomb" id="mehet_gomb" disabled value="Mentés" onclick="szurkit(\'mehet_megsem_rejt\'); szallitokod_ell();">
                 <input type="button" class="gomb piros" disabled id="megsem_gomb" value="Mégsem" onclick="szurkit(\'mehet_megsem_rejt\'); formModositva=false; szamlaBetolt($(\'#szamlaList li:first-of-type\').attr(\'data-recid\'), \''.$megnevezes.'.php\');">
             </div>
         ');
@@ -214,10 +264,37 @@ require_once('selectek.php');
             <div class="muveletek"'.$muv_style.'>
                 '.$gombok.'
             </div>
+            <script>
+            function szallitokod_ell(){
+                $.ajax({
+                    url : \'szallito.php\',
+                    type: \'POST\',
+                    data: {
+                        id              : $(\'#id\').val(),
+                        szallitokod_ell : Date.now()
+                    },
+                    success: function (response) {
+                        if (response) {
+                            response = JSON.parse(response);
+                            if (response.hiba) {
+                                alert2(response.hiba, response.gomb, response.title);
+                                return false;
+                            }
+                            
+                            if (response.siker) {
+                                $(\'#szerk_form\').submit();
+                            }
+
+                        }
+                    }
+                });
+            }
+            </script>
         ');
 
     // Módosítás gombok
     } else {
+        
 
         // Js, a törlés gombhoz
 	    $gombok = '<script>var gomb'.$_GET['id'].'= get_kibont_torol(\''.self().'\', \''.$torles.'\', \''.$_GET['id'].'\');</script>';

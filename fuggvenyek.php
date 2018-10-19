@@ -518,6 +518,15 @@ function i_u($type, $tabla, $tomb) {
             array_push($oszlopok, 'loginnev'                        );
             array_push($ertekek,   $_SESSION[get_db_tabla().'user'] );
 
+        // Szállítók esetén ellenőrizni, hogy az ID nem foglalt-e
+        } else if( $tabla == 'rendszeres_karbantartas' ) {
+            $id_foglalt = $adatbazis_kapcsolat->s('id', $tabla, "`id`='{$_POST['id']}'");
+            if( $id_foglalt === false ) { $db_error = true; }
+            
+            if($id_foglalt){
+                exit;
+            }
+            
         }
 
 		$id = $adatbazis_kapcsolat -> insert($tabla, $oszlopok, $ertekek);

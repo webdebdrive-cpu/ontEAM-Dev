@@ -2,8 +2,9 @@
 // Általános konstansok
 define('NYOMTATAS_ADOSZAM',         '10219522-2-44' );
 define('NYOMTATAS_ADOSZAM_GUNDEL',  '10505898-2-42' );
-define('NYOMTATAS_FIX_CIM',         1040     );
-define('NYOMTATAS_KIVETELES_CIM',   2032     );
+define('NYOMTATAS_FIX_CIM',         1040            );
+define('NYOMTATAS_KIVETELES_CIM',   2032            );
+define('SZALLITOKOD_HOSSZ',         5               );
 
 // Státuszok
 // Bejelentés státuszok

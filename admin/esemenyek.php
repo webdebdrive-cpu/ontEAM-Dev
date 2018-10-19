@@ -945,7 +945,7 @@ if( _jog( JOG_PARTNERTORZS_NEV_SZERK ) ){
 }
 $megnevezes = 'szallito';
 $szallito_tomb = $akt_tomb = array(
-    array('type' => 'text',        'megn' => 'Szállító kód:',   'name' => 'id',     'szuro' => 1,     'disabled' => $disabled_szerk,  'maxlength' => 10, 'class' => 'kicsi',   'alert' => 'Kérem töltse ki az ID mezőt!', 'onkeyup' => 'ertekFoglalt({ID}this.value, \'szallito\', \'id\')', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
+    array('type' => 'text',        'megn' => 'Szállító kód:',   'name' => 'id',     'szuro' => 1,     'disabled' => $disabled_szerk,  'maxlength' => SZALLITOKOD_HOSSZ, 'class' => 'f_csakszam', 'style' => 'width: 5rem;',   'alert' => 'Kérem töltse ki az ID mezőt!', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
     array('type' => 'checkbox',    'megn' => 'Aktív:',          'name' => 'aktiv',  'szuro' => 1,     'show' => true, 'class' => 'check'),
 	array('type' => 'text',        'megn' => 'Név:',            'name' => 'nev',    'szuro' => 1,     'disabled' => $nev_disabled,  'maxlength' => 250, 'class' => 'oriasi', 'alert' => 'Kérem töltse ki a megnevezést!',      'show' => true),
 	array('type' => 'text',        'megn' => 'Irsz:',           'name' => 'isz',    'szuro' => 1,     'maxlength' => 250, 'class' => 'kicsi', 'osszevon' => 1, 'post' => '<span style="margin-left: 4rem"></span>'),
@@ -1234,7 +1234,7 @@ $munkalap_tomb = $munkalap_arch_tomb = $akt_tomb = array(
     array('type' => 'autocomplete',             'megn' => 'Típus:',                     'name' => 'tipus_id',           'szuro' => 1, 'disabled' => $csakUjkent.$ub_disabled,        'class' => 'kozepes disableNav', 'style' => 'width: 30rem', 'tabla' => 'erteklista', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'info', 'listaz' => 'info', 'csoport' => ERTEKLISTA_MUNKALAP_TIP, 'id_kiir' => 'id', 'alert' => 'Kérjük adja meg a tipust!'),
     array('type' => 'autocomplete',             'megn' => 'Külső kivitelező:',          'name' => 'szallito_id',        'szuro' => 1, 'disabled' => 1,                  'class' => 'oriasi disableNav', 'tabla' => 'szallito', 'oszlop_keres' => 'id', 'oszlop_keres_autocomp' => 'nev', 'listaz' => 'nev', 'id_kiir' => 'id', 'style' => 'width: 30rem', 'post' => '<span style="margin-right: 3rem"></span>', 'osszevon' => true),
     array('type' => 'text',                     'megn' => 'Jóváhagyott érték:',         'name' => 'jh_ert',             'szuro' => 1, 'disabled' => 1, 'style' => 'width: 8rem; text-align: right;', 'post' => ' '.get_penznem().' + Áfa<span style="margin-right: 3rem"></span>', 'osszevon' => true),
-    array('type' => 'checkbox',                 'megn' => 'Becsült érték:',             'name' => 'becs_ertek',         'szuro' => 1, 'disabled' => 1, 'felirat_class' => ' piros'),
+    array('type' => 'checkbox',                 'megn' => 'Becsült érték:',             'name' => 'becs_ertek',         'szuro' => 1, 'disabled' => 1, 'felirat_class' => ' piros dn f_becsult_ertek'), // Alapból elrejtjük, és csak akkor jelenítjük meg, ha be van pipálva (munkalap forráskódjában van erre külön kód)
     array('type' => 'select_szemelyzet',        'megn' => 'Hozzárendelt személyzet:',   'name' => 'szemelyzet_id',      'szuro' => 1, 'disabled' => 1,                  'class' => 'disableNav',        'post'  => ' '.$hozrend_mobilnev),
     array('type' => 'text',                     'megn' => 'Igényelt elvégzés:',         'name' => 'ig_el_id',           'szuro' => 1, 'disabled' => $csakUjkent,        'class' => 'datetimepicker', 'maxlength' => 16, 'osszevon' => 1, 'post' => '<span style="margin-right: 4rem"></span>'),
     array('type' => 'text',                     'megn' => 'Esedékes:',                  'name' => 'esnap_d',            'szuro' => 1, 'disabled' => 1,                  'class' => 'datepicker'),
@@ -4024,29 +4024,6 @@ if( isset($_GET['addSzalloda']) ) {
             echo json_encode(array(
                 'statusz' => 'hiba',
                 'uzi'     => 'Felhasználó azonosítása nem sikerült!'
-            ));
-        }
-    }
-
-    $weblap->leallit();
-    exit();
-}
-
-if( isset($_GET['ertekFoglalt']) ) {
-    $value = $_GET['value'];
-    $tabla = $_GET['tabla'];
-    $mezo  = $_GET['mezo'];
-
-    if( $value && $tabla && $mezo ) {
-        $sor = $adatbazis_kapcsolat->s($mezo, $tabla, $mezo.'='.$value, '', '1');
-
-        if( $sor ) {
-            echo json_encode(array(
-                'uzi' => 'Ez az érték már foglalt!'
-            ));
-        } else {
-            echo json_encode(array(
-                'uzi' => ''
             ));
         }
     }

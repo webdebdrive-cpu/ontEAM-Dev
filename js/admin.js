@@ -5972,26 +5972,6 @@ function bal_panel_frissit( php, recid, obj ) {
     });
 }
 
-function ertekFoglalt(originVal, value, tabla, mezo) {
-    if( originVal != value && value && tabla && mezo ) {
-        $.ajax({
-         	url : 'esemenyek.php',
-         	type: 'GET',
-         	data: esamp2es('value=' + value + '&amp;tabla=' + tabla + '&amp;mezo=' + mezo + '&amp;ertekFoglalt=' + new Date().getTime()),
-         	success: function(response) {
-                if(response.substring(0, 6)=='SESKIL'){ location.href = 'index.php'; }
-         		if(response) {
-         			response = JSON.parse(response);
-
-                    if( response.uzi ) {
-                        alert2(response.uzi);
-                    }
-         		}
-         	}
-         });
-    }
-}
-
 function htmlspecialchars_decode(string, quoteStyle) {
     if(string){
         var optTemp = 0;

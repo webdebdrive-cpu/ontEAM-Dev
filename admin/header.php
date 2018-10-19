@@ -667,13 +667,7 @@ if( in_array(basename(self()), $_SESSION['ketHasabos']) && $_SESSION[get_db_tabl
 $header_html .= '<body'.$body_class;
     // Új feltöltésnél a név mezőn legyen a fókusz
     if( isset($_GET['uj']) ) {
-        if( basename(self()) == 'ktghely.php' || basename(self()) == 'ktgnem.php' ) {
-            $header_html .=' onload="if(document.getElementById(\'id\')){document.getElementById(\'id\').focus();}"';
-        } else if( basename(self()) == 'bejelentes.php' && isset($_GET['manualisan']) ) {
-            $header_html .=' onload="if(document.getElementById(\'usr_nev\')){document.getElementById(\'usr_nev\').focus();}"';
-        } else {
-            $header_html .=' onload="if(document.getElementById(\'nev\')){document.getElementById(\'nev\').focus();}"';
-        }
+        // Új feltöltésnél az űrlap első aktív mezőjére fókuszálunk, ez a form_uj.html végén van beállítva.
     // Listánál a gyoskeresőn legyen a fókusz
     } elseif( isset($_GET['lista']) ) {
         $header_html .=' onload="if(document.getElementById(\'id\')){document.getElementById(\'id\').focus();}"';
