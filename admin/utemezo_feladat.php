@@ -101,17 +101,18 @@ for($i_ciklus=0; $i_ciklus<2; $i_ciklus++){
         // Ha nem határidős (azaz ciklikus), akkor futtatjuk ütemező programot, ami visszaadja következő esedékességet
         if($ut_feladat['cikltip']!='l'){
 
-            $esem_d     = substr(str_replace('-', '.', $ut_feladat['esem_d']), 0, 10);
+            $esem_d     = substr(str_replace('-', '.', $ut_feladat['esem_d']),  0, 10);
+            $esnap_d    = substr(str_replace('-', '.', $ut_feladat['esnap_d']), 0, 10);
             $aktkezd_d  = str_replace('-', '.', $ut_feladat['aktkezd_d']);
             $aktvege_d  = str_replace('-', '.', $ut_feladat['aktvege_d']);
 
             // Logolás
-            $log_tmp = "recid:$ut_feladat[recid] getnextvaliddate(false, $esem_d, $ut_feladat[cikltip], $ut_feladat[ciklaltip], $ut_feladat[ciklszorz], $ut_feladat[ciklho], $ut_feladat[ciklhet], $ut_feladat[ciklnap], $ut_feladat[idoszakos], $ut_feladat[kezdho], $ut_feladat[kezdnap], $ut_feladat[vegeho], $ut_feladat[vegenap], $aktkezd_d, $aktvege_d) \r\n";
+            $log_tmp = "recid:$ut_feladat[recid] getnextvaliddate(false, $esnap_d, $ut_feladat[cikltip], $ut_feladat[ciklaltip], $ut_feladat[ciklszorz], $ut_feladat[ciklho], $ut_feladat[ciklhet], $ut_feladat[ciklnap], $ut_feladat[idoszakos], $ut_feladat[kezdho], $ut_feladat[kezdnap], $ut_feladat[vegeho], $ut_feladat[vegenap], $aktkezd_d, $aktvege_d) \r\n";
             $log .= $log_tmp;
             file_put_contents($log_utvonal, $log_tmp, FILE_APPEND | LOCK_EX);
      //echo $esnap_d . "recid:$ut_feladat[recid] getnextvaliddate(false, $esem_d, $ut_feladat[cikltip], $ut_feladat[ciklaltip], $ut_feladat[ciklszorz], $ut_feladat[ciklho], $ut_feladat[ciklhet], $ut_feladat[ciklnap], $ut_feladat[idoszakos], $ut_feladat[kezdho], $ut_feladat[kezdnap], $ut_feladat[vegeho], $ut_feladat[vegenap], $aktkezd_d, $aktvege_d) <br><br>";
 
-            $esnap_d = getnextvaliddate(false, $esem_d, $ut_feladat['cikltip'], $ut_feladat['ciklaltip'], $ut_feladat['ciklszorz'], $ut_feladat['ciklho'], $ut_feladat['ciklhet'], $ut_feladat['ciklnap'], $ut_feladat['idoszakos'], $ut_feladat['kezdho'], $ut_feladat['kezdnap'], $ut_feladat['vegeho'], $ut_feladat['vegenap'], $aktkezd_d, $aktvege_d);
+            $esnap_d = getnextvaliddate(false, $esnap_d, $ut_feladat['cikltip'], $ut_feladat['ciklaltip'], $ut_feladat['ciklszorz'], $ut_feladat['ciklho'], $ut_feladat['ciklhet'], $ut_feladat['ciklnap'], $ut_feladat['idoszakos'], $ut_feladat['kezdho'], $ut_feladat['kezdnap'], $ut_feladat['vegeho'], $ut_feladat['vegenap'], $aktkezd_d, $aktvege_d);
 
             $esnap_d = str_replace('.', '-', $esnap_d);
             // Ha ez egy múltbeli dátum (ez azt jelenti, hogy az ütmező rosszul számolt, tehát programhiba volt), akkor az esnap_d mezőbe 3000-01-01-et írunk

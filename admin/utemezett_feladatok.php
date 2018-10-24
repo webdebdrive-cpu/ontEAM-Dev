@@ -56,7 +56,10 @@ if($tobb_kep){
 
 // Mentés előtt popupban megmutatjuk, mi lesz az ütemezés
 if (isset($_GET['datumra_utemezes'])) {
+    
+    echo datumra_utemezes_popup($megnevezes);
 
+    /*
     include('datumra_utemezes.php');
 
     // Üres értékeket 0-val adjunk át
@@ -141,7 +144,7 @@ if (isset($_GET['datumra_utemezes'])) {
                 'esedekes'  => $esedekes
             )
         );
-
+*/
     $weblap -> leallit();
     exit();
 

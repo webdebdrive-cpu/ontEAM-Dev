@@ -50,6 +50,9 @@ if($tobb_kep){
 
 // Ez itt nincs használva, mert itt csak egy dátummal dolgozunk
 //if (isset($_GET['datumra_utemezes'])) {
+//
+//    echo datumra_utemezes_popup($megnevezes); <= Ha visszaaktiválnánk, akkor célszerű volna itt ezt használni, ahogy azt a rendszeres_karbantartas.php is teszi
+//
 //    include('datumra_utemezes.php');
 //
 //    $sor = $adatbazis_kapcsolat->s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
