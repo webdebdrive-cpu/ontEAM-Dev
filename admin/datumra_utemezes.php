@@ -4,6 +4,7 @@ define("DATEFORMAT", "Y.m.d");
 
 function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $cciklho, $cciklhet, $cciklnap, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d)
 {
+
 	$dnext = $dlast;
 	$dlast = null;
 	$i = 0;
@@ -31,12 +32,11 @@ function getnextvaliddate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, 
 		$i = $i + 1;
 		$dlast = $dnext;
 		$dnext = null;
-		$dlast = getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $cciklho, $cciklhet, $cciklnap);
 
+		$dlast = getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $cciklho, $cciklhet, $cciklnap);
 		if($dlast<0){
             $dlast = '000.00.00';
         }
- 
         $dnext = validnextdate($dlast, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cvegenap, $daktkezd_d, $daktvege_d);
 		$lstart = true; // ha elsőnek kiszámolt esedékesség érvénytelen, újrakezdjük esedékesség számítását mai naptól
 		if ($i == 100)  // ha végtelen ciklusba keveredne
@@ -65,7 +65,6 @@ function validnextdate($dnext, $nidoszakos, $ckezdho, $ckezdnap, $cvegeho, $cveg
 	//$nev = date("Y", strtotime($dnext)); // Ez magyar dátum formátumnál sajnos nem jó
 	$date = DateTime::createFromFormat(DATEFORMAT, $dnext);
 	$nev = $date->format("Y");
-
     // A $nev változót itt most felülírjuk, mert a fenti esetben nem kapott rendes értéket, ha havi rendszerességű és időszakos ütemezés volt beállítva
     // Ezt mégsem tesszük meg: $nev = date('Y', strtotime( str_replace('.', '-', $dnext) ) );
     // $nev = date('Y', strtotime( str_replace('.', '-', $dnext) ) );
@@ -149,6 +148,7 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 	, ez után visszakapott dátumról még el kell dönteni, hogy beleesik-e intervallumba
 	dlast: dátum ami UTÁN a legközelebbi esedékességet keressük
 	*/
+
 	if ($lstart)
 	{
 
@@ -157,7 +157,6 @@ function getnextdate($lstart, $dlast, $ccikltip, $cciklaltip, $nciklszorz, $ccik
 		ha m.dlast jövőbeni, akkor lehet esedékes ezért az előző nappal kezdjük
 		(azaz, az első ütemezhető nap m.dlast vagy date()+1)*/
 		$dlast = max(dateadd ($dlast, -1, 0, 0), date(DATEFORMAT, time())); 
-
 		/*
 		ütemezés 0 ciklusszorzóval:
 		, m.dlasthoz legközelebbi dátumot adja vissza (lehet előtte és utána is)*/
@@ -225,9 +224,9 @@ function getnextdate_w ( $nciklszorz, $nciklho, $nciklhet, $cciklnap, $dlast)
 {
 	$ndow = dowFormStringdate($dlast);
 
+
 	$cciklnap = trim($cciklnap);
 	$nnapok = strlen($cciklnap);
-	
 	//Local anap(m.nnapok)
 	
 	for ($i = 0; $i < $nnapok; $i++)
@@ -413,7 +412,6 @@ function dateadd ($stringdate, $days, $months, $years)
 
 function dowFormStringdate($stringdate)
 {
-
 	$date = DateTime::createFromFormat(DATEFORMAT, $stringdate);
 	$returnvalue = $date->format('N') % 7;
 	return $returnvalue;

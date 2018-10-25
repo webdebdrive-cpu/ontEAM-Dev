@@ -8250,7 +8250,7 @@ function datumra_utemezes_popup($megnevezes){
     global $adatbazis_kapcsolat;
     
     include('datumra_utemezes.php');
-
+    
     // Üres értékeket 0-val adjunk át
     $sor = $adatbazis_kapcsolat->s2('*', $megnevezes, "`recid`='{$_GET['id']}'");
     foreach($sor as $kulcs => $ertek){
@@ -8259,6 +8259,13 @@ function datumra_utemezes_popup($megnevezes){
         }
     }
     
+    if($_GET['aktkezd_d']=='    .  .  '){
+        $_GET['aktkezd_d'] = '0000.00.00';
+    }
+    if($_GET['aktvege_d']=='    .  .  '){
+        $_GET['aktvege_d'] = '0000.00.00';
+    }
+
     $utemezes = 'Folyamatos';
     if($_GET['idoszakos']){
         if($_GET['aktkezd_d']>'0000.00.00' && $_GET['aktkezd_d']>'0000.00.00'){
@@ -8295,13 +8302,13 @@ function datumra_utemezes_popup($megnevezes){
     $esnap_d    = str_replace('-', '.', $_GET['esnap_d']);
     $aktkezd_d  = str_replace('-', '.', $_GET['aktkezd_d']);
     $aktvege_d  = str_replace('-', '.', $_GET['aktvege_d']);
-// $szamla_html .= "esemd: $esem_d<br>cikltip: $_GET[cikltip]<br>ciklaltip: $_GET[ciklaltip]<br>ciklszorz: $_GET[ciklszorz_]<br>ciklho: $_GET[ciklho]<br>ciklhet: $_GET[ciklhet]<br>ciklnap: $_GET[ciklnap]<br>idoszakos: $_GET[idoszakos]<br>kezdho: $_GET[kezdho]<br>kezdnap: $_GET[kezdnap]<br>vegeho: $_GET[vegeho]<br>vegenap: $_GET[vegenap]<br>aktkezd_d: $aktkezd_d<br>aktvege_d: $aktvege_d";
 
     // $getnextvaliddate = getnextvaliddate(false, $_GET['esem_d'], $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz_'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $_GET['idoszakos'], $_GET['kezdho'], $_GET['kezdnap'], $_GET['vegeho'], $_GET['vegenap'], $aktkezd_d, $aktvege_d);
     $esedekes = $_GET['esnap_d'];
-    
+
+//echo "$esem_d, $_GET[cikltip], $_GET[ciklaltip], $_GET[ciklszorz_], $_GET[ciklho], $_GET[ciklhet], $_GET[ciklnap], $_GET[idoszakos], $_GET[kezdho], $_GET[kezdnap], $_GET[vegeho], $_GET[vegenap], $aktkezd_d, $aktvege_d";
     if(!$esedekes || $esedekes=='0000.00.00' || $esedekes>'4000.00.00'/* Az $esedekes == '    .  .  ' feltétel sehogy sem működött*/){
-        $getnextvaliddate = getnextvaliddate(false, $esem_d, $sor['cikltip'], $sor['ciklaltip'], $sor['ciklszorz'], $sor['ciklho'], $sor['ciklhet'], $sor['ciklnap'], $sor['idoszakos'], $sor['kezdho'], $sor['kezdnap'], $sor['vegeho'], $sor['vegenap'], $aktkezd_d, $aktvege_d);
+        $getnextvaliddate = getnextvaliddate(false, $esem_d, $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz_'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $_GET['idoszakos'], $_GET['kezdho'], $_GET['kezdnap'], $_GET['vegeho'], $_GET['vegenap'], $aktkezd_d, $aktvege_d);
         $esedekes = $getnextvaliddate;
     }
 
@@ -8311,6 +8318,7 @@ function datumra_utemezes_popup($megnevezes){
 //    }else{
         $getnextvaliddate = $esedekes;
     //}
+
 
     $szamla_html .= '<br>Szabály: ' . getcimke( $_GET['cikltip'], $_GET['ciklaltip'], $_GET['ciklszorz_'], $_GET['ciklho'], $_GET['ciklhet'], $_GET['ciklnap'], $getnextvaliddate);
     $szamla_html .= '<br>Ütemezés: ' . $utemezes;

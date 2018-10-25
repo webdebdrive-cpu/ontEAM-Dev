@@ -19,7 +19,8 @@ if(isset($_GET['info'])){
 require_once('../weblap.php');
 
 if (isset($_GET['teszt'])) {
-    echo date('Y-m-d H:i:s');
+    include('datumra_utemezes.php');
+    var_dump(getnextvaliddate(false, '    .  .  ', 'w', '0', '2', '0', '0', '2', '0', '0', '0', '0', '0', '0000.00.00', '0000.00.00'));
     exit;
 }
 

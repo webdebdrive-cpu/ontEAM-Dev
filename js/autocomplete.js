@@ -39,6 +39,7 @@
                 szemelyzet_id   : '',                   /* Munkaidő ráfodítás név hozzáadásánál kell                        */
                 szuros          : '',                   /* Ha a szűrőben hívtuk meg, akkor azt ezen keresztül tudjuk jelezni*/
                 tabla           : '',                   /* Adatbázis tábla, amiben keresünk                                 */
+                complete        : function() {}         /* Miután kiválasztottunk egy értéket, le tudunk futtatni még JS kódokat. */
             };
 
             var van_uj_erteke = false;
@@ -302,6 +303,9 @@
                     if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                         mezo_nev = mezo.attr('name').replace('_autocomp', '');
                         $('input[name="' + mezo_nev + '"]').val(recid);
+                        
+                        /* Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása */
+                        options.complete();
 
                         var form = $('input[name="' + mezo_nev + '"]').parents('form');
                         /* Lehet nem egy űrlapon vagyunk, hanem egy alert2-ben, ebben keressünk inputot */
@@ -358,12 +362,10 @@
             $(this).keypress(function(e) {
                 if($(this).val() == '') {
                     if(e.keyCode==KEY_ENTER) {
-                        /* $("#autocomplete").css({'display':'none'}).html(''); */
                         return false;
                     }
                 } else if($('#autocomplete').css('display') == 'block') {
                     if(e.keyCode==KEY_ENTER) {
-                        /* $("#autocomplete").css({'display':'none'}).html(''); */
                         return false;
                     }
                 }
@@ -477,6 +479,9 @@
                             if( mezo.attr('name').indexOf('_autocomp') !== -1 ) {
                                 mezo_nev = mezo.attr('name').replace('_autocomp', '');
                                 $('input[name="' + mezo_nev + '"]').val(recid);
+                                
+                                /* Egy érték kiválasztásakor mi fusson le. Lehessen paraméterként átadni egy függvényt vagy bármilyen JS kódot, ami akkor fut le, ha megvan az érték kiválasztása */
+                                options.complete();
 
                                 var form = $('input[name="' + mezo_nev + '"]').parents('form');
 

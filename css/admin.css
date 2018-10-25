@@ -3480,10 +3480,9 @@ div.respo_felh .menu_icon span:before, div.respo_felh .menu_icon span:after {
     width: 13.2rem;
 }
 
-#fixTable {
+input.popup_input_margo {
+    margin: 0.2rem 0 0.8rem 0;
 }
-
-/* @group Reset */
 
 .fht-table,
 .fht-table thead,
@@ -3559,4 +3558,3 @@ div.respo_felh .menu_icon span:before, div.respo_felh .menu_icon span:after {
     margin-right: 1.7rem;
 }
 
-/* @end */

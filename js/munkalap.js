@@ -967,3 +967,66 @@ function munkalapVisszaElokeszit() {
 
     return false;
 }
+
+/* Külső kivitelező kiválasztásakor a mailcímét másoljuk a mailküldés címzett mezőjébe */
+function get_szallito_mailcim(){
+    $.ajax({
+        url : 'munkalap.php',
+        type: 'POST',
+        data: {
+            szallito_id             : $('#szallito_id').val(),
+            get_szallito_mailcim    : Date.now()
+        },
+        success: function(response){
+            if(response){
+                $('#pop_cimzett').val(response);
+            }
+        }
+    });
+}
+
+/* Külső kivitelező hozzárendelés popup inputjait be kell állítani, alapértemlezett értékekkel feltölteni */
+function get_kulso_hozzarendeles_input_tartalmak(){
+    
+    /* Datepicker beállítása */
+    $('.pop_datetimepicker').datetimepicker({
+        closeOnDateSelect   : false,
+        format              :'Y.m.d H:i',
+        mask                : '\xa0\xa0\xa0\xa0.\xa0\xa0.\xa0\xa0\xa0\xa0:\xa0\xa0',
+        timepicker          : true,
+        step                : 60,
+        validateOnBlur      : false,
+        scrollInput         : false,
+        defaultTime         : '08:00',
+        minDate             : 0,
+        onChangeDateTime    : function(dp, $input){
+            /* Órapontosak vagyunk */
+            $input.val( $input.val().substring(0, 14)+'00' );
+        }
+    });
+    
+    /* Levélküldés mezőinek alapértelmezett értékének beállítsa */
+    $('#pop_targy').val( $('#ikt_szam').val()+' '+$('#telephely_id option:selected').text()+' ' );
+    
+    uzenet =    "Tisztelt Partnerünk,\n\n"                      +
+                "Kérjük Önöktől az alábbi hiba javítását:\n\n"  +
+                "Munkalap szám: "+$('#ikt_szam').val()+"\n\n";
+    if( $('#surgos').prop('checked') ){
+        uzenet += "Sürgős !!!\n\n";
+    }
+    uzenet +=   "Hiba: "     +$('#text').val()+"\n\n"           +
+                "Hely: "     +$('#obj_id_autocomp').val()+"\n\n"+
+                "Bejelentő: "+$('#letrehozta').html()+"\n\n"    +
+                "Köszönettel,\n"                                +
+                $('#akt_felhasznalo_nev').html()+"\n"           +
+                $('#akt_felhasznalo_szerepkor').html()+"\n"     +
+                "Telefonszám: ";
+    /* Ha belépett felhasználó szerepköre diszpécser */
+    if( $('#akt_felhasznalo_szerepkor_id').html()==10 ){
+        uzenet += $('#akt_felhasznalo_diszpecser_tel').html();
+    }else{
+        uzenet += $('#akt_felhasznalo_telefon').html();
+    }
+    
+    $('#pop_uzenet').val(uzenet);
+}

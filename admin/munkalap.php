@@ -597,6 +597,91 @@ if( isset($_POST['munkalapKulso']) ) {
             $weblap->leallit();
             exit();
         }
+        
+        // Ha van levélküldés, akkor ellenőrizzük a többi mezőt is
+        if($_POST['email']){
+            if(!trim($_POST['cimzett'])){
+                echo json_encode(array(
+                    'hiba'  => 'Kérjük adja meg a címzett email címét!',
+                    'title' => 'Hiba',
+                    'focus' => 'pop_cimzett',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+            
+            // Ha több malcím is van, de vessző nincs, akkor szólunk
+            if(substr_count($_POST['cimzett'], '@')>1 && strpos($_POST['cimzett'], ',')===false){
+                echo json_encode(array(
+                    'hiba'  => 'Több címzett esetén a mailcímeket vesszővel sorolja fel!',
+                    'title' => 'Hiba',
+                    'focus' => 'pop_cimzett',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+            
+            // Mailcímek helyességének ellenőrzése
+            $mailcimek = explode(',', $_POST['cimzett']);
+            array_push($mailcimek, MSZK_MAILCIM); // Így az MSZK is kap értesítő levelet
+            foreach($mailcimek as $mailcim){
+                if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
+                    echo json_encode(array(
+                        'hiba'  => 'Helytelen email cím: '.$mailcim,
+                        'title' => 'Hiba',
+                        'focus' => 'pop_cimzett',
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+            if(!trim($_POST['targy'])){
+                echo json_encode(array(
+                    'hiba'  => 'Kérjük töltse ki az email tárgyát!',
+                    'title' => 'Hiba',
+                    'focus' => 'pop_targy',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+            if(!trim($_POST['uzenet'])){
+                echo json_encode(array(
+                    'hiba'  => 'Kérjük töltse ki a email üzenetét!',
+                    'title' => 'Hiba',
+                    'focus' => 'pop_uzenet',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+            
+            // Email adatainak letárolása
+            $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'cimzett',         'targy',         'text',            'insert_dt', 'insert_usr'                           ),
+                                                                array($recid,        $_POST['cimzett'], $_POST['targy'], $_POST['uzenet'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        );
+            if( $sql === false ) { $db_error = true; }
+            
+            foreach($mailcimek as $mailcim){
+                $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), '', $mailcim, $_POST['targy'], $_POST['uzenet']);
+                if($sikeres_kuldes){
+                    // Ha nem volt sikeres a levélküldés, mit tegyünk?
+                }
+            }
+            
+        // Ha nincs levélküldés, akkor rákérdezünk, hogy biztosan nem szerettek volna levelet küldeni?
+        }elseif(!$_POST['mehet']){
+            echo json_encode(array(
+                'hiba'  => 'Nem küldött email megrendelést.<br>Folytatja?',
+                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#mehet_mail_nelkul\').val(\'1\'); $(\'#munkalapKulso\').submit();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
+                'title' => 'Kérdés',
+            ));
+            $weblap->leallit();
+            exit();
+        }
 
         // Külső kivitelező hozzárendelése
         $sql = $adatbazis_kapcsolat -> u('munkalap',
@@ -2087,7 +2172,7 @@ if (isset($_POST['volt_mar_dontesre_var'])) {
 // Munkalap Javaslattétel
 if( isset($_POST['kulsokivHozzarend']) ) {
     $recid      = $_POST['recid'];
-    $szallitoid = $_POST['szallitoid'];
+    $szallitoid = $_POST['szallito_id'];
     $jh_ert     = (int) str_replace(array(' '), array(''), $_POST['jh_ert']);
     $varh_erk   = str_replace(array('.'), array('-'), $_POST['varh_erk']);
     $becs_ertek = ($_POST['becsult_ertek'] == 'true' ? 1 : 0 );
@@ -2123,6 +2208,91 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             echo json_encode(array(
                 'hiba'  => 'Önnek nincs joga külső kivitelezőt hozzárendelni!',
                 'title' => 'Hiba',
+            ));
+            $weblap->leallit();
+            exit();
+        }
+        
+        // Ha van levélküldés, akkor ellenőrizzük a többi mezőt is
+        if($_POST['email']){
+            if(!trim($_POST['cimzett'])){
+                echo json_encode(array(
+                    'hiba'  => 'Kérjük adja meg a címzett email címét!',
+                    'title' => 'Hiba',
+                    'focus' => 'pop_cimzett',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+            
+            // Ha több malcím is van, de vessző nincs, akkor szólunk
+            if(substr_count($_POST['cimzett'], '@')>1 && strpos($_POST['cimzett'], ',')===false){
+                echo json_encode(array(
+                    'hiba'  => 'Több címzett esetén a mailcímeket vesszővel sorolja fel!',
+                    'title' => 'Hiba',
+                    'focus' => 'pop_cimzett',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+            
+            // Mailcímek helyességének ellenőrzése
+            $mailcimek = explode(',', $_POST['cimzett']);
+            array_push($mailcimek, MSZK_MAILCIM); // Így az MSZK is kap értesítő levelet
+            foreach($mailcimek as $mailcim){
+                if(trim($mailcim) && !is_valid_mail(trim($mailcim))){
+                    echo json_encode(array(
+                        'hiba'  => 'Helytelen email cím: '.$mailcim,
+                        'title' => 'Hiba',
+                        'focus' => 'pop_cimzett',
+                    ));
+
+                    $weblap->leallit();
+                    exit();
+                }
+            }
+            if(!trim($_POST['targy'])){
+                echo json_encode(array(
+                    'hiba'  => 'Kérjük töltse ki az email tárgyát!',
+                    'title' => 'Hiba',
+                    'focus' => 'pop_targy',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+            if(!trim($_POST['uzenet'])){
+                echo json_encode(array(
+                    'hiba'  => 'Kérjük töltse ki a email üzenetét!',
+                    'title' => 'Hiba',
+                    'focus' => 'pop_uzenet',
+                ));
+
+                $weblap->leallit();
+                exit();
+            }
+            
+            // Email adatainak letárolása
+            $sql = $adatbazis_kapcsolat->i('munkalap_email',    array('munkalap_id', 'cimzett',         'targy',         'text',            'insert_dt', 'insert_usr'                           ),
+                                                                array($recid,        $_POST['cimzett'], $_POST['targy'], $_POST['uzenet'],  'NOW()',     $_SESSION[get_db_tabla().'teljes_nev'] )
+                                        );
+            if( $sql === false ) { $db_error = true; }
+            
+            foreach($mailcimek as $mailcim){
+                $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), '', $mailcim, $_POST['targy'], $_POST['uzenet']);
+                if($sikeres_kuldes){
+                    // Ha nem volt sikeres a levélküldés, mit tegyünk?
+                }
+            }
+            
+        // Ha nincs levélküldés, akkor rákérdezünk, hogy biztosan nem szerettek volna levelet küldeni?
+        }elseif(!$_POST['mehet']){
+            echo json_encode(array(
+                'hiba'  => 'Nem küldött email megrendelést.<br>Folytatja?',
+                'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#mehet_mail_nelkul\').val(\'1\'); $(\'#munkalapKulso\').submit();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
+                'title' => 'Kérdés',
             ));
             $weblap->leallit();
             exit();
@@ -5755,6 +5925,16 @@ if (isset($_POST['munkalapSztornoz'])) {
     exit();
 }
 
+// Szállító maicílmének lekérdezése átadás poupban
+if (isset($_POST['get_szallito_mailcim'])) {
+    
+    $szallito = $adatbazis_kapcsolat->s2('email', 'szallito', "`id`='{$_POST['szallito_id']}'");
+    echo $szallito['email'];
+    
+    $weblap->leallit();
+    exit();
+}
+
 // CSV generálása
 if (isset($_GET['csv'])) {
 
@@ -5901,6 +6081,17 @@ if (isset($_GET['csv'])) {
     $weblap->leallit();
     exit();
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 // Tartalom

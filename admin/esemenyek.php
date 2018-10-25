@@ -1205,7 +1205,7 @@ if(isset($_GET['modosit'])){
     }
     if(!$van_bejelentes){
         $login = $adatbazis_kapcsolat->s2('teljes_nev usertel usermail', 'login', "`nev`='{$munkalap['loginnev']}'");
-        $ml_leiras_ala = '<br>Létrehozta: <b>'.$login['teljes_nev'].'</b> ';
+        $ml_leiras_ala = '<br>Létrehozta: <b id="letrehozta">'.$login['teljes_nev'].'</b> ';
         if($login['usertel']){
             $ml_leiras_ala .= '<span style="margin-left: 2rem"></span>Telefon: <a href="tel:'.$login['usertel'].'">'.$login['usertel'].'</a>';
         }
