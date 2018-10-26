@@ -137,6 +137,7 @@
                         if( this.responseText == 'frissit' ) {
                             if(fajlok_kesz == fajlok.length) {
                                 szamlaBetolt(_get('id'), 'munkalap.php', 'dokumentumok');
+                                $('#jsff_javaslattetel_popup progress').hide();
                             }
                         } else {
                             if(this.responseText.substring(0,5)=='Hiba!') {
@@ -147,6 +148,7 @@
                                 }
                             }else{
                                 $('#feltoltott_fajl').append(this.responseText);
+                                $('#jsff_javaslattetel_popup progress').hide();
                                 if (fajlok_kesz == fajlok.length){
                                     minden_fajl_kesz_javaslattetel_popup();
                                 }
@@ -155,6 +157,7 @@
                             if(fajlok_kesz == fajlok.length){
                                 if( voltmar.length ) {
                                     fajl_feluliras_alert_javaslattetel_popup(voltmar);
+                                    $('#jsff_javaslattetel_popup progress').hide();
                                 }
                             }
                         }
@@ -183,6 +186,8 @@
                 for (var i = 0; i < tomb.length; i++){
                     nevek += '<p>' + tomb[i].name + '</p>';
                 }
+                
+                $('#jsff_javaslattetel_popup progress').hide();
 
                 felulirando_fajlok = tomb;
                 alert2(nevek, '<input class="gomb zold" value="Igen" onclick="fajl_feluliras_javaslattetel_popup();" type="button"><input class="gomb piros" value="Nem" onclick="alert2()" type="button">', 'Hiba');
@@ -270,7 +275,7 @@ function kulsokivHozzarend() {
         data: {
             recid            : _get('id'),
             validate         : 'false',
-            szallitoid       : $('#pop_szallito_id').val(),
+            szallito_id      : $('#pop_szallito_id').val(),
             jh_ert           : $('#pop_jh_ert').val(),
             varh_erk         : $('#pop_varh_erk').val(),
             becsult_ertek    : $('#pop_becsult_ertek').prop('checked'),

@@ -1014,12 +1014,29 @@ function get_kulso_hozzarendeles_input_tartalmak(){
     if( $('#surgos').prop('checked') ){
         uzenet += "Sürgős !!!\n\n";
     }
-    uzenet +=   "Hiba: "     +$('#text').val()+"\n\n"           +
-                "Hely: "     +$('#obj_id_autocomp').val()+"\n\n"+
-                "Bejelentő: "+$('#letrehozta').html()+"\n\n"    +
+    
+    if( $('#ml_bejelentese_hiba').length ){
+        hiba = $('#ml_bejelentese_hiba').html().replace(/<br>/g, "\n").replace(/&amp;/g, '&');
+    }else{
+        hiba = $('#text').val();
+    }
+    if( $('#ml_bejelentese_hely').length ){
+        hely = $('#ml_bejelentese_hely').html().replace(/<br>/g, "\n").replace(/&amp;/g, '&');
+    }else{
+        hely = $('#obj_id_autocomp').val();
+    }
+    if( $('#ml_bejelentese_bejelento').length ){
+        bejelento = $('#ml_bejelentese_bejelento').html().replace(/<br>/g, "\n").replace(/&amp;/g, '&');
+    }else{
+        bejelento = $('#letrehozta').html() + "\n" + $('#usertel').html() + "\n" + $('#usermail').html();
+    }
+    
+    uzenet +=   "Hiba: "      + hiba      + "\n\n"              +
+                "Hely: "      + hely      + "\n\n"              +
+                "Bejelentő: " + bejelento + "\n\n"              +
                 "Köszönettel,\n"                                +
-                $('#akt_felhasznalo_nev').html()+"\n"           +
-                $('#akt_felhasznalo_szerepkor').html()+"\n"     +
+                $('#akt_felhasznalo_nev').html()        + "\n"  +
+                $('#akt_felhasznalo_szerepkor').html()  + "\n"  +
                 "Telefonszám: ";
     /* Ha belépett felhasználó szerepköre diszpécser */
     if( $('#akt_felhasznalo_szerepkor_id').html()==10 ){

@@ -337,7 +337,11 @@ function get_tobbkep_thumb($sor_kepek, $i, $tabla) {
 
         $sor_kepek['fajlnev'] = htmlspecialchars($sor_kepek['fajlnev']);
 
-        $azon    = 'kep'.$sor_kepek['recid'];
+        $id_kieg = '';
+        if($_POST['megnevezes']=='javaslattetel_popup'){
+            $id_kieg = '_jt_popup';
+        }
+        $azon = 'kep'.$id_kieg.$sor_kepek['recid'];
 
         // Csak az törölheti, aki feltöltötte (ha archivum, akkor meg más senki)
         $torles = '';

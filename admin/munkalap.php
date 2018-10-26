@@ -2214,7 +2214,7 @@ if( isset($_POST['kulsokivHozzarend']) ) {
         }
         
         // Ha van levélküldés, akkor ellenőrizzük a többi mezőt is
-        if($_POST['email']){
+        if($_POST['email'] && !isset($_POST['javaslattetel'])){
             if(!trim($_POST['cimzett'])){
                 echo json_encode(array(
                     'hiba'  => 'Kérjük adja meg a címzett email címét!',
@@ -2282,13 +2282,21 @@ if( isset($_POST['kulsokivHozzarend']) ) {
             
             foreach($mailcimek as $mailcim){
                 $sikeres_kuldes = level_kuldes(get_nev(), get_mail(), '', $mailcim, $_POST['targy'], $_POST['uzenet']);
+                // Ha nem volt sikeres a levélküldés, akkor is megállítjuk a működést
                 if($sikeres_kuldes){
-                    // Ha nem volt sikeres a levélküldés, mit tegyünk?
+                    mysqli_rollback($db_kapcs);
+                    echo json_encode(array(
+                        'hiba'  => a_az($mailcim, 'Nagybetűs').' '.$mailcim.' címre történő levélküldés közben hiba történt!',
+                        'title' => 'Hiba'
+                    ));
+
+                    $weblap->leallit();
+                    exit();
                 }
             }
             
         // Ha nincs levélküldés, akkor rákérdezünk, hogy biztosan nem szerettek volna levelet küldeni?
-        }elseif(!$_POST['mehet']){
+        }elseif(!$_POST['mehet'] && !isset($_POST['javaslattetel'])){
             echo json_encode(array(
                 'hiba'  => 'Nem küldött email megrendelést.<br>Folytatja?',
                 'gomb'  => '<input type="button" class="gomb zold" value="Igen" onclick="$(\'#mehet_mail_nelkul\').val(\'1\'); $(\'#munkalapKulso\').submit();"><input type="button" class="gomb piros" value="Nem" onclick="alert2()">',
@@ -2545,8 +2553,8 @@ if (isset($_POST['munkalapVisszaElokeszit'])) {
     $login = $adatbazis_kapcsolat->s2('szemelyzet_id', 'login', "`nev`='{$dontes_statusz['login']}'");
     if( $login === false ) { $db_error = true; }
     $sql = $adatbazis_kapcsolat->u('munkalap', 
-                                            array('szemelyzet_id',          'szallito_id',  'jh_ert',   'varh_erk'              ),
-                                            array($login['szemelyzet_id'],  '',             '0',        '0000-00-00 00:00:00'   ),
+                                            array('szemelyzet_id',          'szallito_id', 'becs_ertek', 'jh_ert',   'varh_erk'              ),
+                                            array($login['szemelyzet_id'],  '',            '0',          '0',        '0000-00-00 00:00:00'   ),
                                     "`recid`='{$recid}'");
     if( $sql === false ) { $db_error = true; }
 
@@ -6909,8 +6917,8 @@ require('selectek.php');
 // HA MÉGIS KELLENE A TÖRLÉS, AKKOR A naploSor-nak adj egy "kijSor" class-t.
                     $szamla_html .= nl2('
                         <div id="naploSor-'.$sor['recid'].'" class="dtr nSor" data-id="'.$sor['recid'].'" data-i="'.$i.'">
-                            <div class="dtc vat">'.$hiba.'<br>'.nl2br2($sor['hiba_text']).'</div>
-                            <div class="dtc vat">
+                            <div class="dtc vat" id="ml_bejelentese_hiba">'.$hiba.'<br>'.nl2br2($sor['hiba_text']).'</div>
+                            <div class="dtc vat" id="ml_bejelentese_hely">
                                 '.$telephely.'
                                 <br>'.$helyseg.'
                                 <br>'.nl2br2($sor['helyiseg_text']).'
@@ -6920,7 +6928,7 @@ require('selectek.php');
                                 <br>'.datum_kiir($sor['insert_dt']).'
                                 <br>'.getStatText('bejelentes', $sor['stat_id']).'
                             </div>
-                            <div class="dtc vat">
+                            <div class="dtc vat" id="ml_bejelentese_bejelento">
                                 '.$sor['usr_nev'].'
                                 <br>'.erteklista(ERTEKLISTA_BEOSZTAS, $sor['usr_beosztas_id']).'
                                 <br>'.erteklista(ERTEKLISTA_RESZLEG, $sor['usr_reszleg_id']).'

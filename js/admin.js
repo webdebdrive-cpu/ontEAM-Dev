@@ -4396,7 +4396,6 @@ function jobbOldalEltuntet( sorok ) {
 
 /* Kapcsoló táblák - fülek alatti rekordok - törlése általános függvénye */
 function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
-
     /* Ha van konkrét ID? akkor azt a sort töröljuk (pl. munkalapok adatlapján a bejelentések sorai) */
     if(konkret_id){
         var idk       = {konkret_id};
@@ -4418,10 +4417,13 @@ function mellekTorol( tabla, mellek, mellekre_valt, konkret_id ) {
 
     }
 
-    /* Javaslattétle poupban sor eltűntetése  */
+    /* Ha javaslattétel popuban vagyunk, akkor ott 'kep_jt_popup' a kép LI sor ID prefixe, próbáljuk meg azt is kihalványítani. */
+    $('#kep_jt_popup'+konkret_id).fadeOut();
+    /* Javaslattétel poupban sor eltűntetése  */
     if(mellekre_valt=='javaslattetel'){
         $('#kep'+konkret_id).fadeOut();
     }
+    
 
     /* Ha vannak olyan ideiglenes soraink (aminek az Id-ja UJ), azokat elég csak eltűnteni
       Pl.: Projektigénylésnél a cash-flow */

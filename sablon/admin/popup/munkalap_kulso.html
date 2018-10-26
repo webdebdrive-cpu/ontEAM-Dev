@@ -28,19 +28,20 @@
                     <br><strong>Email megrendelés adatai:</strong>
                     <br>
                     <br><strong>Címzett:</strong>
-                    <br><input type="text" id="pop_cimzett" class="oriasi disableNav popup_input_margo csillag" maxlength="250">
+                    <br><input type="text" id="pop_cimzett" class="oriasi disableNav popup_input_margo" maxlength="250">
                     <br><strong>Tárgy:</strong>
-                    <br><input type="text" id="pop_targy" class="oriasi disableNav popup_input_margo csillag" maxlength="250">
+                    <br><input type="text" id="pop_targy" class="oriasi disableNav popup_input_margo" maxlength="250">
                     <br><strong>Üzenet:</strong>
-                    <br><textarea id="pop_uzenet" class="popup_input_margo csillag"></textarea>
-                    <br><input type="button" class="gomb popup_input_margo" onclick="$('#email_kuldessel').val('1'); $('#munkalapKulso').submit();" value="Email küldése partnernek">
-                    <input type="hidden" id="email_kuldessel" value="0">
-                    <input type="hidden" id="mehet_mail_nelkul" value="0">
+                    <br><textarea id="pop_uzenet" class="popup_input_margo"></textarea>
+                    <br>
                 </div>
             </div>
         </div>
     </div>
     <div class="kuldes">
+        <input type="hidden" id="email_kuldessel" value="0">
+        <input type="hidden" id="mehet_mail_nelkul" value="0">
+        <input type="button" class="gomb popup_input_margo" onclick="$('#email_kuldessel').val('1'); $('#munkalapKulso').submit();" value="Email küldése partnernek">
         <input type="submit" name="elkuld" value="Mentés">
         <input type="button" name="megsem" class="gombb_alert" value="Mégsem" onclick="popupZar();">
     </div>
